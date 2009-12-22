@@ -26,6 +26,7 @@
 
 #include "database.h"
 #include "brass_dbstats.h"
+#include "brass_inverter.h"
 #include "brass_positionlist.h"
 #include "brass_postlist.h"
 #include "brass_record.h"
@@ -301,16 +302,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 /** A writable brass database.
  */
 class BrassWritableDatabase : public BrassDatabase {
-	/** Unflushed changes to term frequencies and collection frequencies. */
-	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >
-		freq_deltas;
-
-	/** Document lengths of new and modified documents which haven't been flushed yet. */
-	mutable map<Xapian::docid, Xapian::termcount> doclens;
-
-	/// Modifications to posting lists.
-	mutable map<string, map<Xapian::docid,
-				pair<char, Xapian::termcount> > > mod_plists;
+	mutable Inverter inverter;
 
 	mutable map<Xapian::valueno, ValueStats> value_stats;
 

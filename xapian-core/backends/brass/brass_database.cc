@@ -32,7 +32,6 @@
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
-#include "brass_alldocsmodifiedpostlist.h"
 #include "brass_alldocspostlist.h"
 #include "brass_alltermslist.h"
 #include "brass_replicate_internal.h"
@@ -40,7 +39,6 @@
 #include "brass_io.h"
 #include "../flint_lock.h"
 #include "brass_metadata.h"
-#include "brass_modifiedpostlist.h"
 #include "brass_positionlist.h"
 #include "brass_postlist.h"
 #include "brass_record.h"
@@ -1018,9 +1016,6 @@ BrassDatabase::get_uuid() const
 BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 					       int block_size)
 	: BrassDatabase(dir, action, block_size),
-	  freq_deltas(),
-	  doclens(),
-	  mod_plists(),
 	  change_count(0),
 	  flush_threshold(0),
 	  modify_shortcut_document(NULL),
@@ -1054,12 +1049,9 @@ BrassWritableDatabase::commit()
 void
 BrassWritableDatabase::flush_postlist_changes() const
 {
-    postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
     stats.write(postlist_table);
+    inverter.flush(postlist_table);
 
-    freq_deltas.clear();
-    doclens.clear();
-    mod_plists.clear();
     change_count = 0;
 }
 
@@ -1109,23 +1101,8 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
-		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
-		}
 
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		j->second[did] = make_pair('A', wdf);
+		inverter.add_posting(did, tname, wdf);
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    position_table.set_positionlist(
@@ -1141,8 +1118,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 	    termlist_table.set_termlist(did, document, new_doclen);
 
 	// Set the new document length
-	Assert(doclens.find(did) == doclens.end() || doclens[did] == static_cast<Xapian::termcount>(-1));
-	doclens[did] = new_doclen;
+	inverter.set_doclength(did, new_doclen, true);
 	stats.add_document(new_doclen);
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
@@ -1154,15 +1130,8 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
     }
 
     // FIXME: this should be done by checking memory usage, not the number of
-    // changes.
-    // We could also look at:
-    // * mod_plists.size()
-    // * doclens.size()
-    // * freq_deltas.size()
-    //
-    // cout << "+++ mod_plists.size() " << mod_plists.size() <<
-    //     ", doclens.size() " << doclens.size() <<
-    //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
+    // changes.  We could also look at the amount of data the inverter object
+    // currently holds.
     if (++change_count >= flush_threshold) {
 	flush_postlist_changes();
 	if (!transaction_active()) apply();
@@ -1206,33 +1175,8 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
 	    position_table.delete_positionlist(did, tname);
-	    termcount wdf = termlist.get_wdf();
 
-	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-	    i = freq_deltas.find(tname);
-	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-	    } else {
-		--i->second.first;
-		i->second.second -= wdf;
-	    }
-
-	    // Remove did from tname's postlist
-	    map<string, map<docid, pair<char, termcount> > >::iterator j;
-	    j = mod_plists.find(tname);
-	    if (j == mod_plists.end()) {
-		map<docid, pair<char, termcount> > m;
-		j = mod_plists.insert(make_pair(tname, m)).first;
-	    }
-
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k == j->second.end()) {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    } else {
-		// Deleting a document we added/modified since the last flush.
-		k->second = make_pair('D', 0u);
-	    }
+	    inverter.remove_posting(did, tname, termlist.get_wdf());
 
 	    termlist.next();
 	}
@@ -1242,7 +1186,7 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	    termlist_table.delete_termlist(did);
 
 	// Mark this document as removed.
-	doclens[did] = static_cast<Xapian::termcount>(-1);
+	inverter.delete_doclength(did);
     } catch (...) {
 	// If an error occurs while deleting a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1324,34 +1268,8 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	    termlist.next();
 	    while (!termlist.at_end()) {
 		string tname = termlist.get_termname();
-		termcount wdf = termlist.get_wdf();
 
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-		} else {
-		    --i->second.first;
-		    i->second.second -= wdf;
-		}
-
-		// Remove did from tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k == j->second.end()) {
-		    j->second.insert(make_pair(did, make_pair('D', 0u)));
-		} else {
-		    // Modifying a document we added/modified since the last
-		    // flush.
-		    k->second = make_pair('D', 0u);
-		}
+		inverter.remove_posting(did, tname, termlist.get_wdf());
 
 		term.skip_to(tname);
 		if (term == document.termlist_end() || *term != tname) {
@@ -1374,31 +1292,8 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
-		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
-		}
 
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k != j->second.end()) {
-		    Assert(k->second.first == 'D');
-		    k->second.first = 'M';
-		    k->second.second = wdf;
-		} else {
-		    j->second.insert(make_pair(did, make_pair('A', wdf)));
-		}
+		inverter.add_posting(did, tname, wdf);
 
 		PositionIterator it = term.positionlist_begin();
 		PositionIterator it_end = term.positionlist_end();
@@ -1415,7 +1310,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		termlist_table.set_termlist(did, document, new_doclen);
 
 	    // Set the new document length
-	    doclens[did] = new_doclen;
+	    inverter.set_doclength(did, new_doclen, false);
 	    stats.add_document(new_doclen);
 	}
 
@@ -1462,39 +1357,24 @@ Xapian::termcount
 BrassWritableDatabase::get_doclength(Xapian::docid did) const
 {
     DEBUGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_doclength", did);
-    map<docid, termcount>::const_iterator i = doclens.find(did);
-    if (i != doclens.end()) {
-	Xapian::termcount doclen = i->second;
-	if (doclen == static_cast<Xapian::termcount>(-1)) {
-	    throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
-	}
+    Xapian::termcount doclen;
+    if (inverter.get_doclength(did, doclen))
 	RETURN(doclen);
-    }
     RETURN(BrassDatabase::get_doclength(did));
 }
 
 Xapian::doccount
-BrassWritableDatabase::get_termfreq(const string & tname) const
+BrassWritableDatabase::get_termfreq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_termfreq", tname);
-    Xapian::doccount termfreq = BrassDatabase::get_termfreq(tname);
-    map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
-    i = freq_deltas.find(tname);
-    if (i != freq_deltas.end()) termfreq += i->second.first;
-    RETURN(termfreq);
+    DEBUGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_termfreq", term);
+    RETURN(BrassDatabase::get_termfreq(term) + inverter.get_tfdelta(term));
 }
 
 Xapian::termcount
-BrassWritableDatabase::get_collection_freq(const string & tname) const
+BrassWritableDatabase::get_collection_freq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_collection_freq", tname);
-    Xapian::termcount collfreq = BrassDatabase::get_collection_freq(tname);
-
-    map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
-    i = freq_deltas.find(tname);
-    if (i != freq_deltas.end()) collfreq += i->second.second;
-
-    RETURN(collfreq);
+    DEBUGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_collection_freq", term);
+    RETURN(BrassDatabase::get_collection_freq(term) + inverter.get_cfdelta(term));
 }
 
 Xapian::doccount
@@ -1545,20 +1425,13 @@ BrassWritableDatabase::open_post_list(const string& tname) const
 	if (stats.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
-	if (doclens.empty()) {
-	    RETURN(new BrassAllDocsPostList(ptrtothis, doccount));
-	}
-	RETURN(new BrassAllDocsModifiedPostList(ptrtothis, doccount, doclens));
+	inverter.flush_doclengths(postlist_table);
+	RETURN(new BrassAllDocsPostList(ptrtothis, doccount));
     }
 
-    map<string, map<docid, pair<char, termcount> > >::const_iterator j;
-    j = mod_plists.find(tname);
-    if (j != mod_plists.end()) {
-	// We've got buffered changes to this term's postlist, so we need to
-	// use a BrassModifiedPostList.
-	RETURN(new BrassModifiedPostList(ptrtothis, tname, j->second));
-    }
-
+    // Flush any buffered changes for this term's postlist so we can just
+    // iterate from the flushed state.
+    inverter.flush_post_list(postlist_table, tname);
     RETURN(new BrassPostList(ptrtothis, tname, true));
 }
 
@@ -1589,9 +1462,8 @@ BrassWritableDatabase::cancel()
 {
     BrassDatabase::cancel();
     stats.read(postlist_table);
-    freq_deltas.clear();
-    doclens.clear();
-    mod_plists.clear();
+
+    inverter.clear();
     value_stats.clear();
     change_count = 0;
 }

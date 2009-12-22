@@ -1,3 +1,12 @@
+Tue Dec 22 12:47:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Add new Inverter class to encapsulate the inversion
+	  data structures and associated code.  Instead of carefully iterating
+	  modified posting lists and document length lists, just flush the
+	  particular list needed to disk and iterate that.  This is much
+	  simpler and more obviously free of subtle bugs, and means we don't
+	  need to use data structures which allow such iteration.
+
 Tue Dec 22 12:25:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/dbfactory.cc,include/xapian/dbfactory.h,

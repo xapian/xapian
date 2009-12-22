@@ -1006,6 +1006,9 @@ BrassPostListTable::get_chunk(const string &tname,
 
     if (!check_tname_in_key(&keypos, keyend, tname)) {
 	// Postlist for this termname doesn't exist.
+	//
+	// NB "adding" will only be true if we are adding, but it may sometimes
+	// be false in some cases where we are actually adding.
 	if (!adding)
 	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 
@@ -1068,190 +1071,182 @@ BrassPostListTable::get_chunk(const string &tname,
 }
 
 void
-BrassPostListTable::merge_changes(
-    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
-    const map<Xapian::docid, Xapian::termcount> & doclens,
-    const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
+BrassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens)
 {
-    DEBUGCALL(DB, void, "BrassPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
+    DEBUGCALL(DB, void, "BrassPostListTable::merge_doclen_changes", "doclens");
 
     // The cursor in the doclen_pl will no longer be valid, so reset it.
     doclen_pl.reset(0);
 
     LOGVALUE(DB, doclens.size());
-    if (!doclens.empty()) {
-	// Ensure there's a first chunk.
-	string current_key = make_key(string());
-	if (!key_exists(current_key)) {
-	    LOGLINE(DB, "Adding dummy first chunk");
-	    string newtag = make_start_of_first_chunk(0, 0, 0);
-	    newtag += make_start_of_chunk(true, 0, 0);
-	    add(current_key, newtag);
-	}
+    if (doclens.empty()) return;
 
-	map<Xapian::docid, Xapian::termcount>::const_iterator j;
-	j = doclens.begin();
-	Assert(j != doclens.end()); // This case is caught above.
+    // Ensure there's a first chunk.
+    string current_key = make_key(string());
+    if (!key_exists(current_key)) {
+	LOGLINE(DB, "Adding dummy first chunk");
+	string newtag = make_start_of_first_chunk(0, 0, 0);
+	newtag += make_start_of_chunk(true, 0, 0);
+	add(current_key, newtag);
+    }
 
-	Xapian::docid max_did;
-	PostlistChunkReader *from;
-	PostlistChunkWriter *to;
-	max_did = get_chunk(string(), j->first, true, &from, &to);
-	LOGVALUE(DB, max_did);
-	for ( ; j != doclens.end(); ++j) {
-	    Xapian::docid did = j->first;
+    map<Xapian::docid, Xapian::termcount>::const_iterator j;
+    j = doclens.begin();
+    Assert(j != doclens.end()); // This case is caught above.
+
+    Xapian::docid max_did;
+    PostlistChunkReader *from;
+    PostlistChunkWriter *to;
+    max_did = get_chunk(string(), j->first, true, &from, &to);
+    LOGVALUE(DB, max_did);
+    for ( ; j != doclens.end(); ++j) {
+	Xapian::docid did = j->first;
 
 next_doclen_chunk:
-	    LOGLINE(DB, "Updating doclens, did=" << did);
-	    if (from) while (!from->is_at_end()) {
-		Xapian::docid copy_did = from->get_docid();
-		if (copy_did >= did) {
-		    if (copy_did == did) from->next();
-		    break;
-		}
-		to->append(this, copy_did, from->get_wdf());
-		from->next();
+	LOGLINE(DB, "Updating doclens, did=" << did);
+	if (from) while (!from->is_at_end()) {
+	    Xapian::docid copy_did = from->get_docid();
+	    if (copy_did >= did) {
+		if (copy_did == did) from->next();
+		break;
 	    }
-	    if ((!from || from->is_at_end()) && did > max_did) {
-		delete from;
-		to->flush(this);
-		delete to;
-		max_did = get_chunk(string(), did, false, &from, &to);
-		goto next_doclen_chunk;
-	    }
-
-	    Xapian::termcount new_doclen = j->second;
-	    if (new_doclen != static_cast<Xapian::termcount>(-1)) {
-		to->append(this, did, new_doclen);
-	    }
+	    to->append(this, copy_did, from->get_wdf());
+	    from->next();
 	}
-
-	if (from) {
-	    while (!from->is_at_end()) {
-		to->append(this, from->get_docid(), from->get_wdf());
-		from->next();
-	    }
+	if ((!from || from->is_at_end()) && did > max_did) {
 	    delete from;
+	    to->flush(this);
+	    delete to;
+	    max_did = get_chunk(string(), did, false, &from, &to);
+	    goto next_doclen_chunk;
 	}
-	to->flush(this);
-	delete to;
+
+	Xapian::termcount new_doclen = j->second;
+	if (new_doclen != static_cast<Xapian::termcount>(-1)) {
+	    to->append(this, did, new_doclen);
+	}
     }
 
-    map<string, map<Xapian::docid, pair<char, Xapian::termcount> > >::const_iterator i;
-    for (i = mod_plists.begin(); i != mod_plists.end(); ++i) {
-	if (i->second.empty()) continue;
-	string tname = i->first;
-	{
-	    // Rewrite the first chunk of this posting list with the updated
-	    // termfreq and collfreq.
-	    map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >::const_iterator deltas = freq_deltas.find(tname);
-	    Assert(deltas != freq_deltas.end());
-
-	    string current_key = make_key(tname);
-	    string tag;
-	    (void)get_exact_entry(current_key, tag);
-
-	    // Read start of first chunk to get termfreq and collfreq.
-	    const char *pos = tag.data();
-	    const char *end = pos + tag.size();
-	    Xapian::doccount termfreq;
-	    Xapian::termcount collfreq;
-	    Xapian::docid firstdid, lastdid;
-	    bool islast;
-	    if (pos == end) {
-		termfreq = 0;
-		collfreq = 0;
-		firstdid = 0;
-		lastdid = 0;
-		islast = true;
-	    } else {
-		firstdid = read_start_of_first_chunk(&pos, end,
-						     &termfreq, &collfreq);
-		// Handle the generic start of chunk header.
-		lastdid = read_start_of_chunk(&pos, end, firstdid, &islast);
-	    }
-
-	    termfreq += deltas->second.first;
-	    if (termfreq == 0) {
-		// All postings deleted!  So we can shortcut by zapping the
-		// posting list.
-		if (islast) {
-		    // Only one entry for this posting list.
-		    del(current_key);
-		    continue;
-		}
-		MutableBrassCursor cursor(this);
-		bool found = cursor.find_entry(current_key);
-		Assert(found);
-		if (!found) continue; // Reduce damage!
-		while (cursor.del()) {
-		    const char *kpos = cursor.current_key.data();
-		    const char *kend = kpos + cursor.current_key.size();
-		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
-		}
-		continue;
-	    }
-	    collfreq += deltas->second.second;
-
-	    // Rewrite start of first chunk to update termfreq and collfreq.
-	    string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);
-	    newhdr += make_start_of_chunk(islast, firstdid, lastdid);
-	    if (pos == end) {
-		add(current_key, newhdr);
-	    } else {
-		Assert((size_t)(pos - tag.data()) <= tag.size());
-		tag.replace(0, pos - tag.data(), newhdr);
-		add(current_key, tag);
-	    }
+    if (from) {
+	while (!from->is_at_end()) {
+	    to->append(this, from->get_docid(), from->get_wdf());
+	    from->next();
 	}
-	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;
-	j = i->second.begin();
-	Assert(j != i->second.end()); // This case is caught above.
+	delete from;
+    }
+    to->flush(this);
+    delete to;
+}
 
-	Xapian::docid max_did;
-	PostlistChunkReader *from;
-	PostlistChunkWriter *to;
-	max_did = get_chunk(tname, j->first, j->second.first == 'A',
-			    &from, &to);
-	for ( ; j != i->second.end(); ++j) {
-	    Xapian::docid did = j->first;
+void
+BrassPostListTable::merge_changes(const string &term,
+				  const Inverter::PostingChanges & changes)
+{
+    {
+	// Rewrite the first chunk of this posting list with the updated
+	// termfreq and collfreq.
+	string current_key = make_key(term);
+	string tag;
+	(void)get_exact_entry(current_key, tag);
+
+	// Read start of first chunk to get termfreq and collfreq.
+	const char *pos = tag.data();
+	const char *end = pos + tag.size();
+	Xapian::doccount termfreq;
+	Xapian::termcount collfreq;
+	Xapian::docid firstdid, lastdid;
+	bool islast;
+	if (pos == end) {
+	    termfreq = 0;
+	    collfreq = 0;
+	    firstdid = 0;
+	    lastdid = 0;
+	    islast = true;
+	} else {
+	    firstdid = read_start_of_first_chunk(&pos, end,
+						 &termfreq, &collfreq);
+	    // Handle the generic start of chunk header.
+	    lastdid = read_start_of_chunk(&pos, end, firstdid, &islast);
+	}
+
+	termfreq += changes.get_tfdelta();
+	if (termfreq == 0) {
+	    // All postings deleted!  So we can shortcut by zapping the
+	    // posting list.
+	    if (islast) {
+		// Only one entry for this posting list.
+		del(current_key);
+		return;
+	    }
+	    MutableBrassCursor cursor(this);
+	    bool found = cursor.find_entry(current_key);
+	    Assert(found);
+	    if (!found) return; // Reduce damage!
+	    while (cursor.del()) {
+		const char *kpos = cursor.current_key.data();
+		const char *kend = kpos + cursor.current_key.size();
+		if (!check_tname_in_key_lite(&kpos, kend, term)) break;
+	    }
+	    return;
+	}
+	collfreq += changes.get_cfdelta();
+
+	// Rewrite start of first chunk to update termfreq and collfreq.
+	string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);
+	newhdr += make_start_of_chunk(islast, firstdid, lastdid);
+	if (pos == end) {
+	    add(current_key, newhdr);
+	} else {
+	    Assert((size_t)(pos - tag.data()) <= tag.size());
+	    tag.replace(0, pos - tag.data(), newhdr);
+	    add(current_key, tag);
+	}
+    }
+    map<Xapian::docid, Xapian::termcount>::const_iterator j;
+    j = changes.pl_changes.begin();
+    Assert(j != changes.pl_changes.end()); // This case is caught above.
+
+    Xapian::docid max_did;
+    PostlistChunkReader *from;
+    PostlistChunkWriter *to;
+    max_did = get_chunk(term, j->first, false, &from, &to);
+    for ( ; j != changes.pl_changes.end(); ++j) {
+	Xapian::docid did = j->first;
 
 next_chunk:
-	    LOGLINE(DB, "Updating tname=" << tname << ", did=" << did);
-	    if (from) while (!from->is_at_end()) {
-		Xapian::docid copy_did = from->get_docid();
-		if (copy_did >= did) {
-		    if (copy_did == did) {
-			Assert(j->second.first != 'A');
-			from->next();
-		    }
-		    break;
+	LOGLINE(DB, "Updating term=" << term << ", did=" << did);
+	if (from) while (!from->is_at_end()) {
+	    Xapian::docid copy_did = from->get_docid();
+	    if (copy_did >= did) {
+		if (copy_did == did) {
+		    from->next();
 		}
-		to->append(this, copy_did, from->get_wdf());
-		from->next();
+		break;
 	    }
-	    if ((!from || from->is_at_end()) && did > max_did) {
-		delete from;
-		to->flush(this);
-		delete to;
-		max_did = get_chunk(tname, did, false, &from, &to);
-		goto next_chunk;
-	    }
-
-	    if (j->second.first != 'D') {
-		Xapian::termcount new_wdf = j->second.second;
-		to->append(this, did, new_wdf);
-	    }
+	    to->append(this, copy_did, from->get_wdf());
+	    from->next();
 	}
-
-	if (from) {
-	    while (!from->is_at_end()) {
-		to->append(this, from->get_docid(), from->get_wdf());
-		from->next();
-	    }
+	if ((!from || from->is_at_end()) && did > max_did) {
 	    delete from;
+	    to->flush(this);
+	    delete to;
+	    max_did = get_chunk(term, did, false, &from, &to);
+	    goto next_chunk;
 	}
-	to->flush(this);
-	delete to;
+
+	Xapian::termcount new_wdf = j->second;
+	if (new_wdf != Xapian::termcount(-1)) {
+	    to->append(this, did, new_wdf);
+	}
     }
+
+    if (from) {
+	while (!from->is_at_end()) {
+	    to->append(this, from->get_docid(), from->get_wdf());
+	    from->next();
+	}
+	delete from;
+    }
+    to->flush(this);
+    delete to;
 }

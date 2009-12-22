@@ -26,6 +26,7 @@
 
 #include <xapian/database.h>
 
+#include "brass_inverter.h"
 #include "brass_types.h"
 #include "brass_positionlist.h"
 #include "leafpostlist.h"
@@ -77,11 +78,11 @@ class BrassPostListTable : public BrassTable {
 	    return BrassTable::open(revno);
 	}
 
-	/// Merge added, removed, and changed entries.
-	void merge_changes(
-	    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
-	    const map<Xapian::docid, Xapian::termcount> & doclens,
-	    const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas);
+	/// Merge changes for a term.
+	void merge_changes(const string &term, const Inverter::PostingChanges & changes);
+
+	/// Merge document length changes.
+	void merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens);
 
 	Xapian::docid get_chunk(const string &tname,
 		Xapian::docid did, bool adding,

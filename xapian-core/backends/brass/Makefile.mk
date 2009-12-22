@@ -4,7 +4,6 @@ EXTRA_DIST +=\
 
 if BUILD_BACKEND_BRASS
 noinst_HEADERS +=\
-	backends/brass/brass_alldocsmodifiedpostlist.h\
 	backends/brass/brass_alldocspostlist.h\
 	backends/brass/brass_alltermslist.h\
 	backends/brass/brass_btreebase.h\
@@ -14,10 +13,10 @@ noinst_HEADERS +=\
 	backends/brass/brass_databasereplicator.h\
 	backends/brass/brass_dbstats.h\
 	backends/brass/brass_document.h\
+	backends/brass/brass_inverter.h\
 	backends/brass/brass_io.h\
 	backends/brass/brass_lazytable.h\
 	backends/brass/brass_metadata.h\
-	backends/brass/brass_modifiedpostlist.h\
 	backends/brass/brass_positionlist.h\
 	backends/brass/brass_postlist.h\
 	backends/brass/brass_record.h\
@@ -34,7 +33,6 @@ noinst_HEADERS +=\
 	backends/brass/brass_version.h
 
 lib_src +=\
-	backends/brass/brass_alldocsmodifiedpostlist.cc\
 	backends/brass/brass_alldocspostlist.cc\
 	backends/brass/brass_alltermslist.cc\
 	backends/brass/brass_btreebase.cc\
@@ -43,9 +41,9 @@ lib_src +=\
 	backends/brass/brass_databasereplicator.cc\
 	backends/brass/brass_dbstats.cc\
 	backends/brass/brass_document.cc\
+	backends/brass/brass_inverter.cc\
 	backends/brass/brass_io.cc\
 	backends/brass/brass_metadata.cc\
-	backends/brass/brass_modifiedpostlist.cc\
 	backends/brass/brass_positionlist.cc\
 	backends/brass/brass_postlist.cc\
 	backends/brass/brass_record.cc\
