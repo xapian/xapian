@@ -79,6 +79,7 @@ PWRITE_PROTOTYPE
 #include <algorithm>  // for std::min()
 #include <string>
 
+using namespace Brass;
 using namespace std;
 
 // Only try to compress tags longer than this many bytes.
@@ -94,7 +95,7 @@ static void print_key(const byte * p, int c, int j);
 static void print_tag(const byte * p, int c, int j);
 
 /*
-static void report_cursor(int N, Btree * B, Cursor * C)
+static void report_cursor(int N, Btree * B, Brass::Cursor * C)
 {
     int i;
     printf("%d)\n", N);
@@ -357,7 +358,7 @@ BrassTable::set_overwritten() const
 */
 
 void
-BrassTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
+BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 {
     LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
     if (n == C_[j].n) return;
@@ -497,7 +498,7 @@ BrassTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 */
 
 bool
-BrassTable::find(Cursor * C_) const
+BrassTable::find(Brass::Cursor * C_) const
 {
     LOGCALL(DB, bool, "BrassTable::find", (void*)C_);
     // Note: the parameter is needed when we're called by BrassCursor
@@ -1214,7 +1215,7 @@ BrassTable::key_exists(const string &key) const
 }
 
 bool
-BrassTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
+BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) const
 {
     LOGCALL(DB, bool, "BrassTable::read_tag", "C_, tag, " << keep_compressed);
     Item item(C_[0].p, C_[0].c);
@@ -2105,7 +2106,7 @@ BrassTable::open(brass_revision_number_t revision)
 }
 
 bool
-BrassTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
+BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "BrassTable::prev_for_sequential", "C_, UNUSED(int)");
     int c = C_[0].c;
@@ -2157,7 +2158,7 @@ BrassTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 }
 
 bool
-BrassTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
+BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "BrassTable::next_for_sequential", "C_, UNUSED(int)");
     byte * p = C_[0].p;
@@ -2210,7 +2211,7 @@ BrassTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 }
 
 bool
-BrassTable::prev_default(Cursor * C_, int j) const
+BrassTable::prev_default(Brass::Cursor * C_, int j) const
 {
     LOGCALL(DB, bool, "BrassTable::prev_default", "C_, " << j);
     byte * p = C_[j].p;
@@ -2232,7 +2233,7 @@ BrassTable::prev_default(Cursor * C_, int j) const
 }
 
 bool
-BrassTable::next_default(Cursor * C_, int j) const
+BrassTable::next_default(Brass::Cursor * C_, int j) const
 {
     LOGCALL(DB, bool, "BrassTable::next_default", "C_, " << j);
     byte * p = C_[j].p;

@@ -31,6 +31,8 @@ using std::string;
 
 #define BLK_UNUSED uint4(-1)
 
+namespace Brass {
+
 class Cursor {
     private:
         // Prevent copying
@@ -58,6 +60,8 @@ class Cursor {
 	/// true if the block is not the same as on disk, and so needs rewriting
 	bool rewrite;
 };
+
+}
 
 class BrassTable;
 
@@ -94,7 +98,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCursor {
 
     private:
 	/// Pointer to an array of Cursors
-	Cursor * C;
+	Brass::Cursor * C;
 
 	/** The value of level in the Btree structure. */
 	int level;

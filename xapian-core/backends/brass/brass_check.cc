@@ -27,6 +27,7 @@
 
 #include <climits>
 
+using namespace Brass;
 using namespace std;
 
 void BrassTableCheck::print_spaces(int n) const
@@ -123,7 +124,7 @@ void BrassTableCheck::failure(int n) const
 }
 
 void
-BrassTableCheck::block_check(Cursor * C_, int j, int opts)
+BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 {
     byte * p = C_[j].p;
     uint4 n = C_[j].n;
@@ -202,7 +203,7 @@ BrassTableCheck::check(const char * tablename, const string & path, int opts,
 {
     BrassTableCheck B(tablename, path, false, out);
     B.open(); // throws exception if open fails
-    Cursor * C = B.C;
+    Brass::Cursor * C = B.C;
 
     if (opts & OPT_SHOW_STATS) {
 	out << "base" << (char)B.base_letter
@@ -251,7 +252,7 @@ BrassTableCheck::check(const char * tablename, const string & path, int opts,
     if (opts) out << "B-tree checked okay" << endl;
 }
 
-void BrassTableCheck::report_cursor(int N, const Cursor * C_) const
+void BrassTableCheck::report_cursor(int N, const Brass::Cursor * C_) const
 {
     out << N << ")\n";
     for (int i = 0; i <= level; i++)

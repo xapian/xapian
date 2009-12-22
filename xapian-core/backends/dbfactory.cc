@@ -28,9 +28,10 @@
 #include "xapian/error.h"
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
+#include "debuglog.h"
 #include "fileutils.h"
-#include "omdebug.h"
-#include "utils.h" // For om_tostring().
+#include "str.h"
+#include "utils.h"
 
 #include "safeerrno.h"
 
@@ -57,13 +58,13 @@ namespace Xapian {
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 Database
 Brass::open(const string &dir) {
-    LOGAPICALL_STATIC(Database, "Brass::open", dir);
+    LOGCALL_STATIC(API, Database, "Brass::open", dir);
     RETURN(Database(new BrassDatabase(dir)));
 }
 
 WritableDatabase
 Brass::open(const string &dir, int action, int block_size) {
-    LOGAPICALL_STATIC(WritableDatabase, "Brass::open", dir << ", " << action << ", " << block_size);
+    LOGCALL_STATIC(API, WritableDatabase, "Brass::open", dir << ", " << action << ", " << block_size);
     RETURN(WritableDatabase(new BrassWritableDatabase(dir, action, block_size)));
 }
 #endif
@@ -71,13 +72,13 @@ Brass::open(const string &dir, int action, int block_size) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 Database
 Chert::open(const string &dir) {
-    DEBUGAPICALL_STATIC(Database, "Chert::open", dir);
+    LOGCALL_STATIC(API, Database, "Chert::open", dir);
     return Database(new ChertDatabase(dir));
 }
 
 WritableDatabase
 Chert::open(const string &dir, int action, int block_size) {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Chert::open", dir << ", " <<
+    LOGCALL_STATIC(API, WritableDatabase, "Chert::open", dir << ", " <<
 			action << ", " << block_size);
     return WritableDatabase(new ChertWritableDatabase(dir, action, block_size));
 }
@@ -86,13 +87,13 @@ Chert::open(const string &dir, int action, int block_size) {
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 Database
 Flint::open(const string &dir) {
-    DEBUGAPICALL_STATIC(Database, "Flint::open", dir);
+    LOGCALL_STATIC(API, Database, "Flint::open", dir);
     return Database(new FlintDatabase(dir));
 }
 
 WritableDatabase
 Flint::open(const string &dir, int action, int block_size) {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Flint::open", dir << ", " <<
+    LOGCALL_STATIC(API, WritableDatabase, "Flint::open", dir << ", " <<
 			action << ", " << block_size);
     return WritableDatabase(new FlintWritableDatabase(dir, action, block_size));
 }
@@ -101,7 +102,7 @@ Flint::open(const string &dir, int action, int block_size) {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 WritableDatabase
 InMemory::open() {
-    DEBUGAPICALL_STATIC(Database, "InMemory::open", "");
+    LOGCALL_STATIC(API, Database, "InMemory::open", "");
     return WritableDatabase(new InMemoryDatabase);
 }
 #endif
@@ -195,7 +196,7 @@ open_stub(Database &db, const string &file)
 	// arrange for it to be read as a stub database via infelicities in
 	// an application which uses Xapian.  The line number is enough
 	// information to identify the problem line.
-	throw DatabaseOpeningError(file + ':' + om_tostring(line_no) + ": Bad line");
+	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
     }
 
     // Allowing a stub database with no databases listed allows things like
@@ -304,7 +305,7 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	// arrange for it to be read as a stub database via infelicities in
 	// an application which uses Xapian.  The line number is enough
 	// information to identify the problem line.
-	throw DatabaseOpeningError(file + ':' + om_tostring(line_no) + ": Bad line");
+	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
     }
 
     if (db.internal.empty()) {
@@ -315,7 +316,7 @@ open_stub(WritableDatabase &db, const string &file, int action)
 Database
 Auto::open_stub(const string &file)
 {
-    DEBUGAPICALL_STATIC(Database, "Auto::open_stub", file);
+    LOGCALL_STATIC(API, Database, "Auto::open_stub", file);
     Database db;
     open_stub(db, file);
     RETURN(db);
@@ -324,14 +325,15 @@ Auto::open_stub(const string &file)
 WritableDatabase
 Auto::open_stub(const string &file, int action)
 {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Auto::open_stub", file << ", " << action);
+    LOGCALL_STATIC(API, WritableDatabase, "Auto::open_stub", file << ", " << action);
     WritableDatabase db;
     open_stub(db, file, action);
     RETURN(db);
 }
+
 Database::Database(const string &path)
 {
-    DEBUGAPICALL(void, "Database::Database", path);
+    LOGCALL_CTOR(API, "Database::Database", path);
 
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {
@@ -388,8 +390,7 @@ Database::Database(const string &path)
 WritableDatabase::WritableDatabase(const std::string &path, int action)
     : Database()
 {
-    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
-		 path << ", " << action);
+    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", path << ", " << action);
 #ifdef HAVE_DISK_BACKEND
     enum {
 #ifdef XAPIAN_HAS_CHERT_BACKEND

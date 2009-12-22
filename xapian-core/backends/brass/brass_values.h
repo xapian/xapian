@@ -31,6 +31,8 @@
 #include <map>
 #include <string>
 
+namespace Brass {
+
 /** Generate a key for a value stream chunk. */
 inline std::string
 make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
@@ -57,6 +59,8 @@ docid_from_key(Xapian::valueno required_slot, const std::string & key)
     if (!unpack_uint_preserving_sort(&p, end, &did))
        	throw Xapian::DatabaseCorruptError("bad value key");
     return did;
+}
+
 }
 
 namespace Xapian {
@@ -197,7 +201,5 @@ class ValueChunkReader {
 };
 
 }
-
-using Brass::ValueChunkReader;
 
 #endif // XAPIAN_INCLUDED_BRASS_VALUES_H

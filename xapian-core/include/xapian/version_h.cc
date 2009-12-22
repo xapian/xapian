@@ -108,6 +108,13 @@ const char * dummy[] = {
 " */",
 "#define XAPIAN_REVISION ",REVISION,
 "",
+"/// XAPIAN_HAS_BRASS_BACKEND Defined if the brass backend is enabled.",
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+"#define XAPIAN_HAS_BRASS_BACKEND 1",
+#else
+"/* #undef XAPIAN_HAS_BRASS_BACKEND */",
+#endif
+"",
 "/// XAPIAN_HAS_CHERT_BACKEND Defined if the chert backend is enabled.",
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 "#define XAPIAN_HAS_CHERT_BACKEND 1",

@@ -36,6 +36,7 @@
 #include <algorithm>
 #include "autoptr.h"
 
+using namespace Brass;
 using namespace std;
 
 // FIXME:

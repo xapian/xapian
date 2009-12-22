@@ -1,3 +1,10 @@
+Tue Dec 22 12:25:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/dbfactory.cc,include/xapian/dbfactory.h,
+	  include/xapian/valueiterator.h,include/xapian/version_h.cc,
+	  tests/harness/Makefile.mk: Fix to actually build brass.  Testsuite
+	  doesn't currently all pass.
+
 Tue Dec 22 04:26:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,backends/Makefile.mk,backends/brass/,

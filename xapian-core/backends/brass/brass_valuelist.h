@@ -37,7 +37,7 @@ class BrassValueList : public Xapian::ValueIterator::Internal {
 
     BrassCursor * cursor;
 
-    ValueChunkReader reader;
+    Brass::ValueChunkReader reader;
 
     Xapian::valueno slot;
 

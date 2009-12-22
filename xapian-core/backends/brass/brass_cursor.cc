@@ -31,6 +31,8 @@
 #include "omassert.h"
 #include "omdebug.h"
 
+using namespace Brass;
+
 #ifdef XAPIAN_DEBUG_LOG
 static string
 hex_display_encode(const string & input)
@@ -57,7 +59,7 @@ BrassCursor::BrassCursor(const BrassTable *B_)
 	  B(B_),
 	  level(B_->level)
 {
-    C = new Cursor[level + 1];
+    C = new Brass::Cursor[level + 1];
 
     for (int j = 0; j < level; j++) {
         C[j].n = BLK_UNUSED;

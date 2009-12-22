@@ -36,6 +36,7 @@
 #include <set>
 #include <string>
 
+using namespace Brass;
 using namespace std;
 
 // We XOR the length values with this so that they are more likely to coincide

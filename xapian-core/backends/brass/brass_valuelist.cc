@@ -27,6 +27,7 @@
 #include "omassert.h"
 #include "utils.h"
 
+using namespace Brass;
 using namespace std;
 
 bool

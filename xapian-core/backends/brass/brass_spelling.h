@@ -31,6 +31,8 @@
 #include <string>
 #include <cstring> // For memcpy() and memcmp().
 
+namespace Brass {
+
 struct fragment {
     char data[4];
 
@@ -46,17 +48,19 @@ struct fragment {
     operator std::string () const {
 	return string(data, data[0] == 'M' ? 4 : 3);
     }
+
+    bool operator<(const fragment &b) const {
+	return std::memcmp(data, b.data, 4) < 0;
+    }
 };
 
-inline bool operator<(const fragment &a, const fragment &b) {
-    return std::memcmp(a.data, b.data, 4) < 0;
 }
 
 class BrassSpellingTable : public BrassLazyTable {
-    void toggle_fragment(fragment frag, const string & word);
+    void toggle_fragment(Brass::fragment frag, const string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
-    std::map<fragment, std::set<std::string> > termlist_deltas;
+    std::map<Brass::fragment, std::set<std::string> > termlist_deltas;
 
   public:
     /** Create a new BrassSpellingTable object.

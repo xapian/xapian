@@ -261,8 +261,6 @@ public:
 
 }
 
-using namespace Brass;
-
 // Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
 // With 10, overflow is practically impossible
 // FIXME: but we want it to be completely impossible...
@@ -450,7 +448,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	 *  @return	true if current_tag holds compressed data (always
 	 *		false if keep_compressed was false).
 	 */
-	bool read_tag(Cursor * C_, std::string *tag, bool keep_compressed) const;
+	bool read_tag(Brass::Cursor * C_, std::string *tag, bool keep_compressed) const;
 
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
@@ -629,18 +627,18 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 			      bool create_db = false);
 	bool basic_open(bool revision_supplied, brass_revision_number_t revision);
 
-	bool find(Cursor *) const;
+	bool find(Brass::Cursor *) const;
 	int delete_kt();
 	void read_block(uint4 n, byte *p) const;
 	void write_block(uint4 n, const byte *p) const;
 	XAPIAN_NORETURN(void set_overwritten() const);
-	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
+	void block_to_cursor(Brass::Cursor *C_, int j, uint4 n) const;
 	void alter();
 	void compact(byte *p);
-	void enter_key(int j, Key prevkey, Key newkey);
+	void enter_key(int j, Brass::Key prevkey, Brass::Key newkey);
 	int mid_point(byte *p);
-	void add_item_to_block(byte *p, Item_wr kt, int c);
-	void add_item(Item_wr kt, int j);
+	void add_item_to_block(byte *p, Brass::Item_wr kt, int c);
+	void add_item(Brass::Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);
 	void read_root();
@@ -710,7 +708,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	uint4 root;
 
 	/// buffer of size block_size for making up key-tag items
-	mutable Item_wr kt;
+	mutable Brass::Item_wr kt;
 
 	/// buffer of size block_size for reforming blocks
 	byte * buffer;
@@ -746,32 +744,32 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	bool writable;
 
 	/* B-tree navigation functions */
-	bool prev(Cursor *C_, int j) const {
+	bool prev(Brass::Cursor *C_, int j) const {
 	    if (sequential) return prev_for_sequential(C_, j);
 	    return prev_default(C_, j);
 	}
 
-	bool next(Cursor *C_, int j) const {
+	bool next(Brass::Cursor *C_, int j) const {
 	    if (sequential) return next_for_sequential(C_, j);
 	    return next_default(C_, j);
 	}
 
 	/* Default implementations. */
-	bool prev_default(Cursor *C_, int j) const;
-	bool next_default(Cursor *C_, int j) const;
+	bool prev_default(Brass::Cursor *C_, int j) const;
+	bool next_default(Brass::Cursor *C_, int j) const;
 
 	/* Implementations for sequential mode. */
-	bool prev_for_sequential(Cursor *C_, int dummy) const;
-	bool next_for_sequential(Cursor *C_, int dummy) const;
+	bool prev_for_sequential(Brass::Cursor *C_, int dummy) const;
+	bool next_for_sequential(Brass::Cursor *C_, int dummy) const;
 
-	static int find_in_block(const byte * p, Key key, bool leaf, int c);
+	static int find_in_block(const byte * p, Brass::Key key, bool leaf, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
 	 */
 	static uint4 block_given_by(const byte * p, int c);
 
-	mutable Cursor C[BTREE_CURSOR_LEVELS];
+	mutable Brass::Cursor C[BTREE_CURSOR_LEVELS];
 
 	/** Buffer used when splitting a block.
 	 *

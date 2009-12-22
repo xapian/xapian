@@ -45,7 +45,8 @@ namespace Brass {
     class PostlistChunkReader;
     class PostlistChunkWriter;
 }
-using namespace Brass;
+using Brass::PostlistChunkReader;
+using Brass::PostlistChunkWriter;
 
 class BrassPostList;
 
