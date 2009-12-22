@@ -44,6 +44,8 @@ EXTRA_PROGRAMS +=\
 bin_xapian_check_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_check_SOURCES =\
 	bin/xapian-check.cc\
+	bin/xapian-check-chert.cc\
+	bin/xapian-check-chert.h\
 	bin/xapian-check-flint.cc\
 	bin/xapian-check-flint.h
 bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la $(libxapian_la)

@@ -1,7 +1,7 @@
-/** @file xapian-check-flint.h
- * @brief Check a flint table.
+/** @file xapian-check-chert.h
+ * @brief Check a chert table.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_XAPIAN_CHECK_FLINT_H
-#define XAPIAN_INCLUDED_XAPIAN_CHECK_FLINT_H
+#ifndef XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H
+#define XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H
 
 #include "xapian/types.h"
 
@@ -28,7 +28,8 @@
 #include <string>
 #include <vector>
 
-size_t check_flint_table(const char * tablename, std::string table, int opts,
-			 std::vector<Xapian::termcount> & doclens);
+size_t check_chert_table(const char * tablename, std::string table, int opts,
+			 std::vector<Xapian::termcount> & doclens,
+			 Xapian::docid db_last_docid);
 
-#endif // XAPIAN_INCLUDED_XAPIAN_CHECK_FLINT_H
+#endif // XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H

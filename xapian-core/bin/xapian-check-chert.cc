@@ -1,5 +1,5 @@
-/** @file xapian-check-flint.cc
- * @brief Check consistency of a flint table.
+/** @file xapian-check-chert.cc
+ * @brief Check consistency of a chert table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
@@ -22,17 +22,17 @@
 
 #include <config.h>
 
-#include "xapian-check-flint.h"
+#include "xapian-check-chert.h"
 
 #include "bitstream.h"
 
 #include "internaltypes.h"
 
-#include "flint_check.h"
-#include "flint_cursor.h"
-#include "flint_table.h"
-#include "flint_types.h"
-#include "flint_utils.h"
+#include "chert_check.h"
+#include "chert_cursor.h"
+#include "chert_table.h"
+#include "chert_types.h"
+#include "pack.h"
 #include "valuestats.h"
 
 #include <xapian.h>
@@ -48,19 +48,26 @@ is_user_metadata_key(const string & key)
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
 }
 
+struct VStats : public ValueStats {
+    Xapian::doccount freq_real;
+
+    VStats() : ValueStats(), freq_real(0) {}
+};
+
 size_t
-check_flint_table(const char * tablename, string filename, int opts,
-		  vector<Xapian::termcount> & doclens)
+check_chert_table(const char * tablename, string filename, int opts,
+		  vector<Xapian::termcount> & doclens,
+		  Xapian::docid db_last_docid)
 {
     filename += '.';
 
     // Check the btree structure.
-    BtreeCheck::check(tablename, filename, opts);
+    ChertTableCheck::check(tablename, filename, opts);
 
-    // Now check the flint structures inside the btree.
-    FlintTable table(tablename, filename, true);
+    // Now check the chert structures inside the btree.
+    ChertTable table(tablename, filename, true);
     table.open();
-    AutoPtr<FlintCursor> cursor(table.cursor_get());
+    AutoPtr<ChertCursor> cursor(table.cursor_get());
 
     size_t errors = 0;
 
@@ -69,6 +76,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 
     if (strcmp(tablename, "postlist") == 0) {
 	// Now check the structure of each postlist in the table.
+	map<Xapian::valueno, VStats> valuestats;
 	string current_term;
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
@@ -86,10 +94,10 @@ check_flint_table(const char * tablename, string filename, int opts,
 		totlen_t totlen;
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
-		if (!F_unpack_uint(&data, end, &did)) {
+		if (!unpack_uint(&data, end, &did)) {
 		    cout << "Tag containing meta information is corrupt." << endl;
 		    ++errors;
-		} else if (!F_unpack_uint_last(&data, end, &totlen)) {
+		} else if (!unpack_uint_last(&data, end, &totlen)) {
 		    cout << "Tag containing meta information is corrupt." << endl;
 		    ++errors;
 		} else if (data != end) {
@@ -128,7 +136,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 		    pos = key.data();
 		    end = pos + key.size();
 		    pos += 2;
-		    if (!F_unpack_uint_preserving_sort(&pos, end, &did)) {
+		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 			cout << "Error unpacking docid from doclen key" << endl;
 			++errors;
 			continue;
@@ -146,7 +154,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 			continue;
 		    }
 		    pos += 2;
-		    if (!F_unpack_uint(&pos, end, &did)) {
+		    if (!unpack_uint(&pos, end, &did)) {
 			cout << "Failed to unpack firstdid for doclen" << endl;
 			++errors;
 			continue;
@@ -160,13 +168,13 @@ check_flint_table(const char * tablename, string filename, int opts,
 		}
 
 		bool is_last_chunk;
-		if (!F_unpack_bool(&pos, end, &is_last_chunk)) {
+		if (!unpack_bool(&pos, end, &is_last_chunk)) {
 		    cout << "Failed to unpack last chunk flag for doclen" << endl;
 		    ++errors;
 		    continue;
 		}
 		// Read what the final document ID in this chunk is.
-		if (!F_unpack_uint(&pos, end, &lastdid)) {
+		if (!unpack_uint(&pos, end, &lastdid)) {
 		    cout << "Failed to unpack increase to last" << endl;
 		    ++errors;
 		    continue;
@@ -175,19 +183,31 @@ check_flint_table(const char * tablename, string filename, int opts,
 		bool bad = false;
 		while (true) {
 		    Xapian::termcount doclen;
-		    if (!F_unpack_uint(&pos, end, &doclen)) {
+		    if (!unpack_uint(&pos, end, &doclen)) {
 			cout << "Failed to unpack doclen" << endl;
 			++errors;
 			bad = true;
 			break;
 		    }
 
+		    if (did > db_last_docid) {
+			cout << "document id " << did << " in doclen stream "
+			     << "is larger that get_last_docid() "
+			     << db_last_docid << endl;
+			++errors;
+		    }
+
 		    if (!doclens.empty()) {
-			if (did >= doclens.size()) {
-			    cout << "document id " << did << " is larger than any in the termlist table!" << endl;
-			    ++errors;
-			} else if (doclens[did] != doclen) {
-			    cout << "doclen " << doclen << " doesn't match " << doclens[did] << " in the termlist table" << endl;
+			// In chert, a document without terms doesn't get a
+			// termlist entry.
+			Xapian::termcount termlist_doclen = 0;
+			if (did < doclens.size())
+			    termlist_doclen = doclens[did];
+
+			if (doclen != termlist_doclen) {
+			    cout << "doclen " << doclen << " doesn't match "
+				 << termlist_doclen
+				 << " in the termlist table" << endl;
 			    ++errors;
 			}
 		    }
@@ -195,7 +215,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 		    if (pos == end) break;
 
 		    Xapian::docid inc;
-		    if (!F_unpack_uint(&pos, end, &inc)) {
+		    if (!unpack_uint(&pos, end, &inc)) {
 			cout << "Failed to unpack docid increase" << endl;
 			++errors;
 			bad = true;
@@ -223,6 +243,133 @@ check_flint_table(const char * tablename, string filename, int opts,
 		continue;
 	    }
 
+	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xd0') {
+		// Value stats.
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint_last(&p, end, &slot)) {
+		    cout << "Bad valuestats key (no slot)" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		cursor->read_tag();
+		p = cursor->current_tag.data();
+		end = p + cursor->current_tag.size();
+
+		VStats & v = valuestats[slot];
+		if (!unpack_uint(&p, end, &v.freq)) {
+		    if (*p == 0) {
+			cout << "Incomplete stats item in value table" << endl;
+		    } else {
+			cout << "Frequency statistic in value table is too large" << endl;
+		    }
+		    ++errors;
+		    continue;
+		}
+		if (!unpack_string(&p, end, v.lower_bound)) {
+		    if (*p == 0) {
+			cout << "Incomplete stats item in value table" << endl;
+		    } else {
+			cout << "Lower bound statistic in value table is too large" << endl;
+		    }
+		    ++errors;
+		    continue;
+		}
+		size_t len = end - p;
+		if (len == 0) {
+		    v.upper_bound = v.lower_bound;
+		} else {
+		    v.upper_bound.assign(p, len);
+		}
+
+		continue;
+	    }
+
+	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xd8') {
+		// Value stream chunk.
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint(&p, end, &slot)) {
+		    cout << "Bad value chunk key (no slot)" << endl;
+		    ++errors;
+		    continue;
+		}
+		Xapian::docid did;
+		if (!unpack_uint_preserving_sort(&p, end, &did)) {
+		    cout << "Bad value chunk key (no docid)" << endl;
+		    ++errors;
+		    continue;
+		}
+		if (p != end) {
+		    cout << "Bad value chunk key (trailing junk)" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		VStats & v = valuestats[slot];
+
+		cursor->read_tag();
+		p = cursor->current_tag.data();
+		end = p + cursor->current_tag.size();
+
+		while (true) {
+		    string value;
+		    if (!unpack_string(&p, end, value)) {
+			cout << "Failed to unpack value from chunk" << endl;
+			++errors;
+			break;
+		    }
+
+		    ++v.freq_real;
+
+		    // FIXME: Cross-check that docid did has value slot (and
+		    // vice versa - that there's a value here if the slot entry
+		    // says so).
+
+		    // FIXME: Check if the bounds are tight?  Or is that better
+		    // as a separate tool which can also update the bounds?
+		    if (value < v.lower_bound) {
+			cout << "Value slot " << slot << " has value below "
+				"lower bound: '" << value << "' < '"
+			     << v.lower_bound << "'" << endl;
+			++errors;
+		    } else if (value > v.upper_bound) {
+			cout << "Value slot " << slot << " has value above "
+				"upper bound: '" << value << "' > '"
+			     << v.upper_bound << "'" << endl;
+			++errors;
+		    }
+
+		    if (p == end) break;
+		    Xapian::docid delta;
+		    if (!unpack_uint(&p, end, &delta)) {
+			cout << "Failed to unpack docid delta from chunk" << endl;
+			++errors;
+			break;
+		    }
+		    Xapian::docid new_did = did + delta + 1;
+		    if (new_did <= did) {
+			cout << "docid overflowed in value chunk" << endl;
+			++errors;
+			break;
+		    }
+		    did = new_did;
+
+		    if (did > db_last_docid) {
+			cout << "document id " << did << " in value chunk "
+			     << "is larger that get_last_docid() "
+			     << db_last_docid << endl;
+			++errors;
+		    }
+		}
+		continue;
+	    }
+
 	    const char * pos, * end;
 
 	    // Get term from key.
@@ -231,37 +378,56 @@ check_flint_table(const char * tablename, string filename, int opts,
 
 	    string term;
 	    Xapian::docid did;
-	    if (!F_unpack_string_preserving_sort(&pos, end, term)) {
+	    if (!unpack_string_preserving_sort(&pos, end, term)) {
 		cout << "Error unpacking termname from key" << endl;
 		++errors;
 		continue;
 	    }
-	    if (current_term.empty()) {
+	    if (!current_term.empty() && term != current_term) {
+		// The term changed unexpectedly.
+		if (pos == end) {
+		    cout << "No last chunk for term `" << current_term
+			 << "'" << endl;
+		    current_term.resize(0);
+		} else {
+		    cout << "Mismatch in follow-on chunk in posting "
+			"list for term `" << current_term << "' (got `"
+			<< term << "')" << endl;
+		    current_term = term;
+		    tf = cf = 0;
+		    lastdid = 0;
+		}
+		++errors;
+	    }
+	    if (pos == end) {
+		// First chunk.
+		if (term == current_term) {
+		    // This probably isn't possible.
+		    cout << "First posting list chunk for term `"
+			 << term << "' follows previous chunk for the same "
+			 "term" << endl;
+		    ++errors;
+		}
 		current_term = term;
 		tf = cf = 0;
-		if (pos != end) {
-		    cout << "Extra bytes after key for first chunk of "
-			"posting list for term `" << term << "'" << endl;
-		    ++errors;
-		    continue;
-		}
+
 		// Unpack extra header from first chunk.
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
 		end = pos + cursor->current_tag.size();
-		if (!F_unpack_uint(&pos, end, &termfreq)) {
+		if (!unpack_uint(&pos, end, &termfreq)) {
 		    cout << "Failed to unpack termfreq for term `" << term
 			 << "'" << endl;
 		    ++errors;
 		    continue;
 		}
-		if (!F_unpack_uint(&pos, end, &collfreq)) {
+		if (!unpack_uint(&pos, end, &collfreq)) {
 		    cout << "Failed to unpack collfreq for term `" << term
 			 << "'" << endl;
 		    ++errors;
 		    continue;
 		}
-		if (!F_unpack_uint(&pos, end, &did)) {
+		if (!unpack_uint(&pos, end, &did)) {
 		    cout << "Failed to unpack firstdid for term `" << term
 			 << "'" << endl;
 		    ++errors;
@@ -269,29 +435,23 @@ check_flint_table(const char * tablename, string filename, int opts,
 		}
 		++did;
 	    } else {
-		if (term != current_term) {
-		    if (pos == end) {
-			cout << "No last chunk for term `" << term << "'"
-			     << endl;
-		    } else {
-			cout << "Mismatch in follow-on chunk in posting "
-			    "list for term `" << current_term << "' (got `"
-			    << term << "')" << endl;
-		    }
+		// Continuation chunk.
+		if (current_term.empty()) {
+		    cout << "First chunk for term `" << current_term << "' "
+			 "is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
 		}
-		if (pos != end) {
-		    if (!F_unpack_uint_preserving_sort(&pos, end, &did)) {
-			cout << "Failed to unpack did from key" << endl;
-			++errors;
-			continue;
-		    }
-		    if (did <= lastdid) {
-			cout << "First did in this chunk is <= last in "
-			    "prev chunk" << endl;
-			++errors;
-		    }
+		AssertEq(current_term, term);
+		if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+		    cout << "Failed to unpack did from key" << endl;
+		    ++errors;
+		    continue;
+		}
+		if (did <= lastdid) {
+		    cout << "First did in this chunk is <= last in "
+			"prev chunk" << endl;
+		    ++errors;
 		}
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
@@ -299,23 +459,22 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    }
 
 	    bool is_last_chunk;
-	    if (!F_unpack_bool(&pos, end, &is_last_chunk)) {
+	    if (!unpack_bool(&pos, end, &is_last_chunk)) {
 		cout << "Failed to unpack last chunk flag" << endl;
 		++errors;
 		continue;
 	    }
 	    // Read what the final document ID in this chunk is.
-	    if (!F_unpack_uint(&pos, end, &lastdid)) {
+	    if (!unpack_uint(&pos, end, &lastdid)) {
 		cout << "Failed to unpack increase to last" << endl;
 		++errors;
 		continue;
 	    }
-	    ++lastdid;
 	    lastdid += did;
 	    bool bad = false;
 	    while (true) {
 		Xapian::termcount wdf;
-		if (!F_unpack_uint(&pos, end, &wdf)) {
+		if (!unpack_uint(&pos, end, &wdf)) {
 		    cout << "Failed to unpack wdf" << endl;
 		    ++errors;
 		    bad = true;
@@ -324,26 +483,10 @@ check_flint_table(const char * tablename, string filename, int opts,
 		++tf;
 		cf += wdf;
 
-		Xapian::termcount doclen;
-		if (!F_unpack_uint(&pos, end, &doclen)) {
-		    cout << "Failed to unpack doc length" << endl;
-		    ++errors;
-		    bad = true;
-		    break;
-		}
-
-		if (!doclens.empty()) {
-		    if (did >= doclens.size()) {
-			cout << "document id " << did << " is larger than any in the termlist table!" << endl;
-		    } else if (doclens[did] != doclen) {
-			cout << "doclen " << doclen << " doesn't match " << doclens[did] << " in the termlist table" << endl;
-			++errors;
-		    }
-		}
 		if (pos == end) break;
 
 		Xapian::docid inc;
-		if (!F_unpack_uint(&pos, end, &inc)) {
+		if (!unpack_uint(&pos, end, &inc)) {
 		    cout << "Failed to unpack docid increase" << endl;
 		    ++errors;
 		    bad = true;
@@ -384,6 +527,16 @@ check_flint_table(const char * tablename, string filename, int opts,
 		 << endl;
 	    ++errors;
 	}
+
+	map<Xapian::valueno, VStats>::const_iterator i;
+	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
+	    if (i->second.freq != i->second.freq_real) {
+		cout << "Value stats frequency for slot " << i->first << " is "
+		     << i->second.freq << " but recounting gives "
+		     << i->second.freq_real << endl;
+		++errors;
+	    }
+	}
     } else if (strcmp(tablename, "record") == 0) {
 	// Now check the contents of the record table.  Any data is valid as
 	// the tag so we don't check the tags.
@@ -395,7 +548,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!F_unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 		cout << "Error unpacking docid from key" << endl;
 		++errors;
 	    } else if (pos != end) {
@@ -413,9 +566,46 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!F_unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 		cout << "Error unpacking docid from key" << endl;
 		++errors;
+		continue;
+	    }
+
+	    if (end - pos == 1 && *pos == '\0') {
+		// Value slots used entry.
+		cursor->read_tag();
+
+		pos = cursor->current_tag.data();
+		end = pos + cursor->current_tag.size();
+
+		if (pos == end) {
+		    cout << "Empty value slots used tag" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		Xapian::valueno prev_slot;
+		if (!unpack_uint(&pos, end, &prev_slot)) {
+		    cout << "Value slot encoding corrupt" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		while (pos != end) {
+		    Xapian::valueno slot;
+		    if (!unpack_uint(&pos, end, &slot)) {
+			cout << "Value slot encoding corrupt" << endl;
+			++errors;
+			break;
+		    }
+		    slot += prev_slot + 1;
+		    if (slot <= prev_slot) {
+			cout << "Value slot number overflowed (" << prev_slot << " -> " << slot << ")" << endl;
+			++errors;
+		    }
+		    prev_slot = slot;
+		}
 		continue;
 	    }
 
@@ -438,7 +628,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    Xapian::termcount doclen, termlist_size;
 
 	    // Read doclen
-	    if (!F_unpack_uint(&pos, end, &doclen)) {
+	    if (!unpack_uint(&pos, end, &doclen)) {
 		if (pos != 0) {
 		    cout << "doclen out of range" << endl;
 		} else {
@@ -449,7 +639,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    }
 
 	    // Read termlist_size
-	    if (!F_unpack_uint(&pos, end, &termlist_size)) {
+	    if (!unpack_uint(&pos, end, &termlist_size)) {
 		if (pos != 0) {
 		    cout << "termlist_size out of range" << endl;
 		} else {
@@ -459,16 +649,12 @@ check_flint_table(const char * tablename, string filename, int opts,
 		continue;
 	    }
 
-	    // See comment in FlintTermListTable::set_termlist() in
-	    // flint_termlisttable.cc for an explanation of this!
-	    if (pos != end && *pos == '0') ++pos;
-
 	    Xapian::termcount actual_doclen = 0, actual_termlist_size = 0;
 	    string current_tname;
 
 	    bool bad = false;
 	    while (pos != end) {
-		Xapian::doccount current_wdf;
+		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
 		// If there was a previous term, how much to reuse.
 		if (!current_tname.empty()) {
@@ -489,7 +675,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 
 		if (!got_wdf) {
 		    // Read wdf
-		    if (!F_unpack_uint(&pos, end, &current_wdf)) {
+		    if (!unpack_uint(&pos, end, &current_wdf)) {
 			if (pos == 0) {
 			    cout << "Unexpected end of data when reading termlist current_wdf" << endl;
 			} else {
@@ -521,62 +707,6 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    if (doclens.size() <= did) doclens.resize(did + 1);
 	    doclens[did] = actual_doclen;
 	}
-    } else if (strcmp(tablename, "value") == 0) {
-	// Now check the contents of the value table.
-	for ( ; !cursor->after_end(); cursor->next()) {
-	    string & key = cursor->current_key;
-
-	    // Get docid from key.
-	    const char * pos = key.data();
-	    const char * end = pos + key.size();
-
-	    Xapian::docid did;
-	    if (!F_unpack_uint_preserving_sort(&pos, end, &did)) {
-		cout << "Error unpacking docid from key" << endl;
-		++errors;
-	    } else if (pos != end) {
-		cout << "Extra junk in key" << endl;
-		++errors;
-	    }
-
-	    cursor->read_tag();
-
-	    pos = cursor->current_tag.data();
-	    end = pos + cursor->current_tag.size();
-
-	    bool first = true;
-	    Xapian::valueno last_value_no = 0;
-	    while (pos && pos != end) {
-		Xapian::valueno this_value_no;
-		string this_value;
-
-		if (!F_unpack_uint(&pos, end, &this_value_no)) {
-		    if (pos == 0)
-			cout << "Incomplete item in value table" << endl;
-		    else
-			cout << "Value number in value table is too large" << endl;
-		    ++errors;
-		    break;
-		}
-
-		if (!F_unpack_string(&pos, end, this_value)) {
-		    if (pos == 0)
-			cout << "Incomplete item in value table" << endl;
-		    else
-			cout << "Item in value table is too large" << endl;
-		    ++errors;
-		    break;
-		}
-
-		if (first) {
-		    first = false;
-		} else if (this_value_no <= last_value_no) {
-		    cout << "Values not in sorted order - valueno " << last_value_no << " comes before valueno " << this_value_no << endl;
-		    ++errors;
-		}
-		last_value_no = this_value_no;
-	    }
-	}
     } else if (strcmp(tablename, "position") == 0) {
 	// Now check the contents of the position table.
 	for ( ; !cursor->after_end(); cursor->next()) {
@@ -587,7 +717,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!F_unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 		cout << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
@@ -605,7 +735,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    end = pos + data.size();
 
 	    Xapian::termpos pos_last;
-	    if (!F_unpack_uint(&pos, end, &pos_last)) {
+	    if (!unpack_uint(&pos, end, &pos_last)) {
 		cout << tablename << " table: Position list data corrupt" << endl;
 		++errors;
 		continue;

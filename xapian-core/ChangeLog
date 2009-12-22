@@ -1,3 +1,8 @@
+Tue Dec 22 13:41:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/: Split the chert-specific checking code into a separate file
+	  so xapian-check.cc is just the driver code.
+
 Tue Dec 22 12:47:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Add new Inverter class to encapsulate the inversion
