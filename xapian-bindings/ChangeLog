@@ -1,3 +1,9 @@
+Tue Dec 22 23:09:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/docs/generate-rdoc-stubs,
+	  ruby/generate-rdoc-stubs: Adjust the rdoc generation code to avoid
+	  including a reference to a mysterious "rdoc.rb" with an ugly path.
+
 Tue Dec 22 12:37:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/docs/index.html,java-swig/Makefile.am,

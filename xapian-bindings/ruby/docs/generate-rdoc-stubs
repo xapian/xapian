@@ -2,12 +2,15 @@
 use strict;
 
 my ($srcdir) = ($0 =~ m!^(.*?)[^/]*$!);
-my $dir = '../../xapian-core/docs/apidoc/xml';
+my $dir = '../../../xapian-core/docs/apidoc/xml';
 
 my %documented = ();
 
-open XAPIAN_RB, '<', "${srcdir}xapian.rb" or die $!;
+open XAPIAN_RB, '<', "${srcdir}/../xapian.rb" or die $!;
+my $out = 'xapian.rb';
+open OUT, '>', $out."T" or die $!;
 while (<XAPIAN_RB>) {
+    print OUT $_;
     if (m!^\s*class\s+Xapian::(\w+)!) {
 	++$documented{$1};
     }
@@ -37,8 +40,6 @@ while (<INDEX>) {
 }
 close INDEX;
 
-my $out = 'rdoc.rb';
-open OUT, '>', $out."T" or die $!;
 for my $refid (sort keys %id) {
     my $prot;
     open F, '<', "$dir/$refid.xml";
