@@ -59,12 +59,15 @@ static BackendProperties backend_properties[] = {
 	       "synonyms,replicas,valuestats,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
 	       "synonyms,replicas,flint" },
-    { "multi_flint", "backend,positional,multi" },
+    { "multi_brass", "backend,positional,valuestats,multi" },
     { "multi_chert", "backend,positional,valuestats,multi" },
-    { "remoteprog_flint", "backend,remote,transactions,positional,writable,metadata" },
-    { "remotetcp_flint", "backend,remote,transactions,positional,writable,metadata" },
+    { "multi_flint", "backend,positional,multi" },
+    { "remoteprog_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remotetcp_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remoteprog_flint", "backend,remote,transactions,positional,writable,metadata" },
+    { "remotetcp_flint", "backend,remote,transactions,positional,writable,metadata" },
     { NULL, NULL }
 };
 

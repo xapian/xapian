@@ -1,3 +1,8 @@
+Tue Dec 22 14:20:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc: Add brass variants of multi and remote
+	  backends.
+
 Tue Dec 22 14:15:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/: Implement xapian-check and xapian-compact support for brass.
