@@ -71,7 +71,8 @@ yet though.
 Backend Support
 ---------------
 
-Currently synonyms are only supported by flint and chert databases.  They work
+Currently synonyms are only supported by chert, flint and brass databases.
+They work
 with a single database or multiple databases (use Database::add_database() as
 usual).  We've no plans to support them for the InMemory backend, but we do
 intend to support them for the remote backend in the future.

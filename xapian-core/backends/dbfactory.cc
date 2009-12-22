@@ -34,6 +34,9 @@
 
 #include "safeerrno.h"
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+# include "brass/brass_database.h"
+#endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_database.h"
 #endif
@@ -50,6 +53,20 @@
 using namespace std;
 
 namespace Xapian {
+
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+Database
+Brass::open(const string &dir) {
+    LOGAPICALL_STATIC(Database, "Brass::open", dir);
+    RETURN(Database(new BrassDatabase(dir)));
+}
+
+WritableDatabase
+Brass::open(const string &dir, int action, int block_size) {
+    LOGAPICALL_STATIC(WritableDatabase, "Brass::open", dir << ", " << action << ", " << block_size);
+    RETURN(WritableDatabase(new BrassWritableDatabase(dir, action, block_size)));
+}
+#endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 Database
@@ -118,6 +135,13 @@ open_stub(Database &db, const string &file)
 	    continue;
 	}
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	if (type == "chert") {
+	    db.add_database(Chert::open(join_paths(stubdir, line)));
+	    continue;
+	}
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (type == "flint") {
 	    db.add_database(Flint::open(join_paths(stubdir, line)));
@@ -125,9 +149,9 @@ open_stub(Database &db, const string &file)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	if (type == "chert") {
-	    db.add_database(Chert::open(join_paths(stubdir, line)));
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	if (type == "brass") {
+	    db.add_database(Brass::open(join_paths(stubdir, line)));
 	    continue;
 	}
 #endif
@@ -220,6 +244,13 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	    continue;
 	}
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	if (type == "chert") {
+	    db.add_database(Chert::open(join_paths(stubdir, line), action));
+	    continue;
+	}
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (type == "flint") {
 	    db.add_database(Flint::open(join_paths(stubdir, line), action));
@@ -227,9 +258,9 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	if (type == "chert") {
-	    db.add_database(Chert::open(join_paths(stubdir, line), action));
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	if (type == "brass") {
+	    db.add_database(Brass::open(join_paths(stubdir, line), action));
 	    continue;
 	}
 #endif
@@ -317,6 +348,13 @@ Database::Database(const string &path)
 	throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
     }
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+    if (file_exists(path + "/iamchert")) {
+	internal.push_back(new ChertDatabase(path));
+	return;
+    }
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintDatabase(path));
@@ -324,9 +362,9 @@ Database::Database(const string &path)
     }
 #endif
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (file_exists(path + "/iamchert")) {
-	internal.push_back(new ChertDatabase(path));
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+    if (file_exists(path + "/iambrass")) {
+	internal.push_back(new BrassDatabase(path));
 	return;
     }
 #endif
@@ -341,13 +379,31 @@ Database::Database(const string &path)
     open_stub(*this, stub_file);
 }
 
+#if defined XAPIAN_HAS_FLINT_BACKEND || \
+    defined XAPIAN_HAS_CHERT_BACKEND || \
+    defined XAPIAN_HAS_BRASS_BACKEND
+#define HAVE_DISK_BACKEND
+#endif
+
 WritableDatabase::WritableDatabase(const std::string &path, int action)
     : Database()
 {
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
 		 path << ", " << action);
-
-    char type = 0;
+#ifdef HAVE_DISK_BACKEND
+    enum {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	CHERT,
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	FLINT,
+#endif
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	BRASS,
+#endif
+	UNSET
+    } type = UNSET;
+#endif
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {
 	// ENOENT probably just means that we need to create the directory.
@@ -366,17 +422,26 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 	    throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
 	}
 
-	if (file_exists(path + "/iamflint")) {
+	if (file_exists(path + "/iamchert")) {
+	    // Existing chert DB.
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	    type = CHERT;
+#else
+	    throw FeatureUnavailableError("Chert backend disabled");
+#endif
+	} else if (file_exists(path + "/iamflint")) {
 	    // Existing flint DB.
-	    type = 'F';
-#ifndef XAPIAN_HAS_FLINT_BACKEND
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	    type = FLINT;
+#else
 	    throw FeatureUnavailableError("Flint backend disabled");
 #endif
-	} else if (file_exists(path + "/iamchert")) {
-	    // Existing chert DB.
-	    type = 'C';
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-	    throw FeatureUnavailableError("Chert backend disabled");
+	} else if (file_exists(path + "/iambrass")) {
+	    // Existing brass DB.
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	    type = BRASS;
+#else
+	    throw FeatureUnavailableError("Brass backend disabled");
 #endif
 	} else {
 	    // Check for "stub directories".
@@ -389,29 +454,41 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 	}
     }
 
-#if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_CHERT_BACKEND
-    if (!type) {
-	// If $XAPIAN_PREFER_CHERT is set to a non-empty value, prefer chert
-	// if there's no existing database.
-	const char *p = getenv("XAPIAN_PREFER_CHERT");
-	type = (p && *p) ? 'C' : 'F';
+#ifdef HAVE_DISK_BACKEND
+    switch (type) {
+	case UNSET: {
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	    // If only brass is enabled, there's no point checking the
+	    // environmental variable.
+# if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
+	    // If $XAPIAN_PREFER_BRASS is set to a non-empty value, prefer brass
+	    // if there's no existing database.
+	    const char *p = getenv("XAPIAN_PREFER_BRASS");
+	    if (p && *p)
+	       	goto brass;
+#endif
+#endif
+	}
+	// Fall through to first enabled case, so order the remaining cases
+	// by preference.
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	case CHERT:
+	    internal.push_back(new ChertWritableDatabase(path, action, 8192));
+	    break;
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	case FLINT:
+	    internal.push_back(new FlintWritableDatabase(path, action, 8192));
+	    break;
+#endif
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	case BRASS:
+brass:
+	    internal.push_back(new BrassWritableDatabase(path, action, 8192));
+	    break;
+#endif
     }
-
-    if (type == 'F') {
-	internal.push_back(new FlintWritableDatabase(path, action, 8192));
-    } else {
-	internal.push_back(new ChertWritableDatabase(path, action, 8192));
-    }
-#elif defined XAPIAN_HAS_FLINT_BACKEND
-    // Only Flint is enabled.
-    (void)type;
-    internal.push_back(new FlintWritableDatabase(path, action, 8192));
-#elif defined XAPIAN_HAS_CHERT_BACKEND
-    // Only Chert is enabled.
-    (void)type;
-    internal.push_back(new ChertWritableDatabase(path, action, 8192));
 #else
-    (void)type;
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
 #endif
 }

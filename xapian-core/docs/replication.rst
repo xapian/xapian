@@ -52,7 +52,8 @@ the separate `Replication Protocol <replication_protocol.html>`_ document.
 Backend Support
 ===============
 
-Replication supports the flint and chert databases, and can cleanly handle the
+Replication is supported by the chert, flint, and brass database backends,
+and can cleanly handle the
 master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.
 Replication of inmemory databases isn't currently available.  We have a longer

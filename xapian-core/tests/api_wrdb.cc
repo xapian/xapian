@@ -1118,9 +1118,9 @@ DEFINE_TESTCASE(replacedoc5, writable) {
 	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     }
 
-    // Chert and flint now spot simple cases of replacing the same document and
-    // don't do needless work.  Force them to actually do the replacement to
-    // make sure that case works.
+    // Brass, chert and flint now spot simple cases of replacing the same
+    // document and don't do needless work.  Force them to actually do the
+    // replacement to make sure that case works.
 
     {
 	Xapian::Document doc;
@@ -1487,18 +1487,12 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, writable) {
+DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
     const string & dbtype = get_dbtype();
-    string path, base_ext;
-    if (dbtype == "flint") {
-	path = ".flint/dbw";
-	base_ext = ".baseB";
-    } else if (dbtype == "chert") {
-	path = ".chert/dbw";
-	base_ext = ".baseB";
-    } else {
-	SKIP_TEST("Test only supported for flint and chert backends");
-    }
+    string path = ".";
+    path += dbtype;
+    path += "/dbw";
+    const char * base_ext = ".baseB";
 
     Xapian::Document doc;
     {
@@ -1719,8 +1713,9 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     db.commit();
 
     {
-	// Currently flint and chert escape zero byte from terms in keys for
-	// some tables, so a term with 127 zero bytes won't work either.
+	// Currently brass, flint and chert escape zero bytes from terms in
+	// keys for some tables, so a term with 127 zero bytes won't work
+	// either.
 	Xapian::Document doc;
 	doc.add_term(string(127, '\0'));
 	db.add_document(doc);
@@ -1782,7 +1777,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+DEFINE_TESTCASE(lazytablebug1, brass || chert || flint) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 
@@ -1814,7 +1809,7 @@ DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
  *  Chert also has the same duff code but this testcase doesn't actually 
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, flint || chert) {
+DEFINE_TESTCASE(cursordelbug1, brass || chert || flint) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 

@@ -20,11 +20,11 @@ libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-        check-multi check-multi-chert check-multi-flint \
-        check-remote \
-	check-remoteprog check-remoteprog-chert check-remoteprog-flint\
-	check-remotetcp check-remotetcp-chert check-remotetcp-flint\
-        check-chert check-flint up remove-cached-databases
+        check-multi check-multi-brass check-multi-chert check-multi-flint \
+        check-remote check-remoteprog check-remotetcp \
+	check-remoteprog-brass check-remoteprog-chert check-remoteprog-flint\
+	check-remotetcp-brass check-remotetcp-chert check-remotetcp-flint\
+	check-brass check-chert check-flint up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)
@@ -58,11 +58,21 @@ else
 endif
 
 check-remotetcp: apitest$(EXEEXT)
+if BUILD_BACKEND_BRASS
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
+endif
 ## If both chert and flint are enabled, just run remotetcp_flint.
 if BUILD_BACKEND_FLINT
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
 else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+endif
+
+if BUILD_BACKEND_BRASS
+check-remoteprog-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_brass
+check-remotetcp-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -78,6 +88,13 @@ check-remoteprog-flint: apitest$(EXEEXT)
 check-remotetcp-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
 endif
+endif
+
+if BUILD_BACKEND_BRASS
+check-multi-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_brass
+check-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b brass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -248,7 +265,7 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 remove-cached-databases:
-	rm -rf .chert .flint .multi .multichert .multiflint .stub
+	rm -rf .brass .chert .flint .multibrass .multichert .multiflint .stub
 
 clean-local: remove-cached-databases
 

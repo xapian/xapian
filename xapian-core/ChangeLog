@@ -1,3 +1,11 @@
+Tue Dec 22 04:26:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,backends/Makefile.mk,backends/brass/,
+	  backends/chert/dir_contents,backends/databasereplicator.cc,
+	  backends/dbfactory.cc,common/pack.h,configure.ac,docs/,tests/,
+	  tests/harness/: Add new development backend called "brass" and
+	  promote "chert" to being the stable backend.
+
 Mon Dec 21 09:41:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc: Update comment about

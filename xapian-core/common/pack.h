@@ -435,4 +435,16 @@ pack_chert_postlist_key(const std::string &term, Xapian::docid did)
     return key;
 }
 
+inline std::string
+pack_brass_postlist_key(const std::string &term)
+{
+    return pack_chert_postlist_key(term);
+}
+
+inline std::string
+pack_brass_postlist_key(const std::string &term, Xapian::docid did)
+{
+    return pack_chert_postlist_key(term, did);
+}
+
 #endif // XAPIAN_INCLUDED_PACK_H

@@ -92,7 +92,7 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactnorenumber1, chert || flint) {
+DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     int status;
 
     string a = get_database_path("compactnorenumber1a", make_sparse_db,

@@ -1,8 +1,9 @@
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007,2008,2009 Olly Betts
 
-.. FIXME: Once chert settles down, update this for chert
+.. FIXME: Fully update this for chert
+.. FIXME: Once brass settles down, update this for brass
 
 ============================
 Xapian Administrator's Guide
@@ -125,10 +126,10 @@ at any given instant, there is only permitted to be a single object modifying
 a database, but there may (simultaneously) be many objects reading the
 database at once.
 
-Xapian enforces this restriction using lock-files.  For a flint or chert
-database, each Xapian database directory contains a lock file named
-``flintlock`` (chert uses the same name as the locking technique is the
-same).
+Xapian enforces this restriction using lock-files.  For the flint, chert,
+and brass backends, each Xapian database directory contains a lock file named
+``flintlock`` (we've kept the same name as flint used, since the locking
+technique is the same).
 
 This lock-file will always exist, but will be locked using ``fcntl()`` when the
 database is open for writing.  Because of the semantics of ``fcntl()`` locking,
@@ -190,7 +191,7 @@ database, it is reasonable to wish to put this in files inside the Xapian
 database directory, for neatness.  For example, you might wish to store a list
 of the prefixes you've applied to terms for specific fields in the database.
 
-Xapian's "flint" backend doesn't perform any operations
+Current Xapian backends don't do anything
 which will break this technique, so as long as you don't choose a filename
 that Xapian uses itself, there should be no problems.  However, be aware that
 new versions of Xapian may use new files in the database directory, and it is
@@ -256,7 +257,7 @@ preserved while modifications continue.
 
 Progressive backups are not recommended for Xapian databases: Xapian database
 files are block-structured, and modifications are spread throughout the
-database file.  Therefore, a progressive backup tool will not be able to take
+/database file.  Therefore, a progressive backup tool will not be able to take
 a backup by storing only the new parts of the database.  Modifications will
 normally be so extensive that most parts of the database have been modified,
 however, if only a small number of modifications have been made, a binary diff

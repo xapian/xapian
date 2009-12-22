@@ -28,6 +28,12 @@ if BUILD_BACKEND_CHERT
 lib_src +=\
         backends/contiguousalldocspostlist.cc\
 	backends/flint_lock.cc
+else
+if BUILD_BACKEND_BRASS
+lib_src +=\
+        backends/contiguousalldocspostlist.cc\
+	backends/flint_lock.cc
+endif
 endif
 endif
 
@@ -42,6 +48,7 @@ endif
 # 5) If it needs to support replication, update backends/databasereplicator.cc
 # 6) Write the backend code!
 
+include backends/brass/Makefile.mk
 include backends/chert/Makefile.mk
 include backends/flint/Makefile.mk
 include backends/inmemory/Makefile.mk

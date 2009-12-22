@@ -37,20 +37,14 @@
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
-DEFINE_TESTCASE(lockfileumask1, flint || chert) {
+DEFINE_TESTCASE(lockfileumask1, brass || chert || flint) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
 	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
 
-	string path;
-	const string & dbtype = get_dbtype();
-	if (dbtype == "flint" || dbtype == "chert") {
-	    path = get_named_writable_database_path("lockfileumask1");
-	    path += "/flintlock";
-	} else {
-	    SKIP_TEST("Test only supported for flint and chert backends");
-	}
+	string path = get_named_writable_database_path("lockfileumask1");
+	path += "/flintlock";
 
 	struct stat statbuf;
 	TEST(stat(path, &statbuf) == 0);
@@ -93,8 +87,9 @@ DEFINE_TESTCASE(dbstats1, backend) {
     const Xapian::termcount max_len = 532;
     const Xapian::termcount max_wdf = 22;
 
-    if (get_dbtype().find("chert") != string::npos) {
-	// Should be exact for chert as no deletions have happened.
+    if (get_dbtype().find("chert") != string::npos ||
+	get_dbtype().find("brass") != string::npos) {
+	// Should be exact for brass and chert as no deletions have happened.
 	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
 	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
     } else {
@@ -162,7 +157,7 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lockfilefd0or1, flint || chert) {
+DEFINE_TESTCASE(lockfilefd0or1, brass || chert || flint) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     int old_stdin = dup(0);
     int old_stdout = dup(1);

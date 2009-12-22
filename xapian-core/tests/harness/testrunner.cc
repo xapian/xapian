@@ -26,6 +26,7 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
+#include "backendmanager_brass.h"
 #include "backendmanager_chert.h"
 #include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
@@ -52,6 +53,8 @@ struct BackendProperties {
 static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,metadata,valuestats,inmemory" },
+    { "brass", "backend,transactions,positional,writable,spelling,metadata,"
+	       "synonyms,replicas,valuestats,brass" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
 	       "synonyms,replicas,valuestats,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
@@ -83,8 +86,9 @@ TestRunner::set_properties(const string & properties)
     replicas = false;
     valuestats = false;
     inmemory = false;
-    flint = false;
+    brass = false;
     chert = false;
+    flint = false;
 
     // Read the properties specified in the string
     string::size_type pos = 0;
@@ -119,10 +123,12 @@ TestRunner::set_properties(const string & properties)
 	    valuestats = true;
 	else if (propname == "inmemory")
 	    inmemory = true;
-	else if (propname == "flint")
-	    flint = true;
+	else if (propname == "brass")
+	    brass = true;
 	else if (propname == "chert")
 	    chert = true;
+	else if (propname == "flint")
+	    flint = true;
 	else
 	    throw Xapian::InvalidArgumentError("Unknown property '" + propname + "' found in proplist");
 
@@ -188,6 +194,10 @@ TestRunner::run_tests(int argc, char ** argv)
 	do_tests_for_backend(new BackendManagerInMemory);
 #endif
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	do_tests_for_backend(new BackendManagerBrass);
+#endif
+
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	do_tests_for_backend(new BackendManagerChert);
 #endif
@@ -196,6 +206,9 @@ TestRunner::run_tests(int argc, char ** argv)
 	do_tests_for_backend(new BackendManagerFlint);
 #endif
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	do_tests_for_backend(new BackendManagerMulti("brass"));
+#endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	do_tests_for_backend(new BackendManagerMulti("chert"));
 #endif
@@ -204,6 +217,10 @@ TestRunner::run_tests(int argc, char ** argv)
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	do_tests_for_backend(new BackendManagerRemoteProg("brass"));
+	do_tests_for_backend(new BackendManagerRemoteTcp("brass"));
+#endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	do_tests_for_backend(new BackendManagerRemoteProg("chert"));
 	do_tests_for_backend(new BackendManagerRemoteTcp("chert"));
