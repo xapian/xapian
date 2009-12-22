@@ -1,5 +1,5 @@
 /** @file xapian-check.cc
- * @brief Check consistency of a database or table.
+ * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
@@ -22,6 +22,7 @@
 
 #include <config.h>
 
+#include "xapian-check-brass.h"
 #include "xapian-check-chert.h"
 #include "xapian-check-flint.h"
 
@@ -36,14 +37,14 @@
 using namespace std;
 
 #define PROG_NAME "xapian-check"
-#define PROG_DESC "Check the consistency of a chert or flint database or table"
+#define PROG_DESC "Check the consistency of a database or table"
 
 // FIXME: We don't currently cross-check wdf between postlist and termlist.
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
 // "only" requires (4 * last_docid()) bytes.
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" <chert or flint directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
+    cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
@@ -97,8 +98,10 @@ main(int argc, char **argv)
 	size_t errors = 0;
 	struct stat sb;
 	string dir(argv[1]);
-#ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	    throw "Flint database support isn't enabled";
+#else
 	    // Check a whole flint database directory.
 	    try {
 		Xapian::Database db = Xapian::Flint::open(dir);
@@ -135,10 +138,11 @@ main(int argc, char **argv)
 		}
 		errors += check_flint_table(*t, table, opts, doclens);
 	    }
-	} else
 #endif
+	} else if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
+	    throw "Chert database support isn't enabled";
+#else
 	    // Check a whole chert database directory.
 	    // If we can't read the last docid, set it to its maximum value
 	    // to suppress errors.
@@ -182,9 +186,56 @@ main(int argc, char **argv)
 		errors += check_chert_table(*t, table, opts, doclens,
 					    db_last_docid);
 	    }
-	} else
 #endif
-	{
+	} else if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
+#ifndef XAPIAN_HAS_BRASS_BACKEND
+	    throw "Brass database support isn't enabled";
+#else
+	    // Check a whole brass database directory.
+	    // If we can't read the last docid, set it to its maximum value
+	    // to suppress errors.
+	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	    try {
+		Xapian::Database db = Xapian::Brass::open(dir);
+		db_last_docid = db.get_lastdocid();
+		doclens.reserve(db_last_docid + 1);
+	    } catch (const Xapian::Error & e) {
+		// Ignore so we can check a database too broken to open.
+		cout << "Database couldn't be opened for reading: "
+		     << e.get_description()
+		     << "\nContinuing check anyway" << endl;
+		++errors;
+	    }
+	    // This is a brass directory so try to check all the btrees.
+	    // Note: it's important to check termlist before postlist so
+	    // that we can cross-check the document lengths.
+	    const char * tables[] = {
+		"record", "termlist", "postlist", "position",
+		"spelling", "synonym"
+	    };
+	    for (const char **t = tables;
+		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
+		string table(dir);
+		table += '/';
+		table += *t;
+		cout << *t << ":\n";
+		if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
+		    // Other tables are created lazily, so may not exist.
+		    if (!file_exists(table + ".DB")) {
+			if (strcmp(*t, "termlist") == 0) {
+			    cout << "Not present.\n";
+			} else {
+			    cout << "Lazily created, and not yet used.\n";
+			}
+			cout << endl;
+			continue;
+		    }
+		}
+		errors += check_brass_table(*t, table, opts, doclens,
+					    db_last_docid);
+	    }
+#endif
+	} else {
 	    if (stat((dir + "/record_DB").c_str(), &sb) == 0) {
 		// Quartz is no longer supported as of Xapian 1.1.0.
 		cerr << argv[0] << ": '" << dir << "' is a quartz database.\n"
@@ -207,16 +258,23 @@ main(int argc, char **argv)
 #endif
 	    if (p == string::npos) p = 0; else ++p;
 
-	    bool flint = !file_exists(filename.substr(0, p) + "iamchert");
+	    string path(filename, 0, p);
 
 	    string tablename;
 	    while (p != filename.size()) {
 		tablename += tolower(static_cast<unsigned char>(filename[p++]));
 	    }
 
-	    if (flint) {
+	    // If we're passed a "naked" table (with no accompanying files)
+	    // assume it is chert.
+	    if (file_exists(path + "iamflint")) {
 		errors = check_flint_table(tablename.c_str(), filename, opts,
 					   doclens);
+	    } else if (file_exists(path + "iambrass")) {
+		// Set the last docid to its maximum value to suppress errors.
+		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+		errors = check_brass_table(tablename.c_str(), filename, opts,
+					   doclens, db_last_docid);
 	    } else {
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);

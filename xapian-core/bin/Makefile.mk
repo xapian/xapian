@@ -41,22 +41,31 @@ EXTRA_PROGRAMS +=\
 	bin/xapian-progsrv\
 	bin/xapian-tcpsrv
 
-bin_xapian_check_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_check_CPPFLAGS =\
+	-I$(top_srcdir)/backends/brass\
+	-I$(top_srcdir)/backends/chert\
+	-I$(top_srcdir)/backends/flint
 bin_xapian_check_SOURCES =\
 	bin/xapian-check.cc\
+	bin/xapian-check-brass.cc\
+	bin/xapian-check-brass.h\
 	bin/xapian-check-chert.cc\
 	bin/xapian-check-chert.h\
 	bin/xapian-check-flint.cc\
 	bin/xapian-check-flint.h
-bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la $(libxapian_la)
+bin_xapian_check_LDADD = $(ldflags) libbrasscheck.la libchertcheck.la libflintcheck.la $(libxapian_la)
 
 bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
 bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_compact_CPPFLAGS =\
+	-I$(top_srcdir)/backends/brass\
+	-I$(top_srcdir)/backends/chert\
+	-I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES =\
 	bin/xapian-compact.cc\
+	bin/xapian-compact-brass.cc\
 	bin/xapian-compact-chert.cc\
 	bin/xapian-compact-flint.cc\
 	bin/xapian-compact.h

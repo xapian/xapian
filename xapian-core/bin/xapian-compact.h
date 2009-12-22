@@ -30,6 +30,12 @@
 typedef enum { STANDARD, FULL, FULLER } compaction_level;
 
 void
+compact_brass(const char * destdir, const std::vector<std::string> & sources,
+	      const std::vector<Xapian::docid> & offset, size_t block_size,
+	      compaction_level compaction, bool multipass,
+	      Xapian::docid tot_off);
+
+void
 compact_chert(const char * destdir, const std::vector<std::string> & sources,
 	      const std::vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,

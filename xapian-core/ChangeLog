@@ -1,3 +1,7 @@
+Tue Dec 22 14:15:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/: Implement xapian-check and xapian-compact support for brass.
+
 Tue Dec 22 13:41:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/: Split the chert-specific checking code into a separate file
