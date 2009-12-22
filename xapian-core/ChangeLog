@@ -1,3 +1,8 @@
+Tue Dec 22 22:48:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fixed reversed checks for chert and flint being
+	  enabled in r13781.
+
 Tue Dec 22 14:20:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testrunner.cc: Add brass variants of multi and remote

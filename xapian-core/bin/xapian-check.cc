@@ -99,7 +99,7 @@ main(int argc, char **argv)
 	struct stat sb;
 	string dir(argv[1]);
 	if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
+#ifndef XAPIAN_HAS_FLINT_BACKEND
 	    throw "Flint database support isn't enabled";
 #else
 	    // Check a whole flint database directory.
@@ -140,7 +140,7 @@ main(int argc, char **argv)
 	    }
 #endif
 	} else if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
+#ifndef XAPIAN_HAS_CHERT_BACKEND
 	    throw "Chert database support isn't enabled";
 #else
 	    // Check a whole chert database directory.
