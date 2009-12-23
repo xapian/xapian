@@ -1450,10 +1450,18 @@ TermList *
 BrassWritableDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "BrassWritableDatabase::open_allterms", "");
-    // If there are changes, terms may have been added or removed, and so we
-    // need to flush (but don't commit - there may be a transaction in
-    // progress).
-    if (change_count) flush_postlist_changes();
+    if (change_count) {
+	// There are changes, and terms may have been added or removed, and so
+	// we need to flush changes for terms with the specified prefix (but
+	// don't commit - there may be a transaction in progress).
+	inverter.flush_post_lists(postlist_table, prefix);
+	if (prefix.empty()) {
+	    // We've flushed all the posting list changes, but the document
+	    // length and stats haven't been written, so set change_count to 1.
+	    // FIXME: Can we handle this better?
+	    change_count = 1;
+	}
+    }
     RETURN(BrassDatabase::open_allterms(prefix));
 }
 

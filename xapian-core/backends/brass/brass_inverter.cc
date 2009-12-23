@@ -39,22 +39,47 @@ Inverter::flush_doclengths(BrassPostListTable & table)
 void
 Inverter::flush_post_list(BrassPostListTable & table, const string & term)
 {
-    map<string, PostingChanges>::iterator j;
-    j = postlist_changes.find(term);
-    if (j == postlist_changes.end()) return;
+    map<string, PostingChanges>::iterator i;
+    i = postlist_changes.find(term);
+    if (i == postlist_changes.end()) return;
 
     // Flush buffered changes for just this term's postlist.
-    table.merge_changes(term, j->second);
-    postlist_changes.erase(j);
+    table.merge_changes(term, i->second);
+    postlist_changes.erase(i);
+}
+
+void
+Inverter::flush_all_post_lists(BrassPostListTable & table)
+{
+    map<string, PostingChanges>::const_iterator i;
+    for (i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
+	table.merge_changes(i->first, i->second);
+    }
+    postlist_changes.clear();
+}
+
+void
+Inverter::flush_post_lists(BrassPostListTable & table, const string & pfx)
+{
+    if (pfx.empty())
+	return flush_all_post_lists(table);
+
+    map<string, PostingChanges>::iterator i, begin, end;
+    begin = postlist_changes.lower_bound(pfx);
+    end = postlist_changes.upper_bound(pfx);
+
+    for (i = begin; i != end; ++i) {
+	table.merge_changes(i->first, i->second);
+    }
+
+    // Erase all the entries in one go, as that's:
+    //  O(log(postlist_changes.size()) + O(number of elements removed)
+    postlist_changes.erase(begin, end);
 }
 
 void
 Inverter::flush(BrassPostListTable & table)
 {
     flush_doclengths(table);
-    map<string, PostingChanges>::const_iterator j;
-    for (j = postlist_changes.begin(); j != postlist_changes.end(); ++j) {
-	table.merge_changes(j->first, j->second);
-    }
-    postlist_changes.clear();
+    flush_all_post_lists(table);
 }

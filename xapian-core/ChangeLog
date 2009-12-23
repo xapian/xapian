@@ -1,3 +1,11 @@
+Wed Dec 23 00:26:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/brass/brass_inverter.cc,
+	  backends/brass/brass_inverter.h: For allterms iteration of a
+	  WritableDatabase, if a prefix is specified only flush changes for
+	  terms with that prefix.  Also, don't flush document lengths for
+	  allterms iteration.
+
 Tue Dec 22 22:48:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Fixed reversed checks for chert and flint being

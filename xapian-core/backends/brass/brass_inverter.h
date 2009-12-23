@@ -150,10 +150,19 @@ class Inverter {
 	return true;
     }
 
+    /// Flush document length changes.
     void flush_doclengths(BrassPostListTable & table);
 
+    /// Flush postlist changes for @a term.
     void flush_post_list(BrassPostListTable & table, const std::string & term);
 
+    /// Flush postlist changes for all terms.
+    void flush_all_post_lists(BrassPostListTable & table);
+
+    /// Flush postlist changes for all terms which start with @a pfx.
+    void flush_post_lists(BrassPostListTable & table, const std::string & pfx);
+
+    /// Flush all changes.
     void flush(BrassPostListTable & table);
 
     Xapian::termcount_diff get_tfdelta(const std::string & term) {
