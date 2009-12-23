@@ -99,6 +99,17 @@ QueryParser::unstem_end(term)
 	RETVAL
 
 string
+QueryParser::get_corrected_query_string()
+    CODE:
+    try {
+	RETVAL = THIS->get_corrected_query_string();
+    } catch (const Error &error) {
+	croak( "Exception: %s", error.get_msg().c_str() );
+    }
+    OUTPUT:
+	RETVAL
+
+string
 QueryParser::get_description()
 
 void
