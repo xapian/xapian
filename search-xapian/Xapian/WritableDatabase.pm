@@ -176,7 +176,7 @@ called or the database is closed).
 
 =item reopen
 
-Re-open the database. makes sure you have a fresh db handle.
+Re-open the database to ensure you are using the latest revision.
 
 =back
 
