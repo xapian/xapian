@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.18.0
+	[Changes contributed by Henry]
+	- Add wrappers for the spelling correction functionality (ticket#420).
+
 1.0.17.0  Wed Nov 18 02:02:41 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Fix to build with compilers other than GCC by disabling Perl's
