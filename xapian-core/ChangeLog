@@ -1,3 +1,8 @@
+Thu Dec 24 13:39:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Check WritableDatabase::close() during a
+	  transaction does *NOT* implicitly call commit().
+
 Thu Dec 24 13:07:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/brass/brass_database.h,
