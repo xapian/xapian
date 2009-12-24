@@ -329,6 +329,9 @@ class BrassWritableDatabase : public BrassDatabase {
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
 
+	/// Close all the tables permanently.
+	void close();
+
 	/// Apply changes.
 	void apply();
 

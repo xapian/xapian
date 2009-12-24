@@ -1064,6 +1064,17 @@ ChertWritableDatabase::flush_postlist_changes() const
 }
 
 void
+ChertWritableDatabase::close()
+{
+    DEBUGCALL(DB, void, "ChertWritableDatabase::close", "");
+    if (!transaction_active()) {
+	commit();
+	// FIXME: if commit() throws, should we still close?
+    }
+    ChertDatabase::close();
+}
+
+void
 ChertWritableDatabase::apply()
 {
     value_manager.set_value_stats(value_stats);

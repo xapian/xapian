@@ -1056,6 +1056,17 @@ BrassWritableDatabase::flush_postlist_changes() const
 }
 
 void
+BrassWritableDatabase::close()
+{
+    DEBUGCALL(DB, void, "BrassWritableDatabase::close", "");
+    if (!transaction_active()) {
+	commit();
+	// FIXME: if commit() throws, should we still close?
+    }
+    BrassDatabase::close();
+}
+
+void
 BrassWritableDatabase::apply()
 {
     value_manager.set_value_stats(value_stats);

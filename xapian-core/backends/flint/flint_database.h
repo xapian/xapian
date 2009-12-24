@@ -323,6 +323,9 @@ class FlintWritableDatabase : public FlintDatabase {
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
 
+	/// Close all the tables permanently.
+	void close();
+
 	//@{
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.

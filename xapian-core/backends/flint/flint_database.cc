@@ -1053,6 +1053,17 @@ FlintWritableDatabase::flush_postlist_changes() const
     change_count = 0;
 }
 
+void
+FlintWritableDatabase::close()
+{
+    DEBUGCALL(DB, void, "FlintWritableDatabase::close", "");
+    if (!transaction_active()) {
+	commit();
+	// FIXME: if commit() throws, should we still close?
+    }
+    FlintDatabase::close();
+}
+
 Xapian::docid
 FlintWritableDatabase::add_document(const Xapian::Document & document)
 {
