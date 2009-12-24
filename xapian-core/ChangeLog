@@ -1,3 +1,7 @@
+Thu Dec 24 14:08:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Fix typo in last commit.
+
 Thu Dec 24 13:39:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_closedb.cc: Check WritableDatabase::close() during a
