@@ -1,3 +1,8 @@
+Thu Dec 24 19:18:41 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Expand test to cover some modification
+	  to the positional information.
+
 Thu Dec 24 19:06:32 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replacedoc.cc: Add some more sets of modification

@@ -253,5 +253,41 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=3");
     TEST_EQUAL(dbstats_to_string(db), "dc=1,al=3,ld=1");
 
+    // Add a position to the document.
+    Xapian::Document doc5(db.get_document(1));
+    doc5.add_posting("takeaway", 1, 2);
+    db.replace_document(1, doc5);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=5, pos=[1])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=5");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=5");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=5,ld=1");
+
+    // Add a position without changing the wdf.
+    Xapian::Document doc5b(db.get_document(1));
+    doc5b.add_posting("takeaway", 2, 0);
+    db.replace_document(1, doc5b);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=5, pos=[1, 2])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=5");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=5");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=5,ld=1");
+
+    // Delete a position without changing the wdf.
+    Xapian::Document doc5c;
+    doc5c.add_posting("takeaway", 2, 5);
+    db.replace_document(1, doc5c);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=5, pos=[2])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=5");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=5");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=5,ld=1");
+
+    // Delete the other position without changing the wdf.
+    Xapian::Document doc5d;
+    doc5d.add_term("takeaway", 5);
+    db.replace_document(1, doc5d);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=5, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=5");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=5");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=5,ld=1");
+
     return true;
 }
