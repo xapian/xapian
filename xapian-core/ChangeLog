@@ -1,3 +1,8 @@
+Thu Dec 24 18:55:37 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add test modtermwdf1, which tests a lot
+	  more cases where documents are modified.
+
 Thu Dec 24 14:36:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/: Canonicalise the conditions on testcases.

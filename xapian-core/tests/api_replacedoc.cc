@@ -67,6 +67,36 @@ docterms_to_string(const Xapian::Database & db, Xapian::docid did) {
     return result;
 }
 
+static string
+docstats_to_string(const Xapian::Database & db, Xapian::docid did) {
+    string result;
+
+    result += "len=" + str(db.get_doclength(did));
+
+    return result;
+}
+
+static string
+termstats_to_string(const Xapian::Database & db, const string & term) {
+    string result;
+
+    result += "tf=" + str(db.get_termfreq(term));
+    result += ",cf=" + str(db.get_collection_freq(term));
+
+    return result;
+}
+
+static string
+dbstats_to_string(const Xapian::Database & db) {
+    string result;
+
+    result += "dc=" + str(db.get_doccount());
+    result += ",al=" + str(db.get_avlength());
+    result += ",ld=" + str(db.get_lastdocid());
+
+    return result;
+}
+
 // Test that positionlists are updated correctly.
 DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     Xapian::WritableDatabase db = get_writable_database();
@@ -131,6 +161,68 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=1, pos=[]), "
 	       "Term(pos2, wdf=1, pos=[])");
+
+    return true;
+}
+
+/** Check that changing the wdf of a term in a document works.
+ */
+DEFINE_TESTCASE(modtermwdf1, writable) {
+    Xapian::WritableDatabase db(get_writable_database());
+
+    // Add a simple document.
+    Xapian::Document doc1;
+    doc1.add_term("takeaway", 1);
+    db.add_document(doc1);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=1, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=1");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=1");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=1,ld=1");
+
+    // Modify the wdf of an existing document, checking stats before flush.
+    Xapian::Document doc2;
+    doc2.add_term("takeaway", 2);
+    db.replace_document(1, doc2);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=2");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=2");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=2,ld=1");
+
+    // Modify the wdf of an existing document, checking stats after flush.
+    Xapian::Document doc3;
+    doc3.add_term("takeaway", 3);
+    db.replace_document(1, doc3);
+    db.flush();
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=3, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=3");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=3");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=3,ld=1");
+
+    // Modify a document taken from the database.
+    Xapian::Document doc4(db.get_document(1));
+    Xapian::Document doc3a(db.get_document(1)); // need this one later
+    doc3a.termlist_count(); // Pull the document termlist into memory.
+    doc4.add_term("takeaway", 1);
+    db.replace_document(1, doc4);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=4, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=4");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=4");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=4,ld=1");
+
+    // Add a document which was previously added and then modified.
+    doc1.add_term("takeaway", 1);
+    db.replace_document(1, doc1);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=2");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=2");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=2,ld=1");
+
+    // Add back a document which was taken from the database, but never modified.
+    db.replace_document(1, doc3a);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=3, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=3");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=3");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=3,ld=1");
 
     return true;
 }
