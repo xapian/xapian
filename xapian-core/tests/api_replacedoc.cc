@@ -188,6 +188,35 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=2");
     TEST_EQUAL(dbstats_to_string(db), "dc=1,al=2,ld=1");
 
+    // Remove a term, and then put it back again.
+    Xapian::Document doc0;
+    db.replace_document(1, doc0);
+    TEST_EQUAL(docterms_to_string(db, 1), "");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=0");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=0,cf=0");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=0,ld=1");
+    db.replace_document(1, doc1);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=1, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=1");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=1");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=1,ld=1");
+
+    // Remove a term, and then put it back again without checking stats.
+    db.replace_document(1, doc0);
+    db.replace_document(1, doc2);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=2");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=2");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=2,ld=1");
+
+    // Modify a term, and then put it back again without checking stats.
+    db.replace_document(1, doc1);
+    db.replace_document(1, doc2);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=2");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=2");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=2,ld=1");
+
     // Modify the wdf of an existing document, checking stats after flush.
     Xapian::Document doc3;
     doc3.add_term("takeaway", 3);
