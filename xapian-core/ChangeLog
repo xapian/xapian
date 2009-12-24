@@ -1,3 +1,7 @@
+Thu Dec 24 14:36:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/: Canonicalise the conditions on testcases.
+
 Thu Dec 24 14:08:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_closedb.cc: Fix typo in last commit.

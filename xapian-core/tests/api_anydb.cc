@@ -2008,7 +2008,7 @@ DEFINE_TESTCASE(valuerange1, backend) {
 
 // Regression test for Query::OP_VALUE_LE - used to return document IDs for
 // non-existent documents.
-DEFINE_TESTCASE(valuerange2, backend && writable) {
+DEFINE_TESTCASE(valuerange2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.set_data("5");
@@ -2026,7 +2026,7 @@ DEFINE_TESTCASE(valuerange2, backend && writable) {
 }
 
 // Test for alldocs postlist with a sparse database.
-DEFINE_TESTCASE(alldocspl1, backend && writable) {
+DEFINE_TESTCASE(alldocspl1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.set_data("5");
@@ -2045,7 +2045,7 @@ DEFINE_TESTCASE(alldocspl1, backend && writable) {
 }
 
 // Test reading and writing a modified alldocspostlist.
-DEFINE_TESTCASE(alldocspl2, backend && writable) {
+DEFINE_TESTCASE(alldocspl2, writable) {
     Xapian::PostingIterator i, end;
     {
 	Xapian::WritableDatabase db = get_writable_database();
