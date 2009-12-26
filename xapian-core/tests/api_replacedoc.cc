@@ -289,5 +289,28 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=5");
     TEST_EQUAL(dbstats_to_string(db), "dc=1,al=5,ld=1");
 
+    // Reduce the wdf to 0, but don't delete the term.
+    Xapian::Document doc0freq;
+    doc0freq.add_term("takeaway", 0);
+    db.replace_document(1, doc0freq);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=0, pos=[])");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=0");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=1,cf=0");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=0,ld=1");
+
+    // Reduce the wdf to 0, and delete the term.
+    db.replace_document(1, doc0);
+    TEST_EQUAL(docterms_to_string(db, 1), "");
+    TEST_EQUAL(docstats_to_string(db, 1), "len=0");
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=0,cf=0");
+    TEST_EQUAL(dbstats_to_string(db), "dc=1,al=0,ld=1");
+
+    // Delete the document.
+    db.delete_document(1);
+    TEST_EXCEPTION(Xapian::DocNotFoundError, docterms_to_string(db, 1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, docstats_to_string(db, 1));
+    TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=0,cf=0");
+    TEST_EQUAL(dbstats_to_string(db), "dc=0,al=0,ld=1");
+
     return true;
 }
