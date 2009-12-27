@@ -1,3 +1,9 @@
+Sun Dec 27 13:34:06 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add test of the contents of the
+	  postlist of a term which is being modified.  Also, tidy up the
+	  output of docterms_to_string() to skip any empty position lists.
+
 Sat Dec 26 19:21:19 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replacedoc.cc: Extend test to cover removing a term but
