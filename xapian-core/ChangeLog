@@ -1,3 +1,11 @@
+Sun Dec 27 14:56:16 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_modifiedpostlist.cc,
+	  backends/flint/flint_modifiedpostlist.cc: Report the wdf from the
+	  modifications, rather the sum of the wdf from the modifications
+	  and the old wdf.  The old behaviour was just wrong, but we had no
+	  test coverage for this until the last commit.
+
 Sun Dec 27 13:34:06 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replacedoc.cc: Add test of the contents of the
