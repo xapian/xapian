@@ -1,3 +1,11 @@
+Tue Dec 29 22:29:08 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Check consistency of the posting lists
+	  with the termlists, and consistency of the statistics, at each
+	  step of modtermwdf1.  Also, add some other terms to the document,
+	  so we can check the stored doclength for terms which haven't been
+	  modified.
+
 Sun Dec 27 14:56:16 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/chert/chert_modifiedpostlist.cc,
