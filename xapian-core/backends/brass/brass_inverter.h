@@ -67,6 +67,14 @@ class Inverter {
 	    pl_changes.insert(std::make_pair(did, DELETED_POSTING));
 	}
 
+	/// Constructor for an updated posting.
+	PostingChanges(Xapian::docid did, Xapian::termcount old_wdf,
+		       Xapian::termcount new_wdf)
+	    : tf_delta(0), cf_delta(Xapian::termcount_diff(new_wdf - old_wdf))
+	{
+	    pl_changes.insert(std::make_pair(did, new_wdf));
+	}
+
 	/// Add a posting.
 	void add_posting(Xapian::docid did, Xapian::termcount wdf) {
 	    ++tf_delta;
@@ -81,6 +89,13 @@ class Inverter {
 	    cf_delta -= wdf;
 	    // Remove did from tname's postlist.
 	    pl_changes[did] = DELETED_POSTING;
+	}
+
+	/// Update a posting.
+	void update_posting(Xapian::docid did, Xapian::termcount old_wdf,
+			    Xapian::termcount new_wdf) {
+	    cf_delta += new_wdf - old_wdf;
+	    pl_changes[did] = new_wdf;
 	}
 
 	/// Get the term frequency delta.
@@ -119,6 +134,19 @@ class Inverter {
 		std::make_pair(term, PostingChanges(did, wdf, false)));
 	} else {
 	    i->second.remove_posting(did, wdf);
+	}
+    }
+
+    void update_posting(Xapian::docid did, const std::string & term,
+			Xapian::termcount old_wdf,
+			Xapian::termcount new_wdf) {
+	std::map<std::string, PostingChanges>::iterator i;
+	i = postlist_changes.find(term);
+	if (i == postlist_changes.end()) {
+	    postlist_changes.insert(
+		std::make_pair(term, PostingChanges(did, old_wdf, new_wdf)));
+	} else {
+	    i->second.update_posting(did, old_wdf, new_wdf);
 	}
     }
 

@@ -1,3 +1,8 @@
+Wed Dec 30 11:44:18 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_inverter.h: Add methods for updating an
+	  existing posting, so we don't have to remove then re-add it.
+
 Wed Dec 30 11:41:57 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/brass/brass_database.h: Remove old unused members:
