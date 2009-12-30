@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -58,10 +58,28 @@ get_database(const string &dbname, const string &dbname2)
     return backendmanager->get_database(dbnames);
 }
 
+Xapian::Database
+get_database(const std::string &dbname,
+	     void (*gen)(Xapian::WritableDatabase&,
+			 const std::string &),
+	     const std::string &arg)
+{
+    return backendmanager->get_database(dbname, gen, arg);
+}
+
 string
 get_database_path(const string &dbname)
 {
     return backendmanager->get_database_path(dbname);
+}
+
+string
+get_database_path(const std::string &dbname,
+		  void (*gen)(Xapian::WritableDatabase&,
+			      const std::string &),
+		  const std::string &arg)
+{
+    return backendmanager->get_database_path(dbname, gen, arg);
 }
 
 Xapian::WritableDatabase

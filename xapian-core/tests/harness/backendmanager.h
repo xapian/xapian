@@ -94,6 +94,19 @@ class BackendManager {
     Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
 #endif
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+  protected:
+    std::string createdb_brass(const std::vector<std::string> &files);
+
+  public:
+    /// Get a writable brass database instance.
+    Xapian::WritableDatabase getwritedb_brass(const std::string & name,
+					      const std::vector<std::string> &files);
+
+    /// Get the path of a writable brass database instance.
+    std::string getwritedb_brass_path(const std::string & name);
+#endif
+
 #ifdef XAPIAN_HAS_CHERT_BACKEND
   protected:
     std::string createdb_chert(const std::vector<std::string> &files);
@@ -147,11 +160,31 @@ class BackendManager {
     /// Get a database instance of the current type, single file case.
     Xapian::Database get_database(const std::string &file);
 
+    /** Get a database instance of the current type, generated case.
+     *
+     * @param dbname	The name of the database (base on your testcase name).
+     * @param gen	Generator function - should index data to the empty
+     *			WritableDatabase provided.
+     * @param arg	String argument to pass to @a gen - it's up to you how
+     *			to make use of this (or just ignore it if you don't need
+     *			it).
+     */
+    Xapian::Database get_database(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg);
+
     /// Get the path of a database instance, if such a thing exists.
     std::string get_database_path(const std::vector<std::string> &files);
 
     /// Get the path of a database instance, if such a thing exists (single file case).
     std::string get_database_path(const std::string &file);
+
+    /// Get the path of a generated database instance.
+    std::string get_database_path(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg);
 
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
@@ -163,10 +196,10 @@ class BackendManager {
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    virtual Xapian::Database get_writable_database_as_database(const std::string & name = std::string());
+    virtual Xapian::Database get_writable_database_as_database();
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    virtual Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
+    virtual Xapian::WritableDatabase get_writable_database_again();
 
     /// Called after each test, to perform any necessary cleanup.
     virtual void clean_up();

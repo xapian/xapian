@@ -1,5 +1,5 @@
 .. Copyright (C) 2007 Jenny Black
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007,2008,2009 Olly Betts
 .. Copyright (C) 2007 Deron Meranda
 
 ========
@@ -29,19 +29,27 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  Boolean style query can filter the retrieved documents, which are then ordered
  using a probabilistic ranking.
 
+**Brass**
+ Brass is the current "under development" database format used in Xapian.  We
+ try to keep it as stable as chert - the main difference is that incompatible
+ changes may be made which will require you to reindex, even between stable
+ point release.  In release 1.4.0, brass will be declared stable and made the
+ default backend, and chert will then be deprecated.
+
 **Chert**
- Chert is the current "under development" database format used in Xapian.  We
- try to keep it as stable as flint - the main difference is that incompatible
- changes may be made which will require you to reindex - flint databases are
- compatible between Xapian releases.  In release 1.2.0, chert will be declared
- stable and made the default backend, and flint will then be deprecated.
+ Chert is the stable database format used in Xapian 1.2.x.  It is similar
+ to Flint in many ways, but generally faster, and uses significantly less disk
+ space.  Chert is very efficient and highly scalable.  It supports incremental
+ modifications, and concurrent single-writer and multiple-reader access to a
+ database.
 
 **Database**
  In Xapian (as opposed to a relational database system) a database consists of
  little more than indexed documents: this reflects the purpose of Xapian as an
  information retrieval system, rather than an information storage system.
- These may also occasionally be called Indexes.  Flint is the backend used from
- Xapian 1.0 onwards, quartz was used in older versions.
+ These may also occasionally be called Indexes.  Chert is the backend used
+ from Xapian 1.2 onwards; Flint was used from Xapian 1.0 onwards; Quartz was
+ used in older versions.
 
 **Document ID**
  A unique positive integer identifying a document in a Xapian database.
@@ -73,10 +81,9 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  differentiators between relevant and non-relevant documents.
 
 **Flint**
- Flint is the current database format used in Xapian.  It's the default from
- Xapian 1.0 onwards, replacing Quartz.  Flint is very efficient and highly
- scalable.  It supports incremental modifications, and concurrent single-writer
- and multiple-reader access to a database.
+ Flint is the default database format used in Xapian 1.0.x.  Flint is very
+ efficient and highly scalable.  It supports incremental modifications, and
+ concurrent single-writer and multiple-reader access to a database.
 
 **Index**
  If a document is described by a term, this term is said to index the document.

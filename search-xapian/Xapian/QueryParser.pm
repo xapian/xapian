@@ -157,6 +157,15 @@ prefix	The term prefix to map this to
 
 Returns a string describing this object.
 
+=item get_corrected_query_string
+
+Get the spelling-corrected query string.
+
+This will only be set if FLAG_SPELLING_CORRECTION is specified when
+QueryParser::parse_query() was last called.
+
+If there were no corrections, an empty string is returned.
+
 =back
 
 =head1 REFERENCE

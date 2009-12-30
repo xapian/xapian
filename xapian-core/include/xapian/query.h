@@ -332,7 +332,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 
 #ifndef SWIG // SWIG has no interest in the internal class, so hide it completely.
 
-/// @internal Internal class, implementing most of Xapian::Query.
+/// @private @internal Internal class, implementing most of Xapian::Query.
 class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::LocalSubMatch;
     friend class ::MultiMatch;

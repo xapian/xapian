@@ -174,6 +174,11 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	    return terms_here;
 	}
 
+	/// Return true if the document may have been modified.
+	bool modified() const {
+	    return terms_here || values_here || data_here;
+	}
+
 	/** Get the docid which is associated with this document (if any).
 	 *
 	 *  NB If multiple databases are being searched together, then this

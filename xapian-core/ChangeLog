@@ -224,6 +224,467 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Wed Dec 30 11:46:45 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc: When updating documents, don't
+	  update posting entries which havn't changed.  Largely fixes
+	  ticket #250.
+	* AUTHORS: Add Kan-Ru Chen, since his patch attached to ticket #250
+	  was the basis of this fix.
+
+Wed Dec 30 11:44:18 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_inverter.h: Add methods for updating an
+	  existing posting, so we don't have to remove then re-add it.
+
+Wed Dec 30 11:41:57 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_database.h: Remove old unused members:
+	  total_length and lastdocid.
+
+Wed Dec 30 01:07:04 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_database.h: Remove old unused members:
+	  total_length and lastdocid.
+
+Wed Dec 30 00:21:03 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Move frequently repeated code for updating the freq_deltas and
+	  mod_plists items into separate functions.  Makes the code
+	  considerably clearer, and prepares the way for applying the patch
+	  to fix ticket #250.
+
+Wed Dec 30 00:07:33 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add a few more sequences of operations
+	  which look worth testing, after looking at the code implementing
+	  replace_document().
+
+Tue Dec 29 22:29:08 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Check consistency of the posting lists
+	  with the termlists, and consistency of the statistics, at each
+	  step of modtermwdf1.  Also, add some other terms to the document,
+	  so we can check the stored doclength for terms which haven't been
+	  modified.
+
+Sun Dec 27 14:56:16 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_modifiedpostlist.cc,
+	  backends/flint/flint_modifiedpostlist.cc: Report the wdf from the
+	  modifications, rather the sum of the wdf from the modifications
+	  and the old wdf.  The old behaviour was just wrong, but we had no
+	  test coverage for this until the last commit.
+
+Sun Dec 27 13:34:06 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add test of the contents of the
+	  postlist of a term which is being modified.  Also, tidy up the
+	  output of docterms_to_string() to skip any empty position lists.
+
+Sat Dec 26 19:21:19 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Extend test to cover removing a term but
+	  not deleting it, and finally deleting the document.
+
+Thu Dec 24 19:18:41 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Expand test to cover some modification
+	  to the positional information.
+
+Thu Dec 24 19:06:32 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add some more sets of modification
+	  operations to the tests.
+
+Thu Dec 24 18:55:37 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add test modtermwdf1, which tests a lot
+	  more cases where documents are modified.
+
+Thu Dec 24 14:36:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/: Canonicalise the conditions on testcases.
+
+Thu Dec 24 14:08:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Fix typo in last commit.
+
+Thu Dec 24 13:39:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Check WritableDatabase::close() during a
+	  transaction does *NOT* implicitly call commit().
+
+Thu Dec 24 13:07:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/brass/brass_database.h,
+	  backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Fix WritableDatabase::close() to commit() changes (unless a
+	  transaction is in progress).
+	* tests/api_closedb.cc: Add regression test closedb4.
+
+Wed Dec 23 00:26:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/brass/brass_inverter.cc,
+	  backends/brass/brass_inverter.h: For allterms iteration of a
+	  WritableDatabase, if a prefix is specified only flush changes for
+	  terms with that prefix.  Also, don't flush document lengths for
+	  allterms iteration.
+
+Tue Dec 22 22:48:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fixed reversed checks for chert and flint being
+	  enabled in r13781.
+
+Tue Dec 22 14:20:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc: Add brass variants of multi and remote
+	  backends.
+
+Tue Dec 22 14:15:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/: Implement xapian-check and xapian-compact support for brass.
+
+Tue Dec 22 13:41:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/: Split the chert-specific checking code into a separate file
+	  so xapian-check.cc is just the driver code.
+
+Tue Dec 22 12:47:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Add new Inverter class to encapsulate the inversion
+	  data structures and associated code.  Instead of carefully iterating
+	  modified posting lists and document length lists, just flush the
+	  particular list needed to disk and iterate that.  This is much
+	  simpler and more obviously free of subtle bugs, and means we don't
+	  need to use data structures which allow such iteration.
+
+Tue Dec 22 12:25:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/dbfactory.cc,include/xapian/dbfactory.h,
+	  include/xapian/valueiterator.h,include/xapian/version_h.cc,
+	  tests/harness/Makefile.mk: Fix to actually build brass.  Testsuite
+	  doesn't currently all pass.
+
+Tue Dec 22 04:26:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,backends/Makefile.mk,backends/brass/,
+	  backends/chert/dir_contents,backends/databasereplicator.cc,
+	  backends/dbfactory.cc,common/pack.h,configure.ac,docs/,tests/,
+	  tests/harness/: Add new development backend called "brass" and
+	  promote "chert" to being the stable backend.
+
+Mon Dec 21 09:41:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Update comment about
+	  MAX_SAFE_TERM_LENGTH to reflect the key format changes.
+
+Mon Dec 21 08:12:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alldocsmodifiedpostlist.cc,
+	  backends/chert/chert_alldocsmodifiedpostlist.h: Change reference
+	  parameter to const reference.
+
+Mon Dec 21 03:19:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Replacing a document deleted since the last flush failed to update
+	  the collection frequency and wdf, and caused an assertion failure
+	  when assertions were enabled.
+	* tests/api_backend.cc: Add regression test replacedoc8.
+
+Sun Dec 20 07:26:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Divert to AS_MESSAGE_LOG_FD rather than literal fd 5.
+	  Divert more output to AS_MESSAGE_LOG_FD rather than /dev/null.
+
+Thu Dec 17 13:53:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Dec 17 13:36:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from chert:
+	* backends/flint/flint_alltermslist.cc: Tweak to not apply the
+	  prefix test in the "at end" case.
+	* backends/flint/flint_alltermslist.cc: There's no point checking
+	  follow-on chunks match the prefix - the first chunk we'll hit
+	  which doesn't match has to be an initial chunk for a term.
+
+Thu Dec 17 11:57:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_replacedoc.cc: Fix to test the right variable.
+
+Thu Dec 17 11:16:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: The regression test replacedoc5 no longer actually
+	  checks for the situation it was written for, due to the shortcutting
+	  we now do in flint and chert when replacing a document with itself,
+	  so extend it with a check with that behaviour suppressed (fortunately
+	  it still passes).
+
+Wed Dec 16 12:03:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/,bin/Makefile.mk,common/pack.h: Change the packing
+	  of uints and strings into sortable keys in chert databases, which
+	  reduces database size by 2.5% in tests.  This means an incompatible
+	  change in the chert format.
+	* bin/xapian-chert-update.cc: Utility to update a chert database from
+	  the old format to the new format.  It works much like xapian-compact
+	  so should take a similar amount of time (and results in a compact
+	  database).
+	* tests/api_wrdb.cc: Adjust the test which checks a string of zero
+	  bytes fails in the correct way - 126 zero bytes is now handled, so
+	  we need 127 to check the failure mode.
+
+Wed Dec 16 11:52:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Ensure that the resultant database has a
+	  fresh UUID (previously chert copied the UUID from the first input,
+	  while flint didn't set a UUID so one was generated on demand when
+	  next requested, if the database is writable.
+	* tests/api_compact.cc: Add tests that a UUID is set and that it is
+	  different from that of the input.
+
+Wed Dec 16 09:57:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: If no database is specified, still parse the query
+	  and report get_description() on it as this provides a useful way to
+	  see how a query parses.
+
+Wed Dec 16 00:40:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/german.sbl,languages/german2.sbl: Update the german and
+	  german2 stemming algorithms to the latest versions from Snowball.
+	  These add an extra rule for the "-nisse" ending.
+
+Tue Dec 15 13:08:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/: Split apart the flint and chert compaction code.  Should be
+	  no change in functionality.
+
+Tue Dec 15 10:11:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alltermslist.cc: Tweak to not apply the
+	  prefix test in the "at end" case.
+
+Tue Dec 15 09:40:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alltermslist.cc: There's no point checking
+	  follow-on chunks match the prefix - the first chunk we'll hit
+	  which doesn't match has to be an initial chunk for a term.
+
+Tue Dec 15 08:24:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Convert DerefStringWrapper_ to a templated
+	  DerefWrapper_ and use it instead of DocIDWrapper and TermPosWrapper.
+
+Tue Dec 15 08:23:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Mark Query::Internal as @private for doxygen.
+
+Tue Dec 15 03:59:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/pack.h: Return false not true if
+	  unpack_string_preserving_sort() fails.  Add assertions that the
+	  source pointer isn't NULL to all the functions.
+
+Tue Dec 15 02:30:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Improve phrasing ("unique terms" -> "distinct
+	  terms").
+
+Sat Dec 12 13:07:51 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:
+	  Split my recently added replacedoc test out into a new file.
+
+Sat Dec 12 12:58:22 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_posdb.cc: Extend test of document modification to cover
+	  removing the last term in the document, too.
+
+Sat Dec 12 12:57:43 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Fix comparison of old term with new.
+
+Sat Dec 12 11:30:23 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  tests/api_posdb.cc: Delete old positionlist chunks in
+	  replace_document().  Uncomment part of test which tested this.
+
+Sat Dec 12 04:24:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  common/document.h: If a document is replaced with itself unmodified,
+	  we no longer increase the automatic flush counter.
+	* tests/api_backend.cc: Add regression test replacedoc7.
+
+Fri Dec 11 19:39:34 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_posdb.cc: Add a basic test of adding a document, and
+	  modifying its positions.  Found one bug already, but the line
+	  which triggers this is commented out for now so that we don't
+	  break the snapshotters until it's fixed.
+
+Fri Dec 11 16:51:22 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* common/documentterm.h: Fix some documentation comments which were
+	  trivially incorrect or incomplete.
+
+Fri Dec 11 11:05:19 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* COPYING_MIT,HACKING: Add details of our policy for accepting
+	  patches.  This has informally been true for a while, but it
+	  probably helps to tell people about it!
+
+Tue Dec 08 13:15:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.h: Fix to build with --enable-assertions.
+
+Tue Dec 08 13:05:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_cursor.h,
+	  backends/chert/chert_postlist.cc: Add MutableChertCursor subclass of
+	  ChertCursor and implement del() there rather than in ChertCursor.
+	  This means we can use the C++ type system to track whether we got
+	  a const or non-const ChertTable * and so whether it is safe to
+	  cast away that const and delete the entry the cursor points to.
+
+Tue Dec 08 12:03:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h,backends/flint/flint_database.cc,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h,
+	  bin/xapian-compact.cc,bin/xapian-inspect.cc: Add empty() method to
+	  FlintTable and ChertTable which works completely reliably even if
+	  the item count has wrapped.
+	* tests/api_closedb.cc: Add closedb3 for coverage of get_doccount() and
+	  has_positions().
+
+Tue Dec 08 08:23:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.h: Tweak whitespace in comment.
+
+Mon Dec 07 04:56:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_synonym.h:
+	  Eliminate "size" private member of FlintSynonymTermList which is set
+	  but never used.
+
+Mon Dec 07 04:49:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_synonym.h:
+	  Eliminate "size" private member of ChertSynonymTermList which is set
+	  but never used.
+
+Mon Dec 07 04:32:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/: Use > 32 bit type to keep count of items in a
+	  table.  This fixes misreporting by xapian-check, and in the very
+	  unlikely case where the counter has just wrapped to 0, makes
+	  xapian-compact not mistakenly think tables are empty and the
+	  matcher ignore positional information.
+
+Thu Dec 03 10:08:28 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Cast character value in string constructor
+	  to a char; without this we were getting a stack overflow and
+	  general nastiness on i386, which we hypothesise was due to the
+	  wrong overload for string() being picked.
+
+Wed Dec 02 23:10:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Add missing include of xapian/error.h.
+	  This was causing the snapshot builder to fail, but worked OK
+	  in my tree for reasons I don't understand.
+
+Wed Dec 02 14:30:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_database.cc,
+	  backends/flint/flint_databasereplicator.cc,backends/flint_lock.cc,
+	  backends/flint_lock.h: Factor out 4 copies of the same code to
+	  report why Xapian failed to get a lock.
+
+Wed Dec 02 10:05:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/chert/,backends/flint/,
+	  backends/flint_lock.cc,backends/flint_lock.h: Factor out a single
+	  version of the "flint-compatible locking code" and use it from both
+	  flint and chert.
+
+Wed Dec 02 02:49:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc,tests/apitest.cc,tests/apitest.h,
+	  tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Add
+	  get_database_path() variant which takes a generator function and use
+	  it so that the right database names are used in compactnorenumber1.
+
+Tue Dec 01 12:37:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc,tests/harness/backendmanager.cc,
+	  tests/harness/backendmanager.h: Move generator function variant of
+	  get_database() to BackendManager, and tweak it to build the database
+	  under a temporary path and rename it once built, to avoid leaving a
+	  partial database in place if interrupted.
+	* tests/perftest/perftest_matchdecider.cc: Use this mechanism to lazily
+	  generate test databases.
+	* tests/harness/: Remove the optional name parameter from various
+	  BackendManager methods as it was only used by perftest and is no
+	  longer needed.
+
+Tue Dec 01 11:00:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc,tests/apitest.h: Add mechanism for caching databases
+	  generated by a function.
+	* tests/api_compact.cc: Use it for compactnorenumber1.
+
+Tue Dec 01 10:59:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Rename matchfunctor<n> to matchdecider<n> to match
+	  current terminology.
+
+Tue Dec 01 10:51:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Don't run matchfunctor3 under remote backends as
+	  MatchDecider isn't actually supported there (uncovered by recent
+	  change to throw UnimplementedError in this case).
+
+Tue Dec 01 09:35:53 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/matchspy.h: Remove out-of-date reference to
+	  add_slot(), which no longer exists: users are expected to use
+	  multiple ValueCountMatchSpies if they need to monitor more than
+	  one slot.
+
+Tue Dec 01 08:04:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_compact.cc: Add test coverage for
+	  xapian-compact --no-renumber with multiple databases.
+
+Tue Dec 01 06:25:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Clean up matchdecider4.
+
+Tue Dec 01 06:12:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: A couple more std::string efficiency tips.
+
+Tue Dec 01 05:51:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,matcher/multimatch.cc,
+	  net/remoteserver.cc: Throw UnimplementedError if a matchdecider or
+	  "legacy" matchspy is used with the remote backend.
+	* tests/api_backend.cc: Add regression test matchdecider4.
+
 Mon Nov 30 05:42:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remote-database.h,

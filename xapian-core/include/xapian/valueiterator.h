@@ -32,7 +32,7 @@
 
 namespace Xapian {
 
-/// @internal A proxy class for an end ValueIterator.
+/// @private @internal A proxy class for an end ValueIterator.
 class ValueIteratorEnd_ { };
 
 /// Class for iterating over document values.
@@ -75,10 +75,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     ValueIterator & operator++();
 
     /// Advance the iterator to the next position (postfix version).
-    DerefStringWrapper_ operator++(int) {
-	std::string value(**this);
+    DerefWrapper_<std::string> operator++(int) {
+	const std::string & value(**this);
 	operator++();
-	return DerefStringWrapper_(value);
+	return DerefWrapper_<std::string>(value);
     }
 
     /** Return the docid at the current position.
@@ -120,9 +120,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  @a did actually exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then returns true.  This is how chert behaves
-     *  because it stores values in streams which allow for an efficient
-     *  implementation of skip_to().
+     *  cost, in which case it then returns true.  This is how brass and
+     *  chert databases behave because they store values in streams which allow
+     *  for an efficient implementation of skip_to().
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the

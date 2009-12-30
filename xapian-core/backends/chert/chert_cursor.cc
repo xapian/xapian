@@ -50,7 +50,7 @@ hex_display_encode(const string & input)
 
 #define DIR_START        11
 
-ChertCursor::ChertCursor(ChertTable *B_)
+ChertCursor::ChertCursor(const ChertTable *B_)
 	: is_positioned(false),
 	  is_after_end(false),
 	  tag_status(UNREAD),
@@ -271,11 +271,15 @@ ChertCursor::read_tag(bool keep_compressed)
 }
 
 bool
-ChertCursor::del()
+MutableChertCursor::del()
 {
     Assert(!is_after_end);
 
-    B->del(current_key);
+    // MutableChertCursor is only constructable from a non-const ChertTable*
+    // but we store that in the const ChertTable* "B" member of the ChertCursor
+    // class to avoid duplicating storage.  So we know it is safe to cast away
+    // that const again here.
+    (const_cast<ChertTable*>(B))->del(current_key);
 
     // If we're iterating an older revision of the tree, then the deletion
     // happens in a new (uncommitted) revision and the cursor still sees

@@ -36,11 +36,14 @@ BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
 	: subtype(subtype_)
 {
     if (!(false
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	  || subtype == "flint"
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	  || subtype == "brass"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	  || subtype == "chert"
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	  || subtype == "flint"
 #endif
 	 )) {
 	throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
@@ -90,16 +93,22 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	string subdbdir = dbname;
 	subdbdir += "___";
 	subdbdir += om_tostring(n);
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	if (subtype == "flint") {
-	    dbs[n] = Xapian::Flint::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	    out << "flint " << subdbdir << '\n';
+#if defined XAPIAN_HAS_BRASS_BACKEND
+	if (subtype == "brass") {
+	    dbs[n] = Xapian::Brass::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    out << "brass " << subdbdir << '\n';
 	}
 #endif
 #if defined XAPIAN_HAS_CHERT_BACKEND
 	if (subtype == "chert") {
 	    dbs[n] = Xapian::Chert::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	    out << "chert " << subdbdir << '\n';
+	}
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	if (subtype == "flint") {
+	    dbs[n] = Xapian::Flint::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    out << "flint " << subdbdir << '\n';
 	}
 #endif
 	

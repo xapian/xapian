@@ -228,9 +228,22 @@ disk based backends ("flint" or "stub") from a single specified
 file or directory path.
 </P>
 </TD></TR>
+<TR><TD VALIGN="top"><B>brass</B></TD><TD>
+<P>
+Brass is the current development backend, and it is intended to be the default
+backend in Xapian 1.4.x.
+</P>
+</TD></TR>
+<TR><TD VALIGN="top"><B>chert</B></TD><TD>
+<P>
+Chert is the default backend in Xapian 1.2.x. It supports incremental
+modifications, concurrent single-writer and multiple-reader access to
+a database.  It's very efficient and highly scalable.
+</P>
+</TD></TR>
 <TR><TD VALIGN="top"><B>flint</B></TD><TD>
 <P>
-Flint is a default backend as of Xapian 1.0. It supports incremental
+Flint was the default backend in Xapian 1.0.x. It supports incremental
 modifications, concurrent single-writer and multiple-reader access to
 a database.  It's very efficient and highly scalable.  Flint takes lessons
 learned from studying Quartz in action, and is appreciably faster
@@ -238,11 +251,6 @@ learned from studying Quartz in action, and is appreciably faster
 improved locking mechanism which automatically releases the lock
 if a writing process dies.
 </P>
-<!--
-<P>
-Chert is very much a work in progress. The aim is to have it stable and working at any given point (and Xapian's extensive test suite should help give us some reassurance of this), but the database format will change frequently and there'll be no migration path during development (except for rebuilding your index from the source data, or alternatively using copydatabase to copy the old-chert database to a flint database, upgrading, then using copydatabase to copy the flint database to a new-chert one).
-</P>
--->
 <P>
 For more information, see the <a href="http://wiki.xapian.org/FlintBackend">Xapian Wiki</a>.
 </P>

@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 114 };
+BEGIN { plan tests => 115 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -55,6 +55,7 @@ is( $query->get_description, "Xapian::Query((test PHRASE 3 help PHRASE 3 one))",
 
 ok( $enq = $db->enquire( $query ), "db queries return ok"  );
 ok( $enq = $db->enquire( OP_OR, 'test', 'help' ), "in-line db queries return ok" );
+is( $db->get_spelling_suggestion( 'tost' ), 'test', "spelling suggestion ok" );
 
 ok( $query = Search::Xapian::Query->new(OP_SCALE_WEIGHT, $query, 3.14), "OP_SCALE_WEIGHT understood" );
 

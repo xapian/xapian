@@ -85,19 +85,12 @@ class ChertPostListTable : public ChertTable {
 
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
-	    string key = make_key(term);
-	    pack_uint_preserving_sort(key, did);
-	    return key;
+	    return pack_chert_postlist_key(term, did);
 	}
 
 	/// Compose a key from a termname.
 	static string make_key(const string & term) {
-	    // Special case for doclen lists.
-	    if (term.empty()) return string("\x00\xe0", 2);
-
-	    string key;
-	    pack_string_preserving_sort(key, term);
-	    return key;
+	    return pack_chert_postlist_key(term);
 	}
 
 	bool term_exists(const string & term) const {

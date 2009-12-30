@@ -216,17 +216,17 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::valueno sort_key_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
-		       const Xapian::KeyMaker * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
-		       const vector<Xapian::MatchSpy *> & matchspies_)
+		       const vector<Xapian::MatchSpy *> & matchspies_,
+		       bool have_sorter, bool have_mdecider)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
 	  percent_cutoff(percent_cutoff_), weight_cutoff(weight_cutoff_),
 	  order(order_),
 	  sort_key(sort_key_), sort_by(sort_by_),
-	  sort_value_forward(sort_value_forward_), sorter(sorter_),
+	  sort_value_forward(sort_value_forward_),
 	  errorhandler(errorhandler_), weight(weight_),
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
@@ -237,8 +237,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
 	      int(order_) << ", " << sort_key_ << ", " <<
 	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
-	      sorter_ << ", " <<
-	      errorhandler_ << ", " << stats << ", [weight_]");
+	      errorhandler_ << ", " << stats << ", [weight_], "
+	      "[matchspies_], " << have_sorter << ", " << have_mdecider);
 
     if (!query) return;
     query->validate_query();
@@ -256,8 +256,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
-		if (sorter) {
+		if (have_sorter) {
 		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
+		}
+		if (have_mdecider) {
+		    throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
 		}
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
@@ -310,7 +313,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::MSet & mset,
 		     const Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
-		     const Xapian::MatchDecider *matchspy_legacy)
+		     const Xapian::MatchDecider *matchspy_legacy,
+		     const Xapian::KeyMaker *sorter)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", " << check_at_least << ", ...");

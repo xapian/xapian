@@ -51,17 +51,13 @@ BackendManagerFlint::get_writable_database_path(const string & name)
 }
 
 Xapian::Database
-BackendManagerFlint::get_writable_database_as_database(const string & name)
+BackendManagerFlint::get_writable_database_as_database()
 {
-    if (name.empty())
-	return Xapian::Flint::open(".flint/" + last_wdb_name);
-    return Xapian::Flint::open(".flint/" + name);
+    return Xapian::Flint::open(".flint/" + last_wdb_name);
 }
 
 Xapian::WritableDatabase
-BackendManagerFlint::get_writable_database_again(const string & name)
+BackendManagerFlint::get_writable_database_again()
 {
-    if (name.empty())
-	return Xapian::Flint::open(".flint/" + last_wdb_name, Xapian::DB_OPEN);
-    return Xapian::Flint::open(".flint/" + name, Xapian::DB_OPEN);
+    return Xapian::Flint::open(".flint/" + last_wdb_name, Xapian::DB_OPEN);
 }
