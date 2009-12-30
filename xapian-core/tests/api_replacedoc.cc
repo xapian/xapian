@@ -372,6 +372,17 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=1)" + bdt);
 
+    // Remove a term, flush, then put it back, remove it, and put it back.
+    // This is to test the handling of items in the change cache.
+    db.replace_document(1, doc0);
+    db.flush();
+    db.replace_document(1, doc2);
+    db.replace_document(1, doc0);
+    db.replace_document(1, doc2);
+    db.flush();
+    dbcheck(db, 1, 1);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2)" + bdt);
+
     // Remove a term, and then put it back again without checking stats.
     db.replace_document(1, doc0);
     db.replace_document(1, doc2);
@@ -389,6 +400,19 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     doc3.add_term("takeaway", 3);
     db.replace_document(1, doc3);
     db.flush();
+    dbcheck(db, 1, 1);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=3)" + bdt);
+
+    // Change a document, without changing its length.
+    Xapian::Document doc3_diff(basic_doc());
+    doc3_diff.add_term("takeaways", 3);
+    db.replace_document(1, doc3_diff);
+    db.flush();
+    dbcheck(db, 1, 1);
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaways, wdf=3)" + bdt);
+
+    // Put it back.
+    db.replace_document(1, doc3);
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=3)" + bdt);
 

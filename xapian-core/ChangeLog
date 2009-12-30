@@ -1,3 +1,9 @@
+Wed Dec 30 00:07:33 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replacedoc.cc: Add a few more sequences of operations
+	  which look worth testing, after looking at the code implementing
+	  replace_document().
+
 Tue Dec 29 22:29:08 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replacedoc.cc: Check consistency of the posting lists
