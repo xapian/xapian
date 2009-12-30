@@ -6,6 +6,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
+ * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1213,6 +1214,44 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
     }
 }
 
+/** Compare the positionlists for a term iterator and a termlist.
+ *
+ *  @return true if they're equal, false otherwise.
+ */
+static bool positionlists_equal(Xapian::TermIterator & termiter,
+				BrassTermList & termlist)
+{
+    if (termiter.positionlist_count() != termlist.positionlist_count())
+	return false;
+
+    return equal(termiter.positionlist_begin(),
+		 termiter.positionlist_end(),
+		 termlist.positionlist_begin());
+}
+
+/** Set the positionlist from the current entry in a term iterator.
+ *
+ *  @param position_table The positionlist table.
+ *  @param did The document id to set the entry for.
+ *  @param term The term iterator to read the new position list from.
+ *
+ *  If the new position list is empty, this will remove any existing
+ *  position list for the term.
+ */
+static void set_positionlist(BrassPositionListTable & position_table,
+			     Xapian::docid did,
+			     Xapian::TermIterator & term)
+{
+    PositionIterator it = term.positionlist_begin();
+    PositionIterator it_end = term.positionlist_end();
+    if (it != it_end) {
+	position_table.set_positionlist(did, *term, it, it_end);
+    } else {
+	position_table.delete_positionlist(did, *term);
+    }
+}
+
+
 void
 BrassWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
@@ -1264,54 +1303,60 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    // FIXME - in the case where there is overlap between the new
-	    // termlist and the old termlist, it would be better to compare the
-	    // two lists, and make the minimum set of modifications required.
-	    // This would lead to smaller changesets for replication, and
-	    // probably be faster overall.
-
-	    // First, add entries to remove the postings in the underlying
-	    // record.
 	    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
+	    brass_doclen_t new_doclen = termlist.get_doclength();
+	    string old_tname, new_tname;
 
+	    stats.delete_document(new_doclen);
 	    termlist.next();
-	    while (!termlist.at_end()) {
-		string tname = termlist.get_termname();
-
-		inverter.remove_posting(did, tname, termlist.get_wdf());
-
-		term.skip_to(tname);
-		if (term == document.termlist_end() || *term != tname) {
-		    position_table.delete_positionlist(did, tname);
+	    while (!termlist.at_end() || term != document.termlist_end()) {
+		int cmp;
+		if (!termlist.at_end() && term != document.termlist_end()) {
+		    old_tname = termlist.get_termname();
+		    new_tname = *term;
+		    cmp = old_tname.compare(new_tname);
+		} else if (termlist.at_end()) {
+		    cmp = 1;
+		    new_tname = *term;
+		} else {
+		    cmp = -1;
+		    old_tname = termlist.get_termname();
 		}
 
-		termlist.next();
-	    }
+		if (cmp < 0) {
+		    // Term old_tname has been deleted.
+		    termcount old_wdf = termlist.get_wdf();
+		    new_doclen -= old_wdf;
+		    inverter.remove_posting(did, old_tname, old_wdf);
+		    position_table.delete_positionlist(did, old_tname);
+		    termlist.next();
+		} else if (cmp > 0) {
+		    // Term new_tname as been added.
+		    termcount new_wdf = term.get_wdf();
+		    new_doclen += new_wdf;
+		    stats.check_wdf(new_wdf);
+		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
+			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+		    inverter.add_posting(did, new_tname, new_wdf);
+		    set_positionlist(position_table, did, term);
+		    ++term;
+		} else if (cmp == 0) {
+		    // Term already exists: look for wdf and positionlist changes.
+		    termcount old_wdf = termlist.get_wdf();
+		    termcount new_wdf = term.get_wdf();
+		    if (old_wdf != new_wdf) {
+		    	new_doclen += new_wdf - old_wdf;
+			stats.check_wdf(new_wdf);
+			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
+		    }
 
-	    stats.delete_document(termlist.get_doclength());
+		    if (!positionlists_equal(term, termlist))
+			set_positionlist(position_table, did, term);
 
-	    brass_doclen_t new_doclen = 0;
-	    for (term = document.termlist_begin();
-		 term != document.termlist_end(); ++term) {
-		termcount wdf = term.get_wdf();
-		// Calculate the new document length
-		new_doclen += wdf;
-		stats.check_wdf(wdf);
-
-		string tname = *term;
-		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-
-		inverter.add_posting(did, tname, wdf);
-
-		PositionIterator it = term.positionlist_begin();
-		PositionIterator it_end = term.positionlist_end();
-		if (it != it_end) {
-		    position_table.set_positionlist(did, tname, it, it_end);
-		} else {
-		    position_table.delete_positionlist(did, tname);
+		    ++term;
+		    termlist.next();
 		}
 	    }
 	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);

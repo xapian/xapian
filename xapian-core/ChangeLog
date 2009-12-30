@@ -1,3 +1,12 @@
+Wed Dec 30 11:46:45 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc: When updating documents, don't
+	  update posting entries which havn't changed.  Largely fixes
+	  ticket #250.
+	* AUTHORS: Add Kan-Ru Chen, since his patch attached to ticket #250
+	  was the basis of this fix.
+
 Wed Dec 30 11:44:18 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/brass/brass_inverter.h: Add methods for updating an
