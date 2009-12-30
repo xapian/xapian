@@ -343,6 +343,32 @@ class ChertWritableDatabase : public ChertDatabase {
 	/// Apply changes.
 	void apply();
 
+	/** Add or modify an entry in freq_deltas.
+	 *
+	 *  @param tname The term to modify the entry for.
+	 *  @param tf_delta The increase in the term frequency delta.
+	 *  @param cf_delta The increase in the collection frequency delta.
+	 */
+	void add_freq_delta(const string & tname,
+			    Xapian::termcount tf_delta,
+			    Xapian::termcount cf_delta);
+
+	/** Update the stored modifications to the postlists.
+	 *
+	 *  @param did The document ID to modify the entry for.
+	 *  @param tname The term to modify the entry for.
+	 *  @param type The type of change to the postlist.
+	 *  @param wdf The new wdf value to store.
+	 *
+	 *  If type is 'A', and an existing entry is in the stored
+	 *  modifications, the stored type will be set to 'M'.  In all other
+	 *  cases, the stored type is simply the value supplied.
+	 */
+	void update_mod_plist(Xapian::docid did,
+			      const string & tname,
+			      char type,
+			      Xapian::termcount wdf);
+
 	//@{
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.

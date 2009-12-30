@@ -1,3 +1,12 @@
+Wed Dec 30 00:21:03 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Move frequently repeated code for updating the freq_deltas and
+	  mod_plists items into separate functions.  Makes the code
+	  considerably clearer, and prepares the way for applying the patch
+	  to fix ticket #250.
+
 Wed Dec 30 00:07:33 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replacedoc.cc: Add a few more sequences of operations
