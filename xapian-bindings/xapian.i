@@ -589,6 +589,17 @@ namespace Auto {
     Database open_stub(const string & file);
 }
 
+namespace Brass {
+    %rename(brass_open) open;
+    Database open(const std::string &dir);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifndef SWIGTCL
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
+}
+
 namespace Chert {
     %rename(chert_open) open;
     Database open(const std::string &dir);
@@ -640,6 +651,17 @@ class Auto {
   public:
     static
     Database open_stub(const string & file);
+};
+
+class Brass {
+  private:
+    Brass();
+    ~Brass();
+  public:
+    static
+    Database open(const std::string &dir);
+    static
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
 };
 
 class Chert {

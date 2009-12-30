@@ -5,6 +5,8 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
+ * Copyright 2009 Richard Boulton
+ * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +39,7 @@
 #include "chert_replicate_internal.h"
 #include "chert_document.h"
 #include "chert_io.h"
-#include "chert_lock.h"
+#include "../flint_lock.h"
 #include "chert_metadata.h"
 #include "chert_modifiedpostlist.h"
 #include "chert_positionlist.h"
@@ -73,11 +75,17 @@ using namespace std;
 using namespace Xapian;
 
 // The maximum safe term length is determined by the postlist.  There we
-// store the term followed by "\x00\x00" then a length byte, then up to
-// 4 bytes of docid.  The Btree manager's key length limit is 252 bytes
-// so the maximum safe term length is 252 - 2 - 1 - 4 = 245 bytes.  If
-// the term contains zero bytes, the limit is lower (by one for each zero byte
-// in the term).
+// store the term using pack_string_preserving_sort() which takes the
+// length of the string plus an extra byte (assuming the string doesn't
+// contain any zero bytes), followed by the docid with encoded with
+// pack_uint_preserving_sort() which takes up to 5 bytes.
+//
+// The Btree manager's key length limit is 252 bytes so the maximum safe term
+// length is 252 - 1 - 5 = 246 bytes.  We use 245 rather than 246 for
+// consistency with flint.
+//
+// If the term contains zero bytes, the limit is lower (by one for each zero
+// byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
 /** Delete file, throwing an error if we can't delete it (but not if it
@@ -113,11 +121,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  // Keep the same lockfile name as flint since the locking is
-	  // compatible and this avoids the possibility of creating a chert and
-	  // flint database in the same directory (which will result in one
-	  // being corrupt since the Btree filenames overlap).
-	  lock(db_dir + "/flintlock"),
+	  lock(db_dir),
 	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
@@ -503,25 +507,15 @@ ChertDatabase::get_database_write_lock(bool creating)
 {
     DEBUGCALL(DB, void, "ChertDatabase::get_database_write_lock", creating);
     string explanation;
-    ChertLock::reason why = lock.lock(true, explanation);
-    if (why != ChertLock::SUCCESS) {
-	if (why == ChertLock::UNKNOWN && !creating && !database_exists()) {
+    FlintLock::reason why = lock.lock(true, explanation);
+    if (why != FlintLock::SUCCESS) {
+	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
 	    string msg("No chert database found at path `");
 	    msg += db_dir;
 	    msg += '\'';
 	    throw Xapian::DatabaseOpeningError(msg);
 	}
-	string msg("Unable to acquire database write lock on ");
-	msg += db_dir;
-	if (why == ChertLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == ChertLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == ChertLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw Xapian::DatabaseLockError(msg);
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 }
 
@@ -585,7 +579,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	need_whole_db = true;
     }
 
-    RemoteConnection conn(-1, fd, "");
+    RemoteConnection conn(-1, fd, string());
     OmTime end_time;
 
     // While the starting revision number is less than the latest revision
@@ -689,7 +683,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    }
 	}
     }
-    conn.send_message(REPL_REPLY_END_OF_CHANGES, "", end_time);
+    conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), end_time);
 }
 
 void
@@ -869,7 +863,7 @@ ChertDatabase::term_exists(const string & term) const
 bool
 ChertDatabase::has_positions() const
 {
-    return position_table.get_entry_count() > 0;
+    return !position_table.empty();
 }
 
 LeafPostList *
@@ -980,8 +974,7 @@ ChertDatabase::open_synonym_keylist(const string & prefix) const
     ChertCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
     return new ChertSynonymTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
-				    cursor, synonym_table.get_entry_count(),
-				    prefix);
+				    cursor, prefix);
 }
 
 string
@@ -1072,10 +1065,64 @@ ChertWritableDatabase::flush_postlist_changes() const
 }
 
 void
+ChertWritableDatabase::close()
+{
+    DEBUGCALL(DB, void, "ChertWritableDatabase::close", "");
+    if (!transaction_active()) {
+	commit();
+	// FIXME: if commit() throws, should we still close?
+    }
+    ChertDatabase::close();
+}
+
+void
 ChertWritableDatabase::apply()
 {
     value_manager.set_value_stats(value_stats);
     ChertDatabase::apply();
+}
+
+void
+ChertWritableDatabase::add_freq_delta(const string & tname,
+				      Xapian::termcount tf_delta,
+				      Xapian::termcount cf_delta)
+{
+    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+    i = freq_deltas.find(tname);
+    if (i == freq_deltas.end()) {
+	freq_deltas.insert(make_pair(tname, make_pair(tf_delta, cf_delta)));
+    } else {
+	i->second.first += tf_delta;
+	i->second.second += cf_delta;
+    }
+}
+
+void
+ChertWritableDatabase::update_mod_plist(Xapian::docid did,
+					const string & tname,
+					char type,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+
+    map<docid, pair<char, termcount> >::iterator k;
+    k = j->second.find(did);
+    if (k == j->second.end()) {
+	j->second.insert(make_pair(did, make_pair(type, wdf)));
+    } else {
+	if (type == 'A') {
+	    // Adding an entry which has already been deleted.
+	    Assert(k->second.first == 'D');
+	    type = 'M';
+	}
+	k->second = make_pair(type, wdf);
+    }
 }
 
 Xapian::docid
@@ -1117,24 +1164,8 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
-		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
-		}
-
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		Assert(j->second.find(did) == j->second.end());
-		j->second.insert(make_pair(did, make_pair('A', wdf)));
+		add_freq_delta(tname, 1, wdf);
+		update_mod_plist(did, tname, 'A', wdf);
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    position_table.set_positionlist(
@@ -1217,31 +1248,8 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	    position_table.delete_positionlist(did, tname);
 	    termcount wdf = termlist.get_wdf();
 
-	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-	    i = freq_deltas.find(tname);
-	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-	    } else {
-		--i->second.first;
-		i->second.second -= wdf;
-	    }
-
-	    // Remove did from tname's postlist
-	    map<string, map<docid, pair<char, termcount> > >::iterator j;
-	    j = mod_plists.find(tname);
-	    if (j == mod_plists.end()) {
-		map<docid, pair<char, termcount> > m;
-		j = mod_plists.insert(make_pair(tname, m)).first;
-	    }
-
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k == j->second.end()) {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    } else {
-		// Deleting a document we added/modified since the last flush.
-		k->second = make_pair('D', 0u);
-	    }
+	    add_freq_delta(tname, -1, -wdf);
+	    update_mod_plist(did, tname, 'D', 0u);
 
 	    termlist.next();
 	}
@@ -1264,6 +1272,43 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
     if (++change_count >= flush_threshold) {
 	flush_postlist_changes();
 	if (!transaction_active()) apply();
+    }
+}
+
+/** Compare the positionlists for a term iterator and a termlist.
+ *
+ *  @return true if they're equal, false otherwise.
+ */
+static bool positionlists_equal(Xapian::TermIterator & termiter,
+				ChertTermList & termlist)
+{
+    if (termiter.positionlist_count() != termlist.positionlist_count())
+	return false;
+
+    return equal(termiter.positionlist_begin(),
+		 termiter.positionlist_end(),
+		 termlist.positionlist_begin());
+}
+
+/** Set the positionlist from the current entry in a term iterator.
+ *
+ *  @param position_table The positionlist table.
+ *  @param did The document id to set the entry for.
+ *  @param term The term iterator to read the new position list from.
+ *
+ *  If the new position list is empty, this will remove any existing
+ *  position list for the term.
+ */
+static void set_positionlist(ChertPositionListTable & position_table,
+			     Xapian::docid did,
+			     Xapian::TermIterator & term)
+{
+    PositionIterator it = term.positionlist_begin();
+    PositionIterator it_end = term.positionlist_end();
+    if (it != it_end) {
+	position_table.set_positionlist(did, *term, it, it_end);
+    } else {
+	position_table.delete_positionlist(did, *term);
     }
 }
 
@@ -1302,6 +1347,10 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		// We have a docid, it matches, and the pointer matches, so we
 		// can skip modification of any data which hasn't been modified
 		// in the document.
+		if (!document.internal->modified()) {
+		    // If the document is unchanged, we've nothing to do.
+		    return;
+		}
 		modifying = true;
 		LOGLINE(DB, "Detected potential document modification shortcut.");
 	    } else {
@@ -1314,98 +1363,61 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    // FIXME - in the case where there is overlap between the new
-	    // termlist and the old termlist, it would be better to compare the
-	    // two lists, and make the minimum set of modifications required.
-	    // This would lead to smaller changesets for replication, and
-	    // probably be faster overall.
-
-	    // First, add entries to remove the postings in the underlying
-	    // record.
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
-
-	    termlist.next();
-	    while (!termlist.at_end()) {
-		string tname = termlist.get_termname();
-		termcount wdf = termlist.get_wdf();
-
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-		} else {
-		    --i->second.first;
-		    i->second.second -= wdf;
-		}
-
-		// Remove did from tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k == j->second.end()) {
-		    j->second.insert(make_pair(did, make_pair('D', 0u)));
-		} else {
-		    // Modifying a document we added/modified since the last
-		    // flush.
-		    k->second = make_pair('D', 0u);
-		}
-
-		termlist.next();
-	    }
-
-	    stats.delete_document(termlist.get_doclength());
-
-	    chert_doclen_t new_doclen = 0;
 	    Xapian::TermIterator term = document.termlist_begin();
-	    Xapian::TermIterator term_end = document.termlist_end();
-	    for ( ; term != term_end; ++term) {
-		termcount wdf = term.get_wdf();
-		// Calculate the new document length
-		new_doclen += wdf;
-		stats.check_wdf(wdf);
+	    chert_doclen_t new_doclen = termlist.get_doclength();
+	    string old_tname, new_tname;
 
-		string tname = *term;
-		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
+	    stats.delete_document(new_doclen);
+	    termlist.next();
+	    while (!termlist.at_end() || term != document.termlist_end()) {
+		int cmp;
+		if (!termlist.at_end() && term != document.termlist_end()) {
+		    old_tname = termlist.get_termname();
+		    new_tname = *term;
+		    cmp = old_tname.compare(new_tname);
+		} else if (termlist.at_end()) {
+		    cmp = 1;
+		    new_tname = *term;
 		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
+		    cmp = -1;
+		    old_tname = termlist.get_termname();
 		}
 
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k != j->second.end()) {
-		    Assert(k->second.first == 'D');
-		    k->second.first = 'M';
-		    k->second.second = wdf;
-		} else {
-		    j->second.insert(make_pair(did, make_pair('A', wdf)));
-		}
+		if (cmp < 0) {
+		    // Term old_tname has been deleted.
+		    termcount old_wdf = termlist.get_wdf();
+		    new_doclen -= old_wdf;
+		    add_freq_delta(old_tname, -1, -old_wdf);
+		    position_table.delete_positionlist(did, old_tname);
+		    update_mod_plist(did, old_tname, 'D', 0u);
+		    termlist.next();
+		} else if (cmp > 0) {
+		    // Term new_tname as been added.
+		    termcount new_wdf = term.get_wdf();
+		    new_doclen += new_wdf;
+		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
+			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+		    add_freq_delta(new_tname, 1, new_wdf);
+		    update_mod_plist(did, new_tname, 'A', new_wdf);
+		    set_positionlist(position_table, did, term);
+		    ++term;
+		} else if (cmp == 0) {
+		    // Term already exists: look for wdf and positionlist changes.
+		    termcount old_wdf = termlist.get_wdf();
+		    termcount new_wdf = term.get_wdf();
+		    if (old_wdf != new_wdf) {
+		    	new_doclen += new_wdf - old_wdf;
+			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
+			update_mod_plist(did, new_tname, 'U', new_wdf);
+		    }
 
-		PositionIterator it = term.positionlist_begin();
-		PositionIterator it_end = term.positionlist_end();
-		if (it != it_end) {
-		    position_table.set_positionlist(did, tname, it, it_end);
-		} else {
-		    position_table.delete_positionlist(did, tname);
+		    if (!positionlists_equal(term, termlist))
+			set_positionlist(position_table, did, term);
+
+		    ++term;
+		    termlist.next();
 		}
 	    }
 	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);

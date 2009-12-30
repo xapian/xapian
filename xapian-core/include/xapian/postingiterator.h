@@ -28,6 +28,7 @@
 #include <string>
 
 #include <xapian/base.h>
+#include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/visibility.h>
@@ -35,17 +36,6 @@
 namespace Xapian {
 
 class Database;
-
-/** @internal A wrapper class for a docid which returns the docid if
- *  dereferenced with *.  We need this to implement input_iterator semantics.
- */
-class DocIDWrapper {
-    private:
-	docid did;
-    public:
-	explicit DocIDWrapper(docid did_) : did(did_) { }
-	docid operator*() const { return did; }
-};
 
 /** An iterator pointing to items in a list of postings.
  */
@@ -82,10 +72,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 
 	PostingIterator & operator++();
 
-	DocIDWrapper operator++(int) {
+	DerefWrapper_<docid> operator++(int) {
 	    Xapian::docid tmp = **this;
 	    operator++();
-	    return DocIDWrapper(tmp);
+	    return DerefWrapper_<docid>(tmp);
 	}
 
 	/** Skip the iterator to document did, or the first document after did

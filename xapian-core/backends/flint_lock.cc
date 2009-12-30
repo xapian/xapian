@@ -1,6 +1,7 @@
-/* flint_lock.cc: database locking for flint backend.
- *
- * Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/** @file flint_lock.h
+ * @brief Flint-compatible database locking.
+ */
+/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +42,8 @@
 #include <sys/cygwin.h>
 #endif
 
+#include "xapian/error.h"
+
 using namespace std;
 
 FlintLock::reason
@@ -60,7 +63,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
-    explanation = "";
+    explanation = string();
     return UNKNOWN;
 #elif defined __EMX__
     APIRET rc;
@@ -71,7 +74,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 		 NULL);
     if (rc == NO_ERROR) return SUCCESS;
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
-    explanation = "";
+    explanation = string();
     return UNKNOWN;
 #else
     Assert(fd == -1);
@@ -79,15 +82,48 @@ FlintLock::lock(bool exclusive, string & explanation) {
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation = string("Couldn't open lockfile: ") + strerror(errno);
-	return UNKNOWN;
+	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+    }
+
+    // If stdin and/or stdout have been closed, it is possible that lockfd could
+    // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
+    // be stdin and stdout, and we can't use dup() on lockfd after locking it,
+    // as the lock won't be transferred, so we handle this corner case here by
+    // using dup() once or twice to get lockfd to be >= 2.
+    if (rare(lockfd < 2)) {
+	// Note this temporarily requires one or two spare fds to work, but
+	// then we need two spare for socketpair() to succeed below anyway.
+	int lockfd_dup = dup(lockfd);
+	if (rare(lockfd_dup < 2)) {
+	    int eno = 0;
+	    if (lockfd_dup < 0) {
+		eno = errno;
+		close(lockfd);
+	    } else {
+		int lockfd_dup2 = dup(lockfd);
+		if (lockfd_dup2 < 0) {
+		    eno = errno;
+		}
+		close(lockfd);
+		close(lockfd_dup);
+		lockfd = lockfd_dup2;
+	    }
+	    if (eno) {
+		return ((eno == EMFILE || eno == ENFILE) ? FDLIMIT : UNKNOWN);
+	    }
+	} else {
+	    close(lockfd);
+	    lockfd = lockfd_dup;
+	}
     }
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
 	explanation = string("Couldn't create socketpair: ") + strerror(errno);
-	close(lockfd);
-	return UNKNOWN;
+	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+	(void)close(lockfd);
+	return why;
     }
 
     pid_t child = fork();
@@ -238,4 +274,24 @@ FlintLock::release() {
 	}
     }
 #endif
+}
+
+void
+FlintLock::throw_databaselockerror(FlintLock::reason why,
+				   const string & db_dir,
+				   const string & explanation)
+{
+    string msg("Unable to get write lock on ");
+    msg += db_dir;
+    if (why == FlintLock::INUSE) {
+	msg += ": already locked";
+    } else if (why == FlintLock::UNSUPPORTED) {
+	msg += ": locking probably not supported by this FS";
+    } else if (why == FlintLock::FDLIMIT) {
+	msg += ": too many open files";
+    } else if (why == FlintLock::UNKNOWN) {
+	if (!explanation.empty())
+	    msg += ": " + explanation;
+    }
+    throw Xapian::DatabaseLockError(msg);
 }

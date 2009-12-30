@@ -256,6 +256,19 @@ Database::get_document(docid did)
 	RETVAL
 
 string
+Database::get_spelling_suggestion(word, max_edit_distance = 2)
+    string  word
+    int     max_edit_distance
+    CODE:
+	try {
+	    RETVAL = THIS->get_spelling_suggestion(word, max_edit_distance);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+    OUTPUT:
+	RETVAL
+
+string
 Database::get_metadata(string key)
 
 void

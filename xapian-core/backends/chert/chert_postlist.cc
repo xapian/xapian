@@ -892,18 +892,26 @@ ChertPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, bool,
 	      "ChertPostList::move_forward_in_chunk_to_at_least", desired_did);
-    if (desired_did > last_did_in_chunk) {
-	pos = end;
-	RETURN(false);
+    if (did >= desired_did)
+	RETURN(true);
+
+    if (desired_did <= last_did_in_chunk) {
+	while (pos != end) {
+	    read_did_increase(&pos, end, &did);
+	    if (did >= desired_did) {
+		read_wdf(&pos, end, &wdf);
+		RETURN(true);
+	    }
+	    // It's faster to just skip over the wdf than to decode it.
+	    read_wdf(&pos, end, NULL);
+	}
+
+	// If we hit the end of the chunk then last_did_in_chunk must be wrong.
+	Assert(false);
     }
-    while (did < desired_did) {
-	bool at_end_of_chunk = !next_in_chunk();
-	// If we hit the end of the chunk then last_did_in_chunk must be
-	// wrong.
-	Assert(!at_end_of_chunk);
-	if (at_end_of_chunk) RETURN(false);
-    }
-    RETURN(true);
+
+    pos = end;
+    RETURN(false);
 }
 
 PostList *
@@ -1172,13 +1180,13 @@ next_doclen_chunk:
 		    del(current_key);
 		    continue;
 		}
-		AutoPtr<ChertCursor> cursor(cursor_get());
-		bool found = cursor->find_entry(current_key);
+		MutableChertCursor cursor(this);
+		bool found = cursor.find_entry(current_key);
 		Assert(found);
 		if (!found) continue; // Reduce damage!
-		while (cursor->del()) {
-		    const char *kpos = cursor->current_key.data();
-		    const char *kend = kpos + cursor->current_key.size();
+		while (cursor.del()) {
+		    const char *kpos = cursor.current_key.data();
+		    const char *kend = kpos + cursor.current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
 		}
 		continue;

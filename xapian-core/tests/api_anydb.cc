@@ -2008,7 +2008,7 @@ DEFINE_TESTCASE(valuerange1, backend) {
 
 // Regression test for Query::OP_VALUE_LE - used to return document IDs for
 // non-existent documents.
-DEFINE_TESTCASE(valuerange2, backend && writable) {
+DEFINE_TESTCASE(valuerange2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.set_data("5");
@@ -2026,7 +2026,7 @@ DEFINE_TESTCASE(valuerange2, backend && writable) {
 }
 
 // Test for alldocs postlist with a sparse database.
-DEFINE_TESTCASE(alldocspl1, backend && writable) {
+DEFINE_TESTCASE(alldocspl1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.set_data("5");
@@ -2045,7 +2045,7 @@ DEFINE_TESTCASE(alldocspl1, backend && writable) {
 }
 
 // Test reading and writing a modified alldocspostlist.
-DEFINE_TESTCASE(alldocspl2, backend && writable) {
+DEFINE_TESTCASE(alldocspl2, writable) {
     Xapian::PostingIterator i, end;
     {
 	Xapian::WritableDatabase db = get_writable_database();
@@ -2209,7 +2209,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 	"leave \"milk notpresent\"",
 	NULL
     };
-    static double multipliers[] = {
+    static const double multipliers[] = {
 	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
 	0, 0
     };
@@ -2217,7 +2217,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     for (const char **qstr = queries; *qstr; ++qstr) {
 	Xapian::Query query1 = qp.parse_query(*qstr);
 	tout << "query1: " << query1.get_description() << endl;
-	for (double *multp = multipliers; multp[0] != multp[1]; ++multp) {
+	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;
 	    if (mult < 0) {
 		TEST_EXCEPTION(Xapian::InvalidArgumentError,

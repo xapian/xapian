@@ -51,17 +51,13 @@ BackendManagerChert::get_writable_database_path(const string & name)
 }
 
 Xapian::Database
-BackendManagerChert::get_writable_database_as_database(const string & name)
+BackendManagerChert::get_writable_database_as_database()
 {
-    if (name.empty())
-	return Xapian::Chert::open(".chert/" + last_wdb_name);
-    return Xapian::Chert::open(".chert/" + name);
+    return Xapian::Chert::open(".chert/" + last_wdb_name);
 }
 
 Xapian::WritableDatabase
-BackendManagerChert::get_writable_database_again(const string & name)
+BackendManagerChert::get_writable_database_again()
 {
-    if (name.empty())
-	return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
-    return Xapian::Chert::open(".chert/" + name, Xapian::DB_OPEN);
+    return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
 }

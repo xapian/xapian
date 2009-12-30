@@ -27,7 +27,7 @@
 #include "xapian/error.h"
 
 #include "flint_io.h"
-#include "flint_lock.h"
+#include "../flint_lock.h"
 #include "flint_record.h"
 #include "flint_replicate_internal.h"
 #include "flint_types.h"
@@ -221,21 +221,11 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	      "conn, end_time, " << valid);
 
     // Lock the database to perform modifications.
-    FlintLock lock(db_dir + "/flintlock");
+    FlintLock lock(db_dir);
     string explanation;
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
-	string msg("Unable to get write lock on ");
-	msg += db_dir;
-	if (why == FlintLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == FlintLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == FlintLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw DatabaseLockError(msg);
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 
     char type = conn.get_message_chunked(end_time);

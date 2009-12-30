@@ -86,6 +86,7 @@ Options to give to configure
 	are using the API correctly.  It also enables many internal
 	consistency checks, so is useful if you suspect a bug in Xapian.
 
+--enable-backend-brass
 --enable-backend-chert
 --enable-backend-flint
 --enable-backend-inmemory

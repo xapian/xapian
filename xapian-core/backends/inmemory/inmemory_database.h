@@ -229,12 +229,15 @@ class InMemoryTermList : public TermList {
 	Xapian::PositionIterator positionlist_begin() const;
 };
 
+class InMemoryDocument;
+
 /** A database held entirely in memory.
  *
  *  This is a prototype database, mainly used for debugging and testing.
  */
 class InMemoryDatabase : public Xapian::Database::Internal {
     friend class InMemoryAllDocsPostList;
+    friend class InMemoryDocument;
 
     map<string, InMemoryTerm> postlists;
     vector<InMemoryDoc> termlists;

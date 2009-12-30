@@ -184,7 +184,7 @@ static void yy_parse_failed(yyParser *);
 #include "omassert.h"
 #include "omdebug.h"
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
 static const char *const yyTokenName[] = {
@@ -218,7 +218,7 @@ static const char *ParseRuleName(int ruleNum){
   }
   return "Unknown";
 }
-#endif /* XAPIAN_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_LOG */
 
 /* 
 ** This function allocates a new parser.
@@ -401,7 +401,7 @@ static void yy_shift(
 #if 0
 %%
 #endif
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
   unsigned i;
   LOGLINE(QUERYPARSER, "Shift " << yyNewState);
   string stack("Stack:");
@@ -441,7 +441,7 @@ static void yy_reduce(
   int yysize;                     /* Amount to pop the stack */
   ParseARG_FETCH;
   yymsp = &yypParser->yystack.back();
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
   LOGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
 #endif
 

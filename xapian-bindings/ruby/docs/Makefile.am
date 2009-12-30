@@ -39,7 +39,12 @@ BUILT_SOURCES = rdocs/index.html
 
 rdocs: rdocs/index.html
 
-rdocs/index.html: ../xapian.rb
+xapian.rb: generate-rdoc-stubs ../xapian.rb ../../../xapian-core/docs/apidoc/xml/index.xml
+	$(PERL) $(srcdir)/generate-rdoc-stubs
+
+rdocs/index.html: xapian.rb
 	rm -rf rdocs
-	$(RDOC) --op rdocs $(srcdir)/../xapian.rb
+	$(RDOC) --op rdocs xapian.rb
 endif
+
+CLEANFILES = xapian.rb

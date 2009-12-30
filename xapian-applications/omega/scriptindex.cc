@@ -557,10 +557,16 @@ index_file(const char *fname, istream &stream,
 			    p.parse_html(value, "iso-8859-1", false);
 			} catch (const string & newcharset) {
 			    p.reset();
-			    p.parse_html(value, newcharset, true);
+			    try {
+				p.parse_html(value, newcharset, true);
+			    } catch (bool) {
+				// MyHtmlParser throws a bool to abandon
+				// parsing at </body> or when indexing is
+				// disallowed.
+			    }
 			} catch (bool) {
 			    // MyHtmlParser throws a bool to abandon parsing at
-			    // </body> or when indexing is disallowed
+			    // </body> or when indexing is disallowed.
 			}
 			if (p.indexing_allowed)
 			    value = p.dump;

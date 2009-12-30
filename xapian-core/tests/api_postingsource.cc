@@ -363,7 +363,7 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
 
 // Check that valueweightsource gives the correct bounds for those databases
 // which support value statistics.
-DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
+DEFINE_TESTCASE(valueweightsource2, valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
     src.init(db);
@@ -376,7 +376,7 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
-DEFINE_TESTCASE(valueweightsource3, backend && valuestats && !multi) {
+DEFINE_TESTCASE(valueweightsource3, valuestats && !multi) {
     // FIXME: multi doesn't support iterating valuestreams yet.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
@@ -501,7 +501,7 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 };
 
 // Test a posting source with a variable maxweight.
-DEFINE_TESTCASE(changemaxweightsource1, backend && !multi && !remote) {
+DEFINE_TESTCASE(changemaxweightsource1, backend && !remote && !multi) {
     // The ChangeMaxweightPostingSource doesn't work with multi or remote.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);

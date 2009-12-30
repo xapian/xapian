@@ -23,12 +23,15 @@
 
 #include <xapian.h>
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-# include "backendmanager_flint.h"
-# define BackendManagerLocal BackendManagerFlint
-#elif defined XAPIAN_HAS_CHERT_BACKEND
+#if defined XAPIAN_HAS_CHERT_BACKEND
 # include "backendmanager_chert.h"
 # define BackendManagerLocal BackendManagerChert
+#elif defined XAPIAN_HAS_BRASS_BACKEND
+# include "backendmanager_brass.h"
+# define BackendManagerLocal BackendManagerBrass
+#elif defined XAPIAN_HAS_FLINT_BACKEND
+# include "backendmanager_flint.h"
+# define BackendManagerLocal BackendManagerFlint
 #else
 # include "backendmanager.h"
 class BackendManagerLocal : public BackendManager {

@@ -345,7 +345,7 @@ FlintPostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 	    is_last_chunk = save_is_last_chunk;
 	    is_first_chunk = false;
 	    first_did = did;
-	    chunk = "";
+	    chunk.resize(0);
 	    orig_key = FlintPostListTable::make_key(tname, first_did);
 	} else {
 	    chunk.append(F_pack_uint(did - current_did - 1));
@@ -935,7 +935,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 
 	*from = NULL;
-	*to = new FlintPostlistChunkWriter("", true, tname, true);
+	*to = new FlintPostlistChunkWriter(string(), true, tname, true);
 	return Xapian::docid(-1);
     }
 

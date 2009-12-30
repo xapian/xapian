@@ -40,7 +40,7 @@ struct test {
 
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
 DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
-    static test test_queries[] = {
+    static const test test_queries[] = {
 	{ "hello", "hello:(pos=1)" },
 	{ "~hello", "(hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1))" },
 	{ "hello world", "(hello:(pos=1) OR world:(pos=2))" },
@@ -48,7 +48,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	{ "world ~hello", "(world:(pos=1) OR (hello:(pos=2) SYNONYM hi:(pos=2) SYNONYM howdy:(pos=2)))" },
 	{ NULL, NULL }
     };
-    static test test_queries_auto[] = {
+    static const test test_queries_auto[] = {
 	{ "hello", "(hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1))" },
 	{ "~hello", "(hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1))" },
 	{ "hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
@@ -56,7 +56,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	{ "world ~hello", "(world:(pos=1) OR (hello:(pos=2) SYNONYM hi:(pos=2) SYNONYM howdy:(pos=2)))" },
 	{ NULL, NULL }
     };
-    static test test_queries_partial_auto[] = {
+    static const  test test_queries_partial_auto[] = {
 	{ "hello", "hello:(pos=1)" },
 	{ "~hello", "hello:(pos=1)" },
 	{ "hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
@@ -76,7 +76,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
     qp.set_database(db);
     qp.add_prefix("foo", "XFOO");
 
-    test *p;
+    const test *p;
     for (p = test_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)

@@ -1,7 +1,7 @@
 /** @file xapian-inspect.cc
  * @brief Inspect the contents of a flint table for development or debugging.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,7 +128,7 @@ main(int argc, char **argv)
     try {
 	FlintTable table("", table_name, true);
 	table.open();
-	if (table.get_entry_count() == 0) {
+	if (table.empty()) {
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}

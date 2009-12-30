@@ -114,7 +114,7 @@ try {
 	}
     }
 
-    if (!have_database || argc - optind != 1) {
+    if (argc - optind != 1) {
 	show_usage();
 	exit(1);
     }
@@ -128,6 +128,11 @@ try {
 
     Xapian::Query query = parser.parse_query(argv[optind]);
     cout << "Query: " << query.get_description() << endl;
+
+    if (!have_database) {
+	cout << "No database specified so not running the query." << endl;
+	exit(0);
+    }
 
     Xapian::Enquire enquire(db);
     enquire.set_query(query);

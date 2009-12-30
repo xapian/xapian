@@ -142,6 +142,12 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // replace document with unique term
     void msg_replacedocumentterm(const std::string & message);
 
+    // get metadata
+    void msg_getmetadata(const std::string & message);
+
+    // set metadata
+    void msg_setmetadata(const std::string & message);
+
   public:
     /** Construct a RemoteServer.
      *

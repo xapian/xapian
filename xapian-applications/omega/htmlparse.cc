@@ -199,7 +199,7 @@ HtmlParser::parse_html(const string &body)
 		if (decl_end == body.end()) break;
 
 		// Default charset for XML is UTF-8.
-		charset = "UTF-8";
+		charset = "utf-8";
 
 		string decl(p + 6, decl_end);
 		size_t enc = decl.find("encoding");

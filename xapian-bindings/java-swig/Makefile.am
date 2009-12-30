@@ -23,6 +23,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Auto.java\
 	BM25Weight.java\
 	BoolWeight.java\
+	Brass.java\
 	Chert.java\
 	Database.java\
 	DateValueRangeProcessor.java\

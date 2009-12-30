@@ -138,6 +138,10 @@ returns true if this term exists in the database, or false otherwise.
 
 return a description of this object.
 
+=item get_spelling_suggestion
+
+returns a suggested spelling correction.
+
 =item allterms_begin [<prefix>]
 
 Returns a L<Search::Xapian::TermIterator> iterating over the termlist for the

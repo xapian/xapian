@@ -42,7 +42,7 @@ typedef unsigned int chert_revision_number_t;
  *
  *  Again, this must be of suitable minimum size.
  */
-typedef unsigned int chert_tablesize_t;
+typedef unsigned long long chert_tablesize_t;
 
 /** An integer type for storing the length of a document - ie, the sum of the
  *  wdfs of the terms in the document.

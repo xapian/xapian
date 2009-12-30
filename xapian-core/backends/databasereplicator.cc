@@ -30,6 +30,9 @@
 #include "omdebug.h"
 #include "utils.h"
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+# include "brass/brass_databasereplicator.h"
+#endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_databasereplicator.h"
 #endif
@@ -50,15 +53,21 @@ DatabaseReplicator::open(const string & path)
 {
     DEBUGCALL_STATIC(DB, void, "DatabaseReplicator::DatabaseReplicator", path);
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+    if (file_exists(path + "/iamchert")) {
+	return new ChertDatabaseReplicator(path);
+    }
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	return new FlintDatabaseReplicator(path);
     }
 #endif
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (file_exists(path + "/iamchert")) {
-	return new ChertDatabaseReplicator(path);
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+    if (file_exists(path + "/iambrass")) {
+	return new BrassDatabaseReplicator(path);
     }
 #endif
 

@@ -185,6 +185,8 @@ RemoteServer::run()
 		&RemoteServer::msg_replacedocumentterm,
 		&RemoteServer::msg_deletedocument,
 		&RemoteServer::msg_writeaccess,
+		&RemoteServer::msg_getmetadata,
+		&RemoteServer::msg_setmetadata,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -463,7 +465,7 @@ RemoteServer::msg_query(const string &message_in)
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, local_stats, wt.get(), matchspies.spies);
+		     local_stats, wt.get(), matchspies.spies, false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -483,7 +485,7 @@ RemoteServer::msg_query(const string &message_in)
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
 
     message.resize(0);
     vector<Xapian::MatchSpy *>::const_iterator i;
@@ -657,4 +659,24 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
+}
+
+void
+RemoteServer::msg_getmetadata(const string & message)
+{
+    send_message(REPLY_METADATA, db->get_metadata(message));
+}
+
+void
+RemoteServer::msg_setmetadata(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    size_t keylen = decode_length(&p, p_end, false);
+    string key(p, keylen);
+    p += keylen;
+    string val(p, p_end - p);
+    wdb->set_metadata(key, val);
 }

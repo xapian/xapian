@@ -277,10 +277,10 @@ Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
     if (values_here) {
 	map<Xapian::valueno, string>::const_iterator i;
 	i = values.find(valueid);
-	if (i == values.end()) return "";
+	if (i == values.end()) return string();
 	return i->second;
     }
-    if (!database.get()) return "";
+    if (!database.get()) return string();
     return do_get_value(valueid);
 }
 	
@@ -288,7 +288,7 @@ string
 Xapian::Document::Internal::get_data() const
 {
     if (data_here) return data;
-    if (!database.get()) return "";
+    if (!database.get()) return string();
     return do_get_data();
 }
 

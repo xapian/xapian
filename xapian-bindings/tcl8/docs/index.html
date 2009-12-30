@@ -42,10 +42,12 @@ to/from Xapian from Tcl8.
    correctly.  This only matters for the Xapian::WritableDatabase class, and we
    avoid wrapping the problematic factory functions to avoid setting a
    trap for the unwary - these are the WritableDatabase versions of
+   <code>Xapian::Brass::open</code>,
    <code>Xapian::Chert::open</code>, and <code>Xapian::Flint::open</code>.
    You can just use a <code>Xapian::WritableDatabase</code> constructor
-   instead (and set <code>XAPIAN_PREFER_CHERT</code> in the environment to
-   select chert rather than flint).
+   instead (and set <code>XAPIAN_PREFER_BRASS</code> in the environment to
+   select brass rather than chert).  You can't create a flint database this
+   way, but flint is now deprecated.
 </p>
 
 <p>
@@ -149,6 +151,7 @@ wrapped like so for Tcl:
 
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
+<li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian::brass_open</code> (but note that the WritableDatabase version isn't wrapped - see
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see
