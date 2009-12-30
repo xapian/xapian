@@ -1,3 +1,8 @@
+Wed Dec 30 11:41:57 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_database.h: Remove old unused members:
+	  total_length and lastdocid.
+
 Wed Dec 30 01:07:04 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/chert/chert_database.h: Remove old unused members:

@@ -110,12 +110,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	/// Lock object.
 	FlintLock lock;
 
-	/// Total length of all documents including uncommitted modifications.
-	mutable totlen_t total_length;
-
-	/** Highest document ID ever allocated by this database. */
-	mutable Xapian::docid lastdocid;
-
 	/** The maximum number of changesets which should be kept in the
 	 *  database. */
 	unsigned int max_changesets;
