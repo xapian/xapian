@@ -75,7 +75,7 @@ ChertModifiedPostList::get_wdf() const
     Xapian::docid unmod_did = ChertPostList::get_docid();
     if (it != mods.end() && it->first <= unmod_did) {
 	if (it->first < unmod_did) return it->second.second;
-	return ChertPostList::get_wdf() + it->second.second;
+	return it->second.second;
     }
     return ChertPostList::get_wdf();
 }

@@ -34,56 +34,41 @@
 
 using namespace std;
 
-static Xapian::Database
-builddb_valuestest1()
+static void
+builddb_valuestest1(Xapian::WritableDatabase &db, const string & dbname)
 {
-    std::string dbname("valuestest1");
-    logger.testcase_begin("valuestest1");
+    logger.testcase_begin(dbname);
     unsigned int runsize = 1000000;
 
-    bool need_rebuild = false;
-    try {
-	Xapian::Database db = backendmanager->get_writable_database_as_database(dbname);
-	if (db.get_doccount() != runsize)
-	    need_rebuild = true;
-    } catch (Xapian::DatabaseOpeningError &) {
-	need_rebuild = true;
+    // Rebuild the database.
+    std::map<std::string, std::string> params;
+    params["runsize"] = om_tostring(runsize);
+    logger.indexing_begin(dbname, params);
+    for (unsigned int i = 0; i < runsize; ++i) {
+	unsigned int v = i % 100;
+	Xapian::Document doc;
+	doc.set_data("test document " + om_tostring(i));
+	doc.add_term("foo");
+	string vs = om_tostring(v);
+	if (vs.size() == 1) vs = "0" + vs;
+	doc.add_value(0, vs);
+	doc.add_term("F" + vs);
+	doc.add_term("Q" + om_tostring(i));
+	for (int j = 0; j != 100; ++j)
+	    doc.add_term("J" + om_tostring(j));
+	db.replace_document(i + 10, doc);
+	logger.indexing_add();
     }
-
-    if (need_rebuild) {
-	// Rebuild the database.
-
-	std::map<std::string, std::string> params;
-	params["runsize"] = om_tostring(runsize);
-	logger.indexing_begin(dbname, params);
-	Xapian::WritableDatabase dbw = backendmanager->get_writable_database(dbname, "");
-	unsigned int i;
-	for (i = 0; i < runsize; ++i) {
-	    unsigned int v = i % 100;
-	    Xapian::Document doc;
-	    doc.set_data("test document " + om_tostring(i));
-	    doc.add_term("foo");
-	    string vs = om_tostring(v);
-	    if (vs.size() == 1) vs = "0" + vs;
-	    doc.add_value(0, vs);
-	    doc.add_term("F" + vs);
-	    doc.add_term("Q" + om_tostring(i));
-	    for (int j = 0; j != 100; ++j)
-		doc.add_term("J" + om_tostring(j));
-	    dbw.replace_document(i + 10, doc);
-	    logger.indexing_add();
-	}
-	dbw.commit();
-	logger.indexing_end();
-	logger.testcase_end();
-    }
-
-    return backendmanager->get_writable_database_as_database(dbname);
+    db.commit();
+    logger.indexing_end();
+    logger.testcase_end();
 }
 
 // Test the performance of a ValueSetMatchDecider, compared to a Value range operator.
 DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
-    Xapian::Database db = builddb_valuestest1();
+    Xapian::Database db;
+    db = backendmanager->get_database("valuestest1", builddb_valuestest1,
+				      "valuestest1");
 
     logger.testcase_begin("valuesetmatchdecider1");
     Xapian::Enquire enquire(db);
@@ -142,7 +127,9 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 
 // Test the performance of an AllDocsIterator.
 DEFINE_TESTCASE(alldocsiter1, writable && !remote && !inmemory) {
-    Xapian::Database db = builddb_valuestest1();
+    Xapian::Database db;
+    db = backendmanager->get_database("valuestest1", builddb_valuestest1,
+				      "valuestest1");
 
     logger.testcase_begin("alldocsiter1");
 

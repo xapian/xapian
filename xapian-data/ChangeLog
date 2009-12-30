@@ -1,3 +1,9 @@
+Wed Dec 16 00:42:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* stemming/german/output.txt,stemming/german2/output.txt: Update
+	  expected output from the german and german2 stemmers to match the
+	  updated algorithms.
+
 Tue Sep 02 04:16:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* stemming/romanian/: Split out the romanian stemming test data into

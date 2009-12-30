@@ -56,8 +56,13 @@ Xapian::doccount
 ChertRecordTable::get_doccount() const
 {   
     DEBUGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", "");
-    STATIC_ASSERT_TYPE_DOMINATES(Xapian::doccount, chert_tablesize_t);
-    RETURN(get_entry_count());
+    chert_tablesize_t count = get_entry_count();
+    if (rare(count > chert_tablesize_t(Xapian::doccount(-1)))) {
+	// If we've got more entries than there are possible docids, the
+	// database is in an odd state.
+	throw Xapian::DatabaseCorruptError("Impossibly many entries in the record table");
+    }
+    RETURN(Xapian::doccount(count));
 }
 
 void

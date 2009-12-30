@@ -191,11 +191,7 @@ class ValueChunkReader {
 
     void next();
 
-    void skip_to(Xapian::docid target) {
-	while (!at_end() && target > did) {
-	    next();
-	}
-    }
+    void skip_to(Xapian::docid target);
 };
 
 #endif // XAPIAN_INCLUDED_CHERT_VALUES_H

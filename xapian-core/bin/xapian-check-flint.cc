@@ -1,6 +1,7 @@
-/* xapian-check-flint.cc: Check consistency of a flint table.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file xapian-check-flint.cc
+ * @brief Check consistency of a flint table.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -23,10 +24,6 @@
 
 #include "xapian-check-flint.h"
 
-#include <iostream>
-
-#include "autoptr.h"
-
 #include "bitstream.h"
 
 #include "internaltypes.h"
@@ -36,8 +33,12 @@
 #include "flint_table.h"
 #include "flint_types.h"
 #include "flint_utils.h"
+#include "valuestats.h"
 
 #include <xapian.h>
+
+#include "autoptr.h"
+#include <iostream>
 
 using namespace std;
 

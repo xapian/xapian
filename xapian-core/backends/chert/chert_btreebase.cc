@@ -155,6 +155,23 @@ do_unpack_uint(const char **start, const char *end,
     return result;
 }
 
+static bool
+do_unpack_uint(const char **start, const char *end,
+	       chert_tablesize_t *dest, string &err_msg, 
+	       const string &basename,
+	       const char *varname)
+{
+    bool result = unpack_uint(start, end, dest);
+    if (rare(!result)) {
+	err_msg += "Unable to read ";
+	err_msg += varname;
+	err_msg += " from ";
+	err_msg += basename;
+	err_msg += '\n';
+    }
+    return result;
+}
+
 #define DO_UNPACK_UINT_ERRCHECK(start, end, var) \
 do { \
     if (!do_unpack_uint(start, end, &var, err_msg, basename, #var)) { \
@@ -297,7 +314,7 @@ ChertTable_base::write_to_file(const string &filename,
     pack_uint(buf, static_cast<uint4>(root));
     pack_uint(buf, static_cast<uint4>(level));
     pack_uint(buf, static_cast<uint4>(bit_map_size));
-    pack_uint(buf, static_cast<uint4>(item_count));
+    pack_uint(buf, item_count);
     pack_uint(buf, static_cast<uint4>(last_block));
     pack_uint(buf, have_fakeroot);
     pack_uint(buf, sequential);

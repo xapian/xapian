@@ -1,3 +1,187 @@
+ 13764       olly Thu Dec 17 13:36:54 GMT 2009  Olly Betts <olly@survex.com>
+
+ 13729    richard Fri Dec 11 11:05:19 GMT 2009  Richard Boulton <richard@tartarus.org>
+	* COPYING_MIT,HACKING: Add details of our policy for accepting
+	  patches.  This has informally been true for a while, but it
+	  probably helps to tell people about it!
+
+trunk only:
+
+ 13758       olly Thu Dec 17 11:16:51 GMT 2009  Olly Betts <olly@survex.com>
+	* tests/api_wrdb.cc: The regression test replacedoc5 no longer actually
+	  checks for the situation it was written for, due to the shortcutting
+	  we now do in flint and chert when replacing a document with itself,
+	  so extend it with a check with that behaviour suppressed (fortunately
+	  it still passes).
+
+ 13744       olly Tue Dec 15 10:11:10 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_alltermslist.cc: Tweak to not apply the
+	  prefix test in the "at end" case.
+ 13743       olly Tue Dec 15 09:40:19 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_alltermslist.cc: There's no point checking
+	  follow-on chunks match the prefix - the first chunk we'll hit
+	  which doesn't match has to be an initial chunk for a term.
+
+ 13750       olly Wed Dec 16 11:52:27 GMT 2009  Olly Betts <olly@survex.com>
+	* bin/xapian-compact.cc: Ensure that the resultant database has a
+	  fresh UUID (previously chert copied the UUID from the first input,
+	  while flint didn't set a UUID so one was generated on demand when
+	  next requested, if the database is writable.
+	* tests/api_compact.cc: Add tests that a UUID is set and that it is
+	  different from that of the input.
+
+ 13742       olly Tue Dec 15 08:24:04 GMT 2009  Olly Betts <olly@survex.com>
+	* include/xapian/: Convert DerefStringWrapper_ to a templated
+	  DerefWrapper_ and use it instead of DocIDWrapper and TermPosWrapper.
+
+ 13740       olly Tue Dec 15 03:59:44 GMT 2009  Olly Betts <olly@survex.com>
+	* common/pack.h: Return false not true if
+	  unpack_string_preserving_sort() fails.  Add assertions that the
+	  source pointer isn't NULL to all the functions.
+
+ 13736    richard Sat Dec 12 13:07:51 GMT 2009  Richard Boulton <richard@tartarus.org>
+	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:
+	  Split my recently added replacedoc test out into a new file.
+
+ 13751       olly Wed Dec 16 12:03:13 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/,bin/Makefile.mk,common/pack.h: Change the packing
+	  of uints and strings into sortable keys in chert databases, which
+	  reduces database size by 2.5% in tests.  This means an incompatible
+	  change in the chert format.
+	* bin/xapian-chert-update.cc: Utility to update a chert database from
+	  the old format to the new format.  It works much like xapian-compact
+	  so should take a similar amount of time (and results in a compact
+	  database).
+	* tests/api_wrdb.cc: Adjust the test which checks a string of zero
+	  bytes fails in the correct way - 126 zero bytes is now handled, so
+	  we need 127 to check the failure mode.
+
+ 13746       olly Wed Dec 16 00:40:51 GMT 2009  Olly Betts <olly@survex.com>
+	* languages/german.sbl,languages/german2.sbl: Update the german and
+	  german2 stemming algorithms to the latest versions from Snowball.
+	  These add an extra rule for the "-nisse" ending.
+
+ 13745       olly Tue Dec 15 13:08:33 GMT 2009  Olly Betts <olly@survex.com>
+	* bin/: Split apart the flint and chert compaction code.  Should be
+	  no change in functionality.
+
+ 13713       olly Mon Dec 07 04:32:46 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/: Use > 32 bit type to keep count of items in a
+	  table.  This fixes misreporting by xapian-check, and in the very
+	  unlikely case where the counter has just wrapped to 0, makes
+	  xapian-compact not mistakenly think tables are empty and the
+	  matcher ignore positional information.
+
+	  backends/chert/chert_lock.h: Add "FDLIMIT" reason code for why
+	  locking failing.
+	  backends/flint_lock.cc,backends/flint_lock.h: Factor out a single
+	  version of the "flint-compatible locking code" and use it from both
+	  flint and chert.
+	  backends/flint_lock.h: Factor out 4 copies of the same code to
+	  report why Xapian failed to get a lock.
+
+* Add get_database_path() variant which takes a generator function and use
+  it so that the right database names are used in compactnorenumber1.
+
+	* include/xapian/matchspy.h: Remove out-of-date reference to
+	  add_slot(), which no longer exists: users are expected to use
+	  multiple ValueCountMatchSpies if they need to monitor more than
+	  one slot.
+
+Xapian-core 1.1.4 (2009-12-??):
+
+
+API:
+
+* Implement support for iterating valuestreams for multidatabases.
+
+testsuite:
+
+	* tests/api_matchspy.cc: Add regression test for underflow in
+	  numeric ranges (based on python version in ticket #321).
+
+	* tests/Makefile.am,tests/api_compact.cc: Add test coverage for
+	  xapian-compact --no-renumber with multiple databases.
+
+matcher:
+
+	* common/document.h,matcher/: Implement ValueStreamDocument subclass
+	  of Xapian::Document::Internal which provides a way to connect up
+	  valuestreams to uses of values during the match.  Other
+	  (non-recommended) uses of the Document passed to MatchDecider, etc
+	  are passed through to a lazily created backend Document::Internal
+	  subclass.  This should be a lot more efficient for chert.  It's
+	  unclear how it will affect performance for backends which don't store
+	  values in streams - profiling is required.
+ 13656       olly Fri Nov 20 10:54:08 GMT 2009  Olly Betts <olly@survex.com>
+	* matcher/valuestreamdocument.cc: Use check() instead of skip_to() in
+	  ValueStreamDocument.
+
+
+chert backend:
+
+* xapian-compact: Prune unused docids off the end of each database when merging
+  multiple databases with renumbering.
+
+	* bin/xapian-compact.cc: Extend --no-renumber to support merging
+	  databases, but only if they have disjoint ranges of used document
+	  ids.
+
+* xapian-check: Rework the checking of postlist chunks into a cleaner approach
+  which should report errors better.
+
+	  Make ValueChunkReader::skip_to() assign the value to a string
+	  only when the target has been reached.  Saves a lot of
+	  unnecessary string copying - on a benchmark of mydeco data,
+	  improves time for 100 queries from 3.66s to 3.10s.
+
+	* backends/chert/chert_postlist.cc: When skipping through a chunk of
+	  postings to find the one we want, don't bother to unpack the wdf
+	  values we're skipping over, which should save a significant amount
+	  of time in certain cases where the profile data shows we spend
+	  something like 1/3 of the time in the function where this happens.
+
+flint backend:
+
+* xapian-compact: Prune unused docids off the end of each database when merging
+  multiple databases with renumbering.
+
+remote backend:
+
+* Add support for
+	  WritableDatabase::set_metadata() and Database::get_metadata() to the
+	  remote backend (based largely on patch in #178).
+
+inmemory backend:
+
+* Set the document data and values lazily for the
+	  inmemory backend too.  They're much less costly to fetch than if
+	  a disk access may be needed, but it avoids a copy of the respective
+	  data if they aren't needed, and either could potentially be large.
+	  Consistency here also makes things easier to understand.
+
+build system:
+
+* This release uses autoconf 2.65 rather than 2.64.
+
+documentation:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+	* common/debuglog.h: Add "NO_ARGS" which can be used for debug logging
+	  when a function or method takes no arguments.  The main advantage
+	  over "" is that no extra code is generated for it.
+
 Xapian-core 1.1.3 (2009-09-18):
 
 This release includes all changes from 1.0.15-1.0.17 which are relevant.

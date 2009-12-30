@@ -32,6 +32,10 @@ foreach my $backend ("inmemory", "auto") {
 
   my $term = 'test';
   ok( $term = $stemmer->stem_word( $term ) );
+  if ($backend ne "inmemory") {
+    # inmemory doesn't implement spelling correction support.
+    $database->add_spelling( $term, 1 );
+  }
 
   my $docid;
   for my $num qw( one two three ) {
@@ -44,6 +48,13 @@ foreach my $backend ("inmemory", "auto") {
     $docs{$num}->add_posting( $num, 1 );
 
     $docs{$num}->add_value(0, $num);
+
+    if ($backend ne "inmemory") {
+      # inmemory doesn't implement spelling correction support.
+      $database->add_spelling( "x" . $term, 1 );
+      $database->add_spelling( $term, 1 );
+      $database->remove_spelling( "x" . $term, 1 );
+    }
     ok( $docid = $database->add_document( $docs{$num} ) );
   }
   $database->delete_document( $docid );

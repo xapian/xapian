@@ -30,7 +30,7 @@ using namespace std;
 
 ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
 							   Xapian::doccount doccount_,
-							   map<Xapian::docid, Xapian::termcount> & doclens_)
+							   const map<Xapian::docid, Xapian::termcount> & doclens_)
 	: ChertAllDocsPostList(db_, doccount_),
 	  doclens(doclens_),
 	  doclens_it(doclens.begin())

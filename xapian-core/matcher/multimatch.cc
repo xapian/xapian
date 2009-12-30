@@ -44,6 +44,7 @@
 
 #include "msetcmp.h"
 
+#include "valuestreamdocument.h"
 #include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
@@ -215,17 +216,17 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::valueno sort_key_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
-		       const Xapian::KeyMaker * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
-		       const vector<Xapian::MatchSpy *> & matchspies_)
+		       const vector<Xapian::MatchSpy *> & matchspies_,
+		       bool have_sorter, bool have_mdecider)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
 	  percent_cutoff(percent_cutoff_), weight_cutoff(weight_cutoff_),
 	  order(order_),
 	  sort_key(sort_key_), sort_by(sort_by_),
-	  sort_value_forward(sort_value_forward_), sorter(sorter_),
+	  sort_value_forward(sort_value_forward_),
 	  errorhandler(errorhandler_), weight(weight_),
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
@@ -236,8 +237,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
 	      int(order_) << ", " << sort_key_ << ", " <<
 	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
-	      sorter_ << ", " <<
-	      errorhandler_ << ", " << stats << ", [weight_]");
+	      errorhandler_ << ", " << stats << ", [weight_], "
+	      "[matchspies_], " << have_sorter << ", " << have_mdecider);
 
     if (!query) return;
     query->validate_query();
@@ -255,8 +256,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
-		if (sorter) {
+		if (have_sorter) {
 		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
+		}
+		if (have_mdecider) {
+		    throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
 		}
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
@@ -309,7 +313,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::MSet & mset,
 		     const Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
-		     const Xapian::MatchDecider *matchspy_legacy)
+		     const Xapian::MatchDecider *matchspy_legacy,
+		     const Xapian::KeyMaker *sorter)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", " << check_at_least << ", ...");
@@ -397,17 +402,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
     Assert(!postlists.empty());
 
+    ValueStreamDocument vsdoc(db);
+    ++vsdoc.ref_count;
+    Xapian::Document doc(&vsdoc);
+
     // Get a single combined postlist
     PostList *pl;
     if (postlists.size() == 1) {
 	pl = postlists.front();
     } else {
-	pl = new MergePostList(postlists, this, errorhandler);
+	pl = new MergePostList(postlists, this, vsdoc, errorhandler);
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
     {
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator tfwi;
 	for (tfwi = termfreqandwts.begin(); tfwi != termfreqandwts.end(); ++tfwi) {
@@ -570,17 +579,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    calculated_weight = true;
 	}
 
-	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 	Xapian::docid did = pl->get_docid();
+	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
-	    doc = db.get_document_lazily(did);
-	    Assert(doc.get());
 	    if (sorter) {
-		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
+		new_item.sort_key = (*sorter)(doc);
 	    } else {
-		new_item.sort_key = doc->get_value(sort_key);
+		new_item.sort_key = vsdoc.get_value(sort_key);
 	    }
 
 	    // We're sorting by value (in part at least), so compare the item
@@ -595,8 +602,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    ++docs_matched;
 		    if (!calculated_weight) wt = pl->get_weight();
 		    if (matchspy) {
-			Xapian::Document mydoc(doc.get());
-			matchspy->operator()(mydoc, wt);
+			matchspy->operator()(doc, wt);
 		    }
 		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
@@ -624,18 +630,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // If the results are from a remote database, then the functor will
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
-		if (doc.get() == 0) {
-		    doc = db.get_document_lazily(did);
-		    Assert(doc.get());
-		}
-		Xapian::Document mydoc(doc.get());
-
 		++decider_considered;
-		if (matchspy_legacy && !matchspy_legacy->operator()(mydoc)) {
+		if (matchspy_legacy && !matchspy_legacy->operator()(doc)) {
 		    ++decider_denied;
 		    continue;
 		}
-		if (mdecider && !mdecider->operator()(mydoc)) {
+		if (mdecider && !mdecider->operator()(doc)) {
 		    ++decider_denied;
 		    continue;
 		}
@@ -645,7 +645,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			new_item.wt = wt;
 			calculated_weight = true;
 		    }
-		    matchspy->operator()(mydoc, wt);
+		    matchspy->operator()(doc, wt);
 		}
 	    }
 	}
@@ -661,7 +661,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Perform collapsing on key if requested.
 	if (collapser) {
 	    collapse_result res;
-	    res = collapser.process(new_item, pl, db, doc, mcmp);
+	    res = collapser.process(new_item, pl, vsdoc, mcmp);
 	    if (res == REJECTED) {
 		// If we're sorting by relevance primarily, then we throw away
 		// the lower weighted document anyway.

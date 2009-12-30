@@ -27,7 +27,7 @@
 #include "xapian/error.h"
 
 #include "chert_io.h"
-#include "chert_lock.h"
+#include "../flint_lock.h"
 #include "chert_record.h"
 #include "chert_replicate_internal.h"
 #include "chert_types.h"
@@ -221,21 +221,11 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	      "conn, end_time, " << valid);
 
     // Lock the database to perform modifications.
-    ChertLock lock(db_dir + "/flintlock");
+    FlintLock lock(db_dir);
     string explanation;
-    ChertLock::reason why = lock.lock(true, explanation);
-    if (why != ChertLock::SUCCESS) {
-	string msg("Unable to get write lock on ");
-	msg += db_dir;
-	if (why == ChertLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == ChertLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == ChertLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw DatabaseLockError(msg);
+    FlintLock::reason why = lock.lock(true, explanation);
+    if (why != FlintLock::SUCCESS) {
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 
     char type = conn.get_message_chunked(end_time);

@@ -417,3 +417,25 @@ WritableDatabase::clear_synonyms(string term)
 	} catch (const Error &error) {
 	    croak( "Exception: %s", error.get_msg().c_str() );
 	}
+
+void
+WritableDatabase::add_spelling(word, freqinc = 1)
+    string word
+    termcount freqinc
+    CODE:
+	try {
+	    THIS->add_spelling(word, freqinc);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
+WritableDatabase::remove_spelling(word, freqdec  = 1)
+    string word
+    termcount freqdec
+    CODE:
+	try {
+	    THIS->remove_spelling(word, freqdec);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}

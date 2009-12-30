@@ -23,6 +23,7 @@
 
 #include "api_backend.h"
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
 #include "testsuite.h"
@@ -31,23 +32,19 @@
 
 #include "apitest.h"
 
+#include "safeunistd.h"
+
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
-DEFINE_TESTCASE(lockfileumask1, flint || chert) {
+DEFINE_TESTCASE(lockfileumask1, brass || chert || flint) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
 	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
 
-	string path;
-	const string & dbtype = get_dbtype();
-	if (dbtype == "flint" || dbtype == "chert") {
-	    path = get_named_writable_database_path("lockfileumask1");
-	    path += "/flintlock";
-	} else {
-	    SKIP_TEST("Test only supported for flint and chert backends");
-	}
+	string path = get_named_writable_database_path("lockfileumask1");
+	path += "/flintlock";
 
 	struct stat statbuf;
 	TEST(stat(path, &statbuf) == 0);
@@ -90,8 +87,9 @@ DEFINE_TESTCASE(dbstats1, backend) {
     const Xapian::termcount max_len = 532;
     const Xapian::termcount max_wdf = 22;
 
-    if (get_dbtype().find("chert") != string::npos) {
-	// Should be exact for chert as no deletions have happened.
+    if (get_dbtype().find("chert") != string::npos ||
+	get_dbtype().find("brass") != string::npos) {
+	// Should be exact for brass and chert as no deletions have happened.
 	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
 	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
     } else {
@@ -156,5 +154,151 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     TEST_EQUAL(db.get_document(3).get_value(0), "value");
     db.commit();
     TEST_EQUAL(db.get_document(3).get_value(0), "value");
+    return true;
+}
+
+DEFINE_TESTCASE(lockfilefd0or1, brass || chert || flint) {
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+    int old_stdin = dup(0);
+    int old_stdout = dup(1);
+    try {
+	// With fd 0 available.
+	close(0);
+	{
+	    Xapian::WritableDatabase db = get_writable_database();
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   (void)get_writable_database_again());
+	}
+	// With fd 0 and fd 1 available.
+	close(1);
+	{
+	    Xapian::WritableDatabase db = get_writable_database();
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   (void)get_writable_database_again());
+	}
+	// With fd 1 available.
+	dup2(old_stdin, 0);
+	{
+	    Xapian::WritableDatabase db = get_writable_database();
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   (void)get_writable_database_again());
+	}
+    } catch (...) {
+	dup2(old_stdin, 0);
+	dup2(old_stdout, 1);
+	close(old_stdin);
+	close(old_stdout);
+	throw;
+    }
+
+    dup2(old_stdout, 1);
+    close(old_stdin);
+    close(old_stdout);
+#endif
+
+    return true;
+}
+
+struct MyMatchDecider : public Xapian::MatchDecider {
+    mutable bool called;
+  
+    MyMatchDecider() : called(false) { }
+
+    bool operator()(const Xapian::Document &) const {
+	called = true;
+	return true;
+    }
+};
+
+/// Test Xapian::MatchDecider with remote backend fails.
+DEFINE_TESTCASE(matchdecider4, remote) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+
+    MyMatchDecider mdecider, mspyold;
+    Xapian::MSet mset;
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mset = enquire.get_mset(0, 10, NULL, &mdecider));
+    TEST(!mdecider.called);
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mset = enquire.get_mset(0, 10, 0, NULL, NULL, &mspyold));
+    TEST(!mspyold.called);
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mset = enquire.get_mset(0, 10, 0, NULL, &mdecider, &mspyold));
+    TEST(!mdecider.called);
+    TEST(!mspyold.called);
+
+    return true;
+}
+
+/** Check that replacing an unmodified document doesn't increase the automatic
+ *  flush counter.  Regression test for bug fixed in 1.1.4/1.0.18.
+ */
+DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
+    // The inmemory backend doesn't batch changes, so there's nothing to
+    // check there.
+    //
+    // The remote backend doesn't implement the lazy replacement of documents
+    // optimisation currently.
+    Xapian::WritableDatabase db(get_writable_database());
+    Xapian::Document doc;
+    doc.set_data("fish");
+    doc.add_term("Hlocalhost");
+    doc.add_posting("hello", 1);
+    doc.add_posting("world", 2);
+    doc.add_value(1, "myvalue");
+    db.add_document(doc);
+    db.commit();
+
+    // We add a second document, and then replace the first document with
+    // itself 10000 times.  If the document count for the database reopened
+    // read-only is 2, then we triggered an automatic commit.
+
+    doc.add_term("XREV2");
+    db.add_document(doc);
+
+    for (int i = 0; i < 10000; ++i) {
+	doc = db.get_document(1);
+	db.replace_document(1, doc);
+    }
+
+    Xapian::Database rodb(get_writable_database_as_database());
+    TEST_EQUAL(rodb.get_doccount(), 1);
+
+    db.flush();
+    rodb.reopen();
+
+    TEST_EQUAL(rodb.get_doccount(), 2);
+    return true;
+}
+
+/** Check that replacing a document deleted since the last flush works.
+ *  Prior to 1.1.4/1.0.18, this failed to update the collection frequency and
+ *  wdf, and caused an assertion failure when assertions were enabled.
+ */
+DEFINE_TESTCASE(replacedoc8, writable) {
+    Xapian::WritableDatabase db(get_writable_database());
+    {
+	Xapian::Document doc;
+	doc.set_data("fish");
+	doc.add_term("takeaway");
+	db.add_document(doc);
+    }
+    db.delete_document(1);
+    {
+	Xapian::Document doc;
+	doc.set_data("chips");
+	doc.add_term("takeaway", 2);
+	db.replace_document(1, doc);
+    }
+    db.flush();
+    TEST_EQUAL(db.get_collection_freq("takeaway"), 2);
+    Xapian::PostingIterator p = db.postlist_begin("takeaway");
+    TEST(p != db.postlist_end("takeaway"));
+    TEST_EQUAL(p.get_wdf(), 2);
     return true;
 }

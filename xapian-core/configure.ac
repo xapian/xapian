@@ -142,7 +142,7 @@ case $host_os in
   linux*)
     dnl Extract search path from ldconfig which is more reliable than the way
     dnl vanilla libtool extracts them from ld.so.conf.
-    d=`/sbin/ldconfig -N -X -v 2>&5|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    d=`/sbin/ldconfig -N -X -v 2>&AS_MESSAGE_LOG_FD|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
     test -z "$d" || sys_lib_dlsearch_path_spec=$d
     ;;
 esac
@@ -217,7 +217,7 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   AC_CACHE_VAL([xo_cv_$2],
     [
     flag=$1
-    if $CXX -Wl,$1 2>&1 >/dev/null|grep -e $1 >/dev/null 2>&1; then
+    if $CXX -Wl,$1 >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD|grep -e $1 >/dev/null 2>&1; then
       dnl The error message contains the flag name - it must be a
       dnl complaint that the option is unrecognized (doing it this
       dnl way allows it to work regardless of the i18n in use):
@@ -483,7 +483,7 @@ if test -n "${VALGRIND-unset}" ; then
     vglog=config.vglog.%p.tmp
     vglogwild="config.vglog.*.tmp*"
     rm -f $vglogwild
-    if $VALGRIND --log-file="$vglog" -q true 2> /dev/null ; then
+    if $VALGRIND --log-file="$vglog" -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
         case $f in
 	$vglog*) VALGRIND= ;;
@@ -598,13 +598,22 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
   ])
 
 dnl When adding a new backend, update INSTALL too.
+XAPIAN_BACKEND_ENABLE(brass)
 XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
 
+if test yes = "$enable_backend_brass" ; then
+  dnl We would need to implement a locking strategy for MSDOS before we
+  dnl could build brass there.
+  case $host_os in
+    *djgpp* | *msdos* ) enable_backend_brass=no ;;
+  esac
+fi
+
 if test yes = "$enable_backend_chert" ; then
-  dnl We would need to implement a chert locking strategy for MSDOS before we
+  dnl We would need to implement a locking strategy for MSDOS before we
   dnl could build chert there.
   case $host_os in
     *djgpp* | *msdos* ) enable_backend_chert=no ;;
@@ -612,22 +621,25 @@ if test yes = "$enable_backend_chert" ; then
 fi
 
 if test yes = "$enable_backend_flint" ; then
-  dnl We would need to implement a flint locking strategy for MSDOS before we
+  dnl We would need to implement a locking strategy for MSDOS before we
   dnl could build flint there.
   case $host_os in
     *djgpp* | *msdos* ) enable_backend_flint=no ;;
   esac
 fi
 
-if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
-  dnl We use zlib for compressing tags in chert/flint.  We could automatically
-  dnl disable support if zlib isn't found, but overall that probably does more
-  dnl harm than good - it's most likely that someone just forgot to install the
-  dnl -dev package for zlib.
+case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
+*yes*)
+  dnl We use zlib for compressing tags in brass/chert/flint.  We could
+  dnl automatically disable support if zlib isn't found, but overall that
+  dnl probably does more harm than good - it's most likely that someone just
+  dnl forgot to install the -dev package for zlib.
+  dnl
+  dnl Similarly for uuid support.
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -635,7 +647,7 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -646,14 +658,14 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
 
   dnl Check for uuid/uuid.h.
   AC_CHECK_HEADERS(uuid/uuid.h, [], [
-    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+    AC_MSG_ERROR([uuid/uuid.h not found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ], [ ])
 
   dnl Check for uuid_generate in -luuid.
   SAVE_LIBS=$LIBS
   LIBS=
   AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -668,7 +680,8 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   fi
 
   LIBS=$SAVE_LIBS
-fi
+  ;;
+esac
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
@@ -760,6 +773,7 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
+AM_CONDITIONAL(BUILD_BACKEND_BRASS, test yes = "$enable_backend_brass")
 AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
@@ -899,7 +913,7 @@ if test yes = "$enable_assertions"; then
 fi
 
 if test yes = "$enable_log"; then
-  AC_DEFINE(XAPIAN_DEBUG_VERBOSE,,
+  AC_DEFINE(XAPIAN_DEBUG_LOG,,
     [Define if you want a log of methods called and other debug messages])
 fi
 
@@ -1118,7 +1132,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in CHERT FLINT INMEMORY REMOTE ; do
+for backend in BRASS CHERT FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

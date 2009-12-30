@@ -1589,6 +1589,20 @@ ChertTable::ChertTable(const char * tablename_, const string & path_,
 		 compress_strategy_ << ", " << lazy_);
 }
 
+bool
+ChertTable::really_empty() const
+{
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	return true;
+    }
+    ChertCursor cur(const_cast<ChertTable*>(this));
+    cur.find_entry(string());
+    return !cur.next();
+}
+
 void
 ChertTable::lazy_alloc_deflate_zstream() const {
     if (usual(deflate_zstream)) {
@@ -1735,7 +1749,7 @@ ChertTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA", 'A', "", -1, NULL);
+    base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");

@@ -99,7 +99,7 @@ DEFINE_TESTCASE(serialise_document1, !backend) {
 }
 
 // Test for serialising a document obtained from a database.
-DEFINE_TESTCASE(serialise_document2, backend && writable) {
+DEFINE_TESTCASE(serialise_document2, writable) {
     Xapian::Document origdoc;
     origdoc.add_term("foo", 2);
     origdoc.add_posting("foo", 10);
