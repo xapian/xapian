@@ -1,3 +1,14 @@
+Thu Jan 07 15:51:57 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/postingsource.cc: For ValueWeightPostingSources for which
+	  there are no entries, the upper bound returned will be an empty
+	  string, which translated to -inf when passed to
+	  sortable_unserialise().  This was causing the matcher to get
+	  confused and return no results in some queries involving such a
+	  posting source.  This commit fixes this.
+	* tests/api_postingsource.cc: Add emptyvalwtsource1 as a regression
+	  test for this, and a general test of this area of code.
+
 Thu Jan 07 09:17:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_inverter.h: Fix comment typo.
