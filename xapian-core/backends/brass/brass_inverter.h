@@ -87,7 +87,7 @@ class Inverter {
 	void remove_posting(Xapian::docid did, Xapian::termcount wdf) {
 	    --tf_delta;
 	    cf_delta -= wdf;
-	    // Remove did from tname's postlist.
+	    // Remove did from term's postlist.
 	    pl_changes[did] = DELETED_POSTING;
 	}
 
