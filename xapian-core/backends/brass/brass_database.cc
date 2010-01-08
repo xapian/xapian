@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -1313,16 +1313,17 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	    termlist.next();
 	    while (!termlist.at_end() || term != document.termlist_end()) {
 		int cmp;
-		if (!termlist.at_end() && term != document.termlist_end()) {
-		    old_tname = termlist.get_termname();
-		    new_tname = *term;
-		    cmp = old_tname.compare(new_tname);
-		} else if (termlist.at_end()) {
+		if (termlist.at_end()) {
 		    cmp = 1;
 		    new_tname = *term;
 		} else {
-		    cmp = -1;
 		    old_tname = termlist.get_termname();
+		    if (term != document.termlist_end()) {
+			new_tname = *term;
+			cmp = old_tname.compare(new_tname);
+		    } else {
+			cmp = -1;
+		    }
 		}
 
 		if (cmp < 0) {
