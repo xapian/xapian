@@ -182,12 +182,26 @@ if ($edit_cl) {
 	open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
 	my @files;
 	my $diff = '';
+	my $whitespace = '';
 	while (<CI>) {
 	    $diff .= $_;
 	    if (/^Index: (.*)/) {
 		push @files, $1;
+	    } elsif (/^\+.*[ \t]$/) {
+		$whitespace .= $files[-1];
+		$whitespace .= ": added/changed line has trailing whitespace:\n";
+		$whitespace .= $_;
+	    } elsif (/^\+.* \t/) {
+		$whitespace .= $files[-1];
+		$whitespace .= ": added/changed line has space before tab:\n";
+		$whitespace .= $_;
+# FIXME: OK for python, etc...
+#	    } elsif (/^\t* {8}/) {
+#		$whitespace .= $files[-1];
+#		$whitespace .= ": added/changed line uses space for indentation rather than tab:\n";
+#		$whitespace .= $_;
 	    }
-	} 
+	}
 	my $d = "";
 	my @newfiles;
 	my @d;
@@ -227,7 +241,7 @@ if ($edit_cl) {
 	while (length($line) >= 68 && $line =~ s/^(.{1,68},)//) {
 	    $filelist .= "$1\n\t  ";
 	}
-	$diff = "$filelist$line:\n\n\n$diff";
+	$diff = "$filelist$line:\n\n$whitespace\n$diff";
 	add_new_changelog_entry($diff);
     }
     system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
