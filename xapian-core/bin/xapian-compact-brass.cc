@@ -1,7 +1,7 @@
 /** @file xapian-compact-brass.cc
  * @brief Compact a brass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -394,14 +394,21 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 		tag[0] = (tags.size() == 1) ? '1' : '0';
 		first_tag += tag;
 		out->add(last_key, first_tag);
+
+		string term;
+		if (!is_doclenchunk_key(last_key)) {
+		    const char * p = last_key.data();
+		    const char * end = p + last_key.size();
+		    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
+			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
+		}
+
 		vector<pair<Xapian::docid, string> >::const_iterator i;
 		i = tags.begin();
 		while (++i != tags.end()) {
-		    string new_key = last_key;
-		    pack_uint_preserving_sort(new_key, i->first);
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(new_key, tag);
+		    out->add(pack_brass_postlist_key(term, i->first), tag);
 		}
 	    }
 	    tags.clear();

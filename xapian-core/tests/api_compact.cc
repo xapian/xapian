@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -186,9 +186,6 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
 
 // Test use of compact to merge two databases.
 DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
-    SKIP_TEST_FOR_BACKEND("chert");
-    SKIP_TEST_FOR_BACKEND("brass");
-
     int status;
 
     string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";

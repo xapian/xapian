@@ -1,3 +1,10 @@
+Fri Jan 08 12:19:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Fix merging
+	  of databases by xapian-compact for brass and chert.
+	* tests/api_compact.cc: Enable test compactmerge1 for brass and chert
+	  as a regression test.
+
 Fri Jan 08 11:26:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
