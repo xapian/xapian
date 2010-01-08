@@ -1,3 +1,10 @@
+Fri Jan 08 11:22:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Add test of xapian-compact when merging
+	  databases.  Currently, the generated databases are broken for
+	  chert and brass, so skipping the test for those to avoid breaking
+	  the snapshotter.
+
 Fri Jan 08 11:13:13 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/: Move routines for helping to check database contents and

@@ -24,6 +24,7 @@
 #include "api_compact.h"
 
 #include "apitest.h"
+#include "dbcheck.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -179,6 +180,30 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     rm_rf(out);
     status = system(cmd + b + a + d + out);
     TEST_NOT_EQUAL(WEXITSTATUS(status), 0);
+
+    return true;
+}
+
+// Test use of compact to merge two databases.
+DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
+    SKIP_TEST_FOR_BACKEND("chert");
+    SKIP_TEST_FOR_BACKEND("brass");
+
+    int status;
+
+    string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";
+    string indbpath = get_database_path("apitest_simpledata") + ' ';
+    string outdbpath = get_named_writable_database_path("compactmerge1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indbpath + indbpath + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(get_database("apitest_simpledata"));
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
     return true;
 }
