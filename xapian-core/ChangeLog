@@ -1,3 +1,7 @@
+Fri Jan 08 00:23:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Henry Combrinck for Search::Xapian patches.
+
 Thu Jan 07 15:51:57 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/postingsource.cc: For ValueWeightPostingSources for which
