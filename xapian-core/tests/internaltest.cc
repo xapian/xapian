@@ -42,6 +42,7 @@ using namespace std;
 #include "serialise-double.h"
 #include "str.h"
 #include "utils.h"
+#include "pack.h"
 
 static bool test_except1()
 {
@@ -582,6 +583,26 @@ static bool test_strbool1()
     return true;
 }
 
+/// Test pack_uint_preserving_sort()
+static bool test_pack_uint_preserving_sort1()
+{
+    string prev_packed;
+    for (unsigned int i = 0; i != 1000; ++i) {
+	string packed;
+	pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.c_str();
+	unsigned int result;
+	bool ok = unpack_uint_preserving_sort(&ptr,
+		packed.c_str() + packed.size(), &result);
+	TEST(ok);
+	TEST_EQUAL(result, i);
+	TEST(ptr == packed.c_str() + packed.size());
+	TEST_REL(prev_packed, <, packed);
+	prev_packed = packed;
+    }
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests					    #
 // ##################################################################
@@ -606,6 +627,7 @@ static const test_desc tests[] = {
 #endif
     {"static_assert1",		test_static_assert1},
     {"strbool1",		test_strbool1},
+    {"pack1",			test_pack_uint_preserving_sort1},
     {0, 0}
 };
 

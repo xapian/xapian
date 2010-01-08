@@ -1,3 +1,9 @@
+Fri Jan 08 10:07:09 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/internaltest.cc: Add test_pack_uint_preserving_sort1()
+	  which I wrote when suspicious of that function - passes fine, but
+	  probably worth keeping the test coverage.
+
 Fri Jan 08 00:23:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Henry Combrinck for Search::Xapian patches.
