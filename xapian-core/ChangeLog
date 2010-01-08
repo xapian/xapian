@@ -1,3 +1,8 @@
+Fri Jan 08 11:13:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/: Move routines for helping to check database contents and
+	  consistency into dbcheck.cc, with headers in dbcheck.h.
+
 Fri Jan 08 10:07:09 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/internaltest.cc: Add test_pack_uint_preserving_sort1()
