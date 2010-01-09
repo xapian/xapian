@@ -1,3 +1,10 @@
+Sat Jan 09 00:56:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Add support for quoting boolean terms
+	  so they can contain arbitrary characters (partly addresses
+	  ticket#128).
+	* tests/queryparsertest.cc: Add test coverage.
+
 Fri Jan 08 13:25:25 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_compact.cc: Add copyright note for my changes committed
