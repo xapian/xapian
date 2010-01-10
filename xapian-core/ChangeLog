@@ -1,3 +1,9 @@
+Sun Jan 10 07:36:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac:With --enable-maintainer-mode, enable -Werror for GCC
+	  >= 4.1 rather than >= 4.0 as Apple's GCC 4.0 gives bogus
+	  uninitialised variable warnings for pack.h.
+
 Sat Jan 09 00:56:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Add support for quoting boolean terms

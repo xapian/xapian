@@ -1016,7 +1016,13 @@ if test yes = "$GXX"; then
 	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
 	dnl and some GCC 3.x compilers issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+	  case $gxx_version in
+	  4.0)
+	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
+	    ;;
+	  *)
+	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	  esac
 	fi
 	;;
       esac
