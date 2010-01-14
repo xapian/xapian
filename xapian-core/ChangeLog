@@ -1,3 +1,9 @@
+Thu Jan 14 05:06:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Include the MIT licence text in HACKING itself.
+	* COPYING_MIT: Remove external copy of text - it could mislead users
+	  into thinking that this is the current licence of Xapian.
+
 Sun Jan 10 07:36:16 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac:With --enable-maintainer-mode, enable -Werror for GCC
