@@ -1,3 +1,7 @@
+Thu Jan 14 11:17:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Auto-enabling of -Werror is now done for GCC 4.1 or newer.
+
 Thu Jan 14 05:06:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: Include the MIT licence text in HACKING itself.

@@ -636,7 +636,7 @@ when doing development work on Xapian.  This promotes warnings to errors,
 which should ensure you at least don't introduce new warnings for the compiler
 you're using.
 
-If you configure with --enable-maintainer-mode, and are using GCC 4.0 or newer,
+If you configure with --enable-maintainer-mode, and are using GCC 4.1 or newer,
 this is done for you automatically.  This is intended to be an aid rather than
 a form of automated punishment - it's all too easy to miss a new warning as
 once a file is compiled, you don't see it unless you modify that file or one of
