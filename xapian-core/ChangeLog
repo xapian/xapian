@@ -1,3 +1,9 @@
+Thu Jan 14 07:21:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Divert to AS_MESSAGE_LOG_FD rather than literal fd 5.
+	  Divert more output to AS_MESSAGE_LOG_FD rather than /dev/null.
+
 Thu Jan 14 07:15:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

@@ -243,7 +243,7 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   AC_CACHE_VAL([xo_cv_$2],
     [
     flag=$1
-    if $CXX -Wl,$1 2>&1 >/dev/null|grep -e $1 >/dev/null 2>&1; then
+    if $CXX -Wl,$1 >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD|grep -e $1 >/dev/null 2>&1; then
       dnl The error message contains the flag name - it must be a
       dnl complaint that the option is unrecognized (doing it this
       dnl way allows it to work regardless of the i18n in use):
@@ -515,7 +515,7 @@ if test -n "${VALGRIND-unset}" ; then
     vglog=config.vglog.%p.tmp
     vglogwild="config.vglog.*.tmp*"
     rm -f $vglogwild
-    if $VALGRIND --log-file="$vglog" -q true 2> /dev/null ; then
+    if $VALGRIND --log-file="$vglog" -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
         case $f in
 	$vglog*) VALGRIND= ;;
