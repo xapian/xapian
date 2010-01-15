@@ -1,3 +1,11 @@
+Fri Jan 15 08:25:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Use Xapian::termcount_diff instead of Xapian::termcount for
+	  parameters of add_freq_delta() which can be signed.  Fix parameter
+	  docs to say "change" instead of "increase".
+
 Fri Jan 15 06:05:28 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_replacedoc.cc: Just test that begin == end when we expect

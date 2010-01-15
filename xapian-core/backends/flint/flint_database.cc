@@ -1067,8 +1067,8 @@ FlintWritableDatabase::close()
 
 void
 FlintWritableDatabase::add_freq_delta(const string & tname,
-				      Xapian::termcount tf_delta,
-				      Xapian::termcount cf_delta)
+				      Xapian::termcount_diff tf_delta,
+				      Xapian::termcount_diff cf_delta)
 {
     map<string, pair<termcount_diff, termcount_diff> >::iterator i;
     i = freq_deltas.find(tname);
