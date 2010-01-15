@@ -768,8 +768,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		    map<docid, pair<char, termcount> > m;
 		    j = mod_plists.insert(make_pair(tname, m)).first;
 		}
-		Assert(j->second.find(did) == j->second.end());
-		j->second.insert(make_pair(did, make_pair('A', wdf)));
+		j->second[did] = make_pair('A', wdf);
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    position_table.set_positionlist(

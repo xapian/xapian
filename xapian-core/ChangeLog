@@ -1,3 +1,12 @@
+Fri Jan 15 05:29:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc,backends/quartz/quartz_database.cc:
+	  Replacing a document deleted since the last flush failed to update
+	  the collection frequency and wdf, and caused an assertion failure
+	  when assertions were enabled.
+	* tests/api_backend.cc: Add regression test replacedoc8.
+
 Thu Jan 14 07:21:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
@@ -962,7 +971,7 @@ Fri May 15 09:37:46 GMT 2009  Olly Betts <olly@survex.com>
 	  do the timing comparison, and update time_query_parse() to use
 	  CPUTimer rather than OmTime.  Tweak the "fudge factor" up from
 	  2 to 2.15 to allow for non-equal ticks due to rounding of an
-	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308). 
+	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308).
 	* tests/harness/cputimer.cc: Fix typo in the "ftime" case.
 
 Thu May 14 13:23:49 GMT 2009  Olly Betts <olly@survex.com>
