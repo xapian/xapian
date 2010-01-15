@@ -1411,7 +1411,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    if (old_wdf != new_wdf) {
 		    	new_doclen += new_wdf - old_wdf;
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
-			update_mod_plist(did, new_tname, 'U', new_wdf);
+			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
 		    if (!positionlists_equal(term, termlist))

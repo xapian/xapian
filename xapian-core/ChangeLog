@@ -1,3 +1,12 @@
+Fri Jan 15 12:51:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Fix to use 'M' as the flag character for modified entries in
+	  modplists (not 'U').  We never explicitly check for 'M' (we check for
+	  'A' vs 'D' vs something else), so this isn't a functional change,
+	  but rather making the values consistent (as they were before the
+	  fix for #250).
+
 Fri Jan 15 08:25:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_database.h,

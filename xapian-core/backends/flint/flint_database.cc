@@ -1393,7 +1393,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		    termcount new_wdf = term.get_wdf();
 		    if (old_doclen != new_doclen || old_wdf != new_wdf) {
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
-			update_mod_plist(did, new_tname, 'U', new_wdf);
+			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
 		    if (!positionlists_equal(term, termlist)) 
