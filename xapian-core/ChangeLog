@@ -1,3 +1,9 @@
+Fri Jan 15 06:05:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_replacedoc.cc: Just test that begin == end when we expect
+	  no positions rather than generating a string representation and
+	  then testing if it is empty.
+
 Thu Jan 14 11:17:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: Auto-enabling of -Werror is now done for GCC 4.1 or newer.

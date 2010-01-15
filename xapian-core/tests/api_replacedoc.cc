@@ -75,8 +75,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     // Regression test: the old positionlist fragment used to be left lying
     // around here.
     Xapian::PositionIterator posit(db.positionlist_begin(1, "pos"));
-    string posrepr = positions_to_string(posit, db.positionlist_end(1, "pos"));
-    TEST_EQUAL(posrepr, "");
+    TEST(posit == db.positionlist_end(1, "pos"));
 
     doc = db.get_document(1);
     doc.remove_term("pos3");
@@ -88,8 +87,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     // Regression test: the old positionlist fragment used to be left lying
     // around here.
     Xapian::PositionIterator posit2(db.positionlist_begin(1, "pos3"));
-    string posrepr2 = positions_to_string(posit2, db.positionlist_end(1, "pos3"));
-    TEST_EQUAL(posrepr2, "");
+    TEST(posit2 == db.positionlist_end(1, "pos3"));
 
     doc = db.get_document(1);
     doc.add_term("pos");
