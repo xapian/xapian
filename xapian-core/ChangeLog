@@ -1,3 +1,35 @@
+Fri Jan 15 06:37:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_replacedoc.cc: Just test that begin == end when we expect
+	  no positions rather than generating a string representation and
+	  then testing if it is empty.
+	* tests/api_replacedoc.cc: Add a few more sequences of operations
+	  which look worth testing, after looking at the code implementing
+	  replace_document().
+	* tests/api_replacedoc.cc: Check consistency of the posting lists
+	  with the termlists, and consistency of the statistics, at each
+	  step of modtermwdf1.  Also, add some other terms to the document,
+	  so we can check the stored doclength for terms which haven't been
+	  modified.
+	* backends/flint/flint_modifiedpostlist.cc: Report the wdf from the
+	  modifications, rather the sum of the wdf from the modifications
+	  and the old wdf.  The old behaviour was just wrong, but we had no
+	  test coverage for this until the last commit.
+	* tests/api_replacedoc.cc: Add test of the contents of the
+	  postlist of a term which is being modified.  Also, tidy up the
+	  output of docterms_to_string() to skip any empty position lists.
+	* tests/api_replacedoc.cc: Extend test to cover removing a term but
+	  not deleting it, and finally deleting the document.
+	* tests/api_replacedoc.cc: Expand test to cover some modification
+	  to the positional information.
+	* tests/api_replacedoc.cc: Add some more sets of modification
+	  operations to the tests.
+	* tests/api_replacedoc.cc: Add test modtermwdf1, which tests a lot
+	  more cases where documents are modified.
+	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:
+	  Split my recently added replacedoc test out into a new file.
+
 Fri Jan 15 05:34:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

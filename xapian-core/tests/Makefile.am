@@ -100,6 +100,7 @@ collated_apitest_sources = \
  api_posdb.cc \
  api_qpbackend.cc \
  api_query.cc \
+ api_replacedoc.cc \
  api_scalability.cc \
  api_sorting.cc \
  api_spelling.cc \

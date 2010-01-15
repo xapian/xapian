@@ -75,7 +75,7 @@ FlintModifiedPostList::get_wdf() const
     Xapian::docid unmod_did = FlintPostList::get_docid();
     if (it != mods.end() && it->first <= unmod_did) {
 	if (it->first < unmod_did) return it->second.second;
-	return FlintPostList::get_wdf() + it->second.second;
+	return it->second.second;
     }
     return FlintPostList::get_wdf();
 }
