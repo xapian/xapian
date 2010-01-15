@@ -1,3 +1,8 @@
+Fri Jan 15 05:34:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_anydb.cc: Canonicalise the conditions on testcases.
+
 Fri Jan 15 05:29:15 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
