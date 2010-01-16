@@ -1,9 +1,8 @@
 A section 3 man page should be written to describe libxapian (see the libxml
 manpage for example.)
 
-We should also produce a libxapian-dbg package, containing a debug build of
-the library.  Not entirely clear which debugging options we should use:
-perhaps --enable-assertions --enable-log
+We could also produce debug variant of the libxapian package, built with
+--enable-assertions and/or --enable-log.
 
 xapian-doc: in index.html, there is one broken link (which occurs in two
 places, pointing to the "internal classes" documentation, since we don't
