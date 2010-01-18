@@ -8,9 +8,10 @@ xapian-core (1.1.3+svn13834-1) experimental; urgency=low
     + Drop conflict on libxapian2 as that's too ancient to be relevant now.
     + Just use ${binary:Version} - sarge has reached EOL and I'm not intending
       to backport 1.1.x to dapper.
+    + Add uuid-dev as a build dependency.
   * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
 
- -- Olly Betts <olly@survex.com>  Thu, 03 Dec 2009 04:48:32 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 16 Jan 2010 06:44:59 +0000
 
 xapian-core (1.0.17-1) unstable; urgency=low
 
