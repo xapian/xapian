@@ -1,6 +1,5 @@
 usr/bin/xapian-config-1.1
-usr/include/xapian.h
-usr/include/xapian
+usr/include
 usr/lib/libxapian-1.1.a
 usr/lib/libxapian-1.1.la
 usr/lib/libxapian-1.1.so
