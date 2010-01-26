@@ -7,6 +7,8 @@ usr/bin/xapian-inspect-1.1
 usr/bin/xapian-progsrv-1.1
 usr/bin/xapian-tcpsrv-1.1
 usr/bin/xapian-chert-update-1.1
+usr/bin/xapian-replicate-1.1
+usr/bin/xapian-replicate-server-1.1
 usr/share/man/man1/copydatabase-1.1.1
 usr/share/man/man1/delve-1.1.1
 usr/share/man/man1/quest-1.1.1
@@ -16,3 +18,5 @@ usr/share/man/man1/xapian-inspect-1.1.1
 usr/share/man/man1/xapian-progsrv-1.1.1
 usr/share/man/man1/xapian-tcpsrv-1.1.1
 usr/share/man/man1/xapian-chert-update-1.1.1
+usr/share/man/man1/xapian-replicate-1.1.1
+usr/share/man/man1/xapian-replicate-server-1.1.1
