@@ -1,3 +1,11 @@
+Tue Jan 26 06:47:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Add support for quoting boolean terms
+	  so they can contain arbitrary characters (partly addresses
+	  ticket#128).
+	* tests/queryparsertest.cc: Add test coverage.
+
 Fri Jan 15 06:37:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
