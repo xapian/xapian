@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -590,15 +590,14 @@ static bool test_pack_uint_preserving_sort1()
     for (unsigned int i = 0; i != 1000; ++i) {
 	string packed;
 	pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.c_str();
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
 	unsigned int result;
-	bool ok = unpack_uint_preserving_sort(&ptr,
-		packed.c_str() + packed.size(), &result);
-	TEST(ok);
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
 	TEST_EQUAL(result, i);
-	TEST(ptr == packed.c_str() + packed.size());
+	TEST(ptr == end);
 	TEST_REL(prev_packed, <, packed);
-	prev_packed = packed;
+	swap(prev_packed, packed);
     }
     return true;
 }

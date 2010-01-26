@@ -1,3 +1,9 @@
+Tue Jan 26 03:25:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: In testcase pack_uint_preserving_sort1, use
+	  data() not c_str(), calculate the end position just once, and use
+	  swap to copy the current packed to prev_packed.
+
 Fri Jan 15 12:51:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
