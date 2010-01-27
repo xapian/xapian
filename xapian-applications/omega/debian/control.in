@@ -3,9 +3,10 @@ Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ autotools-dev, autoconf, libtool
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Homepage: http://xapian.org/
-DM-Upload-Allowed: yes
+Vcs-Browser: http://trac.xapian.org/browser/branches/1.0/xapian-applications/omega
+Vcs-svn: svn://svn.xapian.org/xapian/branches/1.0/xapian-applications/omega
 
 Package: xapian-omega
 Section: web
