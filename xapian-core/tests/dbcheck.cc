@@ -18,7 +18,8 @@
  * USA
  */
 
-#include "config.h"
+#include <config.h>
+
 #include "dbcheck.h"
 
 #include "str.h"

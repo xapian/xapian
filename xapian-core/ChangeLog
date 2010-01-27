@@ -1,3 +1,7 @@
+Wed Jan 27 06:29:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/dbcheck.cc: <config.h> not "config.h".
+
 Wed Jan 27 04:20:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_inverter.h: Make two getters const.
