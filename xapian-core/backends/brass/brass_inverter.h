@@ -108,27 +108,20 @@ class Inverter {
     /// Buffered changes to postlists.
     std::map<std::string, PostingChanges> postlist_changes;
 
-    /// Iterator pointing to last insertion position.
-    std::map<std::string, PostingChanges>::iterator postlist_changes_last;
-
   public:
     /// Buffered changes to document lengths.
     std::map<Xapian::docid, Xapian::termcount> doclen_changes;
 
   public:
-    Inverter() : postlist_changes_last(postlist_changes.begin()) { }
-
     void add_posting(Xapian::docid did, const std::string & term,
 		     Xapian::doccount wdf) {
 	std::map<std::string, PostingChanges>::iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
-	    postlist_changes_last =
-		postlist_changes.insert(postlist_changes_last,
-		    std::make_pair(term, PostingChanges(did, wdf)));
+	    postlist_changes.insert(
+		std::make_pair(term, PostingChanges(did, wdf)));
 	} else {
 	    i->second.add_posting(did, wdf);
-	    postlist_changes_last = i;
 	}
     }
 
@@ -137,12 +130,10 @@ class Inverter {
 	std::map<std::string, PostingChanges>::iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
-	    postlist_changes_last =
-		postlist_changes.insert(postlist_changes_last,
-		    std::make_pair(term, PostingChanges(did, wdf, false)));
+	    postlist_changes.insert(
+		std::make_pair(term, PostingChanges(did, wdf, false)));
 	} else {
 	    i->second.remove_posting(did, wdf);
-	    postlist_changes_last = i;
 	}
     }
 
@@ -152,19 +143,16 @@ class Inverter {
 	std::map<std::string, PostingChanges>::iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
-	    postlist_changes_last =
-		postlist_changes.insert(postlist_changes_last,
-		    std::make_pair(term, PostingChanges(did, old_wdf, new_wdf)));
+	    postlist_changes.insert(
+		std::make_pair(term, PostingChanges(did, old_wdf, new_wdf)));
 	} else {
 	    i->second.update_posting(did, old_wdf, new_wdf);
-	    postlist_changes_last = i;
 	}
     }
 
     void clear() {
 	doclen_changes.clear();
 	postlist_changes.clear();
-	postlist_changes_last = postlist_changes.begin();
     }
 
     void set_doclength(Xapian::docid did, Xapian::termcount doclen, bool add) {

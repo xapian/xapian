@@ -1,7 +1,7 @@
 /** @file brass_inverter.cc
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@ Inverter::flush_post_list(BrassPostListTable & table, const string & term)
     // Flush buffered changes for just this term's postlist.
     table.merge_changes(term, i->second);
     postlist_changes.erase(i);
-    postlist_changes_last = postlist_changes.begin();
 }
 
 void
@@ -57,7 +56,6 @@ Inverter::flush_all_post_lists(BrassPostListTable & table)
 	table.merge_changes(i->first, i->second);
     }
     postlist_changes.clear();
-    postlist_changes_last = postlist_changes.begin();
 }
 
 void
@@ -77,7 +75,6 @@ Inverter::flush_post_lists(BrassPostListTable & table, const string & pfx)
     // Erase all the entries in one go, as that's:
     //  O(log(postlist_changes.size()) + O(number of elements removed)
     postlist_changes.erase(begin, end);
-    postlist_changes_last = postlist_changes.begin();
 }
 
 void
