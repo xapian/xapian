@@ -1,3 +1,36 @@
+Wed Jan 27 08:36:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Move frequently repeated code for updating the freq_deltas and
+	  mod_plists items into separate functions.  Makes the code
+	  considerably clearer, and prepares the way for applying the patch
+	  to fix ticket #250.
+	* backends/flint/flint_database.cc: When updating documents, don't
+	  update posting entries which havn't changed.  Largely fixes
+	  ticket #250.
+	* AUTHORS: Add Kan-Ru Chen, since his patch attached to ticket #250
+	  was the basis of this fix.
+	* tests/: Move routines for helping to check database contents and
+	  consistency into dbcheck.cc, with headers in dbcheck.h.
+	* backends/flint/flint_database.cc: Rearrange comparison between old
+	  and new termlists to avoid double check of termlist.at_end().
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Use Xapian::termcount_diff instead of Xapian::termcount for
+	  parameters of add_freq_delta() which can be signed.  Fix parameter
+	  docs to say "change" instead of "increase".
+	* backends/flint/flint_database.cc:
+	  Fix to use 'M' as the flag character for modified entries in
+	  modplists (not 'U').  We never explicitly check for 'M' (we check for
+	  'A' vs 'D' vs something else), so this isn't a functional change,
+	  but rather making the values consistent (as they were before the
+	  fix for #250).
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Add ChertWritableDatabase::insert_mod_plist() to handle the simpler
+	  case where we know the document doesn't already exist, to avoid
+	  adding extra code to that common path over the code we had before
+	  the #250-related changes.
+
 Tue Jan 26 06:47:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

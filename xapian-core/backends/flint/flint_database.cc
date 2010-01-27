@@ -3,9 +3,10 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2010 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
+ * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -708,6 +709,64 @@ FlintWritableDatabase::flush_postlist_changes() const
     change_count = 0;
 }
 
+void
+FlintWritableDatabase::add_freq_delta(const string & tname,
+				      Xapian::termcount_diff tf_delta,
+				      Xapian::termcount_diff cf_delta)
+{
+    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+    i = freq_deltas.find(tname);
+    if (i == freq_deltas.end()) {
+	freq_deltas.insert(make_pair(tname, make_pair(tf_delta, cf_delta)));
+    } else {
+	i->second.first += tf_delta;
+	i->second.second += cf_delta;
+    }
+}
+
+void
+FlintWritableDatabase::insert_mod_plist(Xapian::docid did,
+					const string & tname,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+    j->second[did] = make_pair('A', wdf);
+}
+
+void
+FlintWritableDatabase::update_mod_plist(Xapian::docid did,
+					const string & tname,
+					char type,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+
+    map<docid, pair<char, termcount> >::iterator k;
+    k = j->second.find(did);
+    if (k == j->second.end()) {
+	j->second.insert(make_pair(did, make_pair(type, wdf)));
+    } else {
+	if (type == 'A') {
+	    // Adding an entry which has already been deleted.
+	    Assert(k->second.first == 'D');
+	    type = 'M';
+	}
+	k->second = make_pair(type, wdf);
+    }
+}
+
 Xapian::docid
 FlintWritableDatabase::add_document(const Xapian::Document & document)
 {
@@ -752,23 +811,8 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
-		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
-		}
-
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		j->second[did] = make_pair('A', wdf);
+		add_freq_delta(tname, 1, wdf);
+		insert_mod_plist(did, tname, wdf);
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    position_table.set_positionlist(
@@ -847,31 +891,8 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	    position_table.delete_positionlist(did, tname);
 	    termcount wdf = termlist.get_wdf();
 
-	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-	    i = freq_deltas.find(tname);
-	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-	    } else {
-		--i->second.first;
-		i->second.second -= wdf;
-	    }
-
-	    // Remove did from tname's postlist
-	    map<string, map<docid, pair<char, termcount> > >::iterator j;
-	    j = mod_plists.find(tname);
-	    if (j == mod_plists.end()) {
-		map<docid, pair<char, termcount> > m;
-		j = mod_plists.insert(make_pair(tname, m)).first;
-	    }
-
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k == j->second.end()) {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    } else {
-		// Deleting a document we added/modified since the last flush.
-		k->second = make_pair('D', 0u);
-	    }
+	    add_freq_delta(tname, -1, -wdf);
+	    update_mod_plist(did, tname, 'D', 0u);
 
 	    termlist.next();
 	}
@@ -893,6 +914,43 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     if (++change_count >= flush_threshold) {
 	flush_postlist_changes();
 	if (!transaction_active()) apply();
+    }
+}
+
+/** Compare the positionlists for a term iterator and a termlist.
+ *
+ *  @return true if they're equal, false otherwise.
+ */
+static bool positionlists_equal(Xapian::TermIterator & termiter,
+				FlintTermList & termlist)
+{
+    if (termiter.positionlist_count() != termlist.positionlist_count())
+	return false;
+
+    return equal(termiter.positionlist_begin(),
+		 termiter.positionlist_end(),
+		 termlist.positionlist_begin());
+}
+
+/** Set the positionlist from the current entry in a term iterator.
+ *
+ *  @param position_table The positionlist table.
+ *  @param did The document id to set the entry for.
+ *  @param term The term iterator to read the new position list from.
+ *
+ *  If the new position list is empty, this will remove any existing
+ *  position list for the term.
+ */
+static void set_positionlist(FlintPositionListTable & position_table,
+			     Xapian::docid did,
+			     Xapian::TermIterator & term)
+{
+    PositionIterator it = term.positionlist_begin();
+    PositionIterator it_end = term.positionlist_end();
+    if (it != it_end) {
+	position_table.set_positionlist(did, *term, it, it_end);
+    } else {
+	position_table.delete_positionlist(did, *term);
     }
 }
 
@@ -937,100 +995,71 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	}
   
 	if (!modifying || document.internal->terms_modified()) {
-	    // FIXME - in the case where there is overlap between the new
-	    // termlist and the old termlist, it would be better to compare the
-	    // two lists, and make the minimum set of modifications required.
-	    // This would lead to smaller changesets for replication, and
-	    // probably be faster overall.
-
-	    // First, add entries to remove the postings in the underlying record.
 	    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 	    FlintTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
 
-	    termlist.next();
-	    while (!termlist.at_end()) {
-		string tname = termlist.get_termname();
-		termcount wdf = termlist.get_wdf();
-
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-		} else {
-		    --i->second.first;
-		    i->second.second -= wdf;
-		}
-
-		// Remove did from tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k == j->second.end()) {
-		    j->second.insert(make_pair(did, make_pair('D', 0u)));
-		} else {
-		    // Modifying a document we added/modified since the last flush.
-		    k->second = make_pair('D', 0u);
-		}
-
-		term.skip_to(tname);
-		if (term == document.termlist_end() || *term != tname) {
-		    position_table.delete_positionlist(did, tname);
-		}
-
-		termlist.next();
+	    // We need to know whether the document length has changed before
+	    // we iterate through the term changes, because the document length
+	    // is stored in the postings, so if it's changed we have to update
+	    // all postings.  Therefore, we have to calculate the new document
+	    // length first.
+	    flint_doclen_t new_doclen = 0;
+	    for (; term != document.termlist_end(); ++term) {
+		new_doclen += term.get_wdf();
 	    }
 
-	    total_length -= termlist.get_doclength();
+	    term = document.termlist_begin();
+	    flint_doclen_t old_doclen = termlist.get_doclength();
+	    string old_tname, new_tname;
+ 
+	    total_length -= old_doclen;
 
-	    flint_doclen_t new_doclen = 0;
-	    for (term = document.termlist_begin();
-		 term != document.termlist_end(); ++term) {
-		// Calculate the new document length
-		termcount wdf = term.get_wdf();
-		new_doclen += wdf;
-
-		string tname = *term;
-		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
+	    termlist.next();
+	    while (!termlist.at_end() || term != document.termlist_end()) {
+		int cmp;
+		if (termlist.at_end()) {
+		    cmp = 1;
+		    new_tname = *term;
 		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
+		    old_tname = termlist.get_termname();
+		    if (term != document.termlist_end()) {
+			new_tname = *term;
+			cmp = old_tname.compare(new_tname);
+		    } else {
+			cmp = -1;
+		    }
 		}
 
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k != j->second.end()) {
-		    Assert(k->second.first == 'D');
-		    k->second.first = 'M';
-		    k->second.second = wdf;
+		if (cmp < 0) {
+		    // Term old_tname has been deleted.
+		    add_freq_delta(old_tname, -1, -termlist.get_wdf());
+		    position_table.delete_positionlist(did, old_tname);
+		    update_mod_plist(did, old_tname, 'D', 0u);
+		    termlist.next();
+		} else if (cmp > 0) {
+		    // Term new_tname as been added.
+		    termcount new_wdf = term.get_wdf();
+		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
+			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+		    add_freq_delta(new_tname, 1, new_wdf);
+		    update_mod_plist(did, new_tname, 'A', new_wdf);
+		    set_positionlist(position_table, did, term);
+		    ++term;
 		} else {
-		    j->second.insert(make_pair(did, make_pair('A', wdf)));
-		}
+		    // Term already exists: look for wdf and positionlist changes.
+		    termcount old_wdf = termlist.get_wdf();
+		    termcount new_wdf = term.get_wdf();
+		    if (old_doclen != new_doclen || old_wdf != new_wdf) {
+			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
+			update_mod_plist(did, new_tname, 'M', new_wdf);
+		    }
 
-		PositionIterator it = term.positionlist_begin();
-		PositionIterator it_end = term.positionlist_end();
-		if (it != it_end) {
-		    position_table.set_positionlist(did, tname, it, it_end);
-		} else {
-		    position_table.delete_positionlist(did, tname);
+		    if (!positionlists_equal(term, termlist)) 
+			set_positionlist(position_table, did, term);
+
+		    termlist.next();
+		    ++term;
 		}
 	    }
 	    DEBUGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
