@@ -1,3 +1,12 @@
+Wed Jan 27 04:01:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Add ChertWritableDatabase::insert_mod_plist() to handle the simpler
+	  case where we know the document doesn't already exist, to avoid
+	  adding extra code to that common path over the code we had before
+	  the #250-related changes.
+
 Tue Jan 26 03:25:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: In testcase pack_uint_preserving_sort1, use

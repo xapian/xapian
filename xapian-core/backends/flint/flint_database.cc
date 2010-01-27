@@ -1081,6 +1081,21 @@ FlintWritableDatabase::add_freq_delta(const string & tname,
 }
 
 void
+FlintWritableDatabase::insert_mod_plist(Xapian::docid did,
+					const string & tname,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+    j->second[did] = make_pair('A', wdf);
+}
+
+void
 FlintWritableDatabase::update_mod_plist(Xapian::docid did,
 					const string & tname,
 					char type,
@@ -1153,7 +1168,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
 		add_freq_delta(tname, 1, wdf);
-		update_mod_plist(did, tname, 'A', wdf);
+		insert_mod_plist(did, tname, wdf);
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    position_table.set_positionlist(

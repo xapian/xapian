@@ -336,6 +336,16 @@ class FlintWritableDatabase : public FlintDatabase {
 			    Xapian::termcount_diff tf_delta,
 			    Xapian::termcount_diff cf_delta);
 
+	/** Insert modifications for a new document to the postlists.
+	 *
+	 *  @param did The document ID to insert the entry for.
+	 *  @param tname The term to insert the entry for.
+	 *  @param wdf The new wdf value to store.
+	 */
+	void insert_mod_plist(Xapian::docid did,
+			      const string & tname,
+			      Xapian::termcount wdf);
+
 	/** Update the stored modifications to the postlists.
 	 *
 	 *  @param did The document ID to modify the entry for.
