@@ -2,11 +2,12 @@ Source: xapian-bindings
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
+Standards-Version: 3.8.4
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.8.3
 Homepage: http://xapian.org/
-DM-Upload-Allowed: yes
+Vcs-Browser: http://trac.xapian.org/browser/branches/1.0/xapian-bindings
+Vcs-svn: svn://svn.xapian.org/xapian/branches/1.0/xapian-bindings
 
 Package: tclxapian
 Section: libs
