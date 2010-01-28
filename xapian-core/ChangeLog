@@ -1,3 +1,9 @@
+Thu Jan 28 20:42:47 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-inspect.cc: Add "until" command to display keys until
+	  a specified one.  Useful for seeing all keys for a particular
+	  posting list, etc.
+
 Thu Jan 28 01:31:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/dbcheck.cc: Whitespace tweak.
