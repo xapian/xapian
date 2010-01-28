@@ -156,7 +156,11 @@ class PostlistCursor : private ChertCursor {
 	    size_t tmp = d - key.data();
 	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    key.erase(tmp - 1);
+	    if (is_doclenchunk_key(key)) {
+		key.erase(tmp);
+	    } else {
+		key.erase(tmp - 1);
+	    }
 	}
 	firstdid += offset;
 	return true;
