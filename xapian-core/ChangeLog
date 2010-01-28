@@ -1,3 +1,12 @@
+Thu Jan 28 21:13:38 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc,
+	  bin/xapian-compact-flint.cc: Partial fix for #427: truncate
+	  follow-on keys for postlist chunks fully (was leaving the
+	  trailing 0-byte, causing the code for chert and brass to
+	  incorrectly think a new chunk had started, resulting in a
+	  truncated posting list.
+
 Thu Jan 28 20:42:47 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-inspect.cc: Add "until" command to display keys until
