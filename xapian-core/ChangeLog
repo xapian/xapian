@@ -1,3 +1,7 @@
+Thu Jan 28 01:31:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/dbcheck.cc: Whitespace tweak.
+
 Wed Jan 27 06:29:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/dbcheck.cc: <config.h> not "config.h".
