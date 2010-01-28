@@ -1,3 +1,8 @@
+Thu Jan 28 21:23:48 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact-flint.cc: Revert previous patch for flint - it
+	  only applies to new key format used by chert and brass.
+
 Thu Jan 28 21:13:38 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc,
