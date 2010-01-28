@@ -1,3 +1,9 @@
+Thu Jan 28 22:34:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Add check that xapian-compact works
+	  correctly on a database with multiple chunks for a single term;
+	  this is a regression test for ticket #427
+
 Thu Jan 28 22:33:16 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Don't

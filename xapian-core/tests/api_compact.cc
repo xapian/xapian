@@ -83,6 +83,22 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 }
 
 static void
+make_multichunk_db(Xapian::WritableDatabase &db, const string &)
+{
+    // Need non-const pointer for strtoul(), but data isn't modified.
+    int count = 10000;
+
+    while (count) {
+	Xapian::Document doc;
+	doc.add_term("a");
+	db.add_document(doc);
+	--count;
+    }
+
+    db.commit();
+}
+
+static void
 check_sparse_uid_terms(const string & path)
 {
     Xapian::Database db(path);
@@ -201,6 +217,29 @@ DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
     Xapian::Database outdb(outdbpath);
 
     TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+// Test use of compact on a database which has multiple chunks for a term.
+// This is a regression test for ticket #427
+DEFINE_TESTCASE(compactmultichunks1, brass || chert || flint) {
+    int status;
+
+    string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";
+    string indbpath = get_database_path("compactmultichunks1in",
+					make_multichunk_db, "");
+    string outdbpath = get_named_writable_database_path("compactmultichunks1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indbpath + ' ' + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(indbpath);
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
     return true;
