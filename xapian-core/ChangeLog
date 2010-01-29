@@ -1,3 +1,8 @@
+Fri Jan 29 06:13:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_metadata.cc,backends/chert/chert_metadata.cc,
+	  backends/flint/flint_metadata.cc: Correct filenames in @file.
+
 Thu Jan 28 22:34:03 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_compact.cc: Add check that xapian-compact works
