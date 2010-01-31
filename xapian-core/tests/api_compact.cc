@@ -83,21 +83,6 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 }
 
 static void
-make_multichunk_db(Xapian::WritableDatabase &db, const string &)
-{
-    int count = 10000;
-
-    while (count) {
-	Xapian::Document doc;
-	doc.add_term("a");
-	db.add_document(doc);
-	--count;
-    }
-
-    db.commit();
-}
-
-static void
 check_sparse_uid_terms(const string & path)
 {
     Xapian::Database db(path);
@@ -219,6 +204,21 @@ DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
     return true;
+}
+
+static void
+make_multichunk_db(Xapian::WritableDatabase &db, const string &)
+{
+    int count = 10000;
+
+    while (count) {
+	Xapian::Document doc;
+	doc.add_term("a");
+	db.add_document(doc);
+	--count;
+    }
+
+    db.commit();
 }
 
 // Test use of compact on a database which has multiple chunks for a term.

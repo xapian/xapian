@@ -1,3 +1,9 @@
+Sun Jan 31 00:08:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Move make_multichunk_db() before the testcase
+	  which uses it, rather than between two helper functions for another
+	  testcase.
+
 Sun Jan 31 00:07:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Remove confusing comment, cut-and-pasted from
