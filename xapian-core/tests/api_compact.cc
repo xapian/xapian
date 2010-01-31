@@ -211,9 +211,9 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 {
     int count = 10000;
 
+    Xapian::Document doc;
+    doc.add_term("a");
     while (count) {
-	Xapian::Document doc;
-	doc.add_term("a");
 	db.add_document(doc);
 	--count;
     }

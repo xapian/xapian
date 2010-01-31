@@ -1,3 +1,8 @@
+Sun Jan 31 00:19:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Use a single Document object rather than
+	  creating the same one 10000 times.
+
 Sun Jan 31 00:08:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Move make_multichunk_db() before the testcase
