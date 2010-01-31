@@ -1,3 +1,9 @@
+Sun Jan 31 23:35:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_termlisttable.cc,
+	  backends/chert/chert_termlisttable.h: Remove
+	  ChertTermListTable::get_doclength() as it is no longer used.
+
 Sun Jan 31 23:19:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_termlisttable.cc,
