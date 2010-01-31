@@ -88,6 +88,7 @@ Description: Basic tools for Xapian search engine library
 Package: xapian-doc
 Architecture: all
 Section: doc
+Depends: ${misc:Depends}
 Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= @BINARY_VERSION@)
 Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed
