@@ -158,7 +158,7 @@ dbcheck(const Xapian::Database & db,
 	     ++t, ++t2) {
 	    TEST(t2 != db.termlist_end(did));
 
-	    ++ found_termcount;
+	    ++found_termcount;
 	    wdf_sum += t.get_wdf();
 
 	    TEST_EQUAL(*t, *t2);

@@ -1,3 +1,8 @@
+Sun Jan 31 21:58:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/dbcheck.cc: Whitespace tweak.
+
 Sun Jan 31 08:37:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
