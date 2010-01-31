@@ -1,3 +1,8 @@
+Sun Jan 31 00:07:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Remove confusing comment, cut-and-pasted from
+	  elsewhere and not relevant here.
+
 Fri Jan 29 06:13:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_metadata.cc,backends/chert/chert_metadata.cc,

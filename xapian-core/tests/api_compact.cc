@@ -85,7 +85,6 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 static void
 make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 {
-    // Need non-const pointer for strtoul(), but data isn't modified.
     int count = 10000;
 
     while (count) {
