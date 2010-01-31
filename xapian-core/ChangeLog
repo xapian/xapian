@@ -1,3 +1,8 @@
+Sun Jan 31 08:37:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/dbcheck.cc: <config.h> not "config.h".
+
 Sun Jan 31 07:53:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
