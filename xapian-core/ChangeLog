@@ -1,3 +1,12 @@
+Sun Jan 31 09:19:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: "until" improvements:
+	  + No longer reports the current key and tag.
+	  + If passed a key before the current one, no longer silently advances
+	    to the next key.
+	  + Explicitly says if the specified key doesn't exist, including where
+	    we ended up.
+
 Sun Jan 31 00:19:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Use a single Document object rather than

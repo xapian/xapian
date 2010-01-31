@@ -87,9 +87,31 @@ show_help()
 static void
 do_until(FlintCursor & cursor, const string & target)
 {
-    while (!cursor.after_end()) {
-	if (!target.empty() && target < cursor.current_key) {
+    if (cursor.after_end()) {
+	cout << "At end already." << endl;
+	return;
+    }
+
+    if (!target.empty()) {
+	int cmp = target.compare(cursor.current_key);
+	if (cmp <= 0) {
+	    if (cmp)
+		cout << "Already after specified key." << endl;
+	    else
+		cout << "Already at specified key." << endl;
 	    return;
+	}
+    }
+
+    while (cursor.next()) {
+	int cmp = 1;
+	if (!target.empty()) {
+	    cmp = target.compare(cursor.current_key);
+	    if (cmp < 0) {
+		cout << "No exact match, stopping at entry before." << endl;
+		cursor.prev();
+		return;
+	    }
 	}
 	cout << "Key: ";
 	display_nicely(cursor.current_key);
@@ -97,10 +119,12 @@ do_until(FlintCursor & cursor, const string & target)
 	cursor.read_tag();
 	display_nicely(cursor.current_tag);
 	cout << "\n";
-	if (!cursor.next()) {
+	if (cmp == 0) {
 	    return;
 	}
     }
+
+    cout << "Reached end." << endl;
 }
 
 int
