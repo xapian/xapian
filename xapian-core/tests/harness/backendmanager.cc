@@ -112,12 +112,7 @@ Xapian::WritableDatabase
 BackendManager::getwritedb_flint(const string & name,
 				 const vector<string> & files)
 {
-    string parent_dir = ".flint";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir;
-    dbdir += '/';
-    dbdir += name;
+    string dbdir = getwritedb_flint_path(name);
 
     // For a writable database we need to start afresh each time.
     rm_rf(dbdir);
@@ -127,6 +122,18 @@ BackendManager::getwritedb_flint(const string & name,
     Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
     index_files_to_database(db, files);
     return db;
+}
+
+std::string
+BackendManager::getwritedb_flint_path(const string & name)
+{
+    string parent_dir = ".flint";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+    return dbdir;
 }
 #endif
 
@@ -175,6 +182,12 @@ BackendManager::getwritedb_quartz(const string & name,
 }
 #endif
 
+string
+BackendManager::do_get_database_path(const vector<string> &)
+{
+    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
+}
+
 Xapian::Database
 BackendManager::get_database(const vector<string> &)
 {
@@ -187,10 +200,53 @@ BackendManager::get_database(const string &)
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
+std::string
+BackendManager::get_database_path(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg)
+{
+    string dbleaf = "db__";
+    dbleaf += dbname;
+    const string & path = get_writable_database_path(dbleaf);
+    try {
+	(void)Xapian::Database(path);
+	return path;
+    } catch (const Xapian::DatabaseOpeningError &) {
+    }
+    rm_rf(path);
+
+    string tmp_dbleaf(dbleaf);
+    tmp_dbleaf += '~';
+    string tmp_path(path);
+    tmp_path += '~';
+
+    {
+	Xapian::WritableDatabase wdb = get_writable_database(tmp_dbleaf,
+							     string());
+	gen(wdb, arg);
+    }
+    rename(tmp_path.c_str(), path.c_str());
+
+    return path;
+}
+
+string
+BackendManager::get_database_path(const string & file)
+{
+    return do_get_database_path(vector<string>(1, file));
+}
+
 Xapian::WritableDatabase
 BackendManager::get_writable_database(const string &, const string &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
+}
+
+string
+BackendManager::get_writable_database_path(const std::string &)
+{
+    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
 }
 
 Xapian::Database

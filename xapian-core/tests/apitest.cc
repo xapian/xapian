@@ -67,6 +67,21 @@ get_database(const string &dbname, const string &dbname2)
     return backendmanager->get_database(dbnames);
 }
 
+string
+get_database_path(const string &dbname)
+{
+    return backendmanager->get_database_path(dbname);
+}
+
+string
+get_database_path(const std::string &dbname,
+		  void (*gen)(Xapian::WritableDatabase&,
+			      const std::string &),
+		  const std::string &arg)
+{
+    return backendmanager->get_database_path(dbname, gen, arg);
+}
+
 Xapian::WritableDatabase
 get_writable_database(const string &dbname)
 {
@@ -77,6 +92,12 @@ Xapian::WritableDatabase
 get_named_writable_database(const std::string &name, const std::string &source)
 {
    return backendmanager->get_writable_database("dbw__" + name, source);
+}
+
+std::string
+get_named_writable_database_path(const std::string &name)
+{
+   return backendmanager->get_writable_database_path("dbw__" + name);
 }
 
 Xapian::Database

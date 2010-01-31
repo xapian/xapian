@@ -1,3 +1,24 @@
+Sun Jan 31 07:53:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_compact.cc: Use a single Document object rather than
+	  creating the same one 10000 times.
+	* tests/api_compact.cc: Move make_multichunk_db() before the testcase
+	  which uses it, rather than between two helper functions for another
+	  testcase.
+	* tests/api_compact.cc: Remove confusing comment, cut-and-pasted from
+	  elsewhere and not relevant here.
+	* tests/api_compact.cc: Add copyright note for my changes committed
+	  earlier today.
+	* tests/api_compact.cc: Add test of xapian-compact when merging
+	  databases.
+	* tests/api_compact.cc,tests/apitest.cc,tests/apitest.h,
+	  tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Add
+	  get_database_path() variant which takes a generator function and use
+	  it so that the right database names are used in compactnorenumber1.
+	* tests/Makefile.am,tests/api_compact.cc: Add test coverage for
+	  xapian-compact --no-renumber with multiple databases.
+
 Wed Jan 27 08:36:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

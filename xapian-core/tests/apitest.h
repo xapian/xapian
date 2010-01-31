@@ -1,7 +1,7 @@
 /** @file apitest.h
  * @brief test functionality of the Xapian API
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,23 @@ Xapian::Database get_database(const std::string &db);
 
 Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
+Xapian::Database get_database(const std::string &db,
+			      void (*gen)(Xapian::WritableDatabase&,
+					  const std::string &),
+			      const std::string &arg = std::string());
+
+std::string get_database_path(const std::string &db);
+
+std::string get_database_path(const std::string &db,
+			      void (*gen)(Xapian::WritableDatabase&,
+					  const std::string &),
+			      const std::string &arg = std::string());
+
 Xapian::WritableDatabase get_writable_database(const std::string &db = "");
 
 Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = "");
+
+std::string get_named_writable_database_path(const std::string &name);
 
 Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
 

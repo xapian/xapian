@@ -91,6 +91,7 @@ noinst_HEADERS = apitest.h dbcheck.h
 collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
+ api_compact.cc \
  api_db.cc \
  api_generated.cc \
  api_metadata.cc \

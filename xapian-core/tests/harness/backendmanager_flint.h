@@ -42,6 +42,10 @@ class BackendManagerFlint : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
+  protected:
+    /// Get the path of Flint Xapian::Database instance.
+    std::string do_get_database_path(const std::vector<std::string> & files);
+
   public:
     BackendManagerFlint() { }
 
@@ -57,6 +61,9 @@ class BackendManagerFlint : public BackendManager {
     /// Create a Flint Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
 						   const std::string & file);
+
+    /// Get the path of Flint Xapian::WritableDatabase instance.
+    std::string get_writable_database_path(const std::string & name);
 
     /// Create a Database object for the last opened WritableDatabase.
     Xapian::Database get_writable_database_as_database();
