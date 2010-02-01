@@ -1027,10 +1027,10 @@ void ChertTable::form_key(const string & key) const
    deletions.
 */
 
-bool
+void
 ChertTable::add(const string &key, string tag, bool already_compressed)
 {
-    LOGCALL(DB, bool, "ChertTable::add", key << ", " << tag << ", " << already_compressed);
+    LOGCALL(DB, void, "ChertTable::add", key << ", " << tag << ", " << already_compressed);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
@@ -1106,7 +1106,8 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE) RETURN(false);
+    if (m >= BYTE_PAIR_RANGE)
+	throw Xapian::UnimplementedError("Can't handle insanely large tags");
 
     int n = 0; // initialise to shut off warning
 				      // - and there will be n to delete
@@ -1136,7 +1137,6 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
-    RETURN(true);
 }
 
 /* ChertTable::del(key) returns false if the key is not in the B-tree,

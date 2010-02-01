@@ -1,3 +1,15 @@
+Mon Feb 01 21:37:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
+	  Fix documentation comments for ChertTable::add() and
+	  ChertTable::del() - errors actually cause exceptions, not a false
+	  return value, and del() returns true if it actually removed an entry.
+	  Fix ChertTable::add() to throw an exception for the (hopefully never
+	  hit) case when the tag value is too insanely large to handle.  With
+	  that ChertTable::add() always returns true, and we never check the
+	  return value anyway, so just make it return void.
+
 Mon Feb 01 16:02:27 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Fix checking
