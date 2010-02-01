@@ -1,3 +1,8 @@
+Mon Feb 01 22:36:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_metadata.cc: Correct filename in @file.
+
 Sun Jan 31 21:58:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
