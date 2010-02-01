@@ -1030,7 +1030,7 @@ void ChertTable::form_key(const string & key) const
 void
 ChertTable::add(const string &key, string tag, bool already_compressed)
 {
-    LOGCALL(DB, void, "ChertTable::add", key << ", " << tag << ", " << already_compressed);
+    LOGCALL_VOID(DB, "ChertTable::add", key << ", " << tag << ", " << already_compressed);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);

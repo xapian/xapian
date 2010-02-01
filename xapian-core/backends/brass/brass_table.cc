@@ -1031,7 +1031,7 @@ void BrassTable::form_key(const string & key) const
 void
 BrassTable::add(const string &key, string tag, bool already_compressed)
 {
-    LOGCALL(DB, void, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
+    LOGCALL_VOID(DB, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
