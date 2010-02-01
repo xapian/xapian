@@ -44,7 +44,7 @@ struct F_fragment {
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string () const {
-	return string(data, data[0] == 'M' ? 4 : 3);
+	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 };
 
