@@ -1,3 +1,9 @@
+Mon Feb 01 01:45:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_alltermslist.h,backends/brass/brass_spelling.h,
+	  backends/brass/brass_spellingwordslist.h: Add missing std::
+	  qualifiers.
+
 Mon Feb 01 00:57:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_spelling.h: Add missing std:: qualifier.
