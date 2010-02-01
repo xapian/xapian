@@ -1,3 +1,15 @@
+Mon Feb 01 21:50:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Fix documentation comments for FlintTable::add() and
+	  FlintTable::del() - errors actually cause exceptions, not a false
+	  return value, and del() returns true if it actually removed an entry.
+	  Fix FlintTable::add() to throw an exception for the (hopefully never
+	  hit) case when the tag value is too insanely large to handle.  With
+	  that FlintTable::add() always returns true, and we never check the
+	  return value anyway, so just make it return void.
+
 Mon Feb 01 21:37:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from brass:

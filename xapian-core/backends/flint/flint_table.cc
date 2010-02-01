@@ -1016,10 +1016,10 @@ void FlintTable::form_key(const string & key) const
    deletions.
 */
 
-bool
+void
 FlintTable::add(const string &key, string tag, bool already_compressed)
 {
-    DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
+    DEBUGCALL(DB, void, "FlintTable::add", key << ", " << tag);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
@@ -1097,7 +1097,8 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE) RETURN(false);
+    if (m >= BYTE_PAIR_RANGE)
+	throw Xapian::UnimplementedError("Can't handle insanely large tags");
 
     int n = 0; // initialise to shut off warning
 				      // - and there will be n to delete
@@ -1127,7 +1128,6 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
-    RETURN(true);
 }
 
 /* FlintTable::del(key) returns false if the key is not in the B-tree,
