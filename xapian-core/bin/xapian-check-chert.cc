@@ -90,18 +90,31 @@ check_chert_table(const char * tablename, string filename, int opts,
 		have_metainfo_key = true;
 		cursor->read_tag();
 		// Check format of the METAINFO key.
-		Xapian::docid did;
-		totlen_t totlen;
+		totlen_t total_doclen;
+		Xapian::docid last_docid;
+		Xapian::termcount doclen_lbound;
+		Xapian::termcount doclen_ubound;
+		Xapian::termcount wdf_ubound;
+
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
-		if (!unpack_uint(&data, end, &did)) {
-		    cout << "Tag containing meta information is corrupt." << endl;
+		if (!unpack_uint(&data, end, &last_docid)) {
+		    cout << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
 		    ++errors;
-		} else if (!unpack_uint_last(&data, end, &totlen)) {
-		    cout << "Tag containing meta information is corrupt." << endl;
+		} else if (!unpack_uint(&data, end, &doclen_lbound)) {
+		    cout << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
+		    ++errors;
+		} else if (!unpack_uint(&data, end, &wdf_ubound)) {
+		    cout << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
+		    ++errors;
+		} else if (!unpack_uint(&data, end, &doclen_ubound)) {
+		    cout << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
+		    ++errors;
+		} else if (!unpack_uint_last(&data, end, &total_doclen)) {
+		    cout << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
 		    ++errors;
 		} else if (data != end) {
-		    cout << "Tag containing meta information is corrupt." << endl;
+		    cout << "Tag containing meta information is corrupt (junk at end)." << endl;
 		    ++errors;
 		}
 		cursor->next();
