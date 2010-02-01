@@ -1,3 +1,14 @@
+Mon Feb 01 09:24:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h:
+	  Fix documentation comments for BrassTable::add() and
+	  BrassTable::del() - errors actually cause exceptions, not a false
+	  return value, and del() returns true if it actually removed an entry.
+	  Fix BrassTable::add() to throw an exception for the (hopefully never
+	  hit) case when the tag value is too insanely large to handle.  With
+	  that BrassTable::add() always returns true, and we never check the
+	  return value anyway, so just make it return void.
+
 Mon Feb 01 01:45:09 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_alltermslist.h,backends/brass/brass_spelling.h,
