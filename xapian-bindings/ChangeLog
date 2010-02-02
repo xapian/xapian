@@ -1,3 +1,8 @@
+Tue Feb 02 12:56:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* php/smoketest.php,php/util.i,python/extra.i,python/pythontest2.py:
+	  Add copyright lines missed from the previous two commits.
+
 Tue Feb 02 12:37:55 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* php/smoketest.php,php/util.i: Add typemap to convert the output

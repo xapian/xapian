@@ -5,6 +5,7 @@
  * functionality successfully.
  *
  * Copyright (C) 2004,2005,2006,2007,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
