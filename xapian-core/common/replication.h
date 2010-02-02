@@ -35,7 +35,7 @@ namespace Xapian {
  *  Warning: the replication interface is currently experimental, and is liable
  *  to change between releases without warning.
  */
-struct XAPIAN_VISIBILITY_DEFAULT ReplicationInfo {
+struct ReplicationInfo {
     /// Number of changesets applied.
     int changeset_count;
 
@@ -67,7 +67,7 @@ struct XAPIAN_VISIBILITY_DEFAULT ReplicationInfo {
  *  Warning: the replication interface is currently experimental, and is liable
  *  to change between releases without warning.
  */
-class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
+class DatabaseMaster {
     /// The path to the master database.
     std::string path;
 
@@ -120,7 +120,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
  *  Warning: the replication interface is currently experimental, and is liable
  *  to change between releases without warning.
  */
-class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
+class DatabaseReplica {
     /// Class holding details of the replica.
     class Internal;
     /// Reference counted internals.

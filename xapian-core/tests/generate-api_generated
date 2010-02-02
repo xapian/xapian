@@ -98,7 +98,6 @@ print <<'END';
 #include "api_generated.h"
 
 #include <xapian.h>
-#include <xapian/replication.h>
 
 #include "apitest.h"
 #include "testutils.h"

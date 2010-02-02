@@ -44,6 +44,7 @@ noinst_HEADERS +=\
 	common/remotetcpserver.h\
 	common/replicatetcpclient.h\
 	common/replicatetcpserver.h\
+	common/replication.h\
 	common/replicationprotocol.h\
 	common/rset.h\
 	common/safedirent.h\
