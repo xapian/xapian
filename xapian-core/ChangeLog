@@ -1,3 +1,11 @@
+Tue Feb 02 07:12:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in: Add generated include/xapian/error.h so
+	  that Xapian::Error and subclass API docs are collated for a VPATH
+	  build.
+	* docs/Makefile.am: Add regression test to make sure doxygen collated
+	  API docs for Xapian::RuntimeError.
+
 Tue Feb 02 06:52:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from brass:
