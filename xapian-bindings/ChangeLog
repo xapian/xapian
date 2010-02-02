@@ -34,6 +34,11 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Tue Feb 02 15:28:28 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: Comment out replicationtest by default again;
+	  it's still not reliable.
+
 Tue Feb 02 15:22:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am: Remove one more reference to NumericRange
