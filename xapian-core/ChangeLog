@@ -1,3 +1,10 @@
+Tue Feb 02 07:22:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from chert:
+	* backends/flint/flint_alltermslist.h,backends/flint/flint_spelling.h,
+	  backends/flint/flint_spellingwordslist.h: Add missing std::
+	  qualifiers. 
+
 Tue Feb 02 07:12:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api.conf.in: Add generated include/xapian/error.h so

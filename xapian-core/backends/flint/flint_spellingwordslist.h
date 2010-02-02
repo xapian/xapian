@@ -59,7 +59,7 @@ class FlintSpellingWordsList : public AllTermsList {
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Seek to the entry before the first key with a "W" prefix, so the
 	// first next() will advance us to the first such entry.
-	cursor->find_entry(string("W", 1));
+	cursor->find_entry(std::string("W", 1));
     }
 
     /// Destructor.
@@ -70,7 +70,7 @@ class FlintSpellingWordsList : public AllTermsList {
      *  Either next() or skip_to() must have been called before this
      *  method can be called.
      */
-    string get_termname() const;
+    std::string get_termname() const;
 
     /** Returns the term frequency of the current term.
      *
@@ -90,7 +90,7 @@ class FlintSpellingWordsList : public AllTermsList {
     TermList * next();
 
     /// Advance to the first term which is >= tname.
-    TermList * skip_to(const string &tname);
+    TermList * skip_to(const std::string &tname);
 
     /// True if we're off the end of the list
     bool at_end() const;
