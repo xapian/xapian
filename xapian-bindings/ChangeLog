@@ -1,3 +1,11 @@
+Tue Feb 02 14:03:26 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/replicationtest2.py: Fix the replication test to work; was
+	  broken by the change to chert as the default database format.
+	  The tests needs to fiddle with the database's uuid to simulate
+	  various situations, so now needs to fiddle with the iamchert file
+	  instead of the uuid file.
+
 Tue Feb 02 13:52:17 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* xapian-head.i: Remove <xapian/replication.h> include which I'd
