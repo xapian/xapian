@@ -1,3 +1,7 @@
+Tue Feb 02 21:59:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Remove DatabaseReplica.
+
 Tue Feb 02 17:01:23 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* include/xapian/document.h: Add a note to the API documentation

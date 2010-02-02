@@ -33,7 +33,6 @@ my %uncopyableclasses = (
 
 my %copyableclasses = (
     'Database' => '',
-    'DatabaseReplica' => '',
     'DateValueRangeProcessor' => '0',
     'Document' => '',
     'ESet' => '',
