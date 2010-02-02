@@ -5,10 +5,7 @@ include ../generic/generic.mk
 TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
-TESTS = smoketest.py pythontest.py
-# FIXME: replicationtest.py is failing, and I can't see why - disable it
-# temporarily as Richard is away and snapshots aren't building.
-# replicationtest.py
+TESTS = smoketest.py pythontest.py replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 

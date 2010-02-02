@@ -29,7 +29,6 @@
 #include "flint_database.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
@@ -51,6 +50,7 @@
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
 #include "stringutils.h"

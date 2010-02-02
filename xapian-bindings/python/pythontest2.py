@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
 # Copyright (C) 2008,2009 Olly Betts
+# Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -1312,6 +1313,13 @@ def test_matchspy():
     expect(len(mset), 5)
 
     spy = xapian.ValueCountMatchSpy(0)
+    enq.add_matchspy(spy)
+    # Regression test for clear_matchspies() - used to always raise an
+    # exception due to a copy and paste error in its definition.
+    enq.clear_matchspies()
+    mset = enq.get_mset(0, 10)
+    expect(spy.get_values_as_dict(), {})
+
     enq.add_matchspy(spy)
     mset = enq.get_mset(0, 10)
     expect(spy.get_values_as_dict(), {

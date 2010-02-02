@@ -34,6 +34,49 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Tue Feb 02 14:05:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: replicationtest.py should be working now, so
+	  re-enable it.  If it still fails occasionally, I'd like to
+	  investigate why; it works for me.
+
+Tue Feb 02 14:03:26 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/replicationtest2.py: Fix the replication test to work; was
+	  broken by the change to chert as the default database format.
+	  The tests needs to fiddle with the database's uuid to simulate
+	  various situations, so now needs to fiddle with the iamchert file
+	  instead of the uuid file.
+
+Tue Feb 02 13:52:17 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian-head.i: Remove <xapian/replication.h> include which I'd
+	  missed.
+
+Tue Feb 02 13:02:00 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian.i: Remove the replication API from the bindings.  Access
+	  to replication, for now, is via the command-line scripts: this is
+	  similiar to the access to running a remote database server, and
+	  the access to database compaction and checking.  See ticket #347
+	  for some commentary.
+
+Tue Feb 02 12:56:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* php/smoketest.php,php/util.i,python/extra.i,python/pythontest2.py:
+	  Add copyright lines missed from the previous two commits.
+
+Tue Feb 02 12:37:55 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* php/smoketest.php,php/util.i: Add typemap to convert the output
+	  for ValueCountMatchSpy::get_values() to an array, and test for it.
+	  Fixes #216.
+
+Tue Feb 02 11:46:59 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i,python/pythontest2.py: Fix bug in
+	  Enquire.clear_matchspies(), and add regression test.
+
 Tue Dec 22 23:09:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/docs/generate-rdoc-stubs,

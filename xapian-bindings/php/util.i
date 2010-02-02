@@ -2,6 +2,7 @@
 /* php/util.i: custom PHP typemaps for xapian-bindings
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -137,6 +138,19 @@
 	const string & term = *i;
 	char *p = const_cast<char*>(term.data());
 	add_next_index_stringl($result, p, term.length(), 1);
+    }
+}
+
+%typemap(out) const std::map<std::string, Xapian::doccount> & {
+    if (array_init($result) == FAILURE) {
+	SWIG_PHP_Error(E_ERROR, "array_init failed");
+    }
+
+    map<string, Xapian::doccount>::iterator i;
+    for (i = $1->begin(); i != $1->end(); ++i) {
+	const string & term = i->first;
+	char *p = const_cast<char*>(term.data());
+	add_assoc_long_ex($result, p, term.length() + 1, i->second);
     }
 }
 

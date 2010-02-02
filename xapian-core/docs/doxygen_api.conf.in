@@ -567,6 +567,7 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = "@top_builddir@/include/xapian/version.h" \
+			 "@top_builddir@/include/xapian/error.h" \
 			 "@top_srcdir@/include"
 
 # This tag can be used to specify the character encoding of the source files
