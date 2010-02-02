@@ -1,3 +1,9 @@
+Tue Feb 02 15:59:14 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* common/replication.h: Put the ReplicationInfo, DatabaseMaster and
+	  DatabaseReplica symbols back into public visibility - they're
+	  needed for the tests, and for the command line scripts.
+
 Tue Feb 02 15:06:44 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
