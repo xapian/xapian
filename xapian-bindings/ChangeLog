@@ -1,3 +1,8 @@
+Tue Feb 02 11:46:59 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i,python/pythontest2.py: Fix bug in
+	  Enquire.clear_matchspies(), and add regression test.
+
 Tue Dec 22 23:09:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/docs/generate-rdoc-stubs,

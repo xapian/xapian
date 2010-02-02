@@ -1313,6 +1313,13 @@ def test_matchspy():
 
     spy = xapian.ValueCountMatchSpy(0)
     enq.add_matchspy(spy)
+    # Regression test for clear_matchspies() - used to always raise an
+    # exception due to a copy and paste error in its definition.
+    enq.clear_matchspies()
+    mset = enq.get_mset(0, 10)
+    expect(spy.get_values_as_dict(), {})
+
+    enq.add_matchspy(spy)
     mset = enq.get_mset(0, 10)
     expect(spy.get_values_as_dict(), {
            xapian.sortable_serialise(1.5): 1,

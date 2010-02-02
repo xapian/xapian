@@ -1169,7 +1169,7 @@ Enquire.add_matchspy = _enquire_match_spy_add
 
 _enquire_clear_matchspies_orig = Enquire.clear_matchspies
 def _enquire_match_spies_clear(self):
-    _enquire_clear_matchspies_orig(self, decider)
+    _enquire_clear_matchspies_orig(self)
     if hasattr(self, '_deciders'):
         del self._deciders
 _enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
