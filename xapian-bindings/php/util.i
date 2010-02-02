@@ -140,4 +140,17 @@
     }
 }
 
+%typemap(out) const std::map<std::string, Xapian::doccount> & {
+    if (array_init($result) == FAILURE) {
+	SWIG_PHP_Error(E_ERROR, "array_init failed");
+    }
+
+    map<string, Xapian::doccount>::iterator i;
+    for (i = $1->begin(); i != $1->end(); ++i) {
+	const string & term = i->first;
+	char *p = const_cast<char*>(term.data());
+	add_assoc_long_ex($result, p, term.length() + 1, i->second);
+    }
+}
+
 /* vim:set syntax=cpp:set noexpandtab: */

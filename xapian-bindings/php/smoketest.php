@@ -314,4 +314,25 @@ if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
     exit(1);
 }
 
+# Test matchspy get_values wrapper:
+{
+    $matchspy = new XapianValueCountMatchSpy(0);
+    $enquire->add_matchspy($matchspy);
+    $enquire->get_mset(0, 10);
+    $val = $matchspy->get_values();
+    $expected = array(
+        "ABB" => 1,
+	"ABC\0" => 1,
+	"ABC" => 1,
+	"ABCD" => 1,
+	"ABC\xff" => 1,
+    );
+    if ($val != $expected) {
+        print "Unexpected \$matchspy->getvalues():\n";
+	print_r($matchspy->get_values());
+	print "\n";
+	exit(1);
+    }
+}
+
 ?>
