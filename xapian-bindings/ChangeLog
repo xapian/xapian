@@ -1,3 +1,8 @@
+Tue Feb 02 13:52:17 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian-head.i: Remove <xapian/replication.h> include which I'd
+	  missed.
+
 Tue Feb 02 13:02:00 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* xapian.i: Remove the replication API from the bindings.  Access
