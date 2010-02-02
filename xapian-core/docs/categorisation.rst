@@ -80,25 +80,6 @@ from, say, ``spy0`` like this::
         cout << i->first << ": " << i->second << endl;
     }
 
-You can calculate a score to indicate how evenly spread the values are using
-the ``score_evenness`` function like so::
-
-    double score = Xapian::score_evenness(spy0);
-
-Or if you prefer categories with 4 or 5 values::
-
-    double score = Xapian::score_evenness(spy0, 4.5);
-
-The smaller the score, the better - a perfectly even split with exactly the
-number of entries asked (or with no preference given for the number of entries)
-scores 0.  You should experiment to find a suitable threshold for your
-application, but to give you a rough idea, a suitable threshold is likely to be
-less than one.
-
-The scoring uses a sum of squared differences (currently, that is - this should
-probably be regarded as an implementation detail which could change in the
-future if we find a better algorithm).
-
 You can build ranges from numeric values for the values returned from spy
 ``spy0``, asking for at most ``num_ranges`` ranges like so::
 

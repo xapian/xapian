@@ -244,67 +244,6 @@ ValueCountMatchSpy::get_description() const {
 }
 
 
-inline double sqrd(double x) { return x * x; }
-
-/** Calculate a score based on how evenly distributed the frequencies of a set
- *  of values are.
- */
-template<class T> double
-do_score_evenness(const map<T, doccount> & values,
-		  doccount total,
-		  double desired_no_of_categories)
-{
-    if (total == 0) return 0.0;
-
-    size_t total_unset = total;
-    double score = 0.0;
-
-    if (desired_no_of_categories <= 0.0)
-	desired_no_of_categories = values.size();
-
-    double avg = double(total) / desired_no_of_categories;
-
-    typename map<T, doccount>::const_iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	size_t count = i->second;
-	total_unset -= count;
-	score += sqrd(count - avg);
-    }
-    if (total_unset) score += sqrd(total_unset - avg);
-
-    // Scale down so the total number of items doesn't make a difference.
-    score /= sqrd(total);
-
-    // Bias towards returning the number of categories requested.
-    score += 0.01 * sqrd(desired_no_of_categories - values.size());
-
-    return score;
-}
-
-double score_evenness(const map<string, doccount> & values,
-		      doccount total,
-		      double desired_no_of_categories) {
-    return do_score_evenness(values, total, desired_no_of_categories);
-}
-
-double score_evenness(const map<NumericRange, doccount> & values,
-		      doccount total,
-		      double desired_no_of_categories) {
-    return do_score_evenness(values, total, desired_no_of_categories);
-}
-
-double score_evenness(const ValueCountMatchSpy & spy,
-		      double desired_no_of_categories) {
-    return do_score_evenness(spy.get_values(), spy.get_total(),
-			     desired_no_of_categories);
-}
-double score_evenness(const NumericRanges & ranges,
-		      double desired_no_of_categories) {
-    return do_score_evenness(ranges.get_ranges(), ranges.get_values_seen(),
-			     desired_no_of_categories);
-}
-
-
 /** A bucket, used when building numeric ranges.
  */
 struct bucketval {

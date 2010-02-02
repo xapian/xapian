@@ -1,3 +1,10 @@
+Tue Feb 02 01:17:34 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,docs/categorisation.rst,include/xapian/matchspy.h,
+	  tests/api_matchspy.cc: Remove score_evenness(), since it turned
+	  out to be of little or no use in practical situations.  See
+	  ticket #435 for more details.
+
 Mon Feb 01 21:53:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/chert/chert_table.cc: Use
