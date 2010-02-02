@@ -1,3 +1,11 @@
+Tue Feb 02 13:02:00 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian.i: Remove the replication API from the bindings.  Access
+	  to replication, for now, is via the command-line scripts: this is
+	  similiar to the access to running a remote database server, and
+	  the access to database compaction and checking.  See ticket #347
+	  for some commentary.
+
 Tue Feb 02 12:56:25 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* php/smoketest.php,php/util.i,python/extra.i,python/pythontest2.py:

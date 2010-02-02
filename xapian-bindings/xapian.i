@@ -781,10 +781,6 @@ class Remote {
 %feature("director") Xapian::KeyMaker;
 %include <xapian/keymaker.h>
 
-%ignore Xapian::DatabaseReplica::internal;
-%ignore Xapian::DatabaseReplica::operator=;
-%ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
-%include <xapian/replication.h>
 %include <xapian/valuesetmatchdecider.h>
 
 namespace Xapian {
