@@ -1,3 +1,8 @@
+Tue Feb 02 16:21:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* docs/categorisation.rst: Remove documentation of NumericRanges
+	  stuff for now, since the NumericRanges is no longer on trunk.
+
 Tue Feb 02 15:59:14 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* common/replication.h: Put the ReplicationInfo, DatabaseMaster and

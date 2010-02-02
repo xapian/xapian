@@ -18,12 +18,6 @@ user the ability to narrow down their search by filtering it to only include
 documents with a particular value of a particular category.  This is often
 referred to as ``faceted search``.
 
-Some categories are numeric and can take many different values (examples
-include price, width, and height).  The number of different values will often
-be overwhelming, and users will generally be more interested in narrowing their
-search to a range rather than a single value.  For these, Xapian can group the
-results into ranges for you.
-
 In some applications, you may have many different categories (for example
 colour, price, width, height) but not always want to offer all of them
 for every search.  If all the results are red, and none have width, it's
@@ -38,9 +32,7 @@ Indexing
 --------
 
 When indexing a document, you need to add each category in a different
-number value slot.  For numeric values which you want to be able to
-group, you should encode the numeric value as a string using
-``Xapian::sortable_serialise()``.
+number value slot.
 
 Searching
 ---------
@@ -80,39 +72,13 @@ from, say, ``spy0`` like this::
         cout << i->first << ": " << i->second << endl;
     }
 
-You can build ranges from numeric values for the values returned from spy
-``spy0``, asking for at most ``num_ranges`` ranges like so::
-
-    std::map<Xapian::NumericRange, Xapian::doccount> result;
-    Xapian::doccount values_seen;
-    values_seen = build_numeric_ranges(result, spy0.get_values(), num_ranges);
-
-Here, ``result`` will be filled with a set of numeric ranges (holding at most
-``num_ranges`` ranges), and ``values_seen`` will be the count of the number of
-values seen (note - this may be different from the number of documents seen by
-the matchspy, since some may have no value stored in the slot).
-
-If there are no values seen by the spy, ``result`` will be empty.  If all the
-values seen by the spy are the same, ``result`` will contain a single entry,
-with a single range with the same start and end points.
-
 Restricting by category values
 ------------------------------
 
 If you're using the categorisation to offer the user choices for narrowing down
 their search results, you then need to be able to apply a suitable filter.
 
-For a range, the easiest way is to use ``Xapian::Query::OP_VALUE_RANGE`` to
-build a filter query, and then combine this with the user's query using
-``Xapian::Query::OP_FILTER``.
-
 For a single value, you could use ``Xapian::Query::OP_VALUE_RANGE`` with the
 same start and end, or ``Xapian::MatchDecider``, but it's probably most
 efficient to also index the categories as suitably prefixed boolean terms and
 use those for filtering.
-
-Current Limitations
-===================
-
-It's not currently possible to build logarithmic ranges with
-``build_numeric_ranges``.
