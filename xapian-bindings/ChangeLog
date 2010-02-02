@@ -1,3 +1,10 @@
+Tue Feb 02 17:59:15 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am: Add a couple of missing assemblys to the
+	  list.
+	* python/pythontest2.py: Use UnbiasedNumericRanges for the test
+	  instead of the now-empty NumericRanges base class.
+
 Sun Aug 02 09:06:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/util.i: Use getters to access members of
