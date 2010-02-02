@@ -1,3 +1,8 @@
+Tue Feb 02 15:22:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am: Remove one more reference to NumericRange
+	  which slipped through the net.
+
 Tue Feb 02 15:18:57 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,xapian.i:
