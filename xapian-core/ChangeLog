@@ -1,3 +1,8 @@
+Tue Feb 02 07:44:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* AUTHORS: Add Henry Combrinck for Search::Xapian patches.
+
 Tue Feb 02 07:41:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
