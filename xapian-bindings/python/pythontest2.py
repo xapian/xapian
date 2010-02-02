@@ -1331,13 +1331,6 @@ def test_matchspy():
            (xapian.sortable_serialise(2), 2),
            (xapian.sortable_serialise(1.5), 1),
     ])
-    ranges = xapian.NumericRanges(spy.get_values(), 5)
-    expect(ranges.get_values_seen(), 3)
-    expect(ranges.get_ranges_as_dict(), {(1.5, 1.5): 1, (2.0, 2.0): 2})
-
-    ranges = xapian.NumericRanges(spy.get_values(), 1)
-    expect(ranges.get_values_seen(), 3)
-    expect(ranges.get_ranges_as_dict(), {(1.5, 2): 3})
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

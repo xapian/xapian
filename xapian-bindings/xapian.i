@@ -481,7 +481,6 @@ class Enquire {
 %ignore Xapian::Weight::init_;
 %include <xapian/weight.h>
 
-%ignore Xapian::NumericRange::operator<;
 %include <xapian/matchspy.h>
 
 namespace Xapian {
