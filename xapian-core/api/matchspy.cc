@@ -396,9 +396,9 @@ struct bucketval {
     }
 };
 
-NumericRanges::NumericRanges(const map<string, doccount> & values,
-			     size_t max_ranges)
-	: values_seen(0)
+UnbiasedNumericRanges::UnbiasedNumericRanges(
+	const map<string, doccount> & values, size_t max_ranges)
+	: NumericRanges()
 {
     double lo = DBL_MAX, hi = -DBL_MAX;
 

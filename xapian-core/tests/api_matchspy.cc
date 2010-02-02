@@ -272,7 +272,7 @@ DEFINE_TESTCASE(matchspy3, writable)
     spies.push_back(&spy2);
     spies.push_back(&spy3);
     for (Xapian::valueno v = 0; !results[v].empty(); ++v) {
-	Xapian::NumericRanges ranges(spies[v]->get_values(), 7);
+	Xapian::UnbiasedNumericRanges ranges(spies[v]->get_values(), 7);
 	if (results[v] == "|") {
 	    TEST_EQUAL(ranges.get_values_seen(), 0);
 	    continue;
@@ -514,7 +514,7 @@ DEFINE_TESTCASE(numericrange2, writable)
     enq.add_matchspy(&spy);
     enq.get_mset(0, 10);
 
-    Xapian::NumericRanges ranges(spy.get_values(), 1000);
+    Xapian::UnbiasedNumericRanges ranges(spy.get_values(), 1000);
     const std::map<Xapian::NumericRange, Xapian::doccount> & r = ranges.get_ranges();
 
     TEST_EQUAL(r.size(), 3);

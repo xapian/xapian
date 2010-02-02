@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -417,8 +418,17 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRange {
 };
 
 
-/// A set of numeric ranges, with corresponding frequencies.
+/** A set of numeric ranges, with corresponding frequencies.
+ *
+ *  For "continuous" values (such as price, height, weight, etc), there will
+ *  usually be too many different values to offer the user, and the user won't
+ *  want to restrict to an exact value anyway.  The NumericRanges class
+ *  represents a set non-overlapping ranges of numbers, and the various
+ *  subclasses provide ways of converting a list of occurrences of numeric
+ *  values into a manageable number of NumericRanges.
+ */
 class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
+  protected:
     /** The ranges of values, together with the frequency sum of each range.
      */
     std::map<Xapian::NumericRange, Xapian::doccount> ranges;
@@ -433,28 +443,28 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
     /// Construct an empty NumericRanges object.
     NumericRanges() : values_seen(0) {}
 
-    /** Construct a NumericRanges from values and a target number of ranges.
-     *
-     *  The values supplied should be sort-encoded numeric values.
-     *
-     *  For "continuous" values (such as price, height, weight, etc), there
-     *  will usually be too many different values to offer the user, and the
-     *  user won't want to restrict to an exact value anyway.
-     *
-     *  This method produces a set of NumericRange objects for a particular
-     *  value number.
-     *
-     *  @param values     The values representing the initial numbers.
-     *  @param max_ranges Group into at most this many ranges.
-     */
-    NumericRanges(const std::map<std::string, Xapian::doccount> & values,
-		  size_t max_ranges);
-
     /// Get the number of values seen.
     doccount get_values_seen() const { return values_seen; }
 
     /// Get the ranges.
     const std::map<Xapian::NumericRange, Xapian::doccount> & get_ranges() const { return ranges; }
+};
+
+
+/** Numeric ranges, evenly spread.
+ */
+class XAPIAN_VISIBILITY_DEFAULT UnbiasedNumericRanges : public NumericRanges {
+  public:
+    /** Construct UnbiasedNumericRanges from values and a target number of
+     *  ranges.
+     *
+     *  The values supplied should be sort-encoded numeric values.
+     *
+     *  @param values     The input numbers.
+     *  @param max_ranges Group into at most this many ranges.
+     */
+    UnbiasedNumericRanges(const std::map<std::string, Xapian::doccount> & values,
+			  size_t max_ranges);
 };
 
 

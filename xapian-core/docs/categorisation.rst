@@ -102,18 +102,17 @@ future if we find a better algorithm).
 You can build ranges from numeric values for the values returned from spy
 ``spy0``, asking for at most ``num_ranges`` ranges like so::
 
-    std::map<Xapian::NumericRange, Xapian::doccount> result;
-    Xapian::doccount values_seen;
-    values_seen = build_numeric_ranges(result, spy0.get_values(), num_ranges);
+    Xapian::UnbiasedNumericRanges ranges(spy0.get_values(), num_ranges);
 
-Here, ``result`` will be filled with a set of numeric ranges (holding at most
-``num_ranges`` ranges), and ``values_seen`` will be the count of the number of
-values seen (note - this may be different from the number of documents seen by
-the matchspy, since some may have no value stored in the slot).
+Here, ``ranges.get_ranges()`` will be return the numeric ranges (at most
+``num_ranges`` of them), and ``ranges.get_values_seen()`` will return a count
+of the number of values seen (note - this may be different from the number of
+documents seen by the matchspy, since some documents may have no value stored
+in the slot).
 
-If there are no values seen by the spy, ``result`` will be empty.  If all the
-values seen by the spy are the same, ``result`` will contain a single entry,
-with a single range with the same start and end points.
+If there are no values seen by the spy, ``ranges.get_ranges()`` will be empty.
+If all the values seen by the spy are the same, ``ranges.get_ranges()`` will
+contain a single entry, for a single range with the same start and end points.
 
 Restricting by category values
 ------------------------------
@@ -133,5 +132,5 @@ use those for filtering.
 Current Limitations
 ===================
 
-It's not currently possible to build logarithmic ranges with
-``build_numeric_ranges``.
+It's not currently possible to build logarithmic ranges, or to build ranges
+with nicely rounded end points.
