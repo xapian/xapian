@@ -224,6 +224,18 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Tue Feb 02 01:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* docs/replication.rst: Add note about not using reopen() with
+	  databases being updated by the replication client.
+
+Tue Feb 02 01:17:34 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,docs/categorisation.rst,include/xapian/matchspy.h,
+	  tests/api_matchspy.cc: Remove score_evenness(), since it turned
+	  out to be of little or no use in practical situations.  See
+	  ticket #435 for more details.
+
 Mon Feb 01 21:53:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/chert/chert_table.cc: Use
