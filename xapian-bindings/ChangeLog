@@ -1,3 +1,9 @@
+Tue Feb 02 14:05:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: replicationtest.py should be working now, so
+	  re-enable it.  If it still fails occasionally, I'd like to
+	  investigate why; it works for me.
+
 Tue Feb 02 14:03:26 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/replicationtest2.py: Fix the replication test to work; was
