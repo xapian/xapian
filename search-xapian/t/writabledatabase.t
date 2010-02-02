@@ -6,7 +6,7 @@
 
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 34;
+plan tests => 35;
 
 use Search::Xapian qw(:standard);
 
@@ -185,5 +185,12 @@ $write->flush();
 is($write->get_doccount(), 0, 'check WritableDatabase after deleting all documents');
 ok(!$write->term_exists($delterm), 'check term exists after deleting all documents');
 is($write->get_termfreq($delterm), 0, 'check term frequency after deleting all documents');
+
+$write->close();
+eval {
+  # Should fail because the database has been closed.
+  $write->add_document(Search::Xapian::Document->new());
+};
+ok( $@ );
 
 1;

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -42,6 +42,7 @@ using namespace std;
 #include "serialise-double.h"
 #include "str.h"
 #include "utils.h"
+#include "pack.h"
 
 static bool test_except1()
 {
@@ -582,6 +583,25 @@ static bool test_strbool1()
     return true;
 }
 
+/// Test pack_uint_preserving_sort()
+static bool test_pack_uint_preserving_sort1()
+{
+    string prev_packed;
+    for (unsigned int i = 0; i != 1000; ++i) {
+	string packed;
+	pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests					    #
 // ##################################################################
@@ -606,6 +626,7 @@ static const test_desc tests[] = {
 #endif
     {"static_assert1",		test_static_assert1},
     {"strbool1",		test_strbool1},
+    {"pack1",			test_pack_uint_preserving_sort1},
     {0, 0}
 };
 

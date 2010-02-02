@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -788,14 +788,27 @@ just_had_synonym_operator:
 			// Drop out of IN_GROUP if we're in it.
 			if (mode == IN_GROUP)
 			    mode = DEFAULT;
-			// Can't boolean filter prefix a subexpression or
-			// phrase; just use anything following the prefix
-			// until the next space or ')' as part of the boolean
-			// filter term.
 			it = p;
 			string name;
-			while (it != end && *it > ' ' && *it != ')')
-			    Unicode::append_utf8(name, *it++);
+			if (it != end && *it == '"') {
+			    // Quoted boolean term (can contain any character).
+			    ++it;
+			    while (it != end) {
+				if (*it == '"') {
+				    // Interpret "" as an escaped ".
+				    if (++it == end || *it != '"')
+					break;
+				}
+				Unicode::append_utf8(name, *it++);
+			    }
+			} else {
+			    // Can't boolean filter prefix a subexpression, so
+			    // just use anything following the prefix until the
+			    // next space or ')' as part of the boolean filter
+			    // term.
+			    while (it != end && *it > ' ' && *it != ')')
+				Unicode::append_utf8(name, *it++);
+			}
 			// Build the unstemmed form in field.
 			field += ':';
 			field += name;

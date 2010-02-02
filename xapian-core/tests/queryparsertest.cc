@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -152,6 +152,10 @@ static const test test_or_queries[] = {
     { "category:Foo", "0 * XCAT:Foo" },
     { "category:foo", "0 * XCATfoo" },
     { "category:\xc3\x96oo", "0 * XCAT\xc3\x96oo" },
+    // Feature tests for quoted boolean terms:
+    { "category:\"Hello world\"", "0 * XCAT:Hello world" },
+    { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
+    { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },

@@ -1,7 +1,8 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +25,7 @@
 #include "api_compact.h"
 
 #include "apitest.h"
+#include "dbcheck.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -179,6 +181,65 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     rm_rf(out);
     status = system(cmd + b + a + d + out);
     TEST_NOT_EQUAL(WEXITSTATUS(status), 0);
+
+    return true;
+}
+
+// Test use of compact to merge two databases.
+DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
+    int status;
+
+    string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";
+    string indbpath = get_database_path("apitest_simpledata") + ' ';
+    string outdbpath = get_named_writable_database_path("compactmerge1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indbpath + indbpath + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(get_database("apitest_simpledata"));
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+static void
+make_multichunk_db(Xapian::WritableDatabase &db, const string &)
+{
+    int count = 10000;
+
+    Xapian::Document doc;
+    doc.add_term("a");
+    while (count) {
+	db.add_document(doc);
+	--count;
+    }
+
+    db.commit();
+}
+
+// Test use of compact on a database which has multiple chunks for a term.
+// This is a regression test for ticket #427
+DEFINE_TESTCASE(compactmultichunks1, brass || chert || flint) {
+    int status;
+
+    string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";
+    string indbpath = get_database_path("compactmultichunks1in",
+					make_multichunk_db, "");
+    string outdbpath = get_named_writable_database_path("compactmultichunks1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indbpath + ' ' + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(indbpath);
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
     return true;
 }
