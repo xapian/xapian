@@ -1,3 +1,9 @@
+Tue Feb 02 17:01:23 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/document.h: Add a note to the API documentation
+	  for the Document class about the potential issues involved in
+	  lazy loading.  Fixes ticket #421.
+
 Tue Feb 02 16:21:39 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* docs/categorisation.rst: Remove documentation of NumericRanges
