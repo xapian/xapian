@@ -3,6 +3,7 @@
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -257,30 +258,32 @@ DEFINE_TESTCASE(matchspy4, writable)
     spies.push_back(&spyb3);
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	tout << "value " << v << endl;
-	std::vector<Xapian::StringAndFrequency> allvals;
-
 	Xapian::ValueCountMatchSpy * spy = spies[v];
-	if (spy != NULL)
-	    spy->get_top_values(allvals, 100);
 	string allvals_str("|");
-	for (size_t i = 0; i < allvals.size(); ++i) {
-	    allvals_str += allvals[i].get_string();
-	    allvals_str += ':';
-	    allvals_str += str(allvals[i].get_frequency());
-	    allvals_str += '|';
-	}
-	tout << allvals_str << endl;
-	TEST_STRINGS_EQUAL(allvals_str, results[v]);
+	if (spy != NULL) {
+	    size_t allvals_size = 0;
+	    for (Xapian::TermIterator i = spy->top_values_begin(100);
+		 i != spy->top_values_end(100);
+		 ++i, ++allvals_size) {
+		allvals_str += *i;
+		allvals_str += ':';
+		allvals_str += str(i.get_termfreq());
+		allvals_str += '|';
+	    }
+	    tout << allvals_str << endl;
+	    TEST_STRINGS_EQUAL(allvals_str, results[v]);
 
-	std::vector<Xapian::StringAndFrequency> vals;
-	for (size_t i = 0; i < allvals.size(); ++i) {
-	    tout << "i " << i << endl;
-	    if (spy != NULL)
-		spy->get_top_values(vals, i);
-	    for (size_t j = 0; j < vals.size(); j++) {
-		tout << "j " << j << endl;
-		TEST_EQUAL(vals[j].get_string(), allvals[j].get_string());
-		TEST_EQUAL(vals[j].get_frequency(), allvals[j].get_frequency());
+	    for (size_t count = 0; count < allvals_size; ++count) {
+		tout << "count " << count << endl;
+		for (Xapian::TermIterator i = spy->top_values_begin(100),
+		     j = spy->top_values_begin(count);
+		     i != spy->top_values_end(100) &&
+		     j != spy->top_values_end(count);
+		     ++i, ++j) {
+		    tout << "j " << j << endl;
+		    TEST_EQUAL(*i, *j);
+		    TEST_EQUAL(i.get_termfreq(), j.get_termfreq());
+		}
 	    }
 	}
     }

@@ -1,3 +1,14 @@
+Wed Feb 03 13:18:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/matchspy.h,tests/api_matchspy.cc: Provide an
+	  iterator for accessing the top values found by a matchspy, rather
+	  than using a method which takes a vector reference as a
+	  parameter.  Should be wrappable much more nicely (and get wrapped
+	  automatically), and be easier to use: the testcase for this is
+	  significantly shorter than for the old API.  Remove
+	  StringAndFrequency from API - it's now just an internal class.
+	* api/matchspy.cc: Test new access method for top_values.
+
 Wed Feb 03 06:46:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Emmanuel Engelhart for reporting problems indexing

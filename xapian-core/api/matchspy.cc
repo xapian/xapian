@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,13 +38,13 @@
 #include "serialise.h"
 #include "stringutils.h"
 #include "str.h"
+#include "termlist.h"
 
 #include <cfloat>
 #include <cmath>
 
 using namespace std;
-
-namespace Xapian {
+using namespace Xapian;
 
 MatchSpy::~MatchSpy() {}
 
@@ -82,6 +83,27 @@ MatchSpy::get_description() const {
     return "Xapian::MatchSpy()";
 }
 
+XAPIAN_NORETURN(static void unsupported_method());
+static void unsupported_method() {
+    throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
+}
+
+/** A string with a corresponding frequency.
+ */
+class StringAndFrequency {
+    std::string str;
+    Xapian::doccount frequency;
+  public:
+    /// Construct a StringAndFrequency object.
+    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
+	    : str(str_), frequency(frequency_) {}
+
+    /// Return the string.
+    std::string get_string() const { return str; }
+
+    /// Return the frequency.
+    Xapian::doccount get_frequency() const { return frequency; }
+};
 
 /** Compare two StringAndFrequency objects.
  *
@@ -102,6 +124,56 @@ class StringAndFreqCmpByFreq {
 	if (a.get_string() > b.get_string()) return false;
 	return true;
     }
+};
+
+class StringAndFreqTermList : public TermList {
+  private:
+    vector<StringAndFrequency>::const_iterator it;
+  public:
+    vector<StringAndFrequency> values;
+    bool started;
+
+    /** init should be called after the values have been set, but before
+     *  iteration begins.
+     */
+    void init() {
+	it = values.begin();
+	started = false;
+    }
+
+    string get_termname() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->get_string();
+    }
+
+    Xapian::doccount get_termfreq() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->get_frequency();
+    }
+
+    TermList * next() {
+	if (!started) {
+	    started = true;
+	} else {
+	    Assert(!at_end());
+	    it++;
+	}
+	return NULL;
+    }
+
+    bool at_end() const {
+	Assert(started);
+	return it == values.end();
+    }
+
+    Xapian::termcount get_approx_size() const { unsupported_method(); }
+    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::PositionIterator positionlist_begin() const {
+	unsupported_method();
+    }
+    Xapian::termcount positionlist_count() const { unsupported_method(); }
 };
 
 /** Get the most frequent items from a map from string to frequency.
@@ -163,11 +235,13 @@ ValueCountMatchSpy::operator()(const Document &doc, weight) {
     if (!val.empty()) ++values[val];
 }
 
-void
-ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
-				   size_t maxvalues) const
+TermIterator
+ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
-    get_most_frequent_items(result, values, maxvalues);
+    AutoPtr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
+    get_most_frequent_items(termlist->values, values, maxvalues);
+    termlist->init();
+    return Xapian::TermIterator(termlist.release());
 }
 
 MatchSpy *
@@ -241,6 +315,4 @@ string
 ValueCountMatchSpy::get_description() const {
     return "Xapian::ValueCountMatchSpy(" + str(total) +
 	    " docs seen, looking in " + str(values.size()) + " slots)";
-}
-
 }

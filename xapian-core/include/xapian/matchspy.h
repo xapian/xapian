@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +24,7 @@
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
 #include <xapian/enquire.h>
+#include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -157,24 +159,6 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 };
 
 
-/** A string with a corresponding frequency.
- */
-class XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
-    std::string str;
-    Xapian::doccount frequency;
-  public:
-    /// Construct a StringAndFrequency object.
-    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
-	    : str(str_), frequency(frequency_) {}
-
-    /// Return the string.
-    std::string get_string() const { return str; }
-
-    /// Return the frequency.
-    Xapian::doccount get_frequency() const { return frequency; }
-};
-
-
 /** Class for counting the frequencies of values in the matching documents.
  *
  *  Warning: this API is currently experimental, and is liable to change
@@ -210,17 +194,22 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	return total;
     }
 
-    /** Get the most frequent values in the slot.
+    /** Get an iterator over the most frequent values seen in the slot.
      *
-     *  @param result A vector which will be filled with the most frequent
-     *                values, in descending order of frequency.  Values with
-     *                the same frequency will be sorted in ascending
-     *                alphabetical order.
+     *  Items will be returned in descending order of frequency.  Values with
+     *  the same frequency will be returned in ascending alphabetical order.
+     *
+     *  During the iteration, the frequency of the current value can be
+     *  obtained with the get_termfreq() method on the iterator.
      *
      *  @param maxvalues The maximum number of values to return.
      */
-    void get_top_values(std::vector<StringAndFrequency> & result,
-			size_t maxvalues) const;
+    TermIterator top_values_begin(size_t maxvalues) const;
+
+    /** End iterator corresponding to top_values_begin() */
+    TermIterator top_values_end(size_t) const {
+	return TermIterator(NULL);
+    }
 
     /** Implementation of virtual operator().
      *
