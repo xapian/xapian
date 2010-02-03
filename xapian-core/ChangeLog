@@ -1,3 +1,13 @@
+Wed Feb 03 06:32:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,queryparser/queryparser.lemony,
+	  queryparser/termgenerator_internal.cc: Add ENCLOSING_MARK and
+	  COMBINING_SPACING_MARK categories to is_wordchar().  Make
+	  TermGenerator and QueryParser ignore several zero-width space
+	  characters.
+	* tests/queryparsertest.cc,tests/termgentest.cc: Add test coverage for
+	  the changes.
+
 Wed Feb 03 03:14:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix apostrophe abuse in comment.
