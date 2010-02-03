@@ -217,48 +217,6 @@ value_map_to_dict(const std::map<std::string, Xapian::doccount> & vals)
 }
 %}
 
-/** Typemap pair for getting the return value from @a ValueCountMatchSpy::get_top_values().
- */
-%typemap(in, numinputs=0) std::vector<Xapian::StringAndFrequency> & result (std::vector<Xapian::StringAndFrequency> temp) {
-    $1 = &temp;
-}
-%typemap(argout) std::vector<Xapian::StringAndFrequency> & result {
-    Py_DECREF($result);
-    $result = PyList_New($1->size());
-    size_t pos = 0;
-    for (std::vector<Xapian::StringAndFrequency>::const_iterator i = $1->begin();
-         i != $1->end(); ++i) {
-        PyObject * str = PyString_FromStringAndSize((*i).get_string().data(),
-                                                    (*i).get_string().size());
-	if (str == 0) {
-            Py_DECREF($result);
-            $result = NULL;
-            SWIG_fail;
-        }
-
-        PyObject * l = PyInt_FromLong((*i).get_frequency());
-	if (l == 0) {
-            Py_DECREF($result);
-            Py_DECREF(str);
-            $result = NULL;
-            SWIG_fail;
-        }
-
-	PyObject *t = PyTuple_New(2);
-	if (t == 0) {
-            Py_DECREF($result);
-            Py_DECREF(str);
-            Py_DECREF(l);
-            $result = NULL;
-            SWIG_fail;
-        }
-        PyTuple_SetItem(t, 0, str);
-        PyTuple_SetItem(t, 1, l);
-
-        PyList_SetItem($result, pos++, t);
-    }
-}
-
 %typedef PyObject *LangSpecificListType;
 
 %inline %{

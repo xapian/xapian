@@ -182,8 +182,14 @@ CLEAN :
     -@erase api_all.h
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
-    if exist ".flint" rmdir ".flint" /s /q
+    if exist ".stub" rmdir ".stub" /s /q
     if exist ".quartz" rmdir ".quartz" /s /q
+    if exist ".flint" rmdir ".flint" /s /q
+    if exist ".chert" rmdir ".chert" /s /q
+    if exist ".brass" rmdir ".brass" /s /q
+    if exist ".multiflint" rmdir ".multiflint" /s /q
+    if exist ".multichert" rmdir ".multichert" /s /q
+    if exist ".multibrass" rmdir ".multibrass" /s /q
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
     
     

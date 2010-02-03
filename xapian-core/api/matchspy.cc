@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,13 +38,13 @@
 #include "serialise.h"
 #include "stringutils.h"
 #include "str.h"
+#include "termlist.h"
 
 #include <cfloat>
 #include <cmath>
 
 using namespace std;
-
-namespace Xapian {
+using namespace Xapian;
 
 MatchSpy::~MatchSpy() {}
 
@@ -82,6 +83,10 @@ MatchSpy::get_description() const {
     return "Xapian::MatchSpy()";
 }
 
+XAPIAN_NORETURN(static void unsupported_method());
+static void unsupported_method() {
+    throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
+}
 
 void
 StringListSerialiser::append(const string & value)
@@ -110,6 +115,71 @@ StringListUnserialiser::read_next()
 }
 
 
+/// A termlist iterator over the contents of a ValueCountMatchSpy
+class ValueCountTermList : public TermList {
+  private:
+    map<string, Xapian::doccount>::const_iterator it;
+    bool started;
+    Xapian::Internal::RefCntPtr<Xapian::ValueCountMatchSpy::Internal> spy;
+  public:
+
+    ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_) {
+	it = spy->values.begin();
+	started = false;
+    }
+
+    string get_termname() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->first;
+    }
+
+    Xapian::doccount get_termfreq() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->second;
+    }
+
+    TermList * next() {
+	if (!started) {
+	    started = true;
+	} else {
+	    Assert(!at_end());
+	    ++it;
+	}
+	return NULL;
+    }
+
+    bool at_end() const {
+	Assert(started);
+	return it == spy->values.end();
+    }
+
+    Xapian::termcount get_approx_size() const { unsupported_method(); }
+    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::PositionIterator positionlist_begin() const {
+	unsupported_method();
+    }
+    Xapian::termcount positionlist_count() const { unsupported_method(); }
+};
+
+/** A string with a corresponding frequency.
+ */
+class StringAndFrequency {
+    std::string str;
+    Xapian::doccount frequency;
+  public:
+    /// Construct a StringAndFrequency object.
+    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
+	    : str(str_), frequency(frequency_) {}
+
+    /// Return the string.
+    std::string get_string() const { return str; }
+
+    /// Return the frequency.
+    Xapian::doccount get_frequency() const { return frequency; }
+};
+
 /** Compare two StringAndFrequency objects.
  *
  *  The comparison is firstly by frequency (higher is better), then by string
@@ -129,6 +199,57 @@ class StringAndFreqCmpByFreq {
 	if (a.get_string() > b.get_string()) return false;
 	return true;
     }
+};
+
+/// A termlist iterator over a vector of StringAndFrequency objects.
+class StringAndFreqTermList : public TermList {
+  private:
+    vector<StringAndFrequency>::const_iterator it;
+    bool started;
+  public:
+    vector<StringAndFrequency> values;
+
+    /** init should be called after the values have been set, but before
+     *  iteration begins.
+     */
+    void init() {
+	it = values.begin();
+	started = false;
+    }
+
+    string get_termname() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->get_string();
+    }
+
+    Xapian::doccount get_termfreq() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->get_frequency();
+    }
+
+    TermList * next() {
+	if (!started) {
+	    started = true;
+	} else {
+	    Assert(!at_end());
+	    ++it;
+	}
+	return NULL;
+    }
+
+    bool at_end() const {
+	Assert(started);
+	return it == values.end();
+    }
+
+    Xapian::termcount get_approx_size() const { unsupported_method(); }
+    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::PositionIterator positionlist_begin() const {
+	unsupported_method();
+    }
+    Xapian::termcount positionlist_count() const { unsupported_method(); }
 };
 
 /** Get the most frequent items from a map from string to frequency.
@@ -185,21 +306,30 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 
 void
 ValueCountMatchSpy::operator()(const Document &doc, weight) {
-    ++total;
-    string val(doc.get_value(slot));
-    if (!val.empty()) ++values[val];
+    ++(internal->total);
+    string val(doc.get_value(internal->slot));
+    if (!val.empty()) ++(internal->values[val]);
 }
 
-void
-ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
-				   size_t maxvalues) const
+TermIterator
+ValueCountMatchSpy::values_begin() const
 {
-    get_most_frequent_items(result, values, maxvalues);
+    AutoPtr<ValueCountTermList> termlist(new ValueCountTermList(internal.get()));
+    return Xapian::TermIterator(termlist.release());
+}
+
+TermIterator
+ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
+{
+    AutoPtr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
+    get_most_frequent_items(termlist->values, internal->values, maxvalues);
+    termlist->init();
+    return Xapian::TermIterator(termlist.release());
 }
 
 MatchSpy *
 ValueCountMatchSpy::clone() const {
-    return new ValueCountMatchSpy(slot);
+    return new ValueCountMatchSpy(internal->slot);
 }
 
 string
@@ -210,7 +340,7 @@ ValueCountMatchSpy::name() const {
 string
 ValueCountMatchSpy::serialise() const {
     string result;
-    result += encode_length(slot);
+    result += encode_length(internal->slot);
     return result;
 }
 
@@ -232,10 +362,10 @@ string
 ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
     string result;
-    result += encode_length(total);
-    result += encode_length(values.size());
-    for (map<string, doccount>::const_iterator i = values.begin();
-	 i != values.end(); ++i) {
+    result += encode_length(internal->total);
+    result += encode_length(internal->values.size());
+    for (map<string, doccount>::const_iterator i = internal->values.begin();
+	 i != internal->values.end(); ++i) {
 	result += encode_length(i->first.size());
 	result += i->first;
 	result += encode_length(i->second);
@@ -249,7 +379,7 @@ ValueCountMatchSpy::merge_results(const string & s) {
     const char * p = s.data();
     const char * end = p + s.size();
 
-    total += decode_length(&p, end, false);
+    internal->total += decode_length(&p, end, false);
 
     map<string, doccount>::size_type items = decode_length(&p, end, false);
     while (p != end) {
@@ -258,7 +388,7 @@ ValueCountMatchSpy::merge_results(const string & s) {
 	    string val(p, vallen);
 	    p += vallen;
 	    doccount freq = decode_length(&p, end, false);
-	    values[val] += freq;
+	    internal->values[val] += freq;
 	    --items;
 	}
     }
@@ -266,25 +396,25 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
 string
 ValueCountMatchSpy::get_description() const {
-    return "Xapian::ValueCountMatchSpy(" + str(total) +
-	    " docs seen, looking in " + str(values.size()) + " slots)";
+    return "Xapian::ValueCountMatchSpy(" + str(internal->total) +
+	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
 }
 
 
 void
 MultiValueCountMatchSpy::operator()(const Document &doc, weight) {
-    ++total;
-    StringListUnserialiser i(doc.get_value(slot));
+    ++internal->total;
+    StringListUnserialiser i(doc.get_value(internal->slot));
     StringListUnserialiser end;
     for (; i != end; ++i) {
 	string val(*i);
-	if (!val.empty()) ++values[val];
+	if (!val.empty()) ++internal->values[val];
     }
 }
 
 MatchSpy *
 MultiValueCountMatchSpy::clone() const {
-    return new MultiValueCountMatchSpy(slot);
+    return new MultiValueCountMatchSpy(internal->slot);
 }
 
 string
@@ -295,7 +425,7 @@ MultiValueCountMatchSpy::name() const {
 string
 MultiValueCountMatchSpy::serialise() const {
     string result;
-    result += encode_length(slot);
+    result += encode_length(internal->slot);
     return result;
 }
 
@@ -315,8 +445,8 @@ MultiValueCountMatchSpy::unserialise(const string & s,
 
 string
 MultiValueCountMatchSpy::get_description() const {
-    return "Xapian::MultiValueCountMatchSpy(" + str(total) +
-	    " docs seen, looking in " + str(values.size()) + " slots)";
+    return "Xapian::MultiValueCountMatchSpy(" + str(internal->total) +
+	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
 }
 
 
@@ -357,25 +487,25 @@ do_score_evenness(const map<T, doccount> & values,
     return score;
 }
 
-double score_evenness(const map<string, doccount> & values,
-		      doccount total,
-		      double desired_no_of_categories) {
+double Xapian::score_evenness(const map<string, doccount> & values,
+			      doccount total,
+			      double desired_no_of_categories) {
     return do_score_evenness(values, total, desired_no_of_categories);
 }
 
-double score_evenness(const map<NumericRange, doccount> & values,
-		      doccount total,
-		      double desired_no_of_categories) {
+double Xapian::score_evenness(const map<NumericRange, doccount> & values,
+			      doccount total,
+			      double desired_no_of_categories) {
     return do_score_evenness(values, total, desired_no_of_categories);
 }
 
-double score_evenness(const ValueCountMatchSpy & spy,
-		      double desired_no_of_categories) {
+double Xapian::score_evenness(const ValueCountMatchSpy & spy,
+			      double desired_no_of_categories) {
     return do_score_evenness(spy.get_values(), spy.get_total(),
 			     desired_no_of_categories);
 }
-double score_evenness(const NumericRanges & ranges,
-		      double desired_no_of_categories) {
+double Xapian::score_evenness(const NumericRanges & ranges,
+			      double desired_no_of_categories) {
     return do_score_evenness(ranges.get_ranges(), ranges.get_values_seen(),
 			     desired_no_of_categories);
 }
@@ -469,6 +599,4 @@ UnbiasedNumericRanges::UnbiasedNumericRanges(
     }
 
     values_seen = total_set;
-}
-
 }

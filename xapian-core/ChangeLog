@@ -234,6 +234,75 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Wed Feb 03 15:01:36 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Add ValueCountMatchSpy::values_begin() and values_end() to allow
+	  iteration over all the values in a ValueCountMatchSpy without
+	  needing to handle the dict.  Move the contents of
+	  ValueCountMatchSpy into a reference counted internal object, so
+	  that the iterator can ensure that the contents aren't deleted
+	  before it finishes.
+
+Wed Feb 03 15:01:02 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/generate-api_generated: Add ValueCountMatchSpy to the list
+	  of non-copyable API classes.
+
+Wed Feb 03 13:18:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/matchspy.h,tests/api_matchspy.cc: Provide an
+	  iterator for accessing the top values found by a matchspy, rather
+	  than using a method which takes a vector reference as a
+	  parameter.  Should be wrappable much more nicely (and get wrapped
+	  automatically), and be easier to use: the testcase for this is
+	  significantly shorter than for the old API.  Remove
+	  StringAndFrequency from API - it's now just an internal class.
+	* api/matchspy.cc: Test new access method for top_values.
+
+Wed Feb 03 06:46:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Emmanuel Engelhart for reporting problems indexing
+	  Burmese text.
+
+Wed Feb 03 06:32:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,queryparser/queryparser.lemony,
+	  queryparser/termgenerator_internal.cc: Add ENCLOSING_MARK and
+	  COMBINING_SPACING_MARK categories to is_wordchar().  Make
+	  TermGenerator and QueryParser ignore several zero-width space
+	  characters.
+	* tests/queryparsertest.cc,tests/termgentest.cc: Add test coverage for
+	  the changes.
+
+Wed Feb 03 03:14:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix apostrophe abuse in comment.
+
+Wed Feb 03 01:23:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Make TermList::as_opwindow_query()
+	  private.
+
+Wed Feb 03 01:19:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replication.h: Use "" not <> for including API headers.
+
+Wed Feb 03 01:08:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replication.h: Remove warnings about this being an
+	  experimental API, which no longer make sense now it is internal.
+
+Tue Feb 02 21:59:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Remove DatabaseReplica.
+
+Tue Feb 02 17:01:23 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/document.h: Add a note to the API documentation
+	  for the Document class about the potential issues involved in
+	  lazy loading.  Fixes ticket #421.
+
 Tue Feb 02 16:21:39 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* docs/categorisation.rst: Remove documentation of NumericRanges

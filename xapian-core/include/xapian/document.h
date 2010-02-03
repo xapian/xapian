@@ -35,7 +35,22 @@
 
 namespace Xapian {
 
-/// A document in the database - holds data, values, terms, and postings
+/** A document in the database - holds data, values, terms, and postings
+ *
+ *  Documents obtained from databases are lazily loaded.  This is normally
+ *  invisible to users (other than by analysing performance), but in the rare
+ *  situation that a Document is obtained from a WritableDatabase, and the
+ *  underlying stored contents in the database are then changed before the
+ *  Document object reads its data, the new version of the contents will be
+ *  loaded.
+ *
+ *  Since there can only be a single writer open at a time, this change can
+ *  only happen if the modification is made through the same WritableDatabase
+ *  object that the Document was obtained from.  This is generally easy to
+ *  avoid, but an alternative is to force a Document to load its contents
+ *  fully.  The easiest way to guarantee this is to call the
+ *  Document::serialise() method.
+ */
 class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;

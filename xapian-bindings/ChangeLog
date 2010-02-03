@@ -41,6 +41,35 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Wed Feb 03 15:17:27 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Wrap and test
+	  ValueCountMatchSpy::values_begin() and values_end() for ruby.
+
+Wed Feb 03 15:11:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/docs/index.html: Document ValueCountMatchSpy.values() and
+	  top_values().
+
+Wed Feb 03 15:09:09 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i,python/pythontest2.py: Wrap the
+	  ValueCountMatchSpy::values_begin() and values_end() methods as a
+	  values() pythonic iterator.
+
+Wed Feb 03 13:37:22 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/util.i: Remove unused typemap pair which was used for
+	  wrapping the old ValueCountMatchSpy::get_top_values() method.
+
+Wed Feb 03 13:22:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Update to add
+	  support and tests for the new TermIterator-based
+	  ValueCountMatchSpy::top_values methods.  Also for the removal of
+	  StringAndFrequency from the API.
+
 Tue Feb 02 15:28:28 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/Makefile.am: Comment out replicationtest by default again;

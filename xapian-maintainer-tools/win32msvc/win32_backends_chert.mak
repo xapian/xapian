@@ -25,7 +25,6 @@ OBJS= \
                 $(INTDIR)\chert_dbstats.obj\
                 $(INTDIR)\chert_document.obj\
                 $(INTDIR)\chert_io.obj\
-                $(INTDIR)\chert_lock.obj\
                 $(INTDIR)\chert_metadata.obj\
                 $(INTDIR)\chert_modifiedpostlist.obj\
                 $(INTDIR)\chert_positionlist.obj\
@@ -52,7 +51,6 @@ SRCS= \
                 $(INTDIR)\chert_dbstats.cc\
                 $(INTDIR)\chert_document.cc\
                 $(INTDIR)\chert_io.cc\
-                $(INTDIR)\chert_lock.cc\
                 $(INTDIR)\chert_metadata.cc\
                 $(INTDIR)\chert_modifiedpostlist.cc\
                 $(INTDIR)\chert_positionlist.cc\

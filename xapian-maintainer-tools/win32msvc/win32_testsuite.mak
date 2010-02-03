@@ -21,6 +21,7 @@ OBJS= \
         $(INTDIR)\testutils.obj \
         $(INTDIR)\backendmanager.obj \
         $(INTDIR)\backendmanager_flint.obj \
+        $(INTDIR)\backendmanager_brass.obj \
         $(INTDIR)\backendmanager_chert.obj \
         $(INTDIR)\backendmanager_inmemory.obj \
         $(INTDIR)\backendmanager_multi.obj \
@@ -37,6 +38,7 @@ SRCS= \
         $(INTDIR)\testutils.cc \
         $(INTDIR)\backendmanager.cc \
         $(INTDIR)\backendmanager_flint.cc \
+        $(INTDIR)\backendmanager_brass.cc \
         $(INTDIR)\backendmanager_chert.cc \
         $(INTDIR)\backendmanager_inmemory.cc \
         $(INTDIR)\backendmanager_multi.cc \

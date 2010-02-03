@@ -23,7 +23,9 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
+#include <xapian/base.h>
 #include <xapian/enquire.h>
+#include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -269,70 +271,84 @@ inline bool operator!=(const StringListUnserialiser & a,
 }
 
 
-/** A string with a corresponding frequency.
- */
-class XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
-    std::string str;
-    Xapian::doccount frequency;
-  public:
-    /// Construct a StringAndFrequency object.
-    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
-	    : str(str_), frequency(frequency_) {}
-
-    /// Return the string.
-    std::string get_string() const { return str; }
-
-    /// Return the frequency.
-    Xapian::doccount get_frequency() const { return frequency; }
-};
-
-
 /** Class for counting the frequencies of values in the matching documents.
  *
  *  Warning: this API is currently experimental, and is liable to change
  *  between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
+  public:
+    struct Internal;
+
+#ifndef SWIG // SWIG doesn't need to know about the internal class
+    struct XAPIAN_VISIBILITY_DEFAULT Internal
+	    : public Xapian::Internal::RefCntBase
+    {
+	/// The slot to count.
+	Xapian::valueno slot;
+
+	/// Total number of documents seen by the match spy.
+	Xapian::doccount total;
+
+	/// The values seen so far, together with their frequency.
+	std::map<std::string, Xapian::doccount> values;
+
+	Internal() : slot(Xapian::BAD_VALUENO), total(0) {}
+	Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
+    };
+#endif
+
   protected:
-    /// The slot to count.
-    Xapian::valueno slot;
-
-    /// Total number of documents seen by the match spy.
-    Xapian::doccount total;
-
-    /// The values seen so far, together with their frequency.
-    std::map<std::string, Xapian::doccount> values;
+    Xapian::Internal::RefCntPtr<Internal> internal;
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : slot(Xapian::BAD_VALUENO), total(0) {}
+    ValueCountMatchSpy() : internal() {}
 
     /// Construct a MatchSpy which counts the values in a particular slot.
     ValueCountMatchSpy(Xapian::valueno slot_)
-	    : slot(slot_), total(0) {
-    }
+	    : internal(new Internal(slot_)) {}
 
     /// Return the values seen in the slot.
     const std::map<std::string, Xapian::doccount> & get_values() const {
-	return values;
+	return internal->values;
     }
 
     /** Return the total number of documents tallied. */
     size_t get_total() const {
-	return total;
+	return internal->total;
     }
 
-    /** Get the most frequent values in the slot.
+    /** Get an iterator over the values seen in the slot.
      *
-     *  @param result A vector which will be filled with the most frequent
-     *                values, in descending order of frequency.  Values with
-     *                the same frequency will be sorted in ascending
-     *                alphabetical order.
+     *  Items will be returned in ascending alphabetical order.
+     *
+     *  During the iteration, the frequency of the current value can be
+     *  obtained with the get_termfreq() method on the iterator.
+     */
+    TermIterator values_begin() const;
+
+    /** End iterator corresponding to values_begin() */
+    TermIterator values_end() const {
+	return TermIterator(NULL);
+    }
+
+    /** Get an iterator over the most frequent values seen in the slot.
+     *
+     *  Items will be returned in descending order of frequency.  Values with
+     *  the same frequency will be returned in ascending alphabetical order.
+     *
+     *  During the iteration, the frequency of the current value can be
+     *  obtained with the get_termfreq() method on the iterator.
      *
      *  @param maxvalues The maximum number of values to return.
      */
-    void get_top_values(std::vector<StringAndFrequency> & result,
-			size_t maxvalues) const;
+    TermIterator top_values_begin(size_t maxvalues) const;
+
+    /** End iterator corresponding to top_values_begin() */
+    TermIterator top_values_end(size_t) const {
+	return TermIterator(NULL);
+    }
 
     /** Implementation of virtual operator().
      *
