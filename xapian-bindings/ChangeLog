@@ -1,3 +1,8 @@
+Wed Feb 03 15:11:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/docs/index.html: Document ValueCountMatchSpy.values() and
+	  top_values().
+
 Wed Feb 03 15:09:09 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/extra.i,python/pythontest2.py: Wrap the
