@@ -1,3 +1,8 @@
+Wed Feb 03 01:23:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Make TermList::as_opwindow_query()
+	  private.
+
 Wed Feb 03 01:19:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/replication.h: Use "" not <> for including API headers.

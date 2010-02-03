@@ -1257,25 +1257,6 @@ class TermList {
      */
     list<string> prefixes;
 
-  public:
-    TermList() : window(0), uniform_prefixes(true) { }
-
-    /// Add an unstemmed Term object to this TermList object.
-    void add_positional_term(Term * term) {
-        if (terms.empty()) {
-	    prefixes = term->prefixes;
-	} else if (uniform_prefixes && prefixes != term->prefixes)  {
-	    prefixes.clear();
-	    uniform_prefixes = false;
-	}
-	term->need_positions();
-	terms.push_back(term);
-    }
-
-    void adjust_window(size_t alternative_window) {
-	if (alternative_window > window) window = alternative_window;
-    }
-
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
 	Query * q = NULL;
@@ -1306,6 +1287,25 @@ class TermList {
 
 	delete this;
 	return q;
+    }
+
+  public:
+    TermList() : window(0), uniform_prefixes(true) { }
+
+    /// Add an unstemmed Term object to this TermList object.
+    void add_positional_term(Term * term) {
+        if (terms.empty()) {
+	    prefixes = term->prefixes;
+	} else if (uniform_prefixes && prefixes != term->prefixes)  {
+	    prefixes.clear();
+	    uniform_prefixes = false;
+	}
+	term->need_positions();
+	terms.push_back(term);
+    }
+
+    void adjust_window(size_t alternative_window) {
+	if (alternative_window > window) window = alternative_window;
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
