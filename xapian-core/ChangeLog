@@ -1,3 +1,13 @@
+Wed Feb 03 15:01:36 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Add ValueCountMatchSpy::values_begin() and values_end() to allow
+	  iteration over all the values in a ValueCountMatchSpy without
+	  needing to handle the dict.  Move the contents of
+	  ValueCountMatchSpy into a reference counted internal object, so
+	  that the iterator can ensure that the contents aren't deleted
+	  before it finishes.
+
 Wed Feb 03 15:01:02 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/generate-api_generated: Add ValueCountMatchSpy to the list

@@ -99,13 +99,14 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     return true;
 }
 
-static string values_to_repr(const map<string, Xapian::doccount> & cat) {
+static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
     string resultrepr("|");
-    map<string, Xapian::doccount>::const_iterator i;
-    for (i = cat.begin(); i != cat.end(); ++i) {
-	resultrepr += i->first;
+    for (Xapian::TermIterator i = spy.values_begin();
+	 i != spy.values_end();
+	 ++i) {
+	resultrepr += *i;
 	resultrepr += ':';
-	resultrepr += str(i->second);
+	resultrepr += str(i.get_termfreq());
 	resultrepr += '|';
     }
     return resultrepr;
@@ -164,9 +165,9 @@ DEFINE_TESTCASE(matchspy2, writable)
 	"|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
 	"|1:9|2:16|",
     };
-    TEST_STRINGS_EQUAL(values_to_repr(spy0.get_values()), results[0]);
-    TEST_STRINGS_EQUAL(values_to_repr(spy1.get_values()), results[1]);
-    TEST_STRINGS_EQUAL(values_to_repr(spy3.get_values()), results[2]);
+    TEST_STRINGS_EQUAL(values_to_repr(spy0), results[0]);
+    TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
+    TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
 		       
     return true;
 }

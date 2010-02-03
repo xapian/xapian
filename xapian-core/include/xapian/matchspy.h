@@ -23,6 +23,7 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
+#include <xapian/base.h>
 #include <xapian/enquire.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -165,33 +166,60 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
  *  between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
+  public:
+    struct Internal;
+
+#ifndef SWIG // SWIG doesn't need to know about the internal class
+    struct XAPIAN_VISIBILITY_DEFAULT Internal
+	    : public Xapian::Internal::RefCntBase
+    {
+	/// The slot to count.
+	Xapian::valueno slot;
+
+	/// Total number of documents seen by the match spy.
+	Xapian::doccount total;
+
+	/// The values seen so far, together with their frequency.
+	std::map<std::string, Xapian::doccount> values;
+
+	Internal() : slot(Xapian::BAD_VALUENO), total(0) {}
+	Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
+    };
+#endif
+
   protected:
-    /// The slot to count.
-    Xapian::valueno slot;
-
-    /// Total number of documents seen by the match spy.
-    Xapian::doccount total;
-
-    /// The values seen so far, together with their frequency.
-    std::map<std::string, Xapian::doccount> values;
+    Xapian::Internal::RefCntPtr<Internal> internal;
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : slot(Xapian::BAD_VALUENO), total(0) {}
+    ValueCountMatchSpy() : internal() {}
 
     /// Construct a MatchSpy which counts the values in a particular slot.
     ValueCountMatchSpy(Xapian::valueno slot_)
-	    : slot(slot_), total(0) {
-    }
+	    : internal(new Internal(slot_)) {}
 
     /// Return the values seen in the slot.
     const std::map<std::string, Xapian::doccount> & get_values() const {
-	return values;
+	return internal->values;
     }
 
     /** Return the total number of documents tallied. */
     size_t get_total() const {
-	return total;
+	return internal->total;
+    }
+
+    /** Get an iterator over the values seen in the slot.
+     *
+     *  Items will be returned in ascending alphabetical order.
+     *
+     *  During the iteration, the frequency of the current value can be
+     *  obtained with the get_termfreq() method on the iterator.
+     */
+    TermIterator values_begin() const;
+
+    /** End iterator corresponding to values_begin() */
+    TermIterator values_end() const {
+	return TermIterator(NULL);
     }
 
     /** Get an iterator over the most frequent values seen in the slot.
