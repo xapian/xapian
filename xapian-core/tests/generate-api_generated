@@ -27,6 +27,7 @@ my %uncopyableclasses = (
     'ValuePostingSource' => '0',
     'ValueWeightPostingSource' => '0',
     'DecreasingValueWeightPostingSource' => '0',
+    'ValueCountMatchSpy' => '0',
     'ValueMapPostingSource' => '0',
     'FixedWeightPostingSource' => '0'
 );

@@ -1,3 +1,8 @@
+Wed Feb 03 15:01:02 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/generate-api_generated: Add ValueCountMatchSpy to the list
+	  of non-copyable API classes.
+
 Wed Feb 03 13:18:03 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* include/xapian/matchspy.h,tests/api_matchspy.cc: Provide an
