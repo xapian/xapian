@@ -285,7 +285,15 @@ module Xapian
   #--
   # Wrap some dangerous iterators.
   class Xapian::ValueCountMatchSpy
-    # Returns an Array of all Xapian::Terms for this database.
+    # Returns an Array of all the values seen, in alphabetical order
+    def values()
+      Xapian._safelyIterate(self._dangerous_values_begin(),
+                            self._dangerous_values_end()) { |item|
+        Xapian::Term.new(item.term, 0, item.termfreq)
+      }
+    end # allterms
+
+    # Returns an Array of the top values seen, by frequency
     def top_values(maxvalues)
       Xapian._safelyIterate(self._dangerous_top_values_begin(maxvalues),
                             self._dangerous_top_values_end(maxvalues)) { |item|

@@ -1,3 +1,8 @@
+Wed Feb 03 15:17:27 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Wrap and test
+	  ValueCountMatchSpy::values_begin() and values_end() for ruby.
+
 Wed Feb 03 15:11:39 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/docs/index.html: Document ValueCountMatchSpy.values() and
