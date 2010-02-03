@@ -661,6 +661,27 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# Modify ValueCountMatchSpy to add an "values()" method.
+def wrapper():
+    begin = ValueCountMatchSpy.values_begin
+    del ValueCountMatchSpy.values_begin
+    end = ValueCountMatchSpy.values_end
+    del ValueCountMatchSpy.values_end
+    def values_iter(self):
+        """Get an iterator over all the values in the slot.
+
+        Values will be returned in ascending alphabetical order.
+
+        The iterator will return TermListItem objects: the value can be
+        accessed as the `term` property, and the frequency can be accessed as
+        the `termfreq` property.
+
+        """
+        return TermIter(begin(self), end(self), has_termfreq=TermIter.EAGER)
+    return values_iter
+ValueCountMatchSpy.values = wrapper()
+del wrapper
+
 # Modify ValueCountMatchSpy to add an "top_values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.top_values_begin

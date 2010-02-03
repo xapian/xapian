@@ -1327,6 +1327,10 @@ def test_matchspy():
            xapian.sortable_serialise(2): 2,
           })
     expect(spy.get_total(), 5)
+    expect([(item.term, item.termfreq) for item in spy.values()], [
+           (xapian.sortable_serialise(1.5), 1),
+           (xapian.sortable_serialise(2), 2),
+    ])
     expect([(item.term, item.termfreq) for item in spy.top_values(10)], [
            (xapian.sortable_serialise(2), 2),
            (xapian.sortable_serialise(1.5), 1),

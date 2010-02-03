@@ -1,3 +1,9 @@
+Wed Feb 03 15:09:09 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i,python/pythontest2.py: Wrap the
+	  ValueCountMatchSpy::values_begin() and values_end() methods as a
+	  values() pythonic iterator.
+
 Wed Feb 03 13:37:22 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/util.i: Remove unused typemap pair which was used for
