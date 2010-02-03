@@ -23,8 +23,8 @@
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
-#include <xapian/base.h>
-#include <xapian/visibility.h>
+#include "xapian/base.h"
+#include "xapian/visibility.h"
 
 #include <string>
 

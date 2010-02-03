@@ -1,3 +1,7 @@
+Wed Feb 03 01:19:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replication.h: Use "" not <> for including API headers.
+
 Wed Feb 03 01:08:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/replication.h: Remove warnings about this being an
