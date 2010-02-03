@@ -1,3 +1,8 @@
+Wed Feb 03 16:18:16 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* win32_tests.mak: add new files: api_compact.cc, api_qpbackend.cc
+	  and dbcheck.cc, and their associated headers.
+
 Mon Jun 22 15:30:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
     * Makefile, win32_bindings_python.mak, config.mak, makebinaries.py: add Python 2.6 option 

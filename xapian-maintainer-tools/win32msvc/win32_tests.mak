@@ -59,12 +59,14 @@ APITEST_OBJS= \
     "$(OUTDIR)\apitest.obj" \
     "$(OUTDIR)\api_anydb.obj" \
     "$(OUTDIR)\api_backend.obj" \
+    "$(OUTDIR)\api_compact.obj" \
     "$(OUTDIR)\api_db.obj" \
     "$(OUTDIR)\api_generated.obj" \
     "$(OUTDIR)\api_metadata.obj" \
     "$(OUTDIR)\api_nodb.obj" \
     "$(OUTDIR)\api_percentages.obj" \
     "$(OUTDIR)\api_posdb.obj" \
+    "$(OUTDIR)\api_qpbackend.obj" \
     "$(OUTDIR)\api_query.obj" \
     "$(OUTDIR)\api_scalability.obj" \
     "$(OUTDIR)\api_sorting.obj" \
@@ -72,7 +74,8 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_transdb.obj" \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_valuestats.obj" \
-    "$(OUTDIR)\api_wrdb.obj" 
+    "$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\dbcheck.obj"
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
 
@@ -91,11 +94,13 @@ SRC = \
     "$(INTDIR)\api_anydb.cc" \
     "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_db.cc" \
+    "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_metadata.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
+    "$(INTDIR)\api_qpbackend.cc" \
     "$(INTDIR)\api_query.cc" \
     "$(INTDIR)\api_scalability.cc" \
     "$(INTDIR)\api_sorting.cc" \
@@ -105,6 +110,7 @@ SRC = \
     "$(INTDIR)\api_valuestats.cc" \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\btreetest.cc" \
+    "$(INTDIR)\dbcheck.cc" \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
     "$(INTDIR)\queryparsertest.cc" \
@@ -114,12 +120,14 @@ SRC = \
 COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_anydb.cc" \
     "$(INTDIR)\api_backend.cc" \
+    "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_metadata.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
+    "$(INTDIR)\api_qpbackend.cc" \
     "$(INTDIR)\api_query.cc" \
     "$(INTDIR)\api_scalability.cc" \
     "$(INTDIR)\api_sorting.cc" \
@@ -132,6 +140,7 @@ COLLATED_APITEST_SOURCES= \
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
     "$(INTDIR)\api_db.h" \
+    "$(INTDIR)\api_compact.h" \
     "$(INTDIR)\api_nodb.h" \
     "$(INTDIR)\api_posdb.h" \
     "$(INTDIR)\api_sorting.h" \
@@ -139,6 +148,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_unicode.h" \
     "$(INTDIR)\api_backend.h" \
     "$(INTDIR)\api_generated.h" \
+    "$(INTDIR)\api_qpbackend.h" \
     "$(INTDIR)\api_wrdb.h"
 
 CLEAN_COLLATED_HEADERS:
