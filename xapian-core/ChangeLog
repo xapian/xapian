@@ -1,3 +1,8 @@
+Wed Feb 03 06:46:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Emmanuel Engelhart for reporting problems indexing
+	  Burmese text.
+
 Wed Feb 03 06:32:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h,queryparser/queryparser.lemony,
