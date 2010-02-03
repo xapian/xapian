@@ -1,3 +1,8 @@
+Wed Feb 03 01:08:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replication.h: Remove warnings about this being an
+	  experimental API, which no longer make sense now it is internal.
+
 Tue Feb 02 21:59:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/generate-api_generated: Remove DatabaseReplica.
