@@ -386,7 +386,17 @@ is_phrase_generator(unsigned ch)
 	// running queryparsertest.
 	return (strchr(".-/:\\@", ch) != NULL);
     }
-    return Unicode::get_category(ch) == Xapian::Unicode::NON_SPACING_MARK;
+    switch (Unicode::get_category(ch)) {
+	case Xapian::Unicode::NON_SPACING_MARK:
+	case Xapian::Unicode::ENCLOSING_MARK:
+	case Xapian::Unicode::COMBINING_SPACING_MARK:
+	    return true;
+	case Xapian::Unicode::FORMAT:
+	    return (ch >= 0x200b &&
+		    (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff));
+	default:
+	    return false;
+    }
 }
 
 inline bool

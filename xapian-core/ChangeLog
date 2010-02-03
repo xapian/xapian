@@ -1,3 +1,11 @@
+Wed Feb 03 09:24:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Add ENCLOSING_MARK and
+	  COMBINING_SPACING_MARK categories, plus several zero-width space
+	  characters, as phrase generators.  This mirrors a better fix on
+	  trunk, but without losing compatibility with existing databases.
+	* tests/queryparsertest.cc: Add test coverage for this change.
+
 Tue Feb 02 07:44:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
