@@ -1,3 +1,11 @@
+Wed Feb 03 13:22:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Update to add
+	  support and tests for the new TermIterator-based
+	  ValueCountMatchSpy::top_values methods.  Also for the removal of
+	  StringAndFrequency from the API.
+
 Tue Feb 02 15:28:28 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/Makefile.am: Comment out replicationtest by default again;

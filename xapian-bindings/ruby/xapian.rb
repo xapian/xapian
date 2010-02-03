@@ -5,6 +5,7 @@
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
 # Copyright (C) 2008 Olly Betts
+# Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -276,6 +277,21 @@ module Xapian
         item.termpos
       }
     end # positionlist
+  end # Xapian::Database
+
+  # Refer to the
+  # {Xapian::ValueCountMatchSpy C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1ValueCountMatchSpy.html]
+  # for methods not specific to Ruby.
+  #--
+  # Wrap some dangerous iterators.
+  class Xapian::ValueCountMatchSpy
+    # Returns an Array of all Xapian::Terms for this database.
+    def top_values(maxvalues)
+      Xapian._safelyIterate(self._dangerous_top_values_begin(maxvalues),
+                            self._dangerous_top_values_end(maxvalues)) { |item|
+        Xapian::Term.new(item.term, 0, item.termfreq)
+      }
+    end # allterms
   end # Xapian::Database
 
 end # Xapian module

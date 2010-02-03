@@ -661,6 +661,29 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# Modify ValueCountMatchSpy to add an "top_values()" method.
+def wrapper():
+    begin = ValueCountMatchSpy.top_values_begin
+    del ValueCountMatchSpy.top_values_begin
+    end = ValueCountMatchSpy.top_values_end
+    del ValueCountMatchSpy.top_values_end
+    def top_values_iter(self, maxvalues):
+        """Get an iterator over the most frequent values for the slot.
+
+        Values will be returned in descending order of frequency.  Values with
+        the same frequency will be returned in ascending alphabetical order.
+
+        The iterator will return TermListItem objects: the value can be
+        accessed as the `term` property, and the frequency can be accessed as
+        the `termfreq` property.
+
+        """
+        return TermIter(begin(self, maxvalues), end(self, maxvalues),
+                        has_termfreq=TermIter.EAGER)
+    return top_values_iter
+ValueCountMatchSpy.top_values = wrapper()
+del wrapper
+
 # When we make a query, keep a note of postingsources involved, so they won't
 # be deleted. This hack can probably be removed once xapian bug #186 is fixed.
 __query_init_orig = Query.__init__

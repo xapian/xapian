@@ -6,6 +6,7 @@
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
  * Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -112,6 +113,9 @@
 // in Xapian::Document
 %rename("_dangerous_values_begin") values_begin;
 %rename("_dangerous_values_end") values_end;
+// in Xapian::ValueCountMatchSpy
+%rename("_dangerous_top_values_begin") top_values_begin;
+%rename("_dangerous_top_values_end") top_values_end;
 
 
 // MSetIterators are not dangerous, just inconvenient to use within a Ruby
