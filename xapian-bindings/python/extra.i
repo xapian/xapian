@@ -1126,6 +1126,105 @@ def _document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
 Document.values = _document_gen_values_iter
 
+
+##########################################
+# Support for iteration of value streams #
+##########################################
+
+class ValueStreamItem(object):
+    """An item returned from iteration of the values in a document.
+
+    The item supports access to the following attributes:
+
+     - `docid`: The docid for the item.
+     - `value`: The contents of the value.
+
+    """
+
+    __slots__ = ('docid', 'value', )
+
+    def __init__(self, docid, value):
+        self.docid = docid
+        self.value = value
+
+class ValueStreamIter(object):
+    """An iterator over all the values stored in a document.
+
+    The iterator will return ValueStreamItem objects, in ascending order of value number.
+
+    """
+    def __init__(self, start, end):
+        self.iter = start
+        self.end = end
+        self.moved = True
+
+    def __iter__(self):
+        return self
+
+    # For Python2:
+    def next(self):
+        if not self.moved:
+            self.iter.next()
+            self.moved = True
+
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            self.moved = False
+            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+    # For Python3:
+    def __next__(self):
+        if not self.moved:
+            self.iter.next()
+            self.moved = True
+
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            self.moved = False
+            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+    def skip_to(self, docid):
+        """Skip the iterator forward.
+
+        The iterator is advanced to the first document with a document ID
+        which is greater than or equal to the supplied document ID.
+
+        If there are no such items, this will raise StopIteration.
+
+        This returns the item which the iterator is moved to.  The subsequent
+        item will be returned the next time that next() is called (unless
+        skip_to() is called again first).
+
+        """
+        if self.iter != self.end:
+            self.iter.skip_to(docid)
+        if self.iter == self.end:
+            self.moved = True
+            raise StopIteration
+        self.moved = False
+        return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+# Modify Database to add a "valuestream()" method, and remove the
+# valuestream_begin() and valuestream_end() methods.
+def wrapper():
+    vs_begin = Database.valuestream_begin
+    vs_end = Database.valuestream_end
+    def _database_gen_valuestream_iter(self, slot):
+        """Get an iterator over all the values stored in a slot in the database.
+
+        The iterator will return ValueStreamItem objects, in ascending order of
+        document id.
+
+        """
+        return ValueStreamIter(vs_begin(self, slot), vs_end(self, slot))
+    return _database_gen_valuestream_iter
+Database.valuestream = wrapper()
+del wrapper
+del Database.valuestream_begin
+del Database.valuestream_end
+
 # Set the list of names which should be public.
 # Note that this needs to happen at the end of xapian.py.
 __all__ = []

@@ -634,6 +634,72 @@ def test_postinglist_iter():
                          'Iterator has moved, and does not support random access',
                          getattr, postings[i], 'positer')
 
+def test_valuestream_iter():
+    """Test a valuestream iterator on Database.
+
+    """
+    db = setup_database()
+
+    # Check basic iteration
+    expect([(item.docid, item.value) for item in db.valuestream(0)],
+           [(3, '\xa4'), (4, '\xa2'), (5, '\xa4')])
+    expect([(item.docid, item.value) for item in db.valuestream(1)], [])
+    expect([(item.docid, item.value) for item in db.valuestream(5)],
+           [(5, "five")])
+    expect([(item.docid, item.value) for item in db.valuestream(9)],
+           [(5, "nine")])
+
+    # Test skip_to() on iterator with no values, and behaviours when called
+    # after already returning StopIteration.
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    expect_exception(StopIteration, "", i.next)
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.next)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+
+    # Test that skipping to a value works, and that skipping doesn't have to
+    # advance.
+    i = db.valuestream(0)
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(1)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(5)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.skip_to, 6)
+
+    # Test that alternating skip_to() and next() works.
+    i = db.valuestream(0)
+    item = i.next()
+    expect((item.docid, item.value), (3, '\xa4'))
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.next()
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.skip_to, 6)
+
+    # Test that next works correctly after skip_to() called with an earlier
+    # item.
+    i = db.valuestream(0)
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(1)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.next()
+    expect((item.docid, item.value), (5, '\xa4'))
+
+    # Test that next works correctly after skipping to last item
+    i = db.valuestream(0)
+    item = i.skip_to(5)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.next)
+
 def test_position_iter():
     """Test position iterator for a document in a database.
 

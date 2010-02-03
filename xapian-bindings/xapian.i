@@ -183,7 +183,10 @@ class ValueIterator {
 	}
     }
 
-    Xapian::valueno get_valueno();
+    Xapian::docid get_docid() const;
+    Xapian::valueno get_valueno() const;
+    void skip_to(Xapian::docid docid_or_slot);
+    bool check(Xapian::docid docid);
     std::string get_description() const;
 };
 
@@ -518,6 +521,11 @@ class Database {
 	doccount get_value_freq(Xapian::valueno valno) const;
 	string get_value_lower_bound(Xapian::valueno valno) const;
 	string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::termcount get_doclength_lower_bound() const;
+	Xapian::termcount get_doclength_upper_bound() const;
+	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
+	ValueIterator valuestream_begin(Xapian::valueno slot) const;
+	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const;
 	doclength get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);

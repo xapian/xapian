@@ -211,18 +211,17 @@ class XapianSmoketest < Test::Unit::TestCase
 
   def test_015_valuecount_matchspy
     spy = Xapian::ValueCountMatchSpy.new(0)
-    db = Xapian::inmemory_open()
     doc = Xapian::Document.new()
     doc.add_posting("term", 1)
     doc.add_value(0, "yes")
-    db.add_document(doc)
-    db.add_document(doc)
+    @db.add_document(doc)
+    @db.add_document(doc)
     doc.add_value(0, "maybe")
-    db.add_document(doc)
+    @db.add_document(doc)
     doc.add_value(0, "no")
-    db.add_document(doc)
+    @db.add_document(doc)
     query = Xapian::Query.new("term")
-    enquire = Xapian::Enquire.new(db)
+    enquire = Xapian::Enquire.new(@db)
     enquire.query = query
     enquire.add_matchspy(spy)
     mset = enquire.mset(0, 10)
@@ -234,6 +233,11 @@ class XapianSmoketest < Test::Unit::TestCase
 		 "yes:2,maybe:1")
     assert_equal(spy.top_values(3).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
 		 "yes:2,maybe:1,no:1")
+
+    # Test the valuestream iterator, while we've got some data
+    assert_equal(@db.valuestream(1).size(), 0)
+    assert_equal(@db.valuestream(0).map{|i| "%d:%s"%[i.docid, i.value]}*",",
+		 "2:yes,3:yes,4:maybe,5:no")
   end
 
 end # class XapianSmoketest
