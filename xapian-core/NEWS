@@ -1,22 +1,96 @@
- 13701       olly Tue Dec 01 13:49:54 GMT 2009  Olly Betts <olly@survex.com>
+ 13923       olly Wed Feb 03 09:24:27 GMT 2010  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.18 (2009-??-??):
+	* tests/api_replacedoc.cc: Add a few more sequences of operations
+	  which look worth testing, after looking at the code implementing
+	  replace_document().
+	* tests/api_replacedoc.cc: Check consistency of the posting lists
+	  with the termlists, and consistency of the statistics, at each
+	  step of modtermwdf1.  Also, add some other terms to the document,
+	  so we can check the stored doclength for terms which haven't been
+	  modified.
+	* backends/flint/flint_modifiedpostlist.cc: Report the wdf from the
+	  modifications, rather the sum of the wdf from the modifications
+	  and the old wdf.  The old behaviour was just wrong, but we had no
+	  test coverage for this until the last commit.
+	* tests/api_replacedoc.cc: Add test of the contents of the
+	  postlist of a term which is being modified.  Also, tidy up the
+	  output of docterms_to_string() to skip any empty position lists.
+	* tests/api_replacedoc.cc: Extend test to cover removing a term but
+	  not deleting it, and finally deleting the document.
+	* tests/api_replacedoc.cc: Expand test to cover some modification
+	  to the positional information.
+	* tests/api_replacedoc.cc: Add some more sets of modification
+	  operations to the tests.
+	* tests/api_replacedoc.cc: Add test modtermwdf1, which tests a lot
+	  more cases where documents are modified.
+	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:
+	  Split my recently added replacedoc test out into a new file.
+
+	* backends/flint/flint_database.cc,backends/quartz/quartz_database.cc:
+	  Replacing a document deleted since the last flush failed to update
+	  the collection frequency and wdf, and caused an assertion failure
+	  when assertions were enabled.
+	* tests/api_backend.cc: Add regression test replacedoc8.
+
+	* configure.ac: Divert to AS_MESSAGE_LOG_FD rather than literal fd 5.
+	  Divert more output to AS_MESSAGE_LOG_FD rather than /dev/null.
+
+	* backends/quartz/quartz_database.cc,backends/flint/flint_database.cc,
+	  tests/api_posdb.cc: Delete old positionlist chunks in
+	  replace_document().  Uncomment part of test which tested this.
+	* backends/quartz/quartz_database.cc,backends/flint/flint_database.cc:
+	  Fix comparison of old term with new.
+	* tests/api_posdb.cc: Extend test of document modification to cover
+	  removing the last term in the document, too.
+
+Xapian-core 1.0.18 (2009-02-??):
 
 API:
+
+	* queryparser/queryparser.lemony: Add support for quoting boolean terms
+	  so they can contain arbitrary characters (partly addresses
+	  ticket#128).
+	* tests/queryparsertest.cc: Add test coverage.
+
+	* queryparser/queryparser.lemony: Add ENCLOSING_MARK and
+	  COMBINING_SPACING_MARK categories, plus several zero-width space
+	  characters, as phrase generators.  This mirrors a better fix on
+	  trunk, but without losing compatibility with existing databases.
+	* tests/queryparsertest.cc: Add test coverage for this change.
 
 * Fix many Xapian::Database methods to behave better on a database with no
   subdatabases, such as is constructed by Database().  ticket#415.
 
 testsuite:
 
-* apitest: Rename matchfunctor<n> to matchdecider<n> to match current terminology.
+	* tests/api_compact.cc: Add test of xapian-compact when merging
+	  databases.
+
+* apitest: Rename matchfunctor<n> to matchdecider<n> to match current
+  terminology.
 
 matcher:
 
 
 flint backend:
 
+	* backends/flint/flint_database.cc: When updating documents, don't
+	  update posting entries which havn't changed.  Largely fixes
+	  ticket #250.
+
+	   Add empty() method to FlintTable which works
+	  completely reliably even if the item count has wrapped.
+
+	* backends/flint/flint_alltermslist.cc: Tweak to not apply the
+	  prefix test in the "at end" case.
+	* backends/flint/flint_alltermslist.cc: There's no point checking
+	  follow-on chunks match the prefix - the first chunk we'll hit
+	  which doesn't match has to be an initial chunk for a term.
+
 * Fix locking code to work if stdin and/or stdout have been closed.
+
+	  common/document.h: If a document is replaced with itself unmodified,
+	  we no longer increase the automatic flush counter.
 
 * xapian-compact: Fix typos in --help output.
 
@@ -35,9 +109,26 @@ build system:
 
 documentation:
 
+	* docs/doxygen_api.conf.in: Add generated include/xapian/error.h so
+	  that Xapian::Error and subclass API docs are collated for a VPATH
+	  build.
+	* docs/Makefile.am: Add regression test to make sure doxygen collated
+	  API docs for Xapian::RuntimeError.
+
+	* include/xapian/query.h: Mark Query::Internal as @private for doxygen.
+
 * INSTALL: Improve text about zlib dependency.
 
+	* HACKING: Add details of our policy for accepting
+	  patches.  This has informally been true for a while, but it
+	  probably helps to tell people about it!
+	* HACKING: Include the MIT licence text in HACKING itself.
+
 examples:
+
+	* examples/quest.cc: If no database is specified, still parse the query
+	  and report get_description() on it as this provides a useful way to
+	  see how a query parses.
 
 
 portability:

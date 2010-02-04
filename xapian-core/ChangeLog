@@ -1,3 +1,7 @@
+Thu Feb 04 22:08:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Feb 03 09:24:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Add ENCLOSING_MARK and
