@@ -1,3 +1,7 @@
+Thu Feb 04 03:06:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Fix to work with MSVC makefiles (ticket#440).
+
 Thu Feb 04 03:04:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING,common/Makefile.mk,common/safesyswait.h: Add wrapper
