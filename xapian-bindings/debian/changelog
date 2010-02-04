@@ -7,6 +7,7 @@ xapian-bindings (1.0.17-2) UNRELEASED; urgency=low
   * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
   * debian/etc-php-conf.d-xapian.ini: Use ';' for comment instead of '#' as
     PHP 5.3 deprecates the latter.
+  * Register the documentation for each language with doc-base.
 
  -- Olly Betts <olly@survex.com>  Wed, 27 Jan 2010 23:45:32 +0000
 
