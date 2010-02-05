@@ -1,3 +1,9 @@
+Fri Feb 05 11:41:05 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Remove ValueCountMatchSpy::get_values().  values_begin() should
+	  be used instead to iterate over the values.
+
 Fri Feb 05 07:39:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Enable automake's std-options feature to check all

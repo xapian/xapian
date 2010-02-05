@@ -227,9 +227,8 @@ class StringAndFreqTermList : public TermList {
 
 /** Get the most frequent items from a map from string to frequency.
  *
- *  This takes input such as that returned by @a
- *  ValueCountMatchSpy::get_values(), and returns a vector of the most
- *  frequent items in the input.
+ *  This takes input such as that in ValueCountMatchSpy::Internal::values and
+ *  returns a vector of the most frequent items in the input.
  *
  *  @param result A vector which will be filled with the most frequent
  *                items, in descending order of frequency.  Items with

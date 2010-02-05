@@ -307,20 +307,27 @@ DEFINE_TESTCASE(matchspy5, backend)
     Xapian::MSet mymset = enquire.get_mset(0, 100);
     TEST_EQUAL(mymset.size(), 6);
 
-    const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values();
-    const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values();
+    Xapian::TermIterator i = myspy1.values_begin();
+    TEST(i != myspy1.values_end());
+    TEST(*i == "h");
+    TEST_EQUAL(i.get_termfreq(), 5);
+    ++i;
+    TEST(i != myspy1.values_end());
+    TEST(*i == "n");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    ++i;
+    TEST(i == myspy1.values_end());
 
-    TEST_EQUAL(vals1.size(), 2);
-    TEST(vals1.find("h") != vals1.end());
-    TEST(vals1.find("n") != vals1.end());
-    TEST_EQUAL(vals1.find("h")->second, 5);
-    TEST_EQUAL(vals1.find("n")->second, 1);
-
-    TEST_EQUAL(vals2.size(), 2);
-    TEST(vals2.find("h") != vals2.end());
-    TEST(vals2.find("n") != vals2.end());
-    TEST_EQUAL(vals2.find("h")->second, 5);
-    TEST_EQUAL(vals2.find("n")->second, 1);
+    i = myspy2.values_begin();
+    TEST(i != myspy2.values_end());
+    TEST(*i == "h");
+    TEST_EQUAL(i.get_termfreq(), 5);
+    ++i;
+    TEST(i != myspy2.values_end());
+    TEST(*i == "n");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    ++i;
+    TEST(i == myspy2.values_end());
 
     return true;
 }
