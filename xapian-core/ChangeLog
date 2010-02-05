@@ -1,3 +1,8 @@
+Fri Feb 05 07:39:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable automake's std-options feature to check all
+	  installed programs support --help and --version.
+
 Fri Feb 05 01:45:49 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/document.h: Add Document::add_boolean_term().
