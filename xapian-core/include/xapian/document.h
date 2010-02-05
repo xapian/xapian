@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2009,2010 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -137,9 +137,27 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *
 	 *  @param tname     The name of the term.
 	 *  @param wdfinc    The increment that will be applied to the wdf
-	 *                   for this term.
+	 *                   for this term (default: 1).
 	 */
 	void add_term(const std::string & tname, Xapian::termcount wdfinc = 1);
+
+	/** Add a boolean filter term to the document.
+	 *
+	 *  This method adds @a term to the document with wdf of 0 -
+	 *  this is generally what you want for a term used for boolean
+	 *  filtering as the wdf of such terms is ignored, and it doesn't
+	 *  make sense for them to contribute to the document's length.
+	 *
+	 *  If the specified term already indexes this document, this method
+	 *  has no effect.
+	 *
+	 *  It is exactly the same as add_term(term, 0).
+	 *
+	 *  This method was added in Xapian 1.0.18.
+	 *
+	 *  @param term		The term to add.
+	 */
+	void add_boolean_term(const std::string & term) { add_term(term, 0); }
 
 	/** Remove a posting of a term from the document.
 	 *
