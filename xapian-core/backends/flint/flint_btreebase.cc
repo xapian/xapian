@@ -79,6 +79,7 @@ class fdcloser {
  * ITEM_COUNT
  * LAST_BLOCK
  * HAVE_FAKEROOT
+ * SEQUENTIAL
  * REVISION2	A second copy of the revision number, for consistency checks.
  * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
  * REVISION3	A third copy of the revision number, for consistency checks.
