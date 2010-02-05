@@ -471,60 +471,17 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
  */
 class XAPIAN_VISIBILITY_DEFAULT UnbiasedNumericRanges : public NumericRanges {
   public:
-    /** Construct UnbiasedNumericRanges from values and a target number of
+    /** Construct UnbiasedNumericRanges from a matchspy and a target number of
      *  ranges.
      *
-     *  The values supplied should be sort-encoded numeric values.
+     *  The values collected by the matchspy should be numeric values
+     *  serialised with sortable_serialise().
      *
-     *  @param values     The input numbers.
+     *  @param spy        The input numbers.
      *  @param max_ranges Group into at most this many ranges.
      */
-    UnbiasedNumericRanges(const std::map<std::string, Xapian::doccount> & values,
-			  size_t max_ranges);
+    UnbiasedNumericRanges(const ValueCountMatchSpy & spy, size_t max_ranges);
 };
-
-
-/** Return a score reflecting how evenly divided a set of values is.
- *
- *  Warning: this API is currently experimental, and is liable to change
- *  between releases without warning.
- *
- *  If you don't want to show a poor categorisation, or have multiple
- *  categories and only space in your user interface to show a few, you want to
- *  be able to decide how "good" a categorisation is.  One definition of "good"
- *  is that it offers a fairly even split of the available values, and
- *  (optionally) about a specified number of options.
- *
- *  @param values The values making up the categorisation, together with their
- *  frequencies.
- *
- *  @param total The total number of documents seen.
- *
- *  @param desired_no_of_categories The desired number of categories - this is
- *  a floating point value, so you can ask for 5.5 if you'd like "about 5 or 6
- *  categories".  The default is to desire the number of categories that there
- *  actually are, so the score then only reflects how even the split is.
- *
- *  @return A score for the categorisation for the value - lower is better,
- *  with a perfectly even split across the right number of categories scoring
- *  0.
- */
-//@{
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const std::map<std::string, Xapian::doccount> & values,
-	Xapian::doccount total,
-	double desired_no_of_categories = 0.0);
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const std::map<Xapian::NumericRange, Xapian::doccount> & values,
-	Xapian::doccount total,
-	double desired_no_of_categories = 0.0);
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const ValueCountMatchSpy & spy,
-	double desired_no_of_categories = 0.0);
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const NumericRanges & ranges,
-	double desired_no_of_categories = 0.0);
-//@}
 
 }
 

@@ -1,3 +1,9 @@
+Fri Feb 05 16:14:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Construct
+	  NumericRanges from the match spy, rather than from a map of
+	  values.  Remove score_evenness().
+
 Tue Feb 02 16:40:45 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
