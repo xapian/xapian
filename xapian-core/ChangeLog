@@ -1,8 +1,8 @@
 Fri Feb 05 05:21:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* backends/flint/flint_btreebase.cc: Add missing SEQUENTIAL entry to
-	  documentation of base file format.
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_btreebase.cc:
+	  Add missing SEQUENTIAL entry to documentation of base file format.
 
 Thu Feb 04 22:08:27 GMT 2010  Olly Betts <olly@survex.com>
 
