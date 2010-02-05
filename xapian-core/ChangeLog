@@ -1,3 +1,8 @@
+Fri Feb 05 13:28:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/simpleexpand.cc,examples/simpleindex.cc,
+	  examples/simplesearch.cc: Handle --help and --version.
+
 Fri Feb 05 13:25:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix not to assign elements off the end of a

@@ -3,7 +3,7 @@
  *
  * See "quest" for a more sophisticated example.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <string>
 
 #include <cstdlib> // For exit().
+#include <cstring>
 
 using namespace std;
 
@@ -34,8 +35,18 @@ main(int argc, char **argv)
 try {
     // We require at least two command line arguments.
     if (argc < 3) {
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY" << endl;
-	exit(1);
+	int rc = 1;
+	if (argv[1]) {
+	    if (strcmp(argv[1], "--version") == 0) {
+		cout << "simpleexpand" << endl;
+		exit(0);
+	    }
+	    if (strcmp(argv[1], "--help") == 0) {
+		rc = 0;
+	    }
+	}
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY [-- [DOCID...]]" << endl;
+	exit(rc);
     }
 
     // Open the database for searching.
