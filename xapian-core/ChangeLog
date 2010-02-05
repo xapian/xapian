@@ -1,3 +1,8 @@
+Fri Feb 05 13:25:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix not to assign elements off the end of a
+	  vector (ticket#440).
+
 Fri Feb 05 11:41:05 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
