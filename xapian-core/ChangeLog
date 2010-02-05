@@ -1,3 +1,16 @@
+Fri Feb 05 06:51:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING,common/Makefile.mk,common/safesyswait.h: Add wrapper
+	  for <sys/wait.h> which defines macros for WEXITSTATUS and
+	  WIFEXITED when required.
+
+Fri Feb 05 05:42:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/document.h: Add Document::add_boolean_term().
+	* tests/api_none.cc: Add testcase document1 as a feature test.
+
 Fri Feb 05 05:35:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
