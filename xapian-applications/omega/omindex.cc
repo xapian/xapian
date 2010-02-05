@@ -603,7 +603,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     // Index the title, document text, and keywords.
     indexer.set_document(newdocument);
     if (!title.empty()) {
-	indexer.index_text(title, 2);
+	indexer.index_text(title, 5);
 	indexer.increase_termpos(100);
     }
     if (!dump.empty()) {
