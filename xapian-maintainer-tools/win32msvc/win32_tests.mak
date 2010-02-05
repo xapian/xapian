@@ -53,24 +53,26 @@ APITEST_OBJS= \
     "$(OUTDIR)\apitest.obj" \
     "$(OUTDIR)\api_anydb.obj" \
     "$(OUTDIR)\api_backend.obj" \
-    "$(INTDIR)\api_closedb.obj" \
-    "$(INTDIR)\api_collapse.obj" \
+    "$(OUTDIR)\api_closedb.obj" \
+    "$(OUTDIR)\api_collapse.obj" \
+    "$(OUTDIR)\api_compact.obj" \
     "$(OUTDIR)\api_db.obj" \
     "$(OUTDIR)\api_generated.obj" \
     "$(OUTDIR)\api_nodb.obj" \
     "$(OUTDIR)\api_percentages.obj" \
     "$(OUTDIR)\api_posdb.obj" \
     "$(OUTDIR)\api_query.obj" \
-    "$(INTDIR)\api_replicate.obj" \
-    "$(INTDIR)\api_serialise.obj" \
+    "$(OUTDIR)\api_replicate.obj" \
+    "$(OUTDIR)\api_serialise.obj" \
     "$(OUTDIR)\api_sorting.obj" \
     "$(OUTDIR)\api_sortingold.obj" \
     "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_transdb.obj" \
     "$(OUTDIR)\api_unicode.obj" \
-    "$(INTDIR)\api_valuestats.obj" \
-    "$(INTDIR)\api_valuestream.obj" \
-    "$(OUTDIR)\api_wrdb.obj" 
+    "$(OUTDIR)\api_valuestats.obj" \
+    "$(OUTDIR)\api_valuestream.obj" \
+    "$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\dbcheck.obj"
     
 INTERNALTEST_OBJS= "$(OUTDIR)\internaltest.obj"
     
@@ -88,6 +90,7 @@ SRC = \
     "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_closedb.cc" \
     "$(INTDIR)\api_collapse.cc" \
+    "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
@@ -105,6 +108,7 @@ SRC = \
     "$(INTDIR)\api_valuestream.cc" \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\btreetest.cc" \
+    "$(INTDIR)\dbcheck.cc" \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
     "$(INTDIR)\queryparsertest.cc" \
@@ -116,6 +120,7 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_closedb.cc" \
     "$(INTDIR)\api_collapse.cc" \
+    "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
@@ -138,6 +143,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_backend.h" \
     "$(INTDIR)\api_closedb.h" \
     "$(INTDIR)\api_collapse.h" \
+    "$(INTDIR)\api_compact.h" \
     "$(INTDIR)\api_db.h" \
     "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_nodb.h" \
