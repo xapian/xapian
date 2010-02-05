@@ -172,51 +172,6 @@ namespace Xapian {
     }
 }
 
-%{
-/* Typemap for returning a map of ints keyed by strings: converts to a dict.
- * This is used for @a ValueCountMatchSpy::get_values().
- * The GIL must be held when this is called.
- */
-PyObject *
-value_map_to_dict(const std::map<std::string, Xapian::doccount> & vals)
-{
-    PyObject * result = PyDict_New();
-    if (result == 0) {
-	return NULL;
-    }
-
-    std::map<std::string, Xapian::doccount>::const_iterator i;
-    for (i = vals.begin(); i != vals.end(); ++i) {
-        PyObject * str = PyString_FromStringAndSize((*i).first.data(),
-                                                    (*i).first.size());
-	if (str == 0) {
-            Py_DECREF(result);
-            result = NULL;
-            return NULL;
-        }
-
-        PyObject * l = PyInt_FromLong((*i).second);
-	if (l == 0) {
-            Py_DECREF(str);
-            Py_DECREF(result);
-            result = NULL;
-            return NULL;
-        }
-
-	if (PyDict_SetItem(result, str, l) == -1) {
-            Py_DECREF(str);
-            Py_DECREF(l);
-            Py_DECREF(result);
-            result = NULL;
-            return NULL;
-        }
-        Py_DECREF(str);
-        Py_DECREF(l);
-    }
-    return result;
-}
-%}
-
 %typedef PyObject *LangSpecificListType;
 
 %inline %{

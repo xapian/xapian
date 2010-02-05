@@ -23,21 +23,6 @@
  */
 %}
 
-%extend ValueCountMatchSpy {
-    %feature("nothread") get_values_as_dict;
-    %exception get_values_as_dict {
-        try {
-            $action
-        } catch (...) {
-            Xapian::SetPythonException();
-            SWIG_fail;
-        }
-    }
-    PyObject * get_values_as_dict() {
-        return value_map_to_dict($self->get_values());
-    }
-}
-
 %pythoncode %{
 
 # Set the documentation format - this is used by tools like "epydoc" to decide

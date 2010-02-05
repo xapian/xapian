@@ -1384,14 +1384,10 @@ def test_matchspy():
     # exception due to a copy and paste error in its definition.
     enq.clear_matchspies()
     mset = enq.get_mset(0, 10)
-    expect(spy.get_values_as_dict(), {})
+    expect([item for item in spy.values()], [])
 
     enq.add_matchspy(spy)
     mset = enq.get_mset(0, 10)
-    expect(spy.get_values_as_dict(), {
-           xapian.sortable_serialise(1.5): 1,
-           xapian.sortable_serialise(2): 2,
-          })
     expect(spy.get_total(), 5)
     expect([(item.term, item.termfreq) for item in spy.values()], [
            (xapian.sortable_serialise(1.5), 1),

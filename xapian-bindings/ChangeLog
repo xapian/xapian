@@ -1,3 +1,9 @@
+Fri Feb 05 11:42:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,php/smoketest.php,php/util.i,python/extra.i,
+	  python/pythontest2.py,python/util.i: Update to match the removal
+	  of ValueCountMatchSpy from core.
+
 Wed Feb 03 17:52:44 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* xapian.i: Add wrappers for Database::get_doclength_lower_bound(),
