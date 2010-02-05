@@ -169,44 +169,6 @@ DEFINE_TESTCASE(matchspy2, writable)
     TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
     TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
 		       
-    {
-	// Test scoring evenness returns scores with the natural ordering.
-	double score0 = Xapian::score_evenness(spy0);
-	tout << "score0 = " << score0 << endl;
-	double score1 = Xapian::score_evenness(spy1);
-	tout << "score1 = " << score1 << endl;
-	double score3 = Xapian::score_evenness(spy3);
-	tout << "score3 = " << score3 << endl;
-	// 1 is obviously best, and 0 obviously worst.
-	TEST(score1 < score3);
-	TEST(score3 < score0);
-
-	// Check that the using the expanded form gives the same results.
-	double score0_check = Xapian::score_evenness(spy0.get_values(), spy0.get_total());
-	tout << "score0_check = " << score0_check << endl;
-	TEST_EQUAL(score0, score0_check);
-    }
-
-    {
-	// Test scoring evenness and about 7 categories returns scores with the
-	// natural ordering.
-	double score0 = Xapian::score_evenness(spy0, 7);
-	tout << "score0 = " << score0 << endl;
-	double score1 = Xapian::score_evenness(spy1, 7);
-	tout << "score1 = " << score1 << endl;
-	double score3 = Xapian::score_evenness(spy3, 7);
-	tout << "score3 = " << score3 << endl;
-	// 3 is clearly worst - 0 is arguably a little better than 1 (0 is the
-	// requested size, but 1 has a much more even split).
-	TEST(score0 < score1);
-	TEST(score1 < score3);
-
-	// Check that the using the expanded form gives the same results.
-	double score0_check = Xapian::score_evenness(spy0.get_values(), spy0.get_total());
-	tout << "score0_check = " << score0_check << endl;
-	TEST_EQUAL(score0, score0_check);
-    }
-
     return true;
 }
 
@@ -274,7 +236,7 @@ DEFINE_TESTCASE(matchspy3, writable)
     spies.push_back(&spy2);
     spies.push_back(&spy3);
     for (Xapian::valueno v = 0; !results[v].empty(); ++v) {
-	Xapian::UnbiasedNumericRanges ranges(spies[v]->get_values(), 7);
+	Xapian::UnbiasedNumericRanges ranges(*(spies[v]), 7);
 	if (results[v] == "|") {
 	    TEST_EQUAL(ranges.get_values_seen(), 0);
 	    continue;
@@ -525,7 +487,7 @@ DEFINE_TESTCASE(numericrange2, writable)
     enq.add_matchspy(&spy);
     enq.get_mset(0, 10);
 
-    Xapian::UnbiasedNumericRanges ranges(spy.get_values(), 1000);
+    Xapian::UnbiasedNumericRanges ranges(spy, 1000);
     const std::map<Xapian::NumericRange, Xapian::doccount> & r = ranges.get_ranges();
 
     TEST_EQUAL(r.size(), 3);
