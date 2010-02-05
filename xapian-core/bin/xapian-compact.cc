@@ -385,7 +385,7 @@ main(int argc, char **argv)
 		size_t n = order[j];
 
 		swap(sources_[j], sources[n]);
-		used_ranges_[j] = used_ranges[n];
+		used_ranges_.push_back(used_ranges[n]);
 
 		const pair<Xapian::docid, Xapian::docid> p = used_ranges[n];
 		// Skip empty databases.

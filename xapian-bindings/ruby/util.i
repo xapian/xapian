@@ -110,6 +110,9 @@
 // in Xapian::Database
 %rename("_dangerous_positionlist_begin") positionlist_begin;
 %rename("_dangerous_positionlist_end") positionlist_end;
+// in Xapian::Database
+%rename("_dangerous_valuestream_begin") valuestream_begin;
+%rename("_dangerous_valuestream_end") valuestream_end;
 // in Xapian::Document and Xapian::ValueCountMatchSpy
 %rename("_dangerous_values_begin") values_begin;
 %rename("_dangerous_values_end") values_end;

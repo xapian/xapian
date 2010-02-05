@@ -41,6 +41,29 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Fri Feb 05 11:42:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,php/smoketest.php,php/util.i,python/extra.i,
+	  python/pythontest2.py,python/util.i: Update to match the removal
+	  of ValueCountMatchSpy from core.
+
+Wed Feb 03 17:52:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian.i: Add wrappers for Database::get_doclength_lower_bound(),
+	  Database::get_doclength_upper_bound(),
+	  Database::get_wdf_upper_bound() for all languages.  Also, expose
+	  the skip_to() and check() methods on ValueIterator, and expose
+	  Database::valuestream_begin() and Database::valuestream_end().
+	  Fixes ticket #431.
+	* python/: Add ValueStreamItem and ValueStreamIter to wrap the
+	  iterators returned from the valuestream methods.  Wrap and
+	  replace the C++ valuestream_begin() and valuestream_end() methods
+	  with a Database.valuestream() method which returns a
+	  ValueStreamIter.  Add a test for this (test_valuestream_iter()).
+	* ruby/: Add safe wrapper for the valuestream iterator, add a
+	  "docid" member to the Value wrapper for ValueIterator, and add a
+	  test for this.
+
 Wed Feb 03 15:17:27 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Wrap and test

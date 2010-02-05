@@ -1,3 +1,9 @@
+Thu Feb 04 03:20:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,runfilter.cc: Use safesyswait.h.
+	* runfilter.cc: Reformat header to @file doxygen comment.  Put
+	  '#include "runfilter.h"' right after <config.h>.
+
 Wed Dec 10 00:15:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

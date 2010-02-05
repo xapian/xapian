@@ -602,6 +602,13 @@ provided by sys/stat.h under UNIX) and provides a compatibility wrapper for
 mkdir() which takes 2 arguments (so code using mkdir can always just pass
 two arguments).
 
+<sys/wait.h>:
+-------------
+
+To get `WEXITSTATUS` or `WIFEXITED` defined, '#include "safesyswait.h"'.
+Note that this won't provide `waitpid()`, etc on Microsoft Windows, since
+these functions are only really useful to use when `fork()` is available.
+
 <unistd.h>:
 -----------
 

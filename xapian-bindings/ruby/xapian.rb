@@ -124,15 +124,16 @@ module Xapian
 
   # Ruby wrapper for Xapian::ValueIterator
   class Xapian::Value
-    attr_accessor :value, :valueno
+    attr_accessor :value, :valueno, :docid
     
-    def initialize(value, valueno)
+    def initialize(value, valueno, docid)
       @value = value
       @valueno = valueno
+      @docid = docid
     end # initialize
 
     def ==(other)
-      return other.is_a?(Xapian::Value) && other.value == @value && other.valueno == @valueno
+      return other.is_a?(Xapian::Value) && other.value == @value && other.valueno == @valueno && other.docid == @docid
     end
   end # Xapian::Value
 
@@ -150,7 +151,7 @@ module Xapian
 
     def values
       Xapian._safelyIterate(self._dangerous_values_begin(), self._dangerous_values_end()) { |item|
-        Xapian::Value.new(item.value, item.valueno)
+        Xapian::Value.new(item.value, item.valueno, 0)
       }
     end # terms
 
@@ -275,6 +276,15 @@ module Xapian
       Xapian._safelyIterate(self._dangerous_positionlist_begin(docid, term),
                             self._dangerous_positionlist_end(docid, term)) { |item|
         item.termpos
+      }
+    end # positionlist
+
+    # Returns an Array of Xapian::Value objects for the given slot in the
+    # database.
+    def valuestream(slot)
+      Xapian._safelyIterate(self._dangerous_valuestream_begin(slot),
+                            self._dangerous_valuestream_end(slot)) { |item|
+        Xapian::Value.new(item.value, slot, item.docid)
       }
     end # positionlist
   end # Xapian::Database

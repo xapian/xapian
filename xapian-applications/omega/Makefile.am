@@ -103,6 +103,7 @@ noinst_HEADERS +=\
 	common/safefcntl.h\
 	common/safesysselect.h\
 	common/safesysstat.h\
+	common/safesyswait.h\
 	common/safeunistd.h\
 	common/safewindows.h\
 	common/stringutils.h

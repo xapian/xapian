@@ -47,7 +47,7 @@ AC_TRY_COMPILE([#include <stdint.h>],
 
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h], [], [], [ ])
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h sys/time.h]dnl
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])

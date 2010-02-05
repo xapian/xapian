@@ -25,6 +25,7 @@
 #include "api_compact.h"
 
 #include "apitest.h"
+#include "backendmanager.h" // For XAPIAN_BIN_PATH.
 #include "dbcheck.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -32,11 +33,19 @@
 #include <xapian.h>
 
 #include <cstdlib>
-#include <sys/wait.h>
+#include "safesyswait.h"
 
 #include "str.h"
 #include "utils.h"
 #include "unixcmds.h"
+
+#define XAPIAN_COMPACT XAPIAN_BIN_PATH"xapian-compact"
+
+#ifndef __WIN32__
+# define SILENT ">/dev/null 2>&1"
+#else
+# define SILENT ">nul 2>nul"
+#endif
 
 using namespace std;
 
@@ -115,7 +124,7 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
 				 "3000 999999 !999999");
     d += ' ';
 
-    string cmd = "../bin/xapian-compact >/dev/null 2>&1 --no-renumber ";
+    string cmd = XAPIAN_COMPACT" "SILENT" --no-renumber ";
     string out = get_named_writable_database_path("compactnorenumber1out");
 
     rm_rf(out);
@@ -189,7 +198,7 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
 DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
     int status;
 
-    string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
     string indbpath = get_database_path("apitest_simpledata") + ' ';
     string outdbpath = get_named_writable_database_path("compactmerge1out");
     rm_rf(outdbpath);
@@ -226,7 +235,7 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 DEFINE_TESTCASE(compactmultichunks1, brass || chert || flint) {
     int status;
 
-    string cmd = "../bin/xapian-compact >/dev/null 2>&1 ";
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
     string indbpath = get_database_path("compactmultichunks1in",
 					make_multichunk_db, "");
     string outdbpath = get_named_writable_database_path("compactmultichunks1out");

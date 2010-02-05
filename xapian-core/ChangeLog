@@ -240,6 +240,47 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Fri Feb 05 13:28:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/simpleexpand.cc,examples/simpleindex.cc,
+	  examples/simplesearch.cc: Handle --help and --version.
+
+Fri Feb 05 13:25:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix not to assign elements off the end of a
+	  vector (ticket#440).
+
+Fri Feb 05 11:41:05 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Remove ValueCountMatchSpy::get_values().  values_begin() should
+	  be used instead to iterate over the values.
+
+Fri Feb 05 07:39:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable automake's std-options feature to check all
+	  installed programs support --help and --version.
+
+Fri Feb 05 01:45:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: Add Document::add_boolean_term().
+	* tests/api_none.cc: Add testcase document1 as a feature test.
+
+Fri Feb 05 00:27:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/flint/flint_btreebase.cc:
+	  Add missing SEQUENTIAL entry to documentation of base file format.
+
+Thu Feb 04 03:06:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Fix to work with MSVC makefiles (ticket#440).
+
+Thu Feb 04 03:04:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,common/Makefile.mk,common/safesyswait.h: Add wrapper
+	  for <sys/wait.h> which defines macros for WEXITSTATUS and
+	  WIFEXITED when required.
+
 Wed Feb 03 15:01:36 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
