@@ -1,3 +1,7 @@
+Sat Feb 06 10:04:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Sync with 1.0 branch.
+
 Sat Feb 06 08:20:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_closedb.cc: Avoid trying to create a database where
