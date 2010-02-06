@@ -6,8 +6,12 @@ TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PY
 
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
-# FIXME: replicationtest.py is failing, and I can't see why - disable it
-# temporarily as Richard is away and snapshots aren't building.
+
+# FIXME: replicationtest.py attempts to test the concurrent performance of
+# performing replication whilst modifications are in progress.  However, it
+# sometimes fails due to a race condition in it.  It also contains hard-coded
+# paths to the replication scripts, which assume the file layout in an SVN
+# checkout.  Therefore, we don't run it by default currently.
 # replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py

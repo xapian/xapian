@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2008,2009 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -265,10 +266,19 @@ ValueWeightPostingSource::init(const Database & db_)
 {
     ValuePostingSource::init(db_);
 
+    string upper_bound;
     try {
-	set_maxweight(sortable_unserialise(db.get_value_upper_bound(slot)));
+	upper_bound = db.get_value_upper_bound(slot);
     } catch (const Xapian::UnimplementedError &) {
 	// ValuePostingSource::init() set the maxweight to DBL_MAX.
+	return;
+    }
+
+    if (upper_bound.empty()) {
+	// This should only happen if there are no entries, in which case the maxweight is 0.
+	set_maxweight(0.0);
+    } else {
+	set_maxweight(sortable_unserialise(upper_bound));
     }
 }
 

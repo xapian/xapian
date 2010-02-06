@@ -182,12 +182,40 @@ if ($edit_cl) {
 	open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
 	my @files;
 	my $diff = '';
+	my $whitespace = '';
+	my $fnm;
+	my $want_tabs;
 	while (<CI>) {
 	    $diff .= $_;
 	    if (/^Index: (.*)/) {
-		push @files, $1;
+		$fnm = $1;
+		push @files, $fnm;
+		if ($fnm =~ /\.(?:cc|[ch])$/) {
+		    $want_tabs = 1;
+		} elsif ($fnm =~ /\.py(?:\.in)?$/) {
+		    $want_tabs = 0;
+		} else {
+		    # Don't know!
+		    $want_tabs = -1;
+		}
+	    } elsif (/^\+.*[ \t]$/) {
+		$whitespace .= $fnm;
+		$whitespace .= ": added/changed line has trailing whitespace:\n";
+		$whitespace .= $_;
+	    } elsif (/^\+.* \t/) {
+		$whitespace .= $fnm;
+		$whitespace .= ": added/changed line has space before tab:\n";
+		$whitespace .= $_;
+	    } elsif ($want_tabs == 1 and /^\+\t* {8}/) {
+		$whitespace .= $fnm;
+		$whitespace .= ": added/changed line uses spaces for indentation rather than tab:\n";
+		$whitespace .= $_;
+	    } elsif (!$want_tabs and /^\+ *\t/) {
+		$whitespace .= $fnm;
+		$whitespace .= ": added/changed line uses tab for indentation rather than spaces:\n";
+		$whitespace .= $_;
 	    }
-	} 
+	}
 	my $d = "";
 	my @newfiles;
 	my @d;
@@ -227,7 +255,7 @@ if ($edit_cl) {
 	while (length($line) >= 68 && $line =~ s/^(.{1,68},)//) {
 	    $filelist .= "$1\n\t  ";
 	}
-	$diff = "$filelist$line:\n\n\n$diff";
+	$diff = "$filelist$line:\n\n$whitespace\n$diff";
 	add_new_changelog_entry($diff);
     }
     system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");

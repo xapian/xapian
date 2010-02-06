@@ -77,7 +77,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::TermIterator)
 #include <xapian/valueiterator.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::ValueIterator)
 
-#include <xapian/replication.h>
+#include "replication.h"
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
 

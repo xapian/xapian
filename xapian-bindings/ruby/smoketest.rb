@@ -7,6 +7,7 @@
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
 # Copyright (C) 2008,2009 Olly Betts
+# Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -206,6 +207,37 @@ class XapianSmoketest < Test::Unit::TestCase
     # didn't handle integer values > MAXINT for double parameters.
     v = 51767811298
     assert_equal(v, Xapian::sortable_unserialise(Xapian::sortable_serialise(v)))
+  end
+
+  def test_015_valuecount_matchspy
+    spy = Xapian::ValueCountMatchSpy.new(0)
+    doc = Xapian::Document.new()
+    doc.add_posting("term", 1)
+    doc.add_value(0, "yes")
+    @db.add_document(doc)
+    @db.add_document(doc)
+    doc.add_value(0, "maybe")
+    @db.add_document(doc)
+    doc.add_value(0, "no")
+    @db.add_document(doc)
+    query = Xapian::Query.new("term")
+    enquire = Xapian::Enquire.new(@db)
+    enquire.query = query
+    enquire.add_matchspy(spy)
+    mset = enquire.mset(0, 10)
+    assert_equal(spy.values.map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
+		 "maybe:1,no:1,yes:2")
+    assert_equal(spy.top_values(1).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
+		 "yes:2")
+    assert_equal(spy.top_values(2).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
+		 "yes:2,maybe:1")
+    assert_equal(spy.top_values(3).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
+		 "yes:2,maybe:1,no:1")
+
+    # Test the valuestream iterator, while we've got some data
+    assert_equal(@db.valuestream(1).size(), 0)
+    assert_equal(@db.valuestream(0).map{|i| "%d:%s"%[i.docid, i.value]}*",",
+		 "2:yes,3:yes,4:maybe,5:no")
   end
 
 end # class XapianSmoketest

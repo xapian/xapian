@@ -46,7 +46,7 @@ struct fragment {
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string () const {
-	return string(data, data[0] == 'M' ? 4 : 3);
+	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 
     bool operator<(const fragment &b) const {
@@ -57,7 +57,7 @@ struct fragment {
 }
 
 class BrassSpellingTable : public BrassLazyTable {
-    void toggle_fragment(Brass::fragment frag, const string & word);
+    void toggle_fragment(Brass::fragment frag, const std::string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<Brass::fragment, std::set<std::string> > termlist_deltas;
@@ -83,7 +83,7 @@ class BrassSpellingTable : public BrassLazyTable {
 
     TermList * open_termlist(const std::string & word);
 
-    Xapian::doccount get_word_frequency(const string & word) const;
+    Xapian::doccount get_word_frequency(const std::string & word) const;
 
     /** Override methods of BrassTable.
      *

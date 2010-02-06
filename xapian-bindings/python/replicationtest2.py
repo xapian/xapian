@@ -28,16 +28,23 @@ import xapian
 from testsuite import *
 
 def set_master(masterpath, srcpath):
+    # Take a copy of the source, to make modifications to.
     if os.path.exists(masterpath + "_"):
         shutil.rmtree(masterpath + "_")
     shutil.copytree(srcpath, masterpath + "_")
 
+    # Set a new uuid on the copy.
     xapian.WritableDatabase(masterpath + "__", xapian.DB_CREATE_OR_OVERWRITE)
-    os.unlink(os.path.join(masterpath + "_", "uuid"))
-    os.rename(os.path.join(masterpath + "__", "uuid"),
-              os.path.join(masterpath + "_", "uuid"))
-
+    os.unlink(os.path.join(masterpath + "_", "iamchert"))
+    os.rename(os.path.join(masterpath + "__", "iamchert"),
+              os.path.join(masterpath + "_", "iamchert"))
     shutil.rmtree(masterpath + "__")
+
+    # Replace the current master with the copy of the source.
+    # Note that this isn't an atomic replace, so we'll sometimes get errors
+    # such as "NetworkError: Unable to fully synchronise: Can't open database:
+    # Cannot open tables at consistent revisions" - the replication protocol
+    # should recover happily from this, though.
     if os.path.exists(masterpath):
         os.rename(masterpath, masterpath + "__")
     os.rename(masterpath + '_', masterpath)

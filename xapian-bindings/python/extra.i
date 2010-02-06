@@ -4,6 +4,7 @@
  * Copyright (C) 2003,2004,2005 James Aylett
  * Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,85 +22,6 @@
  * USA
  */
 %}
-
-%extend ValueCountMatchSpy {
-    %feature("nothread") get_values_as_dict;
-    %exception get_values_as_dict {
-        try {
-            $action
-        } catch (...) {
-            Xapian::SetPythonException();
-            SWIG_fail;
-        }
-    }
-    PyObject * get_values_as_dict() {
-        return value_map_to_dict($self->get_values());
-    }
-}
-
-%extend NumericRanges {
-    %feature("nothread") get_ranges_as_dict;
-    %exception get_ranges_as_dict {
-        try {
-            $action
-        } catch (...) {
-            Xapian::SetPythonException();
-            SWIG_fail;
-        }
-    }
-    PyObject * get_ranges_as_dict() {
-        const std::map<Xapian::NumericRange, Xapian::doccount> & ranges =
-                $self->get_ranges();
-        PyObject * result = PyDict_New();
-        if (result == 0) {
-            return NULL;
-        }
-
-        std::map<Xapian::NumericRange, Xapian::doccount>::const_iterator i;
-        for (i = ranges.begin(); i != ranges.end(); ++i) {
-            PyObject * lower = PyFloat_FromDouble((*i).first.get_lower());
-            if (lower == 0) {
-                Py_DECREF(result);
-                return NULL;
-            }
-
-            PyObject * upper = PyFloat_FromDouble((*i).first.get_upper());
-            if (upper == 0) {
-                Py_DECREF(lower);
-                Py_DECREF(result);
-                return NULL;
-            }
-
-            PyObject *range = PyTuple_New(2);
-            if (range == 0) {
-                Py_DECREF(lower);
-                Py_DECREF(upper);
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyTuple_SetItem(range, 0, lower);
-            PyTuple_SetItem(range, 1, upper);
-
-
-            PyObject * freq = PyInt_FromLong((*i).second);
-            if (freq == 0) {
-                Py_DECREF(range);
-                Py_DECREF(result);
-                return NULL;
-            }
-
-            if (PyDict_SetItem(result, range, freq) == -1) {
-                Py_DECREF(range);
-                Py_DECREF(freq);
-                Py_DECREF(result);
-                return NULL;
-            }
-            Py_DECREF(range);
-            Py_DECREF(freq);
-        }
-        return result;
-    }
-}
 
 %pythoncode %{
 
@@ -724,6 +646,50 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# Modify ValueCountMatchSpy to add an "values()" method.
+def wrapper():
+    begin = ValueCountMatchSpy.values_begin
+    del ValueCountMatchSpy.values_begin
+    end = ValueCountMatchSpy.values_end
+    del ValueCountMatchSpy.values_end
+    def values_iter(self):
+        """Get an iterator over all the values in the slot.
+
+        Values will be returned in ascending alphabetical order.
+
+        The iterator will return TermListItem objects: the value can be
+        accessed as the `term` property, and the frequency can be accessed as
+        the `termfreq` property.
+
+        """
+        return TermIter(begin(self), end(self), has_termfreq=TermIter.EAGER)
+    return values_iter
+ValueCountMatchSpy.values = wrapper()
+del wrapper
+
+# Modify ValueCountMatchSpy to add an "top_values()" method.
+def wrapper():
+    begin = ValueCountMatchSpy.top_values_begin
+    del ValueCountMatchSpy.top_values_begin
+    end = ValueCountMatchSpy.top_values_end
+    del ValueCountMatchSpy.top_values_end
+    def top_values_iter(self, maxvalues):
+        """Get an iterator over the most frequent values for the slot.
+
+        Values will be returned in descending order of frequency.  Values with
+        the same frequency will be returned in ascending alphabetical order.
+
+        The iterator will return TermListItem objects: the value can be
+        accessed as the `term` property, and the frequency can be accessed as
+        the `termfreq` property.
+
+        """
+        return TermIter(begin(self, maxvalues), end(self, maxvalues),
+                        has_termfreq=TermIter.EAGER)
+    return top_values_iter
+ValueCountMatchSpy.top_values = wrapper()
+del wrapper
+
 # When we make a query, keep a note of postingsources involved, so they won't
 # be deleted. This hack can probably be removed once xapian bug #186 is fixed.
 __query_init_orig = Query.__init__
@@ -1145,6 +1111,105 @@ def _document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
 Document.values = _document_gen_values_iter
 
+
+##########################################
+# Support for iteration of value streams #
+##########################################
+
+class ValueStreamItem(object):
+    """An item returned from iteration of the values in a document.
+
+    The item supports access to the following attributes:
+
+     - `docid`: The docid for the item.
+     - `value`: The contents of the value.
+
+    """
+
+    __slots__ = ('docid', 'value', )
+
+    def __init__(self, docid, value):
+        self.docid = docid
+        self.value = value
+
+class ValueStreamIter(object):
+    """An iterator over all the values stored in a document.
+
+    The iterator will return ValueStreamItem objects, in ascending order of value number.
+
+    """
+    def __init__(self, start, end):
+        self.iter = start
+        self.end = end
+        self.moved = True
+
+    def __iter__(self):
+        return self
+
+    # For Python2:
+    def next(self):
+        if not self.moved:
+            self.iter.next()
+            self.moved = True
+
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            self.moved = False
+            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+    # For Python3:
+    def __next__(self):
+        if not self.moved:
+            self.iter.next()
+            self.moved = True
+
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            self.moved = False
+            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+    def skip_to(self, docid):
+        """Skip the iterator forward.
+
+        The iterator is advanced to the first document with a document ID
+        which is greater than or equal to the supplied document ID.
+
+        If there are no such items, this will raise StopIteration.
+
+        This returns the item which the iterator is moved to.  The subsequent
+        item will be returned the next time that next() is called (unless
+        skip_to() is called again first).
+
+        """
+        if self.iter != self.end:
+            self.iter.skip_to(docid)
+        if self.iter == self.end:
+            self.moved = True
+            raise StopIteration
+        self.moved = False
+        return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+# Modify Database to add a "valuestream()" method, and remove the
+# valuestream_begin() and valuestream_end() methods.
+def wrapper():
+    vs_begin = Database.valuestream_begin
+    vs_end = Database.valuestream_end
+    def _database_gen_valuestream_iter(self, slot):
+        """Get an iterator over all the values stored in a slot in the database.
+
+        The iterator will return ValueStreamItem objects, in ascending order of
+        document id.
+
+        """
+        return ValueStreamIter(vs_begin(self, slot), vs_end(self, slot))
+    return _database_gen_valuestream_iter
+Database.valuestream = wrapper()
+del wrapper
+del Database.valuestream_begin
+del Database.valuestream_end
+
 # Set the list of names which should be public.
 # Note that this needs to happen at the end of xapian.py.
 __all__ = []
@@ -1169,7 +1234,7 @@ Enquire.add_matchspy = _enquire_match_spy_add
 
 _enquire_clear_matchspies_orig = Enquire.clear_matchspies
 def _enquire_match_spies_clear(self):
-    _enquire_clear_matchspies_orig(self, decider)
+    _enquire_clear_matchspies_orig(self)
     if hasattr(self, '_deciders'):
         del self._deciders
 _enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__

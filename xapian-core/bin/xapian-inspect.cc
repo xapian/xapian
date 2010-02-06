@@ -77,10 +77,54 @@ show_help()
 {
     cout << "Commands:\n"
 	    "next   : Next entry (alias 'n' or '')\n"
+	    "until X: Display entries until X (alias 'u')\n"
 	    "prev   : Previous entry (alias 'p')\n"
 	    "goto X : Goto entry X (alias 'g')\n"
 	    "help   : Show this (alias 'h' or '?')\n"
 	    "quit   : Quit this utility (alias 'q')" << endl;
+}
+
+static void
+do_until(FlintCursor & cursor, const string & target)
+{
+    if (cursor.after_end()) {
+	cout << "At end already." << endl;
+	return;
+    }
+
+    if (!target.empty()) {
+	int cmp = target.compare(cursor.current_key);
+	if (cmp <= 0) {
+	    if (cmp)
+		cout << "Already after specified key." << endl;
+	    else
+		cout << "Already at specified key." << endl;
+	    return;
+	}
+    }
+
+    while (cursor.next()) {
+	int cmp = 1;
+	if (!target.empty()) {
+	    cmp = target.compare(cursor.current_key);
+	    if (cmp < 0) {
+		cout << "No exact match, stopping at entry before." << endl;
+		cursor.prev();
+		return;
+	    }
+	}
+	cout << "Key: ";
+	display_nicely(cursor.current_key);
+	cout << "\nTag: ";
+	cursor.read_tag();
+	display_nicely(cursor.current_tag);
+	cout << "\n";
+	if (cmp == 0) {
+	    return;
+	}
+    }
+
+    cout << "Reached end." << endl;
 }
 
 int
@@ -172,6 +216,18 @@ wait_for_input:
 		    goto wait_for_input;
 		}
 		continue;
+	    } else if (startswith(input, "u ")) {
+		do_until(cursor, input.substr(2));
+		goto wait_for_input;
+	    } else if (startswith(input, "until ")) {
+		do_until(cursor, input.substr(6));
+		goto wait_for_input;
+	    } else if (input == "u") {
+		do_until(cursor, string());
+		goto wait_for_input;
+	    } else if (input == "until") {
+		do_until(cursor, string());
+		goto wait_for_input;
 	    } else if (startswith(input, "g ")) {
 		if (!cursor.find_entry(input.substr(2))) {
 		    cout << "No exact match, going to entry before." << endl;

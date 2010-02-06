@@ -2,10 +2,12 @@ Source: xapian-bindings
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
+Standards-Version: 3.8.4
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.8.0
-Homepage: http://www.xapian.org/
+Homepage: http://xapian.org/
+Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-bindings
+Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-bindings
 
 Package: tclxapian
 Section: libs
@@ -16,7 +18,7 @@ Description: Xapian search engine interface for Tcl
  This package provides Xapian Tcl bindings which should work with any version
  of Tcl >= 8.1 (by using Tcl's stubs mechanism.)
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance
@@ -28,14 +30,14 @@ Description: Xapian search engine interface for Tcl
  Tcl programming language, allowing both indexing and retrieval operations.
 
 Package: libxapian-ruby1.8
-Section: libs
+Section: ruby
 Architecture: any
 Depends: ${ruby:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-doc
 Description: Xapian search engine interface for Ruby 1.8
  This package provides Xapian Ruby bindings built for Ruby 1.8.
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance
@@ -59,7 +61,7 @@ Description: Xapian search engine interface for Python
  This package provides Xapian Python bindings for all the packaged versions
  of Python.
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance

@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include "xapian/replication.h"
+#include "replication.h"
 
 #include "xapian/base.h"
 #include "xapian/dbfactory.h"

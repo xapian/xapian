@@ -1,4 +1,4 @@
-/** @file brass_metadata.h
+/** @file brass_metadata.cc
  * @brief Access to metadata for a brass database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts

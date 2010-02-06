@@ -47,6 +47,16 @@ WritableDatabase::flush()
         }
 
 void
+WritableDatabase::close()
+    CODE:
+	try {
+	    THIS->close();
+	}
+	catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
 WritableDatabase::begin_transaction(flushed = NO_INIT)
     bool flushed
     CODE:

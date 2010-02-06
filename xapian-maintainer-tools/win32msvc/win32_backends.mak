@@ -16,6 +16,7 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libremote.lib" \
     "$(OUTDIR)\libflint.lib" \
     "$(OUTDIR)\libchert.lib" \
+    "$(OUTDIR)\libbrass.lib" \
     $(NULL)
 
 OBJS=   $(INTDIR)\database.obj \
@@ -25,7 +26,8 @@ OBJS=   $(INTDIR)\database.obj \
         $(INTDIR)\alltermslist.obj \
         $(INTDIR)\valuelist.obj \
         $(INTDIR)\slowvaluelist.obj \
-        $(INTDIR)\contiguousalldocspostlist.obj
+        $(INTDIR)\contiguousalldocspostlist.obj \
+        $(INTDIR)\flint_lock.obj 
 
 SRCS=   $(INTDIR)\database.cc \
         $(INTDIR)\databasereplicator.cc\
@@ -34,7 +36,8 @@ SRCS=   $(INTDIR)\database.cc \
         $(INTDIR)\alltermslist.cc \
         $(INTDIR)\valuelist.cc \
         $(INTDIR)\slowvaluelist.cc \
-        $(INTDIR)\contiguousalldocspostlist.cc
+        $(INTDIR)\contiguousalldocspostlist.cc \
+        $(INTDIR)\flint_lock.cc 
 
 
 	  
@@ -45,7 +48,9 @@ CLEAN :
 	-@erase /q "$(INTDIR)\*.pch"
 	-@erase /q "$(INTDIR)\*.pdb"
 	-@erase /q $(OBJS)
-	cd chert
+	cd brass
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\chert
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
@@ -72,6 +77,11 @@ CPP_SBRS=.
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(OBJS)
 <<
+
+"$(OUTDIR)\libbrass.lib":
+       cd brass
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       cd ..
 
 "$(OUTDIR)\libflint.lib":
        cd flint

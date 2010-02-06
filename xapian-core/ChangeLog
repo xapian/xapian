@@ -129,6 +129,447 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Fri Feb 05 13:28:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/simpleexpand.cc,examples/simpleindex.cc,
+	  examples/simplesearch.cc: Handle --help and --version.
+
+Fri Feb 05 13:25:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix not to assign elements off the end of a
+	  vector (ticket#440).
+
+Fri Feb 05 11:41:05 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Remove ValueCountMatchSpy::get_values().  values_begin() should
+	  be used instead to iterate over the values.
+
+Fri Feb 05 07:39:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable automake's std-options feature to check all
+	  installed programs support --help and --version.
+
+Fri Feb 05 01:45:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: Add Document::add_boolean_term().
+	* tests/api_none.cc: Add testcase document1 as a feature test.
+
+Fri Feb 05 00:27:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/flint/flint_btreebase.cc:
+	  Add missing SEQUENTIAL entry to documentation of base file format.
+
+Thu Feb 04 03:06:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Fix to work with MSVC makefiles (ticket#440).
+
+Thu Feb 04 03:04:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,common/Makefile.mk,common/safesyswait.h: Add wrapper
+	  for <sys/wait.h> which defines macros for WEXITSTATUS and
+	  WIFEXITED when required.
+
+Wed Feb 03 15:01:36 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Add ValueCountMatchSpy::values_begin() and values_end() to allow
+	  iteration over all the values in a ValueCountMatchSpy without
+	  needing to handle the dict.  Move the contents of
+	  ValueCountMatchSpy into a reference counted internal object, so
+	  that the iterator can ensure that the contents aren't deleted
+	  before it finishes.
+
+Wed Feb 03 15:01:02 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/generate-api_generated: Add ValueCountMatchSpy to the list
+	  of non-copyable API classes.
+
+Wed Feb 03 13:18:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/matchspy.h,tests/api_matchspy.cc: Provide an
+	  iterator for accessing the top values found by a matchspy, rather
+	  than using a method which takes a vector reference as a
+	  parameter.  Should be wrappable much more nicely (and get wrapped
+	  automatically), and be easier to use: the testcase for this is
+	  significantly shorter than for the old API.  Remove
+	  StringAndFrequency from API - it's now just an internal class.
+	* api/matchspy.cc: Test new access method for top_values.
+
+Wed Feb 03 06:46:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Emmanuel Engelhart for reporting problems indexing
+	  Burmese text.
+
+Wed Feb 03 06:32:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,queryparser/queryparser.lemony,
+	  queryparser/termgenerator_internal.cc: Add ENCLOSING_MARK and
+	  COMBINING_SPACING_MARK categories to is_wordchar().  Make
+	  TermGenerator and QueryParser ignore several zero-width space
+	  characters.
+	* tests/queryparsertest.cc,tests/termgentest.cc: Add test coverage for
+	  the changes.
+
+Wed Feb 03 03:14:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix apostrophe abuse in comment.
+
+Wed Feb 03 01:23:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Make TermList::as_opwindow_query()
+	  private.
+
+Wed Feb 03 01:19:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replication.h: Use "" not <> for including API headers.
+
+Wed Feb 03 01:08:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replication.h: Remove warnings about this being an
+	  experimental API, which no longer make sense now it is internal.
+
+Tue Feb 02 21:59:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Remove DatabaseReplica.
+
+Tue Feb 02 17:01:23 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/document.h: Add a note to the API documentation
+	  for the Document class about the potential issues involved in
+	  lazy loading.  Fixes ticket #421.
+
+Tue Feb 02 16:21:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* docs/categorisation.rst: Remove documentation of NumericRanges
+	  stuff for now, since the NumericRanges is no longer on trunk.
+
+Tue Feb 02 15:59:14 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* common/replication.h: Put the ReplicationInfo, DatabaseMaster and
+	  DatabaseReplica symbols back into public visibility - they're
+	  needed for the tests, and for the command line scripts.
+
+Tue Feb 02 15:06:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  Remove NumericRanges from trunk - their API is still uncertain,
+	  so I want to do a bit more development work on them on the
+	  matchspy branch before committing to support them for several
+	  years.
+
+Tue Feb 02 13:45:24 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/replication.cc,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  common/,include/Makefile.mk,include/xapian/replication.h,
+	  net/replicatetcpclient.cc,net/replicatetcpserver.cc,
+	  tests/generate-api_generated: Move replication support out of the
+	  public API headers and public symbol visibility.  Access to
+	  replication, for now, is via the command-line scripts: this is
+	  similiar to the access to running a remote database server, and
+	  the access to database compaction and checking.  See ticket #347
+	  for some commentary.
+
+Tue Feb 02 07:22:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from chert:
+	* backends/flint/flint_alltermslist.h,backends/flint/flint_spelling.h,
+	  backends/flint/flint_spellingwordslist.h: Add missing std::
+	  qualifiers. 
+
+Tue Feb 02 07:12:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in: Add generated include/xapian/error.h so
+	  that Xapian::Error and subclass API docs are collated for a VPATH
+	  build.
+	* docs/Makefile.am: Add regression test to make sure doxygen collated
+	  API docs for Xapian::RuntimeError.
+
+Tue Feb 02 06:52:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/chert_alltermslist.h,backends/chert/chert_spelling.h,
+	  backends/chert/chert_spellingwordslist.h: Add missing std::
+	  qualifiers. 
+
+Tue Feb 02 01:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* docs/replication.rst: Add note about not using reopen() with
+	  databases being updated by the replication client.
+
+Tue Feb 02 01:17:34 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,docs/categorisation.rst,include/xapian/matchspy.h,
+	  tests/api_matchspy.cc: Remove score_evenness(), since it turned
+	  out to be of little or no use in practical situations.  See
+	  ticket #435 for more details.
+
+Mon Feb 01 21:53:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc: Use
+	  LOGCALL_VOID for add() methods which now return void.
+
+Mon Feb 01 21:50:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Fix documentation comments for FlintTable::add() and
+	  FlintTable::del() - errors actually cause exceptions, not a false
+	  return value, and del() returns true if it actually removed an entry.
+	  Fix FlintTable::add() to throw an exception for the (hopefully never
+	  hit) case when the tag value is too insanely large to handle.  With
+	  that FlintTable::add() always returns true, and we never check the
+	  return value anyway, so just make it return void.
+
+Mon Feb 01 21:37:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
+	  Fix documentation comments for ChertTable::add() and
+	  ChertTable::del() - errors actually cause exceptions, not a false
+	  return value, and del() returns true if it actually removed an entry.
+	  Fix ChertTable::add() to throw an exception for the (hopefully never
+	  hit) case when the tag value is too insanely large to handle.  With
+	  that ChertTable::add() always returns true, and we never check the
+	  return value anyway, so just make it return void.
+
+Mon Feb 01 16:02:27 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Fix checking
+	  of the METAINFO key in chert and brass.  For small databases, the
+	  statistics fit in few enough bytes that the trailing
+	  unpack_uint_last() moved to end, so errors weren't being
+	  reported, but for large databases the check was incorrectly
+	  reporting an error.
+
+Mon Feb 01 09:24:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h:
+	  Fix documentation comments for BrassTable::add() and
+	  BrassTable::del() - errors actually cause exceptions, not a false
+	  return value, and del() returns true if it actually removed an entry.
+	  Fix BrassTable::add() to throw an exception for the (hopefully never
+	  hit) case when the tag value is too insanely large to handle.  With
+	  that BrassTable::add() always returns true, and we never check the
+	  return value anyway, so just make it return void.
+
+Mon Feb 01 01:45:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_alltermslist.h,backends/brass/brass_spelling.h,
+	  backends/brass/brass_spellingwordslist.h: Add missing std::
+	  qualifiers.
+
+Mon Feb 01 00:57:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_spelling.h: Add missing std:: qualifier.
+
+Mon Feb 01 00:52:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_spelling.h,backends/chert/chert_spelling.h:
+	  Add missing std:: qualifier.
+
+Sun Jan 31 23:35:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_termlisttable.cc,
+	  backends/chert/chert_termlisttable.h: Remove
+	  ChertTermListTable::get_doclength() as it is no longer used.
+
+Sun Jan 31 23:19:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_termlisttable.cc,
+	  backends/brass/brass_termlisttable.h: Remove
+	  BrassTermListTable::get_doclength() as it is no longer used.
+
+Sun Jan 31 09:19:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: "until" improvements:
+	  + No longer reports the current key and tag.
+	  + If passed a key before the current one, no longer silently advances
+	    to the next key.
+	  + Explicitly says if the specified key doesn't exist, including where
+	    we ended up.
+
+Sun Jan 31 00:19:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Use a single Document object rather than
+	  creating the same one 10000 times.
+
+Sun Jan 31 00:08:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Move make_multichunk_db() before the testcase
+	  which uses it, rather than between two helper functions for another
+	  testcase.
+
+Sun Jan 31 00:07:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Remove confusing comment, cut-and-pasted from
+	  elsewhere and not relevant here.
+
+Fri Jan 29 06:13:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_metadata.cc,backends/chert/chert_metadata.cc,
+	  backends/flint/flint_metadata.cc: Correct filenames in @file.
+
+Thu Jan 28 22:34:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Add check that xapian-compact works
+	  correctly on a database with multiple chunks for a single term;
+	  this is a regression test for ticket #427
+
+Thu Jan 28 22:33:16 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Don't
+	  cut the extra byte of doclen chunk keys.
+
+Thu Jan 28 21:23:48 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact-flint.cc: Revert previous patch for flint - it
+	  only applies to new key format used by chert and brass.
+
+Thu Jan 28 21:13:38 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc,
+	  bin/xapian-compact-flint.cc: Partial fix for #427: truncate
+	  follow-on keys for postlist chunks fully (was leaving the
+	  trailing 0-byte, causing the code for chert and brass to
+	  incorrectly think a new chunk had started, resulting in a
+	  truncated posting list.
+
+Thu Jan 28 20:42:47 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-inspect.cc: Add "until" command to display keys until
+	  a specified one.  Useful for seeing all keys for a particular
+	  posting list, etc.
+
+Thu Jan 28 01:31:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/dbcheck.cc: Whitespace tweak.
+
+Wed Jan 27 06:29:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/dbcheck.cc: <config.h> not "config.h".
+
+Wed Jan 27 04:20:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_inverter.h: Make two getters const.
+
+Wed Jan 27 04:01:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Add ChertWritableDatabase::insert_mod_plist() to handle the simpler
+	  case where we know the document doesn't already exist, to avoid
+	  adding extra code to that common path over the code we had before
+	  the #250-related changes.
+
+Tue Jan 26 03:25:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: In testcase pack_uint_preserving_sort1, use
+	  data() not c_str(), calculate the end position just once, and use
+	  swap to copy the current packed to prev_packed.
+
+Fri Jan 15 12:51:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Fix to use 'M' as the flag character for modified entries in
+	  modplists (not 'U').  We never explicitly check for 'M' (we check for
+	  'A' vs 'D' vs something else), so this isn't a functional change,
+	  but rather making the values consistent (as they were before the
+	  fix for #250).
+
+Fri Jan 15 08:25:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Use Xapian::termcount_diff instead of Xapian::termcount for
+	  parameters of add_freq_delta() which can be signed.  Fix parameter
+	  docs to say "change" instead of "increase".
+
+Fri Jan 15 06:05:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_replacedoc.cc: Just test that begin == end when we expect
+	  no positions rather than generating a string representation and
+	  then testing if it is empty.
+
+Thu Jan 14 11:17:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Auto-enabling of -Werror is now done for GCC 4.1 or newer.
+
+Thu Jan 14 05:06:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Include the MIT licence text in HACKING itself.
+	* COPYING_MIT: Remove external copy of text - it could mislead users
+	  into thinking that this is the current licence of Xapian.
+
+Sun Jan 10 07:36:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac:With --enable-maintainer-mode, enable -Werror for GCC
+	  >= 4.1 rather than >= 4.0 as Apple's GCC 4.0 gives bogus
+	  uninitialised variable warnings for pack.h.
+
+Sat Jan 09 00:56:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Add support for quoting boolean terms
+	  so they can contain arbitrary characters (partly addresses
+	  ticket#128).
+	* tests/queryparsertest.cc: Add test coverage.
+
+Fri Jan 08 13:25:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Add copyright note for my changes committed
+	  earlier today.
+
+Fri Jan 08 12:19:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Fix merging
+	  of databases by xapian-compact for brass and chert.
+	* tests/api_compact.cc: Enable test compactmerge1 for brass and chert
+	  as a regression test.
+
+Fri Jan 08 11:26:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc: Rearrange comparison between old
+	  and new termlists to avoid double check of termlist.at_end().
+
+Fri Jan 08 11:22:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Add test of xapian-compact when merging
+	  databases.  Currently, the generated databases are broken for
+	  chert and brass, so skipping the test for those to avoid breaking
+	  the snapshotter.
+
+Fri Jan 08 11:13:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/: Move routines for helping to check database contents and
+	  consistency into dbcheck.cc, with headers in dbcheck.h.
+
+Fri Jan 08 10:07:09 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/internaltest.cc: Add test_pack_uint_preserving_sort1()
+	  which I wrote when suspicious of that function - passes fine, but
+	  probably worth keeping the test coverage.
+
+Fri Jan 08 00:23:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Henry Combrinck for Search::Xapian patches.
+
+Thu Jan 07 15:51:57 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/postingsource.cc: For ValueWeightPostingSources for which
+	  there are no entries, the upper bound returned will be an empty
+	  string, which translated to -inf when passed to
+	  sortable_unserialise().  This was causing the matcher to get
+	  confused and return no results in some queries involving such a
+	  posting source.  This commit fixes this.
+	* tests/api_postingsource.cc: Add emptyvalwtsource1 as a regression
+	  test for this, and a general test of this area of code.
+
+Thu Jan 07 09:17:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_inverter.h: Fix comment typo.
+
 Wed Dec 30 11:46:45 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,

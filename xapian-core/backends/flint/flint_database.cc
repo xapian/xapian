@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -29,7 +29,6 @@
 #include "flint_database.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
@@ -51,6 +50,7 @@
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
 #include "stringutils.h"
@@ -1067,8 +1067,8 @@ FlintWritableDatabase::close()
 
 void
 FlintWritableDatabase::add_freq_delta(const string & tname,
-				      Xapian::termcount tf_delta,
-				      Xapian::termcount cf_delta)
+				      Xapian::termcount_diff tf_delta,
+				      Xapian::termcount_diff cf_delta)
 {
     map<string, pair<termcount_diff, termcount_diff> >::iterator i;
     i = freq_deltas.find(tname);
@@ -1078,6 +1078,21 @@ FlintWritableDatabase::add_freq_delta(const string & tname,
 	i->second.first += tf_delta;
 	i->second.second += cf_delta;
     }
+}
+
+void
+FlintWritableDatabase::insert_mod_plist(Xapian::docid did,
+					const string & tname,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+    j->second[did] = make_pair('A', wdf);
 }
 
 void
@@ -1153,7 +1168,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
 		add_freq_delta(tname, 1, wdf);
-		update_mod_plist(did, tname, 'A', wdf);
+		insert_mod_plist(did, tname, wdf);
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    position_table.set_positionlist(
@@ -1359,16 +1374,17 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	    termlist.next();
 	    while (!termlist.at_end() || term != document.termlist_end()) {
 		int cmp;
-		if (!termlist.at_end() && term != document.termlist_end()) {
-		    old_tname = termlist.get_termname();
-		    new_tname = *term;
-		    cmp = old_tname.compare(new_tname);
-		} else if (termlist.at_end()) {
+		if (termlist.at_end()) {
 		    cmp = 1;
 		    new_tname = *term;
 		} else {
-		    cmp = -1;
 		    old_tname = termlist.get_termname();
+		    if (term != document.termlist_end()) {
+			new_tname = *term;
+			cmp = old_tname.compare(new_tname);
+		    } else {
+			cmp = -1;
+		    }
 		}
 
 		if (cmp < 0) {
@@ -1392,7 +1408,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		    termcount new_wdf = term.get_wdf();
 		    if (old_doclen != new_doclen || old_wdf != new_wdf) {
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
-			update_mod_plist(did, new_tname, 'U', new_wdf);
+			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
 		    if (!positionlists_equal(term, termlist)) 

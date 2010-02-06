@@ -602,6 +602,13 @@ provided by sys/stat.h under UNIX) and provides a compatibility wrapper for
 mkdir() which takes 2 arguments (so code using mkdir can always just pass
 two arguments).
 
+<sys/wait.h>:
+-------------
+
+To get `WEXITSTATUS` or `WIFEXITED` defined, '#include "safesyswait.h"'.
+Note that this won't provide `waitpid()`, etc on Microsoft Windows, since
+these functions are only really useful to use when `fork()` is available.
+
 <unistd.h>:
 -----------
 
@@ -636,7 +643,7 @@ when doing development work on Xapian.  This promotes warnings to errors,
 which should ensure you at least don't introduce new warnings for the compiler
 you're using.
 
-If you configure with --enable-maintainer-mode, and are using GCC 4.0 or newer,
+If you configure with --enable-maintainer-mode, and are using GCC 4.1 or newer,
 this is done for you automatically.  This is intended to be an aid rather than
 a form of automated punishment - it's all too easy to miss a new warning as
 once a file is compiled, you don't see it unless you modify that file or one of
@@ -1180,10 +1187,30 @@ are a student your university may try and claim some rights on code which you
 write.
 
 Patches which are submitted to Xapian will only be included if they are
-licensed for distribution under all of the following licenses:
+licensed for distribution under each of the following licenses:
 
  - GPL version 2 and all later versions (see the file "COPYING" for details).
- - MIT/X license (see the file "COPYING_MIT" for details).
+ - MIT/X license::
+
+ Copyright (c) <year> <copyright holders>
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
 
 The current distribution of Xapian contains many files which are only licensed
 under the GPL, but we are working towards being able to distribute Xapian under

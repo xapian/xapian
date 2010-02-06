@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +23,9 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
+#include <xapian/base.h>
 #include <xapian/enquire.h>
+#include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -157,70 +160,79 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 };
 
 
-/** A string with a corresponding frequency.
- */
-class XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
-    std::string str;
-    Xapian::doccount frequency;
-  public:
-    /// Construct a StringAndFrequency object.
-    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
-	    : str(str_), frequency(frequency_) {}
-
-    /// Return the string.
-    std::string get_string() const { return str; }
-
-    /// Return the frequency.
-    Xapian::doccount get_frequency() const { return frequency; }
-};
-
-
 /** Class for counting the frequencies of values in the matching documents.
  *
  *  Warning: this API is currently experimental, and is liable to change
  *  between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
+  public:
+    struct Internal;
+
+#ifndef SWIG // SWIG doesn't need to know about the internal class
+    struct XAPIAN_VISIBILITY_DEFAULT Internal
+	    : public Xapian::Internal::RefCntBase
+    {
+	/// The slot to count.
+	Xapian::valueno slot;
+
+	/// Total number of documents seen by the match spy.
+	Xapian::doccount total;
+
+	/// The values seen so far, together with their frequency.
+	std::map<std::string, Xapian::doccount> values;
+
+	Internal() : slot(Xapian::BAD_VALUENO), total(0) {}
+	Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
+    };
+#endif
+
   protected:
-    /// The slot to count.
-    Xapian::valueno slot;
-
-    /// Total number of documents seen by the match spy.
-    Xapian::doccount total;
-
-    /// The values seen so far, together with their frequency.
-    std::map<std::string, Xapian::doccount> values;
+    Xapian::Internal::RefCntPtr<Internal> internal;
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : slot(Xapian::BAD_VALUENO), total(0) {}
+    ValueCountMatchSpy() : internal() {}
 
     /// Construct a MatchSpy which counts the values in a particular slot.
     ValueCountMatchSpy(Xapian::valueno slot_)
-	    : slot(slot_), total(0) {
-    }
-
-    /// Return the values seen in the slot.
-    const std::map<std::string, Xapian::doccount> & get_values() const {
-	return values;
-    }
+	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */
     size_t get_total() const {
-	return total;
+	return internal->total;
     }
 
-    /** Get the most frequent values in the slot.
+    /** Get an iterator over the values seen in the slot.
      *
-     *  @param result A vector which will be filled with the most frequent
-     *                values, in descending order of frequency.  Values with
-     *                the same frequency will be sorted in ascending
-     *                alphabetical order.
+     *  Items will be returned in ascending alphabetical order.
+     *
+     *  During the iteration, the frequency of the current value can be
+     *  obtained with the get_termfreq() method on the iterator.
+     */
+    TermIterator values_begin() const;
+
+    /** End iterator corresponding to values_begin() */
+    TermIterator values_end() const {
+	return TermIterator(NULL);
+    }
+
+    /** Get an iterator over the most frequent values seen in the slot.
+     *
+     *  Items will be returned in descending order of frequency.  Values with
+     *  the same frequency will be returned in ascending alphabetical order.
+     *
+     *  During the iteration, the frequency of the current value can be
+     *  obtained with the get_termfreq() method on the iterator.
      *
      *  @param maxvalues The maximum number of values to return.
      */
-    void get_top_values(std::vector<StringAndFrequency> & result,
-			size_t maxvalues) const;
+    TermIterator top_values_begin(size_t maxvalues) const;
+
+    /** End iterator corresponding to top_values_begin() */
+    TermIterator top_values_end(size_t) const {
+	return TermIterator(NULL);
+    }
 
     /** Implementation of virtual operator().
      *
@@ -237,128 +249,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual void merge_results(const std::string & s);
     virtual std::string get_description() const;
 };
-
-
-/** A numeric range.
- *
- *  This is used to represent ranges of values returned by the match spies.
- *
- *  Warning: this API is currently experimental, and is liable to change
- *  between releases without warning.
- */
-class XAPIAN_VISIBILITY_DEFAULT NumericRange {
-    /// The lower value in the range.
-    double lower;
-
-    /// The upper value in the range.
-    double upper;
-
-  public:
-    /** Construct a NumericRange object.
-     *
-     *  @param lower_ The start of the range.
-     *  @param upper_ The end of the range.
-     */
-    NumericRange(double lower_, double upper_)
-	    : lower(lower_), upper(upper_) {}
-
-    /// Get the start of the range.
-    double get_lower() const { return lower; }
-
-    /// Get the end of the range.
-    double get_upper() const { return upper; }
-
-    /// Provide an ordering of NumericRange objects.
-    bool operator<(const NumericRange & other) const {
-	if (lower < other.lower) return true;
-	if (lower > other.lower) return false;
-	return (upper < other.upper);
-    }
-};
-
-
-/// A set of numeric ranges, with corresponding frequencies.
-class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
-    /** The ranges of values, together with the frequency sum of each range.
-     */
-    std::map<Xapian::NumericRange, Xapian::doccount> ranges;
-
-    /** @return The total number of values seen.
-     *
-     *  This is the sum of the frequencies for all the values supplied.
-     */
-    doccount values_seen;
-
-  public:
-    /// Construct an empty NumericRanges object.
-    NumericRanges() : values_seen(0) {}
-
-    /** Construct a NumericRanges from values and a target number of ranges.
-     *
-     *  The values supplied should be sort-encoded numeric values.
-     *
-     *  For "continuous" values (such as price, height, weight, etc), there
-     *  will usually be too many different values to offer the user, and the
-     *  user won't want to restrict to an exact value anyway.
-     *
-     *  This method produces a set of NumericRange objects for a particular
-     *  value number.
-     *
-     *  @param values     The values representing the initial numbers.
-     *  @param max_ranges Group into at most this many ranges.
-     */
-    NumericRanges(const std::map<std::string, Xapian::doccount> & values,
-		  size_t max_ranges);
-
-    /// Get the number of values seen.
-    doccount get_values_seen() const { return values_seen; }
-
-    /// Get the ranges.
-    const std::map<Xapian::NumericRange, Xapian::doccount> & get_ranges() const { return ranges; }
-};
-
-
-/** Return a score reflecting how evenly divided a set of values is.
- *
- *  Warning: this API is currently experimental, and is liable to change
- *  between releases without warning.
- *
- *  If you don't want to show a poor categorisation, or have multiple
- *  categories and only space in your user interface to show a few, you want to
- *  be able to decide how "good" a categorisation is.  One definition of "good"
- *  is that it offers a fairly even split of the available values, and
- *  (optionally) about a specified number of options.
- *
- *  @param values The values making up the categorisation, together with their
- *  frequencies.
- *
- *  @param total The total number of documents seen.
- *
- *  @param desired_no_of_categories The desired number of categories - this is
- *  a floating point value, so you can ask for 5.5 if you'd like "about 5 or 6
- *  categories".  The default is to desire the number of categories that there
- *  actually are, so the score then only reflects how even the split is.
- *
- *  @return A score for the categorisation for the value - lower is better,
- *  with a perfectly even split across the right number of categories scoring
- *  0.
- */
-//@{
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const std::map<std::string, Xapian::doccount> & values,
-	Xapian::doccount total,
-	double desired_no_of_categories = 0.0);
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const std::map<Xapian::NumericRange, Xapian::doccount> & values,
-	Xapian::doccount total,
-	double desired_no_of_categories = 0.0);
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const ValueCountMatchSpy & spy,
-	double desired_no_of_categories = 0.0);
-double XAPIAN_VISIBILITY_DEFAULT score_evenness(
-	const NumericRanges & ranges,
-	double desired_no_of_categories = 0.0);
-//@}
 
 }
 

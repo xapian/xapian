@@ -106,6 +106,11 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api.conf \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 	rm -rf apidoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api.conf
+	## Regression test - 1.0.17 failed to generate docs from error.h in a
+	## VPATH build.
+	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
+	  ( echo "No api docs for Xapian::RuntimeError" ; \
+	    rm apidoc/html/index.html ; exit 1 )
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
 	if test "x$(PNGCRUSH)" != x ; then \

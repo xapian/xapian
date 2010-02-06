@@ -1,7 +1,7 @@
 /** @file brass_inverter.h
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ class Inverter {
 	void remove_posting(Xapian::docid did, Xapian::termcount wdf) {
 	    --tf_delta;
 	    cf_delta -= wdf;
-	    // Remove did from tname's postlist.
+	    // Remove did from term's postlist.
 	    pl_changes[did] = DELETED_POSTING;
 	}
 
@@ -193,7 +193,7 @@ class Inverter {
     /// Flush all changes.
     void flush(BrassPostListTable & table);
 
-    Xapian::termcount_diff get_tfdelta(const std::string & term) {
+    Xapian::termcount_diff get_tfdelta(const std::string & term) const {
 	std::map<std::string, PostingChanges>::const_iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end())
@@ -201,7 +201,7 @@ class Inverter {
 	return i->second.get_tfdelta();
     }
 
-    Xapian::termcount_diff get_cfdelta(const std::string & term) {
+    Xapian::termcount_diff get_cfdelta(const std::string & term) const {
 	std::map<std::string, PostingChanges>::const_iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end())

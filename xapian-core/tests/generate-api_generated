@@ -27,13 +27,13 @@ my %uncopyableclasses = (
     'ValuePostingSource' => '0',
     'ValueWeightPostingSource' => '0',
     'DecreasingValueWeightPostingSource' => '0',
+    'ValueCountMatchSpy' => '0',
     'ValueMapPostingSource' => '0',
     'FixedWeightPostingSource' => '0'
 );
 
 my %copyableclasses = (
     'Database' => '',
-    'DatabaseReplica' => '',
     'DateValueRangeProcessor' => '0',
     'Document' => '',
     'ESet' => '',
@@ -98,7 +98,6 @@ print <<'END';
 #include "api_generated.h"
 
 #include <xapian.h>
-#include <xapian/replication.h>
 
 #include "apitest.h"
 #include "testutils.h"

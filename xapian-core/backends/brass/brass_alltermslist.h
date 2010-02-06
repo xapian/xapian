@@ -43,10 +43,10 @@ class BrassAllTermsList : public AllTermsList {
     BrassCursor * cursor;
 
     /// The termname at the current position.
-    string current_term;
+    std::string current_term;
 
     /// The prefix to restrict the terms to.
-    string prefix;
+    std::string prefix;
 
     /** The term frequency of the term at the current position.
      *
@@ -64,7 +64,7 @@ class BrassAllTermsList : public AllTermsList {
 
   public:
     BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase> database_,
-		      const string & prefix_)
+		      const std::string & prefix_)
 	    : database(database_), prefix(prefix_), termfreq(0) {
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
@@ -73,9 +73,9 @@ class BrassAllTermsList : public AllTermsList {
 	// so that the first call to next() will put us on the first key we
 	// want.
 	if (prefix.empty()) {
-	    cursor->find_entry_lt(string("\x00\xff", 2));
+	    cursor->find_entry_lt(std::string("\x00\xff", 2));
 	} else {
-	    string key = pack_brass_postlist_key(prefix);
+	    std::string key = pack_brass_postlist_key(prefix);
 	    cursor->find_entry_lt(key);
 	}
     }
@@ -88,7 +88,7 @@ class BrassAllTermsList : public AllTermsList {
      *  Either next() or skip_to() must have been called before this
      *  method can be called.
      */
-    string get_termname() const;
+    std::string get_termname() const;
 
     /** Returns the term frequency of the current term.
      *
@@ -108,7 +108,7 @@ class BrassAllTermsList : public AllTermsList {
     TermList * next();
 
     /// Advance to the first term which is >= tname.
-    TermList * skip_to(const string &tname);
+    TermList * skip_to(const std::string &tname);
 
     /// True if we're off the end of the list
     bool at_end() const;

@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,13 +38,13 @@
 #include "serialise.h"
 #include "stringutils.h"
 #include "str.h"
+#include "termlist.h"
 
 #include <cfloat>
 #include <cmath>
 
 using namespace std;
-
-namespace Xapian {
+using namespace Xapian;
 
 MatchSpy::~MatchSpy() {}
 
@@ -82,6 +83,75 @@ MatchSpy::get_description() const {
     return "Xapian::MatchSpy()";
 }
 
+XAPIAN_NORETURN(static void unsupported_method());
+static void unsupported_method() {
+    throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
+}
+
+/// A termlist iterator over the contents of a ValueCountMatchSpy
+class ValueCountTermList : public TermList {
+  private:
+    map<string, Xapian::doccount>::const_iterator it;
+    bool started;
+    Xapian::Internal::RefCntPtr<Xapian::ValueCountMatchSpy::Internal> spy;
+  public:
+
+    ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_) {
+	it = spy->values.begin();
+	started = false;
+    }
+
+    string get_termname() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->first;
+    }
+
+    Xapian::doccount get_termfreq() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->second;
+    }
+
+    TermList * next() {
+	if (!started) {
+	    started = true;
+	} else {
+	    Assert(!at_end());
+	    ++it;
+	}
+	return NULL;
+    }
+
+    bool at_end() const {
+	Assert(started);
+	return it == spy->values.end();
+    }
+
+    Xapian::termcount get_approx_size() const { unsupported_method(); }
+    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::PositionIterator positionlist_begin() const {
+	unsupported_method();
+    }
+    Xapian::termcount positionlist_count() const { unsupported_method(); }
+};
+
+/** A string with a corresponding frequency.
+ */
+class StringAndFrequency {
+    std::string str;
+    Xapian::doccount frequency;
+  public:
+    /// Construct a StringAndFrequency object.
+    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
+	    : str(str_), frequency(frequency_) {}
+
+    /// Return the string.
+    std::string get_string() const { return str; }
+
+    /// Return the frequency.
+    Xapian::doccount get_frequency() const { return frequency; }
+};
 
 /** Compare two StringAndFrequency objects.
  *
@@ -104,11 +174,61 @@ class StringAndFreqCmpByFreq {
     }
 };
 
+/// A termlist iterator over a vector of StringAndFrequency objects.
+class StringAndFreqTermList : public TermList {
+  private:
+    vector<StringAndFrequency>::const_iterator it;
+    bool started;
+  public:
+    vector<StringAndFrequency> values;
+
+    /** init should be called after the values have been set, but before
+     *  iteration begins.
+     */
+    void init() {
+	it = values.begin();
+	started = false;
+    }
+
+    string get_termname() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->get_string();
+    }
+
+    Xapian::doccount get_termfreq() const {
+	Assert(started);
+	Assert(!at_end());
+	return it->get_frequency();
+    }
+
+    TermList * next() {
+	if (!started) {
+	    started = true;
+	} else {
+	    Assert(!at_end());
+	    ++it;
+	}
+	return NULL;
+    }
+
+    bool at_end() const {
+	Assert(started);
+	return it == values.end();
+    }
+
+    Xapian::termcount get_approx_size() const { unsupported_method(); }
+    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::PositionIterator positionlist_begin() const {
+	unsupported_method();
+    }
+    Xapian::termcount positionlist_count() const { unsupported_method(); }
+};
+
 /** Get the most frequent items from a map from string to frequency.
  *
- *  This takes input such as that returned by @a
- *  ValueCountMatchSpy::get_values(), and returns a vector of the most
- *  frequent items in the input.
+ *  This takes input such as that in ValueCountMatchSpy::Internal::values and
+ *  returns a vector of the most frequent items in the input.
  *
  *  @param result A vector which will be filled with the most frequent
  *                items, in descending order of frequency.  Items with
@@ -158,21 +278,30 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 
 void
 ValueCountMatchSpy::operator()(const Document &doc, weight) {
-    ++total;
-    string val(doc.get_value(slot));
-    if (!val.empty()) ++values[val];
+    ++(internal->total);
+    string val(doc.get_value(internal->slot));
+    if (!val.empty()) ++(internal->values[val]);
 }
 
-void
-ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
-				   size_t maxvalues) const
+TermIterator
+ValueCountMatchSpy::values_begin() const
 {
-    get_most_frequent_items(result, values, maxvalues);
+    AutoPtr<ValueCountTermList> termlist(new ValueCountTermList(internal.get()));
+    return Xapian::TermIterator(termlist.release());
+}
+
+TermIterator
+ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
+{
+    AutoPtr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
+    get_most_frequent_items(termlist->values, internal->values, maxvalues);
+    termlist->init();
+    return Xapian::TermIterator(termlist.release());
 }
 
 MatchSpy *
 ValueCountMatchSpy::clone() const {
-    return new ValueCountMatchSpy(slot);
+    return new ValueCountMatchSpy(internal->slot);
 }
 
 string
@@ -183,7 +312,7 @@ ValueCountMatchSpy::name() const {
 string
 ValueCountMatchSpy::serialise() const {
     string result;
-    result += encode_length(slot);
+    result += encode_length(internal->slot);
     return result;
 }
 
@@ -205,10 +334,10 @@ string
 ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
     string result;
-    result += encode_length(total);
-    result += encode_length(values.size());
-    for (map<string, doccount>::const_iterator i = values.begin();
-	 i != values.end(); ++i) {
+    result += encode_length(internal->total);
+    result += encode_length(internal->values.size());
+    for (map<string, doccount>::const_iterator i = internal->values.begin();
+	 i != internal->values.end(); ++i) {
 	result += encode_length(i->first.size());
 	result += i->first;
 	result += encode_length(i->second);
@@ -222,7 +351,7 @@ ValueCountMatchSpy::merge_results(const string & s) {
     const char * p = s.data();
     const char * end = p + s.size();
 
-    total += decode_length(&p, end, false);
+    internal->total += decode_length(&p, end, false);
 
     map<string, doccount>::size_type items = decode_length(&p, end, false);
     while (p != end) {
@@ -231,7 +360,7 @@ ValueCountMatchSpy::merge_results(const string & s) {
 	    string val(p, vallen);
 	    p += vallen;
 	    doccount freq = decode_length(&p, end, false);
-	    values[val] += freq;
+	    internal->values[val] += freq;
 	    --items;
 	}
     }
@@ -239,160 +368,6 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
 string
 ValueCountMatchSpy::get_description() const {
-    return "Xapian::ValueCountMatchSpy(" + str(total) +
-	    " docs seen, looking in " + str(values.size()) + " slots)";
-}
-
-
-inline double sqrd(double x) { return x * x; }
-
-/** Calculate a score based on how evenly distributed the frequencies of a set
- *  of values are.
- */
-template<class T> double
-do_score_evenness(const map<T, doccount> & values,
-		  doccount total,
-		  double desired_no_of_categories)
-{
-    if (total == 0) return 0.0;
-
-    size_t total_unset = total;
-    double score = 0.0;
-
-    if (desired_no_of_categories <= 0.0)
-	desired_no_of_categories = values.size();
-
-    double avg = double(total) / desired_no_of_categories;
-
-    typename map<T, doccount>::const_iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	size_t count = i->second;
-	total_unset -= count;
-	score += sqrd(count - avg);
-    }
-    if (total_unset) score += sqrd(total_unset - avg);
-
-    // Scale down so the total number of items doesn't make a difference.
-    score /= sqrd(total);
-
-    // Bias towards returning the number of categories requested.
-    score += 0.01 * sqrd(desired_no_of_categories - values.size());
-
-    return score;
-}
-
-double score_evenness(const map<string, doccount> & values,
-		      doccount total,
-		      double desired_no_of_categories) {
-    return do_score_evenness(values, total, desired_no_of_categories);
-}
-
-double score_evenness(const map<NumericRange, doccount> & values,
-		      doccount total,
-		      double desired_no_of_categories) {
-    return do_score_evenness(values, total, desired_no_of_categories);
-}
-
-double score_evenness(const ValueCountMatchSpy & spy,
-		      double desired_no_of_categories) {
-    return do_score_evenness(spy.get_values(), spy.get_total(),
-			     desired_no_of_categories);
-}
-double score_evenness(const NumericRanges & ranges,
-		      double desired_no_of_categories) {
-    return do_score_evenness(ranges.get_ranges(), ranges.get_values_seen(),
-			     desired_no_of_categories);
-}
-
-
-/** A bucket, used when building numeric ranges.
- */
-struct bucketval {
-    size_t count;
-    double min, max;
-
-    bucketval() : count(0), min(DBL_MAX), max(-DBL_MAX) { }
-
-    void update(size_t n, double value) {
-	count += n;
-	if (value < min) min = value;
-	if (value > max) max = value;
-    }
-};
-
-NumericRanges::NumericRanges(const map<string, doccount> & values,
-			     size_t max_ranges)
-	: values_seen(0)
-{
-    double lo = DBL_MAX, hi = -DBL_MAX;
-
-    map<double, doccount> histo;
-    doccount total_set = 0;
-    map<string, doccount>::const_iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	if (i->first.size() == 0) continue;
-	double v = sortable_unserialise(i->first.c_str());
-	if (v < lo) lo = v;
-	if (v > hi) hi = v;
-	doccount count = i->second;
-	histo[v] = count;
-	total_set += count;
-    }
-
-    if (total_set == 0) {
-	// No set values.
-	return;
-    }
-    if (lo == hi) {
-	// All set values are the same.
-	NumericRange range(lo, hi);
-	ranges[range] = total_set;
-	values_seen = total_set;
-	return;
-    }
-
-    double sizeby = max(fabs(hi), fabs(lo));
-    // E.g. if sizeby = 27.4 and max_ranges = 7, we want to split into units of
-    // width 1.0 which we may then coalesce if there are too many used buckets.
-    double unit = pow(10.0, floor(log10(sizeby / max_ranges) - 0.2));
-    double start = floor(lo / unit) * unit;
-    // Can happen due to FP rounding (e.g. lo = 11.95, unit = 0.01).
-    if (start > lo) start = lo;
-    size_t n_buckets = size_t(ceil(hi / unit) - floor(lo / unit));
-
-    bool scaleby2 = true;
-    vector<bucketval> bucket(n_buckets + 1);
-    while (true) {
-	size_t n_used = 0;
-	map<double, doccount>::const_iterator j;
-	for (j = histo.begin(); j != histo.end(); ++j) {
-	    double v = j->first;
-	    size_t b = size_t(floor((v - start) / unit));
-	    if (b > n_buckets) b = n_buckets; // FIXME - Hacky workaround to ensure that b is in range.
-	    if (bucket[b].count == 0) ++n_used;
-	    bucket[b].update(j->second, v);
-	}
-
-	if (n_used <= max_ranges) break;
-
-	unit *= scaleby2 ? 2.0 : 2.5;
-	scaleby2 = !scaleby2;
-	start = floor(lo / unit) * unit;
-	// Can happen due to FP rounding (e.g. lo = 11.95, unit = 0.01).
-	if (start > lo) start = lo;
-	n_buckets = size_t(ceil(hi / unit) - floor(lo / unit));
-	bucket.resize(0);
-	bucket.resize(n_buckets + 1);
-    }
-
-    map<string, doccount> discrete_categories;
-    for (size_t b = 0; b < bucket.size(); ++b) {
-	if (bucket[b].count == 0) continue;
-	NumericRange range(bucket[b].min, bucket[b].max);
-	ranges[range] = bucket[b].count;
-    }
-
-    values_seen = total_set;
-}
-
+    return "Xapian::ValueCountMatchSpy(" + str(internal->total) +
+	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
 }
