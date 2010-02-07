@@ -106,6 +106,7 @@ noinst_HEADERS +=\
 	common/safesyswait.h\
 	common/safeunistd.h\
 	common/safewindows.h\
+	common/str.h\
 	common/stringutils.h
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)

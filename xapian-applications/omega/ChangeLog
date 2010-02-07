@@ -1,3 +1,7 @@
+Sun Feb 07 23:03:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Need to ship common/str.h.
+
 Sun Feb 07 21:40:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omega.cc,omindex.cc,query.cc,utils.cc,utils.h: Use the
