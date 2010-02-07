@@ -1,3 +1,9 @@
+Sun Feb 07 21:40:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omega.cc,omindex.cc,query.cc,utils.cc,utils.h: Use the
+	  optimised str() routine instead of int_to_string() and
+	  long_to_string().
+
 Fri Feb 05 23:29:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Increase the wdf boost for the document title from 2 to

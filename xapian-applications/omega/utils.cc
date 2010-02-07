@@ -55,18 +55,6 @@ string_to_int(const string &s)
 }
 
 string
-int_to_string(int val)
-{
-    CONVERT_TO_STRING("%d")
-}
-
-string
-long_to_string(long val)
-{
-    CONVERT_TO_STRING("%ld")
-}
-
-string
 double_to_string(double val)
 {
     CONVERT_TO_STRING("%f")
