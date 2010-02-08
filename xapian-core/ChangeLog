@@ -1,3 +1,8 @@
+Mon Feb 08 01:28:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Use std::boolalpha so bool is logged as "true"
+	  or "false" (instead of "1" or "0").
+
 Sat Feb 06 10:04:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Sync with 1.0 branch.

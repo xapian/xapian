@@ -1,7 +1,7 @@
 /** @file debuglog.h
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ extern DebugLogger xapian_debuglogger__;
 #define LOGLINE_(CATEGORY, MSG) do { \
     if (xapian_debuglogger__.is_category_wanted(CATEGORY)) { \
 	std::ostringstream xapian_debuglog_stream_; \
-	xapian_debuglog_stream_ << MSG; \
+	xapian_debuglog_stream_ << std::boolalpha << MSG; \
 	xapian_debuglogger__.log_line(CATEGORY, xapian_debuglog_stream_.str()); \
     } \
 } while (false)
@@ -335,7 +335,7 @@ class DebugLogFuncVoid {
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger__.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_stream_; \
-	xapian_logcall_stream_ << PARAMS; \
+	xapian_logcall_stream_ << std::boolalpha << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_stream_.str(); \
     } \
     DebugLogFunc xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, #TYPE, FUNC, xapian_logcall_parameters_)
@@ -345,7 +345,7 @@ class DebugLogFuncVoid {
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger__.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_stream_; \
-	xapian_logcall_stream_ << PARAMS; \
+	xapian_logcall_stream_ << std::boolalpha << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_stream_.str(); \
     } \
     DebugLogFuncVoid xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, FUNC, xapian_logcall_parameters_)
@@ -355,7 +355,7 @@ class DebugLogFuncVoid {
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger__.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_stream_; \
-	xapian_logcall_stream_ << PARAMS; \
+	xapian_logcall_stream_ << std::boolalpha << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_stream_.str(); \
     } \
     DebugLogFuncVoid xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, xapian_logcall_parameters_, CLASS)
@@ -370,7 +370,7 @@ class DebugLogFuncVoid {
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger__.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_stream_; \
-	xapian_logcall_stream_ << PARAMS; \
+	xapian_logcall_stream_ << std::boolalpha << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_stream_.str(); \
     } \
     DebugLogFunc xapian_logcall_(0, DEBUGLOG_CATEGORY_##CATEGORY, #TYPE, FUNC, xapian_logcall_parameters_)
@@ -380,7 +380,7 @@ class DebugLogFuncVoid {
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger__.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_stream_; \
-	xapian_logcall_stream_ << PARAMS; \
+	xapian_logcall_stream_ << std::boolalpha << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_stream_.str(); \
     } \
     DebugLogFuncVoid xapian_logcall_(0, DEBUGLOG_CATEGORY_##CATEGORY, FUNC, xapian_logcall_parameters_)
@@ -389,7 +389,7 @@ class DebugLogFuncVoid {
 #define RETURN(A) do { \
     xapian_logcall_return_type_ xapian_logcall_return_ = A; \
     std::ostringstream xapian_logcall_stream_; \
-    xapian_logcall_stream_ << xapian_logcall_return_; \
+    xapian_logcall_stream_ << std::boolalpha << xapian_logcall_return_; \
     xapian_logcall_.log_return_value(xapian_logcall_stream_.str()); \
     return xapian_logcall_return_; \
 } while (false)
