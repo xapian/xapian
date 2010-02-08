@@ -98,6 +98,7 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
+	common/omassert.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
