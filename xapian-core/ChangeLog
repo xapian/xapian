@@ -1,3 +1,8 @@
+Mon Feb 08 08:27:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Remove unused headers <streambuf> and
+	  "omdebug.h".
+
 Mon Feb 08 01:28:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Use std::boolalpha so bool is logged as "true"

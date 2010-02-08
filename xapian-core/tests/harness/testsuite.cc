@@ -38,7 +38,6 @@
 #include <algorithm>
 #include <iostream>
 #include <set>
-#include <streambuf>
 
 #include <cfloat> // For DBL_DIG.
 #include <cmath> // For ceil, fabs, log10.
@@ -60,7 +59,6 @@
 
 #include <xapian/error.h>
 #include "noreturn.h"
-#include "omdebug.h"
 #include "stringutils.h"
 #include "utils.h"
 
