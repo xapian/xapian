@@ -1,7 +1,7 @@
 /** @file brass_version.cc
  * @brief BrassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,9 +44,7 @@ using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define BRASS_VERSION 200912150
-// 200804180       Brass debuts.
-// 200903070 1.1.0 doclen bounds and wdf upper bound.
-// 200912150 1.1.4 shorter position, postlist, record and termlist keys.
+// 200912150 1.1.4 Brass debuts.
 
 #define MAGIC_STRING "IAmBrass"
 
