@@ -1,3 +1,7 @@
+Mon Feb 08 11:54:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_metadata.cc: Include missing headers.
+
 Mon Feb 08 09:23:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_document.h,backends/chert/chert_document.h:
