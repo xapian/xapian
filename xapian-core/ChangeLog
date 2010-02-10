@@ -1,3 +1,7 @@
+Wed Feb 10 00:37:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Update for chert and other recent changes.
+
 Wed Feb 10 00:37:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/replication_protocol.rst: Update.
