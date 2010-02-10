@@ -1,8 +1,4 @@
- 13967       olly Sun Feb 07 06:09:26 GMT 2010  Olly Betts <olly@survex.com>
-
- 13967       olly Sun Feb 07 06:09:26 GMT 2010  Olly Betts <olly@survex.com>
-	* NEWS: Update from ChangeLog.
-
+ 13979       olly Wed Feb 10 03:00:15 GMT 2010  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.18 (2009-02-??):
 
@@ -89,6 +85,9 @@ documentation:
 
 * The API documentation now includes Xapian::Error and subclasses, and doesn't
   mention Xapian::Query::Internal.
+
+* Make clear in the Xapian::Document API documentation that this class is a
+  lazy handle and discuss the issues this can cause.
 
 * INSTALL: Improve text about zlib dependency.
 
