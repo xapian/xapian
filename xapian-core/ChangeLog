@@ -1,3 +1,9 @@
+Wed Feb 10 02:40:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: Rewrite the note about Document being a
+	  lazy handle to fix a few details and avoid nailing down the
+	  exact implementation.
+
 Wed Feb 10 00:37:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Update for chert and other recent changes.

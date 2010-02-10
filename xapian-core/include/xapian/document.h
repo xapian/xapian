@@ -35,21 +35,23 @@
 
 namespace Xapian {
 
-/** A document in the database - holds data, values, terms, and postings
+/** A handle representing a document in a Xapian database.
  *
- *  Documents obtained from databases are lazily loaded.  This is normally
- *  invisible to users (other than by analysing performance), but in the rare
- *  situation that a Document is obtained from a WritableDatabase, and the
- *  underlying stored contents in the database are then changed before the
- *  Document object reads its data, the new version of the contents will be
- *  loaded.
+ *  The Document class fetches information from the database lazily.  Usually
+ *  this behaviour isn't visible to users (except for the speed benefits), but
+ *  if the document in the database is modified or deleted, then preexisting
+ *  Document objects may return the old or new versions of data (or throw
+ *  Xapian::DocNotFoundError in the case of deletion).
  *
- *  Since there can only be a single writer open at a time, this change can
- *  only happen if the modification is made through the same WritableDatabase
- *  object that the Document was obtained from.  This is generally easy to
- *  avoid, but an alternative is to force a Document to load its contents
- *  fully.  The easiest way to guarantee this is to call the
- *  Document::serialise() method.
+ *  Since Database objects work on a snapshot of the database's state, the
+ *  situation above can only happen with a WritableDatabase object, or if
+ *  you call Database::reopen() on a Database object.
+ *
+ *  We recommend you avoid designs where this behaviour is an issue, but if
+ *  you need a way to make a non-lazy version of a Document object, you can do
+ *  this like so:
+ *
+ *      doc = Xapian::Document::unserialise(doc.serialise());
  */
 class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
