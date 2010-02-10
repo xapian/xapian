@@ -1,3 +1,13 @@
+Wed Feb 10 03:00:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* include/xapian/document.h: Add a note to the API documentation
+	  for the Document class about the potential issues involved in
+	  lazy loading.  Fixes ticket #421.
+	* include/xapian/document.h: Rewrite the note about Document being a
+	  lazy handle to fix a few details and avoid nailing down the
+	  exact implementation.
+
 Sun Feb 07 06:09:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

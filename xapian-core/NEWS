@@ -1,10 +1,14 @@
- 13966       olly Sat Feb 06 10:05:11 GMT 2010  Olly Betts <olly@survex.com>
+ 13967       olly Sun Feb 07 06:09:26 GMT 2010  Olly Betts <olly@survex.com>
+
+ 13967       olly Sun Feb 07 06:09:26 GMT 2010  Olly Betts <olly@survex.com>
+	* NEWS: Update from ChangeLog.
+
 
 Xapian-core 1.0.18 (2009-02-??):
 
 API:
 
-* Add Document::add_boolean_term() method, which is an alias for add_term()
+* New Document::add_boolean_term() method, which is an alias for add_term()
   with wdfinc=0.
 
 * QueryParser:
@@ -17,12 +21,12 @@ API:
     fix on trunk, but without losing compatibility with existing databases.
 
 * Fix many Xapian::Database methods to behave better on a database with no
-  subdatabases, such as is constructed by Database().  ticket#415.
+  subdatabases, such as is constructed by Database().  Fixes ticket#415.
 
 testsuite:
 
 * Add test coverage for xapian-compact, and improve coverage for
-  replace_document().
+  WritableDatabase::replace_document().
 
 * apitest: Rename matchfunctor<n> to matchdecider<n> to match current
   terminology.
@@ -32,42 +36,48 @@ matcher:
 
 flint backend:
 
-	* backends/flint/flint_database.cc: When updating documents, don't
-	  update posting entries which havn't changed.  Largely fixes
-	  ticket #250.
+* When updating documents, don't update posting entries which haven't changed.
+  Largely fixes ticket #250.
 
-	   Add empty() method to FlintTable which works
-	  completely reliably even if the item count has wrapped.
+* If the number of entries in the position table happened to be 4294967296 or
+  an exact multiple, Xapian would ignore positional data for that table when
+  running queries.
 
-	* backends/flint/flint_alltermslist.cc: Tweak to not apply the
-	  prefix test in the "at end" case.
-	  There's no point checking
-	  follow-on chunks match the prefix - the first chunk we'll hit
-	  which doesn't match has to be an initial chunk for a term.
+* Iterating all the terms in the database with a prefix is now slightly more
+  efficient.
 
 * Fix locking code to work if stdin and/or stdout have been closed.
 
-* If a document is replaced with itself unmodified,
-	  we no longer increase the automatic flush counter.
+* If a document is replaced with itself unmodified, we no longer increase the
+  automatic flush counter.
 
 * xapian-compact: Fix typos in --help output.
 
 * When iterating a posting list modified since the last flush(), the reported
   wdf is now correct (previously it was too high by its old value).
 
-FIXME copy to quartz too:
+* Replacing a document deleted since the last flush failed to update the
+  collection frequency and wdf, and caused an assertion failure when assertions
+  were enabled.
+
+* WritableDatabase::replace_document() didn't always remove old positional
+  data (the only effect is that the position table was bloated by unwanted
+  entries).
+
+quartz backend:
 
 * Replacing a document deleted since the last flush failed to update the
   collection frequency and wdf, and caused an assertion failure when assertions
   were enabled.
 
-* Delete old positionlist chunks in replace_document().
-
-quartz backend:
+* WritableDatabase::replace_document() didn't always remove old positional
+  data (the only effect is that the position table was bloated by unwanted
+  entries).
 
 remote backend:
 
 * Throw UnimplementedError if a MatchDecider is used with the remote backend.
+  Previously Xapian returned incorrect results in this case.
 
 inmemory backend:
 
@@ -82,15 +92,12 @@ documentation:
 
 * INSTALL: Improve text about zlib dependency.
 
-* HACKING: Add details of our policy for accepting
-	  patches.  This has informally been true for a while, but it
-	  probably helps to tell people about it!
+* HACKING: Add details of our licensing policy for accepting patches.
 
 examples:
 
-* quest: If no database is specified, still parse the query
-	  and report get_description() on it as this provides a easy way to
-	  see how a query parses.
+* quest: If no database is specified, still parse the query and report
+  Query::get_description() to provide an easy way to check how a query parses.
 
 portability:
 

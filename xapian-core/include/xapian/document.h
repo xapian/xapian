@@ -35,7 +35,20 @@ namespace Xapian {
 
 class ValueIterator;
 
-/// A document in the database - holds data, values, terms, and postings
+/** A handle representing a document in a Xapian database.
+ *
+ *  The Document class fetches information from the database lazily.  Usually
+ *  this behaviour isn't visible to users (except for the speed benefits), but
+ *  if the document in the database is modified or deleted, then preexisting
+ *  Document objects may return the old or new versions of data (or throw
+ *  Xapian::DocNotFoundError in the case of deletion).
+ *
+ *  Since Database objects work on a snapshot of the database's state, the
+ *  situation above can only happen with a WritableDatabase object, or if
+ *  you call Database::reopen() on a Database object.
+ *
+ *  We recommend you avoid designs where this behaviour is an issue.
+ */
 class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
