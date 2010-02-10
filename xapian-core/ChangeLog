@@ -1,3 +1,7 @@
+Wed Feb 10 00:37:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/replication_protocol.rst: Update.
+
 Mon Feb 08 12:05:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc: Fix comments about BRASS_VERSION
