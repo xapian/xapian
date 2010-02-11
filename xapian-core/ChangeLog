@@ -1,3 +1,11 @@
+Thu Feb 11 04:46:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Auto-enabling of -Werror is now done for GCC 4.1 or newer.
+	* configure.ac:With --enable-maintainer-mode, enable -Werror for GCC
+	  >= 4.1 rather than >= 4.0 as Apple's GCC 4.0 gives bogus
+	  uninitialised variable warnings for pack.h.
+
 Wed Feb 10 03:02:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
