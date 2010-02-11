@@ -1,3 +1,18 @@
+Thu Feb 11 05:18:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* bin/xapian-inspect.cc: Add "until" command to display keys until
+	  a specified one.  Useful for seeing all keys for a particular
+	  posting list, etc.
+	* bin/xapian-inspect.cc: "until" improvements:
+	  + No longer reports the current key and tag.
+	  + If passed a key before the current one, no longer silently advances
+	    to the next key.
+	  + Explicitly says if the specified key doesn't exist, including where
+	    we ended up.
+	* bin/xapian-inspect.cc: Add new "open" command to allow easy switching
+	  between tables.
+
 Thu Feb 11 04:46:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
