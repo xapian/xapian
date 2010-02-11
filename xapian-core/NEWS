@@ -1,6 +1,6 @@
- 13979       olly Wed Feb 10 03:00:15 GMT 2010  Olly Betts <olly@survex.com>
+ 13986       olly Thu Feb 11 05:18:22 GMT 2010  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.18 (2009-02-??):
+Xapian-core 1.0.18 (2009-02-1?):
 
 API:
 
@@ -14,7 +14,7 @@ API:
 
   + Add ENCLOSING_MARK and COMBINING_SPACING_MARK categories, plus several
     zero-width space characters, as phrase generators.  This mirrors a better
-    fix on trunk, but without losing compatibility with existing databases.
+    fix in 1.1.4, but without losing compatibility with existing databases.
 
 * Fix many Xapian::Database methods to behave better on a database with no
   subdatabases, such as is constructed by Database().  Fixes ticket#415.
@@ -47,8 +47,6 @@ flint backend:
 * If a document is replaced with itself unmodified, we no longer increase the
   automatic flush counter.
 
-* xapian-compact: Fix typos in --help output.
-
 * When iterating a posting list modified since the last flush(), the reported
   wdf is now correct (previously it was too high by its old value).
 
@@ -59,6 +57,14 @@ flint backend:
 * WritableDatabase::replace_document() didn't always remove old positional
   data (the only effect is that the position table was bloated by unwanted
   entries).
+
+* xapian-inspect:
+
+  + New "until" command which shows entries until a specified key is reached.
+
+  + New "open" command which allows easy switching between tables.
+
+* xapian-compact: Fix typos in --help output.
 
 quartz backend:
 
@@ -80,6 +86,9 @@ inmemory backend:
 
 build system:
 
+* configure: With --enable-maintainer-mode, enable -Werror for GCC >= 4.1
+  rather than >= 4.0 as Apple's GCC 4.0 gives bogus uninitialised variable
+  warnings.
 
 documentation:
 
@@ -100,7 +109,7 @@ examples:
 
 portability:
 
-* Fix compiler warning with GCC 4.2.
+* Fix GCC 4.2 warning.
 
 packaging:
 
