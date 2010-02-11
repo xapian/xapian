@@ -1,3 +1,10 @@
+Thu Feb 11 03:42:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/docs/generate-rdoc-stubs,
+	  ruby/generate-rdoc-stubs: Adjust the rdoc generation code to avoid
+	  including a reference to a mysterious "rdoc.rb" with an ugly path.
+
 Thu Feb 11 03:22:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
