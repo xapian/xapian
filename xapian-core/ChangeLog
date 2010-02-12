@@ -1,3 +1,10 @@
+Fri Feb 12 01:27:32 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator_internal.cc: Only include trailing '+' or
+	  '#' on a term if it isn't followed by a word character (makes more
+	  sense and matches QueryParser's behaviour).  (ticket#446)
+	* tests/termgentest.cc: Add regression test.
+
 Thu Feb 11 04:30:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-inspect.cc: Add new "open" command to allow easy switching
