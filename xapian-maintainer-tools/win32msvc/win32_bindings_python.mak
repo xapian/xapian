@@ -75,7 +75,6 @@ CLEAN : CLEANLOCAL
 	
 CLEANSWIG : CLEAN
 	-@erase /Q /s modern
-	-@erase generate-python-exceptions
 	-@erase exception_data.pm 
 	-@erase except.i 
 		
@@ -145,9 +144,6 @@ except.i: generate-python-exceptions
 	-copy "$(XAPIAN_CORE_REL_PYTHON)\exception_data.pm" exception_data.pm 
 	$(PERL_EXE) generate-python-exceptions exception_data.pm 
 		
-generate-python-exceptions: generate-python-exceptions.in
-	$(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" generate-python-exceptions.in > generate-python-exceptions
-
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
 	$(MANIFEST) "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd.manifest" -outputresource:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd;2"

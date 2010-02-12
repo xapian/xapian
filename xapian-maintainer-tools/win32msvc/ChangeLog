@@ -1,3 +1,8 @@
+Fri Feb 12 04:42:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* win32_bindings_python.mak: Update for generate-python-exception.in
+	  to generate-python-exceptions renaming (untested).  (ticket#367)
+
 Fri Feb 05 23:21:41 GMT 2010  Charlie Hull <charlie@lemurconsulting.com>
 
 	* win32_tests.mak: Correct $(INTDIR) to $(OUTDIR).  Add new apitest
