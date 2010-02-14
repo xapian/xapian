@@ -1,9 +1,9 @@
-xapian-core (1.0.18-1) experimental; urgency=low
+xapian-core (1.0.18-1) unstable; urgency=low
 
   * New upstream release.
     + Includes fix for Xapian ticket#250.  Closes: #564830
 
- -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:12:21 +0000
+ -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:17:31 +0000
 
 xapian-core (1.0.17+svn13879-1) experimental; urgency=low
 
