@@ -1,10 +1,8 @@
- 13986       olly Thu Feb 11 05:18:22 GMT 2010  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.18 (2009-02-1?):
+Xapian-core 1.0.18 (2009-02-14):
 
 API:
 
-* New Document::add_boolean_term() method, which is an alias for add_term()
+* Document: Add new add_boolean_term() method, which is an alias for add_term()
   with wdfinc=0.
 
 * QueryParser:
@@ -16,7 +14,14 @@ API:
     zero-width space characters, as phrase generators.  This mirrors a better
     fix in 1.1.4, but without losing compatibility with existing databases.
 
-* Fix many Xapian::Database methods to behave better on a database with no
+  + Fix handling of an explicit AND before a hated term (foo AND -bar).
+    (ticket#447)
+
+* TermIterator: Only include trailing '+' or '#' on a term if it isn't followed
+  by a word character (makes more sense and matches QueryParser's behaviour).
+  (ticket#446)
+
+* Database: Fix many methods to behave better on a database with no
   subdatabases, such as is constructed by Database().  Fixes ticket#415.
 
 testsuite:
@@ -26,9 +31,6 @@ testsuite:
 
 * apitest: Rename matchfunctor<n> to matchdecider<n> to match current
   terminology.
-
-matcher:
-
 
 flint backend:
 
@@ -81,9 +83,6 @@ remote backend:
 * Throw UnimplementedError if a MatchDecider is used with the remote backend.
   Previously Xapian returned incorrect results in this case.
 
-inmemory backend:
-
-
 build system:
 
 * configure: With --enable-maintainer-mode, enable -Werror for GCC >= 4.1
@@ -110,12 +109,6 @@ examples:
 portability:
 
 * Fix GCC 4.2 warning.
-
-packaging:
-
-
-debug code:
-
 
 xapian-core 1.0.17 (2009-11-18):
 
