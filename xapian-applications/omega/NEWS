@@ -1,3 +1,23 @@
+Omega 1.0.18 (2010-02-14):
+
+indexers:
+
+* Make the default charset "utf-8" not "UTF-8" as we lower case explicitly
+  specified character sets to compare to see if we need to reparse.  Previously
+  XML documents which explicitly specified their character set as UTF-8 would
+  cause needless restart or the parser.
+
+* omindex:
+
+  + Increase the wdf boost for the document title from 2 to 5, since 2 isn't
+    really enough.
+
+* scriptindex:
+
+  + Don't abort with "Unknown Exception" if indexing is disallowed or we hit
+    </body> for a document which had an overridden character set.  Fixes
+    ticket#410.
+
 Omega 1.0.17 (2009-11-18):
 
 indexers:
