@@ -1,3 +1,16 @@
+Xapian-bindings 1.0.18 (2010-02-14):
+
+General:
+
+* Wrap new C++ API method Document::add_boolean_term().
+
+Ruby:
+
+* Generate entries in the Ruby rdocs for all classes which aren't documented
+  because of Ruby-specific methods.  Fixes ticket#417.
+
+* Avoid absolute paths in the generated rdocs.
+
 Xapian-bindings 1.0.17 (2009-11-18):
 
 Packaging:
