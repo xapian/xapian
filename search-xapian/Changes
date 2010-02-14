@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.18.0
+1.0.18.0  Sun Feb 14 10:22:53 UTC 2010
 	[Changes contributed by Henry Combrinck]
 	- Add wrappers for the spelling correction functionality (ticket#420).
 
