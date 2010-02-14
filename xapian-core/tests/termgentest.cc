@@ -100,6 +100,7 @@ static test test_simple[] = {
 
 
 
+    { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
     // way to implement them yet.
