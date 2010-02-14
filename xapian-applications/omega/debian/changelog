@@ -1,5 +1,6 @@
-xapian-omega (1.0.17-2) UNRELEASED; urgency=low
+xapian-omega (1.0.18-1) unstable; urgency=low
 
+  * New upstream release.
   * debian/control.in:
     + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
     + Add "Vcs-Browser:" and "Vcs-svn:".
