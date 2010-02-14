@@ -1,3 +1,10 @@
+Sun Feb 14 05:58:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Fix QueryParser to handle an explicit
+	  AND before a hated term (foo AND -bar).  (ticket#447)
+	* tests/queryparsertest.cc: Add regression test cases.
+
 Thu Feb 11 10:14:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
