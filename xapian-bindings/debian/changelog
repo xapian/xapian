@@ -1,5 +1,6 @@
-xapian-bindings (1.0.17-2) UNRELEASED; urgency=low
+xapian-bindings (1.0.18-1) unstable; urgency=low
 
+  * New upstream release.
   * debian/control.in:
     + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
     + Add "Vcs-Browser:" and "Vcs-svn:".
@@ -9,7 +10,7 @@ xapian-bindings (1.0.17-2) UNRELEASED; urgency=low
     PHP 5.3 deprecates the latter.
   * Register the documentation for each language with doc-base.
 
- -- Olly Betts <olly@survex.com>  Wed, 27 Jan 2010 23:45:32 +0000
+ -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:17:03 +0000
 
 xapian-bindings (1.0.17-1) unstable; urgency=low
 
