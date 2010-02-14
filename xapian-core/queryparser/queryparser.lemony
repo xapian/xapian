@@ -710,7 +710,15 @@ just_had_synonym_operator:
 		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_LOVEHATE)) {
-		    Parse(pParser, (ch == '+' ? LOVE : HATE), NULL, &state);
+		    int token;
+		    if (ch == '+') {
+			token = LOVE;
+		    } else if (last_was_operator) {
+			token = HATE_AFTER_AND;
+		    } else {
+			token = HATE;
+		    }
+		    Parse(pParser, token, NULL, &state);
 		    goto just_had_operator;
 		}
 		// Need to prevent the term after a LOVE or HATE starting a
@@ -1395,7 +1403,7 @@ class TermList {
 %left XOR.
 %left AND NOT.
 %left NEAR ADJ.
-%left LOVE HATE SYNONYM.
+%left LOVE HATE HATE_AFTER_AND SYNONYM.
 
 // Destructors for terminal symbols:
 
@@ -1469,6 +1477,9 @@ expr(E) ::= bool_arg(A) NOT bool_arg(B). {
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+
+expr(E) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND]
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND"); }
 
 expr(E) ::= bool_arg(A) OR bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }

@@ -1,3 +1,9 @@
+Sun Feb 14 05:47:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix QueryParser to handle an explicit
+	  AND before a hated term (foo AND -bar).  (ticket#447)
+	* tests/queryparsertest.cc: Add regression test cases.
+
 Fri Feb 12 01:27:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/termgenerator_internal.cc: Only include trailing '+' or
