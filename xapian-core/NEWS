@@ -39,7 +39,7 @@ flint backend:
 
 * If the number of entries in the position table happened to be 4294967296 or
   an exact multiple, Xapian would ignore positional data for that table when
-  running queries.
+  running queries, and xapian-compact wouldn't copy its contents.
 
 * Iterating all the terms in the database with a prefix is now slightly more
   efficient.

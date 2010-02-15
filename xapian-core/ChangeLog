@@ -1,3 +1,8 @@
+Mon Feb 15 11:01:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Too-late-for-1.0.18 tweak - the entry_count wrapping could also
+	  result in xapian-compact failing to copy entries for a table.
+
 Sun Feb 14 09:53:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.ac: Update for 1.0.18.
