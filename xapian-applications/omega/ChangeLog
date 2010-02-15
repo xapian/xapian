@@ -1,3 +1,8 @@
+Mon Feb 15 13:51:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Add missing notes for 1.1.2 and 1.1.1 including changes from
+	  1.0.14 and 1.0.13 respectively.
+
 Mon Feb 15 13:28:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.0.18.
