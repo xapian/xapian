@@ -1,3 +1,7 @@
+Mon Feb 15 14:01:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.4.
+
 Mon Feb 15 13:46:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix typo in 1.1.3 NEWS.  Add missing note that 1.1.3
