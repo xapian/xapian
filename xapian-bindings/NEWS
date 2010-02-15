@@ -1,5 +1,7 @@
 Xapian-bindings 1.1.4 (2010-02-15):
 
+This release includes all changes from 1.0.18 which are relevant.
+
 General:
 
 * Update for the new Brass backend and other C++ API changes.
@@ -24,6 +26,8 @@ Ruby:
 
 Xapian-bindings 1.1.3 (2009-11-18):
 
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
+
 General:
 
 * configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
@@ -39,7 +43,7 @@ General:
 PHP:
 
 * Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
-  as in standardly is on Microsoft Windows.  Fixes #411.
+  as it standardly is on Microsoft Windows.  Fixes #411.
 
 * Merged the PHP "smoketest" back together now we don't need to support
   PHP4 now.

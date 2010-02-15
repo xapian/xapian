@@ -1,3 +1,9 @@
+Mon Feb 15 13:46:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo in 1.1.3 NEWS.  Add missing note that 1.1.3
+	  includes all relevant changes from 1.0.15-1.0.17.  Add note that
+	  1.1.4 includes all relevant changes from 1.0.18.
+
 Mon Feb 15 13:17:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.0.18.
