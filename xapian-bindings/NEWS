@@ -1,3 +1,27 @@
+Xapian-bindings 1.1.4 (2010-02-15):
+
+General:
+
+* Update for the new Brass backend and other C++ API changes.
+
+* Wrap Database::get_doclength_lower_bound(),
+  Database::get_doclength_upper_bound(), Database::get_wdf_upper_bound(),
+  Database::valuestream_begin() and Database::valuestream_end() for all
+  languages. (ticket#431)
+
+* Wrap ValueIterator::skip_to() and ValueIterator::check() for all languages.
+
+Python:
+
+* Wrap valuestreams as Database.valuestream(), returning a ValueStreamIter
+  object which dereferences to a ValueStreamItem object,
+
+* Fix Enquire.clear_matchspies() wrapper which crashed in 1.1.3.
+
+Ruby:
+
+* Add safe wrapper for the valuestream iterator.
+
 Xapian-bindings 1.1.3 (2009-11-18):
 
 General:
@@ -128,6 +152,19 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.18 (2010-02-14):
+
+General:
+
+* Wrap new C++ API method Document::add_boolean_term().
+
+Ruby:
+
+* Generate entries in the Ruby rdocs for all classes which aren't documented
+  because of Ruby-specific methods.  Fixes ticket#417.
+
+* Avoid absolute paths in the generated rdocs.
 
 Xapian-bindings 1.0.17 (2009-11-18):
 
