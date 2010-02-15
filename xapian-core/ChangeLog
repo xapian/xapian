@@ -1,3 +1,8 @@
+Mon Feb 15 13:58:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: We don't support GCC < 3.1, so remove discussion of
+	  issues with GCC 2.95.
+
 Mon Feb 15 13:55:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update from 1.0.18.
