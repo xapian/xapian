@@ -1,3 +1,7 @@
+Mon Feb 15 13:59:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.4.
+
 Mon Feb 15 13:58:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: We don't support GCC < 3.1, so remove discussion of

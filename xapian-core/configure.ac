@@ -33,7 +33,8 @@ dnl 0:0:0 1.1.0 Reset as library renamed
 dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
 dnl 2:0:0 1.1.2 Query::Internal::wqf removed
 dnl 3:0:0 1.1.3 Default implementation of Weight::clone() removed.
-LIBRARY_VERSION_INFO=3:0:0
+dnl 4:0:0 1.1.4 ValueCountMatchSpy::get_values() removed.
+LIBRARY_VERSION_INFO=4:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.1
