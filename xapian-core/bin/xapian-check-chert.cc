@@ -205,7 +205,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		    if (did > db_last_docid) {
 			cout << "document id " << did << " in doclen stream "
-			     << "is larger that get_last_docid() "
+			     << "is larger than get_last_docid() "
 			     << db_last_docid << endl;
 			++errors;
 		    }
@@ -375,7 +375,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		    if (did > db_last_docid) {
 			cout << "document id " << did << " in value chunk "
-			     << "is larger that get_last_docid() "
+			     << "is larger than get_last_docid() "
 			     << db_last_docid << endl;
 			++errors;
 		    }
