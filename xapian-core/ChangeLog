@@ -1,3 +1,9 @@
+Tue Feb 16 16:23:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact.cc: Fix failure to set lastdocid to an
+	  appropriate value when using --no-renumber.
+	* tests/api_compact.cc: Add regression test for this.
+
 Tue Feb 16 16:10:49 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* examples/delve.cc: Display the lastdocid value when displaying

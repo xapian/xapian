@@ -155,6 +155,13 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     status = system(cmd + a + c + out);
     TEST_EQUAL(WEXITSTATUS(status), 0);
     check_sparse_uid_terms(out);
+    {
+	// regression test - xapian 1.1.4 set lastdocid to 0 in the output
+	// database.
+	Xapian::Database outdb(out);
+	TEST_NOT_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 24, 9999);
+    }
 
     rm_rf(out);
     status = system(cmd + d + a + c + out);
