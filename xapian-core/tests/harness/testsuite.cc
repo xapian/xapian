@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,10 @@
 #include <config.h>
 
 #include "testsuite.h"
-#include "testrunner.h"
+
 #include "backendmanager.h"
+#include "fdtracker.h"
+#include "testrunner.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
@@ -225,6 +227,9 @@ test_driver::runtest(const test_desc *test)
     volatile int runcount = 0;
 #endif
 
+    FDTracker fdtracker;
+    fdtracker.init();
+
     while (true) {
 	tout.str(string());
 	SignalRedirector sig; // use object so signal handlers are reset
@@ -341,6 +346,9 @@ test_driver::runtest(const test_desc *test)
 			if (runcount == 0) {
 			    out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
+			    // Ensure that any cached memory from fd tracking
+			    // is allocated before we rerun the test.
+			    (void)fdtracker.check();
 			    continue;
 			}
 			REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
@@ -362,6 +370,9 @@ test_driver::runtest(const test_desc *test)
 			if (runcount == 0) {
 			    out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
+			    // Ensure that any cached memory from fd tracking
+			    // is allocated before we rerun the test.
+			    (void)fdtracker.check();
 			    continue;
 			}
 			REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
@@ -369,6 +380,15 @@ test_driver::runtest(const test_desc *test)
 		    }
 		}
 #endif
+		if (!fdtracker.check()) {
+		    if (runcount == 0) {
+			out << col_yellow << " POSSIBLE FDLEAK:" << fdtracker.get_message() << col_reset;
+			++runcount;
+			continue;
+		    }
+		    out << col_red << " FDLEAK:" << fdtracker.get_message() << col_reset;
+		    return FAIL;
+		}
 	    } catch (const TestFail &) {
 		out << col_red << " FAILED" << col_reset;
 		write_and_clear_tout();

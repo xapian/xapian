@@ -1,3 +1,9 @@
+Wed Feb 17 15:58:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/: Add machinery to check for leaked FDs.  Currently
+	  requires /proc/self/fd to work (so it works on at least Linux), but
+	  should do nothing on platforms without this directory.
+
 Wed Feb 17 15:53:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Explicitly commit after indexing
