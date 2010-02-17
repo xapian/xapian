@@ -1,3 +1,9 @@
+Wed Feb 17 15:53:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Explicitly commit after indexing
+	  for brass, so we see any exceptions from the commit (commit from
+	  the dtor swallows any exceptions).
+
 Tue Feb 16 16:23:30 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-compact.cc: Fix failure to set lastdocid to an
