@@ -1,3 +1,8 @@
+Thu Feb 18 01:52:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Clear tout on each pass of the loop to avoid a
+	  lot of irrelevant output under --verbose if the test fails.
+
 Thu Feb 18 01:33:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Fix fd tracking change to work when

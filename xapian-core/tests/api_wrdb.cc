@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -1686,6 +1686,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 246; i <= 290; ++i) {
+	tout.str(string());
 	tout << "Term length " << i << endl;
 	Xapian::Document doc;
 	string term(i, 'X');
@@ -1703,6 +1704,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     }
 
     for (Xapian::doccount j = 240; j <= 245; ++j) {
+	tout.str(string());
 	tout << "Term length " << j << endl;
 	Xapian::Document doc;
 	string term(j, 'X');
