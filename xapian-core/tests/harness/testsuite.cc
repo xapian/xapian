@@ -222,10 +222,8 @@ class SignalRedirector {
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
-#ifdef HAVE_VALGRIND
     // This is used to make a note of how many times we've run the test
     volatile int runcount = 0;
-#endif
 
     FDTracker fdtracker;
     fdtracker.init();
