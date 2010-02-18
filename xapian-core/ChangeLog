@@ -1,3 +1,8 @@
+Thu Feb 18 00:20:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Also explicitly commit after
+	  indexing for flint and chert.
+
 Wed Feb 17 15:58:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/: Add machinery to check for leaked FDs.  Currently

@@ -154,6 +154,7 @@ BackendManager::createdb_chert(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }
@@ -206,6 +207,7 @@ BackendManager::createdb_flint(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }
