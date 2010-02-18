@@ -1,3 +1,8 @@
+Thu Feb 18 00:46:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Document the possible exception
+	  messages from QueryParser::parse_query().
+
 Thu Feb 18 00:20:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Also explicitly commit after
