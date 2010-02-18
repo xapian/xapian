@@ -1,3 +1,10 @@
+Thu Feb 18 14:30:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ChangeLog,examples/simpleindex.cc,include/xapian/queryparser.h,
+	  tests/api_wrdb.cc,tests/harness/Makefile.mk,
+	  tests/harness/backendmanager.cc,tests/harness/testsuite.cc:
+	  Merge from trunk r18030.
+
 Tue Feb 16 16:23:30 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-compact.cc: Fix failure to set lastdocid to an
