@@ -254,6 +254,8 @@ test_driver::runtest(const test_desc *test)
 		    write_and_clear_tout();
 		    return FAIL;
 		}
+		if (backendmanager)
+		    backendmanager->clean_up();
 #ifdef HAVE_VALGRIND
 		if (vg_log_fd != -1) {
 		    // We must empty tout before asking valgrind to perform its

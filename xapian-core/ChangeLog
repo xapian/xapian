@@ -1,3 +1,12 @@
+Fri Feb 19 02:08:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.h,tests/harness/testsuite.cc:
+	  Call backendmanager->clean_up() before checking for fd leaks
+	  to avoid finding the sockets/pipes as leaks.  This means that
+	  clean_up() needs to handle being called more than once for
+	  a test sometimes (which the current versions do) so document
+	  that.
+
 Thu Feb 18 02:31:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* examples/simpleindex.cc: Explicitly call commit() on the database,
