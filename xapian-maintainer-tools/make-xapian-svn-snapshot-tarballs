@@ -43,9 +43,12 @@ chdir $work or die $!;
 # Use the same lockfile that fetch does.
 open LOCK, ">$ENV{HOME}/tinderbox/flockme" or die "Couldn't open 'flockme' for writing: $!\n";
 unless (flock LOCK, LOCK_EX|LOCK_NB) {
-    # Work directory already in use.  Don't print anything or the cron job will
-    # send it as mail, which we don't really want.
-    exit 1;
+    # If we're building a tagged release, we want to wait rather than exit.
+    unless (scalar @ARGV && $ARGV[0] =~ m!^tags/! && flock LOCK, LOCK_EX) {
+	# Work directory already in use.  Don't print anything or the cron job will
+	# send it as mail, which we don't really want.
+	exit 1;
+    }
 }
 
 # Check the load average AFTER getting the lock, since we generate output if
@@ -99,6 +102,7 @@ if (scalar @ARGV == 0) {
 
 my $status = 0;
 foreach my $tag (@ARGV) {
+    chdir $work or die $!;
     # SVN tag names aren't restricted like CVS ones, but restrict to sane
     # characters.
     next if $tag !~ /^[-A-Za-z0-9_.\/]+$/;
@@ -126,18 +130,22 @@ foreach my $tag (@ARGV) {
         # Revert any local changes.
 	$log = "svn revert:\n".`svn revert -R \Q$co_dir\E 2>&1`."svn up:\n";
 	open SVN, "svn up --non-interactive \Q$co_dir\E 2>&1|" or die $!;
-	my $lines = 0;
+	my $changed = $force;
 	while (<SVN>) {
 	    $log .= $_;
 	    $lastlog = $_;
-	    ++$lines;
+	    if (!$changed) {
+		if ($_ ne "\n" && !/^(?:Fetching|Updated) /) {
+		    $changed = 1;
+		}
+	    }
 	    if (/^C. / || /^.C /) {
                 # But we just reverted any local changes!
 		die "A conflict?!  That should be impossible!\n";    
 	    }
 	}
 	close SVN or die $!;
-	if (!$force && $lines <= 1) {
+	if (!$changed) {
 	    # No changes.
 	    next;
 	}
@@ -316,7 +324,6 @@ foreach my $tag (@ARGV) {
 	    rename $_, "$d/old/$leaf";
 	}
     }
-    chdir("build");
     for (glob("*/*.tar.gz"), glob("xapian-applications/*/*.tar.gz"), glob("*.tar.gz")) {
 	print LOG "Moving '$_' to '$d'\n";
 	system("mv", $_, $d);
@@ -335,11 +342,12 @@ foreach my $tag (@ARGV) {
 	    print LOG2 "OK\n";
 	}
     }
-    chdir("../..");
+    chdir("..");
+    close LOG;
+    # Expire logs more than 10 days old
+    unlink grep {-M $_ > 10} glob 'snapshot.log.*';
 }
 
-# Expire logs more than 10 days old
-unlink grep {-M $_ > 10} glob 'snapshot.log.*';
-
 system("/home/olly/bin/plot-sizes");
+system("/home/olly/bin/plot-sizes-two");
 exit($status);
