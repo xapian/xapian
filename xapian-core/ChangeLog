@@ -1,3 +1,9 @@
+Sat Feb 20 01:09:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Now we have fd leak checking in the test harness,
+	  remove the ulimit as it doesn't add anything, and has caused problems
+	  on some Debian buildds.
+
 Fri Feb 19 02:08:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.h,tests/harness/testsuite.cc:
