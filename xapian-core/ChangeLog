@@ -1,3 +1,9 @@
+Sun Feb 21 11:10:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/Makefile.mk,examples/xapian-metadata.cc: Add new example
+	  "xapian-metadata" which allows you to get and set individual user
+	  metadata entries.
+
 Sun Feb 21 10:31:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Belatedly update version number to 1.1.4.
