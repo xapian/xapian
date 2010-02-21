@@ -1,3 +1,9 @@
+Sun Feb 21 14:06:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add AC_C_BIGENDIAN.
+	* common/internaltypes.h,configure.ac: Add uint2 typedef for a 16 bit
+	  unsigned word.
+
 Thu Feb 18 14:30:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* ChangeLog,examples/simpleindex.cc,include/xapian/queryparser.h,

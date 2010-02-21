@@ -377,6 +377,9 @@ AC_TRY_COMPILE([#include <typeinfo>],
     AC_DEFINE(USE_RTTI, 1, [Define if the testsuite should use RTTI]),
     AC_MSG_RESULT(no))
 
+dnl Check processor endianness.
+AC_C_BIGENDIAN
+
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
@@ -406,6 +409,7 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+AC_CHECK_SIZEOF([short])
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
 
