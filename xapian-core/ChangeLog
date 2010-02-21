@@ -1,3 +1,10 @@
+Sun Feb 21 14:17:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/stringutils.h,configure.ac,debian/changelog,
+	  debian/patches/runtest-no-fd-ulimit.patch,debian/patches/series,
+	  examples/Makefile.mk,tests/harness/backendmanager.h,
+	  tests/harness/testsuite.cc,tests/runtest.in: Merge from trunk r14042.
+
 Sun Feb 21 14:06:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add AC_C_BIGENDIAN.
