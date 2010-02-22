@@ -1,3 +1,9 @@
+Mon Feb 22 00:57:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,examples/delve.cc: Remove delve's -k option,
+	  accepted as an undocumented alias for -V since 0.9.10 for
+	  compatibility with 0.9.9 and earlier.  Just use -V instead.
+
 Mon Feb 22 00:45:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: If documents are specified, change "-V<valueno>"

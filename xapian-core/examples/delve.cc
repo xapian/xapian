@@ -191,7 +191,7 @@ main(int argc, char **argv) try {
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) != -1) {
+    while ((c = gnu_getopt(argc, argv, "r:t:s:1vV::d")) != -1) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));
@@ -205,7 +205,7 @@ main(int argc, char **argv) try {
 	    case '1':
 		separator = '\n';
 		break;
-	    case 'V': case 'k': /* -k for backward compatibility */
+	    case 'V':
 		if (optarg) {
 		    slot = atoi(optarg);
 		    slot_set = true;
