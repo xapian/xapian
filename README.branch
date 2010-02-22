@@ -1,0 +1,17 @@
+xappy branch
+============
+
+This branch contains various modifications to Xapian which are used by the
+Xappy python interface to Xapian.  See http://xappy.org/ for details of (or at
+least, links to) information about Xappy.
+
+All code on this branch is either derived from a separate feature branch, or
+from a patch attached to a ticket in Xapian trac.
+
+Current status
+--------------
+
+The following changes have been made to this branch:
+
+ - Apply patch "sortemptylast.patch", from ticket #452 (r14056)
+ - Apply patch "compactchunks.patch", from ticket #451 (r14057)
