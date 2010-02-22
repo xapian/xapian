@@ -259,3 +259,97 @@ DEFINE_TESTCASE(compactmultichunks1, brass || chert || flint) {
 
     return true;
 }
+
+static void
+make_rebuildchunks_db(Xapian::WritableDatabase &db, const string & s)
+{
+    char * p = const_cast<char *>(s.c_str());
+    bool valuesonly = false;
+    if (*p == 'v') {
+	valuesonly = true;
+	++p;
+    }
+    Xapian::docid first = strtoul(p, &p, 10);
+    if (*p != '-') {
+	FAIL_TEST("Bad rebuildchunks db param: (expected -): " << s);
+    }
+    ++p;
+    Xapian::docid last = strtoul(p, &p, 10);
+    if (*p != ':') {
+	FAIL_TEST("Bad rebuildchunks db param: (expected colon): " << s);
+    }
+    ++p;
+    Xapian::docid step = strtoul(p, &p, 10);
+
+    for (Xapian::docid i = first; i <= last; i += step) {
+	Xapian::Document doc;
+	if (!valuesonly) {
+	    doc.add_term("a");
+	    doc.add_term("Q" + str(i));
+	}
+	doc.add_value(0, "v" + str(i));
+	if (i % 3 == 0)
+	    doc.add_value(1, "v" + str(i));
+	db.replace_document(i, doc);
+    }
+
+    db.commit();
+}
+
+// Test use of compact with the --rebuild-chunks option.
+DEFINE_TESTCASE(compactrebuildchunks1, chert) {
+    int status;
+    string cmd = XAPIAN_COMPACT" "SILENT" --no-renumber --rebuild-chunks ";
+    string indb1path = get_database_path("compactrebuildchunks1in1",
+					 make_rebuildchunks_db, "1-10001:2");
+    string indb2path = get_database_path("compactrebuildchunks1in2",
+					 make_rebuildchunks_db, "2-10000:2");
+    string outdbpath = get_named_writable_database_path("compactrebuildchunks1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indb1path + " " + indb2path + " " + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database out(outdbpath);
+    dbcheck(out, 10001, 10001);
+    for (Xapian::docid i = 1; i <= 10001; ++i) {
+	Xapian::Document doc(out.get_document(i));
+	Xapian::Document correctdoc;
+	correctdoc.add_term("a");
+	correctdoc.add_term("Q" + str(i));
+	correctdoc.add_value(0, "v" + str(i));
+	if (i % 3 == 0)
+	    correctdoc.add_value(1, "v" + str(i));
+	TEST_EQUAL(doc.serialise(), correctdoc.serialise());
+    }
+
+    return true;
+}
+
+// Test use of compact with the --rebuild-chunks option with no terms.
+DEFINE_TESTCASE(compactrebuildchunks2, chert) {
+    int status;
+    string cmd = XAPIAN_COMPACT" "SILENT" --no-renumber --rebuild-chunks ";
+    string indb1path = get_database_path("compactrebuildchunks2in1",
+					 make_rebuildchunks_db, "v1-10001:2");
+    string indb2path = get_database_path("compactrebuildchunks2in2",
+					 make_rebuildchunks_db, "v2-10000:2");
+    string outdbpath = get_named_writable_database_path("compactrebuildchunks2out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indb1path + " " + indb2path + " " + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database out(outdbpath);
+    dbcheck(out, 10001, 10001);
+    for (Xapian::docid i = 1; i <= 10001; ++i) {
+	Xapian::Document doc(out.get_document(i));
+	Xapian::Document correctdoc;
+	correctdoc.add_value(0, "v" + str(i));
+	if (i % 3 == 0)
+	    correctdoc.add_value(1, "v" + str(i));
+	TEST_EQUAL(doc.serialise(), correctdoc.serialise());
+    }
+
+    return true;
+}

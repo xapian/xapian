@@ -2,6 +2,7 @@
  * @brief Compact a chert database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,7 @@
 
 #include <cstdio>
 
+#include "autoptr.h"
 #include "safeerrno.h"
 #include <sys/types.h>
 #include "safesysstat.h"
@@ -193,9 +195,25 @@ encode_valuestats(Xapian::doccount freq,
 }
 
 static void
+merge_postlist_chunks(ChertTable * out,
+		      priority_queue<PostlistCursor *,
+				     vector<PostlistCursor *>,
+				     PostlistCursorGt> & pq);
+static void
+rebuild_valuelist_chunks(ChertTable * out,
+			 priority_queue<PostlistCursor *,
+					vector<PostlistCursor *>,
+					PostlistCursorGt> & pq);
+static void
+rebuild_postlist_chunks(ChertTable * out,
+			priority_queue<PostlistCursor *,
+				       vector<PostlistCursor *>,
+				       PostlistCursorGt> & pq);
+
+static void
 merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
-		Xapian::docid tot_off)
+		Xapian::docid tot_off, bool rebuild_chunks)
 {
     totlen_t tot_totlen = 0;
     Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
@@ -364,6 +382,21 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	}
     }
 
+    if (rebuild_chunks) {
+	rebuild_valuelist_chunks(out, pq);
+	rebuild_postlist_chunks(out, pq);
+    } else {
+	merge_postlist_chunks(out, pq);
+    }
+}
+
+/// Merge postlist chunks, without rebuilding them.
+static void
+merge_postlist_chunks(ChertTable * out,
+		      priority_queue<PostlistCursor *,
+				     vector<PostlistCursor *>,
+				     PostlistCursorGt> & pq)
+{
     // Merge valuestream chunks.
     while (!pq.empty()) {
 	PostlistCursor * cur = pq.top();
@@ -381,6 +414,7 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string> > tags;
+    string last_key;
     while (true) {
 	PostlistCursor * cur = NULL;
 	if (!pq.empty()) {
@@ -391,7 +425,7 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		string first_tag;
-	        pack_uint(first_tag, tf);
+		pack_uint(first_tag, tf);
 		pack_uint(first_tag, cf);
 		pack_uint(first_tag, tags[0].first - 1);
 		string tag = tags[0].second;
@@ -423,6 +457,303 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	tf += cur->tf;
 	cf += cur->cf;
 	tags.push_back(make_pair(cur->firstdid, cur->tag));
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+}
+
+class ValueChunkReader {
+    string chunk;
+    const char * p;
+    const char * end;
+    Xapian::docid did;
+    Xapian::valueno slot;
+    string value;
+  public:
+    ValueChunkReader(const string & key, const string & chunk_)
+    {
+	Assert(key.size() > 2 && key[0] == '\0' && key[1] == '\xd8');
+	p = key.data() + 2;
+	end = key.data() + key.size();
+	if (!unpack_uint(&p, end, &slot))
+	    throw Xapian::DatabaseCorruptError("Invalid value number");
+	if (!unpack_uint_preserving_sort(&p, end, &did))
+	    throw Xapian::DatabaseCorruptError("Invalid docid in value key");
+	if (p != end)
+	    throw Xapian::DatabaseCorruptError("Junk at end of value key");
+
+	chunk = chunk_;
+	p = chunk.data();
+	end = p + chunk.size();
+	if (!unpack_string(&p, end, value))
+	    throw Xapian::DatabaseCorruptError("Invalid initial value");
+    }
+    bool at_end() const { return p == NULL; }
+    Xapian::docid get_docid() const { return did; }
+    string get_value() const { return value; }
+    Xapian::valueno get_slot() const { return slot; }
+    void next() {
+	if (p == end) {
+	    p = NULL;
+	    return;
+	}
+	Xapian::docid delta;
+	if (!unpack_uint(&p, end, &delta))
+	    throw Xapian::DatabaseCorruptError("Invalid docid delta in valuechunk");
+	did += delta + 1;
+	if (!unpack_string(&p, end, value))
+	    throw Xapian::DatabaseCorruptError("Invalid value in valuechunk");
+    }
+};
+
+class ValueChunkReaderGt {
+  public:
+    /** Return true if and only if a's id is strictly greater than b's id.
+     */
+    bool operator()(const ValueChunkReader *a, const ValueChunkReader *b) {
+	return (a->get_docid() > b->get_docid());
+    }
+};
+
+static const size_t VALUE_CHUNK_SIZE_THRESHOLD = 2000;
+
+inline std::string
+make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
+{
+    std::string key("\0\xd8", 2);
+    pack_uint(key, slot);
+    pack_uint_preserving_sort(key, did);
+    return key;
+}
+
+/// Build merged valuelist chunks
+static void
+rebuild_valuelist_chunks(ChertTable * out,
+			 priority_queue<PostlistCursor *,
+					vector<PostlistCursor *>,
+					PostlistCursorGt> & pq)
+{
+    priority_queue<ValueChunkReader *,
+		   vector<ValueChunkReader *>,
+		   ValueChunkReaderGt> chunks;
+    Xapian::valueno cur_slot = Xapian::valueno(-1);
+    while (true) {
+	PostlistCursor * cur = NULL;
+	if (!pq.empty()) {
+	    cur = pq.top();
+	    if (is_valuechunk_key(cur->key)) {
+		pq.pop();
+	    } else {
+		cur = NULL;
+	    }
+	}
+
+	Xapian::valueno new_slot = Xapian::valueno(-1);
+	AutoPtr<ValueChunkReader> r;
+	if (cur != NULL) {
+	    r = AutoPtr<ValueChunkReader>(new ValueChunkReader(cur->key, cur->tag));
+	    new_slot = r->get_slot();
+	}
+
+	if (cur == NULL || new_slot != cur_slot) {
+	    if (!chunks.empty()) {
+		string key, tag;
+		Xapian::docid prev_docid(0);
+		while (!chunks.empty()) {
+		    AutoPtr<ValueChunkReader> reader(chunks.top());
+		    chunks.pop();
+		    if (tag.empty()) {
+			key = make_valuechunk_key(reader->get_slot(),
+						  reader->get_docid());
+		    } else {
+			pack_uint(tag, reader->get_docid() - prev_docid - 1);
+		    }
+		    prev_docid = reader->get_docid();
+		    pack_string(tag, reader->get_value());
+		    if (tag.size() >= VALUE_CHUNK_SIZE_THRESHOLD) {
+			out->add(key, tag);
+			tag.resize(0);
+		    }
+
+		    reader->next();
+		    if (!reader->at_end()) {
+			chunks.push(reader.release());
+		    }
+		}
+		if (!tag.empty()) {
+		    out->add(key, tag);
+		    tag.resize(0);
+		}
+	    }
+	    Assert(chunks.empty());
+	    if (cur == NULL) break;
+	}
+	cur_slot = new_slot;
+
+	chunks.push(r.release());
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+
+    while (!pq.empty()) {
+	PostlistCursor * cur = pq.top();
+	const string & key = cur->key;
+	if (!is_valuechunk_key(key)) break;
+	Assert(!is_user_metadata_key(key));
+	out->add(key, cur->tag);
+	pq.pop();
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+}
+
+class XAPIAN_VISIBILITY_DEFAULT PostlistChunkReader {
+    string chunk;
+    const char *p;
+    const char *end;
+    Xapian::docid did;
+    Xapian::termcount wdf;
+  public:
+    PostlistChunkReader(Xapian::docid firstdid, const string & chunk_)
+	    : chunk(chunk_), p(chunk.data()), end(p + chunk.size()),
+	      did(firstdid), wdf(0)
+    {
+	bool is_last_chunk;
+	if (!unpack_bool(&p, end, &is_last_chunk))
+	    throw Xapian::DatabaseCorruptError(
+		"Bad postlist chunk - no is_last_chunk bool");
+	Xapian::docid increase_to_last;
+	if (!unpack_uint(&p, end, &increase_to_last))
+	    throw Xapian::DatabaseCorruptError(
+		"Bad postlist chunk - no increase_to_last");
+
+	if (!unpack_uint(&p, end, &wdf))
+	    throw Xapian::DatabaseCorruptError("Bad postlist chunk - no wdf");
+    }
+    bool at_end() const { return p == NULL; }
+    Xapian::docid get_docid() const { return did; }
+    Xapian::termcount get_wdf() const { return wdf; }
+    void next() {
+	if (p == end) {
+	    p = NULL;
+	    return;
+	}
+	Xapian::docid did_increase;
+	if (!unpack_uint(&p, end, &did_increase))
+	    throw Xapian::DatabaseCorruptError(
+		"Bad postlist chunk - no docid increase");
+	did += did_increase + 1;
+
+	if (!unpack_uint(&p, end, &wdf))
+	    throw Xapian::DatabaseCorruptError(
+		"Bad postlist chunk - no wdf");
+    }
+};
+
+class PostlistChunkReaderGt {
+  public:
+    /** Return true if and only if a's id is strictly greater than b's id.
+     */
+    bool operator()(const PostlistChunkReader *a, const PostlistChunkReader *b) {
+	return (a->get_docid() > b->get_docid());
+    }
+};
+
+static const size_t POSTLIST_CHUNK_SIZE_THRESHOLD = 2000;
+/// Build merged postlist chunks
+static void
+rebuild_postlist_chunks(ChertTable * out,
+			priority_queue<PostlistCursor *,
+				       vector<PostlistCursor *>,
+				       PostlistCursorGt> & pq)
+{
+    Xapian::termcount tf = 0, cf = 0;
+    priority_queue<PostlistChunkReader *,
+		   vector<PostlistChunkReader *>,
+		   PostlistChunkReaderGt> tags;
+    string last_key;
+    while (true) {
+	PostlistCursor * cur = NULL;
+	if (!pq.empty()) {
+	    cur = pq.top();
+	    pq.pop();
+	}
+	Assert(cur == NULL || !is_user_metadata_key(cur->key));
+	if (cur == NULL || cur->key != last_key) {
+	    if (!tags.empty()) {
+		string term;
+		if (!is_doclenchunk_key(last_key)) {
+		    const char * p = last_key.data();
+		    const char * end = p + last_key.size();
+		    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
+			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
+		}
+
+		string key, tag, tagstart;
+		Xapian::docid prevdocid = 0;
+		bool firstkey = true;
+		Xapian::docid firstdocid = 0;
+		while (!tags.empty()) {
+		    AutoPtr<PostlistChunkReader> reader(tags.top());
+		    tags.pop();
+		    if (reader->get_docid() == prevdocid)
+			throw Xapian::InvalidOperationError("Docid " + str(prevdocid) + " occurs in multiple input databases");
+
+		    if (tag.size() >=
+			POSTLIST_CHUNK_SIZE_THRESHOLD) {
+			pack_bool(tagstart, false); // not last chunk
+			pack_uint(tagstart, prevdocid - firstdocid);
+			out->add(key, tagstart + tag);
+			tag.resize(0);
+			tagstart.resize(0);
+		    }
+
+		    if (tag.empty()) {
+			firstdocid = reader->get_docid();
+			if (firstkey) {
+			    key = pack_chert_postlist_key(term);
+			    pack_uint(tagstart, tf);
+			    pack_uint(tagstart, cf);
+			    pack_uint(tagstart, reader->get_docid() - 1);
+			    firstkey = false;
+			} else {
+			    key = pack_chert_postlist_key(term, reader->get_docid());
+			}
+		    } else {
+			pack_uint(tag, reader->get_docid() - prevdocid - 1);
+		    }
+		    pack_uint(tag, reader->get_wdf());
+
+		    prevdocid = reader->get_docid();
+		    reader->next();
+		    if (!reader->at_end()) {
+			tags.push(reader.release());
+		    }
+		}
+		if (!tag.empty()) {
+		    pack_bool(tagstart, true); // last chunk
+		    pack_uint(tagstart, prevdocid - firstdocid);
+		    out->add(key, tagstart + tag);
+		    tag.resize(0);
+		}
+	    }
+	    Assert(tags.empty());
+	    if (cur == NULL) break;
+	    tf = cf = 0;
+	    last_key = cur->key;
+	}
+	tf += cur->tf;
+	cf += cur->cf;
+	tags.push(new PostlistChunkReader(cur->firstdid, cur->tag));
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {
@@ -798,7 +1129,8 @@ merge_synonyms(ChertTable * out,
 static void
 multimerge_postlists(ChertTable * out, const char * tmpdir,
 		     Xapian::docid tot_off,
-		     vector<string> tmp, vector<Xapian::docid> off)
+		     vector<string> tmp, vector<Xapian::docid> off,
+		     bool rebuild_chunks)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
@@ -821,7 +1153,8 @@ multimerge_postlists(ChertTable * out, const char * tmpdir,
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0,
+			    rebuild_chunks);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -837,7 +1170,8 @@ multimerge_postlists(ChertTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off,
+		    rebuild_chunks);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -898,7 +1232,7 @@ void
 compact_chert(const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off) {
+	      Xapian::docid tot_off, bool rebuild_chunks) {
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };
@@ -999,11 +1333,11 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(&out, destdir, tot_off,
-					 inputs, offset);
+					 inputs, offset, rebuild_chunks);
 		} else {
 		    merge_postlists(&out, offset.begin(),
 				    inputs.begin(), inputs.end(),
-				    tot_off);
+				    tot_off, rebuild_chunks);
 		}
 		break;
 	    case SPELLING:

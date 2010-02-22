@@ -2,6 +2,7 @@
  * @brief Compact a brass database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -898,7 +899,10 @@ void
 compact_brass(const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off) {
+	      Xapian::docid tot_off, bool rebuild_chunks) {
+    if (rebuild_chunks) {
+	throw "--rebuild-chunks is not currently supported for brass databases";
+    }
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };

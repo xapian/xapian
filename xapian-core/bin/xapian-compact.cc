@@ -2,6 +2,7 @@
  * @brief Compact a database, or merge and compact several.
  */
 /* Copyright (C) 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,6 +57,7 @@ using namespace std;
 #define OPT_HELP 1
 #define OPT_VERSION 2
 #define OPT_NO_RENUMBER 3
+#define OPT_REBUILD_CHUNKS 4
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
@@ -72,7 +74,11 @@ static void show_usage() {
 "                    external references to them, or have set them to match\n"
 "                    unique ids from an external source).  Currently this\n"
 "                    option is only supported when merging databases if they\n"
-"                    have disjoint ranges of used document ids\n"
+"                    have disjoint ranges of used document ids, or if\n"
+"                    --rebuild-chunks is also specified.\n"
+"  --rebuild-chunks  Rebuild the chunks in chunked tables.  Slower, but may\n"
+"                    produce a more compact database, and allows overlapping\n"
+"                    document IDs with the --no-renumber option.\n"
 "  --help            display this help and exit\n"
 "  --version         output version information and exit" << endl;
 }
@@ -179,6 +185,7 @@ main(int argc, char **argv)
 	{"multipass",	no_argument, 0, 'm'},
 	{"blocksize",	required_argument, 0, 'b'},
 	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
+	{"rebuild-chunks", no_argument, 0, OPT_REBUILD_CHUNKS},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
@@ -188,6 +195,7 @@ main(int argc, char **argv)
     size_t block_size = 8192;
     bool multipass = false;
     bool renumber = true;
+    bool rebuild_chunks = false;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -219,6 +227,9 @@ main(int argc, char **argv)
 		break;
 	    case OPT_NO_RENUMBER:
 		renumber = false;
+		break;
+	    case OPT_REBUILD_CHUNKS:
+		rebuild_chunks = true;
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -397,9 +408,9 @@ main(int argc, char **argv)
 		if (p.first == 0 && p.second == 0)
 		    continue;
 		// Check for overlap with the previous database's range.
-		if (p.first <= last_end) {
+		if (!rebuild_chunks && p.first <= last_end) {
 		    cout << argv[0]
-			<< ": when merging databases, --no-renumber is only currently supported if the databases have disjoint ranges of used document ids.\n";
+			<< ": when merging databases which have disjoint ranges of used document ids, --no-renumber is only supported together with --rebuild-chunks.\n";
 		    cout << sources[order[j - 1]] << " has range "
 			 << last_start << "-" << last_end << '\n';
 		    cout << sources[n] << " has range "
@@ -435,13 +446,13 @@ main(int argc, char **argv)
 
 	if (backend == FLINT) {
 	    compact_flint(destdir, sources, offset, block_size, compaction,
-			  multipass, last_docid);
+			  multipass, last_docid, rebuild_chunks);
 	} else if (backend == BRASS) {
 	    compact_brass(destdir, sources, offset, block_size, compaction,
-			  multipass, last_docid);
+			  multipass, last_docid, rebuild_chunks);
 	} else {
 	    compact_chert(destdir, sources, offset, block_size, compaction,
-			  multipass, last_docid);
+			  multipass, last_docid, rebuild_chunks);
 	}
 
 	// Create the version file ("iamchert", etc).

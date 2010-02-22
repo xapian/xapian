@@ -2,6 +2,7 @@
  * @brief Compact a flint or chert database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,18 +34,18 @@ void
 compact_brass(const char * destdir, const std::vector<std::string> & sources,
 	      const std::vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off);
+	      Xapian::docid tot_off, bool rebuild_chunks);
 
 void
 compact_chert(const char * destdir, const std::vector<std::string> & sources,
 	      const std::vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off);
+	      Xapian::docid tot_off, bool rebuild_chunks);
 
 void
 compact_flint(const char * destdir, const std::vector<std::string> & sources,
 	      const std::vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off);
+	      Xapian::docid tot_off, bool rebuild_chunks);
 
 #endif

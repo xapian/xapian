@@ -1,3 +1,11 @@
+Mon Feb 22 20:49:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/: Add a --rebuild-chunks option, and implement it for chert,
+	  to rebuild the chunks when compacting.  Allows overlapping docids
+	  with --no-renumber.
+	* tests/api_compact.cc: Add compactrebuildchunks1 and
+	  compactrebuildchunks2 to test the --rebuild-chunks option.
+
 Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* Apply patch "sortemptylast.patch" from ticket #452:
