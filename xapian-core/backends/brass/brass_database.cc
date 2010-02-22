@@ -1347,9 +1347,14 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    // Term already exists: look for wdf and positionlist changes.
 		    termcount old_wdf = termlist.get_wdf();
 		    termcount new_wdf = term.get_wdf();
+
+		    // Check the stats even if wdf hasn't changed, because if
+		    // this is the only document, the stats will have been
+		    // zeroed.
+		    stats.check_wdf(new_wdf);
+
 		    if (old_wdf != new_wdf) {
 		    	new_doclen += new_wdf - old_wdf;
-			stats.check_wdf(new_wdf);
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 
