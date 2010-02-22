@@ -1,3 +1,8 @@
+Mon Feb 22 00:00:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Remove files which are no longer used, or totally
+	  replaced.
+
 Sun Feb 21 14:17:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/stringutils.h,configure.ac,debian/changelog,
