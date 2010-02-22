@@ -160,6 +160,117 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 };
 
 
+/// Class to serialise a list of strings in a form suitable for
+/// ValueCountMatchSpy.
+class XAPIAN_VISIBILITY_DEFAULT StringListSerialiser {
+  private:
+    std::string serialised;
+
+  public:
+    /// Default constructor.
+    StringListSerialiser() { }
+
+    /// Initialise with a string.
+    /// (The string represents a serialised form, rather than a single value to
+    /// be serialised.)
+    StringListSerialiser(const std::string & initial) : serialised(initial) { }
+
+    /// Initialise from a pair of iterators.
+    template <class Iterator>
+    StringListSerialiser(Iterator begin, Iterator end) : serialised() {
+	while (begin != end) append(*begin++);
+    }
+
+    /// Add a string to the end of the list.
+    void append(const std::string & value);
+
+    /// Get the serialised result.
+    const std::string & get() const { return serialised; }
+};
+
+
+/// Class to unserialise a list of strings serialised by a StringListSerialiser.
+/// The class can be used as an iterator: use the default constructor to get
+/// an end iterator.
+class XAPIAN_VISIBILITY_DEFAULT StringListUnserialiser {
+  private:
+    std::string serialised;
+    std::string curritem;
+    const char * pos;
+
+    /// Read the next item from the serialised form.
+    void read_next();
+
+    /// Compare this iterator with another
+    friend bool operator==(const StringListUnserialiser & a,
+			   const StringListUnserialiser & b);
+    friend bool operator!=(const StringListUnserialiser & a,
+			   const StringListUnserialiser & b);
+
+  public:
+    /// Default constructor - use this to define an end iterator.
+    StringListUnserialiser() : pos(NULL) {}
+
+    /// Constructor which takes a serialised list of strings, and creates an
+    /// iterator pointing to the first of them.
+    StringListUnserialiser(const std::string & in)
+	    : serialised(in),
+	      pos(serialised.data())
+    {
+	read_next();
+    }
+
+    /// Copy constructor
+    StringListUnserialiser(const StringListUnserialiser & other)
+	    : serialised(other.serialised),
+	      curritem(other.curritem),
+	      pos((other.pos == NULL) ? NULL : serialised.data() + (other.pos - other.serialised.data()))
+    {}
+
+    /// Assignment operator
+    void operator=(const StringListUnserialiser & other) {
+	serialised = other.serialised;
+	curritem = other.curritem;
+	pos = (other.pos == NULL) ? NULL : serialised.data() + (other.pos - other.serialised.data());
+    }
+
+    /// Get the current item
+    std::string operator *() const {
+	return curritem;
+    }
+
+    /// Move to the next item.
+    StringListUnserialiser & operator++() {
+	read_next();
+	return *this;
+    }
+
+    /// Move to the next item (postfix).
+    StringListUnserialiser operator++(int) {
+	StringListUnserialiser tmp = *this;
+	read_next();
+	return tmp;
+    }
+
+    // Allow use as an STL iterator
+    typedef std::input_iterator_tag iterator_category;
+    typedef std::string value_type;
+    typedef size_t difference_type;
+    typedef std::string * pointer;
+    typedef std::string & reference;
+};
+
+inline bool operator==(const StringListUnserialiser & a,
+		       const StringListUnserialiser & b) {
+    return (a.pos == b.pos);
+}
+
+inline bool operator!=(const StringListUnserialiser & a,
+		       const StringListUnserialiser & b) {
+    return (a.pos != b.pos);
+}
+
+
 /** Class for counting the frequencies of values in the matching documents.
  *
  *  Warning: this API is currently experimental, and is liable to change
@@ -248,6 +359,123 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual std::string serialise_results() const;
     virtual void merge_results(const std::string & s);
     virtual std::string get_description() const;
+};
+
+
+/// Class for counting the frequencies of values in the matching documents.
+class XAPIAN_VISIBILITY_DEFAULT MultiValueCountMatchSpy : public ValueCountMatchSpy {
+  public:
+    /// Construct an empty MultiValueCountMatchSpy.
+    MultiValueCountMatchSpy() {}
+
+    /** Construct a MatchSpy which counts the values in a particular slot.
+     *
+     *  Further slots can be added by calling @a add_slot().
+     */
+    MultiValueCountMatchSpy(Xapian::valueno slot_)
+	    : ValueCountMatchSpy(slot_) {
+    }
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation tallies values for a matching document.
+     */
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+
+    virtual MatchSpy * clone() const;
+    virtual std::string name() const;
+    virtual std::string serialise() const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const Registry & context) const;
+    virtual std::string get_description() const;
+};
+
+
+/** A numeric range.
+ *
+ *  This is used to represent ranges of values returned by the match spies.
+ *
+ *  Warning: this API is currently experimental, and is liable to change
+ *  between releases without warning.
+ */
+class XAPIAN_VISIBILITY_DEFAULT NumericRange {
+    /// The lower value in the range.
+    double lower;
+
+    /// The upper value in the range.
+    double upper;
+
+  public:
+    /** Construct a NumericRange object.
+     *
+     *  @param lower_ The start of the range.
+     *  @param upper_ The end of the range.
+     */
+    NumericRange(double lower_, double upper_)
+	    : lower(lower_), upper(upper_) {}
+
+    /// Get the start of the range.
+    double get_lower() const { return lower; }
+
+    /// Get the end of the range.
+    double get_upper() const { return upper; }
+
+    /// Provide an ordering of NumericRange objects.
+    bool operator<(const NumericRange & other) const {
+	if (lower < other.lower) return true;
+	if (lower > other.lower) return false;
+	return (upper < other.upper);
+    }
+};
+
+
+/** A set of numeric ranges, with corresponding frequencies.
+ *
+ *  For "continuous" values (such as price, height, weight, etc), there will
+ *  usually be too many different values to offer the user, and the user won't
+ *  want to restrict to an exact value anyway.  The NumericRanges class
+ *  represents a set non-overlapping ranges of numbers, and the various
+ *  subclasses provide ways of converting a list of occurrences of numeric
+ *  values into a manageable number of NumericRanges.
+ */
+class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
+  protected:
+    /** The ranges of values, together with the frequency sum of each range.
+     */
+    std::map<Xapian::NumericRange, Xapian::doccount> ranges;
+
+    /** @return The total number of values seen.
+     *
+     *  This is the sum of the frequencies for all the values supplied.
+     */
+    doccount values_seen;
+
+  public:
+    /// Construct an empty NumericRanges object.
+    NumericRanges() : values_seen(0) {}
+
+    /// Get the number of values seen.
+    doccount get_values_seen() const { return values_seen; }
+
+    /// Get the ranges.
+    const std::map<Xapian::NumericRange, Xapian::doccount> & get_ranges() const { return ranges; }
+};
+
+
+/** Numeric ranges, evenly spread.
+ */
+class XAPIAN_VISIBILITY_DEFAULT UnbiasedNumericRanges : public NumericRanges {
+  public:
+    /** Construct UnbiasedNumericRanges from a matchspy and a target number of
+     *  ranges.
+     *
+     *  The values collected by the matchspy should be numeric values
+     *  serialised with sortable_serialise().
+     *
+     *  @param spy        The input numbers.
+     *  @param max_ranges Group into at most this many ranges.
+     */
+    UnbiasedNumericRanges(const ValueCountMatchSpy & spy, size_t max_ranges);
 };
 
 }

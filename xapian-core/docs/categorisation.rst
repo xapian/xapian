@@ -18,6 +18,12 @@ user the ability to narrow down their search by filtering it to only include
 documents with a particular value of a particular category.  This is often
 referred to as ``faceted search``.
 
+Some categories are numeric and can take many different values (examples
+include price, width, and height).  The number of different values will often
+be overwhelming, and users will generally be more interested in narrowing their
+search to a range rather than a single value.  For these, Xapian can group the
+results into ranges for you.
+
 In some applications, you may have many different categories (for example
 colour, price, width, height) but not always want to offer all of them
 for every search.  If all the results are red, and none have width, it's
@@ -32,7 +38,9 @@ Indexing
 --------
 
 When indexing a document, you need to add each category in a different
-number value slot.
+number value slot.  For numeric values which you want to be able to
+group, you should encode the numeric value as a string using
+``Xapian::sortable_serialise()``.
 
 Searching
 ---------
@@ -72,13 +80,57 @@ from, say, ``spy0`` like this::
         cout << i->first << ": " << i->second << endl;
     }
 
+You can calculate a score to indicate how evenly spread the values are using
+the ``score_evenness`` function like so::
+
+    double score = Xapian::score_evenness(spy0);
+
+Or if you prefer categories with 4 or 5 values::
+
+    double score = Xapian::score_evenness(spy0, 4.5);
+
+The smaller the score, the better - a perfectly even split with exactly the
+number of entries asked (or with no preference given for the number of entries)
+scores 0.  You should experiment to find a suitable threshold for your
+application, but to give you a rough idea, a suitable threshold is likely to be
+less than one.
+
+The scoring uses a sum of squared differences (currently, that is - this should
+probably be regarded as an implementation detail which could change in the
+future if we find a better algorithm).
+
+You can build ranges from numeric values for the values returned from spy
+``spy0``, asking for at most ``num_ranges`` ranges like so::
+
+    Xapian::UnbiasedNumericRanges ranges(spy0.get_values(), num_ranges);
+
+Here, ``ranges.get_ranges()`` will be return the numeric ranges (at most
+``num_ranges`` of them), and ``ranges.get_values_seen()`` will return a count
+of the number of values seen (note - this may be different from the number of
+documents seen by the matchspy, since some documents may have no value stored
+in the slot).
+
+If there are no values seen by the spy, ``ranges.get_ranges()`` will be empty.
+If all the values seen by the spy are the same, ``ranges.get_ranges()`` will
+contain a single entry, for a single range with the same start and end points.
+
 Restricting by category values
 ------------------------------
 
 If you're using the categorisation to offer the user choices for narrowing down
 their search results, you then need to be able to apply a suitable filter.
 
+For a range, the easiest way is to use ``Xapian::Query::OP_VALUE_RANGE`` to
+build a filter query, and then combine this with the user's query using
+``Xapian::Query::OP_FILTER``.
+
 For a single value, you could use ``Xapian::Query::OP_VALUE_RANGE`` with the
 same start and end, or ``Xapian::MatchDecider``, but it's probably most
 efficient to also index the categories as suitably prefixed boolean terms and
 use those for filtering.
+
+Current Limitations
+===================
+
+It's not currently possible to build logarithmic ranges, or to build ranges
+with nicely rounded end points.

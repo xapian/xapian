@@ -377,6 +377,29 @@ DEFINE_TESTCASE(uninitdb1, !backend) {
     return true;
 }
 
+// tests the string list serialisation classes.
+DEFINE_TESTCASE(stringlistserialise1, !backend)
+{
+    Xapian::StringListSerialiser s1;
+    s1.append("foo");
+    s1.append("");
+    Xapian::StringListSerialiser s2(s1);
+    s2.append("baz");
+    Xapian::StringListUnserialiser p(s2.get());
+    Xapian::StringListUnserialiser end;
+    TEST(p != end);
+    TEST_EQUAL(*p, "foo");
+    ++p;
+    TEST(p != end);
+    TEST_EQUAL(*p, "");
+    p++;
+    TEST(p != end);
+    TEST_EQUAL(*p, "baz");
+    ++p;
+    TEST(p == end);
+    return true;
+}
+
 // Test a scaleweight query applied to a match nothing query
 DEFINE_TESTCASE(scaleweight3, !backend) {
     Xapian::Query matchnothing(Xapian::Query::MatchNothing);

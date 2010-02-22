@@ -484,6 +484,21 @@ class Enquire {
 %ignore Xapian::Weight::init_;
 %include <xapian/weight.h>
 
+%ignore Xapian::StringListUnserialiser::operator=;
+%ignore Xapian::StringListUnserialiser::operator++;
+%ignore operator==(const StringListUnserialiser &, const StringListUnserialiser &);
+%ignore operator!=(const StringListUnserialiser &, const StringListUnserialiser &);
+%extend Xapian::StringListUnserialiser {
+    std::string get() const {
+        return *(*self);
+    }
+    NEXT(std::string, StringListUnserialiser)
+    bool equals(const StringListUnserialiser &other) const {
+        return (*self) == other;
+    }
+}
+
+%ignore Xapian::NumericRange::operator<;
 %include <xapian/matchspy.h>
 
 namespace Xapian {

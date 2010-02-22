@@ -88,6 +88,33 @@ static void unsupported_method() {
     throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
 }
 
+void
+StringListSerialiser::append(const string & value)
+{
+    serialised.append(encode_length(value.size()));
+    serialised.append(value);
+}
+
+void
+StringListUnserialiser::read_next()
+{
+    if (pos == NULL) {
+	return;
+    }
+    if (pos == serialised.data() + serialised.size()) {
+	pos = NULL;
+	curritem.resize(0);
+	return;
+    }
+
+    // FIXME - decode_length will throw a NetworkError if the length is too
+    // long - should be a more appropriate error.
+    size_t currlen = decode_length(&pos, serialised.data() + serialised.size(), true);
+    curritem.assign(pos, currlen);
+    pos += currlen;
+}
+
+
 /// A termlist iterator over the contents of a ValueCountMatchSpy
 class ValueCountTermList : public TermList {
   private:
@@ -370,4 +397,143 @@ string
 ValueCountMatchSpy::get_description() const {
     return "Xapian::ValueCountMatchSpy(" + str(internal->total) +
 	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
+}
+
+
+void
+MultiValueCountMatchSpy::operator()(const Document &doc, weight) {
+    ++internal->total;
+    StringListUnserialiser i(doc.get_value(internal->slot));
+    StringListUnserialiser end;
+    for (; i != end; ++i) {
+	string val(*i);
+	if (!val.empty()) ++internal->values[val];
+    }
+}
+
+MatchSpy *
+MultiValueCountMatchSpy::clone() const {
+    return new MultiValueCountMatchSpy(internal->slot);
+}
+
+string
+MultiValueCountMatchSpy::name() const {
+    return "Xapian::MultiValueCountMatchSpy";
+}
+
+string
+MultiValueCountMatchSpy::serialise() const {
+    string result;
+    result += encode_length(internal->slot);
+    return result;
+}
+
+MatchSpy *
+MultiValueCountMatchSpy::unserialise(const string & s,
+				     const Registry &) const{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    valueno new_slot = decode_length(&p, end, false);
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised MultiValueCountMatchSpy");
+    }
+
+    return new MultiValueCountMatchSpy(new_slot);
+}
+
+string
+MultiValueCountMatchSpy::get_description() const {
+    return "Xapian::MultiValueCountMatchSpy(" + str(internal->total) +
+	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
+}
+
+
+/** A bucket, used when building numeric ranges.
+ */
+struct bucketval {
+    size_t count;
+    double min, max;
+
+    bucketval() : count(0), min(DBL_MAX), max(-DBL_MAX) { }
+
+    void update(size_t n, double value) {
+	count += n;
+	if (value < min) min = value;
+	if (value > max) max = value;
+    }
+};
+
+UnbiasedNumericRanges::UnbiasedNumericRanges(
+	const ValueCountMatchSpy & spy, size_t max_ranges)
+	: NumericRanges()
+{
+    double lo = DBL_MAX, hi = -DBL_MAX;
+
+    map<double, doccount> histo;
+    doccount total_set = 0;
+    for (TermIterator i = spy.values_begin(); i != spy.values_end(); ++i) {
+	if ((*i).empty()) continue;
+	double v = sortable_unserialise(*i);
+	if (v < lo) lo = v;
+	if (v > hi) hi = v;
+	doccount count = i.get_termfreq();
+	histo[v] = count;
+	total_set += count;
+    }
+
+    if (total_set == 0) {
+	// No set values.
+	return;
+    }
+    if (lo == hi) {
+	// All set values are the same.
+	NumericRange range(lo, hi);
+	ranges[range] = total_set;
+	values_seen = total_set;
+	return;
+    }
+
+    double sizeby = max(fabs(hi), fabs(lo));
+    // E.g. if sizeby = 27.4 and max_ranges = 7, we want to split into units of
+    // width 1.0 which we may then coalesce if there are too many used buckets.
+    double unit = pow(10.0, floor(log10(sizeby / max_ranges) - 0.2));
+    double start = floor(lo / unit) * unit;
+    // Can happen due to FP rounding (e.g. lo = 11.95, unit = 0.01).
+    if (start > lo) start = lo;
+    size_t n_buckets = size_t(ceil(hi / unit) - floor(lo / unit));
+
+    bool scaleby2 = true;
+    vector<bucketval> bucket(n_buckets + 1);
+    while (true) {
+	size_t n_used = 0;
+	map<double, doccount>::const_iterator j;
+	for (j = histo.begin(); j != histo.end(); ++j) {
+	    double v = j->first;
+	    size_t b = size_t(floor((v - start) / unit));
+	    if (b > n_buckets) b = n_buckets; // FIXME - Hacky workaround to ensure that b is in range.
+	    if (bucket[b].count == 0) ++n_used;
+	    bucket[b].update(j->second, v);
+	}
+
+	if (n_used <= max_ranges) break;
+
+	unit *= scaleby2 ? 2.0 : 2.5;
+	scaleby2 = !scaleby2;
+	start = floor(lo / unit) * unit;
+	// Can happen due to FP rounding (e.g. lo = 11.95, unit = 0.01).
+	if (start > lo) start = lo;
+	n_buckets = size_t(ceil(hi / unit) - floor(lo / unit));
+	bucket.resize(0);
+	bucket.resize(n_buckets + 1);
+    }
+
+    map<string, doccount> discrete_categories;
+    for (size_t b = 0; b < bucket.size(); ++b) {
+	if (bucket[b].count == 0) continue;
+	NumericRange range(bucket[b].min, bucket[b].max);
+	ranges[range] = bucket[b].count;
+    }
+
+    values_seen = total_set;
 }
