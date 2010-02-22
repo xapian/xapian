@@ -1,3 +1,7 @@
+Mon Feb 22 13:35:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_record.h: Remove file totally replaced.
+
 Mon Feb 22 10:51:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
