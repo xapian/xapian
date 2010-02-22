@@ -1,3 +1,10 @@
+Mon Feb 22 14:29:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Fix exception message
+	  if we get an unsupported changeset type.
+
 Mon Feb 22 01:49:03 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/dbcheck.cc: Check the wdf, doclen, and value bounds
