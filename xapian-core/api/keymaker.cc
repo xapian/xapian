@@ -2,6 +2,7 @@
  * @brief Build key strings for MSet ordering or collapsing.
  */
 /* Copyright (C) 2007,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +39,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 {
     string result;
 
-    vector<pair<Xapian::valueno, bool> >::const_iterator i = valnos.begin();
+    vector<KeySpec>::const_iterator i = valnos.begin();
     // Don't crash if valnos is empty.
     if (rare(i == valnos.end())) return result;
 
@@ -48,8 +49,12 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	// be adjusted.
 	//
 	// FIXME: allow Xapian::BAD_VALNO to mean "relevance?"
-	string v = doc.get_value(i->first);
-	bool reverse_sort = i->second;
+	string v = doc.get_value(i->valno);
+	bool reverse_sort = i->reverse;
+
+	if (v.empty()) {
+	    v = i->defvalue;
+	}
 
 	if (reverse_sort || !v.empty())
 	    last_not_empty_forwards = result.size();

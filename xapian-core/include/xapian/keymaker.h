@@ -2,6 +2,7 @@
  * @brief Build key strings for MSet ordering or collapsing.
  */
 /* Copyright (C) 2007,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +62,16 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
  *  Other than this, it isn't useful to set @a reverse for collapsing.
  */
 class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
-    std::vector<std::pair<Xapian::valueno, bool> > valnos;
+    struct KeySpec {
+	Xapian::valueno valno;
+	bool reverse;
+	std::string defvalue;
+	KeySpec(Xapian::valueno valno_, bool reverse_,
+		const std::string & defvalue_)
+		: valno(valno_), reverse(reverse_), defvalue(defvalue_)
+	{}
+    };
+    std::vector<KeySpec> valnos;
 
   public:
     MultiValueKeyMaker() { }
@@ -73,8 +83,9 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 
     virtual std::string operator()(const Xapian::Document & doc) const;
 
-    void add_value(Xapian::valueno valno, bool reverse = false) {
-	valnos.push_back(std::make_pair(valno, reverse));
+    void add_value(Xapian::valueno valno, bool reverse = false,
+		   const std::string & defvalue = std::string()) {
+	valnos.push_back(KeySpec(valno, reverse, defvalue));
     }
 };
 

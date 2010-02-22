@@ -1,3 +1,13 @@
+Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* Apply patch "sortemptylast.patch" from ticket #452:
+	* api/keymaker.cc,include/xapian/keymaker.h: Add a third argument
+	  to MultiValueKeyMaker::add_value() allowing a value to be used in
+	  place of missing values to be specified.  Replace use of
+	  pair<Xapian::valueno, bool> with a struct KeySpec. 
+	* tests/api_sorting.cc: Add sortfunctor3, and extend
+	  multivaluekeymaker1, to test this.
+
 Mon Feb 22 01:49:03 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/dbcheck.cc: Check the wdf, doclen, and value bounds
