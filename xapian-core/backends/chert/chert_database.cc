@@ -1413,6 +1413,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    // Term new_tname as been added.
 		    termcount new_wdf = term.get_wdf();
 		    new_doclen += new_wdf;
+		    stats.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
@@ -1423,6 +1424,12 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    // Term already exists: look for wdf and positionlist changes.
 		    termcount old_wdf = termlist.get_wdf();
 		    termcount new_wdf = term.get_wdf();
+
+		    // Check the stats even if wdf hasn't changed, because
+		    // this is the only document, the stats will have been
+		    // zeroed.
+		    stats.check_wdf(new_wdf);
+
 		    if (old_wdf != new_wdf) {
 		    	new_doclen += new_wdf - old_wdf;
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);

@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010 Olly Betts
 
 ===========
 Deprecation
@@ -378,6 +378,9 @@ Removed Feature name                        Upgrade suggestion and comments
         throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
         the document specified doesn't      specified document ID.
         exist.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.5   delve -k                            Accepted as an undocumented alias for -V since 0.9.10 for compatibility with 0.9.9
+                                            and earlier.  Just use -V instead.
 ======= =================================== ==================================================================================
 
 

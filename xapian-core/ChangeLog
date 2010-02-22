@@ -1,3 +1,9 @@
+Mon Feb 22 10:51:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  docs/deprecation.rst,examples/delve.cc,tests/api_valuestream.cc,
+	  tests/dbcheck.cc: Merge from trunk r14049.
+
 Mon Feb 22 00:00:28 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Remove files which are no longer used, or totally
