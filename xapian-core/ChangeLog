@@ -1,3 +1,9 @@
+Mon Feb 22 01:49:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/dbcheck.cc: Check the wdf, doclen, and value bounds
+	  reported by the database against correct (tight) bounds
+	  calculated by iterating through the database contents.
+
 Mon Feb 22 01:47:20 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
