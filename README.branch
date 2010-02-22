@@ -17,3 +17,5 @@ The following changes have been made to this branch:
  - Apply patch "compactchunks.patch", from ticket #451 (r14057)
  - Apply changes from matchspy branch (r14059)
  - Apply changes from geospatial branch (r14060)
+ - Apply changes from clustering branch (r14061)
+ - Apply changes from coloursim branch (r14062)

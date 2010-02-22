@@ -14,6 +14,7 @@ INTDIR=.\
 OBJS= \
 	$(INTDIR)\bm25weight.obj\
 	$(INTDIR)\boolweight.obj\
+	$(INTDIR)\colourweight.obj\
 	$(INTDIR)\tradweight.obj\
 	$(INTDIR)\weight.obj\
 	$(INTDIR)\weightinternal.obj
@@ -21,6 +22,7 @@ OBJS= \
 SRCS= \
 	$(INTDIR)\bm25weight.cc\
 	$(INTDIR)\boolweight.cc\
+	$(INTDIR)\colourweight.cc\
 	$(INTDIR)\tradweight.cc\
 	$(INTDIR)\weight.cc\
 	$(INTDIR)\weightinternal.cc
