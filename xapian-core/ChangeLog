@@ -1,3 +1,8 @@
+Mon Feb 22 00:59:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestream.cc: Reset tout before testing each interval.
+	  Prefer string() to "".
+
 Mon Feb 22 00:57:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst,examples/delve.cc: Remove delve's -k option,
