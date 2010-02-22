@@ -1,7 +1,7 @@
 /** @file brass_termlisttable.h
  * @brief Subclass of BrassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,11 +46,10 @@ class BrassTermListTable : public BrassLazyTable {
      *  must call the create() or open() methods respectively!
      *
      *  @param dbdir	    The directory the brass database is stored in.
-     *  @param readonly	    true if we're opening read-only, else false.
+     *  @param readonly_	    true if we're opening read-only, else false.
      */
-    BrassTermListTable(const std::string & dbdir, bool readonly)
-	: BrassLazyTable("termlist", dbdir + "/termlist.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+    BrassTermListTable(const std::string & dbdir, bool readonly_)
+	: BrassLazyTable("termlist", dbdir + "/termlist.", readonly_, COMPRESS) { }
 
     /** Set the termlist data for document @a did.
      *
@@ -61,7 +60,7 @@ class BrassTermListTable : public BrassLazyTable {
      *  @param doclen	The document length.
      */
     void set_termlist(Xapian::docid did, const Xapian::Document & doc,
-		      brass_doclen_t doclen);
+		      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.
      *
@@ -69,15 +68,20 @@ class BrassTermListTable : public BrassLazyTable {
      */
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 
-    /** Non-lazy override of BrassLazyTable::create_and_open().
+    /** Non-lazy override of BrassLazyTable::create().
      *
-     * Don't create lazily, but if the termlist is deleted, work without it.
+     *  Don't create lazily, but if the termlist is deleted, work without it.
      *
      *  This method isn't virtual, but we never call it such that it needs to
      *  be.
+     *
+     *  @param blocksize_	The blocksize to use for this table.
+     *  @param from_scratch	True if this table is know to not be present
+     *				already (e.g. because the parent directory
+     *				was just created).
      */
-    void create_and_open(unsigned int blocksize) {
-	BrassTable::create_and_open(blocksize);
+    void create(unsigned int blocksize_, bool from_scratch) {
+	BrassTable::create(blocksize_, from_scratch);
     }
 };
 

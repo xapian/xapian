@@ -71,7 +71,7 @@ bin_xapian_compact_SOURCES =\
 	bin/xapian-compact.h
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/brass
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 

@@ -1,6 +1,6 @@
 /* brass_alltermslist.h: A termlist containing all terms in a brass database.
  *
- * Copyright (C) 2005,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,7 +66,7 @@ class BrassAllTermsList : public AllTermsList {
     BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase> database_,
 		      const std::string & prefix_)
 	    : database(database_), prefix(prefix_), termfreq(0) {
-	cursor = database->postlist_table.cursor_get();
+	cursor = database->postlist_table.get_cursor();
 	Assert(cursor); // The postlist table isn't optional.
 
 	// Position the cursor on the highest key before the first key we want,

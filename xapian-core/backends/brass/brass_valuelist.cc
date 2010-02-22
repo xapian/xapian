@@ -1,7 +1,7 @@
 /** @file brass_valuelist.cc
  * @brief Brass class for value streams.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -108,7 +108,7 @@ BrassValueList::skip_to(Xapian::docid did)
 	if (!reader.at_end()) return;
     }
 
-    if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
+    if (!cursor->find_entry_le(make_valuechunk_key(slot, did))) {
 	if (update_reader()) {
 	    reader.skip_to(did);
 	    if (!reader.at_end()) return;
@@ -142,7 +142,7 @@ BrassValueList::check(Xapian::docid did)
     }
 
     // Try moving to the appropriate chunk.
-    if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
+    if (!cursor->find_entry_le(make_valuechunk_key(slot, did))) {
 	// We're in a chunk which might contain the docid.
 	if (update_reader()) {
 	    reader.skip_to(did);

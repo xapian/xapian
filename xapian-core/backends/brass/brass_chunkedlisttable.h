@@ -1,7 +1,7 @@
 /** @file brass_chunkedlisttable.h
  * @brief Subclass of BrassTable which holds chunked lists.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,16 +35,15 @@ class BrassChunkedListTable : public BrassTable {
      *  @param name_	    The table name (e.g. "values").
      *  @param append	    What to append to dbdir to get (e.g. "/values.").
      *  @param dbdir	    The directory the brass database is stored in.
-     *  @param readonly	    true if we're opening read-only, else false.
-     *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
-     *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
+     *  @param readonly_    true if we're opening read-only, else false.
+     *  @param compress_    true (or COMPRESS) to zlib compress tags; false (or
+     *			    DONT_COMPRESS) not to.
      *  @param lazy_	    If true, don't create the table until it's needed.
      */
     BrassChunkedListTable(const char * name_, const char * append,
-			  const std::string & dbdir, bool readonly,
-			  int compress_strategy_ = DONT_COMPRESS,
-			  bool lazy_ = false)
-	: BrassTable(name_, dbdir + append, readonly, compress_strategy_, lazy_)
+			  const std::string & dbdir, bool readonly_,
+			  bool compress_ = DONT_COMPRESS, bool lazy_ = NOT_LAZY)
+	: BrassTable(name_, dbdir + append, readonly_, compress_, lazy_)
     { }
 };
 

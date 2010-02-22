@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 #include "brass_values.h"
 #include "brass_version.h"
 #include "../flint_lock.h"
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "valuestats.h"
 
 #include <map>
@@ -98,12 +98,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	mutable BrassSpellingTable spelling_table;
 
 	/** Table storing records.
-	 *
-	 *  Whenever an update is performed, this table is the last to be
-	 *  updated: therefore, its most recent revision number is the most
-	 *  recent consistent revision available.  If this table's most
-	 *  recent revision number is not available for all tables, there
-	 *  is no consistent revision available, and the database is corrupt.
 	 */
 	BrassRecordTable record_table;
 
@@ -125,14 +119,14 @@ class BrassDatabase : public Xapian::Database::Internal {
 	/** Create new tables, and open them.
 	 *  Any existing tables will be removed first.
 	 */
-	void create_and_open_tables(unsigned int blocksize);
+	void create_and_open_tables(unsigned int blocksize, bool from_scratch);
 
-	/** Open all tables at most recent consistent revision.
+	/** Open all tables at most recent revision.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
-	 *  consistent revision available.
+	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
+	 *  found with the database's format.
 	 */
-	void open_tables_consistent();
+	void open_tables();
 
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
@@ -142,13 +136,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  can't be acquired and the database doesn't exist.
 	 */
 	void get_database_write_lock(bool creating);
-
-	/** Open tables at specified revision number.
-	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the specified
-	 *  revision is not available.
-	 */
-	void open_tables(brass_revision_number_t revision);
 
 	/** Get an object holding the revision number which the tables are
 	 *  opened at.
@@ -170,9 +157,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  becomes the specified revision number.
 	 *
 	 *  @param new_revision The new revision number to store.  This must
-	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or undefined behaviour will
-	 *          result.
+	 *          be greater than the highest previous revision number.
 	 */
 	void set_revision_number(brass_revision_number_t new_revision);
 
@@ -221,8 +206,8 @@ class BrassDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a brass database.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
-	 *             consistent revision available.
+	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
+	 *	       found with the database's format.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
 	 *             be opened.
@@ -245,7 +230,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 
 	/// Get a postlist table cursor (used by BrassValueList).
 	BrassCursor * get_postlist_cursor() const {
-	    return postlist_table.cursor_get();
+	    return postlist_table.get_cursor();
 	}
 
 	/** Virtual methods of Database::Internal. */

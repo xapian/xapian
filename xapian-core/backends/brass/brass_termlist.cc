@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,8 +40,7 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
     DEBUGCALL(DB, void, "BrassTermList",
 	      "[RefCntPtr<const BrassDatabase>], " << did_);
 
-    if (!db->termlist_table.get_exact_entry(BrassTermListTable::make_key(did),
-					    data))
+    if (!db->termlist_table.get(BrassTermListTable::make_key(did), data))
 	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
 
     pos = data.data();
@@ -76,10 +75,10 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
     }
 }
 
-brass_doclen_t
+Xapian::termcount
 BrassTermList::get_doclength() const
 {
-    DEBUGCALL(DB, brass_doclen_t, "BrassTermList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::get_doclength", "");
     RETURN(doclen);
 }
 

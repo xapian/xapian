@@ -35,10 +35,10 @@ class BrassDocument : public Xapian::Document::Internal {
     BrassDocument(const BrassDocument &);
 
     /// Used for lazy access to document values.
-    const BrassValueManager *value_manager;
+    const BrassValueManager & value_manager;
 
     /// Used for lazy access to document data.
-    const BrassRecordTable *record_table;
+    const BrassRecordTable & record_table;
 
     /// BrassDatabase::open_document() needs to call our private constructor.
     friend class BrassDatabase;
@@ -46,16 +46,16 @@ class BrassDocument : public Xapian::Document::Internal {
     /// Private constructor - only called by BrassDatabase::open_document().
     BrassDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
-		  const BrassValueManager *value_manager_,
-		  const BrassRecordTable *record_table_)
+		  const BrassValueManager & value_manager_,
+		  const BrassRecordTable & record_table_)
 	: Xapian::Document::Internal(db, did_),
 	  value_manager(value_manager_), record_table(record_table_) { }
 
   public:
     /** Implementation of virtual methods @{ */
-    string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-    string do_get_data() const;
+    std::string do_get_value(Xapian::valueno slot) const;
+    void do_get_all_values(std::map<Xapian::valueno, std::string> & values_) const;
+    std::string do_get_data() const;
     /** @} */
 };
 

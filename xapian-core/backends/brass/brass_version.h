@@ -1,7 +1,7 @@
 /** @file brass_version.h
  * @brief BrassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,22 +18,30 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_BRASS_VERSION_H
-#define OM_HGUARD_BRASS_VERSION_H
+#ifndef XAPIAN_INCLUDED_BRASS_VERSION_H
+#define XAPIAN_INCLUDED_BRASS_VERSION_H
+
+#include "brass_defs.h"
 
 #include <cstring>
 #include <string>
 
 #include "common/safeuuid.h"
 
-/** The BrassVersion class manages the "iambrass" file.
+#include "xapian/visibility.h"
+
+/** The BrassVersion class manages the revision files.
  *
- *  The "iambrass" file (currently) contains a "magic" string identifying
- *  that this is a brass database and a database format version number.
+ *  Each "v<8 hex digits>" file (currently) contains a "magic" string
+ *  identifying that this is a brass database and a database format version
+ *  number, the uuid of the database, and the root block number for each table.
  */
-class BrassVersion {
-    /// The filename of the version file.
-    std::string filename;
+class XAPIAN_VISIBILITY_DEFAULT BrassVersion {
+    brass_revision_number_t rev;
+
+    brass_block_t root[Brass::MAX_];
+
+    brass_block_t new_root[Brass::MAX_];
 
     /** The UUID of this database.
      *
@@ -42,18 +50,28 @@ class BrassVersion {
     mutable uuid_t uuid;
 
   public:
-    BrassVersion(const std::string & dbdir) : filename(dbdir) {
-	filename += "/iambrass";
-    }
+    BrassVersion() : rev(0) { }
 
     /** Create the version file. */
-    void create();
+    void create(const std::string & db_dir);
+
+    void open_most_recent(const std::string & db_dir);
 
     /** Read the version file and check it's a version we understand.
      *
      *  On failure, an exception is thrown.
      */
-    void read_and_check();
+    void read(const std::string & filename);
+
+    void write(const std::string & db_dir, brass_revision_number_t new_rev);
+
+    brass_revision_number_t get_revision() const { return rev; }
+
+    brass_block_t get_root_block(Brass::table_type tbl) const { return root[tbl]; }
+
+    void set_root_block(Brass::table_type tbl, brass_block_t root_)  {
+	new_root[tbl] = root_;
+    }
 
     /// Return pointer to 16 byte UUID.
     const char * get_uuid() const {
@@ -82,4 +100,4 @@ class BrassVersion {
     }
 };
 
-#endif
+#endif // XAPIAN_INCLUDED_BRASS_VERSION_H

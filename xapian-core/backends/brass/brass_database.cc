@@ -86,32 +86,13 @@ using namespace Xapian;
 // byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
-/** Delete file, throwing an error if we can't delete it (but not if it
- *  doesn't exist).
- */
-static void
-sys_unlink_if_exists(const string & filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename + "'",
-				    errno);
-    }
-}
-
-/* This finds the tables, opens them at consistent revisions, manages
- * determining the current and next revision numbers, and stores handles
- * to the tables.
+/* This opens the tables, determining the current and next revision numbers,
+ * and stores handles to the tables.
  */
 BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 			     unsigned int block_size)
 	: db_dir(brass_dir),
 	  readonly(action == XAPIAN_DB_READONLY),
-	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
@@ -126,15 +107,18 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	      ", " << block_size);
 
     if (action == XAPIAN_DB_READONLY) {
-	open_tables_consistent();
+	open_tables();
 	return;
     }
 
+#if 0
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
     if (p)
 	max_changesets = atoi(p);
+#endif
 
     if (action != Xapian::DB_OPEN && !database_exists()) {
+	bool from_scratch = false;
 	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 
 	// Create the directory for the database, if it doesn't exist
@@ -145,6 +129,8 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	    if (!S_ISDIR(statbuf.st_mode)) fail = true;
 	} else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
 	    fail = true;
+	} else {
+	    from_scratch = true;
 	}
 	if (fail) {
 	    throw Xapian::DatabaseCreateError("Cannot create directory `" +
@@ -152,7 +138,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	}
 	get_database_write_lock(true);
 
-	create_and_open_tables(block_size);
+	create_and_open_tables(block_size, from_scratch);
 	return;
     }
 
@@ -166,22 +152,12 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
     // if we're overwriting, pretend the db doesn't exist
     // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
-	create_and_open_tables(block_size);
+	create_and_open_tables(block_size, false);
 	return;
     }
 
-    // Get latest consistent version
-    open_tables_consistent();
-
-    // Check that there are no more recent versions of tables.  If there
-    // are, perform recovery by writing a new revision number to all
-    // tables.
-    if (record_table.get_open_revision_number() !=
-	postlist_table.get_latest_revision_number()) {
-	brass_revision_number_t new_revision = get_next_revision_number();
-
-	set_revision_number(new_revision);
-    }
+    // Open the latest version of each table.
+    open_tables();
 }
 
 BrassDatabase::~BrassDatabase()
@@ -192,157 +168,86 @@ BrassDatabase::~BrassDatabase()
 bool
 BrassDatabase::database_exists() {
     DEBUGCALL(DB, bool, "BrassDatabase::database_exists", "");
-    RETURN(record_table.exists() && postlist_table.exists());
+    // The postlist table is the only non-optional one.
+    RETURN(postlist_table.exists());
 }
 
 void
-BrassDatabase::create_and_open_tables(unsigned int block_size)
+BrassDatabase::create_and_open_tables(unsigned int block_size,
+				      bool from_scratch)
 {
-    DEBUGCALL(DB, void, "BrassDatabase::create_and_open_tables", "");
+    DEBUGCALL(DB, void, "BrassDatabase::create_and_open_tables", block_size << ", " << from_scratch);
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
-    // Create postlist_table first, and record_table last.  Existence of
-    // record_table is considered to imply existence of the database.
-    version_file.create();
-    postlist_table.create_and_open(block_size);
-    position_table.create_and_open(block_size);
-    termlist_table.create_and_open(block_size);
-    synonym_table.create_and_open(block_size);
-    spelling_table.create_and_open(block_size);
-    record_table.create_and_open(block_size);
+    version_file.create(db_dir);
+    position_table.create(block_size, from_scratch);
+    synonym_table.create(block_size, from_scratch);
+    spelling_table.create(block_size, from_scratch);
+    record_table.create(block_size, from_scratch);
+    termlist_table.create(block_size, from_scratch);
+    postlist_table.create(block_size, from_scratch);
 
     Assert(database_exists());
-
-    // Check consistency
-    brass_revision_number_t revision = record_table.get_open_revision_number();
-    if (revision != postlist_table.get_open_revision_number()) {
-	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
-    }
 
     stats.zero();
 }
 
 void
-BrassDatabase::open_tables_consistent()
+BrassDatabase::open_tables()
 {
-    DEBUGCALL(DB, void, "BrassDatabase::open_tables_consistent", "");
-    // Open record_table first, since it's the last to be written to,
-    // and hence if a revision is available in it, it should be available
-    // in all the other tables (unless they've moved on already).
-    //
-    // If we find that a table can't open the desired revision, we
-    // go back and open record_table again, until record_table has
-    // the same revision as the last time we opened it.
+    DEBUGCALL(DB, void, "BrassDatabase::open_tables", "");
 
-    brass_revision_number_t cur_rev = record_table.get_open_revision_number();
+    brass_revision_number_t cur_rev = version_file.get_revision();
 
-    // Check the version file unless we're reopening.
-    if (cur_rev == 0) version_file.read_and_check();
+    if (cur_rev != 0)
+	// We're reopening, so ensure that we throw DatabaseError if close()
+	// was called.  FIXME: it could be argued that reopen() can be a
+	// no-op in this case...
+	(void)postlist_table.is_open();
 
-    record_table.open();
-    brass_revision_number_t revision = record_table.get_open_revision_number();
-
-    if (cur_rev && cur_rev == revision) {
+    version_file.open_most_recent(db_dir);
+    if (cur_rev && cur_rev == version_file.get_revision()) {
 	// We're reopening a database and the revision hasn't changed so we
 	// don't need to do anything.
 	return;
     }
 
+    record_table.open(version_file.get_root_block(Brass::RECORD));
+    spelling_table.open(version_file.get_root_block(Brass::SPELLING));
+    synonym_table.open(version_file.get_root_block(Brass::SYNONYM));
+    termlist_table.open(version_file.get_root_block(Brass::TERMLIST));
+    position_table.open(version_file.get_root_block(Brass::POSITION));
+    postlist_table.open(version_file.get_root_block(Brass::POSTLIST));
+
     // Set the block_size for optional tables as they may not currently exist.
-    unsigned int block_size = record_table.get_block_size();
+    unsigned int block_size = postlist_table.get_block_size();
+    record_table.set_block_size(block_size);
     position_table.set_block_size(block_size);
     termlist_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
     value_manager.reset();
-
-    bool fully_opened = false;
-    int tries = 100;
-    int tries_left = tries;
-    while (!fully_opened && (tries_left--) > 0) {
-	if (spelling_table.open(revision) &&
-	    synonym_table.open(revision) &&
-	    termlist_table.open(revision) &&
-	    position_table.open(revision) &&
-	    postlist_table.open(revision)) {
-	    // Everything now open at the same revision.
-	    fully_opened = true;
-	} else {
-	    // Couldn't open consistent revision: two cases possible:
-	    // i)   An update has completed and a second one has begun since
-	    //      record was opened.  This leaves a consistent revision
-	    //      available, but not the one we were trying to open.
-	    // ii)  Tables have become corrupt / have no consistent revision
-	    //      available.  In this case, updates must have ceased.
-	    //
-	    // So, we reopen the record table, and check its revision number,
-	    // if it's changed we try the opening again, otherwise we give up.
-	    //
-	    record_table.open();
-	    brass_revision_number_t newrevision =
-		    record_table.get_open_revision_number();
-	    if (revision == newrevision) {
-		// Revision number hasn't changed - therefore a second index
-		// sweep hasn't begun and the system must have failed.  Database
-		// is inconsistent.
-		throw Xapian::DatabaseCorruptError("Cannot open tables at consistent revisions");
-	    }
-	    revision = newrevision;
-	}
-    }
-
-    if (!fully_opened) {
-	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
-    }
 
     stats.read(postlist_table);
-}
-
-void
-BrassDatabase::open_tables(brass_revision_number_t revision)
-{
-    DEBUGCALL(DB, void, "BrassDatabase::open_tables", revision);
-    version_file.read_and_check();
-    record_table.open(revision);
-
-    // Set the block_size for optional tables as they may not currently exist.
-    unsigned int block_size = record_table.get_block_size();
-    position_table.set_block_size(block_size);
-    termlist_table.set_block_size(block_size);
-    synonym_table.set_block_size(block_size);
-    spelling_table.set_block_size(block_size);
-
-    value_manager.reset();
-
-    spelling_table.open(revision);
-    synonym_table.open(revision);
-    termlist_table.open(revision);
-    position_table.open(revision);
-    postlist_table.open(revision);
 }
 
 brass_revision_number_t
 BrassDatabase::get_revision_number() const
 {
     DEBUGCALL(DB, brass_revision_number_t, "BrassDatabase::get_revision_number", "");
-    // We could use any table here, theoretically.
-    RETURN(postlist_table.get_open_revision_number());
+    RETURN(version_file.get_revision());
 }
 
 brass_revision_number_t
 BrassDatabase::get_next_revision_number() const
 {
     DEBUGCALL(DB, brass_revision_number_t, "BrassDatabase::get_next_revision_number", "");
-    /* We _must_ use postlist_table here, since it is always the first
-     * to be written, and hence will have the greatest available revision
-     * number.
-     */
-    brass_revision_number_t new_revision =
-	    postlist_table.get_latest_revision_number();
-    ++new_revision;
-    RETURN(new_revision);
+    // FIXME: If we permit a revision before the latest and then updating it
+    // (to roll back more recent changes) then we (probably) need this to be
+    // one more than the *highest* revision previously committed.
+    RETURN(version_file.get_revision() + 1);
 }
 
 void
@@ -402,101 +307,47 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 
     value_manager.merge_changes();
 
-    postlist_table.flush_db();
-    position_table.flush_db();
-    termlist_table.flush_db();
-    synonym_table.flush_db();
-    spelling_table.flush_db();
-    record_table.flush_db();
+    postlist_table.flush();
+    position_table.flush();
+    termlist_table.flush();
+    synonym_table.flush();
+    spelling_table.flush();
+    record_table.flush();
 
-    int changes_fd = -1;
-    string changes_name;
+    postlist_table.commit(new_revision);
+    position_table.commit(new_revision);
+    termlist_table.commit(new_revision);
+    synonym_table.commit(new_revision);
+    spelling_table.commit(new_revision);
+    record_table.commit(new_revision);
 
-    if (max_changesets > 0) {
-	brass_revision_number_t old_revision = get_revision_number();
-	if (old_revision) {
-	    // Don't generate a changeset for the first revision.
-	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
-#ifdef __WIN32__
-	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	    if (changes_fd < 0) {
-		string message = string("Couldn't open changeset ")
-			+ changes_name + " to write";
-		throw Xapian::DatabaseError(message, errno);
-	    }
-	}
-    }
-
-    try {
-	fdcloser closefd(changes_fd);
-	if (changes_fd >= 0) {
-	    string buf;
-	    brass_revision_number_t old_revision = get_revision_number();
-	    buf += CHANGES_MAGIC_STRING;
-	    pack_uint(buf, CHANGES_VERSION);
-	    pack_uint(buf, old_revision);
-	    pack_uint(buf, new_revision);
-
-	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
-	    pack_uint(buf, 0u); // Changes can be applied to a live database.
-
-	    brass_io_write(changes_fd, buf.data(), buf.size());
-
-	    // Write the changes to the blocks in the tables.  Do the postlist
-	    // table last, so that ends up cached the most, if the cache
-	    // available is limited.  Do the position table just before that
-	    // as having that cached will also improve search performance.
-	    termlist_table.write_changed_blocks(changes_fd);
-	    synonym_table.write_changed_blocks(changes_fd);
-	    spelling_table.write_changed_blocks(changes_fd);
-	    record_table.write_changed_blocks(changes_fd);
-	    position_table.write_changed_blocks(changes_fd);
-	    postlist_table.write_changed_blocks(changes_fd);
-	}
-
-	postlist_table.commit(new_revision, changes_fd);
-	position_table.commit(new_revision, changes_fd);
-	termlist_table.commit(new_revision, changes_fd);
-	synonym_table.commit(new_revision, changes_fd);
-	spelling_table.commit(new_revision, changes_fd);
-
-	string changes_tail; // Data to be appended to the changes file
-	if (changes_fd >= 0) {
-	    changes_tail += '\0';
-	    pack_uint(changes_tail, new_revision);
-	}
-	record_table.commit(new_revision, changes_fd, &changes_tail);
-
-    } catch (...) {
-	// Remove the changeset, if there was one.
-	if (changes_fd >= 0) {
-	    sys_unlink_if_exists(changes_name);
-	}
-
-	throw;
-    }
+    version_file.set_root_block(Brass::RECORD, record_table.get_root());
+    version_file.set_root_block(Brass::SPELLING, spelling_table.get_root());
+    version_file.set_root_block(Brass::SYNONYM, synonym_table.get_root());
+    version_file.set_root_block(Brass::TERMLIST, termlist_table.get_root());
+    version_file.set_root_block(Brass::POSITION, position_table.get_root());
+    version_file.set_root_block(Brass::POSTLIST, postlist_table.get_root());
+    version_file.write(db_dir, new_revision);
 }
 
 void
 BrassDatabase::reopen()
 {
     DEBUGCALL(DB, void, "BrassDatabase::reopen", "");
-    if (readonly) open_tables_consistent();
+    if (readonly)
+	open_tables();
 }
 
 void
 BrassDatabase::close()
 {
     DEBUGCALL(DB, void, "BrassDatabase::close", "");
-    postlist_table.close(true);
-    position_table.close(true);
-    termlist_table.close(true);
-    synonym_table.close(true);
-    spelling_table.close(true);
-    record_table.close(true);
+    postlist_table.close();
+    position_table.close();
+    termlist_table.close();
+    synonym_table.close();
+    spelling_table.close();
+    record_table.close();
     lock.release();
 }
 
@@ -533,20 +384,20 @@ BrassDatabase::send_whole_database(RemoteConnection & conn,
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
     // Send all the tables.  The tables which we want to be cached best after
-    // the copy finished are sent last.
+    // the copy finishes are sent last.
     static const char filenames[] =
-	"\x0b""termlist.DB""\x0e""termlist.baseA\x0e""termlist.baseB"
-	"\x0a""synonym.DB""\x0d""synonym.baseA\x0d""synonym.baseB"
-	"\x0b""spelling.DB""\x0e""spelling.baseA\x0e""spelling.baseB"
-	"\x09""record.DB""\x0c""record.baseA\x0c""record.baseB"
-	"\x0b""position.DB""\x0e""position.baseA\x0e""position.baseB"
-	"\x0b""postlist.DB""\x0e""postlist.baseA\x0e""postlist.baseB"
-	"\x08""iambrass";
+	"\x08""termlist"
+	"\x07""synonym"
+	"\x08""spelling"
+	"\x06""record"
+	"\x08""position"
+	"\x08""postlist";
     string filepath = db_dir;
     filepath += '/';
     for (const char * p = filenames; *p; p += *p + 1) {
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
-        filepath.replace(db_dir.size() + 1, string::npos, leaf);
+	leaf += "."BRASS_TABLE_EXTENSION;
+	filepath.replace(db_dir.size() + 1, string::npos, leaf);
 	if (file_exists(filepath)) {
 	    // FIXME - there is a race condition here - the file might get
 	    // deleted between the file_exists() test and the access to send it.
@@ -689,26 +540,34 @@ BrassDatabase::modifications_failed(brass_revision_number_t old_revision,
 				    brass_revision_number_t new_revision,
 				    const std::string & msg)
 {
+    // Need to think what to do here - with multiple base files, there are
+    // more nasty ways to get wedged, and it is possible that this can all
+    // be much simpler.
+
+    // FIXME: don't pass these if we really don't need them...
+    (void)old_revision;
+    (void)new_revision;
     // Modifications failed.  Wipe all the modifications from memory.
     try {
 	// Discard any buffered changes and reinitialised cached values
 	// from the table.
 	cancel();
-
+#if 0
 	// Reopen tables with old revision number.
-	open_tables(old_revision);
+	open_tables();
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	++new_revision;
 	set_revision_number(new_revision);
+#endif
     } catch (const Xapian::Error &e) {
-	// We can't get the database into a consistent state, so close
-	// it to avoid the risk of database corruption.
+	// We failed to roll-back so close the database to avoid the risk of
+	// database corruption.
 	BrassDatabase::close();
-	throw Xapian::DatabaseError("Modifications failed (" + msg +
-				    "), and cannot set consistent table "
-				    "revision numbers: " + e.get_msg());
+	throw Xapian::DatabaseError("Modifications failed (" + msg + "), "
+				    "and couldn't open at the old revision: " +
+				    e.get_msg());
     }
 }
 
@@ -757,7 +616,7 @@ Xapian::doccount
 BrassDatabase::get_doccount() const
 {
     DEBUGCALL(DB, Xapian::doccount, "BrassDatabase::get_doccount", "");
-    RETURN(record_table.get_doccount());
+    RETURN(stats.get_doccount());
 }
 
 Xapian::docid
@@ -778,12 +637,7 @@ Xapian::doclength
 BrassDatabase::get_avlength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "BrassDatabase::get_avlength", "");
-    Xapian::doccount doccount = record_table.get_doccount();
-    if (doccount == 0) {
-	// Avoid dividing by zero when there are no documents.
-	RETURN(0);
-    }
-    RETURN(double(stats.get_total_doclen()) / doccount);
+    RETURN(stats.get_avlength());
 }
 
 Xapian::termcount
@@ -913,7 +767,7 @@ BrassDatabase::open_document(Xapian::docid did, bool lazy) const
     }
 
     Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
-    RETURN(new BrassDocument(ptrtothis, did, &value_manager, &record_table));
+    RETURN(new BrassDocument(ptrtothis, did, value_manager, record_table));
 }
 
 PositionList *
@@ -948,7 +802,7 @@ BrassDatabase::open_spelling_termlist(const string & word) const
 TermList *
 BrassDatabase::open_spelling_wordlist() const
 {
-    BrassCursor * cursor = spelling_table.cursor_get();
+    BrassCursor * cursor = spelling_table.get_cursor();
     if (!cursor) return NULL;
     return new BrassSpellingWordsList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
 				      cursor);
@@ -969,7 +823,7 @@ BrassDatabase::open_synonym_termlist(const string & term) const
 TermList *
 BrassDatabase::open_synonym_keylist(const string & prefix) const
 {
-    BrassCursor * cursor = synonym_table.cursor_get();
+    BrassCursor * cursor = synonym_table.get_cursor();
     if (!cursor) return NULL;
     return new BrassSynonymTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
 				    cursor, prefix);
@@ -982,7 +836,7 @@ BrassDatabase::get_metadata(const string & key) const
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     string tag;
-    (void)postlist_table.get_exact_entry(btree_key, tag);
+    (void)postlist_table.get(btree_key, tag);
     RETURN(tag);
 }
 
@@ -990,7 +844,7 @@ TermList *
 BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
     DEBUGCALL(DB, string, "BrassDatabase::open_metadata_keylist", "");
-    BrassCursor * cursor = postlist_table.cursor_get();
+    BrassCursor * cursor = postlist_table.get_cursor();
     if (!cursor) return NULL;
     return new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
 				     cursor, prefix);
@@ -1094,13 +948,13 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 	      "BrassWritableDatabase::add_document_", did << ", " << document);
     Assert(did != 0);
     try {
-	// Add the record using that document ID.
-	record_table.replace_record(document.get_data(), did);
+	// Set the document data.
+	record_table.add_document_data(did, document.get_data());
 
 	// Set the values.
 	value_manager.add_document(did, document, value_stats);
 
-	brass_doclen_t new_doclen = 0;
+	Xapian::termcount new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
@@ -1166,12 +1020,13 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	// shortcut now, because it's been deleted!
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
+    } else {
+	// Ensure teh document exists...
+	(void)get_doclength(did);
     }
 
-    // Remove the record.  If this fails, just propagate the exception since
-    // the state should still be consistent (most likely it's
-    // DocNotFoundError).
-    record_table.delete_record(did);
+    // Remove the document data.
+    record_table.delete_document_data(did);
 
     try {
 	// Remove the values.
@@ -1306,7 +1161,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
-	    brass_doclen_t new_doclen = termlist.get_doclength();
+	    Xapian::termcount new_doclen = termlist.get_doclength();
 	    string old_tname, new_tname;
 
 	    stats.delete_document(new_doclen);
@@ -1377,8 +1232,8 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->data_modified()) {
-	    // Replace the record
-	    record_table.replace_record(document.get_data(), did);
+	    // Update the document data.
+	    record_table.replace_document_data(did, document.get_data());
 	}
 
 	if (!modifying || document.internal->values_modified()) {

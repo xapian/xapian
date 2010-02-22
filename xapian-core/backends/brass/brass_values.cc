@@ -1,7 +1,7 @@
 /** @file brass_values.cc
  * @brief BrassValueManager class
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -158,10 +158,10 @@ BrassValueManager::get_chunk_containing_did(Xapian::valueno slot,
 					    string &chunk) const
 {
     DEBUGCALL(DB, Xapian::docid, "BrassValueManager::get_chunk_containing_did", slot << ", " << did << "[chunk]");
-    AutoPtr<BrassCursor> cursor(postlist_table->cursor_get());
+    AutoPtr<BrassCursor> cursor(postlist_table->get_cursor());
     if (!cursor.get()) return 0;
 
-    bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
+    bool exact = cursor->find_entry_le(make_valuechunk_key(slot, did));
     if (!exact) {
 	// If we didn't find a chunk starting with docid did, then we need
 	// to check if the chunk contains did.
@@ -193,6 +193,8 @@ BrassValueManager::get_chunk_containing_did(Xapian::valueno slot,
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 
 static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
+
+namespace Brass {
 
 class ValueUpdater {
     BrassPostListTable * table;
@@ -271,8 +273,8 @@ class ValueUpdater {
 	    last_allowed_did = MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
-	    AutoPtr<BrassCursor> cursor(table->cursor_get());
-	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
+	    AutoPtr<BrassCursor> cursor(table->get_cursor());
+	    if (cursor->find_entry_le(make_valuechunk_key(slot, did))) {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
 		first_did = did;
@@ -319,6 +321,8 @@ class ValueUpdater {
     }
 };
 
+}
+
 void
 BrassValueManager::merge_changes()
 {
@@ -340,7 +344,7 @@ BrassValueManager::merge_changes()
 	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
 	for (i = changes.begin(); i != changes.end(); ++i) {
 	    Xapian::valueno slot = i->first;
-	    ValueUpdater updater(postlist_table, slot);
+	    Brass::ValueUpdater updater(postlist_table, slot);
 	    const map<Xapian::docid, string> & slot_changes = i->second;
 	    map<Xapian::docid, string>::const_iterator j;
 	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
@@ -413,7 +417,8 @@ BrassValueManager::delete_document(Xapian::docid did,
 	swap(s, it->second);
     } else {
 	// Get from table, making a swift exit if this document has no values.
-	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
+	if (!termlist_table->get(make_slot_key(did), s))
+	    return;
 	slots.insert(make_pair(did, string()));
     }
     const char * p = s.data();
@@ -483,8 +488,8 @@ BrassValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 }
 
 void
-BrassValueManager::get_all_values(map<Xapian::valueno, string> & values,
-				  Xapian::docid did) const
+BrassValueManager::get_all_values(Xapian::docid did,
+				  map<Xapian::valueno, string> & values) const
 {
     Assert(values.empty());
     if (!termlist_table->is_open())
@@ -495,7 +500,8 @@ BrassValueManager::get_all_values(map<Xapian::valueno, string> & values,
 	s = i->second;
     } else {
 	// Get from table.
-	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
+	if (!termlist_table->get(make_slot_key(did), s))
+	    return;
     }
     const char * p = s.data();
     const char * end = p + s.size();
@@ -529,7 +535,7 @@ BrassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
     mru_valno = Xapian::BAD_VALUENO;
 
     string tag;
-    if (postlist_table->get_exact_entry(make_valuestats_key(slot), tag)) {
+    if (postlist_table->get(make_valuestats_key(slot), tag)) {
 	const char * pos = tag.data();
 	const char * end = pos + tag.size();
 

@@ -1487,7 +1487,9 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
+DEFINE_TESTCASE(crashrecovery1, chert || flint) {
+    // Brass has a single unified file to track the table revisions, so it
+    // can't get into the situation we are testing recovery from here.
     const string & dbtype = get_dbtype();
     string path = ".";
     path += dbtype;

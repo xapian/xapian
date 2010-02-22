@@ -1,7 +1,7 @@
 /** @file brass_spelling.h
  * @brief Spelling correction data for a brass database.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,11 +69,10 @@ class BrassSpellingTable : public BrassLazyTable {
      *  must call the create() or open() methods respectively!
      *
      *  @param dbdir		The directory the brass database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
+     *  @param readonly_		true if we're opening read-only, else false.
      */
-    BrassSpellingTable(const std::string & dbdir, bool readonly)
-	: BrassLazyTable("spelling", dbdir + "/spelling.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+    BrassSpellingTable(const std::string & dbdir, bool readonly_)
+	: BrassLazyTable("spelling", dbdir + "/spelling.", readonly_, COMPRESS) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -96,9 +95,9 @@ class BrassSpellingTable : public BrassLazyTable {
 	return !wordfreq_changes.empty() || BrassTable::is_modified();
     }
 
-    void flush_db() {
+    void flush() {
 	merge_changes();
-	BrassTable::flush_db();
+	BrassTable::flush();
     }
 
     void cancel() {

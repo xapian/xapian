@@ -1,6 +1,6 @@
 /* brass_positionlist.h: A position list in a brass database.
  *
- * Copyright (C) 2005,2006,2008,2009 Olly Betts
+ * Copyright (C) 2005,2006,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,8 +49,8 @@ class BrassPositionListTable : public BrassLazyTable {
      *  @param dbdir		The directory the brass database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    BrassPositionListTable(const string & dbdir, bool readonly)
-	: BrassLazyTable("position", dbdir + "/position.", readonly,
+    BrassPositionListTable(const string & dbdir, bool readonly_)
+	: BrassLazyTable("position", dbdir + "/position.", readonly_,
 			 DONT_COMPRESS) { }
 
     /// Set the position list for term tname in document did.

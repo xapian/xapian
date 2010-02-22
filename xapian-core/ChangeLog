@@ -1,3 +1,10 @@
+Mon Feb 22 14:38:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/databasereplicator.cc,backends/dbfactory.cc,
+	  bin/,tests/api_wrdb.cc: New Btree manager for brass.  6 testcases
+	  currently fail for "make check-brass", and various things aren't
+	  implementing fully (or at all) yet.
+
 Mon Feb 22 13:35:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_record.h: Remove file totally replaced.

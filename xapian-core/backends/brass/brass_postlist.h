@@ -27,7 +27,7 @@
 #include <xapian/database.h>
 
 #include "brass_inverter.h"
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "brass_positionlist.h"
 #include "leafpostlist.h"
 #include "omassert.h"

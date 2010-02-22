@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2009 Olly Betts
+ * Copyright 2002,2004,2005,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@
 
 #include <climits>
 
-using namespace Brass;
 using namespace std;
 
 void BrassTableCheck::print_spaces(int n) const
@@ -40,6 +39,7 @@ void BrassTableCheck::print_bytes(int n, const byte * p) const
     out.write(reinterpret_cast<const char *>(p), n);
 }
 
+#if 0
 void BrassTableCheck::print_key(const byte * p, int c, int j) const
 {
     Item item(p, c);
@@ -259,3 +259,4 @@ void BrassTableCheck::report_cursor(int N, const Brass::Cursor * C_) const
 	out << "p=" << C_[i].p << ", c=" << C_[i].c << ", n=[" << C_[i].n
 	    << "], rewrite=" << C_[i].rewrite << endl;
 }
+#endif

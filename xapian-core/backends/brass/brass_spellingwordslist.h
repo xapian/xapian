@@ -1,6 +1,6 @@
 /* brass_spellingwordslist.h: A termlist containing all words which are spelling targets.
  *
- * Copyright (C) 2005,2008,2009 Olly Betts
+ * Copyright (C) 2005,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,7 @@
 #include "alltermslist.h"
 #include "database.h"
 #include "brass_spelling.h"
-
-class BrassCursor;
+#include "brass_cursor.h"
 
 class BrassSpellingWordsList : public AllTermsList {
     /// Copying is not allowed.
@@ -59,7 +58,7 @@ class BrassSpellingWordsList : public AllTermsList {
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Seek to the entry before the first key with a "W" prefix, so the
 	// first next() will advance us to the first such entry.
-	cursor->find_entry(std::string("W", 1));
+	cursor->find_entry_le(std::string("W", 1));
     }
 
     /// Destructor.

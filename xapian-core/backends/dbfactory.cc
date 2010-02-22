@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -365,7 +365,7 @@ Database::Database(const string &path)
 #endif
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (file_exists(path + "/iambrass")) {
+    if (file_exists(path + "/postlist."BRASS_TABLE_EXTENSION)) {
 	internal.push_back(new BrassDatabase(path));
 	return;
     }
@@ -437,7 +437,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #else
 	    throw FeatureUnavailableError("Flint backend disabled");
 #endif
-	} else if (file_exists(path + "/iambrass")) {
+	} else if (file_exists(path + "/postlist."BRASS_TABLE_EXTENSION)) {
 	    // Existing brass DB.
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	    type = BRASS;

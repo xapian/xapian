@@ -1,7 +1,7 @@
 /** @file brass_values.h
  * @brief BrassValueManager class
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -126,8 +126,8 @@ class BrassValueManager {
 
     std::string get_value(Xapian::docid did, Xapian::valueno slot) const;
 
-    void get_all_values(std::map<Xapian::valueno, std::string> & values,
-			Xapian::docid did) const;
+    void get_all_values(Xapian::docid did,
+			std::map<Xapian::valueno, std::string> & values) const;
 
     Xapian::doccount get_value_freq(Xapian::valueno slot) const {
 	if (mru_valno != slot) get_value_stats(slot);

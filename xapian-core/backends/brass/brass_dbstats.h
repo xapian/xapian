@@ -1,7 +1,7 @@
 /** @file brass_dbstats.h
  * @brief Brass class for database statistics.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_DBSTATS_H
 #define XAPIAN_INCLUDED_BRASS_DBSTATS_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "xapian/types.h"
 
 #include "internaltypes.h"
@@ -35,6 +35,9 @@ class BrassDatabaseStats {
 
     /// Don't allow copying.
     BrassDatabaseStats(const BrassDatabaseStats &);
+
+    /// The number of documents in the database.
+    Xapian::doccount doccount;
 
     /// The total of the lengths of all documents in the database.
     totlen_t total_doclen;
@@ -53,8 +56,10 @@ class BrassDatabaseStats {
 
   public:
     BrassDatabaseStats()
-	: total_doclen(0), last_docid(0), doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0) { }
+	: doccount(0), total_doclen(0), last_docid(0),
+	  doclen_lbound(0), doclen_ubound(0), wdf_ubound(0) { }
+
+    Xapian::doccount get_doccount() const { return doccount; }
 
     totlen_t get_total_doclen() const { return total_doclen; }
 
@@ -70,6 +75,13 @@ class BrassDatabaseStats {
 
     Xapian::termcount get_wdf_upper_bound() const { return wdf_ubound; }
 
+    Xapian::doclength get_avlength() const {
+	// Don't divide by zero when the database is empty.
+	if (rare(doccount == 0))
+	    return 0;
+	return Xapian::doclength(total_doclen) / doccount;
+    }
+
     void zero() {
 	total_doclen = 0;
 	last_docid = 0;
@@ -83,6 +95,7 @@ class BrassDatabaseStats {
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void add_document(Xapian::termcount doclen) {
+	++doccount;
 	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
 	    doclen_lbound = doclen;
 	if (doclen > doclen_ubound)
@@ -91,6 +104,7 @@ class BrassDatabaseStats {
     }
 
     void delete_document(Xapian::termcount doclen) {
+	--doccount;
 	total_doclen -= doclen;
 	// If the database no longer contains any postings, we can reset
 	// doclen_lbound, doclen_ubound and wdf_ubound.

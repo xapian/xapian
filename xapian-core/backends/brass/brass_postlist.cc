@@ -1,7 +1,7 @@
 /* brass_postlist.cc: Postlists in a brass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2010 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ BrassPostListTable::get_termfreq(const string & term) const
 {
     string key = make_key(term);
     string tag;
-    if (!get_exact_entry(key, tag)) return 0;
+    if (!get(key, tag)) return 0;
 
     Xapian::doccount termfreq;
     const char * p = tag.data();
@@ -49,7 +49,7 @@ BrassPostListTable::get_collection_freq(const string & term) const
 {
     string key = make_key(term);
     string tag;
-    if (!get_exact_entry(key, tag)) return 0;
+    if (!get(key, tag)) return 0;
 
     Xapian::termcount collfreq;
     const char * p = tag.data();
@@ -435,9 +435,9 @@ PostlistChunkWriter::flush(BrassTable *table)
 	     * it.  Need to rewrite the next chunk as the first
 	     * chunk.
 	     */
-	    AutoPtr<BrassCursor> cursor(table->cursor_get());
+	    AutoPtr<BrassCursor> cursor(table->get_cursor());
 
-	    if (!cursor->find_entry(orig_key)) {
+	    if (!cursor->find_entry_le(orig_key)) {
 		throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 	    }
 
@@ -513,11 +513,11 @@ PostlistChunkWriter::flush(BrassTable *table)
 	if (is_last_chunk) {
 	    LOGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
-	    AutoPtr<BrassCursor> cursor(table->cursor_get());
+	    AutoPtr<BrassCursor> cursor(table->get_cursor());
 
 	    /* Should not find the key we just deleted, but should
 	     * find the previous chunk. */
-	    if (cursor->find_entry(orig_key)) {
+	    if (cursor->find_entry_le(orig_key)) {
 		throw Xapian::DatabaseCorruptError("Brass key not deleted as we expected");
 	    }
 	    // Make sure this is a chunk with the right term attached.
@@ -580,7 +580,7 @@ PostlistChunkWriter::flush(BrassTable *table)
 	     */
 	    LOGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
 	    string key = BrassPostListTable::make_key(tname);
-	    bool ok = table->get_exact_entry(key, tag);
+	    bool ok = table->get(key, tag);
 	    (void)ok;
 	    Assert(ok);
 	    Assert(!tag.empty());
@@ -683,13 +683,13 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
-	  cursor(this_db_->postlist_table.cursor_get()),
+	  cursor(this_db_->postlist_table.get_cursor()),
 	  is_at_end(false)
 {
     DEBUGCALL(DB, void, "BrassPostList::BrassPostList",
 	      this_db_.get() << ", " << term_ << ", " << keep_reference);
     string key = BrassPostListTable::make_key(term);
-    int found = cursor->find_entry(key);
+    int found = cursor->find_entry_le(key);
     if (!found) {
 	LOGLINE(DB, "postlist for term not found");
 	number_of_entries = 0;
@@ -843,7 +843,7 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, void,
 	      "BrassPostList::move_to_chunk_containing", desired_did);
-    (void)cursor->find_entry(BrassPostListTable::make_key(term, desired_did));
+    (void)cursor->find_entry_le(BrassPostListTable::make_key(term, desired_did));
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
@@ -996,9 +996,9 @@ BrassPostListTable::get_chunk(const string &tname,
     string key = make_key(tname, did);
 
     // Find the right chunk
-    AutoPtr<BrassCursor> cursor(cursor_get());
+    AutoPtr<BrassCursor> cursor(get_cursor());
 
-    (void)cursor->find_entry(key);
+    (void)cursor->find_entry_le(key);
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
@@ -1009,8 +1009,8 @@ BrassPostListTable::get_chunk(const string &tname,
 	//
 	// NB "adding" will only be true if we are adding, but it may sometimes
 	// be false in some cases where we are actually adding.
-	if (!adding)
-	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
+	if (!adding && false) // FIXME
+	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname + " key=[" + cursor->current_key + "]");
 
 	*from = NULL;
 	*to = new PostlistChunkWriter(string(), true, tname, true);
@@ -1147,7 +1147,7 @@ BrassPostListTable::merge_changes(const string &term,
 	// termfreq and collfreq.
 	string current_key = make_key(term);
 	string tag;
-	(void)get_exact_entry(current_key, tag);
+	(void)get(current_key, tag);
 
 	// Read start of first chunk to get termfreq and collfreq.
 	const char *pos = tag.data();
@@ -1178,8 +1178,8 @@ BrassPostListTable::merge_changes(const string &term,
 		del(current_key);
 		return;
 	    }
-	    MutableBrassCursor cursor(this);
-	    bool found = cursor.find_entry(current_key);
+	    MutableBrassCursor cursor(*this);
+	    bool found = cursor.find_entry_le(current_key);
 	    Assert(found);
 	    if (!found) return; // Reduce damage!
 	    while (cursor.del()) {

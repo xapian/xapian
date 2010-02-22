@@ -1,5 +1,5 @@
 /** @file xapian-inspect.cc
- * @brief Inspect the contents of a flint table for development or debugging.
+ * @brief Inspect the contents of a brass table for development or debugging.
  */
 /* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
@@ -25,8 +25,8 @@
 #include <string>
 #include <cstdio> // For sprintf().
 
-#include "flint_table.h"
-#include "flint_cursor.h"
+#include "brass_table.h"
+#include "brass_cursor.h"
 #include "stringutils.h"
 
 #include <xapian.h>
@@ -36,14 +36,17 @@
 using namespace std;
 
 #define PROG_NAME "xapian-inspect"
-#define PROG_DESC "Inspect the contents of a flint table for development or debugging"
+#define PROG_DESC "Inspect the contents of a brass table for development or debugging"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
+static bool keys = true, tags = true;
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] TABLE\n\n"
 "Options:\n"
+"  -r, --root=ROOT  specify the root block id (default: 0)\n"
 "  --help           display this help and exit\n"
 "  --version        output version information and exit" << endl;
 }
@@ -78,15 +81,38 @@ show_help()
     cout << "Commands:\n"
 	    "next   : Next entry (alias 'n' or '')\n"
 	    "prev   : Previous entry (alias 'p')\n"
-	    "goto X : Goto entry X (alias 'g')\n"
-	    "until X: Display entries until X (alias 'u')\n"
-	    "open X : Open table X instead (alias 'o') - e.g. open postlist\n"
+	    "goto K : Goto entry with key K (alias 'g')\n"
+	    "until K: Display entries until key K (alias 'u')\n"
+	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
+	    "keys   : Toggle showing keys (default: true) (alias 'k')\n"
+	    "tags   : Toggle showing tags (default: true) (alias 't')\n"
+	    "root N : Reopen with root block N (alias 'r')\n"
 	    "help   : Show this (alias 'h' or '?')\n"
 	    "quit   : Quit this utility (alias 'q')" << endl;
 }
 
 static void
-do_until(FlintCursor & cursor, const string & target)
+show_entry(BrassCursor & cursor)
+{
+    if (cursor.after_end()) {
+	cout << "After end" << endl;
+	return;
+    }
+    if (keys) {
+	cout << "Key: ";
+	display_nicely(cursor.current_key);
+	cout << endl;
+    }
+    if (tags) {
+	cout << "Tag: ";
+	cursor.read_tag();
+	display_nicely(cursor.current_tag);
+	cout << endl;
+    }
+}
+
+static void
+do_until(BrassCursor & cursor, const string & target)
 {
     if (cursor.after_end()) {
 	cout << "At end already." << endl;
@@ -114,12 +140,7 @@ do_until(FlintCursor & cursor, const string & target)
 		return;
 	    }
 	}
-	cout << "Key: ";
-	display_nicely(cursor.current_key);
-	cout << "\nTag: ";
-	cursor.read_tag();
-	display_nicely(cursor.current_tag);
-	cout << "\n";
+	show_entry(cursor);
 	if (cmp == 0) {
 	    return;
 	}
@@ -134,11 +155,14 @@ main(int argc, char **argv)
     const struct option long_opts[] = {
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
+	{"root",	required_argument, 0, 'r'},
 	{NULL,		0, 0, 0}
     };
 
+    // FIXME: read from v file?
+    brass_block_t root_block = 0;
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, "r:", long_opts, 0)) != -1) {
         switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -147,6 +171,13 @@ main(int argc, char **argv)
 	    case OPT_VERSION:
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
+	    case 'r': {
+		char * end;
+		root_block = strtoul(optarg, &end, 0);
+		if (*end == '\0')
+		    break;
+		// FALL THRU
+	    }
             default:
 		show_usage();
 		exit(1);
@@ -161,11 +192,11 @@ main(int argc, char **argv)
     // Path to the table to inspect.
     string table_name(argv[optind]);
     bool arg_is_directory = dir_exists(table_name);
-    if (endswith(table_name, ".DB"))
+    if (endswith(table_name, "."BRASS_TABLE_EXTENSION))
 	table_name.resize(table_name.size() - 2);
     else if (!endswith(table_name, '.'))
 	table_name += '.';
-    if (arg_is_directory && !file_exists(table_name + "DB")) {
+    if (arg_is_directory && !file_exists(table_name + BRASS_TABLE_EXTENSION)) {
 	cerr << argv[0] << ": You need to specify a single Btree table, not a database directory." << endl;
 	exit(1);
     }
@@ -175,23 +206,18 @@ main(int argc, char **argv)
 
 open_different_table:
     try {
-	FlintTable table("", table_name, true);
-	table.open();
+	BrassTable table("", table_name, true);
+	table.open(root_block);
 	if (table.empty()) {
 	    cout << "No entries!" << endl;
-	    exit(0);
 	}
 
-	FlintCursor cursor(&table);
-	cursor.find_entry(string());
+	BrassCursor cursor(table);
+	cursor.find_entry_le(string());
 	cursor.next();
 
 	while (!cin.eof()) {
-	    cout << "Key: ";
-	    display_nicely(cursor.current_key);
-	    cout << "\nTag: ";
-	    cursor.read_tag();
-	    display_nicely(cursor.current_tag);
+	    show_entry(cursor);
 	    cout << "\n";
 wait_for_input:
 	    cout << "? " << flush;
@@ -212,7 +238,8 @@ wait_for_input:
 	    } else if (input == "p" || input == "prev") {
 		// If the cursor has fallen off the end, point it back at
 		// the last entry.
-		if (cursor.after_end()) cursor.find_entry(cursor.current_key);
+		if (cursor.after_end())
+		    cursor.find_entry_le(cursor.current_key);
 		if (!cursor.prev()) {
 		    cout << "At start already." << endl;
 		    goto wait_for_input;
@@ -228,12 +255,12 @@ wait_for_input:
 		do_until(cursor, string());
 		goto wait_for_input;
 	    } else if (startswith(input, "g ")) {
-		if (!cursor.find_entry(input.substr(2))) {
+		if (!cursor.find_entry_le(input.substr(2))) {
 		    cout << "No exact match, going to entry before." << endl;
 		}
 		continue;
 	    } else if (startswith(input, "goto ")) {
-		if (!cursor.find_entry(input.substr(5))) {
+		if (!cursor.find_entry_le(input.substr(5))) {
 		    cout << "No exact match, going to entry before." << endl;
 		}
 		continue;
@@ -261,6 +288,26 @@ wait_for_input:
 		else if (!endswith(table_name, '.'))
 		    table_name += '.';
 		goto open_different_table;
+	    } else if (input == "t" || input == "tags") {
+		tags = !tags;
+		cout << "Showing tags: " << boolalpha << tags << endl;
+	    } else if (input == "k" || input == "keys") {
+		keys = !keys;
+		cout << "Showing keys: " << boolalpha << keys << endl;
+	    } else if (startswith(input, "r ")) {
+		char * end;
+		root_block = strtoul(input.c_str() + 2, &end, 0);
+		if (*end == '\0')
+		    goto open_different_table;
+		cout << "Couldn't parse root block number" << endl;
+		goto wait_for_input;
+	    } else if (startswith(input, "root ")) {
+		char * end;
+		root_block = strtoul(input.c_str() + 5, &end, 0);
+		if (*end == '\0')
+		    goto open_different_table;
+		cout << "Couldn't parse root block number" << endl;
+		goto wait_for_input;
 	    } else if (input == "q" || input == "quit") {
 		break;
 	    } else if (input == "h" || input == "help" || input == "?") {

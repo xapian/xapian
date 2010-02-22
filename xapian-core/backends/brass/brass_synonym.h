@@ -1,7 +1,7 @@
 /** @file brass_synonym.h
  * @brief Synonym data for a brass database.
  */
-/* Copyright (C) 2005,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include "alltermslist.h"
 #include "database.h"
+#include "brass_cursor.h"
 #include "brass_lazytable.h"
 #include "omdebug.h"
 #include "termlist.h"
@@ -46,11 +47,10 @@ class BrassSynonymTable : public BrassLazyTable {
      *  must call the create() or open() methods respectively!
      *
      *  @param dbdir		The directory the brass database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
+     *  @param readonly_		true if we're opening read-only, else false.
      */
-    BrassSynonymTable(const std::string & dbdir, bool readonly)
-	: BrassLazyTable("synonym", dbdir + "/synonym.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+    BrassSynonymTable(const std::string & dbdir, bool readonly_)
+	: BrassLazyTable("synonym", dbdir + "/synonym.", readonly_, COMPRESS) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -96,9 +96,9 @@ class BrassSynonymTable : public BrassLazyTable {
 	return !last_term.empty() || BrassTable::is_modified();
     }
 
-    void flush_db() {
+    void flush() {
 	merge_changes();
-	BrassTable::flush_db();
+	BrassTable::flush();
     }
 
     void cancel() {
@@ -139,7 +139,7 @@ class BrassSynonymTermList : public AllTermsList {
 	// so that the first call to next() will put us on the first key we
 	// want.
 	if (prefix.empty()) {
-	    cursor->find_entry(string());
+	    cursor->find_entry_le(string());
 	} else {
 	    // Seek to the first key before one with the desired prefix.
 	    cursor->find_entry_lt(prefix);

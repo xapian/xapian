@@ -1,7 +1,7 @@
 /** @file brass_spelling.cc
  * @brief Spelling correction data for a brass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@
 
 using namespace Brass;
 using namespace std;
+
+typedef unsigned char byte;
 
 // We XOR the length values with this so that they are more likely to coincide
 // with lower case ASCII letters, which are likely to be common.  This means
@@ -141,7 +143,7 @@ BrassSpellingTable::merge_changes()
 	string updated;
 	string current;
 	PrefixCompressedStringWriter out(updated);
-	if (get_exact_entry(key, current)) {
+	if (get(key, current)) {
 	    PrefixCompressedStringItor in(current);
 	    updated.reserve(current.size()); // FIXME plus some?
 	    while (!in.at_end() && d != changes.end()) {
@@ -227,7 +229,7 @@ BrassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
     } else {
 	string key = "W" + word;
 	string data;
-	if (get_exact_entry(key, data)) {
+	if (get(key, data)) {
 	    // Word "word" already exists, so increment its count.
 	    Xapian::termcount freq;
 	    const char * p = data.data();
@@ -299,7 +301,7 @@ BrassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
     } else {
 	string key = "W" + word;
 	string data;
-	if (!get_exact_entry(key, data)) {
+	if (!get(key, data)) {
 	    // This word doesn't exist.
 	    return;
 	}
@@ -378,14 +380,14 @@ BrassSpellingTable::open_termlist(const string & word)
 	buf[0] = 'H';
 	buf[1] = word[0];
 	buf[2] = word[1];
-	if (get_exact_entry(string(buf), data))
+	if (get(string(buf), data))
 	    pq.push(new BrassSpellingTermList(data));
 
 	// Tail:
 	buf[0] = 'T';
 	buf[1] = word[word.size() - 2];
 	buf[2] = word[word.size() - 1];
-	if (get_exact_entry(string(buf), data))
+	if (get(string(buf), data))
 	    pq.push(new BrassSpellingTermList(data));
 
 	if (word.size() <= 4) {
@@ -397,7 +399,7 @@ BrassSpellingTable::open_termlist(const string & word)
 	    buf[0] = 'B';
 	    buf[1] = word[0];
 	    buf[3] = '\0';
-	    if (get_exact_entry(string(buf), data))
+	    if (get(string(buf), data))
 		pq.push(new BrassSpellingTermList(data));
 	}
 	if (word.size() > 2) {
@@ -405,7 +407,7 @@ BrassSpellingTable::open_termlist(const string & word)
 	    buf[0] = 'M';
 	    for (size_t start = 0; start <= word.size() - 3; ++start) {
 		memcpy(buf.data + 1, word.data() + start, 3);
-		if (get_exact_entry(string(buf), data))
+		if (get(string(buf), data))
 		    pq.push(new BrassSpellingTermList(data));
 	    }
 
@@ -416,13 +418,13 @@ BrassSpellingTable::open_termlist(const string & word)
 		// ABC -> BAC
 		buf[1] = word[1];
 		buf[2] = word[0];
-		if (get_exact_entry(string(buf), data))
+		if (get(string(buf), data))
 		    pq.push(new BrassSpellingTermList(data));
 		// ABC -> ACB
 		buf[1] = word[0];
 		buf[2] = word[2];
 		buf[3] = word[1];
-		if (get_exact_entry(string(buf), data))
+		if (get(string(buf), data))
 		    pq.push(new BrassSpellingTermList(data));
 	    }
 	} else {
@@ -434,10 +436,10 @@ BrassSpellingTable::open_termlist(const string & word)
 	    buf[0] = 'H';
 	    buf[1] = word[1];
 	    buf[2] = word[0];
-	    if (get_exact_entry(string(buf), data))
+	    if (get(string(buf), data))
 		pq.push(new BrassSpellingTermList(data));
 	    buf[0] = 'T';
-	    if (get_exact_entry(string(buf), data))
+	    if (get(string(buf), data))
 		pq.push(new BrassSpellingTermList(data));
 	}
 
@@ -485,7 +487,7 @@ BrassSpellingTable::get_word_frequency(const string & word) const
 
     string key = "W" + word;
     string data;
-    if (get_exact_entry(key, data)) {
+    if (get(key, data)) {
 	// Word "word" already exists.
 	Xapian::termcount freq;
 	const char *p = data.data();

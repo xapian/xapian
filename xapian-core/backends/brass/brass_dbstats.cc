@@ -1,7 +1,7 @@
 /** @file brass_dbstats.cc
  * @brief Brass class for database statistics.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,8 +33,9 @@ void
 BrassDatabaseStats::read(BrassPostListTable & postlist_table)
 {
     string data;
-    if (!postlist_table.get_exact_entry(DATABASE_STATS_KEY, data)) {
+    if (!postlist_table.get(DATABASE_STATS_KEY, data)) {
 	// If there's no entry yet, then all the values are zero.
+	doccount = 0;
 	total_doclen = 0;
 	last_docid = 0;
 	doclen_lbound = 0;
@@ -46,11 +47,14 @@ BrassDatabaseStats::read(BrassPostListTable & postlist_table)
     const char * p = data.data();
     const char * end = p + data.size();
 
-    if (unpack_uint(&p, end, &last_docid) &&
+    if (unpack_uint(&p, end, &doccount) &&
+	unpack_uint(&p, end, &last_docid) &&
 	unpack_uint(&p, end, &doclen_lbound) &&
 	unpack_uint(&p, end, &wdf_ubound) &&
 	unpack_uint(&p, end, &doclen_ubound) &&
 	unpack_uint_last(&p, end, &total_doclen)) {
+	// last_docid should always be >= doccount.
+	last_docid += doccount;
 	// doclen_ubound should always be >= wdf_ubound, so we store the
 	// difference as it may encode smaller.  wdf_ubound is likely to
 	// be larger than doclen_lbound.
@@ -68,7 +72,9 @@ void
 BrassDatabaseStats::write(BrassPostListTable & postlist_table) const
 {
     string data;
-    pack_uint(data, last_docid);
+    pack_uint(data, doccount);
+    // last_docid should always be >= doccount.
+    pack_uint(data, last_docid - doccount);
     pack_uint(data, doclen_lbound);
     pack_uint(data, wdf_ubound);
     // doclen_ubound should always be >= wdf_ubound, so we store the

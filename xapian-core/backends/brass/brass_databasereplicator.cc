@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 #include "../flint_lock.h"
 #include "brass_record.h"
 #include "brass_replicate_internal.h"
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "brass_version.h"
 #include "omdebug.h"
 #include "omtime.h"
@@ -270,9 +270,9 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// If the database was not known to be valid, we cannot
 	// reliably determine its revision number, so must skip this
 	// check.
-	BrassRecordTable record_table(db_dir, true);
-	record_table.open();
-	if (startrev != record_table.get_open_revision_number())
+	BrassVersion version_file;
+	version_file.open_most_recent(db_dir);
+	if (startrev != version_file.get_revision())
 	    throw NetworkError("Changeset supplied is for wrong revision number");
     }
 
@@ -344,9 +344,9 @@ string
 BrassDatabaseReplicator::get_uuid() const
 {
     DEBUGCALL(DB, string, "BrassDatabaseReplicator::get_uuid", "");
-    BrassVersion version_file(db_dir);
+    BrassVersion version_file;
     try {
-	version_file.read_and_check();
+	version_file.read(db_dir);
     } catch (const Xapian::DatabaseError &) {
 	RETURN(string());
     }

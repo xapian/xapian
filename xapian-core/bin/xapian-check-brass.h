@@ -1,7 +1,7 @@
 /** @file xapian-check-brass.h
  * @brief Check a brass table.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,14 @@
 
 #include "xapian/types.h"
 
+#include "brass_defs.h"
+
 #include <cstring> // For size_t.
 #include <string>
 #include <vector>
 
 size_t check_brass_table(const char * tablename, std::string table, int opts,
 			 std::vector<Xapian::termcount> & doclens,
-			 Xapian::docid db_last_docid);
+			 Xapian::docid db_last_docid, brass_block_t root);
 
 #endif // XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008,2009 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,20 +30,22 @@
 #include <iostream>
 #include <string>
 
+typedef unsigned char byte;
+
 class BrassTableCheck : public BrassTable {
     public:
 	static void check(const char * tablename, const std::string & path,
 			  int opts, std::ostream &out = std::cout);
     private:
 	BrassTableCheck(const char * tablename_, const std::string &path_,
-		        bool readonly, std::ostream &out_)
-	    : BrassTable(tablename_, path_, readonly), out(out_) { }
+			bool readonly_, std::ostream &out_)
+	    : BrassTable(tablename_, path_, readonly_), out(out_) { }
 
-	void block_check(Brass::Cursor * C_, int j, int opts);
+	void block_check(BrassCBlock * C_, int j, int opts);
 	int block_usage(const byte * p) const;
 	void report_block(int m, int n, const byte * p) const;
 	void report_block_full(int m, int n, const byte * p) const;
-	void report_cursor(int N, const Brass::Cursor *C_) const;
+	void report_cursor(int N, const BrassCBlock *C_) const;
 
 	XAPIAN_NORETURN(void failure(int n) const);
 	void print_key(const byte * p, int c, int j) const;

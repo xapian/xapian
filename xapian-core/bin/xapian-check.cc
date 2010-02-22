@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "xapian-check-chert.h"
 #include "xapian-check-flint.h"
 
+#include "brass_version.h"
 #include "chert_check.h" // For OPT_SHORT_TREE, etc.
 #include "stringutils.h"
 #include "utils.h"
@@ -187,7 +188,8 @@ main(int argc, char **argv)
 					    db_last_docid);
 	    }
 #endif
-	} else if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
+	} else if (stat((dir + "/postlist."BRASS_TABLE_EXTENSION).c_str(),
+			&sb) == 0) {
 #ifndef XAPIAN_HAS_BRASS_BACKEND
 	    throw "Brass database support isn't enabled";
 #else
@@ -206,23 +208,31 @@ main(int argc, char **argv)
 		     << "\nContinuing check anyway" << endl;
 		++errors;
 	    }
-	    // This is a brass directory so try to check all the btrees.
+	    BrassVersion version_file;
+	    version_file.open_most_recent(dir);
+
+	    // This is a brass directory so try to check all the tables.
 	    // Note: it's important to check termlist before postlist so
 	    // that we can cross-check the document lengths.
+	    const Brass::table_type table_types[] = {
+		Brass::RECORD, Brass::TERMLIST, Brass::POSTLIST,
+		Brass::POSITION, Brass::SPELLING, Brass::SYNONYM
+	    };
 	    const char * tables[] = {
 		"record", "termlist", "postlist", "position",
 		"spelling", "synonym"
 	    };
-	    for (const char **t = tables;
-		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
+	    for (int i = 0; i != sizeof(tables)/sizeof(tables[0]); ++i) {
+		Brass::table_type type = table_types[i];
+		const char * table_name = tables[i];
 		string table(dir);
 		table += '/';
-		table += *t;
-		cout << *t << ":\n";
-		if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
+		table += table_name;
+		cout << table_name << ":\n";
+		if (type != Brass::POSTLIST) {
 		    // Other tables are created lazily, so may not exist.
-		    if (!file_exists(table + ".DB")) {
-			if (strcmp(*t, "termlist") == 0) {
+		    if (!file_exists(table + "."BRASS_TABLE_EXTENSION)) {
+			if (type == Brass::TERMLIST) {
 			    cout << "Not present.\n";
 			} else {
 			    cout << "Lazily created, and not yet used.\n";
@@ -231,11 +241,13 @@ main(int argc, char **argv)
 			continue;
 		    }
 		}
-		errors += check_brass_table(*t, table, opts, doclens,
-					    db_last_docid);
+		brass_block_t root = version_file.get_root_block(type);
+		errors += check_brass_table(table_name, table, opts, doclens,
+					    db_last_docid, root);
 	    }
 #endif
 	} else {
+	    enum { UNKNOWN, NOT_BRASS, FLINT, CHERT, BRASS } backend = UNKNOWN;
 	    if (stat((dir + "/record_DB").c_str(), &sb) == 0) {
 		// Quartz is no longer supported as of Xapian 1.1.0.
 		cerr << argv[0] << ": '" << dir << "' is a quartz database.\n"
@@ -246,10 +258,16 @@ main(int argc, char **argv)
 	    // already, trim that so the user can do xapian-check on
 	    // "foo", "foo.", or "foo.DB".
 	    string filename = dir;
-	    if (endswith(filename, '.'))
+	    if (endswith(filename, '.')) {
 		filename.resize(filename.size() - 1);
-	    else if (endswith(filename, ".DB"))
+	    } else if (endswith(filename, ".DB")) {
+		backend = NOT_BRASS;
 		filename.resize(filename.size() - 3);
+	    } else if (endswith(filename, "."BRASS_TABLE_EXTENSION)) {
+		backend = BRASS;
+		const size_t ext_len = CONST_STRLEN("."BRASS_TABLE_EXTENSION);
+		filename.resize(filename.size() - ext_len);
+	    }
 
 	    size_t p = filename.find_last_of('/');
 #if defined __WIN32__ || defined __EMX__
@@ -265,21 +283,42 @@ main(int argc, char **argv)
 		tablename += tolower(static_cast<unsigned char>(filename[p++]));
 	    }
 
-	    // If we're passed a "naked" table (with no accompanying files)
-	    // assume it is chert.
-	    if (file_exists(path + "iamflint")) {
-		errors = check_flint_table(tablename.c_str(), filename, opts,
-					   doclens);
-	    } else if (file_exists(path + "iambrass")) {
-		// Set the last docid to its maximum value to suppress errors.
-		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		errors = check_brass_table(tablename.c_str(), filename, opts,
-					   doclens, db_last_docid);
-	    } else {
-		// Set the last docid to its maximum value to suppress errors.
-		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		errors = check_chert_table(tablename.c_str(), filename, opts,
-					   doclens, db_last_docid);
+	    if (backend == UNKNOWN) {
+		if (file_exists(filename + "."BRASS_TABLE_EXTENSION)) {
+		    backend = BRASS;
+		} else {
+		    backend = NOT_BRASS;
+		}
+	    }
+
+	    if (backend == NOT_BRASS) {
+		if (file_exists(path + "iamflint")) {
+		    backend = FLINT;
+		}
+	    }
+
+	    // Set the last docid to its maximum value to suppress errors.
+	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+
+	    // We shouldn't have (backend == UNKNOWN) at this point.  If we have
+	    // (backend == NOT_BRASS) then assume chert.
+	    switch (backend) {
+		case FLINT:
+		    errors = check_flint_table(tablename.c_str(), filename,
+					       opts, doclens);
+		    break;
+		case BRASS:
+		    // FIXME: need to look up the root block.
+		    throw "Can't check a single brass table currently";
+#if 0
+		    errors = check_brass_table(tablename.c_str(), filename,
+					       opts, doclens, db_last_docid, 0);
+		    break;
+#endif
+		default:
+		    errors = check_chert_table(tablename.c_str(), filename,
+					       opts, doclens, db_last_docid);
+		    break;
 	    }
 	}
 	if (errors > 0) {

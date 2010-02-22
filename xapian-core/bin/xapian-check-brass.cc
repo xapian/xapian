@@ -2,7 +2,7 @@
  * @brief Check consistency of a brass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@
 #include "brass_check.h"
 #include "brass_cursor.h"
 #include "brass_table.h"
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "pack.h"
 #include "valuestats.h"
 
@@ -57,21 +57,24 @@ struct VStats : public ValueStats {
 size_t
 check_brass_table(const char * tablename, string filename, int opts,
 		  vector<Xapian::termcount> & doclens,
-		  Xapian::docid db_last_docid)
+		  Xapian::docid db_last_docid, brass_block_t root)
 {
     filename += '.';
 
+    (void)opts;
+#if 0 // FIXME: Implement BrassTableCheck and reenable.
     // Check the btree structure.
     BrassTableCheck::check(tablename, filename, opts);
+#endif
 
     // Now check the brass structures inside the btree.
     BrassTable table(tablename, filename, true);
-    table.open();
-    AutoPtr<BrassCursor> cursor(table.cursor_get());
+    table.open(root);
+    AutoPtr<BrassCursor> cursor(table.get_cursor());
 
     size_t errors = 0;
 
-    cursor->find_entry("");
+    cursor->find_entry_le(string());
     cursor->next(); // Skip the empty entry.
 
     if (strcmp(tablename, "postlist") == 0) {

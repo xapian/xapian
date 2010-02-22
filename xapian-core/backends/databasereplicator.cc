@@ -2,7 +2,7 @@
  * @brief Support class for database replication.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include "utils.h"
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
+# include "brass/brass_defs.h"
 # include "brass/brass_databasereplicator.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
@@ -66,7 +67,7 @@ DatabaseReplicator::open(const string & path)
 #endif
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (file_exists(path + "/iambrass")) {
+    if (file_exists(path + "/postlist."BRASS_TABLE_EXTENSION)) {
 	return new BrassDatabaseReplicator(path);
     }
 #endif

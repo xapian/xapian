@@ -1,6 +1,6 @@
 /* brass_positionlist.cc: A position list in a brass database.
  *
- * Copyright (C) 2004,2005,2006,2008,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ BrassPositionListTable::positionlist_count(Xapian::docid did,
 	      did << ", " << term);
 
     string data;
-    if (!get_exact_entry(make_key(did, term), data)) {
+    if (!get(make_key(did, term), data)) {
 	// There's no positional information for this term.
 	return 0;
     }
@@ -108,7 +108,7 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     positions.clear();
 
     string data;
-    if (!table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data)) {
+    if (!table->get(BrassPositionListTable::make_key(did, tname), data)) {
 	// There's no positional information for this term.
 	current_pos = positions.begin();
 	return false;

@@ -1,7 +1,7 @@
 /** @file brass_synonym.cc
  * @brief Synonym data for a brass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ BrassSynonymTable::add_synonym(const string & term, const string & synonym)
 	last_term = term;
 
 	string tag;
-	if (get_exact_entry(term, tag)) {
+	if (get(term, tag)) {
 	    const char * p = tag.data();
 	    const char * end = p + tag.size();
 	    while (p != end) {
@@ -95,7 +95,7 @@ BrassSynonymTable::remove_synonym(const string & term, const string & synonym)
 	last_term = term;
 
 	string tag;
-	if (get_exact_entry(term, tag)) {
+	if (get(term, tag)) {
 	    const char * p = tag.data();
 	    const char * end = p + tag.size();
 	    while (p != end) {
@@ -144,7 +144,7 @@ BrassSynonymTable::open_termlist(const string & term)
 	}
     } else {
 	string tag;
-	if (!get_exact_entry(term, tag)) return NULL;
+	if (!get(term, tag)) return NULL;
 
 	const char * p = tag.data();
 	const char * end = p + tag.size();

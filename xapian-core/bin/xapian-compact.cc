@@ -1,7 +1,7 @@
 /** @file xapian-compact.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,8 @@
 #include "xapian-compact.h"
 
 #include "safeerrno.h"
+
+#include "brass_defs.h"
 
 #include <algorithm>
 #include <iostream>
@@ -260,7 +262,7 @@ main(int argc, char **argv)
 	};
 	const char * backend_version_files[] = {
 	    NULL,
-	    "/iambrass",
+	    NULL,
 	    "/iamchert",
 	    "/iamflint"
 	};
@@ -295,7 +297,8 @@ main(int argc, char **argv)
 			 "'" << srcdir << "' is chert." << endl;
 		    exit(1);
 		}
-	    } else if (stat(string(srcdir) + "/iambrass", &sb) == 0) {
+	    } else if (stat(string(srcdir) + "/postlist."BRASS_TABLE_EXTENSION,
+			    &sb) == 0) {
 		if (backend == UNKNOWN) {
 		    backend = BRASS;
 		} else if (backend != BRASS) {
@@ -439,6 +442,8 @@ main(int argc, char **argv)
 	} else if (backend == BRASS) {
 	    compact_brass(destdir, sources, offset, block_size, compaction,
 			  multipass, last_docid);
+	    // Brass doesn't have a version file, so we're done now.
+	    exit(0);
 	} else {
 	    compact_chert(destdir, sources, offset, block_size, compaction,
 			  multipass, last_docid);
@@ -455,8 +460,6 @@ main(int argc, char **argv)
 
 	if (backend == CHERT) {
 	    (void)Xapian::Chert::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
-	} else if (backend == BRASS) {
-	    (void)Xapian::Brass::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
 	} else {
 	    (void)Xapian::Flint::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
 	    string from = donor;

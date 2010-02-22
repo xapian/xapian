@@ -1,7 +1,7 @@
 /** @file brass_lazytable.h
  * @brief Subclass of BrassTable for deriving lazy tables from.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,24 +28,32 @@ class BrassLazyTable : public BrassTable {
     /** Create a new lazy table.
      *
      *  @param name_		The table's name.
-     *  @param path		The path for the table.
-     *  @param readonly		true if the table is read-only, else false.
-     *  @param z_strategy	zlib strategy.
+     *  @param path_		The path for the table.
+     *  @param readonly_    true if we're opening read-only, else false.
+     *  @param compress_    true (or COMPRESS) to zlib compress tags; false (or
+     *			    DONT_COMPRESS not to).
      */
-    BrassLazyTable(const char * name_, const std::string & path, bool readonly,
-		   int z_strategy)
-	: BrassTable(name_, path, readonly, z_strategy, true) { }
+    BrassLazyTable(const char * name_, const std::string & path_, bool readonly_,
+		   bool compress_)
+	: BrassTable(name_, path_, readonly_, compress_, LAZY) { }
 
-    /** Lazy version of BrassTable::create_and_open().
+    /** Lazy version of BrassTable::create().
      *
      *  This method isn't virtual, but we never call it such that it needs to
      *  be.
+     *
+     *  @param blocksize_	The blocksize to use for this table.
+     *  @param from_scratch	True if this table is know to not be present
+     *				already (e.g. because the parent directory
+     *				was just created).
      */
-    void create_and_open(unsigned int blocksize) {
-	// This table is created lazily, so erase it in case we're overwriting
-	// an existing database which has this table.
-	BrassTable::erase();
-	BrassTable::set_block_size(blocksize);
+    void create(unsigned int blocksize_, bool from_scratch) {
+	// This table is created lazily, so if we didn't just create the
+	// parent directory, erase it in case we're overwriting an existing
+	// database which has this table.
+	if (!from_scratch)
+	    BrassTable::erase();
+	BrassTable::set_block_size(blocksize_);
     }
 };
 
