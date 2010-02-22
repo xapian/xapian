@@ -1,0 +1,46 @@
+brass-btree branch
+==================
+
+Status: Most tests pass, some things not fully (or at all) implemented.
+
+Tests which currently fail:
+
+  * valuestream2, valuestream3:  Test database "etext" not built correctly.
+    (copydatabase from chert to brass gives a database which these tests
+    pass for).
+
+  * compactmultichunks1: Not investigated much, but apparently not a
+    compaction issue.  Perhaps same cause as valuestream2 and valuestream3.
+
+  * bigoaddvalue1, writeread1: Need larger tags than we currently support.
+
+  * replicate1: Replication not yet supported.
+
+TODO:
+-----
+
+  * store large tags out of tree
+
+  * zlib compression of tags
+
+  * tracking free blocks
+
+  * sequential insert mode - split before insertion point or something
+    (because of this xapian-compact doesn't currently produce a very compact
+    database).
+
+  * xapian-check of an individual table
+
+  * xapian-check checking Btree structure (currently only checks data inside
+    tables).
+
+  * xapian-inspect - make it handle flint/chert and brass in one binary.
+
+  * replication
+
+  * prefix-compress keys
+
+  * cursor snooping currently O(# depth of tree)...
+
+  * store database stats in the version file rather than a special entry in the
+    postlist table?
