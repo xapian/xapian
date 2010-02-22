@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,8 @@ static void show_usage() {
 "  -s, --stemmer=LANG    set the stemming language, the default is 'none'\n"
 "  -1                    output one list entry per line\n"
 "  -V                    output values for each document referred to\n"
-"  -V<valueno>           output value valueno for each document in the database\n"
+"  -V<valueno>           output value valueno for each document referred to\n"
+"                        (or each document in the database if no -r options)\n"
 "  -d                    output document data for each document referred to\n"
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf and termfreq for termlist; number of terms for db)\n"
@@ -108,6 +109,20 @@ show_values(Database &db,
 	cout << "Values for record #" << *i << ':';
 	show_values(db, *i, separator);
 	cout << endl;
+	++i;
+    }
+}
+
+static void
+show_value(Database &db,
+	   vector<docid>::const_iterator i,
+	   vector<docid>::const_iterator end,
+	   Xapian::valueno slot)
+{
+    while (i != end) {
+	Xapian::docid did = *i;
+	cout << "Value " << slot << " for record #" << did << ": "
+	     << db.get_document(did).get_value(slot) << endl;
 	++i;
     }
 }
@@ -191,10 +206,11 @@ main(int argc, char **argv) try {
 		separator = '\n';
 		break;
 	    case 'V': case 'k': /* -k for backward compatibility */
-		showvalues = true;
 		if (optarg) {
 		    slot = atoi(optarg);
 		    slot_set = true;
+		} else {
+		    showvalues = true;
 		}
 		break;
 	    case 'd':
@@ -241,21 +257,23 @@ main(int argc, char **argv) try {
     if (!recnos.empty()) {
 	if (showvalues) {
 	    show_values(db, recnos.begin(), recnos.end());
+	} else if (slot_set) {
+	    show_value(db, recnos.begin(), recnos.end(), slot);
 	}
 
 	if (showdocdata) {
 	    show_docdata(db, recnos.begin(), recnos.end());
 	}
-    }
-
-    if (slot_set) {
-	cout << "Value " << slot << " for each document:";
-	ValueIterator it = db.valuestream_begin(slot);
-	while (it != db.valuestream_end(slot)) {
-	    cout << separator << it.get_docid() << ':' << *it;
-	    ++it;
+    } else {
+	if (slot_set) {
+	    cout << "Value " << slot << " for each document:";
+	    ValueIterator it = db.valuestream_begin(slot);
+	    while (it != db.valuestream_end(slot)) {
+		cout << separator << it.get_docid() << ':' << *it;
+		++it;
+	    }
+	    cout << endl;
 	}
-	cout << endl;
     }
 
     if (terms.empty()) {
@@ -281,8 +299,7 @@ main(int argc, char **argv) try {
 	    while (p != pend) {
 		cout << separator << *p;
 		if (verbose) {
-		    cout << ' ' << p.get_wdf()
-			<< ' ' << p.get_doclength();
+		    cout << ' ' << p.get_wdf() << ' ' << p.get_doclength();
 		}
 		if (showvalues) show_values(db, *p, ' ');
 		if (showdocdata) show_docdata(db, *p, ' ');
