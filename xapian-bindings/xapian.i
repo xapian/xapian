@@ -803,6 +803,13 @@ class Remote {
 %feature("director") Xapian::KeyMaker;
 %include <xapian/keymaker.h>
 
+#ifndef XAPIAN_SWIG_DIRECTORS
+%ignore Xapian::TermListGroup::add_document(const Document &, const ExpandDecider *);
+%ignore Xapian::TermListGroup::add_documents(DocumentSource &, const ExpandDecider *);
+%ignore Xapian::ClusterSingleLink::cluster(ClusterAssignments &, DocSim &, DocumentSource &, const ExpandDecider *, int);
+#endif
+%include <xapian/cluster.h>
+
 %include <xapian/valuesetmatchdecider.h>
 
 %ignore Xapian::LatLongCoord::operator< const;

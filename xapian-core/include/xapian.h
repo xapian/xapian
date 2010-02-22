@@ -65,6 +65,13 @@
 // Geospatial
 #include <xapian/geospatial.h>
 
+// Clustering
+#include <xapian/cluster.h>
+
+// Methods returning library version:
+
+#include <xapian/deprecated.h>
+
 // ELF visibility annotations for GCC.
 #include <xapian/visibility.h>
 

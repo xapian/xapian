@@ -1305,6 +1305,16 @@ _enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
 Enquire.clear_matchspies = _enquire_match_spies_clear
 
 
+# Fix up DocSim so that it keeps a python reference to the termfreqsource
+# supplied to it so it won't be deleted before the DocSim.  This hack can
+# probably be removed once xapian bug #186 is fixed.
+__docsim_set_termfreqsource_orig = DocSim.set_termfreqsource
+def _docsim_set_termfreqsource(self, decider):
+    self.__expand_decider = decider
+    return __docsim_set_termfreqsource_orig(self, decider)
+_docsim_set_termfreqsource.__doc__ = __docsim_set_termfreqsource_orig.__doc__
+DocSim.set_termfreqsource = _docsim_set_termfreqsource
+del _docsim_set_termfreqsource
 
 # Remove static methods which shouldn't be in the API.
 del Document_unserialise

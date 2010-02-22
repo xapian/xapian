@@ -68,6 +68,7 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_sortingold.obj" \
     "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_transdb.obj" \
+    "$(OUTDIR)\api_docsim.obj" \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_valuestats.obj" \
     "$(OUTDIR)\api_valuestream.obj" \
@@ -92,6 +93,7 @@ SRC = \
     "$(INTDIR)\api_collapse.cc" \
     "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_db.cc" \
+    "$(INTDIR)\api_docsim.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
@@ -107,7 +109,6 @@ SRC = \
     "$(INTDIR)\api_valuestats.cc" \
     "$(INTDIR)\api_valuestream.cc" \
     "$(INTDIR)\api_wrdb.cc" \
-    "$(INTDIR)\btreetest.cc" \
     "$(INTDIR)\dbcheck.cc" \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
@@ -122,6 +123,7 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_collapse.cc" \
     "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_db.cc" \
+    "$(INTDIR)\api_docsim.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
@@ -145,6 +147,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_collapse.h" \
     "$(INTDIR)\api_compact.h" \
     "$(INTDIR)\api_db.h" \
+    "$(INTDIR)\api_docsim.h" \
     "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_nodb.h" \
     "$(INTDIR)\api_percentages.h" \

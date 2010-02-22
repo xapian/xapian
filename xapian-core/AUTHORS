@@ -11,6 +11,7 @@ their code to the Xapian project.  These people are:
 	James Aylett <tartarus@users.sourceforge.net>
 	Sam Liddicott <samjam@users.sourceforge.net>
 	Richard Boulton <richard@tartarus.org>
+	Yung-chung Lin (clustering and document similarity measures)
 
 The Xapian project home page is: http://xapian.org/
 

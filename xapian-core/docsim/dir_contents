@@ -1,0 +1,3 @@
+<Directory>docsim</Directory>
+
+<Description>Implementation of document similarity measures.</Description>

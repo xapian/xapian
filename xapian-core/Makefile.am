@@ -33,8 +33,8 @@ EXTRA_PROGRAMS =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-chert check-flint check-perftest \
-	coverage-reconfigure coverage-check
+	check-docsim \
+	coverage-reconfigure coverage-check 
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -82,6 +82,9 @@ endif
 
 check-perf:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
+
+check-docsim:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-docsim
 
 coverage-reconfigure: distclean
 	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
@@ -135,6 +138,7 @@ include api/Makefile.mk
 include bin/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
+include docsim/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk
 include geospatial/Makefile.mk

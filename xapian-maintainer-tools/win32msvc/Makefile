@@ -21,6 +21,8 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\backends
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\docsim
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\matcher
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\languages\compiler
@@ -63,6 +65,8 @@ CLEAN: COPYMAKFILES
    cd ..\api
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\backends
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
+   cd ..\docsim
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\matcher
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -116,6 +120,7 @@ COPYMAKFILES:
    copy  win32_expand.mak ..\expand\Makefile
    copy  win32_languages_compiler.mak ..\languages\compiler\Makefile
    copy  win32_languages.mak ..\languages\Makefile
+   copy  win32_docsim.mak ..\docsim\Makefile
    copy  win32_matcher.mak ..\matcher\Makefile
    copy  win32_net.mak ..\net\Makefile
    copy  win32_unicode.mak ..\unicode\Makefile
