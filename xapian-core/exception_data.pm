@@ -174,6 +174,10 @@ errorclass('QueryParserError', 'RuntimeError', <<'DOC');
 /** Indicates a query string can't be parsed. */
 DOC
 
+errorclass('LatLongParserError', 'RuntimeError', <<'DOC');
+/** Indicates a latitude/longitude coordinate can't be parsed. */
+DOC
+
 errorclass('SerialisationError', 'RuntimeError', <<'DOC');
 /** Indicates an error in the std::string serialisation of an object. */
 DOC

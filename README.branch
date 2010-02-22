@@ -15,4 +15,5 @@ The following changes have been made to this branch:
 
  - Apply patch "sortemptylast.patch", from ticket #452 (r14056)
  - Apply patch "compactchunks.patch", from ticket #451 (r14057)
- - Apply changes from matchspy branch (
+ - Apply changes from matchspy branch (r14059)
+ - Apply changes from geospatial branch (r14060)

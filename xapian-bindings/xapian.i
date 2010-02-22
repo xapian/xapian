@@ -805,6 +805,9 @@ class Remote {
 
 %include <xapian/valuesetmatchdecider.h>
 
+%ignore Xapian::LatLongCoord::operator< const;
+%include <xapian/geospatial.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON

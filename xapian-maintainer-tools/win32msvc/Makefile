@@ -37,6 +37,8 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\weight
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\geospatial
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
@@ -75,6 +77,8 @@ CLEAN: COPYMAKFILES
    cd ..\unicode
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\weight
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
+   cd ..\geospatial
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -116,6 +120,7 @@ COPYMAKFILES:
    copy  win32_net.mak ..\net\Makefile
    copy  win32_unicode.mak ..\unicode\Makefile
    copy  win32_weight.mak ..\weight\Makefile
+   copy  win32_geospatial.mak ..\geospatial\Makefile
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile

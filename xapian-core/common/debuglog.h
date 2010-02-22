@@ -41,6 +41,9 @@ enum debuglog_categories {
     /// Related to database backends.
     DEBUGLOG_CATEGORY_DB = ('D' - '@'),
 
+    /// Geospatial calculations.
+    DEBUGLOG_CATEGORY_GEOSPATIAL = ('G' - '@'),
+
     /// Related to exception handling.
     DEBUGLOG_CATEGORY_EXCEPTION = ('X' - '@'),
 

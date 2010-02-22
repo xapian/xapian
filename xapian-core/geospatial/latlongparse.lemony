@@ -1,0 +1,582 @@
+%include {
+/** \file latlongparse.lemony
+ * \brief Parse latitude / longitude coordinates.
+ */
+/* Copyright 2008 Lemur Consulting Ltd
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
+#include <config.h>
+
+#include "xapian/error.h"
+#include "xapian/geospatial.h"
+#include "xapian/unicode.h"
+
+#include "latlongparse_token.h"
+
+#include <cmath>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+namespace Xapian {
+namespace LatLongParse {
+
+/** Get the type of a symbol, or 0 if not a recognised symbol. 
+ */
+static int
+get_symbol_type(unsigned ch)
+{
+    switch(ch) {
+	/* Symbols which represent degrees. */
+	case 0xb0: /* Unicode "DEGREE SIGN" */
+	case 0x2070: /* Unicode "SUPERSCRIPT ZERO". */
+	case 0x02da: /* Unicode "RING ABOVE", looks same as 0xb0 in some
+			character sets, and hence is sometimes mistakenly
+			used. */
+	case 0xba: /* Unicode "MASCULINE ORDINAL INDICATOR", looks same as
+		      0xb0 in some character sets, and hence is sometimes
+		      mistakenly used. */
+
+	/* Letter "d", sometimes used for degrees in ascii text. */
+	case 'D':
+	case 'd':
+
+	/* Lowercase "o", sometimes used for degrees (usually when
+	markup indicating that it should be a superscript has been
+	removed). */
+	case 'o':
+	    return DEGREES;
+
+	/* Apostrophe symbols - if single, represent minutes - if doubled,
+	 * represent seconds. */
+	case 0x0027: /* APOSTROPHE. */
+	case 0x00b4: /* ACUTE ACCENT. */
+	case 0x02b9: /* MODIFIER LETTER PRIME. */
+	case 0x2032: /* PRIME. */
+
+	/* Letter "m", sometimes used for minutes in ascii text. */
+	case 'M':
+	case 'm':
+	    return APOSTROPHE;
+
+	/* Symbols which represent seconds. */
+	case 0x0022: /* QUOTATION MARK. */
+	case 0x02ba: /* MODIFIER LETTER DOUBLE PRIME. */
+	case 0x201d: /* RIGHT DOUBLE QUOTATION MARK. */
+	case 0x2033: /* DOUBLE PRIME. */
+	case 0x3003: /* DITTO MARK. */
+	case 0x301e: /* DOUBLE PRIME QUOTATION MARK. */
+	    return SECONDS;
+
+	/* Letter "s", sometimes used for seconds in ascii text, but also used
+	 * as direction marker. */
+	case 'S':
+	case 's':
+	    return LETTER_S;
+
+	case 'N':
+	case 'n':
+	    return LETTER_N;
+
+	case 'E':
+	case 'e':
+	    return LETTER_E;
+
+	case 'W':
+	case 'w':
+	    return LETTER_W;
+
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+	    return DIGIT;
+
+	case '.':
+	    return DOT;
+
+	case '-':
+	    return MINUS;
+	case '+':
+	    return PLUS;
+
+	case ',':
+	case ';':
+	case ':':
+	    return SEPARATOR;
+
+	default:
+	    if (Xapian::Unicode::is_whitespace(ch)) return SPACE;
+	    return 0;
+    }
+}
+
+/** State information for the lat-long parser.
+ */
+struct LatLongState {
+  public:
+    std::string errmsg;
+    bool had_error;
+
+    double latitude;
+    bool has_latitude;
+    double longitude;
+    bool has_longitude;
+
+    LatLongState()
+	    : had_error(false),
+	      latitude(0.0), has_latitude(false),
+	      longitude(0.0), has_longitude(false)
+    {}
+
+    /** Set the error condition, and store an associated message.
+     *
+     *  Has no effect if an error condition is already set.
+     */
+    void
+    set_error(const std::string & errmsg_)
+    {
+    	if (had_error)
+	    return;
+	errmsg = errmsg_;
+	had_error = true;
+    }
+
+    void
+    set_latitude(double latitude_)
+    {
+	if (has_latitude)
+	    set_error("More than one latitude value was specified.");
+	else {
+	    latitude = latitude_;
+	    has_latitude = true;
+	}
+    }
+
+    void
+    set_longitude(double longitude_)
+    {
+	if (has_longitude)
+	    set_error("More than one longitude value was specified.");
+	else {
+	    // Convert to -180 < longitude <= 180 range.
+	    longitude = fmod(longitude_, 360);
+	    if (longitude <= -180) longitude += 360;
+	    if (longitude > 180) longitude -= 360;
+	    if (longitude == -0.0) longitude = 0.0;
+	    has_longitude = true;
+	}
+    }
+
+    void
+    set_result(double latitude_, double longitude_)
+    {
+	set_latitude(latitude_);
+	set_longitude(longitude_);
+    }
+
+    /** Set a value, when we don't know if its latitude or longitude.
+     */
+    void
+    set_value(double value)
+    {
+	if (value > 90 || value < -90) {
+	    set_longitude(value);
+	} else {
+	    if (!has_latitude) {
+		set_latitude(value);
+	    } else {
+		set_longitude(value);
+	    }
+	}
+    }
+};
+
+// Forward declaration of generated type.
+struct yyParser;
+// Prototypes for generated functions.
+static yyParser *ParseAlloc();
+static void ParseFree(yyParser *);
+static void Parse(yyParser *, int, double, LatLongState *);
+
+struct Token {
+    Token(int type_)
+        : type(type_), value(0)
+    {}
+
+    Token(int type_, const std::string & valuestr)
+        : type(type_), value(strtod(valuestr.c_str(), NULL))
+    {}
+
+    int type;
+    double value;
+};
+
+static void
+parse_item(const std::string & val, LatLongState & state)
+{
+    // First tokenise.
+    std::string current;
+    bool had_decimal_point = false;
+    bool had_separator = false;
+    std::vector<Token> tokens;
+    Utf8Iterator it(val), end;
+
+    while (it != end)
+    {
+	int type = get_symbol_type(*it);
+	if (type == 0) {
+	    state.set_error("Unknown symbol");
+	    return;
+	}
+
+	if (type == DIGIT || (type == DOT && !had_decimal_point)) {
+	    current.append(1, *it);
+	    if (type == DOT) {
+		had_decimal_point = true;
+	    }
+	    ++it;
+	    continue;
+	}
+
+	if (!current.empty()) {
+	    if (!tokens.empty() && tokens.back().type == DECIMAL) {
+		tokens.push_back(Token(SEPARATOR));
+		had_separator = true;
+	    }
+	    tokens.push_back(Token(DECIMAL, current));
+	    current.resize(0);
+	    had_decimal_point = false;
+	}
+
+	if (type != SPACE) {
+	    if (type == MINUS || type == PLUS) {
+		if (!tokens.empty() && tokens.back().type == DECIMAL) {
+		    tokens.push_back(Token(SEPARATOR));
+		    had_separator = true;
+		}
+	    }
+	    tokens.push_back(Token(type));
+	    if (type == SEPARATOR) {
+		had_separator = true;
+	    }
+	}
+
+	++it;
+    }
+    if (!current.empty()) {
+	if (!tokens.empty() && tokens.back().type == DECIMAL) {
+	    tokens.push_back(Token(SEPARATOR));
+	    had_separator = true;
+	}
+	tokens.push_back(Token(DECIMAL, current));
+	current.resize(0);
+	had_decimal_point = false;
+    }
+
+    // Insert separator if needed.
+    if (!had_separator) {
+
+	// We do this by inserting a separator before the first decimal (other
+	// than the first) which has no following unit, or a unit of degrees.
+
+	bool had_decimal = false;
+	int prev_decimal_level = -1;
+	size_t i;
+
+	// True if the initial character (other than space) is a direction
+	// indicator.
+	bool initial_direction = false;
+	for (i = 0; i != tokens.size(); ++i) {
+	    if (tokens[i].type == LETTER_S || tokens[i].type == LETTER_N ||
+		tokens[i].type == LETTER_E || tokens[i].type == LETTER_W) {
+		initial_direction = true;
+		break;
+	    }
+	    if (tokens[i].type == SPACE)
+		continue;
+	    break;
+	}
+
+	for (i = 0; i != tokens.size(); ++i) {
+	    if (tokens[i].type == DECIMAL) {
+		had_decimal = true;
+		continue;
+	    }
+	    if (!had_decimal) continue;
+
+	    // We only get here for the token immediately after a
+	    // DECIMAL.
+	    int new_level = 2;
+	    switch (tokens[i].type) {
+		case DEGREES:
+		case PLUS:
+		case MINUS:
+		    new_level = 1;
+		    break;
+	    }
+
+	    if (prev_decimal_level != -1 && new_level == 1) {
+		if (i < 2) break;
+		i -= 2;
+		if (tokens[i].type == MINUS || tokens[i].type == PLUS) {
+		    if (i == 0) break;
+		    --i;
+		}
+		if (initial_direction && i != 0) {
+		    if (tokens[i].type == LETTER_S || tokens[i].type == LETTER_N ||
+			tokens[i].type == LETTER_E || tokens[i].type == LETTER_W) {
+			--i;
+		    }
+		}
+		tokens.insert(tokens.begin() + i + 1, Token(SEPARATOR));
+		break;
+	    }
+	    prev_decimal_level = new_level;
+	}
+	if (i == tokens.size()) {
+	    if (prev_decimal_level != -1 && tokens.back().type == DECIMAL) {
+		i -= 2;
+		if (tokens[i].type == MINUS || tokens[i].type == PLUS) {
+		    --i;
+		}
+		if (initial_direction) {
+		    if (tokens[i].type == LETTER_S || tokens[i].type == LETTER_N ||
+			tokens[i].type == LETTER_E || tokens[i].type == LETTER_W) {
+			--i;
+		    }
+		}
+		tokens.insert(tokens.begin() + i + 1, Token(SEPARATOR));
+	    }
+	}
+    }
+
+    if (tokens.empty()) {
+	state.set_error("Empty input");
+	return;
+    }
+
+    // Now parse.
+    yyParser * pParser = ParseAlloc();
+    while (!tokens.empty()) {
+    	const Token & token = tokens.front();
+	if (token.type == DECIMAL) {
+	    Parse(pParser, token.type, token.value, &state);
+	} else {
+	    Parse(pParser, token.type, 0, &state);
+	}
+	tokens.erase(tokens.begin());
+    }
+    Parse(pParser, 0, 0, &state);
+    ParseFree(pParser);
+}
+
+}
+
+LatLongCoord
+LatLongCoord::parse_latlong(const std::string & coord)
+{
+    LatLongParse::LatLongState state;
+    parse_item(coord, state);
+    if (state.had_error) {
+	throw Xapian::LatLongParserError(state.errmsg);
+    }
+    if (!state.has_latitude || !state.has_longitude) {
+	throw Xapian::LatLongParserError("Only received half a coordinate - expected both parts");
+    }
+    return LatLongCoord(state.latitude, state.longitude);
+}
+
+LatLongCoord
+LatLongCoord::parse_latlong(const std::string & lat_string,
+			    const std::string & long_string)
+{
+    LatLongParse::LatLongState state;
+
+    parse_item(lat_string, state);
+    if (state.had_error) {
+	throw Xapian::LatLongParserError(state.errmsg);
+    }
+    parse_item(long_string, state);
+    if (state.had_error) {
+	throw Xapian::LatLongParserError(state.errmsg);
+    }
+
+    if (!state.has_latitude || !state.has_longitude) {
+	throw Xapian::LatLongParserError("Only received half a coordinate - expected both parts");
+    }
+    return LatLongCoord(state.latitude, state.longitude);
+}
+
+}
+
+}
+
+%token_type {double}
+
+%extra_argument {LatLongState * state}
+
+// Precedences:
+%nonassoc SPACE.
+%left DEGREES APOSTROPHE SECONDS LETTER_S LETTER_N LETTER_E LETTER_W.
+%nonassoc DOT.
+%left DECIMAL.
+
+%nonassoc DIGIT. // Not used in the grammar, but used in the tokeniser.
+
+// Destructors for terminals:
+
+// Grammar:
+
+// The parsed coordinate - doesn't need a type, so we use int as a dummy.
+%type coordinate {int}
+coordinate ::= . {
+    state->set_error("Empty coordinate");
+    yy_parse_failed(yypParser);
+}
+
+coordinate ::= latitude(A). {
+    state->set_latitude(A);
+}
+
+coordinate ::= longitude(A). {
+    state->set_longitude(A);
+}
+
+coordinate ::= signeddecitem(A). {
+    state->set_value(A);
+}
+
+coordinate ::= latitude(A) SEPARATOR longitude(B). {
+    state->set_latitude(A);
+    state->set_longitude(B);
+}
+coordinate ::= latitude(A) SEPARATOR signeddecitem(B). {
+    state->set_latitude(A);
+    state->set_longitude(B);
+}
+coordinate ::= longitude(A) SEPARATOR signeddecitem(B). {
+    state->set_longitude(A);
+    state->set_latitude(B);
+}
+coordinate ::= signeddecitem(A) SEPARATOR latitude(B). {
+    state->set_longitude(A);
+    state->set_latitude(B);
+}
+coordinate ::= signeddecitem(A) SEPARATOR longitude(B). {
+    state->set_latitude(A);
+    state->set_longitude(B);
+}
+coordinate ::= signeddecitem(A) SEPARATOR signeddecitem(B). {
+    state->set_value(A);
+    state->set_value(B);
+}
+
+%type signeddecitem {double}
+signeddecitem(I) ::= PLUS decitem(A). {
+    I = A;
+}
+signeddecitem(I) ::= MINUS decitem(A). {
+    I = -A;
+}
+signeddecitem(I) ::= item(A). [SPACE] {
+    I = A;
+}
+
+%type latitude {double}
+latitude(I) ::= item(A) LETTER_S. {
+    I = -A;
+}
+latitude(I) ::= item(A) LETTER_N. {
+    I = A;
+}
+latitude(I) ::= LETTER_S item(A). {
+    I = -A;
+}
+latitude(I) ::= LETTER_N item(A). {
+    I = A;
+}
+
+%type longitude {double}
+longitude(I) ::= item(A) LETTER_W. {
+    I = -A;
+}
+longitude(I) ::= item(A) LETTER_E. {
+    I = A;
+}
+longitude(I) ::= LETTER_W item(A). {
+    I = -A;
+}
+longitude(I) ::= LETTER_E item(A). {
+    I = A;
+}
+
+%type item {double}
+item(I) ::= decitem(A). {
+    I = A;
+}
+item(I) ::= degrees(A). {
+    I = A;
+}
+item(I) ::= degrees(A) minutes(B). {
+    I = A + B / 60.0;
+}
+item(I) ::= degrees(A) minutes(B) seconds(C). {
+    I = A + B / 60.0 + C / 3600.0;
+}
+
+%type decitem {double}
+decitem(I) ::= DECIMAL(A). {
+    I = A;
+}
+
+%type degrees {double}
+degrees(I) ::= DECIMAL(A) DEGREES. {
+    I = A;
+}
+
+%type minutes {double}
+minutes(I) ::= DECIMAL(A) APOSTROPHE. {
+    I = A;
+}
+
+%type seconds {double}
+seconds(I) ::= DECIMAL(A) SECONDS. {
+    I = A;
+}
+seconds(I) ::= DECIMAL(A) APOSTROPHE APOSTROPHE. {
+    I = A;
+}
+seconds(I) ::= DECIMAL(A) LETTER_S. {
+    I = A;
+}
+
+%syntax_error {
+    state->set_error("Syntax error");
+}
+
+// Select yacc syntax highlighting in vim editor: vim: syntax=yacc
+// (lemon syntax colouring isn't supplied by default; yacc does an OK job).

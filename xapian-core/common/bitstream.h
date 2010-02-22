@@ -51,6 +51,13 @@ class XAPIAN_VISIBILITY_DEFAULT BitWriter {
 	return buf;
     }
 
+    std::string slush() {
+	if (n_bits) {
+	    return buf + char(acc);
+	}
+	return buf;
+    }
+
     void encode_interpolative(const std::vector<Xapian::termpos> &pos, int j, int k);
 };
 
