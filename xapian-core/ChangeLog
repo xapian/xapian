@@ -1,3 +1,9 @@
+Tue Feb 23 13:16:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: For -fno-strict-aliasing for GCC 4.2 to avoid bad code
+	  being generated due to a bug in that compiler version.  Fixes
+	  ticket#449.
+
 Tue Feb 23 03:08:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/harness/testsuite.cc: Use sigsetjmp() and
