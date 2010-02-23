@@ -1,16 +1,9 @@
 brass-btree branch
 ==================
 
-Status: Most tests pass, some things not fully (or at all) implemented.
+Status: Most tests pass, but some things not fully (or at all) implemented.
 
 Tests which currently fail:
-
-  * valuestream2, valuestream3:  Test database "etext" not built correctly.
-    (copydatabase from chert to brass gives a database which these tests
-    pass for).
-
-  * compactmultichunks1: Not investigated much, but apparently not a
-    compaction issue.  Perhaps same cause as valuestream2 and valuestream3.
 
   * bigoaddvalue1, writeread1: Need larger tags than we currently support.
 
@@ -44,3 +37,9 @@ TODO:
 
   * store database stats in the version file rather than a special entry in the
     postlist table?
+
+  * look at code coverage from the testsuite, and add tests to exercise as
+    much of the code as possible
+
+  * compare speed with chert (e.g. profile running the testsuite) and try to
+    make sure we're at least as fast everywhere.
