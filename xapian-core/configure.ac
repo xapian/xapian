@@ -380,6 +380,15 @@ AC_TRY_COMPILE([#include <typeinfo>],
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl Used by tests/harness/testsuite.cc
+AC_CHECK_FUNCS([sigaction])
+AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
+AC_TRY_COMPILE([#include <setjmp.h>],
+  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the `sigsetjmp' function])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no]))
+
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
 

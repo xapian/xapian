@@ -1,3 +1,12 @@
+Tue Feb 23 03:08:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/harness/testsuite.cc: Use sigsetjmp() and
+	  siglongjmp() where available so that the set of blocked signals
+	  get restored and the test harness can catch a second incidence
+	  of a particular signal in a run.  Use sigaction() instead of
+	  signal() where available, which allows us to report the address
+	  associated with SIGSEGV, SIGFPE, SIGILL, and SIGBUS.
+
 Mon Feb 22 14:29:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc,
