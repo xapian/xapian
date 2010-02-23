@@ -11,6 +11,7 @@ noinst_HEADERS +=\
 	backends/brass/brass_database.h\
 	backends/brass/brass_databasereplicator.h\
 	backends/brass/brass_dbstats.h\
+	backends/brass/brass_defs.h\
 	backends/brass/brass_document.h\
 	backends/brass/brass_inverter.h\
 	backends/brass/brass_io.h\
@@ -26,7 +27,6 @@ noinst_HEADERS +=\
 	backends/brass/brass_table.h\
 	backends/brass/brass_termlist.h\
 	backends/brass/brass_termlisttable.h\
-	backends/brass/brass_types.h\
 	backends/brass/brass_valuelist.h\
 	backends/brass/brass_values.h\
 	backends/brass/brass_version.h

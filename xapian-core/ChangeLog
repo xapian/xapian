@@ -1,3 +1,7 @@
+Tue Feb 23 04:06:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/Makefile.mk: Fix for brass_defs.h.
+
 Mon Feb 22 14:38:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/databasereplicator.cc,backends/dbfactory.cc,
