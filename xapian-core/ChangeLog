@@ -1,3 +1,9 @@
+Tue Feb 23 04:42:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix which child find_child() looks in
+	  to match what happens when we split a block.  Fixes testcases
+	  valuestream2, valuestream3 and compactmultichunks1.
+
 Tue Feb 23 04:06:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/Makefile.mk: Fix for brass_defs.h.

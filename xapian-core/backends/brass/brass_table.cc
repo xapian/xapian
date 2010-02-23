@@ -564,12 +564,12 @@ BrassCBlock::find_child(const string & key)
 				     key.data(), key.size());
 	if (cmp < 0) {
 	    b = m + 1;
-	} else {
+	} else if (cmp > 0) {
 	    e = m - 1;
-	    if (cmp == 0) {
-		// Exact match.
-		break;
-	    }
+	} else {
+	    // Exact match.
+	    e = m;
+	    break;
 	}
 	m = (b + e) >> 1;
     } while (b <= e);
