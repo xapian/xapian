@@ -1,3 +1,8 @@
+Tue Feb 23 06:25:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h,
+	  bin/xapian-inspect.cc: Fix to compile without --enable-assertions.
+
 Tue Feb 23 04:42:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix which child find_child() looks in

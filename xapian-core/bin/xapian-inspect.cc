@@ -28,6 +28,7 @@
 #include "brass_table.h"
 #include "brass_cursor.h"
 #include "stringutils.h"
+#include "utils.h"
 
 #include <xapian.h>
 

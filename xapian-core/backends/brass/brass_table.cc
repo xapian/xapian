@@ -132,6 +132,7 @@ BrassTable::throw_database_closed()
 void
 BrassBlock::check_block()
 {
+#ifdef XAPIAN_ASSERTIONS
     if (uncaught_exception())
 	return;
     Assert(data);
@@ -174,6 +175,7 @@ BrassBlock::check_block()
     // The last item shouldn't overlap the block header.
     AssertRel(get_ptr(C - 1),>=,header_len);
     // FIXME: More checks...
+#endif
 }
 
 void

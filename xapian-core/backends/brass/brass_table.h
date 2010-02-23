@@ -379,6 +379,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     brass_block_t get_free_block();
 
     void mark_free(brass_block_t n) {
+	(void)n;
 	AssertRel(n,<,next_free);
 	// key_limits[n].second = std::string();
 	// FIXME: add "n" to the freelist for revision "revision".
