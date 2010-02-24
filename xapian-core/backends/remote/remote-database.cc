@@ -727,19 +727,19 @@ RemoteDatabase::get_uuid() const
 string
 RemoteDatabase::get_metadata(const string & key) const
 {
-  send_message(MSG_GETMETADATA, key);
-  string metadata;
-  get_message(metadata, REPLY_METADATA);
-  return metadata;
+    send_message(MSG_GETMETADATA, key);
+    string metadata;
+    get_message(metadata, REPLY_METADATA);
+    return metadata;
 }
 
 void
 RemoteDatabase::set_metadata(const string & key, const string & value)
 {
-  string data = encode_length(key.size());
-  data += key;
-  data += value;
-  send_message(MSG_SETMETADATA, data);
+    string data = encode_length(key.size());
+    data += key;
+    data += value;
+    send_message(MSG_SETMETADATA, data);
 }
 
 void
