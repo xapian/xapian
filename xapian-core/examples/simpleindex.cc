@@ -1,7 +1,7 @@
 /** @file simpleindex.cc
  * @brief Index each paragraph of a text file as a Xapian document.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +70,11 @@ try {
 	    para += line;
 	}
     }
+
+    // Explicitly flush so that we get to see any errors.  WritableDatabase's
+    // destructor will flush implicitly (unless we're in a transaction) but
+    // will swallow any exceptions produced.
+    db.flush();
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << endl;
     exit(1);

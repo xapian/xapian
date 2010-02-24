@@ -1,3 +1,9 @@
+Wed Feb 24 09:44:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/simpleindex.cc: Explicitly call commit() on the database,
+	  as that is good practice (since you see any exceptions).
+
 Wed Feb 24 09:40:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
