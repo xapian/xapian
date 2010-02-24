@@ -1,3 +1,8 @@
+Wed Feb 24 09:09:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: "lastdocid" -> "highest document id ever used"
+	  in output so it's clearer what this number means.
+
 Tue Feb 23 14:03:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Fix incorrect classname in error message.
