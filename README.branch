@@ -18,10 +18,6 @@ TODO:
 
   * tracking free blocks
 
-  * sequential insert mode - split before insertion point or something
-    (because of this xapian-compact doesn't currently produce a very compact
-    database).
-
   * xapian-check of an individual table
 
   * xapian-check checking Btree structure (currently only checks data inside
@@ -43,3 +39,5 @@ TODO:
 
   * compare speed with chert (e.g. profile running the testsuite) and try to
     make sure we're at least as fast everywhere.
+
+  * splitting of branch blocks currently untested.
