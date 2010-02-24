@@ -1,3 +1,9 @@
+Wed Feb 24 01:26:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc: Tweak the version file writing to
+	  have the magic and format version in a single const char array so
+	  it can be copied in one memcpy() call.
+
 Wed Feb 24 00:41:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Track

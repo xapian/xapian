@@ -62,8 +62,13 @@ using namespace std;
 #define VERSION_TO_MONTH(V) ((V) / 31 % 12 + 1)
 #define VERSION_TO_DAY(V) ((V) % 31 + 1)
 
-#define BRASS_VERSION_MAGIC "\x0f\x0dXapian Brass"
 #define BRASS_VERSION_MAGIC_LEN 14
+#define BRASS_VERSION_MAGIC_AND_VERSION_LEN 16
+
+static const char BRASS_VERSION_MAGIC[BRASS_VERSION_MAGIC_AND_VERSION_LEN] = {
+    '\x0f', '\x0d', 'X', 'a', 'p', 'i', 'a', 'n', ' ', 'B', 'r', 'a', 's', 's',
+    (BRASS_FORMAT_VERSION >> 8) & 0xff, BRASS_FORMAT_VERSION & 0xff
+};
 
 void
 BrassVersion::open_most_recent(const std::string & db_dir)
@@ -144,8 +149,10 @@ BrassVersion::read(const string & filename)
     if (memcmp(buf, BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_LEN) != 0)
 	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
 
-    unsigned version = static_cast<unsigned char>(buf[14]);
-    version = (version << 8) | static_cast<unsigned char>(buf[15]);
+    unsigned version;
+    version = static_cast<unsigned char>(buf[BRASS_VERSION_MAGIC_LEN]);
+    version <<= 8;
+    version |= static_cast<unsigned char>(buf[BRASS_VERSION_MAGIC_LEN + 1]);
     if (version != BRASS_FORMAT_VERSION) {
 	char datebuf[9];
 	string msg = filename;
@@ -164,7 +171,7 @@ BrassVersion::read(const string & filename)
 	throw Xapian::DatabaseVersionError(msg);
     }
 
-    p += 16;
+    p += BRASS_VERSION_MAGIC_AND_VERSION_LEN;
     memcpy((void*)uuid, p, 16);
     p += 16;
 
@@ -189,9 +196,7 @@ BrassVersion::write(const string & db_dir, brass_revision_number_t new_rev)
     if (new_rev < rev)
 	throw Xapian::DatabaseError("New revision " + str(new_rev) + " < old revision " + str(rev));
 
-    string s(BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_LEN);
-    s += char((BRASS_FORMAT_VERSION >> 8) & 0xff);
-    s += char(BRASS_FORMAT_VERSION & 0xff);
+    string s(BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_AND_VERSION_LEN);
     s.append((const char *)uuid, 16);
 
     unsigned table_last = Brass::MAX_;
