@@ -33,6 +33,11 @@
 #include<iostream> // FIXME
 using namespace std;
 
+/** How many sequential updates trigger a switch to from random-access to
+ *  sequential block splitting.
+ */
+#define RANDOM_ACCESS_THRESHOLD 3
+
 static const int BLOCKPTR_SIZE = 4;
 
 const bool COMPRESS = true;
@@ -88,11 +93,24 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     char * data;
     const BrassTable & table;
 
+    /** Track if updates are random-access or sequential.
+     *
+     *  If non-zero, we're doing random access updates, but each access made
+     *  right after the previous one decrements by one.
+     *
+     *  If zero, we're doing sequential updates.
+     *
+     *  An access which isn't in the same block and right after the previous
+     *  one resets @a random_access to RANDOM_ACCESS_THRESHOLD.
+     */
+    mutable int random_access;
+
     /// Return the length of the block header for @a count items.
     int header_length(int count) const { return 8 + 2 * count; }
 
   public:
-    BrassBlock(const BrassTable & table_) : data(0), table(table_) { }
+    BrassBlock(const BrassTable & table_)
+	: data(NULL), table(table_), random_access(RANDOM_ACCESS_THRESHOLD) { }
     void save();
     virtual ~BrassBlock();
     bool is_leaf() const { return (((unsigned char *)data)[5] & 0x80) == 0; }

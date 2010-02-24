@@ -1,3 +1,10 @@
+Wed Feb 24 00:41:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Track
+	  random-access vs sequential updates, and choose a different block
+	  splitting strategy for each, such that sequential update produces
+	  a much more compact table.
+
 Tue Feb 23 06:25:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h,

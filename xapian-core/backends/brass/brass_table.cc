@@ -287,6 +287,7 @@ snooped:
     // to clone it.
     needs_clone = (get_revision() != table.revision);
     item = -2;
+    random_access = RANDOM_ACCESS_THRESHOLD;
     if (is_leaf()) {
 	Assert(child == NULL);
     }
@@ -374,6 +375,12 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 	++b;
     }
 #endif
+    if (item + 1 == b) {
+	if (random_access)
+	    --random_access;
+    } else {
+	random_access = RANDOM_ACCESS_THRESHOLD;
+    }
     item = b;
     AssertRel(item,<=,get_count());
     if (item < get_count()) {
@@ -447,13 +454,18 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
     if (len + 2 > freespace_end - header_length(C)) {
 	// cout << "splitting branch block " << n << endl;
 	AssertRel(C,>,1);
-	// Split the block - if in random insert mode, split equally
-	// (allowing for the new key).  If in sequential insert mode,
-	// then split at the insertion point.
-	// FIXME: pick middle point better...
-	// FIXME: want the new block to end up in the cursor (at least for
-	// sequential insertion).
-	int split_after = C >> 1;
+	// Split the block - if in random insert mode, split evenly as
+	// that gives us the amortised Btree performance guarantees.
+	//
+	// If in sequential insert mode, then split at the insertion point
+	// which gives us almost full blocks.
+	int split_after;
+	if (!random_access) {
+	    split_after = b - 1;
+	} else {
+	    // FIXME: pick middle point better...
+	    split_after = C >> 1;
+	}
 	size_t split_ptr = get_endptr(split_after);
 	const char *div_p = data + get_ptr(split_after);
 	// We can't further shorten the dividing key here or it'll disagree
@@ -678,34 +690,41 @@ BrassCBlock::insert(const string &key, const string &tag)
     }
     //cout << "need_to_split = " << need_to_split << endl;
     if (need_to_split) {
-	// Split the block.
-	// FIXME: if in random insert mode, split equally (allowing for the new
-	// key).  If in sequential insert mode, then split at the insertion
-	// point.
+	// Split the block - if in random insert mode, split evenly as
+	// that gives us the amortised Btree performance guarantees.
+	//
+	// If in sequential insert mode, then split at the insertion point
+	// which gives us almost full blocks.
 	// FIXME: split_after is "after" in the sense of the order of entries
 	// in the block, but "before" in item numbering order.  This is already
 	// confusing me!
-	int split_after = C >> 1;
 	int split_ptr;
-	do {
+	int split_after;
+	if (!random_access) {
+	    split_after = item - 1;
 	    split_ptr = get_endptr(split_after);
-	    int percent = (table.blocksize - split_ptr) * 100;
-	    percent /= (table.blocksize - free_end);
-	    if (percent > 75) {
-		// cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" too late" << endl;
-		--split_after;
-		AssertRel(split_after,>,0);
-		continue;
-	    }
-	    if (percent < 25) {
-		// cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" too early" << endl;
-		++split_after;
-		AssertRel(split_after,<,C - 1);
-		continue;
-	    }
-	    // cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" acceptable" << endl;
-	    break;
-	} while (true);
+	} else {
+	    split_after = C >> 1;
+	    do {
+		split_ptr = get_endptr(split_after);
+		int percent = (table.blocksize - split_ptr) * 100;
+		percent /= (table.blocksize - free_end);
+		if (percent > 75) {
+		    // cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" too late" << endl;
+		    --split_after;
+		    AssertRel(split_after,>,0);
+		    continue;
+		}
+		if (percent < 25) {
+		    // cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" too early" << endl;
+		    ++split_after;
+		    AssertRel(split_after,<,C - 1);
+		    continue;
+		}
+		// cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" acceptable" << endl;
+		break;
+	    } while (true);
+	}
 	// cerr << "split : item " << item << " split point " << split_after << " out of " << C << endl;
 	const char *div_p = data + get_ptr(split_after);
 	AssertRel(split_ptr,==,get_ptr(split_after - 1));
