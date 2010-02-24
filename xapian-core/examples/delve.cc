@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +67,8 @@ show_db_stats(Database &db)
     // Display a few database stats.
     cout << "number of documents = " << db.get_doccount() << endl;
     cout << "average document length = " << db.get_avlength() << endl;
+    cout << "highest document id ever used = " << db.get_lastdocid() << endl;
+
     if (verbose) {
 	// To find the number of terms, we have to count them!
 	// This will take a few seconds or minutes, so only do it if -v

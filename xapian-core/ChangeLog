@@ -1,3 +1,11 @@
+Wed Feb 24 09:40:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* examples/delve.cc: Display the lastdocid value when displaying
+	  general database statistics.
+	* examples/delve.cc: "lastdocid" -> "highest document id ever used"
+	  in output so it's clearer what this number means.
+
 Mon Feb 15 11:01:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Too-late-for-1.0.18 tweak - the entry_count wrapping could also
