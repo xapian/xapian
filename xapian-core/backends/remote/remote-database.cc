@@ -2,7 +2,7 @@
  *  @brief Remote backend database class
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -740,4 +740,22 @@ RemoteDatabase::set_metadata(const string & key, const string & value)
   data += key;
   data += value;
   send_message(MSG_SETMETADATA, data);
+}
+
+void
+RemoteDatabase::add_spelling(const string & word,
+			     Xapian::termcount freqinc) const
+{
+    string data = encode_length(freqinc);
+    data += word;
+    send_message(MSG_ADDSPELLING, data);
+}
+
+void
+RemoteDatabase::remove_spelling(const string & word,
+				Xapian::termcount freqdec) const
+{
+    string data = encode_length(freqdec);
+    data += word;
+    send_message(MSG_REMOVESPELLING, data);
 }

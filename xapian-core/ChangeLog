@@ -1,3 +1,13 @@
+Wed Feb 24 14:18:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,common/remoteserver.h,
+	  docs/remote_protocol.html,net/remoteserver.cc,tests/api_spelling.cc:
+	  Add remote backend support for WritableDatabase::add_spelling() and
+	  WritableDatabase::remove_spelling().  This bumps the remote protocol
+	  to version 35.0 (so both client and servers will need updating).
+	  Suggesting spelling corrections isn't yet supported.
+
 Wed Feb 24 09:09:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: "lastdocid" -> "highest document id ever used"
