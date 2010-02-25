@@ -849,8 +849,7 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	    }
 	    tmpout.push_back(dest);
 	    tmptab.flush();
-	    tmptab.commit(1);
-	    newroots.push_back(tmptab.get_root());
+	    newroots.push_back(tmptab.commit(1));
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
@@ -1056,8 +1055,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 
 	// Commit as revision 1.
 	out.flush();
-	out.commit(1);
-	version_file_out.set_root_block(t->type, out.get_root());
+	version_file_out.set_root_block(t->type, out.commit(1));
 
 	cout << '\r' << t->name << ": ";
 	off_t out_size = 0;
@@ -1087,7 +1085,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	}
 	cout << endl;
     }
-    version_file_out.write(destdir, 1);
+    version_file_out.sync(destdir, version_file_out.write(destdir), 1);
 
     string lockfile = destdir;
     lockfile += "/flintlock";

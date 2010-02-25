@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_BRASS_TABLE_H
 
 #include "brass_defs.h"
+#include "brass_io.h"
 
 #include <zlib.h>
 
@@ -553,6 +554,12 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 			     const void *k2, size_t l2) const;
     virtual std::string divide(const char *k1, size_t l1, const char *k2, size_t l2) const;
 
+    brass_block_t get_root() const {
+       if (!my_cursor)
+	   return brass_block_t(-1);
+       return my_cursor->n;
+    }
+
   public:
     BrassTable(const char * name_, const std::string & path_, bool readonly_,
 	       bool compress_ = DONT_COMPRESS, bool lazy_ = NOT_LAZY)
@@ -598,7 +605,10 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     // split for replication now per-table base files are gone?
     void flush() { }
 
-    void commit(brass_revision_number_t revision_);
+    /** Returns the new root block. */
+    brass_block_t commit(brass_revision_number_t revision_);
+
+    void sync() { AssertRel(fd,>=,0); brass_io_sync(fd); }
 
     void cancel();
 
@@ -625,12 +635,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     void set_full_compaction(bool) { } // FIXME support?
 
     void set_max_item_size(size_t) { } // FIXME support?
-
-    brass_block_t get_root() const {
-       if (!my_cursor)
-	   return brass_block_t(-1);
-       return my_cursor->n;
-    }
 };
 
 inline void BrassCBlock::set_child_block_number(brass_block_t n_child) {

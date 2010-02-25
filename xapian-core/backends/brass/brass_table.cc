@@ -1448,22 +1448,23 @@ BrassTable::del(const string & key)
     RETURN(false);
 }
 
-void
+brass_block_t
 BrassTable::commit(brass_revision_number_t revision_)
 {
-    LOGCALL_VOID(DB, "BrassBlock::commit", revision_);
+    LOGCALL(DB, brass_block_t, "BrassBlock::commit", revision_);
     AssertRel(revision_,>=,revision);
     if (fd < 0) {
 	if (fd == FD_CLOSED)
 	    throw_database_closed();
 	revision = revision_;
-	return;
+	RETURN(brass_block_t(-1));
     }
-    if (!modified)
-	return;
-    revision = revision_;
-    my_cursor->commit();
-    modified = false;
+    if (modified) {
+	revision = revision_;
+	my_cursor->commit();
+	modified = false;
+    }
+    RETURN(get_root());
 }
 
 void

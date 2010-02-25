@@ -55,8 +55,9 @@ class BrassCursor : public BrassCBlock {
     std::string current_tag;
 
     BrassCursor(const BrassTable & table_) : BrassCBlock(table_) {
-	if (table.get_root() != brass_block_t(-1))
-	    read(table.get_root());
+	brass_block_t root = table.get_root();
+	if (root != brass_block_t(-1))
+	    read(root);
     }
 
     bool after_end() const { return item == -2; }

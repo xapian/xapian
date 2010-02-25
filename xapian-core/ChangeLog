@@ -1,3 +1,9 @@
+Thu Feb 25 13:05:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/,bin/xapian-compact-brass.cc: Call fdatasync() (or
+	  equivalent) on .brass files.  Do this right before we do it for
+	  the new version file (see ticket#426).
+
 Thu Feb 25 12:34:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_io.cc: Remove doxygen comment duplicated from

@@ -49,6 +49,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassVersion {
      */
     mutable uuid_t uuid;
 
+    int fd;
+
   public:
     BrassVersion() : rev(0) { }
 
@@ -63,7 +65,10 @@ class XAPIAN_VISIBILITY_DEFAULT BrassVersion {
      */
     void read(const std::string & filename);
 
-    void write(const std::string & db_dir, brass_revision_number_t new_rev);
+    const std::string write(const std::string & db_dir);
+
+    void sync(const std::string & db_dir, const std::string & tmpfile,
+	      brass_revision_number_t new_rev);
 
     brass_revision_number_t get_revision() const { return rev; }
 

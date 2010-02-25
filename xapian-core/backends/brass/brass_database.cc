@@ -314,20 +314,31 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
     spelling_table.flush();
     record_table.flush();
 
-    postlist_table.commit(new_revision);
-    position_table.commit(new_revision);
-    termlist_table.commit(new_revision);
-    synonym_table.commit(new_revision);
-    spelling_table.commit(new_revision);
-    record_table.commit(new_revision);
+    version_file.set_root_block(Brass::POSTLIST,
+				postlist_table.commit(new_revision));
+    version_file.set_root_block(Brass::POSITION,
+				position_table.commit(new_revision));
+    version_file.set_root_block(Brass::TERMLIST,
+				termlist_table.commit(new_revision));
+    version_file.set_root_block(Brass::SYNONYM,
+				synonym_table.commit(new_revision));
+    version_file.set_root_block(Brass::SPELLING,
+				spelling_table.commit(new_revision));
+    version_file.set_root_block(Brass::RECORD,
+				record_table.commit(new_revision));
 
-    version_file.set_root_block(Brass::RECORD, record_table.get_root());
-    version_file.set_root_block(Brass::SPELLING, spelling_table.get_root());
-    version_file.set_root_block(Brass::SYNONYM, synonym_table.get_root());
-    version_file.set_root_block(Brass::TERMLIST, termlist_table.get_root());
-    version_file.set_root_block(Brass::POSITION, position_table.get_root());
-    version_file.set_root_block(Brass::POSTLIST, postlist_table.get_root());
-    version_file.write(db_dir, new_revision);
+    const string & tmpfile = version_file.write(db_dir);
+    try {
+	postlist_table.sync();
+	position_table.sync();
+	termlist_table.sync();
+	synonym_table.sync();
+	spelling_table.sync();
+	record_table.sync();
+	version_file.sync(db_dir, tmpfile, new_revision);
+    } catch (...) {
+	(void)unlink(tmpfile);
+    }
 }
 
 void

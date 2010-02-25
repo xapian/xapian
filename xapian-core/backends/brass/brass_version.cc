@@ -71,7 +71,7 @@ static const char BRASS_VERSION_MAGIC[BRASS_VERSION_MAGIC_AND_VERSION_LEN] = {
 };
 
 void
-BrassVersion::open_most_recent(const std::string & db_dir)
+BrassVersion::open_most_recent(const string & db_dir)
 {
     LOGCALL_VOID(DB, "BrassVersion::open_most_recent", db_dir);
     DIR * dir = opendir(db_dir.c_str());
@@ -129,22 +129,22 @@ BrassVersion::read(const string & filename)
 {
     LOGCALL_VOID(DB, "BrassVersion::read", filename);
 #ifndef __WIN32__
-    int fd = open(filename.c_str(), O_RDONLY|O_BINARY);
+    int fd_in = open(filename.c_str(), O_RDONLY|O_BINARY);
 #else
-    int fd = msvc_posix_open(filename.c_str(), O_RDONLY|O_BINARY);
+    int fd_in = msvc_posix_open(filename.c_str(), O_RDONLY|O_BINARY);
 #endif
-    if (rare(fd < 0)) {
+    if (rare(fd_in < 0)) {
 	string msg = filename;
 	msg += ": Failed to open brass revision file for reading";
 	throw Xapian::DatabaseOpeningError(msg, errno);
     }
 
-    fdcloser close_fd(fd);
+    fdcloser close_fd(fd_in);
 
     char buf[256];
 
     const char * p = buf;
-    const char * end = p + brass_io_read(fd, buf, sizeof(buf), 32);
+    const char * end = p + brass_io_read(fd_in, buf, sizeof(buf), 32);
 
     if (memcmp(buf, BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_LEN) != 0)
 	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
@@ -189,12 +189,10 @@ BrassVersion::read(const string & filename)
 	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
 }
 
-void
-BrassVersion::write(const string & db_dir, brass_revision_number_t new_rev)
+const string
+BrassVersion::write(const string & db_dir)
 {
-    LOGCALL_VOID(DB, "BrassVersion::write", db_dir << ", " << new_rev);
-    if (new_rev < rev)
-	throw Xapian::DatabaseError("New revision " + str(new_rev) + " < old revision " + str(rev));
+    LOGCALL(DB, const string, "BrassVersion::write", db_dir);
 
     string s(BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_AND_VERSION_LEN);
     s.append((const char *)uuid, 16);
@@ -210,16 +208,10 @@ BrassVersion::write(const string & db_dir, brass_revision_number_t new_rev)
     string tmpfile = db_dir;
     tmpfile += "v.tmp";
 
-    string filename = db_dir;
-    filename += "/v";
-    char buf[9];
-    sprintf(buf, "%08x", new_rev);
-    filename.append(buf, 8);
-
 #ifndef __WIN32__
-    int fd = open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+    fd = open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
 #else
-    int fd = msvc_posix_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+    fd = msvc_posix_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
 #endif
     if (rare(fd < 0))
 	throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
@@ -232,24 +224,37 @@ BrassVersion::write(const string & db_dir, brass_revision_number_t new_rev)
 	throw;
     }
 
+    RETURN(tmpfile);
+}
+
+void
+BrassVersion::sync(const string & db_dir, const string & tmpfile,
+		   brass_revision_number_t new_rev)
+{
+    if (new_rev < rev)
+	throw Xapian::DatabaseError("New revision " + str(new_rev) + " < old revision " + str(rev));
+
+    string filename = db_dir;
+    filename += "/v";
+    char buf[9];
+    sprintf(buf, "%08x", new_rev);
+    filename.append(buf, 8);
+
     if (!brass_io_sync(fd)) {
 	int save_errno = errno;
 	(void)close(fd);
-	(void)unlink(tmpfile);
 	throw Xapian::DatabaseOpeningError("Failed to sync new rev file: " + tmpfile,
 					   save_errno);
     }
 
     if (close(fd) == -1) {
 	int save_errno = errno;
-	(void)unlink(tmpfile);
 	throw Xapian::DatabaseOpeningError("Failed to close new rev file: " + tmpfile,
 					   save_errno);
     }
 
     if (rename(tmpfile.c_str(), filename.c_str()) < 0) {
 	int save_errno = errno;
-	(void)unlink(tmpfile);
 	throw Xapian::DatabaseOpeningError("Failed to rename new rev file: " + tmpfile,
 					   save_errno);
     }
@@ -265,5 +270,5 @@ BrassVersion::create(const string & db_dir)
     for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
 	new_root[table_no] = static_cast<brass_block_t>(-1);
     }
-    write(db_dir, rev);
+    sync(db_dir, write(db_dir), rev);
 }
