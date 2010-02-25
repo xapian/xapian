@@ -1,3 +1,8 @@
+Thu Feb 25 13:17:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix check_block() bug introduced with
+	  the zlib support, which resulted in failing assertions.
+
 Thu Feb 25 13:05:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/,bin/xapian-compact-brass.cc: Call fdatasync() (or

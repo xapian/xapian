@@ -164,7 +164,7 @@ BrassBlock::check_block()
 	// Items should have non-negative size.
 	AssertRel(ptr,<,endptr);
 	if (is_leaf()) {
-	    size_t key_len = (unsigned char)data[ptr];
+	    size_t key_len = (unsigned char)data[ptr++];
 	    if (key_len & 0x80) {
 		if (key_len == 0x80) {
 		    key_len = static_cast<unsigned char>(data[ptr++]);
