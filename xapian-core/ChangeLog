@@ -1,3 +1,13 @@
+Thu Feb 25 11:17:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Strip out the CHECK_ENTRIES debug
+	  code.  It was never quite correct, and was further broken by the zlib
+	  changes.  It slows down B-tree operations a lot, and so while it was
+	  useful for getting the Btree code to work at all, it doesn't seem
+	  worthwhile trying to fix it.
+	* backends/brass/brass_table.h: Remove some commented out uses of cout
+	  left over from debugging.
+
 Thu Feb 25 05:44:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Try to

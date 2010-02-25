@@ -201,7 +201,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     BrassCBlock * parent, * child;
 
     bool next_() {
-//	cout << "next_() data = " << (void*)data << " item = " << item << "/" << get_count() << endl;
 	if (!data)
 	   item = -2;
 
@@ -212,7 +211,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	    if (!parent || !parent->next_()) {
 		// Root block or parent at end, so end of iteration.
 		item = -2;
-//	cout << "next_() returned false, item now " << item << "/" << get_count() << endl;
 		return false;
 	    }
 	    item = (child ? -1 : 0);
@@ -221,7 +219,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	if (child)
 	    child->read(get_block(item));
 
-//	cout << "next_() returned true, item now " << item << "/" << get_count() << endl;
 	return true;
     }
 
@@ -334,7 +331,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     bool get(const std::string &key, std::string &tag);
 
     bool next() {
-//	cout << "in next(), item is " << item << endl;
 	if (!child) {
 	    Assert(!data || is_leaf());
 	    return next_();
@@ -640,20 +636,13 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 inline void BrassCBlock::set_child_block_number(brass_block_t n_child) {
     AssertRel(item,>=,0);
     set_block(item, n_child);
-    // cout << "parent block " << n << " needs_clone " << needs_clone << endl;
 
     if (!needs_clone)
 	return;
     needs_clone = false;
-    //int n_orig = n;
     n = const_cast<BrassTable&>(table).get_free_block();
-    // cout << n << " COPYING BOUNDS from " << n_orig << endl;
-    // table.key_limits[n] = table.key_limits[n_orig];
-    // cout << "cloned to " << n << endl;
     parent->set_child_block_number(n);
-    // cout << "post parent clone check" << endl;
     check_block();
-    // cout << "done post parent clone check" << endl;
 }
 
 inline brass_block_t BrassBlock::get_block(int i) const {

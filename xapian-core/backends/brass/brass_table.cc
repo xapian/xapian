@@ -69,12 +69,6 @@ PWRITE_PROTOTYPE
 #include <exception> // For uncaught_exception()
 #include <string>
 
-// Some of the checks seem to be incorrect currently.
-//#define CHECK_ENTRIES
-#ifdef CHECK_ENTRIES
-#include <vector>
-#endif
-
 #include <iostream> // temporarily
 
 using namespace std;
@@ -706,13 +700,6 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
 	check_block();
     }
 
-#ifdef CHECK_ENTRIES
-    vector<string> E;
-    for (int z = 0; z < C; ++z) {
-	E.push_back(string(data+get_ptr(z), get_endptr(z)-get_ptr(z)));
-    }
-#endif
-
     // cout << "block " << n << " needs_clone " << needs_clone << endl;
     if (needs_clone) {
 	needs_clone = false;
@@ -732,19 +719,6 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
 
     bool exact = binary_chop_leaf(key, LE);
     // cout << n << ": insert (exact=" << exact << ") at " << item << "/" << C << endl;
-#ifdef CHECK_ENTRIES
-    // FIXME: key extraction in here not correct for compressed keys, or those >= 128 bytes.
-    if (exact) {
-	AssertRel(key,==,string(E[item].data() + 1, (unsigned)(unsigned char)E[item][0]));
-    } else {
-	if (item < C) {
-	    AssertRel(key,<,string(E[item].data() + 1, (unsigned)(unsigned char)E[item][0]));
-	}
-	if (item > 0) {
-	    AssertRel(string(E[item-1].data() + 1, (unsigned)(unsigned char)E[item-1][0]),<,key);
-	}
-    }
-#endif
 
     int len = tag.size() + key.size() + 1;
     if (key.size() >= 128)
@@ -858,53 +832,12 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
 	    swap(n, sp.n);
 	    // Should already be false.
 	    Assert(!needs_clone);
-#ifdef CHECK_ENTRIES
-	    {
-		int old_C = C;
-		C = sp.get_count();
-		Assert(C == split_after);
-		for (int z = 0; z < C; ++z) {
-		    string foo(sp.data+sp.get_ptr(z), sp.get_endptr(z)-sp.get_ptr(z));
-		    if (foo != E[z]) {
-			cerr << " > Mismatch for entry in swapped sp " << z << "/" << C << endl;
-		    }
-		}
-		C = old_C;
-	    }
-	    E.erase(E.begin(), E.begin() + split_after);
-#endif
 	} else {
 	    // cout << "split : item before" << endl;
-#ifdef CHECK_ENTRIES
-	    {
-		int old_C = C;
-		C = sp.get_count();
-		Assert(C == old_C - split_after);
-		for (int z = 0; z < C; ++z) {
-		    string foo(sp.data+sp.get_ptr(z), sp.get_endptr(z)-sp.get_ptr(z));
-		    if (foo != E[z + split_after]) {
-			cerr << " > Mismatch for entry in sp " << z << "/" << C << endl;
-		    }
-		}
-		C = old_C;
-	    }
-	    E.erase(E.begin() + split_after, E.end());
-#endif
 	}
 	// cout << "me | div | sp\n";
 	// cout << get_key(0) << ".." << get_key(get_count()-1) << " | " << divkey << " | " << sp.get_key(0) << ".." << sp.get_key(sp.get_count()-1) << endl;
 	sp.save();
-#ifdef CHECK_ENTRIES
-	int old_C = C;
-	C = get_count();
-	for (int z = 0; z < C; ++z) {
-	    string foo(data+get_ptr(z), get_endptr(z)-get_ptr(z));
-	    if (foo != E[z]) {
-		cerr << " > Mismatch for entry in split block " << z << "/" << C << endl;
-	    }
-	}
-	C = old_C;
-#endif
 	sp.check_block();
 	check_block();
 	// And now insert into parent, adding a level to the Btree if required.
@@ -983,28 +916,6 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
     memcpy(p, key.data(), key.size());
     check_block();
     memcpy(p + key.size(), tag.data(), tag.size());
-
-#ifdef CHECK_ENTRIES
-    int e_off = 0;
-    for (int z = 0; z < C; ++z) {
-	int z_ptr = get_ptr(z);
-	int z_endptr = get_endptr(z);
-	if (z_ptr > z_endptr) {
-	    cerr << " > entry " << z << " has negative length (" << z_ptr << " > " << z_endptr << ")" << endl;
-	} else {
-	    string foo(data + z_ptr, z_endptr - z_ptr);
-	    if (foo == E[z - e_off]) {
-		// OK
-	    } else if (!e_off && foo == string(1, char(key.size())) + key + tag) {
-		// FIXME previous line wrong for compressed tags, or keys >= 128 bytes.
-		e_off = 1;
-	    } else {
-		cerr << " > Mismatch for new entry " << z << "/" << C << endl;
-		// cout << " '"<<foo<<"' vs '"<<E[z-e_off]<< "'"<<endl;
-	    }
-	}
-    }
-#endif
 
     check_block();
 
