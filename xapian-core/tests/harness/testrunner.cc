@@ -54,7 +54,7 @@ static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,metadata,valuestats,inmemory" },
     { "brass", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,valuestats,brass" },
+	       "synonyms,valuestats,brass" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
 	       "synonyms,replicas,valuestats,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"

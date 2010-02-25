@@ -1,3 +1,9 @@
+Thu Feb 25 13:19:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc: Brass doesn't currently support
+	  replication, and I'm not planning to address that for now, so don't
+	  try to run tests which require it.
+
 Thu Feb 25 13:17:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix check_block() bug introduced with
