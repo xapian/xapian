@@ -7,10 +7,11 @@ Tests which currently fail:
 
   * writeread1: Need larger tags than we currently support.
 
-  * replicate1: Replication not yet supported.
-
 TODO:
 -----
+
+  * xapian-check checking Btree structure (currently only checks data inside
+    tables).
 
   * store large tags out of tree
 
@@ -18,12 +19,7 @@ TODO:
 
   * xapian-check of an individual table
 
-  * xapian-check checking Btree structure (currently only checks data inside
-    tables).
-
   * xapian-inspect - make it handle flint/chert and brass in one binary.
-
-  * replication
 
   * prefix-compress keys
 
@@ -39,3 +35,5 @@ TODO:
     make sure we're at least as fast everywhere.
 
   * splitting of branch blocks currently untested.
+
+  * replication
