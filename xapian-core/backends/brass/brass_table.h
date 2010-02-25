@@ -23,8 +23,13 @@
 
 #include "brass_defs.h"
 
+#include <zlib.h>
+
 #include "noreturn.h"
 #include "omassert.h"
+#include "str.h"
+#include "unaligned.h"
+
 #include <string>
 #include <vector>
 
@@ -141,14 +146,20 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 
     const string get_key(int i) const {
 	const char * p = data + get_ptr(i);
-	size_t len;
+	size_t key_len;
 	if (is_leaf()) {
-	    len = static_cast<unsigned char>(*p++);
+	    key_len = static_cast<unsigned char>(*p++);
+	    if (key_len == 0x80) {
+		key_len = static_cast<unsigned char>(*p++);
+		key_len |= 0x80;
+	    } else {
+		key_len &= 0x7f;
+	    }
 	} else {
 	    p += 4;
-	    len = get_endptr(i) - get_ptr(i) - 4;
+	    key_len = get_endptr(i) - get_ptr(i) - 4;
 	}
-	return string(p, len);
+	return string(p, key_len);
     }
 
     void set_ptr(int i, int ptr) {
@@ -244,24 +255,22 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	    child->read_key(key);
 	    return;
 	}
-	int key_start = get_ptr(item) + 1;
-	int key_len = (unsigned char)data[key_start - 1];
+
+	int key_start = get_ptr(item);
+	int key_len = (unsigned char)data[key_start++];
+	if (key_len & 0x80) {
+	    if (key_len == 0x80) {
+		key_len = (unsigned char)data[key_start++];
+		key_len |= 0x80;
+	    } else {
+		key_len &= 0x7f;
+	    }
+	}
 	key.assign(data + key_start, key_len);
     }
 
     // Always returns true to allow tail-calling.
-    bool read_tag(std::string &tag) {
-	AssertRel(item,>=,-1);
-	AssertRel(item,<,get_count());
-	if (!is_leaf())
-	    return child->read_tag(tag);
-	const char * s = data + get_ptr(item);
-	size_t key_len = static_cast<unsigned char>(*s++);
-	s += key_len;
-	AssertRel(s - data,<=,get_endptr(item));
-	tag.assign(s, data + get_endptr(item) - s);
-	return true;
-    }
+    bool read_tag(std::string &tag);
 
   public:
     BrassCBlock(const BrassTable & table_)
@@ -301,7 +310,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     bool binary_chop_leaf(const std::string & key, int mode);
 
     void insert(const std::string &key, brass_block_t tag);
-    bool insert(const std::string &key, const std::string &tag);
+    bool insert(const std::string &key, const std::string &tag, bool compressed);
     void del();
     bool del(const std::string &key);
     void commit() {
@@ -351,6 +360,145 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     void set_needs_clone() { needs_clone = true; }
 };
 
+class BrassCompressor {
+    z_stream * deflate_stream;
+    z_stream * inflate_stream;
+
+    // FIXME: Perhaps where supported we should use anon mmap() to allocate
+    // this temporary buffer, and expand it with mremap() (if that fails
+    // falling back to munmap() and mmap()).
+    char * zlib_buf;
+    size_t zlib_buf_size;
+
+    enum { COMPRESS_MIN_SIZE = 5 };
+
+    XAPIAN_NORETURN(static void throw_zlib_error(int res, z_stream * zstream,
+						 const char * msg_));
+
+  public:
+
+    BrassCompressor()
+	: deflate_stream(NULL), inflate_stream(NULL),
+	  zlib_buf(NULL), zlib_buf_size(0) { }
+
+    ~BrassCompressor() {
+	if (deflate_stream) {
+	    deflateEnd(deflate_stream);
+	    delete deflate_stream;
+	}
+	if (inflate_stream) {
+	    inflateEnd(inflate_stream);
+	    delete inflate_stream;
+	}
+	delete [] zlib_buf;
+    }
+
+    bool try_to_compress(const std::string & input) {
+	if (input.size() < COMPRESS_MIN_SIZE)
+	    return false;
+
+	int res;
+	if (rare(!deflate_stream)) {
+	    deflate_stream = new z_stream;
+	    deflate_stream->zalloc = Z_NULL;
+	    deflate_stream->zfree = Z_NULL;
+	    deflate_stream->opaque = Z_NULL;
+
+	    const int RAW_DEFLATE_WITH_32K_LZ77_WINDOW = -15;
+	    const int MAX_MEMLEVEL = 9;
+	    res = deflateInit2(deflate_stream, Z_DEFAULT_COMPRESSION,
+			       Z_DEFLATED, RAW_DEFLATE_WITH_32K_LZ77_WINDOW,
+			       MAX_MEMLEVEL, Z_DEFAULT_STRATEGY);
+	} else {
+	    res = deflateReset(deflate_stream);
+	}
+
+	if (rare(res != Z_OK))
+	    throw_zlib_error(res, deflate_stream,
+			     "zlib failed to initialise deflate stream: ");
+
+	// We only want to compress if the compressed version is smaller, so
+	// set the output buffer size to one less than the input size so zlib
+	// will give up in that case.
+	size_t max_output_len = input.size() - 1;
+
+	if (zlib_buf && zlib_buf_size < max_output_len) {
+	    delete [] zlib_buf;
+	    zlib_buf = NULL;
+	}
+	if (!zlib_buf) {
+	    zlib_buf = new char[max_output_len];
+	    zlib_buf_size = max_output_len;
+	}
+
+	// Zlib's API requires us to cast away const.
+	deflate_stream->next_in =
+	    reinterpret_cast<Bytef *>(const_cast<char *>(input.data()));
+	deflate_stream->avail_in = static_cast<uInt>(input.size());
+
+	deflate_stream->next_out = reinterpret_cast<Bytef *>(zlib_buf);
+	deflate_stream->avail_out = static_cast<uInt>(max_output_len);
+
+	return (deflate(deflate_stream, Z_FINISH) == Z_STREAM_END);
+    }
+
+    const std::string compressed_data() {
+	size_t len = deflate_stream->total_out;
+	return std::string(zlib_buf, len);
+    }
+
+    void decompress(const char * in, size_t in_len, std::string & output) {
+	int res;
+	if (rare(!inflate_stream)) {
+	    inflate_stream = new z_stream;
+	    inflate_stream->zalloc = Z_NULL;
+	    inflate_stream->zfree = Z_NULL;
+	    inflate_stream->opaque = Z_NULL;
+
+	    const int RAW_DEFLATE_WITH_32K_LZ77_WINDOW = -15;
+	    res = inflateInit2(inflate_stream,
+			       RAW_DEFLATE_WITH_32K_LZ77_WINDOW);
+	} else {
+	    res = inflateReset(inflate_stream);
+	}
+
+	if (rare(res != Z_OK))
+	    throw_zlib_error(res, inflate_stream,
+			     "zlib failed to initialise inflate stream: ");
+
+	// Ensure we have at least in_len bytes of buffer so we don't need to
+	// make a ludicrous number of calls to inflate().
+	if (zlib_buf && zlib_buf_size < in_len) {
+	    delete [] zlib_buf;
+	    zlib_buf = NULL;
+	}
+	if (!zlib_buf) {
+	    zlib_buf = new char[in_len];
+	    zlib_buf_size = in_len;
+	}
+
+	output.resize(0);
+	// FIXME better guesstimate?
+	output.reserve(in_len * 2);
+
+	// Zlib's API requires us to cast away const.
+	inflate_stream->next_in = (Bytef*)const_cast<char *>(in);
+	inflate_stream->avail_in = (uInt)in_len;
+
+	do {
+	    inflate_stream->next_out = reinterpret_cast<Bytef *>(zlib_buf);
+	    inflate_stream->avail_out = static_cast<uInt>(zlib_buf_size);
+
+	    res = inflate(inflate_stream, Z_SYNC_FLUSH);
+
+	    if (res != Z_OK && res != Z_STREAM_END)
+		throw_zlib_error(res, inflate_stream, "zlib inflate failed: ");
+
+	    output.append(zlib_buf, (char*)inflate_stream->next_out - zlib_buf);
+	} while (res != Z_STREAM_END);
+    }
+};
+
 class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     friend class BrassBlock;
     friend class BrassCBlock;
@@ -385,6 +533,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     bool compress;
     bool lazy;
     bool modified;
+
+    mutable BrassCompressor compressor;
 
     // mutable std::vector<std::pair<std::string, std::string> > key_limits;
 
@@ -460,14 +610,15 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
     bool get(const std::string & key, std::string & tag) const;
 
-    bool is_open() const { if (rare(fd == FD_CLOSED))
-	BrassTable::throw_database_closed(); return (fd >= 0); }
+    bool is_open() const {
+	if (rare(fd == FD_CLOSED))
+	    BrassTable::throw_database_closed();
+	return (fd >= 0);
+    }
 
     BrassCursor * get_cursor() const;
 
-    //brass_revision_number_t get_open_revision_number() const { return
-    //revision;
-//    }
+    //brass_revision_number_t get_open_revision_number() const { return revision; }
 
     bool empty() const {
 	if (rare(fd == -2))

@@ -112,7 +112,9 @@ using namespace std;
 
 /* Leaf Item:
  *
- * [ keylen ] (1 byte)
+ *    (a) [ keylen ] (1 byte) : top bit set is "compressed tag?"
+ * or (b) [ \x80 ]
+ *        [ keylen - 128 ] : top bit set is "compressed tag?"
  * [ key ... ]
  * [ tag ... ]
  */
@@ -122,6 +124,23 @@ using namespace std;
  * [ block pointer ] (4 bytes)
  * [ key ... ]
  */
+
+void
+BrassCompressor::throw_zlib_error(int res, z_stream * zstream, const char * msg_)
+{
+    // Translate Z_MEM_ERROR to std::bad_alloc for consistency.
+    if (res == Z_MEM_ERROR)
+	throw std::bad_alloc();
+
+    string msg(msg_);
+    if (zstream->msg) {
+	msg += zstream->msg;
+    } else {
+	// If there's no message then report the error code.
+	msg += str(res);
+    }
+    throw Xapian::DatabaseError(msg);
+}
 
 void
 BrassTable::throw_database_closed()
@@ -152,9 +171,17 @@ BrassBlock::check_block()
 	AssertRel(ptr,<,endptr);
 	if (is_leaf()) {
 	    size_t key_len = (unsigned char)data[ptr];
-	    AssertRel(ptr + 1 + key_len,<=,(size_t)endptr);
-	    key.assign(data + ptr + 1, (unsigned)(unsigned char)data[ptr]);
-	    int tag_len = endptr - ptr - key_len - 1;
+	    if (key_len & 0x80) {
+		if (key_len == 0x80) {
+		    key_len = static_cast<unsigned char>(data[ptr++]);
+		    key_len |= 0x80;
+		} else {
+		    key_len &= 0x7f;
+		}
+	    }
+	    AssertRel(ptr + key_len,<=,(size_t)endptr);
+	    key.assign(data + ptr, key_len);
+	    int tag_len = endptr - ptr - key_len;
 	    (void)tag_len;
 	    AssertRel(tag_len,<=,16384);
 	} else {
@@ -247,6 +274,37 @@ BrassBlock::new_branch_block()
     Assert(!is_leaf());
 }
 
+bool
+BrassCBlock::read_tag(string &tag)
+{
+    AssertRel(item,>=,-1);
+    AssertRel(item,<,get_count());
+    if (!is_leaf())
+	return child->read_tag(tag);
+
+    bool compressed = false;
+    int key_start = get_ptr(item);
+    int key_len = (unsigned char)data[key_start++];
+    if (key_len & 0x80) {
+	if (key_len == 0x80) {
+	    key_len = (unsigned char)data[key_start++];
+	    compressed = (key_len >= 0x80);
+	    key_len |= 0x80;
+	} else {
+	    compressed = true;
+	    key_len &= 0x7f;
+	}
+    }
+    const char * s = data + key_start + key_len;
+    AssertRel(s - data,<=,get_endptr(item));
+    if (!compressed) {
+	tag.assign(s, data + get_endptr(item) - s);
+    } else {
+	table.compressor.decompress(s, data + get_endptr(item) - s, tag);
+    }
+    return true;
+}
+
 void
 BrassCBlock::read(brass_block_t blk)
 {
@@ -337,6 +395,14 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 	AssertRel(m,<,get_count());
 	const char * key_data = data + get_ptr(m);
 	int key_len = static_cast<unsigned char>(*key_data++);
+	if (key_len & 0x80) {
+	    if (key_len == 0x80) {
+		key_len = static_cast<unsigned char>(*key_data++);
+		key_len |= 0x80;
+	    } else {
+		key_len &= 0x7f;
+	    }
+	}
 	int cmp = table.compare_keys(key_data, key_len, key.data(), key.size());
 	if (cmp < 0) {
 	    b = m + 1;
@@ -358,6 +424,14 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 	int m = b;
 	const char * key_data = data + get_ptr(m);
 	int key_len = static_cast<unsigned char>(*key_data++);
+	if (key_len & 0x80) {
+	    if (key_len == 0x80) {
+		key_len = static_cast<unsigned char>(*key_data++);
+		key_len |= 0x80;
+	    } else {
+		key_len &= 0x7f;
+	    }
+	}
 	int cmp = table.compare_keys(key_data, key_len, key.data(), key.size());
 	if (cmp < 0) {
 	    // Keep going.
@@ -553,6 +627,7 @@ void
 BrassCBlock::find_child(const string & key)
 {
     LOGCALL_VOID(DB, "BrassCBlock::find_child", key);
+    Assert(!is_leaf());
     int b = 0;
     int e = get_count() - 1;
     Assert(e != -1);
@@ -601,9 +676,14 @@ BrassCBlock::find_child(const string & key)
 }
 
 bool
-BrassCBlock::insert(const string &key, const string &tag)
+BrassCBlock::insert(const string &key, const string &tag, bool compressed)
 {
     LOGCALL(DB, bool, "BrassCBlock::insert", key << ", " << tag);
+    if (!is_leaf()) {
+	find_child(key);
+	RETURN(child->insert(key, tag, compressed));
+    }
+
     if (key.size() > 252) {
 	// FIXME: Make limit 252 for now for compatibility with chert.
 	// However, we can support 255 byte keys just as easily.
@@ -624,11 +704,6 @@ BrassCBlock::insert(const string &key, const string &tag)
 
     if (C > 0) {
 	check_block();
-    }
-
-    if (!is_leaf()) {
-	find_child(key);
-	RETURN(child->insert(key, tag));
     }
 
 #ifdef CHECK_ENTRIES
@@ -658,6 +733,7 @@ BrassCBlock::insert(const string &key, const string &tag)
     bool exact = binary_chop_leaf(key, LE);
     // cout << n << ": insert (exact=" << exact << ") at " << item << "/" << C << endl;
 #ifdef CHECK_ENTRIES
+    // FIXME: key extraction in here not correct for compressed keys, or those >= 128 bytes.
     if (exact) {
 	AssertRel(key,==,string(E[item].data() + 1, (unsigned)(unsigned char)E[item][0]));
     } else {
@@ -671,6 +747,8 @@ BrassCBlock::insert(const string &key, const string &tag)
 #endif
 
     int len = tag.size() + key.size() + 1;
+    if (key.size() >= 128)
+	++len;
     // Set free_end to the offset of the end of free space.
     int free_end = get_endptr(C);
     int oldlen = 0;
@@ -727,10 +805,24 @@ BrassCBlock::insert(const string &key, const string &tag)
 	}
 	// cerr << "split : item " << item << " split point " << split_after << " out of " << C << endl;
 	const char *div_p = data + get_ptr(split_after);
+	size_t div_len = static_cast<unsigned char>(*div_p++);
+	if (div_len == 0x80) {
+	    div_len = static_cast<unsigned char>(*div_p++);
+	    div_len |= 0x80;
+	} else {
+	    div_len &= 0x7f;
+	}
+
 	AssertRel(split_ptr,==,get_ptr(split_after - 1));
 	const char *pre_p = data + split_ptr; // data + get_ptr(split_after - 1);
-	string divkey(table.divide(pre_p + 1, (size_t)(unsigned char)*pre_p,
-				   div_p + 1, (size_t)(unsigned char)*div_p));
+	size_t pre_len = static_cast<unsigned char>(*pre_p++);
+	if (pre_len == 0x80) {
+	    pre_len = static_cast<unsigned char>(*pre_p++);
+	    pre_len |= 0x80;
+	} else {
+	    pre_len &= 0x7f;
+	}
+	string divkey(table.divide(pre_p, pre_len, div_p, div_len));
 	// cout << "splitting leaf block " << n << " at " << divkey << endl;
 	// We want the right half of the split block to go in the new block so
 	// that if the whole tree is created in one revision, we can do
@@ -875,10 +967,22 @@ BrassCBlock::insert(const string &key, const string &tag)
 
     AssertRel(ptr,>=,header_length(get_count()));
     Assert(key.size() < 256);
-    ((unsigned char*)data)[ptr] = key.size();
-    memcpy(data + ptr + 1, key.data(), key.size());
+    char * p = data + ptr;
+    if (key.size() < 128) {
+	unsigned char ch = key.size();
+	if (compressed) ch |= 0x80;
+	Assert(ch != 0x80); // the zero length key has no tag, so shouldn't compress.
+	*p++ = ch;
+    } else {
+	*p++ = '\x80';
+	unsigned char ch = key.size() - 128;
+	if (compressed) ch |= 0x80;
+	*p++ = ch;
+    }
+
+    memcpy(p, key.data(), key.size());
     check_block();
-    memcpy(data + ptr + 1 + key.size(), tag.data(), tag.size());
+    memcpy(p + key.size(), tag.data(), tag.size());
 
 #ifdef CHECK_ENTRIES
     int e_off = 0;
@@ -892,6 +996,7 @@ BrassCBlock::insert(const string &key, const string &tag)
 	    if (foo == E[z - e_off]) {
 		// OK
 	    } else if (!e_off && foo == string(1, char(key.size())) + key + tag) {
+		// FIXME previous line wrong for compressed tags, or keys >= 128 bytes.
 		e_off = 1;
 	    } else {
 		cerr << " > Mismatch for new entry " << z << "/" << C << endl;
@@ -1384,7 +1489,6 @@ bool
 BrassTable::add(const string & key, const string & tag, bool already_compressed)
 {
     LOGCALL(DB, bool, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
-    (void)already_compressed;
     if (key.empty())
 	RETURN(false);
     if (fd < 0) {
@@ -1397,10 +1501,19 @@ BrassTable::add(const string & key, const string & tag, bool already_compressed)
 	my_cursor->new_leaf_block();
 	// cout << my_cursor->n << " [0, INF] LIMITS SET for first block in cursor" << endl;
 	// key_limits[my_cursor->n].second.assign(256, '\xff');
-	(void)my_cursor->insert(string(), string());
+	(void)my_cursor->insert(string(), string(), false);
     }
     modified = true;
-    (void)my_cursor->insert(key, tag);
+
+    if (compress && !already_compressed) {
+	if (compressor.try_to_compress(tag)) {
+	    (void)my_cursor->insert(key, compressor.compressed_data(), true);
+	    RETURN(true);
+	}
+
+	// Data wasn't compressible, so store uncompressed.
+    }
+    (void)my_cursor->insert(key, tag, already_compressed);
     RETURN(true);
 }
 

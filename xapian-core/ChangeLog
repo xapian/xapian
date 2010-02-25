@@ -1,3 +1,8 @@
+Thu Feb 25 05:44:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Try to
+	  compress tags with zlib for tables where this is likely to help.
+
 Thu Feb 25 00:46:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* brass-dump: Add simple Python script to dump out the contents of a
