@@ -1,0 +1,116 @@
+#!/usr/bin/python
+
+import sys, struct
+
+# FIXME hardcoded blocksize
+#blocksize = 2048
+blocksize = 65536
+
+depth = -1
+
+def main():
+    bt = open(sys.argv[1], "rb")
+    block = long(sys.argv[2])
+    recursive = False
+    if len(sys.argv) > 3:
+        recursive = (sys.argv[3] == "R")
+    dump_block(bt, block, True, 0, recursive)
+
+def dump_block(bt, block, verbose, level, recursive):
+    global depth
+    bt.seek(block * blocksize)
+    if bt.tell() != block * blocksize:
+        print "Block %u not found" % block
+        sys.exit(1)
+
+    # Read block header.
+    rev = le4(bt)
+    if verbose:
+        print "Block %u, level %u, revision %u" % (block, level, rev);
+    n_items = le2(bt)
+    branch = n_items & 0x8000
+    n_items &= 0x7fff
+    if verbose:
+        print "%u items" % n_items;
+    if branch:
+        if verbose:
+            print "Branch"
+    else:
+        if verbose:
+            print "Leaf"
+        if depth == -1:
+            depth = level
+        elif depth != level:
+            print "Leaf block %u at level %u not %u" % (block, level, depth)
+            sys.exit(1)
+
+    reserved = le2(bt)
+
+    # Read item pointers.
+    if branch:
+        items = [blocksize - 4]
+    else:
+        items = [blocksize]
+    prev_ptr = blocksize
+    for i in range(0, n_items):
+        item_ptr = le2(bt)
+        items.append(item_ptr)
+        if item_ptr >= prev_ptr:
+            print "Error: item %d has negative size (%d - %d)" \
+                % (i, prev_ptr, item_ptr)
+        if item_ptr < (bt.tell() % blocksize):
+            print "Error: item %d overlaps block header (%d < %d)" \
+                % (i, item_ptr, (bt.tell() % blocksize))
+        prev_ptr = item_ptr
+
+    if verbose:
+        free = prev_ptr - (8 + n_items * 2)
+        print "free space %f%% (%d bytes)" % ((100. * free / blocksize), free)
+
+    # If this is a branch block, show the left child pointer.
+    if branch:
+        bt.seek(block * blocksize + blocksize - 4)
+        b = le4(bt)
+        if verbose:
+            print "   []->[%u]" % b
+#        if b == 0:
+#            print "XXX %d[%d] -> %d" % (block, i, b)
+        if recursive:
+            dump_block(bt, b, True, level + 1, True)
+
+    # Show items.
+    for i in range(0, n_items):
+        bt.seek(block * blocksize + items[i + 1])
+        if branch:
+            b = le4(bt)
+            key = bt.read(items[i] - items[i + 1] - 4)
+            if verbose:
+                print "%d: [%s]->[%u]" % (i, key, b)
+#            if b == 0:
+#                print "XXX %d[%d] -> %d" % (block, i, b)
+            if recursive:
+                dump_block(bt, b, True, level + 1, True)
+        else:
+            # FIXME: temp
+            if i != 0 and i != n_items - 1:
+                continue
+            # end FIXME
+            keylen = le1(bt)
+            key = bt.read(keylen)
+            tag = bt.read(items[i] - items[i + 1] - keylen - 1)
+            tag = "<%d bytes>" % len(tag)
+
+            if verbose:
+                print "%d: [%s]->[%s]" % (i, key, tag)
+
+def le4(f):
+    return struct.unpack("<I", f.read(4))[0]
+
+def le2(f):
+    return struct.unpack("<H", f.read(2))[0]
+
+def le1(f):
+    return ord(f.read(1))
+
+if __name__ == "__main__":
+    main()

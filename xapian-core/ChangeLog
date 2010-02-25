@@ -1,3 +1,8 @@
+Thu Feb 25 00:46:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* brass-dump: Add simple Python script to dump out the contents of a
+	  block.
+
 Wed Feb 24 01:26:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc: Tweak the version file writing to
