@@ -5,7 +5,7 @@ Status: Most tests pass, but some things not fully (or at all) implemented.
 
 Tests which currently fail:
 
-  * bigoaddvalue1, writeread1: Need larger tags than we currently support.
+  * writeread1: Need larger tags than we currently support.
 
   * replicate1: Replication not yet supported.
 
@@ -13,8 +13,6 @@ TODO:
 -----
 
   * store large tags out of tree
-
-  * zlib compression of tags
 
   * tracking free blocks
 
