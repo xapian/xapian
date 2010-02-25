@@ -1,3 +1,12 @@
+Thu Feb 25 10:34:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Initialise z_stream members zalloc, zfree, and opaque with Z_NUL
+	  rather than 0 cast to the appropriate type, as that's what the zlib
+	  documentation says to do.  Add missing initialisation of opaque for
+	  the inflate z_stream which the docs say is needed, though reading
+	  the zlib code, isn't actually for current versions.
+
 Wed Feb 24 14:24:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Fix indentation.
