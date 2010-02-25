@@ -307,7 +307,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     bool binary_chop_leaf(const std::string & key, int mode);
 
     void insert(const std::string &key, brass_block_t tag);
-    bool insert(const std::string &key, const std::string &tag, bool compressed);
+    bool insert(const std::string &key, const char * tag, size_t tag_len,
+		bool compressed);
     void del();
     bool del(const std::string &key);
     void commit() {
@@ -438,10 +439,9 @@ class BrassCompressor {
 	return (deflate(deflate_stream, Z_FINISH) == Z_STREAM_END);
     }
 
-    const std::string compressed_data() {
-	size_t len = deflate_stream->total_out;
-	return std::string(zlib_buf, len);
-    }
+    const char * compressed_data() const { return zlib_buf; }
+
+    size_t compressed_data_len() const { return deflate_stream->total_out; }
 
     void decompress(const char * in, size_t in_len, std::string & output) {
 	int res;

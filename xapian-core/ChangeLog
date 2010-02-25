@@ -1,3 +1,9 @@
+Thu Feb 25 12:00:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Avoid
+	  creating an intermediate string object containing the compressed tag
+	  data when BrassTable::add() is called.
+
 Thu Feb 25 11:17:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Strip out the CHECK_ENTRIES debug

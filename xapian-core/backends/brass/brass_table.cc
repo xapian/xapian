@@ -670,12 +670,13 @@ BrassCBlock::find_child(const string & key)
 }
 
 bool
-BrassCBlock::insert(const string &key, const string &tag, bool compressed)
+BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
+		    bool compressed)
 {
-    LOGCALL(DB, bool, "BrassCBlock::insert", key << ", " << tag);
+    LOGCALL(DB, bool, "BrassCBlock::insert", key << ", " << (void*)tag << ", " << tag_len << ", " << compressed);
     if (!is_leaf()) {
 	find_child(key);
-	RETURN(child->insert(key, tag, compressed));
+	RETURN(child->insert(key, tag, tag_len, compressed));
     }
 
     if (key.size() > 252) {
@@ -690,7 +691,7 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
     // cerr << table.key_limits[n].second << ">=" << key << endl;
 
     // FIXME: support this!
-    if (tag.size() > 16384) {
+    if (tag_len > 16384) {
 	throw Xapian::UnimplementedError("Tags > 16K not currently supported");
     }
 
@@ -720,7 +721,7 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
     bool exact = binary_chop_leaf(key, LE);
     // cout << n << ": insert (exact=" << exact << ") at " << item << "/" << C << endl;
 
-    int len = tag.size() + key.size() + 1;
+    int len = tag_len + key.size() + 1;
     if (key.size() >= 128)
 	++len;
     // Set free_end to the offset of the end of free space.
@@ -734,7 +735,6 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
 	if (len > oldlen && len - oldlen > free_end - header_length(C))
 	    need_to_split = true;
 	// cout << "*** " << len << " " << oldlen << " " << need_to_split << endl;
-	// cout << "'" << key << "'='" << tag << "'" << endl;
     } else {
 	// cerr << len << " + 2 > " << free_end << " - " << header_length(C) << " ?" << endl;
 	if (len + 2 > free_end - header_length(C))
@@ -915,7 +915,7 @@ BrassCBlock::insert(const string &key, const string &tag, bool compressed)
 
     memcpy(p, key.data(), key.size());
     check_block();
-    memcpy(p + key.size(), tag.data(), tag.size());
+    memcpy(p + key.size(), tag, tag_len);
 
     check_block();
 
@@ -1412,19 +1412,21 @@ BrassTable::add(const string & key, const string & tag, bool already_compressed)
 	my_cursor->new_leaf_block();
 	// cout << my_cursor->n << " [0, INF] LIMITS SET for first block in cursor" << endl;
 	// key_limits[my_cursor->n].second.assign(256, '\xff');
-	(void)my_cursor->insert(string(), string(), false);
+	(void)my_cursor->insert(string(), NULL, 0, false);
     }
     modified = true;
 
     if (compress && !already_compressed) {
 	if (compressor.try_to_compress(tag)) {
-	    (void)my_cursor->insert(key, compressor.compressed_data(), true);
+	    const char * p = compressor.compressed_data();
+	    size_t len = compressor.compressed_data_len();
+	    (void)my_cursor->insert(key, p, len, true);
 	    RETURN(true);
 	}
 
 	// Data wasn't compressible, so store uncompressed.
     }
-    (void)my_cursor->insert(key, tag, already_compressed);
+    (void)my_cursor->insert(key, tag.data(), tag.size(), already_compressed);
     RETURN(true);
 }
 
