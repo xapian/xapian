@@ -47,7 +47,6 @@ size_t brass_io_read(int fd, char * p, size_t n, size_t min)
     return total;
 }
 
-/** Write n bytes from block pointed to by p to file descriptor fd. */
 void brass_io_write(int fd, const char * p, size_t n)
 {
     while (n) {

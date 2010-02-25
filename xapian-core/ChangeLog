@@ -1,3 +1,9 @@
+Thu Feb 25 12:34:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_io.cc: Remove doxygen comment duplicated from
+	  brass_io.h.  Having the same comment in two places just means we'll
+	  end up with two versions.
+
 Thu Feb 25 12:00:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Avoid
