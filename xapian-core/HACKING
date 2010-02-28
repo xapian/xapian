@@ -1168,7 +1168,10 @@ to follow the style of the existing code.  In particular:
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
-  equivalent to the variable definition ``SomeClass foo``.
+  equivalent to the variable definition ``SomeClass foo``.  However, note that
+  ``new SomePODType()`` is *not* the same as ``new SomePODType`` (if
+  SomePODType is a POD (Plain Old Data) type) - the former will zero-initialise
+  scalar members of SomePODType.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name

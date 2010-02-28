@@ -1,3 +1,8 @@
+Sun Feb 28 22:50:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Add note about "new SomePODType()" not being the same as
+	  "new SomePODType".
+
 Sun Feb 28 22:29:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: Quote ``cat`` and ``more``.
