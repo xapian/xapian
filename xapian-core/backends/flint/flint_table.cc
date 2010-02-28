@@ -1908,7 +1908,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	changed_n = 0;
 	changed_c = DIR_START;
 	seq_count = SEQ_START_POINT;
-    } catch(...) {
+    } catch (...) {
 	FlintTable::close();
 	throw;
     }
