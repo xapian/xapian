@@ -1,3 +1,9 @@
+Sun Feb 28 14:00:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Clarify comment about regression test for
+	  1.1.4, and remove a test line which is implicit in the following
+	  dbcheck() line anyway.
+
 Sun Feb 28 11:07:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/fdtracker.cc,tests/harness/fdtracker.h: Add GPL
