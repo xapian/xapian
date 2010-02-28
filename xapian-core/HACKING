@@ -1173,6 +1173,25 @@ to follow the style of the existing code.  In particular:
   SomePODType is a POD (Plain Old Data) type) - the former will zero-initialise
   scalar members of SomePODType.
 
+* When catching an exception which is an object, do it by const reference, so
+  like this::
+
+      try {
+	  foo();
+      } catch (const ErrorClass &e) {
+	  bar(e);
+      }
+
+  Catching by value is bad because it "slices" the object if an object of a
+  derived type is thrown.  Even if derived types aren't a worry, it also causes
+  the copy constructor to be called needlessly.
+
+  See also: http://www.parashift.com/c++-faq-lite/exceptions.html#faq-17.7
+
+  A const reference is preferable to a non-const reference as it stops the
+  object being inadvertently modified.  In the rare cases when you want to
+  modify the caught object, a non-const reference is OK.
+
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
 to the AUTHORS file (unless you specifically request us not to).  If you see we
@@ -1335,17 +1354,17 @@ The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
 - excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 ::
 
-    class some_iterator {
-    public:
-	// ...
-	some_iterator& operator++();
+	class some_iterator {
+	public:
+	    // ...
+	    some_iterator& operator++();
 
-	some_iterator operator++(int) {
-	    some_iterator tmp = *this;
-	    operator++();
-	    return tmp;
-	}
-    };
+	    some_iterator operator++(int) {
+		some_iterator tmp = *this;
+		operator++();
+		return tmp;
+	    }
+	};
 
     The compiler is allowed to assume that the copy constructor only does
     a copy, and to optimize away unneeded copy operations.  The result
@@ -1369,7 +1388,7 @@ If you are find you are repeatedly changing the API headers (in include/)
 during development, then you may become annoyed that the docs/ subdirectory
 will rebuild the doxygen documentation every time you run "make" since this
 takes a while.  You can disable this temporarily (if you're using GNU make),
-by creating a file "docs/GNUmakefile" containing these two lines:
+by creating a file "docs/GNUmakefile" containing these two lines::
 
 %:
 	@echo "Skipping 'make $@' in docs"

@@ -1,3 +1,10 @@
+Sun Feb 28 23:44:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/dbcheck.cc: Tweak whitespace to match standard usage.  Catch
+	  exceptions by const reference.
+	* HACKING: Discuss why exceptions should be caught by const reference.
+	  Tweak markup of blockquotes.
+
 Sun Feb 28 22:50:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: Add note about "new SomePODType()" not being the same as
