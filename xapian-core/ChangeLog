@@ -1,3 +1,9 @@
+Mon Mar 01 02:09:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/serialise.cc: Don't call Document::values_count() twice when we
+	  can trivially avoid doing so.  Ditto for termlist_count() and
+	  positionlist_count().
+
 Mon Mar 01 01:53:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/: Rename tot_off to last_docid when it is actually holding the

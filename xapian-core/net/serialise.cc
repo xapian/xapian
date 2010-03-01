@@ -1,7 +1,7 @@
 /** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -302,7 +302,7 @@ serialise_document(const Xapian::Document &doc)
     string result;
 
     size_t n = doc.values_count();
-    result += encode_length(doc.values_count());
+    result += encode_length(n);
     Xapian::ValueIterator value;
     for (value = doc.values_begin(); value != doc.values_end(); ++value) {
 	result += encode_length(value.get_valueno());
@@ -312,18 +312,18 @@ serialise_document(const Xapian::Document &doc)
     }
     Assert(n == 0);
 
-    result += encode_length(doc.termlist_count());
-    Xapian::TermIterator term;
     n = doc.termlist_count();
+    result += encode_length(n);
+    Xapian::TermIterator term;
     for (term = doc.termlist_begin(); term != doc.termlist_end(); ++term) {
 	result += encode_length((*term).size());
 	result += *term;
 	result += encode_length(term.get_wdf());
 
-	result += encode_length(term.positionlist_count());
+	size_t x = term.positionlist_count();
+	result += encode_length(x);
 	Xapian::PositionIterator pos;
 	Xapian::termpos oldpos = 0;
-	size_t x = term.positionlist_count();
 	for (pos = term.positionlist_begin(); pos != term.positionlist_end(); ++pos) {
 	    Xapian::termpos diff = *pos - oldpos;
 	    string delta = encode_length(diff);
