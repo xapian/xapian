@@ -1,3 +1,14 @@
+Mon Mar 01 05:38:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,
+	  backends/brass/brass_positionlist.cc,
+	  backends/brass/brass_positionlist.h: When updating a document, rather
+	  than decoding the old positions, comparing with the new, and then
+	  encoding the new if different, we now just encode the new and then
+	  compare the encoded forms.  (ticket#428)  This change also avoids
+	  calling BrassPositionListTable::del() when we know the entry doesn't
+	  already exist.
+
 Mon Mar 01 02:09:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* net/serialise.cc: Don't call Document::values_count() twice when we
