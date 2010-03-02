@@ -1,3 +1,8 @@
+Tue Mar 02 01:12:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc: Whitespace tweak.
+
 Sun Feb 28 11:09:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
