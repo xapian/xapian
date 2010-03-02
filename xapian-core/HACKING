@@ -170,10 +170,10 @@ which you might find useful:
     By default, the testsuite harness uses ANSI escape sequences to give
     colour output if stdout is a tty.  You can disable this feature by setting
     XAPIAN_TESTSUITE_OUTPUT=plain (alternatively, piping the output (e.g.
-    through cat or more) will have the same effect).  Auto-detection can be
-    explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).  Any
-    other value forces the use of colour.  Colour output is always disabled on
-    Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
+    through ``cat`` or ``more``) will have the same effect).  Auto-detection
+    can be explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).
+    Any other value forces the use of colour.  Colour output is always disabled
+    on Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -1112,7 +1112,10 @@ to follow the style of the existing code.  In particular:
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
-  equivalent to the variable definition ``SomeClass foo``.
+  equivalent to the variable definition ``SomeClass foo``.  However, note that
+  ``new SomePODType()`` is *not* the same as ``new SomePODType`` (if
+  SomePODType is a POD (Plain Old Data) type) - the former will zero-initialise
+  scalar members of SomePODType.
 
 * When catching an exception which is an object, do it by const reference, so
   like this::
