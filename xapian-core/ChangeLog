@@ -1,3 +1,9 @@
+Tue Mar 02 01:31:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Document the possible exception
+	  messages from QueryParser::parse_query().
+
 Tue Mar 02 01:27:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
