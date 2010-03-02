@@ -45,9 +45,11 @@ svn cat "svn+userv:///xapian/$BRANCH/search-xapian/Xapian.pm" |
 # FIXME this doesn't work, as I need to be logged in to do this!
 #wget -o- "http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=new&version=$version" > /dev/null 2> /dev/null
 
+echo "Tagging release"
 # Tag the release in SVN.
 svn cp -m"$version release." svn+userv:///xapian/"$BRANCH" svn+userv:///xapian/tags/"$version"
 
+echo "Building release tarballs"
 # Create a directory so the snapshotter will build this.
 D=/home/olly/tmp/xapian-svn-snapshot/tags
 test -d $D || mkdir $D
