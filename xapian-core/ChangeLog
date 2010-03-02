@@ -1,3 +1,7 @@
+Tue Mar 02 03:59:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/valueiterator.h: Comment tweak.
+
 Tue Mar 02 03:57:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Add missing forward declaration of
