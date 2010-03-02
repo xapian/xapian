@@ -510,6 +510,10 @@ test_driver::runtest(const test_desc *test)
 		out << ": " << e.what() << col_reset;
 		write_and_clear_tout();
 		return FAIL;
+	    } catch (const char * msg) {
+		out << col_red << " EXCEPTION char * " << msg << col_reset;
+		write_and_clear_tout();
+		return FAIL;
 	    } catch (...) {
 		out << col_red << " UNKNOWN EXCEPTION" << col_reset;
 		write_and_clear_tout();
