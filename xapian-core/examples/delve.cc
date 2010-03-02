@@ -72,7 +72,7 @@ show_db_stats(Database &db)
 	 << endl;
     cout << "document length upper bound = " << db.get_doclength_upper_bound()
 	 << endl;
-    cout << "lastdocid = " << db.get_lastdocid() << endl;
+    cout << "highest document id ever used = " << db.get_lastdocid() << endl;
 
     if (verbose) {
 	// To find the number of terms, we have to count them!

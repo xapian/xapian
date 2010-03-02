@@ -1,3 +1,18 @@
+Tue Mar 02 13:25:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,NEWS,api/postingsource.cc,backends/brass/,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_table.cc,
+	  backends/flint/flint_databasereplicator.cc,
+	  backends/flint/flint_table.cc,backends/remote/remote-database.cc,
+	  bin/,common/remote-database.h,common/remoteprotocol.h,
+	  common/remoteserver.h,configure.ac,docs/remote_protocol.html,
+	  examples/delve.cc,include/xapian/queryparser.h,
+	  include/xapian/valueiterator.h,net/remoteserver.cc,net/serialise.cc,
+	  tests/api_compact.cc,tests/api_spelling.cc,tests/dbcheck.cc,
+	  tests/harness/fdtracker.cc,tests/harness/fdtracker.h,
+	  tests/harness/testsuite.cc: Merge from trunk r14113.
+
 Thu Feb 25 13:19:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/testrunner.cc: Brass doesn't currently support

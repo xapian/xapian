@@ -200,7 +200,7 @@ merge_postlists(BrassTable * out,
 		vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
 		vector<brass_block_t>::const_iterator root,
-		Xapian::docid tot_off)
+		Xapian::docid last_docid)
 {
     Xapian::doccount doccount = 0;
     totlen_t tot_totlen = 0;
@@ -276,7 +276,7 @@ merge_postlists(BrassTable * out,
     {
 	string tag;
 	pack_uint(tag, doccount);
-	pack_uint(tag, tot_off - doccount);
+	pack_uint(tag, last_docid - doccount);
 	pack_uint(tag, doclen_lbound);
 	pack_uint(tag, wdf_ubound);
 	pack_uint(tag, doclen_ubound - wdf_ubound);
@@ -812,7 +812,7 @@ merge_synonyms(BrassTable * out,
 
 static void
 multimerge_postlists(BrassTable * out, const char * tmpdir,
-		     Xapian::docid tot_off,
+		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off,
 		     vector<brass_block_t> roots)
 {
@@ -856,7 +856,7 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	swap(roots, newroots);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), roots.begin(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), roots.begin(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
@@ -917,7 +917,7 @@ void
 compact_brass(const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off) {
+	      Xapian::docid last_docid) {
     struct table_list {
 	// The "base name" of the table.
 	const char * name;
@@ -1029,13 +1029,13 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(&out, destdir, tot_off,
+		    multimerge_postlists(&out, destdir, last_docid,
 					 inputs, offset, roots[POSTLIST]);
 		} else {
 		    merge_postlists(&out, offset.begin(),
 				    inputs.begin(), inputs.end(),
 				    roots[POSTLIST].begin(),
-				    tot_off);
+				    last_docid);
 		}
 		break;
 	    case SPELLING:

@@ -53,10 +53,15 @@ class BrassPositionListTable : public BrassLazyTable {
 	: BrassLazyTable("position", dbdir + "/position.", readonly_,
 			 DONT_COMPRESS) { }
 
-    /// Set the position list for term tname in document did.
+    /** Set the position list for term tname in document did.
+     *
+     *  @param check_for_update If true, check if the new list is the same as
+     *				the existing list (if there is one).
+     */
     void set_positionlist(Xapian::docid did, const string & tname,
 			  Xapian::PositionIterator pos,
-			  const Xapian::PositionIterator &pos_end);
+			  const Xapian::PositionIterator &pos_end,
+			  bool check_for_update);
 
     /// Delete the position list for term tname in document did.
     void delete_positionlist(Xapian::docid did, const string & tname) {

@@ -37,10 +37,10 @@ void
 BrassPositionListTable::set_positionlist(Xapian::docid did,
 					 const string & tname,
 					 Xapian::PositionIterator pos,
-					 const Xapian::PositionIterator &pos_end)
+					 const Xapian::PositionIterator &pos_end,
+					 bool check_for_update)
 {
-    DEBUGCALL(DB, void, "BrassPositionList::set_positionlist",
-	      did << ", " << tname << ", " << pos << ", " << pos_end);
+    DEBUGCALL(DB, void, "BrassPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end << ", " << check_for_update);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
@@ -51,17 +51,17 @@ BrassPositionListTable::set_positionlist(Xapian::docid did,
     string s;
     pack_uint(s, poscopy.back());
 
-    if (poscopy.size() == 1) {
-	// Special case for single entry position list.
-	add(key, s);
-	return;
+    if (poscopy.size() > 1) {
+	BitWriter wr(s);
+	wr.encode(poscopy[0], poscopy.back());
+	wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
+	wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
+	swap(s, wr.freeze());
     }
 
-    BitWriter wr(s);
-    wr.encode(poscopy[0], poscopy.back());
-    wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
-    wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
-    add(key, wr.freeze());
+    string old_tag;
+    if (!check_for_update || !get(key, old_tag) || s != old_tag)
+	add(key, s);
 }
 
 Xapian::termcount

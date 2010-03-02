@@ -1,6 +1,7 @@
 /* dbcheck.cc: test database contents and consistency.
  *
  * Copyright 2009 Richard Boulton
+ * Copyright 2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +31,8 @@ using namespace std;
 string
 positions_to_string(Xapian::PositionIterator & it,
 		    const Xapian::PositionIterator & end,
-		    Xapian::termcount * count) {
+		    Xapian::termcount * count)
+{
     string result;
     bool need_comma = false;
     Xapian::termcount c = 0;
@@ -49,7 +51,8 @@ positions_to_string(Xapian::PositionIterator & it,
 }
 
 string
-postlist_to_string(const Xapian::Database & db, const string & tname) {
+postlist_to_string(const Xapian::Database & db, const string & tname)
+{
     string result;
     bool need_comma = false;
 
@@ -75,7 +78,8 @@ postlist_to_string(const Xapian::Database & db, const string & tname) {
 }
 
 string
-docterms_to_string(const Xapian::Database & db, Xapian::docid did) {
+docterms_to_string(const Xapian::Database & db, Xapian::docid did)
+{
     string result;
     bool need_comma = false;
 
@@ -96,7 +100,8 @@ docterms_to_string(const Xapian::Database & db, Xapian::docid did) {
 }
 
 string
-docstats_to_string(const Xapian::Database & db, Xapian::docid did) {
+docstats_to_string(const Xapian::Database & db, Xapian::docid did)
+{
     string result;
 
     result += "len=" + str(db.get_doclength(did));
@@ -105,7 +110,8 @@ docstats_to_string(const Xapian::Database & db, Xapian::docid did) {
 }
 
 string
-termstats_to_string(const Xapian::Database & db, const string & term) {
+termstats_to_string(const Xapian::Database & db, const string & term)
+{
     string result;
 
     result += "tf=" + str(db.get_termfreq(term));
@@ -115,7 +121,8 @@ termstats_to_string(const Xapian::Database & db, const string & term) {
 }
 
 string
-dbstats_to_string(const Xapian::Database & db) {
+dbstats_to_string(const Xapian::Database & db)
+{
     string result;
 
     result += "dc=" + str(db.get_doccount());
@@ -128,7 +135,8 @@ dbstats_to_string(const Xapian::Database & db) {
 void
 dbcheck(const Xapian::Database & db,
 	Xapian::doccount expected_doccount,
-	Xapian::docid expected_lastdocid) {
+	Xapian::docid expected_lastdocid)
+{
     TEST_EQUAL(db.get_doccount(), expected_doccount);
     TEST_EQUAL(db.get_lastdocid(), expected_lastdocid);
 
@@ -184,7 +192,7 @@ dbcheck(const Xapian::Database & db,
 	    TEST_EQUAL(tc1, tc2);
 	    try {
 	    	TEST_EQUAL(tc1, t.positionlist_count());
-	    } catch (Xapian::UnimplementedError) {
+	    } catch (const Xapian::UnimplementedError &) {
 		// positionlist_count() isn't implemented for remote databases.
 	    }
 
@@ -303,7 +311,7 @@ dbcheck(const Xapian::Database & db,
 	try {
 	    TEST_REL(value_upper_bound, <=, db.get_value_upper_bound(j->first));
 	    TEST_REL(value_lower_bound, >=, db.get_value_lower_bound(j->first));
-	} catch(Xapian::UnimplementedError e) {
+	} catch (const Xapian::UnimplementedError &) {
 	    // Skip the checks if the methods to get the bounds aren't
 	    // implemented for this backend.
 	}
