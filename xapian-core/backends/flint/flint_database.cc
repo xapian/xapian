@@ -1158,8 +1158,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 	flint_doclen_t new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
-	    Xapian::TermIterator term_end = document.termlist_end();
-	    for ( ; term != term_end; ++term) {
+	    for ( ; term != document.termlist_end(); ++term) {
 		termcount wdf = term.get_wdf();
 		// Calculate the new document length
 		new_doclen += wdf;
@@ -1284,7 +1283,7 @@ static bool positionlists_equal(Xapian::TermIterator & termiter,
 	return false;
 
     return equal(termiter.positionlist_begin(),
-		 termiter.positionlist_end(),
+		 PositionIterator(),
 		 termlist.positionlist_begin());
 }
 

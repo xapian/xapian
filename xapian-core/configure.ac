@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.3], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.1.4], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -379,6 +379,15 @@ AC_TRY_COMPILE([#include <typeinfo>],
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
+
+dnl Used by tests/harness/testsuite.cc
+AC_CHECK_FUNCS([sigaction])
+AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
+AC_TRY_COMPILE([#include <setjmp.h>],
+  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the `sigsetjmp' function])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no]))
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
@@ -982,7 +991,13 @@ if test yes = "$GXX"; then
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1" ;;
+	  dnl
+	  dnl Also, xapian-core seems to hit an aliasing bug in GCC 4.2:
+	  dnl   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35643
+	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
+	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
+	  dnl See http://trac.xapian.org/ticket/449 for more details.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.

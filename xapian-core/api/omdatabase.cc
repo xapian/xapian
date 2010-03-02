@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -712,7 +712,7 @@ Xapian::TermIterator
 Database::metadata_keys_begin(const std::string &prefix) const
 {
     LOGCALL(API, Xapian::TermIterator, "Database::metadata_keys_begin", NO_ARGS);
-    if (internal.empty()) RETURN(TermIterator(NULL));
+    if (internal.empty()) RETURN(TermIterator());
     RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 

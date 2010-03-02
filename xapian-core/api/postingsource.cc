@@ -524,7 +524,7 @@ FixedWeightPostingSource::unserialise(const string &s) const
     const char * s_end = p + s.size();
     double new_wt = unserialise_double(&p, s_end);
     if (p != s_end) {
-	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
+	throw Xapian::NetworkError("Bad serialised FixedWeightPostingSource - junk at end");
     }
     return new FixedWeightPostingSource(new_wt);
 }

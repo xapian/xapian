@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -213,8 +213,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator values_begin() const;
 
     /** End iterator corresponding to values_begin() */
-    TermIterator values_end() const {
-	return TermIterator(NULL);
+    TermIteratorEnd_ values_end() const {
+	return TermIteratorEnd_();
     }
 
     /** Get an iterator over the most frequent values seen in the slot.
@@ -230,8 +230,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator top_values_begin(size_t maxvalues) const;
 
     /** End iterator corresponding to top_values_begin() */
-    TermIterator top_values_end(size_t) const {
-	return TermIterator(NULL);
+    TermIteratorEnd_ top_values_end(size_t) const {
+	return TermIteratorEnd_();
     }
 
     /** Implementation of virtual operator().

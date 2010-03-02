@@ -1,8 +1,8 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009 Olly Betts
- * Copyright (C) 2007,2009 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+ * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -245,6 +245,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
     string get_metadata(const string & key) const;
 
     void set_metadata(const string & key, const string & value);
+
+    void add_spelling(const std::string&, Xapian::termcount) const;
+
+    void remove_spelling(const std::string&,  Xapian::termcount freqdec) const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

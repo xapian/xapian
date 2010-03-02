@@ -1600,9 +1600,9 @@ FlintTable::lazy_alloc_deflate_zstream() const {
 
     deflate_zstream = new z_stream;
 
-    deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    deflate_zstream->zfree = reinterpret_cast<free_func>(0);
-    deflate_zstream->opaque = voidpf(0);
+    deflate_zstream->zalloc = Z_NULL;
+    deflate_zstream->zfree = Z_NULL;
+    deflate_zstream->opaque = Z_NULL;
 
     // -15 means raw deflate with 32K LZ77 window (largest)
     // memLevel 9 is the highest (8 is default)
@@ -1638,8 +1638,9 @@ FlintTable::lazy_alloc_inflate_zstream() const {
 
     inflate_zstream = new z_stream;
 
-    inflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    inflate_zstream->zfree = reinterpret_cast<free_func>(0);
+    inflate_zstream->zalloc = Z_NULL;
+    inflate_zstream->zfree = Z_NULL;
+    inflate_zstream->opaque = Z_NULL;
 
     inflate_zstream->next_in = Z_NULL;
     inflate_zstream->avail_in = 0;
@@ -1907,7 +1908,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	changed_n = 0;
 	changed_c = DIR_START;
 	seq_count = SEQ_START_POINT;
-    } catch(...) {
+    } catch (...) {
 	FlintTable::close();
 	throw;
     }

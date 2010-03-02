@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 namespace Xapian {
 
+class Database;
 class Stem;
 
 /// Base class for stop-word decision functor.
@@ -436,6 +437,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		multiple values with bitwise-or (|) (default FLAG_DEFAULT).
      *	@param default_prefix  The default term prefix to use (default none).
      *		For example, you can pass "A" when parsing an "Author" field.
+     *
+     *  @exception If the query string can't be parsed, then
+     *		   Xapian::QueryParserError is thrown.  You can get an English
+     *		   error message to report to the user by catching it and
+     *		   calling get_msg() on the caught exception.  The current
+     *		   possible values (in case you want to translate them) are:
+     *
+     *			* Unknown range operation
+     *			* parse error
+     *			* Syntax: <expression> AND <expression>
+     *			* Syntax: <expression> AND NOT <expression>
+     *			* Syntax: <expression> NOT <expression>
+     *			* Syntax: <expression> OR <expression>
+     *			* Syntax: <expression> XOR <expression>
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
@@ -531,14 +546,14 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
-    TermIterator stoplist_end() const {
-	return TermIterator(NULL);
+    TermIteratorEnd_ stoplist_end() const {
+	return TermIteratorEnd_();
     }
 
     /// Iterate over unstemmed forms of the given (stemmed) term used in the query.
     TermIterator unstem_begin(const std::string &term) const;
-    TermIterator unstem_end(const std::string &) const {
-	return TermIterator(NULL);
+    TermIteratorEnd_ unstem_end(const std::string &) const {
+	return TermIteratorEnd_();
     }
 
     /// Register a ValueRangeProcessor.

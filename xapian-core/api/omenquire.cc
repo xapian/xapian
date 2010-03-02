@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -751,18 +751,17 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
 {
     if (query.empty())
 	throw Xapian::InvalidArgumentError("get_matching_terms with empty query");
-	//return TermIterator(NULL);
+	//return TermIterator();
 
     // The ordered list of terms in the query.
     TermIterator qt = query.get_terms_begin();
-    TermIterator qt_end = query.get_terms_end();
 
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
     map<string, unsigned int> tmap;
     unsigned int index = 1;
-    for ( ; qt != qt_end; ++qt) {
+    for ( ; qt != query.get_terms_end(); ++qt) {
 	if (tmap.find(*qt) == tmap.end())
 	    tmap[*qt] = index++;
     }

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -785,20 +785,18 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 
     InMemoryDoc doc(true);
     Xapian::TermIterator i = document.termlist_begin();
-    Xapian::TermIterator i_end = document.termlist_end();
-    for ( ; i != i_end; ++i) {
+    for ( ; i != document.termlist_end(); ++i) {
 	make_term(*i);
 
 	LOGLINE(DB, "InMemoryDatabase::finish_add_doc(): adding term " << *i);
 	Xapian::PositionIterator j = i.positionlist_begin();
-	Xapian::PositionIterator j_end = i.positionlist_end();
 
-	if (j == j_end) {
+	if (j == i.positionlist_end()) {
 	    /* Make sure the posting exists, even without a position. */
 	    make_posting(&doc, *i, did, 0, i.get_wdf(), false);
 	} else {
 	    positions_present = true;
-	    for ( ; j != j_end; ++j) {
+	    for ( ; j != i.positionlist_end(); ++j) {
 		make_posting(&doc, *i, did, *j, i.get_wdf());
 	    }
 	}

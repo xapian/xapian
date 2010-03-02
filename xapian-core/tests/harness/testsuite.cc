@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,10 @@
 #include <config.h>
 
 #include "testsuite.h"
-#include "testrunner.h"
+
 #include "backendmanager.h"
+#include "fdtracker.h"
+#include "testrunner.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
@@ -69,6 +71,16 @@ bool verbose;
 
 #ifdef HAVE_VALGRIND
 static int vg_log_fd = -1;
+#endif
+
+#ifdef HAVE_SIGSETJMP
+# define SIGSETJMP(ENV, SAVESIGS) sigsetjmp(ENV, SAVESIGS)
+# define SIGLONGJMP(ENV, VAL) siglongjmp(ENV, VAL)
+# define SIGJMP_BUF sigjmp_buf
+#else
+# define SIGSETJMP(ENV, SAVESIGS) setjmp(ENV)
+# define SIGLONGJMP(ENV, VAL) longjmp(ENV, VAL)
+# define SIGJMP_BUF jmp_buf
 #endif
 
 /// The exception type we were expecting in TEST_EXCEPTION
@@ -155,15 +167,46 @@ test_driver::test_driver(const test_desc *tests_)
 {
 }
 
-static jmp_buf jb;
+static SIGJMP_BUF jb;
 static int signum = 0;
+static void * sigaddr = NULL;
 
-/* Needs C linkage so we can pass it to signal() without problems. */
+// Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
+
+#ifdef HAVE_SIGACTION
+XAPIAN_NORETURN(static void handle_sig(int signum_, siginfo_t *si, void *));
+static void handle_sig(int signum_, siginfo_t *si, void *)
+{
+    // Disable all our signal handlers to avoid problems if the signal
+    // handling code causes a signal.
+    struct sigaction sa;
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    // We set the handlers with SA_RESETHAND, but that will only reset the
+    // handler for the signal which fired.
+    if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, NULL);
+    if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, NULL);
+    if (signum_ != SIGILL) sigaction(SIGILL, &sa, NULL);
+# ifdef SIGBUS
+    if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGSTKFLT
+    if (signum_ != SIGSTKFLT) sigaction(SIGSTKFLT, &sa, NULL);
+# endif
+    signum = signum_;
+    sigaddr = si->si_addr;
+    SIGLONGJMP(jb, 1);
+}
+
+#else
 
 XAPIAN_NORETURN(static void handle_sig(int signum_));
 static void handle_sig(int signum_)
 {
+    // Disable all our signal handlers to avoid problems if the signal
+    // handling code causes a signal.
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
@@ -174,8 +217,9 @@ static void handle_sig(int signum_)
     signal(SIGSTKFLT, SIG_DFL);
 #endif
     signum = signum_;
-    longjmp(jb, 1);
+    SIGLONGJMP(jb, 1);
 }
+#endif
 
 }
 
@@ -186,26 +230,60 @@ class SignalRedirector {
     SignalRedirector() : active(false) { }
     void activate() {
 	active = true;
+	signum = 0;
+	sigaddr = NULL;
+#ifdef HAVE_SIGACTION
+	struct sigaction sa;
+	sa.sa_sigaction = handle_sig;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
+	sigaction(SIGSEGV, &sa, NULL);
+	sigaction(SIGFPE, &sa, NULL);
+	sigaction(SIGILL, &sa, NULL);
+# ifdef SIGBUS
+	sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGSTKFLT
+	sigaction(SIGSTKFLT, &sa, NULL);
+# endif
+#else
 	signal(SIGSEGV, handle_sig);
 	signal(SIGFPE, handle_sig);
 	signal(SIGILL, handle_sig);
-#ifdef SIGBUS
+# ifdef SIGBUS
 	signal(SIGBUS, handle_sig);
-#endif
-#ifdef SIGSTKFLT
+# endif
+# ifdef SIGSTKFLT
 	signal(SIGSTKFLT, handle_sig);
+# endif
 #endif
     }
     ~SignalRedirector() {
 	if (active) {
+#ifdef HAVE_SIGACTION
+	    struct sigaction sa;
+	    sa.sa_handler = SIG_DFL;
+	    sigemptyset(&sa.sa_mask);
+	    sa.sa_flags = 0;
+	    sigaction(SIGSEGV, &sa, NULL);
+	    sigaction(SIGFPE, &sa, NULL);
+	    sigaction(SIGILL, &sa, NULL);
+# ifdef SIGBUS
+	    sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGSTKFLT
+	    sigaction(SIGSTKFLT, &sa, NULL);
+# endif
+#else
 	    signal(SIGSEGV, SIG_DFL);
 	    signal(SIGFPE, SIG_DFL);
 	    signal(SIGILL, SIG_DFL);
-#ifdef SIGBUS
+# ifdef SIGBUS
 	    signal(SIGBUS, SIG_DFL);
-#endif
-#ifdef SIGSTKFLT
+# endif
+# ifdef SIGSTKFLT
 	    signal(SIGSTKFLT, SIG_DFL);
+# endif
 #endif
 	}
     }
@@ -220,15 +298,16 @@ class SignalRedirector {
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
-#ifdef HAVE_VALGRIND
     // This is used to make a note of how many times we've run the test
     volatile int runcount = 0;
-#endif
+
+    FDTracker fdtracker;
+    fdtracker.init();
 
     while (true) {
 	tout.str(string());
-	SignalRedirector sig; // use object so signal handlers are reset
-	if (!setjmp(jb)) {
+	if (SIGSETJMP(jb, 1) == 0) {
+	    SignalRedirector sig; // use object so signal handlers are reset
 	    static bool catch_signals =
 		(getenv("XAPIAN_TESTSUITE_SIG_DFL") == NULL);
 	    if (catch_signals) sig.activate();
@@ -251,6 +330,8 @@ test_driver::runtest(const test_desc *test)
 		    write_and_clear_tout();
 		    return FAIL;
 		}
+		if (backendmanager)
+		    backendmanager->clean_up();
 #ifdef HAVE_VALGRIND
 		if (vg_log_fd != -1) {
 		    // We must empty tout before asking valgrind to perform its
@@ -341,6 +422,9 @@ test_driver::runtest(const test_desc *test)
 			if (runcount == 0) {
 			    out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
+			    // Ensure that any cached memory from fd tracking
+			    // is allocated before we rerun the test.
+			    (void)fdtracker.check();
 			    continue;
 			}
 			REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
@@ -362,6 +446,9 @@ test_driver::runtest(const test_desc *test)
 			if (runcount == 0) {
 			    out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
+			    // Ensure that any cached memory from fd tracking
+			    // is allocated before we rerun the test.
+			    (void)fdtracker.check();
 			    continue;
 			}
 			REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
@@ -369,6 +456,15 @@ test_driver::runtest(const test_desc *test)
 		    }
 		}
 #endif
+		if (!fdtracker.check()) {
+		    if (runcount == 0) {
+			out << col_yellow << " POSSIBLE FDLEAK:" << fdtracker.get_message() << col_reset;
+			++runcount;
+			continue;
+		    }
+		    out << col_red << " FDLEAK:" << fdtracker.get_message() << col_reset;
+		    return FAIL;
+		}
 	    } catch (const TestFail &) {
 		out << col_red << " FAILED" << col_reset;
 		write_and_clear_tout();
@@ -424,6 +520,7 @@ test_driver::runtest(const test_desc *test)
 
 	// Caught a signal.
 	const char *signame = "SIGNAL";
+	bool show_addr = true;
 	switch (signum) {
 	    case SIGSEGV: signame = "SIGSEGV"; break;
 	    case SIGFPE: signame = "SIGFPE"; break;
@@ -432,10 +529,19 @@ test_driver::runtest(const test_desc *test)
 	    case SIGBUS: signame = "SIGBUS"; break;
 #endif
 #ifdef SIGSTKFLT
-	    case SIGSTKFLT: signame = "SIGSTKFLT"; break;
+	    case SIGSTKFLT:
+		signame = "SIGSTKFLT";
+		show_addr = false;
+		break;
 #endif
 	}
-	out << " " << col_red << signame << col_reset;
+	out << " " << col_red << signame;
+	if (show_addr) {
+	    char buf[40];
+	    sprintf(buf, " at %p", sigaddr);
+	    out << buf;
+	}
+	out << col_reset;
 	write_and_clear_tout();
 	return FAIL;
     }

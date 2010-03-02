@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,8 +110,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 	/** Return PositionIterator pointing to end of positionlist for
 	 *  current document.
 	 */
-	PositionIterator positionlist_end() const {
-	    return PositionIterator(NULL);
+	PositionIteratorEnd_ positionlist_end() const throw() {
+	    return PositionIteratorEnd_();
 	}
 
 	// Don't expose these methods here.  A container iterator doesn't

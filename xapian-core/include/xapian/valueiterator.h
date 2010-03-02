@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ class ValueIteratorEnd_ { };
 /// Class for iterating over document values.
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
   public:
-    /// Class representing the valueiterator internals.
+    /// Class representing the ValueIterator internals.
     class Internal;
     /// @private @internal Reference counted internals.
     Xapian::Internal::RefCntPtr<Internal> internal;

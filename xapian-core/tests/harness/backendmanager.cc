@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,6 +102,7 @@ BackendManager::createdb_brass(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Brass::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }
@@ -153,6 +154,7 @@ BackendManager::createdb_chert(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }
@@ -205,6 +207,7 @@ BackendManager::createdb_flint(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }

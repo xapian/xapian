@@ -1,6 +1,7 @@
 /* dbcheck.cc: test database contents and consistency.
  *
  * Copyright 2009 Richard Boulton
+ * Copyright 2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +31,8 @@ using namespace std;
 string
 positions_to_string(Xapian::PositionIterator & it,
 		    const Xapian::PositionIterator & end,
-		    Xapian::termcount * count) {
+		    Xapian::termcount * count)
+{
     string result;
     bool need_comma = false;
     Xapian::termcount c = 0;
@@ -49,7 +51,8 @@ positions_to_string(Xapian::PositionIterator & it,
 }
 
 string
-postlist_to_string(const Xapian::Database & db, const string & tname) {
+postlist_to_string(const Xapian::Database & db, const string & tname)
+{
     string result;
     bool need_comma = false;
 
@@ -75,7 +78,8 @@ postlist_to_string(const Xapian::Database & db, const string & tname) {
 }
 
 string
-docterms_to_string(const Xapian::Database & db, Xapian::docid did) {
+docterms_to_string(const Xapian::Database & db, Xapian::docid did)
+{
     string result;
     bool need_comma = false;
 
@@ -96,7 +100,8 @@ docterms_to_string(const Xapian::Database & db, Xapian::docid did) {
 }
 
 string
-docstats_to_string(const Xapian::Database & db, Xapian::docid did) {
+docstats_to_string(const Xapian::Database & db, Xapian::docid did)
+{
     string result;
 
     result += "len=" + str(db.get_doclength(did));
@@ -105,7 +110,8 @@ docstats_to_string(const Xapian::Database & db, Xapian::docid did) {
 }
 
 string
-termstats_to_string(const Xapian::Database & db, const string & term) {
+termstats_to_string(const Xapian::Database & db, const string & term)
+{
     string result;
 
     result += "tf=" + str(db.get_termfreq(term));
@@ -115,7 +121,8 @@ termstats_to_string(const Xapian::Database & db, const string & term) {
 }
 
 string
-dbstats_to_string(const Xapian::Database & db) {
+dbstats_to_string(const Xapian::Database & db)
+{
     string result;
 
     result += "dc=" + str(db.get_doccount());
@@ -128,7 +135,8 @@ dbstats_to_string(const Xapian::Database & db) {
 void
 dbcheck(const Xapian::Database & db,
 	Xapian::doccount expected_doccount,
-	Xapian::docid expected_lastdocid) {
+	Xapian::docid expected_lastdocid)
+{
     TEST_EQUAL(db.get_doccount(), expected_doccount);
     TEST_EQUAL(db.get_lastdocid(), expected_lastdocid);
 
@@ -140,6 +148,10 @@ dbcheck(const Xapian::Database & db,
     // We build this up from the documents, and then check it against the
     // equivalent built up from the posting lists.
     map<string, string> posting_reprs;
+    map<Xapian::valueno, string> value_reprs;
+
+    Xapian::termcount doclen_lower_bound = Xapian::termcount(-1);
+    Xapian::termcount doclen_upper_bound = 0;
 
     for (Xapian::PostingIterator dociter = db.postlist_begin(string());
 	 dociter != db.postlist_end(string());
@@ -148,6 +160,10 @@ dbcheck(const Xapian::Database & db,
 	TEST_EQUAL(dociter.get_wdf(), 1);
 	Xapian::Document doc(db.get_document(did));
 	Xapian::termcount doclen(db.get_doclength(did));
+	if (doclen < doclen_lower_bound)
+	    doclen_lower_bound = doclen;
+	if (doclen > doclen_upper_bound)
+	    doclen_upper_bound = doclen;
 	totlen += doclen;
 
 	Xapian::termcount found_termcount = 0;
@@ -176,7 +192,7 @@ dbcheck(const Xapian::Database & db,
 	    TEST_EQUAL(tc1, tc2);
 	    try {
 	    	TEST_EQUAL(tc1, t.positionlist_count());
-	    } catch (Xapian::UnimplementedError) {
+	    } catch (const Xapian::UnimplementedError &) {
 		// positionlist_count() isn't implemented for remote databases.
 	    }
 
@@ -196,11 +212,32 @@ dbcheck(const Xapian::Database & db,
 		i->second += "," + posting_repr;
 	    }
 	}
+
+	Xapian::termcount vcount = 0;
+	for (Xapian::ValueIterator v = doc.values_begin();
+	     v != doc.values_end();
+	     ++v, ++vcount) {
+	    TEST((*v).size() != 0);
+	    string value_repr = "(" + str(did) + "," + *v + ")";
+
+	    // Append the values to the value lists.
+	    map<Xapian::valueno, string>::iterator i;
+	    i = value_reprs.find(v.get_valueno());
+	    if (i == value_reprs.end()) {
+		value_reprs[v.get_valueno()] = value_repr;
+	    } else {
+		i->second += "," + value_repr;
+	    }
+	}
+	TEST_EQUAL(vcount, doc.values_count());
 	TEST(t2 == db.termlist_end(did));
 	Xapian::termcount expected_termcount = doc.termlist_count();
 	TEST_EQUAL(expected_termcount, found_termcount);
 	TEST_EQUAL(doclen, wdf_sum);
     }
+
+    TEST_REL(doclen_lower_bound, >=, db.get_doclength_lower_bound());
+    TEST_REL(doclen_upper_bound, <=, db.get_doclength_upper_bound());
 
     Xapian::TermIterator t;
     map<string, string>::const_iterator i;
@@ -213,6 +250,7 @@ dbcheck(const Xapian::Database & db,
 
 	Xapian::doccount tf_count = 0;
 	Xapian::termcount cf_count = 0;
+	Xapian::termcount wdf_upper_bound = 0;
 	string posting_repr;
 	bool need_comma = false;
 	for (Xapian::PostingIterator p = db.postlist_begin(*t);
@@ -233,6 +271,8 @@ dbcheck(const Xapian::Database & db,
 	    posting_repr += "(" + str(*p) + "," +
 		    str(p.get_wdf()) + "/" + str(p.get_doclength()) +
 		    posrepr + ")";
+	    if (wdf_upper_bound < p.get_wdf())
+		wdf_upper_bound = p.get_wdf();
 	    need_comma = true;
 	}
 
@@ -240,8 +280,42 @@ dbcheck(const Xapian::Database & db,
 	TEST_EQUAL(tf_count, t.get_termfreq());
 	TEST_EQUAL(tf_count, db.get_termfreq(*t));
 	TEST_EQUAL(cf_count, db.get_collection_freq(*t));
+	TEST_REL(wdf_upper_bound, <=, db.get_wdf_upper_bound(*t));
     }
     TEST(i == posting_reprs.end());
+
+    map<Xapian::valueno, string>::const_iterator j;
+    for (j = value_reprs.begin(); j != value_reprs.end(); ++j) {
+	string value_repr;
+	string value_lower_bound;
+	string value_upper_bound;
+	bool first = true;
+	for (Xapian::ValueIterator v = db.valuestream_begin(j->first);
+	     v != db.valuestream_end(j->first); ++v) {
+	    if (first) {
+		value_lower_bound = *v;
+		value_upper_bound = *v;
+		first = false;
+	    } else {
+		value_repr += ",";
+		if (*v > value_upper_bound) {
+		    value_upper_bound = *v;
+		}
+		if (*v < value_lower_bound) {
+		    value_lower_bound = *v;
+		}
+	    }
+	    value_repr += "(" + str(v.get_docid()) + "," + *v + ")";
+	}
+	TEST_EQUAL(value_repr, j->second);
+	try {
+	    TEST_REL(value_upper_bound, <=, db.get_value_upper_bound(j->first));
+	    TEST_REL(value_lower_bound, >=, db.get_value_lower_bound(j->first));
+	} catch (const Xapian::UnimplementedError &) {
+	    // Skip the checks if the methods to get the bounds aren't
+	    // implemented for this backend.
+	}
+    }
 
     if (expected_doccount == 0) {
 	TEST_EQUAL(0, db.get_avlength());

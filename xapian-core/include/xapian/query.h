@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -258,8 +258,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Return a Xapian::TermIterator to the end of the list of terms in the
 	 *  query.
 	 */
-	TermIterator get_terms_end() const {
-	    return TermIterator(NULL);
+	TermIteratorEnd_ get_terms_end() const {
+	    return TermIteratorEnd_();
 	}
 
 	/** Test if the query is empty (i.e. was constructed using

@@ -205,8 +205,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	TermIterator termlist_begin() const;
 
 	/// Equivalent end iterator for termlist_begin().
-	TermIterator termlist_end() const {
-	    return TermIterator(NULL);
+	TermIteratorEnd_ termlist_end() const {
+	    return TermIteratorEnd_();
 	}
 
 	/// Count the values in this document.
