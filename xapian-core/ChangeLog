@@ -1,3 +1,8 @@
+Tue Mar 02 03:57:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add missing forward declaration of
+	  "class Database".
+
 Tue Mar 02 01:51:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update partially from ChangeLog.
