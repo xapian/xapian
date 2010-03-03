@@ -608,7 +608,10 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     /** Returns the new root block. */
     brass_block_t commit(brass_revision_number_t revision_);
 
-    void sync() { AssertRel(fd,>=,0); brass_io_sync(fd); }
+    void sync() {
+	if (fd >= 0)
+	    brass_io_sync(fd);
+    }
 
     void cancel();
 

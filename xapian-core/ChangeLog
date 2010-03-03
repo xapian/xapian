@@ -1,3 +1,8 @@
+Wed Mar 03 05:44:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.h: Convert incorrect assertion into a
+	  check that the fd is valid before syncing it.
+
 Wed Mar 03 01:40:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc: Add missing "/" between directory
