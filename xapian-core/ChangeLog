@@ -1,3 +1,9 @@
+Wed Mar 03 02:21:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Add missing forward declaration of
+	  "class Database".
+
 Tue Mar 02 01:47:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

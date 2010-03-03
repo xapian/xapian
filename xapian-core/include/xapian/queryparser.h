@@ -32,6 +32,7 @@
 
 namespace Xapian {
 
+class Database;
 class Stem;
 
 /// Base class for stop-word decision functor.
