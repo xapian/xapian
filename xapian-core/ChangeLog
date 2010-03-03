@@ -1,3 +1,8 @@
+Wed Mar 03 12:04:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Refactor
+	  to pull out a single version of the "parse the key length" code.
+
 Wed Mar 03 05:44:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: Convert incorrect assertion into a

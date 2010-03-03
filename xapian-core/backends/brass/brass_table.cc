@@ -164,7 +164,7 @@ BrassBlock::check_block()
 	// Items should have non-negative size.
 	AssertRel(ptr,<,endptr);
 	if (is_leaf()) {
-	    size_t key_len = (unsigned char)data[ptr++];
+	    size_t key_len = static_cast<unsigned char>(data[ptr++]);
 	    if (key_len & 0x80) {
 		if (key_len == 0x80) {
 		    key_len = static_cast<unsigned char>(data[ptr++]);
@@ -276,20 +276,10 @@ BrassCBlock::read_tag(string &tag)
     if (!is_leaf())
 	return child->read_tag(tag);
 
-    bool compressed = false;
-    int key_start = get_ptr(item);
-    int key_len = (unsigned char)data[key_start++];
-    if (key_len & 0x80) {
-	if (key_len == 0x80) {
-	    key_len = (unsigned char)data[key_start++];
-	    compressed = (key_len >= 0x80);
-	    key_len |= 0x80;
-	} else {
-	    compressed = true;
-	    key_len &= 0x7f;
-	}
-    }
-    const char * s = data + key_start + key_len;
+    const char * s;
+    size_t key_len;
+    bool compressed = decode_leaf_key(item, s, key_len);
+    s += key_len;
     AssertRel(s - data,<=,get_endptr(item));
     if (!compressed) {
 	tag.assign(s, data + get_endptr(item) - s);
@@ -387,16 +377,9 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
     do {
 	AssertRel(m,>=,0);
 	AssertRel(m,<,get_count());
-	const char * key_data = data + get_ptr(m);
-	int key_len = static_cast<unsigned char>(*key_data++);
-	if (key_len & 0x80) {
-	    if (key_len == 0x80) {
-		key_len = static_cast<unsigned char>(*key_data++);
-		key_len |= 0x80;
-	    } else {
-		key_len &= 0x7f;
-	    }
-	}
+	const char * key_data;
+	size_t key_len;
+	(void)decode_leaf_key(m, key_data, key_len);
 	int cmp = table.compare_keys(key_data, key_len, key.data(), key.size());
 	if (cmp < 0) {
 	    b = m + 1;
@@ -416,16 +399,9 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
     // Linear variant for debugging.  O(n) rather than O(log n), so slower.
     while (b < e) {
 	int m = b;
-	const char * key_data = data + get_ptr(m);
-	int key_len = static_cast<unsigned char>(*key_data++);
-	if (key_len & 0x80) {
-	    if (key_len == 0x80) {
-		key_len = static_cast<unsigned char>(*key_data++);
-		key_len |= 0x80;
-	    } else {
-		key_len &= 0x7f;
-	    }
-	}
+	const char * key_data;
+	size_t key_len;
+	(void)decode_leaf_key(m, key_data, key_len);
 	int cmp = table.compare_keys(key_data, key_len, key.data(), key.size());
 	if (cmp < 0) {
 	    // Keep going.
@@ -777,25 +753,18 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 		break;
 	    } while (true);
 	}
+
 	// cerr << "split : item " << item << " split point " << split_after << " out of " << C << endl;
-	const char *div_p = data + get_ptr(split_after);
-	size_t div_len = static_cast<unsigned char>(*div_p++);
-	if (div_len == 0x80) {
-	    div_len = static_cast<unsigned char>(*div_p++);
-	    div_len |= 0x80;
-	} else {
-	    div_len &= 0x7f;
-	}
+	const char *div_p;
+	size_t div_len;
+	(void)decode_leaf_key(split_after, div_p, div_len);
 
 	AssertRel(split_ptr,==,get_ptr(split_after - 1));
-	const char *pre_p = data + split_ptr; // data + get_ptr(split_after - 1);
-	size_t pre_len = static_cast<unsigned char>(*pre_p++);
-	if (pre_len == 0x80) {
-	    pre_len = static_cast<unsigned char>(*pre_p++);
-	    pre_len |= 0x80;
-	} else {
-	    pre_len &= 0x7f;
-	}
+
+	const char *pre_p;
+	size_t pre_len;
+	(void)decode_leaf_key(split_after - 1, pre_p, pre_len);
+
 	string divkey(table.divide(pre_p, pre_len, div_p, div_len));
 	// cout << "splitting leaf block " << n << " at " << divkey << endl;
 	// We want the right half of the split block to go in the new block so

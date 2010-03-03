@@ -114,6 +114,19 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     /// Return the length of the block header for @a count items.
     int header_length(int count) const { return 8 + 2 * count; }
 
+    bool decode_leaf_key(int i, const char *& key_ptr, size_t& key_len) const {
+	Assert(is_leaf());
+	key_ptr = data + get_ptr(i);
+	unsigned char key_len_byte = static_cast<unsigned char>(*key_ptr++);
+	if (key_len_byte == 0x80) {
+	    key_len_byte = static_cast<unsigned char>(*key_ptr++);
+	    key_len = (key_len_byte | 0x80);
+	} else {
+	    key_len = (key_len_byte & 0x7f);
+	}
+	return (key_len_byte & 0x80);
+    }
+
   public:
     BrassBlock(const BrassTable & table_)
 	: data(NULL), table(table_), random_access(RANDOM_ACCESS_THRESHOLD) { }
@@ -146,17 +159,12 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     int get_endptr(int i) const;
 
     const string get_key(int i) const {
-	const char * p = data + get_ptr(i);
+	const char * p;
 	size_t key_len;
 	if (is_leaf()) {
-	    key_len = static_cast<unsigned char>(*p++);
-	    if (key_len == 0x80) {
-		key_len = static_cast<unsigned char>(*p++);
-		key_len |= 0x80;
-	    } else {
-		key_len &= 0x7f;
-	    }
+	    (void)decode_leaf_key(i, p, key_len);
 	} else {
+	    p = data + get_ptr(i);
 	    p += 4;
 	    key_len = get_endptr(i) - get_ptr(i) - 4;
 	}
@@ -254,17 +262,11 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	    return;
 	}
 
-	int key_start = get_ptr(item);
-	int key_len = (unsigned char)data[key_start++];
-	if (key_len & 0x80) {
-	    if (key_len == 0x80) {
-		key_len = (unsigned char)data[key_start++];
-		key_len |= 0x80;
-	    } else {
-		key_len &= 0x7f;
-	    }
-	}
-	key.assign(data + key_start, key_len);
+	Assert(is_leaf());
+	const char * key_ptr;
+	size_t key_len;
+	(void)decode_leaf_key(item, key_ptr, key_len);
+	key.assign(key_ptr, key_len);
     }
 
     // Always returns true to allow tail-calling.
