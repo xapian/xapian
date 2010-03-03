@@ -156,7 +156,8 @@ http://www.zlib.net/zlib123-dll.zip
 and make sure the path to where you downloaded it matches the path in config.mak (ZLIB_DIR).
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak (PYTHON_DIR). 
-Note that the build system supports Python 2.4 and 2.5 currently, you must specify which you require.
+Note that the build system supports Python 2.4, 2.5, 2.6, and 3.0 currently, you must specify which you require.
+
 - To compile the PHP bindings you need:
 
   a. the PHP sources from www.php.net (we have used 5.2.1).
@@ -236,7 +237,7 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
    - to build, CHECK and also create a /dist subfolder containing a binary distribution, documentation and examples
 11d) nmake SWIGBUILD=1
    - to build from the development sources using SWIG (see above)
-   
+
 11e) For Python only, add an extra flag before CLEAN, CHECK or DIST:
     nmake PYTHON_VER=24 ..
  to make bindings for Python 2.4 or
@@ -266,6 +267,13 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
 The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below). 
 If you build using nmake DIST you will see a further /dist subfolder in each bindings's folder, containing 
  a binary distribution, documentation and examples.
+ 
+There is also a Python file designed to package up all the bindings for a particular release. To run this,
+install Python 2.4 - 2.6 and :
+
+18) python makebinaries.py x.y.z
+
+where x.y.z is the release number, e.g. 1.0.14
 
 Debug builds
 ===========

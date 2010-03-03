@@ -1,3 +1,8 @@
+Wed Mar 03 06:10:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Sync documentation of makebinaries.py from branches/1.0..
+	  Note that Python 3.0 is supported.
+
 Wed Mar 03 05:17:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* README: List run-time requirements (ticket#391).
