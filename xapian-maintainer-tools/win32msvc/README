@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2009-07-24 for Xapian 1.0.14
+2010-03-02 for Xapian 1.0.18
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -16,6 +16,16 @@ If you have any feedback, bug reports or comments about these files,
 please DO NOT contact Ulrik, but please contact us at Lemur Consulting
 www.lemurconsulting.com
 
+Runtime requirements
+====================
+
+If you download a prebuilt version, you need:
+
+- Microsoft Windows 2000 or later (NT-based; 95/98/ME won't work)
+
+- It will usually be necessary to install the MSVC 2005 redistributable from
+  http://www.microsoft.com/downloads/details.aspx?familyid=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&displaylang=en
+
 What works?
 ===========
 
@@ -25,9 +35,7 @@ What works?
 - The xapian-progsrv and xapian-tcpsrv binaries
 - The delve, quest and copydatabase binaries
 - The Xapian example binaries
-- The libtest.lib and libbtreecheck libraries
-- The various tests that use the above, which are run as part of the makefile
-  in tests/
+- The testsuite, which is run as part of the makefile in tests/
 - omega, omindex and scriptindex (although these may have difficulty parsing
   Windows directory paths).
 
@@ -90,7 +98,7 @@ How do I get the latest development sources?
 The development sources are held in a revision control system called
 subversion, so you will first need a subversion client installed to build
 the latest development sources.  Details of how to access the xapian
-repository are available at http://xapian.org/bleeding.php
+repository are available at http://xapian.org/bleeding
 
 When you check out the xapian sources, you will have a slightly different
 structure than that derived from the release tarballs:
@@ -152,7 +160,7 @@ Note that the build system supports Python 2.4, 2.5 and 2.6 currently, you must 
 
 - To compile the PHP bindings you need:
 
-  a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1).
+  a. the PHP sources from www.php.net (we have used 5.2.1).
   b. the built sources from a Windows binary distribution
   c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
 
