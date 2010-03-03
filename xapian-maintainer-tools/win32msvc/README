@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2009-03-26 for Xapian SVN HEAD
+2010-03-02 for Xapian SVN HEAD
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -15,6 +15,16 @@ Lemur Consulting who is now maintaining it.
 If you have any feedback, bug reports or comments about these files,
 please DO NOT contact Ulrik, but please contact us at Lemur Consulting
 www.lemurconsulting.com
+
+Runtime requirements
+====================
+
+If you download a prebuilt version, you need:
+
+- Microsoft Windows 2000 or later (NT-based; 95/98/ME won't work)
+
+- It will usually be necessary to install the MSVC 2005 redistributable from
+  http://www.microsoft.com/downloads/details.aspx?familyid=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&displaylang=en
 
 What works?
 ===========
