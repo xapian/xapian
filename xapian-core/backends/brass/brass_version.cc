@@ -206,7 +206,7 @@ BrassVersion::write(const string & db_dir)
     }
 
     string tmpfile = db_dir;
-    tmpfile += "v.tmp";
+    tmpfile += "/v.tmp";
 
 #ifndef __WIN32__
     fd = open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);

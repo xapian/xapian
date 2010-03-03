@@ -32,6 +32,7 @@
 
 #include "apitest.h"
 
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 using namespace std;
@@ -300,5 +301,27 @@ DEFINE_TESTCASE(replacedoc8, writable) {
     Xapian::PostingIterator p = db.postlist_begin("takeaway");
     TEST(p != db.postlist_end("takeaway"));
     TEST_EQUAL(p.get_wdf(), 2);
+    return true;
+}
+
+/** Check that the parent directory for the database doesn't need to be
+ *  writable.  Regression test for early brass versions which failed to
+ *  append a "/" when generating a temporary filename from the database
+ *  directory.
+ */
+DEFINE_TESTCASE(readonlyparentdir1, flint || chert || brass) {
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+    string path = get_named_writable_database_path("readonlyparentdir1");
+    mkdir(path, 0777);
+    mkdir(path + "/sub", 0777);
+    TEST(chmod(path.c_str(), 0500) == 0);
+    Xapian::WritableDatabase db = get_named_writable_database("readonlyparentdir1/sub");
+    Xapian::Document doc;
+    doc.add_term("hello");
+    doc.set_data("some text");
+    db.add_document(doc);
+    db.commit();
+    TEST(chmod(path.c_str(), 0700) == 0);
+#endif
     return true;
 }

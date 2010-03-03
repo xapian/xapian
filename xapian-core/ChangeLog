@@ -1,3 +1,9 @@
+Wed Mar 03 01:40:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc: Add missing "/" between directory
+	  name and temporary version file leafname.
+	* tests/api_backend.cc: Add regression test readonlyparentdir1.
+
 Tue Mar 02 13:25:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING,NEWS,api/postingsource.cc,backends/brass/,
