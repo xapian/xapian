@@ -1,3 +1,7 @@
+Wed Mar 03 04:59:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Remove mention of PHP4.
+
 Fri Feb 12 04:42:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* win32_bindings_python.mak: Update for generate-python-exception.in
