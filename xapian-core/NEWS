@@ -1,3 +1,72 @@
+ 14117       olly Wed Mar 03 02:21:05 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.19 (2010-0?-??):
+
+
+API:
+
+
+testsuite:
+
+	* Explicitly flush after indexing for
+	  quartz and flint, so we see any exceptions from the flush (flush from
+	  the destructor swallows any exceptions).
+
+matcher:
+
+
+flint backend:
+
+* Initialise z_stream members zalloc, zfree, and opaque with Z_NULL
+	  rather than 0 cast to the appropriate type, as that's what the zlib
+	  documentation says to do.  Add missing initialisation of opaque for
+	  the inflate z_stream which the docs say is needed, though reading
+	  the zlib code, isn't actually for current versions.
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Force -fno-strict-aliasing for GCC 4.2 to avoid bad code
+	  being generated due to a bug in that compiler version.  Fixes
+	  ticket#449.  This issue hasn't been observed to affect Xapian 1.0.x,
+	  but it seems prudent to backport the fix.
+
+documentation:
+
+	* include/xapian/queryparser.h: Document the possible exception
+	  messages from QueryParser::parse_query().
+
+	* HACKING: Add note about "new SomePODType()" not being the same as
+	  "new SomePODType".
+	* HACKING: Quote ``cat`` and ``more``.
+	* HACKING: Discuss why exceptions should be caught by const reference.
+	  Tweak markup of blockquotes.
+
+examples:
+
+* delve: Display the lastdocid value when displaying general database
+  statistics.
+
+* simpleindex: Explicitly call flush() on the database, as that is good
+  practice (since you see any exceptions).
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.0.18 (2009-02-14):
 
 API:
