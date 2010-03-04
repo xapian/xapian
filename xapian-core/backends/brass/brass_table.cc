@@ -85,21 +85,28 @@ using namespace std;
 // code for if nothing else!
 
 /*
-  [ | | | ] 4 bytes: Revision
-  [ | ]     2 bytes: bits 0-14 #items in this block (n)
-		     bit 15: 1 for non-leaf block
-  [ ]       1 byte:  length of key prefix (unimplemented)
-  [ ]       1 byte:  reserved
+  Header (HEADER_SIZE bytes):
 
-  [ | ] offset to start of item 0
-   ...
-  [ | ] offset to start of item n-1
+      [ | | | ] 4 bytes: Revision
+      [ | ]     2 bytes: bits 0-14 #items in this block (n)
+			 bit 15: 1 for non-leaf block
+      [ ]       1 byte:  length of key prefix (unimplemented)
+      [ ]       1 byte:  reserved
 
-   [Free space]
+  Item pointers:
 
-  [ Item n - 1 ]
-   ...
-  [ Item 0 ]
+      [ | ] offset to start of item 0
+       ...
+      [ | ] offset to start of item n-1
+
+  [Free space]
+
+  Items:
+
+      [ Item n - 1 ]
+       ...
+      [ Item 0 ]
+
   [ Left-most block pointer ] ( non-leaf blocks only )
   <end of block>
  */
@@ -115,7 +122,7 @@ using namespace std;
 
 /* Branch Item:
  *
- * [ block pointer ] (4 bytes)
+ * [ block pointer ] (BLOCKPTR_SIZE bytes)
  * [ key ... ]
  */
 
@@ -179,9 +186,10 @@ BrassBlock::check_block()
 	    (void)tag_len;
 	    AssertRel(tag_len,<=,16384);
 	} else {
-	    AssertRel(ptr + 4,<=,endptr);
-	    AssertRel(endptr - ptr,<,256 + 4);
-	    key.assign(data + ptr + 4, endptr - (ptr + 4));
+	    ptr += BLOCKPTR_SIZE;
+	    AssertRel(ptr,<=,endptr);
+	    AssertRel(endptr - ptr,<,256);
+	    key.assign(data + ptr, endptr - ptr);
 	}
 	if (i == 0) {
 	    AssertRel(prev_key,<=,key);

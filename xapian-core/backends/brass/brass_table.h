@@ -46,6 +46,8 @@ using namespace std;
 
 static const int BLOCKPTR_SIZE = 4;
 
+static const int HEADER_SIZE = 8;
+
 const bool COMPRESS = true;
 const bool DONT_COMPRESS = false;
 
@@ -112,7 +114,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     mutable int random_access;
 
     /// Return the length of the block header for @a count items.
-    int header_length(int count) const { return 8 + 2 * count; }
+    int header_length(int count) const { return HEADER_SIZE + 2 * count; }
 
     bool decode_leaf_key(int i, const char *& key_ptr, size_t& key_len) const {
 	Assert(is_leaf());
@@ -153,11 +155,13 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     }
 
     int get_ptr(int i) const {
-	return LE(((uint2 *)data)[4 + i]);
+	// Need HEADER_SIZE / 2 because each entry is 2 bytes.
+	return LE(((uint2 *)data)[(HEADER_SIZE / 2) + i]);
     }
 
     int get_endptr(int i) const;
 
+    // FIXME: only currently used in assertions it seems.
     const string get_key(int i) const {
 	const char * p;
 	size_t key_len;
@@ -165,14 +169,15 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 	    (void)decode_leaf_key(i, p, key_len);
 	} else {
 	    p = data + get_ptr(i);
-	    p += 4;
-	    key_len = get_endptr(i) - get_ptr(i) - 4;
+	    p += BLOCKPTR_SIZE;
+	    key_len = get_endptr(i) - get_ptr(i) - BLOCKPTR_SIZE;
 	}
 	return string(p, key_len);
     }
 
+    // Need HEADER_SIZE / 2 because each entry is 2 bytes.
     void set_ptr(int i, int ptr) {
-	((uint2 *)data)[4 + i] = LE((uint2)ptr);
+	((uint2 *)data)[(HEADER_SIZE / 2) + i] = LE((uint2)ptr);
     }
 
     brass_block_t get_left_block() const;
