@@ -16,6 +16,144 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Tue Mar 02 13:28:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/chert_database.cc,
+	  backends/chert/chert_positionlist.cc,
+	  backends/chert/chert_positionlist.h: When updating a document, rather
+	  than decoding the old positions, comparing with the new, and then
+	  encoding the new if different, we now just encode the new and then
+	  compare the encoded forms.  (ticket#428)  This change also avoids
+	  calling ChertPositionListTable::del() when we know the entry doesn't
+	  already exist.
+
+Tue Mar 02 04:00:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Harness now catches const char *
+	  exceptions explicitly so it can show their contents.
+
+Tue Mar 02 03:59:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/valueiterator.h: Comment tweak.
+
+Tue Mar 02 03:57:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add missing forward declaration of
+	  "class Database".
+
+Tue Mar 02 01:51:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update partially from ChangeLog.
+
+Mon Mar 01 05:38:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,
+	  backends/brass/brass_positionlist.cc,
+	  backends/brass/brass_positionlist.h: When updating a document, rather
+	  than decoding the old positions, comparing with the new, and then
+	  encoding the new if different, we now just encode the new and then
+	  compare the encoded forms.  (ticket#428)  This change also avoids
+	  calling BrassPositionListTable::del() when we know the entry doesn't
+	  already exist.
+
+Mon Mar 01 02:09:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/serialise.cc: Don't call Document::values_count() twice when we
+	  can trivially avoid doing so.  Ditto for termlist_count() and
+	  positionlist_count().
+
+Mon Mar 01 01:53:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/: Rename tot_off to last_docid when it is actually holding the
+	  last_docid value.
+
+Sun Feb 28 23:47:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Whitespace tweak.
+
+Sun Feb 28 23:44:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/dbcheck.cc: Tweak whitespace to match standard usage.  Catch
+	  exceptions by const reference.
+	* HACKING: Discuss why exceptions should be caught by const reference.
+	  Tweak markup of blockquotes.
+
+Sun Feb 28 22:50:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Add note about "new SomePODType()" not being the same as
+	  "new SomePODType".
+
+Sun Feb 28 22:29:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Quote ``cat`` and ``more``.
+
+Sun Feb 28 14:00:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Clarify comment about regression test for
+	  1.1.4, and remove a test line which is implicit in the following
+	  dbcheck() line anyway.
+
+Sun Feb 28 11:07:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/fdtracker.cc,tests/harness/fdtracker.h: Add GPL
+	  boilerplate and copyright notices which I failed to do before
+	  committing these new files.
+
+Thu Feb 25 10:34:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Initialise z_stream members zalloc, zfree, and opaque with Z_NUL
+	  rather than 0 cast to the appropriate type, as that's what the zlib
+	  documentation says to do.  Add missing initialisation of opaque for
+	  the inflate z_stream which the docs say is needed, though reading
+	  the zlib code, isn't actually for current versions.
+
+Wed Feb 24 14:24:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc: Fix indentation.
+
+Wed Feb 24 14:18:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,common/remoteserver.h,
+	  docs/remote_protocol.html,net/remoteserver.cc,tests/api_spelling.cc:
+	  Add remote backend support for WritableDatabase::add_spelling() and
+	  WritableDatabase::remove_spelling().  This bumps the remote protocol
+	  to version 35.0 (so both client and servers will need updating).
+	  Suggesting spelling corrections isn't yet supported.  (ticket#178)
+
+Wed Feb 24 09:09:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: "lastdocid" -> "highest document id ever used"
+	  in output so it's clearer what this number means.
+
+Tue Feb 23 14:03:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Fix incorrect classname in error message.
+
+Tue Feb 23 13:16:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: For -fno-strict-aliasing for GCC 4.2 to avoid bad code
+	  being generated due to a bug in that compiler version.  Fixes
+	  ticket#449.
+
+Tue Feb 23 03:08:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/harness/testsuite.cc: Use sigsetjmp() and
+	  siglongjmp() where available so that the set of blocked signals
+	  get restored and the test harness can catch a second incidence
+	  of a particular signal in a run.  Use sigaction() instead of
+	  signal() where available, which allows us to report the address
+	  associated with SIGSEGV, SIGFPE, SIGILL, and SIGBUS.
+
+Mon Feb 22 14:29:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Fix exception message
+	  if we get an unsupported changeset type.
+
 Mon Feb 22 01:49:03 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/dbcheck.cc: Check the wdf, doclen, and value bounds

@@ -24,9 +24,9 @@ In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  Tcl8 uses
 UTF-8 as its internal representation, except that ASCII nul (character value
 0) is represented as the overlong (and thus invalid) UTF-8 sequence
-<code>\xc0\x80</code>.  We don't current convert this to/from
+<code>\xc0\x80</code>.  We don't currently convert this to/from
 <code>\x00</code> so you should avoid passing strings containing ASCII nul
-to/from Xapian from Tcl8.
+between Tcl and Xapian.
 </p>
 
 <h2>Destructors</h2>
@@ -51,6 +51,15 @@ to/from Xapian from Tcl8.
 </p>
 
 <p>
+  As of Xapian 1.1.0, you can explicitly close the database, so the lack
+  of a call to the destructor isn't an issue:
+
+<blockquote><pre>
+xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
+xapian_db close
+</pre></blockquote>
+
+  If you want compatibility with Xapian 1.0.x, then
   Michael Schlenker reports that this form works (i.e. the destructor gets
   called):
 
@@ -59,7 +68,7 @@ xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
 rename xapiandb ""
 </pre></blockquote>
 
-  However, apparently none of these forms works:
+  However, apparently none of these forms work:
 
 <blockquote><pre>
 xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE

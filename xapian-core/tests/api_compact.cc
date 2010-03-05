@@ -156,10 +156,10 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     TEST_EQUAL(WEXITSTATUS(status), 0);
     check_sparse_uid_terms(out);
     {
+	// Check that xapian-compact is producing a consistent database.  Also,
 	// regression test - xapian 1.1.4 set lastdocid to 0 in the output
 	// database.
 	Xapian::Database outdb(out);
-	TEST_NOT_EQUAL(outdb.get_doccount(), 0);
 	dbcheck(outdb, 24, 9999);
     }
 

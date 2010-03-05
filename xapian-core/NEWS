@@ -1,3 +1,117 @@
+ 14099       olly Mon Mar 01 05:38:41 GMT 2010  Olly Betts <olly@survex.com>
+
+ 14099       olly Mon Mar 01 05:38:41 GMT 2010  Olly Betts <olly@survex.com>
+	* backends/brass/brass_database.cc,
+	  backends/brass/brass_positionlist.cc,
+	  backends/brass/brass_positionlist.h: When updating a document, rather
+	  than decoding the old positions, comparing with the new, and then
+	  encoding the new if different, we now just encode the new and then
+	  compare the encoded forms.  (ticket#428)  This change also avoids
+	  calling BrassPositionListTable::del() when we know the entry doesn't
+	  already exist.
+
+ 14092    richard Sun Feb 28 14:00:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* tests/api_compact.cc: Clarify comment about regression test for
+	  1.1.4, and remove a test line which is implicit in the following
+	  dbcheck() line anyway.
+
+ 14045       olly Mon Feb 22 00:45:37 GMT 2010  Olly Betts <olly@survex.com>
+	* examples/delve.cc: If documents are specified, change "-V<valueno>"
+	  to only show values for those documents.
+
+ 14040       olly Sun Feb 21 11:10:10 GMT 2010  Olly Betts <olly@survex.com>
+	* examples/Makefile.mk,examples/xapian-metadata.cc: Add new example
+	  "xapian-metadata" which allows you to get and set individual user
+	  metadata entries.
+
+ 14029
+	* tests/api_wrdb.cc: Clear tout on each pass of the loop to avoid a
+	  lot of irrelevant output under --verbose if the test fails.
+
+ 14022
+	* bin/xapian-compact.cc: Fix failure to set lastdocid to an
+	  appropriate value when using --no-renumber.
+	* tests/api_compact.cc: Add regression test for this.
+
+trunk only:
+
+ 14097       olly Mon Mar 01 01:53:58 GMT 2010  Olly Betts <olly@survex.com>
+	* bin/: Rename tot_off to last_docid when it is actually holding the
+	  last_docid value.
+
+ 14076       olly Wed Feb 24 14:18:25 GMT 2010  Olly Betts <olly@survex.com>
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,common/remoteserver.h,
+	  docs/remote_protocol.html,net/remoteserver.cc,tests/api_spelling.cc:
+	  Add remote backend support for WritableDatabase::add_spelling() and
+	  WritableDatabase::remove_spelling().  This bumps the remote protocol
+	  to version 35.0 (so both client and servers will need updating).
+	  Suggesting spelling corrections isn't yet supported.  (ticket#178)
+
+ 14063       olly Tue Feb 23 03:08:02 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac,tests/harness/testsuite.cc: Use sigsetjmp() and
+	  siglongjmp() where available so that the set of blocked signals
+	  get restored and the test harness can catch a second incidence
+	  of a particular signal in a run.  Use sigaction() instead of
+	  signal() where available, which allows us to report the address
+	  associated with SIGSEGV, SIGFPE, SIGILL, and SIGBUS.
+
+	  doesn't trivially backport
+ 14090       olly Sun Feb 28 11:07:33 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/harness/fdtracker.cc,tests/harness/fdtracker.h: Add GPL
+	  boilerplate and copyright notices which I failed to do before
+	  committing these new files.
+ 14037       olly Sat Feb 20 01:09:45 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/runtest.in: Now we have fd leak checking in the test harness,
+	  remove the ulimit as it doesn't add anything, and has caused problems
+	  on some Debian buildds.
+ 14036       olly Fri Feb 19 02:08:25 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/harness/backendmanager.h,tests/harness/testsuite.cc:
+	  Call backendmanager->clean_up() before checking for fd leaks
+	  to avoid finding the sockets/pipes as leaks.  This means that
+	  clean_up() needs to handle being called more than once for
+	  a test sometimes (which the current versions do) so document
+	  that.
+ 14028
+	* tests/harness/testsuite.cc: Fix fd tracking change to work when
+	  HAVE_VALGRIND isn't defined.
+ 14025
+	* tests/harness/: Add machinery to check for leaked FDs.  Currently
+	  requires /proc/self/fd to work (so it works on at least Linux), but
+	  should do nothing on platforms without this directory.
+
+ 14053       olly Mon Feb 22 14:29:50 GMT 2010  Olly Betts <olly@survex.com>
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Fix exception message
+	  if we get an unsupported changeset type.
+ 14069       olly Tue Feb 23 14:03:47 GMT 2010  Olly Betts <olly@survex.com>
+	* api/postingsource.cc: Fix incorrect classname in error message.
+
+ 14049    richard Mon Feb 22 01:49:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* tests/dbcheck.cc: Check the wdf, doclen, and value bounds
+	  reported by the database against correct (tight) bounds
+	  calculated by iterating through the database contents.
+
+ 14048    richard Mon Feb 22 01:47:20 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
+	  Ensure that wdfs are reported to the stats object correctly when
+	  replacing documents.  These checks were absent entirely in chert,
+	  and incorrectly skipped in some cases in brass.
+
+ 14047       olly Mon Feb 22 00:59:57 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/api_valuestream.cc: Reset tout before testing each interval.
+	  Prefer string() to "".
+
+ 14046       olly Mon Feb 22 00:57:59 GMT 2010  Olly Betts <olly@survex.com>
+	* docs/deprecation.rst,examples/delve.cc: Remove delve's -k option,
+	  accepted as an undocumented alias for -V since 0.9.10 for
+	  compatibility with 0.9.9 and earlier.  Just use -V instead.
+
+ 14020
+	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Correct typo
+	  in error message.
+
 Xapian-core 1.1.4 (2010-02-15):
 
 This release includes all changes from 1.0.18 which are relevant.

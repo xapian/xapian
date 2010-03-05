@@ -213,7 +213,7 @@ rebuild_postlist_chunks(ChertTable * out,
 static void
 merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
-		Xapian::docid tot_off, bool rebuild_chunks)
+		Xapian::docid last_docid, bool rebuild_chunks)
 {
     totlen_t tot_totlen = 0;
     Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
@@ -281,7 +281,7 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 
     {
 	string tag;
-	pack_uint(tag, tot_off);
+	pack_uint(tag, last_docid);
 	pack_uint(tag, doclen_lbound);
 	pack_uint(tag, wdf_ubound);
 	pack_uint(tag, doclen_ubound - wdf_ubound);
@@ -1128,7 +1128,7 @@ merge_synonyms(ChertTable * out,
 
 static void
 multimerge_postlists(ChertTable * out, const char * tmpdir,
-		     Xapian::docid tot_off,
+		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off,
 		     bool rebuild_chunks)
 {
@@ -1170,7 +1170,7 @@ multimerge_postlists(ChertTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off,
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), last_docid,
 		    rebuild_chunks);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
@@ -1232,7 +1232,7 @@ void
 compact_chert(const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off, bool rebuild_chunks) {
+	      Xapian::docid last_docid, bool rebuild_chunks) {
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };
@@ -1332,12 +1332,12 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(&out, destdir, tot_off,
+		    multimerge_postlists(&out, destdir, last_docid,
 					 inputs, offset, rebuild_chunks);
 		} else {
 		    merge_postlists(&out, offset.begin(),
 				    inputs.begin(), inputs.end(),
-				    tot_off, rebuild_chunks);
+				    last_docid, rebuild_chunks);
 		}
 		break;
 	    case SPELLING:

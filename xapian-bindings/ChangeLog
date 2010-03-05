@@ -1,3 +1,9 @@
+Wed Mar 03 06:25:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/index.html: Document WritableDatabase's close method as
+	  a way to sidestep the whole destructor issue.  (ticket#62)
+	  Improve wording in a few places.
+
 Mon Feb 15 14:01:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.1.4.
