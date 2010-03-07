@@ -54,7 +54,7 @@
 using namespace std;
 
 /// Brass format version (date of change):
-#define BRASS_FORMAT_VERSION DATE_TO_VERSION(2010,2,23)
+#define BRASS_FORMAT_VERSION DATE_TO_VERSION(2010,3,7)
 
 /// Convert date <-> version number.  Dates up to 2186-03-02 fit in 2 bytes.
 #define DATE_TO_VERSION(Y,M,D) (((((Y)-2010)*12+((M)-1))*31)+(D)-1)

@@ -19,8 +19,7 @@
  */
 
 /* TODO:
- *  + Track free blocks!
- *  + Long tags stored externally.
+ *  + Track free blocks and slabs!
  *  + Prefix-compressed keys.  Store the prefix removed in the block (at the
  *    end, except for the left ptr in branch blocks).  Also, allow a shorter
  *    than stored prefix to be specified by using length bytes (256 - prefixlen
@@ -63,6 +62,7 @@ PWRITE_PROTOTYPE
 
 #include "debuglog.h"
 #include "omassert.h"
+#include "pack.h"
 #include "utils.h"
 
 #include <algorithm>
@@ -113,9 +113,13 @@ using namespace std;
 
 /* Leaf Item:
  *
- *    (a) [ keylen ] (1 byte) : top bit set is "compressed tag?"
- * or (b) [ \x80 ]
- *        [ keylen - 128 ] : top bit set is "compressed tag?"
+ * New:
+ * [ ] 1 byte: L
+ *     bits 0-6 :
+ *	   0 => not compressed, length = (L >> 7)
+ *         1-63 => compressed = (L >> 7), length = (L & 0x3f) + 1
+ *         64-127 => compressed = (L >> 7), length = ((L >> 2) & 0x0f) + 1,
+ *		ptr = (L & 0x03) << (8 * length) | <pointed to value>
  * [ key ... ]
  * [ tag ... ]
  */
@@ -171,20 +175,21 @@ BrassBlock::check_block()
 	// Items should have non-negative size.
 	AssertRel(ptr,<,endptr);
 	if (is_leaf()) {
-	    size_t key_len = static_cast<unsigned char>(data[ptr++]);
-	    if (key_len & 0x80) {
-		if (key_len == 0x80) {
-		    key_len = static_cast<unsigned char>(data[ptr++]);
-		    key_len |= 0x80;
+	    byte ch = static_cast<byte>(data[ptr++]);
+	    int tag_len;
+	    if ((ch & 0x40) == 0) {
+		if ((ch & 0x7f) == 0) {
+		    tag_len = (ch >> 7);
 		} else {
-		    key_len &= 0x7f;
+		    tag_len = (ch & 0x3f) + 1;
 		}
+	    } else {
+		tag_len = ((ch >> 2) & 0x0f) + 1;
 	    }
-	    AssertRel(ptr + key_len,<=,(size_t)endptr);
+	    AssertRel(tag_len,<=,64);
+	    AssertRel(ptr + tag_len,<=,endptr);
+	    int key_len = endptr - ptr - tag_len;
 	    key.assign(data + ptr, key_len);
-	    int tag_len = endptr - ptr - key_len;
-	    (void)tag_len;
-	    AssertRel(tag_len,<=,16384);
 	} else {
 	    ptr += BLOCKPTR_SIZE;
 	    AssertRel(ptr,<=,endptr);
@@ -286,13 +291,41 @@ BrassCBlock::read_tag(string &tag)
 
     const char * s;
     size_t key_len;
-    bool compressed = decode_leaf_key(item, s, key_len);
+    bool slab;
+    bool compressed = decode_leaf_key(item, s, key_len, slab);
     s += key_len;
     AssertRel(s - data,<=,get_endptr(item));
-    if (!compressed) {
-	tag.assign(s, data + get_endptr(item) - s);
+    if (slab) {
+	if (table.fd_slab == table.FD_NOT_OPEN)
+	    const_cast<BrassTable&>(table).open_slab_file();
+	size_t tag_len;
+	uint8 slab_pos;
+	const char * end = data + get_endptr(item);
+	if (rare(!unpack_uint(&s, end, &tag_len)))
+	    throw Xapian::DatabaseCorruptError("Reading slab length");
+	if (rare(!unpack_uint_last(&s, end, &slab_pos)))
+	    throw Xapian::DatabaseCorruptError("Reading slab pointer");
+	char * tag_buf = new char[tag_len];
+	try {
+	    if (!table.read_slab(tag_buf, tag_len, slab_pos))
+		throw Xapian::DatabaseError("Failed to write slab " + str(slab_pos), errno);
+
+	    if (!compressed) {
+		tag.assign(tag_buf, tag_len);
+	    } else {
+		table.compressor.decompress(tag_buf, tag_len, tag);
+	    }
+	} catch (...) {
+	    delete[] tag_buf;
+	    throw;
+	}
+	delete[] tag_buf;
     } else {
-	table.compressor.decompress(s, data + get_endptr(item) - s, tag);
+	if (!compressed) {
+	    tag.assign(s, data + get_endptr(item) - s);
+	} else {
+	    table.compressor.decompress(s, data + get_endptr(item) - s, tag);
+	}
     }
     return true;
 }
@@ -387,7 +420,8 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 	AssertRel(m,<,get_count());
 	const char * key_data;
 	size_t key_len;
-	(void)decode_leaf_key(m, key_data, key_len);
+	bool slab;
+	(void)decode_leaf_key(m, key_data, key_len, slab);
 	int cmp = table.compare_keys(key_data, key_len, key.data(), key.size());
 	if (cmp < 0) {
 	    b = m + 1;
@@ -674,11 +708,6 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
     // AssertRel(table.key_limits[n].second,>=,key);
     // cerr << table.key_limits[n].second << ">=" << key << endl;
 
-    // FIXME: support this!
-    if (tag_len > 16384) {
-	throw Xapian::UnimplementedError("Tags > 16K not currently supported");
-    }
-
     int C = get_count();
 
     if (C > 0) {
@@ -705,9 +734,38 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
     bool exact = binary_chop_leaf(key, LE);
     // cout << n << ": insert (exact=" << exact << ") at " << item << "/" << C << endl;
 
+    string slab_pointer; // FIXME: use an auto char array?
+    byte info;
+    if (tag_len > MAX_INLINE_TAG_SIZE) {
+	// FIXME: eliminate uses of const_cast.
+	if (table.fd_slab == table.FD_NOT_OPEN)
+	    const_cast<BrassTable&>(table).open_slab_file();
+	off_t slab_pos = const_cast<BrassTable&>(table).get_free_slab(tag_len);
+	if (!table.write_slab(tag, tag_len, slab_pos))
+	    throw Xapian::DatabaseError("Failed to write slab " + str(slab_pos), errno);
+
+	pack_uint(slab_pointer, tag_len);
+	pack_uint_last(slab_pointer, uint8(slab_pos));
+	tag = slab_pointer.data();
+	tag_len = slab_pointer.size();
+
+	if (rare(tag_len > 16))
+	    throw Xapian::UnimplementedError("slab pointer too big");
+	info = (tag_len - 1) << 2;
+	info |= 0x40;
+	if (compressed)
+	    info |= 0x80;
+	// FIXME: make use of the bottom 3 bits to store the start of the
+	// pointer (or to allow longer inline tags).
+    } else if (tag_len > 1) {
+	info = (tag_len - 1);
+	if (compressed)
+	    info |= 0x80;
+    } else {
+	info = (tag_len << 7);
+    }
+
     int len = tag_len + key.size() + 1;
-    if (key.size() >= 128)
-	++len;
     // Set free_end to the offset of the end of free space.
     int free_end = get_endptr(C);
     int oldlen = 0;
@@ -765,13 +823,19 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// cerr << "split : item " << item << " split point " << split_after << " out of " << C << endl;
 	const char *div_p;
 	size_t div_len;
-	(void)decode_leaf_key(split_after, div_p, div_len);
+	{
+	    bool slab;
+	    (void)decode_leaf_key(split_after, div_p, div_len, slab);
+	}
 
 	AssertRel(split_ptr,==,get_ptr(split_after - 1));
 
 	const char *pre_p;
 	size_t pre_len;
-	(void)decode_leaf_key(split_after - 1, pre_p, pre_len);
+	{
+	    bool slab;
+	    (void)decode_leaf_key(split_after - 1, pre_p, pre_len, slab);
+	}
 
 	string divkey(table.divide(pre_p, pre_len, div_p, div_len));
 	// cout << "splitting leaf block " << n << " at " << divkey << endl;
@@ -878,18 +942,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
     AssertRel(ptr,>=,header_length(get_count()));
     Assert(key.size() < 256);
     char * p = data + ptr;
-    if (key.size() < 128) {
-	unsigned char ch = key.size();
-	if (compressed) ch |= 0x80;
-	Assert(ch != 0x80); // the zero length key has no tag, so shouldn't compress.
-	*p++ = ch;
-    } else {
-	*p++ = '\x80';
-	unsigned char ch = key.size() - 128;
-	if (compressed) ch |= 0x80;
-	*p++ = ch;
-    }
-
+    *p++ = info;
     memcpy(p, key.data(), key.size());
     check_block();
     memcpy(p + key.size(), tag, tag_len);
@@ -1098,8 +1151,9 @@ BrassTable::get_cursor() const
 bool
 BrassTable::read_block(char *buf, brass_block_t n) const
 {
+    // FIXME: factor out shared code with read_slab()?
     LOGCALL(DB, bool, "BrassTable::read_block", (void*)buf << ", " << n);
-    Assert(fd != FD_NOT_OPEN /*read_block*/);
+    Assert(fd != FD_NOT_OPEN);
     Assert(buf);
     Assert(n != (brass_block_t)-1);
     ssize_t count = blocksize;
@@ -1139,6 +1193,7 @@ BrassTable::read_block(char *buf, brass_block_t n) const
 bool
 BrassTable::write_block(const char *buf, brass_block_t n) const
 {
+    // FIXME: factor out shared code with write_slab()?
     LOGCALL(DB, bool, "BrassTable::write_block", (void*)buf << ", " << n);
     AssertRel(fd,>=,0);
     Assert(buf);
@@ -1159,6 +1214,85 @@ BrassTable::write_block(const char *buf, brass_block_t n) const
 	ssize_t res = write(fd, buf, count);
 #else
 	ssize_t res = pwrite(fd, buf, count, offset);
+#endif
+	// We should get a full write most of the time, so streamline that case.
+	if (res == count)
+	    RETURN(true);
+	if (res < 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the write.
+	    if (res == -1 && errno == EINTR)
+		continue;
+	    RETURN(false);
+	}
+	buf += res;
+#ifdef HAVE_PWRITE
+	offset += res;
+#endif
+	count -= res;
+    }
+}
+
+// Prefer pread if available since (assuming it's implemented as a separate
+// syscall) it eliminates the overhead of an extra syscall per read.
+bool
+BrassTable::read_slab(char *buf, size_t len, off_t offset) const
+{
+    LOGCALL(DB, bool, "BrassTable::read_slab", (void*)buf << ", " << len << ", " << offset);
+    Assert(fd_slab != FD_NOT_OPEN);
+    Assert(buf);
+    ssize_t count = len;
+#ifndef HAVE_PREAD
+    if (lseek(fd_slab, offset, SEEK_SET) == -1)
+	RETURN(false);
+#endif
+    while (true) {
+#ifndef HAVE_PREAD
+	ssize_t res = read(fd_slab, buf, count);
+#else
+	ssize_t res = pread(fd_slab, buf, count, offset);
+#endif
+	// We should get a full read most of the time, so streamline that case.
+	if (res == count)
+	    RETURN(true);
+	// -1 is error, 0 is EOF
+	if (res <= 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (res == -1 && errno == EINTR)
+		continue;
+	    if (res == 0)
+		errno = 0;
+	    RETURN(false);
+	}
+	buf += res;
+#ifdef HAVE_PREAD
+	offset += res;
+#endif
+	count -= res;
+    }
+}
+
+bool
+BrassTable::write_slab(const char *buf, size_t len, off_t offset) const
+{
+    LOGCALL(DB, bool, "BrassTable::write_slab", (void*)buf << ", " << len << ", " << offset);
+    AssertRel(fd_slab,>=,0);
+    Assert(buf);
+
+    ssize_t count = len;
+    // Prefer pwrite() if available since (assuming it's implemented as a
+    // separate syscall) it eliminates the overhead of an extra lseek() syscall
+    // per write.
+#ifndef HAVE_PWRITE
+    if (lseek(fd_slab, offset, SEEK_SET) == -1)
+	RETURN(false);
+#endif
+    while (true) {
+#ifndef HAVE_PWRITE
+	ssize_t res = write(fd_slab, buf, count);
+#else
+	ssize_t res = pwrite(fd_slab, buf, count, offset);
 #endif
 	// We should get a full write most of the time, so streamline that case.
 	if (res == count)
@@ -1213,6 +1347,21 @@ BrassTable::get_free_block()
     // Assert(key_limits.size() == next_free);
     // key_limits.resize(next_free + 1);
     return next_free++;
+}
+
+off_t
+BrassTable::get_free_slab(size_t size)
+{
+    LOGCALL(DB, off_t, "BrassTable::get_free_slab", size);
+    if (next_free_slab == 0) {
+	struct stat statbuf;
+	if (fstat(fd_slab, &statbuf) < 0)
+	    throw Xapian::DatabaseError("Couldn't stat table", errno);
+	next_free_slab = statbuf.st_size;
+    }
+    off_t res = next_free_slab;
+    next_free_slab += size;
+    return res;
 }
 
 int
@@ -1285,6 +1434,10 @@ BrassTable::create(unsigned int blocksize_, bool from_scratch)
 	RETURN(false);
     }
 
+    // Open the slab file lazily - we don't need it for a table which only
+    // holds small items.
+    fd_slab = FD_NOT_OPEN;
+
     modified = false;
     delete my_cursor;
     my_cursor = NULL;
@@ -1300,6 +1453,7 @@ BrassTable::erase()
     fd = FD_NOT_OPEN;
     // FIXME: handle error (ENOENT is ok)
     unlink(path + BRASS_TABLE_EXTENSION);
+    unlink(path + BRASS_SLAB_EXTENSION);
 }
 
 bool
@@ -1321,6 +1475,8 @@ BrassTable::open(brass_block_t root)
 		// errcode = DATABASE_OPENING_ERROR;
 		RETURN(false);
 	    }
+	    fd_slab = ::open((path + BRASS_SLAB_EXTENSION).c_str(),
+			     O_RDONLY|O_BINARY);
 	} else {
 	    fd = ::open((path + BRASS_TABLE_EXTENSION).c_str(),
 			O_RDWR|O_BINARY);
@@ -1332,6 +1488,8 @@ BrassTable::open(brass_block_t root)
 		// errcode = DATABASE_OPENING_ERROR;
 		RETURN(false);
 	    }
+	    fd_slab = ::open((path + BRASS_SLAB_EXTENSION).c_str(),
+			     O_RDONLY|O_BINARY);
 	}
 	modified = false;
     } else {
@@ -1361,16 +1519,34 @@ BrassTable::open(brass_block_t root)
 }
 
 void
+BrassTable::open_slab_file()
+{
+    LOGCALL_VOID(DB, "BrassTable::open_slab_file", NO_ARGS);
+    next_free_slab = 0;
+    string filename = path;
+    filename += BRASS_SLAB_EXTENSION;
+    fd_slab = ::open(filename.c_str(), O_CREAT|O_RDWR|O_BINARY, 0666);
+    if (fd_slab == FD_NOT_OPEN) {
+	string msg = "Failed to open '";
+	msg += filename;
+	msg += "' for read/write: ";
+	msg += strerror(errno);
+	throw Xapian::DatabaseError(msg);
+    }
+}
+
+void
 BrassTable::close()
 {
-    LOGCALL_VOID(DB, "BrassTable::close", "[bool]");
+    LOGCALL_VOID(DB, "BrassTable::close", NO_ARGS);
     if (fd >= 0) {
 	delete my_cursor;
 	my_cursor = NULL;
 	// FIXME: check for error...
 	::close(fd);
+	::close(fd_slab);
     }
-    fd = FD_CLOSED;
+    fd = fd_slab = FD_CLOSED;
 }
 
 bool

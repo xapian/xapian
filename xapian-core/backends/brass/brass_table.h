@@ -44,6 +44,8 @@ using namespace std;
  */
 #define RANDOM_ACCESS_THRESHOLD 3
 
+static const size_t MAX_INLINE_TAG_SIZE = 64;
+
 static const int BLOCKPTR_SIZE = 4;
 
 static const int HEADER_SIZE = 8;
@@ -116,17 +118,28 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     /// Return the length of the block header for @a count items.
     int header_length(int count) const { return HEADER_SIZE + 2 * count; }
 
-    bool decode_leaf_key(int i, const char *& key_ptr, size_t& key_len) const {
+    bool decode_leaf_key(int i, const char *& key_ptr, size_t& key_len,
+			 bool& slab) const {
 	Assert(is_leaf());
 	key_ptr = data + get_ptr(i);
-	unsigned char key_len_byte = static_cast<unsigned char>(*key_ptr++);
-	if (key_len_byte == 0x80) {
-	    key_len_byte = static_cast<unsigned char>(*key_ptr++);
-	    key_len = (key_len_byte | 0x80);
+	byte ch = static_cast<unsigned char>(*key_ptr++);
+	int tag_len;
+	bool compressed;
+	if ((ch & 0x7f) == 0) {
+	    compressed = false;
+	    slab = false;
+	    tag_len = (ch >> 7);
+	} else if ((ch & 0x7f) < 64) {
+	    compressed = (ch & 0x80);
+	    slab = false;
+	    tag_len = (ch & 0x3f) + 1;
 	} else {
-	    key_len = (key_len_byte & 0x7f);
+	    compressed = (ch & 0x80);
+	    slab = true;
+	    tag_len = ((ch >> 2) & 0x0f) + 1;
 	}
-	return (key_len_byte & 0x80);
+	key_len = get_endptr(i) - (key_ptr - data) - tag_len;
+	return compressed;
     }
 
   public:
@@ -166,7 +179,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 	const char * p;
 	size_t key_len;
 	if (is_leaf()) {
-	    (void)decode_leaf_key(i, p, key_len);
+	    bool slab;
+	    (void)decode_leaf_key(i, p, key_len, slab);
 	} else {
 	    p = data + get_ptr(i);
 	    p += BLOCKPTR_SIZE;
@@ -270,7 +284,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	Assert(is_leaf());
 	const char * key_ptr;
 	size_t key_len;
-	(void)decode_leaf_key(item, key_ptr, key_len);
+	bool slab;
+	(void)decode_leaf_key(item, key_ptr, key_len, slab);
 	key.assign(key_ptr, key_len);
     }
 
@@ -524,11 +539,13 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     };
 
     int fd;
+    int fd_slab;
     unsigned int blocksize;
     std::string path;
     bool readonly;
     std::string errmsg;
     brass_block_t next_free;
+    off_t next_free_slab;
     brass_revision_number_t revision;
 
     BrassBlock split;
@@ -545,6 +562,9 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     bool read_block(char *buf, brass_block_t n) const;
     bool write_block(const char *buf, brass_block_t n) const;
 
+    bool read_slab(char *buf, size_t len, off_t offset) const;
+    bool write_slab(const char *buf, size_t len, off_t offset) const;
+
     BrassCBlock * gain_level(brass_block_t child);
     void lose_level();
 
@@ -555,6 +575,22 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	AssertRel(n,<,next_free);
 	// key_limits[n].second = std::string();
 	// FIXME: add "n" to the freelist for revision "revision".
+    }
+
+    off_t get_free_slab(size_t size);
+
+    void mark_free_slab(off_t slab) {
+	(void)slab;
+	AssertRel(slab,<,next_free_slab);
+	// FIXME: add "slab" to the slab freelist for revision "revision".
+    }
+
+    void write_slab(const char * buf, size_t len, off_t slab);
+
+    off_t create_slab(const char * buf, size_t len) {
+	off_t slab = get_free_slab(len);
+	write_slab(buf, len, slab);
+	return slab;
     }
 
     virtual int compare_keys(const void *k1, size_t l1,
@@ -571,8 +607,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     BrassTable(const char * name_, const std::string & path_, bool readonly_,
 	       bool compress_ = DONT_COMPRESS, bool lazy_ = NOT_LAZY)
 	: fd(FD_NOT_OPEN), blocksize(0), path(path_), readonly(readonly_),
-	  next_free(0), revision(0), split(*this), my_cursor(NULL),
-	  compress(compress_), lazy(lazy_), modified(false)
+	  next_free(0), next_free_slab(0), revision(0), split(*this),
+	  my_cursor(NULL), compress(compress_), lazy(lazy_), modified(false)
     {
 	(void)name_; // FIXME
     }
@@ -599,6 +635,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     /** Open (or reopen) the table with the specified root block. */
     bool open(brass_block_t root_);
 
+    void open_slab_file();
     void close();
 
     bool add(const std::string & key, const std::string & tag,
@@ -618,6 +655,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     void sync() {
 	if (fd >= 0)
 	    brass_io_sync(fd);
+	if (fd_slab >= 0)
+	    brass_io_sync(fd_slab);
     }
 
     void cancel();

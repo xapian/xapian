@@ -26,6 +26,9 @@
 /// Brass table extension.
 #define BRASS_TABLE_EXTENSION "brass"
 
+/// Brass slab file extension.
+#define BRASS_SLAB_EXTENSION "slab"
+
 namespace Brass {
     enum table_type {
 	POSTLIST,
