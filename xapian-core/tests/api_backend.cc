@@ -309,7 +309,7 @@ DEFINE_TESTCASE(replacedoc8, writable) {
  *  append a "/" when generating a temporary filename from the database
  *  directory.
  */
-DEFINE_TESTCASE(readonlyparentdir1, flint || chert || brass) {
+DEFINE_TESTCASE(readonlyparentdir1, brass || chert || flint) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     string path = get_named_writable_database_path("readonlyparentdir1");
     mkdir(path, 0777);
