@@ -1,11 +1,12 @@
 brass-btree branch
 ==================
 
-Status: Most tests pass, but some things not fully (or at all) implemented.
+Status:
 
-Tests which currently fail:
+All tests pass with a 64KB blocksize.  Some fail with a smaller blocksize,
+probably due to a bug in splitting branch blocks.
 
-  * writeread1: Need larger tags than we currently support.
+Some things not fully (or at all) implemented.
 
 TODO:
 -----
@@ -13,15 +14,13 @@ TODO:
   * xapian-check checking Btree structure (currently only checks data inside
     tables).
 
-  * store large tags out of tree
-
   * tracking free blocks
 
   * xapian-check of an individual table
 
   * xapian-inspect - make it handle flint/chert and brass in one binary.
 
-  * prefix-compress keys
+  * prefix-compress keys (to make large tables smaller)
 
   * cursor snooping currently O(# depth of tree)...
 
