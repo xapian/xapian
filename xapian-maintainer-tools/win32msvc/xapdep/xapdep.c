@@ -68,8 +68,8 @@ int myrename(char *from, char *to)
 int main(int argc, char *argv[])
 {
 	FILE *indep,*inmak,*outmak;
-	char buf[BUFSIZE], depbuf[BUFSIZE];
-	int ch, endch, wch;
+	char buf[BUFSIZE];
+	int ch, endch;
 
     /* Open the files we'll need, renaming the old Makefile to a backup */
 	indep=fopen(DEPFILE,"rb");
@@ -129,14 +129,12 @@ int main(int argc, char *argv[])
                     /* clean up the dependencies and write them to the makefile */
 					ch=INSET;
 					endch=strlen(buf);
-                    wch=0;
                     /* skip space */
 					while((ch < endch) && (buf[ch]!='\r') && (buf[ch]==' '))
 						ch++;
 					while((ch < endch) && (buf[ch]!='\r'))
-						depbuf[wch++]=buf[ch++];
-					depbuf[wch]=0;
-					fprintf(outmak,"%s\r\n",depbuf);
+						putc(buf[ch++], outmak);
+					fputs("\r\n", outmak);
 				}
 			}
 		}
