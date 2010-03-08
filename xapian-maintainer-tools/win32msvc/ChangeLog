@@ -1,3 +1,7 @@
+Mon Mar 08 06:26:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/README: Undouble contents (this file was in the patch twice).
+
 Mon Mar 08 06:11:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapdep/xapdep.c: Fix O(n*n) behaviour we only needs to be O(n).
