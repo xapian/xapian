@@ -68,7 +68,7 @@ int myrename(char *from, char *to)
 int main(int argc, char *argv[])
 {
 	FILE *indep,*inmak,*outmak;
-	char buf[BUFSIZE], objbuf[BUFSIZE], depbuf[BUFSIZE];
+	char buf[BUFSIZE], depbuf[BUFSIZE];
 	int ch, endch, wch;
 
     /* Open the files we'll need, renaming the old Makefile to a backup */
@@ -111,9 +111,8 @@ int main(int argc, char *argv[])
 				/* first line should be a .cc file, use this to generate the .obj file */
 				ch=0; 
 				while((buf[ch]!='.') && (ch!=strlen(buf)))
-					objbuf[ch] = buf[ch++];
-				objbuf[ch]=0;
-				strcat(objbuf,".obj : ");
+					putc(buf[ch++], outmak);
+				fputs(".obj : ", outmak);
 				while(!feof(indep))
 				{
                     /* get all the dependencies */
@@ -137,7 +136,7 @@ int main(int argc, char *argv[])
 					while((ch < endch) && (buf[ch]!='\r'))
 						depbuf[wch++]=buf[ch++];
 					depbuf[wch]=0;
-					fprintf(outmak,"%s%s\r\n",objbuf,depbuf);
+					fprintf(outmak,"%s\r\n",depbuf);
 				}
 			}
 		}

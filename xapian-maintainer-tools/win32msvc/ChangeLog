@@ -1,3 +1,8 @@
+Mon Mar 08 05:54:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Eliminate objbuf - a fixed sized buffer we could
+	  overflow.
+
 Mon Mar 08 05:37:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapdep/xapdep.c: Remove a potential buffer overflow.
