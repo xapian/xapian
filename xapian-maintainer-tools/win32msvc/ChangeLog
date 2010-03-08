@@ -1,3 +1,7 @@
+Mon Mar 08 06:11:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Fix O(n*n) behaviour we only needs to be O(n).
+
 Mon Mar 08 05:58:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapdep/xapdep.c: Eliminate depbuf - a fixed sized buffer we probably

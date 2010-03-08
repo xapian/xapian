@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
 				/* first line should be a .cc file, use this to generate the .obj file */
 				ch=0; 
-				while((buf[ch]!='.') && (ch!=strlen(buf)))
+				while((buf[ch]!='.') && (buf[ch]!='\0'))
 					putc(buf[ch++], outmak);
 				fputs(".obj : ", outmak);
 				while(!feof(indep))
