@@ -18,11 +18,11 @@ OBJS= 	       "$(INTDIR)\analyser.obj" \
                "$(INTDIR)\space.obj" \
                "$(INTDIR)\tokeniser.obj" 
 
-SRCS= 	       "$(INTDIR)\analyser.cc" \
-               "$(INTDIR)\generator.cc" \
-               "$(INTDIR)\driver.cc" \
-               "$(INTDIR)\space.cc" \
-               "$(INTDIR)\tokeniser.cc" 
+SRCS= 	       "$(INTDIR)\analyser.c" \
+               "$(INTDIR)\generator.c" \
+               "$(INTDIR)\driver.c" \
+               "$(INTDIR)\space.c" \
+               "$(INTDIR)\tokeniser.c" 
 
 CLEAN :
 	-@erase "$(INTDIR)\*.pch"
@@ -77,5 +77,7 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

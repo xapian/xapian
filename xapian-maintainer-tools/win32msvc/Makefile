@@ -51,8 +51,8 @@ DOTEST:
    cd ..\win32
 
 CLEAN: COPYMAKFILES
-   cd makedepend
-   nmake -f makedepend.mak CLEAN
+   cd xapdep
+   nmake -f xapdep.mak CLEAN
    cd ..
    cd ..\net
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -90,7 +90,7 @@ CLEAN: COPYMAKFILES
    -@erase ..\include\xapian\error.h
    -@erase ..\include\xapian\errordispatch.h
    if exist "$(XAPIAN_DEBUG_OR_RELEASE)" rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
-   -@erase makedepend.exe
+   -@erase xapdep.exe
    echo All Win32 parts have been cleaned!
 
 DISTCLEAN: CLEAN
@@ -138,7 +138,7 @@ COPYMAKFILES:
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\common\config.h
 
 # Test for tools that we MUST have   
-TESTFORTOOLS: makedepend.exe
+TESTFORTOOLS: xapdep.exe
 # Perl is needed for header generation
    if not exist $(PERL_EXE) exit(1) 
    
@@ -183,9 +183,9 @@ MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
 ..\include\xapian\version.h: version.h.in ..\configure.ac
     $(PERL_EXE) genversion.pl ..\configure.ac version.h.in ..\include\xapian\version.h
     
-makedepend.exe: 
-    cd makedepend
-    nmake -f makedepend.mak
-    copy makedepend.exe ..
+xapdep.exe: 
+    cd xapdep
+    nmake -f xapdep.mak
+    copy xapdep.exe ..
     cd ..
 
