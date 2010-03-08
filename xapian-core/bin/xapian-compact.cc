@@ -187,7 +187,7 @@ main(int argc, char **argv)
     };
 
     compaction_level compaction = FULL;
-    size_t block_size = 8192;
+    size_t block_size = 0;
     bool multipass = false;
     bool renumber = true;
 

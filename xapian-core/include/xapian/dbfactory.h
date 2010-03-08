@@ -1,7 +1,7 @@
 /** \file dbfactory.h
  * \brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -104,7 +104,7 @@ Database open(const std::string &dir);
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+open(const std::string &dir, int action, int block_size = 0);
 
 }
 #endif
@@ -140,7 +140,7 @@ Database open(const std::string &dir);
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+open(const std::string &dir, int action, int block_size = 0);
 
 }
 #endif
@@ -176,7 +176,7 @@ Database open(const std::string &dir);
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+open(const std::string &dir, int action, int block_size = 0);
 
 }
 #endif

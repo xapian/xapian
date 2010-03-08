@@ -78,8 +78,6 @@ using namespace std;
 // zero the freespace in the middle of a block when we write it to disk.
 #define ZERO_UNUSED_SPACE
 
-#define BRASS_DEFAULT_BLOCKSIZE 8192
-
 // FIXME: benchmark if it is better/worse/no different to put items at end
 // and pointers at start.  It is likely to be less confusing to follow the
 // code for if nothing else!
@@ -443,7 +441,8 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 	int m = b;
 	const char * key_data;
 	size_t key_len;
-	(void)decode_leaf_key(m, key_data, key_len);
+	bool slab;
+	(void)decode_leaf_key(m, key_data, key_len, slab);
 	int cmp = table.compare_keys(key_data, key_len, key.data(), key.size());
 	if (cmp < 0) {
 	    // Keep going.
@@ -1412,9 +1411,6 @@ BrassTable::create(unsigned int blocksize_, bool from_scratch)
     Assert(!readonly);
     AssertRel(fd,==,FD_NOT_OPEN);
 
-    // FIXME: hardwire blocksize to 64K for now, since we don't support tags
-    // stored outside the tree yet.
-    blocksize_ = 65536;
     // Check that blocksize is a power of two in the permitted range and
     // if not just use the default.
     if (blocksize_ < 2048 || blocksize_ > 65536 ||
@@ -1457,13 +1453,14 @@ BrassTable::erase()
 }
 
 bool
-BrassTable::open(brass_block_t root)
+BrassTable::open(unsigned int blocksize_, brass_block_t root)
 {
-    LOGCALL(DB, bool, "BrassTable::open", root);
+    LOGCALL(DB, bool, "BrassTable::open", blocksize_ << ", " << root);
+    blocksize = blocksize_;
+    if (!blocksize)
+	blocksize = BRASS_DEFAULT_BLOCKSIZE;
     if (fd == FD_NOT_OPEN) {
 	// Table not already open.
-	blocksize = 65536; // FIXME
-
 	if (readonly) {
 	    fd = ::open((path + BRASS_TABLE_EXTENSION).c_str(),
 			O_RDONLY|O_BINARY);

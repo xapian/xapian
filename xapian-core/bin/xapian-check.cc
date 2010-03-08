@@ -210,6 +210,7 @@ main(int argc, char **argv)
 	    }
 	    BrassVersion version_file;
 	    version_file.open_most_recent(dir);
+	    unsigned block_size = version_file.get_block_size();
 
 	    // This is a brass directory so try to check all the tables.
 	    // Note: it's important to check termlist before postlist so
@@ -243,7 +244,7 @@ main(int argc, char **argv)
 		}
 		brass_block_t root = version_file.get_root_block(type);
 		errors += check_brass_table(table_name, table, opts, doclens,
-					    db_last_docid, root);
+					    db_last_docid, root, block_size);
 	    }
 #endif
 	} else {

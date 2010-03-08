@@ -29,6 +29,9 @@
 /// Brass slab file extension.
 #define BRASS_SLAB_EXTENSION "slab"
 
+/// Default B-tree block size.
+#define BRASS_DEFAULT_BLOCKSIZE 65536 // FIXME: 8192
+
 namespace Brass {
     enum table_type {
 	POSTLIST,

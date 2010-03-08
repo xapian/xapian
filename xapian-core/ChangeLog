@@ -1,3 +1,10 @@
+Mon Mar 08 11:43:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/dbfactory.cc,bin/,
+	  include/xapian/dbfactory.h: Store the B-tree block size in the
+	  version file.  It's still hard coded to 64KB, but only one line
+	  should need changing to remove that.
+
 Sun Mar 07 07:30:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_defs.h,backends/brass/brass_table.cc,

@@ -108,6 +108,7 @@ BrassVersion::open_most_recent(const string & db_dir)
 
     if (rare(newest.empty())) {
 	// Empty database.
+	blocksize = BRASS_DEFAULT_BLOCKSIZE;
 	rev = 0;
 	for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
 	    root[table_no] = static_cast<brass_block_t>(-1);
@@ -144,7 +145,7 @@ BrassVersion::read(const string & filename)
     char buf[256];
 
     const char * p = buf;
-    const char * end = p + brass_io_read(fd_in, buf, sizeof(buf), 32);
+    const char * end = p + brass_io_read(fd_in, buf, sizeof(buf), 33);
 
     if (memcmp(buf, BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_LEN) != 0)
 	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
@@ -175,6 +176,8 @@ BrassVersion::read(const string & filename)
     memcpy((void*)uuid, p, 16);
     p += 16;
 
+    blocksize = byte(*p++) << 11;
+
     for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
 	if (p != end) {
 	    if (!unpack_uint(&p, end, &root[table_no])) {
@@ -196,6 +199,7 @@ BrassVersion::write(const string & db_dir)
 
     string s(BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_AND_VERSION_LEN);
     s.append((const char *)uuid, 16);
+    s += char(blocksize >> 11);
 
     unsigned table_last = Brass::MAX_;
     while (table_last > 0 && new_root[table_last - 1] == brass_block_t(-1))
@@ -264,8 +268,9 @@ BrassVersion::sync(const string & db_dir, const string & tmpfile,
 }
 
 void
-BrassVersion::create(const string & db_dir)
+BrassVersion::create(unsigned blocksize_, const string & db_dir)
 {
+    blocksize = blocksize_;
     uuid_generate(uuid);
     for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
 	new_root[table_no] = static_cast<brass_block_t>(-1);

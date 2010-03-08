@@ -43,6 +43,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassVersion {
 
     brass_block_t new_root[Brass::MAX_];
 
+    unsigned blocksize;
+
     /** The UUID of this database.
      *
      *  This is mutable for older uuid libraries which take non-const uuid_t.
@@ -52,10 +54,10 @@ class XAPIAN_VISIBILITY_DEFAULT BrassVersion {
     int fd;
 
   public:
-    BrassVersion() : rev(0) { }
+    BrassVersion() : rev(0), blocksize(0) { }
 
     /** Create the version file. */
-    void create(const std::string & db_dir);
+    void create(unsigned blocksize_, const std::string & db_dir);
 
     void open_most_recent(const std::string & db_dir);
 
@@ -72,11 +74,17 @@ class XAPIAN_VISIBILITY_DEFAULT BrassVersion {
 
     brass_revision_number_t get_revision() const { return rev; }
 
-    brass_block_t get_root_block(Brass::table_type tbl) const { return root[tbl]; }
+    brass_block_t get_root_block(Brass::table_type tbl) const {
+	return root[tbl];
+    }
+
+    unsigned get_block_size() const { return blocksize; }
 
     void set_root_block(Brass::table_type tbl, brass_block_t root_)  {
 	new_root[tbl] = root_;
     }
+
+    void set_block_size(unsigned blocksize_) { blocksize = blocksize_; }
 
     /// Return pointer to 16 byte UUID.
     const char * get_uuid() const {

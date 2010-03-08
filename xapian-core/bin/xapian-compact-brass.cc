@@ -200,6 +200,7 @@ merge_postlists(BrassTable * out,
 		vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
 		vector<brass_block_t>::const_iterator root,
+		vector<unsigned>::const_iterator blocksize,
 		Xapian::docid last_docid)
 {
     Xapian::doccount doccount = 0;
@@ -208,9 +209,9 @@ merge_postlists(BrassTable * out,
     Xapian::termcount wdf_ubound = 0;
     Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
-    for ( ; b != e; ++b, ++offset, ++root) {
+    for ( ; b != e; ++b, ++offset, ++root, ++blocksize) {
 	BrassTable *in = new BrassTable("postlist", *b, true);
-	in->open(*root);
+	in->open(*blocksize, *root);
 	if (in->empty()) {
 	    // Skip empty tables.
 	    delete in;
@@ -562,12 +563,13 @@ static void
 merge_spellings(BrassTable * out,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e,
-		vector<brass_block_t>::const_iterator root)
+		vector<brass_block_t>::const_iterator root,
+		vector<unsigned>::const_iterator blocksize)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b, ++root) {
+    for ( ; b != e; ++b, ++root, ++blocksize) {
 	BrassTable *in = new BrassTable("spelling", *b, true, DONT_COMPRESS, true);
-	in->open(*root);
+	in->open(*blocksize, *root);
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of BrassTable in and is
 	    // responsible for deleting it.
@@ -727,12 +729,13 @@ static void
 merge_synonyms(BrassTable * out,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e,
-	       vector<brass_block_t>::const_iterator root)
+	       vector<brass_block_t>::const_iterator root,
+	       vector<unsigned>::const_iterator blocksize)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b, ++root) {
+    for ( ; b != e; ++b, ++root, ++blocksize) {
 	BrassTable *in = new BrassTable("synonym", *b, true, DONT_COMPRESS, true);
-	in->open(*root);
+	in->open(*blocksize, *root);
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of BrassTable in and is
 	    // responsible for deleting it.
@@ -814,7 +817,8 @@ static void
 multimerge_postlists(BrassTable * out, const char * tmpdir,
 		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off,
-		     vector<brass_block_t> roots)
+		     vector<brass_block_t> roots,
+		     vector<unsigned> blocksizes)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
@@ -824,6 +828,8 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	newoff.resize(tmp.size() / 2);
 	vector<brass_block_t> newroots;
 	newroots.resize(tmp.size() / 2);
+	vector<brass_block_t> newblocksizes;
+	newblocksizes.resize(tmp.size() / 2);
 	for (unsigned int i = 0, j; i < tmp.size(); i = j) {
 	    j = i + 2;
 	    if (j == tmp.size() - 1) ++j;
@@ -838,10 +844,11 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	    BrassTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create(65536, false);
+	    newblocksizes.push_back(65536);
 
 	    merge_postlists(&tmptab, off.begin() + i,
 			    tmp.begin() + i, tmp.begin() + j,
-			    roots.begin(), 0);
+			    roots.begin(), blocksizes.begin(), 0);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
@@ -854,9 +861,11 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	swap(tmp, tmpout);
 	swap(off, newoff);
 	swap(roots, newroots);
+	swap(blocksizes, newblocksizes);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), roots.begin(), last_docid);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), roots.begin(),
+		    blocksizes.begin(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
@@ -868,13 +877,14 @@ static void
 merge_docid_keyed(const char * tablename, BrassTable *out,
 		  const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset,
-		  const vector<brass_block_t> & roots, bool lazy)
+		  const vector<brass_block_t> & roots,
+		  const vector<unsigned> & blocksizes, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
 	BrassTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
-	in.open(roots[i]);
+	in.open(blocksizes[i], roots[i]);
 	if (in.empty()) continue;
 
 	BrassCursor cur(in);
@@ -942,6 +952,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	(sizeof(tables) / sizeof(tables[0]));
 
     vector<brass_block_t> roots[MAX_];
+    vector<unsigned> blocksizes;
     for (vector<string>::const_iterator src = sources.begin();
 	 src != sources.end(); ++src) {
 	string s(*src);
@@ -950,6 +961,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	for (int i = 0; i < MAX_; ++i) {
 	    roots[i].push_back(version_file.get_root_block(table_type(i)));
 	}
+	blocksizes.push_back(version_file.get_block_size());
     }
 
     BrassVersion version_file_out;
@@ -1030,26 +1042,28 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(&out, destdir, last_docid,
-					 inputs, offset, roots[POSTLIST]);
+					 inputs, offset, roots[POSTLIST],
+					 blocksizes);
 		} else {
 		    merge_postlists(&out, offset.begin(),
 				    inputs.begin(), inputs.end(),
 				    roots[POSTLIST].begin(),
+				    blocksizes.begin(),
 				    last_docid);
 		}
 		break;
 	    case SPELLING:
 		merge_spellings(&out, inputs.begin(), inputs.end(),
-				roots[SPELLING].begin());
+				roots[SPELLING].begin(), blocksizes.begin());
 		break;
 	    case SYNONYM:
 		merge_synonyms(&out, inputs.begin(), inputs.end(),
-			       roots[SYNONYM].begin());
+			       roots[SYNONYM].begin(), blocksizes.begin());
 		break;
 	    default:
 		// Position, Record, Termlist
 		merge_docid_keyed(t->name, &out, inputs, offset,
-				  roots[t->type], t->lazy);
+				  roots[t->type], blocksizes, t->lazy);
 		break;
 	}
 

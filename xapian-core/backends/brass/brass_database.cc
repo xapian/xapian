@@ -34,7 +34,7 @@
 #include "contiguousalldocspostlist.h"
 #include "brass_alldocspostlist.h"
 #include "brass_alltermslist.h"
-#include "brass_replicate_internal.h"
+#include "brass_defs.h"
 #include "brass_document.h"
 #include "brass_io.h"
 #include "../flint_lock.h"
@@ -42,6 +42,7 @@
 #include "brass_positionlist.h"
 #include "brass_postlist.h"
 #include "brass_record.h"
+#include "brass_replicate_internal.h"
 #include "brass_spellingwordslist.h"
 #include "brass_termlist.h"
 #include "brass_valuelist.h"
@@ -105,6 +106,10 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 {
     DEBUGCALL(DB, void, "BrassDatabase", brass_dir << ", " << action <<
 	      ", " << block_size);
+    if (block_size == 0)
+	block_size = BRASS_DEFAULT_BLOCKSIZE;
+    // FIXME: remove this later
+    block_size = BRASS_DEFAULT_BLOCKSIZE;
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables();
@@ -180,7 +185,8 @@ BrassDatabase::create_and_open_tables(unsigned int block_size,
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
-    version_file.create(db_dir);
+    version_file.create(block_size, db_dir);
+
     position_table.create(block_size, from_scratch);
     synonym_table.create(block_size, from_scratch);
     spelling_table.create(block_size, from_scratch);
@@ -213,20 +219,13 @@ BrassDatabase::open_tables()
 	return;
     }
 
-    record_table.open(version_file.get_root_block(Brass::RECORD));
-    spelling_table.open(version_file.get_root_block(Brass::SPELLING));
-    synonym_table.open(version_file.get_root_block(Brass::SYNONYM));
-    termlist_table.open(version_file.get_root_block(Brass::TERMLIST));
-    position_table.open(version_file.get_root_block(Brass::POSITION));
-    postlist_table.open(version_file.get_root_block(Brass::POSTLIST));
-
-    // Set the block_size for optional tables as they may not currently exist.
-    unsigned int block_size = postlist_table.get_block_size();
-    record_table.set_block_size(block_size);
-    position_table.set_block_size(block_size);
-    termlist_table.set_block_size(block_size);
-    synonym_table.set_block_size(block_size);
-    spelling_table.set_block_size(block_size);
+    unsigned block_size = version_file.get_block_size();
+    record_table.open(block_size, version_file.get_root_block(Brass::RECORD));
+    spelling_table.open(block_size, version_file.get_root_block(Brass::SPELLING));
+    synonym_table.open(block_size, version_file.get_root_block(Brass::SYNONYM));
+    termlist_table.open(block_size, version_file.get_root_block(Brass::TERMLIST));
+    position_table.open(block_size, version_file.get_root_block(Brass::POSITION));
+    postlist_table.open(block_size, version_file.get_root_block(Brass::POSTLIST));
 
     value_manager.reset();
 

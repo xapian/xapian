@@ -32,6 +32,7 @@
 
 size_t check_brass_table(const char * tablename, std::string table, int opts,
 			 std::vector<Xapian::termcount> & doclens,
-			 Xapian::docid db_last_docid, brass_block_t root);
+			 Xapian::docid db_last_docid, brass_block_t root,
+			 unsigned block_size);
 
 #endif // XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H

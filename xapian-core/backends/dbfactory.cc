@@ -485,7 +485,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	case BRASS:
 brass:
-	    internal.push_back(new BrassWritableDatabase(path, action, 8192));
+	    internal.push_back(new BrassWritableDatabase(path, action, 0));
 	    break;
 #endif
     }

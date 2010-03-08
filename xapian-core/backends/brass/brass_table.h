@@ -633,7 +633,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     unsigned int get_block_size() const { return blocksize; }
 
     /** Open (or reopen) the table with the specified root block. */
-    bool open(brass_block_t root_);
+    bool open(unsigned blocksize_, brass_block_t root_);
 
     void open_slab_file();
     void close();

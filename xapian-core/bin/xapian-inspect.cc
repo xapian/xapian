@@ -25,8 +25,9 @@
 #include <string>
 #include <cstdio> // For sprintf().
 
-#include "brass_table.h"
 #include "brass_cursor.h"
+#include "brass_defs.h"
+#include "brass_table.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -162,6 +163,7 @@ main(int argc, char **argv)
 
     // FIXME: read from v file?
     brass_block_t root_block = 0;
+    unsigned block_size = BRASS_DEFAULT_BLOCKSIZE;
     int c;
     while ((c = gnu_getopt_long(argc, argv, "r:", long_opts, 0)) != -1) {
         switch (c) {
@@ -208,7 +210,7 @@ main(int argc, char **argv)
 open_different_table:
     try {
 	BrassTable table("", table_name, true);
-	table.open(root_block);
+	table.open(block_size, root_block);
 	if (table.empty()) {
 	    cout << "No entries!" << endl;
 	}
