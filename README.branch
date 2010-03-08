@@ -11,16 +11,28 @@ Some things not fully (or at all) implemented.
 TODO:
 -----
 
+  * splitting of branch blocks currently untested.
+
+  * tracking free blocks.
+
+  * tracking free slabs.
+
+  * use spare bits in the "key length" byte for either storing some bits of
+    the slab pointer, or for allowing longer in-tree tags.
+
+  * prefix-compress keys (to make large tables smaller)
+
+  * allow 255 (or even 256?) byte keys.
+
+  * is it cleaner to explicitly store the null key (as we currently do) or
+    not to?
+
   * xapian-check checking Btree structure (currently only checks data inside
     tables).
-
-  * tracking free blocks
 
   * xapian-check of an individual table
 
   * xapian-inspect - make it handle flint/chert and brass in one binary.
-
-  * prefix-compress keys (to make large tables smaller)
 
   * cursor snooping currently O(# depth of tree)...
 
@@ -32,7 +44,5 @@ TODO:
 
   * compare speed with chert (e.g. profile running the testsuite) and try to
     make sure we're at least as fast everywhere.
-
-  * splitting of branch blocks currently untested.
 
   * replication
