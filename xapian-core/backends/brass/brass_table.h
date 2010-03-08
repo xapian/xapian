@@ -315,6 +315,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     BrassCBlock * lose_level() {
 	Assert(!parent);
 	BrassCBlock * new_root = child;
+	child = NULL; // So the destructor doesn't delete it.
 	delete this;
 	return new_root;
     }
