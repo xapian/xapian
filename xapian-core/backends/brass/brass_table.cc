@@ -1541,7 +1541,8 @@ BrassTable::close()
 	my_cursor = NULL;
 	// FIXME: check for error...
 	::close(fd);
-	::close(fd_slab);
+	if (fd_slab >= 0)
+	    ::close(fd_slab);
     }
     fd = fd_slab = FD_CLOSED;
 }
