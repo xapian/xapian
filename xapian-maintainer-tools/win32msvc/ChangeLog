@@ -1,3 +1,9 @@
+Tue Mar 09 10:58:52 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* xapdep/xapdep.c: Print object file on every line like Makedepend
+	  did, add quotes round dependencies to cope with Windows paths,
+	  remove old rename-in-place function.
+
 Mon Mar 08 06:26:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapdep/README: Undouble contents (this file was in the patch twice).

@@ -19,7 +19,7 @@
  */
 /* Replacement for makedepend, which had several bugs. We read in a file 'deps.d', 
 made by the MSVC compiler using the -showIncludes switch, reformat it and add its
- contents to the end of 'Makefile'  - we do a nasty in-place replacement */
+ contents to the end of 'Makefile' */
 
 #pragma warning(disable:4996)
 #include <io.h>
@@ -39,36 +39,11 @@ made by the MSVC compiler using the -showIncludes switch, reformat it and add it
 /*  lines that don't match the above will have a colon at this position*/
 #define CHECKPOS 4 
 
-/* Ugly rename-in-place hack taken from Makedepend sources */
-int myrename(char *from, char *to)
-{
-  int r=1;
-  char buf[BUFSIZE];
-  FILE *in, *out;
-  in=fopen(from, "rb");
-  if(in==0)
-    return -1;
-  out=fopen(to, "wb");
-  if(out==0)
-    return -1;
-  while(!feof(in) && r>0)
-    {
-      r=fread(buf, 1, sizeof(buf), in);
-      if(r>0)
-		fwrite(buf, 1, r, out);
-    }
-  fclose(out);
-  fclose(in);
-  if(unlink(from) < 0)
-	  fprintf(stderr, "\nXAPDEP could not delete %s : %s\n", from, strerror(errno));
-
-  return 0;
-}
-
 int main(int argc, char *argv[])
 {
 	FILE *indep,*inmak,*outmak;
 	char buf[BUFSIZE];
+	char objfile[BUFSIZE];
 	int ch, endch;
 
     /* Open the files we'll need, renaming the old Makefile to a backup */
@@ -78,8 +53,10 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "\nXAPDEP could not read deps.d\n");
 		return -1;
 	}
-	if(myrename(MAKEFILE,BACKUP_MAKEFILE)!=0)
+	(void)unlink(BACKUP_MAKEFILE);
+	if(rename(MAKEFILE,BACKUP_MAKEFILE)!=0)
 		return -1;
+
 	inmak=fopen(BACKUP_MAKEFILE,"rb");
 	outmak=fopen(MAKEFILE,"wb");
 	if((inmak==0)||(outmak==0))
@@ -109,10 +86,9 @@ int main(int argc, char *argv[])
                 }
 
 				/* first line should be a .cc file, use this to generate the .obj file */
-				ch=0; 
-				while((buf[ch]!='.') && (buf[ch]!='\0'))
-					putc(buf[ch++], outmak);
-				fputs(".obj : ", outmak);
+				for (ch=0; (buf[ch]!='.') && (buf[ch]!='\0'); ++ch)
+					objfile[ch] = buf[ch];
+				objfile[ch]='\0';
 				while(!feof(indep))
 				{
                     /* get all the dependencies */
@@ -132,9 +108,11 @@ int main(int argc, char *argv[])
                     /* skip space */
 					while((ch < endch) && (buf[ch]!='\r') && (buf[ch]==' '))
 						ch++;
+					fputs(objfile, outmak);
+					fputs(".obj : \"", outmak);
 					while((ch < endch) && (buf[ch]!='\r'))
 						putc(buf[ch++], outmak);
-					fputs("\r\n", outmak);
+					fputs("\" \r\n", outmak);
 				}
 			}
 		}
