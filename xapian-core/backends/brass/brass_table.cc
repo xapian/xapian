@@ -550,7 +550,6 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	    // FIXME: pick middle point better...
 	    split_after = C >> 1;
 	}
-	cout << "\nsplitting branch block " << n << " at " << split_after << endl;
 	size_t split_ptr = get_endptr(split_after);
 	const char *div_p = data + get_ptr(split_after);
 	// We can't further shorten the dividing key here or it'll disagree
