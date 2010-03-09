@@ -964,14 +964,18 @@ BrassCBlock::del()
 	// the corresponding entry from its parent.
 	const_cast<BrassTable&>(table).mark_free(n);
 	modified = false;
+	AssertEq(item, 0);
 	if (parent)
 	    parent->del();
 	return;
     }
 
     if (C == 2 && !parent) {
-	// This is the root block, and will now only have one entry,
-	// so the Btree can lose a level.
+	// This is the root block, and would only have one child after the
+	// other is deleted, so the // Btree can lose a level (which will
+	// delete us).
+
+	// It would be pointless to write this block to disk.
 	modified = false;
 	const_cast<BrassTable&>(table).lose_level();
 	return;
