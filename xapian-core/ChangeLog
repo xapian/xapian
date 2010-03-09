@@ -1,3 +1,8 @@
+Tue Mar 09 12:09:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix BrassCBlock::del() to update the
+	  item pointers correctly.
+
 Tue Mar 09 03:56:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: BrassCBlock::set_child_block_number()

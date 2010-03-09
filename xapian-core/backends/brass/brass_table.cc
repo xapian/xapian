@@ -959,7 +959,7 @@ BrassCBlock::del()
     Assert(!is_leaf());
     // The last entry in the leaf block was removed, so delete item "item"
     // from the parent.
-    size_t C = get_count();
+    int C = get_count();
     if (C == 1) {
 	// This block will become empty, so delete it and remove
 	// the corresponding entry from its parent.
@@ -981,7 +981,7 @@ BrassCBlock::del()
     size_t len = get_endptr(item) - get_ptr(item);
     size_t ptr = get_endptr(C);
     memmove(data + ptr + len, data + ptr, get_ptr(item) - ptr);
-    for (size_t i = C - 1; i > size_t(item); --i) {
+    for (int i = item + 1; i < C; ++i) {
 	set_ptr(i - 1, get_ptr(i) + len);
     }
     set_count(C - 1);
