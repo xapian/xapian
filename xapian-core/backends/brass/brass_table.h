@@ -688,8 +688,11 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 };
 
 inline void BrassCBlock::set_child_block_number(brass_block_t n_child) {
-    AssertRel(item,>=,0);
-    set_block(item, n_child);
+    AssertRel(item,>=,-1);
+    if (item == -1)
+	set_left_block(n_child);
+    else
+	set_block(item, n_child);
 
     if (!needs_clone)
 	return;
