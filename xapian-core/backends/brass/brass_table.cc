@@ -532,25 +532,25 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
     int len = BLOCKPTR_SIZE + key.size();
     int C = get_count();
     //cout << n << ": insert at " << b << "/" << C << endl;
-    int freespace_end = get_endptr(C);
+    int free_end = get_endptr(C);
     // Check it fits!
-    //cout << n << ": " << len + 2 << " <= " << freespace_end - header_length(C) << endl;
+    //cout << n << ": " << len + 2 << " <= " << free_end - header_length(C) << endl;
     // FIXME: see comment in other version of insert().
-    if (len + 2 > freespace_end - header_length(C)) {
-	// cout << "splitting branch block " << n << endl;
-	AssertRel(C,>,1);
+    if (len + 2 > free_end - header_length(C)) {
 	// Split the block - if in random insert mode, split evenly as
 	// that gives us the amortised Btree performance guarantees.
 	//
 	// If in sequential insert mode, then split at the insertion point
 	// which gives us almost full blocks.
+	AssertRel(C,>,1);
 	int split_after;
 	if (!random_access) {
-	    split_after = b - 1;
+	    split_after = b;
 	} else {
 	    // FIXME: pick middle point better...
 	    split_after = C >> 1;
 	}
+	cout << "\nsplitting branch block " << n << " at " << split_after << endl;
 	size_t split_ptr = get_endptr(split_after);
 	const char *div_p = data + get_ptr(split_after);
 	// We can't further shorten the dividing key here or it'll disagree
@@ -572,14 +572,14 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	// table.key_limits[sp.n].second = table.key_limits[n].second;
 	// cout << n << " UPDATING BOUNDS from split " << endl;
 	// table.key_limits[n].second = divkey;
-	memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - (split_ptr - freespace_end), data + freespace_end, split_ptr - freespace_end);
+	memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - (split_ptr - free_end), data + free_end, split_ptr - free_end);
 	sp.set_left_block(split_new_l);
 	for (int i = split_after; i < C; ++i) {
 	    sp.set_ptr(i - split_after, get_ptr(i) + table.blocksize - BLOCKPTR_SIZE - split_ptr);
 	}
 	sp.set_count(C - split_after);
 #ifdef ZERO_UNUSED_SPACE
-	memset(data + freespace_end, 0, split_ptr - freespace_end);
+	memset(data + free_end, 0, split_ptr - free_end);
 #endif
 	set_count(split_after - 1);
 	brass_block_t n_left = n, n_right = sp.n;
@@ -613,8 +613,8 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
     if (b < C) {
 	// Need to insert in sorted order, so shuffle existing entries along.
 	// We need to move entries [b, C) down by len bytes.
-	char * q = data + freespace_end;
-	size_t l = get_endptr(b) - freespace_end;
+	char * q = data + free_end;
+	size_t l = get_endptr(b) - free_end;
 	memmove(q - len, q, l);
 	//cout << n << ": shuffle! (" << q - len - data << " <- " << q - data << ", " << l << ")" << endl;
 	/* item can be -1 (left pointer), and we don't want to adjust that. */

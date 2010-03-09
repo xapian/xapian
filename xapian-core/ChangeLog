@@ -1,3 +1,9 @@
+Tue Mar 09 01:27:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Rename freespace_end to free_end to
+	  match free_end used elsewhere.  Fix branch block split point in
+	  sequential mode.
+
 Mon Mar 08 14:55:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Don't try to close fd_slab if it isn't
