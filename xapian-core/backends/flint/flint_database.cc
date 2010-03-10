@@ -5,7 +5,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
- * Copyright 2009 Richard Boulton
+ * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@
 #include "flint_alldocspostlist.h"
 #include "flint_alltermslist.h"
 #include "flint_document.h"
-#include "flint_io.h"
 #include "../flint_lock.h"
 #include "flint_metadata.h"
 #include "flint_modifiedpostlist.h"
@@ -47,9 +46,11 @@
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "flint_values.h"
+#include "io_utils.h"
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "replicate_utils.h"
 #include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
@@ -399,8 +400,8 @@ FlintDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + flint_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -448,17 +449,9 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	flint_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
 	    // Don't generate a changeset for the first revision.
-	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
-#ifdef __WIN32__
-	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	    if (changes_fd < 0) {
-		string message = string("Couldn't open changeset ")
-			+ changes_name + " to write";
-		throw Xapian::DatabaseError(message, errno);
-	    }
+	    changes_fd = create_changeset_file(db_dir,
+					       "/changes" + str(old_revision),
+					       changes_name);
 	}
     }
 
@@ -475,7 +468,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
 	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
 
-	    flint_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache
@@ -688,7 +681,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    }
 
 	    // Look for the changeset for revision start_rev_num.
-	    string changes_name = db_dir + "/changes" + om_tostring(start_rev_num);
+	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 	    if (file_exists(changes_name)) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.

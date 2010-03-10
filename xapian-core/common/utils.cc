@@ -86,8 +86,14 @@ removedir(const string &dirname)
 	    string name(entry->d_name);
 	    if (name == "." || name == "..")
 		continue;
-	    if (unlink(dirname + "/" + name)) {
-		throw Xapian::DatabaseError("Cannot remove file '" + string(entry->d_name) + "'", errno);
+	    string fname(dirname + "/" + name);
+	    if (dir_exists(fname)) {
+		// Is a directory - recurse into it.
+		removedir(fname);
+	    } else {
+		if (unlink(fname)) {
+		    throw Xapian::DatabaseError("Cannot remove file '" + string(entry->d_name) + "'", errno);
+		}
 	    }
 	}
     }
