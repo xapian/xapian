@@ -82,9 +82,6 @@ inline int stat(const string &filename, struct stat *buf) {
 /** Remove a directory, and its contents.
  *
  *  If dirname doesn't refer to a file or directory, no error is generated.
- *
- *  Note - this doesn't currently cope with directories which contain
- *  subdirectories.
  */
 void removedir(const string &dirname);
 
