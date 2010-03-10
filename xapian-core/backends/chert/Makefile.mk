@@ -14,7 +14,6 @@ noinst_HEADERS +=\
 	backends/chert/chert_databasereplicator.h\
 	backends/chert/chert_dbstats.h\
 	backends/chert/chert_document.h\
-	backends/chert/chert_io.h\
 	backends/chert/chert_lazytable.h\
 	backends/chert/chert_metadata.h\
 	backends/chert/chert_modifiedpostlist.h\
@@ -43,7 +42,6 @@ lib_src +=\
 	backends/chert/chert_databasereplicator.cc\
 	backends/chert/chert_dbstats.cc\
 	backends/chert/chert_document.cc\
-	backends/chert/chert_io.cc\
 	backends/chert/chert_metadata.cc\
 	backends/chert/chert_modifiedpostlist.cc\
 	backends/chert/chert_positionlist.cc\

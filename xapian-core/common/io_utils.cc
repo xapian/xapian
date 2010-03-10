@@ -1,7 +1,8 @@
-/** @file chert_io.cc
+/** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +21,14 @@
 
 #include <config.h>
 
+#include "io_utils.h"
+
 #include "safeerrno.h"
 #include "safeunistd.h"
 
 #include <xapian/error.h>
 
-#include "chert_io.h"
-
-size_t chert_io_read(int fd, char * p, size_t n, size_t min)
+size_t io_read(int fd, char * p, size_t n, size_t min)
 {
     size_t total = 0;
     while (n) {
@@ -48,7 +49,7 @@ size_t chert_io_read(int fd, char * p, size_t n, size_t min)
 }
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
-void chert_io_write(int fd, const char * p, size_t n)
+void io_write(int fd, const char * p, size_t n)
 {
     while (n) {
 	ssize_t c = write(fd, p, n);

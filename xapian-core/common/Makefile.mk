@@ -17,6 +17,7 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/internaltypes.h\
+	common/io_utils.h\
 	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
@@ -84,6 +85,7 @@ lib_src +=\
 	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
+	common/io_utils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\

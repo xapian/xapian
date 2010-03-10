@@ -4,6 +4,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,11 +67,11 @@ PWRITE_PROTOTYPE
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 
-#include "flint_io.h"
 #include "flint_btreebase.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
 
+#include "io_utils.h"
 #include "omassert.h"
 #include "omdebug.h"
 #include "unaligned.h"
@@ -260,7 +261,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    flint_io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
+    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
 }
 
@@ -323,7 +324,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    flint_io_write(handle, reinterpret_cast<const char *>(p), block_size);
+    io_write(handle, reinterpret_cast<const char *>(p), block_size);
 #endif
 }
 
@@ -1867,7 +1868,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 
 	// Do this as late as possible to allow maximum time for writes to be
 	// committed.
-	if (!flint_io_sync(handle)) {
+	if (!io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
@@ -1926,7 +1927,7 @@ FlintTable::write_changed_blocks(int changes_fd)
     buf += F_pack_uint(strlen(tablename));
     buf += tablename;
     buf += F_pack_uint(block_size);
-    flint_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
     // write them to the file descriptor.
@@ -1936,14 +1937,13 @@ FlintTable::write_changed_blocks(int changes_fd)
 	base.calculate_last_block();
 	while (base.find_changed_block(&n)) {
 	    buf = F_pack_uint(n + 1);
-	    flint_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
 	    read_block(n, p);
 
 	    // Write block n to the file.
-	    flint_io_write(changes_fd, reinterpret_cast<const char *>(p),
-			   block_size);
+	    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
 	    ++n;
 	}
 	delete[] p;
@@ -1953,7 +1953,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 	throw;
     }
     buf = F_pack_uint(0u);
-    flint_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 }
 
 void

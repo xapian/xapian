@@ -4,6 +4,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,10 +67,10 @@ PWRITE_PROTOTYPE
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 
-#include "chert_io.h"
 #include "chert_btreebase.h"
 #include "chert_cursor.h"
 
+#include "io_utils.h"
 #include "omassert.h"
 #include "omdebug.h"
 #include "pack.h"
@@ -246,7 +247,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    chert_io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
+    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
 }
 
@@ -309,7 +310,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    chert_io_write(handle, reinterpret_cast<const char *>(p), block_size);
+    io_write(handle, reinterpret_cast<const char *>(p), block_size);
 #endif
 }
 
@@ -1879,7 +1880,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 
 	// Do this as late as possible to allow maximum time for writes to be
 	// committed.
-	if (!chert_io_sync(handle)) {
+	if (!io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
@@ -1938,7 +1939,7 @@ ChertTable::write_changed_blocks(int changes_fd)
     pack_uint(buf, 2u); // Indicate the item is a list of blocks
     pack_string(buf, tablename);
     pack_uint(buf, block_size);
-    chert_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
     // write them to the file descriptor.
@@ -1949,14 +1950,14 @@ ChertTable::write_changed_blocks(int changes_fd)
 	while (base.find_changed_block(&n)) {
 	    buf.resize(0);
 	    pack_uint(buf, n + 1);
-	    chert_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
 	    read_block(n, p);
 
 	    // Write block n to the file.
-	    chert_io_write(changes_fd, reinterpret_cast<const char *>(p),
-			   block_size);
+	    io_write(changes_fd, reinterpret_cast<const char *>(p),
+		     block_size);
 	    ++n;
 	}
 	delete[] p;
@@ -1967,7 +1968,7 @@ ChertTable::write_changed_blocks(int changes_fd)
     }
     buf.resize(0);
     pack_uint(buf, 0u);
-    chert_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 }
 
 void
