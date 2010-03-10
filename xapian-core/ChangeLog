@@ -1,3 +1,23 @@
+Wed Mar 10 13:07:41 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* common/Makefile.mk,common/replicate_utils.cc,
+	  common/replicate_utils.h: Add some utility functions for
+	  replication to create changeset files, and append content to
+	  them, to avoid duplicating the code in each backend.
+	* backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.h,
+	  backends/flint/flint_database.cc,
+	  backends/flint/flint_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.h: Make the
+	  DatabaseReplicator subclasses respect the XAPIAN_MAX_CHANGESETS
+	  environment variable, such that they write the changesets they're
+	  applying to disk if the value is non-zero.  Enables replication
+	  from a replicated copy.
+	* tests/api_replicate.cc: Refactor some common code, and add
+	  replicate2, which tests replication from a replicated copy.  Skip
+	  this test for brass, since brass doesn't support this.
+
 Wed Mar 10 12:11:41 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* common/utils.cc,common/utils.h: Make removedir() recurse into

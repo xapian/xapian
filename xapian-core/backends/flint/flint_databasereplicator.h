@@ -2,6 +2,7 @@
  * @brief Support for flint database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,12 +31,17 @@ class FlintDatabaseReplicator : public Xapian::DatabaseReplicator {
 	 */
 	std::string db_dir;
 
+	/** The maximum number of changesets which should be kept in the
+	 *  database. */
+	unsigned int max_changesets;
+
 	/** Process a chunk which holds a base block.
 	 */
 	void process_changeset_chunk_base(const std::string & tablename,
 					  std::string & buf,
 					  RemoteConnection & conn,
-					  const OmTime & end_time) const;
+					  const OmTime & end_time,
+					  int changes_fd) const;
 
 	/** Process a chunk which holds a list of changed blocks in the
 	 *  database.
@@ -43,7 +49,8 @@ class FlintDatabaseReplicator : public Xapian::DatabaseReplicator {
 	void process_changeset_chunk_blocks(const std::string & tablename,
 					    std::string & buf,
 					    RemoteConnection & conn,
-					    const OmTime & end_time) const;
+					    const OmTime & end_time,
+					    int changes_fd) const;
 
     public:
 	FlintDatabaseReplicator(const std::string & db_dir_);

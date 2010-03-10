@@ -2,6 +2,7 @@
  *
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +27,7 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "dbcheck.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
@@ -106,12 +108,22 @@ replicate(Xapian::DatabaseMaster & master,
 
 // Check that the databases held at the given path are identical.
 static void
-check_equal_dbs(const string & path1, const string & path2)
+check_equal_dbs(const string & masterpath, const string & replicapath)
 {
-    Xapian::Database db1(path1);
-    Xapian::Database db2(path2);
+    Xapian::Database master(masterpath);
+    Xapian::Database replica(replicapath);
 
-    TEST_EQUAL(db1.get_doccount(), db2.get_doccount());
+    TEST_EQUAL(master.get_uuid(), master.get_uuid());
+    dbcheck(replica, master.get_doccount(), master.get_lastdocid());
+}
+
+static void
+set_max_changesets(int count) {
+#ifdef __WIN32__
+    _putenv(("XAPIAN_MAX_CHANGESETS=" + str(count)).c_str());
+#else
+    setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
+#endif
 }
 
 // #######################################################################
@@ -123,11 +135,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
 
-#ifdef __WIN32__
-    _putenv("XAPIAN_MAX_CHANGESETS=10");
-#else
-    setenv("XAPIAN_MAX_CHANGESETS", "10", 1);
-#endif
+    set_max_changesets(10);
 
     Xapian::WritableDatabase orig(get_named_writable_database("master"));
     Xapian::DatabaseMaster master(masterpath);
@@ -188,6 +196,105 @@ DEFINE_TESTCASE(replicate1, replicas) {
     // Need to close the replica before we remove the temporary directory on
     // Windows.
     replica.close();
+    rmtmpdir(tempdir);
+    return true;
+}
+
+// Test replication from a replicated copy.
+DEFINE_TESTCASE(replicate2, replicas) {
+    SKIP_TEST_FOR_BACKEND("brass"); // Brass doesn't currently support this.
+
+    string tempdir = ".replicatmp";
+    mktmpdir(tempdir);
+    string masterpath = get_named_writable_database_path("master");
+
+    set_max_changesets(10);
+
+    Xapian::WritableDatabase orig(get_named_writable_database("master"));
+    Xapian::DatabaseMaster master(masterpath);
+    string replicapath = tempdir + "/replica";
+    Xapian::DatabaseReplica replica(replicapath);
+
+    Xapian::DatabaseMaster master2(replicapath);
+    string replica2path = tempdir + "/replica2";
+    Xapian::DatabaseReplica replica2(replica2path);
+
+    // Add a document to the original database.
+    Xapian::Document doc1;
+    doc1.set_data(string("doc1"));
+    doc1.add_posting("doc", 1);
+    doc1.add_posting("one", 1);
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Apply the replication - we don't have changesets stored, so this should
+    // just do a database copy, and return a count of 1.
+    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    check_equal_dbs(masterpath, replicapath);
+
+    // Replicate from the replica.
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, 1), 1);
+    check_equal_dbs(masterpath, replica2path);
+
+    orig.add_document(doc1);
+    orig.commit();
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Replicate from the replica - should have no changes.
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 0, 0), 1);
+    check_equal_dbs(replicapath, replica2path);
+
+    // Replicate, and replicate from the replica - should have 2 changes.
+    TEST_EQUAL(replicate(master, replica, tempdir, 2, 0, 1), 3);
+    check_equal_dbs(masterpath, replicapath);
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 2, 0, 1), 3);
+    check_equal_dbs(masterpath, replica2path);
+
+    // Stop writing changesets, and make a modification
+    set_max_changesets(0);
+    orig.close();
+    orig = get_writable_database_again();
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Replication should do a full copy.
+    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    check_equal_dbs(masterpath, replicapath);
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, 1), 1);
+    check_equal_dbs(masterpath, replica2path);
+
+    // Start writing changesets, but only keep 1 in history, and make a
+    // modification.
+    set_max_changesets(1);
+    orig.close();
+    orig = get_writable_database_again();
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Replicate, and replicate from the replica - should have 1 changes.
+    TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, 1), 2);
+    check_equal_dbs(masterpath, replicapath);
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 1, 0, 1), 2);
+    check_equal_dbs(masterpath, replica2path);
+
+    // Make two changes - only one changeset should be preserved.
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Replication should do a full copy, since one of the needed changesets
+    // is missing.
+
+    //FIXME - the following tests are commented out because the backends don't currently tidy up old changesets correctly.
+    //TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    //check_equal_dbs(masterpath, replicapath);
+    //TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, 1), 1);
+    //check_equal_dbs(masterpath, replica2path);
+
+    // Need to close the replicas before we remove the temporary directory on
+    // Windows.
+    replica.close();
+    replica2.close();
     rmtmpdir(tempdir);
     return true;
 }

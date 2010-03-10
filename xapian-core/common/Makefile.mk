@@ -43,6 +43,7 @@ noinst_HEADERS +=\
 	common/remoteserver.h\
 	common/remotetcpclient.h\
 	common/remotetcpserver.h\
+	common/replicate_utils.h\
 	common/replicatetcpclient.h\
 	common/replicatetcpserver.h\
 	common/replication.h\
@@ -89,6 +90,7 @@ lib_src +=\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
+	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
