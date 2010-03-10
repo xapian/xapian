@@ -1,3 +1,10 @@
+Wed Mar 10 12:11:41 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* common/utils.cc,common/utils.h: Make removedir() recurse into
+	  subdirectories; this ensures that replication works if backends
+	  put some files in subdirectories of their replicas (eg, if the
+	  replica is itself a replicated database).
+
 Wed Mar 10 12:07:40 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* backends/chert/,backends/flint/,common/Makefile.mk,
