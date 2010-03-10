@@ -5,7 +5,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
- * Copyright 2009 Richard Boulton
+ * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,6 @@
 #include "chert_alltermslist.h"
 #include "chert_replicate_internal.h"
 #include "chert_document.h"
-#include "chert_io.h"
 #include "../flint_lock.h"
 #include "chert_metadata.h"
 #include "chert_modifiedpostlist.h"
@@ -48,6 +47,7 @@
 #include "chert_termlist.h"
 #include "chert_valuelist.h"
 #include "chert_values.h"
+#include "io_utils.h"
 #include "omdebug.h"
 #include "omtime.h"
 #include "pack.h"
@@ -368,8 +368,8 @@ ChertDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + chert_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -445,7 +445,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
 	    pack_uint(buf, 0u); // Changes can be applied to a live database.
 
-	    chert_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache

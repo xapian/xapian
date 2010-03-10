@@ -5,7 +5,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
- * Copyright 2009 Richard Boulton
+ * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@
 #include "flint_alldocspostlist.h"
 #include "flint_alltermslist.h"
 #include "flint_document.h"
-#include "flint_io.h"
 #include "../flint_lock.h"
 #include "flint_metadata.h"
 #include "flint_modifiedpostlist.h"
@@ -47,6 +46,7 @@
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "flint_values.h"
+#include "io_utils.h"
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
@@ -399,8 +399,8 @@ FlintDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + flint_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -475,7 +475,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
 	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
 
-	    flint_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache

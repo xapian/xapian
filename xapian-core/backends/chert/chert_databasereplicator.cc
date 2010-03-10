@@ -3,6 +3,7 @@
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,12 +27,12 @@
 
 #include "xapian/error.h"
 
-#include "chert_io.h"
 #include "../flint_lock.h"
 #include "chert_record.h"
 #include "chert_replicate_internal.h"
 #include "chert_types.h"
 #include "chert_version.h"
+#include "io_utils.h"
 #include "omdebug.h"
 #include "omtime.h"
 #include "pack.h"
@@ -126,8 +127,8 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     {
 	fdcloser closer(fd);
 
-	chert_io_write(fd, buf.data(), base_size);
-	chert_io_sync(fd);
+	io_write(fd, buf.data(), base_size);
+	io_sync(fd);
     }
 #if defined __WIN32__
     if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
@@ -204,11 +205,11 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		msg += om_tostring(block_number);
 		throw DatabaseError(msg, errno);
 	    }
-	    chert_io_write(fd, buf.data(), changeset_blocksize);
+	    io_write(fd, buf.data(), changeset_blocksize);
 
 	    buf.erase(0, changeset_blocksize);
 	}
-	chert_io_sync(fd);
+	io_sync(fd);
     }
 }
 
