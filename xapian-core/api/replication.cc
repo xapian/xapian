@@ -457,6 +457,9 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     } catch (Xapian::DatabaseError &) {
 	return false;
     }
+    if (offline_needed_revision.empty()) {
+	return false;
+    }
     if (!replicator->check_revision_at_least(offline_revision,
 					     offline_needed_revision)) {
 	return false;
@@ -501,8 +504,11 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
     while (true) {
 	char type = conn->sniff_next_message_type(end_time);
 	switch (type) {
-	    case REPL_REPLY_END_OF_CHANGES:
+	    case REPL_REPLY_END_OF_CHANGES: {
+		string buf;
+		(void)conn->get_message(buf, end_time);
 		RETURN(false);
+	    }
 	    case REPL_REPLY_DB_HEADER:
 		// Apply the copy - remove offline db in case of any error.
 		try {
@@ -540,23 +546,30 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 		if (!have_offline_db) {
 		    // Close the live db.
-		    live_db = WritableDatabase();
 		    string replica_path(get_replica_path(live_id));
+		    live_db = WritableDatabase();
+		    try {
 
-		    // Open a replicator for the live path, and apply the
-		    // changeset.
-		    {
-			AutoPtr<DatabaseReplicator> replicator(
-				DatabaseReplicator::open(replica_path));
-			offline_needed_revision = replicator->
-				apply_changeset_from_conn(*conn, end_time, true);
-		    }
+			// Open a replicator for the live path, and apply the
+			// changeset.
+			{
+			    AutoPtr<DatabaseReplicator> replicator(
+				    DatabaseReplicator::open(replica_path));
+			    offline_needed_revision.resize(0);
+			    offline_needed_revision = replicator->
+				    apply_changeset_from_conn(*conn, end_time, true);
+			}
 
-		    // Close the replicator and open the live db again.
-		    if (info != NULL) {
-			++(info->changeset_count);
-			info->changed = true;
+			if (info != NULL) {
+			    ++(info->changeset_count);
+			    info->changed = true;
+			}
+		    } catch(...) {
+			// Ensure we don't leave the live_db closed.
+			live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
+			throw;
 		    }
+		    // Now the replicator is closed, open the live db again.
 		    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
 		    RETURN(true);
 		}
@@ -564,6 +577,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		{
 		    AutoPtr<DatabaseReplicator> replicator(
 			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
+		    offline_needed_revision.resize(0);
 		    offline_needed_revision = replicator->
 			    apply_changeset_from_conn(*conn, end_time, false);
 		}

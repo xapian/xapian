@@ -1,3 +1,19 @@
+Thu Mar 11 13:03:57 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/replication.cc: If an exception is thrown, mark that the
+	  offline revision needed is unknown (represented by being empty);
+	  ensures that a database isn't put live incorrectly in this case.
+	  Also, actually read the message for REPL_REPLY_END_OF_CHANGES, so
+	  that we get an error if the message is truncated.  Also, if an
+	  attempt to apply a changeset to the live database fails with an
+	  exception while the live database is closed, reopen the live
+	  database before allowing the exception to propagate.
+	* tests/api_replicate.cc: Split replicate() helper function into
+	  two parts, to separate getting the changeset messages, and
+	  applying them. Add replicate3 test, which checks that
+	  replications which are provided with truncated messages raise
+	  appropriate errors.
+
 Thu Mar 11 00:46:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/replicate_utils.cc: Avoid creating temporary string objects
