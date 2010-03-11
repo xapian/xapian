@@ -1,3 +1,8 @@
+Thu Mar 11 00:46:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.cc: Avoid creating temporary string objects
+	  to reduce bloat in compiled code.  Remove explicit std:: qualifiers.
+
 Thu Mar 11 00:38:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/replicate_utils.cc: The directory we're writing changesets

@@ -2,6 +2,7 @@
  * @brief Utility functions for replication implementations
  */
 /* Copyright (C) 2010 Richard Boulton
+ * Copyright (C) 2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,11 +42,13 @@
 using namespace std;
 
 int
-create_changeset_file(const std::string & changeset_dir,
-		      const std::string & filename,
-		      std::string & changes_name)
+create_changeset_file(const string & changeset_dir,
+		      const string & filename,
+		      string & changes_name)
 {
-    changes_name = changeset_dir + "/" + filename;
+    changes_name = changeset_dir;
+    changes_name += '/';
+    changes_name += filename;
 #ifdef __WIN32__
     int changes_fd = msvc_posix_open(changes_name.c_str(),
 				     O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
@@ -54,15 +57,15 @@ create_changeset_file(const std::string & changeset_dir,
 			  O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
     if (changes_fd < 0) {
-	string message = string("Couldn't open changeset ")
-		+ changes_name + " to write";
+	string message("Couldn't open changeset to write: ");
+	message += changes_name;
 	throw Xapian::DatabaseError(message, errno);
     }
     return changes_fd;
 }
 
 void
-write_and_clear_changes(int changes_fd, std::string & buf, size_t bytes)
+write_and_clear_changes(int changes_fd, string & buf, size_t bytes)
 {
     if (changes_fd != -1) {
 	io_write(changes_fd, buf.data(), bytes);
