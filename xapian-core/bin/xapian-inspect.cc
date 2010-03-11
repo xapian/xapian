@@ -195,9 +195,10 @@ main(int argc, char **argv)
     // Path to the table to inspect.
     string table_name(argv[optind]);
     bool arg_is_directory = dir_exists(table_name);
-    if (endswith(table_name, "."BRASS_TABLE_EXTENSION))
-	table_name.resize(table_name.size() - 2);
-    else if (!endswith(table_name, '.'))
+    if (endswith(table_name, "."BRASS_TABLE_EXTENSION)) {
+	size_t cut = table_name.size() - CONST_STRLEN(BRASS_TABLE_EXTENSION);
+	table_name.resize(cut);
+    } else if (!endswith(table_name, '.'))
 	table_name += '.';
     if (arg_is_directory && !file_exists(table_name + BRASS_TABLE_EXTENSION)) {
 	cerr << argv[0] << ": You need to specify a single Btree table, not a database directory." << endl;

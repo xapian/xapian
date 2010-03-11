@@ -1,3 +1,7 @@
+Thu Mar 11 12:05:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Fix removal of ".brass" extension.
+
 Tue Mar 09 13:30:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Add assertion; expand comment.
