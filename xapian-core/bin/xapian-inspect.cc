@@ -28,6 +28,7 @@
 #include "brass_cursor.h"
 #include "brass_defs.h"
 #include "brass_table.h"
+#include "brass_version.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -161,9 +162,8 @@ main(int argc, char **argv)
 	{NULL,		0, 0, 0}
     };
 
-    // FIXME: read from v file?
+    bool root_specified = false;
     brass_block_t root_block = 0;
-    unsigned block_size = BRASS_DEFAULT_BLOCKSIZE;
     int c;
     while ((c = gnu_getopt_long(argc, argv, "r:", long_opts, 0)) != -1) {
         switch (c) {
@@ -176,6 +176,7 @@ main(int argc, char **argv)
 		exit(0);
 	    case 'r': {
 		char * end;
+		root_specified = true;
 		root_block = strtoul(optarg, &end, 0);
 		if (*end == '\0')
 		    break;
@@ -205,8 +206,46 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    size_t p = table_name.find_last_of('/');
+#if defined __WIN32__ || defined __EMX__
+    if (p == string::npos) p = 0;
+    p = table_name.find_last_of('\\', p);
+#endif
+    if (p == string::npos) p = 0; else ++p;
+
+    string db_dir(table_name, 0, p);
+
+    BrassVersion version_file;
+    version_file.open_most_recent(db_dir);
+    unsigned block_size = version_file.get_block_size();
+
+    if (!root_specified) {
+	string leaf(table_name, db_dir.size());
+	if (startswith(leaf, "postlist")) {
+	    root_block = version_file.get_root_block(Brass::POSTLIST);
+	} else if (startswith(leaf, "termlist")) {
+	    root_block = version_file.get_root_block(Brass::TERMLIST);
+	} else if (startswith(leaf, "record")) {
+	    root_block = version_file.get_root_block(Brass::RECORD);
+	} else if (startswith(leaf, "position")) {
+	    root_block = version_file.get_root_block(Brass::POSITION);
+	} else if (startswith(leaf, "spelling")) {
+	    root_block = version_file.get_root_block(Brass::SPELLING);
+	} else if (startswith(leaf, "synonym")) {
+	    root_block = version_file.get_root_block(Brass::SYNONYM);
+	} else {
+	    cerr << argv[0] << ": Root block not specified, and table name "
+		"unrecognised.\n"
+		"Use --root BLOCK_NUMBER to specify it." << endl;
+	    exit(1);
+	}
+    }
+
     show_help();
     cout << endl;
+
+    if (!root_specified)
+	cout << "Using root block " << root_block << '\n' << endl;
 
 open_different_table:
     try {
