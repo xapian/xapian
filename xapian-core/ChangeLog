@@ -1,3 +1,10 @@
+Thu Mar 11 00:10:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Fix calculation of end
+	  pointer for changes file.  Since the merge, it has been off by
+	  CONST_STRLEN(CHANGES_MAGIC_STRING).
+
 Wed Mar 10 23:59:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,
