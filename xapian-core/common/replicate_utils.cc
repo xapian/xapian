@@ -25,7 +25,6 @@
 #include "xapian/error.h"
 
 #include "io_utils.h"
-#include "utils.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -41,36 +40,11 @@
 
 using namespace std;
 
-static void
-ensure_directory(const std::string dirname)
-{
-    struct stat statbuf;
-    if (stat(dirname, &statbuf) == 0) {
-	if (S_ISDIR(statbuf.st_mode))
-	    return;
-	throw Xapian::DatabaseCreateError("Cannot create directory `" +
-					  dirname + "': it already exists "
-					  "but is not a directory");
-    }
-    if (errno != ENOENT) {
-	throw Xapian::DatabaseCreateError("Cannot stat directory `" +
-					  dirname + "'", errno);
-    }
-
-    if (mkdir(dirname, 0755) == -1) {
-	throw Xapian::DatabaseCreateError("Cannot create directory `" +
-					  dirname + "'", errno);
-    }
-}
-
 int
 create_changeset_file(const std::string & changeset_dir,
 		      const std::string & filename,
 		      std::string & changes_name)
 {
-    // Create the changeset directory if it doesn't already exist.
-    ensure_directory(changeset_dir);
-
     changes_name = changeset_dir + "/" + filename;
 #ifdef __WIN32__
     int changes_fd = msvc_posix_open(changes_name.c_str(),

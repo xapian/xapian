@@ -1,3 +1,8 @@
+Thu Mar 11 00:38:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.cc: The directory we're writing changesets
+	  to will always exist, so no need to ensure it does.
+
 Thu Mar 11 00:10:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_databasereplicator.cc,
