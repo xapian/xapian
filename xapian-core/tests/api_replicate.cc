@@ -474,6 +474,6 @@ DEFINE_TESTCASE(replicate3, replicas) {
     // Need to close the replicas before we remove the temporary directory on
     // Windows.
     replica.close();
-    //rmtmpdir(tempdir);
+    rmtmpdir(tempdir);
     return true;
 }
