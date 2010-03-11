@@ -123,8 +123,11 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// The id of the currently live database in the replica (0 or 1).
     int live_id;
 
-    /// The live database being replicated.
-    WritableDatabase live_db;
+    /** The live database being replicated.
+     *
+     *  This needs to be mutable because it is sometimes lazily opened.
+     */
+    mutable WritableDatabase live_db;
 
     /** Do we have an offline database currently?
      *
@@ -362,7 +365,11 @@ DatabaseReplica::Internal::get_revision_info() const
 {
     DEBUGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", "");
     if (live_db.internal.size() != 1) {
-	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	if (live_db.internal.size() == 0) {
+	    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+	} else {
+	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	}
     }
     string uuid = (live_db.internal[0])->get_uuid();
     string buf = encode_length(uuid.size());
@@ -497,7 +504,11 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
     DEBUGCALL(API, bool,
 	      "DatabaseReplica::Internal::apply_next_changeset", info);
     if (live_db.internal.size() != 1) {
-	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	if (live_db.internal.size() == 0) {
+	    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+	} else {
+	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	}
     }
     OmTime end_time;
 
@@ -548,26 +559,19 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		    // Close the live db.
 		    string replica_path(get_replica_path(live_id));
 		    live_db = WritableDatabase();
-		    try {
+		    // Open a replicator for the live path, and apply the
+		    // changeset.
+		    {
+			AutoPtr<DatabaseReplicator> replicator(
+				DatabaseReplicator::open(replica_path));
+			offline_needed_revision.resize(0);
+			offline_needed_revision = replicator->
+				apply_changeset_from_conn(*conn, end_time, true);
+		    }
 
-			// Open a replicator for the live path, and apply the
-			// changeset.
-			{
-			    AutoPtr<DatabaseReplicator> replicator(
-				    DatabaseReplicator::open(replica_path));
-			    offline_needed_revision.resize(0);
-			    offline_needed_revision = replicator->
-				    apply_changeset_from_conn(*conn, end_time, true);
-			}
-
-			if (info != NULL) {
-			    ++(info->changeset_count);
-			    info->changed = true;
-			}
-		    } catch(...) {
-			// Ensure we don't leave the live_db closed.
-			live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
-			throw;
+		    if (info != NULL) {
+			++(info->changeset_count);
+			info->changed = true;
 		    }
 		    // Now the replicator is closed, open the live db again.
 		    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);

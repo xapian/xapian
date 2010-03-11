@@ -1,3 +1,12 @@
+Thu Mar 11 16:07:10 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/replication.cc: Open the livedb lazily if it gets left in a
+	  closed state (due to an exception when applying a changeset),
+	  rather than reopening it straight away in an exception handler.
+	  This requires the livedb to become a mutable member, but is safer
+	  in the event that an exception is thrown by the WritableDatabase
+	  constructor.
+
 Thu Mar 11 15:17:12 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replicate.cc: Uncomment the rmtmpdir() at the end of
