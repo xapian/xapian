@@ -1616,7 +1616,7 @@ BrassTable::commit(brass_revision_number_t revision_)
 {
     LOGCALL(DB, brass_block_t, "BrassBlock::commit", revision_);
     AssertRel(revision_,>=,revision);
-    if (fd < 0) {
+    if (fd < 0 || !my_cursor) {
 	if (fd == FD_CLOSED)
 	    throw_database_closed();
 	revision = revision_;
