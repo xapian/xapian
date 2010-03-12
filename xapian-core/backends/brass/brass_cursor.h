@@ -110,7 +110,7 @@ class MutableBrassCursor : public BrassCursor {
 
     /** Delete the currently pointed to entry.
      *
-     *  The cursor's poisition is left on the entry after the current one.
+     *  The cursor's position is left on the entry after the current one.
      *
      *  @return false if the cursor ends up unpositioned.
      */

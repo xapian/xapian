@@ -1032,7 +1032,7 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
     } else {
-	// Ensure teh document exists...
+	// Ensure the document exists...
 	(void)get_doclength(did);
     }
 
