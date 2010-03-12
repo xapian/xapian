@@ -1,3 +1,10 @@
+Fri Mar 12 06:33:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: In ~BrassCBlock save() before deleting
+	  child, as that seems a more logical order to do things.  Fix
+	  BrassTable::cancel() to call BrassCBlock::cancel() not
+	  BrassCBlock::commit().
+
 Fri Mar 12 05:24:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Add comment explaining the meaning of

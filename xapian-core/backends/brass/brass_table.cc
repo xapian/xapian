@@ -229,10 +229,10 @@ BrassBlock::save()
 BrassCBlock::~BrassCBlock()
 {
     LOGCALL_DTOR(DB, "BrassCBlock");
-    if (child)
-	delete child;
     if (modified)
 	save();
+    if (child)
+	delete child;
 }
 
 BrassBlock::~BrassBlock()
@@ -1638,7 +1638,7 @@ BrassTable::cancel()
 	return;
     if (fd == FD_CLOSED)
 	throw_database_closed();
-    my_cursor->commit();
+    my_cursor->cancel();
     modified = false;
 }
 
