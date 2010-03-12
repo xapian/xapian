@@ -126,6 +126,10 @@ using namespace std;
  *
  * [ block pointer ] (BLOCKPTR_SIZE bytes)
  * [ key ... ]
+ *
+ * Keys >= the branch item's key (and < the next branch item's key if this
+ * isn't the last entry in this block) belong in the subtree pointed to by the
+ * block pointer.
  */
 
 void
@@ -640,39 +644,44 @@ BrassCBlock::find_child(const string & key)
     Assert(!is_leaf());
     int b = 0;
     int e = get_count() - 1;
-    Assert(e != -1);
+    if (e == -1) {
+	// We only have a left pointer.
+	item = -1;
+    } else {
+	// An access will often be just after the previous one, so if item is
+	// set, use it to pick the first chop point.
+	int m = (b + e) >> 1;
+	if (item >= m) {
+	    if (item > e)
+		item = e;
+	    m = item;
+	} else if (item >= -1) {
+	    // We expect the point we want is just after item, but chopping at
+	    // item will less than halve the range, so chop just after it
+	    // instead.
+	    m = item + 1;
+	}
 
-    // An access will often be just after the previous one, so if item is set,
-    // use it to pick the first chop point.
-    int m = (b + e) >> 1;
-    if (item >= m) {
-	if (item > e)
-	    item = e;
-	m = item;
-    } else if (item >= -1) {
-	// We expect the point we want is just after item, but chopping at item
-	// will less than halve the range, so chop just after it instead.
-	m = item + 1;
+	do {
+	    AssertRel(m,>=,0);
+	    int key_start = get_ptr(m) + BLOCKPTR_SIZE;
+	    int key_len = get_endptr(m) - key_start;
+	    int cmp = table.compare_keys(data + key_start, key_len,
+					 key.data(), key.size());
+	    if (cmp < 0) {
+		b = m + 1;
+	    } else if (cmp > 0) {
+		e = m - 1;
+	    } else {
+		// Exact match.
+		e = m;
+		break;
+	    }
+	    m = (b + e) >> 1;
+	} while (b <= e);
+	item = e;
     }
 
-    do {
-	AssertRel(m,>=,0);
-	int key_start = get_ptr(m) + BLOCKPTR_SIZE;
-	int key_len = get_endptr(m) - key_start;
-	int cmp = table.compare_keys(data + key_start, key_len,
-				     key.data(), key.size());
-	if (cmp < 0) {
-	    b = m + 1;
-	} else if (cmp > 0) {
-	    e = m - 1;
-	} else {
-	    // Exact match.
-	    e = m;
-	    break;
-	}
-	m = (b + e) >> 1;
-    } while (b <= e);
-    item = e;
     brass_block_t blk;
     if (item < 0) {
 	blk = get_left_block();
