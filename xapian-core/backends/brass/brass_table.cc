@@ -990,29 +990,18 @@ BrassCBlock::del()
 	    return;
 	}
 
-    if (C == 1) {
-	// This block will become empty, so delete it and remove
-	// the corresponding entry from its parent.
-	const_cast<BrassTable&>(table).mark_free(n);
-	    // It would be pointless to write this block to disk.
-	modified = false;
-	AssertEq(item, 0);
-	    item = -2;
-	if (parent)
-	    parent->del();
-	return;
+	if (C == 0) {
+	    // This block will become empty, so delete it and remove
+	    // the corresponding entry from its parent.
+	    const_cast<BrassTable&>(table).mark_free(n);
+		// It would be pointless to write this block to disk.
+	    modified = false;
+	    AssertEq(item, 0);
+		item = -2;
+	    if (parent)
+		parent->del();
+	    return;
 	}
-    }
-
-    if (C == 2 && !parent) {
-	// This is the root block, and would only have one child after the
-	// other is deleted, so the // Btree can lose a level (which will
-	// delete us).
-
-	// It would be pointless to write this block to disk.
-	modified = false;
-	const_cast<BrassTable&>(table).lose_level();
-	return;
     }
 
     size_t len = get_endptr(item) - get_ptr(item);
