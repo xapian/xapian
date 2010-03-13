@@ -1,3 +1,9 @@
+Sat Mar 13 09:22:24 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replicate.cc: Always use off_t to refer to the size of a
+	  file: fixes warnings about comparting a signed value to an unsigned
+	  value.
+
 Thu Mar 11 16:07:10 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/replication.cc: Open the livedb lazily if it gets left in a

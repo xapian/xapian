@@ -94,8 +94,8 @@ static void do_write(int fd, const char * p, size_t n)
 }
 
 // Make a truncated copy of a file.
-static size_t
-truncated_copy(const string & srcpath, const string & destpath, size_t tocopy)
+static off_t
+truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 {
     int fdin = open(srcpath.c_str(), O_RDONLY);
     if (fdin == -1) {
@@ -405,8 +405,8 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
     // Try applying truncated changesets of various different lengths.
     string brokenchangesetpath = tempdir + "/changeset_broken";
     off_t filesize = file_size(changesetpath);
-    size_t len = 10;
-    size_t copylen;
+    off_t len = 10;
+    off_t copylen;
     while (true) {
 	copylen = truncated_copy(changesetpath, brokenchangesetpath, len);
 	TEST_EQUAL(copylen, len);
