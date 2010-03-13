@@ -121,6 +121,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     bool decode_leaf_key(int i, const char *& key_ptr, size_t& key_len,
 			 bool& slab) const {
 	Assert(is_leaf());
+	AssertRel(i,>=,0);
 	key_ptr = data + get_ptr(i);
 	byte ch = static_cast<unsigned char>(*key_ptr++);
 	int tag_len;
@@ -168,6 +169,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     }
 
     int get_ptr(int i) const {
+	AssertRel(i,>=,0);
+	AssertRel(i,<,get_count());
 	// Need HEADER_SIZE / 2 because each entry is 2 bytes.
 	return LE(((uint2 *)data)[(HEADER_SIZE / 2) + i]);
     }

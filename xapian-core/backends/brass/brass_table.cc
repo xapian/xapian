@@ -1108,15 +1108,14 @@ BrassCBlock::find(const string &key, int mode)
 	if (mode == GE) {
 	    if (item == get_count())
 		item = -2;
-	    else
+	    else if (item >= 0)
 		AssertRel(get_key(item),>=,key);
 	} else {
 	    prev_();
-	    if (mode == LT) {
-		if (item < get_count())
+	    if (item >= 0 && item < get_count()) {
+		if (mode == LT) {
 		    AssertRel(get_key(item),<,key);
-	    } else if (mode == LE) {
-		if (item < get_count()) {
+		} else if (mode == LE) {
 		    AssertRel(get_key(item),<=,key);
 		}
 	    }
@@ -1128,10 +1127,12 @@ BrassCBlock::find(const string &key, int mode)
     AssertRel(item,<,get_count());
 
     if (mode != LT) {
-	if (mode == LE) {
-	    AssertRel(get_key(item),<=,key);
-	} else {
-	    AssertRel(get_key(item),>=,key);
+	if (item >= 0) {
+	    if (mode == LE) {
+		AssertRel(get_key(item),<=,key);
+	    } else {
+		AssertRel(get_key(item),>=,key);
+	    }
 	}
 	RETURN(true);
     }

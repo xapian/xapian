@@ -1,3 +1,10 @@
+Sat Mar 13 13:43:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix assertions on found item's key
+	  to only be checked when the cursor position is valid.
+	* backends/brass/brass_table.h: Add assertions to decode_leaf_key()
+	  and get_ptr() to ensure the item number passed is valid.
+
 Sat Mar 13 13:11:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc: Add temporary environment variable
