@@ -108,8 +108,8 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	      ", " << block_size);
     if (block_size == 0)
 	block_size = BRASS_DEFAULT_BLOCKSIZE;
-    // FIXME: remove this later
-    block_size = BRASS_DEFAULT_BLOCKSIZE;
+    if (getenv("XAPIAN_BRASS_DISABLE_BLOCKSIZE_HACK") == NULL)
+	block_size = BRASS_DEFAULT_BLOCKSIZE;
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables();
