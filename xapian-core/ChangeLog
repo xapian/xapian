@@ -1,3 +1,9 @@
+Sat Mar 13 14:30:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix deleting to take into account the
+	  dummy empty entry when deciding when to lose a level or when the
+	  table is now empty.
+
 Sat Mar 13 13:43:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix assertions on found item's key

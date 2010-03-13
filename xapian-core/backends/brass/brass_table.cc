@@ -1055,18 +1055,27 @@ BrassCBlock::del(const string &key)
     AssertEq(get_key(item), key);
 
     int C = get_count();
-    if (C == 1) {
+    if (C <= 2) {
 	if (rare(!parent)) {
-	    // Removing the last entry from the root block - the table is now
-	    // empty.
+	    // This is the root block, and it has 2 entries.  One of these must be
+	    // the dummy empty entry, so the table will be empty after this
+	    // operation.
+	    AssertEq(C, 2);
+	    AssertEq(item, 1);
+	    AssertEq(get_key(0), string());
+	    modified = false;
 	    lose_level();
 	    RETURN(true);
 	}
-	// Block now empty, so delete it and the parent's pointer to it.
-	const_cast<BrassTable&>(table).mark_free(n);
-	modified = false;
-	parent->del();
-	RETURN(true);
+	if (C <= 1) {
+	    // Block now empty, so delete it and the parent's pointer to it.
+	    modified = false;
+	    const_cast<BrassTable&>(table).mark_free(n);
+	    AssertEq(item, 0);
+	    item = -2;
+	    parent->del();
+	    RETURN(true);
+	}
     }
 
     size_t len = get_endptr(item) - get_ptr(item);
