@@ -682,6 +682,13 @@ BrassCBlock::find_child(const string & key)
 	item = e;
     }
 
+    if (item >= 0) {
+	AssertRel(get_key(item),<=,key);
+    }
+    if (item < get_count() - 1) {
+	AssertRel(key,<,get_key(item+1));
+    }
+
     brass_block_t blk;
     if (item < 0) {
 	blk = get_left_block();
@@ -965,18 +972,36 @@ BrassCBlock::del()
 {
     LOGCALL_VOID(DB, "BrassCBlock::del", NO_ARGS);
     Assert(!is_leaf());
-    // The last entry in the leaf block was removed, so delete item "item"
-    // from the parent.
+    // The last entry in a child block was removed, so delete item "item"
+    // from this block.
     int C = get_count();
+    Assert(C);
+    Assert(item < C);
+    Assert(item >= -1);
+    if (C <= 1) {
+	if (!parent) {
+	    // This is the root block, and would only have one child after this
+	    // deletion, so the Btree can lose a level (which will delete this
+	    // block, so there's no point updating its contents).
+
+	    // It would be pointless to write this block to disk.
+	    modified = false;
+	    const_cast<BrassTable&>(table).lose_level();
+	    return;
+	}
+
     if (C == 1) {
 	// This block will become empty, so delete it and remove
 	// the corresponding entry from its parent.
 	const_cast<BrassTable&>(table).mark_free(n);
+	    // It would be pointless to write this block to disk.
 	modified = false;
 	AssertEq(item, 0);
+	    item = -2;
 	if (parent)
 	    parent->del();
 	return;
+	}
     }
 
     if (C == 2 && !parent) {
