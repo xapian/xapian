@@ -3,19 +3,19 @@ brass-btree branch
 
 Status:
 
-All tests pass with a 64KB blocksize.  Some fail with a smaller blocksize,
-probably due to a bug in splitting branch blocks.
+All tests pass with a 64KB blocksize, but deldoc4 fails with a smaller
+blocksize.
 
 Some things not fully (or at all) implemented.
 
 TODO:
 -----
 
-  * splitting of branch blocks currently untested.
-
   * tracking free blocks.
 
   * tracking free slabs.
+
+  * check cancel() when the table became empty in the cancelled changes.
 
   * use spare bits in the "key length" byte for either storing some bits of
     the slab pointer, or for allowing longer in-tree tags.
@@ -37,7 +37,8 @@ TODO:
   * cursor snooping currently O(# depth of tree)...
 
   * store database stats in the version file rather than a special entry in the
-    postlist table?
+    postlist table?  Putting it in the table churns the left-most leaf block
+    of the table on every commit.
 
   * look at code coverage from the testsuite, and add tests to exercise as
     much of the code as possible
