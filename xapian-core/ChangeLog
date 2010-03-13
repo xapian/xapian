@@ -1,3 +1,8 @@
+Sat Mar 13 05:25:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix indentation from last change.
+	  Properly handle deleting the left pointer from a branch block.
+
 Sat Mar 13 05:05:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix conditions under which we remove

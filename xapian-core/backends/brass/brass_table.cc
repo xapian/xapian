@@ -991,24 +991,41 @@ BrassCBlock::del()
 	}
 
 	if (C == 0) {
-	    // This block will become empty, so delete it and remove
-	    // the corresponding entry from its parent.
+	    // This block will become empty, so delete it and remove the
+	    // corresponding entry from its parent.
 	    const_cast<BrassTable&>(table).mark_free(n);
-		// It would be pointless to write this block to disk.
+	    // It would be pointless to write this block to disk.
 	    modified = false;
 	    AssertEq(item, 0);
-		item = -2;
+	    item = -2;
 	    if (parent)
 		parent->del();
 	    return;
 	}
     }
 
-    size_t len = get_endptr(item) - get_ptr(item);
-    size_t ptr = get_endptr(C);
-    memmove(data + ptr + len, data + ptr, get_ptr(item) - ptr);
-    for (int i = item + 1; i < C; ++i) {
-	set_ptr(i - 1, get_ptr(i) + len);
+    if (item == -1) {
+	// If we're wanting to delete the left pointer, copy the first pointer
+	// to the left pointer, then delete the first pointer along with its
+	// dividing key.
+	set_left_block(get_block(0));
+	item = 0;
+    } else if (item < C - 1) {
+	// FIXME: Where is best to leave the dividing key?  We could even
+	// recalculate it to see if there's a shorter one...
+#if 0
+	set_block(item, get_block(item + 1));
+	++item;
+#endif
+    }
+
+    if (item != C - 1) {
+	size_t len = get_endptr(item) - get_ptr(item);
+	size_t ptr = get_ptr(C - 1);
+	memmove(data + ptr + len, data + ptr, get_ptr(item) - ptr);
+	for (int i = item + 1; i < C; ++i) {
+	    set_ptr(i - 1, get_ptr(i) + len);
+	}
     }
     set_count(C - 1);
     item = -2;
