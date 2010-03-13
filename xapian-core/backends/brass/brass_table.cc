@@ -1052,6 +1052,8 @@ BrassCBlock::del(const string &key)
     if (!exact)
 	RETURN(false);
 
+    AssertEq(get_key(item), key);
+
     int C = get_count();
     if (C == 1) {
 	if (rare(!parent)) {
