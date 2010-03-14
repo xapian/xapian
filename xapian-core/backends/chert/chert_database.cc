@@ -124,8 +124,9 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
-	      ", " << block_size);
+    DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action << ", " << block_size);
+    if (block_size == 0)
+	block_size = 8192;
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();

@@ -1,3 +1,8 @@
+Sun Mar 14 23:25:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Update to handle being passed block_size of 0 meaning "default".
+
 Sun Mar 14 14:03:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact-brass.cc: Take slab files into account in size
