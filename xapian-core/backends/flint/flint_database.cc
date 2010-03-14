@@ -123,8 +123,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action << ", " << block_size);
-    if (block_size == 0)
-	block_size = 8192;
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();
