@@ -1,3 +1,8 @@
+Sun Mar 14 07:46:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc: Remove
+	  XAPIAN_BRASS_DISABLE_BLOCKSIZE_HACK check.
+
 Sun Mar 14 07:45:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: Cleaner code for BrassBlock::is_leaf().
