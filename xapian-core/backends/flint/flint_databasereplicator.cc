@@ -40,6 +40,7 @@
 #include "replicate_utils.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 

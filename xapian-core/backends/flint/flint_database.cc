@@ -54,6 +54,7 @@
 #include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
