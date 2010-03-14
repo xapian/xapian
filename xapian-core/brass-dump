@@ -3,8 +3,7 @@
 import sys, struct
 
 # FIXME hardcoded blocksize
-#blocksize = 2048
-blocksize = 65536
+blocksize = 8192
 
 depth = -1
 
