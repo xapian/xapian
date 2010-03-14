@@ -1,3 +1,10 @@
+Sun Mar 14 08:37:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Increase key size limit in check to
+	  255 bytes, as the new Btree manager does allow keys this length.
+	* tests/api_wrdb.cc: Improve termtoolong1 to know about the higher key
+	  size limit for brass.
+
 Sun Mar 14 07:48:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* brass-dump: Change hard-coded blocksize to 8KB.

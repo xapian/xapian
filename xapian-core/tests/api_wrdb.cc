@@ -1685,9 +1685,20 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     // Inmemory doesn't impose a limit.
     SKIP_TEST_FOR_BACKEND("inmemory");
 
+    size_t max_term_length = 245;
+    size_t max_term_length_all_nul = 126;
+    const char * expected_substring = " is 252 bytes";
+    const string & dbtype = get_dbtype();
+    if (endswith(dbtype, "brass")) {
+	max_term_length_all_nul = 127;
+	expected_substring = " is 255 bytes";
+    } else if (endswith(dbtype, "flint")) {
+	max_term_length_all_nul = 125;
+    }
+
     Xapian::WritableDatabase db = get_writable_database();
 
-    for (Xapian::doccount i = 246; i <= 290; ++i) {
+    for (size_t i = max_term_length + 1; i <= 290; ++i) {
 	tout.str(string());
 	tout << "Term length " << i << endl;
 	Xapian::Document doc;
@@ -1705,7 +1716,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
-    for (Xapian::doccount j = 240; j <= 245; ++j) {
+    for (size_t j = 240; j <= max_term_length; ++j) {
 	tout.str(string());
 	tout << "Term length " << j << endl;
 	Xapian::Document doc;
@@ -1716,12 +1727,24 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     db.commit();
 
-    {
-	// Currently brass, flint and chert escape zero bytes from terms in
-	// keys for some tables, so a term with 127 zero bytes won't work
-	// either.
+    // Currently brass, flint and chert escape zero bytes from terms in
+    // keys for some tables, so a term with a lot of zero bytes can
+    // overflow the key size limit.
+
+    for (size_t j = 120; j <= max_term_length_all_nul; ++j) {
+	tout.str(string());
+	tout << "Term length " << j << endl;
 	Xapian::Document doc;
-	doc.add_term(string(127, '\0'));
+	string term(j, '\0');
+	doc.add_term(term);
+	db.add_document(doc);
+    }
+
+    db.commit();
+
+    {
+	Xapian::Document doc;
+	doc.add_term(string(max_term_length_all_nul + 1, '\0'));
 	db.add_document(doc);
 	try {
 	    db.commit();
@@ -1731,7 +1754,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	    // exception message - we've got this wrong in two different ways
 	    // in the past!
 	    tout << e.get_msg() << endl;
-	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	    TEST(e.get_msg().find(expected_substring) != string::npos);
 	}
     }
 

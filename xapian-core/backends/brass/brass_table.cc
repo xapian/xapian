@@ -706,15 +706,12 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 		    bool compressed)
 {
     LOGCALL(DB, bool, "BrassCBlock::insert", key << ", " << (void*)tag << ", " << tag_len << ", " << compressed);
+    if (key.size() > 255)
+	throw Xapian::InvalidArgumentError("Max key length is 255 bytes");
+
     if (!is_leaf()) {
 	find_child(key);
 	RETURN(child->insert(key, tag, tag_len, compressed));
-    }
-
-    if (key.size() > 252) {
-	// FIXME: Make limit 252 for now for compatibility with chert.
-	// However, we can support 255 byte keys just as easily.
-	throw Xapian::InvalidArgumentError("Max key length is 252 bytes");
     }
 
     // AssertRel(table.key_limits[n].first,<=,key);
