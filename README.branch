@@ -3,9 +3,9 @@ brass-btree branch
 
 Status:
 
-All tests pass.
+  * All tests pass.
 
-Some things not fully (or at all) implemented.
+  * Some things not fully (or at all) implemented.
 
 TODO:
 -----
@@ -14,14 +14,13 @@ TODO:
 
   * tracking free slabs.
 
-  * check cancel() when the table became empty in the cancelled changes.
+  * make sure we have test coverage for cancel() when the table became empty in
+    the cancelled changes.
 
   * use spare bits in the "key length" byte for either storing some bits of
     the slab pointer, or for allowing longer in-tree tags.
 
   * prefix-compress keys (to make large tables smaller)
-
-  * allow 255 (or even 256?) byte keys.
 
   * is it cleaner to explicitly store the null key (as we currently do) or
     not to?
