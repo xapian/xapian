@@ -1,3 +1,8 @@
+Sun Mar 14 06:14:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix to call lose_level() on the table
+	  not on the BrassCBlock.
+
 Sat Mar 13 14:30:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix deleting to take into account the

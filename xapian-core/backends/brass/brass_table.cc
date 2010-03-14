@@ -1064,7 +1064,7 @@ BrassCBlock::del(const string &key)
 	    AssertEq(item, 1);
 	    AssertEq(get_key(0), string());
 	    modified = false;
-	    lose_level();
+	    const_cast<BrassTable&>(table).lose_level();
 	    RETURN(true);
 	}
 	if (C <= 1) {
