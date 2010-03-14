@@ -1164,10 +1164,11 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		add_freq_delta(tname, 1, wdf);
 		insert_mod_plist(did, tname, wdf);
 
-		if (term.positionlist_begin() != term.positionlist_end()) {
+		PositionIterator pos = term.positionlist_begin();
+		if (pos != term.positionlist_end()) {
 		    position_table.set_positionlist(
 			did, tname,
-			term.positionlist_begin(), term.positionlist_end());
+			pos, term.positionlist_end(), false);
 		}
 	    }
 	}
@@ -1267,43 +1268,6 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     }
 }
 
-/** Compare the positionlists for a term iterator and a termlist.
- *
- *  @return true if they're equal, false otherwise.
- */
-static bool positionlists_equal(Xapian::TermIterator & termiter,
-				FlintTermList & termlist)
-{
-    if (termiter.positionlist_count() != termlist.positionlist_count())
-	return false;
-
-    return equal(termiter.positionlist_begin(),
-		 termiter.positionlist_end(),
-		 termlist.positionlist_begin());
-}
-
-/** Set the positionlist from the current entry in a term iterator.
- *
- *  @param position_table The positionlist table.
- *  @param did The document id to set the entry for.
- *  @param term The term iterator to read the new position list from.
- *
- *  If the new position list is empty, this will remove any existing
- *  position list for the term.
- */
-static void set_positionlist(FlintPositionListTable & position_table,
-			     Xapian::docid did,
-			     Xapian::TermIterator & term)
-{
-    PositionIterator it = term.positionlist_begin();
-    PositionIterator it_end = term.positionlist_end();
-    if (it != it_end) {
-	position_table.set_positionlist(did, *term, it, it_end);
-    } else {
-	position_table.delete_positionlist(did, *term);
-    }
-}
-
 void
 FlintWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
@@ -1394,7 +1358,12 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
-		    set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(
+			    did, new_tname,
+			    pos, term.positionlist_end(), false);
+		    }
 		    ++term;
 		} else {
 		    // Term already exists: look for wdf and positionlist changes.
@@ -1405,8 +1374,14 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
-		    if (!positionlists_equal(term, termlist)) 
-			set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(did, new_tname, pos,
+							term.positionlist_end(),
+							true);
+		    } else {
+			position_table.delete_positionlist(did, new_tname);
+		    }
 
 		    termlist.next();
 		    ++term;
