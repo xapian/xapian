@@ -1078,11 +1078,13 @@ BrassCBlock::del(const string &key)
 	}
     }
 
-    size_t len = get_endptr(item) - get_ptr(item);
-    size_t ptr = get_endptr(C);
-    memmove(data + ptr + len, data + ptr, get_ptr(item) - ptr);
-    for (int i = item + 1; i < C; ++i) {
-	set_ptr(i - 1, get_ptr(i) + len);
+    if (item != C - 1) {
+	size_t len = get_endptr(item) - get_ptr(item);
+	size_t ptr = get_ptr(C - 1);
+	memmove(data + ptr + len, data + ptr, get_ptr(item) - ptr);
+	for (int i = item + 1; i < C; ++i) {
+	    set_ptr(i - 1, get_ptr(i) + len);
+	}
     }
     set_count(C - 1);
     check_block();

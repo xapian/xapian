@@ -1,3 +1,7 @@
+Sun Mar 14 06:42:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Tweak BrassCBlock::del().
+
 Sun Mar 14 06:14:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix to call lose_level() on the table
