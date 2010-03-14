@@ -1,3 +1,9 @@
+Sun Mar 14 09:29:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Minor refactor to improve
+	  code clarity and to only create std::string variable when it
+	  is needed.
+
 Sun Mar 14 07:37:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,tests/api_closedb.cc,tests/api_metadata.cc,
