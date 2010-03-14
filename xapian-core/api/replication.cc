@@ -364,13 +364,11 @@ string
 DatabaseReplica::Internal::get_revision_info() const
 {
     DEBUGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", "");
-    if (live_db.internal.size() != 1) {
-	if (live_db.internal.size() == 0) {
-	    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
-	} else {
-	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-	}
-    }
+    if (live_db.internal.empty())
+	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    if (live_db.internal.size() != 1)
+	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+
     string uuid = (live_db.internal[0])->get_uuid();
     string buf = encode_length(uuid.size());
     buf += uuid;
@@ -501,15 +499,12 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 bool
 DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 {
-    DEBUGCALL(API, bool,
-	      "DatabaseReplica::Internal::apply_next_changeset", info);
-    if (live_db.internal.size() != 1) {
-	if (live_db.internal.size() == 0) {
-	    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
-	} else {
-	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-	}
-    }
+    DEBUGCALL(API, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
+    if (live_db.internal.empty())
+	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    if (live_db.internal.size() != 1)
+	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+
     OmTime end_time;
 
     while (true) {
