@@ -70,7 +70,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     Database db;
     try {
 	db = Database(path);
-    } catch (Xapian::DatabaseError & e) {
+    } catch (const Xapian::DatabaseError & e) {
 	RemoteConnection conn(-1, fd, "");
 	OmTime end_time;
 	conn.send_message(REPL_REPLY_FAIL,
@@ -459,7 +459,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     AutoPtr<DatabaseReplicator> replicator;
     try {
 	replicator.reset(DatabaseReplicator::open(replica_path));
-    } catch (Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseError &) {
 	return false;
     }
     if (offline_needed_revision.empty()) {

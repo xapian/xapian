@@ -1,3 +1,9 @@
+Sun Mar 14 07:37:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,tests/api_closedb.cc,tests/api_metadata.cc,
+	  tests/internaltest.cc: Catch by const reference rather than just
+	  reference, unless we actually need to modify the caught object.
+
 Sun Mar 14 06:45:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/replication.cc: Check live_db only has a single sub-database even
