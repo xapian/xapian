@@ -1,3 +1,10 @@
+Sun Mar 14 09:45:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/chert_positionlist.cc: Minor refactor to improve
+	  code clarity and to only create std::string variable when it
+	  is needed.
+
 Sun Mar 14 09:29:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Minor refactor to improve
