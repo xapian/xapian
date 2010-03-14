@@ -3,8 +3,7 @@ brass-btree branch
 
 Status:
 
-All tests pass with a 64KB blocksize, but deldoc4 fails with a smaller
-blocksize.
+All tests pass.
 
 Some things not fully (or at all) implemented.
 
