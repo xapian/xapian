@@ -852,6 +852,7 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
+		    unlink((tmp[k] + BRASS_SLAB_EXTENSION).c_str());
 		}
 	    }
 	    tmpout.push_back(dest);
@@ -869,6 +870,7 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
+	    unlink((tmp[k] + BRASS_SLAB_EXTENSION).c_str());
 	}
     }
 }
@@ -918,6 +920,13 @@ merge_docid_keyed(const char * tablename, BrassTable *out,
     }
 }
 
+}
+
+static void
+print_size_nicely(off_t val)
+{
+    // FIXME: implement pretty print in sane units (KB,MB,GB,TB) for value.
+    cout << val / 1024 << "K";
 }
 
 using namespace BrassCompact;
@@ -1000,7 +1009,12 @@ compact_brass(const char * destdir, const vector<string> & sources,
 
 	    struct stat sb;
 	    if (stat(s + BRASS_TABLE_EXTENSION, &sb) == 0) {
-		in_size += sb.st_size / 1024;
+		in_size += sb.st_size;
+		if (stat(s + BRASS_SLAB_EXTENSION, &sb) == 0) {
+		    in_size += sb.st_size;
+		} else if (errno != ENOENT) {
+		    bad_stat = true;
+		}
 		output_will_exist = true;
 		++inputs_present;
 	    } else if (errno != ENOENT) {
@@ -1076,26 +1090,38 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	if (!bad_stat) {
 	    struct stat sb;
 	    if (stat(dest + BRASS_TABLE_EXTENSION, &sb) == 0) {
-		out_size = sb.st_size / 1024;
+		out_size = sb.st_size;
+		if (stat(dest + BRASS_SLAB_EXTENSION, &sb) == 0) {
+		    out_size += sb.st_size;
+		} else {
+		    bad_stat = (errno != ENOENT);
+		}
 	    } else {
 		bad_stat = (errno != ENOENT);
 	    }
 	}
 	if (bad_stat) {
-	    cout << "Done (couldn't stat all the DB files)";
+	    cout << "Done (couldn't stat all the files)";
 	} else {
 	    if (out_size == in_size) {
 		cout << "Size unchanged (";
-	    } else if (out_size < in_size) {
-		cout << "Reduced by "
-		     << 100 * double(in_size - out_size) / in_size << "% "
-		     << in_size - out_size << "K (" << in_size << "K -> ";
 	    } else {
-		cout << "INCREASED by "
-		     << 100 * double(out_size - in_size) / in_size << "% "
-		     << out_size - in_size << "K (" << in_size << "K -> ";
+		off_t delta;
+		if (out_size < in_size) {
+		    delta = in_size - out_size;
+		    cout << "Reduced by ";
+		} else {
+		    delta = out_size - in_size;
+		    cout << "INCREASED by ";
+		}
+		cout << 100 * double(delta) / in_size << "% ";
+		print_size_nicely(delta);
+		cout << " (";
+		print_size_nicely(in_size);
+		cout << " -> ";
 	    }
-	    cout << out_size << "K)";
+	    print_size_nicely(out_size);
+	    cout << ")";
 	}
 	cout << endl;
     }

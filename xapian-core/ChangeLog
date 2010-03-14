@@ -1,3 +1,8 @@
+Sun Mar 14 14:03:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact-brass.cc: Take slab files into account in size
+	  change stats.  Remove slab files from temporary tables.
+
 Sun Mar 14 08:37:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Increase key size limit in check to
