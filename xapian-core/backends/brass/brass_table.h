@@ -148,7 +148,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 	: data(NULL), table(table_), random_access(RANDOM_ACCESS_THRESHOLD) { }
     void save();
     virtual ~BrassBlock();
-    bool is_leaf() const { return (((unsigned char *)data)[5] & 0x80) == 0; }
+    bool is_leaf() const { return (byte(data[5]) & 0x80) == 0; }
 
     brass_revision_number_t get_revision() const {
 	return LE(*(brass_revision_number_t*)data);
