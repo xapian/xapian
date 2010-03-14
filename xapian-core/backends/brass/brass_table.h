@@ -315,13 +315,19 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     }
 
     virtual ~BrassCBlock();
+
     BrassCBlock * lose_level() {
 	Assert(!parent);
 	BrassCBlock * new_root = child;
-	child = NULL; // So the destructor doesn't delete it.
+	if (child) {
+	    AssertEq(child->parent, this);
+	    child->parent = NULL;
+	    child = NULL; // So the destructor doesn't delete it.
+	}
 	delete this;
 	return new_root;
     }
+
     void read(brass_block_t blk);
 
     /** Find which child block @a key belongs in, set item to it and load it

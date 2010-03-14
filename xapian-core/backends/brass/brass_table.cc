@@ -1382,11 +1382,16 @@ void
 BrassTable::lose_level()
 {
     LOGCALL_VOID(DB, "BrassTable::lose_level", NO_ARGS);
+    Assert(my_cursor);
     do {
 	my_cursor = my_cursor->lose_level();
 	if (rare(!my_cursor))
 	    return;
-    } while (!my_cursor->is_leaf() && my_cursor->get_count() == 1);
+    } while (!my_cursor->is_leaf() && my_cursor->get_count() == 0);
+    if (my_cursor->is_leaf() && my_cursor->get_count() <= 1) {
+	delete my_cursor;
+	my_cursor = NULL;
+    }
 }
 
 brass_block_t
@@ -1681,8 +1686,11 @@ BrassTable::cancel()
     LOGCALL_VOID(DB, "BrassTable::cancel", NO_ARGS);
     if (!modified)
 	return;
-    if (fd == FD_CLOSED)
-	throw_database_closed();
+    if (fd < 0 || !my_cursor) {
+	if (fd == FD_CLOSED)
+	    throw_database_closed();
+	return;
+    }
     my_cursor->cancel();
     modified = false;
 }

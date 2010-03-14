@@ -1,3 +1,10 @@
+Sun Mar 14 07:39:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h:
+	  Fix BrassTable::lose_level(), BrassTable::cancel() and
+	  BrassCBlock::lose_level().  All tests now pass even with
+	  XAPIAN_BRASS_DISABLE_BLOCKSIZE_HACK set.
+
 Sun Mar 14 06:42:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Tweak BrassCBlock::del().
