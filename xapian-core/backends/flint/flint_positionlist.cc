@@ -1,6 +1,6 @@
 /* flint_positionlist.cc: A position list in a flint database.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -219,10 +219,10 @@ void
 FlintPositionListTable::set_positionlist(Xapian::docid did,
 					 const string & tname,
 					 Xapian::PositionIterator pos,
-					 const Xapian::PositionIterator &pos_end)
+					 const Xapian::PositionIterator &pos_end,
+					 bool check_for_update)
 {
-    DEBUGCALL(DB, void, "FlintPositionList::set_positionlist",
-	      did << ", " << tname << ", " << pos << ", " << pos_end);
+    DEBUGCALL(DB, void, "FlintPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end << ", " << check_for_update);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
@@ -230,18 +230,22 @@ FlintPositionListTable::set_positionlist(Xapian::docid did,
 
     string key = make_key(did, tname);
 
-    if (poscopy.size() == 1) {
-	// Special case for single entry position list.
-	add(key, pack_uint(poscopy[0]));
-	return;
+    string s = pack_uint(poscopy.back());
+
+    if (poscopy.size() > 1) {
+	BitWriter wr(s);
+	wr.encode(poscopy[0], poscopy.back());
+	wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
+	encode_interpolative(wr, poscopy, 0, poscopy.size() - 1);
+	swap(s, wr.freeze());
     }
 
-    BitWriter wr(pack_uint(poscopy.back()));
-
-    wr.encode(poscopy[0], poscopy.back());
-    wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
-    encode_interpolative(wr, poscopy, 0, poscopy.size() - 1);
-    add(key, wr.freeze());
+    if (check_for_update) {
+	string old_tag;
+	if (get_exact_entry(key, old_tag) && s == old_tag)
+	    return;
+    }
+    add(key, s);
 }
 
 Xapian::termcount
