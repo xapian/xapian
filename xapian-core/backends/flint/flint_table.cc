@@ -1733,7 +1733,7 @@ FlintTable::create_and_open(unsigned int block_size_)
     /* create the base file */
     FlintTable_base base_;
     base_.set_revision(revision_number);
-    base_.set_block_size(block_size_);
+    base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
     base_.write_to_file(name + "baseA", 'A', "", -1, NULL);

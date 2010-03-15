@@ -1,3 +1,9 @@
+Mon Mar 15 00:07:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Pass
+	  block_size (adjusted to be valid) rather than block_size_ (which
+	  can be zero) to the base file.
+
 Sun Mar 14 23:45:16 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_table.cc,
