@@ -10,20 +10,11 @@ Status:
 TODO:
 -----
 
+Missing features:
+
   * tracking free blocks.
 
   * tracking free slabs.
-
-  * make sure we have test coverage for cancel() when the table became empty in
-    the cancelled changes.
-
-  * use spare bits in the "key length" byte for either storing some bits of
-    the slab pointer, or for allowing longer in-tree tags.
-
-  * prefix-compress keys (to make large tables smaller)
-
-  * is it cleaner to explicitly store the null key (as we currently do) or
-    not to?
 
   * xapian-check checking Btree structure (currently only checks data inside
     tables).
@@ -32,16 +23,39 @@ TODO:
 
   * xapian-inspect - make it handle flint/chert and brass in one binary.
 
-  * cursor snooping currently O(# depth of tree)...
+  * replication
 
-  * store database stats in the version file rather than a special entry in the
-    postlist table?  Putting it in the table churns the left-most leaf block
-    of the table on every commit.
+Testing:
 
   * look at code coverage from the testsuite, and add tests to exercise as
     much of the code as possible
 
+  * make sure we have test coverage for cancel() when the table became empty in
+    the cancelled changes.
+
+Potential size improvements:
+
+  * use spare bits in the "key length" byte for either storing some bits of
+    the slab pointer, or for allowing longer in-tree tags.
+
+  * prefix-compress keys (to make large tables smaller)
+
+  * look at making the dividing keys in branch blocks into actual entries?
+
+  * B*-tree mode for block splitting?
+
   * compare speed with chert (e.g. profile running the testsuite) and try to
     make sure we're at least as fast everywhere.
 
-  * replication
+Potential speed improvements:
+
+  * cursor snooping currently O(# depth of tree)...
+
+Miscellaneous:
+
+  * is it cleaner to explicitly store the null key (as we currently do) or
+    not to?
+
+  * store database stats in the version file rather than a special entry in the
+    postlist table?  Putting it in the table churns the left-most leaf block
+    of the table on every commit.
