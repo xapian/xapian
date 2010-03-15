@@ -1,3 +1,8 @@
+Mon Mar 15 15:18:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_defs.h: Change BRASS_DEFAULT_BLOCKSIZE to
+	  8192 (was 65536).
+
 Mon Mar 15 04:50:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Open slab file lazily in all cases,
