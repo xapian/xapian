@@ -310,7 +310,7 @@ BrassCBlock::read_tag(string &tag)
 	char * tag_buf = new char[tag_len];
 	try {
 	    if (!table.read_slab(tag_buf, tag_len, slab_pos))
-		throw Xapian::DatabaseError("Failed to write slab " + str(slab_pos), errno);
+		throw Xapian::DatabaseError("Failed to read slab " + str(slab_pos), errno);
 
 	    if (!compressed) {
 		tag.assign(tag_buf, tag_len);
