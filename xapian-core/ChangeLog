@@ -1,3 +1,9 @@
+Mon Mar 15 04:50:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Open slab file lazily in all cases,
+	  not just for creating a new database.  Fix to open slab file with
+	  the appropriate flags in all cases.
+
 Mon Mar 15 03:42:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Correct "write" to "read" in exception

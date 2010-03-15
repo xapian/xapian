@@ -1483,7 +1483,7 @@ BrassTable::create(unsigned int blocksize_, bool from_scratch)
     if (fd == FD_NOT_OPEN) {
 	errmsg = "Failed to create '";
 	errmsg += path;
-	errmsg += "': ";
+	errmsg += BRASS_TABLE_EXTENSION"': ";
 	errmsg += strerror(errno);
 	// errcode = DATABASE_OPENING_ERROR;
 	RETURN(false);
@@ -1520,6 +1520,7 @@ BrassTable::open(unsigned int blocksize_, brass_block_t root)
 	blocksize = BRASS_DEFAULT_BLOCKSIZE;
     if (fd == FD_NOT_OPEN) {
 	// Table not already open.
+	fd_slab = FD_NOT_OPEN;
 	if (readonly) {
 	    fd = ::open((path + BRASS_TABLE_EXTENSION).c_str(),
 			O_RDONLY|O_BINARY);
@@ -1531,8 +1532,6 @@ BrassTable::open(unsigned int blocksize_, brass_block_t root)
 		// errcode = DATABASE_OPENING_ERROR;
 		RETURN(false);
 	    }
-	    fd_slab = ::open((path + BRASS_SLAB_EXTENSION).c_str(),
-			     O_RDONLY|O_BINARY);
 	} else {
 	    fd = ::open((path + BRASS_TABLE_EXTENSION).c_str(),
 			O_RDWR|O_BINARY);
@@ -1544,8 +1543,6 @@ BrassTable::open(unsigned int blocksize_, brass_block_t root)
 		// errcode = DATABASE_OPENING_ERROR;
 		RETURN(false);
 	    }
-	    fd_slab = ::open((path + BRASS_SLAB_EXTENSION).c_str(),
-			     O_RDONLY|O_BINARY);
 	}
 	modified = false;
     } else {
@@ -1581,13 +1578,13 @@ BrassTable::open_slab_file()
     next_free_slab = 0;
     string filename = path;
     filename += BRASS_SLAB_EXTENSION;
-    fd_slab = ::open(filename.c_str(), O_CREAT|O_RDWR|O_BINARY, 0666);
-    if (fd_slab == FD_NOT_OPEN) {
+    int mode = (readonly ? O_RDONLY|O_BINARY : O_CREAT|O_RDWR|O_BINARY);
+    fd_slab = ::open(filename.c_str(), mode, 0666);
+    if (rare(fd_slab == FD_NOT_OPEN)) {
 	string msg = "Failed to open '";
 	msg += filename;
-	msg += "' for read/write: ";
-	msg += strerror(errno);
-	throw Xapian::DatabaseError(msg);
+	msg += (readonly ? "' for reading" : "' for read/write");
+	throw Xapian::DatabaseError(msg, errno);
     }
 }
 
