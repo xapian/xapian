@@ -54,7 +54,9 @@ What doesn't work?
   not expect it to cause serious problems.
 
 - To get round the fact that MSVC doesn't do dependency checking correctly,
-we use an external program 'makedepend'.
+we use an external program 'xapdep'. Each Makefile use the -showIncludes switch of the MSVC
+compiler to generate a list of includes, which xapdep then processes and inserts
+into the Makefile in the various subdirectories.
 
 TODOS
 =====
@@ -133,7 +135,7 @@ You will need:
   OR...
 
 - You can also compile with
-Visual C++ 2005 Express Edition available without cost from:
+Visual C++ 2005/2008 Express Edition available without cost from:
 http://msdn.microsoft.com/vstudio/express/visualc/default.aspx
 
   OR...

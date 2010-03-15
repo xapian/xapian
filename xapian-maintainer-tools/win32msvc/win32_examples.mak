@@ -130,5 +130,7 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.
