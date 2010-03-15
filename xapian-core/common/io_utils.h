@@ -1,7 +1,8 @@
-/** @file flint_io.h
+/** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_FLINT_IO_H
-#define XAPIAN_INCLUDED_FLINT_IO_H
+#ifndef XAPIAN_INCLUDED_IO_UTILS
+#define XAPIAN_INCLUDED_IO_UTILS
 
 #include <sys/types.h>
 #include "safefcntl.h"
@@ -30,7 +31,7 @@
  *
  *  Returns false if this could not be done.
  */
-inline bool flint_io_sync(int fd)
+inline bool io_sync(int fd)
 {
 #ifdef F_FULLFSYNC
     /* Only supported on Mac OS X (at the time of writing at least).
@@ -56,7 +57,7 @@ inline bool flint_io_sync(int fd)
 #elif defined __WIN32__
     return _commit(fd) == 0;
 #else
-# error Cannot implement flint_io_sync() without fdatasync(), fsync(), or _commit()
+# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
 #endif
 }
 
@@ -67,9 +68,9 @@ inline bool flint_io_sync(int fd)
  *
  *  Returns the number of bytes actually read.
  */
-size_t flint_io_read(int fd, char * p, size_t n, size_t min);
+size_t io_read(int fd, char * p, size_t n, size_t min);
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
-void flint_io_write(int fd, const char * p, size_t n);
+void io_write(int fd, const char * p, size_t n);
 
-#endif
+#endif // XAPIAN_INCLUDED_IO_UTILS

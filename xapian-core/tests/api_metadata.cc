@@ -40,7 +40,7 @@ DEFINE_TESTCASE(metadata1, writable) {
     TEST_EQUAL(db.get_metadata("foo"), "");
     try {
 	db.set_metadata("foo", "bar");
-    } catch (Xapian::UnimplementedError &) {
+    } catch (const Xapian::UnimplementedError &) {
 	SKIP_TEST("Metadata not supported by this backend");
     }
     TEST_EQUAL(db.get_metadata("foo"), "bar");
@@ -152,7 +152,7 @@ DEFINE_TESTCASE(metadata5, writable && !remote) {
 
     try {
 	db.set_metadata("foo", "val");
-    } catch (Xapian::UnimplementedError &) {
+    } catch (const Xapian::UnimplementedError &) {
 	SKIP_TEST("Metadata not supported by this backend");
     }
     db.commit();

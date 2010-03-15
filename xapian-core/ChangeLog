@@ -1,3 +1,10 @@
+Mon Mar 15 02:20:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/brass/brass_positionlist.cc,
+	  backends/chert/,backends/flint/,bin/xapian-check-chert.cc,
+	  common/Makefile.mk,common/utils.cc,common/utils.h,tests/:
+	  Merge from trunk r14200.
+
 Mon Mar 15 00:07:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Pass
