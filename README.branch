@@ -35,6 +35,16 @@ Testing:
 
 Potential size improvements:
 
+  * if the blocksize is < 64K we have one or more unused bits in each item
+    pointer - we can use these in leaf blocks to store the compressed and/or
+    slab flags, instead of having to encode these in the item.
+
+  * if the blocksize is < 64K we have one or more unused bits in each item
+    pointer - we can use these in branch blocks to store the length of the
+    block pointer, so we can save a byte or two on this in many cases (at the
+    expense of updating it potentially overflowing the block).  If we store
+    items in branch blocks that would clash with this idea.
+
   * use spare bits in the "key length" byte for either storing some bits of
     the slab pointer, or for allowing longer in-tree tags.
 
