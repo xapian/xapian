@@ -59,9 +59,12 @@ ChertPositionListTable::set_positionlist(Xapian::docid did,
 	swap(s, wr.freeze());
     }
 
-    string old_tag;
-    if (!check_for_update || !get_exact_entry(key, old_tag) || s != old_tag)
-	add(key, s);
+    if (check_for_update) {
+	string old_tag;
+	if (get_exact_entry(key, old_tag) && s == old_tag)
+	    return;
+    }
+    add(key, s);
 }
 
 Xapian::termcount

@@ -16,6 +16,127 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Wed Mar 17 01:33:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add a hyphen.
+
+Wed Mar 17 01:30:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Correct description of --enable-assertions.  It does NOT
+	  enable debugging symbols, and shouldn't control checks on bad data
+	  passed to API calls (if it does anywhere, that's a bug).  Note that
+	  Xapian will run more slowly with assertions on.
+
+Wed Mar 17 01:10:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_values.cc: Put ValueUpdater in Brass namespace
+	  to avoid cross-linking issues with ValueUpdater class in chert
+	  (change taken from brass-btree branch).
+
+Sun Mar 14 10:05:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from chert:
+	* backends/flint/flint_database.cc,
+	  backends/flint/flint_positionlist.cc,
+	  backends/flint/flint_positionlist.h: When updating a document, rather
+	  than decoding the old positions, comparing with the new, and then
+	  encoding the new if different, we now just encode the new and then
+	  compare the encoded forms.  (ticket#428)  This change also avoids
+	  calling FlintPositionListTable::del() when we know the entry doesn't
+	  already exist.
+	* backends/flint/flint_positionlist.cc: Minor refactor to improve
+	  code clarity and to only create std::string variable when it
+	  is needed.
+
+Sun Mar 14 09:45:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/chert_positionlist.cc: Minor refactor to improve
+	  code clarity and to only create std::string variable when it
+	  is needed.
+
+Sun Mar 14 09:29:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Minor refactor to improve
+	  code clarity and to only create std::string variable when it
+	  is needed.
+
+Sun Mar 14 07:37:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,tests/api_closedb.cc,tests/api_metadata.cc,
+	  tests/internaltest.cc: Catch by const reference rather than just
+	  reference, unless we actually need to modify the caught object.
+
+Sun Mar 14 06:45:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Check live_db only has a single sub-database even
+	  if we just lazily opened it.
+
+Sun Mar 14 05:00:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,
+	  backends/flint/flint_databasereplicator.cc: Add missing explicit
+	  '#include "str.h"'.
+
+Sat Mar 13 09:22:24 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replicate.cc: Always use off_t to refer to the size of a
+	  file: fixes warnings about comparting a signed value to an unsigned
+	  value.
+
+Thu Mar 11 16:07:10 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/replication.cc: Open the livedb lazily if it gets left in a
+	  closed state (due to an exception when applying a changeset),
+	  rather than reopening it straight away in an exception handler.
+	  This requires the livedb to become a mutable member, but is safer
+	  in the event that an exception is thrown by the WritableDatabase
+	  constructor.
+
+Thu Mar 11 15:17:12 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replicate.cc: Uncomment the rmtmpdir() at the end of
+	  replicate3; it was accidentally committed debugging code.
+
+Thu Mar 11 13:03:57 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/replication.cc: If an exception is thrown, mark that the
+	  offline revision needed is unknown (represented by being empty);
+	  ensures that a database isn't put live incorrectly in this case.
+	  Also, actually read the message for REPL_REPLY_END_OF_CHANGES, so
+	  that we get an error if the message is truncated.  Also, if an
+	  attempt to apply a changeset to the live database fails with an
+	  exception while the live database is closed, reopen the live
+	  database before allowing the exception to propagate.
+	* tests/api_replicate.cc: Split replicate() helper function into
+	  two parts, to separate getting the changeset messages, and
+	  applying them. Add replicate3 test, which checks that
+	  replications which are provided with truncated messages raise
+	  appropriate errors.
+
+Thu Mar 11 00:46:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.cc: Avoid creating temporary string objects
+	  to reduce bloat in compiled code.  Remove explicit std:: qualifiers.
+
+Thu Mar 11 00:38:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.cc: The directory we're writing changesets
+	  to will always exist, so no need to ensure it does.
+
+Thu Mar 11 00:10:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Fix calculation of end
+	  pointer for changes file.  Since the merge, it has been off by
+	  CONST_STRLEN(CHANGES_MAGIC_STRING).
+
+Wed Mar 10 23:59:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc: Add missing explicit
+	  '#include "str.h"'.
+
 Wed Mar 10 13:07:41 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* common/Makefile.mk,common/replicate_utils.cc,

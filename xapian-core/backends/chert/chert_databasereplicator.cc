@@ -40,6 +40,7 @@
 #include "replicate_utils.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -251,8 +252,9 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (!startswith(buf, CHANGES_MAGIC_STRING)) {
 	throw NetworkError("Invalid ChangeSet magic string");
     }
-    const char *ptr = buf.data() + CONST_STRLEN(CHANGES_MAGIC_STRING);
+    const char *ptr = buf.data();
     const char *end = ptr + buf.size();
+    ptr += CONST_STRLEN(CHANGES_MAGIC_STRING);
 
     unsigned int changes_version;
     if (!unpack_uint(&ptr, end, &changes_version))

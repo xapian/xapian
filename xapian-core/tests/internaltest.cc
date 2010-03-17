@@ -72,7 +72,7 @@ static bool test_exception1()
 	    }
 	    throw;
 	}
-    } catch (Test_Exception & e) {
+    } catch (const Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
 	return true;
     }
@@ -483,7 +483,7 @@ static bool test_serialiseerror1()
     try {
 	// unserialise_error throws an exception.
 	unserialise_error(serialisation, "", "");
-    } catch (Xapian::Error & ecaught) {
+    } catch (const Xapian::Error & ecaught) {
 	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
 	threw = true;
     }
