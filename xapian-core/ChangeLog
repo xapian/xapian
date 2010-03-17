@@ -1,3 +1,9 @@
+Wed Mar 17 01:10:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_values.cc: Put ValueUpdater in Brass namespace
+	  to avoid cross-linking issues with ValueUpdater class in chert
+	  (change taken from brass-btree branch).
+
 Sun Mar 14 10:05:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from chert:
