@@ -1,3 +1,10 @@
+Wed Mar 17 01:30:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Correct description of --enable-assertions.  It does NOT
+	  enable debugging symbols, and shouldn't control checks on bad data
+	  passed to API calls (if it does anywhere, that's a bug).  Note that
+	  Xapian will run more slowly with assertions on.
+
 Wed Mar 17 01:10:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_values.cc: Put ValueUpdater in Brass namespace
