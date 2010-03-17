@@ -1054,8 +1054,8 @@ BrassCBlock::del(const string &key)
     int C = get_count();
     if (C <= 2) {
 	if (rare(!parent)) {
-	    // This is the root block, and it has 2 entries.  One of these must be
-	    // the dummy empty entry, so the table will be empty after this
+	    // This is the root block, and it has 2 entries.  One of these must
+	    // be the dummy empty entry, so the table will be empty after this
 	    // operation.
 	    AssertEq(C, 2);
 	    AssertEq(item, 1);
@@ -1087,6 +1087,16 @@ BrassCBlock::del(const string &key)
     check_block();
     modified = true;
     RETURN(true);
+}
+
+void
+BrassCBlock::cancel()
+{
+    if (modified) {
+	const_cast<BrassTable&>(table).mark_free(n);
+	modified = false;
+    }
+    if (child) child->cancel();
 }
 
 // FIXME: factor out repeated code from get() ?
@@ -1381,6 +1391,7 @@ BrassTable::lose_level()
     LOGCALL_VOID(DB, "BrassTable::lose_level", NO_ARGS);
     Assert(my_cursor);
     do {
+	mark_free(my_cursor->n);
 	my_cursor = my_cursor->lose_level();
 	if (rare(!my_cursor))
 	    return;

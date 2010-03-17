@@ -351,10 +351,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	}
 	if (child) child->commit();
     }
-    void cancel() {
-	modified = false;
-	if (child) child->cancel();
-    }
+    void cancel();
 
     enum { EQ = 1, LT = 2, LE = 3, GE = 5 };
 
@@ -582,6 +579,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
     void mark_free(brass_block_t n) {
 	(void)n;
+	Assert(n != brass_block_t(-1));
 	AssertRel(n,<,next_free);
 	// key_limits[n].second = std::string();
 	// FIXME: add "n" to the freelist for revision "revision".
@@ -605,7 +603,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
     virtual int compare_keys(const void *k1, size_t l1,
 			     const void *k2, size_t l2) const;
-    virtual std::string divide(const char *k1, size_t l1, const char *k2, size_t l2) const;
+    virtual std::string divide(const char *k1, size_t l1,
+			       const char *k2, size_t l2) const;
 
     brass_block_t get_root() const {
        if (!my_cursor)

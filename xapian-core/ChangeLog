@@ -1,3 +1,9 @@
+Wed Mar 17 06:23:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Call
+	  BrassTable::mark_free() in a couple of cases where we were failing
+	  to.
+
 Mon Mar 15 15:18:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_defs.h: Change BRASS_DEFAULT_BLOCKSIZE to
