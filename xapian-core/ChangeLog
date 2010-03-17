@@ -1,3 +1,7 @@
+Wed Mar 17 01:33:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add a hyphen.
+
 Wed Mar 17 01:30:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL: Correct description of --enable-assertions.  It does NOT
