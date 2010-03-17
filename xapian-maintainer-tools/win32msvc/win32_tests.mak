@@ -96,7 +96,6 @@ SRC = \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
     "$(INTDIR)\queryparsertest.cc" \
-    "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\stemtest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
