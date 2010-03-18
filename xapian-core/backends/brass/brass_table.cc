@@ -857,7 +857,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// We want the block where the new key will go to end up in the
 	// cursor, so swap things around if the new key wants to go after
 	// the split point.
-	if (item >= split_after) {
+	if (item > split_after) {
 	    // cout << "split : item after" << endl;
 	    item -= split_after;
 	    swap(data, sp.data);
