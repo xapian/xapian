@@ -594,7 +594,11 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     bool read_slab(char *buf, size_t len, off_t offset) const;
     bool write_slab(const char *buf, size_t len, off_t offset) const;
 
-    BrassCBlock * gain_level(brass_block_t child);
+    BrassCBlock * gain_level(brass_block_t child) {
+	my_cursor = new BrassCBlock(*this, my_cursor, child);
+	return my_cursor;
+    }
+
     void lose_level();
 
     brass_block_t get_free_block();

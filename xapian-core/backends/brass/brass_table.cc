@@ -1353,15 +1353,6 @@ BrassTable::write_slab(const char *buf, size_t len, off_t offset) const
     }
 }
 
-BrassCBlock *
-BrassTable::gain_level(brass_block_t child)
-{
-    LOGCALL(DB, BrassCBlock *, "BrassTable::gain_level", child);
-    my_cursor = new BrassCBlock(*this, my_cursor, child);
-    // cout << my_cursor->n << " GAIN LEVEL, setting wide bounds for new root" << endl;
-    RETURN(my_cursor);
-}
-
 void
 BrassTable::lose_level()
 {
