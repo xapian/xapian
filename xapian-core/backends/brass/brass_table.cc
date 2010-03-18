@@ -783,6 +783,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	//
 	// If in sequential insert mode, then split at the insertion point
 	// which gives us almost full blocks.
+	//
 	// FIXME: split_at is "after" in the sense of the order of entries
 	// in the block, but "before" in item numbering order.  This is already
 	// confusing me!
@@ -839,8 +840,6 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// block number order skipping non-leaf blocks.
 	BrassBlock & sp = const_cast<BrassTable&>(table).split;
 	sp.new_leaf_block();
-	// cout << sp.n << " SETTING BOUNDS leaf case from split " << n << endl;
-	// cout << n << " UPDATING BOUNDS leaf case from split " << endl;
 	memcpy(sp.data + table.blocksize - (split_ptr - free_end), data + free_end, split_ptr - free_end);
 #ifdef ZERO_UNUSED_SPACE
 	memset(data + free_end, 0, split_ptr - free_end);
