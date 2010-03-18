@@ -349,6 +349,18 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
      */
     void find_child(const std::string & key);
 
+    /** Search for @a key in this block.
+     *
+     *  Searches through the (ordered) entries in this block (which must be a
+     *  leaf block) for @a key.  If there's an exact match, @a item is set to
+     *  it, otherwise @a item is set to the item with the first key after @a
+     *  key.
+     *
+     *  @param key  Key to search for.
+     *  @param mode Currently ignored.
+     *
+     *  @return True if key was found exactly.
+     */
     bool binary_chop_leaf(const std::string & key, int mode);
 
     void insert(const std::string &key, brass_block_t tag);
