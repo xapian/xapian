@@ -32,11 +32,9 @@
 #include "unaligned.h"
 
 #include <string>
-#include <vector>
 
 #include "xapian/visibility.h"
 
-#include<iostream> // FIXME
 using namespace std;
 
 /** How many sequential updates trigger a switch to from random-access to
@@ -96,7 +94,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     /// Assignment is not allowed.
     void operator=(const BrassBlock &);
 
-    void check_block();
+    void check_block(const std::string &lb = string(),
+		     const std::string &ub = string());
 
   protected:
     brass_block_t n;
@@ -218,6 +217,19 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     void operator=(const BrassCBlock &);
 
     void set_child_block_number(brass_block_t n_child);
+
+    void check_block() {
+	std::string lb, ub;
+	if (parent) {
+	    int C = parent->get_count();
+	    int i = parent->item;
+	    if (i > -1)
+		lb = parent->get_key(i);
+	    if (i < C - 1)
+		ub = parent->get_key(i + 1);
+	}
+	BrassBlock::check_block(lb, ub);
+    }
 
     /** For a branch block, the item number of child.  If child is the left
      *  pointer, then item is -1. */
@@ -564,8 +576,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
     mutable BrassCompressor compressor;
 
-    // mutable std::vector<std::pair<std::string, std::string> > key_limits;
-
     bool read_block(char *buf, brass_block_t n) const;
     bool write_block(const char *buf, brass_block_t n) const;
 
@@ -581,7 +591,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	(void)n;
 	Assert(n != brass_block_t(-1));
 	AssertRel(n,<,next_free);
-	// key_limits[n].second = std::string();
 	// FIXME: add "n" to the freelist for revision "revision".
     }
 

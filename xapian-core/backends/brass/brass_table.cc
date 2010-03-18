@@ -156,7 +156,7 @@ BrassTable::throw_database_closed()
 }
 
 void
-BrassBlock::check_block()
+BrassBlock::check_block(const string &lb, const string &ub)
 {
 #ifdef XAPIAN_ASSERTIONS
     if (uncaught_exception())
@@ -165,8 +165,7 @@ BrassBlock::check_block()
     int C = get_count();
     if (C == 0)
 	return;
-    // string prev_key = table.key_limits[n].first;
-    string prev_key;
+    string prev_key = lb;
     string key;
     int header_len = header_length(C);
     for (int i = 0; i < C; ++i) {
@@ -207,7 +206,8 @@ BrassBlock::check_block()
 
 	swap(prev_key, key);
     }
-    // AssertRel(prev_key,<=,table.key_limits[n].second);
+    if (!ub.empty())
+	AssertRel(prev_key,<,ub);
     // The last item shouldn't overlap the block header.
     AssertRel(get_ptr(C - 1),>=,header_len);
     // FIXME: More checks...
@@ -482,10 +482,6 @@ void
 BrassCBlock::insert(const string &key, brass_block_t tag)
 {
     LOGCALL_VOID(DB, "BrassCBlock::insert", key << ", " << tag);
-    // cerr << table.key_limits[n].first << "<=" << key << endl;
-    // AssertRel(table.key_limits[n].first,<=,key);
-    // cerr << table.key_limits[n].second << ">=" << key << endl;
-    // AssertRel(table.key_limits[n].second,>=,key);
     Assert(!is_leaf());
 
     // NB Don't update item to point to the new block, since we're called
@@ -570,11 +566,6 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	// in the parent.
 	BrassBlock & sp = const_cast<BrassTable&>(table).split;
 	sp.new_branch_block();
-	// cout << sp.n << " SETTING BOUNDS from split " << n << endl;
-	// table.key_limits[sp.n].first = divkey;
-	// table.key_limits[sp.n].second = table.key_limits[n].second;
-	// cout << n << " UPDATING BOUNDS from split " << endl;
-	// table.key_limits[n].second = divkey;
 	memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - (split_ptr - free_end), data + free_end, split_ptr - free_end);
 	sp.set_left_block(split_new_l);
 	for (int i = split_after; i < C; ++i) {
@@ -714,11 +705,6 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	RETURN(child->insert(key, tag, tag_len, compressed));
     }
 
-    // AssertRel(table.key_limits[n].first,<=,key);
-    // cerr << table.key_limits[n].first << "<=" << key << endl;
-    // AssertRel(table.key_limits[n].second,>=,key);
-    // cerr << table.key_limits[n].second << ">=" << key << endl;
-
     int C = get_count();
 
     if (C > 0) {
@@ -728,10 +714,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
     // cout << "block " << n << " needs_clone " << needs_clone << endl;
     if (needs_clone) {
 	needs_clone = false;
-	//int n_orig = n;
 	n = const_cast<BrassTable&>(table).get_free_block();
-	// cout << n << " COPYING BOUNDS case 2 from  " << n_orig << endl;
-	// table.key_limits[n] = table.key_limits[n_orig];
 	// cout << "cloned to " << n << endl;
 	if (parent)
 	    parent->set_child_block_number(n);
@@ -831,7 +814,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	    } while (true);
 	}
 
-	// cerr << "split : item " << item << " split point " << split_after << " out of " << C << endl;
+	// cout << "split : item " << item << " split point " << split_after << " out of " << C << endl;
 	const char *div_p;
 	size_t div_len;
 	{
@@ -857,10 +840,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	BrassBlock & sp = const_cast<BrassTable&>(table).split;
 	sp.new_leaf_block();
 	// cout << sp.n << " SETTING BOUNDS leaf case from split " << n << endl;
-	// table.key_limits[sp.n].first = divkey;
-	// table.key_limits[sp.n].second = table.key_limits[n].second;
 	// cout << n << " UPDATING BOUNDS leaf case from split " << endl;
-	// table.key_limits[n].second = divkey;
 	memcpy(sp.data + table.blocksize - (split_ptr - free_end), data + free_end, split_ptr - free_end);
 #ifdef ZERO_UNUSED_SPACE
 	memset(data + free_end, 0, split_ptr - free_end);
@@ -895,19 +875,18 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// And now insert into parent, adding a level to the Btree if required.
 	if (!parent)
 	    parent = const_cast<BrassTable&>(table).gain_level(n_left);
-	//cout << n << ": parent dividing key = [" << divkey << "]" << " n_left = " << n_left << " n_right = " << n_right << endl;
+	// cout << n << ": parent dividing key = [" << divkey << "]" << " n_left = " << n_left << " n_right = " << n_right << endl;
 	parent->insert(divkey, n_right);
 	// We have a new sibling, but we want the attention.
 	// FIXME: this is clumsy...
-	// cerr << "parent item is " << parent->item << ", n is " << n << endl;
+	// cout << "parent item is " << parent->item << ", n is " << n << endl;
 	if (parent->get_block(parent->item) != n) {
 	    ++parent->item;
 	    AssertEq(parent->get_block(parent->item), n);
 	}
 	C = get_count();
 	// Check that we actually created enough free space!
-	// cout << "Need " << len + 2 << ", now have " <<
-	//    get_endptr(C) - header_length(C) << " free" << endl;
+	// cout << "Need " << len + 2 << ", now have " << get_endptr(C) - header_length(C) << " free" << endl;
 	AssertRel(len + 2,<=,get_endptr(C) - header_length(C));
     }
     int ptr;
@@ -924,8 +903,8 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 		int l = get_ptr(item) - get_ptr(C - 1);
 		AssertRel(l,>=,0);
 		memmove(q + oldlen - len, q, l);
+		// cout << n << ": replace shuffle! (" << q - len - data << " <- " << q - data << ", " << l << ")" << endl;
 	    }
-	    // cout << n << ": replace shuffle! (" << q - len - data << " <- " << q - data << ", " << l << ")" << endl;
 	    for (int i = C; i > item; --i) {
 		set_ptr(i - 1, get_ptr(i - 1) + oldlen - len);
 	    }
@@ -941,7 +920,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	    int l = get_endptr(item) - get_ptr(C - 1);
 	    AssertRel(l,>=,0);
 	    memmove(q - len, q, l);
-	    // cerr << n << ": add shuffle! (" << q - len - data << " <- " << q - data << ", " << l << ")" << endl;
+	    // cout << n << ": add shuffle! (" << q - len - data << " <- " << q - data << ", " << l << ")" << endl;
 	    for (int i = C; i > item; --i) {
 		set_ptr(i, get_ptr(i - 1) - len);
 	    }
@@ -1381,7 +1360,6 @@ BrassTable::gain_level(brass_block_t child)
     LOGCALL(DB, BrassCBlock *, "BrassTable::gain_level", child);
     my_cursor = new BrassCBlock(*this, my_cursor, child);
     // cout << my_cursor->n << " GAIN LEVEL, setting wide bounds for new root" << endl;
-    // key_limits[my_cursor->n].second.assign(256, '\xff');
     RETURN(my_cursor);
 }
 
@@ -1413,8 +1391,6 @@ BrassTable::get_free_block()
 	next_free = statbuf.st_size / blocksize;
 	// cout << "next_free starts as " << next_free << endl;
     }
-    // Assert(key_limits.size() == next_free);
-    // key_limits.resize(next_free + 1);
     return next_free++;
 }
 
@@ -1628,8 +1604,6 @@ BrassTable::add(const string & key, const string & tag, bool already_compressed)
     if (rare(!my_cursor)) {
 	my_cursor = new BrassCBlock(*this);
 	my_cursor->new_leaf_block();
-	// cout << my_cursor->n << " [0, INF] LIMITS SET for first block in cursor" << endl;
-	// key_limits[my_cursor->n].second.assign(256, '\xff');
 	(void)my_cursor->insert(string(), NULL, 0, false);
     }
     modified = true;

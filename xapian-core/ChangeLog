@@ -1,3 +1,12 @@
+Thu Mar 18 01:10:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Add
+	  BrassCBlock::check_block() which gets bounds from the parent (if any)
+	  and passes them in to BrassBlock::check_block().  This is better than
+	  the commented out key_limits checks (less memory, checks tighter
+	  bounds) so remove those.  Fix all commented out debug output to go
+	  to cout rather than some to cerr.
+
 Wed Mar 17 06:23:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Call
