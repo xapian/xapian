@@ -1,3 +1,8 @@
+Thu Mar 18 07:50:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Remain split_after variable to
+	  split_at, which is hopefully less confusing.
+
 Thu Mar 18 06:47:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: Add doxygen comment for

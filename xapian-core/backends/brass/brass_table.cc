@@ -543,21 +543,21 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	// If in sequential insert mode, then split at the insertion point
 	// which gives us almost full blocks.
 	AssertRel(C,>,1);
-	int split_after;
+	int split_at;
 	if (!random_access) {
-	    split_after = b;
+	    split_at = b;
 	} else {
 	    // FIXME: pick middle point better...
-	    split_after = C >> 1;
+	    split_at = C >> 1;
 	}
-	size_t split_ptr = get_endptr(split_after);
-	const char *div_p = data + get_ptr(split_after);
+	size_t split_ptr = get_endptr(split_at);
+	const char *div_p = data + get_ptr(split_at);
 	// We can't further shorten the dividing key here or it'll disagree
 	// with the existing partitioning of keys at the leaf level.
-	string divkey(div_p + BLOCKPTR_SIZE, split_ptr - get_ptr(split_after) - BLOCKPTR_SIZE);
+	string divkey(div_p + BLOCKPTR_SIZE, split_ptr - get_ptr(split_at) - BLOCKPTR_SIZE);
 	brass_block_t split_new_l = get_unaligned_le4(div_p);
-	++split_after;
-	split_ptr = get_endptr(split_after);
+	++split_at;
+	split_ptr = get_endptr(split_at);
 	//cout << n << ": " << divkey << " <=> " << key << endl;
 	// We put the right half of the split block in the new block, and
 	// then swap the blocks around if we want to insert into the right
@@ -568,18 +568,18 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	sp.new_branch_block();
 	memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - (split_ptr - free_end), data + free_end, split_ptr - free_end);
 	sp.set_left_block(split_new_l);
-	for (int i = split_after; i < C; ++i) {
-	    sp.set_ptr(i - split_after, get_ptr(i) + table.blocksize - BLOCKPTR_SIZE - split_ptr);
+	for (int i = split_at; i < C; ++i) {
+	    sp.set_ptr(i - split_at, get_ptr(i) + table.blocksize - BLOCKPTR_SIZE - split_ptr);
 	}
-	sp.set_count(C - split_after);
+	sp.set_count(C - split_at);
 #ifdef ZERO_UNUSED_SPACE
 	memset(data + free_end, 0, split_ptr - free_end);
 #endif
-	set_count(split_after - 1);
+	set_count(split_at - 1);
 	brass_block_t n_left = n, n_right = sp.n;
-	if (b > split_after) {
-	    b -= split_after;
-	    item -= split_after;
+	if (b > split_at) {
+	    b -= split_at;
+	    item -= split_at;
 	    swap(data, sp.data);
 	    swap(n, sp.n);
 	    // Should already be false.
@@ -783,52 +783,52 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	//
 	// If in sequential insert mode, then split at the insertion point
 	// which gives us almost full blocks.
-	// FIXME: split_after is "after" in the sense of the order of entries
+	// FIXME: split_at is "after" in the sense of the order of entries
 	// in the block, but "before" in item numbering order.  This is already
 	// confusing me!
 	int split_ptr;
-	int split_after;
+	int split_at;
 	if (!random_access) {
-	    split_after = item - 1;
-	    split_ptr = get_endptr(split_after);
+	    split_at = item - 1;
+	    split_ptr = get_endptr(split_at);
 	} else {
-	    split_after = C >> 1;
+	    split_at = C >> 1;
 	    do {
-		split_ptr = get_endptr(split_after);
+		split_ptr = get_endptr(split_at);
 		int percent = (table.blocksize - split_ptr) * 100;
 		percent /= (table.blocksize - free_end);
 		if (percent > 75) {
-		    // cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" too late" << endl;
-		    --split_after;
-		    AssertRel(split_after,>,0);
+		    // cout << "split @ " << percent << "% " << split_at<<"/"<<C<<" too late" << endl;
+		    --split_at;
+		    AssertRel(split_at,>,0);
 		    continue;
 		}
 		if (percent < 25) {
-		    // cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" too early" << endl;
-		    ++split_after;
-		    AssertRel(split_after,<,C - 1);
+		    // cout << "split @ " << percent << "% " << split_at<<"/"<<C<<" too early" << endl;
+		    ++split_at;
+		    AssertRel(split_at,<,C - 1);
 		    continue;
 		}
-		// cout << "split @ " << percent << "% " << split_after<<"/"<<C<<" acceptable" << endl;
+		// cout << "split @ " << percent << "% " << split_at<<"/"<<C<<" acceptable" << endl;
 		break;
 	    } while (true);
 	}
 
-	// cout << "split : item " << item << " split point " << split_after << " out of " << C << endl;
+	// cout << "split : item " << item << " split point " << split_at << " out of " << C << endl;
 	const char *div_p;
 	size_t div_len;
 	{
 	    bool slab;
-	    (void)decode_leaf_key(split_after, div_p, div_len, slab);
+	    (void)decode_leaf_key(split_at, div_p, div_len, slab);
 	}
 
-	AssertRel(split_ptr,==,get_ptr(split_after - 1));
+	AssertRel(split_ptr,==,get_ptr(split_at - 1));
 
 	const char *pre_p;
 	size_t pre_len;
 	{
 	    bool slab;
-	    (void)decode_leaf_key(split_after - 1, pre_p, pre_len, slab);
+	    (void)decode_leaf_key(split_at - 1, pre_p, pre_len, slab);
 	}
 
 	string divkey(table.divide(pre_p, pre_len, div_p, div_len));
@@ -845,11 +845,11 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 #ifdef ZERO_UNUSED_SPACE
 	memset(data + free_end, 0, split_ptr - free_end);
 #endif
-	for (int i = split_after; i < C; ++i) {
-	    sp.set_ptr(i - split_after, get_ptr(i) + (table.blocksize - split_ptr));
+	for (int i = split_at; i < C; ++i) {
+	    sp.set_ptr(i - split_at, get_ptr(i) + (table.blocksize - split_ptr));
 	}
-	sp.set_count(C - split_after);
-	set_count(split_after);
+	sp.set_count(C - split_at);
+	set_count(split_at);
 	//cout << "left range " << get_key(0) << ".." << get_key(get_count()-1) << endl;
 	//cout << "right range " << sp.get_key(0) << ".." << sp.get_key(sp.get_count()-1) << endl;
 	brass_block_t n_left = n, n_right = sp.n;
@@ -857,9 +857,9 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// We want the block where the new key will go to end up in the
 	// cursor, so swap things around if the new key wants to go after
 	// the split point.
-	if (item > split_after) {
+	if (item > split_at) {
 	    // cout << "split : item after" << endl;
-	    item -= split_after;
+	    item -= split_at;
 	    swap(data, sp.data);
 	    swap(n, sp.n);
 	    // Should already be false.
