@@ -793,7 +793,11 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	int split_ptr;
 	int split_at;
 	if (!random_access) {
-	    split_at = item - 1;
+	    if (item <= 1) {
+		split_at = item;
+	    } else {
+		split_at = item - 1;
+	    }
 	    split_ptr = get_endptr(split_at);
 	} else {
 	    split_at = C >> 1;
@@ -830,7 +834,11 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 
 	const char *pre_p;
 	size_t pre_len;
-	{
+	if (split_at == 0) {
+	    AssertEq(item, 0);
+	    pre_p = key.data();
+	    pre_len = key.size();
+	} else {
 	    bool slab;
 	    (void)decode_leaf_key(split_at - 1, pre_p, pre_len, slab);
 	}
