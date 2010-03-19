@@ -860,6 +860,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// cursor, so swap things around if the new key wants to go after
 	// the split point.
 	if (item > split_at) {
+	    AssertRel(key, >=, divkey);
 	    // cout << "split : item after" << endl;
 	    item -= split_at;
 	    swap(data, sp.data);
@@ -867,6 +868,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	    // Should already be false.
 	    Assert(!needs_clone);
 	} else {
+	    AssertRel(key, <, divkey);
 	    // cout << "split : item before" << endl;
 	}
 	// cout << "me | div | sp\n";
