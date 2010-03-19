@@ -475,6 +475,9 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
     if (item < get_count()) {
 	AssertRel(get_key(item),>,key);
     }
+    if (item > 0) {
+	AssertRel(get_key(item - 1),<=,key);
+    }
     RETURN(false);
 }
 

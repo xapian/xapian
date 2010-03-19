@@ -1,3 +1,7 @@
+Fri Mar 19 02:08:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Add another assertion.
+
 Thu Mar 18 09:32:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Make
