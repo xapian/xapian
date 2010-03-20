@@ -54,6 +54,17 @@ Note that you must call the ``set_database()`` method as well as setting
 ``FLAG_SPELLING`` so that Xapian knows where to add the spelling dictionary
 entries.
 
+If a document is removed or replaced, any spelling dictionary entries that
+were added when it was originally indexed won't be automatically removed.
+This might seem like a flaw, but in practice it rarely causes problems, and
+spellings in documents which were in the database, or in older versions of
+documents, are still interesting.  You can think of this as using the history
+of the document collection as a source of spelling data.
+
+If you really want these entries removed, you can run through the termlist of
+each document you are about to remove or replace (if you indexed terms
+unstemmed) and call ``remove_spelling()`` for each word.
+
 Searching
 =========
 
