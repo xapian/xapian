@@ -1,3 +1,8 @@
+Sat Mar 20 11:05:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix the condition for which half of
+	  the split leaf block the key goes in.
+
 Fri Mar 19 04:10:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: For sequential mode, don't pick a

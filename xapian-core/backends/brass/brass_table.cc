@@ -730,6 +730,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 
     bool exact = binary_chop_leaf(key, LE);
     // cout << n << ": insert (exact=" << exact << ") at " << item << "/" << C << endl;
+    AssertRel(item,<=,C);
 
     string slab_pointer; // FIXME: use an auto char array?
     byte info;
@@ -867,7 +868,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// We want the block where the new key will go to end up in the
 	// cursor, so swap things around if the new key wants to go after
 	// the split point.
-	if (item > split_at) {
+	if (item > split_at || (item == split_at && key >= divkey)) {
 	    AssertRel(key, >=, divkey);
 	    // cout << "split : item after" << endl;
 	    item -= split_at;
@@ -897,6 +898,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	    AssertEq(parent->get_block(parent->item), n);
 	}
 	C = get_count();
+	AssertRel(item,<=,C);
 	// Check that we actually created enough free space!
 	// cout << "Need " << len + 2 << ", now have " << get_endptr(C) - header_length(C) << " free" << endl;
 	AssertRel(len + 2,<=,get_endptr(C) - header_length(C));
