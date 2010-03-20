@@ -1,3 +1,9 @@
+Sat Mar 20 09:30:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/spelling.rst: Add section on indexing.  Move the "algorithm"
+	  section to the end, as it is really just background information for
+	  the curious.
+
 Wed Mar 17 01:33:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL: Add a hyphen.
