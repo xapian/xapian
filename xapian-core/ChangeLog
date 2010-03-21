@@ -1,3 +1,8 @@
+Sun Mar 21 06:50:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix unused parameter warnings when
+	  assertions are disabled.
+
 Sat Mar 20 11:05:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix the condition for which half of

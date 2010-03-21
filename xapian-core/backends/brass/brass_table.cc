@@ -158,6 +158,8 @@ BrassTable::throw_database_closed()
 void
 BrassBlock::check_block(const string &lb, const string &ub)
 {
+    (void)lb;
+    (void)ub;
 #ifdef XAPIAN_ASSERTIONS
     if (uncaught_exception())
 	return;
