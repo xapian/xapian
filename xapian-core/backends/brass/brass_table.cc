@@ -495,7 +495,7 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	// FIXME: special case probably not needed, but perhaps could be
 	// merged into gain_level()...
 	set_count(1);
-	int new_ptr = table.blocksize - BLOCKPTR_SIZE - BLOCKPTR_SIZE - key.size();
+	int new_ptr = table.blocksize - 2 * BLOCKPTR_SIZE - key.size();
 	set_ptr(0, new_ptr);
 	set_unaligned_le4(data + new_ptr, tag);
 	memcpy(data + new_ptr + BLOCKPTR_SIZE, key.data(), key.size());
