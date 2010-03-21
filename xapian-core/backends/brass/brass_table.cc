@@ -491,6 +491,11 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
     // precisely when splitting a child block and it's important that item
     // points to the child block.
 
+    // If we needed to be cloned, that should have happened when our descendent
+    // leaf was.
+    Assert(!needs_clone);
+
+    check_block();
     if (get_count() == 0) {
 	// FIXME: special case probably not needed, but perhaps could be
 	// merged into gain_level()...
@@ -706,25 +711,16 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	return;
     }
 
-    int C = get_count();
-
-    if (C > 0) {
-	check_block();
-    }
-
-    // cout << "block " << n << " needs_clone " << needs_clone << endl;
     if (needs_clone) {
 	needs_clone = false;
 	n = const_cast<BrassTable&>(table).get_free_block();
-	// cout << "cloned to " << n << endl;
 	if (parent)
 	    parent->set_child_block_number(n);
-	// cout << "post clone check" << endl;
-	check_block();
-	// cout << "done post clone check" << endl;
-    } else {
-	check_block();
     }
+
+    check_block();
+
+    int C = get_count();
 
     bool exact = binary_chop_leaf(key, LE);
     // cout << n << ": insert (exact=" << exact << ") at " << item << "/" << C << endl;
