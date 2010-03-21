@@ -1,3 +1,9 @@
+Sun Mar 21 07:22:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Inline
+	  empty version of check() method from header when assertions are
+	  disabled.
+
 Sun Mar 21 06:50:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix unused parameter warnings when

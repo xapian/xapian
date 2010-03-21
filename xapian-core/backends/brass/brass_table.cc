@@ -155,12 +155,10 @@ BrassTable::throw_database_closed()
     throw Xapian::DatabaseError("Database has been closed");
 }
 
+#ifdef XAPIAN_ASSERTIONS
 void
 BrassBlock::check_block(const string &lb, const string &ub)
 {
-    (void)lb;
-    (void)ub;
-#ifdef XAPIAN_ASSERTIONS
     if (uncaught_exception())
 	return;
     Assert(data);
@@ -213,8 +211,8 @@ BrassBlock::check_block(const string &lb, const string &ub)
     // The last item shouldn't overlap the block header.
     AssertRel(get_ptr(C - 1),>=,header_len);
     // FIXME: More checks...
-#endif
 }
+#endif
 
 void
 BrassBlock::save()

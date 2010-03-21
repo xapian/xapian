@@ -94,8 +94,13 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
     /// Assignment is not allowed.
     void operator=(const BrassBlock &);
 
+#ifdef XAPIAN_ASSERTIONS
     void check_block(const std::string &lb = string(),
 		     const std::string &ub = string());
+#else
+    void check_block() { }
+    void check_block(const std::string &, const std::string &) { }
+#endif
 
   protected:
     brass_block_t n;
@@ -219,6 +224,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     void set_child_block_number(brass_block_t n_child);
 
     void check_block() {
+#ifdef XAPIAN_ASSERTIONS
 	std::string lb, ub;
 	if (parent) {
 	    int C = parent->get_count();
@@ -229,6 +235,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 		ub = parent->get_key(i + 1);
 	}
 	BrassBlock::check_block(lb, ub);
+#endif
     }
 
     /** For a branch block, the item number of child.  If child is the left
