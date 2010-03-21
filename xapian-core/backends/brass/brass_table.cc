@@ -496,7 +496,17 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
     Assert(!needs_clone);
 
     check_block();
-    if (get_count() == 0) {
+
+    int C = get_count();
+
+    // We're splitting the current child block, so we should be inserting just
+    // after item.
+    if (item >= 0)
+	AssertRel(get_key(item),<,key);
+    if (item < C - 1)
+	AssertRel(key,<,get_key(item + 1));
+
+    if (C == 0) {
 	// FIXME: special case probably not needed, but perhaps could be
 	// merged into gain_level()...
 	set_count(1);
@@ -509,37 +519,8 @@ BrassCBlock::insert(const string &key, brass_block_t tag)
 	return;
     }
 
-    int b = 0;
-    {
-	int e = get_count() - 1;
-	while (b <= e) {
-	    int m = (b + e) >> 1;
-	    int key_start = get_ptr(m) + BLOCKPTR_SIZE;
-	    int key_len = get_endptr(m) - key_start;
-	    int cmp = table.compare_keys(data + key_start, key_len,
-					 key.data(), key.size());
-	    if (cmp < 0) {
-		b = m + 1;
-	    } else {
-		e = m - 1;
-		// Shouldn't get an exact match.
-		Assert(cmp != 0);
-	    }
-	}
-	b = e + 1;
-    }
-
-    AssertRel(b,<=,get_count());
-    if (b < get_count()) {
-	AssertRel(get_key(b),>,key);
-    }
-    if (b > 0) {
-	AssertRel(get_key(b - 1),<,key);
-    }
-
+    int b = item + 1;
     int len = BLOCKPTR_SIZE + key.size();
-    int C = get_count();
-    //cout << n << ": insert at " << b << "/" << C << endl;
     int free_end = get_endptr(C);
     // Check it fits!
     //cout << n << ": " << len + 2 << " <= " << free_end - header_length(C) << endl;

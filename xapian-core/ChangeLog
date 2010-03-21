@@ -1,3 +1,10 @@
+Sun Mar 21 14:17:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: When we insert into a branch block,
+	  it is because the child block has been split, so the insertion point
+	  should always be just after item.  So don't binary chop, but instead
+	  just assert that this is the case and make use of it.
+
 Sun Mar 21 13:55:45 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Clean up.
