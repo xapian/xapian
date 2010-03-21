@@ -1,3 +1,12 @@
+Sun Mar 21 12:39:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h:
+	  Remove unused bool return values from BrassCBlock::insert() and
+	  BrassTable::add().  Calling the later with an empty key now throws
+	  Xapian::InvalidArgumentError.
+	* tests/api_wrdb.cc: Update expected exception message to match
+	  changes to code.
+
 Sun Mar 21 12:02:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Tweak to avoid over-long line.

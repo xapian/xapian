@@ -371,7 +371,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     bool binary_chop_leaf(const std::string & key, int mode);
 
     void insert(const std::string &key, brass_block_t tag);
-    bool insert(const std::string &key, const char * tag, size_t tag_len,
+    void insert(const std::string &key, const char * tag, size_t tag_len,
 		bool compressed);
     void del();
     bool del(const std::string &key);
@@ -679,7 +679,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     void open_slab_file();
     void close();
 
-    bool add(const std::string & key, const std::string & tag,
+    void add(const std::string & key, const std::string & tag,
 	     bool already_compressed = false);
 
     bool del(const std::string & key);

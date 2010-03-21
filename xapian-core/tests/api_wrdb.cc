@@ -1691,7 +1691,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     const string & dbtype = get_dbtype();
     if (endswith(dbtype, "brass")) {
 	max_term_length_all_nul = 127;
-	expected_substring = " is 255 bytes";
+	expected_substring = " at most 255 bytes";
     } else if (endswith(dbtype, "flint")) {
 	max_term_length_all_nul = 125;
     }

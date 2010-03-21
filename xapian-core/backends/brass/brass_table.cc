@@ -695,17 +695,15 @@ BrassCBlock::find_child(const string & key)
     child->read(blk);
 }
 
-bool
+void
 BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 		    bool compressed)
 {
-    LOGCALL(DB, bool, "BrassCBlock::insert", key << ", " << (void*)tag << ", " << tag_len << ", " << compressed);
-    if (key.size() > 255)
-	throw Xapian::InvalidArgumentError("Max key length is 255 bytes");
-
+    LOGCALL_VOID(DB, "BrassCBlock::insert", key << ", " << (void*)tag << ", " << tag_len << ", " << compressed);
     if (!is_leaf()) {
 	find_child(key);
-	RETURN(child->insert(key, tag, tag_len, compressed));
+	child->insert(key, tag, tag_len, compressed);
+	return;
     }
 
     int C = get_count();
@@ -954,7 +952,6 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
     check_block();
 
     modified = true;
-    RETURN(!exact);
 }
 
 void
@@ -1595,12 +1592,13 @@ BrassTable::close()
     fd = fd_slab = FD_CLOSED;
 }
 
-bool
+void
 BrassTable::add(const string & key, const string & tag, bool already_compressed)
 {
-    LOGCALL(DB, bool, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
-    if (key.empty())
-	RETURN(false);
+    LOGCALL_VOID(DB, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
+    if (key.size() == 0 || key.size() > 255)
+	throw Xapian::InvalidArgumentError("Key length must be non-zero and at most 255 bytes");
+
     if (fd < 0) {
 	if (fd == FD_CLOSED)
 	    throw_database_closed();
@@ -1609,7 +1607,7 @@ BrassTable::add(const string & key, const string & tag, bool already_compressed)
     if (rare(!my_cursor)) {
 	my_cursor = new BrassCBlock(*this);
 	my_cursor->new_leaf_block();
-	(void)my_cursor->insert(string(), NULL, 0, false);
+	my_cursor->insert(string(), NULL, 0, false);
     }
     modified = true;
 
@@ -1617,14 +1615,13 @@ BrassTable::add(const string & key, const string & tag, bool already_compressed)
 	if (compressor.try_to_compress(tag)) {
 	    const char * p = compressor.compressed_data();
 	    size_t len = compressor.compressed_data_len();
-	    (void)my_cursor->insert(key, p, len, true);
-	    RETURN(true);
+	    my_cursor->insert(key, p, len, true);
+	    return;
 	}
 
 	// Data wasn't compressible, so store uncompressed.
     }
-    (void)my_cursor->insert(key, tag.data(), tag.size(), already_compressed);
-    RETURN(true);
+    my_cursor->insert(key, tag.data(), tag.size(), already_compressed);
 }
 
 bool
