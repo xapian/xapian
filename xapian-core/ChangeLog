@@ -1,3 +1,12 @@
+Mon Mar 22 01:53:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* docs/spelling.rst: Add a note about removing automatically added
+	  spelling dictionary entries.
+	* docs/spelling.rst: Add section on indexing.  Move the "algorithm"
+	  section to the end, as it is really just background information for
+	  the curious.
+
 Mon Mar 15 05:05:15 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
