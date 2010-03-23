@@ -75,3 +75,7 @@ Miscellaneous:
     automatically.  One slight downside is the slab pointers will tend be a bit
     longer.  Upside is that there are fewer files to open, fsync(), etc.  What
     about replication?
+
+  * drop support for 2KB blocks, as drives with 4KB sectors are appearing now
+    and writing a 2KB block to such a drive will be inefficient (as it'll need
+    to read 4KB of data, modify 2KB of it, and write 4KB of data).
