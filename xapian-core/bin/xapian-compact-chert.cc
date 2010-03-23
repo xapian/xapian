@@ -301,7 +301,7 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	    const string & tag = cur->tag;
 	    if (key == last_key) {
 		if (tag != last_tag)
-		    cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+		    cerr << "Warning: duplicate user metadata key (" << key << ") with different tag value - picking arbitrary tag value" << endl;
 	    } else {
 		out->add(key, tag);
 		last_key = key;

@@ -1,3 +1,8 @@
+Tue Mar 23 21:57:41 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-compact-chert.cc: Print the colliding metadata key in
+	  the event of a key's values being different in each database.
+
 Mon Feb 22 20:49:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/: Add a --rebuild-chunks option, and implement it for chert,
