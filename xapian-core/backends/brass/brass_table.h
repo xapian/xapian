@@ -147,6 +147,8 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 	return compressed;
     }
 
+    void insert_entry(int b, const string &key, brass_block_t blk);
+
   public:
     BrassBlock(const BrassTable & table_)
 	: data(NULL), table(table_), random_access(RANDOM_ACCESS_THRESHOLD) { }
@@ -229,9 +231,9 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	if (parent) {
 	    int C = parent->get_count();
 	    int i = parent->item;
-	    if (i > -1)
+	    if (i >= 0)
 		lb = parent->get_key(i);
-	    if (i < C - 1)
+	    if (i + 1 < C)
 		ub = parent->get_key(i + 1);
 	}
 	BrassBlock::check_block(lb, ub);
@@ -370,7 +372,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
      */
     bool binary_chop_leaf(const std::string & key, int mode);
 
-    void insert(const std::string &key, brass_block_t tag);
+    void insert(const std::string &key, brass_block_t blk, brass_block_t n_child);
     void insert(const std::string &key, const char * tag, size_t tag_len,
 		bool compressed);
     void del();

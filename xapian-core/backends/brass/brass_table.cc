@@ -167,6 +167,13 @@ BrassBlock::check_block(const string &lb, const string &ub)
 	return;
     string prev_key = lb;
     string key;
+//    cout << "\n" << (void*)this << "::check_block: " << n;
+//    cout << (is_leaf() ? " leaf " : " branch ");
+//    cout << C << " entries : " << lb << " <= " << get_key(0) << " < ";
+//    if (C > 1)
+//	cout << get_key(C - 1) << " < ";
+//    cout << ub << endl;
+
     int header_len = header_length(C);
     for (int i = 0; i < C; ++i) {
 	int ptr = get_ptr(i);
@@ -482,139 +489,188 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 }
 
 void
-BrassCBlock::insert(const string &key, brass_block_t tag)
+BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
 {
-    LOGCALL_VOID(DB, "BrassCBlock::insert", key << ", " << tag);
+    LOGCALL_VOID(DB, "BrassCBlock::insert", key << ", " << blk << ", " << n_child);
+    Assert(n_child == get_block(item) || n_child == blk);
     Assert(!is_leaf());
 
-    // NB Don't update item to point to the new block, since we're called
-    // precisely when splitting a child block and it's important that item
-    // points to the child block.
-
     // If we needed to be cloned, that should have happened when our descendent
-    // leaf was.
+    // leaf block was.
     Assert(!needs_clone);
 
     check_block();
 
     int C = get_count();
-
-    // We're splitting the current child block, so we should be inserting just
-    // after item.
-    if (item >= 0)
-	AssertRel(get_key(item),<,key);
-    if (item < C - 1)
-	AssertRel(key,<,get_key(item + 1));
-
     if (C == 0) {
 	// FIXME: special case probably not needed, but perhaps could be
 	// merged into gain_level()...
 	set_count(1);
 	int new_ptr = table.blocksize - 2 * BLOCKPTR_SIZE - key.size();
 	set_ptr(0, new_ptr);
-	set_unaligned_le4(data + new_ptr, tag);
+	if (n_child == blk)
+	    item = 0;
+	set_unaligned_le4(data + new_ptr, blk);
 	memcpy(data + new_ptr + BLOCKPTR_SIZE, key.data(), key.size());
 	modified = true;
+	AssertEq(get_block(item), n_child);
 	check_block();
 	return;
     }
 
+    // We're splitting the current child block, so insert just after item.
     int b = item + 1;
+    if (item >= 0)
+	AssertRel(get_key(item),<,key);
+    if (b < C)
+	AssertRel(key,<,get_key(b));
+
     int len = BLOCKPTR_SIZE + key.size();
-    int free_end = get_endptr(C);
-    // Check it fits!
-    //cout << n << ": " << len + 2 << " <= " << free_end - header_length(C) << endl;
-    // FIXME: see comment in other version of insert().
-    if (len + 2 > free_end - header_length(C)) {
-	// Split the block - if in random insert mode, split evenly as
-	// that gives us the amortised Btree performance guarantees.
-	//
-	// If in sequential insert mode, then split at the insertion point
-	// which gives us almost full blocks.
-	AssertRel(C,>,1);
-	int split_at;
-	if (!random_access) {
-	    split_at = b;
-	} else {
-	    // FIXME: pick middle point better...
-	    split_at = C >> 1;
+    int free_end = get_ptr(C - 1);
+    if (len + 2 <= free_end - header_length(C)) {
+	// There's enough room in the block already.
+	insert_entry(b, key, blk);
+	if (n_child == blk) {
+	    item = b;
 	}
-	size_t split_ptr = get_endptr(split_at);
-	const char *div_p = data + get_ptr(split_at);
+	modified = true;
+	AssertEq(get_block(item), n_child);
+	check_block();
+	return;
+    }
+
+    // Split the block.
+    AssertRel(C,>,1);
+    int split_at;
+    int split_ptr;
+    bool insert_in_left;
+    if (!random_access) {
+	// In sequential insert mode, split at the insertion point which
+	// gives us almost full blocks.
+	// b is item + 1, so must be >= 0 and <= C.
+	split_at = b;
+	split_ptr = get_endptr(split_at);
+	// In sequential mode, splitting at the insertion point might not
+	// create enough space in the left block.
+	insert_in_left = (len + 2 <= split_ptr - header_length(split_at));
+    } else {
+	// In random insert mode, split evenly as that gives us the
+	// amortised Btree performance guarantees.
+	// FIXME: pick middle point better...
+	split_at = C >> 1;
+	split_ptr = get_endptr(split_at);
+	// If split_at is before or after the insertion point, that determines
+	// which block we insert into.  If split_at is the insertion point, we
+	// must now have enough space in the left block so insert there.
+	insert_in_left = (b <= split_at);
+	if (insert_in_left) {
+	    AssertRel(len + 2,<=,split_ptr - header_length(split_at));
+	}
+    }
+
+    string div_key;
+    brass_block_t sp_new_l;
+    int sp_from;
+    if (split_at == b && !insert_in_left) {
+	Assert(!random_access);
+	div_key = key;
+	sp_new_l = blk;
+	sp_from = split_at;
+    } else {
 	// We can't further shorten the dividing key here or it'll disagree
 	// with the existing partitioning of keys at the leaf level.
-	string divkey(div_p + BLOCKPTR_SIZE, split_ptr - get_ptr(split_at) - BLOCKPTR_SIZE);
-	brass_block_t split_new_l = get_unaligned_le4(div_p);
-	++split_at;
-	split_ptr = get_endptr(split_at);
-	//cout << n << ": " << divkey << " <=> " << key << endl;
-	// We put the right half of the split block in the new block, and
-	// then swap the blocks around if we want to insert into the right
-	// half since that gives code that is simpler and probably slightly
-	// more efficient.  It also avoids needing to adjust the pointer
-	// in the parent.
-	BrassBlock & sp = const_cast<BrassTable&>(table).split;
-	sp.new_branch_block();
-	memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - (split_ptr - free_end), data + free_end, split_ptr - free_end);
-	sp.set_left_block(split_new_l);
-	for (int i = split_at; i < C; ++i) {
-	    sp.set_ptr(i - split_at, get_ptr(i) + table.blocksize - BLOCKPTR_SIZE - split_ptr);
-	}
-	sp.set_count(C - split_at);
+	int div_ptr = get_ptr(split_at) + BLOCKPTR_SIZE;
+	div_key.assign(data + div_ptr, split_ptr - div_ptr);
+	AssertRel(split_at,<,C);
+	sp_new_l = get_unaligned_le4(data + get_ptr(split_at));
+	sp_from = split_at + 1;
+    }
+
+    // We put the right half of the split block in the new block, and
+    // then swap the blocks around later if this is the one we want to keep.
+    BrassBlock & sp = const_cast<BrassTable&>(table).split;
+    sp.new_branch_block();
+    int sp_ptr = get_endptr(sp_from);
+    int sp_len = sp_ptr - free_end;
+    memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - sp_len, data + free_end, sp_len);
+    sp.set_left_block(sp_new_l);
+    for (int i = sp_from; i < C; ++i) {
+	sp.set_ptr(i - sp_from, get_ptr(i) + table.blocksize - BLOCKPTR_SIZE - sp_ptr);
+    }
+    sp.set_count(C - sp_from);
+    set_count(split_at);
 #ifdef ZERO_UNUSED_SPACE
-	memset(data + free_end, 0, split_ptr - free_end);
+    memset(data + free_end, 0, split_ptr - free_end);
 #endif
-	set_count(split_at - 1);
-	brass_block_t n_left = n, n_right = sp.n;
-	if (b > split_at) {
-	    b -= split_at;
-	    item -= split_at;
+    brass_block_t n_left = n, n_right = sp.n;
+    if (insert_in_left) {
+	AssertRel(key,<,div_key);
+	insert_entry(b, key, blk);
+	if (n_child == blk) {
+	    item = b;
+	}
+    } else {
+	AssertRel(key,>=,div_key);
+	if (sp_new_l == blk) {
+	    // The new item forms the new dividing key and sp's left pointer.
+	    if (n_child == blk) {
+		swap(data, sp.data);
+		swap(n, sp.n);
+		item = -1;
+	    }
+	} else {
+	    // FIXME: It would be more efficient if we made space for the item
+	    // as we copied above, rather than performing the splitting and
+	    // then inserting as separate operations.
+	    sp.insert_entry(b - sp_from, key, blk);
 	    swap(data, sp.data);
 	    swap(n, sp.n);
-	    // Should already be false.
-	    Assert(!needs_clone);
+	    if (n_child == blk)
+		item = b;
+	    item -= sp_from;
 	}
-	sp.save();
-	check_block();
-	// And now insert into parent, adding a level to the Btree if
-	// required.
-	if (!parent)
-	    parent = const_cast<BrassTable&>(table).gain_level(n_left);
-	parent->insert(divkey, n_right);
-	// We have a new sibling, but we want the attention.
-	// FIXME: this is clumsy...
-	if (parent->get_block(parent->item) != n) {
-	    ++parent->item;
-	    AssertEq(parent->get_block(parent->item), n);
-	}
-	C = get_count();
-	// Check that we actually created enough free space!
-	// cout << "Need " << len + 2 << ", now have " <<
-	//    get_endptr(C) - header_length(C) << " free" << endl;
-	AssertRel(len + 2,<=,get_endptr(C) - header_length(C));
     }
+    AssertEq(get_block(item), n_child);
+    // We added an item, but splitting the block means there's an extra
+    // left pointer, so the total should be unchanged.
+    AssertEq(C, sp.get_count() + get_count());
+    sp.save();
+    modified = true;
+
+    // And now insert into parent, adding a level to the Btree if required.
+    if (!parent)
+	parent = const_cast<BrassTable&>(table).gain_level(n_left);
+    parent->insert(div_key, n_right, n);
+
+    check_block();
+}
+
+void
+BrassBlock::insert_entry(int b, const string &key, brass_block_t blk)
+{
+    AssertRel(b,>=,0);
+    int len = BLOCKPTR_SIZE + key.size();
+    int C = get_count();
+    AssertRel(C,>,0);
+    set_count(C + 1);
+    int free_end = get_ptr(C - 1);
+    // Check that we actually have enough free space!
+    AssertRel(len + 2,<=,free_end - header_length(C));
+    int new_ptr = get_endptr(b);
     if (b < C) {
 	// Need to insert in sorted order, so shuffle existing entries along.
 	// We need to move entries [b, C) down by len bytes.
 	char * q = data + free_end;
-	size_t l = get_endptr(b) - free_end;
+	size_t l = new_ptr - free_end;
 	memmove(q - len, q, l);
-	//cout << n << ": shuffle! (" << q - len - data << " <- " << q - data << ", " << l << ")" << endl;
-	/* item can be -1 (left pointer), and we don't want to adjust that. */
-	if (item >= b)
-	    ++item;
 	for (int i = C; i > b; --i) {
 	    set_ptr(i, get_ptr(i - 1) - len);
 	}
     }
-    int new_ptr = get_endptr(b) - len;
-    set_count(C + 1);
+    new_ptr -= len;
     set_ptr(b, new_ptr);
-    //cout << n << ": setting item " << b << " to key " << key << " and block " << tag << endl;
-    set_unaligned_le4(data + new_ptr, tag);
+    set_unaligned_le4(data + new_ptr, blk);
     memcpy(data + new_ptr + BLOCKPTR_SIZE, key.data(), key.size());
-    modified = true;
-    check_block();
 }
 
 void
@@ -858,20 +914,12 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// cout << "me | div | sp\n";
 	// cout << get_key(0) << ".." << get_key(get_count()-1) << " | " << divkey << " | " << sp.get_key(0) << ".." << sp.get_key(sp.get_count()-1) << endl;
 	sp.save();
-	sp.check_block();
 	check_block();
 	// And now insert into parent, adding a level to the Btree if required.
 	if (!parent)
 	    parent = const_cast<BrassTable&>(table).gain_level(n_left);
 	// cout << n << ": parent dividing key = [" << divkey << "]" << " n_left = " << n_left << " n_right = " << n_right << endl;
-	parent->insert(divkey, n_right);
-	// We have a new sibling, but we want the attention.
-	// FIXME: this is clumsy...
-	// cout << "parent item is " << parent->item << ", n is " << n << endl;
-	if (parent->get_block(parent->item) != n) {
-	    ++parent->item;
-	    AssertEq(parent->get_block(parent->item), n);
-	}
+	parent->insert(divkey, n_right, n);
 	C = get_count();
 	AssertRel(item,<=,C);
 	// Check that we actually created enough free space!
