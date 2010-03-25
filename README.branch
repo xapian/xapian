@@ -16,14 +16,14 @@ Missing features:
 
   * tracking free slabs.
 
-  * xapian-check checking Btree structure (currently only checks data inside
-    tables).
-
   * xapian-check of an individual table
 
   * xapian-inspect - make it handle flint/chert and brass in one binary.
 
   * replication
+
+  * expiring "v*" files for old revisions (perhaps based on which are still
+    open for reading).
 
 Testing:
 
