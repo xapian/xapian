@@ -1,3 +1,7 @@
+Thu Mar 25 06:32:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check-flint.cc: Report docid for doclength mismatch.
+
 Thu Mar 25 06:23:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Report docid for
