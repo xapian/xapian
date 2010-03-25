@@ -155,7 +155,6 @@ BrassTable::throw_database_closed()
     throw Xapian::DatabaseError("Database has been closed");
 }
 
-#ifdef XAPIAN_ASSERTIONS
 void
 BrassBlock::check_block(const string &lb, const string &ub)
 {
@@ -165,8 +164,6 @@ BrassBlock::check_block(const string &lb, const string &ub)
     int C = get_count();
     if (C == 0)
 	return;
-    string prev_key = lb;
-    string key;
 //    cout << "\n" << (void*)this << "::check_block: " << n;
 //    cout << (is_leaf() ? " leaf " : " branch ");
 //    cout << C << " entries : " << lb << " <= " << get_key(0) << " < ";
@@ -174,14 +171,30 @@ BrassBlock::check_block(const string &lb, const string &ub)
 //	cout << get_key(C - 1) << " < ";
 //    cout << ub << endl;
 
+    string prev_key;
+    string key;
     int header_len = header_length(C);
     for (int i = 0; i < C; ++i) {
 	int ptr = get_ptr(i);
 	int endptr = get_endptr(i);
-	// Pointers shouldn't be into the block header.
-	AssertRel(ptr,>=,header_len);
+	// Items shouldn't overlap the block header.
+	if (rare(ptr < header_len)) {
+	    string msg("Block ");
+	    msg += str(n);
+	    msg += ": Item ";
+	    msg += str(i);
+	    msg += " overlaps block header";
+	    throw Xapian::DatabaseCorruptError(msg);
+	}
 	// Items should have non-negative size.
-	AssertRel(ptr,<,endptr);
+	if (rare(endptr < ptr)) {
+	    string msg("Block ");
+	    msg += str(n);
+	    msg += ": Item ";
+	    msg += str(i);
+	    msg += " has negative size";
+	    throw Xapian::DatabaseCorruptError(msg);
+	}
 	if (is_leaf()) {
 	    byte ch = static_cast<byte>(data[ptr++]);
 	    int tag_len;
@@ -194,32 +207,89 @@ BrassBlock::check_block(const string &lb, const string &ub)
 	    } else {
 		tag_len = ((ch >> 2) & 0x0f) + 1;
 	    }
-	    AssertRel(tag_len,<=,64);
-	    AssertRel(ptr + tag_len,<=,endptr);
+	    if (rare(tag_len > 64)) {
+		string msg("Leaf block ");
+		msg += str(n);
+		msg += ": Item ";
+		msg += str(i);
+		msg += " tag length ";
+		msg += str(tag_len);
+		msg += " > 64 bytes";
+		throw Xapian::DatabaseCorruptError(msg);
+	    }
+	    if (rare(endptr - ptr < tag_len)) {
+		string msg("Leaf block ");
+		msg += str(n);
+		msg += ": Item ";
+		msg += str(i);
+		msg += " tag length ";
+		msg += str(tag_len);
+		msg += " > length ";
+		msg += str(endptr - ptr);
+		throw Xapian::DatabaseCorruptError(msg);
+	    }
 	    int key_len = endptr - ptr - tag_len;
 	    key.assign(data + ptr, key_len);
 	} else {
 	    ptr += BLOCKPTR_SIZE;
-	    AssertRel(ptr,<=,endptr);
-	    AssertRel(endptr - ptr,<,256);
+	    if (rare(endptr - ptr >= 256)) {
+		string msg("Branch block ");
+		msg += str(n);
+		msg += ": Item ";
+		msg += str(i);
+		msg += " key length ";
+		msg += str(endptr - ptr);
+		msg += " >= 256";
+		throw Xapian::DatabaseCorruptError(msg);
+	    }
 	    key.assign(data + ptr, endptr - ptr);
 	}
 	if (i == 0) {
-	    AssertRel(prev_key,<=,key);
+	    if (rare(key < lb)) {
+		string msg("Block ");
+		msg += str(n);
+		msg += ": Key ";
+		msg += str(i);
+		msg += " '";
+		msg += key;
+		msg += "' < lower bound '";
+		msg += lb;
+		msg += "'";
+		throw Xapian::DatabaseCorruptError(msg);
+	    }
 	} else {
-	    AssertRel(prev_key,<,key);
+	    if (rare(key <= prev_key)) {
+		string msg("Block ");
+		msg += str(n);
+		msg += ": Key ";
+		msg += str(i);
+		msg += " '";
+		msg += key;
+		msg += "' <= previous key '";
+		msg += prev_key;
+		msg += "'";
+		throw Xapian::DatabaseCorruptError(msg);
+	    }
 	}
-	// FIXME: More checks...
+	// FIXME: More checks?
 
 	swap(prev_key, key);
     }
-    if (!ub.empty())
-	AssertRel(prev_key,<,ub);
-    // The last item shouldn't overlap the block header.
-    AssertRel(get_ptr(C - 1),>=,header_len);
-    // FIXME: More checks...
+    if (!ub.empty() && rare(prev_key >= ub)) {
+	string msg("Block ");
+	msg += str(n);
+	msg += ": Key ";
+	msg += str(C - 1);
+	msg += " '";
+	msg += prev_key;
+	msg += "' <= upper bound '";
+	msg += ub;
+	msg += "'";
+	throw Xapian::DatabaseCorruptError(msg);
+    }
+
+    // FIXME: More checks?
 }
-#endif
 
 void
 BrassBlock::save()
@@ -228,7 +298,7 @@ BrassBlock::save()
     if (!data)
 	return;
     set_revision(table.revision);
-    check_block();
+    CHECK_BLOCK();
     if (!table.write_block(data, n))
 	throw Xapian::DatabaseError("Failed to write block " + str(n), errno);
 }
@@ -372,7 +442,7 @@ BrassCBlock::read(brass_block_t blk)
 
 snooped:
     n = blk;
-    check_block();
+    CHECK_BLOCK();
     modified = false;
     // If the block's revision is the one we are currently working on, then it
     // must have been allocated freshly for this revision, and so we don't need
@@ -499,7 +569,7 @@ BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
     // leaf block was.
     Assert(!needs_clone);
 
-    check_block();
+    CHECK_BLOCK();
 
     int C = get_count();
     if (C == 0) {
@@ -514,7 +584,7 @@ BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
 	memcpy(data + new_ptr + BLOCKPTR_SIZE, key.data(), key.size());
 	modified = true;
 	AssertEq(get_block(item), n_child);
-	check_block();
+	CHECK_BLOCK();
 	return;
     }
 
@@ -535,7 +605,7 @@ BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
 	}
 	modified = true;
 	AssertEq(get_block(item), n_child);
-	check_block();
+	CHECK_BLOCK();
 	return;
     }
 
@@ -642,7 +712,7 @@ BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
 	parent = const_cast<BrassTable&>(table).gain_level(n_left);
     parent->insert(div_key, n_right, n);
 
-    check_block();
+    CHECK_BLOCK();
 }
 
 void
@@ -755,7 +825,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	    parent->set_child_block_number(n);
     }
 
-    check_block();
+    CHECK_BLOCK();
 
     int C = get_count();
 
@@ -914,7 +984,7 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 	// cout << "me | div | sp\n";
 	// cout << get_key(0) << ".." << get_key(get_count()-1) << " | " << divkey << " | " << sp.get_key(0) << ".." << sp.get_key(sp.get_count()-1) << endl;
 	sp.save();
-	check_block();
+	CHECK_BLOCK();
 	// And now insert into parent, adding a level to the Btree if required.
 	if (!parent)
 	    parent = const_cast<BrassTable&>(table).gain_level(n_left);
@@ -971,10 +1041,10 @@ BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
     char * p = data + ptr;
     *p++ = info;
     memcpy(p, key.data(), key.size());
-    check_block();
+    CHECK_BLOCK();
     memcpy(p + key.size(), tag, tag_len);
 
-    check_block();
+    CHECK_BLOCK();
 
     modified = true;
 }
@@ -1041,7 +1111,7 @@ BrassCBlock::del()
     }
     set_count(C - 1);
     item = -2;
-    check_block();
+    CHECK_BLOCK();
     modified = true;
 }
 
@@ -1099,7 +1169,7 @@ BrassCBlock::del(const string &key)
 	}
     }
     set_count(C - 1);
-    check_block();
+    CHECK_BLOCK();
     modified = true;
     RETURN(true);
 }
@@ -1134,7 +1204,7 @@ BrassCBlock::find(const string &key, int mode)
 	RETURN(child->find(key, mode));
     }
 
-    check_block();
+    CHECK_BLOCK();
 
     bool exact = binary_chop_leaf(key, mode);
     if (!exact) {

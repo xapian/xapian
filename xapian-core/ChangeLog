@@ -1,3 +1,11 @@
+Thu Mar 25 13:18:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Rejig
+	  assertion checks of blocks to use CHECK_BLOCK() which is a no-op
+	  unless assertions are enabled, and make check_block() the call used
+	  by xapian-check which throws DatabaseCorruptError in any build rather
+	  than AssertionError only when assertions are enabled.
+
 Thu Mar 25 06:37:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL,bin/xapian-check-brass.cc,bin/xapian-check-chert.cc,
