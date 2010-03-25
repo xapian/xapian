@@ -1,3 +1,11 @@
+Thu Mar 25 04:07:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Add
+	  BrassTable::check() method which checks the table structure is
+	  valid.
+	* bin/xapian-check-brass.cc: Use BrassTable::check() to check the
+	  table structure.
+
 Wed Mar 24 15:05:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Fix

@@ -418,6 +418,9 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     }
 
     void set_needs_clone() { needs_clone = true; }
+
+    /// Recursively check this block and its descendants.
+    void check();
 };
 
 class BrassCompressor {
@@ -727,6 +730,9 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     void set_full_compaction(bool) { } // FIXME support?
 
     void set_max_item_size(size_t) { } // FIXME support?
+
+    /// Check the B-tree table structure.
+    void check();
 };
 
 inline void BrassCBlock::set_child_block_number(brass_block_t n_child) {

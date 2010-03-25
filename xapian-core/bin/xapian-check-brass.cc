@@ -62,15 +62,14 @@ check_brass_table(const char * tablename, string filename, int opts,
 {
     filename += '.';
 
-    (void)opts;
-#if 0 // FIXME: Implement BrassTableCheck and reenable.
-    // Check the btree structure.
-    BrassTableCheck::check(tablename, filename, opts);
-#endif
-
-    // Now check the brass structures inside the btree.
     BrassTable table(tablename, filename, true);
     table.open(block_size, root);
+
+    // Check the table structure.
+    (void)opts;
+    table.check();
+
+    // Now check the brass structures inside the btree.
     AutoPtr<BrassCursor> cursor(table.get_cursor());
 
     size_t errors = 0;

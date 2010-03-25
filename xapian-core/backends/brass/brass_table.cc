@@ -233,15 +233,6 @@ BrassBlock::save()
 	throw Xapian::DatabaseError("Failed to write block " + str(n), errno);
 }
 
-BrassCBlock::~BrassCBlock()
-{
-    LOGCALL_DTOR(DB, "BrassCBlock");
-    if (modified)
-	save();
-    if (child)
-	delete child;
-}
-
 BrassBlock::~BrassBlock()
 {
     LOGCALL_DTOR(DB, "BrassBlock");
@@ -288,6 +279,15 @@ BrassBlock::new_branch_block()
     // Set the branch block flag.
     data[5] = '\x80';
     Assert(!is_leaf());
+}
+
+BrassCBlock::~BrassCBlock()
+{
+    LOGCALL_DTOR(DB, "BrassCBlock");
+    if (modified)
+	save();
+    if (child)
+	delete child;
 }
 
 bool
@@ -1215,6 +1215,25 @@ BrassCBlock::get(const string &key, string &tag)
     RETURN(read_tag(tag));
 }
 
+void
+BrassCBlock::check()
+{
+    LOGCALL_VOID(DB, "BrassCBlock::check", NO_ARGS);
+    check_block();
+    if (is_leaf())
+	return;
+
+    if (!child)
+	child = new BrassCBlock(table, this);
+
+    // Recursively check descendent blocks.
+    int C = get_count();
+    for (item = -1; item < C; ++item) {
+	child->read(get_block(item));
+	child->check();
+    }
+}
+
 BrassCursor *
 BrassTable::get_cursor() const
 {
@@ -1729,4 +1748,12 @@ BrassTable::get(const string & key, string & tag) const
     if (!my_cursor)
 	RETURN(false);
     RETURN(my_cursor->get(key, tag));
+}
+
+void
+BrassTable::check()
+{
+    LOGCALL_VOID(DB, "BrassTable::check", NO_ARGS);
+    if (my_cursor)
+	my_cursor->check();
 }
