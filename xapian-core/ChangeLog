@@ -1,3 +1,8 @@
+Thu Mar 25 06:23:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Report docid for
+	  doclength mismatch.
+
 Sat Mar 20 15:04:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/spelling.rst: Add a note about removing automatically added
