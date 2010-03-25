@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -300,5 +300,40 @@ DEFINE_TESTCASE(replacedoc8, writable) {
     Xapian::PostingIterator p = db.postlist_begin("takeaway");
     TEST(p != db.postlist_end("takeaway"));
     TEST_EQUAL(p.get_wdf(), 2);
+    return true;
+}
+
+/// Test coverage for DatabaseModifiedError.
+DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote) {
+    // The inmemory backend doesn't support revisions.
+    //
+    // The remote backend doesn't work as expected here, I think due to
+    // test harness issues.
+    Xapian::WritableDatabase db(get_writable_database());
+    Xapian::Document doc;
+    doc.set_data("cargo");
+    doc.add_term("abc");
+    doc.add_term("def");
+    doc.add_term("ghi");
+    const int N = 500;
+    for (int i = 0; i < N; ++i) {
+	db.add_document(doc);
+    }
+    db.commit();
+
+    Xapian::Database rodb(get_writable_database_as_database());
+    db.add_document(doc);
+    db.commit();
+
+    db.add_document(doc);
+    db.commit();
+
+    db.add_document(doc);
+    try {
+	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
+	return false;
+    } catch (const Xapian::DatabaseModifiedError &) {
+    }
+
     return true;
 }

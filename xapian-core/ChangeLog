@@ -1,3 +1,8 @@
+Thu Mar 25 14:43:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add databasemodified1 testcase to provide some
+	  test coverage for DatabaseModifiedError.
+
 Thu Mar 25 06:32:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check-flint.cc: Report docid for doclength mismatch.
