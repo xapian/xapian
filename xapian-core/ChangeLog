@@ -1,3 +1,8 @@
+Thu Mar 25 06:37:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL,bin/xapian-check-brass.cc,bin/xapian-check-chert.cc,
+	  bin/xapian-check-flint.cc,docs/spelling.rst: Merge from trunk r14240.
+
 Thu Mar 25 04:07:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Add

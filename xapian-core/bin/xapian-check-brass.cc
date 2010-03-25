@@ -221,9 +221,10 @@ check_brass_table(const char * tablename, string filename, int opts,
 			    termlist_doclen = doclens[did];
 
 			if (doclen != termlist_doclen) {
-			    cout << "doclen " << doclen << " doesn't match "
-				 << termlist_doclen
-				 << " in the termlist table" << endl;
+			    cout << "document id " << did << ": length "
+				 << doclen << " doesn't match "
+				 << termlist_doclen << " in the termlist table"
+				 << endl;
 			    ++errors;
 			}
 		    }
