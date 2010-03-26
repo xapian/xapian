@@ -172,6 +172,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 
     /// Sets the number of items in this block.
     void set_count(int count) {
+	AssertRel(count,<,0x8000);
 	((uint2 *)data)[2] = LE((uint2)count) | (is_leaf() ? 0 : 0x8000);
     }
 
