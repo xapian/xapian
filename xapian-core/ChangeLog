@@ -1,3 +1,11 @@
+Fri Mar 26 05:50:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* INSTALL: Correct description of --enable-assertions.  It does NOT
+	  enable debugging symbols, and shouldn't control checks on bad data
+	  passed to API calls (if it does anywhere, that's a bug).  Note that
+	  Xapian will run more slowly with assertions on.
+
 Mon Mar 22 01:53:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
