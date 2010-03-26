@@ -89,7 +89,7 @@ using namespace std;
       [ | ]     2 bytes: bits 0-14 #items in this block (n)
 			 bit 15: 1 for non-leaf block
       [ ]       1 byte:  length of key prefix (unimplemented)
-      [ ]       1 byte:  reserved
+      [ ]       1 byte:  (temporarily: levels above leaf) - reserved
 
   Item pointers:
 
@@ -362,6 +362,7 @@ BrassCBlock::check_block()
 	    lb = parent->get_key(i);
 	if (i + 1 < C)
 	    ub = parent->get_key(i + 1);
+	AssertEq(get_level() + 1, parent->get_level());
     }
     BrassBlock::check_block(lb, ub);
 }
@@ -675,6 +676,7 @@ BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
     // then swap the blocks around later if this is the one we want to keep.
     BrassBlock & sp = const_cast<BrassTable&>(table).split;
     sp.new_branch_block();
+    sp.set_level(get_level());
     int sp_ptr = get_endptr(sp_from);
     int sp_len = sp_ptr - free_end;
     memcpy(sp.data + table.blocksize - BLOCKPTR_SIZE - sp_len, data + free_end, sp_len);

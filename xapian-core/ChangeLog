@@ -1,3 +1,9 @@
+Fri Mar 26 09:27:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Add some
+	  temporary code to track the level of each block in the tree using a
+	  reserved byte in the header, and verify the levels are as we expect.
+
 Fri Mar 26 08:03:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Move

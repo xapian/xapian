@@ -165,6 +165,16 @@ class XAPIAN_VISIBILITY_DEFAULT BrassBlock {
 	*(brass_revision_number_t*)data = LE(revision);
     }
 
+    int get_level() const {
+	return (int)(byte)data[7];
+    }
+
+    void set_level(int level) {
+	AssertRel(level,>=,0);
+	AssertRel(level,<,256);
+	data[7] = (byte)level;
+    }
+
     /// Returns the number of items in this block.
     int get_count() const {
 	return LE(((uint2 *)data)[2]) & 0x7fff;
@@ -327,6 +337,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 	  parent(NULL), child(child_)
     {
 	new_branch_block();
+	set_level(child->get_level() + 1);
 	set_left_block(blk);
     }
 
