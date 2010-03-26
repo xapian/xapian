@@ -351,6 +351,21 @@ BrassBlock::new_branch_block()
     Assert(!is_leaf());
 }
 
+void
+BrassCBlock::check_block()
+{
+    std::string lb, ub;
+    if (parent) {
+	int C = parent->get_count();
+	int i = parent->item;
+	if (i >= 0)
+	    lb = parent->get_key(i);
+	if (i + 1 < C)
+	    ub = parent->get_key(i + 1);
+    }
+    BrassBlock::check_block(lb, ub);
+}
+
 BrassCBlock::~BrassCBlock()
 {
     LOGCALL_DTOR(DB, "BrassCBlock");

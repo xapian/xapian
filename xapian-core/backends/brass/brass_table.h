@@ -227,18 +227,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
 
     void set_child_block_number(brass_block_t n_child);
 
-    void check_block() {
-	std::string lb, ub;
-	if (parent) {
-	    int C = parent->get_count();
-	    int i = parent->item;
-	    if (i >= 0)
-		lb = parent->get_key(i);
-	    if (i + 1 < C)
-		ub = parent->get_key(i + 1);
-	}
-	BrassBlock::check_block(lb, ub);
-    }
+    void check_block();
 
 #ifdef XAPIAN_ASSERTIONS
     void CHECK_BLOCK() { check_block(); }
@@ -752,6 +741,7 @@ inline void BrassCBlock::set_child_block_number(brass_block_t n_child) {
 	return;
     needs_clone = false;
     n = const_cast<BrassTable&>(table).get_free_block();
+    Assert(parent);
     parent->set_child_block_number(n);
     CHECK_BLOCK();
 }
