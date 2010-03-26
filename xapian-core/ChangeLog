@@ -1,7 +1,13 @@
+Fri Mar 26 06:36:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_backend.cc: Add databasemodified1 testcase to provide some
+	  test coverage for DatabaseModifiedError.
+
 Fri Mar 26 05:55:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* bin/xapian-check-flint.cc: Report docid for doclength mismatch.
+	* bin/xapian-check.cc: Report docid for doclength mismatch.
 
 Fri Mar 26 05:50:18 GMT 2010  Olly Betts <olly@survex.com>
 
