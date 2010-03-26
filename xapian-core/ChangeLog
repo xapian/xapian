@@ -1,3 +1,8 @@
+Fri Mar 26 05:55:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-check-flint.cc: Report docid for doclength mismatch.
+
 Fri Mar 26 05:50:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
