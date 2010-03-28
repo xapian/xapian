@@ -1074,7 +1074,6 @@ BrassCBlock::del()
     // The last entry in a child block was removed, so delete item "item"
     // from this block.
     int C = get_count();
-    Assert(C);
     Assert(item < C);
     Assert(item >= -1);
     if (C <= 1) {
@@ -1095,7 +1094,7 @@ BrassCBlock::del()
 	    const_cast<BrassTable&>(table).mark_free(n);
 	    // It would be pointless to write this block to disk.
 	    modified = false;
-	    AssertEq(item, 0);
+	    AssertEq(item, -1);
 	    item = -2;
 	    if (parent)
 		parent->del();

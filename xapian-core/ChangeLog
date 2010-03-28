@@ -1,3 +1,8 @@
+Sun Mar 28 13:55:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix deleting a branch block with only
+	  a left pointer.
+
 Fri Mar 26 09:27:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: Add some
