@@ -664,7 +664,7 @@ BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
 	int div_ptr = get_ptr(split_at) + BLOCKPTR_SIZE;
 	div_key.assign(data + div_ptr, split_ptr - div_ptr);
 	AssertRel(split_at,<,C);
-	sp_new_l = get_unaligned_le4(data + get_ptr(split_at));
+	sp_new_l = get_block(split_at);
 	sp_from = split_at + 1;
     }
 
