@@ -1,3 +1,8 @@
+Sun Mar 28 14:01:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Don't check for NULL before calling
+	  delete.
+
 Sun Mar 28 13:58:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Replace check which should never be

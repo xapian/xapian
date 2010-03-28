@@ -372,8 +372,7 @@ BrassCBlock::~BrassCBlock()
     LOGCALL_DTOR(DB, "BrassCBlock");
     if (modified)
 	save();
-    if (child)
-	delete child;
+    delete child;
 }
 
 bool
