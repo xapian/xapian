@@ -1096,8 +1096,9 @@ BrassCBlock::del()
 	    modified = false;
 	    AssertEq(item, -1);
 	    item = -2;
-	    if (parent)
-		parent->del();
+	    // We handle parent == NULL just above.
+	    Assert(parent);
+	    parent->del();
 	    return;
 	}
     }
