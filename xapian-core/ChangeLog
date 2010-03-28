@@ -1,3 +1,8 @@
+Sun Mar 28 14:04:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Refactor new_branch_block() to call
+	  new_leaf_block().
+
 Sun Mar 28 14:01:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Don't check for NULL before calling

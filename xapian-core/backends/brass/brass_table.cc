@@ -341,11 +341,7 @@ void
 BrassBlock::new_branch_block()
 {
     LOGCALL_VOID(DB, "BrassBlock::new_branch_block", NO_ARGS);
-    if (!data)
-	data = new char[table.blocksize];
-    n = const_cast<BrassTable&>(table).get_free_block();
-    // Create empty branch block.
-    memset(data, 0, table.blocksize);
+    new_leaf_block();
     // Set the branch block flag.
     data[5] = '\x80';
     Assert(!is_leaf());
