@@ -334,6 +334,7 @@ BrassBlock::new_leaf_block()
     n = const_cast<BrassTable&>(table).get_free_block();
     // Create empty leaf block.
     memset(data, 0, table.blocksize);
+    random_access = RANDOM_ACCESS_THRESHOLD;
     Assert(is_leaf());
 }
 

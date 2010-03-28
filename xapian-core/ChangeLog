@@ -1,3 +1,8 @@
+Sun Mar 28 14:07:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Reset random_access counter in
+	  new_leaf_block() (and thus also in new_branch_block()).
+
 Sun Mar 28 14:04:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Refactor new_branch_block() to call
