@@ -1,6 +1,6 @@
- 14196       olly Sun Mar 14 11:52:41 GMT 2010  Olly Betts <olly@survex.com>
+ 14248       olly Fri Mar 26 06:36:21 GMT 2010  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.19 (2010-03-??):
+Xapian-core 1.0.19 (2010-04-??):
 
 
 API:
@@ -8,27 +8,32 @@ API:
 
 testsuite:
 
-	* Explicitly flush after indexing for
-	  quartz and flint, so we see any exceptions from the flush (flush from
-	  the destructor swallows any exceptions).
+* Explicitly flush after indexing for quartz and flint, so we see any
+  exceptions from the flush (the implicit flush from the destructor swallows
+  any exceptions).
+
+* apitest: Add databasemodified1 testcase to provide some test coverage for
+  DatabaseModifiedError.
 
 matcher:
 
 
 flint backend:
 
-	   When updating a document, rather
-	  than decoding the old positions, comparing with the new, and then
-	  encoding the new if different, we now just encode the new and then
-	  compare the encoded forms.  (ticket#428)  This change also avoids
-	  calling FlintPositionListTable::del() when we know the entry doesn't
-	  already exist.
+* When updating a document, rather than decoding the old positions, comparing
+  with the new, and then encoding the new if different, we now just encode the
+  new and then compare the encoded forms.  (ticket#428)
 
-* Initialise z_stream members zalloc, zfree, and opaque with Z_NULL
-	  rather than 0 cast to the appropriate type, as that's what the zlib
-	  documentation says to do.  Add missing initialisation of opaque for
-	  the inflate z_stream which the docs say is needed, though reading
-	  the zlib code, isn't actually for current versions.
+* Avoid trying to delete the document positions when we know there aren't any.
+
+* xapian-check: Report document id for document length mismatch.
+
+* Initialise zlib z_stream structure members zalloc, zfree, and opaque with
+  Z_NULL rather than 0 cast to the appropriate type, as that's what the zlib
+  documentation says to do.  Add missing initialisation of opaque for the
+  inflate z_stream which the zlib docs say is needed (reading the zlib code,
+  this isn't true for current versions, so this improves robustness rather
+  than fixing an observable bug).
 
 quartz backend:
 
@@ -41,21 +46,28 @@ inmemory backend:
 
 build system:
 
-* Force -fno-strict-aliasing for GCC 4.2 to avoid bad code
-	  being generated due to a bug in that compiler version.  Fixes
-	  ticket#449.  This issue hasn't been observed to affect Xapian 1.0.x,
-	  but it seems prudent to backport the fix.
+* Force -fno-strict-aliasing for GCC 4.2 to avoid bad code being generated due
+  to a bug in that compiler version.  Fixes ticket#449.  This issue hasn't been
+  observed to affect Xapian 1.0.x, but it seems prudent to backport the fix.
 
 documentation:
 
-	* include/xapian/queryparser.h: Document the possible exception
-	  messages from QueryParser::parse_query().
+* INSTALL: Correct description of --enable-assertions.  It does NOT enable
+  debugging symbols, and shouldn't control checks on bad data passed to API
+  calls (if it does anywhere, that's a bug).  Note that Xapian will run more
+  slowly with assertions on.
 
-	* HACKING: Add note about "new SomePODType()" not being the same as
-	  "new SomePODType".
-	* HACKING: Quote ``cat`` and ``more``.
-	* HACKING: Discuss why exceptions should be caught by const reference.
-	  Tweak markup of blockquotes.
+* spelling.html:
+
+  + Add section on indexing.
+
+  + Add a note about removing automatically added spelling dictionary entries.
+
+  + Move the "algorithm" section to the end, as it is really just background
+    information for the curious.
+
+* include/xapian/queryparser.h: Document the possible exception messages from
+  QueryParser::parse_query().
 
 examples:
 
