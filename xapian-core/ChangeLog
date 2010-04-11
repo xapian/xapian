@@ -1,3 +1,7 @@
+Sun Apr 11 21:55:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_cursor.h: Fix comment typo and wrap.
+
 Sun Mar 28 14:10:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Use get_block() instead of inlined

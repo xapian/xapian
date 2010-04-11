@@ -97,8 +97,8 @@ class MutableBrassCursor : public BrassCursor {
   public:
     /** Create a mutable cursor over a BrassTable.
      *
-     *  A standard BrassCursor is read-only.  MutableBrassCursor adds the ability to
-     *  delete the entry currently pointed to.
+     *  A standard BrassCursor is read-only.  MutableBrassCursor adds the
+     *  ability to delete the entry currently pointed to.
      *
      *  @param table_ The BrassTable to operate on.  The caller has
      *		      resposibility for ensuring table_ remains valid while the
@@ -118,9 +118,9 @@ class MutableBrassCursor : public BrassCursor {
 	Assert(!after_end());
 
 	// MutableBrassCursor is only constructable from a non-const
-	// BrassTable* but we store that in the const BrassTable* "B" member of
-	// the BrassCursor class to avoid duplicating storage.  So we know it
-	// is safe to cast away that const again here.
+	// BrassTable* but we store that in the const BrassTable* "table"
+	// member of the BrassCursor class to avoid duplicating storage.  So we
+	// know it is safe to cast away that const again here.
 	(const_cast<BrassTable&>(table)).del(current_key);
 
 	// If we're iterating an older revision of the tree, then the deletion
