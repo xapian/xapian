@@ -462,8 +462,11 @@ snooped:
     needs_clone = (get_revision() != table.revision);
     item = -2;
     random_access = RANDOM_ACCESS_THRESHOLD;
-    if (is_leaf()) {
-	Assert(child == NULL);
+    if (is_leaf() && child != NULL) {
+	string msg = "Expected block ";
+	msg += str(n);
+	msg += " to be a branch block not a leaf block";
+	throw Xapian::DatabaseCorruptError(msg);
     }
 }
 
