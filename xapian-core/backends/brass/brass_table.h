@@ -303,13 +303,17 @@ class XAPIAN_VISIBILITY_DEFAULT BrassCBlock : public BrassBlock {
     }
 
     void read_key(std::string & key) {
-	AssertRel(item,>=,-1);
+	if (item == -2) {
+	    key.resize(0);
+	    return;
+	}
 	AssertRel(item,<,get_count());
 	if (child) {
 	    child->read_key(key);
 	    return;
 	}
 
+	AssertRel(item,>=,0);
 	Assert(is_leaf());
 	const char * key_ptr;
 	size_t key_len;

@@ -1214,7 +1214,10 @@ BrassCBlock::find(const string &key, int mode)
 
     if (!is_leaf()) {
 	find_child(key);
-	RETURN(child->find(key, mode));
+	bool result = child->find(key, mode);
+	if (child->item == -2)
+	    item = -2;
+	RETURN(result);
     }
 
     CHECK_BLOCK();

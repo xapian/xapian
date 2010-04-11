@@ -1,3 +1,10 @@
+Sun Apr 11 23:33:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Fix BrassCBlock::find() to set item to
+	  -2 (to indicate "off the end") in the parent blocks, not just the leaf.
+	* backends/brass/brass_table.h: Fix read_key() not to fail an assertion
+	  when called "off the end".
+
 Sun Apr 11 21:55:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.h: Fix comment typo and wrap.
