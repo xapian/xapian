@@ -1,3 +1,9 @@
+Mon Apr 12 09:29:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/: Fix to rebuild cursors if the table gains or loses a
+	  level.  Fixes ticket#455.
+
 Mon Apr 12 09:26:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Fix to rebuild cursors if the table gains or loses a
