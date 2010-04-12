@@ -1,3 +1,8 @@
+Mon Apr 12 08:27:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_none.cc: Work around compilation failure on OpenBSD.  Fixes
+	  ticket#458.
+
 Fri Apr 02 04:03:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* m4-macros/xapian-1.1.m4: Give a more specific error message for the
