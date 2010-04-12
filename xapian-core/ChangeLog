@@ -1,3 +1,9 @@
+Mon Apr 12 12:03:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_none.cc: Work around compilation failure on OpenBSD.  Fixes
+	  ticket#458.
+
 Mon Apr 12 12:00:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
@@ -264,7 +270,7 @@ Tue Feb 02 07:41:44 GMT 2010  Olly Betts <olly@survex.com>
 	* Backport change from trunk:
 	* backends/flint/flint_alltermslist.h,backends/flint/flint_spelling.h,
 	  backends/flint/flint_spellingwordslist.h: Add missing std::
-	  qualifiers. 
+	  qualifiers.
 
 Tue Feb 02 07:36:29 GMT 2010  Olly Betts <olly@survex.com>
 
