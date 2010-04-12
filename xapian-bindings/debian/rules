@@ -102,9 +102,8 @@ endif
 
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
 ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-    confflags += CFLAGS=-O0 CXXFLAGS=-O0
-else
-    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+    # -g needed for armel to workaround unaligned relocations (#576944)
+    confflags += CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
 endif
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
