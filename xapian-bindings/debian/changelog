@@ -1,3 +1,11 @@
+xapian-bindings (1.0.19-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * debian/rules: Fix clean target to remove python/testsuite.pyc.
+    (Closes: #577094)
+
+ -- Olly Betts <olly@survex.com>  Mon, 12 Apr 2010 01:08:26 +0000
+
 xapian-bindings (1.0.18-1) unstable; urgency=low
 
   * New upstream release.

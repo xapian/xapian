@@ -363,15 +363,13 @@ binary-indep:
 clean:
 	dh_testdir
 	dh_testroot
-	for python in $(PYTHON_VERSIONS); do \
+	# Run distclean since upstream testsuites can create files in $srcdir
+	# currently (e.g. python/testsuite.pyc).
+	for d in build-* ; do \
 	    set -e; \
-	    rm -rf build-$$python; \
+	    $(MAKE) -C "$$d" distclean ; \
+	    rm -rf "$$d" ; \
 	done
-	for v in $(PHP_VERSIONS); do \
-	    set -e; \
-	    rm -rf build-php$$v; \
-	done
-	rm -rf build-tcl-and-ruby
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f debian/build-stamp debian/configure-stamp
