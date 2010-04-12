@@ -1,3 +1,8 @@
+Mon Apr 12 09:26:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Fix to rebuild cursors if the table gains or loses a
+	  level.  Fixes ticket#455.
+
 Mon Apr 12 08:27:29 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_none.cc: Work around compilation failure on OpenBSD.  Fixes
