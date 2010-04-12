@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1166,6 +1166,10 @@ Btree::add(const string &key, string tag)
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
     RETURN(true);
 }
 
@@ -1197,6 +1201,10 @@ Btree::del(const string &key)
 
     item_count--;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
     RETURN(true);
 }
 
@@ -1505,6 +1513,8 @@ Btree::Btree(string path_, bool readonly_)
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(!readonly_),
+	  cursor_created_since_last_modification(false),
+	  cursor_version(0),
 	  dont_close_handle(false),
 	  split_p(0)
 {

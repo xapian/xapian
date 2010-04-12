@@ -1,7 +1,7 @@
 /* bcursor.h: Interface to Btree cursors
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,6 +72,12 @@ class XAPIAN_VISIBILITY_DEFAULT Bcursor {
 	/// Assignment not allowed
         Bcursor & operator=(const Bcursor &);
 
+	/** Rebuild the cursor.
+	 *
+	 *  Called when the table has changed.
+	 */
+	void rebuild();
+
 	/** Whether the cursor is positioned at a valid entry.
 	 *
 	 *  false initially, and after the cursor has dropped
@@ -92,6 +98,8 @@ class XAPIAN_VISIBILITY_DEFAULT Bcursor {
 
 	/// Pointer to an array of Cursors
 	Cursor * C;
+
+	unsigned long version;
 
 	/** The value of level in the Btree structure. */
 	int level;

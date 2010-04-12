@@ -1,7 +1,7 @@
 /* btree.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -667,6 +667,12 @@ class XAPIAN_VISIBILITY_DEFAULT Btree {
 
 	/// Set to true when the database is opened to write.
 	bool writable;
+
+	/// Flag for tracking when cursors need to rebuild.
+	mutable bool cursor_created_since_last_modification;
+
+	/// Version count for tracking when cursors need to rebuild.
+	unsigned long cursor_version;
 
 	/// Set to true if we shouldn't close handle ourselves.
 	bool dont_close_handle;
