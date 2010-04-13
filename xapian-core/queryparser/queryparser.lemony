@@ -564,8 +564,6 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    yyParser * pParser = ParseAlloc();
-
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
     value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
@@ -597,6 +595,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 	prefix_stack.push_back(default_prefixinfo);
     }
 
+    yyParser * pParser = ParseAlloc();
+    try {
     unsigned newprev = ' ';
 main_lex_loop:
     enum {
@@ -1080,6 +1080,10 @@ done:
 	if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
 	    Parse(pParser, QUOTE, NULL, &state);
 	Parse(pParser, 0, NULL, &state);
+    }
+    } catch (...) {
+	ParseFree(pParser);
+	throw;
     }
     ParseFree(pParser);
 

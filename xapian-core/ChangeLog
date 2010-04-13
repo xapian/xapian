@@ -1,3 +1,9 @@
+Tue Apr 13 07:25:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix leak of yyParser if an exception
+	  is thrown during parsing.   Partly fixes ticket#462.
+	* tests/api_backend.cc: Add regression test qpmemoryleak1.
+
 Tue Apr 13 01:37:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/utils.cc,common/utils.h: Revert change to make removedir()
