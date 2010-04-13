@@ -21,7 +21,7 @@
 // We used to provide an implementation of auto_ptr called AutoPtr to work
 // around deficiencies in the implementation with some compiler, possibly
 // GCC 2.95 (it was added when that was the current GCC release).  To allow
-// use to test the water and ensure this is no longer required, we aren't
+// us to test the water and ensure this is no longer required, we aren't
 // renaming all occurrences just yet...
 #ifndef AutoPtr
 # include <memory>
