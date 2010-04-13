@@ -45,7 +45,7 @@
 #include "serialise.h"
 #include "utils.h"
 
-#include <autoptr.h>
+#include "autoptr.h"
 #include <cstdio> // For rename().
 #include <fstream>
 #include <string>
