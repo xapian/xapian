@@ -452,7 +452,8 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n) const
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     if (writable && n == C[j].n) {
-	memcpy(p, C[j].p, block_size);
+	if (p != C[j].p)
+	    memcpy(p, C[j].p, block_size);
     } else {
 	read_block(n, p);
     }
