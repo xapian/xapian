@@ -560,6 +560,15 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     return term;
 }
 
+class ParserHandler {
+    yyParser * parser;
+
+  public:
+    explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
+    operator yyParser*() { return parser; }
+    ~ParserHandler() { ParseFree(parser); }
+};
+
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
@@ -595,8 +604,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 	prefix_stack.push_back(default_prefixinfo);
     }
 
-    yyParser * pParser = ParseAlloc();
-    try {
+    ParserHandler pParser(ParseAlloc());
+
     unsigned newprev = ' ';
 main_lex_loop:
     enum {
@@ -1081,11 +1090,6 @@ done:
 	    Parse(pParser, QUOTE, NULL, &state);
 	Parse(pParser, 0, NULL, &state);
     }
-    } catch (...) {
-	ParseFree(pParser);
-	throw;
-    }
-    ParseFree(pParser);
 
     errmsg = state.error;
     return state.query;
