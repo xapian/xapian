@@ -1,3 +1,12 @@
+Wed Apr 14 15:15:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* queryparser/queryparser.lemony: Add a ParserHandler class to take
+	  care of releasing the yyParser object.
+	* queryparser/queryparser.lemony: Fix leak of yyParser if an exception
+	  is thrown during parsing.   Partly fixes ticket#462.
+	* tests/api_backend.cc: Add regression test qpmemoryleak1.
+
 Tue Apr 13 12:48:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from flint:
