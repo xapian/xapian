@@ -1,3 +1,12 @@
+Wed Apr 14 15:32:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_alltermslist.cc,
+	  backends/flint/flint_alltermslist.h: Fix memory leak if Database
+	  throws an exception in FlintAllTermsList constructor.  Fixes bug#462.
+	* tests/api_backend.cc: Enable qpmemoryleak1 for non-remote backends as
+	  a regression test for this fix.
+
 Wed Apr 14 15:15:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
