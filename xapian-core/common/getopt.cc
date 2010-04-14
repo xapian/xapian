@@ -4,6 +4,7 @@
    before changing it!
 
    Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
+   Copyright (C) 2010 Olly Betts
 	Free Software Foundation, Inc.
    Copyright (C) 2004,2009 Olly Betts (reworked to allow compilation as C++)
 
@@ -75,7 +76,7 @@ using std::fprintf;
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
 
-char *optarg;
+char *Xapian::Internal::optarg;
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller
@@ -90,7 +91,7 @@ char *optarg;
    how much of ARGV has been scanned so far.  */
 
 /* 1003.2 says this must be 1 before any call.  */
-int optind = 1;
+int Xapian::Internal::optind = 1;
 
 /* Formerly, initialization of getopt depended on optind==0, which
    causes problems with re-calling getopt as programs generally don't
@@ -110,13 +111,13 @@ static char *nextchar;
 /* Callers store zero here to inhibit the error message
    for unrecognized options.  */
 
-int opterr = 1;
+int Xapian::Internal::opterr = 1;
 
 /* Set to an option character which was unrecognized.
    This must be initialized on some systems to avoid linking in the
    system's own getopt implementation.  */
 
-int optopt = '?';
+int Xapian::Internal::optopt = '?';
 
 /* Describe how to deal with options that follow non-option ARGV-elements.
 

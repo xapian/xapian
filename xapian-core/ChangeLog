@@ -1,3 +1,9 @@
+Wed Apr 14 23:41:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: Put our optarg, etc in a
+	  namespace and then pull them in to avoid linking to versions in the C
+	  library.  Fixes warnings on Cygwin.
+
 Wed Apr 14 15:33:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Remove already fixed FIXME comment.
