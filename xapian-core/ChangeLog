@@ -1,3 +1,15 @@
+Wed Apr 14 14:00:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_alltermslist.cc,
+	  backends/brass/brass_alltermslist.h,
+	  backends/chert/chert_alltermslist.cc,
+	  backends/chert/chert_alltermslist.h,
+	  backends/flint/flint_alltermslist.cc,
+	  backends/flint/flint_alltermslist.h: Fix memory leak if Database
+	  throws an exception in XXXAllTermsList constructor.  Fixes bug#462.
+	* tests/api_backend.cc: Enable qpmemoryleak1 for non-remote backends as
+	  a regression test for this fix.
+
 Tue Apr 13 12:38:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: Don't memcpy() a block to itself -

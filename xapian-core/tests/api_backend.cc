@@ -338,22 +338,23 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote) {
     return true;
 }
 
-/// Regression test for bug#462 partly fixed in 1.1.5.
-DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory && remote) {
+/// Regression test for bug#462 fixed in 1.0.19 and 1.1.5.
+DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
     // FIXME: Restrict to remote for now as not all leaks are fixed yet.
     // Inmemory never throws DatabaseModifiedError.
     Xapian::WritableDatabase wdb(get_writable_database());
     Xapian::Document doc;
+
+    doc.add_term("foo");
     for (int i = 100; i < 120; ++i) {
         doc.add_term(str(i));
     }
 
-    for (int j = 0; j < 100; ++j) {
+    for (int j = 0; j < 50; ++j) {
         wdb.add_document(doc);
     }
     wdb.commit();
 
-    // Create memory leak
     Xapian::Database database(get_writable_database_as_database());
     Xapian::QueryParser queryparser;
     queryparser.set_database(database);
