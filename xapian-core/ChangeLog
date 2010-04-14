@@ -1,3 +1,8 @@
+Wed Apr 14 14:13:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use const reference to avoid a
+	  needless handle copy.
+
 Wed Apr 14 14:00:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_alltermslist.cc,
