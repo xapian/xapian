@@ -1,3 +1,8 @@
+Wed Apr 14 15:34:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_backend.cc: Remove already fixed FIXME comment.
+
 Wed Apr 14 15:32:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
