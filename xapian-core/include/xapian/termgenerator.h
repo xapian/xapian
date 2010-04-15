@@ -63,7 +63,11 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Set the Xapian::Stem object to be used for generating stemmed terms.
     void set_stemmer(const Xapian::Stem & stemmer);
 
-    /// Set the Xapian::Stopper object to be used for identifying stopwords.
+    /** Set the Xapian::Stopper object to be used for identifying stopwords.
+     *
+     *  Stemmed forms of stopwords aren't indexed, but unstemmed forms still
+     *  are so that searches for phrases including stop words still work.
+     */
     void set_stopper(const Xapian::Stopper *stop = NULL);
 
     /// Set the current document.
