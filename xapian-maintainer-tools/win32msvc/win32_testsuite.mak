@@ -16,9 +16,6 @@ BUILD_LIBRARIES = "$(OUTDIR)\libtest.lib"
 ALL : $(BUILD_LIBRARIES) 
 
 OBJS= \
-        $(INTDIR)\testrunner.obj \
-        $(INTDIR)\testsuite.obj \
-        $(INTDIR)\testutils.obj \
         $(INTDIR)\backendmanager.obj \
         $(INTDIR)\backendmanager_flint.obj \
         $(INTDIR)\backendmanager_brass.obj \
@@ -29,13 +26,15 @@ OBJS= \
         $(INTDIR)\backendmanager_remoteprog.obj \
         $(INTDIR)\backendmanager_remotetcp.obj \
         $(INTDIR)\cputimer.obj \
+        $(INTDIR)\fdtracker.obj \
         $(INTDIR)\index_utils.obj \
+        $(INTDIR)\scalability.obj \
+        $(INTDIR)\testrunner.obj \
+        $(INTDIR)\testsuite.obj \
+        $(INTDIR)\testutils.obj \
         $(INTDIR)\unixcmds.obj
 
 SRCS= \
-        $(INTDIR)\testrunner.cc \
-        $(INTDIR)\testsuite.cc \
-        $(INTDIR)\testutils.cc \
         $(INTDIR)\backendmanager.cc \
         $(INTDIR)\backendmanager_flint.cc \
         $(INTDIR)\backendmanager_brass.cc \
@@ -46,7 +45,12 @@ SRCS= \
         $(INTDIR)\backendmanager_remoteprog.cc \
         $(INTDIR)\backendmanager_remotetcp.cc \
         $(INTDIR)\cputimer.cc \
+        $(INTDIR)\fdtracker.cc \
         $(INTDIR)\index_utils.cc \
+        $(INTDIR)\scalability.cc \
+        $(INTDIR)\testrunner.cc \
+        $(INTDIR)\testsuite.cc \
+        $(INTDIR)\testutils.cc \
         $(INTDIR)\unixcmds.cc
 
 CLEAN :
@@ -65,7 +69,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBTEST.lib" : HEADERS  "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBTEST.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libtest.lib" $(DEF_FLAGS) $(OBJS)
 <<
