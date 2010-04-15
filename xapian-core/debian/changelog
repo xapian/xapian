@@ -1,3 +1,9 @@
+xapian-core (1.0.19-1) unstable; urgency=low
+
+  * New unstable release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:01:52 +0000
+
 xapian-core (1.0.18-1) unstable; urgency=low
 
   * New upstream release.
