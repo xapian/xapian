@@ -103,6 +103,10 @@ Removes a term from the given position. weight defaults to 1.
 
 Adds a term without positional information. weight defaults to 1.
 
+=item add_boolean_term <term>
+
+Adds a term intended for boolean filtering (its wdf contribution will be 0).
+
 =item remove_term <term>
 
 Removes a term without positional information.
