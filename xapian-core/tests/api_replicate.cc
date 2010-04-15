@@ -107,14 +107,25 @@ truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 	FAIL_TEST("Open failed (when creating '" + destpath + "')");
     }
 
-    char buf[tocopy];
-    size_t bytes = do_read(fdin, buf, tocopy);
-    do_write(fdout, buf, bytes);
+#define BUFSIZE 1024
+    char buf[BUFSIZE];
+    size_t total_bytes = 0;
+    while (tocopy > 0) {
+	size_t thiscopy = tocopy > BUFSIZE ? BUFSIZE : tocopy;
+	size_t bytes = do_read(fdin, buf, thiscopy);
+	if (thiscopy != bytes) {
+	    FAIL_TEST("Couldn't read desired number of bytes from changeset");
+	}
+	tocopy -= bytes;
+	total_bytes += bytes;
+	do_write(fdout, buf, bytes);
+    }
+#undef BUFSIZE
 
     close(fdin);
     close(fdout);
 
-    return bytes;
+    return total_bytes;
 }
 
 // Replicate from the master to the replica.
