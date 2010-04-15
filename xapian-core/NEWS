@@ -1,10 +1,9 @@
- 14248       olly Fri Mar 26 06:36:21 GMT 2010  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.19 (2010-04-??):
-
+Xapian-core 1.0.19 (2010-04-15):
 
 API:
 
+* QueryParser: Fix leak if Xapian::Database throws an exception during parsing
+  (ticket#462).
 
 testsuite:
 
@@ -15,9 +14,6 @@ testsuite:
 * apitest: Add databasemodified1 testcase to provide some test coverage for
   DatabaseModifiedError.
 
-matcher:
-
-
 flint backend:
 
 * When updating a document, rather than decoding the old positions, comparing
@@ -26,7 +22,15 @@ flint backend:
 
 * Avoid trying to delete the document positions when we know there aren't any.
 
+* Fix memory leak if Database::allterms_begin() throws an exception
+  (ticket#462).
+
 * xapian-check: Report document id for document length mismatch.
+
+* Fix potential issues with iterators over a WritableDatabase which is modified
+  during iteration.  No problems have actually been observed with flint, only
+  in 1.1.4 with chert in cases which don't occur in flint, but it seems likely
+  the issue can manifest for flint in other situations.  Fixes ticket#455.
 
 * Initialise zlib z_stream structure members zalloc, zfree, and opaque with
   Z_NULL rather than 0 cast to the appropriate type, as that's what the zlib
@@ -35,14 +39,18 @@ flint backend:
   this isn't true for current versions, so this improves robustness rather
   than fixing an observable bug).
 
+* Don't memcpy() a block to itself - it's a waste of effort, and (probably)
+  undefined behaviour (as a block overlaps itself).
+
 quartz backend:
 
+* Fix potential issues with iterators over a WritableDatabase which is modified
+  during iteration.  No problems have actually been observed with quartz, only
+  in 1.1.4 with chert in cases which don't occur in quartz, but it seems likely
+  the issue can manifest for quartz in other situations.  Fixes ticket#455.
 
-remote backend:
-
-
-inmemory backend:
-
+* Don't memcpy() a block to itself - it's a waste of effort, and (probably)
+  undefined behaviour (as a block overlaps itself).
 
 build system:
 
@@ -69,6 +77,8 @@ documentation:
 * include/xapian/queryparser.h: Document the possible exception messages from
   QueryParser::parse_query().
 
+* include/xapian/termgenerator.h: Note how TermGenerator handles stopwords.
+
 examples:
 
 * delve: Display the lastdocid value when displaying general database
@@ -79,12 +89,10 @@ examples:
 
 portability:
 
+* Fix compilation failure in testsuite on OpenBSD, introduced by new regression
+  test in 1.0.18.  Fixes ticket#458.
 
-packaging:
-
-
-debug code:
-
+* Fix getopt-related warning on Cygwin.
 
 Xapian-core 1.0.18 (2009-02-14):
 

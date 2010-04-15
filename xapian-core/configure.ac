@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.0.18], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.0.19], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.59])
 dnl Extract from the libtool info manual:
@@ -77,7 +77,8 @@ dnl 21:6:6 1.0.15 No API changes
 dnl 21:7:6 1.0.16 No API changes
 dnl 21:8:6 1.0.17 No API changes
 dnl 21:9:6 1.0.18 No API changes (Document::add_boolean_term() inlined)
-LIBRARY_VERSION_INFO=21:9:6
+dnl 21:10:6 1.0.19 No API changes
+LIBRARY_VERSION_INFO=21:10:6
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
