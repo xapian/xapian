@@ -1,5 +1,0 @@
-usr/lib/php5/*/xapian.so
-usr/share/php/xapian.php
-usr/share/doc/xapian-bindings/php/index.html usr/share/doc/php5-xapian
-usr/share/doc/xapian-bindings/php/examples/*.php5 usr/share/doc/php5-xapian/examples
-etc/php5/conf.d/xapian.ini
