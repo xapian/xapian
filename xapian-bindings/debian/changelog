@@ -6,7 +6,7 @@ xapian-bindings (1.0.19-1) unstable; urgency=low
   * debian/rules: Compile with -g - needed for armel to workaround unaligned
     relocations. (Closes: #576944)
 
- -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:12:34 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 14:40:49 +0000
 
 xapian-bindings (1.0.18-1) unstable; urgency=low
 
