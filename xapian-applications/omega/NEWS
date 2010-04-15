@@ -1,3 +1,29 @@
+Omega 1.1.5 (2010-04-1?):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Fix getopt-related warning on Cygwin.
+
+packaging:
+
 Omega 1.1.4 (2010-02-15):
 
 This release includes all changes from 1.0.18 which are relevant.
