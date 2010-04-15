@@ -1,3 +1,8 @@
+Thu Apr 15 00:30:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/termgenerator.h: Note how TermGenerator handles
+	  stopwords.
+
 Wed Apr 14 23:41:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/getopt.cc,common/gnu_getopt.h: Put our optarg, etc in a
