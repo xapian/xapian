@@ -365,7 +365,7 @@ clean:
 	# Run distclean since upstream testsuites can create files in $srcdir
 	# currently (e.g. python/testsuite.pyc).
 	for d in build-* ; do \
-	    test -d $d || continue; \
+	    test -d "$$d" || continue; \
 	    set -e; \
 	    $(MAKE) -C "$$d" distclean ; \
 	    rm -rf "$$d" ; \
