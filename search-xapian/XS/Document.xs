@@ -100,6 +100,16 @@ Document::add_term(tname, wdfinc = NO_INIT)
 	}
 
 void
+Document::add_boolean_term(tname)
+    string	tname
+    CODE:
+	try {
+	    THIS->add_boolean_term(tname);
+	} catch (...) {
+	    handle_exception();
+	}
+
+void
 Document::remove_posting(tname, tpos, wdfdec = NO_INIT)
     string	tname
     termpos	tpos
