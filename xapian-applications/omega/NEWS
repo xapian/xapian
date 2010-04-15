@@ -1,28 +1,6 @@
-Omega 1.1.5 (2010-04-1?):
+Omega 1.1.5 (2010-04-15):
 
-general:
-
-documentation:
-
-indexers:
-
-* omindex:
-
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
-
-build system:
-
-portability:
-
-* Fix getopt-related warning on Cygwin.
-
-packaging:
+This release includes all changes from 1.0.19 which are relevant.
 
 Omega 1.1.4 (2010-02-15):
 
@@ -118,6 +96,12 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.19 (2010-04-15):
+
+portability:
+
+* Fix getopt-related warning on Cygwin.
 
 Omega 1.0.18 (2010-02-14):
 
