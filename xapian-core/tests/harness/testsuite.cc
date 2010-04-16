@@ -511,7 +511,13 @@ test_driver::runtest(const test_desc *test)
 		write_and_clear_tout();
 		return FAIL;
 	    } catch (const char * msg) {
-		out << col_red << " EXCEPTION char * " << msg << col_reset;
+		out << col_red;
+		if (msg) {
+		    out << " EXCEPTION char * " << msg;
+		} else {
+		    out << " EXCEPTION (char*)NULL";
+		}
+		out << col_reset;
 		write_and_clear_tout();
 		return FAIL;
 	    } catch (...) {
