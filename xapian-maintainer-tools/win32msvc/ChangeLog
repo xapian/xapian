@@ -1,3 +1,9 @@
+Fri Apr 16 09:53:05 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* win32_api.mak,win32_backends_multi.mak,win32_matcher.mak,
+	  win32_tests.mak: Revert previous patch - was broken in several
+	  ways.
+
 Fri Apr 16 09:07:44 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* win32_api.mak,win32_backends_multi.mak,win32_matcher.mak,

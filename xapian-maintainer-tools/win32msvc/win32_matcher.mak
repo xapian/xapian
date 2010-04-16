@@ -35,6 +35,7 @@ OBJS= \
     $(INTDIR)\synonympostlist.obj\
     $(INTDIR)\valuerangepostlist.obj\
     $(INTDIR)\valuegepostlist.obj\
+    $(INTDIR)\valuestreamdocument.obj\
     $(INTDIR)\xorpostlist.obj\
     $(INTDIR)\remotesubmatch.obj
 
@@ -60,6 +61,7 @@ SRCS= \
     $(INTDIR)\synonympostlist.cc\
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
+    $(INTDIR)\valuestreamdocument.cc\
     $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
 
