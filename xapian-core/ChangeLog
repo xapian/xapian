@@ -1,3 +1,7 @@
+Fri Apr 16 05:47:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Fix wrapping.
+
 Thu Apr 15 09:07:40 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replicate.cc: Use a fixed size buffer for copying a
