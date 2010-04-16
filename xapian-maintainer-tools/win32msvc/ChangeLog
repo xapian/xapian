@@ -1,3 +1,9 @@
+Fri Apr 16 09:07:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* win32_api.mak,win32_backends_multi.mak,win32_matcher.mak,
+	  win32_tests.mak: Updates to the windows build system from Charlie
+	  Hull - ticket #457.
+
 Tue Aug 25 16:32:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile,config.mak,win32_geospatial.mak: Add geospatial lib.
