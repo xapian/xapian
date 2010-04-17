@@ -57,8 +57,14 @@ gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
 
 #else
 
-// Put these variables in a namespace and then pull in so we don't end up
-// linking to versions in the C library.
+// POSIX says getopt() and optarg, etc are defined by <unistd.h>.  Some older
+// implementations have them in <stdio.h>.
+#include "safeunistd.h"
+#include <cstdio>
+
+// Put these variables in a namespace and then use macros to divert the
+// unqualified versions to the qualified ones, so we don't end up linking to
+// versions in the C library.
 namespace Xapian {
 namespace Internal {
 extern char *optarg;
@@ -67,10 +73,10 @@ extern int opterr;
 extern int optopt;
 }
 }
-using Xapian::Internal::optarg;
-using Xapian::Internal::optind;
-using Xapian::Internal::opterr;
-using Xapian::Internal::optopt;
+#define optarg Xapian::Internal::optarg
+#define optind Xapian::Internal::optind
+#define opterr Xapian::Internal::opterr
+#define optopt Xapian::Internal::optopt
 
 struct option {
     const char *name;
