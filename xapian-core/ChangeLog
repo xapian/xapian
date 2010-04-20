@@ -1,3 +1,8 @@
+Tue Apr 20 15:20:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/deprecation.rst: Note how to disable deprecation warnings.
+
 Tue Apr 20 09:27:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
