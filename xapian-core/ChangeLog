@@ -1,3 +1,10 @@
+Tue Apr 20 09:08:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/delve.cc: Use strtoul() instead of atoi() to decode document
+	  id and value slot numbers passed on the command line.  Report out of
+	  range and invalid values.
+
 Sat Apr 17 10:27:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
