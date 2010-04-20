@@ -1,3 +1,9 @@
+Tue Apr 20 11:06:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Set PYTHONDONTWRITEBYTECODE=1 in the environment
+	  to prevent generating .pyc files in srcdir for Python >= 2.6.  Partly
+	  addresses ticket#315.
+
 Thu Apr 15 04:36:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.1.5.

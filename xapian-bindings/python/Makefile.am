@@ -2,7 +2,7 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
