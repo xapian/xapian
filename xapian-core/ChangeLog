@@ -1,3 +1,7 @@
+Tue Apr 20 12:53:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Note how to disable deprecation warnings.
+
 Tue Apr 20 07:27:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,matcher/multimatch.cc: Fix incorrect estimate and
