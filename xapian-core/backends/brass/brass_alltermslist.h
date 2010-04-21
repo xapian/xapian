@@ -65,20 +65,7 @@ class BrassAllTermsList : public AllTermsList {
   public:
     BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase> database_,
 		      const std::string & prefix_)
-	    : database(database_), prefix(prefix_), termfreq(0) {
-	cursor = database->postlist_table.get_cursor();
-	Assert(cursor); // The postlist table isn't optional.
-
-	// Position the cursor on the highest key before the first key we want,
-	// so that the first call to next() will put us on the first key we
-	// want.
-	if (prefix.empty()) {
-	    cursor->find_entry_lt(std::string("\x00\xff", 2));
-	} else {
-	    std::string key = pack_brass_postlist_key(prefix);
-	    cursor->find_entry_lt(key);
-	}
-    }
+	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 
     /// Destructor.
     ~BrassAllTermsList();

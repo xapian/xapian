@@ -363,25 +363,25 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !brass && !remote) {
     return true;
 }
 
-/// Regression test for bug#462 partly fixed in 1.1.5.
-DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory && remote) {
-    // FIXME: Restrict to remote for now as not all leaks are fixed yet.
+/// Regression test for bug#462 fixed in 1.0.19 and 1.1.5.
+DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory && !brass) {
     // Inmemory never throws DatabaseModifiedError.
     // Brass doesn't reuse blocks currently (FIXME).
     SKIP_TEST_FOR_BACKEND("remoteprog_brass");
     SKIP_TEST_FOR_BACKEND("remotetcp_brass");
     Xapian::WritableDatabase wdb(get_writable_database());
     Xapian::Document doc;
+
+    doc.add_term("foo");
     for (int i = 100; i < 120; ++i) {
         doc.add_term(str(i));
     }
 
-    for (int j = 0; j < 100; ++j) {
+    for (int j = 0; j < 50; ++j) {
         wdb.add_document(doc);
     }
     wdb.commit();
 
-    // Create memory leak
     Xapian::Database database(get_writable_database_as_database());
     Xapian::QueryParser queryparser;
     queryparser.set_database(database);
@@ -392,6 +392,59 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory && remote) {
 	    (void)queryparser.parse_query("1", queryparser.FLAG_PARTIAL);
 	}
     );
+
+    return true;
+}
+
+static void
+make_msize1_db(Xapian::WritableDatabase &db, const string &)
+{
+    const char * value0 =
+	"ABBCDEFGHIJKLMMNOPQQRSTTUUVVWXYZZaabcdefghhijjkllmnopqrsttuvwxyz";
+    const char * value1 =
+	"EMLEMMMMMMMNMMLMELEDNLEDMLMLDMLMLMLMEDGFHPOPBAHJIQJNGRKCGF";
+    while (*value0) {
+	Xapian::Document doc;
+	doc.add_value(0, string(1, *value0++));
+	if (*value1) {
+	    doc.add_value(1, string(1, *value1++));
+	    doc.add_term("K1");
+	}
+	db.add_document(doc);
+    }
+}
+
+/// Regression test for ticket#464, fixed in 1.1.6 and 1.0.20.
+DEFINE_TESTCASE(msize1, writable && !inmemory && !remote) {
+    // Generated databases not supported by inmemory or remote.
+    Xapian::Database db = get_database("msize1", make_msize1_db);
+    Xapian::Enquire enq(db);
+    enq.set_sort_by_value(1, false);
+    enq.set_collapse_key(0);
+    enq.set_query(Xapian::Query("K1"));
+
+    Xapian::MSet mset = enq.get_mset(0, 10, 1000);
+    Xapian::doccount lb = mset.get_matches_lower_bound();
+    Xapian::doccount ub = mset.get_matches_upper_bound();
+    Xapian::doccount est = mset.get_matches_estimated();
+    TEST_EQUAL(lb, ub);
+    TEST_EQUAL(lb, est);
+
+    Xapian::MSet mset2 = enq.get_mset(50, 10, 1000);
+    Xapian::doccount lb2 = mset2.get_matches_lower_bound();
+    Xapian::doccount ub2 = mset2.get_matches_upper_bound();
+    Xapian::doccount est2 = mset2.get_matches_estimated();
+    TEST_EQUAL(lb2, ub2);
+    TEST_EQUAL(lb2, est2);
+    TEST_EQUAL(est, est2);
+
+    Xapian::MSet mset3 = enq.get_mset(0, 60);
+    Xapian::doccount lb3 = mset3.get_matches_lower_bound();
+    Xapian::doccount ub3 = mset3.get_matches_upper_bound();
+    Xapian::doccount est3 = mset3.get_matches_estimated();
+    TEST_EQUAL(lb3, ub3);
+    TEST_EQUAL(lb3, est3);
+    TEST_EQUAL(est, est3);
 
     return true;
 }

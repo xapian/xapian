@@ -31,6 +31,8 @@
 #include "gnu_getopt.h"
 
 #include <cstring>
+#include <cstdlib>
+#include "safeerrno.h"
 
 using namespace Xapian;
 using namespace std;
@@ -193,9 +195,22 @@ main(int argc, char **argv) try {
     int c;
     while ((c = gnu_getopt(argc, argv, "r:t:s:1vV::d")) != -1) {
 	switch (c) {
-	    case 'r':
-		recnos.push_back(atoi(optarg));
+	    case 'r': {
+		char * end;
+		errno = 0;
+		unsigned long n = strtoul(optarg, &end, 10);
+		if (optarg == end || *end) {
+		    cout << "Non-numeric document id: " << optarg << endl;
+		    exit(1);
+		}
+		Xapian::docid did(n);
+		if (errno == ERANGE || n == 0 || did != n) {
+		    cout << "Document id out of range: " << optarg << endl;
+		    exit(1);
+		}
+		recnos.push_back(did);
 		break;
+	    }
 	    case 't':
 		terms.push_back(optarg);
 		break;
@@ -207,7 +222,18 @@ main(int argc, char **argv) try {
 		break;
 	    case 'V':
 		if (optarg) {
-		    slot = atoi(optarg);
+		    char * end;
+		    errno = 0;
+		    unsigned long n = strtoul(optarg, &end, 10);
+		    if (optarg == end || *end) {
+			cout << "Non-numeric value slot: " << optarg << endl;
+			exit(1);
+		    }
+		    slot = Xapian::valueno(n);
+		    if (errno == ERANGE || slot != n) {
+			cout << "Value slot out of range: " << optarg << endl;
+			exit(1);
+		    }
 		    slot_set = true;
 		} else {
 		    showvalues = true;

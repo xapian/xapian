@@ -2,7 +2,7 @@
  *  \brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009 Olly Betts
+ * Copyright 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -179,7 +179,6 @@ TestRunner::do_tests_for_backend(BackendManager * manager)
 	cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl;
 	result_so_far = max(result_so_far, run());
     }
-    delete manager;
 }
 
 int
@@ -191,54 +190,99 @@ TestRunner::run_tests(int argc, char ** argv)
 	test_driver::parse_command_line(argc, argv);
 	srcdir = test_driver::get_srcdir();
 
-	do_tests_for_backend(new BackendManager);
+	{
+	    BackendManager m;
+	    do_tests_for_backend(&m);
+	}
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	do_tests_for_backend(new BackendManagerInMemory);
+	{
+	    BackendManagerInMemory m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-	do_tests_for_backend(new BackendManagerBrass);
+	{
+	    BackendManagerBrass m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	do_tests_for_backend(new BackendManagerChert);
+	{
+	    BackendManagerChert m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	do_tests_for_backend(new BackendManagerFlint);
+	{
+	    BackendManagerFlint m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-	do_tests_for_backend(new BackendManagerMulti("brass"));
+	{
+	    BackendManagerMulti m("brass");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	do_tests_for_backend(new BackendManagerMulti("chert"));
+	{
+	    BackendManagerMulti m("chert");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	do_tests_for_backend(new BackendManagerMulti("flint"));
+	{
+	    BackendManagerMulti m("flint");
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-	do_tests_for_backend(new BackendManagerRemoteProg("brass"));
-	do_tests_for_backend(new BackendManagerRemoteTcp("brass"));
+	{
+	    BackendManagerRemoteProg m("brass");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("brass");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	do_tests_for_backend(new BackendManagerRemoteProg("chert"));
-	do_tests_for_backend(new BackendManagerRemoteTcp("chert"));
+	{
+	    BackendManagerRemoteProg m("chert");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("chert");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	do_tests_for_backend(new BackendManagerRemoteProg("flint"));
-	do_tests_for_backend(new BackendManagerRemoteTcp("flint"));
+	{
+	    BackendManagerRemoteProg m("flint");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("flint");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
-	return false;
+	return 1;
     } catch (const std::string &e) {
 	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
-	return false;
+	return 1;
+    } catch (const char * e) {
+	cout << e << endl;
+	return 1;
     }
     return result_so_far;
 }

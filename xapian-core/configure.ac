@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.4], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.1.5], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -34,7 +34,8 @@ dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
 dnl 2:0:0 1.1.2 Query::Internal::wqf removed
 dnl 3:0:0 1.1.3 Default implementation of Weight::clone() removed.
 dnl 4:0:0 1.1.4 ValueCountMatchSpy::get_values() removed.
-LIBRARY_VERSION_INFO=4:0:0
+dnl 4:1:0 1.1.5 No API changes.
+LIBRARY_VERSION_INFO=4:1:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.1
