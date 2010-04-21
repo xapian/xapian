@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 8
+# serial 9
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -59,6 +59,17 @@ AC_DEFUN([XO_LIB_XAPIAN],
     if (exec >&5 2>&5 ; $XAPIAN_CONFIG --ltlibs --cxxflags; exit $?) then
       AC_MSG_RESULT(yes)
     else
+      case $? in
+      127)
+	AC_MSG_ERROR([\`$XAPIAN_CONFIG' not found, aborting])
+	;;
+      126)
+	if test -d "$XAPIAN_CONFIG" ; then
+	  AC_MSG_ERROR([\`$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
+	fi
+	AC_MSG_ERROR([\`$XAPIAN_CONFIG' not executable, aborting])
+	;;
+      esac
       AC_MSG_ERROR([\`$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
     fi
 

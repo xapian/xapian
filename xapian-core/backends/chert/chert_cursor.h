@@ -1,7 +1,7 @@
 /* chert_cursor.h: Interface to Btree cursors
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,6 +72,12 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	/// Assignment not allowed
         ChertCursor & operator=(const ChertCursor &);
 
+	/** Rebuild the cursor.
+	 *
+	 *  Called when the table has changed.
+	 */
+	void rebuild();
+
     protected:
 	/** Whether the cursor is positioned at a valid entry.
 	 *
@@ -95,6 +101,8 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
     private:
 	/// Pointer to an array of Cursors
 	Cursor * C;
+
+	unsigned long version;
 
 	/** The value of level in the Btree structure. */
 	int level;

@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -323,5 +323,75 @@ DEFINE_TESTCASE(readonlyparentdir1, brass || chert || flint) {
     db.commit();
     TEST(chmod(path.c_str(), 0700) == 0);
 #endif
+    return true;
+}
+
+/// Test coverage for DatabaseModifiedError.
+DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !brass && !remote) {
+    // The inmemory backend doesn't support revisions.
+    //
+    // The brass backend doesn't reuse blocks currently (FIXME).
+    //
+    // The remote backend doesn't work as expected here, I think due to
+    // test harness issues.
+    Xapian::WritableDatabase db(get_writable_database());
+    Xapian::Document doc;
+    doc.set_data("cargo");
+    doc.add_term("abc");
+    doc.add_term("def");
+    doc.add_term("ghi");
+    const int N = 500;
+    for (int i = 0; i < N; ++i) {
+	db.add_document(doc);
+    }
+    db.commit();
+
+    Xapian::Database rodb(get_writable_database_as_database());
+    db.add_document(doc);
+    db.commit();
+
+    db.add_document(doc);
+    db.commit();
+
+    db.add_document(doc);
+    try {
+	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
+	return false;
+    } catch (const Xapian::DatabaseModifiedError &) {
+    }
+
+    return true;
+}
+
+/// Regression test for bug#462 partly fixed in 1.1.5.
+DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory && remote) {
+    // FIXME: Restrict to remote for now as not all leaks are fixed yet.
+    // Inmemory never throws DatabaseModifiedError.
+    // Brass doesn't reuse blocks currently (FIXME).
+    SKIP_TEST_FOR_BACKEND("remoteprog_brass");
+    SKIP_TEST_FOR_BACKEND("remotetcp_brass");
+    Xapian::WritableDatabase wdb(get_writable_database());
+    Xapian::Document doc;
+    for (int i = 100; i < 120; ++i) {
+        doc.add_term(str(i));
+    }
+
+    for (int j = 0; j < 100; ++j) {
+        wdb.add_document(doc);
+    }
+    wdb.commit();
+
+    // Create memory leak
+    Xapian::Database database(get_writable_database_as_database());
+    Xapian::QueryParser queryparser;
+    queryparser.set_database(database);
+    TEST_EXCEPTION(Xapian::DatabaseModifiedError,
+	for (int k = 0; k < 3; ++k) {
+	    wdb.add_document(doc);
+	    wdb.commit();
+	    (void)queryparser.parse_query("1", queryparser.FLAG_PARTIAL);
+	}
+    );
+
     return true;
 }

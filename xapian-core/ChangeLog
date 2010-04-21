@@ -1,3 +1,9 @@
+Wed Apr 21 14:58:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/chert/,backends/flint/,common/autoptr.h,
+	  m4-macros/xapian-1.1.m4,queryparser/queryparser.lemony,
+	  tests/api_backend.cc,tests/api_none.cc: Merge from trunk r14279.
+
 Wed Apr 21 13:43:16 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: Don't check the released block/slab
