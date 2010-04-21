@@ -276,10 +276,10 @@ TestRunner::run_tests(int argc, char ** argv)
 #endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
-	return false;
+	return 1;
     } catch (const std::string &e) {
 	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
-	return false;
+	return 1;
     } catch (const char * e) {
 	cout << e << endl;
 	return 1;
