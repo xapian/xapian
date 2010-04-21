@@ -4,6 +4,8 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
 	  warning (Debian bug#578559).
+	- Fix testcase t/04functions.t to work with Perl compiled with
+	  -Duselongdouble (Debian bug#578558).
 
 1.0.19.0  Thu Apr 15 03:55:04 UTC 2010
 	[Changes contributed by Olly Betts]
