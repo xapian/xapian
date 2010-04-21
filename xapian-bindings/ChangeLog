@@ -1,3 +1,9 @@
+Wed Apr 21 03:16:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix typo so path to ruby is reported in Ruby < 1.8 is
+	  found.
+
 Wed Apr 21 03:15:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
