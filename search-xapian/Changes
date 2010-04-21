@@ -1,9 +1,7 @@
 Revision history for Perl extension Search::Xapian.
 
 1.1.6.0
-	[Changes contributed by Olly Betts]
-	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
-	  warning (Debian bug#578559).
+	[This release includes all changes from 1.0.20 which are relevant.]
 
 1.1.5.0  Thu Apr 15 04:23:16 UTC 2010
 	[This release includes all changes from 1.0.19 which are relevant.]
