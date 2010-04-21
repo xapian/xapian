@@ -2,7 +2,8 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = PYTHONPATH=. $(PYTHON)
+TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/testsuite.pyc' 0 1 2 13 15; \
+    PYTHONPATH=".:$$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
