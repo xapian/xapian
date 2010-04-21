@@ -614,8 +614,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    ++res.failed;
 		    out << endl;
 		    if (abort_on_error) {
-			out << "Test failed - aborting further tests." << endl;
-			return res;
+			throw "Test failed - aborting further tests";
 		    }
 		    break;
 		case SKIP:

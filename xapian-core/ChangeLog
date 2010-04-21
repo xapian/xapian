@@ -1,3 +1,8 @@
+Wed Apr 21 11:11:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testsuite.cc: Fix 
+	  --abort-on-error to actually work.
+
 Tue Apr 20 12:53:29 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Note how to disable deprecation warnings.
