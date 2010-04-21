@@ -1,3 +1,9 @@
+Wed Apr 21 13:43:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.h: Don't check the released block/slab
+	  against the allocation point if we haven't initialised the allocation
+	  point yet.
+
 Sun Apr 11 23:39:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Make getting a leaf block when we
@@ -7,7 +13,8 @@ Sun Apr 11 23:39:57 GMT 2010  Olly Betts <olly@survex.com>
 Sun Apr 11 23:33:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Fix BrassCBlock::find() to set item to
-	  -2 (to indicate "off the end") in the parent blocks, not just the leaf.
+	  -2 (to indicate "off the end") in the parent blocks, not just the
+	  leaf.
 	* backends/brass/brass_table.h: Fix read_key() not to fail an assertion
 	  when called "off the end".
 

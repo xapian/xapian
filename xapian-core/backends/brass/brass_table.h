@@ -628,7 +628,11 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
     void mark_free(brass_block_t n) {
 	(void)n;
 	Assert(n != brass_block_t(-1));
-	AssertRel(n,<,next_free);
+	if (next_free) {
+	    // If next_free is 0, that means we've not allocated a block since
+	    // opening the file this time.
+	    AssertRel(n,<,next_free);
+	}
 	// FIXME: add "n" to the freelist for revision "revision".
     }
 
@@ -636,7 +640,11 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
     void mark_free_slab(off_t slab) {
 	(void)slab;
-	AssertRel(slab,<,next_free_slab);
+	if (next_free_slab) {
+	    // If next_free_slab is 0, that means we've not allocated a slab
+	    // since opening the file this time.
+	    AssertRel(slab,<,next_free_slab);
+	}
 	// FIXME: add "slab" to the slab freelist for revision "revision".
     }
 
