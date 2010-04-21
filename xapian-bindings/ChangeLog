@@ -1,3 +1,8 @@
+Wed Apr 21 03:09:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo so path to ruby is reported in Ruby < 1.8 is
+	  found.
+
 Tue Apr 20 11:57:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Set a sh trap to clean up any .pyc files created

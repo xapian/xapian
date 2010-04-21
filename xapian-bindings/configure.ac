@@ -724,7 +724,7 @@ if test no != "$with_ruby" ; then
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($ruby is $version)])
+	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($RUBY is $version)])
       fi
       RUBY=
       ;;
