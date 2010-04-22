@@ -175,7 +175,7 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     string langs = Xapian::Stem::get_available_languages();
     test_driver::add_command_line_option("languages", 'l', &langs);
 
@@ -202,4 +202,7 @@ int main(int argc, char **argv)
 	result = max(result, test_driver::run(tests));
     }
     return result;
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }
