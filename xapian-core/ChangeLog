@@ -1,3 +1,8 @@
+Thu Apr 22 01:19:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.h: Use 'inline' rather than 'static
+	  inline' in header.
+
 Wed Apr 21 15:34:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS,NEWS,api/omenquire.cc,api/postingsource.cc,

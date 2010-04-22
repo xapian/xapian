@@ -56,23 +56,23 @@ const bool NOT_LAZY = false;
 
 // Convert to little endian form:
 #ifdef WORDS_BIGENDIAN
-static uint2 LE(uint2 x) {
+inline uint2 LE(uint2 x) {
     return (x & 0xff) << 8 | ((x >> 8) & 0xff);
 }
 
-static uint4 LE(uint4 x) {
+inline uint4 LE(uint4 x) {
     return (x & 0xff) << 24 | (x & 0xff00) << 8 | (x >> 8) & 0xff00 | ((x >> 24) & 0xff);
 }
 #else
-#define LE(X) (X)
+# define LE(X) (X)
 #endif
 
-static inline brass_block_t get_unaligned_le4(const char *p) {
+inline brass_block_t get_unaligned_le4(const char *p) {
     const unsigned char * a = (const unsigned char *)p;
     return (brass_block_t)*a | (brass_block_t)a[1] << 8 | (brass_block_t)a[2] << 16 | (brass_block_t)a[3] << 24;
 }
 
-static inline void set_unaligned_le4(char *p, brass_block_t b) {
+inline void set_unaligned_le4(char *p, brass_block_t b) {
     unsigned char * a = (unsigned char *)p;
     *a = b;
     a[1] = b >> 8;
