@@ -1,3 +1,55 @@
+ 14340       olly Tue Apr 20 15:20:09 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.20 (2010-0?-??):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+* MSet: Fix incorrect values reported by get_matches_estimated(),
+  get_matches_lower_bound(), and get_matches_upper_bound() in certain cases
+  when sorting and collapsing (ticket#464).
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* deprecation.html: Note how to disable deprecation warnings.
+
+examples:
+
+* delve: -d and -V command line options now report out of range and invalid
+  numbers.
+
+portability:
+
+* Fix getopt code to work on platforms without GNU getopt but with getopt().
+  (Regression introduced in 1.0.19).
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.0.19 (2010-04-15):
 
 API:
