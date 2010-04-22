@@ -60,9 +60,15 @@ inline uint2 LE(uint2 x) {
     return (x & 0xff) << 8 | ((x >> 8) & 0xff);
 }
 
+# ifdef __GNUC__
 inline uint4 LE(uint4 x) {
-    return (x & 0xff) << 24 | (x & 0xff00) << 8 | (x >> 8) & 0xff00 | ((x >> 24) & 0xff);
+    return __builtin_bswap32(x);
 }
+# else
+inline uint4 LE(uint4 x) {
+    return (x & 0xff) << 24 | (x & 0xff00) << 8 | ((x >> 8) & 0xff00) | ((x >> 24) & 0xff);
+}
+# endif
 #else
 # define LE(X) (X)
 #endif
