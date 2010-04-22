@@ -627,7 +627,7 @@ problems from this, we specify a particular revision to import, but this does
 mean we need to monitor changes to xapian-core and decide when to update omega.
 The release checklist includes a reminder to check this.
 
-Warning Free Compilation
+Warning-Free Compilation
 ------------------------
 
 Compiling without warnings on every platform is our goal, though it's not
