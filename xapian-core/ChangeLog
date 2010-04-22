@@ -1,3 +1,9 @@
+Thu Apr 22 14:21:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix bug related to ticket#464 (the previous
+	  fix doesn't fix some similar cases).
+	* tests/api_backend.cc: Add regression test msize2.
+
 Thu Apr 22 11:02:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/: Hook up --abort-on-error fix for termgentest, stemtest,
