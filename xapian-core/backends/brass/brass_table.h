@@ -56,19 +56,25 @@ const bool NOT_LAZY = false;
 
 // Convert to little endian form:
 #ifdef WORDS_BIGENDIAN
+
 inline uint2 LE(uint2 x) {
+# ifdef HAVE_BYTESWAP_H
+    return bswap_16(x);
+# else
     return (x & 0xff) << 8 | ((x >> 8) & 0xff);
+# endif
 }
 
+inline uint4 LE(uint4 x) {
 # ifdef __GNUC__
-inline uint4 LE(uint4 x) {
     return __builtin_bswap32(x);
-}
+# elif defined HAVE_BYTESWAP_H
+    return bswap_32(x);
 # else
-inline uint4 LE(uint4 x) {
     return (x & 0xff) << 24 | (x & 0xff00) << 8 | ((x >> 8) & 0xff00) | ((x >> 24) & 0xff);
-}
 # endif
+}
+
 #else
 # define LE(X) (X)
 #endif

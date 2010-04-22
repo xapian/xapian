@@ -380,6 +380,10 @@ AC_TRY_COMPILE([#include <typeinfo>],
 
 dnl Check processor endianness.
 AC_C_BIGENDIAN
+if test xno != x"$ac_cv_c_bigendian" ; then
+  dnl Could be yes or universal.
+  AC_CHECK_HEADERS([byteswap.h], [], [], [ ])
+fi
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)

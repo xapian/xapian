@@ -1,3 +1,9 @@
+Thu Apr 22 07:58:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.h,configure.ac: If we're building
+	  big-endian, check is byteswap.h is present and use bswap_16() (and
+	  bswap_32() if we're not building with GCC).
+
 Thu Apr 22 02:39:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: Use __builtin_bswap32() when compiling
