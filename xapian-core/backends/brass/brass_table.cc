@@ -1207,9 +1207,9 @@ BrassCBlock::find(const string &key, int mode)
     LOGCALL(DB, bool, "BrassCBlock::find", key << ", " << mode);
     if (!data) {
 	// The empty key should always appear to exist.
-	if (key.empty() ^ (mode == LT)) {
+	if (mode == LE || (key.empty() ^ (mode == LT))) {
 	    item = -1;
-	    RETURN(true);
+	    RETURN(key.empty());
 	}
 	item = -2;
 	RETURN(false);
@@ -1228,9 +1228,10 @@ BrassCBlock::find(const string &key, int mode)
     bool exact = binary_chop_leaf(key, mode);
     if (!exact) {
 	if (mode == GE) {
-	    if (item == get_count())
-		item = -2;
-	    else if (item >= 0)
+	    if (item == get_count()) {
+		--item;
+		next_();
+	    } else if (item >= 0)
 		AssertRel(get_key(item),>=,key);
 	} else {
 	    prev_();

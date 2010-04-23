@@ -167,6 +167,7 @@ BrassAllTermsList::skip_to(const string &term)
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
 	cursor->to_end();
+	Assert(cursor->after_end());
 	current_term.resize(0);
     }
 

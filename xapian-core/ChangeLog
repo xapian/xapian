@@ -1,3 +1,10 @@
+Fri Apr 23 07:49:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_alltermslist.cc: Add another assertion.
+	* backends/brass/brass_table.cc: Fix BrassCBlock::find() in the case
+	  when there's no data block and mode is LT or LE, and in the case
+	  where mode is GE and binary_chop_leaf() returns item == get_count().
+
 Thu Apr 22 07:58:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h,configure.ac: If we're building
