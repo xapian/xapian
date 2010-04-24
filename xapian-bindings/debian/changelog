@@ -1,4 +1,4 @@
-xapian-bindings (1.1.5-1) UNRELEASED; urgency=low
+xapian-bindings (1.1.5-1) experimental; urgency=low
 
   * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
     dapper.
@@ -9,7 +9,7 @@ xapian-bindings (1.1.5-1) UNRELEASED; urgency=low
   * debian/rules,debian/control.in,debian/control-ruby.in: Build packages for
     Ruby 1.9.1 where appropriate.
 
- -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 06:32:51 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 06:54:17 +0000
 
 xapian-bindings (1.0.19-1) unstable; urgency=low
 

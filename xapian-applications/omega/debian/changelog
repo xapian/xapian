@@ -1,10 +1,10 @@
-xapian-omega (1.1.0-1) unstable; urgency=low
+xapian-omega (1.1.5-1) experimental; urgency=low
 
   * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
     dapper.
   * debian/control.in: Add libpcre3-dev to Build-Depends.
 
- -- Olly Betts <olly@survex.com>  Mon,  1 Dec 2008 04:36:43 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 06:54:34 +0000
 
 xapian-omega (1.0.19-1) unstable; urgency=low
 
