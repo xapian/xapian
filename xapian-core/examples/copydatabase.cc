@@ -1,7 +1,7 @@
 /** @file copydatabase.cc
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,8 +95,8 @@ try {
 	    int width = static_cast<int>(log10(double(dbsize))) + 1;
 
 	    Xapian::doccount c = 0;
-	    Xapian::PostingIterator it = db_in.postlist_begin("");
-	    while (it != db_in.postlist_end("")) {
+	    Xapian::PostingIterator it = db_in.postlist_begin(string());
+	    while (it != db_in.postlist_end(string())) {
 		db_out.add_document(db_in.get_document(*it));
 
 		// Update for the first 10, and then every 13th document
