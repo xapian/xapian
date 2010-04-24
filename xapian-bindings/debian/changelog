@@ -10,7 +10,7 @@ xapian-bindings (1.1.5-1) experimental; urgency=low
     Ruby 1.9.1 where appropriate.
   * debian/rules: Run autoreconf to pick up Debian's patched libtool.
 
- -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 10:41:12 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 12:13:24 +0000
 
 xapian-bindings (1.0.19-1) unstable; urgency=low
 
