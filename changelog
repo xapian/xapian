@@ -1,14 +1,27 @@
-xapian-bindings (1.1.4-1) UNRELEASED; urgency=low
+xapian-bindings (1.1.5-1) UNRELEASED; urgency=low
 
   * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
     dapper.
   * debian/python-xapian.install: The xapian packages are now generated in a
     subdirectory, so update the paths accordingly, and include the .pth file.
+  * debian/rules: Do all building under debian/build so we can clean up with a
+    single call to "rm -rf".
 
- -- Olly Betts <olly@survex.com>  Wed, 27 Jan 2010 23:59:32 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 05:18:25 +0000
 
-xapian-bindings (1.0.17-2) UNRELEASED; urgency=low
+xapian-bindings (1.0.19-1) unstable; urgency=low
 
+  * New upstream release.
+  * debian/rules: Fix clean target to remove python/testsuite.pyc.
+    (Closes: #577094)
+  * debian/rules: Compile with -g - needed for armel to workaround unaligned
+    relocations. (Closes: #576944)
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 14:55:34 +0000
+
+xapian-bindings (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
   * debian/control.in:
     + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
     + Add "Vcs-Browser:" and "Vcs-svn:".
@@ -16,8 +29,9 @@ xapian-bindings (1.0.17-2) UNRELEASED; urgency=low
   * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
   * debian/etc-php-conf.d-xapian.ini: Use ';' for comment instead of '#' as
     PHP 5.3 deprecates the latter.
+  * Register the documentation for each language with doc-base.
 
- -- Olly Betts <olly@survex.com>  Wed, 27 Jan 2010 23:45:32 +0000
+ -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:17:03 +0000
 
 xapian-bindings (1.0.17-1) unstable; urgency=low
 

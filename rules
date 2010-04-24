@@ -65,9 +65,8 @@ endif
 
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
 ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-    confflags += CFLAGS=-O0 CXXFLAGS=-O0
-else
-    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+    # -g needed for armel to workaround unaligned relocations (#576944)
+    confflags += CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
 endif
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -151,26 +150,26 @@ debian/configure-stamp:
 
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    mkdir -p build-$$python; \
-	    cd build-$$python; \
-	    ../configure $(commonconfflags) --with-python \
+	    mkdir -p debian/build/$$python; \
+	    cd debian/build/$$python; \
+	    ../../../configure $(commonconfflags) --with-python \
 		PYTHON=/usr/bin/$$python; \
-	    cd ..; \
+	    cd ../../..; \
 	done
 
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
 		set -e; \
-		mkdir -p build-php$$v; \
-		cd build-php$$v; \
-		../configure $(commonconfflags) --with-php PHP_CONFIG=$$c; \
-		cd ..; \
+		mkdir -p debian/build/php$$v; \
+		cd debian/build/php$$v; \
+		../../../configure $(commonconfflags) --with-php PHP_CONFIG=$$c; \
+		cd ../../..; \
 	    fi \
 	done
 
-	mkdir -p build-tcl-and-ruby
-	cd build-tcl-and-ruby && ../configure $(commonconfflags) \
+	mkdir -p debian/build/tcl-and-ruby
+	cd debian/build/tcl-and-ruby && ../../../configure $(commonconfflags) \
 	    --with-tcl TCLSH=$(TCLSH) TCL_LIB=/usr/lib/tcltk \
 	    --with-ruby RUBY=$(RUBY) RUBY_LIB=$(RUBY_LIB) RUBY_LIB_ARCH=$(RUBY_LIB_ARCH)
 
@@ -181,18 +180,18 @@ debian/build-stamp: configure
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-$$python ; \
-	    $(MAKE_CHECK) -C build-$$python ; \
+	    $(MAKE) -C debian/build/$$python ; \
+	    $(MAKE_CHECK) -C debian/build/$$python ; \
 	done
 	for v in $(PHP_VERSIONS); do \
 	    if test -x /usr/bin/php-config$$v ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v ; \
-		$(MAKE_CHECK) -C build-php$$v ; \
+		$(MAKE) -C debian/build/php$$v ; \
+		$(MAKE_CHECK) -C debian/build/php$$v ; \
 	    fi \
 	done
-	$(MAKE) -C build-tcl-and-ruby
-	$(MAKE_CHECK) -C build-tcl-and-ruby
+	$(MAKE) -C debian/build/tcl-and-ruby
+	$(MAKE_CHECK) -C debian/build/tcl-and-ruby
 	touch $@
 
 install: DH_OPTIONS=
@@ -205,7 +204,7 @@ install: build
 	# Install the files under 'debian/tmp'.
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-$$python DESTDIR=$(CURDIR)/debian/tmp install; \
+	    $(MAKE) -C debian/build/$$python DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
 	# Install xapian.php in /usr/share/php for PHP5 so that it's in the
@@ -221,14 +220,14 @@ install: build
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp \
+		$(MAKE) -C debian/build/php$$v DESTDIR=$(CURDIR)/debian/tmp \
 		    phpincdir=/usr/share/php`echo $$v|tr -d 5` install; \
 		install -d -m 755 debian/tmp/etc/php$$v/conf.d; \
 		install -m 644 debian/etc-php-conf.d-xapian.ini debian/tmp/etc/php$$v/conf.d/xapian.ini; \
 	    fi \
 	done
 
-	$(MAKE) -C build-tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C debian/build/tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
@@ -285,15 +284,7 @@ binary-indep:
 clean:
 	dh_testdir
 	dh_testroot
-	for python in $(PYTHON_VERSIONS); do \
-	    set -e; \
-	    rm -rf build-$$python; \
-	done
-	for v in $(PHP_VERSIONS); do \
-	    set -e; \
-	    rm -rf build-php$$v; \
-	done
-	rm -rf build-tcl-and-ruby
+	rm -rf debian/build
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f debian/build-stamp debian/configure-stamp
