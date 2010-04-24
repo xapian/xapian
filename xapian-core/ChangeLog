@@ -1,3 +1,8 @@
+Sat Apr 24 02:12:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Update --help output for -v to cover all terms
+	  case.
+
 Sat Apr 24 01:58:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Add -a option to list all terms in a database.

@@ -60,7 +60,8 @@ static void show_usage() {
 "                        (or each document in the database if no -r options)\n"
 "  -d                    output document data for each document referred to\n"
 "  -v                    extra info (wdf and len for postlist;\n"
-"                        wdf and termfreq for termlist; number of terms for db)\n"
+"                        wdf and termfreq for termlist; number of terms for db;\n"
+"                        termfreq when showing all terms)\n"
 "      --help            display this help and exit\n"
 "      --version         output version information and exit" << endl;
 }
