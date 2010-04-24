@@ -2,7 +2,7 @@ Source: xapian-core
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev, uuid-dev
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-core
@@ -87,6 +87,7 @@ Description: Basic tools for Xapian search engine library
 Package: xapian-doc
 Architecture: all
 Section: doc
+Depends: ${misc:Depends}
 Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${binary:Version})
 Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed
