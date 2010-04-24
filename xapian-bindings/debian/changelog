@@ -6,8 +6,10 @@ xapian-bindings (1.1.5-1) UNRELEASED; urgency=low
     subdirectory, so update the paths accordingly, and include the .pth file.
   * debian/rules: Do all building under debian/build so we can clean up with a
     single call to "rm -rf".
+  * debian/rules,debian/control.in,debian/control-ruby.in: Build packages for
+    Ruby 1.9.1 where appropriate.
 
- -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 05:18:25 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 06:32:51 +0000
 
 xapian-bindings (1.0.19-1) unstable; urgency=low
 
