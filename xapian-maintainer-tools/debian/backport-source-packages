@@ -27,7 +27,21 @@ set -e
 #MIRROR=http://ftp.de.debian.org/debian/
 MIRROR=http://ftp.nz.debian.org/debian/
 
-VALID_CODENAMES='lenny etch karmic jaunty intrepid hardy dapper'
+DEBIAN_CODENAMES='lenny etch'
+UBUNTU_CODENAMES='lucid karmic jaunty intrepid hardy dapper'
+
+V_OPT=
+case $1 in
+-v)
+  V_OPT="$1 $2"
+  shift
+  shift
+  ;;
+-v*)
+  V_OPT=$1
+  shift
+  ;;
+esac
 
 if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "Usage: $0 SOURCE_PKG VERSION [CODENAME...]"
@@ -35,7 +49,9 @@ if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "e.g.: $0 xapian-core 1.0.13.0-1 jaunty"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
-  echo "Currently, the recognised values are: $VALID_CODENAMES"
+  echo "Currently, the recognised values are:"
+  echo "    $DEBIAN_CODENAMES"
+  echo "    $UBUNTU_CODENAMES"
   exit 0
 fi
 
@@ -49,10 +65,10 @@ VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
 
 # Debian/Ubuntu codename or codenames to build for.
 # This will be overridden by the command line arguments, if any were passed.
-CODENAMES=$VALID_CODENAMES
+CODENAMES="$DEBIAN_CODENAMES $UBUNTU_CODENAMES"
 
 # Options to pass to dpkg-buildpackage when building source packages
-BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
+BUILDPACKAGE_SRC_OPTS="-us -uc -d -S $V_OPT"
 
 # Add entry to changelog if we're backporting.
 adjust_changelog() {
@@ -62,7 +78,12 @@ adjust_changelog() {
     # --force-bad-version needed for backporting, since the "new" version may
     # be less than the "old".  Direct stdin from /dev/null to prevent dch
     # stopping to confirm the bad version is OK.
-    dch --force-bad-version -v "$backport_version" -D "$CODENAME" \
+    if [ 1 = "$ubuntu" ] ; then
+      distribution=$CODENAME
+    else
+      distribution=$CODENAME-backports
+    fi
+    dch --force-bad-version -v "$backport_version" -D "$distribution" \
 	"Rebuild for $CODENAME backports." < /dev/null
   fi
 }
@@ -79,15 +100,15 @@ build_it() {
     echo "$CODENAME" > debian/codename
     # Generates control from control.in (and maybe other files).
     fakeroot debian/rules maintclean maint CODENAME="$CODENAME"
-    if [ hardy != "$CODENAME" ] ; then
-      include_src_opt=-sd
-    fi
-  else
-    if [ dapper != "$CODENAME" ] ; then
-      include_src_opt=-sd
-    fi
   fi
-  debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
+  if [ 1 = "$ubuntu" ] ; then
+    # Ubuntu
+    [ hardy = "$CODENAME" ] || include_src_opt=-sd
+    debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
+  else
+    # Debian
+    DIST="$CODENAME" pdebuild --debbuildopts "$V_OPT $include_src_opt" --buildresult .. -- --override-config --configfile "`pwd`/../../pbuilderrc"
+  fi
 }
 
 # Get the codename(s) specified by the user.
@@ -95,14 +116,19 @@ if [ -n "$*" ] ; then
   CODENAMES=$*
 fi
 
+ubuntu=0
 for CODENAME in $CODENAMES ; do
   # Check that the codename is known.
-  VALID_CODENAMES_RE='\('`echo "$VALID_CODENAMES"|sed 's/ /\\\|/g'`'\)$'
-  if expr "$CODENAME" : "$VALID_CODENAMES_RE" >/dev/null ; then
+  DEBIAN_CODENAMES_RE='\('`echo "$DEBIAN_CODENAMES"|sed 's/ /\\\|/g'`'\)$'
+  UBUNTU_CODENAMES_RE='\('`echo "$UBUNTU_CODENAMES"|sed 's/ /\\\|/g'`'\)$'
+  if expr "$CODENAME" : "$DEBIAN_CODENAMES_RE" >/dev/null ; then
     echo "Making source packages for $CODENAME"
+  elif expr "$CODENAME" : "$UBUNTU_CODENAMES_RE" >/dev/null ; then
+    echo "Making source packages for $CODENAME"
+    ubuntu=1
   else
     echo "Codename \"$CODENAME\" not known."
-    echo "Known codenames are: $VALID_CODENAMES"
+    echo "Known codenames are: $DEBIAN_CODENAMES $UBUNTU_CODENAMES"
     exit 1
   fi
 
