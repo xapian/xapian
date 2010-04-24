@@ -189,8 +189,8 @@ debian/configure-stamp:
 	    ../../../configure $(commonconfflags) --with-ruby \
 		--docdir=/usr/share/doc/xapian-bindings-ruby$$v \
 		RUBY=$$RUBY \
-		RUBY_LIB=$(shell $$RUBY -rrbconfig -e 'puts Config::CONFIG["rubylibdir"]') \
-		RUBY_LIB_ARCH=$(shell $$RUBY -rrbconfig -e 'puts Config::CONFIG["archdir"]'); \
+		RUBY_LIB=`$$RUBY -rrbconfig -e 'puts Config::CONFIG["rubylibdir"]'` \
+		RUBY_LIB_ARCH=`$$RUBY -rrbconfig -e 'puts Config::CONFIG["archdir"]'`; \
 	    cd ../../..; \
 	done
 
