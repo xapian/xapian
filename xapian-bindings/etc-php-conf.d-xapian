@@ -1,0 +1,2 @@
+; Configuration for PHP xapian module
+extension=xapian.so
