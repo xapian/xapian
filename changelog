@@ -1,4 +1,4 @@
-xapian-core (1.1.5-1) UNRELEASED; urgency=low
+xapian-core (1.1.5-1) experimental; urgency=low
 
   * New upstream release.
   * debian/patches/runtest-no-fd-ulimit.patch: Drop patch - upstream now has
@@ -8,6 +8,8 @@ xapian-core (1.1.5-1) UNRELEASED; urgency=low
     + Just use ${binary:Version} - sarge has reached EOL and I'm not intending
       to backport 1.1.x to dapper.
     + Add uuid-dev as a build dependency.
+
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 06:54:02 +0000
 
 xapian-core (1.0.19-1) unstable; urgency=low
 
