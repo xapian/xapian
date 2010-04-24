@@ -46,6 +46,11 @@ BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0
 
 PHP_VERSIONS := 5
 
+ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.), )
+RUBY_VERSIONS := 1.8
+else
+RUBY_VERSIONS := 1.8 1.9.1
+endif
 # We'll need this if we ever generate different .py modules for different
 # supported python versions.
 #export DH_PYCENTRAL=nomove
@@ -105,10 +110,11 @@ BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
 TCLSH=/usr/bin/tclsh
 
 # Build depends for Ruby.
-BUILD_DEPS += ruby1.8-dev, ruby1.8,# NB Trailing ',' required here!
-RUBY=/usr/bin/ruby1.8
-RUBY_LIB=$(shell $(RUBY) -rrbconfig -e 'puts Config::CONFIG["rubylibdir"]')
-RUBY_LIB_ARCH=$(shell $(RUBY) -rrbconfig -e 'puts Config::CONFIG["archdir"]')
+#
+# Only the first % in the replacement part is substituted, so we need to do
+# this in two goes.
+BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%-dev,)
+BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%,)
 
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
@@ -135,6 +141,9 @@ debian/control: debian/rules debian/control.in
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
+	done >> debian/control.tmp
+	for v in $(RUBY_VERSIONS); do \
+	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
 	done >> debian/control.tmp
 	mv debian/control.tmp debian/control
 
@@ -168,10 +177,21 @@ debian/configure-stamp:
 	    fi \
 	done
 
-	mkdir -p debian/build/tcl-and-ruby
-	cd debian/build/tcl-and-ruby && ../../../configure $(commonconfflags) \
-	    --with-tcl TCLSH=$(TCLSH) TCL_LIB=/usr/lib/tcltk \
-	    --with-ruby RUBY=$(RUBY) RUBY_LIB=$(RUBY_LIB) RUBY_LIB_ARCH=$(RUBY_LIB_ARCH)
+	for v in $(RUBY_VERSIONS); do \
+	    set -e; \
+	    mkdir -p debian/build/ruby$$v; \
+	    cd debian/build/ruby$$v; \
+	    RUBY=/usr/bin/ruby$$v; \
+	    ../../../configure $(commonconfflags) --with-ruby \
+		RUBY=$$RUBY \
+		RUBY_LIB=$(shell $$RUBY -rrbconfig -e 'puts Config::CONFIG["rubylibdir"]') \
+		RUBY_LIB_ARCH=$(shell $$RUBY -rrbconfig -e 'puts Config::CONFIG["archdir"]'); \
+	    cd ../../..; \
+	done
+
+	mkdir -p debian/build/tcl
+	cd debian/build/tcl && ../../../configure $(commonconfflags) \
+	    --with-tcl TCLSH=$(TCLSH) TCL_LIB=/usr/lib/tcltk
 
 	touch $@
 
@@ -190,8 +210,13 @@ debian/build-stamp: configure
 		$(MAKE_CHECK) -C debian/build/php$$v ; \
 	    fi \
 	done
-	$(MAKE) -C debian/build/tcl-and-ruby
-	$(MAKE_CHECK) -C debian/build/tcl-and-ruby
+	for v in $(RUBY_VERSIONS); do \
+	    set -e; \
+	    $(MAKE) -C debian/build/ruby$$v ; \
+	    $(MAKE_CHECK) -C debian/build/ruby$$v ; \
+	done
+	$(MAKE) -C debian/build/tcl
+	$(MAKE_CHECK) -C debian/build/tcl
 	touch $@
 
 install: DH_OPTIONS=
@@ -227,7 +252,12 @@ install: build
 	    fi \
 	done
 
-	$(MAKE) -C debian/build/tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
+	for v in $(RUBY_VERSIONS); do \
+	    set -e; \
+	    $(MAKE) -C debian/build/ruby$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+	done
+
+	$(MAKE) -C debian/build/tcl DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
@@ -265,14 +295,17 @@ binary-arch: build install
 	    fi \
 	done
 
+	for v in $(RUBY_VERSIONS); do \
+	    set -e; \
+	    echo "ruby$$v:Depends=libruby$$v" >> debian/libxapian-ruby$$v.substvars \
+	done
+
 	# lenny/hardy onwards have a "tcl" dummy package which pulls in the
 	# package for the current preferred version.  "tclsh" is a virtual
 	# package which the Debian Tcl/Tk Policy recommends we specify as an
 	# alternative if we work with all available Tcl/Tk versions:
 	# http://pkg-tcltk.alioth.debian.org/tcltk-policy.html/ch-module_packages.html
 	echo "tcl:Depends=tcl|tclsh" >> debian/tclxapian.substvars
-
-	echo "ruby:Depends=libruby1.8" >> debian/libxapian-ruby1.8.substvars
 
 	dh_gencontrol
 	dh_md5sums
