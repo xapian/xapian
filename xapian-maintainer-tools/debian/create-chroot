@@ -66,13 +66,13 @@ if test -f "$DCHROOT_CONF" ; then
 fi
 
 case $DISTRO in
-  sid|etch|lenny|squeeze)
+  sid|lenny|squeeze)
     mkdir "$chroot_path"
     mirror=$DEBIAN_MIRROR
     # Need to specify --mirror to allow running on Ubuntu.
     debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$mirror"
     ;;
-  dapper|hardy|intrepid|jaunty)
+  dapper|hardy|intrepid|jaunty|karmic|lucid)
     pkg_for_distros_up_to=intrepid
     pkg=debootstrap_1.0.10_all.deb
     if [ ! -f /usr/share/debootstrap/scripts/$DISTRO ] && \
