@@ -102,8 +102,8 @@ configure-stamp:
 	ln -s /usr/share/misc/config.guess config.guess
 
 	# Configure in a subdirectory, for neatness.
-	mkdir -p build
-	cd build && ../configure $(commonconfflags)
+	mkdir -p debian/build
+	cd debian/build && ../../configure $(commonconfflags)
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -111,8 +111,8 @@ configure-stamp:
 build: build-stamp
 build-stamp: configure
 	dh_testdir
-	$(MAKE) -C build
-	$(MAKE_CHECK) -C build
+	$(MAKE) -C debian/build
+	$(MAKE_CHECK) -C debian/build
 	touch $@
 
 install: DH_OPTIONS=
@@ -123,7 +123,7 @@ install: build
 	dh_installdirs
 
 	# Install the files into debian/tmp.
-	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C debian/build DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Replace omega.conf with one with paths suitable for debian.
 	rm -f debian/tmp/etc/omega.conf
@@ -192,7 +192,7 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	rm -rf build
+	rm -rf debian/build
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp
