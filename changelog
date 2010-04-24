@@ -6,15 +6,23 @@ xapian-omega (1.1.0-1) unstable; urgency=low
 
  -- Olly Betts <olly@survex.com>  Mon,  1 Dec 2008 04:36:43 +0000
 
-xapian-omega (1.0.17-2) UNRELEASED; urgency=low
+xapian-omega (1.0.19-1) unstable; urgency=low
 
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:13:39 +0000
+
+xapian-omega (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
   * debian/control.in:
     + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
     + Add "Vcs-Browser:" and "Vcs-svn:".
     + Standards-Version: 3.8.4 (no changes required).
   * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
+  * Register the documentation with doc-base.
 
- -- Olly Betts <olly@survex.com>  Wed, 27 Jan 2010 23:08:32 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 04 Feb 2010 09:21:01 +0000
 
 xapian-omega (1.0.17-1) unstable; urgency=low
 
