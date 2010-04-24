@@ -8,8 +8,9 @@ xapian-bindings (1.1.5-1) experimental; urgency=low
     single call to "rm -rf".
   * debian/rules,debian/control.in,debian/control-ruby.in: Build packages for
     Ruby 1.9.1 where appropriate.
+  * debian/rules: Run autoreconf to pick up Debian's patched libtool.
 
- -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 06:54:17 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 10:41:12 +0000
 
 xapian-bindings (1.0.19-1) unstable; urgency=low
 
