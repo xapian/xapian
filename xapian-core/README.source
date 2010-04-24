@@ -1,8 +1,0 @@
-This package uses quilt to manage all modifications to the upstreami
-source.  For information on using quilt see:
-
-/usr/share/doc/quilt/README.source
-
-One slightly unusual feature of the packaging is that the build-dependency
-on quilt is only added if there are patches listed in debian/patches/series
-(debian/control is generated from the template debian/control.in).
