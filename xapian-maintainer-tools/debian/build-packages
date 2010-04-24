@@ -43,15 +43,15 @@ rm -f pbuilderrc
 touch pbuilderrc
 PBUILDER_OPTS="--configfile pbuilderrc"
 
-echo ">>> Updating the chroot and removing any old libxapian packages."
-pbuilder update --override-config $PBUILDER_OPTS --removepackages 'libxapian.*'
+echo ">>> Updating pbuilder's buildd environment."
+pbuilder update --override-config $PBUILDER_OPTS
 
-if expr "$PACKAGES" : '.*core' ; then
-  build_package build/xapian-core_*.dsc
-else
-  echo "*** WARNING : Using an already built libxapian package"
-fi
+case $PACKAGES in
+  *core*) build_package build/xapian-core_*.dsc ;;
+  *) echo "*** WARNING : Using an already built libxapian package" ;;
+esac
 
+echo ">>> Creating temporary repo for pbuilder to get libxapian from."
 ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`
 cd build
   dpkg-scanpackages -a "$ARCH" . /dev/null | gzip -9 > Packages.gz
@@ -66,12 +66,12 @@ echo ">>> Updating the chroot to include the temporary repo."
 # FIXME : not sure this is actually required now...
 pbuilder update --override-config $PBUILDER_OPTS --extrapackages python
 
-if expr "$PACKAGES" : '.*bindings' ; then
-  build_package build/xapian-bindings_*.dsc
-fi
+case $PACKAGES in
+  *bindings*) build_package build/xapian-bindings_*.dsc ;;
+esac
 
-if expr "$PACKAGES" : '.*omega' ; then
-  build_package build/xapian-omega_*.dsc
-fi
+case $PACKAGES in
+  *omega*) build_package build/xapian-omega_*.dsc ;;
+esac
 
 lintian $LINTIAN_FLAGS *.dsc build/*.deb
