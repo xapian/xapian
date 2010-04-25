@@ -44,7 +44,9 @@ endif
 # python >= 2.3.5-7 is required for the pyversions command.
 BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0.4.10), python-all-dev,
 
-PHP_VERSIONS := 5
+# Disabled due to incompatibility of GPL and PHP licence.  Uncomment to build
+# your own binary packages (just don't distribute them!)
+# PHP_VERSIONS := 5
 
 ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.), )
 RUBY_VERSIONS := 1.8 1.9.1
