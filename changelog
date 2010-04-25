@@ -1,3 +1,9 @@
+xapian-bindings (1.1.5-2) experimental; urgency=low
+
+  * Fix reversed conditional so we actually build Ruby 1.9.1 packages.
+
+ -- Olly Betts <olly@survex.com>  Sun, 25 Apr 2010 04:19:13 +0000
+
 xapian-bindings (1.1.5-1) experimental; urgency=low
 
   * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu

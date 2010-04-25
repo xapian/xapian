@@ -47,9 +47,9 @@ BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0
 PHP_VERSIONS := 5
 
 ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.), )
-RUBY_VERSIONS := 1.8
-else
 RUBY_VERSIONS := 1.8 1.9.1
+else
+RUBY_VERSIONS := 1.8
 endif
 
 # We'll need this if we ever generate different .py modules for different
