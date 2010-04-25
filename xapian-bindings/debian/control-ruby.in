@@ -2,7 +2,7 @@
 Package: libxapian-ruby@RUBY_VERSION@
 Section: ruby
 Architecture: any
-Depends: ${ruby:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Depends: libruby@RUBY_VERSION@, ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-doc
 Description: Xapian search engine interface for Ruby @RUBY_VERSION@
  This package provides Xapian Ruby bindings built for Ruby @RUBY_VERSION@.
