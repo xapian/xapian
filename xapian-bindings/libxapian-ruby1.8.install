@@ -1,0 +1,3 @@
+usr/lib/ruby/1.8
+usr/share/doc/xapian-bindings-ruby1.8/ruby/* usr/share/doc/libxapian-ruby1.8
+usr/share/doc/xapian-bindings-ruby1.8/ruby/examples/*.rb usr/share/doc/libxapian-ruby1.8/examples
