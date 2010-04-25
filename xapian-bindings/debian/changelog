@@ -9,8 +9,10 @@ xapian-bindings (1.1.5-1) experimental; urgency=low
   * debian/rules,debian/control.in,debian/control-ruby.in: Build packages for
     Ruby 1.9.1 where appropriate.
   * debian/rules: Run autoreconf to pick up Debian's patched libtool.
+  * Drop conflicts on versioned python packages (e.g. python2.4-xapian) as
+    these packages were phased out before etch.
 
- -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 14:35:54 +0000
+ -- Olly Betts <olly@survex.com>  Sun, 25 Apr 2010 01:37:51 +0000
 
 xapian-bindings (1.0.19-1) unstable; urgency=low
 
