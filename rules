@@ -51,6 +51,7 @@ RUBY_VERSIONS := 1.8
 else
 RUBY_VERSIONS := 1.8 1.9.1
 endif
+
 # We'll need this if we ever generate different .py modules for different
 # supported python versions.
 #export DH_PYCENTRAL=nomove
@@ -82,12 +83,6 @@ ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 else
     MAKE_CHECK := make check
 endif
-
-# Python versions which had packages before the Python policy transition.
-PYTHON_OLD_VERSIONS := 2.1 2.2 2.3 2.4
-# For use in Conflicts: and Replaces:
-PYTHON_XAPIAN_TOO_OLD := (<< 0.9.6-3)
-PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian $(PYTHON_XAPIAN_TOO_OLD),)"|sed 's/,$$//')
 
 # Build depends for PHP.  We need phpN-cli so we can run "make check" on
 # the bindings and to get the phpapi version we need to depend on.
@@ -137,7 +132,6 @@ maintclean: clean
 debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
 	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
-	    -e "s/@PYTHON_OLD_PACKAGES@/$(PYTHON_OLD_PACKAGES)/g" \
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
