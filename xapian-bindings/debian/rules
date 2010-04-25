@@ -294,11 +294,6 @@ binary-arch: build install
 	    fi \
 	done
 
-	for v in $(RUBY_VERSIONS); do \
-	    set -e; \
-	    echo "ruby$$v:Depends=libruby$$v" >> debian/libxapian-ruby$$v.substvars; \
-	done
-
 	# lenny/hardy onwards have a "tcl" dummy package which pulls in the
 	# package for the current preferred version.  "tclsh" is a virtual
 	# package which the Debian Tcl/Tk Policy recommends we specify as an
