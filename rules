@@ -296,7 +296,7 @@ binary-arch: build install
 
 	for v in $(RUBY_VERSIONS); do \
 	    set -e; \
-	    echo "ruby$$v:Depends=libruby$$v" >> debian/libxapian-ruby$$v.substvars \
+	    echo "ruby$$v:Depends=libruby$$v" >> debian/libxapian-ruby$$v.substvars; \
 	done
 
 	# lenny/hardy onwards have a "tcl" dummy package which pulls in the
