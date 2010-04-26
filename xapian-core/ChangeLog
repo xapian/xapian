@@ -1,3 +1,16 @@
+Mon Apr 26 11:37:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* common/getopt.cc,common/gnu_getopt.h: Revert previous 2
+	  getopt-related patches.  The latest state was breaking on Solaris
+	  which (contrary to what its man pages say) prototypes getopt() stuff
+	  in stdlib.h.  This seems to be a rabbit hole we don't want to head
+	  further down.
+	* common/getopt.cc,common/gnu_getopt.h: On Cygwin, #include <getopt.h>
+	  for declarations of optind, etc rather than providing our own
+	  declarations.  Should fix warnings in Cygwin build reported by Reini
+	  Urban on xapian-devel list.
+
 Thu Apr 22 05:53:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

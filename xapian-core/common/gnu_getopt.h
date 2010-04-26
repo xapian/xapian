@@ -28,7 +28,7 @@
 #include <ctype.h>
 
 #define GNU_GETOPT_INTERFACE_VERSION 2
-#if defined __GLIBC__ && __GLIBC__ >= 2
+#if 0 //defined __GLIBC__ && __GLIBC__ >= 2
 # include <gnu-versions.h>
 # if _GNU_GETOPT_INTERFACE_VERSION == GNU_GETOPT_INTERFACE_VERSION
 #  define USE_GLIBC_GNUGETOPT
@@ -58,26 +58,17 @@ gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
 
 #else
 
-// POSIX says getopt() and optarg, etc are defined by <unistd.h>.  Some older
-// implementations have them in <stdio.h>.
-#include "safeunistd.h"
-#include <cstdio>
-
-// Put these variables in a namespace and then use macros to divert the
-// unqualified versions to the qualified ones, so we don't end up linking to
-// versions in the C library.
-namespace Xapian {
-namespace Internal {
+#ifdef __CYGWIN__
+// Cygwin has __declspec(dllimport) magic on optarg, etc, so just pull in the
+// header there rather than trying to duplicate that.
+# include <getopt.h>
+#else
+extern "C" {
 extern char *optarg;
 extern int optind;
 extern int opterr;
 extern int optopt;
 }
-}
-#define optarg Xapian::Internal::optarg
-#define optind Xapian::Internal::optind
-#define opterr Xapian::Internal::opterr
-#define optopt Xapian::Internal::optopt
 
 struct option {
     const char *name;
@@ -86,9 +77,10 @@ struct option {
     int val;
 };
 
-#define no_argument		0
-#define required_argument	1
-#define optional_argument	2
+# define no_argument		0
+# define required_argument	1
+# define optional_argument	2
+#endif
 
 // For internal use only.
 int
