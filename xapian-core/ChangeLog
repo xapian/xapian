@@ -1,3 +1,11 @@
+Mon Apr 26 06:27:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: Revert previous 2
+	  getopt-related patches.  The latest state was breaking on Solaris
+	  which (contrary to what its man pages say) prototypes getopt() stuff
+	  in stdlib.h.  This seems to be a rabbit hole we don't want to head
+	  further down.
+
 Sat Apr 24 02:12:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Update --help output for -v to cover all terms

@@ -1,7 +1,7 @@
 /** @file gnu_getopt.h
  * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
  */
-/* Copyright 2004,2009,2010 Olly Betts
+/* Copyright 2004,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,26 +57,12 @@ gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
 
 #else
 
-// POSIX says getopt() and optarg, etc are defined by <unistd.h>.  Some older
-// implementations have them in <stdio.h>.
-#include "safeunistd.h"
-#include <cstdio>
-
-// Put these variables in a namespace and then use macros to divert the
-// unqualified versions to the qualified ones, so we don't end up linking to
-// versions in the C library.
-namespace Xapian {
-namespace Internal {
+extern "C" {
 extern char *optarg;
 extern int optind;
 extern int opterr;
 extern int optopt;
 }
-}
-#define optarg Xapian::Internal::optarg
-#define optind Xapian::Internal::optind
-#define opterr Xapian::Internal::opterr
-#define optopt Xapian::Internal::optopt
 
 struct option {
     const char *name;

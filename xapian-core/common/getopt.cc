@@ -4,7 +4,6 @@
    before changing it!
 
    Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
-   Copyright (C) 2010 Olly Betts
 	Free Software Foundation, Inc.
    Copyright (C) 2004,2009 Olly Betts (reworked to allow compilation as C++)
 
