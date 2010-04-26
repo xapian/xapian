@@ -1,3 +1,10 @@
+Mon Apr 26 08:26:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: On Cygwin, #include <getopt.h>
+	  for declarations of optind, etc rather than providing our own
+	  declarations.  Should fix warnings in Cygwin build reported by Reini
+	  Urban on xapian-devel list.
+
 Mon Apr 26 06:27:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/getopt.cc,common/gnu_getopt.h: Revert previous 2
