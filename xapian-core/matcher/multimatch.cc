@@ -913,7 +913,7 @@ new_greatest_weight:
 	Assert(percent_cutoff || docs_matched == items.size());
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
-    } else if (docs_matched + duplicates_found < check_at_least) {
+    } else if (collapse_key == Xapian::BAD_VALUENO && docs_matched < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
 	DEBUGLINE(MATCH, "Setting bounds equal");
