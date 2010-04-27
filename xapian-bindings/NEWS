@@ -1,22 +1,4 @@
- 14347       olly Wed Apr 21 03:16:56 GMT 2010  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.20 (2010-0?-??):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Guile:
-
-Java:
-
-PHP:
+Xapian-bindings 1.0.20 (2010-04-27):
 
 Python:
 
@@ -28,8 +10,6 @@ Python:
 Ruby:
 
 * configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
-
-Tcl:
 
 Xapian-bindings 1.0.19 (2010-04-15):
 
