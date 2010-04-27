@@ -1,3 +1,8 @@
+Tue Apr 27 12:08:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: Fix getopt backport to remove
+	  two changes added for testing.
+
 Mon Apr 26 13:40:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

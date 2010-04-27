@@ -28,7 +28,7 @@
 #include <ctype.h>
 
 #define GNU_GETOPT_INTERFACE_VERSION 2
-#if 0 //defined __GLIBC__ && __GLIBC__ >= 2
+#if defined __GLIBC__ && __GLIBC__ >= 2
 # include <gnu-versions.h>
 # if _GNU_GETOPT_INTERFACE_VERSION == GNU_GETOPT_INTERFACE_VERSION
 #  define USE_GLIBC_GNUGETOPT
