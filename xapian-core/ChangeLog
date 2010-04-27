@@ -1,3 +1,10 @@
+Tue Apr 27 12:09:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* examples/delve.cc: Add -a option to list all terms in a database.
+	* examples/delve.cc: Update --help output for -v to cover all terms
+	  case.
+
 Tue Apr 27 12:08:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/getopt.cc,common/gnu_getopt.h: Fix getopt backport to remove
