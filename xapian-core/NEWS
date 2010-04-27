@@ -1,37 +1,14 @@
- 14427       olly Tue Apr 27 12:09:04 GMT 2010  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.20 (2010-0?-??):
-
+Xapian-core 1.0.20 (2010-04-27):
 
 API:
-
-
-testsuite:
-
-
-matcher:
 
 * MSet: Fix incorrect values reported by get_matches_estimated(),
   get_matches_lower_bound(), and get_matches_upper_bound() in certain cases
   when sorting and collapsing (ticket#464).
 
-flint backend:
-
-
-quartz backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-build system:
-
-
 documentation:
 
-* deprecation.html: Note how to disable deprecation warnings.
+* deprecation.html: Note how to disable deprecation warnings. (ticket#393)
 
 examples:
 
@@ -44,13 +21,7 @@ portability:
 
 * The getopt warning fix for Cygwin in 1.0.19 caused build failures on Mac OS X
   (and probably some other platforms with non-GNU getopt implementations), so
-  replace with a fix which is only enabled for Cygwin.
-
-packaging:
-
-
-debug code:
-
+  replace with a fix which is only enabled for Cygwin. (ticket#469)
 
 Xapian-core 1.0.19 (2010-04-15):
 
