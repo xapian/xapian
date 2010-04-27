@@ -1,8 +1,15 @@
+Omega 1.0.20 (2010-04-27):
+
+portability:
+
+* Fix build failure on Mac OS X and possibly some other platforms (regression
+  caused by fix for getopt-related warnings on Cygwin in 1.0.19).
+
 Omega 1.0.19 (2010-04-15):
 
 portability:
 
-* Fix getopt-related warning on Cygwin.
+* Fix getopt-related warnings on Cygwin.
 
 Omega 1.0.18 (2010-02-14):
 
