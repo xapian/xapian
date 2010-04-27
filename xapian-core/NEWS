@@ -1,4 +1,4 @@
- 14340       olly Tue Apr 20 15:20:09 GMT 2010  Olly Betts <olly@survex.com>
+ 14427       olly Tue Apr 27 12:09:04 GMT 2010  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.20 (2010-0?-??):
 
@@ -26,7 +26,6 @@ remote backend:
 
 inmemory backend:
 
-
 build system:
 
 
@@ -36,13 +35,16 @@ documentation:
 
 examples:
 
+* delve: Add -a option to list all terms in a database.
+
 * delve: -d and -V command line options now report out of range and invalid
   numbers.
 
 portability:
 
-* Fix getopt code to work on platforms without GNU getopt but with getopt().
-  (Regression introduced in 1.0.19).
+* The getopt warning fix for Cygwin in 1.0.19 caused build failures on Mac OS X
+  (and probably some other platforms with non-GNU getopt implementations), so
+  replace with a fix which is only enabled for Cygwin.
 
 packaging:
 
