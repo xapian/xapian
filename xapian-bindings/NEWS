@@ -1,3 +1,36 @@
+ 14347       olly Wed Apr 21 03:16:56 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.0.20 (2010-0?-??):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Guile:
+
+Java:
+
+PHP:
+
+Python:
+
+* Set PYTHONDONTWRITEBYTECODE=1 in the environment to prevent Python from
+  generating .pyc files in srcdir for Python >= 2.6, and use a Bourne shell
+  trap to delete them after running tests for older versions of Python.
+  (ticket#315)
+
+Ruby:
+
+* configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
+
+Tcl:
+
 Xapian-bindings 1.0.19 (2010-04-15):
 
 Tcl:
@@ -72,7 +105,7 @@ Packaging:
 
 * xapian-bindings.spec: Update C# packaging for rename of XapianSharp.so to
   _XapianSharp.so in 1.0.11.
-  
+
 * xapian-bindings.spec: Update Tcl8 packaging for where we now install the
   bindings since 1.0.6.
 
@@ -365,7 +398,7 @@ Portability:
 
 PHP:
 
-* Update to newer SWIG SVN snapshot to fix memory leaks in wrapped constructors 
+* Update to newer SWIG SVN snapshot to fix memory leaks in wrapped constructors
   and methods/functions which return a wrapped class.
 
 * For PHP4, wrap Xapian::sortable_serialise() as xapian_sortable_serialise()
@@ -388,7 +421,7 @@ Python:
 
 * Update the examples to use the new-style attributes to access MSet item
   values rather than the old-style MSET_* constants.
-  
+
 * Document MSET_DOCUMENT.
 
 Ruby:
