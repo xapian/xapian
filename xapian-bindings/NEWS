@@ -178,6 +178,19 @@ Python:
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
 
+Xapian-bindings 1.0.20 (2010-04-27):
+
+Python:
+
+* Set PYTHONDONTWRITEBYTECODE=1 in the environment to prevent Python from
+  generating .pyc files in srcdir for Python >= 2.6, and use a Bourne shell
+  trap to delete them after running tests for older versions of Python.
+  (ticket#315)
+
+Ruby:
+
+* configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
+
 Xapian-bindings 1.0.19 (2010-04-15):
 
 Tcl:

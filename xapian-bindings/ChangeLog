@@ -1,3 +1,7 @@
+Wed Apr 28 10:43:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.20.
+
 Wed Apr 28 10:41:45 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Tell libtool not to link in deplibs on platforms where
