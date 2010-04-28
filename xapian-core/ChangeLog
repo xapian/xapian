@@ -1,3 +1,8 @@
+Wed Apr 28 12:05:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,m4-macros/xapian-1.1.m4: Remove -1.1 suffix from
+	  xapian-1.1.m4 and libxapian-1.1.la.
+
 Wed Apr 28 06:15:45 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.20.
