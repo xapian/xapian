@@ -1,9 +1,10 @@
 xapian-bindings (1.0.20-1) unstable; urgency=low
 
+  * New upstream release.
   * Drop conflicts on versioned python packages (e.g. python2.4-xapian) as
     these packages were phased out before etch.
 
- -- Olly Betts <olly@survex.com>  Sun, 25 Apr 2010 09:05:17 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 28 Apr 2010 02:20:52 +0000
 
 xapian-bindings (1.0.19-1) unstable; urgency=low
 
