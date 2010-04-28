@@ -1,3 +1,11 @@
+Wed Apr 28 10:41:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tell libtool not to link in deplibs on platforms where
+	  we know they aren't needed.
+	* configure.ac: On Linux, extract the library search path from ldconfig
+	  which gives us the default entries reliably.
+	* NEWS,configure.ac: 1.2.0.
+
 Wed Apr 21 03:09:49 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo so path to ruby is reported in Ruby < 1.8 is
