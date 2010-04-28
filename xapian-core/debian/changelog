@@ -1,10 +1,10 @@
-xapian-core (1.0.20-1) UNRELEASED; urgency=low
+xapian-core (1.0.20-1) unstable; urgency=low
 
   * New upstream release.
   * debian/control.in: Update "Suggests" of -dbg package (libgcc2-dbg removed;
     libstdc++6-4.4-dbg added).
 
- -- Olly Betts <olly@survex.com>  Sun, 25 Apr 2010 05:07:07 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 28 Apr 2010 02:19:21 +0000
 
 xapian-core (1.0.19-1) unstable; urgency=low
 
