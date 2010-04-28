@@ -1,3 +1,15 @@
+Omega 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+build system:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
 Omega 1.1.5 (2010-04-15):
 
 This release includes all changes from 1.0.19 which are relevant.
