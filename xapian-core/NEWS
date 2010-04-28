@@ -1,3 +1,13 @@
+Xapian-core 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+testsuite:
+
+* Fix --abort-on-error to actually work.
+
+* Exit with status 1 not 0 if we caught an exception from the harness itself.
+
 Xapian-core 1.1.5 (2010-04-16):
 
 This release includes all changes from 1.0.19 which are relevant.
@@ -766,6 +776,31 @@ debug code:
 * Faster integer to string functions inside the library (this is a general
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
+
+Xapian-core 1.0.20 (2010-04-27):
+
+API:
+
+* MSet: Fix incorrect values reported by get_matches_estimated(),
+  get_matches_lower_bound(), and get_matches_upper_bound() in certain cases
+  when sorting and collapsing (ticket#464).
+
+documentation:
+
+* deprecation.html: Note how to disable deprecation warnings. (ticket#393)
+
+examples:
+
+* delve: Add -a option to list all terms in a database.
+
+* delve: -d and -V command line options now report out of range and invalid
+  numbers.
+
+portability:
+
+* The getopt warning fix for Cygwin in 1.0.19 caused build failures on Mac OS X
+  (and probably some other platforms with non-GNU getopt implementations), so
+  replace with a fix which is only enabled for Cygwin. (ticket#469)
 
 Xapian-core 1.0.19 (2010-04-15):
 
