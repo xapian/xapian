@@ -1,0 +1,12 @@
+Document: xapian-apidocs
+Title: API documentation for Xapian
+Abstract: This manual describes the native C++ API of the Xapian
+ search engine library.
+Section: Programming/C++
+
+Format: PDF
+Files: /usr/share/doc/xapian-doc/apidoc.pdf*
+
+Format: HTML
+Index: /usr/share/doc/xapian-doc/apidoc/html/index.html
+Files: /usr/share/doc/xapian-doc/apidoc/html/*.html
