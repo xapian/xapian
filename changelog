@@ -1,3 +1,11 @@
+xapian-bindings (1.2.0-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/php5-xapian.postinst: Drop support for upgrading from version in
+    etch.
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:45:30 +0000
+
 xapian-bindings (1.1.5-2) experimental; urgency=low
 
   * debian/rules:
