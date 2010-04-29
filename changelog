@@ -1,5 +1,13 @@
+xapian-omega (1.2.0-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:40:41 +0000
+
 xapian-omega (1.1.5-1) experimental; urgency=low
 
+  * New upstream release:
+    + omindex now avoids reindexing unchanged files. (Closes: #569900)
   * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
     dapper.
   * debian/control.in: Add libpcre3-dev to Build-Depends.
