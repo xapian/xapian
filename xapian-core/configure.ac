@@ -41,8 +41,8 @@ dnl Disabled for stable release series.
 dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
 dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
 
-dnl Where xapian.h, etc go.
-incdir=$includedir/xapian
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
+incdir=$includedir
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with

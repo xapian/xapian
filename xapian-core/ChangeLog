@@ -1,3 +1,9 @@
+Thu Apr 29 12:11:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Install headers under PREFIX/include not
+	  PREFIX/include/xapian.  This broke compiling code which didn't use
+	  XO_LIB_XAPIAN or xapian-config.
+
 Wed Apr 28 12:05:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian-1.1.m4: Remove -1.1 suffix from
