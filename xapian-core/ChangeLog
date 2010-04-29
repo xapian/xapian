@@ -1,3 +1,8 @@
+Thu Apr 29 23:46:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
+	  using it as it isn't available everywhere.  Fixes FTBFS on GNU Hurd.
+
 Thu Apr 29 12:11:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Install headers under PREFIX/include not
