@@ -1,11 +1,10 @@
-xapian-core (1.1.5-2) experimental; urgency=low
+xapian-core (1.2.0-1) experimental; urgency=low
 
+  * New upstream release.
   * debian/control.in: Update "Suggests" of -dbg package (libgcc2-dbg and
     libstdc++6-4.0-dbg removed; libstdc++6-4.4-dbg added).
-  * Add patch xapian-config-deplibs.patch to avoid explicit linking with
-    library dependencies of libxapian.
 
- -- Olly Betts <olly@survex.com>  Mon, 26 Apr 2010 02:27:35 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:33:26 +0000
 
 xapian-core (1.1.5-1) experimental; urgency=low
 
