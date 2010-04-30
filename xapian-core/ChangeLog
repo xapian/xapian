@@ -1,3 +1,14 @@
+Fri Apr 30 12:33:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc,tests/api_replicate.cc:
+	  If a DB file doesn't exist when applying a changeset, try
+	  creating it - this happens with lazy tables which aren't created
+	  in the initial revision copied.  Add replicate4 test to check
+	  that this works correctly with a lazily created position table.
+	  Fixes ticket #468.
+
 Fri Apr 30 07:09:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Replication and PostingSource aren't
