@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -29,7 +29,6 @@
 #include "brass_database.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
@@ -51,6 +50,7 @@
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
+#include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
 #include "stringutils.h"
@@ -1116,10 +1116,11 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 
 		inverter.add_posting(did, tname, wdf);
 
-		if (term.positionlist_begin() != term.positionlist_end()) {
+		PositionIterator pos = term.positionlist_begin();
+		if (pos != term.positionlist_end()) {
 		    position_table.set_positionlist(
 			did, tname,
-			term.positionlist_begin(), term.positionlist_end());
+			pos, term.positionlist_end(), false);
 		}
 	    }
 	}
@@ -1214,44 +1215,6 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
     }
 }
 
-/** Compare the positionlists for a term iterator and a termlist.
- *
- *  @return true if they're equal, false otherwise.
- */
-static bool positionlists_equal(Xapian::TermIterator & termiter,
-				BrassTermList & termlist)
-{
-    if (termiter.positionlist_count() != termlist.positionlist_count())
-	return false;
-
-    return equal(termiter.positionlist_begin(),
-		 termiter.positionlist_end(),
-		 termlist.positionlist_begin());
-}
-
-/** Set the positionlist from the current entry in a term iterator.
- *
- *  @param position_table The positionlist table.
- *  @param did The document id to set the entry for.
- *  @param term The term iterator to read the new position list from.
- *
- *  If the new position list is empty, this will remove any existing
- *  position list for the term.
- */
-static void set_positionlist(BrassPositionListTable & position_table,
-			     Xapian::docid did,
-			     Xapian::TermIterator & term)
-{
-    PositionIterator it = term.positionlist_begin();
-    PositionIterator it_end = term.positionlist_end();
-    if (it != it_end) {
-	position_table.set_positionlist(did, *term, it, it_end);
-    } else {
-	position_table.delete_positionlist(did, *term);
-    }
-}
-
-
 void
 BrassWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
@@ -1313,16 +1276,17 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	    termlist.next();
 	    while (!termlist.at_end() || term != document.termlist_end()) {
 		int cmp;
-		if (!termlist.at_end() && term != document.termlist_end()) {
-		    old_tname = termlist.get_termname();
-		    new_tname = *term;
-		    cmp = old_tname.compare(new_tname);
-		} else if (termlist.at_end()) {
+		if (termlist.at_end()) {
 		    cmp = 1;
 		    new_tname = *term;
 		} else {
-		    cmp = -1;
 		    old_tname = termlist.get_termname();
+		    if (term != document.termlist_end()) {
+			new_tname = *term;
+			cmp = old_tname.compare(new_tname);
+		    } else {
+			cmp = -1;
+		    }
 		}
 
 		if (cmp < 0) {
@@ -1340,20 +1304,36 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
-		    set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(
+			    did, new_tname,
+			    pos, term.positionlist_end(), false);
+		    }
 		    ++term;
 		} else if (cmp == 0) {
 		    // Term already exists: look for wdf and positionlist changes.
 		    termcount old_wdf = termlist.get_wdf();
 		    termcount new_wdf = term.get_wdf();
+
+		    // Check the stats even if wdf hasn't changed, because if
+		    // this is the only document, the stats will have been
+		    // zeroed.
+		    stats.check_wdf(new_wdf);
+
 		    if (old_wdf != new_wdf) {
 		    	new_doclen += new_wdf - old_wdf;
-			stats.check_wdf(new_wdf);
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 
-		    if (!positionlists_equal(term, termlist))
-			set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(did, new_tname, pos,
+							term.positionlist_end(),
+							true);
+		    } else {
+			position_table.delete_positionlist(did, new_tname);
+		    }
 
 		    ++term;
 		    termlist.next();

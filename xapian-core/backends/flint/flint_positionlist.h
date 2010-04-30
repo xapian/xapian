@@ -1,6 +1,6 @@
 /* flint_positionlist.h: A position list in a flint database.
  *
- * Copyright (C) 2005,2006,2008 Olly Betts
+ * Copyright (C) 2005,2006,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,10 +49,15 @@ class FlintPositionListTable : public FlintTable {
     FlintPositionListTable(const string & dbdir, bool readonly)
 	: FlintTable("position", dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
 
-    /// Set the position list for term tname in document did.
+    /** Set the position list for term tname in document did.
+     *
+     *  @param check_for_update If true, check if the new list is the same as
+     *				the existing list (if there is one).
+     */
     void set_positionlist(Xapian::docid did, const string & tname,
 			  Xapian::PositionIterator pos,
-			  const Xapian::PositionIterator &pos_end);
+			  const Xapian::PositionIterator &pos_end,
+			  bool check_for_update);
 
     /// Delete the position list for term tname in document did.
     void delete_positionlist(Xapian::docid did, const string & tname) {

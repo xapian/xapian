@@ -4,6 +4,177 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Wed Apr 28 10:43:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.20.
+
+Wed Apr 28 10:41:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tell libtool not to link in deplibs on platforms where
+	  we know they aren't needed.
+	* configure.ac: On Linux, extract the library search path from ldconfig
+	  which gives us the default entries reliably.
+	* NEWS,configure.ac: 1.2.0.
+
+Wed Apr 21 03:09:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo so path to ruby is reported in Ruby < 1.8 is
+	  found.
+
+Tue Apr 20 11:57:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Set a sh trap to clean up any .pyc files created
+	  by running a testsuite program.  Remove *.pyc (not just
+	  testsuite.pyc) on "make clean".
+
+Tue Apr 20 11:06:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Set PYTHONDONTWRITEBYTECODE=1 in the environment
+	  to prevent generating .pyc files in srcdir for Python >= 2.6.  Partly
+	  addresses ticket#315.
+
+Thu Apr 15 04:36:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.5.
+
+Wed Mar 03 06:25:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/index.html: Document WritableDatabase's close method as
+	  a way to sidestep the whole destructor issue.  (ticket#62)
+	  Improve wording in a few places.
+
+Mon Feb 15 14:01:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.4.
+
+Mon Feb 15 13:46:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo in 1.1.3 NEWS.  Add missing note that 1.1.3
+	  includes all relevant changes from 1.0.15-1.0.17.  Add note that
+	  1.1.4 includes all relevant changes from 1.0.18.
+
+Mon Feb 15 13:17:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.0.18.
+
+Mon Feb 15 12:17:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/util.i: Remove (C) header since the code it was added for was
+	  reverted.
+
+Fri Feb 05 11:42:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,php/smoketest.php,php/util.i,python/extra.i,
+	  python/pythontest2.py,python/util.i: Update to match the removal
+	  of ValueCountMatchSpy from core.
+
+Wed Feb 03 17:52:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian.i: Add wrappers for Database::get_doclength_lower_bound(),
+	  Database::get_doclength_upper_bound(),
+	  Database::get_wdf_upper_bound() for all languages.  Also, expose
+	  the skip_to() and check() methods on ValueIterator, and expose
+	  Database::valuestream_begin() and Database::valuestream_end().
+	  Fixes ticket #431.
+	* python/: Add ValueStreamItem and ValueStreamIter to wrap the
+	  iterators returned from the valuestream methods.  Wrap and
+	  replace the C++ valuestream_begin() and valuestream_end() methods
+	  with a Database.valuestream() method which returns a
+	  ValueStreamIter.  Add a test for this (test_valuestream_iter()).
+	* ruby/: Add safe wrapper for the valuestream iterator, add a
+	  "docid" member to the Value wrapper for ValueIterator, and add a
+	  test for this.
+
+Wed Feb 03 15:17:27 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Wrap and test
+	  ValueCountMatchSpy::values_begin() and values_end() for ruby.
+
+Wed Feb 03 15:11:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/docs/index.html: Document ValueCountMatchSpy.values() and
+	  top_values().
+
+Wed Feb 03 15:09:09 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i,python/pythontest2.py: Wrap the
+	  ValueCountMatchSpy::values_begin() and values_end() methods as a
+	  values() pythonic iterator.
+
+Wed Feb 03 13:37:22 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/util.i: Remove unused typemap pair which was used for
+	  wrapping the old ValueCountMatchSpy::get_top_values() method.
+
+Wed Feb 03 13:22:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  ruby/smoketest.rb,ruby/util.i,ruby/xapian.rb: Update to add
+	  support and tests for the new TermIterator-based
+	  ValueCountMatchSpy::top_values methods.  Also for the removal of
+	  StringAndFrequency from the API.
+
+Tue Feb 02 15:28:28 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: Comment out replicationtest by default again;
+	  it's still not reliable.
+
+Tue Feb 02 15:22:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am: Remove one more reference to NumericRange
+	  which slipped through the net.
+
+Tue Feb 02 15:18:57 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,xapian.i:
+	  Remove NumericRanges from trunk - their API is still uncertain,
+	  so I want to do a bit more development work on them on the
+	  matchspy branch before committing to support them for several
+	  years.
+
+Tue Feb 02 14:05:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: replicationtest.py should be working now, so
+	  re-enable it.  If it still fails occasionally, I'd like to
+	  investigate why; it works for me.
+
+Tue Feb 02 14:03:26 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/replicationtest2.py: Fix the replication test to work; was
+	  broken by the change to chert as the default database format.
+	  The tests needs to fiddle with the database's uuid to simulate
+	  various situations, so now needs to fiddle with the iamchert file
+	  instead of the uuid file.
+
+Tue Feb 02 13:52:17 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian-head.i: Remove <xapian/replication.h> include which I'd
+	  missed.
+
+Tue Feb 02 13:02:00 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapian.i: Remove the replication API from the bindings.  Access
+	  to replication, for now, is via the command-line scripts: this is
+	  similiar to the access to running a remote database server, and
+	  the access to database compaction and checking.  See ticket #347
+	  for some commentary.
+
+Tue Feb 02 12:56:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* php/smoketest.php,php/util.i,python/extra.i,python/pythontest2.py:
+	  Add copyright lines missed from the previous two commits.
+
+Tue Feb 02 12:37:55 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* php/smoketest.php,php/util.i: Add typemap to convert the output
+	  for ValueCountMatchSpy::get_values() to an array, and test for it.
+	  Fixes #216.
+
+Tue Feb 02 11:46:59 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i,python/pythontest2.py: Fix bug in
+	  Enquire.clear_matchspies(), and add regression test.
+
 Tue Dec 22 23:09:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/docs/generate-rdoc-stubs,

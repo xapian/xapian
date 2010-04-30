@@ -1,7 +1,154 @@
-trunk only:
+xapian-bindings (1.2.0-1) experimental; urgency=low
 
+  * New upstream release.
+  * debian/php5-xapian.postinst: Drop support for upgrading from version in
+    etch.
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:45:30 +0000
+
+xapian-bindings (1.1.5-2) experimental; urgency=low
+
+  * debian/rules:
+    + Fix reversed conditional so we actually build Ruby 1.9.1 packages.
+    + Drop php5-xapian packages due to licence incompatibility.
+      (Closes: #513796)
+  * debian/control.in: Add missing build-dependencies: autoconf, automake-1.10,
+    and libtool.
+
+ -- Olly Betts <olly@survex.com>  Sun, 25 Apr 2010 06:56:27 +0000
+
+xapian-bindings (1.1.5-1) experimental; urgency=low
+
+  * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
+    dapper.
   * debian/python-xapian.install: The xapian packages are now generated in a
     subdirectory, so update the paths accordingly, and include the .pth file.
+  * debian/rules: Do all building under debian/build so we can clean up with a
+    single call to "rm -rf".
+  * debian/rules,debian/control.in,debian/control-ruby.in: Build packages for
+    Ruby 1.9.1 where appropriate.
+  * debian/rules: Run autoreconf to pick up Debian's patched libtool.
+  * Drop conflicts on versioned python packages (e.g. python2.4-xapian) as
+    these packages were phased out before etch.
+
+ -- Olly Betts <olly@survex.com>  Sun, 25 Apr 2010 01:37:51 +0000
+
+xapian-bindings (1.0.19-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Fix clean target to remove python/testsuite.pyc.
+    (Closes: #577094)
+  * debian/rules: Compile with -g - needed for armel to workaround unaligned
+    relocations. (Closes: #576944)
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 14:55:34 +0000
+
+xapian-bindings (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in:
+    + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
+    + Add "Vcs-Browser:" and "Vcs-svn:".
+    + Standards-Version: 3.8.4 (no changes required).
+  * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
+  * debian/etc-php-conf.d-xapian.ini: Use ';' for comment instead of '#' as
+    PHP 5.3 deprecates the latter.
+  * Register the documentation for each language with doc-base.
+
+ -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:17:03 +0000
+
+xapian-bindings (1.0.17-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Nov 2009 04:13:17 +0000
+
+xapian-bindings (1.0.16-2) unstable; urgency=low
+
+  * Fix non-POSIX use of ".", fixing regression introduced in 1.0.15.
+    (Closes: #546635)
+
+ -- Olly Betts <olly@survex.com>  Tue, 15 Sep 2009 09:21:08 +0000
+
+xapian-bindings (1.0.16-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Sat, 12 Sep 2009 14:19:16 +0100
+
+xapian-bindings (1.0.15-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fix typo in package descriptions.
+  * debian/control.in: Standards-Version: 3.8.3 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 02:01:39 +0000
+
+xapian-bindings (1.0.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.8.2 (no changes required).
+  * debian/control.in: Drop the "www." from the homepage URL for consistency
+    with upstream use.
+  * debian/rules: Enable php5 bindings for hurd-i386 as php5 has now built
+    there.
+  * debian/rules: Include DH_PYCENTRAL=include-links change from Ubuntu - this
+    means that the package is immediately useful when installed or upgraded.
+    The downside is that the package needs a rebuild when the list of Python
+    versions changes, but that's much less frequent than new Xapian packages.
+  * debian/control.in: Update required debhelper version for Debian sarge and
+    Ubuntu dapper.
+
+ -- Olly Betts <olly@survex.com>  Thu, 30 Jul 2009 03:45:53 +0100
+
+xapian-bindings (1.0.13-1) unstable; urgency=low
+
+  * New upstream release.
+    + Fixes deadlocks due to bugs in mod_python. (Closes: #442006)
+  * debian/rules: Don't allow CODENAME to be set in the environment.
+  * Relicense the Debian packaging under the MIT/X licence.
+
+ -- Olly Betts <olly@survex.com>  Sat, 20 Jun 2009 13:31:06 +0100
+
+xapian-bindings (1.0.12-2) unstable; urgency=low
+
+  * debian/copyright: Update for 2009 (and 2008 for the code in java/).
+    /usr/share/common-licenses/GPL -> /usr/share/licenses/GPL-2 since the
+    former is now a symlink to GPL-3 and Xapian is GPL v2 or later.
+  * debian/python-xapian.install: Look for files to install in "*-packages"
+    instead of "site-packages" as Ubuntu jaunty's Python 2.6 installs packaged
+    extensions in dist-packages instead.
+
+ -- Olly Betts <olly@survex.com>  Sun,  3 May 2009 10:56:17 +0100
+
+xapian-bindings (1.0.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.8.1 (no changes required).
+  * debian/control.in,debian/control-php.in: Update sections of php5-xapian
+    and libxapian-ruby1.8.
+  * debian/compat: Increase from 4 to 5 since 4 is now deprecated in sid and
+    5 is supported by all currently supported Debian and Ubuntu releases.
+
+ -- Olly Betts <olly@survex.com>  Wed, 22 Apr 2009 05:42:53 +0100
+
+xapian-bindings (1.0.10-1) unstable; urgency=low
+
+  * ACK NMU - thanks Chris!
+    - Bug #506090 fixed upstream in 1.0.10 so NMU patch no longer required.
+  * New upstream release.
+  * debian/control.in: Add "DM-Upload-Allowed: yes" since I'm now a Debian
+    Maintainer.
+
+ -- Olly Betts <olly@survex.com>  Tue, 23 Dec 2008 07:32:55 +0000
+
+xapian-bindings (1.0.7-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix FTBFS when built twice in a row by cleaning python/testsuite.pyc in
+    clean target. (Closes: #506090)
+
+ -- Chris Lamb <lamby@debian.org>  Tue, 18 Nov 2008 19:32:24 +0000
 
 xapian-bindings (1.0.7-3) unstable; urgency=low
 

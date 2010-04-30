@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -340,7 +340,7 @@ Term::get_query() const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    Database db = state_->get_database();
+    const Database & db = state_->get_database();
     vector<Query> subqs;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
@@ -359,7 +359,7 @@ Term::as_wildcarded_query(State * state_) const
 Query *
 Term::as_partial_query(State * state_) const
 {
-    Database db = state_->get_database();
+    const Database & db = state_->get_database();
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
     list<string>::const_iterator piter;
@@ -409,9 +409,14 @@ should_stem(const string & term)
     return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
 
+/** Value representing "ignore this" when returned by check_infix() or
+ *  check_infix_digit().
+ */
+const unsigned UNICODE_IGNORE(-1);
+
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
-	// Unicode includes all these except '&' in it's word boundary rules,
+	// Unicode includes all these except '&' in its word boundary rules,
 	// as well as 0x2019 (which we handle below) and ':' (for Swedish
 	// apparently, but we ignore this for now as it's problematic in
 	// real world cases).
@@ -420,6 +425,8 @@ inline unsigned check_infix(unsigned ch) {
     // 0x2019 is Unicode apostrophe and single closing quote.
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
+    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+	return UNICODE_IGNORE;
     return 0;
 }
 
@@ -439,6 +446,8 @@ inline unsigned check_infix_digit(unsigned ch) {
 	case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
 	    return ch;
     }
+    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+	return UNICODE_IGNORE;
     return 0;
 }
 
@@ -505,13 +514,14 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 		++p;
 		if (p == end || !is_wordchar(*p)) break;
 		unsigned nextch = *p;
-		if (is_digit(prevch) &&
-		    is_digit(nextch)) {
+		if (is_digit(prevch) && is_digit(nextch)) {
 		    ch = check_infix_digit(ch);
 		} else {
 		    ch = check_infix(ch);
 		}
 		if (!ch) break;
+		if (ch == UNICODE_IGNORE)
+		    continue;
 	    }
 	    Unicode::append_utf8(term, ch);
 	    prevch = ch;
@@ -550,12 +560,19 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     return term;
 }
 
+class ParserHandler {
+    yyParser * parser;
+
+  public:
+    explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
+    operator yyParser*() { return parser; }
+    ~ParserHandler() { ParseFree(parser); }
+};
+
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    yyParser * pParser = ParseAlloc();
-
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
     value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
@@ -586,6 +603,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 	// We always have the current prefix on the top of the stack.
 	prefix_stack.push_back(default_prefixinfo);
     }
+
+    ParserHandler pParser(ParseAlloc());
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -700,7 +719,15 @@ just_had_synonym_operator:
 		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_LOVEHATE)) {
-		    Parse(pParser, (ch == '+' ? LOVE : HATE), NULL, &state);
+		    int token;
+		    if (ch == '+') {
+			token = LOVE;
+		    } else if (last_was_operator) {
+			token = HATE_AFTER_AND;
+		    } else {
+			token = HATE;
+		    }
+		    Parse(pParser, token, NULL, &state);
 		    goto just_had_operator;
 		}
 		// Need to prevent the term after a LOVE or HATE starting a
@@ -788,14 +815,27 @@ just_had_synonym_operator:
 			// Drop out of IN_GROUP if we're in it.
 			if (mode == IN_GROUP)
 			    mode = DEFAULT;
-			// Can't boolean filter prefix a subexpression or
-			// phrase; just use anything following the prefix
-			// until the next space or ')' as part of the boolean
-			// filter term.
 			it = p;
 			string name;
-			while (it != end && *it > ' ' && *it != ')')
-			    Unicode::append_utf8(name, *it++);
+			if (it != end && *it == '"') {
+			    // Quoted boolean term (can contain any character).
+			    ++it;
+			    while (it != end) {
+				if (*it == '"') {
+				    // Interpret "" as an escaped ".
+				    if (++it == end || *it != '"')
+					break;
+				}
+				Unicode::append_utf8(name, *it++);
+			    }
+			} else {
+			    // Can't boolean filter prefix a subexpression, so
+			    // just use anything following the prefix until the
+			    // next space or ')' as part of the boolean filter
+			    // term.
+			    while (it != end && *it > ' ' && *it != ')')
+				Unicode::append_utf8(name, *it++);
+			}
 			// Build the unstemmed form in field.
 			field += ':';
 			field += name;
@@ -1050,7 +1090,6 @@ done:
 	    Parse(pParser, QUOTE, NULL, &state);
 	Parse(pParser, 0, NULL, &state);
     }
-    ParseFree(pParser);
 
     errmsg = state.error;
     return state.query;
@@ -1244,25 +1283,6 @@ class TermList {
      */
     list<string> prefixes;
 
-  public:
-    TermList() : window(0), uniform_prefixes(true) { }
-
-    /// Add an unstemmed Term object to this TermList object.
-    void add_positional_term(Term * term) {
-        if (terms.empty()) {
-	    prefixes = term->prefixes;
-	} else if (uniform_prefixes && prefixes != term->prefixes)  {
-	    prefixes.clear();
-	    uniform_prefixes = false;
-	}
-	term->need_positions();
-	terms.push_back(term);
-    }
-
-    void adjust_window(size_t alternative_window) {
-	if (alternative_window > window) window = alternative_window;
-    }
-
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
 	Query * q = NULL;
@@ -1293,6 +1313,25 @@ class TermList {
 
 	delete this;
 	return q;
+    }
+
+  public:
+    TermList() : window(0), uniform_prefixes(true) { }
+
+    /// Add an unstemmed Term object to this TermList object.
+    void add_positional_term(Term * term) {
+        if (terms.empty()) {
+	    prefixes = term->prefixes;
+	} else if (uniform_prefixes && prefixes != term->prefixes)  {
+	    prefixes.clear();
+	    uniform_prefixes = false;
+	}
+	term->need_positions();
+	terms.push_back(term);
+    }
+
+    void adjust_window(size_t alternative_window) {
+	if (alternative_window > window) window = alternative_window;
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
@@ -1372,7 +1411,7 @@ class TermList {
 %left XOR.
 %left AND NOT.
 %left NEAR ADJ.
-%left LOVE HATE SYNONYM.
+%left LOVE HATE HATE_AFTER_AND SYNONYM.
 
 // Destructors for terminal symbols:
 
@@ -1446,6 +1485,9 @@ expr(E) ::= bool_arg(A) NOT bool_arg(B). {
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+
+expr(E) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND]
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND"); }
 
 expr(E) ::= bool_arg(A) OR bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }

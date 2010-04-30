@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include "utils.h"
 
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -79,6 +80,9 @@ static const test test_or_queries[] = {
     { "\"hello world\" +python", "(Zpython:(pos=3) AND_MAYBE (hello:(pos=1) PHRASE 2 world:(pos=2)))" },
     // In 1.1.0, NON_SPACING_MARK was added as a word character.
     { "\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86", "Z\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86:(pos=1)" },
+    // In 1.1.4, ENCLOSING_MARK and COMBINING_SPACING_MARK were added, and
+    // code to ignore several zero-width space characters was added.
+    { "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80", "Z\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80:(pos=1)" },
     { "unmatched\"", "unmatched:(pos=1)" },
     { "unmatched \" \" ", "Zunmatch:(pos=1)" },
     { "hyphen-ated\" ", "(hyphen:(pos=1) PHRASE 2 ated:(pos=2))" },
@@ -98,8 +102,12 @@ static const test test_or_queries[] = {
     { "(title:help)", "ZXThelp:(pos=1)" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "beer AND -lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "beer AND +lager", "(Zbeer:(pos=1) AND Zlager:(pos=2))" },
     { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
     { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND -C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND +C", "(a:(pos=1) OR (b:(pos=2) AND c:(pos=3)))" },
     { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
     { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
     { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
@@ -112,15 +120,21 @@ static const test test_or_queries[] = {
     { "foo -site:xapian.org bar", "((Zfoo:(pos=1) OR Zbar:(pos=2)) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(Zmail:(pos=1) FILTER Hxapian.org)" },
     { "-site:xapian.org mail", "(Zmail:(pos=1) AND_NOT Hxapian.org)" },
+    { "mail AND -site:xapian.org", "(Zmail:(pos=1) AND_NOT 0 * Hxapian.org)" },
     { "-Wredundant-decls", "(wredundant:(pos=1) PHRASE 2 decls:(pos=2))" },
     { "site:xapian.org", "0 * Hxapian.org" },
     { "mug +site:xapian.org -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
     { "mug -site:cvs.xapian.org +site:xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
+    { "mug +site:xapian.org AND -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT 0 * Hcvs.xapian.org)" },
+    { "mug site:xapian.org AND -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT 0 * Hcvs.xapian.org)" },
+    { "mug site:xapian.org AND +site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND 0 * Hcvs.xapian.org)" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "AND -windows", "Syntax: <expression> AND <expression>" }, 
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian AND -", "Syntax: <expression> AND <expression>" },
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
@@ -152,6 +166,10 @@ static const test test_or_queries[] = {
     { "category:Foo", "0 * XCAT:Foo" },
     { "category:foo", "0 * XCATfoo" },
     { "category:\xc3\x96oo", "0 * XCAT\xc3\x96oo" },
+    // Feature tests for quoted boolean terms:
+    { "category:\"Hello world\"", "0 * XCAT:Hello world" },
+    { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
+    { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },
@@ -2221,7 +2239,10 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

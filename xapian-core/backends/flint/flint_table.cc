@@ -2,8 +2,9 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,11 +67,11 @@ PWRITE_PROTOTYPE
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 
-#include "flint_io.h"
 #include "flint_btreebase.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
 
+#include "io_utils.h"
 #include "omassert.h"
 #include "omdebug.h"
 #include "unaligned.h"
@@ -260,7 +261,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    flint_io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
+    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
 }
 
@@ -323,7 +324,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    flint_io_write(handle, reinterpret_cast<const char *>(p), block_size);
+    io_write(handle, reinterpret_cast<const char *>(p), block_size);
 #endif
 }
 
@@ -388,7 +389,8 @@ FlintTable::block_to_cursor(Cursor_ * C_, int j, uint4 n) const
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     if (writable && n == C[j].n) {
-	memcpy(p, C[j].p, block_size);
+	if (p != C[j].p)
+	    memcpy(p, C[j].p, block_size);
     } else {
 	read_block(n, p);
     }
@@ -1016,10 +1018,10 @@ void FlintTable::form_key(const string & key) const
    deletions.
 */
 
-bool
+void
 FlintTable::add(const string &key, string tag, bool already_compressed)
 {
-    DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
+    DEBUGCALL(DB, void, "FlintTable::add", key << ", " << tag);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
@@ -1097,7 +1099,8 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE) RETURN(false);
+    if (m >= BYTE_PAIR_RANGE)
+	throw Xapian::UnimplementedError("Can't handle insanely large tags");
 
     int n = 0; // initialise to shut off warning
 				      // - and there will be n to delete
@@ -1127,7 +1130,10 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
-    RETURN(true);
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
 }
 
 /* FlintTable::del(key) returns false if the key is not in the B-tree,
@@ -1165,6 +1171,10 @@ FlintTable::del(const string &key)
 
     item_count--;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
     RETURN(true);
 }
 
@@ -1565,6 +1575,8 @@ FlintTable::FlintTable(const char * tablename_, const string & path_,
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(!readonly_),
+	  cursor_created_since_last_modification(false),
+	  cursor_version(0),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
 	  deflate_zstream(NULL),
@@ -1600,9 +1612,9 @@ FlintTable::lazy_alloc_deflate_zstream() const {
 
     deflate_zstream = new z_stream;
 
-    deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    deflate_zstream->zfree = reinterpret_cast<free_func>(0);
-    deflate_zstream->opaque = voidpf(0);
+    deflate_zstream->zalloc = Z_NULL;
+    deflate_zstream->zfree = Z_NULL;
+    deflate_zstream->opaque = Z_NULL;
 
     // -15 means raw deflate with 32K LZ77 window (largest)
     // memLevel 9 is the highest (8 is default)
@@ -1638,8 +1650,9 @@ FlintTable::lazy_alloc_inflate_zstream() const {
 
     inflate_zstream = new z_stream;
 
-    inflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    inflate_zstream->zfree = reinterpret_cast<free_func>(0);
+    inflate_zstream->zalloc = Z_NULL;
+    inflate_zstream->zfree = Z_NULL;
+    inflate_zstream->opaque = Z_NULL;
 
     inflate_zstream->next_in = Z_NULL;
     inflate_zstream->avail_in = 0;
@@ -1866,7 +1879,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 
 	// Do this as late as possible to allow maximum time for writes to be
 	// committed.
-	if (!flint_io_sync(handle)) {
+	if (!io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
@@ -1907,7 +1920,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	changed_n = 0;
 	changed_c = DIR_START;
 	seq_count = SEQ_START_POINT;
-    } catch(...) {
+    } catch (...) {
 	FlintTable::close();
 	throw;
     }
@@ -1925,7 +1938,7 @@ FlintTable::write_changed_blocks(int changes_fd)
     buf += F_pack_uint(strlen(tablename));
     buf += tablename;
     buf += F_pack_uint(block_size);
-    flint_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
     // write them to the file descriptor.
@@ -1935,14 +1948,13 @@ FlintTable::write_changed_blocks(int changes_fd)
 	base.calculate_last_block();
 	while (base.find_changed_block(&n)) {
 	    buf = F_pack_uint(n + 1);
-	    flint_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
 	    read_block(n, p);
 
 	    // Write block n to the file.
-	    flint_io_write(changes_fd, reinterpret_cast<const char *>(p),
-			   block_size);
+	    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
 	    ++n;
 	}
 	delete[] p;
@@ -1952,7 +1964,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 	throw;
     }
     buf = F_pack_uint(0u);
-    flint_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 }
 
 void

@@ -53,24 +53,26 @@ APITEST_OBJS= \
     "$(OUTDIR)\apitest.obj" \
     "$(OUTDIR)\api_anydb.obj" \
     "$(OUTDIR)\api_backend.obj" \
-    "$(INTDIR)\api_closedb.obj" \
-    "$(INTDIR)\api_collapse.obj" \
+    "$(OUTDIR)\api_closedb.obj" \
+    "$(OUTDIR)\api_collapse.obj" \
+    "$(OUTDIR)\api_compact.obj" \
     "$(OUTDIR)\api_db.obj" \
     "$(OUTDIR)\api_generated.obj" \
     "$(OUTDIR)\api_nodb.obj" \
     "$(OUTDIR)\api_percentages.obj" \
     "$(OUTDIR)\api_posdb.obj" \
     "$(OUTDIR)\api_query.obj" \
-    "$(INTDIR)\api_replicate.obj" \
-    "$(INTDIR)\api_serialise.obj" \
+    "$(OUTDIR)\api_replicate.obj" \
+    "$(OUTDIR)\api_serialise.obj" \
     "$(OUTDIR)\api_sorting.obj" \
     "$(OUTDIR)\api_sortingold.obj" \
     "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_transdb.obj" \
     "$(OUTDIR)\api_unicode.obj" \
-    "$(INTDIR)\api_valuestats.obj" \
-    "$(INTDIR)\api_valuestream.obj" \
-    "$(OUTDIR)\api_wrdb.obj" 
+    "$(OUTDIR)\api_valuestats.obj" \
+    "$(OUTDIR)\api_valuestream.obj" \
+    "$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\dbcheck.obj"
     
 INTERNALTEST_OBJS= "$(OUTDIR)\internaltest.obj"
     
@@ -84,31 +86,10 @@ TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"
 
 SRC = \
     "$(INTDIR)\apitest.cc" \
-    "$(INTDIR)\api_anydb.cc" \
-    "$(INTDIR)\api_backend.cc" \
-    "$(INTDIR)\api_closedb.cc" \
-    "$(INTDIR)\api_collapse.cc" \
-    "$(INTDIR)\api_db.cc" \
-    "$(INTDIR)\api_generated.cc" \
-    "$(INTDIR)\api_nodb.cc" \
-    "$(INTDIR)\api_percentages.cc" \
-    "$(INTDIR)\api_posdb.cc" \
-    "$(INTDIR)\api_query.cc" \
-    "$(INTDIR)\api_replicate.cc" \
-    "$(INTDIR)\api_serialise.cc" \
-    "$(INTDIR)\api_sorting.cc" \
-    "$(INTDIR)\api_sortingold.cc" \
-    "$(INTDIR)\api_spelling.cc" \
-    "$(INTDIR)\api_transdb.cc" \
-    "$(INTDIR)\api_unicode.cc" \
-    "$(INTDIR)\api_valuestats.cc" \
-    "$(INTDIR)\api_valuestream.cc" \
-    "$(INTDIR)\api_wrdb.cc" \
-    "$(INTDIR)\btreetest.cc" \
+    "$(INTDIR)\dbcheck.cc" \
     "$(INTDIR)\internaltest.cc" \
-    "$(INTDIR)\quartztest.cc" \
     "$(INTDIR)\queryparsertest.cc" \
-    "$(INTDIR)\remotetest.cc" \
+    "$(INTDIR)\stemtest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
 COLLATED_APITEST_SOURCES= \
@@ -116,6 +97,7 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_closedb.cc" \
     "$(INTDIR)\api_collapse.cc" \
+    "$(INTDIR)\api_compact.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
@@ -138,6 +120,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_backend.h" \
     "$(INTDIR)\api_closedb.h" \
     "$(INTDIR)\api_collapse.h" \
+    "$(INTDIR)\api_compact.h" \
     "$(INTDIR)\api_db.h" \
     "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_nodb.h" \
@@ -182,8 +165,14 @@ CLEAN :
     -@erase api_all.h
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
-    if exist ".flint" rmdir ".flint" /s /q
+    if exist ".stub" rmdir ".stub" /s /q
     if exist ".quartz" rmdir ".quartz" /s /q
+    if exist ".flint" rmdir ".flint" /s /q
+    if exist ".chert" rmdir ".chert" /s /q
+    if exist ".brass" rmdir ".brass" /s /q
+    if exist ".multiflint" rmdir ".multiflint" /s /q
+    if exist ".multichert" rmdir ".multichert" /s /q
+    if exist ".multibrass" rmdir ".multibrass" /s /q
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
     
     
@@ -256,6 +245,9 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
-HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+HEADERS : api_collated.h
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRC) >>deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(COLLATED_APITEST_SOURCES) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

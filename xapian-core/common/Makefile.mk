@@ -17,6 +17,7 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/internaltypes.h\
+	common/io_utils.h\
 	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
@@ -42,8 +43,10 @@ noinst_HEADERS +=\
 	common/remoteserver.h\
 	common/remotetcpclient.h\
 	common/remotetcpserver.h\
+	common/replicate_utils.h\
 	common/replicatetcpclient.h\
 	common/replicatetcpserver.h\
+	common/replication.h\
 	common/replicationprotocol.h\
 	common/rset.h\
 	common/safedirent.h\
@@ -51,6 +54,7 @@ noinst_HEADERS +=\
 	common/safefcntl.h\
 	common/safesysselect.h\
 	common/safesysstat.h\
+	common/safesyswait.h\
 	common/safeunistd.h\
 	common/safeuuid.h\
 	common/safewindows.h\
@@ -82,9 +86,11 @@ lib_src +=\
 	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
+	common/io_utils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
+	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\

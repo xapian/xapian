@@ -23,7 +23,7 @@
 #include "replicatetcpserver.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
+#include "replication.h"
 
 #include "omtime.h"
 

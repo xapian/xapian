@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.1.3], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.2.0], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -64,11 +64,27 @@ AC_SUBST(NO_UNDEFINED)
 dnl Checks for programs.
 AC_PROG_CXX
 
+case $host_os in
+  linux* | k*bsd*-gnu)
+    dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
+    link_all_deplibs_CXX=no
+    ;;
+esac
+
+case $host_os in
+  linux*)
+    dnl Extract search path from ldconfig which is more reliable than the way
+    dnl vanilla libtool extracts them from ld.so.conf.
+    d=`/sbin/ldconfig -N -X -v 2>&AS_MESSAGE_LOG_FD|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    test -z "$d" || sys_lib_dlsearch_path_spec=$d
+    ;;
+esac
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [], [xapian-config-1.1])
+XO_LIB_XAPIAN([], [], [xapian-config])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.
@@ -724,7 +740,7 @@ if test no != "$with_ruby" ; then
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($ruby is $version)])
+	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($RUBY is $version)])
       fi
       RUBY=
       ;;

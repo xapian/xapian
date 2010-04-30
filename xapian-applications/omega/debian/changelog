@@ -1,13 +1,146 @@
-xapian-omega (1.1.0-1) unstable; urgency=low
+xapian-omega (1.2.0-1) experimental; urgency=low
 
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:40:41 +0000
+
+xapian-omega (1.1.5-1) experimental; urgency=low
+
+  * New upstream release:
+    + omindex now avoids reindexing unchanged files. (Closes: #569900)
+  * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
+    dapper.
   * debian/control.in: Add libpcre3-dev to Build-Depends.
-  * debian/control.in,debian/rules: On Debian > etch and Ubuntu >= gutsy, we
-    now suggest ghostscript instead of gs-common (gs-common is no longer a
-    real package).
-  * debian/control.in: Add "perl" back in to "Suggests:" as it is only
-    perl-base which is essential, and we need perl for pod2text.
+  * debian/rules: Build in debian/build directory rather than build.
 
- -- Olly Betts <olly@atreus.tartarus.org>  Mon,  1 Dec 2008 04:36:43 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 10:18:28 +0000
+
+xapian-omega (1.0.19-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:13:39 +0000
+
+xapian-omega (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in:
+    + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
+    + Add "Vcs-Browser:" and "Vcs-svn:".
+    + Standards-Version: 3.8.4 (no changes required).
+  * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
+  * Register the documentation with doc-base.
+
+ -- Olly Betts <olly@survex.com>  Thu, 04 Feb 2010 09:21:01 +0000
+
+xapian-omega (1.0.17-1) unstable; urgency=low
+
+  * New upstream release.
+    + Uses _SC_PHYS_PAGES instead of _SC_AVPHYS_PAGES to calculate the memory
+      limit to apply to external filters.  Closes: #548987
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Nov 2009 04:08:57 +0000
+
+xapian-omega (1.0.16-1) unstable; urgency=low
+
+  * New upstream release.
+    + Incorporates fix for CVE-2009-2947.
+
+ -- Olly Betts <olly@survex.com>  Sat, 12 Sep 2009 14:17:13 +0100
+
+xapian-omega (1.0.15-2) unstable; urgency=high
+
+  * SECURITY UPDATE:
+  * Fix cross-site scripting vulnerability in reporting of exceptions
+    (CVE-2009-2947).
+
+ -- Olly Betts <olly@survex.com>  Wed, 09 Sep 2009 05:05:14 +0000
+
+xapian-omega (1.0.15-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.8.3 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 01:59:43 +0000
+
+xapian-omega (1.0.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Put "perl" back in "Suggests:" - "perl-base" is
+    "Priority: essential", but "perl" isn't and it's the latter which
+    contains pod2text.
+  * debian/control.in: Standards-Version: 3.8.2 (no changes required).
+  * debian/control.in: Drop the "www." from the homepage URL for consistency
+    with upstream use.
+  * debian/rules: Update required debhelper version.
+
+ -- Olly Betts <olly@survex.com>  Thu, 30 Jul 2009 03:05:47 +0100
+
+xapian-omega (1.0.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Don't allow CODENAME to be set in the environment.
+  * Relicense the Debian packaging under the MIT/X licence.
+
+ -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 12:15:27 +0000
+
+xapian-omega (1.0.12-2) unstable; urgency=low
+
+  * debian/copyright: Update for 2009.  /usr/share/common-licenses/GPL ->
+    /usr/share/licenses/GPL-2 since the former is now a symlink to GPL-3
+    and Xapian is GPL v2 or later.
+
+ -- Olly Betts <olly@survex.com>  Sun,  3 May 2009 10:18:50 +0100
+
+xapian-omega (1.0.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.8.1 (no changes required).
+  * debian/compat: Increase from 4 to 5 since 4 is now deprecated in sid and
+    5 is supported by all currently supported Debian and Ubuntu releases.
+
+ -- Olly Betts <olly@survex.com>  Fri,  1 May 2009 08:50:06 +0100
+
+xapian-omega (1.0.10-5) unstable; urgency=low
+
+  * debian/rules,debian/control.in: Dapper's automake is 1.4, but "automake
+    (>= 1.10) | automake1.9" doesn't work in the Ubuntu dapper PPA builder -
+    it has automake 1.4 installed, so goes for the first alternative, and then
+    fails the version check.  We want to prefer 1.10 so swapping the order is
+    no help, so generate the dependency depending on the codename.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 23:56:08 +0000
+
+xapian-omega (1.0.10-4) unstable; urgency=low
+
+  * debian/rules: Substitute @GHOSTSCRIPT@ when generating debian/control.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 13:39:20 +0000
+
+xapian-omega (1.0.10-3) unstable; urgency=low
+
+  * debian/rules: Apply workaround when running "make check" too as that links
+    the test programs with libxapian.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 12:40:43 +0000
+
+xapian-omega (1.0.10-2) unstable; urgency=low
+
+  * debian/rules: Work around bug in link_all_deplibs patch in Debian's
+    libtool 2.2.x package.
+  * debian/copyright: Update (C) year for debian packaging.
+
+ -- Olly Betts <olly@survex.com>  Fri, 20 Feb 2009 00:23:36 +1300
+
+xapian-omega (1.0.10-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in,debian/rules: Suggest ghostscript instead of gs-common
+    except for Debian etch and Ubuntu dapper.
+  * debian/control.in: Add "DM-Upload-Allowed: yes" since I'm now a Debian
+    Maintainer.
+
+ -- Olly Betts <olly@survex.com>  Wed, 18 Feb 2009 23:32:34 +0000
 
 xapian-omega (1.0.7-3) unstable; urgency=low
 
@@ -224,7 +357,7 @@ xapian-omega (0.9.4-2) unstable; urgency=low
 xapian-omega (0.9.4-1) unstable; urgency=low
 
   * New upstream release (no package was made for 0.9.3)
-  * Documentation improvements. 
+  * Documentation improvements.
   * omindex: new option --preserve-nonduplicates
   * omindex,scriptindex: new option --stemmer to choose stemmer.
   * omindex: Add support for OpenDocument formats.

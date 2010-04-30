@@ -1,4 +1,4 @@
-/** @file flint_metadata.h
+/** @file flint_metadata.cc
  * @brief Access to metadata for a flint database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts

@@ -2,6 +2,7 @@
  * @brief FlintVersion class
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +25,8 @@
 
 #include <xapian/error.h>
 
-#include "flint_io.h"
 #include "flint_version.h"
+#include "io_utils.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "utils.h"
 
@@ -77,7 +78,7 @@ void FlintVersion::create()
     }
 
     try {
-	flint_io_write(fd, buf, VERSIONFILE_SIZE);
+	io_write(fd, buf, VERSIONFILE_SIZE);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -107,7 +108,7 @@ void FlintVersion::read_and_check(bool readonly)
     char buf[VERSIONFILE_SIZE + 1];
     size_t size;
     try {
-	size = flint_io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
+	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -172,7 +173,7 @@ void FlintVersion::read_and_check(bool readonly)
     }
 
     try {
-	(void)flint_io_read(fd, reinterpret_cast<char*>(uuid), 16, 16);
+	(void)io_read(fd, reinterpret_cast<char*>(uuid), 16, 16);
     } catch (...) {
 	uuid_clear(uuid);
 	(void)close(fd);
@@ -211,7 +212,7 @@ FlintVersion::ensure_uuid() const
 
 	uuid_generate(uuid);
 	try {
-	    flint_io_write(fd, reinterpret_cast<const char*>(uuid), 16);
+	    io_write(fd, reinterpret_cast<const char*>(uuid), 16);
 	} catch (...) {
 	    (void)close(fd);
 	    throw;

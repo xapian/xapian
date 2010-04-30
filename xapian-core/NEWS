@@ -1,164 +1,224 @@
- 13764       olly Thu Dec 17 13:36:54 GMT 2009  Olly Betts <olly@survex.com>
+Xapian-core 1.2.0 (2010-04-28):
 
- 13729    richard Fri Dec 11 11:05:19 GMT 2009  Richard Boulton <richard@tartarus.org>
-	* COPYING_MIT,HACKING: Add details of our policy for accepting
-	  patches.  This has informally been true for a while, but it
-	  probably helps to tell people about it!
-
-trunk only:
-
- 13758       olly Thu Dec 17 11:16:51 GMT 2009  Olly Betts <olly@survex.com>
-	* tests/api_wrdb.cc: The regression test replacedoc5 no longer actually
-	  checks for the situation it was written for, due to the shortcutting
-	  we now do in flint and chert when replacing a document with itself,
-	  so extend it with a check with that behaviour suppressed (fortunately
-	  it still passes).
-
- 13744       olly Tue Dec 15 10:11:10 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_alltermslist.cc: Tweak to not apply the
-	  prefix test in the "at end" case.
- 13743       olly Tue Dec 15 09:40:19 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_alltermslist.cc: There's no point checking
-	  follow-on chunks match the prefix - the first chunk we'll hit
-	  which doesn't match has to be an initial chunk for a term.
-
- 13750       olly Wed Dec 16 11:52:27 GMT 2009  Olly Betts <olly@survex.com>
-	* bin/xapian-compact.cc: Ensure that the resultant database has a
-	  fresh UUID (previously chert copied the UUID from the first input,
-	  while flint didn't set a UUID so one was generated on demand when
-	  next requested, if the database is writable.
-	* tests/api_compact.cc: Add tests that a UUID is set and that it is
-	  different from that of the input.
-
- 13742       olly Tue Dec 15 08:24:04 GMT 2009  Olly Betts <olly@survex.com>
-	* include/xapian/: Convert DerefStringWrapper_ to a templated
-	  DerefWrapper_ and use it instead of DocIDWrapper and TermPosWrapper.
-
- 13740       olly Tue Dec 15 03:59:44 GMT 2009  Olly Betts <olly@survex.com>
-	* common/pack.h: Return false not true if
-	  unpack_string_preserving_sort() fails.  Add assertions that the
-	  source pointer isn't NULL to all the functions.
-
- 13736    richard Sat Dec 12 13:07:51 GMT 2009  Richard Boulton <richard@tartarus.org>
-	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:
-	  Split my recently added replacedoc test out into a new file.
-
- 13751       olly Wed Dec 16 12:03:13 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/,bin/Makefile.mk,common/pack.h: Change the packing
-	  of uints and strings into sortable keys in chert databases, which
-	  reduces database size by 2.5% in tests.  This means an incompatible
-	  change in the chert format.
-	* bin/xapian-chert-update.cc: Utility to update a chert database from
-	  the old format to the new format.  It works much like xapian-compact
-	  so should take a similar amount of time (and results in a compact
-	  database).
-	* tests/api_wrdb.cc: Adjust the test which checks a string of zero
-	  bytes fails in the correct way - 126 zero bytes is now handled, so
-	  we need 127 to check the failure mode.
-
- 13746       olly Wed Dec 16 00:40:51 GMT 2009  Olly Betts <olly@survex.com>
-	* languages/german.sbl,languages/german2.sbl: Update the german and
-	  german2 stemming algorithms to the latest versions from Snowball.
-	  These add an extra rule for the "-nisse" ending.
-
- 13745       olly Tue Dec 15 13:08:33 GMT 2009  Olly Betts <olly@survex.com>
-	* bin/: Split apart the flint and chert compaction code.  Should be
-	  no change in functionality.
-
- 13713       olly Mon Dec 07 04:32:46 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/: Use > 32 bit type to keep count of items in a
-	  table.  This fixes misreporting by xapian-check, and in the very
-	  unlikely case where the counter has just wrapped to 0, makes
-	  xapian-compact not mistakenly think tables are empty and the
-	  matcher ignore positional information.
-
-	  backends/chert/chert_lock.h: Add "FDLIMIT" reason code for why
-	  locking failing.
-	  backends/flint_lock.cc,backends/flint_lock.h: Factor out a single
-	  version of the "flint-compatible locking code" and use it from both
-	  flint and chert.
-	  backends/flint_lock.h: Factor out 4 copies of the same code to
-	  report why Xapian failed to get a lock.
-
-* Add get_database_path() variant which takes a generator function and use
-  it so that the right database names are used in compactnorenumber1.
-
-	* include/xapian/matchspy.h: Remove out-of-date reference to
-	  add_slot(), which no longer exists: users are expected to use
-	  multiple ValueCountMatchSpies if they need to monitor more than
-	  one slot.
-
-Xapian-core 1.1.4 (2009-12-??):
-
-
-API:
-
-* Implement support for iterating valuestreams for multidatabases.
+This release includes all changes from 1.0.20 which are relevant.
 
 testsuite:
 
-	* tests/api_matchspy.cc: Add regression test for underflow in
-	  numeric ranges (based on python version in ticket #321).
+* Fix --abort-on-error to actually work.
 
-	* tests/Makefile.am,tests/api_compact.cc: Add test coverage for
-	  xapian-compact --no-renumber with multiple databases.
+* Exit with status 1 not 0 if we caught an exception from the harness itself.
 
-matcher:
+Xapian-core 1.1.5 (2010-04-16):
 
-	* common/document.h,matcher/: Implement ValueStreamDocument subclass
-	  of Xapian::Document::Internal which provides a way to connect up
-	  valuestreams to uses of values during the match.  Other
-	  (non-recommended) uses of the Document passed to MatchDecider, etc
-	  are passed through to a lazily created backend Document::Internal
-	  subclass.  This should be a lot more efficient for chert.  It's
-	  unclear how it will affect performance for backends which don't store
-	  values in streams - profiling is required.
- 13656       olly Fri Nov 20 10:54:08 GMT 2009  Olly Betts <olly@survex.com>
-	* matcher/valuestreamdocument.cc: Use check() instead of skip_to() in
-	  ValueStreamDocument.
+This release includes all changes from 1.0.19 which are relevant.
 
+API:
+
+* Database replication now handles an exception while applying a changeset
+  better.
+
+* If environment variable XAPIAN_MAX_CHANGESETS is set on a replication client
+  then any changesets read are saved so the replicated copy can itself be
+  replicated.
+
+testsuite:
+
+* Use sigsetjmp() and siglongjmp() where available so that the set of blocked
+  signals get restored and the test harness can catch a second incidence of a
+  particular signal in a run.  Use sigaction() instead of signal() where
+  available, which allows us to report the address associated with SIGSEGV,
+  SIGFPE, SIGILL, and SIGBUS.
+
+* Add machinery to check for leaked file descriptors.  Currently this requires
+  /proc/self/fd to work (which is present on Linux and some other platforms).
+  Remove the crude ulimit in runtest which has caused problems on some Debian
+  buildds.
+
+* The test harness now explicitly catches const char * exceptions and reports
+  their contents.
+
+brass backend:
+
+* Ensure that the wdf upper bound is correctly updated when replacing
+  documents.
+
+* xapian-compact: Now sets lastdocid correctly when using --no-renumber.
 
 chert backend:
 
-* xapian-compact: Prune unused docids off the end of each database when merging
-  multiple databases with renumbering.
+* Ensure that the wdf upper bound is correctly updated when replacing
+  documents.
 
-	* bin/xapian-compact.cc: Extend --no-renumber to support merging
-	  databases, but only if they have disjoint ranges of used document
-	  ids.
+* xapian-compact: Now sets lastdocid correctly when using --no-renumber.
 
-* xapian-check: Rework the checking of postlist chunks into a cleaner approach
-  which should report errors better.
-
-	  Make ValueChunkReader::skip_to() assign the value to a string
-	  only when the target has been reached.  Saves a lot of
-	  unnecessary string copying - on a benchmark of mydeco data,
-	  improves time for 100 queries from 3.66s to 3.10s.
-
-	* backends/chert/chert_postlist.cc: When skipping through a chunk of
-	  postings to find the one we want, don't bother to unpack the wdf
-	  values we're skipping over, which should save a significant amount
-	  of time in certain cases where the profile data shows we spend
-	  something like 1/3 of the time in the function where this happens.
+* xapian-check: Check that the initial doclen chunk exists.
 
 flint backend:
 
-* xapian-compact: Prune unused docids off the end of each database when merging
-  multiple databases with renumbering.
+* xapian-compact: Now sets lastdocid correctly when using --no-renumber.
 
 remote backend:
 
-* Add support for
-	  WritableDatabase::set_metadata() and Database::get_metadata() to the
-	  remote backend (based largely on patch in #178).
+* Add remote backend support for WritableDatabase::add_spelling() and
+  WritableDatabase::remove_spelling().  This bumps the remote protocol to
+  version 35.0 (so both client and servers will need updating).  Suggesting
+  spelling corrections isn't yet supported.  (ticket#178)
+
+build system:
+
+* XO_LIB_XAPIAN: Give a more specific error message for the cases where
+  XAPIAN_CONFIG isn't found, is a directory, or isn't executable.
+
+examples:
+
+* delve:
+
+  + If any documents are specified with "-d<docid>", "-V<slot>" now only show
+    values for those documents.
+
+  + Remove undocumented -k option, which has been a compatibility alias for -V
+    since 0.9.10.  Just use -V instead.
+
+* xapian-metadata: Add new example program which allows you to get and set
+  individual user metadata entries.
+
+Xapian-core 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+API:
+
+* Xapian::TermGenerator,Xapian::QueryParser,Xapian::Unicode::is_wordchar():
+  Add ENCLOSING_MARK and COMBINING_SPACING_MARK categories to is_wordchar(),
+  which is used by TermGenerator and QueryParser.  Also make TermGenerator and
+  QueryParser ignore several zero-width space characters.  This is a better
+  but less compatible version of a fix in 1.0.18.
+
+* Implement support for iterating valuestreams for multidatabases.
+
+* Xapian::Stem: Update the german and german2 stemming algorithms to the latest
+  versions from Snowball.  These add an extra rule for the "-nisse" ending.
+
+* Xapian::ValueCountMatchSpy: Replace get_values() with values_begin() and
+  values_end().
+
+* Xapian::MatchSpy: Provide an iterator for accessing the top values found
+  instead of taking a vector by reference to return them in.
+
+* Xapian::NumericRanges: Remove experimental API we aren't happy with yet.
+
+* Xapian::DatabaseReplica, Xapian::DatabaseMaster: Remove experimental
+  API we aren't happy with.  Replication is still supported via the
+  command line programs.  (ticket#347)
+
+* Xapian::score_evenness(): Remove as it turns out not to be useful in practice.
+  (ticket#435)
+
+* Xapian::ValueWeightPostingSource: A ValueWeightPostingSource with no entries
+  would report -infinity as its upper bound, which could cause no results to be
+  incorrectly returned for some queries involving such an object.
+
+* Xapian::WritableDatabase::close() fixed to commit() changes (unless a
+  transaction is in progress).
+
+testsuite:
+
+* apitest: Improve test coverage in various places.
+
+matcher:
+
+* Uses of values during the match (sorting by value or Sorter, MatchSpy,
+  MatchDecider, and collapsing) now use value stream iteration which is
+  a lot more efficient for chert and brass (but may be slower for flint).
+
+brass backend:
+
+* New development backend.  Changes over chert:
+
+  + Batched posting list chances during index use significantly less memory.
+
+  + Instead of using complex code to iterate modified posting lists and
+    documents length lists, brass can flush individual such lists to disk
+    and then iterates them from there.
+
+  + To iterate all terms, chert flushes all pending postlist changes.  In the
+    case where a prefix is specified, brass only flushes postlist changes for
+    terms starting with the specified prefix, and doesn't flush document length
+    changes.
+
+chert backend:
+
+* Promote chert to being the stable backend.
+
+* Change the packing of integers and strings into sortable keys, which reduces
+  database size by 2.5% in tests.  This means an incompatible change in the
+  chert format.  You can use the new xapian-chert-update utility to update a
+  chert database from the old format to the new format.  It works much like
+  xapian-compact so should take a similar amount of time (and results in a
+  compact database).
+
+* xapian-compact:
+
+  + Prune unused docids off the end of each database when merging multiple
+    databases with renumbering.
+
+  + Extend --no-renumber to support merging databases, but only if they have
+    disjoint ranges of used document ids.
+
+  + Ensure that the resultant database has a fresh UUID (previously chert
+    copied the UUID from the first input).
+
+* xapian-check:
+
+  + Fix checking of the METAINFO key in chert.  For small databases, the
+    statistics fit in few enough bytes that incorrect check appeared to
+    succeed and no errors were reported, but for larger databases an
+    error was incorrectly reported.
+
+  + Rework the checking of postlist chunks to use a cleaner approach which
+    should report errors better.
+
+  + Use a type wider than 32 bits to keep count of items in a table.
+    Previously xapian-check would report the number of entries modulo
+    4294967296.
+
+* When iterating a value stream, skip_to() now only assigns the value to a
+  std::string when it reaches its target.  This saves a lot of unnecessary
+  string copying - in a real-world test it improved the time for 100 queries
+  from 3.66s to 3.10s.
+
+* When skipping through a chunk of postings to find the one we want, don't
+  bother to unpack the wdf values we're skipping over.  This should save a
+  significant amount of time in certain cases where the profile data shows
+  about a third of the time is spent in the function where this happens.
+
+* Report locking failure due to running out of file descriptors better.
+
+flint backend:
+
+* xapian-compact:
+
+  + Prune unused docids off the end of each database when merging multiple
+    databases with renumbering.
+
+  + Ensure that the resultant database has a fresh UUID (previously flint
+    didn't set a UUID so one would be generated on demand when next requested,
+    but only if the database was writable).
+
+* Report locking failure due to running out of file descriptors better.
+
+remote backend:
+
+* Add support for WritableDatabase::set_metadata() and Database::get_metadata()
+  to the remote backend (based largely on patch in #178).
 
 inmemory backend:
 
-* Set the document data and values lazily for the
-	  inmemory backend too.  They're much less costly to fetch than if
-	  a disk access may be needed, but it avoids a copy of the respective
-	  data if they aren't needed, and either could potentially be large.
-	  Consistency here also makes things easier to understand.
+* Read the document data and values lazily for the inmemory backend like we do
+  for other backends.  They're much less costly to fetch than if a disk or
+  network access is involved, but it avoids copying potentially large data
+  which may not be needed.  Consistency here also makes things easier to
+  understand for both users and developers.
 
 build system:
 
@@ -166,21 +226,23 @@ build system:
 
 documentation:
 
+* docs/replication.html: Add note about not using reopen() with databases being
+  updated by the replication client.
+
+* docs/admin_notes.html: Update for chert and other recent changes.
+
+* Remove out-of-date reference in the API documentation comment to an
+  add_slot() method.  This no longer exists - you need to use multiple
+  ValueCountMatchSpy objects to monitor more than one slot.
 
 examples:
 
-
-portability:
-
-
-packaging:
-
+* simpleexpand,simpleindex,simplesearch: Handle --help and --version.
 
 debug code:
 
-	* common/debuglog.h: Add "NO_ARGS" which can be used for debug logging
-	  when a function or method takes no arguments.  The main advantage
-	  over "" is that no extra code is generated for it.
+* The debug log now reports boolean values as "true" and "false" (instead of
+  "1" and "0").
 
 Xapian-core 1.1.3 (2009-09-18):
 
@@ -714,6 +776,239 @@ debug code:
 * Faster integer to string functions inside the library (this is a general
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
+
+Xapian-core 1.0.20 (2010-04-27):
+
+API:
+
+* MSet: Fix incorrect values reported by get_matches_estimated(),
+  get_matches_lower_bound(), and get_matches_upper_bound() in certain cases
+  when sorting and collapsing (ticket#464).
+
+documentation:
+
+* deprecation.html: Note how to disable deprecation warnings. (ticket#393)
+
+examples:
+
+* delve: Add -a option to list all terms in a database.
+
+* delve: -d and -V command line options now report out of range and invalid
+  numbers.
+
+portability:
+
+* The getopt warning fix for Cygwin in 1.0.19 caused build failures on Mac OS X
+  (and probably some other platforms with non-GNU getopt implementations), so
+  replace with a fix which is only enabled for Cygwin. (ticket#469)
+
+Xapian-core 1.0.19 (2010-04-15):
+
+API:
+
+* QueryParser: Fix leak if Xapian::Database throws an exception during parsing
+  (ticket#462).
+
+testsuite:
+
+* Explicitly flush after indexing for quartz and flint, so we see any
+  exceptions from the flush (the implicit flush from the destructor swallows
+  any exceptions).
+
+* apitest: Add databasemodified1 testcase to provide some test coverage for
+  DatabaseModifiedError.
+
+flint backend:
+
+* When updating a document, rather than decoding the old positions, comparing
+  with the new, and then encoding the new if different, we now just encode the
+  new and then compare the encoded forms.  (ticket#428)
+
+* Avoid trying to delete the document positions when we know there aren't any.
+
+* Fix memory leak if Database::allterms_begin() throws an exception
+  (ticket#462).
+
+* xapian-check: Report document id for document length mismatch.
+
+* Fix potential issues with iterators over a WritableDatabase which is modified
+  during iteration.  No problems have actually been observed with flint, only
+  in 1.1.4 with chert in cases which don't occur in flint, but it seems likely
+  the issue can manifest for flint in other situations.  Fixes ticket#455.
+
+* Initialise zlib z_stream structure members zalloc, zfree, and opaque with
+  Z_NULL rather than 0 cast to the appropriate type, as that's what the zlib
+  documentation says to do.  Add missing initialisation of opaque for the
+  inflate z_stream which the zlib docs say is needed (reading the zlib code,
+  this isn't true for current versions, so this improves robustness rather
+  than fixing an observable bug).
+
+* Don't memcpy() a block to itself - it's a waste of effort, and (probably)
+  undefined behaviour (as a block overlaps itself).
+
+quartz backend:
+
+* Fix potential issues with iterators over a WritableDatabase which is modified
+  during iteration.  No problems have actually been observed with quartz, only
+  in 1.1.4 with chert in cases which don't occur in quartz, but it seems likely
+  the issue can manifest for quartz in other situations.  Fixes ticket#455.
+
+* Don't memcpy() a block to itself - it's a waste of effort, and (probably)
+  undefined behaviour (as a block overlaps itself).
+
+build system:
+
+* Force -fno-strict-aliasing for GCC 4.2 to avoid bad code being generated due
+  to a bug in that compiler version.  Fixes ticket#449.  This issue hasn't been
+  observed to affect Xapian 1.0.x, but it seems prudent to backport the fix.
+
+documentation:
+
+* INSTALL: Correct description of --enable-assertions.  It does NOT enable
+  debugging symbols, and shouldn't control checks on bad data passed to API
+  calls (if it does anywhere, that's a bug).  Note that Xapian will run more
+  slowly with assertions on.
+
+* spelling.html:
+
+  + Add section on indexing.
+
+  + Add a note about removing automatically added spelling dictionary entries.
+
+  + Move the "algorithm" section to the end, as it is really just background
+    information for the curious.
+
+* include/xapian/queryparser.h: Document the possible exception messages from
+  QueryParser::parse_query().
+
+* include/xapian/termgenerator.h: Note how TermGenerator handles stopwords.
+
+examples:
+
+* delve: Display the lastdocid value when displaying general database
+  statistics.
+
+* simpleindex: Explicitly call flush() on the database, as that is good
+  practice (since you see any exceptions).
+
+portability:
+
+* Fix compilation failure in testsuite on OpenBSD, introduced by new regression
+  test in 1.0.18.  Fixes ticket#458.
+
+* Fix getopt-related warning on Cygwin.
+
+Xapian-core 1.0.18 (2009-02-14):
+
+API:
+
+* Document: Add new add_boolean_term() method, which is an alias for add_term()
+  with wdfinc=0.
+
+* QueryParser:
+
+  + Add support for quoting boolean terms so they can contain arbitrary
+    characters (partly addresses ticket#128).
+
+  + Add ENCLOSING_MARK and COMBINING_SPACING_MARK categories, plus several
+    zero-width space characters, as phrase generators.  This mirrors a better
+    fix in 1.1.4, but without losing compatibility with existing databases.
+
+  + Fix handling of an explicit AND before a hated term (foo AND -bar).
+    (ticket#447)
+
+* TermIterator: Only include trailing '+' or '#' on a term if it isn't followed
+  by a word character (makes more sense and matches QueryParser's behaviour).
+  (ticket#446)
+
+* Database: Fix many methods to behave better on a database with no
+  subdatabases, such as is constructed by Database().  Fixes ticket#415.
+
+testsuite:
+
+* Add test coverage for xapian-compact, and improve coverage for
+  WritableDatabase::replace_document().
+
+* apitest: Rename matchfunctor<n> to matchdecider<n> to match current
+  terminology.
+
+flint backend:
+
+* When updating documents, don't update posting entries which haven't changed.
+  Largely fixes ticket #250.
+
+* If the number of entries in the position table happened to be 4294967296 or
+  an exact multiple, Xapian would ignore positional data for that table when
+  running queries, and xapian-compact wouldn't copy its contents.
+
+* Iterating all the terms in the database with a prefix is now slightly more
+  efficient.
+
+* Fix locking code to work if stdin and/or stdout have been closed.
+
+* If a document is replaced with itself unmodified, we no longer increase the
+  automatic flush counter.
+
+* When iterating a posting list modified since the last flush(), the reported
+  wdf is now correct (previously it was too high by its old value).
+
+* Replacing a document deleted since the last flush failed to update the
+  collection frequency and wdf, and caused an assertion failure when assertions
+  were enabled.
+
+* WritableDatabase::replace_document() didn't always remove old positional
+  data (the only effect is that the position table was bloated by unwanted
+  entries).
+
+* xapian-inspect:
+
+  + New "until" command which shows entries until a specified key is reached.
+
+  + New "open" command which allows easy switching between tables.
+
+* xapian-compact: Fix typos in --help output.
+
+quartz backend:
+
+* Replacing a document deleted since the last flush failed to update the
+  collection frequency and wdf, and caused an assertion failure when assertions
+  were enabled.
+
+* WritableDatabase::replace_document() didn't always remove old positional
+  data (the only effect is that the position table was bloated by unwanted
+  entries).
+
+remote backend:
+
+* Throw UnimplementedError if a MatchDecider is used with the remote backend.
+  Previously Xapian returned incorrect results in this case.
+
+build system:
+
+* configure: With --enable-maintainer-mode, enable -Werror for GCC >= 4.1
+  rather than >= 4.0 as Apple's GCC 4.0 gives bogus uninitialised variable
+  warnings.
+
+documentation:
+
+* The API documentation now includes Xapian::Error and subclasses, and doesn't
+  mention Xapian::Query::Internal.
+
+* Make clear in the Xapian::Document API documentation that this class is a
+  lazy handle and discuss the issues this can cause.
+
+* INSTALL: Improve text about zlib dependency.
+
+* HACKING: Add details of our licensing policy for accepting patches.
+
+examples:
+
+* quest: If no database is specified, still parse the query and report
+  Query::get_description() to provide an easy way to check how a query parses.
+
+portability:
+
+* Fix GCC 4.2 warning.
 
 xapian-core 1.0.17 (2009-11-18):
 

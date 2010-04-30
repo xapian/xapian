@@ -340,12 +340,22 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** Add or modify an entry in freq_deltas.
 	 *
 	 *  @param tname The term to modify the entry for.
-	 *  @param tf_delta The increase in the term frequency delta.
-	 *  @param cf_delta The increase in the collection frequency delta.
+	 *  @param tf_delta The change in the term frequency delta.
+	 *  @param cf_delta The change in the collection frequency delta.
 	 */
 	void add_freq_delta(const string & tname,
-			    Xapian::termcount tf_delta,
-			    Xapian::termcount cf_delta);
+			    Xapian::termcount_diff tf_delta,
+			    Xapian::termcount_diff cf_delta);
+
+	/** Insert modifications for a new document to the postlists.
+	 *
+	 *  @param did The document ID to insert the entry for.
+	 *  @param tname The term to insert the entry for.
+	 *  @param wdf The new wdf value to store.
+	 */
+	void insert_mod_plist(Xapian::docid did,
+			      const string & tname,
+			      Xapian::termcount wdf);
 
 	/** Update the stored modifications to the postlists.
 	 *

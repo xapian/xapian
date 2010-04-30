@@ -69,9 +69,6 @@ class ChertTermListTable : public ChertLazyTable {
      */
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 
-    /// Returns the document length for document @a did.
-    chert_doclen_t get_doclength(Xapian::docid did) const;
-
     /** Non-lazy override of ChertLazyTable::create_and_open().
      *
      * Don't create lazily, but if the termlist is deleted, work without it.

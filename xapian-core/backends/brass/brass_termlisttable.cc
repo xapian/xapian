@@ -109,32 +109,3 @@ BrassTermListTable::set_termlist(Xapian::docid did,
     Assert(termlist_size == 0);
     add(make_key(did), tag);
 }
-
-brass_doclen_t
-BrassTermListTable::get_doclength(Xapian::docid did) const
-{
-    DEBUGCALL(DB, brass_doclen_t, "BrassTermListTable::get_doclength", did);
-
-    string tag;
-    if (!get_exact_entry(make_key(did), tag))
-	throw Xapian::DocNotFoundError("No termlist found for document " +
-				       om_tostring(did));
-
-    if (tag.empty()) RETURN(0);
-
-    const char * pos = tag.data();
-    const char * end = pos + tag.size();
-
-    brass_doclen_t doclen;
-    if (!unpack_uint(&pos, end, &doclen)) {
-	const char *msg;
-	if (pos == 0) {
-	    msg = "Too little data for doclen in termlist";
-	} else {
-	    msg = "Overflowed value for doclen in termlist";
-	}
-	throw Xapian::DatabaseCorruptError(msg);
-    }
-
-    RETURN(doclen);
-}

@@ -23,18 +23,14 @@
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
-#include <xapian/base.h>
-#include <xapian/visibility.h>
+#include "xapian/base.h"
+#include "xapian/visibility.h"
 
 #include <string>
 
 namespace Xapian {
 
-/** Information about the steps involved in performing a replication.
- *
- *  Warning: the replication interface is currently experimental, and is liable
- *  to change between releases without warning.
- */
+/** Information about the steps involved in performing a replication. */
 struct XAPIAN_VISIBILITY_DEFAULT ReplicationInfo {
     /// Number of changesets applied.
     int changeset_count;
@@ -62,11 +58,7 @@ struct XAPIAN_VISIBILITY_DEFAULT ReplicationInfo {
     }
 };
 
-/** Access to a master database for replication.
- *
- *  Warning: the replication interface is currently experimental, and is liable
- *  to change between releases without warning.
- */
+/** Access to a master database for replication. */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
     /// The path to the master database.
     std::string path;

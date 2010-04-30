@@ -69,9 +69,6 @@ class BrassTermListTable : public BrassLazyTable {
      */
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 
-    /// Returns the document length for document @a did.
-    brass_doclen_t get_doclength(Xapian::docid did) const;
-
     /** Non-lazy override of BrassLazyTable::create_and_open().
      *
      * Don't create lazily, but if the termlist is deleted, work without it.

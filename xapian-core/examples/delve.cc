@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@
 #include "gnu_getopt.h"
 
 #include <cstring>
+#include <cstdlib>
+#include "safeerrno.h"
 
 using namespace Xapian;
 using namespace std;
@@ -47,16 +49,19 @@ static bool showdocdata = false;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
 "Options:\n"
+"  -a                    show all terms in the database\n"
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"
 "  -s, --stemmer=LANG    set the stemming language, the default is 'none'\n"
 "  -1                    output one list entry per line\n"
 "  -V                    output values for each document referred to\n"
-"  -V<valueno>           output value valueno for each document in the database\n"
+"  -V<valueno>           output value valueno for each document referred to\n"
+"                        (or each document in the database if no -r options)\n"
 "  -d                    output document data for each document referred to\n"
 "  -v                    extra info (wdf and len for postlist;\n"
-"                        wdf and termfreq for termlist; number of terms for db)\n"
+"                        wdf and termfreq for termlist; number of terms for db;\n"
+"                        termfreq when showing all terms)\n"
 "      --help            display this help and exit\n"
 "      --version         output version information and exit" << endl;
 }
@@ -71,6 +76,7 @@ show_db_stats(Database &db)
 	 << endl;
     cout << "document length upper bound = " << db.get_doclength_upper_bound()
 	 << endl;
+    cout << "highest document id ever used = " << db.get_lastdocid() << endl;
 
     if (verbose) {
 	// To find the number of terms, we have to count them!
@@ -112,6 +118,20 @@ show_values(Database &db,
 }
 
 static void
+show_value(Database &db,
+	   vector<docid>::const_iterator i,
+	   vector<docid>::const_iterator end,
+	   Xapian::valueno slot)
+{
+    while (i != end) {
+	Xapian::docid did = *i;
+	cout << "Value " << slot << " for record #" << did << ": "
+	     << db.get_document(did).get_value(slot) << endl;
+	++i;
+    }
+}
+
+static void
 show_docdata(Database &db, docid docid, char sep)
 {
     cout << sep << "[" << db.get_document(docid).get_data() << ']';
@@ -130,23 +150,39 @@ show_docdata(Database &db,
 }
 
 static void
+show_termlist(const Database &db, Xapian::docid did)
+{
+    TermIterator t, tend;
+    if (did == 0) {
+	t = db.allterms_begin();
+	tend = db.allterms_end();
+	cout << "All terms in database:";
+    } else {
+	t = db.termlist_begin(did);
+	tend = db.termlist_end(did);
+	cout << "Term List for record #" << did << ':';
+    }
+
+    while (t != tend) {
+	cout << separator << *t;
+	if (verbose) {
+	    if (did != 0)
+		cout << ' ' << t.get_wdf();
+	    cout << ' ' << t.get_termfreq();
+	}
+	++t;
+    }
+    cout << endl;
+}
+
+static void
 show_termlists(Database &db,
 	       vector<docid>::const_iterator i,
 	       vector<docid>::const_iterator end)
 {
     // Display termlists
     while (i != end) {
-	TermIterator t = db.termlist_begin(*i);
-	TermIterator tend = db.termlist_end(*i);
-	cout << "Term List for record #" << *i << ':';
-	while (t != tend) {
-	    cout << separator << *t;
-	    if (verbose) {
-		cout << ' ' << t.get_wdf() << ' ' << t.get_termfreq();
-	    }
-	    ++t;
-	}
-	cout << endl;
+	show_termlist(db, *i);
 	++i;
     }
 }
@@ -167,6 +203,7 @@ main(int argc, char **argv) try {
 	}
     }
 
+    bool all_terms = false;
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;
@@ -175,11 +212,27 @@ main(int argc, char **argv) try {
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) != -1) {
+    while ((c = gnu_getopt(argc, argv, "ar:t:s:1vV::d")) != -1) {
 	switch (c) {
-	    case 'r':
-		recnos.push_back(atoi(optarg));
+	    case 'a':
+		all_terms = true;
 		break;
+	    case 'r': {
+		char * end;
+		errno = 0;
+		unsigned long n = strtoul(optarg, &end, 10);
+		if (optarg == end || *end) {
+		    cout << "Non-numeric document id: " << optarg << endl;
+		    exit(1);
+		}
+		Xapian::docid did(n);
+		if (errno == ERANGE || n == 0 || did != n) {
+		    cout << "Document id out of range: " << optarg << endl;
+		    exit(1);
+		}
+		recnos.push_back(did);
+		break;
+	    }
 	    case 't':
 		terms.push_back(optarg);
 		break;
@@ -189,11 +242,23 @@ main(int argc, char **argv) try {
 	    case '1':
 		separator = '\n';
 		break;
-	    case 'V': case 'k': /* -k for backward compatibility */
-		showvalues = true;
+	    case 'V':
 		if (optarg) {
-		    slot = atoi(optarg);
+		    char * end;
+		    errno = 0;
+		    unsigned long n = strtoul(optarg, &end, 10);
+		    if (optarg == end || *end) {
+			cout << "Non-numeric value slot: " << optarg << endl;
+			exit(1);
+		    }
+		    slot = Xapian::valueno(n);
+		    if (errno == ERANGE || slot != n) {
+			cout << "Value slot out of range: " << optarg << endl;
+			exit(1);
+		    }
 		    slot_set = true;
+		} else {
+		    showvalues = true;
 		}
 		break;
 	    case 'd':
@@ -231,30 +296,36 @@ main(int argc, char **argv) try {
 	}
     }
 
-    if (terms.empty() && recnos.empty() && !slot_set) {
+    if (!all_terms && terms.empty() && recnos.empty() && !slot_set) {
 	// Show some statistics about the database.
 	show_db_stats(db);
 	return 0;
     }
 
+    if (all_terms) {
+	show_termlist(db, 0);
+    }
+
     if (!recnos.empty()) {
 	if (showvalues) {
 	    show_values(db, recnos.begin(), recnos.end());
+	} else if (slot_set) {
+	    show_value(db, recnos.begin(), recnos.end(), slot);
 	}
 
 	if (showdocdata) {
 	    show_docdata(db, recnos.begin(), recnos.end());
 	}
-    }
-
-    if (slot_set) {
-	cout << "Value " << slot << " for each document:";
-	ValueIterator it = db.valuestream_begin(slot);
-	while (it != db.valuestream_end(slot)) {
-	    cout << separator << it.get_docid() << ':' << *it;
-	    ++it;
+    } else {
+	if (slot_set) {
+	    cout << "Value " << slot << " for each document:";
+	    ValueIterator it = db.valuestream_begin(slot);
+	    while (it != db.valuestream_end(slot)) {
+		cout << separator << it.get_docid() << ':' << *it;
+		++it;
+	    }
+	    cout << endl;
 	}
-	cout << endl;
     }
 
     if (terms.empty()) {
@@ -280,8 +351,7 @@ main(int argc, char **argv) try {
 	    while (p != pend) {
 		cout << separator << *p;
 		if (verbose) {
-		    cout << ' ' << p.get_wdf()
-			<< ' ' << p.get_doclength();
+		    cout << ' ' << p.get_wdf() << ' ' << p.get_doclength();
 		}
 		if (showvalues) show_values(db, *p, ' ');
 		if (showdocdata) show_docdata(db, *p, ' ');

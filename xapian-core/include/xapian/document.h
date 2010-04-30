@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2009,2010 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,24 @@
 
 namespace Xapian {
 
-/// A document in the database - holds data, values, terms, and postings
+/** A handle representing a document in a Xapian database.
+ *
+ *  The Document class fetches information from the database lazily.  Usually
+ *  this behaviour isn't visible to users (except for the speed benefits), but
+ *  if the document in the database is modified or deleted, then preexisting
+ *  Document objects may return the old or new versions of data (or throw
+ *  Xapian::DocNotFoundError in the case of deletion).
+ *
+ *  Since Database objects work on a snapshot of the database's state, the
+ *  situation above can only happen with a WritableDatabase object, or if
+ *  you call Database::reopen() on a Database object.
+ *
+ *  We recommend you avoid designs where this behaviour is an issue, but if
+ *  you need a way to make a non-lazy version of a Document object, you can do
+ *  this like so:
+ *
+ *      doc = Xapian::Document::unserialise(doc.serialise());
+ */
 class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
@@ -122,9 +139,27 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *
 	 *  @param tname     The name of the term.
 	 *  @param wdfinc    The increment that will be applied to the wdf
-	 *                   for this term.
+	 *                   for this term (default: 1).
 	 */
 	void add_term(const std::string & tname, Xapian::termcount wdfinc = 1);
+
+	/** Add a boolean filter term to the document.
+	 *
+	 *  This method adds @a term to the document with wdf of 0 -
+	 *  this is generally what you want for a term used for boolean
+	 *  filtering as the wdf of such terms is ignored, and it doesn't
+	 *  make sense for them to contribute to the document's length.
+	 *
+	 *  If the specified term already indexes this document, this method
+	 *  has no effect.
+	 *
+	 *  It is exactly the same as add_term(term, 0).
+	 *
+	 *  This method was added in Xapian 1.0.18.
+	 *
+	 *  @param term		The term to add.
+	 */
+	void add_boolean_term(const std::string & term) { add_term(term, 0); }
 
 	/** Remove a posting of a term from the document.
 	 *

@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010 Olly Betts
 
 ===========
 Deprecation
@@ -47,6 +47,13 @@ If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
 documentation comments for the feature, or the list at the end
 of this file, will describe possible alternatives to the deprecated feature.
+
+If you want to disable deprecation warnings temporarily, you can do so
+by passing ``"-DXAPIAN_DEPRECATED(X)=X"`` to the compiler (the quotes are
+needed to protect the brackets from the shell).  If your build system uses
+make, you might do this like so::
+
+    make 'CPPFLAGS="-DXAPIAN_DEPRECATED(X)=X"'
 
 API and ABI compatibility
 -------------------------
@@ -230,24 +237,15 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ========== ====== =================================== ========================================================================
 ========== ====== =================================== ========================================================================
 
-Features currently marked as experimental
-=========================================
-
-Native C++ API
---------------
-
-============== ===============================================================================================================
-Name           Details
-============== ===============================================================================================================
-Replication    Replication API (in particular, the ReplicationInfo structure) is likely to be changed in future.  Also, the
-               format for changesets (both on-disk and over the network) is likely to change (to allow compression of
-	       changesets).  See tickets `#347 <http://trac.xapian.org/ticket/347>`_ and
-	       `#348 <http://trac.xapian.org/ticket/348>`_.
--------------- ---------------------------------------------------------------------------------------------------------------
-PostingSource  The PostingSource API is new, and has already been through several redesigns before release.  While we think
-	       that we now have a good design, we are concerned that wider use of it will show that the API needs to be
-	       adjusted again, so we're marking it as experimental for now.
-============== ===============================================================================================================
+.. Features currently marked as experimental
+.. =========================================
+.. Native C++ API
+.. --------------
+.. ============== ===============================================================================================================
+.. Name           Details
+.. ============== ===============================================================================================================
+.. -------------- ---------------------------------------------------------------------------------------------------------------
+.. ============== ===============================================================================================================
 
 Features removed from Xapian
 ============================
@@ -378,6 +376,9 @@ Removed Feature name                        Upgrade suggestion and comments
         throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
         the document specified doesn't      specified document ID.
         exist.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.5   delve -k                            Accepted as an undocumented alias for -V since 0.9.10 for compatibility with 0.9.9
+                                            and earlier.  Just use -V instead.
 ======= =================================== ==================================================================================
 
 

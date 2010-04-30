@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -297,6 +297,8 @@ inline bool is_wordchar(unsigned ch) {
 	    (1 << Xapian::Unicode::MODIFIER_LETTER) |
 	    (1 << Xapian::Unicode::OTHER_LETTER) |
 	    (1 << Xapian::Unicode::NON_SPACING_MARK) |
+	    (1 << Xapian::Unicode::ENCLOSING_MARK) |
+	    (1 << Xapian::Unicode::COMBINING_SPACING_MARK) |
 	    (1 << Xapian::Unicode::DECIMAL_DIGIT_NUMBER) |
 	    (1 << Xapian::Unicode::LETTER_NUMBER) |
 	    (1 << Xapian::Unicode::OTHER_NUMBER) |

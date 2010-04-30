@@ -199,6 +199,11 @@ Parameters:
 
 Re-open the database to ensure you are using the latest revision.
 
+=item close
+
+Close the database. This also implies a commit() unless a transaction is in
+progress.
+
 =back
 
 =head1 SEE ALSO

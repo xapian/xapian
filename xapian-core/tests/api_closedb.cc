@@ -31,14 +31,14 @@
 using namespace std;
 
 #define COUNT_CLOSEDEXC(CODE) \
-    try { CODE; } catch (Xapian::DatabaseError &) { ++closedexc_count; }
+    try { CODE; } catch (const Xapian::DatabaseError &) { ++closedexc_count; }
 
 #define IF_NOT_CLOSEDEXC(CODE) \
     do { \
 	hadexc = false; \
 	try { \
 	    CODE; \
-	} catch (Xapian::DatabaseError &) { \
+	} catch (const Xapian::DatabaseError &) { \
 	    ++closedexc_count; \
 	    hadexc = true; \
 	} \
@@ -94,7 +94,7 @@ struct closedb1_iterators {
 	try {
 	    ++pl1;
 	    advanced = true;
-	} catch (Xapian::DatabaseError &) {}
+	} catch (const Xapian::DatabaseError &) {}
 
 	if (advanced) {
 	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 2));
@@ -178,21 +178,25 @@ DEFINE_TESTCASE(closedb4, writable && !inmemory) {
 DEFINE_TESTCASE(closedb5, transactions && !remote) {
     // FIXME: Fails with the remote backend, but I suspect it may be a test
     // harness issue.
-    Xapian::WritableDatabase wdb = get_writable_database();
-    wdb.begin_transaction();
-    wdb.add_document(Xapian::Document());
-    TEST_EQUAL(wdb.get_doccount(), 1);
-    wdb.close();
-    Xapian::Database db = get_writable_database_as_database();
-    TEST_EQUAL(db.get_doccount(), 0);
+    {
+	Xapian::WritableDatabase wdb = get_writable_database();
+	wdb.begin_transaction();
+	wdb.add_document(Xapian::Document());
+	TEST_EQUAL(wdb.get_doccount(), 1);
+	wdb.close();
+	Xapian::Database db = get_writable_database_as_database();
+	TEST_EQUAL(db.get_doccount(), 0);
+    }
 
-    // Same test but for an unflushed transaction.
-    wdb = get_writable_database();
-    wdb.begin_transaction(false);
-    wdb.add_document(Xapian::Document());
-    TEST_EQUAL(wdb.get_doccount(), 1);
-    wdb.close();
-    db = get_writable_database_as_database();
-    TEST_EQUAL(db.get_doccount(), 0);
+    {
+	// Same test but for an unflushed transaction.
+	Xapian::WritableDatabase wdb = get_writable_database();
+	wdb.begin_transaction(false);
+	wdb.add_document(Xapian::Document());
+	TEST_EQUAL(wdb.get_doccount(), 1);
+	wdb.close();
+	Xapian::Database db = get_writable_database_as_database();
+	TEST_EQUAL(db.get_doccount(), 0);
+    }
     return true;
 }

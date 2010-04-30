@@ -1,7 +1,7 @@
-/** @file brass_metadata.h
+/** @file brass_metadata.cc
  * @brief Access to metadata for a brass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,13 @@
 #include <config.h>
 #include "brass_metadata.h"
 
+#include "brass_cursor.h"
+
 #include "database.h"
 #include "omassert.h"
 #include "stringutils.h"
+
+#include "xapian/error.h"
 
 using namespace std;
 

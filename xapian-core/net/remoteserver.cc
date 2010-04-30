@@ -1,8 +1,8 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,6 +187,8 @@ RemoteServer::run()
 		&RemoteServer::msg_writeaccess,
 		&RemoteServer::msg_getmetadata,
 		&RemoteServer::msg_setmetadata,
+		&RemoteServer::msg_addspelling,
+		&RemoteServer::msg_removespelling,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -679,4 +681,26 @@ RemoteServer::msg_setmetadata(const string & message)
     p += keylen;
     string val(p, p_end - p);
     wdb->set_metadata(key, val);
+}
+
+void
+RemoteServer::msg_addspelling(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::termcount freqinc = decode_length(&p, p_end, false);
+    wdb->add_spelling(string(p, p_end - p), freqinc);
+}
+
+void
+RemoteServer::msg_removespelling(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::termcount freqdec = decode_length(&p, p_end, false);
+    wdb->remove_spelling(string(p, p_end - p), freqdec);
 }

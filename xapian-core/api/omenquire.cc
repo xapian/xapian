@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -654,6 +654,13 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     if (weight == 0) {
 	weight = new BM25Weight;
+    }
+
+    {
+	Xapian::doccount docs = db.get_doccount();
+	maxitems = min(maxitems, docs);
+	check_at_least = min(check_at_least, docs);
+	check_at_least = max(check_at_least, maxitems);
     }
 
     Xapian::Weight::Internal stats;

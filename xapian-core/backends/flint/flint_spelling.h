@@ -44,7 +44,7 @@ struct F_fragment {
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string () const {
-	return string(data, data[0] == 'M' ? 4 : 3);
+	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 };
 
@@ -53,7 +53,7 @@ inline bool operator<(const F_fragment &a, const F_fragment &b) {
 }
 
 class FlintSpellingTable : public FlintTable {
-    void toggle_fragment(F_fragment frag, const string & word);
+    void toggle_fragment(F_fragment frag, const std::string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<F_fragment, std::set<std::string> > termlist_deltas;
@@ -78,7 +78,7 @@ class FlintSpellingTable : public FlintTable {
 
     TermList * open_termlist(const std::string & word);
 
-    Xapian::doccount get_word_frequency(const string & word) const;
+    Xapian::doccount get_word_frequency(const std::string & word) const;
 
     /** Override methods of FlintTable.
      *

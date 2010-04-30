@@ -25,7 +25,6 @@ OBJS= \
                 $(INTDIR)\chert_dbstats.obj\
                 $(INTDIR)\chert_document.obj\
                 $(INTDIR)\chert_io.obj\
-                $(INTDIR)\chert_lock.obj\
                 $(INTDIR)\chert_metadata.obj\
                 $(INTDIR)\chert_modifiedpostlist.obj\
                 $(INTDIR)\chert_positionlist.obj\
@@ -52,7 +51,6 @@ SRCS= \
                 $(INTDIR)\chert_dbstats.cc\
                 $(INTDIR)\chert_document.cc\
                 $(INTDIR)\chert_io.cc\
-                $(INTDIR)\chert_lock.cc\
                 $(INTDIR)\chert_metadata.cc\
                 $(INTDIR)\chert_modifiedpostlist.cc\
                 $(INTDIR)\chert_positionlist.cc\
@@ -112,5 +110,7 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

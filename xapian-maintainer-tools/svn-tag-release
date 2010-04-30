@@ -2,6 +2,8 @@
 
 set -e
 
+BRANCH=trunk
+
 version="$1"
 
 # check parameter was passed and that it looks like a version
@@ -10,7 +12,7 @@ case "$version" in
 [0-9].[0-9].[1-9][0-9]) ;;
 *)
     echo "Syntax: $0 VERSION"
-    echo "e.g. $0 0.9.0"
+    echo "e.g. $0 1.0.18"
     exit 1
     ;;
 esac
@@ -22,19 +24,40 @@ if [ -d "/srv/www/oligarchy.co.uk/xapian/$version" ] ; then
     exit 1
 fi
 
+# Avoid tagging a release with the wrong versions in the tarballs (as
+# happened with 1.1.4).
+escaped_version=`echo "$version"|sed 's/\([^0-9]\)/\\\\\\1/g'`
+for d in xapian-core xapian-bindings xapian-applications/omega ; do
+    svn cat "svn+userv:///xapian/$BRANCH/$d/configure.ac" |
+	grep '^AC_INIT(.*\<'"$escaped_version"'\>' >/dev/null || {
+	    echo "$d/configure.ac not version $version" 1>&2
+	    exit 1
+    }
+done
+# Xapian.pm:our $VERSION = '1.1.4.0';
+svn cat "svn+userv:///xapian/$BRANCH/search-xapian/Xapian.pm" |
+    grep '^our \$VERSION = '"'$escaped_version"'\.0'"'" >/dev/null || {
+	echo "search-xapian/Xapian.pm not version $version" 1>&2
+	exit 1
+}
+
 # Add the version to the list in Bugzilla.
 # FIXME this doesn't work, as I need to be logged in to do this!
 #wget -o- "http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=new&version=$version" > /dev/null 2> /dev/null
 
+echo "Tagging release"
 # Tag the release in SVN.
-svn cp -m"$version release." svn+userv:///xapian/trunk svn+userv:///xapian/tags/"$version"
+svn cp -m"$version release." svn+userv:///xapian/"$BRANCH" svn+userv:///xapian/tags/"$version"
 
+echo "Building release tarballs"
 # Create a directory so the snapshotter will build this.
 D=/home/olly/tmp/xapian-svn-snapshot/tags
 test -d $D || mkdir $D
 mkdir $D/"$version"
 
 # Snapshotter will automatically copy the tarballs onto the website.
+echo "Running:"
+echo "$HOME/bin/make-xapian-svn-snapshot-tarballs tags/$version"
 $HOME/bin/make-xapian-svn-snapshot-tarballs tags/"$version"
 
 # Clean up.

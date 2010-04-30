@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
 # Copyright (C) 2008,2009 Olly Betts
+# Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -632,6 +633,72 @@ def test_postinglist_iter():
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, postings[i], 'positer')
+
+def test_valuestream_iter():
+    """Test a valuestream iterator on Database.
+
+    """
+    db = setup_database()
+
+    # Check basic iteration
+    expect([(item.docid, item.value) for item in db.valuestream(0)],
+           [(3, '\xa4'), (4, '\xa2'), (5, '\xa4')])
+    expect([(item.docid, item.value) for item in db.valuestream(1)], [])
+    expect([(item.docid, item.value) for item in db.valuestream(5)],
+           [(5, "five")])
+    expect([(item.docid, item.value) for item in db.valuestream(9)],
+           [(5, "nine")])
+
+    # Test skip_to() on iterator with no values, and behaviours when called
+    # after already returning StopIteration.
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    expect_exception(StopIteration, "", i.next)
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.next)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+
+    # Test that skipping to a value works, and that skipping doesn't have to
+    # advance.
+    i = db.valuestream(0)
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(1)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(5)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.skip_to, 6)
+
+    # Test that alternating skip_to() and next() works.
+    i = db.valuestream(0)
+    item = i.next()
+    expect((item.docid, item.value), (3, '\xa4'))
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.next()
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.skip_to, 6)
+
+    # Test that next works correctly after skip_to() called with an earlier
+    # item.
+    i = db.valuestream(0)
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(1)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.next()
+    expect((item.docid, item.value), (5, '\xa4'))
+
+    # Test that next works correctly after skipping to last item
+    i = db.valuestream(0)
+    item = i.skip_to(5)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.next)
 
 def test_position_iter():
     """Test position iterator for a document in a database.
@@ -1313,23 +1380,23 @@ def test_matchspy():
 
     spy = xapian.ValueCountMatchSpy(0)
     enq.add_matchspy(spy)
+    # Regression test for clear_matchspies() - used to always raise an
+    # exception due to a copy and paste error in its definition.
+    enq.clear_matchspies()
     mset = enq.get_mset(0, 10)
-    expect(spy.get_values_as_dict(), {
-           xapian.sortable_serialise(1.5): 1,
-           xapian.sortable_serialise(2): 2,
-          })
+    expect([item for item in spy.values()], [])
+
+    enq.add_matchspy(spy)
+    mset = enq.get_mset(0, 10)
     expect(spy.get_total(), 5)
-    expect(spy.get_top_values(10), [
+    expect([(item.term, item.termfreq) for item in spy.values()], [
+           (xapian.sortable_serialise(1.5), 1),
+           (xapian.sortable_serialise(2), 2),
+    ])
+    expect([(item.term, item.termfreq) for item in spy.top_values(10)], [
            (xapian.sortable_serialise(2), 2),
            (xapian.sortable_serialise(1.5), 1),
     ])
-    ranges = xapian.NumericRanges(spy.get_values(), 5)
-    expect(ranges.get_values_seen(), 3)
-    expect(ranges.get_ranges_as_dict(), {(1.5, 1.5): 1, (2.0, 2.0): 2})
-
-    ranges = xapian.NumericRanges(spy.get_values(), 1)
-    expect(ranges.get_values_seen(), 3)
-    expect(ranges.get_ranges_as_dict(), {(1.5, 2): 3})
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

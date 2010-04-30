@@ -123,7 +123,7 @@ check_SCRIPTS = runtest
 
 ## Sources:
 
-noinst_HEADERS = apitest.h
+noinst_HEADERS = apitest.h dbcheck.h
 
 collated_apitest_sources = \
  api_anydb.cc \
@@ -157,7 +157,7 @@ collated_apitest_sources = \
  api_geospatial.cc \
  api_wrdb.cc
 
-apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
+apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
 apitest_LDFLAGS = -no-install $(ldflags)

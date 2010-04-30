@@ -1,4 +1,26 @@
- 13722       olly Wed Dec 09 00:26:19 GMT 2009  Olly Betts <olly@survex.com>
+Omega 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+build system:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Omega 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Omega 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+omega:
+
+* Use the optimised integer to string conversion routines from xapian-core.
 
 Omega 1.1.3 (2009-11-18):
 
@@ -18,6 +40,8 @@ build system:
 
 Omega 1.1.2 (2009-07-23):
 
+This release includes all changes from 1.0.14 which are relevant.
+
 indexers:
 
 * omindex:
@@ -28,6 +52,8 @@ indexers:
   + Extract pptx notesSlides and comments, if present.  (ticket#290).
 
 Omega 1.1.1 (2009-06-09):
+
+This release includes all changes from 1.0.13 which are relevant.
 
 indexers:
 
@@ -82,6 +108,39 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.20 (2010-04-27):
+
+portability:
+
+* Fix build failure on Mac OS X and possibly some other platforms (regression
+  caused by fix for getopt-related warnings on Cygwin in 1.0.19).
+
+Omega 1.0.19 (2010-04-15):
+
+portability:
+
+* Fix getopt-related warning on Cygwin.
+
+Omega 1.0.18 (2010-02-14):
+
+indexers:
+
+* Make the default charset "utf-8" not "UTF-8" as we lower case explicitly
+  specified character sets to compare to see if we need to reparse.  Previously
+  XML documents which explicitly specified their character set as UTF-8 would
+  cause needless restart or the parser.
+
+* omindex:
+
+  + Increase the wdf boost for the document title from 2 to 5, since 2 isn't
+    really enough.
+
+* scriptindex:
+
+  + Don't abort with "Unknown Exception" if indexing is disallowed or we hit
+    </body> for a document which had an overridden character set.  Fixes
+    ticket#410.
 
 Omega 1.0.17 (2009-11-18):
 

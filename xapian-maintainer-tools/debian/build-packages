@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build packages in a chroot.
 #
-# Copyright (C) 2006,2007,2008 Olly Betts
+# Copyright (C) 2006,2007,2008,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,117 +17,61 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-set -e
+# packages required: pbuilder lintian
 
-REPO_URL=http://www.xapian.org/debian-tmp
+set -e
 
 LINTIAN_FLAGS="-l0 -I"
 
-if [ x"$1" = x--help -o "$#" -lt 3 ] ; then
-  echo "Usage: $0 CODENAME ARCH VERSION [PACKAGES...]"
-  echo "e.g. $0 etch i386 1.0.0"
+if [ x"$1" = x--help ] ; then
+  echo "Usage: $0 [PACKAGES...]"
+  echo
+  echo "Build binary packages from source packages which are in the 'build' subdirectory."
+  echo "e.g. $0 bindings omega"
   exit 1
 fi
 
 # Usage: build_package DSC_FILE
 build_package() {
-  pbuilder build --no-targz --buildplace "$CHROOT_DIR" --buildresult "$POOL" "$1"
+  echo ">>> Building: $1"
+  pbuilder build $PBUILDER_OPTS --buildresult build "$1"
 }
 
-rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz
-
-CODENAME=$1
-ARCH=$2
-VERSION=$3
-shift
-shift
 PACKAGES=${*-"core bindings omega"}
 
-CHROOT=$CODENAME-$ARCH
+rm -f pbuilderrc
+touch pbuilderrc
+PBUILDER_OPTS="--configfile pbuilderrc"
 
-POOL=pool/$VERSION/$CODENAME/binary
-CHROOT_DIR=/chroot/$CHROOT
+echo ">>> Updating pbuilder's buildd environment."
+pbuilder update --override-config $PBUILDER_OPTS
 
-mkdir -p "$POOL"
+case $PACKAGES in
+  *core*) build_package build/xapian-core_*.dsc ;;
+  *) echo "*** WARNING : Using an already built libxapian package" ;;
+esac
 
-DSC_PATH="$REPO_URL/pool/$VERSION/$CODENAME/source/"
-
-wget -nv "$REPO_URL/dists/$CODENAME/main/source/Sources.gz"
-
-skip=yes
-gzip -dc Sources.gz | while read line ; do
-  if test -n "$skip" ; then
-    case $line in
-      Files:*) skip= ;;
-    esac
-  elif test -n "$line" ; then
-    FILE=`echo "$line"|sed 's/.* //'`
-    if expr "$FILE" : ".*_${VERSION}[-.]" ; then
-      wget -nv "$DSC_PATH$FILE"
-    else
-      echo "*** Not version $VERSION, ignoring: '$FILE'"
-    fi
-  else
-    skip=yes
-  fi
-done
-
-rm -rf "$CHROOT_DIR"/tmp/*
-
-# Remove any old libxapian packages.
-dchroot -c "$CHROOT" -- 'apt-get --force-yes -y remove libxapian.\*' || true
-
-# Remove /tmp/tmp-repo from sources.list as it won't currently exist.
-perl -ni -e 'print unless m!^deb file:/tmp/tmp-repo/ \./$!' \
-    "$CHROOT_DIR"/etc/apt/sources.list
-dchroot -c "$CHROOT" -- 'apt-get update'
-dchroot -c "$CHROOT" -- 'apt-get --force-yes -y dist-upgrade'
-
-if expr "$PACKAGES" : '.*core' ; then
-  build_package xapian-core_*.dsc
-
-  rm -rf "$CHROOT_DIR"/tmp/*
-else
-  echo "*** WARNING : Using an already built libxapian package"
-fi
-
-mkdir "$CHROOT_DIR"/tmp/tmp-repo
-ln "$POOL"/libxapian* "$CHROOT_DIR"/tmp/tmp-repo \
-  || cp "$POOL"/libxapian* "$CHROOT_DIR"/tmp/tmp-repo
-(
-  cd "$CHROOT_DIR"/tmp/tmp-repo
+echo ">>> Creating temporary repo for pbuilder to get libxapian from."
+ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`
+cd build
   dpkg-scanpackages -a "$ARCH" . /dev/null | gzip -9 > Packages.gz
-)
+cd ..
+pkgdir=`pwd`/build
+echo "BINDMOUNTS=$pkgdir" >> pbuilderrc
+echo "OTHERMIRROR='deb file:$pkgdir/ ./'" >> pbuilderrc
 
-echo 'deb file:/tmp/tmp-repo/ ./' >> "$CHROOT_DIR"/etc/apt/sources.list
-dchroot -c "$CHROOT" -- 'apt-get update'
-dchroot -c "$CHROOT" -- 'apt-get --force-yes -y dist-upgrade'
+echo ">>> Updating the chroot to include the temporary repo."
+# Need to ensure python is installed in the chroot so that the xapian-bindings
+# install script can discover the default python version.
+# FIXME : not sure this is actually required now...
+pbuilder update --override-config $PBUILDER_OPTS --extrapackages python
 
-if expr "$PACKAGES" : '.*bindings' ; then
-  # Need to ensure python is installed in the chroot so that the xapian-bindings
-  # install script can discover the default python version.
-  # FIXME : not sure this is actually required now...
-  dchroot -c "$CHROOT" -- 'apt-get --force-yes -y install python'
+case $PACKAGES in
+  *bindings*) build_package build/xapian-bindings_*.dsc ;;
+esac
 
-  build_package xapian-bindings_*.dsc
-  rm -rf "$CHROOT_DIR"/tmp/*
-fi
+case $PACKAGES in
+  *omega*) build_package build/xapian-omega_*.dsc ;;
+esac
 
-if expr "$PACKAGES" : '.*omega' ; then
-  build_package xapian-omega_*.dsc
-  rm -rf "$CHROOT_DIR"/tmp/*
-fi
-
-ARCHDIR=dists/$CODENAME/main/binary-$ARCH
-mkdir -p "$ARCHDIR"
-
-find pool -not -name '*.deb' -type f -print|perl -ne 'chomp;unlink'
-
-if [ "core bindings omega" = "$PACKAGES" ] ; then
-  dpkg-scanpackages -a "$ARCH" "$POOL" /dev/null \
-      | gzip -9 > "$ARCHDIR/Packages.gz"
-else
-  echo "*** WARNING : Can't generate new Packages.gz for partial build - FIXME"
-fi
-
-lintian $LINTIAN_FLAGS *.dsc "$POOL"/*.deb
+lintian $LINTIAN_FLAGS *.dsc build/*.deb

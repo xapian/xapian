@@ -1,7 +1,7 @@
 /** @file: termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,9 +64,14 @@ should_stem(const std::string & term)
     return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
 
+/** Value representing "ignore this" when returned by check_infix() or
+ *  check_infix_digit().
+ */
+const unsigned UNICODE_IGNORE(-1);
+
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
-	// Unicode includes all these except '&' in it's word boundary rules,
+	// Unicode includes all these except '&' in its word boundary rules,
 	// as well as 0x2019 (which we handle below) and ':' (for Swedish
 	// apparently, but we ignore this for now as it's problematic in
 	// real world cases).
@@ -75,6 +80,8 @@ inline unsigned check_infix(unsigned ch) {
     // 0x2019 is Unicode apostrophe and single closing quote.
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
+    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+	return UNICODE_IGNORE;
     return 0;
 }
 
@@ -94,6 +101,8 @@ inline unsigned check_infix_digit(unsigned ch) {
 	case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
 	    return ch;
     }
+    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+	return UNICODE_IGNORE;
     return 0;
 }
 
@@ -175,7 +184,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 		infix_ch = check_infix(infix_ch);
 	    }
 	    if (!infix_ch) break;
-	    Unicode::append_utf8(term, infix_ch);
+	    if (infix_ch != UNICODE_IGNORE)
+		Unicode::append_utf8(term, infix_ch);
 	    ch = nextch;
 	    itor = next;
 	}
@@ -191,6 +201,9 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 		Unicode::append_utf8(term, ch);
 		if (++itor == Utf8Iterator()) goto endofterm;
 	    }
+	    // Don't index fish+chips as fish+ chips.
+	    if (Unicode::is_wordchar(*itor))
+		term.resize(len);
 	}
 
 endofterm:

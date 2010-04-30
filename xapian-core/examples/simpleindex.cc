@@ -1,7 +1,7 @@
 /** @file simpleindex.cc
  * @brief Index each paragraph of a text file as a Xapian document.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,15 +24,26 @@
 #include <string>
 
 #include <cstdlib> // For exit().
+#include <cstring>
 
 using namespace std;
 
 int
 main(int argc, char **argv)
 try {
-    if (argc != 2) {
+    if (argc != 2 || argv[1][0] == '-') {
+	int rc = 1;
+	if (argv[1]) {
+	    if (strcmp(argv[1], "--version") == 0) {
+		cout << "simpleindex" << endl;
+		exit(0);
+	    }
+	    if (strcmp(argv[1], "--help") == 0) {
+		rc = 0;
+	    }
+	}
 	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE" << endl;
-	exit(1);
+	exit(rc);
     }
 
     // Open the database for update, creating a new database if necessary.
@@ -70,6 +81,11 @@ try {
 	    para += line;
 	}
     }
+
+    // Explicitly commit so that we get to see any errors.  WritableDatabase's
+    // destructor will commit implicitly (unless we're in a transaction) but
+    // will swallow any exceptions produced.
+    db.commit();
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << endl;
     exit(1);

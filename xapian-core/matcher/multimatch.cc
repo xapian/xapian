@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
@@ -318,7 +318,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", " << check_at_least << ", ...");
-    if (check_at_least < maxitems) check_at_least = maxitems;
+    AssertRel(check_at_least,>=,maxitems);
 
     if (!query) {
 	mset = Xapian::MSet(); // FIXME: mset.get_firstitem() will return 0 not first
@@ -893,7 +893,7 @@ new_greatest_weight:
 	    = items.size();
 	if (collapser && matches_lower_bound > uncollapsed_lower_bound)
 	    uncollapsed_lower_bound = matches_lower_bound;
-    } else if (docs_matched < check_at_least) {
+    } else if (!collapser && docs_matched < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
 	LOGLINE(MATCH, "Setting bounds equal");

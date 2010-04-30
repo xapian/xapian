@@ -1,7 +1,8 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,17 +25,27 @@
 #include "api_compact.h"
 
 #include "apitest.h"
+#include "backendmanager.h" // For XAPIAN_BIN_PATH.
+#include "dbcheck.h"
 #include "testsuite.h"
 #include "testutils.h"
 
 #include <xapian.h>
 
 #include <cstdlib>
-#include <sys/wait.h>
+#include "safesyswait.h"
 
 #include "str.h"
 #include "utils.h"
 #include "unixcmds.h"
+
+#define XAPIAN_COMPACT XAPIAN_BIN_PATH"xapian-compact"
+
+#ifndef __WIN32__
+# define SILENT ">/dev/null 2>&1"
+#else
+# define SILENT ">nul 2>nul"
+#endif
 
 using namespace std;
 
@@ -113,7 +124,7 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
 				 "3000 999999 !999999");
     d += ' ';
 
-    string cmd = "../bin/xapian-compact >/dev/null 2>&1 --no-renumber ";
+    string cmd = XAPIAN_COMPACT" "SILENT" --no-renumber ";
     string out = get_named_writable_database_path("compactnorenumber1out");
 
     rm_rf(out);
@@ -144,6 +155,13 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     status = system(cmd + a + c + out);
     TEST_EQUAL(WEXITSTATUS(status), 0);
     check_sparse_uid_terms(out);
+    {
+	// Check that xapian-compact is producing a consistent database.  Also,
+	// regression test - xapian 1.1.4 set lastdocid to 0 in the output
+	// database.
+	Xapian::Database outdb(out);
+	dbcheck(outdb, 24, 9999);
+    }
 
     rm_rf(out);
     status = system(cmd + d + a + c + out);
@@ -179,6 +197,65 @@ DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
     rm_rf(out);
     status = system(cmd + b + a + d + out);
     TEST_NOT_EQUAL(WEXITSTATUS(status), 0);
+
+    return true;
+}
+
+// Test use of compact to merge two databases.
+DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
+    int status;
+
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
+    string indbpath = get_database_path("apitest_simpledata") + ' ';
+    string outdbpath = get_named_writable_database_path("compactmerge1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indbpath + indbpath + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(get_database("apitest_simpledata"));
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+static void
+make_multichunk_db(Xapian::WritableDatabase &db, const string &)
+{
+    int count = 10000;
+
+    Xapian::Document doc;
+    doc.add_term("a");
+    while (count) {
+	db.add_document(doc);
+	--count;
+    }
+
+    db.commit();
+}
+
+// Test use of compact on a database which has multiple chunks for a term.
+// This is a regression test for ticket #427
+DEFINE_TESTCASE(compactmultichunks1, brass || chert || flint) {
+    int status;
+
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
+    string indbpath = get_database_path("compactmultichunks1in",
+					make_multichunk_db, "");
+    string outdbpath = get_named_writable_database_path("compactmultichunks1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + indbpath + ' ' + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(indbpath);
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
     return true;
 }

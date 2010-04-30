@@ -1,8 +1,16 @@
 Revision history for Perl extension Search::Xapian.
 
-1.1.4.0
-	[Changes contributed by Henry]
+1.2.0.0  Wed Apr 28 10:44:15 UTC 2010
+	[This release includes all changes from 1.0.20 which are relevant.]
+
+1.1.5.0  Thu Apr 15 04:23:16 UTC 2010
+	[This release includes all changes from 1.0.19 which are relevant.]
+
+1.1.4.0  Mon Feb 15 14:08:51 UTC 2010
+	[This release includes all changes from 1.0.18 which are relevant.]
+	[Changes contributed by Henry Combrinck]
 	- Add wrappers for the spelling correction functionality (ticket#420).
+	- Add wrapper for Database::close() (ticket#422).
 
 1.1.3.0  Wed Nov 18 11:00:23 UTC 2009
 	[This release includes all changes from 1.0.15-17 which are relevant.]
@@ -43,6 +51,15 @@ Revision history for Perl extension Search::Xapian.
 	  However, there's still a wrinkle in this change - you can't currently
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
+
+1.0.19.0  Thu Apr 15 03:55:04 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Wrap Document::add_boolean_term() (new in C++ API in 1.0.18).
+	- Add test coverage for Document::remove_term().
+
+1.0.18.0  Sun Feb 14 10:22:53 UTC 2010
+	[Changes contributed by Henry Combrinck]
+	- Add wrappers for the spelling correction functionality (ticket#420).
 
 1.0.17.0  Wed Nov 18 02:02:41 UTC 2009
 	[Changes contributed by Olly Betts]

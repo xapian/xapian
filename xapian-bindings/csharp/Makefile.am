@@ -34,8 +34,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	MultiValueKeyMaker.cs \
 	MultiValueSorter.cs \
 	NumberValueRangeProcessor.cs \
-	NumericRange.cs \
-	NumericRanges.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
 	PostingSource.cs \
@@ -43,12 +41,9 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
-	SWIGTYPE_p_std__mapT_Xapian__NumericRange_unsigned_int_t.cs \
-	SWIGTYPE_p_std__mapT_std__string_unsigned_int_t.cs \
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorT_std__string_t.cs \
 	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
-	SWIGTYPE_p_std__vectorT_Xapian__StringAndFrequency_t.cs \
 	Registry.cs \
 	SimpleStopper.cs \
 	Sorter.cs \

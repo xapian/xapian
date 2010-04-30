@@ -2,6 +2,7 @@
  * @brief ChertVersion class
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +25,8 @@
 
 #include <xapian/error.h>
 
-#include "chert_io.h"
 #include "chert_version.h"
+#include "io_utils.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "utils.h"
@@ -81,7 +82,7 @@ ChertVersion::create()
     }
 
     try {
-	chert_io_write(fd, buf, VERSIONFILE_SIZE);
+	io_write(fd, buf, VERSIONFILE_SIZE);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -109,7 +110,7 @@ ChertVersion::read_and_check()
     char buf[VERSIONFILE_SIZE + 1];
     size_t size;
     try {
-	size = chert_io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
+	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
     } catch (...) {
 	(void)close(fd);
 	throw;

@@ -1,7 +1,7 @@
 /** @file xapian-compact-flint.cc
  * @brief Compact a flint database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -134,7 +134,7 @@ class PostlistCursorGt {
 static void
 merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
-		Xapian::docid tot_off)
+		Xapian::docid last_docid)
 {
     totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
@@ -178,7 +178,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 
     {
-	string tag = F_pack_uint(tot_off);
+	string tag = F_pack_uint(last_docid);
 	tag += F_pack_uint_last(tot_totlen);
 	out->add(string(1, '\0'), tag);
     }
@@ -620,7 +620,7 @@ merge_synonyms(FlintTable * out,
 
 static void
 multimerge_postlists(FlintTable * out, const char * tmpdir,
-		     Xapian::docid tot_off,
+		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
     unsigned int c = 0;
@@ -660,7 +660,7 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -720,7 +720,7 @@ void
 compact_flint(const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off) {
+	      Xapian::docid last_docid) {
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };
@@ -811,12 +811,12 @@ compact_flint(const char * destdir, const vector<string> & sources,
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(&out, destdir, tot_off,
+		    multimerge_postlists(&out, destdir, last_docid,
 					 inputs, offset);
 		} else {
 		    merge_postlists(&out, offset.begin(),
 				    inputs.begin(), inputs.end(),
-				    tot_off);
+				    last_docid);
 		}
 		break;
 	    case SPELLING:

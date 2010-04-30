@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -173,9 +173,21 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
     if (fd == -1) {
-	string msg = "Failed to open ";
-	msg += db_path;
-	throw DatabaseError(msg, errno);
+	if (file_exists(db_path)) {
+	    string msg = "Failed to open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
+#ifdef __WIN32__
+	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+	if (fd == -1) {
+	    string msg = "Failed to create and open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
     }
     {
 	fdcloser closer(fd);
@@ -278,8 +290,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 
     unsigned char changes_type = ptr[0];
     if (changes_type != 0) {
-	throw NetworkError("Unsupported changeset type (got %d)",
-				   changes_type);
+	throw NetworkError("Unsupported changeset type: " + str(changes_type));
 	// FIXME - support changes of type 1, produced when DANGEROUS mode is
 	// on.
     }

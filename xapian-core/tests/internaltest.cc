@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include <cfloat>
 #include "safeerrno.h"
 
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -42,6 +43,7 @@ using namespace std;
 #include "serialise-double.h"
 #include "str.h"
 #include "utils.h"
+#include "pack.h"
 
 static bool test_except1()
 {
@@ -71,7 +73,7 @@ static bool test_exception1()
 	    }
 	    throw;
 	}
-    } catch (Test_Exception & e) {
+    } catch (const Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
 	return true;
     }
@@ -482,7 +484,7 @@ static bool test_serialiseerror1()
     try {
 	// unserialise_error throws an exception.
 	unserialise_error(serialisation, "", "");
-    } catch (Xapian::Error & ecaught) {
+    } catch (const Xapian::Error & ecaught) {
 	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
 	threw = true;
     }
@@ -582,6 +584,25 @@ static bool test_strbool1()
     return true;
 }
 
+/// Test pack_uint_preserving_sort()
+static bool test_pack_uint_preserving_sort1()
+{
+    string prev_packed;
+    for (unsigned int i = 0; i != 1000; ++i) {
+	string packed;
+	pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests					    #
 // ##################################################################
@@ -606,11 +627,15 @@ static const test_desc tests[] = {
 #endif
     {"static_assert1",		test_static_assert1},
     {"strbool1",		test_strbool1},
+    {"pack1",			test_pack_uint_preserving_sort1},
     {0, 0}
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

@@ -250,6 +250,7 @@ main(int argc, char **argv)
 	if (!renumber)
 	    used_ranges.reserve(argc - 1 - optind);
 	Xapian::docid tot_off = 0;
+	Xapian::docid last_docid = 0;
 	enum { UNKNOWN, BRASS, CHERT, FLINT } backend = UNKNOWN;
 	const char * backend_names[] = {
 	    NULL,
@@ -357,10 +358,14 @@ main(int argc, char **argv)
 	    offset.push_back(tot_off);
 	    if (renumber)
 		tot_off += last;
+	    else if (last_docid < db.get_lastdocid())
+		last_docid = db.get_lastdocid();
 	    used_ranges.push_back(make_pair(first, last));
 
 	    sources.push_back(string(srcdir) + '/');
 	}
+	if (renumber)
+	    last_docid = tot_off;
 
 	if (!renumber && sources.size() > 1) {
 	    // We want to process the sources in ascending order of first
@@ -385,7 +390,7 @@ main(int argc, char **argv)
 		size_t n = order[j];
 
 		swap(sources_[j], sources[n]);
-		used_ranges_[j] = used_ranges[n];
+		used_ranges_.push_back(used_ranges[n]);
 
 		const pair<Xapian::docid, Xapian::docid> p = used_ranges[n];
 		// Skip empty databases.
@@ -430,13 +435,13 @@ main(int argc, char **argv)
 
 	if (backend == FLINT) {
 	    compact_flint(destdir, sources, offset, block_size, compaction,
-			  multipass, tot_off);
+			  multipass, last_docid);
 	} else if (backend == BRASS) {
 	    compact_brass(destdir, sources, offset, block_size, compaction,
-			  multipass, tot_off);
+			  multipass, last_docid);
 	} else {
 	    compact_chert(destdir, sources, offset, block_size, compaction,
-			  multipass, tot_off);
+			  multipass, last_docid);
 	}
 
 	// Create the version file ("iamchert", etc).

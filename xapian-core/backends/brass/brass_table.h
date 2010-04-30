@@ -1,7 +1,7 @@
 /* brass_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -453,25 +453,20 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
 	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  All modifications since the
-	 *  previous commit() will be lost.
+	 *  If an error occurs during the operation, an exception will be
+	 *  thrown.
 	 *
-	 *  If key is empty, then the null item is replaced.  If key.length()
-	 *  exceeds the limit on key size, false is returned.
+	 *  If key is empty, then the null item is replaced.
 	 *
-	 *  e.g.    ok = btree.add("TODAY", "Mon 9 Oct 2000");
+	 *  e.g.    btree.add("TODAY", "Mon 9 Oct 2000");
 	 *
 	 *  @param key   The key to store in the table.
 	 *  @param tag   The tag to store in the table.
 	 *  @param already_compressed	true if tag is already compressed,
 	 *		for example because it is being opaquely copied
 	 *		(default: false).
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
 	 */
-	bool add(const std::string &key, std::string tag, bool already_compressed = false);
+	void add(const std::string &key, std::string tag, bool already_compressed = false);
 
 	/** Delete an entry from the table.
 	 *
@@ -480,15 +475,13 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	 *  an empty key can't be removed, and false is returned.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  All modifications since the
-	 *  previous commit() will be lost.
+	 *  by an exception.
 	 *
-	 *  e.g.    ok = btree.del("TODAY")
+	 *  e.g.    bool deleted = btree.del("TODAY")
 	 *
 	 *  @param key   The key to remove from the table.
 	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
+	 *  @return true if an entry was removed; false if it did not exist.
 	 */
 	bool del(const std::string &key);
 
@@ -742,6 +735,12 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
 	/// Set to true when the database is opened to write.
 	bool writable;
+
+	/// Flag for tracking when cursors need to rebuild.
+	mutable bool cursor_created_since_last_modification;
+
+	/// Version count for tracking when cursors need to rebuild.
+	unsigned long cursor_version;
 
 	/* B-tree navigation functions */
 	bool prev(Brass::Cursor *C_, int j) const {

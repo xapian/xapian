@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include "xapian/replication.h"
+#include "replication.h"
 
 #include "xapian/base.h"
 #include "xapian/dbfactory.h"
@@ -45,7 +45,7 @@
 #include "serialise.h"
 #include "utils.h"
 
-#include <autoptr.h>
+#include "autoptr.h"
 #include <cstdio> // For rename().
 #include <fstream>
 #include <string>
@@ -70,7 +70,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     Database db;
     try {
 	db = Database(path);
-    } catch (Xapian::DatabaseError & e) {
+    } catch (const Xapian::DatabaseError & e) {
 	RemoteConnection conn(-1, fd, "");
 	OmTime end_time;
 	conn.send_message(REPL_REPLY_FAIL,
@@ -123,8 +123,11 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// The id of the currently live database in the replica (0 or 1).
     int live_id;
 
-    /// The live database being replicated.
-    WritableDatabase live_db;
+    /** The live database being replicated.
+     *
+     *  This needs to be mutable because it is sometimes lazily opened.
+     */
+    mutable WritableDatabase live_db;
 
     /** Do we have an offline database currently?
      *
@@ -361,9 +364,11 @@ string
 DatabaseReplica::Internal::get_revision_info() const
 {
     DEBUGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", "");
-    if (live_db.internal.size() != 1) {
+    if (live_db.internal.empty())
+	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    if (live_db.internal.size() != 1)
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-    }
+
     string uuid = (live_db.internal[0])->get_uuid();
     string buf = encode_length(uuid.size());
     buf += uuid;
@@ -454,7 +459,10 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     AutoPtr<DatabaseReplicator> replicator;
     try {
 	replicator.reset(DatabaseReplicator::open(replica_path));
-    } catch (Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseError &) {
+	return false;
+    }
+    if (offline_needed_revision.empty()) {
 	return false;
     }
     if (!replicator->check_revision_at_least(offline_revision,
@@ -491,18 +499,22 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 bool
 DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 {
-    DEBUGCALL(API, bool,
-	      "DatabaseReplica::Internal::apply_next_changeset", info);
-    if (live_db.internal.size() != 1) {
+    DEBUGCALL(API, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
+    if (live_db.internal.empty())
+	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    if (live_db.internal.size() != 1)
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-    }
+
     OmTime end_time;
 
     while (true) {
 	char type = conn->sniff_next_message_type(end_time);
 	switch (type) {
-	    case REPL_REPLY_END_OF_CHANGES:
+	    case REPL_REPLY_END_OF_CHANGES: {
+		string buf;
+		(void)conn->get_message(buf, end_time);
 		RETURN(false);
+	    }
 	    case REPL_REPLY_DB_HEADER:
 		// Apply the copy - remove offline db in case of any error.
 		try {
@@ -540,23 +552,23 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 		if (!have_offline_db) {
 		    // Close the live db.
-		    live_db = WritableDatabase();
 		    string replica_path(get_replica_path(live_id));
-
+		    live_db = WritableDatabase();
 		    // Open a replicator for the live path, and apply the
 		    // changeset.
 		    {
 			AutoPtr<DatabaseReplicator> replicator(
 				DatabaseReplicator::open(replica_path));
+			offline_needed_revision.resize(0);
 			offline_needed_revision = replicator->
 				apply_changeset_from_conn(*conn, end_time, true);
 		    }
 
-		    // Close the replicator and open the live db again.
 		    if (info != NULL) {
 			++(info->changeset_count);
 			info->changed = true;
 		    }
+		    // Now the replicator is closed, open the live db again.
 		    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
 		    RETURN(true);
 		}
@@ -564,6 +576,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		{
 		    AutoPtr<DatabaseReplicator> replicator(
 			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
+		    offline_needed_revision.resize(0);
 		    offline_needed_revision = replicator->
 			    apply_changeset_from_conn(*conn, end_time, false);
 		}

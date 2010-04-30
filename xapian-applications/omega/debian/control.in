@@ -3,15 +3,17 @@ Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ autotools-dev, libpcre3-dev,
-    autoconf, automake (>= 1.10) | automake1.9, libtool
-Standards-Version: 3.8.0
-Homepage: http://www.xapian.org/
+    autoconf, automake (>= 1.10), libtool
+Standards-Version: 3.8.4
+Homepage: http://xapian.org/
+Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-applications/omega
+Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-applications/omega
 
 Package: xapian-omega
 Section: web
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, @GHOSTSCRIPT@,
+Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, ghostscript,
     catdoc, libwps-tools, catdvi, djvulibre-bin, perl
 Recommends: apache2|httpd-cgi
 Description: CGI search interface and indexers using Xapian

@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.1.3], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.2.0], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
@@ -16,11 +16,27 @@ LT_INIT
 dnl Checks for programs.
 AC_PROG_CXX
 
+case $host_os in
+  linux* | k*bsd*-gnu)
+    dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
+    link_all_deplibs_CXX=no
+    ;;
+esac
+
+case $host_os in
+  linux*)
+    dnl Extract search path from ldconfig which is more reliable than the way
+    dnl vanilla libtool extracts them from ld.so.conf.
+    d=`/sbin/ldconfig -N -X -v 2>&AS_MESSAGE_LOG_FD|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    test -z "$d" || sys_lib_dlsearch_path_spec=$d
+    ;;
+esac
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [], [xapian-config-1.1])
+XO_LIB_XAPIAN([], [], [xapian-config])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
@@ -47,7 +63,7 @@ AC_TRY_COMPILE([#include <stdint.h>],
 
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h], [], [], [ ])
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h sys/time.h]dnl
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])

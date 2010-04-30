@@ -1,6 +1,7 @@
-/* runfilter.cc: run an external filter and capture its output in a std::string.
+/** @file runfilter.cc
+ * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +20,8 @@
 
 #include <config.h>
 
+#include "runfilter.h"
+
 #include <iostream>
 #include <string>
 
@@ -32,12 +35,10 @@
 #ifdef HAVE_SYS_RESOURCE_H
 # include <sys/resource.h>
 #endif
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
+#include "safesyswait.h"
 #include "safeunistd.h"
 
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
@@ -45,16 +46,6 @@
 #endif
 
 #include "freemem.h"
-#include "runfilter.h"
-
-#ifdef __WIN32__
-# ifndef WIFEXITED
-#  define WIFEXITED(status) (status != -1)
-# endif
-# ifndef WEXITSTATUS
-#  define WEXITSTATUS(status) (status)
-# endif
-#endif
 
 #ifdef _MSC_VER
 # define popen _popen

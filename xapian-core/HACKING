@@ -184,10 +184,10 @@ which you might find useful:
     By default, the testsuite harness uses ANSI escape sequences to give
     colour output if stdout is a tty.  You can disable this feature by setting
     XAPIAN_TESTSUITE_OUTPUT=plain (alternatively, piping the output (e.g.
-    through cat or more) will have the same effect).  Auto-detection can be
-    explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).  Any
-    other value forces the use of colour.  Colour output is always disabled on
-    Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
+    through ``cat`` or ``more``) will have the same effect).  Auto-detection
+    can be explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).
+    Any other value forces the use of colour.  Colour output is always disabled
+    on Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -602,6 +602,13 @@ provided by sys/stat.h under UNIX) and provides a compatibility wrapper for
 mkdir() which takes 2 arguments (so code using mkdir can always just pass
 two arguments).
 
+<sys/wait.h>:
+-------------
+
+To get `WEXITSTATUS` or `WIFEXITED` defined, '#include "safesyswait.h"'.
+Note that this won't provide `waitpid()`, etc on Microsoft Windows, since
+these functions are only really useful to use when `fork()` is available.
+
 <unistd.h>:
 -----------
 
@@ -620,7 +627,7 @@ problems from this, we specify a particular revision to import, but this does
 mean we need to monitor changes to xapian-core and decide when to update omega.
 The release checklist includes a reminder to check this.
 
-Warning Free Compilation
+Warning-Free Compilation
 ------------------------
 
 Compiling without warnings on every platform is our goal, though it's not
@@ -636,7 +643,7 @@ when doing development work on Xapian.  This promotes warnings to errors,
 which should ensure you at least don't introduce new warnings for the compiler
 you're using.
 
-If you configure with --enable-maintainer-mode, and are using GCC 4.0 or newer,
+If you configure with --enable-maintainer-mode, and are using GCC 4.1 or newer,
 this is done for you automatically.  This is intended to be an aid rather than
 a form of automated punishment - it's all too easy to miss a new warning as
 once a file is compiled, you don't see it unless you modify that file or one of
@@ -1161,7 +1168,29 @@ to follow the style of the existing code.  In particular:
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
-  equivalent to the variable definition ``SomeClass foo``.
+  equivalent to the variable definition ``SomeClass foo``.  However, note that
+  ``new SomePODType()`` is *not* the same as ``new SomePODType`` (if
+  SomePODType is a POD (Plain Old Data) type) - the former will zero-initialise
+  scalar members of SomePODType.
+
+* When catching an exception which is an object, do it by const reference, so
+  like this::
+
+      try {
+	  foo();
+      } catch (const ErrorClass &e) {
+	  bar(e);
+      }
+
+  Catching by value is bad because it "slices" the object if an object of a
+  derived type is thrown.  Even if derived types aren't a worry, it also causes
+  the copy constructor to be called needlessly.
+
+  See also: http://www.parashift.com/c++-faq-lite/exceptions.html#faq-17.7
+
+  A const reference is preferable to a non-const reference as it stops the
+  object being inadvertently modified.  In the rare cases when you want to
+  modify the caught object, a non-const reference is OK.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
@@ -1180,10 +1209,30 @@ are a student your university may try and claim some rights on code which you
 write.
 
 Patches which are submitted to Xapian will only be included if they are
-licensed for distribution under all of the following licenses:
+licensed for distribution under each of the following licenses:
 
  - GPL version 2 and all later versions (see the file "COPYING" for details).
- - MIT/X license (see the file "COPYING_MIT" for details).
+ - MIT/X license::
+
+ Copyright (c) <year> <copyright holders>
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
 
 The current distribution of Xapian contains many files which are only licensed
 under the GPL, but we are working towards being able to distribute Xapian under
@@ -1305,17 +1354,17 @@ The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
 - excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 ::
 
-    class some_iterator {
-    public:
-	// ...
-	some_iterator& operator++();
+	class some_iterator {
+	public:
+	    // ...
+	    some_iterator& operator++();
 
-	some_iterator operator++(int) {
-	    some_iterator tmp = *this;
-	    operator++();
-	    return tmp;
-	}
-    };
+	    some_iterator operator++(int) {
+		some_iterator tmp = *this;
+		operator++();
+		return tmp;
+	    }
+	};
 
     The compiler is allowed to assume that the copy constructor only does
     a copy, and to optimize away unneeded copy operations.  The result
@@ -1339,7 +1388,7 @@ If you are find you are repeatedly changing the API headers (in include/)
 during development, then you may become annoyed that the docs/ subdirectory
 will rebuild the doxygen documentation every time you run "make" since this
 takes a while.  You can disable this temporarily (if you're using GNU make),
-by creating a file "docs/GNUmakefile" containing these two lines:
+by creating a file "docs/GNUmakefile" containing these two lines::
 
 %:
 	@echo "Skipping 'make $@' in docs"

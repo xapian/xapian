@@ -18,6 +18,97 @@ Tue Aug 25 16:41:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
     * Makefile, win32_geospatial.mak, config.mak - add geospatial lib
 
+Thu Apr 15 14:31:56 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* win32_testsuite.mak: Patch from Charlie Hull: Tidy up order of
+	  files, and add fdtracker.obj and scalability.obj.
+
+Thu Mar 11 16:11:45 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapdep/xapdep.mak: Remove duplicate version of contents.
+
+Tue Mar 09 10:58:52 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* xapdep/xapdep.c: Print object file on every line like Makedepend
+	  did, add quotes round dependencies to cope with Windows paths,
+	  remove old rename-in-place function.
+
+Mon Mar 08 06:26:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/README: Undouble contents (this file was in the patch twice).
+
+Mon Mar 08 06:11:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Fix O(n*n) behaviour we only needs to be O(n).
+
+Mon Mar 08 05:58:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Eliminate depbuf - a fixed sized buffer we probably
+	  can't overflow, but don't need to use.
+
+Mon Mar 08 05:54:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Eliminate objbuf - a fixed sized buffer we could
+	  overflow.
+
+Mon Mar 08 05:37:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Remove a potential buffer overflow.
+
+Mon Mar 08 05:31:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile,README,config.mak,makedepend/,win32_api.mak,
+	  win32_applications_omega.mak,win32_backends.mak,
+	  win32_backends_chert.mak,win32_backends_flint.mak,
+	  win32_backends_inmemory.mak,win32_backends_multi.mak,
+	  win32_backends_quartz.mak,win32_backends_remote.mak,win32_bin.mak,
+	  win32_common.mak,win32_examples.mak,win32_expand.mak,
+	  win32_getopt.mak,win32_languages_compiler.mak,win32_matcher.mak,
+	  win32_net.mak,win32_perftest.mak,win32_queryparser.mak,
+	  win32_tests.mak,win32_testsuite.mak,win32_unicode.mak,
+	  win32_weight.mak,xapdep/README,xapdep/xapdep.c,xapdep/xapdep.mak:
+	  Apply Charlie's "xapdep" patch (ticket#239).
+
+Wed Mar 03 06:10:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Sync documentation of makebinaries.py from branches/1.0..
+	  Note that Python 3.0 is supported.
+
+Wed Mar 03 05:17:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: List run-time requirements (ticket#391).
+
+Wed Mar 03 05:11:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Don't mention libs internal to building the testsuite.  Links
+	  to xapian.org shouldn't have a ".php" extension now.
+
+Wed Mar 03 04:59:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Remove mention of PHP4.
+
+Fri Feb 12 04:42:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* win32_bindings_python.mak: Update for generate-python-exception.in
+	  to generate-python-exceptions renaming (untested).  (ticket#367)
+
+Fri Feb 05 23:21:41 GMT 2010  Charlie Hull <charlie@lemurconsulting.com>
+
+	* win32_tests.mak: Correct $(INTDIR) to $(OUTDIR).  Add new apitest
+	  sources.  (ticket#441)
+
+Wed Feb 03 15:24:40 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile,version.h.in,win32_testsuite.mak,config.mak: Add support
+	  for brass backend.
+	* win32_backends.mak: Add support for brass, and also add flint_lock.
+	* win32_backends_chert.mak: Remove references to chert_lock.
+	* win32_backends_flint.mak: Remove references to flint_lock.
+	* win32_tests.mak: Clean up existing test databases.
+	* win32_bin.mak: Update list of source files for xapian-compact and
+	  xapian-check, and add include path and libbrassbtreecheck
+	  library.
+
 Fri Nov 20 11:49:07 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* win32_backends_multi.mak,win32_matcher.mak: Patch from Charlie to

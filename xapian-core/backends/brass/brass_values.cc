@@ -1,7 +1,7 @@
 /** @file brass_values.cc
  * @brief BrassValueManager class
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -194,6 +194,8 @@ static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 
 static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
 
+namespace Brass {
+
 class ValueUpdater {
     BrassPostListTable * table;
 
@@ -319,6 +321,8 @@ class ValueUpdater {
     }
 };
 
+}
+
 void
 BrassValueManager::merge_changes()
 {
@@ -340,7 +344,7 @@ BrassValueManager::merge_changes()
 	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
 	for (i = changes.begin(); i != changes.end(); ++i) {
 	    Xapian::valueno slot = i->first;
-	    ValueUpdater updater(postlist_table, slot);
+	    Brass::ValueUpdater updater(postlist_table, slot);
 	    const map<Xapian::docid, string> & slot_changes = i->second;
 	    map<Xapian::docid, string>::const_iterator j;
 	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {

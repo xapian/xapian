@@ -3,9 +3,9 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
- * Copyright 2009 Richard Boulton
+ * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
@@ -29,14 +29,12 @@
 #include "flint_database.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
 #include "flint_alldocspostlist.h"
 #include "flint_alltermslist.h"
 #include "flint_document.h"
-#include "flint_io.h"
 #include "../flint_lock.h"
 #include "flint_metadata.h"
 #include "flint_modifiedpostlist.h"
@@ -48,11 +46,15 @@
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "flint_values.h"
+#include "io_utils.h"
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "replicate_utils.h"
+#include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -399,8 +401,8 @@ FlintDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + flint_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -448,17 +450,9 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	flint_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
 	    // Don't generate a changeset for the first revision.
-	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
-#ifdef __WIN32__
-	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	    if (changes_fd < 0) {
-		string message = string("Couldn't open changeset ")
-			+ changes_name + " to write";
-		throw Xapian::DatabaseError(message, errno);
-	    }
+	    changes_fd = create_changeset_file(db_dir,
+					       "/changes" + str(old_revision),
+					       changes_name);
 	}
     }
 
@@ -475,7 +469,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
 	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
 
-	    flint_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache
@@ -688,7 +682,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    }
 
 	    // Look for the changeset for revision start_rev_num.
-	    string changes_name = db_dir + "/changes" + om_tostring(start_rev_num);
+	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 	    if (file_exists(changes_name)) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
@@ -1067,8 +1061,8 @@ FlintWritableDatabase::close()
 
 void
 FlintWritableDatabase::add_freq_delta(const string & tname,
-				      Xapian::termcount tf_delta,
-				      Xapian::termcount cf_delta)
+				      Xapian::termcount_diff tf_delta,
+				      Xapian::termcount_diff cf_delta)
 {
     map<string, pair<termcount_diff, termcount_diff> >::iterator i;
     i = freq_deltas.find(tname);
@@ -1078,6 +1072,21 @@ FlintWritableDatabase::add_freq_delta(const string & tname,
 	i->second.first += tf_delta;
 	i->second.second += cf_delta;
     }
+}
+
+void
+FlintWritableDatabase::insert_mod_plist(Xapian::docid did,
+					const string & tname,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+    j->second[did] = make_pair('A', wdf);
 }
 
 void
@@ -1153,12 +1162,13 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
 		add_freq_delta(tname, 1, wdf);
-		update_mod_plist(did, tname, 'A', wdf);
+		insert_mod_plist(did, tname, wdf);
 
-		if (term.positionlist_begin() != term.positionlist_end()) {
+		PositionIterator pos = term.positionlist_begin();
+		if (pos != term.positionlist_end()) {
 		    position_table.set_positionlist(
 			did, tname,
-			term.positionlist_begin(), term.positionlist_end());
+			pos, term.positionlist_end(), false);
 		}
 	    }
 	}
@@ -1258,43 +1268,6 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     }
 }
 
-/** Compare the positionlists for a term iterator and a termlist.
- *
- *  @return true if they're equal, false otherwise.
- */
-static bool positionlists_equal(Xapian::TermIterator & termiter,
-				FlintTermList & termlist)
-{
-    if (termiter.positionlist_count() != termlist.positionlist_count())
-	return false;
-
-    return equal(termiter.positionlist_begin(),
-		 termiter.positionlist_end(),
-		 termlist.positionlist_begin());
-}
-
-/** Set the positionlist from the current entry in a term iterator.
- *
- *  @param position_table The positionlist table.
- *  @param did The document id to set the entry for.
- *  @param term The term iterator to read the new position list from.
- *
- *  If the new position list is empty, this will remove any existing
- *  position list for the term.
- */
-static void set_positionlist(FlintPositionListTable & position_table,
-			     Xapian::docid did,
-			     Xapian::TermIterator & term)
-{
-    PositionIterator it = term.positionlist_begin();
-    PositionIterator it_end = term.positionlist_end();
-    if (it != it_end) {
-	position_table.set_positionlist(did, *term, it, it_end);
-    } else {
-	position_table.delete_positionlist(did, *term);
-    }
-}
-
 void
 FlintWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
@@ -1359,16 +1332,17 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	    termlist.next();
 	    while (!termlist.at_end() || term != document.termlist_end()) {
 		int cmp;
-		if (!termlist.at_end() && term != document.termlist_end()) {
-		    old_tname = termlist.get_termname();
-		    new_tname = *term;
-		    cmp = old_tname.compare(new_tname);
-		} else if (termlist.at_end()) {
+		if (termlist.at_end()) {
 		    cmp = 1;
 		    new_tname = *term;
 		} else {
-		    cmp = -1;
 		    old_tname = termlist.get_termname();
+		    if (term != document.termlist_end()) {
+			new_tname = *term;
+			cmp = old_tname.compare(new_tname);
+		    } else {
+			cmp = -1;
+		    }
 		}
 
 		if (cmp < 0) {
@@ -1384,7 +1358,12 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
-		    set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(
+			    did, new_tname,
+			    pos, term.positionlist_end(), false);
+		    }
 		    ++term;
 		} else {
 		    // Term already exists: look for wdf and positionlist changes.
@@ -1392,11 +1371,17 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		    termcount new_wdf = term.get_wdf();
 		    if (old_doclen != new_doclen || old_wdf != new_wdf) {
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
-			update_mod_plist(did, new_tname, 'U', new_wdf);
+			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
-		    if (!positionlists_equal(term, termlist)) 
-			set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(did, new_tname, pos,
+							term.positionlist_end(),
+							true);
+		    } else {
+			position_table.delete_positionlist(did, new_tname);
+		    }
 
 		    termlist.next();
 		    ++term;

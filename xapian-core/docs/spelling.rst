@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007,2008,2009 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010 Olly Betts
 
 ==========================
 Xapian Spelling Correction
@@ -12,9 +12,82 @@ Introduction
 
 Xapian provides functionality which can suggest corrections for misspelled
 words in queries, or in other situations where it might be useful.  The
-suggestions are generated dynamically from the data that has been indexed, so
-the correction facility isn't tied to particular languages, and it can suggest
+suggestions can be generated dynamically from the data that has been indexed,
+so the correction facility isn't tied to particular languages, and can suggest
 proper nouns or specialist technical terms.
+
+Indexing
+========
+
+The spelling dictionary can be built with words from indexed text, or by adding
+words from a static word list, or a combination of the two.
+
+Static spelling data
+--------------------
+
+If ``db`` is a Xapian::WritableDatabase, you can add to the spelling dictionary
+using::
+
+    db.add_spelling(word, frequency_inc);
+
+The ``frequency_inc`` parameter is optional, and defaults to 1.
+
+And the corresponding way to remove from the spelling dictionary is::
+
+    db.remove_spelling(word, frequency_dec);
+
+The ``frequency_dec`` parameter is optional and defaults to 1.  If you try to
+decrement the frequency of a word by more than its current value, it's just
+removed.
+
+Dynamic spelling data
+---------------------
+
+``Xapian::TermGenerator`` can be configured to automatically add words from
+indexed documents to the spelling dictionary::
+
+    Xapian::TermGenerator indexer;
+    indexer.set_database(db);
+    indexer.set_flags(indexer.FLAG_SPELLING);
+
+Note that you must call the ``set_database()`` method as well as setting
+``FLAG_SPELLING`` so that Xapian knows where to add the spelling dictionary
+entries.
+
+If a document is removed or replaced, any spelling dictionary entries that
+were added when it was originally indexed won't be automatically removed.
+This might seem like a flaw, but in practice it rarely causes problems, and
+spellings in documents which were in the database, or in older versions of
+documents, are still interesting.  You can think of this as using the history
+of the document collection as a source of spelling data.
+
+If you really want these entries removed, you can run through the termlist of
+each document you are about to remove or replace (if you indexed terms
+unstemmed) and call ``remove_spelling()`` for each word.
+
+Searching
+=========
+
+QueryParser Integration
+-----------------------
+
+If FLAG_SPELLING_CORRECTION is passed to QueryParser::parse_query() and
+QueryParser::set_database() has been called, the QueryParser will look for
+corrections for words in the query which aren't found in the database.
+
+If a correction is found, then a modified version of the query string will be
+generated which can be obtained by calling
+QueryParser::get_corrected_query_string().  However, the original query string
+will still be parsed, since you'll often want to ask the user "Did you mean:
+[...] ?" - if you want to automatically use the corrected form, just call
+QueryParser::parse_query() on it.
+
+Omega
+=====
+
+As of Omega 1.1.1, omindex and scriptindex support indexing spelling correction
+data and omega supports suggesting corrected spellings at search time.  See the
+Omega documentation for more details.
 
 Algorithm
 =========
@@ -69,27 +142,6 @@ Trigrams are generated at the byte level, but the edit distance calculation
 currently works with Unicode characters, so get_spelling_suggestion() should
 suggest suitable spelling corrections respecting the specified (or default)
 edit distance threshold.
-
-QueryParser Integration
-=======================
-
-If FLAG_SPELLING_CORRECTION is passed to QueryParser::parse_query() and
-QueryParser::set_database() has been called, the QueryParser will look for
-corrections for words in the query which aren't found in the database.
-
-If a correction is found, then a modified version of the query string will be
-generated which can be obtained by calling
-QueryParser::get_corrected_query_string().  However, the original query string
-will still be parsed, since you'll often want to ask the user "Did you mean:
-[...] ?" - if you want to automatically use the corrected form, just call
-QueryParser::parse_query() on it.
-
-Omega
-=====
-
-As of Omega 1.1.1, omindex and scriptindex support indexing spelling correction
-data and omega supports suggesting corrected spellings at search time.  See the
-Omega documentation for more details.
 
 Current Limitations
 ===================

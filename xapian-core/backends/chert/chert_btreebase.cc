@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +30,7 @@
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
-#include "chert_io.h"
+#include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
 #include "utils.h"
@@ -64,6 +65,7 @@ using namespace std;
  * ITEM_COUNT
  * LAST_BLOCK
  * HAVE_FAKEROOT
+ * SEQUENTIAL
  * REVISION2	A second copy of the revision number, for consistency checks.
  * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
  * REVISION3	A third copy of the revision number, for consistency checks.
@@ -206,7 +208,7 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     char buf[REASONABLE_BASE_SIZE];
 
     const char *start = buf;
-    const char *end = buf + chert_io_read(h, buf, REASONABLE_BASE_SIZE, 0);
+    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE, 0);
 
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;
@@ -262,8 +264,8 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     size_t n = end - start;
     if (n < bit_map_size) {
 	memcpy(bit_map0, start, n);
-	(void)chert_io_read(h, reinterpret_cast<char *>(bit_map0) + n,
-			    bit_map_size - n, bit_map_size - n);
+	(void)io_read(h, reinterpret_cast<char *>(bit_map0) + n,
+		      bit_map_size - n, bit_map_size - n);
 	n = 0;
     } else {
 	memcpy(bit_map0, start, bit_map_size);
@@ -274,7 +276,7 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
 
     start = buf;
     end = buf + n;
-    end += chert_io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
+    end += io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
 
     uint4 revision3;
     if (!unpack_uint(&start, end, &revision3)) {
@@ -342,17 +344,17 @@ ChertTable_base::write_to_file(const string &filename,
 	pack_string(changes_buf, tablename);
 	changes_buf += base_letter; // The base file letter.
 	pack_uint(changes_buf, buf.size());
-	chert_io_write(changes_fd, changes_buf.data(), changes_buf.size());
-	chert_io_write(changes_fd, buf.data(), buf.size());
+	io_write(changes_fd, changes_buf.data(), changes_buf.size());
+	io_write(changes_fd, buf.data(), buf.size());
 	if (changes_tail != NULL) {
-	    chert_io_write(changes_fd, changes_tail->data(), changes_tail->size());
+	    io_write(changes_fd, changes_tail->data(), changes_tail->size());
 	    // changes_tail is only specified for the final table, so sync.
-	    chert_io_sync(changes_fd);
+	    io_sync(changes_fd);
 	}
     }
 
-    chert_io_write(h, buf.data(), buf.size());
-    chert_io_sync(h);
+    io_write(h, buf.data(), buf.size());
+    io_sync(h);
 }
 
 /*

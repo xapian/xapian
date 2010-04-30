@@ -1,7 +1,7 @@
 /** @file xapian-inspect.cc
  * @brief Inspect the contents of a flint table for development or debugging.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,8 +79,53 @@ show_help()
 	    "next   : Next entry (alias 'n' or '')\n"
 	    "prev   : Previous entry (alias 'p')\n"
 	    "goto X : Goto entry X (alias 'g')\n"
+	    "until X: Display entries until X (alias 'u')\n"
+	    "open X : Open table X instead (alias 'o') - e.g. open postlist\n"
 	    "help   : Show this (alias 'h' or '?')\n"
 	    "quit   : Quit this utility (alias 'q')" << endl;
+}
+
+static void
+do_until(FlintCursor & cursor, const string & target)
+{
+    if (cursor.after_end()) {
+	cout << "At end already." << endl;
+	return;
+    }
+
+    if (!target.empty()) {
+	int cmp = target.compare(cursor.current_key);
+	if (cmp <= 0) {
+	    if (cmp)
+		cout << "Already after specified key." << endl;
+	    else
+		cout << "Already at specified key." << endl;
+	    return;
+	}
+    }
+
+    while (cursor.next()) {
+	int cmp = 1;
+	if (!target.empty()) {
+	    cmp = target.compare(cursor.current_key);
+	    if (cmp < 0) {
+		cout << "No exact match, stopping at entry before." << endl;
+		cursor.prev();
+		return;
+	    }
+	}
+	cout << "Key: ";
+	display_nicely(cursor.current_key);
+	cout << "\nTag: ";
+	cursor.read_tag();
+	display_nicely(cursor.current_tag);
+	cout << "\n";
+	if (cmp == 0) {
+	    return;
+	}
+    }
+
+    cout << "Reached end." << endl;
 }
 
 int
@@ -118,13 +163,17 @@ main(int argc, char **argv)
     bool arg_is_directory = dir_exists(table_name);
     if (endswith(table_name, ".DB"))
 	table_name.resize(table_name.size() - 2);
-    if (!endswith(table_name, '.'))
+    else if (!endswith(table_name, '.'))
 	table_name += '.';
     if (arg_is_directory && !file_exists(table_name + "DB")) {
 	cerr << argv[0] << ": You need to specify a single Btree table, not a database directory." << endl;
 	exit(1);
     }
 
+    show_help();
+    cout << endl;
+
+open_different_table:
     try {
 	FlintTable table("", table_name, true);
 	table.open();
@@ -136,9 +185,6 @@ main(int argc, char **argv)
 	FlintCursor cursor(&table);
 	cursor.find_entry(string());
 	cursor.next();
-
-	show_help();
-	cout << endl;
 
 	while (!cin.eof()) {
 	    cout << "Key: ";
@@ -172,6 +218,15 @@ wait_for_input:
 		    goto wait_for_input;
 		}
 		continue;
+	    } else if (startswith(input, "u ")) {
+		do_until(cursor, input.substr(2));
+		goto wait_for_input;
+	    } else if (startswith(input, "until ")) {
+		do_until(cursor, input.substr(6));
+		goto wait_for_input;
+	    } else if (input == "u" || input == "until") {
+		do_until(cursor, string());
+		goto wait_for_input;
 	    } else if (startswith(input, "g ")) {
 		if (!cursor.find_entry(input.substr(2))) {
 		    cout << "No exact match, going to entry before." << endl;
@@ -182,6 +237,30 @@ wait_for_input:
 		    cout << "No exact match, going to entry before." << endl;
 		}
 		continue;
+	    } else if (startswith(input, "o ")) {
+		size_t slash = table_name.find_last_of('/');
+		if (slash == string::npos)
+		    table_name.resize(0);
+		else
+		    table_name.resize(slash + 1);
+		table_name += input.substr(2);
+		if (endswith(table_name, ".DB"))
+		    table_name.resize(table_name.size() - 2);
+		else if (!endswith(table_name, '.'))
+		    table_name += '.';
+		goto open_different_table;
+	    } else if (startswith(input, "open ")) {
+		size_t slash = table_name.find_last_of('/');
+		if (slash == string::npos)
+		    table_name.resize(0);
+		else
+		    table_name.resize(slash + 1);
+		table_name += input.substr(5);
+		if (endswith(table_name, ".DB"))
+		    table_name.resize(table_name.size() - 2);
+		else if (!endswith(table_name, '.'))
+		    table_name += '.';
+		goto open_different_table;
 	    } else if (input == "q" || input == "quit") {
 		break;
 	    } else if (input == "h" || input == "help" || input == "?") {

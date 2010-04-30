@@ -1,4 +1,4 @@
-/** @file chert_metadata.h
+/** @file chert_metadata.cc
  * @brief Access to metadata for a chert database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts

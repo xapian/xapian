@@ -1,7 +1,7 @@
 /** @file xapian-compact-brass.cc
  * @brief Compact a brass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -156,7 +156,11 @@ class PostlistCursor : private BrassCursor {
 	    size_t tmp = d - key.data();
 	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    key.erase(tmp);
+	    if (is_doclenchunk_key(key)) {
+		key.erase(tmp);
+	    } else {
+		key.erase(tmp - 1);
+	    }
 	}
 	firstdid += offset;
 	return true;
@@ -191,7 +195,7 @@ encode_valuestats(Xapian::doccount freq,
 static void
 merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
-		Xapian::docid tot_off)
+		Xapian::docid last_docid)
 {
     totlen_t tot_totlen = 0;
     Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
@@ -259,7 +263,7 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 
     {
 	string tag;
-	pack_uint(tag, tot_off);
+	pack_uint(tag, last_docid);
 	pack_uint(tag, doclen_lbound);
 	pack_uint(tag, wdf_ubound);
 	pack_uint(tag, doclen_ubound - wdf_ubound);
@@ -394,14 +398,21 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 		tag[0] = (tags.size() == 1) ? '1' : '0';
 		first_tag += tag;
 		out->add(last_key, first_tag);
+
+		string term;
+		if (!is_doclenchunk_key(last_key)) {
+		    const char * p = last_key.data();
+		    const char * end = p + last_key.size();
+		    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
+			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
+		}
+
 		vector<pair<Xapian::docid, string> >::const_iterator i;
 		i = tags.begin();
 		while (++i != tags.end()) {
-		    string new_key = last_key;
-		    pack_uint_preserving_sort(new_key, i->first);
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(new_key, tag);
+		    out->add(pack_brass_postlist_key(term, i->first), tag);
 		}
 	    }
 	    tags.clear();
@@ -786,7 +797,7 @@ merge_synonyms(BrassTable * out,
 
 static void
 multimerge_postlists(BrassTable * out, const char * tmpdir,
-		     Xapian::docid tot_off,
+		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
     unsigned int c = 0;
@@ -826,7 +837,7 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -887,7 +898,7 @@ void
 compact_brass(const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      compaction_level compaction, bool multipass,
-	      Xapian::docid tot_off) {
+	      Xapian::docid last_docid) {
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };
@@ -987,12 +998,12 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(&out, destdir, tot_off,
+		    multimerge_postlists(&out, destdir, last_docid,
 					 inputs, offset);
 		} else {
 		    merge_postlists(&out, offset.begin(),
 				    inputs.begin(), inputs.end(),
-				    tot_off);
+				    last_docid);
 		}
 		break;
 	    case SPELLING:

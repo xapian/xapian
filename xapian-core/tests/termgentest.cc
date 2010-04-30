@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@
 
 #include <xapian.h>
 
+#include <iostream>
 #include <string>
 
 #include "testsuite.h"
@@ -98,8 +99,12 @@ static const test test_simple[] = {
     { "", "c++ -d--", "Zc++:1 Zd:1 c++[1] d[2]" },
     { "", "cd'r toebehoren", "Zcd'r:1 Ztoebehoren:1 cd'r[1] toebehoren[2]" },
 
+    // In 1.1.4, ENCLOSING_MARK and COMBINING_SPACING_MARK were added, and
+    // code to ignore several zero-width space characters was added.
+    { "", "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80",
+      "Z\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80:1 \xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80[1]" },
 
-
+    { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
     // way to implement them yet.
@@ -763,7 +768,10 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

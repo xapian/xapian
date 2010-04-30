@@ -25,7 +25,7 @@ installed these days.
 
 Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
 (on Fedora, the package to install is e2fsprogs-devel).  On Microsoft Windows
-this isn't required, as we use built in UUID functionality instead.
+this isn't required, as we use built-in UUID functionality instead.
 
 Compilers
 =========
@@ -80,11 +80,9 @@ Options to give to configure
 ============================
 
 --enable-assertions
-	You should use this to build a version of Xapian with debugging
-	symbols and assertions to help with debugging.  Recommended for
-	initial development with Xapian - this helps to ensure that you
-	are using the API correctly.  It also enables many internal
-	consistency checks, so is useful if you suspect a bug in Xapian.
+	You should use this to build a version of Xapian with many internal
+	consistency checks.  This will run more slowly, but is useful if you
+	suspect a bug in Xapian.
 
 --enable-backend-brass
 --enable-backend-chert

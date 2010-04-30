@@ -1,26 +1,30 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
 
-# Codename we're building packages for.  If not explicitly specified, default
-# to that named in debian/codename and if that's not given, use "sid".
-CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
+# Codename we're building packages for.  For backported packages, put the
+# codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
+# exist, the default is sid.
+# CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
@@ -28,13 +32,6 @@ XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog
 # The next incompatible version - i.e. the first release of the next release
 # branch.  So for XAPIAN_VERSION "1.0.<n>", this should be "1.1.0".
 XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1"."$$2+1".0"}')
-
-# In Debian "etch" and Ubuntu "dapper", we should suggest gs-common to pull in
-# ps2pdf.  In newer supported version, we should suggest ghostscript.
-GHOSTSCRIPT := gs-common
-ifeq ($(findstring .$(CODENAME)., .etch.dapper.), )
-GHOSTSCRIPT := ghostscript
-endif
 
 export DH_OPTIONS
 
@@ -65,7 +62,7 @@ else
     MAKE_CHECK := make check
 endif
 
-BUILD_DEPS := debhelper (>= 4.1.22),
+BUILD_DEPS := debhelper (>= 5),
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
 BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
@@ -74,9 +71,6 @@ commonconfflags := \
 	$(confflags) \
 	--prefix=/usr \
 	--sysconfdir=/etc
-
-# Needed for dapper where we end up using automake1.9
-commonconfflags += --mandir=/usr/share/man
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
@@ -98,7 +92,7 @@ configure-stamp:
 	dh_testdir
 
 	# Use Debian's patched libtool to avoid trying to explicitly link with
-	# -lz.  Just forcing link_all_deplibs=no doesn't help here.
+	# -lz and -luuid.  Just forcing link_all_deplibs=no doesn't help here.
 	autoreconf -if
 
 	# Use the latest config.sub and config.guess from the autotools-dev
@@ -108,8 +102,8 @@ configure-stamp:
 	ln -s /usr/share/misc/config.guess config.guess
 
 	# Configure in a subdirectory, for neatness.
-	mkdir -p build
-	cd build && ../configure $(commonconfflags)
+	mkdir -p debian/build
+	cd debian/build && ../../configure $(commonconfflags)
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -117,8 +111,8 @@ configure-stamp:
 build: build-stamp
 build-stamp: configure
 	dh_testdir
-	$(MAKE) -C build
-	$(MAKE_CHECK) -C build
+	$(MAKE) -C debian/build
+	$(MAKE_CHECK) -C debian/build
 	touch $@
 
 install: DH_OPTIONS=
@@ -129,7 +123,7 @@ install: build
 	dh_installdirs
 
 	# Install the files into debian/tmp.
-	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C debian/build DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Replace omega.conf with one with paths suitable for debian.
 	rm -f debian/tmp/etc/omega.conf
@@ -198,7 +192,7 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	rm -rf build
+	rm -rf debian/build
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp

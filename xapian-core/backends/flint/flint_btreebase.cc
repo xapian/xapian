@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,8 +28,8 @@
 #endif
 
 #include "flint_btreebase.h"
-#include "flint_io.h"
 #include "flint_utils.h"
+#include "io_utils.h"
 #include "utils.h"
 #include <xapian/error.h>
 #include "omassert.h"
@@ -64,6 +65,7 @@ using namespace std;
  * ITEM_COUNT
  * LAST_BLOCK
  * HAVE_FAKEROOT
+ * SEQUENTIAL
  * REVISION2	A second copy of the revision number, for consistency checks.
  * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
  * REVISION3	A third copy of the revision number, for consistency checks.
@@ -185,7 +187,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     char buf[REASONABLE_BASE_SIZE];
 
     const char *start = buf;
-    const char *end = buf + flint_io_read(h, buf, REASONABLE_BASE_SIZE, 0);
+    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE, 0);
 
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;
@@ -241,8 +243,8 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     size_t n = end - start;
     if (n < bit_map_size) {
 	memcpy(bit_map0, start, n);
-	(void)flint_io_read(h, reinterpret_cast<char *>(bit_map0) + n,
-			    bit_map_size - n, bit_map_size - n);
+	(void)io_read(h, reinterpret_cast<char *>(bit_map0) + n,
+		      bit_map_size - n, bit_map_size - n);
 	n = 0;
     } else {
 	memcpy(bit_map0, start, bit_map_size);
@@ -253,7 +255,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 
     start = buf;
     end = buf + n;
-    end += flint_io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
+    end += io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
 
     uint4 revision3;
     if (!F_unpack_uint(&start, end, &revision3)) {
@@ -321,17 +323,17 @@ FlintTable_base::write_to_file(const string &filename,
 	changes_buf += F_pack_string(tablename);
 	changes_buf += base_letter; // The base file letter.
 	changes_buf += F_pack_uint(buf.size());
-	flint_io_write(changes_fd, changes_buf.data(), changes_buf.size());
-	flint_io_write(changes_fd, buf.data(), buf.size());
+	io_write(changes_fd, changes_buf.data(), changes_buf.size());
+	io_write(changes_fd, buf.data(), buf.size());
 	if (changes_tail != NULL) {
-	    flint_io_write(changes_fd, changes_tail->data(), changes_tail->size());
+	    io_write(changes_fd, changes_tail->data(), changes_tail->size());
 	    // changes_tail is only specified for the final table, so sync.
-	    flint_io_sync(changes_fd);
+	    io_sync(changes_fd);
 	}
     }
 
-    flint_io_write(h, buf.data(), buf.size());
-    flint_io_sync(h);
+    io_write(h, buf.data(), buf.size());
+    io_sync(h);
 }
 
 /*

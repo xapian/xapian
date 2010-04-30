@@ -25,7 +25,6 @@ OBJS= \
                 $(INTDIR)\flint_databasereplicator.obj\
                 $(INTDIR)\flint_document.obj\
                 $(INTDIR)\flint_io.obj\
-                $(INTDIR)\flint_lock.obj\
                 $(INTDIR)\flint_metadata.obj\
                 $(INTDIR)\flint_modifiedpostlist.obj\
                 $(INTDIR)\flint_positionlist.obj\
@@ -49,7 +48,6 @@ SRCS= \
                 $(INTDIR)\flint_databasereplicator.cc\
                 $(INTDIR)\flint_document.cc\
                 $(INTDIR)\flint_io.cc\
-                $(INTDIR)\flint_lock.cc\
                 $(INTDIR)\flint_metadata.cc\
                 $(INTDIR)\flint_modifiedpostlist.cc\
                 $(INTDIR)\flint_positionlist.cc\
@@ -108,5 +106,7 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

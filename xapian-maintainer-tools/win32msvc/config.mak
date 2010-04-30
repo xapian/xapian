@@ -208,10 +208,8 @@ MANIFEST=mt.exe /manifest
 # make sure inference rules work with all source files
 .SUFFIXES : .cc .java
 
-# makedepend is a tool used to calculate header dependencies, we supply our own version
-DEPEND=makedepend.exe
-# set some flags that are set internally by the MSVC compiler - prevents some spurious warnings
-DEPEND_FLAGS=-D_MSC_VER=1300 -D__cplusplus -D_M_IX86
+# xapdep is a tool to turn compiler output (using the -showIncludes option) into dependency lists
+DEPEND=xapdep.exe
 
 # We build with the following compiler options:
 # /W3 Set warning level to 3
@@ -238,6 +236,7 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libexpand.lib"  \
+ "$(OUTLIBDIR)\libbrass.lib" \
  "$(OUTLIBDIR)\libchert.lib" \
  "$(OUTLIBDIR)\libflint.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \

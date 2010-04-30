@@ -24,7 +24,7 @@
 #include "remoteconnection.h"
 
 #include "xapian/visibility.h"
-#include "xapian/replication.h"
+#include "replication.h"
 
 #ifdef __WIN32__
 # define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer

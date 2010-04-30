@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.3], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -28,22 +28,21 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian-1.1:
-dnl 0:0:0 1.1.0 Reset as library renamed
-dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
-dnl 2:0:0 1.1.2 Query::Internal::wqf removed
-dnl 3:0:0 1.1.3 Default implementation of Weight::clone() removed.
-LIBRARY_VERSION_INFO=3:0:0
+dnl LIBRARY_VERSION_INFO:
+dnl 21:11:6 1.0.20 No API changes
+dnl 22:0:0 1.2.0 Many API changes!
+LIBRARY_VERSION_INFO=22:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
-LIBRARY_VERSION_SUFFIX=-1.1
+LIBRARY_VERSION_SUFFIX=
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
+dnl Disabled for stable release series.
 dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
-test x"$program_suffix" != xNONE || program_suffix=-1.1
+dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
 
-dnl Where xapian.h, etc go.
-incdir=$includedir/xapian-1.1
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
+incdir=$includedir
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -86,7 +85,7 @@ elif test -n "$CCC" ; then
 fi
 
 dnl See HACKING document for details of the reasons for required versions.
-AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar std-options])
 AC_CONFIG_SRCDIR([matcher/multiandpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
@@ -378,6 +377,15 @@ AC_TRY_COMPILE([#include <typeinfo>],
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
+
+dnl Used by tests/harness/testsuite.cc
+AC_CHECK_FUNCS([sigaction])
+AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
+AC_TRY_COMPILE([#include <setjmp.h>],
+  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the `sigsetjmp' function])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no]))
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
@@ -981,7 +989,13 @@ if test yes = "$GXX"; then
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1" ;;
+	  dnl
+	  dnl Also, xapian-core seems to hit an aliasing bug in GCC 4.2:
+	  dnl   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35643
+	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
+	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
+	  dnl See http://trac.xapian.org/ticket/449 for more details.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -1016,7 +1030,13 @@ if test yes = "$GXX"; then
 	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
 	dnl and some GCC 3.x compilers issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+	  case $gxx_version in
+	  4.0)
+	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
+	    ;;
+	  *)
+	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	  esac
 	fi
 	;;
       esac
