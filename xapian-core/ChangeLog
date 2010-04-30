@@ -1,3 +1,7 @@
+Fri Apr 30 00:52:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Fix typo in previous commit.
+
 Thu Apr 29 23:46:09 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
