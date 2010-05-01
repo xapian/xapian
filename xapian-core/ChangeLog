@@ -1,3 +1,9 @@
+Sat May 01 15:25:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Merge change accidentally committed to brass-btree branch:
+	* tests/perftest/runprocess.cc: Use safesyswait.h, fixing build failure
+	  on "make check" on FreeBSD.
+
 Fri Apr 30 12:33:25 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* backends/brass/brass_databasereplicator.cc,
