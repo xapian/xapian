@@ -25,14 +25,7 @@
 #include <cstdio>
 #include <string>
 
-#ifdef __WIN32__
-# ifndef WIFEXITED
-#  define WIFEXITED(status) (status != -1)
-# endif
-# ifndef WEXITSTATUS
-#  define WEXITSTATUS(status) (status)
-# endif
-#endif
+#include "safesyswait.h"
 
 #ifdef _MSC_VER
 # define popen _popen
