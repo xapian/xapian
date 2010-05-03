@@ -177,8 +177,7 @@ install: build \
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Empty dependency_libs to placate luddite release goal.
-	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libx
-apian.la
+	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian.la
 
 	# Install the example source code
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
