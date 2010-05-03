@@ -1,7 +1,0 @@
-usr/bin/xapian-config
-usr/include
-usr/lib/libxapian.a
-usr/lib/libxapian.la
-usr/lib/libxapian.so
-usr/share/aclocal
-usr/share/man/man1/xapian-config.1
