@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -175,6 +175,10 @@ install: build \
 
 	# Install the files into debian/tmp
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+
+	# Empty dependency_libs to placate luddite release goal.
+	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libx
+apian.la
 
 	# Install the example source code
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
