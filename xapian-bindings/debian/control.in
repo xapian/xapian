@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.8.4
-Build-Depends: @BUILD_DEPS@ po-debconf, autoconf, automake (>= 1.10), libtool, autotools-dev
+Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-bindings
