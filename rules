@@ -230,10 +230,7 @@ install: build
 	done
 
 	# Install xapian.php in /usr/share/php for PHP5 so that it's in the
-	# PHP include_path, but for the PHP4 backport put it in /usr/share/php4
-	# to avoid a file conflict with the php5-xapian package.  The file won't
-	# be automatically found there, but it isn't vital for the PHP4 bindings
-	# while it is for the PHP5 ones.
+	# PHP include_path.
 	#
 	# Always install /etc/xapian/phpN/conf.d/xapian.ini, even for backports
 	# to suites where PHP doesn't support it - the extra file is harmless,
