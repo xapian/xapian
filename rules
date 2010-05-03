@@ -147,10 +147,6 @@ configure: debian/configure-stamp
 debian/configure-stamp:
 	dh_testdir
 
-	# Use Debian's patched libtool to avoid trying to explicitly link with
-	# -lz and -luuid.  Just forcing link_all_deplibs=no doesn't help here.
-	autoreconf -if
-
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
 	rm -f config.sub config.guess
