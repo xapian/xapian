@@ -102,6 +102,9 @@ def test_replication_concurrency():
         firstdb.commit()
         print "built"
 
+    # The secondary database gets modified during the test, so needs to be
+    # cleared now.
+    shutil.rmtree(secondpath)
     if not os.path.isdir(secondpath):
         seconddb = xapian.WritableDatabase(secondpath, xapian.DB_CREATE_OR_OVERWRITE)
         # Make second, small database
@@ -129,25 +132,35 @@ def test_replication_concurrency():
                                     os.path.join(dbsdir, 'slave'),
                                     '--interval=0',
                                     '--port=7876',
+                                    '-r 0',
                                    ),
                                   )
         time.sleep(1) # Give client time to start
         expect(xapian.Database(slavepath).get_metadata('dbname'), '1')
 
         for count in xrange(10):
+            # Test that swapping between databases doesn't confuse replication.
             for count2 in xrange(2):
                 set_master(masterpath, secondpath)
                 time.sleep(0.1)
                 set_master(masterpath, firstpath)
                 time.sleep(0.1)
 
+            # Test making changes to the database.
             set_master(masterpath, secondpath)
-            time.sleep(1)
-            expect(xapian.Database(slavepath).get_metadata('dbname'), '2')
+            masterdb = xapian.WritableDatabase(masterpath, xapian.DB_OPEN)
+            print "making 100 changes"
+            for num in xrange(100):
+                masterdb.set_metadata('num%d' % num, str(num + count))
+                masterdb.commit()
+            print "changes done"
+            masterdb.close()
 
-            set_master(masterpath, firstpath)
-            time.sleep(1)
-            expect(xapian.Database(slavepath).get_metadata('dbname'), '1')
+            # Allow time for the replication client to catch up with the
+            # changes.
+            time.sleep(2)
+            expect(xapian.Database(slavepath).get_metadata('dbname'), '2')
+            expect(xapian.Database(slavepath).get_metadata('num99'), str(99 + count))
 
     finally:
         if clientp is not None:

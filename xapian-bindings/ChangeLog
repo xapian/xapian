@@ -1,3 +1,8 @@
+Tue May 04 19:47:40 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/replicationtest2.py: Some modifications to the replication
+	  test to check that changesets get applied correctly.
+
 Tue May 04 15:26:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/smoketest2.py: Check len(mset) works (improving test coverage
