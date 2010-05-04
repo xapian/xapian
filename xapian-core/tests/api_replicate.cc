@@ -171,7 +171,7 @@ apply_changeset(const string & changesetpath,
     Xapian::ReplicationInfo info1;
     Xapian::ReplicationInfo info2;
     bool client_changed = false;
-    while (replica.apply_next_changeset(&info2)) {
+    while (replica.apply_next_changeset(&info2, 0)) {
 	++count;
 	info1.changeset_count += info2.changeset_count;
 	info1.fullcopy_count += info2.fullcopy_count;

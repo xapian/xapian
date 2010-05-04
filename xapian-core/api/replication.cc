@@ -153,6 +153,12 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      */
     string offline_needed_revision;
 
+    /** The time at which a changeset was last applied to the live database.
+     *
+     *  Set to 0 if no changeset applied to the live database so far.
+     */
+    OmTime last_live_changeset_time;
+
     /// The remote connection we're using.
     RemoteConnection * conn;
 
@@ -206,7 +212,8 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     void set_read_fd(int fd);
 
     /// Read and apply the next changeset.
-    bool apply_next_changeset(ReplicationInfo * info);
+    bool apply_next_changeset(ReplicationInfo * info,
+			      int reader_close_time);
 
     /// Return a string describing this object.
     string get_description() const { return path; }
@@ -263,14 +270,15 @@ DatabaseReplica::set_read_fd(int fd)
 }
 
 bool
-DatabaseReplica::apply_next_changeset(ReplicationInfo * info)
+DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
+				      int reader_close_time)
 {
     DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset", info);
     if (info != NULL)
 	info->clear();
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset on a closed replica.");
-    RETURN(internal->apply_next_changeset(info));
+    RETURN(internal->apply_next_changeset(info, reader_close_time));
 }
 
 void
@@ -321,7 +329,7 @@ DatabaseReplica::Internal::update_stub_database() const
 DatabaseReplica::Internal::Internal(const string & path_)
 	: path(path_), live_id(0), live_db(), have_offline_db(false),
 	  need_copy_next(false), offline_revision(), offline_needed_revision(),
-	  conn(NULL)
+	  last_live_changeset_time(), conn(NULL)
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
@@ -388,6 +396,7 @@ void
 DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 {
     have_offline_db = true;
+    last_live_changeset_time = OmTime();
     string offline_path = get_replica_path(live_id ^ 1);
     // If there's already an offline database, discard it.  This happens if one
     // copy of the database was sent, but further updates were needed before it
@@ -497,7 +506,8 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 }
 
 bool
-DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
+DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
+						int reader_close_time)
 {
     DEBUGCALL(API, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
     if (live_db.internal.empty())
@@ -554,15 +564,34 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		    // Close the live db.
 		    string replica_path(get_replica_path(live_id));
 		    live_db = WritableDatabase();
+
+		    if (last_live_changeset_time.is_set()) {
+			// Wait until at least "reader_close_time" seconds have
+			// passed since the last changeset was applied, to
+			// allow any active readers to finish and be reopened.
+			OmTime endtime(last_live_changeset_time);
+			endtime.sec += reader_close_time;
+			while (true) {
+			    OmTime now(OmTime::now());
+			    if (now > endtime)
+				break;
+			    OmTime delta = endtime - now;
+			    sleep(delta.sec + 1);
+			}
+		    }
+
 		    // Open a replicator for the live path, and apply the
 		    // changeset.
 		    {
 			AutoPtr<DatabaseReplicator> replicator(
 				DatabaseReplicator::open(replica_path));
-			offline_needed_revision.resize(0);
-			offline_needed_revision = replicator->
-				apply_changeset_from_conn(*conn, end_time, true);
+
+			// Ignore the returned revision number, since we are live
+			// so the changeset must be safe to apply to a live DB.
+			replicator->apply_changeset_from_conn(*conn, end_time,
+							      true);
 		    }
+		    last_live_changeset_time = OmTime::now();
 
 		    if (info != NULL) {
 			++(info->changeset_count);
@@ -576,9 +605,13 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		{
 		    AutoPtr<DatabaseReplicator> replicator(
 			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
-		    offline_needed_revision.resize(0);
-		    offline_needed_revision = replicator->
+
+		    offline_revision = replicator->
 			    apply_changeset_from_conn(*conn, end_time, false);
+
+		    if (info != NULL) {
+			++(info->changeset_count);
+		    }
 		}
 		if (possibly_make_offline_live()) {
 		    if (info != NULL)

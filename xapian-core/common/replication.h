@@ -191,7 +191,8 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
-    bool apply_next_changeset(ReplicationInfo * info);
+    bool apply_next_changeset(ReplicationInfo * info,
+			      int reader_close_time);
 
     /** Close the DatabaseReplica.
      *
