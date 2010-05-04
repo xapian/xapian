@@ -1,3 +1,9 @@
+xapian-omega (1.2.0-3) experimental; urgency=low
+
+  * Update to require dh7 and use dh compact level 7.
+
+ -- Olly Betts <olly@survex.com>  Tue, 04 May 2010 11:30:16 +0000
+
 xapian-omega (1.2.0-2) experimental; urgency=low
 
   * Don't need to autoreconf now.
