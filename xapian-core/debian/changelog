@@ -1,4 +1,20 @@
-xapian-core (1.1.4-1) UNRELEASED; urgency=low
+xapian-core (1.2.0-2) experimental; urgency=low
+
+  * debian/patches/fix-header-installation-location.patch: Fix installation
+    location of headers.
+  * debian/rules: Empty dependency_libs in .la file.
+
+ -- Olly Betts <olly@survex.com>  Mon, 03 May 2010 02:04:37 +0000
+
+xapian-core (1.2.0-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Update "Suggests" of -dbg package (libgcc2-dbg and
+    libstdc++6-4.0-dbg removed; libstdc++6-4.4-dbg added).
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:33:26 +0000
+
+xapian-core (1.1.5-1) experimental; urgency=low
 
   * New upstream release.
   * debian/patches/runtest-no-fd-ulimit.patch: Drop patch - upstream now has
@@ -8,6 +24,14 @@ xapian-core (1.1.4-1) UNRELEASED; urgency=low
     + Just use ${binary:Version} - sarge has reached EOL and I'm not intending
       to backport 1.1.x to dapper.
     + Add uuid-dev as a build dependency.
+
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 07:51:31 +0000
+
+xapian-core (1.0.19-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:01:52 +0000
 
 xapian-core (1.0.18-1) unstable; urgency=low
 

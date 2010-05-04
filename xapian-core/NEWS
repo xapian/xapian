@@ -1,116 +1,86 @@
- 14099       olly Mon Mar 01 05:38:41 GMT 2010  Olly Betts <olly@survex.com>
+Xapian-core 1.2.0 (2010-04-28):
 
- 14099       olly Mon Mar 01 05:38:41 GMT 2010  Olly Betts <olly@survex.com>
-	* backends/brass/brass_database.cc,
-	  backends/brass/brass_positionlist.cc,
-	  backends/brass/brass_positionlist.h: When updating a document, rather
-	  than decoding the old positions, comparing with the new, and then
-	  encoding the new if different, we now just encode the new and then
-	  compare the encoded forms.  (ticket#428)  This change also avoids
-	  calling BrassPositionListTable::del() when we know the entry doesn't
-	  already exist.
+This release includes all changes from 1.0.20 which are relevant.
 
- 14092    richard Sun Feb 28 14:00:39 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* tests/api_compact.cc: Clarify comment about regression test for
-	  1.1.4, and remove a test line which is implicit in the following
-	  dbcheck() line anyway.
+testsuite:
 
- 14045       olly Mon Feb 22 00:45:37 GMT 2010  Olly Betts <olly@survex.com>
-	* examples/delve.cc: If documents are specified, change "-V<valueno>"
-	  to only show values for those documents.
+* Fix --abort-on-error to actually work.
 
- 14040       olly Sun Feb 21 11:10:10 GMT 2010  Olly Betts <olly@survex.com>
-	* examples/Makefile.mk,examples/xapian-metadata.cc: Add new example
-	  "xapian-metadata" which allows you to get and set individual user
-	  metadata entries.
+* Exit with status 1 not 0 if we caught an exception from the harness itself.
 
- 14029
-	* tests/api_wrdb.cc: Clear tout on each pass of the loop to avoid a
-	  lot of irrelevant output under --verbose if the test fails.
+Xapian-core 1.1.5 (2010-04-16):
 
- 14022
-	* bin/xapian-compact.cc: Fix failure to set lastdocid to an
-	  appropriate value when using --no-renumber.
-	* tests/api_compact.cc: Add regression test for this.
+This release includes all changes from 1.0.19 which are relevant.
 
-trunk only:
+API:
 
- 14097       olly Mon Mar 01 01:53:58 GMT 2010  Olly Betts <olly@survex.com>
-	* bin/: Rename tot_off to last_docid when it is actually holding the
-	  last_docid value.
+* Database replication now handles an exception while applying a changeset
+  better.
 
- 14076       olly Wed Feb 24 14:18:25 GMT 2010  Olly Betts <olly@survex.com>
-	* backends/remote/remote-database.cc,common/remote-database.h,
-	  common/remoteprotocol.h,common/remoteserver.h,
-	  docs/remote_protocol.html,net/remoteserver.cc,tests/api_spelling.cc:
-	  Add remote backend support for WritableDatabase::add_spelling() and
-	  WritableDatabase::remove_spelling().  This bumps the remote protocol
-	  to version 35.0 (so both client and servers will need updating).
-	  Suggesting spelling corrections isn't yet supported.  (ticket#178)
+* If environment variable XAPIAN_MAX_CHANGESETS is set on a replication client
+  then any changesets read are saved so the replicated copy can itself be
+  replicated.
 
- 14063       olly Tue Feb 23 03:08:02 GMT 2010  Olly Betts <olly@survex.com>
-	* configure.ac,tests/harness/testsuite.cc: Use sigsetjmp() and
-	  siglongjmp() where available so that the set of blocked signals
-	  get restored and the test harness can catch a second incidence
-	  of a particular signal in a run.  Use sigaction() instead of
-	  signal() where available, which allows us to report the address
-	  associated with SIGSEGV, SIGFPE, SIGILL, and SIGBUS.
+testsuite:
 
-	  doesn't trivially backport
- 14090       olly Sun Feb 28 11:07:33 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/harness/fdtracker.cc,tests/harness/fdtracker.h: Add GPL
-	  boilerplate and copyright notices which I failed to do before
-	  committing these new files.
- 14037       olly Sat Feb 20 01:09:45 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/runtest.in: Now we have fd leak checking in the test harness,
-	  remove the ulimit as it doesn't add anything, and has caused problems
-	  on some Debian buildds.
- 14036       olly Fri Feb 19 02:08:25 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/harness/backendmanager.h,tests/harness/testsuite.cc:
-	  Call backendmanager->clean_up() before checking for fd leaks
-	  to avoid finding the sockets/pipes as leaks.  This means that
-	  clean_up() needs to handle being called more than once for
-	  a test sometimes (which the current versions do) so document
-	  that.
- 14028
-	* tests/harness/testsuite.cc: Fix fd tracking change to work when
-	  HAVE_VALGRIND isn't defined.
- 14025
-	* tests/harness/: Add machinery to check for leaked FDs.  Currently
-	  requires /proc/self/fd to work (so it works on at least Linux), but
-	  should do nothing on platforms without this directory.
+* Use sigsetjmp() and siglongjmp() where available so that the set of blocked
+  signals get restored and the test harness can catch a second incidence of a
+  particular signal in a run.  Use sigaction() instead of signal() where
+  available, which allows us to report the address associated with SIGSEGV,
+  SIGFPE, SIGILL, and SIGBUS.
 
- 14053       olly Mon Feb 22 14:29:50 GMT 2010  Olly Betts <olly@survex.com>
-	* backends/brass/brass_databasereplicator.cc,
-	  backends/chert/chert_databasereplicator.cc,
-	  backends/flint/flint_databasereplicator.cc: Fix exception message
-	  if we get an unsupported changeset type.
- 14069       olly Tue Feb 23 14:03:47 GMT 2010  Olly Betts <olly@survex.com>
-	* api/postingsource.cc: Fix incorrect classname in error message.
+* Add machinery to check for leaked file descriptors.  Currently this requires
+  /proc/self/fd to work (which is present on Linux and some other platforms).
+  Remove the crude ulimit in runtest which has caused problems on some Debian
+  buildds.
 
- 14049    richard Mon Feb 22 01:49:03 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* tests/dbcheck.cc: Check the wdf, doclen, and value bounds
-	  reported by the database against correct (tight) bounds
-	  calculated by iterating through the database contents.
+* The test harness now explicitly catches const char * exceptions and reports
+  their contents.
 
- 14048    richard Mon Feb 22 01:47:20 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
-	  Ensure that wdfs are reported to the stats object correctly when
-	  replacing documents.  These checks were absent entirely in chert,
-	  and incorrectly skipped in some cases in brass.
+brass backend:
 
- 14047       olly Mon Feb 22 00:59:57 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/api_valuestream.cc: Reset tout before testing each interval.
-	  Prefer string() to "".
+* Ensure that the wdf upper bound is correctly updated when replacing
+  documents.
 
- 14046       olly Mon Feb 22 00:57:59 GMT 2010  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst,examples/delve.cc: Remove delve's -k option,
-	  accepted as an undocumented alias for -V since 0.9.10 for
-	  compatibility with 0.9.9 and earlier.  Just use -V instead.
+* xapian-compact: Now sets lastdocid correctly when using --no-renumber.
 
- 14020
-	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Correct typo
-	  in error message.
+chert backend:
+
+* Ensure that the wdf upper bound is correctly updated when replacing
+  documents.
+
+* xapian-compact: Now sets lastdocid correctly when using --no-renumber.
+
+* xapian-check: Check that the initial doclen chunk exists.
+
+flint backend:
+
+* xapian-compact: Now sets lastdocid correctly when using --no-renumber.
+
+remote backend:
+
+* Add remote backend support for WritableDatabase::add_spelling() and
+  WritableDatabase::remove_spelling().  This bumps the remote protocol to
+  version 35.0 (so both client and servers will need updating).  Suggesting
+  spelling corrections isn't yet supported.  (ticket#178)
+
+build system:
+
+* XO_LIB_XAPIAN: Give a more specific error message for the cases where
+  XAPIAN_CONFIG isn't found, is a directory, or isn't executable.
+
+examples:
+
+* delve:
+
+  + If any documents are specified with "-d<docid>", "-V<slot>" now only show
+    values for those documents.
+
+  + Remove undocumented -k option, which has been a compatibility alias for -V
+    since 0.9.10.  Just use -V instead.
+
+* xapian-metadata: Add new example program which allows you to get and set
+  individual user metadata entries.
 
 Xapian-core 1.1.4 (2010-02-15):
 
@@ -807,6 +777,127 @@ debug code:
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
 
+Xapian-core 1.0.20 (2010-04-27):
+
+API:
+
+* MSet: Fix incorrect values reported by get_matches_estimated(),
+  get_matches_lower_bound(), and get_matches_upper_bound() in certain cases
+  when sorting and collapsing (ticket#464).
+
+documentation:
+
+* deprecation.html: Note how to disable deprecation warnings. (ticket#393)
+
+examples:
+
+* delve: Add -a option to list all terms in a database.
+
+* delve: -d and -V command line options now report out of range and invalid
+  numbers.
+
+portability:
+
+* The getopt warning fix for Cygwin in 1.0.19 caused build failures on Mac OS X
+  (and probably some other platforms with non-GNU getopt implementations), so
+  replace with a fix which is only enabled for Cygwin. (ticket#469)
+
+Xapian-core 1.0.19 (2010-04-15):
+
+API:
+
+* QueryParser: Fix leak if Xapian::Database throws an exception during parsing
+  (ticket#462).
+
+testsuite:
+
+* Explicitly flush after indexing for quartz and flint, so we see any
+  exceptions from the flush (the implicit flush from the destructor swallows
+  any exceptions).
+
+* apitest: Add databasemodified1 testcase to provide some test coverage for
+  DatabaseModifiedError.
+
+flint backend:
+
+* When updating a document, rather than decoding the old positions, comparing
+  with the new, and then encoding the new if different, we now just encode the
+  new and then compare the encoded forms.  (ticket#428)
+
+* Avoid trying to delete the document positions when we know there aren't any.
+
+* Fix memory leak if Database::allterms_begin() throws an exception
+  (ticket#462).
+
+* xapian-check: Report document id for document length mismatch.
+
+* Fix potential issues with iterators over a WritableDatabase which is modified
+  during iteration.  No problems have actually been observed with flint, only
+  in 1.1.4 with chert in cases which don't occur in flint, but it seems likely
+  the issue can manifest for flint in other situations.  Fixes ticket#455.
+
+* Initialise zlib z_stream structure members zalloc, zfree, and opaque with
+  Z_NULL rather than 0 cast to the appropriate type, as that's what the zlib
+  documentation says to do.  Add missing initialisation of opaque for the
+  inflate z_stream which the zlib docs say is needed (reading the zlib code,
+  this isn't true for current versions, so this improves robustness rather
+  than fixing an observable bug).
+
+* Don't memcpy() a block to itself - it's a waste of effort, and (probably)
+  undefined behaviour (as a block overlaps itself).
+
+quartz backend:
+
+* Fix potential issues with iterators over a WritableDatabase which is modified
+  during iteration.  No problems have actually been observed with quartz, only
+  in 1.1.4 with chert in cases which don't occur in quartz, but it seems likely
+  the issue can manifest for quartz in other situations.  Fixes ticket#455.
+
+* Don't memcpy() a block to itself - it's a waste of effort, and (probably)
+  undefined behaviour (as a block overlaps itself).
+
+build system:
+
+* Force -fno-strict-aliasing for GCC 4.2 to avoid bad code being generated due
+  to a bug in that compiler version.  Fixes ticket#449.  This issue hasn't been
+  observed to affect Xapian 1.0.x, but it seems prudent to backport the fix.
+
+documentation:
+
+* INSTALL: Correct description of --enable-assertions.  It does NOT enable
+  debugging symbols, and shouldn't control checks on bad data passed to API
+  calls (if it does anywhere, that's a bug).  Note that Xapian will run more
+  slowly with assertions on.
+
+* spelling.html:
+
+  + Add section on indexing.
+
+  + Add a note about removing automatically added spelling dictionary entries.
+
+  + Move the "algorithm" section to the end, as it is really just background
+    information for the curious.
+
+* include/xapian/queryparser.h: Document the possible exception messages from
+  QueryParser::parse_query().
+
+* include/xapian/termgenerator.h: Note how TermGenerator handles stopwords.
+
+examples:
+
+* delve: Display the lastdocid value when displaying general database
+  statistics.
+
+* simpleindex: Explicitly call flush() on the database, as that is good
+  practice (since you see any exceptions).
+
+portability:
+
+* Fix compilation failure in testsuite on OpenBSD, introduced by new regression
+  test in 1.0.18.  Fixes ticket#458.
+
+* Fix getopt-related warning on Cygwin.
+
 Xapian-core 1.0.18 (2009-02-14):
 
 API:
@@ -848,7 +939,7 @@ flint backend:
 
 * If the number of entries in the position table happened to be 4294967296 or
   an exact multiple, Xapian would ignore positional data for that table when
-  running queries.
+  running queries, and xapian-compact wouldn't copy its contents.
 
 * Iterating all the terms in the database with a prefix is now slightly more
   efficient.

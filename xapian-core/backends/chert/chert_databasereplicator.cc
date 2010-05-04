@@ -184,9 +184,21 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
     if (fd == -1) {
-	string msg = "Failed to open ";
-	msg += db_path;
-	throw DatabaseError(msg, errno);
+	if (file_exists(db_path)) {
+	    string msg = "Failed to open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
+#ifdef __WIN32__
+	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+	if (fd == -1) {
+	    string msg = "Failed to create and open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
     }
     {
 	fdcloser closer(fd);

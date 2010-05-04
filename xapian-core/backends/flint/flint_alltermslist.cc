@@ -1,6 +1,6 @@
 /* flint_alltermslist.cc: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,8 +85,27 @@ FlintAllTermsList::next()
     // the current term.
     termfreq = 0;
 
+    if (rare(!cursor)) {
+	cursor = database->postlist_table.cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
+
+	if (prefix.empty()) {
+	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
+	} else {
+	    const string & key = F_pack_string_preserving_sort(prefix);
+	    if (cursor->find_entry_ge(key)) {
+		// The exact term we asked for is there, so just copy it rather
+		// than wasting effort unpacking it from the key.
+		current_term = prefix;
+		RETURN(NULL);
+	    }
+	}
+	goto first_time;
+    }
+
     while (true) {
 	cursor->next();
+first_time:
 	if (cursor->after_end()) {
 	    current_term.resize(0);
 	    RETURN(NULL);
@@ -122,6 +141,11 @@ FlintAllTermsList::skip_to(const string &term)
     // the current term.
     termfreq = 0;
 
+    if (rare(!cursor)) {
+	cursor = database->postlist_table.cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
+    }
+
     if (cursor->find_entry_ge(F_pack_string_preserving_sort(term))) {
 	// The exact term we asked for is there, so just copy it rather than
 	// wasting effort unpacking it from the key.
@@ -152,5 +176,5 @@ bool
 FlintAllTermsList::at_end() const
 {
     DEBUGCALL(DB, bool, "FlintAllTermsList::at_end", "");
-    RETURN(cursor->after_end());
+    RETURN(cursor && cursor->after_end());
 }

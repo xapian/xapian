@@ -340,7 +340,7 @@ Term::get_query() const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    Database db = state_->get_database();
+    const Database & db = state_->get_database();
     vector<Query> subqs;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
@@ -359,7 +359,7 @@ Term::as_wildcarded_query(State * state_) const
 Query *
 Term::as_partial_query(State * state_) const
 {
-    Database db = state_->get_database();
+    const Database & db = state_->get_database();
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
     list<string>::const_iterator piter;
@@ -560,12 +560,19 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     return term;
 }
 
+class ParserHandler {
+    yyParser * parser;
+
+  public:
+    explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
+    operator yyParser*() { return parser; }
+    ~ParserHandler() { ParseFree(parser); }
+};
+
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    yyParser * pParser = ParseAlloc();
-
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
     value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
@@ -596,6 +603,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 	// We always have the current prefix on the top of the stack.
 	prefix_stack.push_back(default_prefixinfo);
     }
+
+    ParserHandler pParser(ParseAlloc());
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -1081,7 +1090,6 @@ done:
 	    Parse(pParser, QUOTE, NULL, &state);
 	Parse(pParser, 0, NULL, &state);
     }
-    ParseFree(pParser);
 
     errmsg = state.error;
     return state.query;

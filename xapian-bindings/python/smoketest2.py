@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -76,6 +76,7 @@ def test_all():
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
     expect(mset.size(), 1, "Unexpected mset.size()")
+    expect(len(mset), 1, "Unexpected mset.size()")
 
     # Feature test for Enquire.matching_terms(docid)
     term_count = 0

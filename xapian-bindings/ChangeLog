@@ -1,3 +1,46 @@
+Tue May 04 19:47:40 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/replicationtest2.py: Some modifications to the replication
+	  test to check that changesets get applied correctly.
+
+Tue May 04 15:26:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Check len(mset) works (improving test coverage
+	  of Python-specific wrapping).
+
+Wed Apr 28 10:43:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.20.
+
+Wed Apr 28 10:41:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tell libtool not to link in deplibs on platforms where
+	  we know they aren't needed.
+	* configure.ac: On Linux, extract the library search path from ldconfig
+	  which gives us the default entries reliably.
+	* NEWS,configure.ac: 1.2.0.
+
+Wed Apr 21 03:09:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo so path to ruby is reported in Ruby < 1.8 is
+	  found.
+
+Tue Apr 20 11:57:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Set a sh trap to clean up any .pyc files created
+	  by running a testsuite program.  Remove *.pyc (not just
+	  testsuite.pyc) on "make clean".
+
+Tue Apr 20 11:06:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Set PYTHONDONTWRITEBYTECODE=1 in the environment
+	  to prevent generating .pyc files in srcdir for Python >= 2.6.  Partly
+	  addresses ticket#315.
+
+Thu Apr 15 04:36:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.5.
+
 Wed Mar 03 06:25:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/index.html: Document WritableDatabase's close method as

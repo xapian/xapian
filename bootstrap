@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -126,6 +126,37 @@ case $srcdir in
   *)
     cd "$srcdir" ;;
 esac
+
+if [ -d ".git" ] ; then
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  echo <<END >> .git/info/exclude~
+swig
+xapian-applications/omega/common
+END
+  if cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+    rm .git/info/exclude~
+  else
+    mv .git/info/exclude~ .git/info/exclude
+  fi
+
+  # FIXME: Currently requires manual update...
+  #svn:external revision for SWIG
+  rev=11320
+  if [ -d swig ] ; then
+    git svn fetch -r"$rev" svn://svn.tartarus.org/swig/trunk/ swig/
+  else
+    git svn clone -r"$rev" svn://svn.tartarus.org/swig/trunk/ swig/
+  fi
+
+  # FIXME: Currently requires manual update...
+  #svn:external revision for xapian-applications/omega/common
+  rev=14328
+  if [ -d swig ] ; then
+    git svn fetch -r"$rev" svn://svn.xapian.org/xapian/trunk/xapian-core/common
+  else
+    git svn clone -r"$rev" svn://svn.xapian.org/xapian/trunk/xapian-core/common
+  fi
+fi
 
 if [ "$1" = "--without-autotools" ] ; then
   shift

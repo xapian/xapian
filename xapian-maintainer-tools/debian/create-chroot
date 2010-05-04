@@ -2,7 +2,7 @@
 # Create a chroot for a specified Debian or Ubuntu distribution
 # suitable for package building.
 #
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006,2007,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,6 +24,12 @@
 # sudo dchroot -c etch-i386
 
 CHROOT_BASE_PATH=/chroot
+
+#DEBIAN_MIRROR=http://ftp.de.debian.org/debian
+DEBIAN_MIRROR=http://debian.ihug.co.nz/debian
+
+#UBUNTU_MIRROR=http://gb.archive.ubuntu.com/ubuntu
+UBUNTU_MIRROR=http://nz2.archive.ubuntu.com/ubuntu
 
 DCHROOT_CONF=/etc/dchroot.conf
 
@@ -60,46 +66,49 @@ if test -f "$DCHROOT_CONF" ; then
 fi
 
 case $DISTRO in
-  sid|woody|sarge|etch|lenny)
+  sid|lenny|squeeze)
     mkdir "$chroot_path"
-    if [ sarge-amd64 = "$distro_arch" ] ; then
-      mirror=http://ftp.de.debian.org/debian-amd64/debian
-    else
-      mirror=http://ftp.de.debian.org/debian
-    fi
+    mirror=$DEBIAN_MIRROR
     # Need to specify --mirror to allow running on Ubuntu.
     debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$mirror"
     ;;
-  warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy)
-    pkg_for_distros_up_to=hardy
-    pkg=debootstrap_1.0.6_all.deb
-    if [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
+  dapper|hardy|intrepid|jaunty|karmic|lucid)
+    pkg_for_distros_up_to=intrepid
+    pkg=debootstrap_1.0.10_all.deb
+    if [ ! -f /usr/share/debootstrap/scripts/$DISTRO ] && \
+       [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
       cat <<END
 Your debootstrap installation doesn't know how to bootstrap a $DISTRO chroot.
 You can fix this something like this (this should work for distros up to and
 including $pkg_for_distros_up_to):
 
-wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/$pkg
+wget $UBUNTU_MIRROR/pool/main/d/debootstrap/$pkg
 ar x $pkg data.tar.gz
-tar zxvf data.tar.gz ./usr/lib/debootstrap/scripts/$DISTRO
-mv -i ./usr/lib/debootstrap/scripts/$DISTRO /usr/lib/debootstrap/scripts
+tar zxvf data.tar.gz ./usr/share/debootstrap/scripts/$DISTRO
+mv -i ./usr/share/debootstrap/scripts/$DISTRO /usr/share/debootstrap/scripts
 rm data.tar.gz
 rm $pkg
 END
       exit 1
     fi
     mkdir "$chroot_path"
-    debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" http://gb.archive.ubuntu.com/ubuntu
+    VARIANT=
+    case $DISTRO in
+#      intrepid) ;;
+      *)
+	VARIANT=--variant=buildd ;;
+    esac
+    debootstrap $VARIANT --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$UBUNTU_MIRROR"
     # Need universe for (e.g.) python 2.1 and 2.2 on breezy
-    echo "deb http://gb.archive.ubuntu.com/ubuntu $DISTRO universe" >> "$chroot_path/etc/apt/sources.list"
+    echo "deb $UBUNTU_MIRROR $DISTRO universe" >> "$chroot_path/etc/apt/sources.list"
     ;;
   *)
-    echo "Don't know about suite '$DISTRO' yet"
+    echo "Don't know about codename '$DISTRO' yet"
     exit 1
 esac
 
 echo "$distro_arch $chroot_path" >> "$DCHROOT_CONF"
 
-dchroot -c "$distro_arch" -- $_C 'apt-get --force-yes update'
+dchroot -c "$distro_arch" -- $_C 'apt-get -y --force-yes update'
 # gnupg is needed for signed packages in newer distros.
-dchroot -c "$distro_arch" -- $_C 'apt-get --force-yes install gnupg python'
+dchroot -c "$distro_arch" -- $_C 'apt-get -y --force-yes install build-essential gnupg python'

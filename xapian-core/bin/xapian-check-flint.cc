@@ -2,7 +2,7 @@
  * @brief Check consistency of a flint table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -187,7 +187,9 @@ check_flint_table(const char * tablename, string filename, int opts,
 			    cout << "document id " << did << " is larger than any in the termlist table!" << endl;
 			    ++errors;
 			} else if (doclens[did] != doclen) {
-			    cout << "doclen " << doclen << " doesn't match " << doclens[did] << " in the termlist table" << endl;
+			    cout << "document id " << did << ": length " << doclen
+				 << " doesn't match " << doclens[did]
+				 << " in the termlist table" << endl;
 			    ++errors;
 			}
 		    }

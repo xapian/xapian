@@ -1,3 +1,24 @@
+Xapian-bindings 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+Portability:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Xapian-bindings 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Tcl:
+
+* tcl8/docs/index.html: Document WritableDatabase::close() as a way to
+  sidestep the whole destructor issue.  (ticket#62)
+
 Xapian-bindings 1.1.4 (2010-02-15):
 
 This release includes all changes from 1.0.18 which are relevant.
@@ -156,6 +177,25 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.20 (2010-04-27):
+
+Python:
+
+* Set PYTHONDONTWRITEBYTECODE=1 in the environment to prevent Python from
+  generating .pyc files in srcdir for Python >= 2.6, and use a Bourne shell
+  trap to delete them after running tests for older versions of Python.
+  (ticket#315)
+
+Ruby:
+
+* configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
+
+Xapian-bindings 1.0.19 (2010-04-15):
+
+Tcl:
+
+* tcl8/docs/index.html: Improve wording in a few places.
 
 Xapian-bindings 1.0.18 (2010-02-14):
 

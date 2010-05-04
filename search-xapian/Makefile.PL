@@ -70,7 +70,7 @@ END
     exit(0);
 }
 chomp($xver);
-$xver =~ s/.*\s//; # "xapian 1.0.4" -> "1.0.4"
+$xver =~ s/.*\s//; # "xapian 1.2.0" -> "1.2.0"
 
 my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
@@ -152,8 +152,8 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    # There's no chance that we'll work with xapian-core 0.x.y.
-    my $no_chance = ($xver =~ /^0/);
+    # We definitely need Xapian 1.2.x.
+    my $no_chance = ($xver !~ /^1\.2\./);
     my $msg;
     if ($no_chance) {
 	$msg = "Xapian version $xver is incompatible with Search::Xapian $VERSION\n";

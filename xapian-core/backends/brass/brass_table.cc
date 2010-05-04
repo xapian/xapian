@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -376,7 +376,8 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     if (writable && n == C[j].n) {
-	memcpy(p, C[j].p, block_size);
+	if (p != C[j].p)
+	    memcpy(p, C[j].p, block_size);
     } else {
 	read_block(n, p);
     }
@@ -1138,6 +1139,10 @@ BrassTable::add(const string &key, string tag, bool already_compressed)
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
 }
 
 /* BrassTable::del(key) returns false if the key is not in the B-tree,
@@ -1175,6 +1180,10 @@ BrassTable::del(const string &key)
 
     item_count--;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
     RETURN(true);
 }
 
@@ -1579,6 +1588,8 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(!readonly_),
+	  cursor_created_since_last_modification(false),
+	  cursor_version(0),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
 	  deflate_zstream(NULL),

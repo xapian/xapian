@@ -1,0 +1,9 @@
+Document: xapian-php5-docs
+Title: Using Xapian from PHP5
+Abstract: Documentation on how to use the Xapian search engine library from
+ PHP5.
+Section: Programming/PHP
+
+Format: HTML
+Index: /usr/share/doc/php5-xapian/index.html
+Files: /usr/share/doc/php5-xapian/index.html

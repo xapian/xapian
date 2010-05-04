@@ -21,6 +21,301 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Tue May 04 19:38:31 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/replication.cc,bin/xapian-replicate.cc,
+	  common/replicatetcpclient.h,common/replication.h,
+	  net/replicatetcpclient.cc,tests/api_replicate.cc: Fix a bug in
+	  replication, which triggered when multiple modifications were
+	  made to a database while a full copy of the database was in
+	  progress.  In this situation, the client would fail to apply more
+	  than one changeset before trying (and failing) to make the
+	  database live, due to an incorrect assignment of the new revision
+	  number to "offline_needed_revision" instead of
+	  "offline_revision".  Also, replication now only sleeps for a
+	  period (to allow reader to catch up) after a changeset has been
+	  applied to a live database - previously, it would sleep
+	  unnecessarily after a changeset had been applied to an offline
+	  database.  Also, make the period for which replication sleeps in
+	  this situation configurable with the "-r" command line option to
+	  xapian-replicate.
+	  A test for these changes will be committed to xapian-bindings
+	  shortly.
+
+Sat May 01 15:25:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Merge change accidentally committed to brass-btree branch:
+	* tests/perftest/runprocess.cc: Use safesyswait.h, fixing build failure
+	  on "make check" on FreeBSD.
+
+Fri Apr 30 12:33:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc,tests/api_replicate.cc:
+	  If a DB file doesn't exist when applying a changeset, try
+	  creating it - this happens with lazy tables which aren't created
+	  in the initial revision copied.  Add replicate4 test to check
+	  that this works correctly with a lazily created position table.
+	  Fixes ticket #468.
+
+Fri Apr 30 07:09:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Replication and PostingSource aren't
+	  experimental in 1.2.x.
+
+Fri Apr 30 00:52:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Fix typo in previous commit.
+
+Thu Apr 29 23:46:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
+	  using it as it isn't available everywhere.  Fixes FTBFS on GNU Hurd.
+
+Thu Apr 29 12:11:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Install headers under PREFIX/include not
+	  PREFIX/include/xapian.  This broke compiling code which didn't use
+	  XO_LIB_XAPIAN or xapian-config.
+
+Wed Apr 28 12:05:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,m4-macros/xapian-1.1.m4: Remove -1.1 suffix from
+	  xapian-1.1.m4 and libxapian-1.1.la.
+
+Wed Apr 28 06:15:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.20.
+	* NEWS,configure.ac: 1.2.0!
+
+Tue Apr 27 12:45:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add bug reporter.
+
+Mon Apr 26 08:26:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: On Cygwin, #include <getopt.h>
+	  for declarations of optind, etc rather than providing our own
+	  declarations.  Should fix warnings in Cygwin build reported by Reini
+	  Urban on xapian-devel list.
+
+Mon Apr 26 06:27:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: Revert previous 2
+	  getopt-related patches.  The latest state was breaking on Solaris
+	  which (contrary to what its man pages say) prototypes getopt() stuff
+	  in stdlib.h.  This seems to be a rabbit hole we don't want to head
+	  further down.
+
+Sat Apr 24 02:12:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Update --help output for -v to cover all terms
+	  case.
+
+Sat Apr 24 01:58:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Add -a option to list all terms in a database.
+
+Sat Apr 24 01:51:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Prefer string() to "" converted to string.
+
+Thu Apr 22 14:21:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix bug related to ticket#464 (the previous
+	  fix doesn't fix some similar cases).
+	* tests/api_backend.cc: Add regression test msize2.
+
+Thu Apr 22 11:02:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/: Hook up --abort-on-error fix for termgentest, stemtest,
+	  queryparsertest, and internaltest.
+
+Thu Apr 22 06:06:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Add a hyphen.
+
+Wed Apr 21 11:16:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc: Exit with status 1 not 0 if we caught an
+	  exception from the harness itself.
+
+Wed Apr 21 11:11:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testsuite.cc: Fix 
+	  --abort-on-error to actually work.
+
+Tue Apr 20 12:53:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Note how to disable deprecation warnings.
+
+Tue Apr 20 07:27:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,matcher/multimatch.cc: Fix incorrect estimate and
+	  bounds on matches when sorting and collapsing in a particular case
+	  (ticket#464).
+	* tests/api_backend.cc: Add regression test msize1.
+
+Mon Apr 19 01:59:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Use strtoul() instead of atoi() to decode document
+	  id and value slot numbers passed on the command line.  Report out of
+	  range and invalid values.
+
+Sat Apr 17 09:17:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: Fix getopt code to work on
+	  platforms without GNU getopt but with getopt().
+
+Fri Apr 16 14:23:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.5.
+	* NEWS: Sync changes from 1.0.19.
+
+Fri Apr 16 12:29:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Handle NULL in the const char * catch.
+
+Fri Apr 16 05:47:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Fix wrapping.
+
+Thu Apr 15 09:07:40 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replicate.cc: Use a fixed size buffer for copying a
+	  file, rather than a dynamically sized buffer; avoids using the
+	  GCC extension allowing dynamically sized arrays.
+
+Thu Apr 15 04:02:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Update with bug reporters.
+
+Thu Apr 15 00:30:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/termgenerator.h: Note how TermGenerator handles
+	  stopwords.
+
+Wed Apr 14 23:41:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,common/gnu_getopt.h: Put our optarg, etc in a
+	  namespace and then pull them in to avoid linking to versions in the C
+	  library.  Fixes warnings on Cygwin.
+
+Wed Apr 14 15:33:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Remove already fixed FIXME comment.
+
+Wed Apr 14 14:13:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use const reference to avoid a
+	  needless handle copy.
+
+Wed Apr 14 14:00:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_alltermslist.cc,
+	  backends/brass/brass_alltermslist.h,
+	  backends/chert/chert_alltermslist.cc,
+	  backends/chert/chert_alltermslist.h,
+	  backends/flint/flint_alltermslist.cc,
+	  backends/flint/flint_alltermslist.h: Fix memory leak if Database
+	  throws an exception in XXXAllTermsList constructor.  Fixes bug#462.
+	* tests/api_backend.cc: Enable qpmemoryleak1 for non-remote backends as
+	  a regression test for this fix.
+
+Tue Apr 13 12:38:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Don't memcpy() a block to itself -
+	  it's a waste of effort, and (probably) undefined behaviour (as a
+	  block overlaps itself).
+
+Tue Apr 13 12:36:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc: Don't
+	  memcpy() a block to itself - it's a waste of effort, and (probably)
+	  undefined behaviour (as a block overlaps itself).
+
+Tue Apr 13 08:38:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Add a ParserHandler class to take
+	  care of releasing the yyParser object.
+
+Tue Apr 13 07:49:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/autoptr.h: Fix comment typo.
+
+Tue Apr 13 07:47:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: "autoptr.h" not <autoptr.h> (it's an in-tree
+	  header).
+
+Tue Apr 13 07:25:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix leak of yyParser if an exception
+	  is thrown during parsing.   Partly fixes ticket#462.
+	* tests/api_backend.cc: Add regression test qpmemoryleak1.
+
+Tue Apr 13 01:37:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Revert change to make removedir()
+	  recurse into subdirectories - it doesn't fix a bug, so isn't
+	  appropriate when we're trying to get 1.2.0 out (backends don't
+	  currently put files in subdirectories, which was the justification
+	  in the commit message).
+
+Mon Apr 12 11:50:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/flint/: Fix to rebuild cursors if the table gains or loses a
+	  level.  Fixes ticket#455.
+
+Mon Apr 12 09:29:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from brass:
+	* backends/chert/: Fix to rebuild cursors if the table gains or loses a
+	  level.  Fixes ticket#455.
+
+Mon Apr 12 09:26:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Fix to rebuild cursors if the table gains or loses a
+	  level.  Fixes ticket#455.
+
+Mon Apr 12 08:27:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_none.cc: Work around compilation failure on OpenBSD.  Fixes
+	  ticket#458.
+
+Fri Apr 02 04:03:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* m4-macros/xapian-1.1.m4: Give a more specific error message for the
+	  cases where XAPIAN_CONFIG isn't found, is a directory, or isn't
+	  executable.
+
+Thu Mar 25 14:43:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add databasemodified1 testcase to provide some
+	  test coverage for DatabaseModifiedError.
+
+Thu Mar 25 06:32:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check-flint.cc: Report docid for doclength mismatch.
+
+Thu Mar 25 06:23:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Report docid for
+	  doclength mismatch.
+
+Sat Mar 20 15:04:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/spelling.rst: Add a note about removing automatically added
+	  spelling dictionary entries.
+
+Sat Mar 20 09:30:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/spelling.rst: Add section on indexing.  Move the "algorithm"
+	  section to the end, as it is really just background information for
+	  the curious.
+
 Wed Mar 17 01:33:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL: Add a hyphen.

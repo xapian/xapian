@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,7 +24,7 @@
 # Codename we're building packages for.  For backported packages, put the
 # codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
 # exist, the default is sid.
-CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
+# CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
@@ -62,10 +62,11 @@ else
     MAKE_CHECK := make check
 endif
 
-BUILD_DEPS := debhelper (>= 5),
 # We need a versioned build dependency on libxapian-dev.
-BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
-BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
+# NB Trailing ',' required here!
+BUILD_DEPS := \
+	libxapian-dev (>= $(XAPIAN_VERSION)), \
+	libxapian-dev (<< $(XAPIAN_VERSION_CEILING)), 
 
 commonconfflags := \
 	$(confflags) \
@@ -91,10 +92,6 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	# Use Debian's patched libtool to avoid trying to explicitly link with
-	# -lz.  Just forcing link_all_deplibs=no doesn't help here.
-	autoreconf -if
-
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
 	rm -f config.sub config.guess
@@ -102,8 +99,8 @@ configure-stamp:
 	ln -s /usr/share/misc/config.guess config.guess
 
 	# Configure in a subdirectory, for neatness.
-	mkdir -p build
-	cd build && ../configure $(commonconfflags)
+	mkdir -p debian/build
+	cd debian/build && ../../configure $(commonconfflags)
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -111,8 +108,8 @@ configure-stamp:
 build: build-stamp
 build-stamp: configure
 	dh_testdir
-	$(MAKE) -C build
-	$(MAKE_CHECK) -C build
+	$(MAKE) -C debian/build
+	$(MAKE_CHECK) -C debian/build
 	touch $@
 
 install: DH_OPTIONS=
@@ -123,7 +120,7 @@ install: build
 	dh_installdirs
 
 	# Install the files into debian/tmp.
-	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C debian/build DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Replace omega.conf with one with paths suitable for debian.
 	rm -f debian/tmp/etc/omega.conf
@@ -181,8 +178,8 @@ binary-arch: build install
 	dh_shlibdeps
 	# Rewrite the dependency on libxapianN to be >= our version, since
 	# we may require features added in that version.
-	perl -pi -e \
-	    's/^(shlibs:Depends=.*libxapian\d+)/$$1 (>= $(XAPIAN_VERSION))/' \
+	sed -i \
+	    's/^shlibs:Depends=.*libxapian[0-9]\+/& (>= $(XAPIAN_VERSION))/' \
 	    debian/*.substvars
 
 	dh_gencontrol
@@ -192,9 +189,8 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	rm -rf build
+	rm -rf debian/build
 	rm -f config.sub config.guess
 	dh_clean
-	rm -f build-stamp configure-stamp
 
 .PHONY: configure build install binary binary-arch binary-indep clean

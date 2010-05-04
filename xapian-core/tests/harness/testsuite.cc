@@ -174,7 +174,7 @@ static void * sigaddr = NULL;
 // Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
 
-#ifdef HAVE_SIGACTION
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
 XAPIAN_NORETURN(static void handle_sig(int signum_, siginfo_t *si, void *));
 static void handle_sig(int signum_, siginfo_t *si, void *)
 {
@@ -232,7 +232,8 @@ class SignalRedirector {
 	active = true;
 	signum = 0;
 	sigaddr = NULL;
-#ifdef HAVE_SIGACTION
+	// SA_SIGINFO not universal (e.g. not present on Linux < 2.2 and Hurd).
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
 	struct sigaction sa;
 	sa.sa_sigaction = handle_sig;
 	sigemptyset(&sa.sa_mask);
@@ -260,7 +261,7 @@ class SignalRedirector {
     }
     ~SignalRedirector() {
 	if (active) {
-#ifdef HAVE_SIGACTION
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
 	    struct sigaction sa;
 	    sa.sa_handler = SIG_DFL;
 	    sigemptyset(&sa.sa_mask);
@@ -511,7 +512,13 @@ test_driver::runtest(const test_desc *test)
 		write_and_clear_tout();
 		return FAIL;
 	    } catch (const char * msg) {
-		out << col_red << " EXCEPTION char * " << msg << col_reset;
+		out << col_red;
+		if (msg) {
+		    out << " EXCEPTION char * " << msg;
+		} else {
+		    out << " EXCEPTION (char*)NULL";
+		}
+		out << col_reset;
 		write_and_clear_tout();
 		return FAIL;
 	    } catch (...) {
@@ -608,8 +615,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    ++res.failed;
 		    out << endl;
 		    if (abort_on_error) {
-			out << "Test failed - aborting further tests." << endl;
-			return res;
+			throw "Test failed - aborting further tests";
 		    }
 		    break;
 		case SKIP:

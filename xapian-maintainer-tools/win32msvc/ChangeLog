@@ -1,3 +1,8 @@
+Thu Apr 15 14:31:56 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* win32_testsuite.mak: Patch from Charlie Hull: Tidy up order of
+	  files, and add fdtracker.obj and scalability.obj.
+
 Thu Mar 11 16:11:45 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* xapdep/xapdep.mak: Remove duplicate version of contents.
