@@ -1,3 +1,13 @@
+xapian-core (1.0.20-2) unstable; urgency=medium
+
+  * urgency=medium as 1.0.20-1 has already aged 7 days in testing and this is a
+    tiny change making an obvious fix - it would be good to get 1.0.20 packages
+    into testing before we try to transition to Xapian 1.2.
+  * debian/patches/cursor-next-on-modified-table-fix.patch: Fix bug which
+    manifests in notmuch 0.3.1 testsuite. (Closes: #579951)
+
+ -- Olly Betts <olly@survex.com>  Wed, 05 May 2010 07:07:26 +0000
+
 xapian-core (1.0.20-1) unstable; urgency=low
 
   * New upstream release.
