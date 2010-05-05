@@ -3,6 +3,7 @@
  */
 /* Copyright 2007,2008,2009 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +34,7 @@ using namespace std;
 
 ValueRangePostList::~ValueRangePostList()
 {
-    delete alldocs_pl;
+    delete valuelist;
 }
 
 Xapian::doccount
@@ -78,9 +79,9 @@ ValueRangePostList::get_maxweight() const
 Xapian::docid
 ValueRangePostList::get_docid() const
 {
-    Assert(current);
+    Assert(valuelist);
     Assert(db);
-    return current;
+    return valuelist->get_docid();
 }
 
 Xapian::weight
@@ -122,40 +123,47 @@ PostList *
 ValueRangePostList::next(Xapian::weight)
 {
     Assert(db);
-    if (!alldocs_pl) alldocs_pl = db->open_post_list(string());
-    alldocs_pl->skip_to(current + 1);
-    while (!alldocs_pl->at_end()) {
-	current = alldocs_pl->get_docid();
-	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-	string v = doc->get_value(valno);
-	if (v >= begin && v <= end) return NULL;
-	alldocs_pl->next();
+    if (!valuelist) valuelist = db->open_value_list(valno);
+    valuelist->next();
+    while(!valuelist->at_end()) {
+	string v = valuelist->get_value();
+	if (v >= begin && v <= end) {
+	    return NULL;
+	}
+	valuelist->next();
     }
     db = NULL;
     return NULL;
 }
 
 PostList *
-ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight)
 {
     Assert(db);
-    if (did <= current) return NULL;
-    current = did - 1;
-    return ValueRangePostList::next(w_min);
+    if (!valuelist) valuelist = db->open_value_list(valno);
+    valuelist->skip_to(did);
+    while(!valuelist->at_end()) {
+	string v = valuelist->get_value();
+	if (v >= begin && v <= end) {
+	    return NULL;
+	}
+	valuelist->next();
+    }
+    db = NULL;
+    return NULL;
 }
 
 PostList *
 ValueRangePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 {
     Assert(db);
-    if (did <= current) {
-	valid = true;
+    AssertRelParanoid(did, <=, db->get_lastdocid());
+    if (!valuelist) valuelist = db->open_value_list(valno);
+    valid = valuelist->check(did);
+    if (!valid) {
 	return NULL;
     }
-    AssertRelParanoid(did, <=, db->get_lastdocid());
-    current = did;
-    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-    string v = doc->get_value(valno);
+    string v = valuelist->get_value();
     valid = (v >= begin && v <= end);
     return NULL;
 }

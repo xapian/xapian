@@ -1,3 +1,15 @@
+Wed May 05 16:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
+	  matcher/valuerangepostlist.h: Implement ValueRangePostList and
+	  ValueGePostList using a ValueList streaming values for the value
+	  slot of interest, rather than using an AllDocsPostList to get all
+	  documents, using that to open temporary documents for each
+	  document being considered, and then using that to get the value.
+	  I've observed a speedup of more than 70 times for range queries
+	  in a real-world situation with this change (a 29 second search
+	  became a 0.4 second search).
+
 Wed May 05 06:44:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
