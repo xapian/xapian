@@ -1,3 +1,7 @@
+Wed May 05 06:44:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed May 05 05:42:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.cc,backends/chert/chert_cursor.cc,
