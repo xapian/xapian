@@ -231,6 +231,5 @@ clean: debian/control unpatch
 	rm -rf build
 	rm -f config.sub config.guess
 	dh_clean
-	rm -f build-stamp configure-stamp
 
 .PHONY: maint maintclean configure build install binary binary-arch binary-indep clean patch unpatch
