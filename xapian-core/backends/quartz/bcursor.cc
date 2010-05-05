@@ -158,7 +158,11 @@ Bcursor::next()
     if (B->cursor_version != version) {
 	// find_entry() will call rebuild().
 	(void)find_entry(current_key);
-    } else if (!have_read_tag) {
+	// If the key was found, we're now pointing to it, otherwise we're
+	// pointing to the entry before.  Either way, we now want to move to
+	// the next key.
+    }
+    if (!have_read_tag) {
 	while (true) {
 	    if (! B->next(C, 0)) {
 		is_positioned = false;
