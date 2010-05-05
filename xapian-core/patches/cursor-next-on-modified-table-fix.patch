@@ -1,0 +1,38 @@
+Description: Fix cursor next() on modified table
+ Taken from upstream SVN r14489.  Fixes bug which manifests in notmuch 0.3.1
+ testsuite (#579951).
+Author: Olly Betts <olly@survex.com>
+Index: xapian-core/backends/quartz/bcursor.cc
+===================================================================
+--- xapian-core/backends/quartz/bcursor.cc	(revision 14488)
++++ xapian-core/backends/quartz/bcursor.cc	(revision 14489)
+@@ -158,7 +158,11 @@
+     if (B->cursor_version != version) {
+ 	// find_entry() will call rebuild().
+ 	(void)find_entry(current_key);
+-    } else if (!have_read_tag) {
++	// If the key was found, we're now pointing to it, otherwise we're
++	// pointing to the entry before.  Either way, we now want to move to
++	// the next key.
++    }
++    if (!have_read_tag) {
+ 	while (true) {
+ 	    if (! B->next(C, 0)) {
+ 		is_positioned = false;
+Index: xapian-core/backends/flint/flint_cursor.cc
+===================================================================
+--- xapian-core/backends/flint/flint_cursor.cc	(revision 14488)
++++ xapian-core/backends/flint/flint_cursor.cc	(revision 14489)
+@@ -161,7 +161,11 @@
+     if (B->cursor_version != version) {
+ 	// find_entry() will call rebuild().
+ 	(void)find_entry(current_key);
+-    } else if (tag_status == UNREAD) {
++	// If the key was found, we're now pointing to it, otherwise we're
++	// pointing to the entry before.  Either way, we now want to move to
++	// the next key.
++    }
++    if (tag_status == UNREAD) {
+ 	while (true) {
+ 	    if (! B->next(C, 0)) {
+ 		is_positioned = false;
