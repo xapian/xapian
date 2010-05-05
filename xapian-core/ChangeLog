@@ -1,3 +1,14 @@
+Wed May 05 05:42:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_cursor.cc,backends/chert/chert_cursor.cc,
+	  backends/flint/flint_cursor.cc: If we have to rebuild the cursor
+	  on next() because the table changed underneath us, we need to
+	  advance it because find_entry() will put the cursor on the entry
+	  we were already on, or the one before if the entry we were on
+	  has been removed.  Bug uncovered by notmuch testsuite, but I'm
+	  unable to reduce it to a sane testcase for our testsuite.
+	  (Debian#579951)
+
 Tue May 04 19:38:31 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/replication.cc,bin/xapian-replicate.cc,
