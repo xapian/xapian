@@ -1,3 +1,13 @@
+Wed May 05 16:44:17 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc,matcher/orpostlist.h: Add
+	  OrPostList::check() method, which calls check() on the
+	  sub-postlists, rather than falling back to skip_to().  This is
+	  particularly helpful when a sub-postlist is one for which
+	  skip_to() can be significantly more expensive than check(), such
+	  as a ValueRangePostList.  I've observed a speedup of 10 times for
+	  such a subquery with this change.
+
 Wed May 05 16:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
