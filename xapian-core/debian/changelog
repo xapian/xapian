@@ -1,3 +1,14 @@
+xapian-core (1.2.0-3) experimental; urgency=low
+
+  * debian/patches/ftbfs-on-hurd-fix.patch: Fix FTBFS on hurd due to SA_SIGINFO
+    not being defined.
+  * debian/patches/cursor-next-on-modified-table-fix-1.2.patch: Fix bug which
+    manifests in notmuch 0.3.1 testsuite. (Closes: #579951)
+  * Update to require dh7 and use dh compact level 7.
+  * Switch to dpkg-source 3.0 (quilt) format.
+
+ -- Olly Betts <olly@survex.com>  Wed, 05 May 2010 09:49:36 +0000
+
 xapian-core (1.2.0-2) experimental; urgency=low
 
   * debian/patches/fix-header-installation-location.patch: Fix installation
