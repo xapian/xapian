@@ -24,7 +24,6 @@ OBJS= \
                 $(INTDIR)\flint_database.obj\
                 $(INTDIR)\flint_databasereplicator.obj\
                 $(INTDIR)\flint_document.obj\
-                $(INTDIR)\flint_io.obj\
                 $(INTDIR)\flint_metadata.obj\
                 $(INTDIR)\flint_modifiedpostlist.obj\
                 $(INTDIR)\flint_positionlist.obj\
@@ -47,7 +46,6 @@ SRCS= \
                 $(INTDIR)\flint_database.cc\
                 $(INTDIR)\flint_databasereplicator.cc\
                 $(INTDIR)\flint_document.cc\
-                $(INTDIR)\flint_io.cc\
                 $(INTDIR)\flint_metadata.cc\
                 $(INTDIR)\flint_modifiedpostlist.cc\
                 $(INTDIR)\flint_positionlist.cc\

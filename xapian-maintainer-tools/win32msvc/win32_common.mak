@@ -18,9 +18,11 @@ OBJS= \
     $(INTDIR)\debuglog.obj\
     $(INTDIR)\fileutils.obj \
     $(INTDIR)\getopt.obj \
+    $(INTDIR)\io_utils.obj \
     $(INTDIR)\msvc_dirent.obj \
     $(INTDIR)\msvc_posix_wrapper.obj \
     $(INTDIR)\omdebug.obj \
+    $(INTDIR)\replicate_utils.obj \
     $(INTDIR)\safe.obj \
     $(INTDIR)\serialise-double.obj \
     $(INTDIR)\socket_utils.obj \
@@ -35,9 +37,11 @@ SRCS= \
     $(INTDIR)\debuglog.cc\
     $(INTDIR)\fileutils.cc \
     $(INTDIR)\getopt.cc \
+    $(INTDIR)\io_utils.cc \
     $(INTDIR)\msvc_dirent.cc \
     $(INTDIR)\msvc_posix_wrapper.cc \
     $(INTDIR)\omdebug.cc \
+    $(INTDIR)\replicate_utils.cc \
     $(INTDIR)\safe.cc \
     $(INTDIR)\serialise-double.cc \
     $(INTDIR)\socket_utils.cc \

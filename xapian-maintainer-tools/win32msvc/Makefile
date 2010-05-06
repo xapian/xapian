@@ -107,6 +107,7 @@ COPYMAKFILES:
    copy  win32_backends_flint.mak ..\backends\flint\Makefile
    copy  win32_backends_brass.mak ..\backends\brass\Makefile
    copy  win32_backends_chert.mak ..\backends\chert\Makefile
+   copy  win32_backends_brass.mak ..\backends\brass\Makefile
    copy  win32_backends_inmemory.mak ..\backends\inmemory\Makefile
    copy  win32_backends_multi.mak ..\backends\multi\Makefile
    copy  win32_backends_remote.mak ..\backends\remote\Makefile

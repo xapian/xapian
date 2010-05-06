@@ -1,3 +1,10 @@
+Thu  06 11:40:27 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile,config.mak,win32_backends.mak,win32_backends_brass.mak,
+	  win32_backends_chert.mak,win32_backends_flint.mak,win32_common.mak,
+	  win32_geospatial.mak,win32_matcher.mak,win32_testsuite.mak:
+	  updated patch to add various missing or relocated files, fixes #457.
+
 Fri Apr 16 09:53:05 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* win32_api.mak,win32_backends_multi.mak,win32_matcher.mak,

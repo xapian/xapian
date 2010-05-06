@@ -61,7 +61,7 @@ SRCS= \
     $(INTDIR)\synonympostlist.cc\
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
-    $(INTDIR)\valuestreamdocument.cc\
+    $(INTDIR)\valuestreamdocument.cc \
     $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
 

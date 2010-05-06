@@ -15,6 +15,7 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libinmemory.lib" \
     "$(OUTDIR)\libremote.lib" \
     "$(OUTDIR)\libflint.lib" \
+    "$(OUTDIR)\libbrass.lib" \
     "$(OUTDIR)\libchert.lib" \
     "$(OUTDIR)\libbrass.lib" \
     $(NULL)
@@ -37,11 +38,10 @@ SRCS=   $(INTDIR)\database.cc \
         $(INTDIR)\valuelist.cc \
         $(INTDIR)\slowvaluelist.cc \
         $(INTDIR)\contiguousalldocspostlist.cc \
-        $(INTDIR)\flint_lock.cc 
+        $(INTDIR)\flint_lock.cc
 
 
-	  
-ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
+ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib"
 
 CLEAN :
 	-@erase /q "$(OUTDIR)\libbackend.lib"
@@ -49,17 +49,19 @@ CLEAN :
 	-@erase /q "$(INTDIR)\*.pdb"
 	-@erase /q $(OBJS)
 	cd brass
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\chert
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\flint
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
+	cd ..\brass
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\inmemory
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\multi
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\remote
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..
 
 
@@ -90,6 +92,11 @@ CPP_SBRS=.
 
 "$(OUTDIR)\libchert.lib":
        cd chert
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       cd ..
+
+"$(OUTDIR)\libbrass.lib":
+       cd brass
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
