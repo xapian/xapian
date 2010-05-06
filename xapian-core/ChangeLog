@@ -18,7 +18,7 @@ Wed May 05 16:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
 	  document being considered, and then using that to get the value.
 	  I've observed a speedup of more than 70 times for range queries
 	  in a real-world situation with this change (a 29 second search
-	  became a 0.4 second search).
+	  became a 0.4 second search). (ticket#432)
 
 Wed May 05 06:44:31 GMT 2010  Olly Betts <olly@survex.com>
 
