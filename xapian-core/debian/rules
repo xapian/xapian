@@ -119,7 +119,7 @@ debian/control: debian/rules debian/control.in debian/compat debian/patches/seri
 	rm -f debian/control.tmp
 	sed -e 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' \
 	    -e 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
-	    -e 's/@BUILD_DEPS@/debhelper (>= $(shell cat debian/compat)),$(shell grep -qv '^#' debian/patches/series && echo " quilt,")/g' \
+	    -e 's/@BUILD_DEPS@/debhelper (>= $(shell cat debian/compat)),/g' \
 	     debian/control.in > debian/control.tmp
 	mv debian/control.tmp debian/control
 
@@ -129,14 +129,8 @@ debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVER
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
 
-# Include quilt's fragment if it is installed.
--include /usr/share/quilt/quilt.make
-
-# Dummy patch and unpatch targets in case quilt isn't installed.
-patch unpatch:
-
 configure: configure-stamp
-configure-stamp: $(QUILT_STAMPFN) debian/control
+configure-stamp: debian/control
 	dh_testdir
 
 	# Use the latest config.sub and config.guess from the autotools-dev
