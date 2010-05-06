@@ -1,3 +1,8 @@
+Thu May 06 15:03:43 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replicate.cc: Add some extra debugging, to help
+	  identify the problem with ticket #472.
+
 Thu May 06 13:38:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/safeuuid.h,configure.ac,INSTALL: Make use of built-in UUID API
