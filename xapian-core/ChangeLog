@@ -1,3 +1,9 @@
+Thu May 06 13:10:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS,Makefile.am,cmake/,configure.ac: Install files to make Xapian
+	  easier to use with cmake.  Thanks to Sune Vuorela for providing the
+	  desired output.
+
 Thu May 06 11:42:16 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/fdtracker.cc: Don't pass NULL to closedir().
