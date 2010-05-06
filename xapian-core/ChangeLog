@@ -1,3 +1,8 @@
+Thu May 06 13:38:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h,configure.ac,INSTALL: Make use of built-in UUID API
+	  on FreeBSD and NetBSD.  (ticket#470)
+
 Thu May 06 13:10:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS,Makefile.am,cmake/,configure.ac: Install files to make Xapian
