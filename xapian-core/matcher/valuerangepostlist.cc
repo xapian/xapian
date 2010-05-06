@@ -25,7 +25,7 @@
 #include "valuerangepostlist.h"
 
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -181,7 +181,7 @@ string
 ValueRangePostList::get_description() const
 {
     string desc = "ValueRangePostList(";
-    desc += om_tostring(valno);
+    desc += str(valno);
     desc += ", ";
     desc += begin;
     desc += ", ";
