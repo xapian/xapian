@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009 Olly Betts
+/* Copyright 2007,2008,2009,2010 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -25,8 +25,6 @@
 #include "valuerangepostlist.h"
 
 #include "omassert.h"
-#include "document.h"
-#include "leafpostlist.h"
 #include "utils.h"
 
 using namespace std;

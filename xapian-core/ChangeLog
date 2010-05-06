@@ -1,3 +1,8 @@
+Thu May 06 05:03:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: Remove '#include "leafpostlist.h"'
+	  and '#include "document.h"' which are no longer used.
+
 Thu May 06 04:53:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/valuerangepostlist.cc: Remove '#include "autoptr.h"' which is
