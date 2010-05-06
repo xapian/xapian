@@ -1,3 +1,10 @@
+Thu May 06 09:55:27 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc:
+	  Keep return value from valuelist->get_value() as a const string &
+	  rather than a string - could be more efficient on some compilers,
+	  though testing with gcc 4.1 revealed no difference.
+
 Thu May 06 09:49:12 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/valuegepostlist.cc: "while(" -> "while (" in recent patch.

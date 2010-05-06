@@ -123,7 +123,7 @@ ValueRangePostList::next(Xapian::weight)
     if (!valuelist) valuelist = db->open_value_list(valno);
     valuelist->next();
     while (!valuelist->at_end()) {
-	string v = valuelist->get_value();
+	const string & v = valuelist->get_value();
 	if (v >= begin && v <= end) {
 	    return NULL;
 	}
@@ -140,7 +140,7 @@ ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight)
     if (!valuelist) valuelist = db->open_value_list(valno);
     valuelist->skip_to(did);
     while (!valuelist->at_end()) {
-	string v = valuelist->get_value();
+	const string & v = valuelist->get_value();
 	if (v >= begin && v <= end) {
 	    return NULL;
 	}
@@ -160,7 +160,7 @@ ValueRangePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
     if (!valid) {
 	return NULL;
     }
-    string v = valuelist->get_value();
+    const string & v = valuelist->get_value();
     valid = (v >= begin && v <= end);
     return NULL;
 }
