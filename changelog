@@ -1,3 +1,9 @@
+xapian-core (1.2.0-4) UNRELEASED; urgency=low
+
+  * Drop quilt dependencies now we're using source format "3.0 (quilt)".
+
+ -- Olly Betts <olly@survex.com>  Thu, 06 May 2010 05:00:42 +0000
+
 xapian-core (1.2.0-3) experimental; urgency=low
 
   * debian/patches/ftbfs-on-hurd-fix.patch: Fix FTBFS on hurd due to SA_SIGINFO
