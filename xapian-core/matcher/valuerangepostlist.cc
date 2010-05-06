@@ -24,7 +24,6 @@
 
 #include "valuerangepostlist.h"
 
-#include "autoptr.h"
 #include "omassert.h"
 #include "document.h"
 #include "leafpostlist.h"
