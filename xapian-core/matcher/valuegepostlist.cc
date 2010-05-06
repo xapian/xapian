@@ -25,7 +25,7 @@
 #include "valuegepostlist.h"
 
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -77,7 +77,7 @@ string
 ValueGePostList::get_description() const
 {
     string desc = "ValueGePostList(";
-    desc += om_tostring(valno);
+    desc += str(valno);
     desc += ", ";
     desc += begin;
     desc += ")";
