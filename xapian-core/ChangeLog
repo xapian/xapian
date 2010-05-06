@@ -1,3 +1,7 @@
+Thu May 06 09:30:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Remove experimental warning.
+
 Thu May 06 05:05:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/valuerangepostlist.cc: Use "str.h" and str().
