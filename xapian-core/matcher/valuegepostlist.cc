@@ -24,10 +24,7 @@
 
 #include "valuegepostlist.h"
 
-#include "autoptr.h"
 #include "omassert.h"
-#include "document.h"
-#include "leafpostlist.h"
 #include "utils.h"
 
 using namespace std;
