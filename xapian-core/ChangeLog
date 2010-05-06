@@ -1,3 +1,7 @@
+Thu May 06 11:19:41 GMT 2010  Olly Betts <olly@survex.com
+
+	* tests/api_anydb.cc: Test UUID is 36 characters long.
+
 Thu May 06 10:41:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/valuegepostlist.cc: Use "str.h" and str().

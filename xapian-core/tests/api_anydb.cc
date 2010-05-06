@@ -2350,6 +2350,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
     SKIP_TEST_FOR_BACKEND("inmemory");
     Xapian::Database db = get_database("apitest_simpledata");
     string uuid1 = db.get_uuid();
+    TEST_EQUAL(uuid1.size(), 36);
 
     // A database with no sub-databases has an empty UUID.
     Xapian::Database db2;
