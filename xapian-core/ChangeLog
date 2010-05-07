@@ -21,6 +21,108 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Thu May 06 15:03:43 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_replicate.cc: Add some extra debugging, to help
+	  identify the problem with ticket #472.
+
+Thu May 06 13:38:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h,configure.ac,INSTALL: Make use of built-in UUID API
+	  on FreeBSD and NetBSD.  (ticket#470)
+
+Thu May 06 13:10:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS,Makefile.am,cmake/,configure.ac: Install files to make Xapian
+	  easier to use with cmake.  Thanks to Sune Vuorela for providing the
+	  desired output.
+
+Thu May 06 11:42:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/fdtracker.cc: Don't pass NULL to closedir().
+
+Thu May 06 11:19:41 GMT 2010  Olly Betts <olly@survex.com
+
+	* tests/api_anydb.cc: Test UUID is 36 characters long.
+
+Thu May 06 10:41:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuegepostlist.cc: Use "str.h" and str().
+
+Thu May 06 10:01:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuegepostlist.cc: Remove unused headers.
+
+Thu May 06 09:55:27 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc:
+	  Keep return value from valuelist->get_value() as a const string &
+	  rather than a string - could be more efficient on some compilers,
+	  though testing with gcc 4.1 revealed no difference.
+
+Thu May 06 09:49:12 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/valuegepostlist.cc: "while(" -> "while (" in recent patch.
+
+Thu May 06 09:30:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Remove experimental warning.
+
+Thu May 06 05:05:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: Use "str.h" and str().
+
+Thu May 06 05:03:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: Remove '#include "leafpostlist.h"'
+	  and '#include "document.h"' which are no longer used.
+
+Thu May 06 04:53:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: Remove '#include "autoptr.h"' which is
+	  no longer required.
+
+Thu May 06 04:18:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: "while(" -> "while (" in recent patch.
+
+Wed May 05 16:44:17 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc,matcher/orpostlist.h: Add
+	  OrPostList::check() method, which calls check() on the
+	  sub-postlists, rather than falling back to skip_to().  This is
+	  particularly helpful when a sub-postlist is one for which
+	  skip_to() can be significantly more expensive than check(), such
+	  as a ValueRangePostList.  I've observed a speedup of 10 times for
+	  such a subquery with this change.
+
+Wed May 05 16:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
+	  matcher/valuerangepostlist.h: Implement ValueRangePostList and
+	  ValueGePostList using a ValueList streaming values for the value
+	  slot of interest, rather than using an AllDocsPostList to get all
+	  documents, using that to open temporary documents for each
+	  document being considered, and then using that to get the value.
+	  I've observed a speedup of more than 70 times for range queries
+	  in a real-world situation with this change (a 29 second search
+	  became a 0.4 second search). (ticket#432)
+
+Wed May 05 06:44:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Wed May 05 05:42:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_cursor.cc,backends/chert/chert_cursor.cc,
+	  backends/flint/flint_cursor.cc: If we have to rebuild the cursor
+	  on next() because the table changed underneath us, we need to
+	  advance it because find_entry() will put the cursor on the entry
+	  we were already on, or the one before if the entry we were on
+	  has been removed.  Bug uncovered by notmuch testsuite, but I'm
+	  unable to reduce it to a sane testcase for our testsuite.
+	  (Debian#579951)
+
 Tue May 04 19:38:31 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* api/replication.cc,bin/xapian-replicate.cc,
