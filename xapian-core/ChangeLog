@@ -1,3 +1,10 @@
+Sun May 09 21:19:43 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/Makefile.am,tests/api_anydb.cc,tests/api_opvalue.cc: Move
+	  the tests for OP_VALUE_* query operators from api_anydb.cc to
+	  api_opvalue.cc.  Remove copyright statements earlier than 2007,
+	  since OP_VALUE_* wasn't added until 2007.
+
 Sun May 09 21:04:06 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/valuegepostlist.cc: Initialise valuelist in check() if
