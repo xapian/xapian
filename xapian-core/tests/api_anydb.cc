@@ -2160,6 +2160,19 @@ DEFINE_TESTCASE(valuege1, backend) {
     return true;
 }
 
+// Regression test for Query::OP_VALUE_GE - used to segfault if check() got
+// called.
+DEFINE_TESTCASE(valuege2, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    Xapian::Query query(Xapian::Query::OP_AND,
+			Xapian::Query("what"),
+			Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 20);
+    return true;
+}
+
 // Feature test for Query::OP_VALUE_LE.
 DEFINE_TESTCASE(valuele1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
