@@ -175,3 +175,19 @@ DEFINE_TESTCASE(valuege3, !backend) {
     TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
     return true;
 }
+
+// Test Query::OP_VALUE_GE in a query which causes its skip_to() to be used.
+DEFINE_TESTCASE(valuege4, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    // This query should put the ValueGePostList on the LHS of the AND because
+    // it has a lower estimated termfreq than the term "fridg".  As a result,
+    // the skip_to() method is used to advance the ValueGePostList.
+    Xapian::Query query(Xapian::Query::OP_AND,
+			Xapian::Query("fridg"),
+			Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 20);
+    return true;
+}

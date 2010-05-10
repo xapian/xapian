@@ -1,3 +1,8 @@
+Mon May 10 16:51:14 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_opvalue.cc: Add a test to get coverage of
+	  ValueGePostList::skip_to().
+
 Sun May 09 21:22:50 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_nodb.cc,tests/api_opvalue.cc: Move test "opvaluege1"
