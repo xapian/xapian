@@ -191,3 +191,29 @@ DEFINE_TESTCASE(valuege4, backend) {
     Xapian::MSet mset = enq.get_mset(0, 20);
     return true;
 }
+
+// Test Query::OP_VALUE_RANGE in a query which causes its check() to be used.
+DEFINE_TESTCASE(valuerange3, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    Xapian::Query query(Xapian::Query::OP_AND,
+			Xapian::Query("what"),
+			Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 1,
+				      "aa", "z"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 20);
+    return true;
+}
+
+// Test Query::OP_VALUE_RANGE in a query which causes its skip_to() to be used.
+DEFINE_TESTCASE(valuerange4, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    Xapian::Query query(Xapian::Query::OP_AND,
+			Xapian::Query("fridg"),
+			Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 1,
+				      "aa", "z"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 20);
+    return true;
+}

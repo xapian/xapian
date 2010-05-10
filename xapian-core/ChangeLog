@@ -1,3 +1,9 @@
+Mon May 10 16:57:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_opvalue.cc: Add tests for OP_VALUE_RANGE to get
+	  coverage of the skip_to() and check() methods of
+	  ValueRangePostList.
+
 Mon May 10 16:51:14 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_opvalue.cc: Add a test to get coverage of
