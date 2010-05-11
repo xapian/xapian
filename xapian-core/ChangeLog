@@ -1,3 +1,11 @@
+Tue May 11 10:13:08 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/: Add a "soaktest" testsuite, intended to contain
+	  long-running tests with random data.  Currently contains a single
+	  test which builds and runs random queries, checking that the
+	  results returned are consistent when asking for different result
+	  ranges.
+
 Mon May 10 16:57:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_opvalue.cc: Add tests for OP_VALUE_RANGE to get
