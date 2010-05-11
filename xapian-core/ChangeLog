@@ -1,3 +1,8 @@
+Tue May 11 10:16:05 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/soaktest_queries.cc: Don't fail for empty result
+	  sets.
+
 Tue May 11 10:13:08 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/soaktest/: Add a "soaktest" testsuite, intended to contain

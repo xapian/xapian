@@ -200,6 +200,11 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
 	Xapian::MSet mset1 = enquire.get_mset(0, 1);
 	Xapian::MSet mset10 = enquire.get_mset(0, 10);
 	Xapian::MSet msetall = enquire.get_mset(0, db.get_doccount());
+	if (mset1.empty()) {
+	    TEST(mset10.empty());
+	    TEST(msetall.empty());
+	    continue;
+	}
 	TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
 	TEST(mset_range_is_same(mset10, 0, msetall, 0, mset10.size()));
     }
