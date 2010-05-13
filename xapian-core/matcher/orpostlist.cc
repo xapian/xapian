@@ -170,18 +170,18 @@ OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
-		LOGLINE(MATCH, "OR -> AND (in skip_to)");
+		LOGLINE(MATCH, "OR -> AND (in check)");
 		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
-		LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");
+		LOGLINE(MATCH, "OR -> AND MAYBE (in check) (1)");
 		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
-	    LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (2)");
+	    LOGLINE(MATCH, "OR -> AND MAYBE (in check) (2)");
 	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 	    did = std::max(did, lhead);
 	}
