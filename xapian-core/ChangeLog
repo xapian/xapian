@@ -1,3 +1,12 @@
+Thu May 13 08:47:22 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/soaktest_queries.cc: Add more code comments,
+	  increase the number of repetitions from 100 to 10000, remove
+	  accidentally added semicolons after some braces, remove "return
+	  false" at end of test which was added for debugging purposes,
+	  clear tout before testing each query, and display the query
+	  number, the query, and the msets in the event of failure.
+
 Tue May 11 10:16:05 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/soaktest/soaktest_queries.cc: Don't fail for empty result

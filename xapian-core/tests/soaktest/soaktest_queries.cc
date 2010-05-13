@@ -88,41 +88,57 @@ struct QueryBuilderEnv {
 
 typedef void (*QueryStep)(QueryBuilderEnv &);
 
-/// Push a leaf query on field N onto the stack of query pieces.
+/// Push a leaf query on field N onto the list of query pieces.
 static void push_leaf_N(QueryBuilderEnv & env)
 {
     env.pieces.push_back(Xapian::Query(
 	"N" + str(randint(env.maxtermsperfield) + 1)));
-};
+}
 
-/// Combine some queries with OR.
+/** Combine some queries with OR.
+ *
+ *  The queries are removed from the list and the combined query is added to
+ *  the end.
+ */
 static void combine_OR(QueryBuilderEnv & env)
 {
     list<Xapian::Query>::iterator i = env.pick(randint(env.maxchildren));
     Xapian::Query combined(Xapian::Query::OP_OR, env.pieces.begin(), i);
     env.pieces.erase(env.pieces.begin(), i);
     env.pieces.push_back(combined);
-};
+}
 
-/// Combine some queries with AND.
+/** Combine some queries with AND.
+ *
+ *  The queries are removed from the list and the combined query is added to
+ *  the end.
+ */
 static void combine_AND(QueryBuilderEnv & env)
 {
     list<Xapian::Query>::iterator i = env.pick(randint(env.maxchildren));
     Xapian::Query combined(Xapian::Query::OP_AND, env.pieces.begin(), i);
     env.pieces.erase(env.pieces.begin(), i);
     env.pieces.push_back(combined);
-};
+}
 
-/// Combine some queries with AND.
+/** Combine some queries with XOR.
+ *
+ *  The queries are removed from the list and the combined query is added to
+ *  the end.
+ */
 static void combine_XOR(QueryBuilderEnv & env)
 {
     list<Xapian::Query>::iterator i = env.pick(randint(env.maxchildren));
     Xapian::Query combined(Xapian::Query::OP_XOR, env.pieces.begin(), i);
     env.pieces.erase(env.pieces.begin(), i);
     env.pieces.push_back(combined);
-};
+}
 
-/// Combine some queries with AND.
+/** Combine some queries with AND_NOT.
+ *
+ *  The queries are removed from the list and the combined query is added to
+ *  the end.
+ */
 static void combine_NOT(QueryBuilderEnv & env)
 {
     if (env.pieces.size() < 2) return;
@@ -130,7 +146,7 @@ static void combine_NOT(QueryBuilderEnv & env)
     Xapian::Query combined(Xapian::Query::OP_AND_NOT, env.pieces.begin(), i);
     env.pieces.erase(env.pieces.begin(), i);
     env.pieces.push_back(combined);
-};
+}
 
 /// Random query builder.
 class QueryBuilder {
@@ -150,6 +166,8 @@ class QueryBuilder {
 	    : env(maxtermsperfield_, maxchildren_),
 	      maxsteps(maxsteps_)
     {
+	// Build up the set of options.
+	// Some options are added multiple times to make them more likely.
 	options.push_back(push_leaf_N);
 	options.push_back(push_leaf_N);
 	options.push_back(push_leaf_N);
@@ -160,7 +178,14 @@ class QueryBuilder {
 	options.push_back(combine_NOT);
     }
 
-    /// Build a random query.
+    /** Build a random query.
+     *
+     *  This performs a random number of steps, each of which modifies the
+     *  QueryBuilderEnv by picking a random one of the options.
+     *
+     *  After the steps have been performed, the first item on the list in
+     *  QueryBuilderEnv is popped and returned.
+     */
     Xapian::Query make_query() {
 	unsigned int steps = randint(maxsteps) + 1;
 	while (steps-- != 0) {
@@ -178,7 +203,7 @@ class QueryBuilder {
 DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
     unsigned int seed = initrand();
     unsigned int maxtermsperfield = 100;
-    unsigned int repetitions = 100;
+    unsigned int repetitions = 10000;
     QueryBuilder builder(maxtermsperfield, 10, 10);
 
     Xapian::Database db;
@@ -192,14 +217,19 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
 
     Xapian::Enquire enquire(db);
 
-    while (repetitions-- != 0) {
+    unsigned int count = 0;
+    while (++count != repetitions) {
 	Xapian::Query query(builder.make_query());
-	tout << query << "\n";
+	tout.str(string());
+	tout << "query " << count << ": " << query << "\n";
 
 	enquire.set_query(query);
 	Xapian::MSet mset1 = enquire.get_mset(0, 1);
 	Xapian::MSet mset10 = enquire.get_mset(0, 10);
 	Xapian::MSet msetall = enquire.get_mset(0, db.get_doccount());
+	tout << mset1 << "\n";
+	tout << mset10 << "\n";
+	tout << msetall << "\n";
 	if (mset1.empty()) {
 	    TEST(mset10.empty());
 	    TEST(msetall.empty());
@@ -209,6 +239,5 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
 	TEST(mset_range_is_same(mset10, 0, msetall, 0, mset10.size()));
     }
 
-    return false;
     return true;
 }
