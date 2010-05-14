@@ -1,6 +1,6 @@
 /* freemem.cc: determine how much free physical memory there is.
  *
- * Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include <sys/types.h>
 #include <limits.h>
-#include <unistd.h>
+#include "safeunistd.h"
 #ifdef HAVE_SYS_SYSCTL_H
 # include <sys/sysctl.h>
 #endif

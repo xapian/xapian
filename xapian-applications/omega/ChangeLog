@@ -1,3 +1,8 @@
+Fri May 14 01:42:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* freemem.cc: Use "safeunistd.h" instead of <unistd.h>.
+
 Tue Apr 27 13:04:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.20.
