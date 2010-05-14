@@ -237,24 +237,15 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ========== ====== =================================== ========================================================================
 ========== ====== =================================== ========================================================================
 
-Features currently marked as experimental
-=========================================
-
-Native C++ API
---------------
-
-============== ===============================================================================================================
-Name           Details
-============== ===============================================================================================================
-Replication    Replication API (in particular, the ReplicationInfo structure) is likely to be changed in future.  Also, the
-               format for changesets (both on-disk and over the network) is likely to change (to allow compression of
-	       changesets).  See tickets `#347 <http://trac.xapian.org/ticket/347>`_ and
-	       `#348 <http://trac.xapian.org/ticket/348>`_.
--------------- ---------------------------------------------------------------------------------------------------------------
-PostingSource  The PostingSource API is new, and has already been through several redesigns before release.  While we think
-	       that we now have a good design, we are concerned that wider use of it will show that the API needs to be
-	       adjusted again, so we're marking it as experimental for now.
-============== ===============================================================================================================
+.. Features currently marked as experimental
+.. =========================================
+.. Native C++ API
+.. --------------
+.. ============== ===============================================================================================================
+.. Name           Details
+.. ============== ===============================================================================================================
+.. -------------- ---------------------------------------------------------------------------------------------------------------
+.. ============== ===============================================================================================================
 
 Features removed from Xapian
 ============================

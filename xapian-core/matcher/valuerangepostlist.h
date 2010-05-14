@@ -3,6 +3,7 @@
  */
 /* Copyright 2007,2008,2009 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +25,7 @@
 
 #include "database.h"
 #include "postlist.h"
+#include "valuelist.h"
 
 class ValueRangePostList : public PostList {
   protected:
@@ -33,11 +35,9 @@ class ValueRangePostList : public PostList {
 
     const std::string begin, end;
 
-    Xapian::docid current;
-
     Xapian::doccount db_size;
 
-    LeafPostList * alldocs_pl;
+    ValueList * valuelist;
 
     /// Disallow copying.
     ValueRangePostList(const ValueRangePostList &);
@@ -49,8 +49,8 @@ class ValueRangePostList : public PostList {
     ValueRangePostList(const Xapian::Database::Internal *db_,
 		       Xapian::valueno valno_,
 		       const std::string &begin_, const std::string &end_)
-	: db(db_), valno(valno_), begin(begin_), end(end_), current(0),
-	  db_size(db->get_doccount()), alldocs_pl(0) { }
+	: db(db_), valno(valno_), begin(begin_), end(end_),
+	  db_size(db->get_doccount()), valuelist(0) { }
 
     ~ValueRangePostList();
 

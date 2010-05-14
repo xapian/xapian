@@ -38,8 +38,10 @@ using namespace std;
 FDTracker::~FDTracker()
 {
 #ifndef __WIN32__
-    DIR * dir = static_cast<DIR*>(dir_void);
-    closedir(dir);
+    if (dir_void) {
+	DIR * dir = static_cast<DIR*>(dir_void);
+	closedir(dir);
+    }
 #endif
 }
 

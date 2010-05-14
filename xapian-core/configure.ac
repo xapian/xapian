@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.5], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -28,24 +28,21 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian-1.1:
-dnl 0:0:0 1.1.0 Reset as library renamed
-dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
-dnl 2:0:0 1.1.2 Query::Internal::wqf removed
-dnl 3:0:0 1.1.3 Default implementation of Weight::clone() removed.
-dnl 4:0:0 1.1.4 ValueCountMatchSpy::get_values() removed.
-dnl 4:1:0 1.1.5 No API changes.
-LIBRARY_VERSION_INFO=4:1:0
+dnl LIBRARY_VERSION_INFO:
+dnl 21:11:6 1.0.20 No API changes
+dnl 22:0:0 1.2.0 Many API changes!
+LIBRARY_VERSION_INFO=22:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
-LIBRARY_VERSION_SUFFIX=-1.1
+LIBRARY_VERSION_SUFFIX=
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
+dnl Disabled for stable release series.
 dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
-test x"$program_suffix" != xNONE || program_suffix=-1.1
+dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
 
-dnl Where xapian.h, etc go.
-incdir=$includedir/xapian-1.1
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
+incdir=$includedir
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -675,20 +672,28 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Find the UUID library (from e2fsprogs, not the OSSP one).
 
-  dnl Check for uuid/uuid.h.
-  AC_CHECK_HEADERS(uuid/uuid.h, [], [
-    AC_MSG_ERROR([uuid/uuid.h not found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+  dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+  AC_CHECK_HEADERS([uuid/uuid.h], [
+    dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+    SAVE_LIBS=$LIBS
+    LIBS=
+    AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+      AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+      ])
+    if test x != x"$LIBS" ; then
+      XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+    fi
+  ], [
+    dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+    AC_CHECK_HEADERS([uuid.h], [
+      dnl Check for uuid_create with no extra libraries required.
+      AC_CHECK_FUNC([uuid_create], [], [
+	AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+      ])
+    ], [
+      AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ], [ ])
-
-  dnl Check for uuid_generate in -luuid.
-  SAVE_LIBS=$LIBS
-  LIBS=
-  AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-    ])
-  if test x != x"$LIBS" ; then
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
-  fi
+  ], [ ])
 
   dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
   dnl uuid_unparse_lower(), only uuid_unparse().
@@ -1118,6 +1123,11 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Shared library extension.
+module=no
+eval "SHLIBEXT=$shrext_cmds"
+AC_SUBST(SHLIBEXT)
+
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
@@ -1134,6 +1144,8 @@ AC_CONFIG_FILES([
  docs/doxygen_api.conf
  docs/doxygen_source.conf
  xapian-core.spec
+ cmake/xapian-config.cmake
+ cmake/xapian-config-version.cmake
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])

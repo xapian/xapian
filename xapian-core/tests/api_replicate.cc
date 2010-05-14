@@ -171,7 +171,7 @@ apply_changeset(const string & changesetpath,
     Xapian::ReplicationInfo info1;
     Xapian::ReplicationInfo info2;
     bool client_changed = false;
-    while (replica.apply_next_changeset(&info2)) {
+    while (replica.apply_next_changeset(&info2, 0)) {
 	++count;
 	info1.changeset_count += info2.changeset_count;
 	info1.fullcopy_count += info2.fullcopy_count;
@@ -217,6 +217,12 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
 
     TEST_EQUAL(master.get_uuid(), master.get_uuid());
     dbcheck(replica, master.get_doccount(), master.get_lastdocid());
+
+    for (Xapian::TermIterator t = master.allterms_begin();
+	 t != master.allterms_end(); ++t) {
+	TEST_EQUAL(postlist_to_string(master, *t),
+		   postlist_to_string(replica, *t));
+    }
 }
 
 static void
@@ -421,6 +427,8 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
     while (true) {
 	copylen = truncated_copy(changesetpath, brokenchangesetpath, len);
 	TEST_EQUAL(copylen, len);
+	tout << "Trying replication with a changeset truncated to " << len <<
+		" bytes, from " << filesize << " bytes\n";
 	TEST_EXCEPTION(Xapian::NetworkError,
 		       apply_changeset(brokenchangesetpath, replica,
 				       expected_changesets, expected_fullcopies,
@@ -483,6 +491,56 @@ DEFINE_TESTCASE(replicate3, replicas) {
     TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, 1), 2);
 
     // Need to close the replicas before we remove the temporary directory on
+    // Windows.
+    replica.close();
+    rmtmpdir(tempdir);
+    return true;
+}
+
+// Basic test of replication functionality.
+DEFINE_TESTCASE(replicate4, replicas) {
+    string tempdir = ".replicatmp";
+    mktmpdir(tempdir);
+    string masterpath = get_named_writable_database_path("master");
+
+    set_max_changesets(10);
+
+    Xapian::WritableDatabase orig(get_named_writable_database("master"));
+    Xapian::DatabaseMaster master(masterpath);
+    string replicapath = tempdir + "/replica";
+    Xapian::DatabaseReplica replica(replicapath);
+
+    // Add a document with no positions to the original database.
+    Xapian::Document doc1;
+    doc1.set_data(string("doc1"));
+    doc1.add_term("nopos");
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Apply the replication - we don't have changesets stored, so this should
+    // just do a database copy, and return a count of 1.
+    int count = replicate(master, replica, tempdir, 0, 1, 1);
+    TEST_EQUAL(count, 1);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
+
+    // Add a document with positional information to the original database.
+    doc1.add_posting("pos", 1);
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Replicate, and check that we have the positional information.
+    count = replicate(master, replica, tempdir, 1, 0, 1);
+    TEST_EQUAL(count, 2);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
+    check_equal_dbs(masterpath, replicapath);
+
+    // Need to close the replica before we remove the temporary directory on
     // Windows.
     replica.close();
     rmtmpdir(tempdir);

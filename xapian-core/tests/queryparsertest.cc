@@ -28,6 +28,7 @@
 #include "utils.h"
 
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -2238,7 +2239,10 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

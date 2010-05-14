@@ -4,9 +4,8 @@
    before changing it!
 
    Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
-   Copyright (C) 2010 Olly Betts
 	Free Software Foundation, Inc.
-   Copyright (C) 2004,2009 Olly Betts (reworked to allow compilation as C++)
+   Copyright (C) 2004,2009,2010 Olly Betts (reworked to allow compilation as C++)
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License as
@@ -56,6 +55,7 @@ using std::fprintf;
 # endif
 #endif
 
+#ifndef __CYGWIN__
 /* This version of `getopt' appears to the caller like standard Unix `getopt'
    but it behaves differently for the user, since it allows the user
    to intersperse the options with the other arguments.
@@ -93,6 +93,18 @@ char *optarg;
 /* 1003.2 says this must be 1 before any call.  */
 int optind = 1;
 
+/* Callers store zero here to inhibit the error message
+   for unrecognized options.  */
+
+int opterr = 1;
+
+/* Set to an option character which was unrecognized.
+   This must be initialized on some systems to avoid linking in the
+   system's own getopt implementation.  */
+
+int optopt = '?';
+#endif
+
 /* Formerly, initialization of getopt depended on optind==0, which
    causes problems with re-calling getopt as programs generally don't
    know that. */
@@ -107,17 +119,6 @@ static int getopt_initialized;
    by advancing to the next ARGV-element.  */
 
 static char *nextchar;
-
-/* Callers store zero here to inhibit the error message
-   for unrecognized options.  */
-
-int opterr = 1;
-
-/* Set to an option character which was unrecognized.
-   This must be initialized on some systems to avoid linking in the
-   system's own getopt implementation.  */
-
-int optopt = '?';
 
 /* Describe how to deal with options that follow non-option ARGV-elements.
 

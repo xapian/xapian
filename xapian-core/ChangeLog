@@ -1,3 +1,7 @@
+Fri May 14 14:25:32 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Merge from trunk r14528.
+
 Sat May 01 15:17:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/perftest/runprocess.cc: Use safesyswait.h, fixing build failure

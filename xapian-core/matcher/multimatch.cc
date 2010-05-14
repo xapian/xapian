@@ -893,7 +893,7 @@ new_greatest_weight:
 	    = items.size();
 	if (collapser && matches_lower_bound > uncollapsed_lower_bound)
 	    uncollapsed_lower_bound = matches_lower_bound;
-    } else if (docs_matched + collapser.get_dups_ignored() < check_at_least) {
+    } else if (!collapser && docs_matched < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
 	LOGLINE(MATCH, "Setting bounds equal");

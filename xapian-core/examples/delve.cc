@@ -49,6 +49,7 @@ static bool showdocdata = false;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
 "Options:\n"
+"  -a                    show all terms in the database\n"
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"
@@ -59,7 +60,8 @@ static void show_usage() {
 "                        (or each document in the database if no -r options)\n"
 "  -d                    output document data for each document referred to\n"
 "  -v                    extra info (wdf and len for postlist;\n"
-"                        wdf and termfreq for termlist; number of terms for db)\n"
+"                        wdf and termfreq for termlist; number of terms for db;\n"
+"                        termfreq when showing all terms)\n"
 "      --help            display this help and exit\n"
 "      --version         output version information and exit" << endl;
 }
@@ -148,23 +150,39 @@ show_docdata(Database &db,
 }
 
 static void
+show_termlist(const Database &db, Xapian::docid did)
+{
+    TermIterator t, tend;
+    if (did == 0) {
+	t = db.allterms_begin();
+	tend = db.allterms_end();
+	cout << "All terms in database:";
+    } else {
+	t = db.termlist_begin(did);
+	tend = db.termlist_end(did);
+	cout << "Term List for record #" << did << ':';
+    }
+
+    while (t != tend) {
+	cout << separator << *t;
+	if (verbose) {
+	    if (did != 0)
+		cout << ' ' << t.get_wdf();
+	    cout << ' ' << t.get_termfreq();
+	}
+	++t;
+    }
+    cout << endl;
+}
+
+static void
 show_termlists(Database &db,
 	       vector<docid>::const_iterator i,
 	       vector<docid>::const_iterator end)
 {
     // Display termlists
     while (i != end) {
-	TermIterator t = db.termlist_begin(*i);
-	TermIterator tend = db.termlist_end(*i);
-	cout << "Term List for record #" << *i << ':';
-	while (t != tend) {
-	    cout << separator << *t;
-	    if (verbose) {
-		cout << ' ' << t.get_wdf() << ' ' << t.get_termfreq();
-	    }
-	    ++t;
-	}
-	cout << endl;
+	show_termlist(db, *i);
 	++i;
     }
 }
@@ -185,6 +203,7 @@ main(int argc, char **argv) try {
 	}
     }
 
+    bool all_terms = false;
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;
@@ -193,8 +212,11 @@ main(int argc, char **argv) try {
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:s:1vV::d")) != -1) {
+    while ((c = gnu_getopt(argc, argv, "ar:t:s:1vV::d")) != -1) {
 	switch (c) {
+	    case 'a':
+		all_terms = true;
+		break;
 	    case 'r': {
 		char * end;
 		errno = 0;
@@ -274,10 +296,14 @@ main(int argc, char **argv) try {
 	}
     }
 
-    if (terms.empty() && recnos.empty() && !slot_set) {
+    if (!all_terms && terms.empty() && recnos.empty() && !slot_set) {
 	// Show some statistics about the database.
 	show_db_stats(db);
 	return 0;
+    }
+
+    if (all_terms) {
+	show_termlist(db, 0);
     }
 
     if (!recnos.empty()) {

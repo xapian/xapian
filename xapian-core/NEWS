@@ -1,3 +1,68 @@
+ 14488       olly Wed May 05 05:42:56 GMT 2010  Olly Betts <olly@survex.com>
+
+ trunk only:
+
+ 14485    richard Tue May 04 19:38:31 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* api/replication.cc,bin/xapian-replicate.cc,
+	  common/replicatetcpclient.h,common/replication.h,
+	  net/replicatetcpclient.cc,tests/api_replicate.cc: Fix a bug in
+	  replication, which triggered when multiple modifications were
+	  made to a database while a full copy of the database was in
+	  progress.  In this situation, the client would fail to apply more
+	  than one changeset before trying (and failing) to make the
+	  database live, due to an incorrect assignment of the new revision
+	  number to "offline_needed_revision" instead of
+	  "offline_revision".  Also, replication now only sleeps for a
+	  period (to allow reader to catch up) after a changeset has been
+	  applied to a live database - previously, it would sleep
+	  unnecessarily after a changeset had been applied to an offline
+	  database.  Also, make the period for which replication sleeps in
+	  this situation configurable with the "-r" command line option to
+	  xapian-replicate.
+	  A test for these changes will be committed to xapian-bindings
+	  shortly.
+
+ 14467       olly Sat May 01 15:25:48 GMT 2010  Olly Betts <olly@survex.com>
+	* Merge change accidentally committed to brass-btree branch:
+	* tests/perftest/runprocess.cc: Use safesyswait.h, fixing build failure
+	  on "make check" on FreeBSD.
+
+ 14463    richard Fri Apr 30 12:33:25 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc,tests/api_replicate.cc:
+	  If a DB file doesn't exist when applying a changeset, try
+	  creating it - this happens with lazy tables which aren't created
+	  in the initial revision copied.  Add replicate4 test to check
+	  that this works correctly with a lazily created position table.
+	  Fixes ticket #468.
+
+ 14462       olly Fri Apr 30 07:09:31 GMT 2010  Olly Betts <olly@survex.com>
+	* docs/deprecation.rst: Replication and PostingSource aren't
+	  experimental in 1.2.x.
+
+ 14461       olly Fri Apr 30 00:52:22 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/harness/testsuite.cc: Fix typo in previous commit.
+
+ 14460       olly Thu Apr 29 23:46:09 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
+	  using it as it isn't available everywhere.  Fixes FTBFS on GNU Hurd.
+
+ 14459       olly Thu Apr 29 12:11:48 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Install headers under PREFIX/include not
+	  PREFIX/include/xapian.  This broke compiling code which didn't use
+	  XO_LIB_XAPIAN or xapian-config.
+
+Xapian-core 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+testsuite:
+
+* Fix --abort-on-error to actually work.
+
+* Exit with status 1 not 0 if we caught an exception from the harness itself.
+
 Xapian-core 1.1.5 (2010-04-16):
 
 This release includes all changes from 1.0.19 which are relevant.
@@ -766,6 +831,31 @@ debug code:
 * Faster integer to string functions inside the library (this is a general
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
+
+Xapian-core 1.0.20 (2010-04-27):
+
+API:
+
+* MSet: Fix incorrect values reported by get_matches_estimated(),
+  get_matches_lower_bound(), and get_matches_upper_bound() in certain cases
+  when sorting and collapsing (ticket#464).
+
+documentation:
+
+* deprecation.html: Note how to disable deprecation warnings. (ticket#393)
+
+examples:
+
+* delve: Add -a option to list all terms in a database.
+
+* delve: -d and -V command line options now report out of range and invalid
+  numbers.
+
+portability:
+
+* The getopt warning fix for Cygwin in 1.0.19 caused build failures on Mac OS X
+  (and probably some other platforms with non-GNU getopt implementations), so
+  replace with a fix which is only enabled for Cygwin. (ticket#469)
 
 Xapian-core 1.0.19 (2010-04-15):
 
