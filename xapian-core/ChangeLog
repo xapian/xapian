@@ -1,3 +1,9 @@
+Sat May 15 06:56:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Read the max fd with sysconf() instead of using
+	  a hardcoded value of 256.  Work even if stdin and stdout have been
+	  closed.
+
 Thu May 13 10:53:24 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/orpostlist.cc: Correct some debugging lines.
