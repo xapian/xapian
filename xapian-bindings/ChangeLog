@@ -1,3 +1,7 @@
+Sun May 16 13:27:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Update list of generated java sources.
+
 Sun May 16 12:05:29 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,guile/Makefile.am,guile/util.i: Remove
