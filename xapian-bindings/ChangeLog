@@ -1,3 +1,10 @@
+Sun May 16 12:05:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,guile/Makefile.am,guile/util.i: Remove
+	  non-functional disabled guile bindings left over from Open Muscat
+	  days - if someone wanted to add guile bindings, it would be easier to
+	  start from scratch.
+
 Tue May 04 19:47:40 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/replicationtest2.py: Some modifications to the replication
