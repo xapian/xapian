@@ -43,7 +43,7 @@ class XorPostList : public BranchPostList {
 
 	Xapian::doccount dbsize;
 
-        PostList *advance_to_next_match(Xapian::weight w_min);
+	PostList *advance_to_next_match();
     public:
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;

@@ -18,7 +18,7 @@ EXTRA_DIST = xapian.i xapian-head.i generic/except.i \
 DISTCLEANFILES = xapian-version.h
 
 SUBDIRS = @BINDINGS@
-DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp # guile
+DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON_LIB="`pwd`/../_inst/tmp_pylib" \

@@ -171,7 +171,7 @@ apply_changeset(const string & changesetpath,
     Xapian::ReplicationInfo info1;
     Xapian::ReplicationInfo info2;
     bool client_changed = false;
-    while (replica.apply_next_changeset(&info2)) {
+    while (replica.apply_next_changeset(&info2, 0)) {
 	++count;
 	info1.changeset_count += info2.changeset_count;
 	info1.fullcopy_count += info2.fullcopy_count;
@@ -427,6 +427,8 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
     while (true) {
 	copylen = truncated_copy(changesetpath, brokenchangesetpath, len);
 	TEST_EQUAL(copylen, len);
+	tout << "Trying replication with a changeset truncated to " << len <<
+		" bytes, from " << filesize << " bytes\n";
 	TEST_EXCEPTION(Xapian::NetworkError,
 		       apply_changeset(brokenchangesetpath, replica,
 				       expected_changesets, expected_fullcopies,

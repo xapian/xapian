@@ -424,13 +424,6 @@ DEFINE_TESTCASE(rset4, !backend) {
     return true;
 }
 
-// Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
-DEFINE_TESTCASE(opvaluege1, !backend) {
-    Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");
-    TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
-    return true;
-}
-
 // Direct test of ValueSetMatchDecider
 DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     Xapian::ValueSetMatchDecider vsmd1(0, true);

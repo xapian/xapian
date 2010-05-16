@@ -52,6 +52,13 @@ Revision history for Perl extension Search::Xapian.
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
 
+1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
+	  warning (Debian bug#578559).
+	- Fix testcase t/04functions.t to work with Perl compiled with
+	  -Duselongdouble (Debian bug#578558).
+
 1.0.19.0  Thu Apr 15 03:55:04 UTC 2010
 	[Changes contributed by Olly Betts]
 	- Wrap Document::add_boolean_term() (new in C++ API in 1.0.18).

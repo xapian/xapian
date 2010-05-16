@@ -664,20 +664,28 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Find the UUID library (from e2fsprogs, not the OSSP one).
 
-  dnl Check for uuid/uuid.h.
-  AC_CHECK_HEADERS(uuid/uuid.h, [], [
-    AC_MSG_ERROR([uuid/uuid.h not found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+  dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+  AC_CHECK_HEADERS([uuid/uuid.h], [
+    dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+    SAVE_LIBS=$LIBS
+    LIBS=
+    AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+      AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+      ])
+    if test x != x"$LIBS" ; then
+      XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+    fi
+  ], [
+    dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+    AC_CHECK_HEADERS([uuid.h], [
+      dnl Check for uuid_create with no extra libraries required.
+      AC_CHECK_FUNC([uuid_create], [], [
+	AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+      ])
+    ], [
+      AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ], [ ])
-
-  dnl Check for uuid_generate in -luuid.
-  SAVE_LIBS=$LIBS
-  LIBS=
-  AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-    ])
-  if test x != x"$LIBS" ; then
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
-  fi
+  ], [ ])
 
   dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
   dnl uuid_unparse_lower(), only uuid_unparse().
@@ -1107,6 +1115,11 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Shared library extension.
+module=no
+eval "SHLIBEXT=$shrext_cmds"
+AC_SUBST(SHLIBEXT)
+
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
@@ -1123,6 +1136,8 @@ AC_CONFIG_FILES([
  docs/doxygen_api.conf
  docs/doxygen_source.conf
  xapian-core.spec
+ cmake/xapian-config.cmake
+ cmake/xapian-config-version.cmake
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])

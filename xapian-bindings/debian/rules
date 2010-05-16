@@ -38,11 +38,8 @@ DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
 # The python versions to build for:
 PYTHON_VERSIONS := $(shell pyversions -r debian/control)
-ifeq ($(PYTHON_VERSIONS), )
-PYTHON_VERSIONS := python2.3 python2.4
-endif
-# python >= 2.3.5-7 is required for the pyversions command.
-BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0.4.10), python-all-dev,
+
+BUILD_DEPS := debhelper (>= 7), python, python-central (>= 0.4.10), python-all-dev,
 
 # Disabled due to incompatibility of GPL and PHP licence.  Uncomment to build
 # your own binary packages (just don't distribute them!)
@@ -114,8 +111,10 @@ BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%-dev,)
 BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%,)
 
 # We need a versioned build dependency on libxapian-dev.
-BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
-BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
+# NB Trailing ',' required here!
+BUILD_DEPS += \
+	libxapian-dev (>= $(XAPIAN_VERSION)), \
+	libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),
 
 commonconfflags := \
 	$(confflags) \
@@ -146,10 +145,6 @@ debian/control: debian/rules debian/control.in
 configure: debian/configure-stamp
 debian/configure-stamp:
 	dh_testdir
-
-	# Use Debian's patched libtool to avoid trying to explicitly link with
-	# -lz and -luuid.  Just forcing link_all_deplibs=no doesn't help here.
-	autoreconf -if
 
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
@@ -234,10 +229,7 @@ install: build
 	done
 
 	# Install xapian.php in /usr/share/php for PHP5 so that it's in the
-	# PHP include_path, but for the PHP4 backport put it in /usr/share/php4
-	# to avoid a file conflict with the php5-xapian package.  The file won't
-	# be automatically found there, but it isn't vital for the PHP4 bindings
-	# while it is for the PHP5 ones.
+	# PHP include_path.
 	#
 	# Always install /etc/xapian/phpN/conf.d/xapian.ini, even for backports
 	# to suites where PHP doesn't support it - the extra file is harmless,
@@ -284,8 +276,8 @@ binary-arch: build install
 	dh_shlibdeps
 	# Rewrite the dependency on libxapianN to be >= our version, since
 	# we may require features added in that version.
-	perl -pi -e \
-	    's/^(shlibs:Depends=.*libxapian\d+)/$$1 (>= $(XAPIAN_VERSION))/' \
+	sed -i \
+	    's/^shlibs:Depends=.*libxapian[0-9]\+/& (>= $(XAPIAN_VERSION))/' \
 	    debian/*.substvars
 
 	for v in $(PHP_VERSIONS); do \
@@ -299,7 +291,7 @@ binary-arch: build install
 	# lenny/hardy onwards have a "tcl" dummy package which pulls in the
 	# package for the current preferred version.  "tclsh" is a virtual
 	# package which the Debian Tcl/Tk Policy recommends we specify as an
-	# alternative if we work with all available Tcl/Tk versions:
+	# alternative to allow us to work with all available Tcl/Tk versions:
 	# http://pkg-tcltk.alioth.debian.org/tcltk-policy.html/ch-module_packages.html
 	echo "tcl:Depends=tcl|tclsh" >> debian/tclxapian.substvars
 
@@ -316,6 +308,5 @@ clean:
 	rm -rf debian/build
 	rm -f config.sub config.guess
 	dh_clean
-	rm -f debian/build-stamp debian/configure-stamp
 
 .PHONY: maint maintclean configure build install binary binary-arch binary-indep clean

@@ -62,10 +62,11 @@ else
     MAKE_CHECK := make check
 endif
 
-BUILD_DEPS := debhelper (>= 5),
 # We need a versioned build dependency on libxapian-dev.
-BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
-BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
+# NB Trailing ',' required here!
+BUILD_DEPS := \
+	libxapian-dev (>= $(XAPIAN_VERSION)), \
+	libxapian-dev (<< $(XAPIAN_VERSION_CEILING)), 
 
 commonconfflags := \
 	$(confflags) \
@@ -90,10 +91,6 @@ debian/control: debian/rules debian/control.in
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-
-	# Use Debian's patched libtool to avoid trying to explicitly link with
-	# -lz and -luuid.  Just forcing link_all_deplibs=no doesn't help here.
-	autoreconf -if
 
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
@@ -181,8 +178,8 @@ binary-arch: build install
 	dh_shlibdeps
 	# Rewrite the dependency on libxapianN to be >= our version, since
 	# we may require features added in that version.
-	perl -pi -e \
-	    's/^(shlibs:Depends=.*libxapian\d+)/$$1 (>= $(XAPIAN_VERSION))/' \
+	sed -i \
+	    's/^shlibs:Depends=.*libxapian[0-9]\+/& (>= $(XAPIAN_VERSION))/' \
 	    debian/*.substvars
 
 	dh_gencontrol
@@ -195,6 +192,5 @@ clean:
 	rm -rf debian/build
 	rm -f config.sub config.guess
 	dh_clean
-	rm -f build-stamp configure-stamp
 
 .PHONY: configure build install binary binary-arch binary-indep clean

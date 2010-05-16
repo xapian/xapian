@@ -4,6 +4,27 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Sun May 16 13:27:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Update list of generated java sources.
+
+Sun May 16 12:05:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,guile/Makefile.am,guile/util.i: Remove
+	  non-functional disabled guile bindings left over from Open Muscat
+	  days - if someone wanted to add guile bindings, it would be easier to
+	  start from scratch.
+
+Tue May 04 19:47:40 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/replicationtest2.py: Some modifications to the replication
+	  test to check that changesets get applied correctly.
+
+Tue May 04 15:26:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Check len(mset) works (improving test coverage
+	  of Python-specific wrapping).
+
 Wed Apr 28 10:43:28 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.20.

@@ -1,3 +1,18 @@
+xapian-omega (1.2.0-3) experimental; urgency=low
+
+  * Removing the call to autoreconf means we need libxapian-dev >= 1.2.0-2.
+  * Improve package long description.
+  * Update to require dh7 and use dh compact level 7.
+  * Switch to dpkg-source 3.0 (quilt) format.
+
+ -- Olly Betts <olly@survex.com>  Tue, 04 May 2010 12:33:37 +0000
+
+xapian-omega (1.2.0-2) experimental; urgency=low
+
+  * Don't need to autoreconf now.
+
+ -- Olly Betts <olly@survex.com>  Mon, 03 May 2010 16:01:10 +0000
+
 xapian-omega (1.2.0-1) experimental; urgency=low
 
   * New upstream release.

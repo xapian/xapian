@@ -24,8 +24,9 @@ faster than with 1.1.x, but it's pretty unlikely you'll have an older version
 installed these days.
 
 Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
-(on Fedora, the package to install is e2fsprogs-devel).  On Microsoft Windows
-this isn't required, as we use built-in UUID functionality instead.
+(on Fedora, the package to install is e2fsprogs-devel).  This dependency isn't
+required on FreeBSD, NetBSD, and Microsoft Windows where we use built-in
+UUID functionality instead.
 
 Compilers
 =========
