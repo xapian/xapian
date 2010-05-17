@@ -51,7 +51,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
-"$(OUTDIR)\libnet.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\libnet.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libnet.lib" $(DEF_FLAGS) $(OBJS)
 <<

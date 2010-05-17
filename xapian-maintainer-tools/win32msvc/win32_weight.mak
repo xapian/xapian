@@ -41,7 +41,7 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\LIBWEIGHT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
+"$(OUTDIR)\LIBWEIGHT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libweight.lib" $(DEF_FLAGS) $(OBJS)
 <<

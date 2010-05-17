@@ -85,12 +85,12 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\libbrass.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\libbrass.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libbrass.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-"$(OUTDIR)\libbrassbtreecheck.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(LIBBRASSBTREECHECK_OBJS)
+"$(OUTDIR)\libbrassbtreecheck.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBRASSBTREECHECK_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libbrassbtreecheck.lib" $(DEF_FLAGS) $(LIBBRASSBTREECHECK_OBJS)
 <<

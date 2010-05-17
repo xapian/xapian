@@ -38,7 +38,7 @@ SRCS =  	$(INTDIR)\delve.cc \
 PROGRAMS = "$(OUTDIR)\delve.exe" "$(OUTDIR)\quest.exe" \
 "$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" "$(OUTDIR)\copydatabase.exe" 
 
-ALL : HEADERS $(PROGRAMS)
+ALL : $(PROGRAMS)
 
 CLEAN :
 	-@erase $(PROGRAMS)

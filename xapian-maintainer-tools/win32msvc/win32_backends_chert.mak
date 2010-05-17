@@ -24,7 +24,6 @@ OBJS= \
                 $(INTDIR)\chert_databasereplicator.obj\
                 $(INTDIR)\chert_dbstats.obj\
                 $(INTDIR)\chert_document.obj\
-                $(INTDIR)\chert_io.obj\
                 $(INTDIR)\chert_metadata.obj\
                 $(INTDIR)\chert_modifiedpostlist.obj\
                 $(INTDIR)\chert_positionlist.obj\
@@ -50,7 +49,6 @@ SRCS= \
                 $(INTDIR)\chert_databasereplicator.cc\
                 $(INTDIR)\chert_dbstats.cc\
                 $(INTDIR)\chert_document.cc\
-                $(INTDIR)\chert_io.cc\
                 $(INTDIR)\chert_metadata.cc\
                 $(INTDIR)\chert_modifiedpostlist.cc\
                 $(INTDIR)\chert_positionlist.cc\
@@ -87,12 +85,12 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBCHERT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBCHERT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libchert.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-"$(OUTDIR)\LIBCHERTBTREECHECK.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(LIBCHERTBTREECHECK_OBJS)
+"$(OUTDIR)\LIBCHERTBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBCHERTBTREECHECK_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libchertbtreecheck.lib" $(DEF_FLAGS) $(LIBCHERTBTREECHECK_OBJS)
 <<
