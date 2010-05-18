@@ -1,3 +1,9 @@
+Tue May 18 14:24:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk,bin/xapian-check.cc,bin/xapian-compact.cc: Improve
+	  building with flint, chert and/or brass disabled (partially addresses
+	  ticket#361).
+
 Tue May 18 00:42:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix warnings with --disable-backend-remote

@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -268,18 +268,30 @@ main(int argc, char **argv)
 	    // If we're passed a "naked" table (with no accompanying files)
 	    // assume it is chert.
 	    if (file_exists(path + "iamflint")) {
+#ifndef XAPIAN_HAS_FLINT_BACKEND
+		throw "Flint database support isn't enabled";
+#else
 		errors = check_flint_table(tablename.c_str(), filename, opts,
 					   doclens);
+#endif
 	    } else if (file_exists(path + "iambrass")) {
+#ifndef XAPIAN_HAS_BRASS_BACKEND
+		throw "Brass database support isn't enabled";
+#else
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 		errors = check_brass_table(tablename.c_str(), filename, opts,
 					   doclens, db_last_docid);
+#endif
 	    } else {
+#ifndef XAPIAN_HAS_CHERT_BACKEND
+		throw "Chert database support isn't enabled";
+#else
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 		errors = check_chert_table(tablename.c_str(), filename, opts,
 					   doclens, db_last_docid);
+#endif
 	    }
 	}
 	if (errors > 0) {
