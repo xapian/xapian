@@ -28,6 +28,7 @@
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "stringutils.h"
+#include "utils.h"
 
 #include <xapian.h>
 
