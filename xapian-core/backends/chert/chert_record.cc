@@ -27,7 +27,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 using std::string;
 
@@ -46,7 +46,7 @@ ChertRecordTable::get_record(Xapian::docid did) const
     string tag;
 
     if (!get_exact_entry(make_key(did), tag)) {
-	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
+	throw Xapian::DocNotFoundError("Document " + str(did) + " not found.");
     }
 
     RETURN(tag);
@@ -77,5 +77,5 @@ ChertRecordTable::delete_record(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "ChertRecordTable::delete_record", did);
     if (!del(make_key(did)))
-	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + om_tostring(did));
+	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
 }

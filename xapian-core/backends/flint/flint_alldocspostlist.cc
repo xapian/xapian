@@ -25,7 +25,7 @@
 #include "flint_database.h"
 #include "flint_alldocspostlist.h"
 
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -135,9 +135,9 @@ string
 FlintAllDocsPostList::get_description() const
 {
     string desc = "FlintAllDocsPostList(did=";
-    desc += om_tostring(current_did);
+    desc += str(current_did);
     desc += ",doccount=";
-    desc += om_tostring(doccount);
+    desc += str(doccount);
     desc += ')';
     return desc;
 }

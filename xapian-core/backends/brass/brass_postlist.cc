@@ -29,7 +29,7 @@
 #include "noreturn.h"
 #include "omdebug.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 Xapian::doccount
 BrassPostListTable::get_termfreq(const string & term) const
@@ -66,7 +66,7 @@ BrassPostListTable::get_doclength(Xapian::docid did,
 	doclen_pl.reset(new BrassPostList(db, string(), false));
     }
     if (!doclen_pl->jump_to(did))
-	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
+	throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
     return doclen_pl->get_wdf();
 }
 
@@ -773,9 +773,9 @@ BrassPostList::next_chunk()
     }
     if (newdid <= did) {
 	throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
-		om_tostring(newdid) +
+		str(newdid) +
 		") is not greater than final document ID in previous chunk (" +
-		om_tostring(did) + ")");
+		str(did) + ")");
     }
     did = newdid;
 
@@ -982,7 +982,7 @@ BrassPostList::jump_to(Xapian::docid desired_did)
 string
 BrassPostList::get_description() const
 {
-    return term + ":" + om_tostring(number_of_entries);
+    return term + ":" + str(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.

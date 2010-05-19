@@ -24,7 +24,7 @@
 #include "chert_alldocsmodifiedpostlist.h"
 #include "chert_database.h"
 
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -133,7 +133,7 @@ string
 ChertAllDocsModifiedPostList::get_description() const
 {
     string desc = "ChertAllDocsModifiedPostList(did=";
-    desc += om_tostring(get_docid());
+    desc += str(get_docid());
     desc += ')';
     return desc;
 }

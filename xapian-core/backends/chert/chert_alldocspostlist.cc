@@ -26,7 +26,7 @@
 #include "chert_alldocspostlist.h"
 #include "chert_database.h"
 
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -79,9 +79,9 @@ string
 ChertAllDocsPostList::get_description() const
 {
     string desc = "ChertAllDocsPostList(did=";
-    desc += om_tostring(get_docid());
+    desc += str(get_docid());
     desc += ",doccount=";
-    desc += om_tostring(doccount);
+    desc += str(doccount);
     desc += ')';
     return desc;
 }

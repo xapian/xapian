@@ -27,10 +27,10 @@
 
 #include "backendmanager.h"
 #include "perftest.h"
+#include "str.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -42,20 +42,20 @@ builddb_valuestest1(Xapian::WritableDatabase &db, const string & dbname)
 
     // Rebuild the database.
     std::map<std::string, std::string> params;
-    params["runsize"] = om_tostring(runsize);
+    params["runsize"] = str(runsize);
     logger.indexing_begin(dbname, params);
     for (unsigned int i = 0; i < runsize; ++i) {
 	unsigned int v = i % 100;
 	Xapian::Document doc;
-	doc.set_data("test document " + om_tostring(i));
+	doc.set_data("test document " + str(i));
 	doc.add_term("foo");
-	string vs = om_tostring(v);
+	string vs = str(v);
 	if (vs.size() == 1) vs = "0" + vs;
 	doc.add_value(0, vs);
 	doc.add_term("F" + vs);
-	doc.add_term("Q" + om_tostring(i));
+	doc.add_term("Q" + str(i));
 	for (int j = 0; j != 100; ++j)
-	    doc.add_term("J" + om_tostring(j));
+	    doc.add_term("J" + str(j));
 	db.replace_document(i + 10, doc);
 	logger.indexing_add();
     }
@@ -94,11 +94,11 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
     Xapian::ValueSetMatchDecider md(0, true);
 
     for (unsigned int i = 0; i < 100; ++i) {
-	string vs = om_tostring(i);
+	string vs = str(i);
 	if (vs.size() == 1) vs = "0" + vs;
 	md.add_value(vs);
 
-	logger.searching_start("Match decider accepting " + om_tostring(i + 1) + "%");
+	logger.searching_start("Match decider accepting " + str(i + 1) + "%");
 	logger.search_start();
 	enquire.set_query(query);
 	mset = enquire.get_mset(0, 10, 0, NULL, &md);
@@ -109,7 +109,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 
 	Xapian::Query query2(Xapian::Query::OP_FILTER, query,
 			     Xapian::Query(Xapian::Query::OP_VALUE_LE, 0, vs));
-	logger.searching_start("Value range LE accepting " + om_tostring(i + 1) + "%");
+	logger.searching_start("Value range LE accepting " + str(i + 1) + "%");
 	Xapian::MSet mset2;
 	logger.search_start();
 	enquire.set_query(query2);

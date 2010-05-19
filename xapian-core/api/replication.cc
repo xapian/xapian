@@ -43,6 +43,7 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "serialise.h"
+#include "str.h"
 #include "utils.h"
 
 #include "autoptr.h"
@@ -456,8 +457,8 @@ DatabaseReplica::Internal::check_message_type(char type, char expected) const
 {
     if (type != expected) {
 	throw NetworkError("Unexpected replication protocol message type (got "
-			   + om_tostring(type) + ", expected "
-			   + om_tostring(expected) + ")");
+			   + str(type) + ", expected "
+			   + str(expected) + ")");
     }
 }
 
@@ -625,7 +626,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 	    }
 	    default:
 		throw NetworkError("Unknown replication protocol message ("
-				   + om_tostring(type) + ")");
+				   + str(type) + ")");
 	}
     }
 }

@@ -33,6 +33,7 @@
 #endif
 
 #include "omassert.h"
+#include "str.h"
 #include "stringutils.h" // For STRINGIZE().
 
 // Define to use "dangerous" mode - in this mode we write modified btree
@@ -225,11 +226,11 @@ BrassTable::read_block(uint4 n, byte * p) const
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
 	    if (errno == EINTR) continue;
-	    string message = "Error reading block " + om_tostring(n) + ": ";
+	    string message = "Error reading block " + str(n) + ": ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read == 0) {
-	    string message = "Error reading block " + om_tostring(n) + ": got end of file";
+	    string message = "Error reading block " + str(n) + ": got end of file";
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read < m) {
 	    /* Read part of the block, which is not an error.  We should
@@ -393,11 +394,9 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 
     if (rare(j != GET_LEVEL(p))) {
 	string msg = "Expected block ";
-	msg += om_tostring(n);
-	msg += " to be level ";
-	msg += om_tostring(j);
+	msg += str(j);
 	msg += ", not ";
-	msg += om_tostring(GET_LEVEL(p));
+	msg += str(GET_LEVEL(p));
 	throw Xapian::DatabaseCorruptError(msg);
     }
 }
@@ -1296,10 +1295,10 @@ BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) cons
     }
     if (utag.size() != inflate_zstream->total_out) {
 	string msg = "compressed tag didn't expand to the expected size: ";
-	msg += om_tostring(utag.size());
+	msg += str(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += om_tostring((size_t)inflate_zstream->total_out);
+	msg += str((size_t)inflate_zstream->total_out);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -1644,7 +1643,7 @@ BrassTable::lazy_alloc_deflate_zstream() const {
 	if (deflate_zstream->msg) {
 	    msg += deflate_zstream->msg;
 	} else {
-	    msg += om_tostring(err);
+	    msg += str(err);
 	}
 	msg += ')';
 	delete deflate_zstream;
@@ -1680,7 +1679,7 @@ BrassTable::lazy_alloc_inflate_zstream() const {
 	if (inflate_zstream->msg) {
 	    msg += inflate_zstream->msg;
 	} else {
-	    msg += om_tostring(err);
+	    msg += str(err);
 	}
 	msg += ')';
 	delete inflate_zstream;

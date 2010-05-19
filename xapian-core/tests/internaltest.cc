@@ -39,11 +39,10 @@ using namespace std;
 
 #include "omassert.h"
 #include "omqueryinternal.h"
+#include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
-#include "utils.h"
-#include "pack.h"
 
 static bool test_except1()
 {
@@ -228,25 +227,25 @@ static bool test_stringcomp1()
 
 static bool test_tostring1()
 {
-    TEST_EQUAL(om_tostring(0), "0");
-    TEST_EQUAL(om_tostring(10), "10");
-    TEST_EQUAL(om_tostring(10u), "10");
-    TEST_EQUAL(om_tostring(-10), "-10");
-    TEST_EQUAL(om_tostring(0xffffffff), "4294967295");
-    TEST_EQUAL(om_tostring(0x7fffffff), "2147483647");
-    TEST_EQUAL(om_tostring(0x7fffffffu), "2147483647");
-    TEST_EQUAL(om_tostring(-0x7fffffff), "-2147483647");
+    TEST_EQUAL(str(0), "0");
+    TEST_EQUAL(str(10), "10");
+    TEST_EQUAL(str(10u), "10");
+    TEST_EQUAL(str(-10), "-10");
+    TEST_EQUAL(str(0xffffffff), "4294967295");
+    TEST_EQUAL(str(0x7fffffff), "2147483647");
+    TEST_EQUAL(str(0x7fffffffu), "2147483647");
+    TEST_EQUAL(str(-0x7fffffff), "-2147483647");
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
      * (Currently only exists for windows.)
      */
-    TEST_EQUAL(om_tostring(10ll), "10");
-    TEST_EQUAL(om_tostring(-10ll), "-10");
-    TEST_EQUAL(om_tostring(0x200000000ll), "8589934592");
+    TEST_EQUAL(str(10ll), "10");
+    TEST_EQUAL(str(-10ll), "-10");
+    TEST_EQUAL(str(0x200000000ll), "8589934592");
 // We don't currently have an "unsigned long long" version since it's not required
 // anywhere in the library.
-//    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
+//    TEST_EQUAL(str(0x200000000ull), "8589934592");
 #endif
 
     return true;

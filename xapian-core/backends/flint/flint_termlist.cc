@@ -29,7 +29,7 @@
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db
 	      "[RefCntPtr<const FlintDatabase>], " << did_);
 
     if (!db->termlist_table.get_exact_entry(flint_docid_to_key(did), data))
-	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
+	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
 
     pos = data.data();
     end = pos + data.size();

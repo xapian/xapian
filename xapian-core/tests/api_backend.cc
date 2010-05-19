@@ -27,6 +27,7 @@
 #define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"

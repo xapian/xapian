@@ -1,3 +1,19 @@
+Wed May 19 03:14:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,
+	  backends/contiguousalldocspostlist.cc,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/remote/remote-database.cc,backends/slowvaluelist.cc,
+	  common/utils.h,expand/esetinternal.cc,matcher/phrasepostlist.cc,
+	  net/remoteserver.cc,net/remotetcpclient.cc,
+	  queryparser/termgenerator.cc,tests/,
+	  tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_remote.cc,
+	  tests/harness/backendmanager_remotetcp.cc,tests/internaltest.cc,
+	  tests/perftest/perftest.cc,tests/perftest/perftest_matchdecider.cc,
+	  tests/perftest/perftest_randomidx.cc,tests/queryparsertest.cc,
+	  tests/termgentest.cc: Fully migrate from om_tostring() to str().
+
 Wed May 19 03:13:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* cmake/xapian-config-version.cmake,cmake/xapian-config.cmake: Remove

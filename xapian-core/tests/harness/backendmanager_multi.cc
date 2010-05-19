@@ -24,6 +24,7 @@
 #include "backendmanager_multi.h"
 
 #include "index_utils.h"
+#include "str.h"
 #include "utils.h"
 
 #include <cstdio> // For rename().
@@ -92,7 +93,7 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
 	string subdbdir = dbname;
 	subdbdir += "___";
-	subdbdir += om_tostring(n);
+	subdbdir += str(n);
 #if defined XAPIAN_HAS_BRASS_BACKEND
 	if (subtype == "brass") {
 	    dbs[n] = Xapian::Brass::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);

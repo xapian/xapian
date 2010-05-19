@@ -28,7 +28,7 @@
 #include "brass_version.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
-#include "utils.h"
+#include "str.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -119,7 +119,7 @@ BrassVersion::read_and_check()
 	string msg = filename;
 	msg += ": Brass version file should be "
 	       STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
-	msg += om_tostring(size);
+	msg += str(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -135,7 +135,7 @@ BrassVersion::read_and_check()
     if (version != BRASS_VERSION) {
 	string msg = filename;
 	msg += ": Brass version file is version ";
-	msg += om_tostring(version);
+	msg += str(version);
 	msg += " but I only understand "STRINGIZE(BRASS_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }

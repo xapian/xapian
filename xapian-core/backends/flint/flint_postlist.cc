@@ -28,7 +28,7 @@
 #include "flint_utils.h"
 #include "noreturn.h"
 #include "omdebug.h"
-#include "utils.h"
+#include "str.h"
 
 Xapian::doccount
 FlintPostListTable::get_termfreq(const string & term) const
@@ -738,9 +738,9 @@ FlintPostList::next_chunk()
     }
     if (newdid <= did) {
 	throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
-		om_tostring(newdid) +
+		str(newdid) +
 		") is not greater than final document ID in previous chunk (" +
-		om_tostring(did) + ")");
+		str(did) + ")");
     }
     did = newdid;
 
@@ -908,7 +908,7 @@ FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 string
 FlintPostList::get_description() const
 {
-    return term + ":" + om_tostring(number_of_entries);
+    return term + ":" + str(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.

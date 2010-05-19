@@ -29,7 +29,7 @@
 #include "chert_termlist.h"
 #include "omassert.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -42,7 +42,7 @@ ChertTermList::ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db
 
     if (!db->termlist_table.get_exact_entry(ChertTermListTable::make_key(did),
 					    data))
-	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
+	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
 
     pos = data.data();
     end = pos + data.size();

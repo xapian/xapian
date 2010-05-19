@@ -24,8 +24,8 @@
 
 #include <xapian/error.h>
 
+#include "str.h"
 #include "tcpclient.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -51,7 +51,7 @@ RemoteTcpClient::get_tcpcontext(const string & hostname, int port)
     string result("remote:tcp(");
     result += hostname;
     result += ':';
-    result += om_tostring(port);
+    result += str(port);
     result += ')';
     return result;
 }

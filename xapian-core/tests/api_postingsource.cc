@@ -29,7 +29,7 @@
 #include <string>
 
 #include "testutils.h"
-#include "utils.h"
+#include "str.h"
 #include "apitest.h"
 
 using namespace std;
@@ -476,8 +476,8 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     Xapian::weight get_weight() const {
 	if (did > maxid_accessed) {
 	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
-		      "for docid " + om_tostring(did) + ", max id accessed "
-		      "should be " + om_tostring(maxid_accessed));
+		      "for docid " + str(did) + ", max id accessed "
+		      "should be " + str(maxid_accessed));
 	}
 	return 5 - did;
     }

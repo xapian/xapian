@@ -32,6 +32,7 @@
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"

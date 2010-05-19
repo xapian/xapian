@@ -27,8 +27,8 @@
 #include "expandweight.h"
 #include "ortermlist.h"
 #include "rset.h"
+#include "str.h"
 #include "termlist.h"
-#include "utils.h"
 
 #include "autoptr.h"
 #include <set>
@@ -43,7 +43,7 @@ string
 Internal::ExpandTerm::get_description() const
 {
     string desc("ExpandTerm(");
-    desc += om_tostring(wt);
+    desc += str(wt);
     desc += ", ";
     desc += term;
     desc += ')';
@@ -205,7 +205,7 @@ string
 ESet::Internal::get_description() const
 {
     string desc("ESet::Internal(ebound=");
-    desc += om_tostring(ebound);
+    desc += str(ebound);
 
     vector<Xapian::Internal::ExpandTerm>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
