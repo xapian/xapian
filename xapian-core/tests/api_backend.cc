@@ -389,8 +389,7 @@ make_msize1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize1, writable && !inmemory && !remote) {
-    // Generated databases not supported by inmemory or remote.
+DEFINE_TESTCASE(msize1, generated) {
     Xapian::Database db = get_database("msize1", make_msize1_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -440,8 +439,7 @@ make_msize2_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug related to ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize2, writable && !inmemory && !remote) {
-    // Generated databases not supported by inmemory or remote.
+DEFINE_TESTCASE(msize2, generated) {
     Xapian::Database db = get_database("msize2", make_msize2_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -488,8 +486,7 @@ make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug in decay of XOR, fixed in 1.2.1.
-DEFINE_TESTCASE(xordecay1, writable && !inmemory && !remote) {
-    // Generated databases not supported by inmemory or remote.
+DEFINE_TESTCASE(xordecay1, generated) {
     Xapian::Database db = get_database("xordecay1", make_xordecay1_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_XOR,
