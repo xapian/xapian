@@ -54,8 +54,11 @@ OrPostList::next(Xapian::weight w_min)
 	    if (w_min > rmax) {
 		LOGLINE(MATCH, "OR -> AND");
 		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
-		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min,
-				       matcher);
+		Xapian::docid newdocid = std::max(lhead, rhead);
+		if (lhead == rhead) {
+		    newdocid += 1;
+		}
+		skip_to_handling_prune(ret, newdocid, w_min, matcher);
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (1)");
 		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);

@@ -1,3 +1,12 @@
+Wed May 19 11:48:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc,tests/api_backend.cc: Fix a bug in the
+	  decay from OR to AND: if the decay happened when the two
+	  sub-postlists were on different docids, but the higher of those
+	  docids actually occurred in both postlists, the higher docid
+	  would be incorrectly skipped.  Add regression test ordecay1 to
+	  test this.
+
 Wed May 19 10:36:55 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_backend.cc,tests/api_compact.cc,
