@@ -61,15 +61,29 @@ OrPostList::next(Xapian::weight w_min)
 		skip_to_handling_prune(ret, newdocid, w_min, matcher);
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (1)");
-		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
-		next_handling_prune(ret, w_min, matcher);
+		AndMaybePostList * ret2 =
+		    new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
+		ret = ret2;
+		// Advance the AndMaybePostList unless the old RHS postlist was
+		// already ahead of the current docid.
+		if (rhead <= lhead) {
+		    next_handling_prune(ret, w_min, matcher);
+		} else {
+		    handle_prune(ret, ret2->sync_rhs(w_min));
+		}
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    LOGLINE(MATCH, "OR -> AND MAYBE (2)");
-	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
-	    next_handling_prune(ret, w_min, matcher);
+	    AndMaybePostList * ret2 =
+		    new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
+	    ret = ret2;
+	    if (lhead <= rhead) {
+		next_handling_prune(ret, w_min, matcher);
+	    } else {
+		handle_prune(ret, ret2->sync_rhs(w_min));
+	    }
 	}
 
 	l = r = NULL;
@@ -121,14 +135,20 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");
-		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
+		AndMaybePostList * ret2 =
+			new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
+		ret = ret2;
+		handle_prune(ret, ret2->sync_rhs(w_min));
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (2)");
-	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
+	    AndMaybePostList * ret2 =
+		    new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
+	    ret = ret2;
+	    handle_prune(ret, ret2->sync_rhs(w_min));
 	    did = std::max(did, lhead);
 	}
 
@@ -178,14 +198,18 @@ OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (in check) (1)");
-		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
+		AndMaybePostList * ret2 = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
+		ret = ret2;
+		handle_prune(ret, ret2->sync_rhs(w_min));
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    LOGLINE(MATCH, "OR -> AND MAYBE (in check) (2)");
-	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
+	    AndMaybePostList * ret2 = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
+	    ret = ret2;
+	    handle_prune(ret, ret2->sync_rhs(w_min));
 	    did = std::max(did, lhead);
 	}
 

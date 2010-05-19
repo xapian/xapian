@@ -1,3 +1,13 @@
+Wed May 19 14:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/andmaybepostlist.cc,matcher/andmaybepostlist.h,
+	  matcher/orpostlist.cc: Fix a bug causing documents to be skipped
+	  when OR decayed to AND_MAYBE, if the new RHS was behind the LHS
+	  at the time of the decay.  Fixes #476.
+	* tests/api_backend.cc: Add test case ordecay2 as a regression test
+	  of this.  Also, remove some debug output in ordecay1, to speed it
+	  up quite a bit.
+
 Wed May 19 11:48:07 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/orpostlist.cc,tests/api_backend.cc: Fix a bug in the

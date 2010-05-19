@@ -528,11 +528,48 @@ DEFINE_TESTCASE(ordecay1, generated) {
     Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
     for (unsigned int i = 1; i != msetall.size(); ++i) {
 	Xapian::MSet submset = enq.get_mset(0, i);
-	tout << i << "\n";
-	tout << submset << "\n";
-	tout << msetall << "\n";
 	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
-	tout.str(string());
+    }
+    return true;
+}
+
+static void
+make_ordecay2_db(Xapian::WritableDatabase &db, const string &)
+{
+    unsigned long next = 1;
+    for (int d = 1; d <= 50; ++d) {
+	Xapian::Document doc;
+	// Very simple pseudorandom generator.
+	next = next * 1103515245 + 12345;
+	int l = ((int)(next/65536) % 50);
+	for (int n = 1; n != l; ++n) {
+	    doc.add_term("N" + str(n));
+	    if (n % d == 0) {
+		doc.add_term("M" + str(n));
+	    }
+	}
+	db.add_document(doc);
+    }
+}
+
+/// Regression test for bug in decay of OR to AND_MAYBE, fixed in 1.2.1.
+DEFINE_TESTCASE(ordecay2, generated) {
+    Xapian::Database db = get_database("ordecay2", make_ordecay2_db);
+    Xapian::Enquire enq(db);
+    std::vector<Xapian::Query> q;
+    q.push_back(Xapian::Query("M20"));
+    q.push_back(Xapian::Query("N21"));
+    q.push_back(Xapian::Query("N22"));
+    enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				Xapian::Query("N25"),
+				Xapian::Query(Xapian::Query::OP_AND,
+					      q.begin(),
+					      q.end())));
+
+    Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
+    for (unsigned int i = 1; i != msetall.size(); ++i) {
+	Xapian::MSet submset = enq.get_mset(0, i);
+	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
     }
     return true;
 }
