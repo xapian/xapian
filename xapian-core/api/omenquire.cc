@@ -40,7 +40,7 @@
 #include "multimatch.h"
 #include "omenquireinternal.h"
 #include "rset.h"
-#include "utils.h"
+#include "str.h"
 #include "weightinternal.h"
 
 #include <algorithm>
@@ -122,7 +122,7 @@ RSet::Internal::get_description() const
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
 	if (i != items.begin()) description += ", ";
-	description += om_tostring(*i);
+	description += str(*i);
     }
 
     description += ')';
@@ -139,7 +139,7 @@ MSetItem::get_description() const
 {
     string description;
 
-    description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
+    description = str(did) + ", " + str(wt) + ", " +
 	    collapse_key;
 
     description = "Xapian::MSetItem(" + description + ")";
@@ -394,7 +394,7 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 	RETURN(doc->second);
     }
     if (index < firstitem || index >= firstitem + items.size()) {
-	throw RangeError("The mset returned from the match does not contain the document at index " + om_tostring(index));
+	throw RangeError("The mset returned from the match does not contain the document at index " + str(index));
     }
     fetch_items(index, index); // FIXME: this checks indexeddocs AGAIN!
     /* Actually read the fetched documents */
@@ -433,12 +433,12 @@ MSet::Internal::get_description() const
 {
     string description = "Xapian::MSet::Internal(";
 
-    description += "firstitem=" + om_tostring(firstitem) + ", " +
-	    "matches_lower_bound=" + om_tostring(matches_lower_bound) + ", " +
-	    "matches_estimated=" + om_tostring(matches_estimated) + ", " +
-	    "matches_upper_bound=" + om_tostring(matches_upper_bound) + ", " +
-	    "max_possible=" + om_tostring(max_possible) + ", " +
-	    "max_attained=" + om_tostring(max_attained);
+    description += "firstitem=" + str(firstitem) + ", " +
+	    "matches_lower_bound=" + str(matches_lower_bound) + ", " +
+	    "matches_estimated=" + str(matches_estimated) + ", " +
+	    "matches_upper_bound=" + str(matches_upper_bound) + ", " +
+	    "max_possible=" + str(max_possible) + ", " +
+	    "max_attained=" + str(max_attained);
 
     for (vector<Xapian::Internal::MSetItem>::const_iterator i = items.begin();
 	 i != items.end(); ++i) {
@@ -558,7 +558,7 @@ ESetIterator::get_weight() const
 string
 ESetIterator::get_description() const
 {
-    return "Xapian::ESetIterator(" + om_tostring(index) + ")";
+    return "Xapian::ESetIterator(" + str(index) + ")";
 }
 
 // MSetIterator
@@ -603,7 +603,7 @@ MSetIterator::get_percent() const
 string
 MSetIterator::get_description() const
 {
-    return "Xapian::MSetIterator(" + om_tostring(index) + ")";
+    return "Xapian::MSetIterator(" + str(index) + ")";
 }
 
 // Methods for Xapian::Enquire::Internal

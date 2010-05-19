@@ -27,7 +27,7 @@
 #include "positionlist.h"
 #include "omassert.h"
 #include "omdebug.h"
-#include "utils.h"
+#include "str.h"
 
 #include <algorithm>
 
@@ -166,7 +166,7 @@ NearPostList::get_termfreq_est_using_stats(
 std::string
 NearPostList::get_description() const
 {
-    return "(Near " + om_tostring(window) + " " + source->get_description() + ")";
+    return "(Near " + str(window) + " " + source->get_description() + ")";
 }
 
 
@@ -294,6 +294,6 @@ PhrasePostList::get_termfreq_est_using_stats(
 std::string
 PhrasePostList::get_description() const
 {
-    return "(Phrase " + om_tostring(window) + " "
+    return "(Phrase " + str(window) + " "
 	   + source->get_description() + ")";
 }

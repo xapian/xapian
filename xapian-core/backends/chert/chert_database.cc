@@ -1469,7 +1469,7 @@ ChertWritableDatabase::get_doclength(Xapian::docid did) const
     if (i != doclens.end()) {
 	Xapian::termcount doclen = i->second;
 	if (doclen == static_cast<Xapian::termcount>(-1)) {
-	    throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
+	    throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
 	}
 	RETURN(doclen);
     }

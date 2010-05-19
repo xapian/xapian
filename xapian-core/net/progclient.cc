@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -121,15 +121,17 @@ ProgClient::run_program(const string &progname, const string &args
      */
 
     // replace stdin and stdout with the socket
-    // FIXME: check return values.
-    ::close(0);
-    ::close(1);
-    dup2(sv[1], 0);
-    dup2(sv[1], 1);
+    // FIXME: check return values from dup2.
+    if (sv[1] != 0) {
+	dup2(sv[1], 0);
+    }
+    if (sv[1] != 1) {
+	dup2(sv[1], 1);
+    }
 
     // close unnecessary file descriptors
-    // FIXME: Probably a bit excessive...
-    for (int fd = 2; fd < 256; ++fd) {
+    int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
+    for (int fd = 2; fd < maxfd; ++fd) {
 	::close(fd);
     }
 

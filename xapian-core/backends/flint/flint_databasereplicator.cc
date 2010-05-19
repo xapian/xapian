@@ -224,7 +224,7 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
-		msg += om_tostring(block_number);
+		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
 	    io_write(fd, buf.data(), changeset_blocksize);

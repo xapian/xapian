@@ -28,8 +28,8 @@
 #include "flint_utils.h"
 #include "omassert.h"
 #include "omdebug.h"
+#include "str.h"
 #include "stringutils.h"
-#include "utils.h"
 
 #include <string>
 
@@ -126,7 +126,7 @@ FlintTermListTable::get_doclength(Xapian::docid did) const
     string tag;
     if (!get_exact_entry(flint_docid_to_key(did), tag))
 	throw Xapian::DocNotFoundError("No termlist found for document " +
-				       om_tostring(did));
+				       str(did));
 
     if (tag.empty()) RETURN(0);
 

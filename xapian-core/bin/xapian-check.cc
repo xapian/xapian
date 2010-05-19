@@ -305,21 +305,33 @@ main(int argc, char **argv)
 	    // (backend == NOT_BRASS) then assume chert.
 	    switch (backend) {
 		case FLINT:
+#ifndef XAPIAN_HAS_FLINT_BACKEND
+		    throw "Flint database support isn't enabled";
+#else
 		    errors = check_flint_table(tablename.c_str(), filename,
 					       opts, doclens);
 		    break;
+#endif
 		case BRASS:
+#ifndef XAPIAN_HAS_BRASS_BACKEND
+		    throw "Brass database support isn't enabled";
+#else
 		    // FIXME: need to look up the root block.
 		    throw "Can't check a single brass table currently";
-#if 0
+# if 0
 		    errors = check_brass_table(tablename.c_str(), filename,
 					       opts, doclens, db_last_docid, 0);
 		    break;
+# endif
 #endif
 		default:
+#ifndef XAPIAN_HAS_CHERT_BACKEND
+		    throw "Chert database support isn't enabled";
+#else
 		    errors = check_chert_table(tablename.c_str(), filename,
 					       opts, doclens, db_last_docid);
 		    break;
+#endif
 	    }
 	}
 	if (errors > 0) {

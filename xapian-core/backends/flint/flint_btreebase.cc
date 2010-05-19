@@ -30,6 +30,7 @@
 #include "flint_btreebase.h"
 #include "flint_utils.h"
 #include "io_utils.h"
+#include "str.h"
 #include "utils.h"
 #include <xapian/error.h>
 #include "omassert.h"
@@ -193,7 +194,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     uint4 format;
     DO_UNPACK_UINT_ERRCHECK(&start, end, format);
     if (format != CURR_FORMAT) {
-	err_msg += "Bad base file format " + om_tostring(format) + " in " +
+	err_msg += "Bad base file format " + str(format) + " in " +
 		    basename + "\n";
 	return false;
     }
@@ -227,7 +228,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     if (revision != revision2) {
 	err_msg += "Revision number mismatch in " +
 		basename + ": " +
-		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
+		str(revision) + " vs " + str(revision2) + "\n";
 	return false;
     }
 
@@ -267,7 +268,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     if (revision != revision3) {
 	err_msg += "Revision number mismatch in " +
 		basename + ": " +
-		om_tostring(revision) + " vs " + om_tostring(revision3) + "\n";
+		str(revision) + " vs " + str(revision3) + "\n";
 	return false;
     }
 

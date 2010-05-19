@@ -38,7 +38,7 @@
 #include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "utils.h"
+#include "str.h"
 #include "weightinternal.h"
 
 /// Class to throw when we receive the connection closing message.
@@ -127,14 +127,14 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
     if (type == MSG_SHUTDOWN) throw ConnectionClosed();
     if (type >= MSG_MAX) {
 	string errmsg("Invalid message type ");
-	errmsg += om_tostring(type);
+	errmsg += str(type);
 	throw Xapian::NetworkError(errmsg);
     }
     if (required_type != MSG_MAX && type != unsigned(required_type)) {
 	string errmsg("Expecting message type ");
-	errmsg += om_tostring(int(required_type));
+	errmsg += str(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(int(type));
+	errmsg += str(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
     return static_cast<message_type>(type);
@@ -197,7 +197,7 @@ RemoteServer::run()
 	    size_t type = get_message(idle_timeout, message);
 	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
 		string errmsg("Unexpected message type ");
-		errmsg += om_tostring(type);
+		errmsg += str(type);
 		throw Xapian::InvalidArgumentError(errmsg);
 	    }
 	    (this->*(dispatch[type]))(message);

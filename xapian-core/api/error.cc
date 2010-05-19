@@ -32,7 +32,7 @@
 #include <cstdio> // For sprintf().
 #include <cstring> // For strerror().
 
-#include "utils.h" // For om_tostring().
+#include "str.h"
 
 using namespace std;
 
@@ -98,7 +98,7 @@ Xapian::Error::get_error_string() const
 
 #ifndef HAVE_HSTRERROR
     error_string = "Unknown Error ";
-    error_string += om_tostring(-my_errno);
+    error_string += str(-my_errno);
     return error_string.c_str();
 #endif
 }

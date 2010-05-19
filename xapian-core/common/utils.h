@@ -28,15 +28,10 @@
 #include <string>
 using std::string;
 
-#include "str.h"
-
 #include <cstdlib>
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
-
-// For compatibility.
-#define om_tostring(V) str(V)
 
 /** Return true if the file fname exists.
  */

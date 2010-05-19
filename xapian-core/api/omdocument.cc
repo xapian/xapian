@@ -29,7 +29,7 @@
 #include "documentvaluelist.h"
 #include "maptermlist.h"
 #include "serialise.h"
-#include "utils.h"
+#include "str.h"
 
 #include <xapian/error.h>
 #include <xapian/types.h>
@@ -250,7 +250,7 @@ OmDocumentTerm::remove_position(Xapian::termpos tpos)
     vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	throw Xapian::InvalidArgumentError("Position `" + om_tostring(tpos) +
+	throw Xapian::InvalidArgumentError("Position `" + str(tpos) +
 				     "' not found in list of positions that `" +
 				     tname +
 				     "' occurs at,"
@@ -265,8 +265,8 @@ OmDocumentTerm::get_description() const
     string description;
 
     description = "OmDocumentTerm(" + tname +
-	    ", wdf = " + om_tostring(wdf) +
-	    ", positions[" + om_tostring(positions.size()) + "]" +
+	    ", wdf = " + str(wdf) +
+	    ", positions[" + str(positions.size()) + "]" +
 	    ")";
     return description;
 }
@@ -329,7 +329,7 @@ Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
     need_values();
     map<Xapian::valueno, string>::iterator i = values.find(valueno);
     if (i == values.end()) {
-	throw Xapian::InvalidArgumentError("Value #" + om_tostring(valueno) +
+	throw Xapian::InvalidArgumentError("Value #" + str(valueno) +
 		" is not present in document, in "
 		"Xapian::Document::Internal::remove_value()");
     }
@@ -465,12 +465,12 @@ Xapian::Document::Internal::get_description() const
 
     if (values_here) {
 	if (data_here) description += ", ";
-	description += "values[" + om_tostring(values.size()) + "]";
+	description += "values[" + str(values.size()) + "]";
     }
 
     if (terms_here) {
 	if (data_here || values_here) description += ", ";
-	description += "terms[" + om_tostring(terms.size()) + "]";
+	description += "terms[" + str(terms.size()) + "]";
     }
 
     if (database.get()) {

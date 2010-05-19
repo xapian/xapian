@@ -25,7 +25,7 @@
 #include "brass_cursor.h"
 #include "brass_database.h"
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace Brass;
 using namespace std;
@@ -166,7 +166,7 @@ string
 BrassValueList::get_description() const
 {
     string desc("BrassValueList(slot=");
-    desc += om_tostring(slot);
+    desc += str(slot);
     desc += ')';
     return desc;
 }

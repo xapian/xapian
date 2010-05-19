@@ -54,6 +54,7 @@
 #include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 #include "valuestats.h"
@@ -508,7 +509,7 @@ BrassDatabase::write_changesets_to_fd(int fd,
 	    }
 
 	    // Look for the changeset for revision start_rev_num.
-	    string changes_name = db_dir + "/changes" + om_tostring(start_rev_num);
+	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 	    if (file_exists(changes_name)) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.

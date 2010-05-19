@@ -271,10 +271,13 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 		is_remote[i] = true;
 	    } else {
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
+#else
+	    // Avoid unused parameter warnings.
+	    (void)have_sorter;
+	    (void)have_mdecider;
+	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;

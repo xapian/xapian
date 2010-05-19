@@ -30,7 +30,7 @@
 #include "omassert.h"
 #include "pack.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
-#include "utils.h"
+#include "str.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"

@@ -29,7 +29,7 @@
 #include "brass_termlist.h"
 #include "omassert.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
 	      "[RefCntPtr<const BrassDatabase>], " << did_);
 
     if (!db->termlist_table.get(BrassTermListTable::make_key(did), data))
-	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
+	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
 
     pos = data.data();
     end = pos + data.size();

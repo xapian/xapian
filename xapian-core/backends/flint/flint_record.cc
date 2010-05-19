@@ -22,7 +22,7 @@
 #include <config.h>
 #include "flint_record.h"
 #include "flint_utils.h"
-#include "utils.h"
+#include "str.h"
 #include <xapian/error.h>
 #include "omassert.h"
 #include "omdebug.h"
@@ -36,7 +36,7 @@ FlintRecordTable::get_record(Xapian::docid did) const
     string tag;
 
     if (!get_exact_entry(flint_docid_to_key(did), tag)) {
-	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
+	throw Xapian::DocNotFoundError("Document " + str(did) + " not found.");
     }
 
     RETURN(tag);
@@ -62,5 +62,5 @@ FlintRecordTable::delete_record(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "FlintRecordTable::delete_record", did);
     if (!del(flint_docid_to_key(did)))
-	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + om_tostring(did));
+	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
 }

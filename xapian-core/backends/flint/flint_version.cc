@@ -27,6 +27,7 @@
 
 #include "flint_version.h"
 #include "io_utils.h"
+#include "str.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "utils.h"
 
@@ -119,7 +120,7 @@ void FlintVersion::read_and_check(bool readonly)
 	string msg("Flint version file ");
 	msg += filename;
 	msg += " should be "STRINGIZE(VERSIONFILE_SIZE)" bytes, actually ";
-	msg += om_tostring(size);
+	msg += str(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -157,7 +158,7 @@ void FlintVersion::read_and_check(bool readonly)
 	string msg("Flint version file ");
 	msg += filename;
 	msg += " is version ";
-	msg += om_tostring(version);
+	msg += str(version);
 	msg += " but I only understand "STRINGIZE(FLINT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }
