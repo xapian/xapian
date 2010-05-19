@@ -1,3 +1,14 @@
+Wed May 19 09:12:36 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Ensure that __all__ is populated after local
+	  symbols are deleted - this fixes "from xapian import *".  Fixes
+	  #477.
+	* python/pythontest2.py,python/test_xapian_star.py: Add a test that
+	  "from xapian import *" works - unfortunately, this requires a
+	  separate file, since the syntax is only valid at module level,
+	  and we don't want to pollute the namespace of the rest of the
+	  tests.
+
 Sun May 16 13:27:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Update list of generated java sources.
