@@ -147,7 +147,7 @@ END
   #svn:external revision for SWIG
   rev=11320
   if [ ! -d swig ] ; then
-    git svn init -r"$rev" svn://svn.tartarus.org/swig/trunk/ swig/
+    git svn init svn://svn.tartarus.org/swig/trunk/ swig/
   fi
   (cd swig && git svn fetch -r"$rev")
 
