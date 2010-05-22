@@ -51,7 +51,7 @@ lazy_build() {
   checksum=$4
   tarball=$basename.$ext
   case $basename in
-    *[a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+    *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
   esac
 
   # Create the stamp file in INST so that rerunning bootstrap after
@@ -72,9 +72,12 @@ lazy_build() {
 	exit 1
       fi
     fi
-    case $package in
-    doxygen)
+    case $basename in
+    doxygen-*)
       $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+    *[13579][a-z])
+      # GNU alpha release
+      $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
     *)
       $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
     esac
@@ -179,7 +182,8 @@ else
   lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
+  #lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
+  lazy_build libtool 2.2.7b tar.gz 6cf7bb650bcd93e89c86c685924f08656cb00f62
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
