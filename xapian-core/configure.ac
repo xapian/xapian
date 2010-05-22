@@ -796,12 +796,13 @@ AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
 
 dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
-case $host_os in
-  linux*)
-    AM_CONDITIONAL(LINUX, :) ;;
-  *)
-    AM_CONDITIONAL(LINUX, false) ;;
-esac
+use_zlib_vg=no
+if test -n "$VALGRIND" ; then
+  case $host_os in
+    linux*) use_zlib_vg=yes ;;
+  esac
+fi
+AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 SAVE_LIBS="$LIBS"

@@ -1,3 +1,10 @@
+Sat May 22 13:31:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am: Only try to build zlib-vg.so if we
+	  are found a suitable valgrind installed (otherwise it's a waste of
+	  effort to build it, and the build will fail without the valgrind
+	  headers).
+
 Sat May 22 13:18:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/Makefile.am,tests/runtest.in,tests/zlib-vg.c: zlib
