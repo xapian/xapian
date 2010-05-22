@@ -15,6 +15,8 @@ endif
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
+CLEAN_FILES =
+
 libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 
 TESTS_ENVIRONMENT = ./runtest
@@ -276,3 +278,11 @@ check-local: remove-cached-databases
 
 include perftest/Makefile.mk
 include harness/Makefile.mk
+
+if LINUX
+check_SCRIPTS += zlib-vg.so
+CLEAN_FILES += zlib-vg.so
+
+zlib-vg.so: zlib-vg.c
+	$(CC_FOR_BUILD) -fPIC -shared -ldl -o zlib-vg.so zlib-vg.c
+endif

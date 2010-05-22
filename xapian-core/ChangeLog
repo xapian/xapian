@@ -1,3 +1,12 @@
+Sat May 22 13:18:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am,tests/runtest.in,tests/zlib-vg.c: zlib
+	  can produce "uninitialised" output from "initialised" input - the
+	  output does decode to the input, so this is presumably just some
+	  unused bits in the output, so we use an LD_PRELOAD hack to get
+	  valgrind to check the input is initialised and then tell it that the
+	  output is initialised.
+
 Wed May 19 14:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/andmaybepostlist.cc,matcher/andmaybepostlist.h,
