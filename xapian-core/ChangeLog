@@ -1,3 +1,12 @@
+Sun May 23 07:29:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/xorpostlist.cc,matcher/xorpostlist.h: Pass a minweight
+	  value of 0 to children of XOR postlists, because we need to know
+	  about all matching documents from the children even if they have
+	  a low weight.
+	* tests/api_backend.cc: Regression test for this: xordecay1.
+
 Sun May 23 07:27:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Add str() template which just calls om_tostring()

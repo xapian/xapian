@@ -31,12 +31,12 @@
 // doesn't cause a match
 
 inline PostList *
-XorPostList::advance_to_next_match(Xapian::weight w_min)
+XorPostList::advance_to_next_match()
 {
-    DEBUGCALL(MATCH, PostList *, "XorPostList::advance_to_next_match", w_min);
+    DEBUGCALL(MATCH, PostList *, "XorPostList::advance_to_next_match", "");
     while (rhead == lhead) {
-	next_handling_prune(l, w_min, matcher);
-	next_handling_prune(r, w_min, matcher);
+	next_handling_prune(l, 0, matcher);
+	next_handling_prune(r, 0, matcher);
 	if (l->at_end()) {
 	    if (r->at_end()) {
 		lhead = 0;
@@ -102,16 +102,16 @@ XorPostList::next(Xapian::weight w_min)
 
     if (lhead <= rhead) {
 	// lhead == rhead should only happen on first next
-        if (lhead == rhead) rnext = true;
-        next_handling_prune(l, w_min, matcher);
+	if (lhead == rhead) rnext = true;
+	next_handling_prune(l, 0, matcher);
 	if (l->at_end()) ldry = true;
     } else {
 	rnext = true;
     }
 
     if (rnext) {
-        next_handling_prune(r, w_min, matcher);
-        if (r->at_end()) {
+	next_handling_prune(r, 0, matcher);
+	if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
 	    RETURN(ret);
@@ -126,7 +126,7 @@ XorPostList::next(Xapian::weight w_min)
     }
 
     lhead = l->get_docid();
-    RETURN(advance_to_next_match(w_min));
+    RETURN(advance_to_next_match());
 }
 
 PostList *
@@ -168,12 +168,12 @@ XorPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 
     bool ldry = false;
     if (lhead < did) {
-        skip_to_handling_prune(l, did, w_min, matcher);
+	skip_to_handling_prune(l, did, 0, matcher);
 	ldry = l->at_end();
     }
 
     if (rhead < did) {
-        skip_to_handling_prune(r, did, w_min, matcher);
+	skip_to_handling_prune(r, did, 0, matcher);
 
 	if (r->at_end()) {
 	    PostList *ret = l;
@@ -190,7 +190,7 @@ XorPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     }
 
     lhead = l->get_docid();
-    RETURN(advance_to_next_match(w_min));
+    RETURN(advance_to_next_match());
 }
 
 Xapian::doccount

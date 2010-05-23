@@ -2,6 +2,7 @@
  * @brief Backend-related tests.
  */
 /* Copyright (C) 2008,2009,2010 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -418,5 +419,30 @@ DEFINE_TESTCASE(msize2, writable && !inmemory && !remote) {
     TEST_EQUAL(lb3, est3);
     TEST_EQUAL(est, est3);
 
+    return true;
+}
+
+/// Regression test for bug in decay of XOR, fixed in 1.2.1 and 1.0.21.
+DEFINE_TESTCASE(xordecay1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    for (int n = 1; n != 50; ++n) {
+	Xapian::Document doc;
+	for (int i = 1; i != 50; ++i) {
+	    if (n % i == 0)
+		doc.add_term("N" + str(i));
+	}
+	db.add_document(doc);
+    }
+
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query(Xapian::Query::OP_XOR,
+				Xapian::Query("N10"),
+				Xapian::Query(Xapian::Query::OP_OR,
+					      Xapian::Query("N2"),
+					      Xapian::Query("N3"))));
+    Xapian::MSet mset1 = enq.get_mset(0, 1);
+    Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
+
+    TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
     return true;
 }
