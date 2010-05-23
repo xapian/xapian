@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,10 +49,11 @@ class OrPostList : public BranchPostList {
 	Xapian::weight get_weight() const;
 	Xapian::weight get_maxweight() const;
 
-        Xapian::weight recalc_maxweight();
+	Xapian::weight recalc_maxweight();
 
 	PostList *next(Xapian::weight w_min);
 	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+	PostList *check(Xapian::docid did, Xapian::weight w_min, bool &valid);
 	bool   at_end() const;
 
 	std::string get_description() const;
