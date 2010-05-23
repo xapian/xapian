@@ -485,7 +485,7 @@ make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
     }
 }
 
-/// Regression test for bug in decay of XOR, fixed in 1.2.1.
+/// Regression test for bug in decay of XOR, fixed in 1.2.1 and 1.0.21.
 DEFINE_TESTCASE(xordecay1, generated) {
     Xapian::Database db = get_database("xordecay1", make_xordecay1_db);
     Xapian::Enquire enq(db);
