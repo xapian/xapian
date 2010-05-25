@@ -505,7 +505,7 @@ static void
 make_ordecay_db(Xapian::WritableDatabase &db, const string &)
 {
     const char * p = "VJ=QC]LUNTaARLI;715RR^];A4O=P4ZG<2CS4EM^^VS[A6QENR";
-    for(int d = 0; p[d]; ++d) {
+    for (int d = 0; p[d]; ++d) {
 	int l = int(p[d] - '0');
 	Xapian::Document doc;
 	for (int n = 1; n < l; ++n) {
@@ -518,7 +518,7 @@ make_ordecay_db(Xapian::WritableDatabase &db, const string &)
     }
 }
 
-/// Regression test for bug in decay of OR to AND, fixed in 1.2.1.
+/// Regression test for bug in decay of OR to AND, fixed in 1.2.1 and 1.0.21.
 DEFINE_TESTCASE(ordecay1, generated) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);
@@ -534,7 +534,9 @@ DEFINE_TESTCASE(ordecay1, generated) {
     return true;
 }
 
-/// Regression test for bug in decay of OR to AND_MAYBE, fixed in 1.2.1.
+/** Regression test for bug in decay of OR to AND_MAYBE, fixed in 1.2.1 and
+ *  1.0.21.
+ */
 DEFINE_TESTCASE(ordecay2, generated) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);

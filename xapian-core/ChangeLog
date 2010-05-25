@@ -1,3 +1,8 @@
+Tue May 25 10:17:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Note ordecay1 and ordecay2 fixes now also in
+	  1.0.21.  Whitespace tweak.
+
 Tue May 25 04:11:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: make_ordecay1_db and make_ordecay2_db end up
