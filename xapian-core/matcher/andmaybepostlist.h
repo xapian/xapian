@@ -105,6 +105,11 @@ class AndMaybePostList : public BranchPostList {
 	    lmax = l->get_maxweight();
 	    rmax = r->get_maxweight();
 	}
+
+	/** Synchronise the RHS to the LHS after construction.
+	 *  Used after constructing from a decomposing OrPostList
+	 */
+	PostList * sync_rhs(Xapian::weight w_min);
 };
 
 #endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */

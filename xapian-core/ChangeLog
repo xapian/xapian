@@ -1,3 +1,14 @@
+Tue May 25 07:23:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/andmaybepostlist.cc,matcher/andmaybepostlist.h,
+	  matcher/orpostlist.cc: Fix a bug causing documents to be skipped
+	  when OR decayed to AND_MAYBE, if the new RHS was behind the LHS
+	  at the time of the decay.  Fixes #476.
+	* tests/api_backend.cc: Add test case ordecay2 as a regression test
+	  of this.  Also, remove some debug output in ordecay1, to speed it
+	  up quite a bit.
+
 Tue May 25 07:00:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
