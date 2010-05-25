@@ -1,3 +1,13 @@
+Tue May 25 10:17:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_backend.cc: make_ordecay1_db and make_ordecay2_db end up
+	  looping over at least 4 billion values (or possibly infinitely) on
+	  platforms where sizeof(long) == 8.  The two databases are very
+	  similar and the latter one works for the former test, so use the
+	  same db for both tests, and rewrite the generator to work
+	  portably.
+
 Tue May 25 07:28:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
