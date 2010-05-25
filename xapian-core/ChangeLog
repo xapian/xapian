@@ -1,3 +1,10 @@
+Tue May 25 07:28:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/progclient.cc: Read the max fd with sysconf() instead of using
+	  a hardcoded value of 256.  Work even if stdin and stdout have been
+	  closed.
+
 Tue May 25 07:23:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
