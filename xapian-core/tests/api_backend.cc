@@ -446,3 +446,36 @@ DEFINE_TESTCASE(xordecay1, writable) {
     TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
     return true;
 }
+
+/// Regression test for bug in decay of OR to AND, fixed in 1.2.1 and 1.0.21.
+DEFINE_TESTCASE(ordecay1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    unsigned long next = 1;
+    for (int d = 1; d <= 50; ++d) {
+	Xapian::Document doc;
+	// Very simple pseudorandom generator.
+	next = next * 1103515245 + 12345;
+	next &= 0xffffffffUL;
+	int l = int(next/65536) % 50;
+	for (int n = 1; n < l; ++n) {
+	    doc.add_term("N" + str(n));
+	}
+	db.add_document(doc);
+    }
+
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				Xapian::Query("N20"),
+				Xapian::Query("N21")));
+
+    Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
+    for (unsigned int i = 1; i != msetall.size(); ++i) {
+	Xapian::MSet submset = enq.get_mset(0, i);
+	tout << i << "\n";
+	tout << submset << "\n";
+	tout << msetall << "\n";
+	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
+	tout.str(string());
+    }
+    return true;
+}

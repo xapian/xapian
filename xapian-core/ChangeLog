@@ -1,3 +1,13 @@
+Tue May 25 07:00:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/orpostlist.cc,tests/api_backend.cc: Fix a bug in the
+	  decay from OR to AND: if the decay happened when the two
+	  sub-postlists were on different docids, but the higher of those
+	  docids actually occurred in both postlists, the higher docid
+	  would be incorrectly skipped.  Add regression test ordecay1 to
+	  test this.
+
 Sun May 23 09:56:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
