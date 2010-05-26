@@ -315,18 +315,6 @@ class DebugLogFuncVoid {
 	return xapian_debuglogger__.is_category_wanted(category);
     }
 
-#if 0
-    /// Log the returned value.
-    void log_return_void() {
-	if (!is_category_wanted()) return;
-	xapian_debuglogger__.outdent();
-	LOGLINE_(category, '[' << this_ptr << "] " << func << " returned");
-
-	// Flag that we've logged the return already.
-	category = DEBUGLOG_CATEGORY_NEVER;
-    }
-#endif
-
     /** Destructor.
      *
      *  This logs that the function/method has returned and whether this was
@@ -413,17 +401,6 @@ class DebugLogFuncVoid {
     return xapian_logcall_return_; \
 } while (false)
 
-#if 0
-/** Log returning from a function with a void return type.
- *
- *  You probably don't need to use this macro.
- */
-#define RETURN_VOID do { \
-    xapian_logcall_.log_return_void(); \
-    return; \
-} while (false)
-#endif
-
 /** Log message @a b of category @a a.
  *
  *  The message is logged on a line by itself.  To keep the debug log readable,
@@ -443,9 +420,6 @@ class DebugLogFuncVoid {
 #define LOGCALL_STATIC(CATEGORY, TYPE, FUNC, PARAMS) (void)0
 #define LOGCALL_STATIC_VOID(CATEGORY, FUNC, PARAMS) (void)0
 #define RETURN(A) return A
-#if 0
-#define RETURN_VOID return
-#endif
 #define LOGLINE(a,b) (void)0
 #define LOGVALUE(a,b) (void)0
 
