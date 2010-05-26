@@ -141,13 +141,20 @@ using Xapian::NO_ARGS;
 
 extern DebugLogger xapian_debuglogger__;
 
+/** Unconditionally log message @a MSG of category @a CATEGORY. */
+// Note that MSG can contain '<<' so we don't "protect" it with brackets.
+#define LOGLINE_ALWAYS_(CATEGORY, MSG) do { \
+    std::ostringstream xapian_debuglog_stream_; \
+    xapian_debuglog_stream_ << std::boolalpha << MSG; \
+    xapian_debuglogger__.log_line(CATEGORY, xapian_debuglog_stream_.str()); \
+} while (false)
+
 /** Log message @a MSG of category @a CATEGORY. */
 // Note that MSG can contain '<<' so we don't "protect" it with brackets.
 #define LOGLINE_(CATEGORY, MSG) do { \
-    if (xapian_debuglogger__.is_category_wanted(CATEGORY)) { \
-	std::ostringstream xapian_debuglog_stream_; \
-	xapian_debuglog_stream_ << std::boolalpha << MSG; \
-	xapian_debuglogger__.log_line(CATEGORY, xapian_debuglog_stream_.str()); \
+    debuglog_categories xapian_debuglog_category_ = (CATEGORY); \
+    if (xapian_debuglogger__.is_category_wanted(xapian_debuglog_category_)) { \
+	LOGLINE_ALWAYS_(xapian_debuglog_category_, MSG); \
     } \
 } while (false)
 
@@ -181,21 +188,20 @@ class DebugLogFunc {
 	: this_ptr(this_ptr_), category(category_),
 	  uncaught_exception(std::uncaught_exception())
     {
-	if (xapian_debuglogger__.is_category_wanted(category)) {
+	if (is_category_wanted()) {
 	    func.assign(return_type);
 	    func += ' ';
 	    func += func_name;
 	    func += '(';
 	    func += params;
 	    func += ')';
-	    LOGLINE_(category, '[' << this_ptr << "] " << func);
+	    LOGLINE_ALWAYS_(category, '[' << this_ptr << "] " << func);
 	    xapian_debuglogger__.indent();
 	}
     }
 
     /// Log the returned value.
     void log_return_value(const std::string & return_value) {
-	if (!xapian_debuglogger__.is_category_wanted(category)) return;
 	xapian_debuglogger__.outdent();
 	LOGLINE_(category, '[' << this_ptr << "] " << func << " returned: " <<
 			   return_value);
@@ -204,13 +210,18 @@ class DebugLogFunc {
 	category = DEBUGLOG_CATEGORY_NEVER;
     }
 
+    /// Check if the current category of log message is wanted.
+    bool is_category_wanted() const {
+	return xapian_debuglogger__.is_category_wanted(category);
+    }
+
     /** Destructor.
      *
      *  This logs that the function/method has returned if this is due to an
      *  exception or if the RETURN() macro hasn't been used.
      */
     ~DebugLogFunc() {
-	if (!xapian_debuglogger__.is_category_wanted(category)) return;
+	if (!is_category_wanted()) return;
 	xapian_debuglogger__.outdent();
 	if (!uncaught_exception && std::uncaught_exception()) {
 	    // An exception is causing the stack to be unwound.
@@ -253,13 +264,13 @@ class DebugLogFuncVoid {
 	: this_ptr(this_ptr_), category(category_),
 	  uncaught_exception(std::uncaught_exception())
     {
-	if (xapian_debuglogger__.is_category_wanted(category)) {
+	if (is_category_wanted()) {
 	    func.assign("void ");
 	    func += func_name;
 	    func += '(';
 	    func += params;
 	    func += ')';
-	    LOGLINE_(category, '[' << this_ptr << "] " << func);
+	    LOGLINE_ALWAYS_(category, '[' << this_ptr << "] " << func);
 	    xapian_debuglogger__.indent();
 	}
     }
@@ -271,14 +282,14 @@ class DebugLogFuncVoid {
 	: this_ptr(this_ptr_), category(category_),
 	  uncaught_exception(std::uncaught_exception())
     {
-	if (xapian_debuglogger__.is_category_wanted(category)) {
+	if (is_category_wanted()) {
 	    func.assign(class_name);
 	    func += "::";
 	    func += class_name;
 	    func += '(';
 	    func += params;
 	    func += ')';
-	    LOGLINE_(category, '[' << this_ptr << "] " << func);
+	    LOGLINE_ALWAYS_(category, '[' << this_ptr << "] " << func);
 	    xapian_debuglogger__.indent();
 	}
     }
@@ -289,7 +300,7 @@ class DebugLogFuncVoid {
 	: this_ptr(this_ptr_), category(category_),
 	  uncaught_exception(std::uncaught_exception())
     {
-	if (xapian_debuglogger__.is_category_wanted(category)) {
+	if (is_category_wanted()) {
 	    func.assign(class_name);
 	    func += "::~";
 	    func += class_name;
@@ -299,10 +310,15 @@ class DebugLogFuncVoid {
 	}
     }
 
+    /// Check if the current category of log message is wanted.
+    bool is_category_wanted() const {
+	return xapian_debuglogger__.is_category_wanted(category);
+    }
+
 #if 0
     /// Log the returned value.
     void log_return_void() {
-	if (!xapian_debuglogger__.is_category_wanted(category)) return;
+	if (!is_category_wanted()) return;
 	xapian_debuglogger__.outdent();
 	LOGLINE_(category, '[' << this_ptr << "] " << func << " returned");
 
@@ -317,15 +333,16 @@ class DebugLogFuncVoid {
      *  due to an exception.
      */
     ~DebugLogFuncVoid() {
-	if (!xapian_debuglogger__.is_category_wanted(category)) return;
+	if (!is_category_wanted()) return;
 	xapian_debuglogger__.outdent();
+	const char * reason;
 	if (!uncaught_exception && std::uncaught_exception()) {
 	    // An exception is causing the stack to be unwound.
-	    LOGLINE_(category, '[' << this_ptr << "] " << func <<
-			       " exited due to exception");
+	    reason = " exited due to exception";
 	} else {
-	    LOGLINE_(category, '[' << this_ptr << "] " << func << " returned");
+	    reason = " returned";
 	}
+	LOGLINE_ALWAYS_(category, '[' << this_ptr << "] " << func << reason);
     }
 };
 
@@ -388,9 +405,11 @@ class DebugLogFuncVoid {
 /// Log returning a value.
 #define RETURN(A) do { \
     xapian_logcall_return_type_ xapian_logcall_return_ = A; \
-    std::ostringstream xapian_logcall_stream_; \
-    xapian_logcall_stream_ << std::boolalpha << xapian_logcall_return_; \
-    xapian_logcall_.log_return_value(xapian_logcall_stream_.str()); \
+    if (xapian_logcall_.is_category_wanted()) { \
+	std::ostringstream xapian_logcall_stream_; \
+	xapian_logcall_stream_ << std::boolalpha << xapian_logcall_return_; \
+	xapian_logcall_.log_return_value(xapian_logcall_stream_.str()); \
+    } \
     return xapian_logcall_return_; \
 } while (false)
 

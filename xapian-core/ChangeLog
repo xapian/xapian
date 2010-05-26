@@ -1,3 +1,9 @@
+Wed May 26 12:33:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Don't check the category more than once in ctors
+	  and dtors.  Don't convert the return value to a string in RETURN()
+	  unless we want to log it.
+
 Wed May 26 02:33:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_opvalue.cc: Convert file description to doccomment.
