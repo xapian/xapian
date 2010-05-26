@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
- *
- * Copyright (C) 2006,2007,2009 Olly Betts
+ */
+/* Copyright (C) 2006,2007,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,9 @@
 #include <config.h>
 
 #include "exactphrasepostlist.h"
+
+#include "debuglog.h"
 #include "positionlist.h"
-#include "omdebug.h"
 
 #include <algorithm>
 #include <vector>
@@ -72,7 +73,7 @@ class TermCompare {
 bool
 ExactPhrasePostList::test_doc()
 {
-    DEBUGCALL(MATCH, bool, "ExactPhrasePostList::test_doc", "");
+    LOGCALL(MATCH, bool, "ExactPhrasePostList::test_doc", NO_ARGS);
 
     if (terms.size() <= 1) RETURN(true);
 

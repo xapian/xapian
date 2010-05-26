@@ -1,3 +1,8 @@
+Wed May 26 13:32:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: Separate (C) notice from @file
+	  doccomment.
+
 Wed May 26 13:11:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h:
