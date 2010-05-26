@@ -1,3 +1,8 @@
+Wed May 26 02:33:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_opvalue.cc: Convert file description to doccomment.
+	  Remove unused headers and reorder remainder more standardly.
+
 Tue May 25 10:17:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Note ordecay1 and ordecay2 fixes now also in
