@@ -1,3 +1,9 @@
+Wed May 26 13:11:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h:
+	  Move virtual method FlintPostList::get_doclength() definition out
+	  of header, which also means the header no longer needs omdebug.h.
+
 Wed May 26 13:03:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Strip out commented out RETURN_VOID machinery.
