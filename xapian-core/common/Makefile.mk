@@ -11,7 +11,6 @@ noinst_HEADERS +=\
 	common/documentterm.h\
 	common/emptypostlist.h\
 	common/esetinternal.h\
-	common/expand.h\
 	common/expandweight.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
