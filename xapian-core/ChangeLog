@@ -1,3 +1,8 @@
+Thu May 27 04:50:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_opvalue.cc: Use TEST_REL() instead of tout and TEST() with
+	  an inequality.
+
 Thu May 27 04:28:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/databasereplicator.cc,common/debuglog.h,
