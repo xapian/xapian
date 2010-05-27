@@ -1,3 +1,7 @@
+Thu May 27 04:09:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/orpostlist.cc: Prefer ++x to x += 1 for consistency.
+
 Wed May 26 13:32:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/exactphrasepostlist.cc: Separate (C) notice from @file
