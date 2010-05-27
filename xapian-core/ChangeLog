@@ -1,3 +1,8 @@
+Thu May 27 06:45:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/stem.h: Update the list of languages that the
+	  Xapian::Stem constructor recognises.
+
 Thu May 27 05:20:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/stem.h,languages/Makefile.mk,

@@ -79,12 +79,17 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - finnish (fi)
      *  - french (fr)
      *  - german (de)
+     *  - german2 - Normalises umlauts and &szlig;
+     *  - hungarian (hu)
      *  - italian (it)
+     *  - kraaij_pohlmann - A different Dutch stemmer
      *  - norwegian (no)
      *  - portuguese (pt)
+     *  - romanian (ro)
      *  - russian (ru)
      *  - spanish (es)
      *  - swedish (sv)
+     *  - turkish (tr)
      *
      *  @exception	Xapian::InvalidArgumentError is thrown if
      *			language isn't recognised.
