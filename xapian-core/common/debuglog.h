@@ -23,9 +23,17 @@
 
 #ifdef XAPIAN_DEBUG_LOG
 
+#include "omtime.h"
 #include "output.h"
 
+#include <ostream>
 #include <sstream>
+
+inline std::ostream &
+operator<<(std::ostream & os, const OmTime & t)
+{
+    return os << t.as_double() << "s";
+}
 
 /// A categorisation of debug log messages.
 enum debuglog_categories {

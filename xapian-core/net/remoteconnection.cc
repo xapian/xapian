@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@
 #include <algorithm>
 #include <string>
 
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "omtime.h"
 #include "serialise.h"
 #include "socket_utils.h"
@@ -83,8 +83,7 @@ RemoteConnection::~RemoteConnection()
 void
 RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, string, "RemoteConnection::read_at_least",
-	      min_len << ", " << end_time);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::read_at_least", min_len << ", " << end_time);
 
     if (buffer.length() >= min_len) return;
 
@@ -181,7 +180,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 bool
 RemoteConnection::ready_to_read() const
 {
-    DEBUGCALL(REMOTE, bool, "RemoteConnection::ready_to_read", "");
+    LOGCALL(REMOTE, bool, "RemoteConnection::ready_to_read", NO_ARGS);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -205,8 +204,7 @@ RemoteConnection::ready_to_read() const
 void
 RemoteConnection::send_message(char type, const string &message, const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, void, "RemoteConnection::send_message",
-	      type << ", " << message << ", " << end_time);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::send_message", type << ", " << message << ", " << end_time);
     if (fdout == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -318,8 +316,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 void
 RemoteConnection::send_file(char type, const string &file, const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, void, "RemoteConnection::send_file",
-	      type << ", " << file << ", " << end_time);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::send_file", type << ", " << file << ", " << end_time);
     if (fdout == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -466,8 +463,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 char
 RemoteConnection::sniff_next_message_type(const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
-	      "[result], " << end_time);
+    LOGCALL(REMOTE, char, "RemoteConnection::get_message", "[result], " << end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -480,8 +476,7 @@ RemoteConnection::sniff_next_message_type(const OmTime & end_time)
 char
 RemoteConnection::get_message(string &result, const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
-	      "[result], " << end_time);
+    LOGCALL(REMOTE, char, "RemoteConnection::get_message", "[result], " << end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -520,7 +515,7 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
 char
 RemoteConnection::get_message_chunked(const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+    LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -561,8 +556,7 @@ bool
 RemoteConnection::get_message_chunk(string &result, size_t at_least,
 				    const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk",
-	      result << ", " << at_least << ", " << end_time);
+    LOGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk", result << ", " << at_least << ", " << end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -601,8 +595,7 @@ write_all(int fd, const char * p, size_t n)
 char
 RemoteConnection::receive_file(const string &file, const OmTime & end_time)
 {
-    DEBUGCALL(REMOTE, char, "RemoteConnection::receive_file",
-	      file << ", " << end_time);
+    LOGCALL(REMOTE, char, "RemoteConnection::receive_file", file << ", " << end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -658,7 +651,7 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
 void
 RemoteConnection::do_close(bool wait)
 {
-    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", wait);
+    LOGCALL(REMOTE, void, "RemoteConnection::do_close", wait);
 
     if (fdin >= 0) {
 	if (wait) {

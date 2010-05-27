@@ -27,15 +27,7 @@
 
 #ifdef XAPIAN_DEBUG_LOG
 
-#include "omtime.h"
 #include "output.h"
-
-#include <iomanip>
-
-inline std::ostream &
-operator<<(std::ostream & os, const OmTime & om_time) {
-    return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec;
-}
 
 /** Display a message indicating that a method has been called, and another
  *  message when the method ends.
