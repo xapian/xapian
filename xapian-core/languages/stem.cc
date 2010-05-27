@@ -1,7 +1,8 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2010 Olly Betts
+ * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -167,6 +168,8 @@ Stem::Stem(const std::string &language) : internal(0) {
     }
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
+
+Stem::Stem(StemImplementation * p) : internal(p) { }
 
 Stem::~Stem() { }
 

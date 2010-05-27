@@ -1,3 +1,12 @@
+Thu May 27 05:20:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/stem.h,languages/Makefile.mk,
+	  languages/compiler/generator.c,languages/stem.cc,
+	  languages/steminternal.cc,languages/steminternal.h,tests/Makefile.am,
+	  tests/api_stem.cc: Add the ability to specify your own stemming
+	  algorithm by subclassing Xapian::StemImplementation, mostly based on
+	  patch from Evgeny Sizikov in ticket#448.
+
 Thu May 27 04:50:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_opvalue.cc: Use TEST_REL() instead of tout and TEST() with

@@ -1,7 +1,8 @@
 /** \file  stem.h
  *  \brief stemming algorithms
  */
-/* Copyright (C) 2005,2007 Olly Betts
+/* Copyright (C) 2005,2007,2010 Olly Betts
+ * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,13 +29,25 @@
 
 namespace Xapian {
 
+/// Class representing a stemming algorithm implementation.
+struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
+    : public Xapian::Internal::RefCntBase
+{
+    /// Virtual destructor.
+    virtual ~StemImplementation();
+
+    /// Stem the specified word.
+    virtual std::string operator()(const std::string & word) = 0;
+
+    /// Return a string describing this object.
+    virtual std::string get_description() const = 0;
+};
+
 /// Class representing a stemming algorithm.
 class XAPIAN_VISIBILITY_DEFAULT Stem {
   public:
-    /// @private @internal Class representing the stemmer internals.
-    class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::RefCntPtr<StemImplementation> internal;
 
     /// Copy constructor.
     Stem(const Stem & o);
@@ -73,10 +86,22 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - spanish (es)
      *  - swedish (sv)
      *
-     *  @exception		Xapian::InvalidArgumentError is thrown if
+     *  @exception	Xapian::InvalidArgumentError is thrown if
      *			language isn't recognised.
      */
     explicit Stem(const std::string &language);
+
+    /** Construct a Xapian::Stem object with a user-provided stemming algorithm.
+     *
+     *  You can subclass Xapian::StemImplementation to implement your own
+     *  stemming algorithm (or to wrap a third-party algorithm) and then wrap
+     *  your implementation in a Xapian::Stem object to pass to the Xapian API.
+     *
+     *  The StemImplementation object is reference counted, and so will be
+     *  automatically deleted by the Xapian::Stem wrapper when no longer
+     *  required.
+     */
+    explicit Stem(StemImplementation * p);
 
     /// Destructor.
     ~Stem();

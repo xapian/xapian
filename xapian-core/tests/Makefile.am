@@ -153,6 +153,7 @@ collated_apitest_sources = \
  api_sorting.cc \
  api_sortingold.cc \
  api_spelling.cc \
+ api_stem.cc \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
