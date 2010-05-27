@@ -26,7 +26,7 @@
 #ifndef XAPIAN_INCLUDED_OUTPUT_H
 #define XAPIAN_INCLUDED_OUTPUT_H
 
-#include <fstream>
+#include <ostream>
 
 /// @Internal Helper macro for defining stream output of Xapian class.
 #define XAPIAN_OUTPUT_FUNCTION(CLASS) \
