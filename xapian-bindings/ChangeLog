@@ -1,3 +1,8 @@
+Thu May 27 22:30:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian.i: Ignore Xapian::StemImplementation for now so that the
+	  tree builds while I sort out wrapping it properly.
+
 Thu May 27 09:34:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* php/except.i: zend_throw_exception() returns, so we should return
