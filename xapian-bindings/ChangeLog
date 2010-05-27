@@ -1,3 +1,9 @@
+Thu May 27 09:34:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/except.i: zend_throw_exception() returns, so we should return
+	  control to PHP directly after calling it to avoid needless extra
+	  work and possible issues.
+
 Wed May 19 09:12:36 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/extra.i: Ensure that __all__ is populated after local
