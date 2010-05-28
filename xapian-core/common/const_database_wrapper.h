@@ -1,8 +1,8 @@
 /** @file const_database_wrapper.h
  * @brief Wrapper which exposes only the const methods of database internals.
  */
-/* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+/* Copyright (C) 2009 Lemur Consulting Ltd
+ * Copyright (C) 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
