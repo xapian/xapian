@@ -26,6 +26,7 @@
 #include "database.h"
 #include "debuglog.h"
 #include "expandweight.h"
+#include "omassert.h"
 #include "ortermlist.h"
 #include "rset.h"
 #include "str.h"
