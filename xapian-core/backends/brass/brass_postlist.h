@@ -31,7 +31,6 @@
 #include "brass_positionlist.h"
 #include "leafpostlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #include "autoptr.h"
 #include <map>

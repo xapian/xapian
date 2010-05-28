@@ -23,13 +23,14 @@
 #include "brass_alltermslist.h"
 #include "brass_postlist.h"
 
+#include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
 
 void
 BrassAllTermsList::read_termfreq_and_collfreq() const
 {
-    DEBUGCALL(DB, void, "BrassAllTermsList::read_termfreq_and_collfreq", "");
+    LOGCALL(DB, void, "BrassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
@@ -43,14 +44,14 @@ BrassAllTermsList::read_termfreq_and_collfreq() const
 
 BrassAllTermsList::~BrassAllTermsList()
 {
-    DEBUGCALL(DB, void, "~BrassAllTermsList", "");
+    LOGCALL_DTOR(DB, "BrassAllTermsList");
     delete cursor;
 }
 
 string
 BrassAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassAllTermsList::get_termname", "");
+    LOGCALL(DB, string, "BrassAllTermsList::get_termname", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
@@ -59,7 +60,7 @@ BrassAllTermsList::get_termname() const
 Xapian::doccount
 BrassAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassAllTermsList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "BrassAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -69,7 +70,7 @@ BrassAllTermsList::get_termfreq() const
 Xapian::termcount
 BrassAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassAllTermsList::get_collection_freq", "");
+    LOGCALL(DB, Xapian::termcount, "BrassAllTermsList::get_collection_freq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -79,7 +80,7 @@ BrassAllTermsList::get_collection_freq() const
 TermList *
 BrassAllTermsList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassAllTermsList::next", "");
+    LOGCALL(DB, TermList *, "BrassAllTermsList::next", NO_ARGS);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -135,7 +136,7 @@ first_time:
 TermList *
 BrassAllTermsList::skip_to(const string &term)
 {
-    DEBUGCALL(DB, TermList *, "BrassAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList *, "BrassAllTermsList::skip_to", term);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -176,6 +177,6 @@ BrassAllTermsList::skip_to(const string &term)
 bool
 BrassAllTermsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassAllTermsList::at_end", "");
+    LOGCALL(DB, bool, "BrassAllTermsList::at_end", NO_ARGS);
     RETURN(cursor && cursor->after_end());
 }

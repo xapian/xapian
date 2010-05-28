@@ -333,7 +333,7 @@ Auto::open_stub(const string &file, int action)
 
 Database::Database(const string &path)
 {
-    LOGCALL_CTOR(API, "Database::Database", path);
+    LOGCALL_CTOR(API, "Database", path);
 
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {
@@ -390,7 +390,7 @@ Database::Database(const string &path)
 WritableDatabase::WritableDatabase(const std::string &path, int action)
     : Database()
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", path << ", " << action);
+    LOGCALL_CTOR(API, "WritableDatabase", path << ", " << action);
 #ifdef HAVE_DISK_BACKEND
     enum {
 #ifdef XAPIAN_HAS_CHERT_BACKEND

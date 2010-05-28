@@ -224,31 +224,31 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 DatabaseReplica::DatabaseReplica(const DatabaseReplica & other)
 	: internal(other.internal)
 {
-    LOGCALL_CTOR(API, "Xapian::DatabaseReplica::DatabaseReplica", other);
+    LOGCALL_CTOR(API, "DatabaseReplica", other);
 }
 
 void
 DatabaseReplica::operator=(const DatabaseReplica & other)
 {
-    LOGCALL_CTOR(API, "Xapian::DatabaseReplica::operator=", other);
+    LOGCALL_VOID(API, "Xapian::DatabaseReplica::operator=", other);
     internal = other.internal;
 }
 
 DatabaseReplica::DatabaseReplica()
 	: internal(0)
 {
-    LOGCALL_CTOR(API, "Xapian::DatabaseReplica::DatabaseReplica", NO_ARGS);
+    LOGCALL_CTOR(API, "DatabaseReplica", NO_ARGS);
 }
 
 DatabaseReplica::DatabaseReplica(const string & path)
 	: internal(new DatabaseReplica::Internal(path))
 {
-    LOGCALL_CTOR(API, "Xapian::DatabaseReplica::DatabaseReplica", path);
+    LOGCALL_CTOR(API, "DatabaseReplica", path);
 }
 
 DatabaseReplica::~DatabaseReplica()
 {
-    LOGCALL_DTOR(API, "Xapian::DatabaseReplica::~DatabaseReplica");
+    LOGCALL_DTOR(API, "DatabaseReplica");
 }
 
 string
@@ -331,7 +331,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  need_copy_next(false), offline_revision(), offline_needed_revision(),
 	  last_live_changeset_time(), conn(NULL)
 {
-    LOGCALL_CTOR(API, "DatabaseReplica::Internal::Internal", path_);
+    LOGCALL_CTOR(API, "Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
 #else

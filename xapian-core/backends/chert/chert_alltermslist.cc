@@ -23,13 +23,14 @@
 #include "chert_alltermslist.h"
 #include "chert_postlist.h"
 
+#include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
 
 void
 ChertAllTermsList::read_termfreq_and_collfreq() const
 {
-    DEBUGCALL(DB, void, "ChertAllTermsList::read_termfreq_and_collfreq", "");
+    LOGCALL(DB, void, "ChertAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
@@ -43,14 +44,14 @@ ChertAllTermsList::read_termfreq_and_collfreq() const
 
 ChertAllTermsList::~ChertAllTermsList()
 {
-    DEBUGCALL(DB, void, "~ChertAllTermsList", "");
+    LOGCALL_DTOR(DB, "ChertAllTermsList");
     delete cursor;
 }
 
 string
 ChertAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "ChertAllTermsList::get_termname", "");
+    LOGCALL(DB, string, "ChertAllTermsList::get_termname", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
@@ -59,7 +60,7 @@ ChertAllTermsList::get_termname() const
 Xapian::doccount
 ChertAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertAllTermsList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "ChertAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -69,7 +70,7 @@ ChertAllTermsList::get_termfreq() const
 Xapian::termcount
 ChertAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertAllTermsList::get_collection_freq", "");
+    LOGCALL(DB, Xapian::termcount, "ChertAllTermsList::get_collection_freq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -79,7 +80,7 @@ ChertAllTermsList::get_collection_freq() const
 TermList *
 ChertAllTermsList::next()
 {
-    DEBUGCALL(DB, TermList *, "ChertAllTermsList::next", "");
+    LOGCALL(DB, TermList *, "ChertAllTermsList::next", NO_ARGS);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -135,7 +136,7 @@ first_time:
 TermList *
 ChertAllTermsList::skip_to(const string &term)
 {
-    DEBUGCALL(DB, TermList *, "ChertAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList *, "ChertAllTermsList::skip_to", term);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -176,6 +177,6 @@ ChertAllTermsList::skip_to(const string &term)
 bool
 ChertAllTermsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertAllTermsList::at_end", "");
+    LOGCALL(DB, bool, "ChertAllTermsList::at_end", NO_ARGS);
     RETURN(cursor && cursor->after_end());
 }

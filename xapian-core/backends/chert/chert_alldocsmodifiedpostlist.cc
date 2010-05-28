@@ -2,7 +2,7 @@
  * @brief A ChertAllDocsPostList plus pending modifications.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
  */
 
 #include <config.h>
-
 #include "chert_alldocsmodifiedpostlist.h"
-#include "chert_database.h"
 
+#include "chert_database.h"
+#include "debuglog.h"
 #include "str.h"
 
 using namespace std;
@@ -35,13 +35,13 @@ ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(Xapian::Internal::Ref
 	  doclens(doclens_),
 	  doclens_it(doclens.begin())
 {
-    DEBUGCALL(DB, void, "ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList", db_.get() << ", " << doccount_ << ", " << "doclens");
+    LOGCALL_CTOR(DB, "ChertAllDocsModifiedPostList", db_.get() << ", " << doccount_ << ", " << "doclens");
 }
 
 void
 ChertAllDocsModifiedPostList::skip_deletes(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, void, "ChertAllDocsModifiedPostList::skip_deletes", w_min);
+    LOGCALL_VOID(DB, "ChertAllDocsModifiedPostList::skip_deletes", w_min);
     while (!ChertAllDocsPostList::at_end()) {
 	if (doclens_it == doclens.end()) return;
 	if (doclens_it->first != ChertAllDocsPostList::get_docid()) return;
@@ -57,7 +57,7 @@ ChertAllDocsModifiedPostList::skip_deletes(Xapian::weight w_min)
 Xapian::docid
 ChertAllDocsModifiedPostList::get_docid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "ChertAllDocsModifiedPostList::get_docid()", "");
+    LOGCALL(DB, Xapian::docid, "ChertAllDocsModifiedPostList::get_docid()", NO_ARGS);
     if (doclens_it == doclens.end()) RETURN(ChertAllDocsPostList::get_docid());
     if (ChertAllDocsPostList::at_end()) RETURN(doclens_it->first);
     RETURN(min(doclens_it->first, ChertAllDocsPostList::get_docid()));
@@ -66,8 +66,7 @@ ChertAllDocsModifiedPostList::get_docid() const
 Xapian::termcount
 ChertAllDocsModifiedPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount,
-	      "ChertAllDocsModifiedPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "ChertAllDocsModifiedPostList::get_doclength", NO_ARGS);
     // Override with value from doclens_it (which cannot be -1, because that
     // would have been skipped past).
     if (doclens_it != doclens.end() &&
@@ -81,8 +80,7 @@ ChertAllDocsModifiedPostList::get_doclength() const
 PostList *
 ChertAllDocsModifiedPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *,
-	      "ChertAllDocsModifiedPostList::next", w_min);
+    LOGCALL(DB, PostList *, "ChertAllDocsModifiedPostList::next", w_min);
     if (have_started) {
 	if (ChertAllDocsPostList::at_end()) {
 	    ++doclens_it;
@@ -109,9 +107,7 @@ PostList *
 ChertAllDocsModifiedPostList::skip_to(Xapian::docid desired_did,
 				      Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *,
-	      "ChertAllDocsModifiedPostList::skip_to",
-	      desired_did << ", " << w_min);
+    LOGCALL(DB, PostList *, "ChertAllDocsModifiedPostList::skip_to", desired_did << ", " << w_min);
     if (!ChertAllDocsPostList::at_end())
 	ChertAllDocsPostList::skip_to(desired_did, w_min);
     /* FIXME: should we use lower_bound() on the map? */
@@ -125,7 +121,7 @@ ChertAllDocsModifiedPostList::skip_to(Xapian::docid desired_did,
 bool
 ChertAllDocsModifiedPostList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertAllDocsModifiedPostList::end", "");
+    LOGCALL(DB, bool, "ChertAllDocsModifiedPostList::end", NO_ARGS);
     RETURN(doclens_it == doclens.end() && ChertAllDocsPostList::at_end());
 }
 

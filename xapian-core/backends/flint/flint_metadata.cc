@@ -23,6 +23,7 @@
 #include "flint_metadata.h"
 
 #include "database.h"
+#include "debuglog.h"
 #include "omassert.h"
 #include "stringutils.h"
 
@@ -34,7 +35,7 @@ FlintMetadataTermList::FlintMetadataTermList(
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    DEBUGCALL(DB, void, "FlintMetadataTermList", "<database>, <cursor>");
+    LOGCALL_CTOR(DB, "FlintMetadataTermList", "<database>, <cursor>");
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);
@@ -42,14 +43,14 @@ FlintMetadataTermList::FlintMetadataTermList(
 
 FlintMetadataTermList::~FlintMetadataTermList()
 {
-    DEBUGCALL(DB, void, "~FlintMetadataTermList", "");
+    LOGCALL_DTOR(DB, "FlintMetadataTermList");
     delete cursor;
 }
 
 string
 FlintMetadataTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "FlintMetadataTermList::get_termname", "");
+    LOGCALL(DB, string, "FlintMetadataTermList::get_termname", NO_ARGS);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
     Assert(startswith(cursor->current_key, prefix));
@@ -71,7 +72,7 @@ FlintMetadataTermList::get_collection_freq() const
 TermList *
 FlintMetadataTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "FlintMetadataTermList::next", "");
+    LOGCALL(DB, TermList *, "FlintMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -86,7 +87,7 @@ FlintMetadataTermList::next()
 TermList *
 FlintMetadataTermList::skip_to(const string &key)
 {
-    DEBUGCALL(DB, TermList *, "FlintMetadataTermList::skip_to", key);
+    LOGCALL(DB, TermList *, "FlintMetadataTermList::skip_to", key);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
@@ -103,6 +104,6 @@ FlintMetadataTermList::skip_to(const string &key)
 bool
 FlintMetadataTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintMetadataTermList::at_end", "");
+    LOGCALL(DB, bool, "FlintMetadataTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

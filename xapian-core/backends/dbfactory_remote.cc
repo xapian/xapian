@@ -21,6 +21,7 @@
 
 #include <xapian/dbfactory.h>
 
+#include "omdebug.h"
 #include "progclient.h"
 #include "remotetcpclient.h"
 

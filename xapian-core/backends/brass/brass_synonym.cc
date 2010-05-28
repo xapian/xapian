@@ -19,11 +19,12 @@
  */
 
 #include <config.h>
+#include "brass_synonym.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "brass_cursor.h"
-#include "brass_synonym.h"
+#include "debuglog.h"
 #include "stringutils.h"
 #include "vectortermlist.h"
 
@@ -166,14 +167,14 @@ BrassSynonymTable::open_termlist(const string & term)
 
 BrassSynonymTermList::~BrassSynonymTermList()
 {
-    DEBUGCALL(DB, void, "~BrassSynonymTermList", "");
+    LOGCALL_DTOR(DB, "BrassSynonymTermList");
     delete cursor;
 }
 
 string
 BrassSynonymTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassSynonymTermList::get_termname", "");
+    LOGCALL(DB, string, "BrassSynonymTermList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!cursor->current_key.empty());
     Assert(!at_end());
@@ -195,7 +196,7 @@ BrassSynonymTermList::get_collection_freq() const
 TermList *
 BrassSynonymTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassSynonymTermList::next", "");
+    LOGCALL(DB, TermList *, "BrassSynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -210,7 +211,7 @@ BrassSynonymTermList::next()
 TermList *
 BrassSynonymTermList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "BrassSynonymTermList::skip_to", tname);
+    LOGCALL(DB, TermList *, "BrassSynonymTermList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(tname)) {
@@ -227,6 +228,6 @@ BrassSynonymTermList::skip_to(const string &tname)
 bool
 BrassSynonymTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassSynonymTermList::at_end", "");
+    LOGCALL(DB, bool, "BrassSynonymTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

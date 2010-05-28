@@ -1,7 +1,7 @@
 /** @file chert_modifiedpostlist.cc
  * @brief A ChertPostList plus pending modifications
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
  */
 
 #include <config.h>
+#include "chert_modifiedpostlist.h"
 
 #include "chert_database.h"
-#include "chert_modifiedpostlist.h"
+#include "debuglog.h"
 
 ChertModifiedPostList::~ChertModifiedPostList()
 {
@@ -62,7 +63,7 @@ ChertModifiedPostList::get_docid() const
 Xapian::termcount
 ChertModifiedPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertModifiedPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "ChertModifiedPostList::get_doclength", NO_ARGS);
     if (it != mods.end() && (ChertPostList::at_end() || it->first <= ChertPostList::get_docid()))
 	RETURN(this_db->get_doclength(it->first));
     RETURN(ChertPostList::get_doclength());

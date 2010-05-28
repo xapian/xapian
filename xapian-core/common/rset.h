@@ -24,12 +24,10 @@
 #define OM_HGUARD_RSET_H
 
 #include <set>
-#include "omassert.h"
-#include "omdebug.h"
 #include "xapian/enquire.h"
-#include "omenquireinternal.h"
 #include "xapian/weight.h"
-#include "weightinternal.h"
+
+#include "omenquireinternal.h"
 
 /** A relevance set.
  *

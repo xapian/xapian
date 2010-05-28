@@ -1,7 +1,7 @@
 /** @file registry.cc
  * @brief Class for looking up user subclasses during unserialisation.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 #include "xapian/weight.h"
 
 #include "registryinternal.h"
-#include "omdebug.h"
+#include "debuglog.h"
 
 #include <algorithm>
 #include <map>
@@ -85,7 +85,7 @@ namespace Xapian {
 Registry::Registry(const Registry & other)
 	: internal(other.internal)
 {
-    LOGCALL_CTOR(API, "Xapian::Registry::Registry", "other");
+    LOGCALL_CTOR(API, "Registry", "other");
 }
 
 Registry &
@@ -99,12 +99,12 @@ Registry::operator=(const Registry & other)
 Registry::Registry()
 	: internal(new Registry::Internal())
 {
-    LOGCALL_CTOR(API, "Xapian::Registry::Registry", "");
+    LOGCALL_CTOR(API, "Registry", NO_ARGS);
 }
 
 Registry::~Registry()
 {
-    LOGCALL_DTOR(API, "Xapian::Registry::~Registry");
+    LOGCALL_DTOR(API, "Registry");
 
     // Note - we don't need to do anything special in this destructor, but it
     // does need to be explicitly defined because the definition of the

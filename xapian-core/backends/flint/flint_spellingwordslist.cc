@@ -21,24 +21,25 @@
 
 
 #include <config.h>
-
-#include <xapian/error.h>
-#include <xapian/types.h>
-
 #include "flint_spellingwordslist.h"
+
+#include "xapian/error.h"
+#include "xapian/types.h"
+
+#include "debuglog.h"
 #include "flint_utils.h"
 #include "stringutils.h"
 
 FlintSpellingWordsList::~FlintSpellingWordsList()
 {
-    DEBUGCALL(DB, void, "~FlintSpellingWordsList", "");
+    LOGCALL_DTOR(DB, "~FlintSpellingWordsList");
     delete cursor;
 }
 
 string
 FlintSpellingWordsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "FlintSpellingWordsList::get_termname", "");
+    LOGCALL(DB, string, "FlintSpellingWordsList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -49,7 +50,7 @@ FlintSpellingWordsList::get_termname() const
 Xapian::doccount
 FlintSpellingWordsList::get_termfreq() const
 {
-    DEBUGCALL(DB, string, "FlintSpellingWordsList::get_termfreq", "");
+    LOGCALL(DB, string, "FlintSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -73,7 +74,7 @@ FlintSpellingWordsList::get_collection_freq() const
 TermList *
 FlintSpellingWordsList::next()
 {
-    DEBUGCALL(DB, TermList *, "FlintSpellingWordsList::next", "");
+    LOGCALL(DB, TermList *, "FlintSpellingWordsList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -88,7 +89,7 @@ FlintSpellingWordsList::next()
 TermList *
 FlintSpellingWordsList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "FlintSpellingWordsList::skip_to", tname);
+    LOGCALL(DB, TermList *, "FlintSpellingWordsList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge("W" + tname)) {
@@ -105,6 +106,6 @@ FlintSpellingWordsList::skip_to(const string &tname)
 bool
 FlintSpellingWordsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintSpellingWordsList::at_end", "");
+    LOGCALL(DB, bool, "FlintSpellingWordsList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

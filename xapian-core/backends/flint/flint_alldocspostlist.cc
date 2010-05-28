@@ -19,12 +19,12 @@
  */
 
 #include <config.h>
+#include "flint_alldocspostlist.h"
 
 #include <string>
 
+#include "debuglog.h"
 #include "flint_database.h"
-#include "flint_alldocspostlist.h"
-
 #include "str.h"
 
 using namespace std;
@@ -44,7 +44,7 @@ FlintAllDocsPostList::get_docid() const
 Xapian::termcount
 FlintAllDocsPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintAllDocsPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "FlintAllDocsPostList::get_doclength", NO_ARGS);
     Assert(current_did);
 
     cursor->read_tag();
@@ -71,7 +71,7 @@ FlintAllDocsPostList::get_doclength() const
 Xapian::termcount
 FlintAllDocsPostList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintAllDocsPostList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "FlintAllDocsPostList::get_wdf", NO_ARGS);
     Assert(current_did);
     RETURN(1);
 }
@@ -79,7 +79,7 @@ FlintAllDocsPostList::get_wdf() const
 PostList *
 FlintAllDocsPostList::read_did_from_current_key()
 {
-    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::read_did_from_current_key",
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::read_did_from_current_key",
 	      "");
     const string & key = cursor->current_key;
     const char * pos = key.data();
@@ -101,7 +101,7 @@ FlintAllDocsPostList::read_did_from_current_key()
 PostList *
 FlintAllDocsPostList::next(Xapian::weight /*w_min*/)
 {
-    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::next", "/*w_min*/");
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::next", "/*w_min*/");
     Assert(!at_end());
     if (!cursor->next()) RETURN(NULL);
     RETURN(read_did_from_current_key());
@@ -110,8 +110,7 @@ FlintAllDocsPostList::next(Xapian::weight /*w_min*/)
 PostList *
 FlintAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 {
-    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to",
-	      did << ", /*w_min*/");
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to", did << ", /*w_min*/");
 
     if (did <= current_did || at_end()) RETURN(NULL);
 
@@ -127,7 +126,7 @@ FlintAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 
 bool
 FlintAllDocsPostList::at_end() const {
-    DEBUGCALL(DB, bool, "FlintAllDocsPostList::at_end", "");
+    LOGCALL(DB, bool, "FlintAllDocsPostList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }
 

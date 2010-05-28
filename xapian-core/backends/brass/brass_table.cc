@@ -72,7 +72,7 @@ PWRITE_PROTOTYPE
 #include "brass_cursor.h"
 
 #include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "pack.h"
 #include "unaligned.h"
 #include "utils.h"
@@ -340,7 +340,7 @@ BrassTable::write_block(uint4 n, const byte * p) const
 void
 BrassTable::set_overwritten() const
 {
-    LOGCALL_VOID(DB, "BrassTable::set_overwritten", "");
+    LOGCALL_VOID(DB, "BrassTable::set_overwritten", NO_ARGS);
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -425,7 +425,7 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 void
 BrassTable::alter()
 {
-    LOGCALL_VOID(DB, "BrassTable::alter", "");
+    LOGCALL_VOID(DB, "BrassTable::alter", NO_ARGS);
     Assert(writable);
 #ifdef DANGEROUS
     C[0].rewrite = true;
@@ -967,7 +967,7 @@ BrassTable::add_kt(bool found)
 int
 BrassTable::delete_kt()
 {
-    LOGCALL(DB, int, "BrassTable::delete_kt", "");
+    LOGCALL(DB, int, "BrassTable::delete_kt", NO_ARGS);
     Assert(writable);
 
     bool found = find(C);
@@ -1318,7 +1318,7 @@ BrassTable::set_full_compaction(bool parity)
 }
 
 BrassCursor * BrassTable::cursor_get() const {
-    LOGCALL(DB, BrassCursor *, "BrassTable::cursor_get", "");
+    LOGCALL(DB, BrassCursor *, "BrassTable::cursor_get", NO_ARGS);
     if (handle < 0) {
 	if (handle == -2) {
 	    BrassTable::throw_database_closed();
@@ -1459,7 +1459,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 void
 BrassTable::read_root()
 {
-    LOGCALL_VOID(DB, "BrassTable::read_root", "");
+    LOGCALL_VOID(DB, "BrassTable::read_root", NO_ARGS);
     if (faked_root_block) {
 	/* root block for an unmodified database. */
 	byte * p = C[0].p;
@@ -1690,7 +1690,7 @@ BrassTable::lazy_alloc_inflate_zstream() const {
 
 bool
 BrassTable::exists() const {
-    LOGCALL(DB, bool, "BrassTable::exists", "");
+    LOGCALL(DB, bool, "BrassTable::exists", NO_ARGS);
     return (file_exists(name + "DB") &&
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
@@ -1715,7 +1715,7 @@ sys_unlink_if_exists(const string & filename)
 void
 BrassTable::erase()
 {
-    LOGCALL_VOID(DB, "BrassTable::erase", "");
+    LOGCALL_VOID(DB, "BrassTable::erase", NO_ARGS);
     close();
 
     sys_unlink_if_exists(name + "baseA");
@@ -1789,7 +1789,7 @@ BrassTable::~BrassTable() {
 }
 
 void BrassTable::close(bool permanent) {
-    LOGCALL_VOID(DB, "BrassTable::close", "");
+    LOGCALL_VOID(DB, "BrassTable::close", NO_ARGS);
 
     if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1820,7 +1820,7 @@ void BrassTable::close(bool permanent) {
 void
 BrassTable::flush_db()
 {
-    LOGCALL_VOID(DB, "BrassTable::flush_db", "");
+    LOGCALL_VOID(DB, "BrassTable::flush_db", NO_ARGS);
     Assert(writable);
     if (handle < 0) {
 	if (handle == -2) {
@@ -1983,7 +1983,7 @@ BrassTable::write_changed_blocks(int changes_fd)
 void
 BrassTable::cancel()
 {
-    LOGCALL_VOID(DB, "BrassTable::cancel", "");
+    LOGCALL_VOID(DB, "BrassTable::cancel", NO_ARGS);
     Assert(writable);
 
     if (handle < 0) {
@@ -2074,7 +2074,7 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
 void
 BrassTable::open()
 {
-    LOGCALL_VOID(DB, "BrassTable::open", "");
+    LOGCALL_VOID(DB, "BrassTable::open", NO_ARGS);
     LOGLINE(DB, "opening at path " << name);
     close();
 

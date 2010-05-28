@@ -23,6 +23,7 @@
 #include "chert_metadata.h"
 
 #include "database.h"
+#include "debuglog.h"
 #include "omassert.h"
 #include "stringutils.h"
 
@@ -34,7 +35,7 @@ ChertMetadataTermList::ChertMetadataTermList(
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    DEBUGCALL(DB, void, "ChertMetadataTermList", "<database>, <cursor>");
+    LOGCALL_CTOR(DB, "ChertMetadataTermList", "<database>, <cursor>, " << prefix_);
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);
@@ -42,14 +43,14 @@ ChertMetadataTermList::ChertMetadataTermList(
 
 ChertMetadataTermList::~ChertMetadataTermList()
 {
-    DEBUGCALL(DB, void, "~ChertMetadataTermList", "");
+    LOGCALL_DTOR(DB, "ChertMetadataTermList");
     delete cursor;
 }
 
 string
 ChertMetadataTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "ChertMetadataTermList::get_termname", "");
+    LOGCALL(DB, string, "ChertMetadataTermList::get_termname", NO_ARGS);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
     Assert(startswith(cursor->current_key, prefix));
@@ -71,7 +72,7 @@ ChertMetadataTermList::get_collection_freq() const
 TermList *
 ChertMetadataTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "ChertMetadataTermList::next", "");
+    LOGCALL(DB, TermList *, "ChertMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -86,7 +87,7 @@ ChertMetadataTermList::next()
 TermList *
 ChertMetadataTermList::skip_to(const string &key)
 {
-    DEBUGCALL(DB, TermList *, "ChertMetadataTermList::skip_to", key);
+    LOGCALL(DB, TermList *, "ChertMetadataTermList::skip_to", key);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
@@ -103,6 +104,6 @@ ChertMetadataTermList::skip_to(const string &key)
 bool
 ChertMetadataTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertMetadataTermList::at_end", "");
+    LOGCALL(DB, bool, "ChertMetadataTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

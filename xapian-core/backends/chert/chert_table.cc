@@ -72,7 +72,7 @@ PWRITE_PROTOTYPE
 
 #include "io_utils.h"
 #include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "pack.h"
 #include "str.h"
 #include "unaligned.h"
@@ -340,7 +340,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 void
 ChertTable::set_overwritten() const
 {
-    LOGCALL_VOID(DB, "ChertTable::set_overwritten", "");
+    LOGCALL_VOID(DB, "ChertTable::set_overwritten", NO_ARGS);
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -427,7 +427,7 @@ ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
 void
 ChertTable::alter()
 {
-    LOGCALL_VOID(DB, "ChertTable::alter", "");
+    LOGCALL_VOID(DB, "ChertTable::alter", NO_ARGS);
     Assert(writable);
 #ifdef DANGEROUS
     C[0].rewrite = true;
@@ -969,7 +969,7 @@ ChertTable::add_kt(bool found)
 int
 ChertTable::delete_kt()
 {
-    LOGCALL(DB, int, "ChertTable::delete_kt", "");
+    LOGCALL(DB, int, "ChertTable::delete_kt", NO_ARGS);
     Assert(writable);
 
     bool found = find(C);
@@ -1320,7 +1320,7 @@ ChertTable::set_full_compaction(bool parity)
 }
 
 ChertCursor * ChertTable::cursor_get() const {
-    LOGCALL(DB, ChertCursor *, "ChertTable::cursor_get", "");
+    LOGCALL(DB, ChertCursor *, "ChertTable::cursor_get", NO_ARGS);
     if (handle < 0) {
 	if (handle == -2) {
 	    ChertTable::throw_database_closed();
@@ -1461,7 +1461,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 void
 ChertTable::read_root()
 {
-    LOGCALL_VOID(DB, "ChertTable::read_root", "");
+    LOGCALL_VOID(DB, "ChertTable::read_root", NO_ARGS);
     if (faked_root_block) {
 	/* root block for an unmodified database. */
 	byte * p = C[0].p;
@@ -1693,7 +1693,7 @@ ChertTable::lazy_alloc_inflate_zstream() const {
 
 bool
 ChertTable::exists() const {
-    LOGCALL(DB, bool, "ChertTable::exists", "");
+    LOGCALL(DB, bool, "ChertTable::exists", NO_ARGS);
     return (file_exists(name + "DB") &&
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
@@ -1718,7 +1718,7 @@ sys_unlink_if_exists(const string & filename)
 void
 ChertTable::erase()
 {
-    LOGCALL_VOID(DB, "ChertTable::erase", "");
+    LOGCALL_VOID(DB, "ChertTable::erase", NO_ARGS);
     close();
 
     sys_unlink_if_exists(name + "baseA");
@@ -1792,7 +1792,7 @@ ChertTable::~ChertTable() {
 }
 
 void ChertTable::close(bool permanent) {
-    LOGCALL_VOID(DB, "ChertTable::close", "");
+    LOGCALL_VOID(DB, "ChertTable::close", NO_ARGS);
 
     if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1823,7 +1823,7 @@ void ChertTable::close(bool permanent) {
 void
 ChertTable::flush_db()
 {
-    LOGCALL_VOID(DB, "ChertTable::flush_db", "");
+    LOGCALL_VOID(DB, "ChertTable::flush_db", NO_ARGS);
     Assert(writable);
     if (handle < 0) {
 	if (handle == -2) {
@@ -1986,7 +1986,7 @@ ChertTable::write_changed_blocks(int changes_fd)
 void
 ChertTable::cancel()
 {
-    LOGCALL_VOID(DB, "ChertTable::cancel", "");
+    LOGCALL_VOID(DB, "ChertTable::cancel", NO_ARGS);
     Assert(writable);
 
     if (handle < 0) {
@@ -2077,7 +2077,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
 void
 ChertTable::open()
 {
-    LOGCALL_VOID(DB, "ChertTable::open", "");
+    LOGCALL_VOID(DB, "ChertTable::open", NO_ARGS);
     LOGLINE(DB, "opening at path " << name);
     close();
 

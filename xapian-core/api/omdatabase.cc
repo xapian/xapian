@@ -66,19 +66,19 @@ namespace Xapian {
 
 Database::Database()
 {
-    LOGCALL_CTOR(API, "Database::Database", NO_ARGS);
+    LOGCALL_CTOR(API, "Database", NO_ARGS);
 }
 
 Database::Database(Database::Internal *internal_)
 {
-    LOGCALL_CTOR(API, "Database::Database", "Database::Internal");
+    LOGCALL_CTOR(API, "Database", "Database::Internal");
     Xapian::Internal::RefCntPtr<Database::Internal> newi(internal_);
     internal.push_back(newi);
 }
 
 Database::Database(const Database &other)
 {
-    LOGCALL_CTOR(API, "Database::Database", "Database");
+    LOGCALL_CTOR(API, "Database", "Database");
     internal = other.internal;
 }
 
@@ -96,7 +96,7 @@ Database::operator=(const Database &other)
 
 Database::~Database()
 {
-    LOGCALL_DTOR(API, "Database::~Database");
+    LOGCALL_DTOR(API, "Database");
 }
 
 void
@@ -455,7 +455,7 @@ Database::get_document(Xapian::docid did) const
 Document::Internal *
 Database::get_document_lazily(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
+    LOGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
     if (did == 0)
 	docid_zero_invalid();
 
@@ -737,19 +737,19 @@ Database::get_uuid() const
 
 WritableDatabase::WritableDatabase() : Database()
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", NO_ARGS);
+    LOGCALL_CTOR(API, "WritableDatabase", NO_ARGS);
 }
 
 WritableDatabase::WritableDatabase(Database::Internal *internal_)
 	: Database(internal_)
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", "Database::Internal");
+    LOGCALL_CTOR(API, "WritableDatabase", "Database::Internal");
 }
 
 WritableDatabase::WritableDatabase(const WritableDatabase &other)
 	: Database(other)
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", "WritableDatabase");
+    LOGCALL_CTOR(API, "WritableDatabase", "WritableDatabase");
 }
 
 void
@@ -761,7 +761,7 @@ WritableDatabase::operator=(const WritableDatabase &other)
 
 WritableDatabase::~WritableDatabase()
 {
-    LOGCALL_DTOR(API, "WritableDatabase::~WritableDatabase");
+    LOGCALL_DTOR(API, "WritableDatabase");
 }
 
 XAPIAN_NORETURN(static void only_one_subdatabase_allowed());

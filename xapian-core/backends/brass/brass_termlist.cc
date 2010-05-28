@@ -21,13 +21,14 @@
  */
 
 #include <config.h>
+#include "brass_termlist.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "expandweight.h"
 #include "brass_positionlist.h"
-#include "brass_termlist.h"
 #include "omassert.h"
+#include "omdebug.h"
 #include "pack.h"
 #include "str.h"
 

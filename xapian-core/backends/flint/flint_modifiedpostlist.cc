@@ -19,9 +19,10 @@
  */
 
 #include <config.h>
-
-#include "flint_database.h"
 #include "flint_modifiedpostlist.h"
+
+#include "debuglog.h"
+#include "flint_database.h"
 
 FlintModifiedPostList::~FlintModifiedPostList()
 {
@@ -62,7 +63,7 @@ FlintModifiedPostList::get_docid() const
 Xapian::termcount
 FlintModifiedPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintModifiedPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "FlintModifiedPostList::get_doclength", NO_ARGS);
     if (it != mods.end() && (FlintPostList::at_end() || it->first <= FlintPostList::get_docid()))
 	RETURN(this_db->get_doclength(it->first));
     RETURN(FlintPostList::get_doclength());

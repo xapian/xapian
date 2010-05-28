@@ -1,3 +1,19 @@
+Fri May 28 04:12:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: Add missing inclusions of
+	  "debuglog.h".
+	* backends/brass/brass_metadata.h,backends/brass/brass_postlist.h,
+	  backends/brass/brass_synonym.h,backends/chert/chert_metadata.h,
+	  backends/chert/chert_postlist.h,backends/chert/chert_synonym.h,
+	  backends/dbfactory_remote.cc,backends/flint/flint_metadata.h,
+	  backends/flint/flint_synonym.h,common/database.h,common/rset.h:
+	  Remove unused inclusions of "omassert.h" and "omdebug.h".
+	* common/rset.h: Remove unused inclusion of "weightinternal.h".
+	* api/omdatabase.cc,api/registry.cc,api/replication.cc,backends/brass/,
+	  backends/chert/,backends/dbfactory.cc,backends/flint/: Add missing
+	  explicit inclusions of "debuglog.h". Fix LOGCALL markup of ctors and
+	  dtors.  Use LOGCALL instead of DEBUGCALL.
+
 Fri May 28 04:06:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_alldocspostlist.h: Add missing explicit
@@ -480,7 +496,7 @@ Wed Apr 21 11:16:50 GMT 2010  Olly Betts <olly@survex.com>
 
 Wed Apr 21 11:11:10 GMT 2010  Olly Betts <olly@survex.com>
 
-	* tests/harness/testrunner.cc,tests/harness/testsuite.cc: Fix 
+	* tests/harness/testrunner.cc,tests/harness/testsuite.cc: Fix
 	  --abort-on-error to actually work.
 
 Tue Apr 20 12:53:29 GMT 2010  Olly Betts <olly@survex.com>
@@ -1298,7 +1314,7 @@ Tue Feb 02 07:22:28 GMT 2010  Olly Betts <olly@survex.com>
 	* Backport change from chert:
 	* backends/flint/flint_alltermslist.h,backends/flint/flint_spelling.h,
 	  backends/flint/flint_spellingwordslist.h: Add missing std::
-	  qualifiers. 
+	  qualifiers.
 
 Tue Feb 02 07:12:51 GMT 2010  Olly Betts <olly@survex.com>
 
@@ -1313,7 +1329,7 @@ Tue Feb 02 06:52:55 GMT 2010  Olly Betts <olly@survex.com>
 	* Backport change from brass:
 	* backends/chert/chert_alltermslist.h,backends/chert/chert_spelling.h,
 	  backends/chert/chert_spellingwordslist.h: Add missing std::
-	  qualifiers. 
+	  qualifiers.
 
 Tue Feb 02 01:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
 

@@ -24,6 +24,7 @@
 
 #include "valuerangepostlist.h"
 
+#include "debuglog.h"
 #include "omassert.h"
 #include "str.h"
 
@@ -53,8 +54,7 @@ TermFreqs
 ValueRangePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "ValueRangePostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "ValueRangePostList::get_termfreq_est_using_stats", stats);
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end?
     RETURN(TermFreqs(stats.collection_size / 2, stats.rset_size / 2));
