@@ -1595,9 +1595,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
-    LOGCALL_CTOR(DB, "BrassTable",
-		 tablename_ << "," << path_ << ", " << readonly_ << ", " <<
-		 compress_strategy_ << ", " << lazy_);
+    LOGCALL_CTOR(DB, "BrassTable", tablename_ << "," << path_ << ", " << readonly_ << ", " << compress_strategy_ << ", " << lazy_);
 }
 
 bool
@@ -1844,8 +1842,7 @@ void
 BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 		   const string * changes_tail)
 {
-    LOGCALL_VOID(DB, "BrassTable::commit",
-		 revision << ", " << changes_fd << ", " << changes_tail);
+    LOGCALL_VOID(DB, "BrassTable::commit", revision << ", " << changes_fd << ", " << changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {

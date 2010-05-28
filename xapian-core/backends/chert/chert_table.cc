@@ -1597,9 +1597,7 @@ ChertTable::ChertTable(const char * tablename_, const string & path_,
 	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
-    LOGCALL_CTOR(DB, "ChertTable",
-		 tablename_ << "," << path_ << ", " << readonly_ << ", " <<
-		 compress_strategy_ << ", " << lazy_);
+    LOGCALL_CTOR(DB, "ChertTable", tablename_ << "," << path_ << ", " << readonly_ << ", " << compress_strategy_ << ", " << lazy_);
 }
 
 bool
@@ -1847,8 +1845,7 @@ void
 ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 		   const string * changes_tail)
 {
-    LOGCALL_VOID(DB, "ChertTable::commit",
-		 revision << ", " << changes_fd << ", " << changes_tail);
+    LOGCALL_VOID(DB, "ChertTable::commit", revision << ", " << changes_fd << ", " << changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {

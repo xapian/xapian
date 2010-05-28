@@ -1,3 +1,10 @@
+Fri May 28 06:47:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,api/omdatabase.cc,backends/brass/brass_table.cc,
+	  backends/chert/chert_table.cc,backends/dbfactory.cc,
+	  backends/flint/flint_alldocspostlist.cc: Put LOGCALL macro use all on
+	  one line so we can more easily mechanise use and update.
+
 Fri May 28 04:22:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,api/valueiterator.cc,

@@ -79,8 +79,7 @@ FlintAllDocsPostList::get_wdf() const
 PostList *
 FlintAllDocsPostList::read_did_from_current_key()
 {
-    LOGCALL(DB, PostList *, "FlintAllDocsPostList::read_did_from_current_key",
-	      "");
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::read_did_from_current_key", NO_ARGS);
     const string & key = cursor->current_key;
     const char * pos = key.data();
     const char * end = pos + key.size();

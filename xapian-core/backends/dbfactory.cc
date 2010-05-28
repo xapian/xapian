@@ -78,8 +78,7 @@ Chert::open(const string &dir) {
 
 WritableDatabase
 Chert::open(const string &dir, int action, int block_size) {
-    LOGCALL_STATIC(API, WritableDatabase, "Chert::open", dir << ", " <<
-			action << ", " << block_size);
+    LOGCALL_STATIC(API, WritableDatabase, "Chert::open", dir << ", " << action << ", " << block_size);
     return WritableDatabase(new ChertWritableDatabase(dir, action, block_size));
 }
 #endif
@@ -93,8 +92,7 @@ Flint::open(const string &dir) {
 
 WritableDatabase
 Flint::open(const string &dir, int action, int block_size) {
-    LOGCALL_STATIC(API, WritableDatabase, "Flint::open", dir << ", " <<
-			action << ", " << block_size);
+    LOGCALL_STATIC(API, WritableDatabase, "Flint::open", dir << ", " << action << ", " << block_size);
     return WritableDatabase(new FlintWritableDatabase(dir, action, block_size));
 }
 #endif
