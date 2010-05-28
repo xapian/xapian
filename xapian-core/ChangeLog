@@ -1,3 +1,13 @@
+Fri May 28 04:22:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,api/valueiterator.cc,
+	  backends/brass/brass_alltermslist.cc,
+	  backends/chert/chert_alltermslist.cc,backends/dbfactory.cc,
+	  backends/inmemory/inmemory_document.cc,
+	  backends/remote/remote-document.cc,matcher/synonympostlist.cc,
+	  net/remoteconnection.cc,weight/bm25weight.cc: Use NO_ARGS instead of
+	  "" and LOGCALL_VOID instead of LOGCALL with void return type.
+
 Fri May 28 04:12:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/valuerangepostlist.cc: Add missing inclusions of

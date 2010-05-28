@@ -45,7 +45,7 @@ RemoteDocument::do_get_all_values(map<Xapian::valueno, string> &) const
 string
 RemoteDocument::do_get_data() const
 {
-    LOGCALL(DB, string, "RemoteDocument::do_get_data", "");
+    LOGCALL(DB, string, "RemoteDocument::do_get_data", NO_ARGS);
     // Our ctor sets the data, so we should never get here.
     Assert(false);
     RETURN(string());

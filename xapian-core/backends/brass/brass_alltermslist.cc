@@ -30,7 +30,7 @@
 void
 BrassAllTermsList::read_termfreq_and_collfreq() const
 {
-    LOGCALL(DB, void, "BrassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
+    LOGCALL_VOID(DB, "BrassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 

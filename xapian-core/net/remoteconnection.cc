@@ -651,7 +651,7 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
 void
 RemoteConnection::do_close(bool wait)
 {
-    LOGCALL(REMOTE, void, "RemoteConnection::do_close", wait);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::do_close", wait);
 
     if (fdin >= 0) {
 	if (wait) {
