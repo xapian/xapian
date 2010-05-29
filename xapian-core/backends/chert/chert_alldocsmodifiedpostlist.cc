@@ -35,7 +35,7 @@ ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(Xapian::Internal::Ref
 	  doclens(doclens_),
 	  doclens_it(doclens.begin())
 {
-    LOGCALL_CTOR(DB, "ChertAllDocsModifiedPostList", db_.get() << ", " << doccount_ << ", " << "doclens");
+    LOGCALL_CTOR(DB, "ChertAllDocsModifiedPostList", db_.get() | doccount_ | "doclens");
 }
 
 void
@@ -107,7 +107,7 @@ PostList *
 ChertAllDocsModifiedPostList::skip_to(Xapian::docid desired_did,
 				      Xapian::weight w_min)
 {
-    LOGCALL(DB, PostList *, "ChertAllDocsModifiedPostList::skip_to", desired_did << ", " << w_min);
+    LOGCALL(DB, PostList *, "ChertAllDocsModifiedPostList::skip_to", desired_did | w_min);
     if (!ChertAllDocsPostList::at_end())
 	ChertAllDocsPostList::skip_to(desired_did, w_min);
     /* FIXME: should we use lower_bound() on the map? */

@@ -152,7 +152,7 @@ ExternalPostList::next(Xapian::weight w_min)
 PostList *
 ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did | w_min);
     Assert(source);
     if (did <= current) RETURN(NULL);
     source->skip_to(did, w_min);
@@ -162,7 +162,7 @@ ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 PostList *
 ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 {
-    LOGCALL(MATCH, PostList *, "ExternalPostList::check", did << ", " << w_min << ", <valid>");
+    LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | "<valid>");
     Assert(source);
     if (did <= current) {
 	valid = true;

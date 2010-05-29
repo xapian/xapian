@@ -103,8 +103,7 @@ TermFreqs
 MultiAndPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const 
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "MultiAndPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "MultiAndPostList::get_termfreq_est_using_stats", stats);
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.

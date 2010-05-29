@@ -40,7 +40,7 @@ BrassMetadataTermList::BrassMetadataTermList(
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    LOGCALL_CTOR(DB, "BrassMetadataTermList", "<database>, <cursor>, " << prefix_);
+    LOGCALL_CTOR(DB, "BrassMetadataTermList", "<database>, <cursor>" | prefix_);
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);

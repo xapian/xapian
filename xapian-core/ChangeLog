@@ -1,3 +1,16 @@
+Sat May 29 10:12:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Add overload of operator| which writes ", " and
+	  then a value to std::ostream.
+	* api/omdatabase.cc,api/replication.cc,
+	  backends/brass/brass_alldocspostlist.cc,
+	  backends/brass/brass_metadata.cc,backends/brass/brass_table.cc,
+	  backends/chert/,backends/dbfactory.cc,
+	  backends/flint/flint_alldocspostlist.cc,expand/esetinternal.cc,
+	  expand/expandweight.cc,matcher/,net/remoteconnection.cc,
+	  weight/bm25weight.cc,weight/weight.cc: Use this in LOGCALL uses to
+	  make them shorter and more readable.
+
 Fri May 28 06:47:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc,api/omdatabase.cc,backends/brass/brass_table.cc,

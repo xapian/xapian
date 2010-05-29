@@ -210,7 +210,7 @@ void
 BrassTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
-    LOGCALL_VOID(DB, "BrassTable::read_block", n << ", " << (void*)p);
+    LOGCALL_VOID(DB, "BrassTable::read_block", n | (void*)p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -261,7 +261,7 @@ BrassTable::read_block(uint4 n, byte * p) const
 void
 BrassTable::write_block(uint4 n, const byte * p) const
 {
-    LOGCALL_VOID(DB, "BrassTable::write_block", n << ", " << p);
+    LOGCALL_VOID(DB, "BrassTable::write_block", n | p);
     Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
@@ -361,7 +361,7 @@ BrassTable::set_overwritten() const
 void
 BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 {
-    LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
+    LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ | j | n);
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
     Assert(p);
@@ -470,7 +470,7 @@ BrassTable::alter()
 int
 BrassTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    LOGCALL_STATIC(DB, int, "BrassTable::find_in_block", (void*)p << ", " << (const void *)key.get_address() << ", " << leaf << ", " << c);
+    LOGCALL_STATIC(DB, int, "BrassTable::find_in_block", (void*)p | (const void *)key.get_address() | leaf | c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
@@ -603,7 +603,7 @@ BrassTable::split_root(uint4 split_n)
 void
 BrassTable::enter_key(int j, Key prevkey, Key newkey)
 {
-    LOGCALL_VOID(DB, "BrassTable::enter_key", j << ", prevkey, newkey");
+    LOGCALL_VOID(DB, "BrassTable::enter_key", j | "prevkey, newkey");
     Assert(writable);
     Assert(prevkey < newkey);
     AssertRel(j,>=,1);
@@ -695,7 +695,7 @@ BrassTable::mid_point(byte * p)
 void
 BrassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 {
-    LOGCALL_VOID(DB, "BrassTable::add_item_to_block", (void*)p << ", kt_, " << c);
+    LOGCALL_VOID(DB, "BrassTable::add_item_to_block", (void*)p | "kt_" | c);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -730,7 +730,7 @@ BrassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 void
 BrassTable::add_item(Item_wr kt_, int j)
 {
-    LOGCALL_VOID(DB, "BrassTable::add_item", "kt_, " << j);
+    LOGCALL_VOID(DB, "BrassTable::add_item", "kt_" | j);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -828,7 +828,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 void
 BrassTable::delete_item(int j, bool repeatedly)
 {
-    LOGCALL_VOID(DB, "BrassTable::delete_item", j << ", " << repeatedly);
+    LOGCALL_VOID(DB, "BrassTable::delete_item", j | repeatedly);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -1031,7 +1031,7 @@ void BrassTable::form_key(const string & key) const
 void
 BrassTable::add(const string &key, string tag, bool already_compressed)
 {
-    LOGCALL_VOID(DB, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
+    LOGCALL_VOID(DB, "BrassTable::add", key | tag | already_compressed);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
@@ -1189,7 +1189,7 @@ BrassTable::del(const string &key)
 bool
 BrassTable::get_exact_entry(const string &key, string & tag) const
 {
-    LOGCALL(DB, bool, "BrassTable::get_exact_entry", key << ", [&tag]");
+    LOGCALL(DB, bool, "BrassTable::get_exact_entry", key | "[&tag]");
     Assert(!key.empty());
 
     if (handle < 0) {
@@ -1225,7 +1225,7 @@ BrassTable::key_exists(const string &key) const
 bool
 BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) const
 {
-    LOGCALL(DB, bool, "BrassTable::read_tag", "C_, tag, " << keep_compressed);
+    LOGCALL(DB, bool, "BrassTable::read_tag", "C_, tag" | keep_compressed);
     Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
@@ -1334,7 +1334,7 @@ BrassCursor * BrassTable::cursor_get() const {
 bool
 BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_)
 {
-    LOGCALL(DB, bool, "BrassTable::basic_open", revision_supplied << ", " << revision_);
+    LOGCALL(DB, bool, "BrassTable::basic_open", revision_supplied | revision_);
     int ch = 'X'; /* will be 'A' or 'B' */
 
     {
@@ -1505,7 +1505,7 @@ BrassTable::do_open_to_write(bool revision_supplied,
 			     brass_revision_number_t revision_,
 			     bool create_db)
 {
-    LOGCALL(DB, bool, "BrassTable::do_open_to_write", revision_supplied << ", " << revision_ << ", " << create_db);
+    LOGCALL(DB, bool, "BrassTable::do_open_to_write", revision_supplied | revision_ | create_db);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
@@ -1595,7 +1595,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
-    LOGCALL_CTOR(DB, "BrassTable", tablename_ << "," << path_ << ", " << readonly_ << ", " << compress_strategy_ << ", " << lazy_);
+    LOGCALL_CTOR(DB, "BrassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
 
 bool
@@ -1842,7 +1842,7 @@ void
 BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 		   const string * changes_tail)
 {
-    LOGCALL_VOID(DB, "BrassTable::commit", revision << ", " << changes_fd << ", " << changes_tail);
+    LOGCALL_VOID(DB, "BrassTable::commit", revision | changes_fd | changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -2025,7 +2025,7 @@ BrassTable::cancel()
 bool
 BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revision_)
 {
-    LOGCALL(DB, bool, "BrassTable::do_open_to_read", revision_supplied << ", " << revision_);
+    LOGCALL(DB, bool, "BrassTable::do_open_to_read", revision_supplied | revision_);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
@@ -2220,7 +2220,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 bool
 BrassTable::prev_default(Brass::Cursor * C_, int j) const
 {
-    LOGCALL(DB, bool, "BrassTable::prev_default", "C_, " << j);
+    LOGCALL(DB, bool, "BrassTable::prev_default", "C_" | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);
@@ -2242,7 +2242,7 @@ BrassTable::prev_default(Brass::Cursor * C_, int j) const
 bool
 BrassTable::next_default(Brass::Cursor * C_, int j) const
 {
-    LOGCALL(DB, bool, "BrassTable::next_default", "C_, " << j);
+    LOGCALL(DB, bool, "BrassTable::next_default", "C_" | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);

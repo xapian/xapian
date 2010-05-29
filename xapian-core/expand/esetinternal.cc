@@ -139,7 +139,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		       const Xapian::ExpandDecider * edecider,
 		       const Xapian::Internal::ExpandWeight & eweight)
 {
-    LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize << ", " << db << ", [rseti], " << edecider << ", [eweight]");
+    LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | "[rseti]" | edecider | "[eweight]");
     // These two cases are handled by our caller.
     Assert(max_esize);
     Assert(!rset.empty());

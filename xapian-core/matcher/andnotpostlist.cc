@@ -129,8 +129,7 @@ TermFreqs
 AndNotPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	      "AndNotPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "AndNotPostList::get_termfreq_est_using_stats", stats);
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))

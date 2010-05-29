@@ -154,8 +154,7 @@ TermFreqs
 NearPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "NearPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "NearPostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - FIXME
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 2;
@@ -282,8 +281,7 @@ TermFreqs
 PhrasePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "PhrasePostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "PhrasePostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - FIXME
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 3;

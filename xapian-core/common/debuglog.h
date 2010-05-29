@@ -419,6 +419,11 @@ class DebugLogFuncVoid {
 /** Log the value of variable or expression @a b. */
 #define LOGVALUE(a,b) LOGLINE_(DEBUGLOG_CATEGORY_##a, #b" = " << b)
 
+template<typename T>
+std::ostream & operator|(std::ostream & os, const T & t) {
+    return os << ", " << t;
+}
+
 #else
 
 #define LOGCALL(CATEGORY, TYPE, FUNC, PARAMS) (void)0

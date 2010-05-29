@@ -51,7 +51,7 @@ using namespace std;
 PostList *
 QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor)
 {
-    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_subquery", query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_subquery", query | factor);
 
     // Handle QueryMatchNothing.
     if (!query) RETURN(new EmptyPostList);
@@ -164,7 +164,7 @@ struct PosFilter {
 PostList *
 QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor)
 {
-    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_and_like", query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_and_like", query | factor);
 
     list<PosFilter> pos_filters;
     vector<PostList *> plists;
@@ -213,7 +213,7 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
 			    vector<PostList *> & and_plists,
 			    list<PosFilter> & pos_filters)
 {
-    LOGCALL_VOID(MATCH, "QueryOptimiser::do_and_like", query << ", " << factor << ", [and_plists], [pos_filters]");
+    LOGCALL_VOID(MATCH, "QueryOptimiser::do_and_like", query | factor | "[and_plists], [pos_filters]");
 
     Xapian::Query::Internal::op_t op = query->op;
     Assert(is_and_like(op));
@@ -315,7 +315,7 @@ struct ComparePostListTermFreqAscending {
 PostList *
 QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 {
-    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like", query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like", query | factor);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -403,7 +403,7 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 PostList *
 QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
 {
-    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym", query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym", query | factor);
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.

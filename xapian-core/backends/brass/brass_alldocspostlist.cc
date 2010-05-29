@@ -36,7 +36,7 @@ BrassAllDocsPostList::BrassAllDocsPostList(Xapian::Internal::RefCntPtr<const Bra
 	: BrassPostList(db_, string(), true),
 	  doccount(doccount_)
 {
-    LOGCALL_CTOR(DB, "BrassAllDocsPostList", db_.get() << ", " << doccount_);
+    LOGCALL_CTOR(DB, "BrassAllDocsPostList", db_.get() | doccount_);
 }
 
 Xapian::doccount

@@ -109,7 +109,7 @@ FlintAllDocsPostList::next(Xapian::weight /*w_min*/)
 PostList *
 FlintAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 {
-    LOGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to", did << ", /*w_min*/");
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to", did | "/*w_min*/");
 
     if (did <= current_did || at_end()) RETURN(NULL);
 

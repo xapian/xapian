@@ -66,7 +66,7 @@ bool
 ChertDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    LOGCALL(DB, bool, "ChertDatabaseReplicator::check_revision_at_least", rev << ", " << target);
+    LOGCALL(DB, bool, "ChertDatabaseReplicator::check_revision_at_least", rev | target);
 
     chert_revision_number_t rev_val;
     chert_revision_number_t target_val;
@@ -239,7 +239,7 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   const OmTime & end_time,
 						   bool valid) const
 {
-    LOGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn", "conn, " << end_time << ", " << valid);
+    LOGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn", "conn" | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);

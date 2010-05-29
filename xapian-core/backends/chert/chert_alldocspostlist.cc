@@ -36,7 +36,7 @@ ChertAllDocsPostList::ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const Che
 	: ChertPostList(db_, string(), true),
 	  doccount(doccount_)
 {
-    LOGCALL_CTOR(DB, "ChertAllDocsPostList", db_.get() << ", " << doccount_);
+    LOGCALL_CTOR(DB, "ChertAllDocsPostList", db_.get() | doccount_);
 }
 
 Xapian::doccount

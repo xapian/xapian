@@ -64,7 +64,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 				       const string & start_revision,
 				       ReplicationInfo * info) const
 {
-    LOGCALL_VOID(API, "Xapian::DatabaseMaster::write_changesets_to_fd", fd << ", " << start_revision << ", " << info);
+    LOGCALL_VOID(API, "Xapian::DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
     if (info != NULL)
 	info->clear();
     Database db;
