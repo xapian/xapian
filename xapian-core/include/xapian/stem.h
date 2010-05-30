@@ -83,7 +83,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - hungarian (hu)
      *  - italian (it)
      *  - kraaij_pohlmann - A different Dutch stemmer
-     *  - norwegian (no)
+     *  - norwegian (nb, nn, no)
      *  - portuguese (pt)
      *  - romanian (ro)
      *  - russian (ru)
