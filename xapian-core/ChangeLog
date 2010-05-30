@@ -1,3 +1,8 @@
+Sun May 30 13:45:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Remove bogus "Data::" from debug logging for two
+	  methods.
+
 Sun May 30 08:49:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/stem.h,languages/stem.cc: Xapian::Stem now recognises
