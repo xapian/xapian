@@ -55,7 +55,7 @@ OrPostList::next(Xapian::weight w_min)
 		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		Xapian::docid newdocid = std::max(lhead, rhead);
 		if (lhead == rhead) {
-		    newdocid += 1;
+		    ++newdocid;
 		}
 		skip_to_handling_prune(ret, newdocid, w_min, matcher);
 	    } else {
