@@ -1,3 +1,80 @@
+ 14592       olly Tue Jun 01 11:35:37 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.21 (2010-06-??):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+	  Fix a bug causing documents to be skipped
+	  when OR decayed to AND_MAYBE, if the new RHS was behind the LHS
+	  at the time of the decay.  Fixes #476.
+
+	 Fix a bug in the
+	  decay from OR to AND: if the decay happened when the two
+	  sub-postlists were on different docids, but the higher of those
+	  docids actually occurred in both postlists, the higher docid
+	  would be incorrectly skipped.
+
+	* Pass a minweight
+	  value of 0 to children of XOR postlists, because we need to know
+	  about all matching documents from the children even if they have
+	  a low weight.
+
+	* Add OrPostList::check() method, which calls check() on the
+	  sub-postlists, rather than falling back to skip_to().  This is
+	  particularly helpful when a sub-postlist is one for which
+	  skip_to() can be significantly more expensive than check(), such
+	  as a ValueRangePostList.  I've observed a speedup of 10 times for
+	  such a subquery with this change.
+
+flint backend:
+
+ALSO IN QUARTZ:
+	  If we have to rebuild the cursor on next() because the table changed
+	  underneath us, we need to advance it because find_entry() will put
+	  the cursor on the entry we were already on, or the one before if the
+	  entry we were on has been removed.  Bug uncovered by notmuch
+	  testsuite, but I'm unable to reduce it to a sane testcase for our
+	  testsuite.  (Debian#579951)
+
+quartz backend:
+
+
+remote backend:
+
+	* net/progclient.cc: Read the max fd with sysconf() instead of using
+	  a hardcoded value of 256.  Work even if stdin and stdout have been
+	  closed.
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+	* include/xapian/stem.h: Update the list of languages that the
+	  Xapian::Stem constructor recognises.
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.0.20 (2010-04-27):
 
 API:
