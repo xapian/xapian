@@ -768,8 +768,13 @@ class Remote {
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
 %include <xapian/queryparser.h>
 
+%feature("director") Xapian::StemImplementation;
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
+#ifdef XAPIAN_SWIG_NO_DISOWN
 %ignore Xapian::StemImplementation;
+#else
+//%apply SWIGTYPE *DISOWN {Xapian::StemImplementation *};
+#endif
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;
 %ignore Xapian::Stem::Stem();

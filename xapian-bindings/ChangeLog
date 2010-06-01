@@ -1,3 +1,10 @@
+Tue Jun 01 16:23:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,java-swig/util.i,python/generate-python-exceptions,
+	  python/smoketest2.py,xapian.i: Wrap Xapian::StemImplementation.
+	  Currently only tested for Python, and requires explicit use of
+	  __disown__() there.
+
 Thu May 27 22:30:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian.i: Ignore Xapian::StemImplementation for now so that the
