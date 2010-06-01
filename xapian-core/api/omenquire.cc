@@ -357,7 +357,7 @@ MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
 Document
 MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
-    DEBUGCALL(API, Document, "Xapian::MSet::Internal::Data::get_doc_by_index",
+    DEBUGCALL(API, Document, "Xapian::MSet::Internal::get_doc_by_index",
 	      index);
     index += firstitem; 
     map<Xapian::doccount, Document>::const_iterator doc;
@@ -379,7 +379,7 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 void
 MSet::Internal::fetch_items(Xapian::doccount first, Xapian::doccount last) const
 {
-    DEBUGAPICALL(void, "Xapian::MSet::Internal::Data::fetch_items",
+    DEBUGAPICALL(void, "Xapian::MSet::Internal::fetch_items",
 		 first << ", " << last);
     if (enquire.get() == 0) {
 	throw InvalidOperationError("Can't fetch documents from an MSet which is not derived from a query.");
