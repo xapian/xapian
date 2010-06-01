@@ -25,8 +25,8 @@
 #include "rset.h"
 
 #include "database.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #include "autoptr.h"
 #include "termlist.h"
@@ -35,7 +35,7 @@
 void
 RSetI::calculate_stats()
 {
-    DEBUGCALL(MATCH, void, "RSetI::calculate_stats", "");
+    LOGCALL_VOID(MATCH, "RSetI::calculate_stats", NO_ARGS);
     Assert(!calculated_reltermfreqs);
     std::set<Xapian::docid>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
@@ -78,7 +78,7 @@ RSetI::calculate_stats()
 void
 RSetI::contribute_stats(Xapian::Weight::Internal & stats)
 {
-    DEBUGCALL(MATCH, void, "RSetI::contribute_stats", stats);
+    LOGCALL_VOID(MATCH, "RSetI::contribute_stats", stats);
     calculate_stats();
 
     std::map<std::string, Xapian::doccount>::const_iterator i;

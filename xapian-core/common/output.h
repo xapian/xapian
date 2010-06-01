@@ -35,14 +35,6 @@ operator<<(std::ostream & os, const CLASS & object) { \
     return os << object.get_description(); \
 }
 
-/// @Internal Helper macro for defining stream output of pointer to class.
-#define XAPIAN_OUTPUT_FUNCTION_PTR(CLASS) \
-inline std::ostream & \
-operator<<(std::ostream & os, const CLASS * object) { \
-    if (object == NULL) return os << "(" #CLASS "*)0"; \
-    return os << object->get_description(); \
-}
-
 #include <xapian/database.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Database)
 XAPIAN_OUTPUT_FUNCTION(Xapian::WritableDatabase)
@@ -52,7 +44,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::Document)
 
 #include <xapian/query.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Query)
-XAPIAN_OUTPUT_FUNCTION_PTR(Xapian::Query::Internal)
+XAPIAN_OUTPUT_FUNCTION(Xapian::Query::Internal)
 
 #include <xapian/enquire.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::RSet)

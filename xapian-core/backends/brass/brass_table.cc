@@ -603,7 +603,7 @@ BrassTable::split_root(uint4 split_n)
 void
 BrassTable::enter_key(int j, Key prevkey, Key newkey)
 {
-    LOGCALL_VOID(DB, "BrassTable::enter_key", j | "prevkey, newkey");
+    LOGCALL_VOID(DB, "BrassTable::enter_key", j | "prevkey" | "newkey");
     Assert(writable);
     Assert(prevkey < newkey);
     AssertRel(j,>=,1);
@@ -1189,7 +1189,7 @@ BrassTable::del(const string &key)
 bool
 BrassTable::get_exact_entry(const string &key, string & tag) const
 {
-    LOGCALL(DB, bool, "BrassTable::get_exact_entry", key | "[&tag]");
+    LOGCALL(DB, bool, "BrassTable::get_exact_entry", key | tag);
     Assert(!key.empty());
 
     if (handle < 0) {
@@ -1225,7 +1225,7 @@ BrassTable::key_exists(const string &key) const
 bool
 BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) const
 {
-    LOGCALL(DB, bool, "BrassTable::read_tag", "C_, tag" | keep_compressed);
+    LOGCALL(DB, bool, "BrassTable::read_tag", "C_" | tag | keep_compressed);
     Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
@@ -2115,7 +2115,7 @@ BrassTable::open(brass_revision_number_t revision)
 bool
 BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "BrassTable::prev_for_sequential", "C_, UNUSED(int)");
+    LOGCALL(DB, bool, "BrassTable::prev_for_sequential", "C_" | "/*dummy*/");
     int c = C_[0].c;
     if (c == DIR_START) {
 	byte * p = C_[0].p;
@@ -2167,7 +2167,7 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 bool
 BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "BrassTable::next_for_sequential", "C_, UNUSED(int)");
+    LOGCALL(DB, bool, "BrassTable::next_for_sequential", "C_" | "/*dummy*/");
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;

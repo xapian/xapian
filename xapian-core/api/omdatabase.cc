@@ -71,21 +71,21 @@ Database::Database()
 
 Database::Database(Database::Internal *internal_)
 {
-    LOGCALL_CTOR(API, "Database", "Database::Internal");
+    LOGCALL_CTOR(API, "Database", internal_);
     Xapian::Internal::RefCntPtr<Database::Internal> newi(internal_);
     internal.push_back(newi);
 }
 
 Database::Database(const Database &other)
 {
-    LOGCALL_CTOR(API, "Database", "Database");
+    LOGCALL_CTOR(API, "Database", other);
     internal = other.internal;
 }
 
 void
 Database::operator=(const Database &other)
 {
-    LOGCALL_VOID(API, "Database::operator=", "Database");
+    LOGCALL_VOID(API, "Database::operator=", other);
     if (this == &other) {
 	LOGLINE(API, "Database assigned to itself");
 	return;
@@ -122,7 +122,7 @@ Database::close()
 void
 Database::add_database(const Database & database)
 {
-    LOGCALL_VOID(API, "Database::add_database", "Database");
+    LOGCALL_VOID(API, "Database::add_database", database);
     if (this == &database) {
 	LOGLINE(API, "Database added to itself");
 	throw Xapian::InvalidArgumentError("Can't add a Database to itself");
@@ -741,19 +741,19 @@ WritableDatabase::WritableDatabase() : Database()
 WritableDatabase::WritableDatabase(Database::Internal *internal_)
 	: Database(internal_)
 {
-    LOGCALL_CTOR(API, "WritableDatabase", "Database::Internal");
+    LOGCALL_CTOR(API, "WritableDatabase", internal_);
 }
 
 WritableDatabase::WritableDatabase(const WritableDatabase &other)
 	: Database(other)
 {
-    LOGCALL_CTOR(API, "WritableDatabase", "WritableDatabase");
+    LOGCALL_CTOR(API, "WritableDatabase", other);
 }
 
 void
 WritableDatabase::operator=(const WritableDatabase &other)
 {
-    LOGCALL_VOID(API, "WritableDatabase::operator=", "WritableDatabase");
+    LOGCALL_VOID(API, "WritableDatabase::operator=", other);
     Database::operator=(other);
 }
 

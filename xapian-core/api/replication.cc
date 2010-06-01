@@ -64,7 +64,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 				       const string & start_revision,
 				       ReplicationInfo * info) const
 {
-    LOGCALL_VOID(API, "Xapian::DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
+    LOGCALL_VOID(REPLICA, "DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
     if (info != NULL)
 	info->clear();
     Database db;
@@ -224,37 +224,37 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 DatabaseReplica::DatabaseReplica(const DatabaseReplica & other)
 	: internal(other.internal)
 {
-    LOGCALL_CTOR(API, "DatabaseReplica", other);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", other);
 }
 
 void
 DatabaseReplica::operator=(const DatabaseReplica & other)
 {
-    LOGCALL_VOID(API, "Xapian::DatabaseReplica::operator=", other);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::operator=", other);
     internal = other.internal;
 }
 
 DatabaseReplica::DatabaseReplica()
 	: internal(0)
 {
-    LOGCALL_CTOR(API, "DatabaseReplica", NO_ARGS);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", NO_ARGS);
 }
 
 DatabaseReplica::DatabaseReplica(const string & path)
 	: internal(new DatabaseReplica::Internal(path))
 {
-    LOGCALL_CTOR(API, "DatabaseReplica", path);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", path);
 }
 
 DatabaseReplica::~DatabaseReplica()
 {
-    LOGCALL_DTOR(API, "DatabaseReplica");
+    LOGCALL_DTOR(REPLICA, "DatabaseReplica");
 }
 
 string
 DatabaseReplica::get_revision_info() const
 {
-    LOGCALL(API, string, "Xapian::DatabaseReplica::get_revision_info", NO_ARGS);
+    LOGCALL(REPLICA, string, "DatabaseReplica::get_revision_info", NO_ARGS);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
     RETURN(internal->get_revision_info());
@@ -263,7 +263,7 @@ DatabaseReplica::get_revision_info() const
 void
 DatabaseReplica::set_read_fd(int fd)
 {
-    LOGCALL_VOID(API, "Xapian::DatabaseReplica::set_read_fd", fd);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::set_read_fd", fd);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_read_fd on a closed replica.");
     internal->set_read_fd(fd);
@@ -273,7 +273,7 @@ bool
 DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
 				      int reader_close_time)
 {
-    LOGCALL(API, bool, "Xapian::DatabaseReplica::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info);
     if (info != NULL)
 	info->clear();
     if (internal.get() == NULL)
@@ -284,7 +284,7 @@ DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
 void
 DatabaseReplica::close()
 {
-    LOGCALL(API, bool, "Xapian::DatabaseReplica::close", NO_ARGS);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::close", NO_ARGS);
     internal = NULL;
 }
 
@@ -331,7 +331,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  need_copy_next(false), offline_revision(), offline_needed_revision(),
 	  last_live_changeset_time(), conn(NULL)
 {
-    LOGCALL_CTOR(API, "Internal", path_);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
 #else
@@ -371,7 +371,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 string
 DatabaseReplica::Internal::get_revision_info() const
 {
-    LOGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
+    LOGCALL(REPLICA, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
     if (live_db.internal.empty())
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)
@@ -509,7 +509,7 @@ bool
 DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 						int reader_close_time)
 {
-    LOGCALL(API, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
     if (live_db.internal.empty())
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)

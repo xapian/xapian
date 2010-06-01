@@ -35,14 +35,14 @@ RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
 	  decreasing_relevance(decreasing_relevance_),
 	  matchspies(matchspies_)
 {
-    LOGCALL_CTOR(MATCH, "RemoteSubMatch", db_ | decreasing_relevance_ | "matchspies");
+    LOGCALL_CTOR(MATCH, "RemoteSubMatch", db_ | decreasing_relevance_ | matchspies_);
 }
 
 bool
 RemoteSubMatch::prepare_match(bool nowait,
 			      Xapian::Weight::Internal & total_stats)
 {
-    LOGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait | "[total_stats]");
+    LOGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait | total_stats);
     Xapian::Weight::Internal remote_stats;
     if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
     total_stats += remote_stats;
@@ -64,7 +64,7 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts,
 	Xapian::termcount * total_subqs_ptr)
 {
-    LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist_and_term_info", "[matcher]" | (void*)termfreqandwts | (void*)total_subqs_ptr);
+    LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist_and_term_info", "[matcher]" | termfreqandwts | total_subqs_ptr);
     Xapian::MSet mset;
     db->get_mset(mset, matchspies);
     percent_factor = mset.internal->percent_factor;

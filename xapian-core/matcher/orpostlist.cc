@@ -23,12 +23,12 @@
  */
 
 #include <config.h>
-
 #include "orpostlist.h"
+
+#include "debuglog.h"
 #include "multiandpostlist.h"
 #include "andmaybepostlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #include <algorithm>
 
@@ -39,14 +39,14 @@ OrPostList::OrPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
-    DEBUGCALL(MATCH, void, "OrPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
+    LOGCALL_VOID(MATCH, "OrPostList", left_ | right_ | matcher_ | dbsize_);
     AssertRel(left_->get_termfreq_est(),>=,right_->get_termfreq_est());
 }
 
 PostList *
 OrPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "OrPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "OrPostList::next", w_min);
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -124,7 +124,7 @@ OrPostList::next(Xapian::weight w_min)
 PostList *
 OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "OrPostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "OrPostList::skip_to", did | w_min);
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -187,7 +187,7 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 PostList *
 OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 {
-    DEBUGCALL(MATCH, PostList *, "OrPostList::check", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "OrPostList::check", did | w_min);
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -259,21 +259,21 @@ OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 Xapian::doccount
 OrPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_max", "");
+    LOGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_max", NO_ARGS);
     RETURN(std::min(l->get_termfreq_max() + r->get_termfreq_max(), dbsize));
 }
 
 Xapian::doccount
 OrPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_min", "");
+    LOGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_min", NO_ARGS);
     RETURN(std::max(l->get_termfreq_min(), r->get_termfreq_min()));
 }
 
 Xapian::doccount
 OrPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_est", "");
+    LOGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_est", NO_ARGS);
     // Estimate assuming independence:
     // P(l or r) = P(l) + P(r) - P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
@@ -314,7 +314,7 @@ OrPostList::get_termfreq_est_using_stats(
 Xapian::docid
 OrPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "OrPostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "OrPostList::get_docid", NO_ARGS);
     Assert(lhead != 0 && rhead != 0); // check we've started
     RETURN(std::min(lhead, rhead));
 }
@@ -323,7 +323,7 @@ OrPostList::get_docid() const
 Xapian::weight
 OrPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "OrPostList::get_weight", NO_ARGS);
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) RETURN(l->get_weight());
     if (lhead > rhead) RETURN(r->get_weight());
@@ -334,14 +334,14 @@ OrPostList::get_weight() const
 Xapian::weight
 OrPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "OrPostList::get_maxweight", NO_ARGS);
     RETURN(lmax + rmax);
 }
 
 Xapian::weight
 OrPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::recalc_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "OrPostList::recalc_maxweight", NO_ARGS);
     // l and r cannot be NULL here, because the only place where they get set
     // to NULL is when the tree is decaying, and the OrPostList is then
     // immediately replaced.
@@ -354,7 +354,7 @@ OrPostList::recalc_maxweight()
 bool
 OrPostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "OrPostList::at_end", "");
+    LOGCALL(MATCH, bool, "OrPostList::at_end", NO_ARGS);
     // Can never really happen - OrPostList next/skip_to autoprune
     AssertParanoid(!(l->at_end()) && !(r->at_end()));
     RETURN(false);
@@ -369,7 +369,7 @@ OrPostList::get_description() const
 Xapian::termcount
 OrPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "OrPostList::get_doclength", "");
+    LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_doclength", NO_ARGS);
     Xapian::termcount doclength;
 
     Assert(lhead != 0 && rhead != 0); // check we've started
@@ -389,7 +389,7 @@ OrPostList::get_doclength() const
 Xapian::termcount
 OrPostList::get_wdf() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "OrPostList::get_wdf", "");
+    LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_wdf", NO_ARGS);
     if (lhead < rhead) RETURN(l->get_wdf());
     if (lhead > rhead) RETURN(r->get_wdf());
     RETURN(l->get_wdf() + r->get_wdf());
@@ -398,7 +398,7 @@ OrPostList::get_wdf() const
 Xapian::termcount
 OrPostList::count_matching_subqs() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "OrPostList::count_matching_subqs", "");
+    LOGCALL(MATCH, Xapian::termcount, "OrPostList::count_matching_subqs", NO_ARGS);
     if (lhead < rhead) RETURN(l->count_matching_subqs());
     if (lhead > rhead) RETURN(r->count_matching_subqs());
     RETURN(l->count_matching_subqs() + r->count_matching_subqs());

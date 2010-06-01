@@ -213,7 +213,7 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
 			    vector<PostList *> & and_plists,
 			    list<PosFilter> & pos_filters)
 {
-    LOGCALL_VOID(MATCH, "QueryOptimiser::do_and_like", query | factor | "[and_plists], [pos_filters]");
+    LOGCALL_VOID(MATCH, "QueryOptimiser::do_and_like", query | factor | and_plists | pos_filters);
 
     Xapian::Query::Internal::op_t op = query->op;
     Assert(is_and_like(op));

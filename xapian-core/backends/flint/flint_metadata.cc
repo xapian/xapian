@@ -35,7 +35,7 @@ FlintMetadataTermList::FlintMetadataTermList(
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    LOGCALL_CTOR(DB, "FlintMetadataTermList", "<database>, <cursor>");
+    LOGCALL_CTOR(DB, "FlintMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);

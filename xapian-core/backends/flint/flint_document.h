@@ -27,6 +27,8 @@
 #include "document.h"
 
 class FlintDatabase;
+class FlintValueTable;
+class FlintRecordTable;
 
 /// A document from a Flint format database
 class FlintDocument : public Xapian::Document::Internal {

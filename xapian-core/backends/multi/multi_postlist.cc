@@ -23,8 +23,8 @@
 
 #include "multi_postlist.h"
 
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "utils.h"
 
 #ifdef XAPIAN_ASSERTIONS_PARANOID
@@ -94,7 +94,7 @@ MultiPostList::recalc_maxweight()
 Xapian::docid
 MultiPostList::get_docid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "MultiPostList::get_docid", "");
+    LOGCALL(DB, Xapian::docid, "MultiPostList::get_docid", NO_ARGS);
     Assert(!at_end());
     Assert(currdoc != 0);
     RETURN(currdoc);
@@ -103,7 +103,7 @@ MultiPostList::get_docid() const
 Xapian::termcount
 MultiPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "MultiPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "MultiPostList::get_doclength", NO_ARGS);
     Assert(!at_end());
     Assert(currdoc != 0);
     Xapian::termcount result = postlists[(currdoc - 1) % multiplier]->get_doclength();
@@ -126,7 +126,7 @@ MultiPostList::open_position_list() const
 PostList *
 MultiPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *, "MultiPostList::next", w_min);
+    LOGCALL(DB, PostList *, "MultiPostList::next", w_min);
     Assert(!at_end());
 
     Xapian::docid newdoc = 0;
@@ -163,7 +163,7 @@ MultiPostList::next(Xapian::weight w_min)
 PostList *
 MultiPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *, "MultiPostList::skip_to", did << ", " << w_min);
+    LOGCALL(DB, PostList *, "MultiPostList::skip_to", did | w_min);
     Assert(!at_end());
     Xapian::docid newdoc = 0;
     Xapian::docid offset = 0;

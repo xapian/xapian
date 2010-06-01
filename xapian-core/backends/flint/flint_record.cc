@@ -24,15 +24,15 @@
 #include "flint_utils.h"
 #include "str.h"
 #include <xapian/error.h>
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 using std::string;
 
 string
 FlintRecordTable::get_record(Xapian::docid did) const
 {
-    DEBUGCALL(DB, string, "FlintRecordTable::get_record", did);
+    LOGCALL(DB, string, "FlintRecordTable::get_record", did);
     string tag;
 
     if (!get_exact_entry(flint_docid_to_key(did), tag)) {
@@ -45,7 +45,7 @@ FlintRecordTable::get_record(Xapian::docid did) const
 Xapian::doccount
 FlintRecordTable::get_doccount() const
 {   
-    DEBUGCALL(DB, Xapian::doccount, "FlintRecordTable::get_doccount", "");
+    LOGCALL(DB, Xapian::doccount, "FlintRecordTable::get_doccount", NO_ARGS);
     STATIC_ASSERT_TYPE_DOMINATES(Xapian::doccount, flint_tablesize_t);
     RETURN(get_entry_count());
 }
@@ -53,14 +53,14 @@ FlintRecordTable::get_doccount() const
 void
 FlintRecordTable::replace_record(const string & data, Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "FlintRecordTable::replace_record", data << ", " << did);
+    LOGCALL_VOID(DB, "FlintRecordTable::replace_record", data | did);
     add(flint_docid_to_key(did), data);
 }
 
 void
 FlintRecordTable::delete_record(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "FlintRecordTable::delete_record", did);
+    LOGCALL_VOID(DB, "FlintRecordTable::delete_record", did);
     if (!del(flint_docid_to_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
 }

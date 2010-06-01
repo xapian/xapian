@@ -1,3 +1,26 @@
+Tue Jun 01 10:17:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Drop support for --enable-log=profile -
+	  dedicated profiling tools are likely to return more useful results.
+	* common/debuglog.cc,common/debuglog.h: Rename xapian_debuglogger__
+	  global to xapian_debuglogger_ to avoid reserved __ in the name.
+	* common/omdebug.cc,common/omdebug.h: Remove in favour of debuglog.h.
+	* common/pretty.h: New PrettyOStream<> template class for pretty
+	  printing types in debug logs (and eventually the testsuite).
+	* api/,backends/brass/,backends/chert/,
+	  backends/dbfactory_remote.cc,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_termlist.cc,
+	  common/,expand/esetinternal.cc,expand/expandweight.cc,
+	  expand/ortermlist.cc,matcher/,net/progclient.cc,
+	  net/remoteconnection.cc: Migrate all remaining uses of omdebug.h to
+	  debuglog.h.  Write more parameters to the debug log.  Retire the
+	  barely used APICALL category and use API instead (reflecting actual
+	  current use).  Add new REPLICA category.  Fix names logged for ctors
+	  and dtors which have "::" in the class name.
+
 Sun May 30 13:45:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Remove bogus "Data::" from debug logging for two

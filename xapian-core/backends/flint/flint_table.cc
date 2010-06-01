@@ -71,9 +71,9 @@ PWRITE_PROTOTYPE
 #include "flint_cursor.h"
 #include "flint_utils.h"
 
+#include "debuglog.h"
 #include "io_utils.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "str.h"
 #include "unaligned.h"
 #include "utils.h"
@@ -224,7 +224,7 @@ void
 FlintTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
-    DEBUGCALL(DB, void, "FlintTable::read_block", n << ", " << (void*)p);
+    LOGCALL_VOID(DB, "FlintTable::read_block", n | (void*)p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -275,7 +275,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 void
 FlintTable::write_block(uint4 n, const byte * p) const
 {
-    DEBUGCALL(DB, void, "FlintTable::write_block", n << ", " << p);
+    LOGCALL_VOID(DB, "FlintTable::write_block", n | p);
     Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
@@ -354,7 +354,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 void
 FlintTable::set_overwritten() const
 {
-    DEBUGCALL(DB, void, "FlintTable::set_overwritten", "");
+    LOGCALL_VOID(DB, "FlintTable::set_overwritten", NO_ARGS);
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -375,7 +375,7 @@ FlintTable::set_overwritten() const
 void
 FlintTable::block_to_cursor(Cursor_ * C_, int j, uint4 n) const
 {
-    DEBUGCALL(DB, void, "FlintTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
+    LOGCALL_VOID(DB, "FlintTable::block_to_cursor", (void*)C_ | j | n);
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
     Assert(p);
@@ -431,7 +431,7 @@ FlintTable::block_to_cursor(Cursor_ * C_, int j, uint4 n) const
 void
 FlintTable::alter()
 {
-    DEBUGCALL(DB, void, "FlintTable::alter", "");
+    LOGCALL_VOID(DB, "FlintTable::alter", NO_ARGS);
     Assert(writable);
 #ifdef DANGEROUS
     C[0].rewrite = true;
@@ -475,7 +475,7 @@ FlintTable::alter()
 
 int FlintTable::find_in_block(const byte * p, Key_ key, bool leaf, int c)
 {
-    DEBUGCALL_STATIC(DB, int, "FlintTable::find_in_block", reinterpret_cast<const void*>(p) << ", " << reinterpret_cast<const void*>(key.get_address()) << ", " << leaf << ", " << c);
+    LOGCALL_STATIC(DB, int, "FlintTable::find_in_block", reinterpret_cast<const void*>(p) | reinterpret_cast<const void*>(key.get_address()) | leaf | c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
@@ -505,7 +505,7 @@ int FlintTable::find_in_block(const byte * p, Key_ key, bool leaf, int c)
 bool
 FlintTable::find(Cursor_ * C_) const
 {
-    DEBUGCALL(DB, bool, "FlintTable::find", (void*)C_);
+    LOGCALL(DB, bool, "FlintTable::find", (void*)C_);
     // Note: the parameter is needed when we're called by FlintCursor
     const byte * p;
     int c;
@@ -539,7 +539,7 @@ FlintTable::find(Cursor_ * C_) const
 void
 FlintTable::compact(byte * p)
 {
-    DEBUGCALL(DB, void, "FlintTable::compact", (void*)p);
+    LOGCALL_VOID(DB, "FlintTable::compact", (void*)p);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
@@ -563,7 +563,7 @@ FlintTable::compact(byte * p)
 void
 FlintTable::split_root(uint4 split_n)
 {
-    DEBUGCALL(DB, void, "FlintTable::split_root", split_n);
+    LOGCALL_VOID(DB, "FlintTable::split_root", split_n);
     /* gain a level */
     ++level;
 
@@ -1022,7 +1022,7 @@ void FlintTable::form_key(const string & key) const
 void
 FlintTable::add(const string &key, string tag, bool already_compressed)
 {
-    DEBUGCALL(DB, void, "FlintTable::add", key << ", " << tag);
+    LOGCALL_VOID(DB, "FlintTable::add", key | tag);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
@@ -1146,7 +1146,7 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
 bool
 FlintTable::del(const string &key)
 {
-    DEBUGCALL(DB, bool, "FlintTable::del", key);
+    LOGCALL(DB, bool, "FlintTable::del", key);
     Assert(writable);
 
     if (handle < 0) {
@@ -1182,7 +1182,7 @@ FlintTable::del(const string &key)
 bool
 FlintTable::get_exact_entry(const string &key, string & tag) const
 {
-    DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", [&tag]");
+    LOGCALL(DB, bool, "FlintTable::get_exact_entry", key | tag);
     Assert(!key.empty());
 
     if (handle < 0) {
@@ -1205,7 +1205,7 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
 bool
 FlintTable::key_exists(const string &key) const
 {
-    DEBUGCALL(DB, bool, "FlintTable::key_exists", key);
+    LOGCALL(DB, bool, "FlintTable::key_exists", key);
     Assert(!key.empty());
 
     // An oversized key can't exist, so attempting to search for it should fail.
@@ -1584,9 +1584,7 @@ FlintTable::FlintTable(const char * tablename_, const string & path_,
 	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
-    DEBUGCALL(DB, void, "FlintTable::FlintTable",
-	      tablename_ << "," << path_ << ", " << readonly_ << ", " <<
-	      compress_strategy_ << ", " << lazy_);
+    LOGCALL_VOID(DB, "FlintTable::FlintTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
 
 bool
@@ -1680,7 +1678,7 @@ FlintTable::lazy_alloc_inflate_zstream() const {
 
 bool
 FlintTable::exists() const {
-    DEBUGCALL(DB, bool, "FlintTable::exists", "");
+    LOGCALL(DB, bool, "FlintTable::exists", NO_ARGS);
     return (file_exists(name + "DB") &&
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
@@ -1705,7 +1703,7 @@ sys_unlink_if_exists(const string & filename)
 void
 FlintTable::erase()
 {
-    DEBUGCALL(DB, void, "FlintTable::erase", "");
+    LOGCALL_VOID(DB, "FlintTable::erase", NO_ARGS);
     close();
 
     sys_unlink_if_exists(name + "baseA");
@@ -1716,7 +1714,7 @@ FlintTable::erase()
 void
 FlintTable::set_block_size(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "FlintTable::set_block_size", block_size_);
+    LOGCALL_VOID(DB, "FlintTable::set_block_size", block_size_);
     // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
     if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
 	(block_size_ & (block_size_ - 1)) != 0) {
@@ -1728,7 +1726,7 @@ FlintTable::set_block_size(unsigned int block_size_)
 void
 FlintTable::create_and_open(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "FlintTable::create_and_open", block_size_);
+    LOGCALL_VOID(DB, "FlintTable::create_and_open", block_size_);
     if (handle == -2) {
 	FlintTable::throw_database_closed();
     }
@@ -1760,7 +1758,7 @@ FlintTable::create_and_open(unsigned int block_size_)
 }
 
 FlintTable::~FlintTable() {
-    DEBUGCALL(DB, void, "FlintTable::~FlintTable", "");
+    LOGCALL_VOID(DB, "FlintTable::~FlintTable", NO_ARGS);
     FlintTable::close();
 
     if (deflate_zstream) {
@@ -1779,7 +1777,7 @@ FlintTable::~FlintTable() {
 }
 
 void FlintTable::close(bool permanent) {
-    DEBUGCALL(DB, void, "FlintTable::close", "");
+    LOGCALL_VOID(DB, "FlintTable::close", NO_ARGS);
 
     if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1811,7 +1809,7 @@ void FlintTable::close(bool permanent) {
 void
 FlintTable::flush_db()
 {
-    DEBUGCALL(DB, void, "FlintTable::flush_db", "");
+    LOGCALL_VOID(DB, "FlintTable::flush_db", NO_ARGS);
     Assert(writable);
     if (handle < 0) {
 	if (handle == -2) {
@@ -1835,8 +1833,7 @@ void
 FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 		   const string * changes_tail)
 {
-    DEBUGCALL(DB, void, "FlintTable::commit",
-	      revision << ", " << changes_fd << ", " << changes_tail);
+    LOGCALL_VOID(DB, "FlintTable::commit", revision | changes_fd | changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1971,7 +1968,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 void
 FlintTable::cancel()
 {
-    DEBUGCALL(DB, void, "FlintTable::cancel", "");
+    LOGCALL_VOID(DB, "FlintTable::cancel", NO_ARGS);
     Assert(writable);
 
     if (handle < 0) {
@@ -2061,7 +2058,7 @@ FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revi
 void
 FlintTable::open()
 {
-    DEBUGCALL(DB, void, "FlintTable::open", "");
+    LOGCALL_VOID(DB, "FlintTable::open", NO_ARGS);
     LOGLINE(DB, "opening at path " << name);
     close();
 
@@ -2078,7 +2075,7 @@ FlintTable::open()
 bool
 FlintTable::open(flint_revision_number_t revision)
 {
-    DEBUGCALL(DB, bool, "FlintTable::open", revision);
+    LOGCALL(DB, bool, "FlintTable::open", revision);
     LOGLINE(DB, "opening for particular revision at path " << name);
     close();
 
@@ -2275,7 +2272,7 @@ FlintTable::throw_database_closed()
 
 bool Key_::operator<(Key_ key2) const
 {
-    DEBUGCALL(DB, bool, "Key_::operator<", static_cast<const void*>(key2.p));
+    LOGCALL(DB, bool, "Key_::operator<", static_cast<const void*>(key2.p));
     int key1_len = length();
     int key2_len = key2.length();
     if (key1_len == key2_len) {
@@ -2298,7 +2295,7 @@ bool Key_::operator<(Key_ key2) const
 
 bool Key_::operator==(Key_ key2) const
 {
-    DEBUGCALL(DB, bool, "Key_::operator==", static_cast<const void*>(key2.p));
+    LOGCALL(DB, bool, "Key_::operator==", static_cast<const void*>(key2.p));
     int key1_len = length();
     if (key1_len != key2.length()) return false;
     // The keys are the same length, so we can compare the counts

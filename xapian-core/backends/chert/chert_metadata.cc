@@ -35,7 +35,7 @@ ChertMetadataTermList::ChertMetadataTermList(
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    LOGCALL_CTOR(DB, "ChertMetadataTermList", "<database>, <cursor>" | prefix_);
+    LOGCALL_CTOR(DB, "ChertMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);

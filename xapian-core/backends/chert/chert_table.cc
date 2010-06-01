@@ -605,7 +605,7 @@ ChertTable::split_root(uint4 split_n)
 void
 ChertTable::enter_key(int j, Key prevkey, Key newkey)
 {
-    LOGCALL_VOID(DB, "ChertTable::enter_key", j | "prevkey, newkey");
+    LOGCALL_VOID(DB, "ChertTable::enter_key", j | "prevkey" | "newkey");
     Assert(writable);
     Assert(prevkey < newkey);
     AssertRel(j,>=,1);
@@ -1191,7 +1191,7 @@ ChertTable::del(const string &key)
 bool
 ChertTable::get_exact_entry(const string &key, string & tag) const
 {
-    LOGCALL(DB, bool, "ChertTable::get_exact_entry", key | "[&tag]");
+    LOGCALL(DB, bool, "ChertTable::get_exact_entry", key | tag);
     Assert(!key.empty());
 
     if (handle < 0) {
@@ -1227,7 +1227,7 @@ ChertTable::key_exists(const string &key) const
 bool
 ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 {
-    LOGCALL(DB, bool, "ChertTable::read_tag", "C_, tag" | keep_compressed);
+    LOGCALL(DB, bool, "ChertTable::read_tag", "C_" | tag | keep_compressed);
     Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
@@ -2118,7 +2118,7 @@ ChertTable::open(chert_revision_number_t revision)
 bool
 ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "ChertTable::prev_for_sequential", "C_, UNUSED(int)");
+    LOGCALL(DB, bool, "ChertTable::prev_for_sequential", "C_" | "/*dummy*/");
     int c = C_[0].c;
     if (c == DIR_START) {
 	byte * p = C_[0].p;
@@ -2170,7 +2170,7 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 bool
 ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "ChertTable::next_for_sequential", "C_, UNUSED(int)");
+    LOGCALL(DB, bool, "ChertTable::next_for_sequential", "C_" | "/*dummy*/");
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;

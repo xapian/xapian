@@ -24,8 +24,8 @@
 #include "chert_record.h"
 
 #include <xapian/error.h>
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "pack.h"
 #include "str.h"
 
@@ -42,7 +42,7 @@ make_key(Xapian::docid did)
 string
 ChertRecordTable::get_record(Xapian::docid did) const
 {
-    DEBUGCALL(DB, string, "ChertRecordTable::get_record", did);
+    LOGCALL(DB, string, "ChertRecordTable::get_record", did);
     string tag;
 
     if (!get_exact_entry(make_key(did), tag)) {
@@ -55,7 +55,7 @@ ChertRecordTable::get_record(Xapian::docid did) const
 Xapian::doccount
 ChertRecordTable::get_doccount() const
 {   
-    DEBUGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", "");
+    LOGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", NO_ARGS);
     chert_tablesize_t count = get_entry_count();
     if (rare(count > chert_tablesize_t(Xapian::doccount(-1)))) {
 	// If we've got more entries than there are possible docids, the
@@ -68,14 +68,14 @@ ChertRecordTable::get_doccount() const
 void
 ChertRecordTable::replace_record(const string & data, Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "ChertRecordTable::replace_record", data << ", " << did);
+    LOGCALL_VOID(DB, "ChertRecordTable::replace_record", data | did);
     add(make_key(did), data);
 }
 
 void
 ChertRecordTable::delete_record(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "ChertRecordTable::delete_record", did);
+    LOGCALL_VOID(DB, "ChertRecordTable::delete_record", did);
     if (!del(make_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
 }

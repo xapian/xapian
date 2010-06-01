@@ -24,7 +24,7 @@
 
 #include "chert_document.h"
 
-#include "omdebug.h"
+#include "debuglog.h"
 #include "chert_database.h"
 #include "chert_values.h"
 #include "chert_record.h"
@@ -36,7 +36,7 @@
 string
 ChertDocument::do_get_value(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, string, "ChertDocument::do_get_value", slot);
+    LOGCALL(DB, string, "ChertDocument::do_get_value", slot);
     RETURN(value_manager->get_value(did, slot));
 }
 
@@ -45,7 +45,7 @@ ChertDocument::do_get_value(Xapian::valueno slot) const
 void
 ChertDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    DEBUGCALL(DB, void, "ChertDocument::do_get_all_values", "[values_]");
+    LOGCALL_VOID(DB, "ChertDocument::do_get_all_values", values_);
     value_manager->get_all_values(values_, did);
 }
 
@@ -54,6 +54,6 @@ ChertDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 string
 ChertDocument::do_get_data() const
 {
-    DEBUGCALL(DB, string, "ChertDocument::do_get_data", "");
+    LOGCALL(DB, string, "ChertDocument::do_get_data", NO_ARGS);
     RETURN(record_table->get_record(did));
 }

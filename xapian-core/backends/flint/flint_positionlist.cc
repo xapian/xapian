@@ -25,8 +25,8 @@
 #include <xapian/types.h>
 
 #include "bitstream.h"
+#include "debuglog.h"
 #include "flint_utils.h"
-#include "omdebug.h"
 
 #include <string>
 #include <vector>
@@ -40,7 +40,7 @@ FlintPositionListTable::set_positionlist(Xapian::docid did,
 					 const Xapian::PositionIterator &pos_end,
 					 bool check_for_update)
 {
-    DEBUGCALL(DB, void, "FlintPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end << ", " << check_for_update);
+    LOGCALL_VOID(DB, "FlintPositionList::set_positionlist", did | tname | pos | pos_end | check_for_update);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
@@ -70,8 +70,7 @@ Xapian::termcount
 FlintPositionListTable::positionlist_count(Xapian::docid did,
 					   const string & term) const
 {
-    DEBUGCALL(DB, void, "FlintPositionListTable::positionlist_count",
-	      did << ", " << term);
+    LOGCALL_VOID(DB, "FlintPositionListTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(F_pack_uint_preserving_sort(did) + term, data)) {
@@ -103,8 +102,7 @@ bool
 FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
 			     const string & tname)
 {
-    DEBUGCALL(DB, void, "FlintPositionList::read_data",
-	      table << ", " << did << ", " << tname);
+    LOGCALL_VOID(DB, "FlintPositionList::read_data", table | did | tname);
 
     have_started = false;
     positions.clear();
@@ -144,14 +142,14 @@ FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
 Xapian::termcount
 FlintPositionList::get_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintPositionList::get_size", "");
+    LOGCALL(DB, Xapian::termcount, "FlintPositionList::get_size", NO_ARGS);
     RETURN(positions.size());
 }
 
 Xapian::termpos
 FlintPositionList::get_position() const
 {
-    DEBUGCALL(DB, Xapian::termpos, "FlintPositionList::get_position", "");
+    LOGCALL(DB, Xapian::termpos, "FlintPositionList::get_position", NO_ARGS);
     Assert(have_started);
     RETURN(*current_pos);
 }
@@ -159,7 +157,7 @@ FlintPositionList::get_position() const
 void
 FlintPositionList::next()
 {
-    DEBUGCALL(DB, void, "FlintPositionList::next", "");
+    LOGCALL_VOID(DB, "FlintPositionList::next", NO_ARGS);
 
     if (!have_started) {
 	have_started = true;
@@ -172,7 +170,7 @@ FlintPositionList::next()
 void
 FlintPositionList::skip_to(Xapian::termpos termpos)
 {
-    DEBUGCALL(DB, void, "FlintPositionList::skip_to", termpos);
+    LOGCALL_VOID(DB, "FlintPositionList::skip_to", termpos);
     if (!have_started) {
 	have_started = true;
     }
@@ -182,6 +180,6 @@ FlintPositionList::skip_to(Xapian::termpos termpos)
 bool
 FlintPositionList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintPositionList::at_end", "");
+    LOGCALL(DB, bool, "FlintPositionList::at_end", NO_ARGS);
     RETURN(current_pos == positions.end());
 }

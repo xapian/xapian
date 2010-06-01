@@ -23,9 +23,10 @@
 
 #include <config.h>
 
-#include "omassert.h"
-#include "omdebug.h"
 #include "omqueryinternal.h"
+
+#include "debuglog.h"
+#include "omassert.h"
 #include "utils.h"
 
 #include "xapian/error.h"
@@ -41,7 +42,7 @@ namespace Xapian {
 void
 Query::add_subquery(const Query & subq)
 {
-    DEBUGAPICALL(void, "Xapian::Query::add_subquery", subq);
+    LOGCALL_VOID(API, "Xapian::Query::add_subquery", subq);
     Assert(internal.get());
     internal->add_subquery(subq.internal.get());
 }
@@ -50,7 +51,7 @@ Query::add_subquery(const Query & subq)
 void
 Query::add_subquery(const Query * subq)
 {
-    DEBUGAPICALL(void, "Xapian::Query::add_subquery", subq);
+    LOGCALL_VOID(API, "Xapian::Query::add_subquery", subq);
     if (subq == 0) {
 	throw InvalidArgumentError("Pointer to subquery may not be null");
     }
@@ -62,7 +63,7 @@ Query::add_subquery(const Query * subq)
 void
 Query::add_subquery(const string & tname)
 {
-    DEBUGAPICALL(void, "Xapian::Query::add_subquery", tname);
+    LOGCALL_VOID(API, "Xapian::Query::add_subquery", tname);
     Assert(internal.get());
     Query::Internal subqint(tname);
     internal->add_subquery(&subqint);
@@ -72,7 +73,7 @@ Query::add_subquery(const string & tname)
 void
 Query::start_construction(Query::op op_, termcount parameter)
 {
-    DEBUGAPICALL(void, "Xapian::Query::start_construction", op_);
+    LOGCALL_VOID(API, "Xapian::Query::start_construction", op_);
     Assert(!internal.get());
     internal = new Query::Internal(op_, parameter);
 }
@@ -81,7 +82,7 @@ Query::start_construction(Query::op op_, termcount parameter)
 void
 Query::end_construction()
 {
-    DEBUGAPICALL(void, "Xapian::Query::end_construction", "");
+    LOGCALL_VOID(API, "Xapian::Query::end_construction", NO_ARGS);
     Assert(internal.get());
     internal = internal->end_construction();
 }
@@ -90,7 +91,7 @@ Query::end_construction()
 void
 Query::abort_construction()
 {
-    DEBUGAPICALL(void, "Xapian::Query::abort_construction", "");
+    LOGCALL_VOID(API, "Xapian::Query::abort_construction", NO_ARGS);
     Assert(internal.get());
     internal = 0;
 }
@@ -98,15 +99,13 @@ Query::abort_construction()
 Query::Query(const string & tname_, termcount wqf_, termpos pos_)
 	: internal(new Query::Internal(tname_, wqf_, pos_))
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query",
-		 tname_ << ", " << wqf_ << ", " << pos_);
+    LOGCALL_VOID(API, "Xapian::Query::Query", tname_ | wqf_ | pos_);
 }
 
 Query::Query(Query::op op_, const Query &left, const Query &right)
 	: internal(new Query::Internal(op_, 0u))
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query",
-		 op_ << ", " << left << ", " << right);
+    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | left | right);
     try {
 	add_subquery(left);
 	add_subquery(right);
@@ -119,8 +118,7 @@ Query::Query(Query::op op_, const Query &left, const Query &right)
 
 Query::Query(Query::op op_, Xapian::Query q, double parameter)
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query",
-		 op_ << ", " << q << ", " << parameter);
+    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | q | parameter);
     if (op_ == OP_SCALE_WEIGHT) {
 	if (!q.internal.get() ||
 	    q.internal->op == OP_VALUE_RANGE ||
@@ -147,21 +145,19 @@ Query::Query(Query::op op_, Xapian::valueno valno,
 	     const string &begin, const string &end)
     : internal(new Query::Internal(op_, valno, begin, end))
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query",
-		 op_ << ", " << valno << ", " << begin << ", " << end);
+    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | valno | begin | end);
 }
 
 Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
     : internal(new Query::Internal(op_, valno, value))
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query",
-		 op_ << ", " << valno << ", " << value);
+    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | valno | value);
 }
 
 Query::Query(PostingSource * external_source)
 	: internal(NULL)
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query", external_source);
+    LOGCALL_VOID(API, "Xapian::Query::Query", external_source);
     if (!external_source)
 	throw Xapian::InvalidArgumentError("The external_source parameter can not be NULL");
     PostingSource * clone = external_source->clone();
@@ -176,14 +172,14 @@ Query::Query(PostingSource * external_source)
 Query::Query(const Query & copyme)
 	: internal(copyme.internal)
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query", copyme);
+    LOGCALL_VOID(API, "Xapian::Query::Query", copyme);
 }
 
 // Assignment
 Query &
 Query::operator=(const Query & copyme)
 {
-    DEBUGAPICALL(Xapian::Query &, "Xapian::Query::operator=", copyme);
+    LOGCALL(API, Xapian::Query &, "Xapian::Query::operator=", copyme);
     internal = copyme.internal;
     RETURN(*this);
 }
@@ -191,19 +187,19 @@ Query::operator=(const Query & copyme)
 // Default constructor
 Query::Query() : internal(0)
 {
-    DEBUGAPICALL(void, "Xapian::Query::Query", "");
+    LOGCALL_VOID(API, "Xapian::Query::Query", NO_ARGS);
 }
 
 // Destructor
 Query::~Query()
 {
-    DEBUGAPICALL(void, "Xapian::Query::~Query", "");
+    LOGCALL_VOID(API, "Xapian::Query::~Query", NO_ARGS);
 }
 
 std::string
 Query::serialise() const
 {
-    DEBUGAPICALL(std::string, "Xapian::Query::serialise", "");
+    LOGCALL(API, std::string, "Xapian::Query::serialise", NO_ARGS);
     if (!internal.get()) return std::string();
     return internal->serialise();
 }
@@ -211,7 +207,7 @@ Query::serialise() const
 Query
 Query::unserialise(const std::string &s)
 {
-    DEBUGAPICALL_STATIC(Xapian::Query, "Xapian::Query::unserialise", s);
+    LOGCALL_STATIC(API, Xapian::Query, "Xapian::Query::unserialise", s);
     Query result;
     if (!s.empty()) {
 	result.internal = Xapian::Query::Internal::unserialise(s, Registry());
@@ -222,7 +218,7 @@ Query::unserialise(const std::string &s)
 Query
 Query::unserialise(const std::string & s, const Registry & reg)
 {
-    DEBUGAPICALL_STATIC(Xapian::Query, "Xapian::Query::unserialise", s << ", reg");
+    LOGCALL_STATIC(API, Xapian::Query, "Xapian::Query::unserialise", s | reg);
     Query result;
     if (!s.empty()) {
 	result.internal = Xapian::Query::Internal::unserialise(s, reg);
@@ -241,13 +237,13 @@ Query::get_description() const
 
 termcount Query::get_length() const
 {
-    DEBUGAPICALL(Xapian::termcount, "Xapian::Query::get_length", "");
+    LOGCALL(API, Xapian::termcount, "Xapian::Query::get_length", NO_ARGS);
     RETURN(internal.get() ? internal->get_length() : 0);
 }
 
 TermIterator Query::get_terms_begin() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "Xapian::Query::get_terms_begin", "");
+    LOGCALL(API, Xapian::TermIterator, "Xapian::Query::get_terms_begin", NO_ARGS);
     if (!internal.get()) RETURN(TermIterator(NULL));
     RETURN(internal->get_terms());
 }
@@ -255,7 +251,7 @@ TermIterator Query::get_terms_begin() const
 bool
 Query::empty() const
 {
-    DEBUGAPICALL(void, "Xapian::Query::empty", "");
+    LOGCALL_VOID(API, "Xapian::Query::empty", NO_ARGS);
     return internal.get() == 0;
 }
 

@@ -35,7 +35,7 @@ ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(Xapian::Internal::Ref
 	  doclens(doclens_),
 	  doclens_it(doclens.begin())
 {
-    LOGCALL_CTOR(DB, "ChertAllDocsModifiedPostList", db_.get() | doccount_ | "doclens");
+    LOGCALL_CTOR(DB, "ChertAllDocsModifiedPostList", db_.get() | doccount_ | doclens_);
 }
 
 void

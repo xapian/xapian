@@ -28,13 +28,13 @@
 using std::string;
 using std::make_pair;
 
-#include "omdebug.h"
+#include "debuglog.h"
 
 /** Generate key for document @a docid's values. */
 inline void
 make_key(string & key, Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "make_key", key << ", " << did);
+    LOGCALL_STATIC_VOID(DB, "make_key", key | did);
     key = flint_docid_to_key(did);
 }
 
@@ -44,8 +44,7 @@ FlintValueTable::unpack_entry(const char ** pos,
 				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
-    DEBUGCALL_STATIC(DB, void, "FlintValueTable::unpack_entry",
-		     "[pos], [end], " << this_value_no << ", " << this_value);
+    LOGCALL_STATIC_VOID(DB, "FlintValueTable::unpack_entry", pos | (void*)end | this_value_no | this_value);
     if (!F_unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
 	else throw Xapian::RangeError("Value number in value table is too large");
@@ -65,7 +64,7 @@ FlintValueTable::encode_values(string & s,
 			       Xapian::ValueIterator it,
 			       const Xapian::ValueIterator & end)
 {
-    DEBUGCALL(DB, void, "FlintValueTable::encode_values", "[&s], " << it << ", " << end);
+    LOGCALL_VOID(DB, "FlintValueTable::encode_values", s | it | end);
     while (it != end) {
 	s += F_pack_uint(it.get_valueno());
 	s += F_pack_string(*it);
@@ -76,7 +75,7 @@ FlintValueTable::encode_values(string & s,
 void
 FlintValueTable::set_encoded_values(Xapian::docid did, const string & enc)
 {
-    DEBUGCALL(DB, void, "FlintValueTable::set_encoded_values", did << ", " << enc);
+    LOGCALL_VOID(DB, "FlintValueTable::set_encoded_values", did | enc);
     string key;
     make_key(key, did);
     add(key, enc);
@@ -87,7 +86,7 @@ FlintValueTable::get_value(string & value,
 			      Xapian::docid did,
 			      Xapian::valueno valueno) const
 {
-    DEBUGCALL(DB, void, "FlintValueTable::get_value", value << ", " << did << ", " << valueno);
+    LOGCALL_VOID(DB, "FlintValueTable::get_value", value | did | valueno);
     string key;
     make_key(key, did);
     string tag;
@@ -119,7 +118,7 @@ void
 FlintValueTable::get_all_values(map<Xapian::valueno, string> & values,
 				   Xapian::docid did) const
 {
-    DEBUGCALL(DB, void, "FlintValueTable::get_all_values", "[values], " << did);
+    LOGCALL_VOID(DB, "FlintValueTable::get_all_values", values | did);
     string key;
     make_key(key, did);
     string tag;
@@ -143,7 +142,7 @@ FlintValueTable::get_all_values(map<Xapian::valueno, string> & values,
 void
 FlintValueTable::delete_all_values(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "FlintValueTable::delete_all_values", did);
+    LOGCALL_VOID(DB, "FlintValueTable::delete_all_values", did);
     string key;
     make_key(key, did);
     del(key);
