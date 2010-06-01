@@ -69,7 +69,7 @@ Document::get_data() const
 void
 Document::set_data(const string &data)
 {
-    LOGCALL(API, void, "Document::set_data", data);
+    LOGCALL_VOID(API, "Document::set_data", data);
     internal->set_data(data);
 }
 
@@ -98,21 +98,21 @@ Document::get_description() const
 void
 Document::add_value(Xapian::valueno valueno, const string &value)
 {
-    LOGCALL(API, void, "Document::add_value", valueno | value);
+    LOGCALL_VOID(API, "Document::add_value", valueno | value);
     internal->add_value(valueno, value);
 }
 
 void
 Document::remove_value(Xapian::valueno valueno)
 {
-    LOGCALL(API, void, "Document::remove_value", valueno);
+    LOGCALL_VOID(API, "Document::remove_value", valueno);
     internal->remove_value(valueno);
 }
 
 void
 Document::clear_values()
 {
-    LOGCALL(API, void, "Document::clear_values", NO_ARGS);
+    LOGCALL_VOID(API, "Document::clear_values", NO_ARGS);
     internal->clear_values();
 }
 
@@ -121,7 +121,7 @@ Document::add_posting(const string & tname,
 			Xapian::termpos tpos,
 			Xapian::termcount wdfinc)
 {
-    LOGCALL(API, void, "Document::add_posting", tname | tpos | wdfinc);
+    LOGCALL_VOID(API, "Document::add_posting", tname | tpos | wdfinc);
     if (tname.empty()) {
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -131,7 +131,7 @@ Document::add_posting(const string & tname,
 void
 Document::add_term(const string & tname, Xapian::termcount wdfinc)
 {
-    LOGCALL(API, void, "Document::add_term", tname | wdfinc);
+    LOGCALL_VOID(API, "Document::add_term", tname | wdfinc);
     if (tname.empty()) {
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -142,7 +142,7 @@ void
 Document::remove_posting(const string & tname, Xapian::termpos tpos,
 			 Xapian::termcount wdfdec)
 {
-    LOGCALL(API, void, "Document::remove_posting", tname | tpos | wdfdec);
+    LOGCALL_VOID(API, "Document::remove_posting", tname | tpos | wdfdec);
     if (tname.empty()) {
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -152,14 +152,14 @@ Document::remove_posting(const string & tname, Xapian::termpos tpos,
 void
 Document::remove_term(const string & tname)
 {
-    LOGCALL(API, void, "Document::remove_term", tname);
+    LOGCALL_VOID(API, "Document::remove_term", tname);
     internal->remove_term(tname);
 }
 
 void
 Document::clear_terms()
 {
-    LOGCALL(API, void, "Document::clear_terms", NO_ARGS);
+    LOGCALL_VOID(API, "Document::clear_terms", NO_ARGS);
     internal->clear_terms();
 }
 
@@ -220,7 +220,7 @@ Document::unserialise(const std::string &s)
 void
 OmDocumentTerm::add_position(Xapian::termpos tpos)
 {
-    LOGCALL(DB, void, "OmDocumentTerm::add_position", tpos);
+    LOGCALL_VOID(DB, "OmDocumentTerm::add_position", tpos);
 
     // We generally expect term positions to be added in approximately
     // increasing order, so check the end first
@@ -241,7 +241,7 @@ OmDocumentTerm::add_position(Xapian::termpos tpos)
 void
 OmDocumentTerm::remove_position(Xapian::termpos tpos)
 {
-    LOGCALL(DB, void, "OmDocumentTerm::remove_position", tpos);
+    LOGCALL_VOID(DB, "OmDocumentTerm::remove_position", tpos);
     
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.

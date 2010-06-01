@@ -1,3 +1,8 @@
+Tue Jun 01 13:33:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc: Use LOGCALL_VOID instead of LOGCALL with a void
+	  return type.
+
 Tue Jun 01 13:08:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: The debug logging now copes with being passed
