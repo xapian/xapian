@@ -54,11 +54,11 @@ static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,metadata,valuestats,inmemory" },
     { "brass", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,valuestats,brass" },
+	       "synonyms,valuestats,generated,brass" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,valuestats,chert" },
+	       "synonyms,replicas,valuestats,generated,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,flint" },
+	       "synonyms,replicas,generated,flint" },
     { "multi_brass", "backend,positional,valuestats,multi" },
     { "multi_chert", "backend,positional,valuestats,multi" },
     { "multi_flint", "backend,positional,multi" },
@@ -88,6 +88,7 @@ TestRunner::set_properties(const string & properties)
     metadata = false;
     replicas = false;
     valuestats = false;
+    generated = false;
     inmemory = false;
     brass = false;
     chert = false;
@@ -124,6 +125,8 @@ TestRunner::set_properties(const string & properties)
 	    replicas = true;
 	else if (propname == "valuestats")
 	    valuestats = true;
+	else if (propname == "generated")
+	    generated = true;
 	else if (propname == "inmemory")
 	    inmemory = true;
 	else if (propname == "brass")

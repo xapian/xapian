@@ -63,7 +63,7 @@ ValueIterator::operator=(const ValueIteratorEnd_ &)
 string
 ValueIterator::operator*() const
 {
-    LOGCALL(API, string, "ValueIterator::operator*", "");
+    LOGCALL(API, string, "ValueIterator::operator*", NO_ARGS);
     Assert(internal.get());
     RETURN(internal->get_value());
 }
@@ -71,7 +71,7 @@ ValueIterator::operator*() const
 ValueIterator &
 ValueIterator::operator++()
 {
-    LOGCALL(API, ValueIterator &, "ValueIterator::operator++", "");
+    LOGCALL(API, ValueIterator &, "ValueIterator::operator++", NO_ARGS);
     Assert(internal.get());
     internal->next();
     if (internal->at_end()) internal = NULL;
@@ -81,7 +81,7 @@ ValueIterator::operator++()
 Xapian::docid
 ValueIterator::get_docid() const
 {
-    LOGCALL(API, Xapian::docid, "ValueIterator::get_docid", "");
+    LOGCALL(API, Xapian::docid, "ValueIterator::get_docid", NO_ARGS);
     Assert(internal.get());
     RETURN(internal->get_docid());
 }
@@ -89,7 +89,7 @@ ValueIterator::get_docid() const
 Xapian::valueno
 ValueIterator::get_valueno() const
 {
-    LOGCALL(API, Xapian::valueno, "ValueIterator::get_valueno", "");
+    LOGCALL(API, Xapian::valueno, "ValueIterator::get_valueno", NO_ARGS);
     Assert(internal.get());
     RETURN(internal->get_valueno());
 }

@@ -58,6 +58,25 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 }
 
 PostList *
+AndMaybePostList::sync_rhs(Xapian::weight w_min)
+{
+    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::sync_rhs", w_min);
+    bool valid;
+    check_handling_prune(r, lhead, w_min - lmax, matcher, valid);
+    if (r->at_end()) {
+	PostList *tmp = l;
+	l = NULL;
+	RETURN(tmp);
+    }
+    if (valid) {
+	rhead = r->get_docid();
+    } else {
+	rhead = 0;
+    }
+    RETURN(NULL);
+}
+
+PostList *
 AndMaybePostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndMaybePostList::next", w_min);
@@ -122,8 +141,7 @@ TermFreqs
 AndMaybePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "AndMaybePostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "AndMaybePostList::get_termfreq_est_using_stats", stats);
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_est_using_stats(stats));
 }

@@ -237,8 +237,7 @@ TermFreqs
 XorPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const 
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "XorPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "XorPostList::get_termfreq_est_using_stats", stats);
     // Estimate assuming independence:
     // P(l or r) = P(l) + P(r) - 2 . P(l) . P(r)
     TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));

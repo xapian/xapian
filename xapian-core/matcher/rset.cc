@@ -22,9 +22,10 @@
  */
 
 #include <config.h>
+#include "rset.h"
 
 #include "database.h"
-#include "rset.h"
+#include "omassert.h"
 #include "omdebug.h"
 
 #include "autoptr.h"

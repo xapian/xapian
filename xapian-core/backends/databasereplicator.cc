@@ -27,7 +27,7 @@
 #include "xapian/error.h"
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
-#include "omdebug.h"
+#include "debuglog.h"
 #include "utils.h"
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
@@ -52,7 +52,7 @@ DatabaseReplicator::~DatabaseReplicator()
 DatabaseReplicator *
 DatabaseReplicator::open(const string & path)
 {
-    DEBUGCALL_STATIC(DB, void, "DatabaseReplicator::DatabaseReplicator", path);
+    LOGCALL_STATIC_VOID(DB, "DatabaseReplicator::DatabaseReplicator", path);
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     if (file_exists(path + "/iamchert")) {

@@ -32,8 +32,8 @@
 #include "chert_replicate_internal.h"
 #include "chert_types.h"
 #include "chert_version.h"
+#include "debuglog.h"
 #include "io_utils.h"
-#include "omdebug.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
@@ -66,8 +66,7 @@ bool
 ChertDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    DEBUGCALL(DB, bool, "ChertDatabaseReplicator::check_revision_at_least",
-	      rev << ", " << target);
+    LOGCALL(DB, bool, "ChertDatabaseReplicator::check_revision_at_least", rev | target);
 
     chert_revision_number_t rev_val;
     chert_revision_number_t target_val;
@@ -240,8 +239,7 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   const OmTime & end_time,
 						   bool valid) const
 {
-    DEBUGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn",
-	      "conn, end_time, " << valid);
+    LOGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn", "conn" | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
@@ -375,7 +373,7 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 string
 ChertDatabaseReplicator::get_uuid() const
 {
-    DEBUGCALL(DB, string, "ChertDatabaseReplicator::get_uuid", "");
+    LOGCALL(DB, string, "ChertDatabaseReplicator::get_uuid", NO_ARGS);
     ChertVersion version_file(db_dir);
     try {
 	version_file.read_and_check();

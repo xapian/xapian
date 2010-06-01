@@ -27,7 +27,6 @@
 #include "database.h"
 #include "brass_cursor.h"
 #include "brass_lazytable.h"
-#include "omdebug.h"
 #include "termlist.h"
 
 #include <set>

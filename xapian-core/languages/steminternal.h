@@ -1,7 +1,8 @@
 /** @file steminternal.h
  *  @brief Base class for implementations of stemming algorithms
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2010 Olly Betts
+ * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,9 +27,6 @@
 
 #include <cstdlib>
 #include <string>
-
-// FIXME: we might want to make Stem::Internal a virtual base class and have
-// Stem::Internal::Snowball to allow for non-Snowball stemmers...
 
 typedef unsigned char symbol;
 
@@ -65,7 +63,7 @@ SET_CAPACITY(symbol* p, int n)
     reinterpret_cast<int *>(void_p)[-2] = n;
 }
 
-typedef int (*among_function)(Xapian::Stem::Internal *);
+typedef int (*among_function)(Xapian::StemImplementation *);
 
 struct among {
     int s_size;		/* length of search string (in symbols) */
@@ -84,7 +82,7 @@ extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);
 
 namespace Xapian {
 
-class Stem::Internal : public Xapian::Internal::RefCntBase {
+class SnowballStemImplementation : public StemImplementation {
     int slice_check();
 
   protected:
@@ -129,19 +127,17 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
 
   public:
     /// Perform initialisation common to all Snowball stemmers.
-    Internal() : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
+    SnowballStemImplementation()
+	: p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
 
     /// Perform cleanup common to all Snowball stemmers.
-    virtual ~Internal();
+    virtual ~SnowballStemImplementation();
 
     /// Stem the specified word.
-    std::string operator()(const std::string & word);
+    virtual std::string operator()(const std::string & word);
 
     /// Virtual method implemented by the subclass to actually do the work.
     virtual int stem() = 0;
-
-    /// Return string describing this object.
-    virtual const char * get_description() const = 0;
 };
 
 }

@@ -21,13 +21,14 @@
  */
 
 #include <config.h>
+#include "chert_termlist.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "expandweight.h"
 #include "chert_positionlist.h"
-#include "chert_termlist.h"
 #include "omassert.h"
+#include "omdebug.h"
 #include "pack.h"
 #include "str.h"
 

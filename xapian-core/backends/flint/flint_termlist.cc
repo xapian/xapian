@@ -21,14 +21,15 @@
  */
 
 #include <config.h>
+#include "flint_termlist.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "expandweight.h"
 #include "flint_positionlist.h"
-#include "flint_termlist.h"
 #include "flint_utils.h"
 #include "omassert.h"
+#include "omdebug.h"
 #include "str.h"
 
 using namespace std;

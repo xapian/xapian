@@ -26,7 +26,6 @@
 #include "alltermslist.h"
 #include "database.h"
 #include "flint_table.h"
-#include "omdebug.h"
 #include "termlist.h"
 
 #include <set>

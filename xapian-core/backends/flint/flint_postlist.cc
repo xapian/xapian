@@ -754,6 +754,14 @@ FlintPostList::next_chunk()
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
+Xapian::termcount
+FlintPostList::get_doclength() const
+{
+    DEBUGCALL(DB, Xapian::termcount, "FlintPostList::get_doclength", "");
+    Assert(have_started);
+    RETURN(static_cast<Xapian::termcount>(doclength));
+}
+
 PositionList *
 FlintPostList::read_position_list()
 {

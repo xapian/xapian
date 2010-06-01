@@ -64,7 +64,7 @@ Brass::open(const string &dir) {
 
 WritableDatabase
 Brass::open(const string &dir, int action, int block_size) {
-    LOGCALL_STATIC(API, WritableDatabase, "Brass::open", dir << ", " << action << ", " << block_size);
+    LOGCALL_STATIC(API, WritableDatabase, "Brass::open", dir | action | block_size);
     RETURN(WritableDatabase(new BrassWritableDatabase(dir, action, block_size)));
 }
 #endif
@@ -78,8 +78,7 @@ Chert::open(const string &dir) {
 
 WritableDatabase
 Chert::open(const string &dir, int action, int block_size) {
-    LOGCALL_STATIC(API, WritableDatabase, "Chert::open", dir << ", " <<
-			action << ", " << block_size);
+    LOGCALL_STATIC(API, WritableDatabase, "Chert::open", dir | action | block_size);
     return WritableDatabase(new ChertWritableDatabase(dir, action, block_size));
 }
 #endif
@@ -93,8 +92,7 @@ Flint::open(const string &dir) {
 
 WritableDatabase
 Flint::open(const string &dir, int action, int block_size) {
-    LOGCALL_STATIC(API, WritableDatabase, "Flint::open", dir << ", " <<
-			action << ", " << block_size);
+    LOGCALL_STATIC(API, WritableDatabase, "Flint::open", dir | action | block_size);
     return WritableDatabase(new FlintWritableDatabase(dir, action, block_size));
 }
 #endif
@@ -102,7 +100,7 @@ Flint::open(const string &dir, int action, int block_size) {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 WritableDatabase
 InMemory::open() {
-    LOGCALL_STATIC(API, Database, "InMemory::open", "");
+    LOGCALL_STATIC(API, Database, "InMemory::open", NO_ARGS);
     return WritableDatabase(new InMemoryDatabase);
 }
 #endif
@@ -325,7 +323,7 @@ Auto::open_stub(const string &file)
 WritableDatabase
 Auto::open_stub(const string &file, int action)
 {
-    LOGCALL_STATIC(API, WritableDatabase, "Auto::open_stub", file << ", " << action);
+    LOGCALL_STATIC(API, WritableDatabase, "Auto::open_stub", file | action);
     WritableDatabase db;
     open_stub(db, file, action);
     RETURN(db);
@@ -333,7 +331,7 @@ Auto::open_stub(const string &file, int action)
 
 Database::Database(const string &path)
 {
-    LOGCALL_CTOR(API, "Database::Database", path);
+    LOGCALL_CTOR(API, "Database", path);
 
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {
@@ -390,7 +388,7 @@ Database::Database(const string &path)
 WritableDatabase::WritableDatabase(const std::string &path, int action)
     : Database()
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", path << ", " << action);
+    LOGCALL_CTOR(API, "WritableDatabase", path | action);
 #ifdef HAVE_DISK_BACKEND
     enum {
 #ifdef XAPIAN_HAS_CHERT_BACKEND

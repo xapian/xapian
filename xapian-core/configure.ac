@@ -803,8 +803,14 @@ AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
 
-dnl Set a flag for AM when shared libraries are enabled.
-dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
+dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+use_zlib_vg=no
+if test -n "$VALGRIND" ; then
+  case $host_os in
+    linux*) use_zlib_vg=yes ;;
+  esac
+fi
+AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 SAVE_LIBS="$LIBS"

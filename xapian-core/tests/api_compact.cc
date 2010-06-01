@@ -103,7 +103,7 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactnorenumber1, brass || chert || flint) {
+DEFINE_TESTCASE(compactnorenumber1, generated) {
     int status;
 
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
@@ -239,7 +239,7 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 
 // Test use of compact on a database which has multiple chunks for a term.
 // This is a regression test for ticket #427
-DEFINE_TESTCASE(compactmultichunks1, brass || chert || flint) {
+DEFINE_TESTCASE(compactmultichunks1, generated) {
     int status;
 
     string cmd = XAPIAN_COMPACT" "SILENT" ";

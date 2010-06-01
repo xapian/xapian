@@ -22,23 +22,25 @@
 
 #include <config.h>
 
-#include <xapian/error.h>
-#include <xapian/types.h>
-
 #include "chert_spellingwordslist.h"
+
+#include "xapian/error.h"
+#include "xapian/types.h"
+
+#include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
 
 ChertSpellingWordsList::~ChertSpellingWordsList()
 {
-    DEBUGCALL(DB, void, "~ChertSpellingWordsList", "");
+    LOGCALL_DTOR(DB, "ChertSpellingWordsList");
     delete cursor;
 }
 
 string
 ChertSpellingWordsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "ChertSpellingWordsList::get_termname", "");
+    LOGCALL(DB, string, "ChertSpellingWordsList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -49,7 +51,7 @@ ChertSpellingWordsList::get_termname() const
 Xapian::doccount
 ChertSpellingWordsList::get_termfreq() const
 {
-    DEBUGCALL(DB, string, "ChertSpellingWordsList::get_termfreq", "");
+    LOGCALL(DB, string, "ChertSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -73,7 +75,7 @@ ChertSpellingWordsList::get_collection_freq() const
 TermList *
 ChertSpellingWordsList::next()
 {
-    DEBUGCALL(DB, TermList *, "ChertSpellingWordsList::next", "");
+    LOGCALL(DB, TermList *, "ChertSpellingWordsList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -88,7 +90,7 @@ ChertSpellingWordsList::next()
 TermList *
 ChertSpellingWordsList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "ChertSpellingWordsList::skip_to", tname);
+    LOGCALL(DB, TermList *, "ChertSpellingWordsList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge("W" + tname)) {
@@ -105,6 +107,6 @@ ChertSpellingWordsList::skip_to(const string &tname)
 bool
 ChertSpellingWordsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertSpellingWordsList::at_end", "");
+    LOGCALL(DB, bool, "ChertSpellingWordsList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

@@ -19,17 +19,17 @@
  */
 
 #include <config.h>
-
 #include "flint_alltermslist.h"
+
+#include "debuglog.h"
 #include "flint_postlist.h"
 #include "flint_utils.h"
-
 #include "stringutils.h"
 
 void
 FlintAllTermsList::read_termfreq_and_collfreq() const
 {
-    DEBUGCALL(DB, void, "FlintAllTermsList::read_termfreq_and_collfreq", "");
+    LOGCALL_VOID(DB, "FlintAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
@@ -43,14 +43,14 @@ FlintAllTermsList::read_termfreq_and_collfreq() const
 
 FlintAllTermsList::~FlintAllTermsList()
 {
-    DEBUGCALL(DB, void, "~FlintAllTermsList", "");
+    LOGCALL_DTOR(DB, "FlintAllTermsList");
     delete cursor;
 }
 
 string
 FlintAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "FlintAllTermsList::get_termname", "");
+    LOGCALL(DB, string, "FlintAllTermsList::get_termname", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
@@ -59,7 +59,7 @@ FlintAllTermsList::get_termname() const
 Xapian::doccount
 FlintAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintAllTermsList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "FlintAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -69,7 +69,7 @@ FlintAllTermsList::get_termfreq() const
 Xapian::termcount
 FlintAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_collection_freq", "");
+    LOGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_collection_freq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -79,7 +79,7 @@ FlintAllTermsList::get_collection_freq() const
 TermList *
 FlintAllTermsList::next()
 {
-    DEBUGCALL(DB, TermList *, "FlintAllTermsList::next", "");
+    LOGCALL(DB, TermList *, "FlintAllTermsList::next", NO_ARGS);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -135,7 +135,7 @@ first_time:
 TermList *
 FlintAllTermsList::skip_to(const string &term)
 {
-    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList *, "FlintAllTermsList::skip_to", term);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -175,6 +175,6 @@ FlintAllTermsList::skip_to(const string &term)
 bool
 FlintAllTermsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintAllTermsList::at_end", "");
+    LOGCALL(DB, bool, "FlintAllTermsList::at_end", NO_ARGS);
     RETURN(cursor && cursor->after_end());
 }

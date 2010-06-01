@@ -1,7 +1,7 @@
 /** @file gnu_getopt.h
  * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
  */
-/* Copyright 2004,2009,2010 Olly Betts
+/* Copyright (C) 2004,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

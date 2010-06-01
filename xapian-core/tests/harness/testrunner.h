@@ -96,6 +96,9 @@ class TestRunner {
     /// True if the backend supports getting value statistics.
     bool valuestats;
 
+    /// True if the backend supports generated databases.
+    bool generated;
+
     /// True if the backend is the multi backend.
     bool multi;
 

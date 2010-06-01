@@ -66,19 +66,19 @@ namespace Xapian {
 
 Database::Database()
 {
-    LOGCALL_CTOR(API, "Database::Database", NO_ARGS);
+    LOGCALL_CTOR(API, "Database", NO_ARGS);
 }
 
 Database::Database(Database::Internal *internal_)
 {
-    LOGCALL_CTOR(API, "Database::Database", "Database::Internal");
+    LOGCALL_CTOR(API, "Database", "Database::Internal");
     Xapian::Internal::RefCntPtr<Database::Internal> newi(internal_);
     internal.push_back(newi);
 }
 
 Database::Database(const Database &other)
 {
-    LOGCALL_CTOR(API, "Database::Database", "Database");
+    LOGCALL_CTOR(API, "Database", "Database");
     internal = other.internal;
 }
 
@@ -96,7 +96,7 @@ Database::operator=(const Database &other)
 
 Database::~Database()
 {
-    LOGCALL_DTOR(API, "Database::~Database");
+    LOGCALL_DTOR(API, "Database");
 }
 
 void
@@ -230,8 +230,7 @@ Database::has_positions() const
 PositionIterator
 Database::positionlist_begin(Xapian::docid did, const string &tname) const
 {
-    LOGCALL(API, PositionIterator, "Database::positionlist_begin",
-		 did << ", " << tname);
+    LOGCALL(API, PositionIterator, "Database::positionlist_begin", did | tname);
     if (tname.empty())
 	throw InvalidArgumentError("Zero length terms are invalid");
     if (did == 0)
@@ -455,7 +454,7 @@ Database::get_document(Xapian::docid did) const
 Document::Internal *
 Database::get_document_lazily(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
+    LOGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
     if (did == 0)
 	docid_zero_invalid();
 
@@ -541,8 +540,7 @@ string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
-    LOGCALL(API, string, "Database::get_spelling_suggestion",
-		 word << ", " << max_edit_distance);
+    LOGCALL(API, string, "Database::get_spelling_suggestion", word | max_edit_distance);
     if (word.size() <= 1) return string();
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
@@ -737,19 +735,19 @@ Database::get_uuid() const
 
 WritableDatabase::WritableDatabase() : Database()
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", NO_ARGS);
+    LOGCALL_CTOR(API, "WritableDatabase", NO_ARGS);
 }
 
 WritableDatabase::WritableDatabase(Database::Internal *internal_)
 	: Database(internal_)
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", "Database::Internal");
+    LOGCALL_CTOR(API, "WritableDatabase", "Database::Internal");
 }
 
 WritableDatabase::WritableDatabase(const WritableDatabase &other)
 	: Database(other)
 {
-    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", "WritableDatabase");
+    LOGCALL_CTOR(API, "WritableDatabase", "WritableDatabase");
 }
 
 void
@@ -761,7 +759,7 @@ WritableDatabase::operator=(const WritableDatabase &other)
 
 WritableDatabase::~WritableDatabase()
 {
-    LOGCALL_DTOR(API, "WritableDatabase::~WritableDatabase");
+    LOGCALL_DTOR(API, "WritableDatabase");
 }
 
 XAPIAN_NORETURN(static void only_one_subdatabase_allowed());
@@ -834,8 +832,7 @@ WritableDatabase::delete_document(const std::string & unique_term)
 void
 WritableDatabase::replace_document(Xapian::docid did, const Document & document)
 {
-    LOGCALL_VOID(API, "WritableDatabase::replace_document",
-		 did << ", " << document);
+    LOGCALL_VOID(API, "WritableDatabase::replace_document", did | document);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (did == 0)
 	docid_zero_invalid();
@@ -846,8 +843,7 @@ Xapian::docid
 WritableDatabase::replace_document(const std::string & unique_term,
 				   const Document & document)
 {
-    LOGCALL(API, Xapian::docid, "WritableDatabase::replace_document",
-		 unique_term << ", " << document);
+    LOGCALL(API, Xapian::docid, "WritableDatabase::replace_document", unique_term | document);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
@@ -858,8 +854,7 @@ void
 WritableDatabase::add_spelling(const std::string & word,
 			       Xapian::termcount freqinc) const
 {
-    LOGCALL_VOID(API, "WritableDatabase::add_spelling",
-		 word << ", " << freqinc);
+    LOGCALL_VOID(API, "WritableDatabase::add_spelling", word | freqinc);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->add_spelling(word, freqinc);
 }
@@ -868,8 +863,7 @@ void
 WritableDatabase::remove_spelling(const std::string & word,
 				  Xapian::termcount freqdec) const
 {
-    LOGCALL_VOID(API, "WritableDatabase::remove_spelling",
-		 word << ", " << freqdec);
+    LOGCALL_VOID(API, "WritableDatabase::remove_spelling", word | freqdec);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->remove_spelling(word, freqdec);
 }
@@ -878,8 +872,7 @@ void
 WritableDatabase::add_synonym(const std::string & term,
 			      const std::string & synonym) const
 {
-    LOGCALL_VOID(API, "WritableDatabase::add_synonym",
-		 term << ", " << synonym);
+    LOGCALL_VOID(API, "WritableDatabase::add_synonym", term | synonym);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->add_synonym(term, synonym);
 }
@@ -888,8 +881,7 @@ void
 WritableDatabase::remove_synonym(const std::string & term,
 				 const std::string & synonym) const
 {
-    LOGCALL_VOID(API, "WritableDatabase::remove_synonym",
-		 term << ", " << synonym);
+    LOGCALL_VOID(API, "WritableDatabase::remove_synonym", term | synonym);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->remove_synonym(term, synonym);
 }
@@ -905,7 +897,7 @@ WritableDatabase::clear_synonyms(const std::string & term) const
 void
 WritableDatabase::set_metadata(const string & key, const string & value)
 {
-    LOGCALL_VOID(API, "WritableDatabase::set_metadata", key << ", " << value);
+    LOGCALL_VOID(API, "WritableDatabase::set_metadata", key | value);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
