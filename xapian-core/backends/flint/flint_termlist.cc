@@ -28,8 +28,8 @@
 #include "expandweight.h"
 #include "flint_positionlist.h"
 #include "flint_utils.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "str.h"
 
 using namespace std;
@@ -38,8 +38,7 @@ FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    DEBUGCALL(DB, void, "FlintTermList",
-	      "[RefCntPtr<const FlintDatabase>], " << did_);
+    LOGCALL_VOID(DB, "FlintTermList", db_ | did_);
 
     if (!db->termlist_table.get_exact_entry(flint_docid_to_key(did), data))
 	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
@@ -83,21 +82,21 @@ FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db
 flint_doclen_t
 FlintTermList::get_doclength() const
 {
-    DEBUGCALL(DB, flint_doclen_t, "FlintTermList::get_doclength", "");
+    LOGCALL(DB, flint_doclen_t, "FlintTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
 }
 
 Xapian::termcount
 FlintTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::get_approx_size", "");
+    LOGCALL(DB, Xapian::termcount, "FlintTermList::get_approx_size", NO_ARGS);
     RETURN(termlist_size);
 }
 
 void
 FlintTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(DB, void, "FlintTermList::accumulate_stats", "[stats&]");
+    LOGCALL_VOID(DB, "FlintTermList::accumulate_stats", stats);
     Assert(!at_end());
     stats.accumulate(current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
@@ -105,21 +104,21 @@ FlintTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 string
 FlintTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "FlintTermList::get_termname", "");
+    LOGCALL(DB, string, "FlintTermList::get_termname", NO_ARGS);
     RETURN(current_term);
 }
 
 Xapian::termcount
 FlintTermList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "FlintTermList::get_wdf", NO_ARGS);
     RETURN(current_wdf);
 }
 
 Xapian::doccount
 FlintTermList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintTermList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "FlintTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
 	current_termfreq = db->get_termfreq(current_term);
     RETURN(current_termfreq);
@@ -128,7 +127,7 @@ FlintTermList::get_termfreq() const
 TermList *
 FlintTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "FlintTermList::next", "");
+    LOGCALL(DB, TermList *, "FlintTermList::next", NO_ARGS);
     Assert(!at_end());
     if (pos == end) {
 	pos = NULL;
@@ -174,21 +173,21 @@ FlintTermList::next()
 bool
 FlintTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintTermList::at_end", "");
+    LOGCALL(DB, bool, "FlintTermList::at_end", NO_ARGS);
     RETURN(pos == NULL);
 }
 
 Xapian::termcount
 FlintTermList::positionlist_count() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::positionlist_count", "");
+    LOGCALL(DB, Xapian::termcount, "FlintTermList::positionlist_count", NO_ARGS);
     RETURN(db->position_table.positionlist_count(did, current_term));
 }
 
 Xapian::PositionIterator
 FlintTermList::positionlist_begin() const
 {
-    DEBUGCALL(DB, Xapian::PositionIterator, "FlintTermList::positionlist_begin", "");
+    LOGCALL(DB, Xapian::PositionIterator, "FlintTermList::positionlist_begin", NO_ARGS);
     return Xapian::PositionIterator(
 	    new FlintPositionList(&db->position_table, did, current_term));
 }

@@ -924,7 +924,9 @@ AC_ARG_ENABLE(assertions,
 AC_ARG_ENABLE(log,
   [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc (no|yes|profile) [default=no]])],
   [case $enableval in
-    yes|profile|no) ;;
+    yes|no) ;;
+    profile)
+      AC_MSG_ERROR(['--enable-log=profile' is no longer supported - see http://trac.xapian.org/wiki/ProfilingXapian for alternatives.]) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
@@ -945,11 +947,6 @@ fi
 if test yes = "$enable_log"; then
   AC_DEFINE(XAPIAN_DEBUG_LOG,,
     [Define if you want a log of methods called and other debug messages])
-fi
-
-if test profile = "$enable_log"; then
-  AC_DEFINE(XAPIAN_DEBUG_PROFILE,,
-    [Define if you want code profiling via the logging infrastructure])
 fi
 
 dnl ******************************

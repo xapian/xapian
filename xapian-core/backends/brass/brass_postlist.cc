@@ -26,8 +26,8 @@
 
 #include "brass_cursor.h"
 #include "brass_database.h"
+#include "debuglog.h"
 #include "noreturn.h"
-#include "omdebug.h"
 #include "pack.h"
 #include "str.h"
 
@@ -191,11 +191,7 @@ read_start_of_first_chunk(const char ** posptr,
 			  Xapian::doccount * number_of_entries_ptr,
 			  Xapian::termcount * collection_freq_ptr)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk",
-		     (const void *)posptr << ", " <<
-		     (const void *)end << ", " <<
-		     (void *)number_of_entries_ptr << ", " <<
-		     (void *)collection_freq_ptr);
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void *)posptr | (const void *)end | (void *)number_of_entries_ptr | (void *)collection_freq_ptr);
 
     BrassPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
@@ -236,11 +232,7 @@ read_start_of_chunk(const char ** posptr,
 		    Xapian::docid first_did_in_chunk,
 		    bool * is_last_chunk_ptr)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk",
-		     reinterpret_cast<const void*>(posptr) << ", " <<
-		     reinterpret_cast<const void*>(end) << ", " <<
-		     first_did_in_chunk << ", " <<
-		     reinterpret_cast<const void*>(is_last_chunk_ptr));
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk", reinterpret_cast<const void*>(posptr) | reinterpret_cast<const void*>(end) | first_did_in_chunk | reinterpret_cast<const void*>(is_last_chunk_ptr));
 
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
@@ -320,9 +312,7 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::PostlistChunkWriter",
-	      orig_key_ << ", " << is_first_chunk_ << ", " << tname_ << ", " <<
-	      is_last_chunk_);
+    LOGCALL_VOID(DB, "PostlistChunkWriter::PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
 }
 
 void
@@ -399,7 +389,7 @@ write_start_of_chunk(string & chunk,
 void
 PostlistChunkWriter::flush(BrassTable *table)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
+    LOGCALL_VOID(DB, "PostlistChunkWriter::flush", table);
 
     /* This is one of the more messy parts involved with updating posting
      * list chunks.
@@ -686,8 +676,7 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 	  cursor(this_db_->postlist_table.get_cursor()),
 	  is_at_end(false)
 {
-    DEBUGCALL(DB, void, "BrassPostList::BrassPostList",
-	      this_db_.get() << ", " << term_ << ", " << keep_reference);
+    LOGCALL_VOID(DB, "BrassPostList::BrassPostList", this_db_.get() | term_ | keep_reference);
     string key = BrassPostListTable::make_key(term);
     int found = cursor->find_entry_le(key);
     if (!found) {
@@ -714,13 +703,13 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 
 BrassPostList::~BrassPostList()
 {
-    DEBUGCALL(DB, void, "BrassPostList::~BrassPostList", "");
+    LOGCALL_VOID(DB, "BrassPostList::~BrassPostList", NO_ARGS);
 }
 
 Xapian::termcount
 BrassPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "BrassPostList::get_doclength", NO_ARGS);
     Assert(have_started);
     Assert(this_db.get());
     RETURN(this_db->get_doclength(did));
@@ -729,7 +718,7 @@ BrassPostList::get_doclength() const
 bool
 BrassPostList::next_in_chunk()
 {
-    DEBUGCALL(DB, bool, "BrassPostList::next_in_chunk", "");
+    LOGCALL(DB, bool, "BrassPostList::next_in_chunk", NO_ARGS);
     if (pos == end) RETURN(false);
 
     read_did_increase(&pos, end, &did);
@@ -746,7 +735,7 @@ BrassPostList::next_in_chunk()
 void
 BrassPostList::next_chunk()
 {
-    DEBUGCALL(DB, void, "BrassPostList::next_chunk", "");
+    LOGCALL_VOID(DB, "BrassPostList::next_chunk", NO_ARGS);
     if (is_last_chunk) {
 	is_at_end = true;
 	return;
@@ -792,7 +781,7 @@ BrassPostList::next_chunk()
 PositionList *
 BrassPostList::read_position_list()
 {
-    DEBUGCALL(DB, PositionList *, "BrassPostList::read_position_list", "");
+    LOGCALL(DB, PositionList *, "BrassPostList::read_position_list", NO_ARGS);
     Assert(this_db.get());
     positionlist.read_data(&this_db->position_table, did, term);
     RETURN(&positionlist);
@@ -801,7 +790,7 @@ BrassPostList::read_position_list()
 PositionList *
 BrassPostList::open_position_list() const
 {
-    DEBUGCALL(DB, PositionList *, "BrassPostList::open_position_list", "");
+    LOGCALL(DB, PositionList *, "BrassPostList::open_position_list", NO_ARGS);
     Assert(this_db.get());
     RETURN(new BrassPositionList(&this_db->position_table, did, term));
 }
@@ -809,7 +798,7 @@ BrassPostList::open_position_list() const
 PostList *
 BrassPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *, "BrassPostList::next", w_min);
+    LOGCALL(DB, PostList *, "BrassPostList::next", w_min);
     (void)w_min; // no warning
 
     if (!have_started) {
@@ -830,7 +819,7 @@ BrassPostList::next(Xapian::weight w_min)
 bool
 BrassPostList::current_chunk_contains(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool, "BrassPostList::current_chunk_contains", desired_did);
+    LOGCALL(DB, bool, "BrassPostList::current_chunk_contains", desired_did);
     if (desired_did >= first_did_in_chunk &&
 	desired_did <= last_did_in_chunk) {
 	RETURN(true);
@@ -841,8 +830,7 @@ BrassPostList::current_chunk_contains(Xapian::docid desired_did)
 void
 BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, void,
-	      "BrassPostList::move_to_chunk_containing", desired_did);
+    LOGCALL_VOID(DB, "BrassPostList::move_to_chunk_containing", desired_did);
     (void)cursor->find_entry_le(BrassPostListTable::make_key(term, desired_did));
     Assert(!cursor->after_end());
 
@@ -890,8 +878,7 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
 bool
 BrassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool,
-	      "BrassPostList::move_forward_in_chunk_to_at_least", desired_did);
+    LOGCALL(DB, bool, "BrassPostList::move_forward_in_chunk_to_at_least", desired_did);
     if (did >= desired_did)
 	RETURN(true);
 
@@ -917,8 +904,7 @@ BrassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 PostList *
 BrassPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *,
-	      "BrassPostList::skip_to", desired_did << ", " << w_min);
+    LOGCALL(DB, PostList *, "BrassPostList::skip_to", desired_did | w_min);
     (void)w_min; // no warning
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
@@ -953,7 +939,7 @@ BrassPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 bool
 BrassPostList::jump_to(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool, "BrassPostList::jump_to", desired_did);
+    LOGCALL(DB, bool, "BrassPostList::jump_to", desired_did);
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
     have_started = true;
@@ -991,7 +977,7 @@ BrassPostListTable::get_chunk(const string &tname,
 	  Xapian::docid did, bool adding,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
-    DEBUGCALL(DB, Xapian::docid, "BrassPostListTable::get_chunk", tname << ", " << did << ", " << adding << ", [from], [to]");
+    LOGCALL(DB, Xapian::docid, "BrassPostListTable::get_chunk", tname | did | adding | from | to);
     // Get chunk containing entry
     string key = make_key(tname, did);
 
@@ -1073,7 +1059,7 @@ BrassPostListTable::get_chunk(const string &tname,
 void
 BrassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens)
 {
-    DEBUGCALL(DB, void, "BrassPostListTable::merge_doclen_changes", "doclens");
+    LOGCALL_VOID(DB, "BrassPostListTable::merge_doclen_changes", doclens);
 
     // The cursor in the doclen_pl will no longer be valid, so reset it.
     doclen_pl.reset(0);

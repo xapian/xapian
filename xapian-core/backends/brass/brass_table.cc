@@ -484,7 +484,7 @@ BrassBlock::get_endptr(int i) const
 bool
 BrassCBlock::binary_chop_leaf(const string & key, int mode)
 {
-    LOGCALL(DB, bool, "BrassCBlock::binary_chop_leaf", key << ", " << mode);
+    LOGCALL(DB, bool, "BrassCBlock::binary_chop_leaf", key | mode);
     Assert(is_leaf());
     (void)mode; // FIXME
     int b = 0;
@@ -576,7 +576,7 @@ BrassCBlock::binary_chop_leaf(const string & key, int mode)
 void
 BrassCBlock::insert(const string &key, brass_block_t blk, brass_block_t n_child)
 {
-    LOGCALL_VOID(DB, "BrassCBlock::insert", key << ", " << blk << ", " << n_child);
+    LOGCALL_VOID(DB, "BrassCBlock::insert", key | blk | n_child);
     Assert(n_child == get_block(item) || n_child == blk);
     Assert(!is_leaf());
 
@@ -827,7 +827,7 @@ void
 BrassCBlock::insert(const string &key, const char * tag, size_t tag_len,
 		    bool compressed)
 {
-    LOGCALL_VOID(DB, "BrassCBlock::insert", key << ", " << (void*)tag << ", " << tag_len << ", " << compressed);
+    LOGCALL_VOID(DB, "BrassCBlock::insert", key | (void*)tag | tag_len | compressed);
     if (!is_leaf()) {
 	find_child(key);
 	child->insert(key, tag, tag_len, compressed);
@@ -1204,7 +1204,7 @@ BrassCBlock::cancel()
 bool
 BrassCBlock::find(const string &key, int mode)
 {
-    LOGCALL(DB, bool, "BrassCBlock::find", key << ", " << mode);
+    LOGCALL(DB, bool, "BrassCBlock::find", key | mode);
     if (!data) {
 	// The empty key should always appear to exist.
 	if (mode == LE || (key.empty() ^ (mode == LT))) {
@@ -1288,7 +1288,7 @@ BrassCBlock::key_exists(const string &key)
 bool
 BrassCBlock::get(const string &key, string &tag)
 {
-    LOGCALL(DB, bool, "BrassCBlock::get", key << ", " << tag);
+    LOGCALL(DB, bool, "BrassCBlock::get", key | tag);
     Assert(!key.empty());
     // FIXME: check we really want this...
     if (!data)
@@ -1339,7 +1339,7 @@ bool
 BrassTable::read_block(char *buf, brass_block_t n) const
 {
     // FIXME: factor out shared code with read_slab()?
-    LOGCALL(DB, bool, "BrassTable::read_block", (void*)buf << ", " << n);
+    LOGCALL(DB, bool, "BrassTable::read_block", (void*)buf | n);
     Assert(fd != FD_NOT_OPEN);
     Assert(buf);
     Assert(n != (brass_block_t)-1);
@@ -1381,7 +1381,7 @@ bool
 BrassTable::write_block(const char *buf, brass_block_t n) const
 {
     // FIXME: factor out shared code with write_slab()?
-    LOGCALL(DB, bool, "BrassTable::write_block", (void*)buf << ", " << n);
+    LOGCALL(DB, bool, "BrassTable::write_block", (void*)buf | n);
     AssertRel(fd,>=,0);
     Assert(buf);
     Assert(n != (brass_block_t)-1);
@@ -1425,7 +1425,7 @@ BrassTable::write_block(const char *buf, brass_block_t n) const
 bool
 BrassTable::read_slab(char *buf, size_t len, off_t offset) const
 {
-    LOGCALL(DB, bool, "BrassTable::read_slab", (void*)buf << ", " << len << ", " << offset);
+    LOGCALL(DB, bool, "BrassTable::read_slab", (void*)buf | len | offset);
     Assert(fd_slab != FD_NOT_OPEN);
     Assert(buf);
     ssize_t count = len;
@@ -1463,7 +1463,7 @@ BrassTable::read_slab(char *buf, size_t len, off_t offset) const
 bool
 BrassTable::write_slab(const char *buf, size_t len, off_t offset) const
 {
-    LOGCALL(DB, bool, "BrassTable::write_slab", (void*)buf << ", " << len << ", " << offset);
+    LOGCALL(DB, bool, "BrassTable::write_slab", (void*)buf | len | offset);
     AssertRel(fd_slab,>=,0);
     Assert(buf);
 
@@ -1548,7 +1548,7 @@ BrassTable::get_free_slab(size_t size)
 int
 BrassTable::compare_keys(const void *k1, size_t l1, const void *k2, size_t l2) const
 {
-    LOGCALL(DB, int, "BrassTable::compare_keys", k1 << ", " << l1 << ", " << k2 << ", " << l2);
+    LOGCALL(DB, int, "BrassTable::compare_keys", k1 | l1 | k2 | l2);
     int result = memcmp(k1, k2, std::min(l1, l2));
     if (result)
 	RETURN(result);
@@ -1558,7 +1558,7 @@ BrassTable::compare_keys(const void *k1, size_t l1, const void *k2, size_t l2) c
 string
 BrassTable::divide(const char *k1, size_t l1, const char *k2, size_t l2) const
 {
-    LOGCALL(DB, string, "BrassTable::divide", k1 << ", " << l1 << ", " << k2 << ", " << l2);
+    LOGCALL(DB, string, "BrassTable::divide", k1 | l1 | k2 | l2);
     (void)l2;
     AssertRel(compare_keys(k1, l1, k2, l2),<,0);
     size_t i;
@@ -1588,7 +1588,7 @@ BrassTable::exists() const
 bool
 BrassTable::create(unsigned int blocksize_, bool from_scratch)
 {
-    LOGCALL(DB, bool, "BrassTable::create", blocksize_ << ", " << from_scratch);
+    LOGCALL(DB, bool, "BrassTable::create", blocksize_ | from_scratch);
     (void)from_scratch;
     Assert(!readonly);
     AssertRel(fd,==,FD_NOT_OPEN);
@@ -1637,7 +1637,7 @@ BrassTable::erase()
 bool
 BrassTable::open(unsigned int blocksize_, brass_block_t root)
 {
-    LOGCALL(DB, bool, "BrassTable::open", blocksize_ << ", " << root);
+    LOGCALL(DB, bool, "BrassTable::open", blocksize_ | root);
     blocksize = blocksize_;
     if (!blocksize)
 	blocksize = BRASS_DEFAULT_BLOCKSIZE;
@@ -1729,7 +1729,7 @@ BrassTable::close()
 void
 BrassTable::add(const string & key, const string & tag, bool already_compressed)
 {
-    LOGCALL_VOID(DB, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
+    LOGCALL_VOID(DB, "BrassTable::add", key | tag | already_compressed);
     if (key.size() == 0 || key.size() > 255)
 	throw Xapian::InvalidArgumentError("Key length must be non-zero and at most 255 bytes");
 
@@ -1827,7 +1827,7 @@ BrassTable::key_exists(const string & key) const
 bool
 BrassTable::get(const string & key, string & tag) const
 {
-    LOGCALL(DB, bool, "BrassTable::get", key << ", " << tag);
+    LOGCALL(DB, bool, "BrassTable::get", key | tag);
     if (rare(key.empty())) {
 	tag.resize(0);
 	RETURN(true);

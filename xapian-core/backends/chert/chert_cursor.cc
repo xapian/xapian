@@ -28,8 +28,8 @@
 #include <xapian/error.h>
 
 #include "chert_table.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #ifdef XAPIAN_DEBUG_LOG
 static string
@@ -112,7 +112,7 @@ ChertCursor::~ChertCursor()
 bool
 ChertCursor::prev()
 {
-    DEBUGCALL(DB, bool, "ChertCursor::prev", "");
+    LOGCALL(DB, bool, "ChertCursor::prev", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version || !is_positioned) {
 	// Either the cursor needs rebuilding (in which case find_entry() will
@@ -156,7 +156,7 @@ ChertCursor::prev()
 bool
 ChertCursor::next()
 {
-    DEBUGCALL(DB, bool, "ChertCursor::next", "");
+    LOGCALL(DB, bool, "ChertCursor::next", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version) {
 	// find_entry() will call rebuild().
@@ -193,7 +193,7 @@ ChertCursor::next()
 bool
 ChertCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "ChertCursor::find_entry", key);
+    LOGCALL(DB, bool, "ChertCursor::find_entry", key);
     if (B->cursor_version != version) {
 	rebuild();
     }
@@ -241,7 +241,7 @@ done:
 bool
 ChertCursor::find_entry_ge(const string &key)
 {
-    DEBUGCALL(DB, bool, "ChertCursor::find_entry_ge", key);
+    LOGCALL(DB, bool, "ChertCursor::find_entry_ge", key);
     if (B->cursor_version != version) {
 	rebuild();
     }
@@ -291,7 +291,7 @@ ChertCursor::get_key(string * key) const
 bool
 ChertCursor::read_tag(bool keep_compressed)
 {
-    DEBUGCALL(DB, bool, "ChertCursor::read_tag", keep_compressed);
+    LOGCALL(DB, bool, "ChertCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD) {
 	Assert(B->level <= level);
 	Assert(is_positioned);

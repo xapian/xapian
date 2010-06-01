@@ -239,7 +239,7 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   const OmTime & end_time,
 						   bool valid) const
 {
-    LOGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn", "conn" | end_time | valid);
+    LOGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);

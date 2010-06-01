@@ -47,7 +47,7 @@
 #include "brass_termlist.h"
 #include "brass_valuelist.h"
 #include "brass_values.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
@@ -105,8 +105,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    DEBUGCALL(DB, void, "BrassDatabase", brass_dir << ", " << action <<
-	      ", " << block_size);
+    LOGCALL_VOID(DB, "BrassDatabase", brass_dir | action | block_size);
     if (block_size == 0)
 	block_size = BRASS_DEFAULT_BLOCKSIZE;
 
@@ -166,12 +165,12 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 
 BrassDatabase::~BrassDatabase()
 {
-    DEBUGCALL(DB, void, "~BrassDatabase", "");
+    LOGCALL_VOID(DB, "~BrassDatabase", NO_ARGS);
 }
 
 bool
 BrassDatabase::database_exists() {
-    DEBUGCALL(DB, bool, "BrassDatabase::database_exists", "");
+    LOGCALL(DB, bool, "BrassDatabase::database_exists", NO_ARGS);
     // The postlist table is the only non-optional one.
     RETURN(postlist_table.exists());
 }
@@ -180,7 +179,7 @@ void
 BrassDatabase::create_and_open_tables(unsigned int block_size,
 				      bool from_scratch)
 {
-    DEBUGCALL(DB, void, "BrassDatabase::create_and_open_tables", block_size << ", " << from_scratch);
+    LOGCALL_VOID(DB, "BrassDatabase::create_and_open_tables", block_size | from_scratch);
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
@@ -201,7 +200,7 @@ BrassDatabase::create_and_open_tables(unsigned int block_size,
 void
 BrassDatabase::open_tables()
 {
-    DEBUGCALL(DB, void, "BrassDatabase::open_tables", "");
+    LOGCALL_VOID(DB, "BrassDatabase::open_tables", NO_ARGS);
 
     brass_revision_number_t cur_rev = version_file.get_revision();
 
@@ -231,17 +230,18 @@ BrassDatabase::open_tables()
     stats.read(postlist_table);
 }
 
+
 brass_revision_number_t
 BrassDatabase::get_revision_number() const
 {
-    DEBUGCALL(DB, brass_revision_number_t, "BrassDatabase::get_revision_number", "");
+    LOGCALL(DB, brass_revision_number_t, "BrassDatabase::get_revision_number", NO_ARGS);
     RETURN(version_file.get_revision());
 }
 
 brass_revision_number_t
 BrassDatabase::get_next_revision_number() const
 {
-    DEBUGCALL(DB, brass_revision_number_t, "BrassDatabase::get_next_revision_number", "");
+    LOGCALL(DB, brass_revision_number_t, "BrassDatabase::get_next_revision_number", NO_ARGS);
     // FIXME: If we permit a revision before the latest and then updating it
     // (to roll back more recent changes) then we (probably) need this to be
     // one more than the *highest* revision previously committed.
@@ -301,7 +301,7 @@ BrassDatabase::get_changeset_revisions(const string & path,
 void
 BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, void, "BrassDatabase::set_revision_number", new_revision);
+    LOGCALL_VOID(DB, "BrassDatabase::set_revision_number", new_revision);
 
     value_manager.merge_changes();
 
@@ -342,7 +342,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 void
 BrassDatabase::reopen()
 {
-    DEBUGCALL(DB, void, "BrassDatabase::reopen", "");
+    LOGCALL_VOID(DB, "BrassDatabase::reopen", NO_ARGS);
     if (readonly)
 	open_tables();
 }
@@ -350,7 +350,7 @@ BrassDatabase::reopen()
 void
 BrassDatabase::close()
 {
-    DEBUGCALL(DB, void, "BrassDatabase::close", "");
+    LOGCALL_VOID(DB, "BrassDatabase::close", NO_ARGS);
     postlist_table.close();
     position_table.close();
     termlist_table.close();
@@ -363,7 +363,7 @@ BrassDatabase::close()
 void
 BrassDatabase::get_database_write_lock(bool creating)
 {
-    DEBUGCALL(DB, void, "BrassDatabase::get_database_write_lock", creating);
+    LOGCALL_VOID(DB, "BrassDatabase::get_database_write_lock", creating);
     string explanation;
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
@@ -381,8 +381,7 @@ void
 BrassDatabase::send_whole_database(RemoteConnection & conn,
 				   const OmTime & end_time)
 {
-    DEBUGCALL(DB, void, "BrassDatabase::send_whole_database",
-	      "conn" << ", " << "end_time");
+    LOGCALL_VOID(DB, "BrassDatabase::send_whole_database", conn | end_time);
 
     // Send the current revision number in the header.
     string buf;
@@ -422,8 +421,7 @@ BrassDatabase::write_changesets_to_fd(int fd,
 				      bool need_whole_db,
 				      ReplicationInfo * info)
 {
-    DEBUGCALL(DB, void, "BrassDatabase::write_changesets_to_fd",
-	      fd << ", " << revision << ", " << need_whole_db << ", " << info);
+    LOGCALL_VOID(DB, "BrassDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
 
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     brass_revision_number_t start_rev_num = 0;
@@ -583,7 +581,7 @@ BrassDatabase::modifications_failed(brass_revision_number_t old_revision,
 void
 BrassDatabase::apply()
 {
-    DEBUGCALL(DB, void, "BrassDatabase::apply", "");
+    LOGCALL_VOID(DB, "BrassDatabase::apply", NO_ARGS);
     if (!postlist_table.is_modified() &&
 	!position_table.is_modified() &&
 	!termlist_table.is_modified() &&
@@ -611,7 +609,7 @@ BrassDatabase::apply()
 void
 BrassDatabase::cancel()
 {
-    DEBUGCALL(DB, void, "BrassDatabase::cancel", "");
+    LOGCALL_VOID(DB, "BrassDatabase::cancel", NO_ARGS);
     postlist_table.cancel();
     position_table.cancel();
     termlist_table.cancel();
@@ -624,35 +622,35 @@ BrassDatabase::cancel()
 Xapian::doccount
 BrassDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassDatabase::get_doccount", "");
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_doccount", NO_ARGS);
     RETURN(stats.get_doccount());
 }
 
 Xapian::docid
 BrassDatabase::get_lastdocid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "BrassDatabase::get_lastdocid", "");
+    LOGCALL(DB, Xapian::docid, "BrassDatabase::get_lastdocid", NO_ARGS);
     RETURN(stats.get_last_docid());
 }
 
 totlen_t
 BrassDatabase::get_total_length() const
 {
-    DEBUGCALL(DB, totlen_t, "BrassDatabase::get_total_length", "");
+    LOGCALL(DB, totlen_t, "BrassDatabase::get_total_length", NO_ARGS);
     RETURN(stats.get_total_doclen());
 }
 
 Xapian::doclength
 BrassDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "BrassDatabase::get_avlength", "");
+    LOGCALL(DB, Xapian::doclength, "BrassDatabase::get_avlength", NO_ARGS);
     RETURN(stats.get_avlength());
 }
 
 Xapian::termcount
 BrassDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_doclength", did);
     Assert(did != 0);
     Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
@@ -661,7 +659,7 @@ BrassDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 BrassDatabase::get_termfreq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_termfreq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_termfreq(term));
 }
@@ -669,7 +667,7 @@ BrassDatabase::get_termfreq(const string & term) const
 Xapian::termcount
 BrassDatabase::get_collection_freq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassDatabase::get_collection_freq", term);
+    LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_collection_freq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_collection_freq(term));
 }
@@ -677,21 +675,21 @@ BrassDatabase::get_collection_freq(const string & term) const
 Xapian::doccount
 BrassDatabase::get_value_freq(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_value_freq", valno);
     RETURN(value_manager.get_value_freq(valno));
 }
 
 std::string
 BrassDatabase::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "BrassDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "BrassDatabase::get_value_lower_bound", valno);
     RETURN(value_manager.get_value_lower_bound(valno));
 }
 
 std::string
 BrassDatabase::get_value_upper_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "BrassDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "BrassDatabase::get_value_upper_bound", valno);
     RETURN(value_manager.get_value_upper_bound(valno));
 }
 
@@ -716,7 +714,7 @@ BrassDatabase::get_wdf_upper_bound(const string & term) const
 bool
 BrassDatabase::term_exists(const string & term) const
 {
-    DEBUGCALL(DB, bool, "BrassDatabase::term_exists", term);
+    LOGCALL(DB, bool, "BrassDatabase::term_exists", term);
     Assert(!term.empty());
     return postlist_table.term_exists(term);
 }
@@ -730,7 +728,7 @@ BrassDatabase::has_positions() const
 LeafPostList *
 BrassDatabase::open_post_list(const string& term) const
 {
-    DEBUGCALL(DB, LeafPostList *, "BrassDatabase::open_post_list", term);
+    LOGCALL(DB, LeafPostList *, "BrassDatabase::open_post_list", term);
     Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
 
     if (term.empty()) {
@@ -747,7 +745,7 @@ BrassDatabase::open_post_list(const string& term) const
 ValueList *
 BrassDatabase::open_value_list(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, ValueList *, "BrassDatabase::open_value_list", slot);
+    LOGCALL(DB, ValueList *, "BrassDatabase::open_value_list", slot);
     Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
     RETURN(new BrassValueList(slot, ptrtothis));
 }
@@ -755,7 +753,7 @@ BrassDatabase::open_value_list(Xapian::valueno slot) const
 TermList *
 BrassDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, TermList *, "BrassDatabase::open_term_list", did);
+    LOGCALL(DB, TermList *, "BrassDatabase::open_term_list", did);
     Assert(did != 0);
     if (!termlist_table.is_open())
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
@@ -767,8 +765,7 @@ BrassDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 BrassDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "BrassDatabase::open_document",
-	      did << ", " << lazy);
+    LOGCALL(DB, Xapian::Document::Internal *, "BrassDatabase::open_document", did | lazy);
     Assert(did != 0);
     if (!lazy) {
 	// This will throw DocNotFoundError if the document doesn't exist.
@@ -797,7 +794,7 @@ BrassDatabase::open_position_list(Xapian::docid did, const string & term) const
 TermList *
 BrassDatabase::open_allterms(const string & prefix) const
 {
-    DEBUGCALL(DB, TermList *, "BrassDatabase::open_allterms", "");
+    LOGCALL(DB, TermList *, "BrassDatabase::open_allterms", NO_ARGS);
     RETURN(new BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
 				 prefix));
 }
@@ -841,7 +838,7 @@ BrassDatabase::open_synonym_keylist(const string & prefix) const
 string
 BrassDatabase::get_metadata(const string & key) const
 {
-    DEBUGCALL(DB, string, "BrassDatabase::get_metadata", key);
+    LOGCALL(DB, string, "BrassDatabase::get_metadata", key);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     string tag;
@@ -852,7 +849,7 @@ BrassDatabase::get_metadata(const string & key) const
 TermList *
 BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    DEBUGCALL(DB, string, "BrassDatabase::open_metadata_keylist", "");
+    LOGCALL(DB, string, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.get_cursor();
     if (!cursor) return NULL;
     return new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
@@ -862,7 +859,7 @@ BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 string
 BrassDatabase::get_revision_info() const
 {
-    DEBUGCALL(DB, string, "BrassDatabase::get_revision_info", "");
+    LOGCALL(DB, string, "BrassDatabase::get_revision_info", NO_ARGS);
     string buf;
     pack_uint(buf, get_revision_number());
     RETURN(buf);
@@ -871,7 +868,7 @@ BrassDatabase::get_revision_info() const
 string
 BrassDatabase::get_uuid() const
 {
-    DEBUGCALL(DB, string, "BrassDatabase::get_uuid", "");
+    LOGCALL(DB, string, "BrassDatabase::get_uuid", NO_ARGS);
     RETURN(version_file.get_uuid_string());
 }
 
@@ -885,8 +882,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    DEBUGCALL(DB, void, "BrassWritableDatabase", dir << ", " << action << ", "
-	      << block_size);
+    LOGCALL_VOID(DB, "BrassWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -897,7 +893,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 
 BrassWritableDatabase::~BrassWritableDatabase()
 {
-    DEBUGCALL(DB, void, "~BrassWritableDatabase", "");
+    LOGCALL_VOID(DB, "~BrassWritableDatabase", NO_ARGS);
     dtor_called();
 }
 
@@ -922,7 +918,7 @@ BrassWritableDatabase::flush_postlist_changes() const
 void
 BrassWritableDatabase::close()
 {
-    DEBUGCALL(DB, void, "BrassWritableDatabase::close", "");
+    LOGCALL_VOID(DB, "BrassWritableDatabase::close", NO_ARGS);
     if (!transaction_active()) {
 	commit();
 	// FIXME: if commit() throws, should we still close?
@@ -940,8 +936,7 @@ BrassWritableDatabase::apply()
 Xapian::docid
 BrassWritableDatabase::add_document(const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid,
-	      "BrassWritableDatabase::add_document", document);
+    LOGCALL(DB, Xapian::docid, "BrassWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
     if (stats.get_last_docid() == Xapian::docid(-1))
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
@@ -953,8 +948,7 @@ Xapian::docid
 BrassWritableDatabase::add_document_(Xapian::docid did,
 				     const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid,
-	      "BrassWritableDatabase::add_document_", did << ", " << document);
+    LOGCALL(DB, Xapian::docid, "BrassWritableDatabase::add_document_", did | document);
     Assert(did != 0);
     try {
 	// Set the document data.
@@ -1019,7 +1013,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 void
 BrassWritableDatabase::delete_document(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "BrassWritableDatabase::delete_document", did);
+    LOGCALL_VOID(DB, "BrassWritableDatabase::delete_document", did);
     Assert(did != 0);
 
     if (!termlist_table.is_open())
@@ -1083,7 +1077,7 @@ void
 BrassWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "BrassWritableDatabase::replace_document", did << ", " << document);
+    LOGCALL_VOID(DB, "BrassWritableDatabase::replace_document", did | document);
     Assert(did != 0);
 
     try {
@@ -1244,8 +1238,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 Xapian::Document::Internal *
 BrassWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "BrassWritableDatabase::open_document",
-	      did << ", " << lazy);
+    LOGCALL(DB, Xapian::Document::Internal *, "BrassWritableDatabase::open_document", did | lazy);
     modify_shortcut_document = BrassDatabase::open_document(did, lazy);
     // Store the docid only after open_document() successfully returns, so an
     // attempt to open a missing document doesn't overwrite this.
@@ -1256,7 +1249,7 @@ BrassWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 Xapian::termcount
 BrassWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_doclength", did);
     Xapian::termcount doclen;
     if (inverter.get_doclength(did, doclen))
 	RETURN(doclen);
@@ -1266,21 +1259,21 @@ BrassWritableDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 BrassWritableDatabase::get_termfreq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_termfreq", term);
     RETURN(BrassDatabase::get_termfreq(term) + inverter.get_tfdelta(term));
 }
 
 Xapian::termcount
 BrassWritableDatabase::get_collection_freq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_collection_freq", term);
+    LOGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_collection_freq", term);
     RETURN(BrassDatabase::get_collection_freq(term) + inverter.get_cfdelta(term));
 }
 
 Xapian::doccount
 BrassWritableDatabase::get_value_freq(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_value_freq", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
     if (i != value_stats.end()) RETURN(i->second.freq);
@@ -1290,7 +1283,7 @@ BrassWritableDatabase::get_value_freq(Xapian::valueno valno) const
 std::string
 BrassWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "BrassWritableDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_lower_bound", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
     if (i != value_stats.end()) RETURN(i->second.lower_bound);
@@ -1300,7 +1293,7 @@ BrassWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
 std::string
 BrassWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "BrassWritableDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_upper_bound", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
     if (i != value_stats.end()) RETURN(i->second.upper_bound);
@@ -1310,14 +1303,14 @@ BrassWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
 bool
 BrassWritableDatabase::term_exists(const string & tname) const
 {
-    DEBUGCALL(DB, bool, "BrassWritableDatabase::term_exists", tname);
+    LOGCALL(DB, bool, "BrassWritableDatabase::term_exists", tname);
     RETURN(get_termfreq(tname) != 0);
 }
 
 LeafPostList *
 BrassWritableDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "BrassWritableDatabase::open_post_list", tname);
+    LOGCALL(DB, LeafPostList *, "BrassWritableDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
@@ -1338,7 +1331,7 @@ BrassWritableDatabase::open_post_list(const string& tname) const
 ValueList *
 BrassWritableDatabase::open_value_list(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, ValueList *, "BrassWritableDatabase::open_value_list", slot);
+    LOGCALL(DB, ValueList *, "BrassWritableDatabase::open_value_list", slot);
     // If there are changes, we don't have code to iterate the modified value
     // list so we need to flush (but don't commit - there may be a transaction
     // in progress).
@@ -1349,7 +1342,7 @@ BrassWritableDatabase::open_value_list(Xapian::valueno slot) const
 TermList *
 BrassWritableDatabase::open_allterms(const string & prefix) const
 {
-    DEBUGCALL(DB, TermList *, "BrassWritableDatabase::open_allterms", "");
+    LOGCALL(DB, TermList *, "BrassWritableDatabase::open_allterms", NO_ARGS);
     if (change_count) {
 	// There are changes, and terms may have been added or removed, and so
 	// we need to flush changes for terms with the specified prefix (but
@@ -1427,8 +1420,7 @@ BrassWritableDatabase::clear_synonyms(const string & term) const
 void
 BrassWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    DEBUGCALL(DB, string, "BrassWritableDatabase::set_metadata",
-	      key << ", " << value);
+    LOGCALL(DB, string, "BrassWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

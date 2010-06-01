@@ -26,8 +26,8 @@
 
 #include "flint_termlisttable.h"
 #include "flint_utils.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "str.h"
 #include "stringutils.h"
 
@@ -40,8 +40,7 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 				 const Xapian::Document & doc,
 				 flint_doclen_t doclen)
 {
-    DEBUGCALL(DB, void, "FlintTermListTable::set_termlist",
-	      did << ", " << doc << ", " << doclen);
+    LOGCALL_VOID(DB, "FlintTermListTable::set_termlist", did | doc | doclen);
 
     Xapian::doccount termlist_size = doc.termlist_count();
     if (termlist_size == 0) {
@@ -121,7 +120,7 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 flint_doclen_t
 FlintTermListTable::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, flint_doclen_t, "FlintTermListTable::get_doclength", did);
+    LOGCALL(DB, flint_doclen_t, "FlintTermListTable::get_doclength", did);
 
     string tag;
     if (!get_exact_entry(flint_docid_to_key(did), tag))

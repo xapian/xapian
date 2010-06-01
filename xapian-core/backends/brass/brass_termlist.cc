@@ -27,8 +27,8 @@
 
 #include "expandweight.h"
 #include "brass_positionlist.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "pack.h"
 #include "str.h"
 
@@ -38,8 +38,7 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    DEBUGCALL(DB, void, "BrassTermList",
-	      "[RefCntPtr<const BrassDatabase>], " << did_);
+    LOGCALL_VOID(DB, "BrassTermList", db_ | did_);
 
     if (!db->termlist_table.get(BrassTermListTable::make_key(did), data))
 	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
@@ -79,21 +78,21 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
 Xapian::termcount
 BrassTermList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
 }
 
 Xapian::termcount
 BrassTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::get_approx_size", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_approx_size", NO_ARGS);
     RETURN(termlist_size);
 }
 
 void
 BrassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(DB, void, "BrassTermList::accumulate_stats", "[stats&]");
+    LOGCALL_VOID(DB, "BrassTermList::accumulate_stats", stats);
     Assert(!at_end());
     stats.accumulate(current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
@@ -101,21 +100,21 @@ BrassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 string
 BrassTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassTermList::get_termname", "");
+    LOGCALL(DB, string, "BrassTermList::get_termname", NO_ARGS);
     RETURN(current_term);
 }
 
 Xapian::termcount
 BrassTermList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_wdf", NO_ARGS);
     RETURN(current_wdf);
 }
 
 Xapian::doccount
 BrassTermList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassTermList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "BrassTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
 	current_termfreq = db->get_termfreq(current_term);
     RETURN(current_termfreq);
@@ -124,7 +123,7 @@ BrassTermList::get_termfreq() const
 TermList *
 BrassTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassTermList::next", "");
+    LOGCALL(DB, TermList *, "BrassTermList::next", NO_ARGS);
     Assert(!at_end());
     if (pos == end) {
 	pos = NULL;
@@ -170,21 +169,21 @@ BrassTermList::next()
 bool
 BrassTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassTermList::at_end", "");
+    LOGCALL(DB, bool, "BrassTermList::at_end", NO_ARGS);
     RETURN(pos == NULL);
 }
 
 Xapian::termcount
 BrassTermList::positionlist_count() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::positionlist_count", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::positionlist_count", NO_ARGS);
     RETURN(db->position_table.positionlist_count(did, current_term));
 }
 
 Xapian::PositionIterator
 BrassTermList::positionlist_begin() const
 {
-    DEBUGCALL(DB, Xapian::PositionIterator, "BrassTermList::positionlist_begin", "");
+    LOGCALL(DB, Xapian::PositionIterator, "BrassTermList::positionlist_begin", NO_ARGS);
     return Xapian::PositionIterator(
 	    new BrassPositionList(&db->position_table, did, current_term));
 }

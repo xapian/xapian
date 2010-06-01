@@ -26,6 +26,7 @@
 
 #include "postlist.h"
 
+class MultiMatch;
 class ValueStreamDocument;
 
 /** A postlist comprising postlists from different databases merged together.

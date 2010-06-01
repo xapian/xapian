@@ -25,8 +25,8 @@
 
 #include "omqueryinternal.h"
 
+#include "debuglog.h"
 #include "registryinternal.h"
-#include "omdebug.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -751,7 +751,7 @@ Xapian::Query::Internal::~Internal()
 Xapian::Query::Internal *
 Xapian::Query::Internal::end_construction()
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::end_construction", "");
+    LOGCALL_VOID(MATCH, "Xapian::Query::Internal::end_construction", NO_ARGS);
     validate_query();
     Xapian::Query::Internal * qint = simplify_query();
     if (qint) qint->validate_query();
@@ -761,7 +761,7 @@ Xapian::Query::Internal::end_construction()
 void
 Xapian::Query::Internal::validate_query() const
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
+    LOGCALL_VOID(MATCH, "Xapian::Query::Internal::validate_query", NO_ARGS);
 
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
@@ -855,7 +855,7 @@ Xapian::Query::Internal::simplify_matchnothing()
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
-    DEBUGCALL(API, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", "");
+    LOGCALL(MATCH, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", NO_ARGS);
 
     // Simplify any MatchNothing nodes.
     if (simplify_matchnothing()) {

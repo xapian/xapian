@@ -22,11 +22,11 @@
  */
 
 #include <config.h>
-
 #include "phrasepostlist.h"
+
+#include "debuglog.h"
 #include "positionlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "str.h"
 
 #include <algorithm>
@@ -49,7 +49,7 @@ class PositionListCmpLt {
 bool
 NearPostList::test_doc()
 {
-    DEBUGCALL(MATCH, bool, "NearPostList::test_doc", "");
+    LOGCALL(MATCH, bool, "NearPostList::test_doc", NO_ARGS);
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::iterator i;
@@ -76,7 +76,7 @@ bool
 NearPostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
 		      Xapian::termcount min, Xapian::termcount max)
 {
-    DEBUGCALL(MATCH, bool, "NearPostList::do_test", "[plists], " << i << ", " << min << ", " << max);
+    LOGCALL(MATCH, bool, "NearPostList::do_test", plists | i | min | max);
     LOGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     Xapian::termcount tmp = max + 1;
     // take care to avoid underflow
@@ -175,7 +175,7 @@ NearPostList::get_description() const
 bool
 PhrasePostList::test_doc()
 {
-    DEBUGCALL(MATCH, bool, "PhrasePostList::test_doc", "");
+    LOGCALL(MATCH, bool, "PhrasePostList::test_doc", NO_ARGS);
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::iterator i;
@@ -210,7 +210,7 @@ bool
 PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
 			Xapian::termcount min, Xapian::termcount max)
 {
-    DEBUGCALL(MATCH, bool, "PhrasePostList::do_test", "[plists],  " << i << ", " << min << ", " << max);
+    LOGCALL(MATCH, bool, "PhrasePostList::do_test", plists | i | min | max);
     LOGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     Xapian::termpos idxi = plists[i]->index;
     LOGLINE(MATCH, "my idx in phrase is " << idxi);

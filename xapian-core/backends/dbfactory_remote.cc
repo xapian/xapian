@@ -21,7 +21,7 @@
 
 #include <xapian/dbfactory.h>
 
-#include "omdebug.h"
+#include "debuglog.h"
 #include "progclient.h"
 #include "remotetcpclient.h"
 
@@ -35,8 +35,7 @@ Database
 Remote::open(const string &host, unsigned int port, Xapian::timeout timeout,
 	     Xapian::timeout connect_timeout)
 {
-    DEBUGAPICALL_STATIC(Database, "Remote::open",
-	host << ", " << port << ", " << timeout << ", " << connect_timeout);
+    LOGCALL_STATIC(API, Database, "Remote::open", host | port | timeout | connect_timeout);
     return Database(new RemoteTcpClient(host, port, timeout, connect_timeout, false));
 }
 
@@ -44,16 +43,14 @@ WritableDatabase
 Remote::open_writable(const string &host, unsigned int port,
 		      Xapian::timeout timeout, Xapian::timeout connect_timeout)
 {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Remote::open_writable",
-	host << ", " << port << ", " << timeout << ", " << connect_timeout);
+    LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", host | port | timeout | connect_timeout);
     return WritableDatabase(new RemoteTcpClient(host, port, timeout, connect_timeout, true));
 }
 
 Database
 Remote::open(const string &program, const string &args, Xapian::timeout timeout)
 {
-    DEBUGAPICALL_STATIC(Database, "Remote::open",
-	program << ", " << args << ", " << timeout);
+    LOGCALL_STATIC(API, Database, "Remote::open", program | args | timeout);
     return Database(new ProgClient(program, args, timeout, false));
 }
 
@@ -61,8 +58,7 @@ WritableDatabase
 Remote::open_writable(const string &program, const string &args,
 		      Xapian::timeout timeout)
 {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Remote::open_writable",
-	program << ", " << args << ", " << timeout);
+    LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout);
     return WritableDatabase(new ProgClient(program, args, timeout, true));
 }
 

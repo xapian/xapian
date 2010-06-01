@@ -162,7 +162,7 @@ ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 PostList *
 ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 {
-    LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | "<valid>");
+    LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | valid);
     Assert(source);
     if (did <= current) {
 	valid = true;

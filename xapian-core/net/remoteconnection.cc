@@ -463,7 +463,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 char
 RemoteConnection::sniff_next_message_type(const OmTime & end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message", "[result]" | end_time);
+    LOGCALL(REMOTE, char, "RemoteConnection::sniff_next_message_type", end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -476,7 +476,7 @@ RemoteConnection::sniff_next_message_type(const OmTime & end_time)
 char
 RemoteConnection::get_message(string &result, const OmTime & end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message", "[result]" | end_time);
+    LOGCALL(REMOTE, char, "RemoteConnection::get_message", result | end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }

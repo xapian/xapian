@@ -55,7 +55,7 @@ OrTermList::get_approx_size() const
 void
 OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    LOGCALL_VOID(EXPAND, "OrTermList::accumulate_stats", "[stats&]");
+    LOGCALL_VOID(EXPAND, "OrTermList::accumulate_stats", stats);
     check_started();
     if (left_current <= right_current) left->accumulate_stats(stats);
     if (left_current >= right_current) right->accumulate_stats(stats);

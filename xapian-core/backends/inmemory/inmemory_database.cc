@@ -25,7 +25,7 @@
 
 #include "inmemory_database.h"
 
-#include "omdebug.h"
+#include "debuglog.h"
 
 #include "expandweight.h"
 #include "inmemory_document.h"
@@ -705,7 +705,7 @@ void
 InMemoryDatabase::replace_document(Xapian::docid did,
 				   const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "InMemoryDatabase::replace_document", did << ", " << document);
+    LOGCALL_VOID(DB, "InMemoryDatabase::replace_document", did | document);
 
     if (closed) InMemoryDatabase::throw_database_closed();
 
@@ -759,7 +759,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 Xapian::docid
 InMemoryDatabase::add_document(const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid, "InMemoryDatabase::add_document", document);
+    LOGCALL(DB, Xapian::docid, "InMemoryDatabase::add_document", document);
     if (closed) InMemoryDatabase::throw_database_closed();
 
     Xapian::docid did = make_doc(document.get_data());

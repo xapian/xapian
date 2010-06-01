@@ -22,11 +22,11 @@
  */
 
 #include <config.h>
-
 #include "xorpostlist.h"
+
 #include "andnotpostlist.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 // for XOR we just pass w_min through unchanged since both branches matching
 // doesn't cause a match
@@ -34,7 +34,7 @@
 inline PostList *
 XorPostList::advance_to_next_match()
 {
-    DEBUGCALL(MATCH, PostList *, "XorPostList::advance_to_next_match", "");
+    LOGCALL(MATCH, PostList *, "XorPostList::advance_to_next_match", NO_ARGS);
     while (rhead == lhead) {
 	next_handling_prune(l, 0, matcher);
 	next_handling_prune(r, 0, matcher);
@@ -67,13 +67,13 @@ XorPostList::XorPostList(PostList *left_,
 	  rhead(0),
 	  dbsize(dbsize_)
 {
-    DEBUGCALL(MATCH, void, "XorPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
+    LOGCALL_VOID(MATCH, "XorPostList", left_ | right_ | matcher_ | dbsize_);
 }
 
 PostList *
 XorPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "XorPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "XorPostList::next", w_min);
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)
 	PostList *ret;
@@ -133,7 +133,7 @@ XorPostList::next(Xapian::weight w_min)
 PostList *
 XorPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "XorPostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "XorPostList::skip_to", did | w_min);
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)
 	PostList *ret, *ret2;
@@ -197,14 +197,14 @@ XorPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::doccount
 XorPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_max", "");
+    LOGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_max", NO_ARGS);
     return l->get_termfreq_max() + r->get_termfreq_max();
 }
 
 Xapian::doccount
 XorPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_min", "");
+    LOGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_min", NO_ARGS);
     // Min = freq_min(a or b) - freq_max(a and b)
     //     = max(a_min, b_min) - min(a_max, b_max)
     //     = min(b_min - a_max, a_min - b_max)
@@ -224,7 +224,7 @@ XorPostList::get_termfreq_min() const
 Xapian::doccount
 XorPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_est", "");
+    LOGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_est", NO_ARGS);
     // Estimate assuming independence:
     // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
@@ -267,7 +267,7 @@ XorPostList::get_termfreq_est_using_stats(
 Xapian::docid
 XorPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "XorPostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "XorPostList::get_docid", NO_ARGS);
     Assert(lhead != 0 && rhead != 0); // check we've started
     return std::min(lhead, rhead);
 }
@@ -276,7 +276,7 @@ XorPostList::get_docid() const
 Xapian::weight
 XorPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "XorPostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "XorPostList::get_weight", NO_ARGS);
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_weight();
     Assert(lhead > rhead);
@@ -287,14 +287,14 @@ XorPostList::get_weight() const
 Xapian::weight
 XorPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "XorPostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "XorPostList::get_maxweight", NO_ARGS);
     return std::max(lmax, rmax);
 }
 
 Xapian::weight
 XorPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, Xapian::weight, "XorPostList::recalc_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "XorPostList::recalc_maxweight", NO_ARGS);
     // l and r cannot be NULL here, because the only place where they get set
     // to NULL is when the tree is decaying, and the XorPostList is then
     // immediately replaced.
@@ -307,7 +307,7 @@ XorPostList::recalc_maxweight()
 bool
 XorPostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "XorPostList::at_end", "");
+    LOGCALL(MATCH, bool, "XorPostList::at_end", NO_ARGS);
     return lhead == 0;
 }
 
@@ -320,7 +320,7 @@ XorPostList::get_description() const
 Xapian::termcount
 XorPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "XorPostList::get_doclength", "");
+    LOGCALL(MATCH, Xapian::termcount, "XorPostList::get_doclength", NO_ARGS);
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_doclength();
     Assert(lhead > rhead);
@@ -330,7 +330,7 @@ XorPostList::get_doclength() const
 Xapian::termcount
 XorPostList::get_wdf() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "XorPostList::get_wdf", "");
+    LOGCALL(MATCH, Xapian::termcount, "XorPostList::get_wdf", NO_ARGS);
     if (lhead < rhead) RETURN(l->get_wdf());
     RETURN(r->get_wdf());
 }
@@ -338,7 +338,7 @@ XorPostList::get_wdf() const
 Xapian::termcount
 XorPostList::count_matching_subqs() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "XorPostList::count_matching_subqs", "");
+    LOGCALL(MATCH, Xapian::termcount, "XorPostList::count_matching_subqs", NO_ARGS);
     if (lhead < rhead) RETURN(l->count_matching_subqs());
     RETURN(r->count_matching_subqs());
 }
