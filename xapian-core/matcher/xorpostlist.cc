@@ -67,7 +67,7 @@ XorPostList::XorPostList(PostList *left_,
 	  rhead(0),
 	  dbsize(dbsize_)
 {
-    LOGCALL_VOID(MATCH, "XorPostList", left_ | right_ | matcher_ | dbsize_);
+    LOGCALL_CTOR(MATCH, "XorPostList", left_ | right_ | matcher_ | dbsize_);
 }
 
 PostList *

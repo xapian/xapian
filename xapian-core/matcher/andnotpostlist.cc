@@ -65,7 +65,7 @@ AndNotPostList::AndNotPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), dbsize(dbsize_)
 {
-    LOGCALL_VOID(MATCH, "AndNotPostList", left_ | right_ | matcher_ | dbsize_);
+    LOGCALL_CTOR(MATCH, "AndNotPostList", left_ | right_ | matcher_ | dbsize_);
 }
 
 PostList *

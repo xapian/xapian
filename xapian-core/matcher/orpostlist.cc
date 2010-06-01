@@ -39,7 +39,7 @@ OrPostList::OrPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
-    LOGCALL_VOID(MATCH, "OrPostList", left_ | right_ | matcher_ | dbsize_);
+    LOGCALL_CTOR(MATCH, "OrPostList", left_ | right_ | matcher_ | dbsize_);
     AssertRel(left_->get_termfreq_est(),>=,right_->get_termfreq_est());
 }
 

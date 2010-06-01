@@ -1,3 +1,11 @@
+Tue Jun 01 13:49:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/brass/brass_termlist.cc,
+	  backends/chert/chert_database.cc,backends/chert/chert_termlist.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_document.cc,
+	  backends/flint/flint_termlist.cc,matcher/: Fix LOGCALL_VOID uses
+	  for ctors and dtors to be LOGCALL_CTOR and LOGCALL_DTOR respectively.
+
 Tue Jun 01 13:33:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc: Use LOGCALL_VOID instead of LOGCALL with a void

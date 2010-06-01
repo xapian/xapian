@@ -38,7 +38,7 @@ ChertTermList::ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    LOGCALL_VOID(DB, "ChertTermList", db_ | did_);
+    LOGCALL_CTOR(DB, "ChertTermList", db_ | did_);
 
     if (!db->termlist_table.get_exact_entry(ChertTermListTable::make_key(did),
 					    data))

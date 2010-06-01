@@ -227,7 +227,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
 {
-    LOGCALL_VOID(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
+    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     if (!query) return;
     query->validate_query();

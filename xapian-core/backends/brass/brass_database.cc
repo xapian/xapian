@@ -123,7 +123,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    LOGCALL_VOID(DB, "BrassDatabase", brass_dir | action | block_size);
+    LOGCALL_CTOR(DB, "BrassDatabase", brass_dir | action | block_size);
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();
@@ -186,7 +186,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 
 BrassDatabase::~BrassDatabase()
 {
-    LOGCALL_VOID(DB, "~BrassDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~BrassDatabase");
 }
 
 bool
@@ -1019,7 +1019,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    LOGCALL_VOID(DB, "BrassWritableDatabase", dir | action | block_size);
+    LOGCALL_CTOR(DB, "BrassWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -1030,7 +1030,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 
 BrassWritableDatabase::~BrassWritableDatabase()
 {
-    LOGCALL_VOID(DB, "~BrassWritableDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~BrassWritableDatabase");
     dtor_called();
 }
 

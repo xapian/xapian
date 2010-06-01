@@ -126,7 +126,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    LOGCALL_VOID(DB, "ChertDatabase", chert_dir | action | block_size);
+    LOGCALL_CTOR(DB, "ChertDatabase", chert_dir | action | block_size);
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();
@@ -189,7 +189,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 
 ChertDatabase::~ChertDatabase()
 {
-    LOGCALL_VOID(DB, "~ChertDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~ChertDatabase");
 }
 
 bool
@@ -1017,7 +1017,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    LOGCALL_VOID(DB, "ChertWritableDatabase", dir | action | block_size);
+    LOGCALL_CTOR(DB, "ChertWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -1028,7 +1028,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 
 ChertWritableDatabase::~ChertWritableDatabase()
 {
-    LOGCALL_VOID(DB, "~ChertWritableDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~ChertWritableDatabase");
     dtor_called();
 }
 
