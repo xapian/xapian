@@ -1,0 +1,10 @@
+Geospatial support.
+
+Warning - experimental code!
+You probably don't want to use this branch!
+
+If you're just looking for basic geospatial search support, you're probably
+best off reading http://trac.xapian.org/ticket/481, and using whatever the most
+stable patch attached to that is (applying the patch to trunk).  Or, if the
+ticket has been closed, just use trunk (since that'll mean that the patch has
+been applied).
