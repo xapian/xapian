@@ -1,3 +1,12 @@
+Wed Jun 02 03:41:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* AUTHORS,Makefile.am,cmake/,configure.ac: Install files to make Xapian
+	  easier to use with cmake.  Thanks to Sune Vuorela for providing the
+	  desired output.
+	* cmake/xapian-config-version.cmake,cmake/xapian-config.cmake: Remove
+	  generated files from SVN.
+
 Tue Jun 01 12:48:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

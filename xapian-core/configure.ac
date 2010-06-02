@@ -1109,6 +1109,11 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Shared library extension.
+module=no
+eval "SHLIBEXT=$shrext_cmds"
+AC_SUBST(SHLIBEXT)
+
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
@@ -1124,6 +1129,8 @@ AC_CONFIG_FILES([
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian-core.spec
+ cmake/xapian-config.cmake
+ cmake/xapian-config-version.cmake
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
