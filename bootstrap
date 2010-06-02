@@ -425,10 +425,6 @@ for target in $targets ; do
       echo "	cd $d && \$(MAKE) dist GZIP=-f" ;;
     search-xapian,distcheck)
       echo "	cd $d && \$(MAKE) disttest && \$(MAKE) dist GZIP=-f" ;;
-    xapian-bindings,distcheck)
-      # FIXME: distcheck doesn't currently work for xapian-bindings because
-      # xapian-core isn't installed.
-      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" ;;
     *)
       echo "	cd $d && \$(MAKE) $target" ;;
     esac
