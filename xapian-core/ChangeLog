@@ -1,3 +1,19 @@
+Wed Jun 02 14:09:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_opvalue.cc: Add tests for OP_VALUE_RANGE to get
+	  coverage of the skip_to() and check() methods of
+	  ValueRangePostList.
+	* tests/api_opvalue.cc: Add a test to get coverage of
+	  ValueGePostList::skip_to().
+	* tests/api_nodb.cc,tests/api_opvalue.cc: Move test "opvaluege1"
+	  from api_nodb.cc to api_opvalue.cc, and rename to valuege3 for
+	  consistency with other tests of OP_VALUE_GE.
+	* tests/Makefile.am,tests/api_anydb.cc,tests/api_opvalue.cc: Move
+	  the tests for OP_VALUE_* query operators from api_anydb.cc to
+	  api_opvalue.cc.  Remove copyright statements earlier than 2007,
+	  since OP_VALUE_* wasn't added until 2007.
+
 Wed Jun 02 03:41:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

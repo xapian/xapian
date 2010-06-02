@@ -404,10 +404,3 @@ DEFINE_TESTCASE(rset4, !backend) {
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(RSet::Internal(1))");
     return true;
 }
-
-// Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
-DEFINE_TESTCASE(opvaluege1, !backend) {
-    Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");
-    TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
-    return true;
-}
