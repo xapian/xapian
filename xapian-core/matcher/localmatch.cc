@@ -28,6 +28,7 @@
 #include "autoptr.h"
 #include "extraweightpostlist.h"
 #include "leafpostlist.h"
+#include "omassert.h"
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"

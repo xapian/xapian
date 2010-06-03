@@ -28,6 +28,7 @@
 #include "multimatch.h"
 #include "submatch.h"
 #include "localmatch.h"
+#include "omassert.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
 
