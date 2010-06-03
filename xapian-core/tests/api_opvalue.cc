@@ -53,9 +53,8 @@ DEFINE_TESTCASE(valuerange1, backend) {
 	    for (i = mset.begin(); i != mset.end(); ++i) {
 		matched.insert(*i);
 		string value = db.get_document(*i).get_value(1);
-		tout << "'" << *start << "' <= '" << value << "' <= '" << *end << "'" << endl;
-		TEST(value >= *start);
-		TEST(value <= *end);
+		TEST_REL(value,>=,*start);
+		TEST_REL(value,<=,*end);
 	    }
 	    // Check that documents not in the MSet don't match the value range filter.
 	    for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
@@ -152,15 +151,14 @@ DEFINE_TESTCASE(valuele1, backend) {
 	for (i = mset.begin(); i != mset.end(); ++i) {
 	    matched.insert(*i);
 	    string value = db.get_document(*i).get_value(1);
-	    tout << "'" << *end << "' <= '" << value << "'" << endl;
-	    TEST(value <= *end);
+	    TEST_REL(value,<=,*end);
 	}
-	// Check that documents not in the MSet don't match the value range filter.
+	// Check that documents not in the MSet don't match the value range
+	// filter.
 	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
 	    if (matched.find(j) == matched.end()) {
 		string value = db.get_document(j).get_value(1);
-		tout << value << " < '" << *end << "'" << endl;
-		TEST(value > *end);
+		TEST_REL(value,>,*end);
 	    }
 	}
     }
