@@ -1,3 +1,8 @@
+Thu Jun 03 15:21:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am: Add missing
+	  SWIGTYPE_p_Xapian__StemImplementation.cs file.
+
 Tue Jun 01 16:23:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* csharp/util.i,java-swig/util.i,python/generate-python-exceptions,

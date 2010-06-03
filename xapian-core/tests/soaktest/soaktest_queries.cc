@@ -27,6 +27,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "str.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"

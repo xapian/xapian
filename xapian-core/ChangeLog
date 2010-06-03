@@ -27,6 +27,10 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Thu Jun 03 15:01:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/soaktest_queries.cc: Add missing include of str.h
+
 Thu Jun 03 12:09:35 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/Makefile.am: Fix building of zlib-vg.so in VPATH builds.
