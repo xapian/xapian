@@ -29,6 +29,7 @@
 #include "exactphrasepostlist.h"
 #include "multiandpostlist.h"
 #include "multimatch.h"
+#include "multixorpostlist.h"
 #include "omassert.h"
 #include "omdebug.h"
 #include "omqueryinternal.h"
@@ -37,7 +38,6 @@
 #include "postlist.h"
 #include "valuegepostlist.h"
 #include "valuerangepostlist.h"
-#include "xorpostlist.h"
 
 #include <algorithm>
 #include <list>
@@ -305,6 +305,11 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 	postlists.push_back(do_subquery(*q, factor));
     }
 
+    if (op == Xapian::Query::OP_XOR) {
+	RETURN(new MultiXorPostList(postlists.begin(), postlists.end(),
+				    matcher, db_size));
+    }
+
     if (op == Xapian::Query::OP_ELITE_SET) {
 	// Select the best elite_set_size terms.
 	Xapian::termcount elite_set_size = query->parameter;
@@ -334,8 +339,9 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     make_heap(postlists.begin(), postlists.end(),
 	      ComparePostListTermFreqAscending());
 
-    // Now build a tree of binary OrPostList or XorPostList objects.  The
-    // algorithm used to build the tree is like that used to build an
+    // Now build a tree of binary OrPostList objects.
+    //
+    // The algorithm used to build the tree is like that used to build an
     // optimal Huffman coding tree.  If we called next() repeatedly, this
     // arrangement would minimise the number of method calls.  Generally we
     // don't actually do that, but this arrangement is still likely to be a
@@ -346,20 +352,13 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 	//
 	//   l.get_termfreq_est() >= r.get_termfreq_est()
 	//
-	// We do this so that the OrPostList and XorPostList classes can be
-	// optimised assuming that this is the case.
+	// We do this so that the OrPostList class can be optimised assuming
+	// that this is the case.
 	PostList * r = postlists.front();
 	pop_heap(postlists.begin(), postlists.end(),
 		 ComparePostListTermFreqAscending());
 	postlists.pop_back();
-	PostList * l = postlists.front();
-
-	PostList * pl;
-	if (op == Xapian::Query::OP_XOR) {
-	    pl = new XorPostList(l, r, matcher, db_size);
-	} else {
-	    pl = new OrPostList(l, r, matcher, db_size);
-	}
+	PostList * pl = new OrPostList(postlists.front(), r, matcher, db_size);
 
 	if (postlists.size() == 1) RETURN(pl);
 

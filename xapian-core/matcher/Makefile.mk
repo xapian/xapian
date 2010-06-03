@@ -9,6 +9,7 @@ noinst_HEADERS +=\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
 	matcher/multiandpostlist.h\
+	matcher/multixorpostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
 	matcher/queryoptimiser.h\
@@ -16,8 +17,7 @@ noinst_HEADERS +=\
 	matcher/scaleweight.h\
 	matcher/selectpostlist.h\
 	matcher/valuegepostlist.h\
-	matcher/valuerangepostlist.h\
-	matcher/xorpostlist.h
+	matcher/valuerangepostlist.h
 
 EXTRA_DIST +=\
 	matcher/dir_contents\
@@ -43,6 +43,7 @@ libxapian_la_SOURCES +=\
 	matcher/msetpostlist.cc\
 	matcher/multiandpostlist.cc\
 	matcher/multimatch.cc\
+	matcher/multixorpostlist.cc\
 	matcher/orpostlist.cc\
 	matcher/phrasepostlist.cc\
 	matcher/queryoptimiser.cc\
@@ -53,5 +54,4 @@ libxapian_la_SOURCES +=\
 	matcher/tradweight.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
-	matcher/weight.cc\
-	matcher/xorpostlist.cc
+	matcher/weight.cc

@@ -1,3 +1,11 @@
+Thu Jun 03 07:44:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/: Implement MultiXorPostList which returns correct weights
+	  for XOR of more than 2 subqueries, and drop XorPostList completely.
+	  (ticket#475)
+	* tests/api_anydb.cc: Add regression test xor2.
+
 Thu Jun 03 01:30:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
