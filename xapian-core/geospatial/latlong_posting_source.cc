@@ -28,6 +28,7 @@
 
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 #include "utils.h"
 
 #include <math.h>
@@ -65,11 +66,11 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
     if (k1 <= 0)
 	throw InvalidArgumentError(
 	    "k1 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + om_tostring(k1));
+	    "than 0; was " + str(k1));
     if (k2 <= 0)
 	throw InvalidArgumentError(
 	    "k2 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + om_tostring(k2));
+	    "than 0; was " + str(k2));
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
@@ -90,11 +91,11 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
     if (k1 <= 0)
 	throw InvalidArgumentError(
 	    "k1 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + om_tostring(k1));
+	    "than 0; was " + str(k1));
     if (k2 <= 0)
 	throw InvalidArgumentError(
 	    "k2 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + om_tostring(k2));
+	    "than 0; was " + str(k2));
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
@@ -247,7 +248,7 @@ LatLongDistancePostingSource::init(const Database & db_)
 std::string
 LatLongDistancePostingSource::get_description() const
 {
-    return "Xapian::LatLongDistancePostingSource(slot=" + om_tostring(slot) + ")";
+    return "Xapian::LatLongDistancePostingSource(slot=" + str(slot) + ")";
 }
 
 }

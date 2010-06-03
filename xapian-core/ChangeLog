@@ -1,3 +1,8 @@
+Thu Jun 03 15:05:03 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlong_posting_source.cc,geospatial/latlongparse.lt:
+	  Update to work with modern debugging macros.
+
 Wed Aug 26 11:49:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/Makefile.mk: Add latlongparse.lt to distributions.

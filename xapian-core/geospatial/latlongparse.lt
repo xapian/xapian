@@ -186,7 +186,7 @@ static void yy_parse_failed(yyParser *);
 }
 }
 #include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 namespace Xapian {
 namespace LatLongParse {
 
