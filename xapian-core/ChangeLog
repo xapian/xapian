@@ -1,3 +1,7 @@
+Thu Jun 03 04:38:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Tweak loop end test to be a normal while.
+
 Thu Jun 03 01:22:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_stem.cc: Note stem2's feature was backported to 1.0.21.
