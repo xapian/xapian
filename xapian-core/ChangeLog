@@ -1,3 +1,7 @@
+Thu Jun 03 12:09:35 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/Makefile.am: Fix building of zlib-vg.so in VPATH builds.
+
 Thu Jun 03 11:49:31 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* matcher/orpostlist.cc,tests/api_backend.cc: Fix several bugs in
