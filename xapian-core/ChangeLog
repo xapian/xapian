@@ -1,3 +1,9 @@
+Thu Jun 03 10:22:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_opvalue.cc: Convert file description to doccomment.
+	  Remove unused headers and reorder remainder more standardly.
+
 Thu Jun 03 07:44:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
