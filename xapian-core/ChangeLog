@@ -1,3 +1,14 @@
+Thu Jun 03 11:49:31 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc,tests/api_backend.cc: Fix several bugs in
+	  OrPostList::check() (introduced since 1.2.0).  Fixes ticket #485.
+	  Specifically, we have to check a sub-postlist even if head=did,
+	  because we need to know if that sub-postlist is valid.  Also, if
+	  a sub-postlist is not valid, set its head to did+1, since we know
+	  that we're no longer interested in matches before did, and this
+	  allows the OrPostList to assume that the minimum docid of its
+	  children is the current docid.
+
 Thu Jun 03 07:15:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/: Implement MultiXorPostList which returns correct weights
