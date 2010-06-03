@@ -12,7 +12,7 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : HEADERS "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libquartzbtreecheck.lib" 
+ALL : "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libquartzbtreecheck.lib" 
 
 
 LIBQUARTZBTREECHECK_OBJS= \

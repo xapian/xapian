@@ -1,7 +1,7 @@
-/* expand.h: class for finding expand terms
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2007,2008 Olly Betts
+/** @file soaktest.h
+ * @brief Long-running "soak" tests for Xapian.
+ */
+/* Copyright (C) 2010 Richard boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,14 +18,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+#ifndef XAPIAN_INCLUDED_SOAKTEST_H
+#define XAPIAN_INCLUDED_SOAKTEST_H
 
-#ifndef OM_HGUARD_EXPAND_H
-#define OM_HGUARD_EXPAND_H
+/// Initialise the random number generator with the seed.
+extern unsigned int initrand();
 
-namespace Xapian {
-    class ESet;
-    namespace Internal {
-    }
-}
+/// Return a random integer in the range 0 to s-1.
+extern unsigned int randint(unsigned int s);
 
-#endif /* OM_HGUARD_EXPAND_H */
+#endif // XAPIAN_INCLUDED_SOAKTEST_H

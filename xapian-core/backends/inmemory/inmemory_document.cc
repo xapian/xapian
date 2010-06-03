@@ -43,7 +43,7 @@ InMemoryDocument::do_get_value(Xapian::valueno slot) const
 void
 InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &values_) const
 {
-    LOGCALL_VOID(DB, "InMemoryDocument::do_get_all_values", "[&values_]");
+    LOGCALL_VOID(DB, "InMemoryDocument::do_get_all_values", values_);
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();
@@ -53,7 +53,7 @@ InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &values_) const
 string
 InMemoryDocument::do_get_data() const
 {
-    LOGCALL(DB, string, "InMemoryDocument::do_get_data", "");
+    LOGCALL(DB, string, "InMemoryDocument::do_get_data", NO_ARGS);
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();

@@ -25,11 +25,11 @@
 
 #include "omqueryinternal.h"
 
+#include "debuglog.h"
 #include "registryinternal.h"
-#include "omdebug.h"
-#include "utils.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 
 #include <xapian/error.h>
 #include <xapian/postingsource.h>
@@ -282,12 +282,12 @@ Xapian::Query::Internal::get_description() const
 
     if (is_leaf(op)) {
 	if (term_pos != 0) {
-	    opstr += "pos=" + om_tostring(term_pos);
+	    opstr += "pos=" + str(term_pos);
 	}
 	// parameter is wqf.
 	if (parameter != 1) {
 	    if (!opstr.empty()) opstr += ",";
-	    opstr += "wqf=" + om_tostring(parameter);
+	    opstr += "wqf=" + str(parameter);
 	}
 	if (!opstr.empty()) opstr = ":(" + opstr + ")";
 	if (tname.empty()) return "<alldocuments>" + opstr;
@@ -298,7 +298,7 @@ Xapian::Query::Internal::get_description() const
 	case Xapian::Query::OP_VALUE_RANGE:
 	    opstr = get_op_name(op);
 	    opstr += ' ';
-	    opstr += om_tostring(parameter);
+	    opstr += str(parameter);
 	    opstr += ' ';
 	    opstr += tname;
 	    opstr += ' ';
@@ -308,12 +308,12 @@ Xapian::Query::Internal::get_description() const
 	case Xapian::Query::OP_VALUE_LE:
 	    opstr = get_op_name(op);
 	    opstr += ' ';
-	    opstr += om_tostring(parameter);
+	    opstr += str(parameter);
 	    opstr += ' ';
 	    opstr += tname;
 	    return opstr;
 	case Xapian::Query::OP_SCALE_WEIGHT:
-	    opstr += om_tostring(get_dbl_parameter());
+	    opstr += str(get_dbl_parameter());
 	    opstr += " * ";
 	    opstr += subqs[0]->get_description();
 	    return opstr;
@@ -328,7 +328,7 @@ Xapian::Query::Internal::get_description() const
     if (op == Xapian::Query::OP_NEAR ||
 	op == Xapian::Query::OP_PHRASE ||
 	op == Xapian::Query::OP_ELITE_SET)
-	opstr += om_tostring(parameter) + " ";
+	opstr += str(parameter) + " ";
 
     string description;
     subquery_list::const_iterator i;
@@ -751,7 +751,7 @@ Xapian::Query::Internal::~Internal()
 Xapian::Query::Internal *
 Xapian::Query::Internal::end_construction()
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::end_construction", "");
+    LOGCALL_VOID(MATCH, "Xapian::Query::Internal::end_construction", NO_ARGS);
     validate_query();
     Xapian::Query::Internal * qint = simplify_query();
     if (qint) qint->validate_query();
@@ -761,16 +761,16 @@ Xapian::Query::Internal::end_construction()
 void
 Xapian::Query::Internal::validate_query() const
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
+    LOGCALL_VOID(MATCH, "Xapian::Query::Internal::validate_query", NO_ARGS);
 
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
 	subqs.size() > get_max_subqs(op)) {
 	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
-		" requires a minimum of " + om_tostring(get_min_subqs(op)) +
-		" and a maximum of " + om_tostring(get_max_subqs(op)) +
+		" requires a minimum of " + str(get_min_subqs(op)) +
+		" and a maximum of " + str(get_max_subqs(op)) +
 		" sub queries, had " +
-		om_tostring(subqs.size()) + ".");
+		str(subqs.size()) + ".");
     }
 
     if (op == OP_SCALE_WEIGHT && get_dbl_parameter() < 0) {
@@ -855,7 +855,7 @@ Xapian::Query::Internal::simplify_matchnothing()
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
-    DEBUGCALL(API, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", "");
+    LOGCALL(MATCH, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", NO_ARGS);
 
     // Simplify any MatchNothing nodes.
     if (simplify_matchnothing()) {

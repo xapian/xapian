@@ -1274,16 +1274,6 @@ del wrapper
 del Database.valuestream_begin
 del Database.valuestream_end
 
-# Set the list of names which should be public.
-# Note that this needs to happen at the end of xapian.py.
-__all__ = []
-for item in dir():
-    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
-        continue
-    __all__.append(item)
-__all__ = tuple(__all__)
-
-
 # Fix up Enquire so that it keeps a python reference to the deciders supplied
 # to it so that they won't be deleted before the Enquire object.  This hack can
 # probably be removed once xapian bug #186 is fixed.
@@ -1333,6 +1323,15 @@ PositionIterator.__next__ = lambda self: PositionIterator.next(self)
 TermIterator.__next__ = lambda self: TermIterator.next(self)
 ValueIterator.__next__ = lambda self: ValueIterator.next(self)
 
+
+# Set the list of names which should be public.
+# Note that this needs to happen at the end of xapian.py.
+__all__ = []
+for item in dir():
+    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
+        continue
+    __all__.append(item)
+__all__ = tuple(__all__)
 %}
 
 /* vim:syntax=python:set expandtab: */

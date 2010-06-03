@@ -33,8 +33,8 @@
 #include "flint_types.h"
 #include "flint_utils.h"
 #include "flint_version.h"
+#include "debuglog.h"
 #include "io_utils.h"
-#include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
 #include "replicate_utils.h"
@@ -66,8 +66,7 @@ bool
 FlintDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    DEBUGCALL(DB, bool, "FlintDatabaseReplicator::check_revision_at_least",
-	      rev << ", " << target);
+    LOGCALL(DB, bool, "FlintDatabaseReplicator::check_revision_at_least", rev | target);
 
     flint_revision_number_t rev_val;
     flint_revision_number_t target_val;
@@ -224,7 +223,7 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
-		msg += om_tostring(block_number);
+		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
 	    io_write(fd, buf.data(), changeset_blocksize);
@@ -240,8 +239,7 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   const OmTime & end_time,
 						   bool valid) const
 {
-    DEBUGCALL(DB, string, "FlintDatabaseReplicator::apply_changeset_from_conn",
-	      "conn, end_time, " << valid);
+    LOGCALL(DB, string, "FlintDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
@@ -375,7 +373,7 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 string
 FlintDatabaseReplicator::get_uuid() const
 {
-    DEBUGCALL(DB, string, "FlintDatabaseReplicator::get_uuid", "");
+    LOGCALL(DB, string, "FlintDatabaseReplicator::get_uuid", NO_ARGS);
     FlintVersion version_file(db_dir);
     try {
 	version_file.read_and_check(true);

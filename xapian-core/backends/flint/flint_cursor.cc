@@ -27,9 +27,9 @@
 
 #include <xapian/error.h>
 
+#include "debuglog.h"
 #include "flint_table.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #ifdef XAPIAN_DEBUG_LOG
 static string
@@ -112,7 +112,7 @@ FlintCursor::~FlintCursor()
 bool
 FlintCursor::prev()
 {
-    DEBUGCALL(DB, bool, "FlintCursor::prev", "");
+    LOGCALL(DB, bool, "FlintCursor::prev", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version || !is_positioned) {
 	// Either the cursor needs rebuilding (in which case find_entry() will
@@ -156,7 +156,7 @@ FlintCursor::prev()
 bool
 FlintCursor::next()
 {
-    DEBUGCALL(DB, bool, "FlintCursor::next", "");
+    LOGCALL(DB, bool, "FlintCursor::next", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version) {
 	// find_entry() will call rebuild().
@@ -193,7 +193,7 @@ FlintCursor::next()
 bool
 FlintCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "FlintCursor::find_entry", key);
+    LOGCALL(DB, bool, "FlintCursor::find_entry", key);
     if (B->cursor_version != version) {
 	rebuild();
     }
@@ -241,7 +241,7 @@ done:
 bool
 FlintCursor::find_entry_ge(const string &key)
 {
-    DEBUGCALL(DB, bool, "FlintCursor::find_entry_ge", key);
+    LOGCALL(DB, bool, "FlintCursor::find_entry_ge", key);
     if (B->cursor_version != version) {
 	rebuild();
     }
@@ -291,7 +291,7 @@ FlintCursor::get_key(string * key) const
 bool
 FlintCursor::read_tag(bool keep_compressed)
 {
-    DEBUGCALL(DB, bool, "FlintCursor::read_tag", keep_compressed);
+    LOGCALL(DB, bool, "FlintCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD) {
 	Assert(B->level <= level);
 	Assert(is_positioned);

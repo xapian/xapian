@@ -31,9 +31,9 @@
 #include "flint_cursor.h"
 
 #include "noreturn.h"
+#include "str.h"
 #include "stringutils.h"
 #include "unaligned.h"
-#include "utils.h"
 
 #include <algorithm>
 #include <string>
@@ -207,7 +207,7 @@ public:
 	    // flint doubles zero bytes, so this can still happen for terms
 	    // which contain one or more zero bytes.
 	    std::string msg("Key too long: length was ");
-	    msg += om_tostring(key_len);
+	    msg += str(key_len);
 	    msg += " bytes, maximum length of a key is "
 		   STRINGIZE(FLINT_BTREE_MAX_KEY_LEN) " bytes";
 	    throw Xapian::InvalidArgumentError(msg);

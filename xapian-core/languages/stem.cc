@@ -1,7 +1,8 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2010 Olly Betts
+ * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -120,7 +121,10 @@ Stem::Stem(const std::string &language) : internal(0) {
 		internal = new InternalStemDutch;
 		return;
 	    }
-	    if (language == "no" || language == "norwegian") {
+	    if (language == "no" || language == "nb" || language == "nn" ||
+		language == "norwegian") {
+		// Snowball's "Norwegian" stemmer works for both nb and nn
+		// according to AlexB on #xapian.
 		internal = new InternalStemNorwegian;
 		return;
 	    }
@@ -167,6 +171,8 @@ Stem::Stem(const std::string &language) : internal(0) {
     }
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
+
+Stem::Stem(StemImplementation * p) : internal(p) { }
 
 Stem::~Stem() { }
 

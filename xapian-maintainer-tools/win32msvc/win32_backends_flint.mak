@@ -24,7 +24,6 @@ OBJS= \
                 $(INTDIR)\flint_database.obj\
                 $(INTDIR)\flint_databasereplicator.obj\
                 $(INTDIR)\flint_document.obj\
-                $(INTDIR)\flint_io.obj\
                 $(INTDIR)\flint_metadata.obj\
                 $(INTDIR)\flint_modifiedpostlist.obj\
                 $(INTDIR)\flint_positionlist.obj\
@@ -47,7 +46,6 @@ SRCS= \
                 $(INTDIR)\flint_database.cc\
                 $(INTDIR)\flint_databasereplicator.cc\
                 $(INTDIR)\flint_document.cc\
-                $(INTDIR)\flint_io.cc\
                 $(INTDIR)\flint_metadata.cc\
                 $(INTDIR)\flint_modifiedpostlist.cc\
                 $(INTDIR)\flint_positionlist.cc\
@@ -83,12 +81,12 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBFLINT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBFLINT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libflint.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-"$(OUTDIR)\LIBFLINTBTREECHECK.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(LIBFLINTBTREECHECK_OBJS)
+"$(OUTDIR)\LIBFLINTBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBFLINTBTREECHECK_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libflintbtreecheck.lib" $(DEF_FLAGS) $(LIBFLINTBTREECHECK_OBJS)
 <<

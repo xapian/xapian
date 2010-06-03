@@ -26,7 +26,6 @@
 #include "alltermslist.h"
 #include "database.h"
 #include "chert_lazytable.h"
-#include "omdebug.h"
 #include "termlist.h"
 
 #include <set>

@@ -27,16 +27,21 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Chert.java\
 	Database.java\
 	DateValueRangeProcessor.java\
+	DecreasingValueWeightPostingSource.java\
 	Document.java\
 	Enquire.java\
 	ESet.java\
 	ESetIterator.java\
 	ExpandDecider.java\
+	FixedWeightPostingSource.java\
 	Flint.java\
 	InMemory.java\
+	KeyMaker.java\
 	MatchDecider.java\
+	MatchSpy.java\
 	MSet.java\
 	MSetIterator.java\
+	MultiValueKeyMaker.java\
 	MultiValueSorter.java\
 	NumberValueRangeProcessor.java\
 	PositionIterator.java\
@@ -44,6 +49,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	PostingSource.java\
 	Query.java\
 	QueryParser.java\
+	Registry.java\
 	Remote.java\
 	RSet.java\
 	SimpleStopper.java\
@@ -55,8 +61,13 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	TermGenerator.java\
 	TermIterator.java\
 	TradWeight.java\
+	ValueCountMatchSpy.java\
 	ValueIterator.java\
+	ValueMapPostingSource.java\
+	ValuePostingSource.java\
 	ValueRangeProcessor.java\
+	ValueSetMatchDecider.java\
+	ValueWeightPostingSource.java\
 	Version.java\
 	Weight.java\
 	WritableDatabase.java\

@@ -56,10 +56,10 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 	$(CC_FOR_BUILD) -o languages/snowball -DDISABLE_JAVA `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
 .sbl.cc:
-	languages/snowball $< -o `echo $@|sed 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p Stem::Internal
+	languages/snowball $< -o `echo $@|sed 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
 .sbl.h:
-	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p Stem::Internal
+	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
 languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/Makefile.mk
 	languages/generate-allsnowballheaders $(snowball_built_sources)

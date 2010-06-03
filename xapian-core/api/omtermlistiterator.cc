@@ -23,8 +23,8 @@
 #include <xapian/termiterator.h>
 #include "termlist.h"
 #include "positionlist.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 using namespace std;
 
@@ -49,30 +49,30 @@ Xapian::TermIterator::TermIterator(Internal *internal_)
 
 Xapian::TermIterator::TermIterator() : internal(0)
 {
-    DEBUGAPICALL(void, "Xapian::TermIterator::TermIterator", "");
+    LOGCALL_VOID(API, "Xapian::TermIterator::TermIterator", NO_ARGS);
 }
 
 Xapian::TermIterator::~TermIterator() {
-    DEBUGAPICALL(void, "Xapian::TermIterator::~TermIterator", "");
+    LOGCALL_VOID(API, "Xapian::TermIterator::~TermIterator", NO_ARGS);
 }
 
 Xapian::TermIterator::TermIterator(const Xapian::TermIterator &other)
     : internal(other.internal)
 {
-    DEBUGAPICALL(void, "Xapian::TermIterator::TermIterator", other);
+    LOGCALL_VOID(API, "Xapian::TermIterator::TermIterator", other);
 }
 
 void
 Xapian::TermIterator::operator=(const Xapian::TermIterator &other)
 {
-    DEBUGAPICALL(void, "Xapian::TermIterator::operator=", other);
+    LOGCALL_VOID(API, "Xapian::TermIterator::operator=", other);
     internal = other.internal;
 }
 
 string
 Xapian::TermIterator::operator *() const
 {
-    DEBUGAPICALL(string, "Xapian::TermIterator::operator*", "");
+    LOGCALL(API, string, "Xapian::TermIterator::operator*", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_termname());
@@ -81,7 +81,7 @@ Xapian::TermIterator::operator *() const
 Xapian::termcount
 Xapian::TermIterator::get_wdf() const
 {
-    DEBUGAPICALL(Xapian::termcount, "Xapian::TermIterator::get_wdf", "");
+    LOGCALL(API, Xapian::termcount, "Xapian::TermIterator::get_wdf", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_wdf());
@@ -90,7 +90,7 @@ Xapian::TermIterator::get_wdf() const
 Xapian::doccount
 Xapian::TermIterator::get_termfreq() const
 {
-    DEBUGAPICALL(Xapian::doccount, "Xapian::TermIterator::get_termfreq", "");
+    LOGCALL(API, Xapian::doccount, "Xapian::TermIterator::get_termfreq", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_termfreq());
@@ -99,7 +99,7 @@ Xapian::TermIterator::get_termfreq() const
 Xapian::TermIterator &
 Xapian::TermIterator::operator++()
 {
-    DEBUGAPICALL(void, "Xapian::TermIterator::operator++", "");
+    LOGCALL_VOID(API, "Xapian::TermIterator::operator++", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     handle_prune(internal, internal->next());
@@ -111,7 +111,7 @@ Xapian::TermIterator::operator++()
 void
 Xapian::TermIterator::skip_to(const string & tname)
 {
-    DEBUGAPICALL(void, "Xapian::TermIterator::skip_to", tname);
+    LOGCALL_VOID(API, "Xapian::TermIterator::skip_to", tname);
     if (internal.get()) {
 	Assert(!internal->at_end());
 	handle_prune(internal, internal->skip_to(tname));
@@ -122,7 +122,7 @@ Xapian::TermIterator::skip_to(const string & tname)
 Xapian::termcount
 Xapian::TermIterator::positionlist_count() const
 {
-    DEBUGAPICALL(Xapian::termcount, "Xapian::TermIterator::positionlist_count", "");
+    LOGCALL(API, Xapian::termcount, "Xapian::TermIterator::positionlist_count", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->positionlist_count());
@@ -131,7 +131,7 @@ Xapian::TermIterator::positionlist_count() const
 Xapian::PositionIterator
 Xapian::TermIterator::positionlist_begin() const
 {
-    DEBUGAPICALL(Xapian::PositionIterator, "Xapian::TermIterator::positionlist_begin", "");
+    LOGCALL(API, Xapian::PositionIterator, "Xapian::TermIterator::positionlist_begin", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->positionlist_begin());

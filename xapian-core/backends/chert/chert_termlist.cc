@@ -21,15 +21,16 @@
  */
 
 #include <config.h>
+#include "chert_termlist.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "expandweight.h"
 #include "chert_positionlist.h"
-#include "chert_termlist.h"
+#include "debuglog.h"
 #include "omassert.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -37,12 +38,11 @@ ChertTermList::ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    DEBUGCALL(DB, void, "ChertTermList",
-	      "[RefCntPtr<const ChertDatabase>], " << did_);
+    LOGCALL_CTOR(DB, "ChertTermList", db_ | did_);
 
     if (!db->termlist_table.get_exact_entry(ChertTermListTable::make_key(did),
 					    data))
-	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
+	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
 
     pos = data.data();
     end = pos + data.size();
@@ -79,21 +79,21 @@ ChertTermList::ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db
 chert_doclen_t
 ChertTermList::get_doclength() const
 {
-    DEBUGCALL(DB, chert_doclen_t, "ChertTermList::get_doclength", "");
+    LOGCALL(DB, chert_doclen_t, "ChertTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
 }
 
 Xapian::termcount
 ChertTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertTermList::get_approx_size", "");
+    LOGCALL(DB, Xapian::termcount, "ChertTermList::get_approx_size", NO_ARGS);
     RETURN(termlist_size);
 }
 
 void
 ChertTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(DB, void, "ChertTermList::accumulate_stats", "[stats&]");
+    LOGCALL_VOID(DB, "ChertTermList::accumulate_stats", stats);
     Assert(!at_end());
     stats.accumulate(current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
@@ -101,21 +101,21 @@ ChertTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 string
 ChertTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "ChertTermList::get_termname", "");
+    LOGCALL(DB, string, "ChertTermList::get_termname", NO_ARGS);
     RETURN(current_term);
 }
 
 Xapian::termcount
 ChertTermList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertTermList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "ChertTermList::get_wdf", NO_ARGS);
     RETURN(current_wdf);
 }
 
 Xapian::doccount
 ChertTermList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertTermList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "ChertTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
 	current_termfreq = db->get_termfreq(current_term);
     RETURN(current_termfreq);
@@ -124,7 +124,7 @@ ChertTermList::get_termfreq() const
 TermList *
 ChertTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "ChertTermList::next", "");
+    LOGCALL(DB, TermList *, "ChertTermList::next", NO_ARGS);
     Assert(!at_end());
     if (pos == end) {
 	pos = NULL;
@@ -170,21 +170,21 @@ ChertTermList::next()
 bool
 ChertTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertTermList::at_end", "");
+    LOGCALL(DB, bool, "ChertTermList::at_end", NO_ARGS);
     RETURN(pos == NULL);
 }
 
 Xapian::termcount
 ChertTermList::positionlist_count() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertTermList::positionlist_count", "");
+    LOGCALL(DB, Xapian::termcount, "ChertTermList::positionlist_count", NO_ARGS);
     RETURN(db->position_table.positionlist_count(did, current_term));
 }
 
 Xapian::PositionIterator
 ChertTermList::positionlist_begin() const
 {
-    DEBUGCALL(DB, Xapian::PositionIterator, "ChertTermList::positionlist_begin", "");
+    LOGCALL(DB, Xapian::PositionIterator, "ChertTermList::positionlist_begin", NO_ARGS);
     return Xapian::PositionIterator(
 	    new ChertPositionList(&db->position_table, did, current_term));
 }

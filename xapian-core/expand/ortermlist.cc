@@ -1,7 +1,7 @@
 /** @file ortermlist.cc
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,10 +20,10 @@
 
 #include <config.h>
 
-#include "omassert.h"
-#include "omdebug.h"
-
 #include "ortermlist.h"
+
+#include "debuglog.h"
+#include "omassert.h"
 
 #include <xapian/positioniterator.h>
 
@@ -45,7 +45,7 @@ OrTermList::~OrTermList()
 Xapian::termcount
 OrTermList::get_approx_size() const
 {
-    DEBUGCALL(EXPAND, Xapian::termcount, "OrTermList::get_approx_size", "");
+    LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_approx_size", NO_ARGS);
     // This is actually the upper bound, but we only use this to order the
     // binary tree of OrTermList objects so it's probably not worth trying
     // to be more sophisticated.
@@ -55,7 +55,7 @@ OrTermList::get_approx_size() const
 void
 OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(EXPAND, void, "OrTermList::accumulate_stats", "[stats&]");
+    LOGCALL_VOID(EXPAND, "OrTermList::accumulate_stats", stats);
     check_started();
     if (left_current <= right_current) left->accumulate_stats(stats);
     if (left_current >= right_current) right->accumulate_stats(stats);
@@ -64,7 +64,7 @@ OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 string
 OrTermList::get_termname() const
 {
-    DEBUGCALL(EXPAND, string, "OrTermList::get_termname", "");
+    LOGCALL(EXPAND, string, "OrTermList::get_termname", NO_ARGS);
     check_started();
     if (left_current < right_current) RETURN(left_current);
     RETURN(right_current);
@@ -73,7 +73,7 @@ OrTermList::get_termname() const
 Xapian::termcount
 OrTermList::get_wdf() const
 {
-    DEBUGCALL(EXPAND, Xapian::termcount, "OrTermList::get_wdf", "");
+    LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_wdf", NO_ARGS);
     check_started();
     if (left_current < right_current) RETURN(left->get_wdf());
     if (left_current > right_current) RETURN(right->get_wdf());
@@ -83,7 +83,7 @@ OrTermList::get_wdf() const
 Xapian::doccount
 OrTermList::get_termfreq() const
 {
-    DEBUGCALL(EXPAND, Xapian::doccount, "OrTermList::get_termfreq", "");
+    LOGCALL(EXPAND, Xapian::doccount, "OrTermList::get_termfreq", NO_ARGS);
     check_started();
     if (left_current < right_current) RETURN(left->get_termfreq());
     Assert(left_current > right_current || left->get_termfreq() == right->get_termfreq());
@@ -94,7 +94,7 @@ OrTermList::get_termfreq() const
 Xapian::termcount
 OrTermList::get_collection_freq() const
 {
-    DEBUGCALL(EXPAND, Xapian::termcount, "OrTermList::get_collection_freq", "");
+    LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_collection_freq", NO_ARGS);
     check_started();
     if (left_current < right_current) RETURN(left->get_collection_freq());
     Assert(left_current > right_current || left->get_collection_freq() == right->get_collection_freq());
@@ -115,7 +115,7 @@ handle_prune(TermList *& old, TermList * result)
 TermList *
 OrTermList::next()
 {
-    DEBUGCALL(EXPAND, TermList *, "OrTermList::next", "");
+    LOGCALL(EXPAND, TermList *, "OrTermList::next", NO_ARGS);
     // If we've not started yet, both left_current and right_current will be
     // empty, so we'll take the third case below which is what we want to do to
     // get started.
@@ -160,7 +160,7 @@ OrTermList::next()
 bool
 OrTermList::at_end() const
 {
-    DEBUGCALL(EXPAND, bool, "OrTermList::at_end", "");
+    LOGCALL(EXPAND, bool, "OrTermList::at_end", NO_ARGS);
     check_started();
     // next() should have pruned if either child is at_end().
     Assert(!left->at_end());
@@ -186,7 +186,7 @@ OrTermList::positionlist_begin() const
 Xapian::doccount
 FreqAdderOrTermList::get_termfreq() const
 {
-    DEBUGCALL(EXPAND, Xapian::doccount, "FreqAdderOrTermList::get_termfreq", "");
+    LOGCALL(EXPAND, Xapian::doccount, "FreqAdderOrTermList::get_termfreq", NO_ARGS);
     check_started();
     if (left_current < right_current) RETURN(left->get_termfreq());
     if (left_current > right_current) RETURN(right->get_termfreq());

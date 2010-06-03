@@ -32,7 +32,7 @@
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -104,23 +104,23 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     srand(seed);
 
     std::map<std::string, std::string> params;
-    params["runsize"] = om_tostring(runsize);
-    params["seed"] = om_tostring(seed);
-    params["slots_used"] = om_tostring(slots_used);
-    params["slot_probability"] = om_tostring(slot_probability);
-    params["slotval_minlen"] = om_tostring(slotval_minlen);
-    params["slotval_maxlen"] = om_tostring(slotval_maxlen);
-    params["minterms"] = om_tostring(minterms);
-    params["maxterms"] = om_tostring(maxterms);
-    params["mintermlen"] = om_tostring(mintermlen);
-    params["maxtermlen"] = om_tostring(maxtermlen);
-    params["termcharrange"] = om_tostring(termcharrange);
+    params["runsize"] = str(runsize);
+    params["seed"] = str(seed);
+    params["slots_used"] = str(slots_used);
+    params["slot_probability"] = str(slot_probability);
+    params["slotval_minlen"] = str(slotval_minlen);
+    params["slotval_maxlen"] = str(slotval_maxlen);
+    params["minterms"] = str(minterms);
+    params["maxterms"] = str(maxterms);
+    params["mintermlen"] = str(mintermlen);
+    params["maxtermlen"] = str(maxtermlen);
+    params["termcharrange"] = str(termcharrange);
     logger.indexing_begin(dbname, params);
 
     unsigned int i;
     for (i = 0; i < runsize; ++i) {
 	Xapian::Document doc;
-	doc.set_data("random document " + om_tostring(i));
+	doc.set_data("random document " + str(i));
 
 	unsigned int terms = rand_int(minterms, maxterms);
 	for (unsigned int j = 0; j < terms; ++j) {

@@ -36,7 +36,7 @@ namespace Internal {
 Xapian::weight
 ExpandWeight::get_weight(TermList * merger, const string & term) const
 {
-    LOGCALL(MATCH, Xapian::weight, "ExpandWeight::get_weight", "[merger], " << term);
+    LOGCALL(MATCH, Xapian::weight, "ExpandWeight::get_weight", merger | term);
 
     // Accumulate the stats for this term across all relevant documents.
     ExpandStats stats(avlen, expand_k);

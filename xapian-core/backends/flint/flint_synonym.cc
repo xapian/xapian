@@ -19,11 +19,12 @@
  */
 
 #include <config.h>
-
-#include <xapian/error.h>
-
-#include "flint_cursor.h"
 #include "flint_synonym.h"
+
+#include "xapian/error.h"
+
+#include "debuglog.h"
+#include "flint_cursor.h"
 #include "flint_utils.h"
 #include "stringutils.h"
 #include "vectortermlist.h"
@@ -167,14 +168,14 @@ FlintSynonymTable::open_termlist(const string & term)
 
 FlintSynonymTermList::~FlintSynonymTermList()
 {
-    DEBUGCALL(DB, void, "~FlintSynonymTermList", "");
+    LOGCALL_DTOR(DB, "FlintSynonymTermList");
     delete cursor;
 }
 
 string
 FlintSynonymTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "FlintSynonymTermList::get_termname", "");
+    LOGCALL(DB, string, "FlintSynonymTermList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!cursor->current_key.empty());
     Assert(!at_end());
@@ -196,7 +197,7 @@ FlintSynonymTermList::get_collection_freq() const
 TermList *
 FlintSynonymTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "FlintSynonymTermList::next", "");
+    LOGCALL(DB, TermList *, "FlintSynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -211,7 +212,7 @@ FlintSynonymTermList::next()
 TermList *
 FlintSynonymTermList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "FlintSynonymTermList::skip_to", tname);
+    LOGCALL(DB, TermList *, "FlintSynonymTermList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(tname)) {
@@ -228,6 +229,6 @@ FlintSynonymTermList::skip_to(const string &tname)
 bool
 FlintSynonymTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintSynonymTermList::at_end", "");
+    LOGCALL(DB, bool, "FlintSynonymTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

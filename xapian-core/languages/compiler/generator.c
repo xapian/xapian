@@ -1525,7 +1525,7 @@ static void generate_amongs(struct generator * g) {
         if (q->type == t_routine && q->routine_called_from_among) {
 	    q->among_func_count = ++among_func_count;
 	    g->V[0] = q;
-	    w(g, "static int t~V0(Xapian::Stem::Internal * this_ptr) {~N"
+	    w(g, "static int t~V0(Xapian::StemImplementation * this_ptr) {~N"
 		 "    return (static_cast<Xapian::~S0 *>(this_ptr))->~V0();~N"
 		 "}~N"
 		 "~N");
@@ -1664,7 +1664,7 @@ static void generate_close(struct generator * g) {
 	w(g, "}~N");
 
 	w(g, "~N"
-	     "const char *~N"
+	     "std::string~N"
 	     "Xapian::~S0::get_description() const~N"
 	     "{~N"
 	     "    return \"~S2\";~N"
@@ -1739,7 +1739,7 @@ static void generate_header_file(struct generator * g) {
 	    }
 	}
 
-	w(g, "    const char * get_description() const;~N"
+	w(g, "    std::string get_description() const;~N"
 	     "};~N"
 	     "~N"
 	     "}~N");

@@ -1,7 +1,7 @@
 %{
 /* java-swig/util.i: custom Java typemaps for xapian-bindings
  *
- * Copyright (c) 2007,2009 Olly Betts
+ * Copyright (c) 2007,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,9 @@
 
 // Use SWIG directors for Java wrappers.
 #define XAPIAN_SWIG_DIRECTORS
+
+// SWIG has no DISOWN typemap for Java.
+#define XAPIAN_SWIG_NO_DISOWN
 
 // Rename function and method names to match Java conventions (e.g. from
 // get_description() to getDescription()).

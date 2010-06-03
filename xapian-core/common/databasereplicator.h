@@ -1,8 +1,8 @@
 /** @file databasereplicator.h
  * @brief Class to manage replication of databases.
  */
-/* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+/* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

@@ -25,7 +25,7 @@
 #include <xapian/types.h>
 
 #include "bitstream.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "pack.h"
 
 #include <string>
@@ -40,7 +40,7 @@ ChertPositionListTable::set_positionlist(Xapian::docid did,
 					 const Xapian::PositionIterator &pos_end,
 					 bool check_for_update)
 {
-    DEBUGCALL(DB, void, "ChertPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end << ", " << check_for_update);
+    LOGCALL_VOID(DB, "ChertPositionList::set_positionlist", did | tname | pos | pos_end | check_for_update);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
@@ -71,8 +71,7 @@ Xapian::termcount
 ChertPositionListTable::positionlist_count(Xapian::docid did,
 					   const string & term) const
 {
-    DEBUGCALL(DB, void, "ChertPositionListTable::positionlist_count",
-	      did << ", " << term);
+    LOGCALL_VOID(DB, "ChertPositionListTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(make_key(did, term), data)) {
@@ -104,8 +103,7 @@ bool
 ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
 			     const string & tname)
 {
-    DEBUGCALL(DB, void, "ChertPositionList::read_data",
-	      table << ", " << did << ", " << tname);
+    LOGCALL_VOID(DB, "ChertPositionList::read_data", table | did | tname);
 
     have_started = false;
     positions.clear();
@@ -145,14 +143,14 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
 Xapian::termcount
 ChertPositionList::get_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertPositionList::get_size", "");
+    LOGCALL(DB, Xapian::termcount, "ChertPositionList::get_size", NO_ARGS);
     RETURN(positions.size());
 }
 
 Xapian::termpos
 ChertPositionList::get_position() const
 {
-    DEBUGCALL(DB, Xapian::termpos, "ChertPositionList::get_position", "");
+    LOGCALL(DB, Xapian::termpos, "ChertPositionList::get_position", NO_ARGS);
     Assert(have_started);
     RETURN(*current_pos);
 }
@@ -160,7 +158,7 @@ ChertPositionList::get_position() const
 void
 ChertPositionList::next()
 {
-    DEBUGCALL(DB, void, "ChertPositionList::next", "");
+    LOGCALL_VOID(DB, "ChertPositionList::next", NO_ARGS);
 
     if (!have_started) {
 	have_started = true;
@@ -173,7 +171,7 @@ ChertPositionList::next()
 void
 ChertPositionList::skip_to(Xapian::termpos termpos)
 {
-    DEBUGCALL(DB, void, "ChertPositionList::skip_to", termpos);
+    LOGCALL_VOID(DB, "ChertPositionList::skip_to", termpos);
     if (!have_started) {
 	have_started = true;
     }
@@ -183,6 +181,6 @@ ChertPositionList::skip_to(Xapian::termpos termpos)
 bool
 ChertPositionList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertPositionList::at_end", "");
+    LOGCALL(DB, bool, "ChertPositionList::at_end", NO_ARGS);
     RETURN(current_pos == positions.end());
 }

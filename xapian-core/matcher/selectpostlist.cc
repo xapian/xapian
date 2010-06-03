@@ -21,15 +21,15 @@
  */
 
 #include <config.h>
-
 #include "selectpostlist.h"
+
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 PostList *
 SelectPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
         PostList *p = source->next(w_min);
 	(void)p;
@@ -41,7 +41,7 @@ SelectPostList::next(Xapian::weight w_min)
 PostList *
 SelectPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "SelectPostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "SelectPostList::skip_to", did | w_min);
     if (did > get_docid()) {
 	PostList *p = source->skip_to(did, w_min);
 	(void)p;

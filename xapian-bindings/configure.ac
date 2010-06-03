@@ -187,14 +187,6 @@ AC_ARG_WITH(tcl,
   [],
   [with_tcl=])
 
-dnl Guile support doesn't currently work, so avoid user disappointment by
-dnl not advertising it in "./configure --help"
-dnl AC_ARG_WITH(guile,
-dnl   AC_HELP_STRING([--with-guile], [enable Guile bindings]),
-dnl   [],
-dnl   [with_guile=])
-with_guile=no
-
 AC_ARG_WITH(csharp,
   AC_HELP_STRING([--with-csharp], [enable CSharp bindings]),
   [],
@@ -205,13 +197,12 @@ AC_ARG_WITH(java,
   [],
   [with_java=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
+case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
   test -z "$with_php" && with_php=no
   test -z "$with_tcl" && with_tcl=no
-  test -z "$with_guile" && with_guile=no
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
   test -z "$with_ruby" && with_ruby=no
@@ -478,20 +469,6 @@ if test no != "$with_tcl" ; then
     fi
   fi
 fi
-
-dnl if test yes = "$with_guile" ; then
-dnl   AC_PATH_PROGS(GUILE, ["${GUILE-guile}"], [])
-dnl   AC_ARG_VAR(GUILE, [guile interpreter])
-dnl   if test -n "$GUILE" ;  then
-dnl     dnl test guile version?
-dnl     dnl any paths?
-dnl     BINDINGS="$BINDINGS guile"
-dnl   else
-dnl     if test yes = "$with_guile" ; then
-dnl       AC_MSG_ERROR([guile not found])
-dnl     fi
-dnl   fi
-dnl fi
 
 if test no != "$with_csharp" ; then
   csc_note=
@@ -929,7 +906,6 @@ AC_CONFIG_FILES([Makefile
  csharp/AssemblyInfo.cs
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
-dnl guile/Makefile
 AC_OUTPUT
 
 echo ""

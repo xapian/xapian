@@ -21,6 +21,393 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Thu Jun 03 12:09:35 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/Makefile.am: Fix building of zlib-vg.so in VPATH builds.
+
+Thu Jun 03 11:49:31 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc,tests/api_backend.cc: Fix several bugs in
+	  OrPostList::check() (introduced since 1.2.0).  Fixes ticket #485.
+	  Specifically, we have to check a sub-postlist even if head=did,
+	  because we need to know if that sub-postlist is valid.  Also, if
+	  a sub-postlist is not valid, set its head to did+1, since we know
+	  that we're no longer interested in matches before did, and this
+	  allows the OrPostList to assume that the minimum docid of its
+	  children is the current docid.
+
+Thu Jun 03 07:15:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/: Implement MultiXorPostList which returns correct weights
+	  for XOR of more than 2 subqueries, and drop XorPostList completely.
+	  (ticket#475)
+	* tests/api_anydb.cc: Add regression test xor2.
+
+Thu Jun 03 04:38:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Tweak loop end test to be a normal while.
+
+Thu Jun 03 01:22:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_stem.cc: Note stem2's feature was backported to 1.0.21.
+
+Tue Jun 01 13:49:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/brass/brass_termlist.cc,
+	  backends/chert/chert_database.cc,backends/chert/chert_termlist.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_document.cc,
+	  backends/flint/flint_termlist.cc,matcher/: Fix LOGCALL_VOID uses
+	  for ctors and dtors to be LOGCALL_CTOR and LOGCALL_DTOR respectively.
+
+Tue Jun 01 13:33:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc: Use LOGCALL_VOID instead of LOGCALL with a void
+	  return type.
+
+Tue Jun 01 13:08:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: The debug logging now copes with being passed
+	  RSet* so remove special casing with ?:.
+
+Tue Jun 01 10:17:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Drop support for --enable-log=profile -
+	  dedicated profiling tools are likely to return more useful results.
+	* common/debuglog.cc,common/debuglog.h: Rename xapian_debuglogger__
+	  global to xapian_debuglogger_ to avoid reserved __ in the name.
+	* common/omdebug.cc,common/omdebug.h: Remove in favour of debuglog.h.
+	* common/pretty.h: New PrettyOStream<> template class for pretty
+	  printing types in debug logs (and eventually the testsuite).
+	* api/,backends/brass/,backends/chert/,
+	  backends/dbfactory_remote.cc,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_termlist.cc,
+	  common/,expand/esetinternal.cc,expand/expandweight.cc,
+	  expand/ortermlist.cc,matcher/,net/progclient.cc,
+	  net/remoteconnection.cc: Migrate all remaining uses of omdebug.h to
+	  debuglog.h.  Write more parameters to the debug log.  Retire the
+	  barely used APICALL category and use API instead (reflecting actual
+	  current use).  Add new REPLICA category.  Fix names logged for ctors
+	  and dtors which have "::" in the class name.
+
+Sun May 30 13:45:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Remove bogus "Data::" from debug logging for two
+	  methods.
+
+Sun May 30 08:49:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/stem.h,languages/stem.cc: Xapian::Stem now recognises
+	  "nb" and "nn" as codes for the Norwegian stemmer.
+	* tests/api_stem.cc: Add feature test stem2 to check that these new
+	  codes work.
+
+Sat May 29 10:12:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Add overload of operator| which writes ", " and
+	  then a value to std::ostream.
+	* api/omdatabase.cc,api/replication.cc,
+	  backends/brass/brass_alldocspostlist.cc,
+	  backends/brass/brass_metadata.cc,backends/brass/brass_table.cc,
+	  backends/chert/,backends/dbfactory.cc,
+	  backends/flint/flint_alldocspostlist.cc,expand/esetinternal.cc,
+	  expand/expandweight.cc,matcher/,net/remoteconnection.cc,
+	  weight/bm25weight.cc,weight/weight.cc: Use this in LOGCALL uses to
+	  make them shorter and more readable.
+
+Fri May 28 06:47:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,api/omdatabase.cc,backends/brass/brass_table.cc,
+	  backends/chert/chert_table.cc,backends/dbfactory.cc,
+	  backends/flint/flint_alldocspostlist.cc: Put LOGCALL macro use all on
+	  one line so we can more easily mechanise use and update.
+
+Fri May 28 04:22:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,api/valueiterator.cc,
+	  backends/brass/brass_alltermslist.cc,
+	  backends/chert/chert_alltermslist.cc,backends/dbfactory.cc,
+	  backends/inmemory/inmemory_document.cc,
+	  backends/remote/remote-document.cc,matcher/synonympostlist.cc,
+	  net/remoteconnection.cc,weight/bm25weight.cc: Use NO_ARGS instead of
+	  "" and LOGCALL_VOID instead of LOGCALL with void return type.
+
+Fri May 28 04:12:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/valuerangepostlist.cc: Add missing inclusions of
+	  "debuglog.h".
+	* backends/brass/brass_metadata.h,backends/brass/brass_postlist.h,
+	  backends/brass/brass_synonym.h,backends/chert/chert_metadata.h,
+	  backends/chert/chert_postlist.h,backends/chert/chert_synonym.h,
+	  backends/dbfactory_remote.cc,backends/flint/flint_metadata.h,
+	  backends/flint/flint_synonym.h,common/database.h,common/rset.h:
+	  Remove unused inclusions of "omassert.h" and "omdebug.h".
+	* common/rset.h: Remove unused inclusion of "weightinternal.h".
+	* api/omdatabase.cc,api/registry.cc,api/replication.cc,backends/brass/,
+	  backends/chert/,backends/dbfactory.cc,backends/flint/: Add missing
+	  explicit inclusions of "debuglog.h". Fix LOGCALL markup of ctors and
+	  dtors.  Use LOGCALL instead of DEBUGCALL.
+
+Fri May 28 04:06:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_alldocspostlist.h: Add missing explicit
+	  inclusions of "autoptr.h", "flint_database.h", and forward
+	  declaration of class FlintCursor.
+
+Fri May 28 03:52:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/const_database_wrapper.h,common/databasereplicator.h,
+	  common/gnu_getopt.h: Add "(C)" to copyright statements for
+	  consistency with other files.
+
+Fri May 28 03:45:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Include "debuglog.h" instead of
+	  "omdebug.h".
+
+Fri May 28 03:45:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc: Remove unused inclusion of "omdebug.h".
+
+Fri May 28 03:40:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* expand/esetinternal.cc,matcher/localmatch.cc,matcher/multimatch.cc,
+	  matcher/rset.cc: Add missing explicit inclusions of "omassert.h".
+
+Thu May 27 23:39:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/expand.h: Remove unused header.
+
+Thu May 27 06:45:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/stem.h: Update the list of languages that the
+	  Xapian::Stem constructor recognises.
+
+Thu May 27 05:20:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/stem.h,languages/Makefile.mk,
+	  languages/compiler/generator.c,languages/stem.cc,
+	  languages/steminternal.cc,languages/steminternal.h,tests/Makefile.am,
+	  tests/api_stem.cc: Add the ability to specify your own stemming
+	  algorithm by subclassing Xapian::StemImplementation, mostly based on
+	  patch from Evgeny Sizikov in ticket#448.
+
+Thu May 27 04:50:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_opvalue.cc: Use TEST_REL() instead of tout and TEST() with
+	  an inequality.
+
+Thu May 27 04:28:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/databasereplicator.cc,common/debuglog.h,
+	  common/omdebug.h,expand/esetinternal.cc,expand/ortermlist.cc,
+	  matcher/,net/remoteconnection.cc: Partial mass conversion of files
+	  from omdebug.h to debuglog.h (this takes care off all the files
+	  without BSN copyright).
+
+Thu May 27 04:24:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/output.h: Use <ostream> not <fstream>.
+
+Thu May 27 04:09:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/orpostlist.cc: Prefer ++x to x += 1 for consistency.
+
+Wed May 26 13:32:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: Separate (C) notice from @file
+	  doccomment.
+
+Wed May 26 13:11:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h:
+	  Move virtual method FlintPostList::get_doclength() definition out
+	  of header, which also means the header no longer needs omdebug.h.
+
+Wed May 26 13:03:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Strip out commented out RETURN_VOID machinery.
+	  This case is automatically handled provided LOGCALL_VOID is used.
+
+Wed May 26 12:33:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Don't check the category more than once in ctors
+	  and dtors.  Don't convert the return value to a string in RETURN()
+	  unless we want to log it.
+
+Wed May 26 02:33:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_opvalue.cc: Convert file description to doccomment.
+	  Remove unused headers and reorder remainder more standardly.
+
+Tue May 25 10:17:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Note ordecay1 and ordecay2 fixes now also in
+	  1.0.21.  Whitespace tweak.
+
+Tue May 25 04:11:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: make_ordecay1_db and make_ordecay2_db end up
+	  looping over at least 4 billion values (or possibly infinitely) on
+	  platforms where sizeof(long) == 8.  The two databases are very
+	  similar and the latter one works for the former test, so use the
+	  same db for both tests, and rewrite the generator to work
+	  portably.
+
+Sun May 23 07:30:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Note XOR decay bug also fixed in 1.0.21.
+
+Sat May 22 13:31:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am: Only try to build zlib-vg.so if we
+	  are found a suitable valgrind installed (otherwise it's a waste of
+	  effort to build it, and the build will fail without the valgrind
+	  headers).
+
+Sat May 22 13:18:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am,tests/runtest.in,tests/zlib-vg.c: zlib
+	  can produce "uninitialised" output from "initialised" input - the
+	  output does decode to the input, so this is presumably just some
+	  unused bits in the output, so we use an LD_PRELOAD hack to get
+	  valgrind to check the input is initialised and then tell it that the
+	  output is initialised.
+
+Wed May 19 14:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/andmaybepostlist.cc,matcher/andmaybepostlist.h,
+	  matcher/orpostlist.cc: Fix a bug causing documents to be skipped
+	  when OR decayed to AND_MAYBE, if the new RHS was behind the LHS
+	  at the time of the decay.  Fixes #476.
+	* tests/api_backend.cc: Add test case ordecay2 as a regression test
+	  of this.  Also, remove some debug output in ordecay1, to speed it
+	  up quite a bit.
+
+Wed May 19 11:48:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc,tests/api_backend.cc: Fix a bug in the
+	  decay from OR to AND: if the decay happened when the two
+	  sub-postlists were on different docids, but the higher of those
+	  docids actually occurred in both postlists, the higher docid
+	  would be incorrectly skipped.  Add regression test ordecay1 to
+	  test this.
+
+Wed May 19 10:36:55 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_backend.cc,tests/api_compact.cc,
+	  tests/harness/testrunner.cc,tests/harness/testrunner.h: Add new
+	  test backend selection flag "generated", to select only backends
+	  which support generated test databases.
+
+Wed May 19 03:14:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,
+	  backends/contiguousalldocspostlist.cc,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/remote/remote-database.cc,backends/slowvaluelist.cc,
+	  common/utils.h,expand/esetinternal.cc,matcher/phrasepostlist.cc,
+	  net/remoteserver.cc,net/remotetcpclient.cc,
+	  queryparser/termgenerator.cc,tests/,
+	  tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_remote.cc,
+	  tests/harness/backendmanager_remotetcp.cc,tests/internaltest.cc,
+	  tests/perftest/perftest.cc,tests/perftest/perftest_matchdecider.cc,
+	  tests/perftest/perftest_randomidx.cc,tests/queryparsertest.cc,
+	  tests/termgentest.cc: Fully migrate from om_tostring() to str().
+
+Wed May 19 03:13:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* cmake/xapian-config-version.cmake,cmake/xapian-config.cmake: Remove
+	  generated files from SVN.
+
+Wed May 19 02:59:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Add misisng explicit '#include <utils.h>'.
+
+Tue May 18 14:24:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk,bin/xapian-check.cc,bin/xapian-compact.cc: Improve
+	  building with flint, chert and/or brass disabled (partially addresses
+	  ticket#361).
+
+Tue May 18 00:42:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix warnings with --disable-backend-remote
+	  (partially addresses ticket#361).
+
+Sat May 15 06:56:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Read the max fd with sysconf() instead of using
+	  a hardcoded value of 256.  Work even if stdin and stdout have been
+	  closed.
+
+Thu May 13 10:53:24 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/orpostlist.cc: Correct some debugging lines.
+
+Thu May 13 09:57:12 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/xorpostlist.cc,matcher/xorpostlist.h: Pass a minweight
+	  value of 0 to children of XOR postlists, because we need to know
+	  about all matching documents from the children even if they have
+	  a low weight.
+	* tests/api_backend.cc: Regression test for this: xordecay1.
+
+Thu May 13 08:47:22 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/soaktest_queries.cc: Add more code comments,
+	  increase the number of repetitions from 100 to 10000, remove
+	  accidentally added semicolons after some braces, remove "return
+	  false" at end of test which was added for debugging purposes,
+	  clear tout before testing each query, and display the query
+	  number, the query, and the msets in the event of failure.
+
+Tue May 11 10:16:05 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/soaktest_queries.cc: Don't fail for empty result
+	  sets.
+
+Tue May 11 10:13:08 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/: Add a "soaktest" testsuite, intended to contain
+	  long-running tests with random data.  Currently contains a single
+	  test which builds and runs random queries, checking that the
+	  results returned are consistent when asking for different result
+	  ranges.
+
+Mon May 10 16:57:29 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_opvalue.cc: Add tests for OP_VALUE_RANGE to get
+	  coverage of the skip_to() and check() methods of
+	  ValueRangePostList.
+
+Mon May 10 16:51:14 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_opvalue.cc: Add a test to get coverage of
+	  ValueGePostList::skip_to().
+
+Sun May 09 21:22:50 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_nodb.cc,tests/api_opvalue.cc: Move test "opvaluege1"
+	  from api_nodb.cc to api_opvalue.cc, and rename to valuege3 for
+	  consistency with other tests of OP_VALUE_GE.
+
+Sun May 09 21:19:43 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/Makefile.am,tests/api_anydb.cc,tests/api_opvalue.cc: Move
+	  the tests for OP_VALUE_* query operators from api_anydb.cc to
+	  api_opvalue.cc.  Remove copyright statements earlier than 2007,
+	  since OP_VALUE_* wasn't added until 2007.
+
+Sun May 09 21:04:06 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/valuegepostlist.cc: Initialise valuelist in check() if
+	  necessary.
+	* tests/api_anydb.cc: Add regression test for this.
+
 Thu May 06 15:03:43 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_replicate.cc: Add some extra debugging, to help
@@ -245,7 +632,7 @@ Wed Apr 21 11:16:50 GMT 2010  Olly Betts <olly@survex.com>
 
 Wed Apr 21 11:11:10 GMT 2010  Olly Betts <olly@survex.com>
 
-	* tests/harness/testrunner.cc,tests/harness/testsuite.cc: Fix 
+	* tests/harness/testrunner.cc,tests/harness/testsuite.cc: Fix
 	  --abort-on-error to actually work.
 
 Tue Apr 20 12:53:29 GMT 2010  Olly Betts <olly@survex.com>
@@ -1063,7 +1450,7 @@ Tue Feb 02 07:22:28 GMT 2010  Olly Betts <olly@survex.com>
 	* Backport change from chert:
 	* backends/flint/flint_alltermslist.h,backends/flint/flint_spelling.h,
 	  backends/flint/flint_spellingwordslist.h: Add missing std::
-	  qualifiers. 
+	  qualifiers.
 
 Tue Feb 02 07:12:51 GMT 2010  Olly Betts <olly@survex.com>
 
@@ -1078,7 +1465,7 @@ Tue Feb 02 06:52:55 GMT 2010  Olly Betts <olly@survex.com>
 	* Backport change from brass:
 	* backends/chert/chert_alltermslist.h,backends/chert/chert_spelling.h,
 	  backends/chert/chert_spellingwordslist.h: Add missing std::
-	  qualifiers. 
+	  qualifiers.
 
 Tue Feb 02 01:34:52 GMT 2010  Richard Boulton <richard@tartarus.org>
 

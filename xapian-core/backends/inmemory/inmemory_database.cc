@@ -25,12 +25,12 @@
 
 #include "inmemory_database.h"
 
-#include "omdebug.h"
+#include "debuglog.h"
 
 #include "expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
-#include "utils.h"
+#include "str.h"
 #include "valuestats.h"
 
 #include <string>
@@ -146,7 +146,7 @@ InMemoryPostList::at_end() const
 string
 InMemoryPostList::get_description() const
 {
-    return "InMemoryPostList " + om_tostring(termfreq);
+    return "InMemoryPostList " + str(termfreq);
 }
 
 Xapian::termcount
@@ -360,7 +360,7 @@ InMemoryAllDocsPostList::at_end() const
 string
 InMemoryAllDocsPostList::get_description() const
 {
-    return "InMemoryAllDocsPostList " + om_tostring(did);
+    return "InMemoryAllDocsPostList " + str(did);
 }
 
 ///////////////////////////
@@ -506,7 +506,7 @@ InMemoryDatabase::get_doclength(Xapian::docid did) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (!doc_exists(did)) {
-	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
     return doclengths[did - 1];
@@ -519,7 +519,7 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
     Assert(did != 0);
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
-	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
     return new InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this), did,
@@ -534,7 +534,7 @@ InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
     if (!doc_exists(did)) {
 	if (lazy) return NULL;
 	// FIXME: the docid in this message will be local, not global
-	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
     return new InMemoryDocument(this, did);
@@ -658,7 +658,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (!doc_exists(did)) {
-	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
     termlists[did-1].is_valid = false;
@@ -705,7 +705,7 @@ void
 InMemoryDatabase::replace_document(Xapian::docid did,
 				   const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "InMemoryDatabase::replace_document", did << ", " << document);
+    LOGCALL_VOID(DB, "InMemoryDatabase::replace_document", did | document);
 
     if (closed) InMemoryDatabase::throw_database_closed();
 
@@ -759,7 +759,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 Xapian::docid
 InMemoryDatabase::add_document(const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid, "InMemoryDatabase::add_document", document);
+    LOGCALL(DB, Xapian::docid, "InMemoryDatabase::add_document", document);
     if (closed) InMemoryDatabase::throw_database_closed();
 
     Xapian::docid did = make_doc(document.get_data());

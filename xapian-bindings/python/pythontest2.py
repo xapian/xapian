@@ -1405,6 +1405,15 @@ def test_matchspy():
     expect(ranges.get_values_seen(), 3)
     expect(ranges.get_ranges_as_dict(), {(1.5, 2): 3})
 
+def test_import_star():
+    """Test that "from xapian import *" works.
+
+    This is a regression test - this failed in the 1.2.0 release.
+    It's not normally good style to use it, but it should work anyway!
+
+    """
+    import test_xapian_star
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)

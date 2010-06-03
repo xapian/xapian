@@ -21,10 +21,11 @@
 
 #include <config.h>
 
-#include "expandweight.h"
-#include "omdebug.h"
 #include "multi_termlist.h"
+
 #include "database.h"
+#include "debuglog.h"
+#include "expandweight.h"
 
 MultiTermList::MultiTermList(TermList * tl_,
 			     const Xapian::Database &db_,

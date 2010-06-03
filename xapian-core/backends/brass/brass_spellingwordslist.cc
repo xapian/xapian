@@ -22,23 +22,25 @@
 
 #include <config.h>
 
-#include <xapian/error.h>
-#include <xapian/types.h>
-
 #include "brass_spellingwordslist.h"
+
+#include "xapian/error.h"
+#include "xapian/types.h"
+
+#include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
 
 BrassSpellingWordsList::~BrassSpellingWordsList()
 {
-    DEBUGCALL(DB, void, "~BrassSpellingWordsList", "");
+    LOGCALL_DTOR(DB, "BrassSpellingWordsList");
     delete cursor;
 }
 
 string
 BrassSpellingWordsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassSpellingWordsList::get_termname", "");
+    LOGCALL(DB, string, "BrassSpellingWordsList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -49,7 +51,7 @@ BrassSpellingWordsList::get_termname() const
 Xapian::doccount
 BrassSpellingWordsList::get_termfreq() const
 {
-    DEBUGCALL(DB, string, "BrassSpellingWordsList::get_termfreq", "");
+    LOGCALL(DB, string, "BrassSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -73,7 +75,7 @@ BrassSpellingWordsList::get_collection_freq() const
 TermList *
 BrassSpellingWordsList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassSpellingWordsList::next", "");
+    LOGCALL(DB, TermList *, "BrassSpellingWordsList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -88,7 +90,7 @@ BrassSpellingWordsList::next()
 TermList *
 BrassSpellingWordsList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "BrassSpellingWordsList::skip_to", tname);
+    LOGCALL(DB, TermList *, "BrassSpellingWordsList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge("W" + tname)) {
@@ -105,6 +107,6 @@ BrassSpellingWordsList::skip_to(const string &tname)
 bool
 BrassSpellingWordsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassSpellingWordsList::at_end", "");
+    LOGCALL(DB, bool, "BrassSpellingWordsList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

@@ -64,6 +64,7 @@ ValueGePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 {
     Assert(db);
     AssertRelParanoid(did, <=, db->get_lastdocid());
+    if (!valuelist) valuelist = db->open_value_list(valno);
     valid = valuelist->check(did);
     if (!valid) {
 	return NULL;

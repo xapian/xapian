@@ -29,7 +29,7 @@
 #include "io_utils.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
-#include "utils.h"
+#include "str.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -122,7 +122,7 @@ ChertVersion::read_and_check()
 	string msg = filename;
 	msg += ": Chert version file should be "
 	       STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
-	msg += om_tostring(size);
+	msg += str(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -138,7 +138,7 @@ ChertVersion::read_and_check()
     if (version != CHERT_VERSION) {
 	string msg = filename;
 	msg += ": Chert version file is version ";
-	msg += om_tostring(version);
+	msg += str(version);
 	msg += " but I only understand "STRINGIZE(CHERT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }

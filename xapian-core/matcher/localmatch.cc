@@ -26,9 +26,10 @@
 #include "localmatch.h"
 
 #include "autoptr.h"
+#include "debuglog.h"
 #include "extraweightpostlist.h"
 #include "leafpostlist.h"
-#include "omdebug.h"
+#include "omassert.h"
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
 #include "synonympostlist.h"
@@ -47,15 +48,13 @@ LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	: orig_query(*query), qlen(qlen_), db(db_),
 	  rset(db, omrset), wt_factory(wt_factory_), term_info(NULL)
 {
-    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
-	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
-	      ", [wt_factory]");
+    LOGCALL_VOID(MATCH, "LocalSubMatch::LocalSubMatch", db | query | qlen_ | omrset | wt_factory);
 }
 
 bool
 LocalSubMatch::prepare_match(bool, Xapian::Weight::Internal & total_stats)
 {
-    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "[nowait], [total_stats]");
+    LOGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "[nowait]" | total_stats);
     Xapian::Weight::Internal my_stats;
 
     // Set the collection statistics.
@@ -91,8 +90,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts,
 	Xapian::termcount * total_subqs_ptr)
 {
-    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
-	      matcher << ", [termfreqandwts], [total_subqs_ptr]");
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info", matcher | termfreqandwts | total_subqs_ptr);
     term_info = termfreqandwts;
 
     // Build the postlist tree for the query.  This calls
@@ -117,8 +115,7 @@ PostList *
 LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 				     double factor)
 {
-    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist",
-	      "[or_pl], [matcher], " << factor);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | matcher | factor);
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone());
@@ -142,8 +139,7 @@ PostList *
 LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 					   double factor)
 {
-    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_op_leaf_query",
-	      query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_op_leaf_query", query | factor);
     Assert(query);
     AssertEq(query->op, Xapian::Query::Internal::OP_LEAF);
     Assert(query->subqs.empty());

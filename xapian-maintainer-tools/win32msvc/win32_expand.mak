@@ -40,7 +40,7 @@ CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-"$(OUTDIR)\LIBEXPAND.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBEXPAND.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libexpand.lib" $(DEF_FLAGS) $(OBJS)
 <<

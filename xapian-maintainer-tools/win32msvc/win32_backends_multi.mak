@@ -40,7 +40,7 @@ CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-"$(OUTDIR)\LIBMULTI.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBMULTI.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libmulti.lib" $(DEF_FLAGS) $(OBJS)
 <<
