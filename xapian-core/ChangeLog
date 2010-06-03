@@ -1,3 +1,9 @@
+Thu Jun 03 15:12:02 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* docsim/cluster.cc,docsim/docsim.cc,docsim/docsim_cosine.cc,
+	  geospatial/latlong_posting_source.cc,geospatial/latlongparse.lt:
+	  Update to work with modern debugging macros.
+
 Tue Mar 23 21:57:41 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-compact-chert.cc: Print the colliding metadata key in

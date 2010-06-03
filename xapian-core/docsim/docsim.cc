@@ -22,9 +22,9 @@
 
 #include "xapian/cluster.h"
 
-#include "omdebug.h"
+#include "debuglog.h"
 
 Xapian::DocSim::~DocSim()
 {
-    DEBUGAPICALL(void, "DocSim::~DocSim", "");
+    LOGCALL_DTOR(API, "DocSim");
 }

@@ -23,8 +23,8 @@
 #include "xapian/cluster.h"
 #include "xapian/error.h"
 
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "termlist.h"
 
 #include <algorithm>
@@ -34,7 +34,7 @@ using namespace std;
 
 DocumentSource::~DocumentSource()
 {
-    DEBUGAPICALL(void, "DocumentSource::~DocumentSource", "");
+    LOGCALL_DTOR(API, "DocumentSource");
 }
 
 MSetDocumentSource::MSetDocumentSource(const MSet & mset_)
@@ -42,7 +42,7 @@ MSetDocumentSource::MSetDocumentSource(const MSet & mset_)
 	  maxitems(mset_.size()),
 	  index(0)
 {
-    DEBUGAPICALL(void, "MSetDocumentSource::MSetDocumentSource", mset);
+    LOGCALL_CTOR(API, "MSetDocumentSource", mset);
 
     // We're going to be accessing the contents of all the items in the mset,
     // so tell the mset to start fetching them.
@@ -54,7 +54,7 @@ MSetDocumentSource::MSetDocumentSource(const MSet & mset_, doccount maxitems_)
 	  maxitems(maxitems_),
 	  index(0)
 {
-    DEBUGAPICALL(void, "MSetDocumentSource::MSetDocumentSource", mset_ << ", " << maxitems_);
+    LOGCALL_CTOR(API, "MSetDocumentSource", mset_ | maxitems_);
     if (maxitems > mset.size()) {
 	maxitems = mset.size();
     }
@@ -69,7 +69,7 @@ MSetDocumentSource::MSetDocumentSource(const MSet & mset_, doccount maxitems_)
 Document
 MSetDocumentSource::next_document()
 {
-    DEBUGAPICALL(Document, "MSetDocumentSource::next_document", "");
+    LOGCALL(API, Document, "MSetDocumentSource::next_document", "");
     AssertRel(index, <, maxitems);
     RETURN(mset[index++].get_document());
 }
@@ -77,40 +77,40 @@ MSetDocumentSource::next_document()
 bool
 MSetDocumentSource::at_end() const
 {
-    DEBUGAPICALL(bool, "MSetDocumentSource::at_end", "");
+    LOGCALL(API, bool, "MSetDocumentSource::at_end", "");
     RETURN(index >= maxitems);
 }
 
 TermFreqSource::~TermFreqSource()
 {
-    DEBUGAPICALL(void, "TermFreqSource::~TermFreqSource", "");
+    LOGCALL_DTOR(API, "TermFreqSource");
 }
 
 doccount
 DummyTermFreqSource::get_termfreq(const string &) const
 {
-    DEBUGAPICALL(doccount, "DummyTermFreqSource::get_termfreq", "");
+    LOGCALL(API, doccount, "DummyTermFreqSource::get_termfreq", "");
     RETURN(1);
 }
 
 doccount
 DummyTermFreqSource::get_doccount() const
 {
-    DEBUGAPICALL(doccount, "DummyTermFreqSource::get_doccount", "");
+    LOGCALL(API, doccount, "DummyTermFreqSource::get_doccount", "");
     RETURN(1);
 }
 
 doccount
 DatabaseTermFreqSource::get_termfreq(const string &tname) const
 {
-    DEBUGAPICALL(doccount, "DatabaseTermFreqSource::get_termfreq", "");
+    LOGCALL(API, doccount, "DatabaseTermFreqSource::get_termfreq", "");
     RETURN(db.get_termfreq(tname));
 }
 
 doccount
 DatabaseTermFreqSource::get_doccount() const
 {
-    DEBUGAPICALL(doccount, "DatabaseTermFreqSource::get_doccount", "");
+    LOGCALL(API, doccount, "DatabaseTermFreqSource::get_doccount", "");
     RETURN(db.get_doccount());
 }
 
@@ -118,8 +118,7 @@ void
 TermListGroup::add_document(const Document & document,
 			    const ExpandDecider * decider)
 {
-    DEBUGAPICALL(void, "TermListGroup::add_document",
-		 document << ", " << decider);
+    LOGCALL_VOID(API, "TermListGroup::add_document", document | decider);
     vector<TermWdf> & tl = termlists[document.get_docid()];
     tl.clear();
     TermIterator titer(document.termlist_begin());
@@ -142,8 +141,7 @@ void
 TermListGroup::add_document(const Document & document,
 			    Xapian::valueno slot)
 {
-    DEBUGAPICALL(void, "TermListGroup::add_document",
-		 document << ", " << slot);
+    LOGCALL_VOID(API, "TermListGroup::add_document", document | slot);
     vector<TermWdf> & tl = termlists[document.get_docid()];
     tl.clear();
     std::string value = document.get_value(slot);
@@ -162,8 +160,7 @@ void
 TermListGroup::add_documents(DocumentSource & source,
 			     const ExpandDecider * decider)
 {
-    DEBUGAPICALL(void, "TermListGroup::add_documents",
-		 "source" << ", " << decider);
+    LOGCALL_VOID(API, "TermListGroup::add_documents", source | decider);
     while (!source.at_end()) {
 	add_document(source.next_document(), decider);
     }
@@ -173,8 +170,7 @@ void
 TermListGroup::add_documents(DocumentSource & source,
 			     Xapian::valueno slot)
 {
-    DEBUGAPICALL(void, "TermListGroup::add_documents",
-		 "source" << ", " << slot);
+    LOGCALL_VOID(API, "TermListGroup::add_documents", source | slot);
     while (!source.at_end()) {
 	add_document(source.next_document(), slot);
     }
@@ -184,7 +180,7 @@ TermListGroup::add_documents(DocumentSource & source,
 doccount
 TermListGroup::get_termfreq(const string &tname) const
 {
-    DEBUGAPICALL(doccount, "TermListGroup::get_termfreq", tname);
+    LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
     map<string, doccount>::const_iterator i;
     i = termfreqs.find(tname);
     if (i == termfreqs.end())
@@ -195,7 +191,7 @@ TermListGroup::get_termfreq(const string &tname) const
 doccount
 TermListGroup::get_doccount() const
 {
-    DEBUGAPICALL(doccount, "TermListGroup::get_doccount", "");
+    LOGCALL(API, doccount, "TermListGroup::get_doccount", "");
     RETURN(termlists.size());
 }
 
@@ -255,7 +251,7 @@ VectorTermWdfIterator::positionlist_begin() const
 TermIterator
 TermListGroup::termlist_begin(docid did) const
 {
-    DEBUGAPICALL(TermIterator, "TermListGroup::termlist_begin", did);
+    LOGCALL(API, TermIterator, "TermListGroup::termlist_begin", did);
     map<docid, vector<TermWdf> >::const_iterator i = termlists.find(did);
     if (i == termlists.end()) {
 	throw DocNotFoundError("Document not found in TermListGroup");
