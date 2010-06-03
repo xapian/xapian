@@ -49,7 +49,7 @@ CPP_PROJ_LEMON=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBQUERYPARSER.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBQUERYPARSER.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libqueryparser.lib" $(DEF_FLAGS) $(OBJS)
 <<
@@ -80,7 +80,7 @@ CPP_SBRS=.
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
-HEADERS : "$(INTDIR)\queryparser_internal.cc"
+HEADERS : "$(INTDIR)\lemon.exe" "$(INTDIR)\queryparser_internal.cc"
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
     if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 

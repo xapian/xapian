@@ -28,8 +28,8 @@
 #include <xapian/error.h>
 
 #include "brass_table.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 using namespace Brass;
 
@@ -114,7 +114,7 @@ BrassCursor::~BrassCursor()
 bool
 BrassCursor::prev()
 {
-    DEBUGCALL(DB, bool, "BrassCursor::prev", "");
+    LOGCALL(DB, bool, "BrassCursor::prev", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version || !is_positioned) {
 	// Either the cursor needs rebuilding (in which case find_entry() will
@@ -158,7 +158,7 @@ BrassCursor::prev()
 bool
 BrassCursor::next()
 {
-    DEBUGCALL(DB, bool, "BrassCursor::next", "");
+    LOGCALL(DB, bool, "BrassCursor::next", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version) {
 	// find_entry() will call rebuild().
@@ -195,7 +195,7 @@ BrassCursor::next()
 bool
 BrassCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "BrassCursor::find_entry", key);
+    LOGCALL(DB, bool, "BrassCursor::find_entry", key);
     if (B->cursor_version != version) {
 	rebuild();
     }
@@ -243,7 +243,7 @@ done:
 bool
 BrassCursor::find_entry_ge(const string &key)
 {
-    DEBUGCALL(DB, bool, "BrassCursor::find_entry_ge", key);
+    LOGCALL(DB, bool, "BrassCursor::find_entry_ge", key);
     if (B->cursor_version != version) {
 	rebuild();
     }
@@ -293,7 +293,7 @@ BrassCursor::get_key(string * key) const
 bool
 BrassCursor::read_tag(bool keep_compressed)
 {
-    DEBUGCALL(DB, bool, "BrassCursor::read_tag", keep_compressed);
+    LOGCALL(DB, bool, "BrassCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD) {
 	Assert(B->level <= level);
 	Assert(is_positioned);

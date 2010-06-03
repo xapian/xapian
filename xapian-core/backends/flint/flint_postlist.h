@@ -30,7 +30,6 @@
 #include "flint_positionlist.h"
 #include "leafpostlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #include "autoptr.h"
 #include <map>
@@ -219,11 +218,7 @@ class FlintPostList : public LeafPostList {
 	Xapian::docid get_docid() const { Assert(have_started); return did; }
 
 	/// Returns the length of current document.
-	Xapian::termcount get_doclength() const {
-	    DEBUGCALL(DB, Xapian::termcount, "FlintPostList::get_doclength", "");
-	    Assert(have_started);
-	    RETURN(static_cast<Xapian::termcount>(doclength));
-	}
+	Xapian::termcount get_doclength() const;
 
 	/** Returns the Within Document Frequency of the term in the current
 	 *  document.

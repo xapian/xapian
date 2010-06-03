@@ -35,8 +35,8 @@
 #include "omassert.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 #include "stringutils.h" // For STRINGIZE().
-#include "utils.h"
 #include "weightinternal.h"
 
 #include <string>
@@ -96,9 +96,9 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     if (protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
 	protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
 	string errmsg("Unknown protocol version ");
-	errmsg += om_tostring(protocol_major);
+	errmsg += str(protocol_major);
 	errmsg += '.';
-	errmsg += om_tostring(protocol_minor);
+	errmsg += str(protocol_minor);
 	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
 	throw Xapian::NetworkError(errmsg, context);
     }
@@ -490,9 +490,9 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
     }
     if (required_type != REPLY_MAX && type != required_type) {
 	string errmsg("Expecting reply type ");
-	errmsg += om_tostring(int(required_type));
+	errmsg += str(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(int(type));
+	errmsg += str(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
 

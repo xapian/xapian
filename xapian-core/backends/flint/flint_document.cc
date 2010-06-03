@@ -21,9 +21,10 @@
  */
 
 #include <config.h>
-#include "omdebug.h"
-#include "flint_database.h"
 #include "flint_document.h"
+
+#include "debuglog.h"
+#include "flint_database.h"
 #include "flint_values.h"
 #include "flint_record.h"
 
@@ -39,7 +40,7 @@ FlintDocument::FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database:
 	  value_table(value_table_),
 	  record_table(record_table_)
 {
-    DEBUGCALL(DB, void, "FlintDocument", "[database_], " << value_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
+    LOGCALL_CTOR(DB, "FlintDocument", database_ | value_table_ | record_table_ | did_ | lazy);
     // FIXME: this should work but isn't great - in fact I wonder if
     // we should cache the results anyway...
     if (!lazy) (void)record_table->get_record(did);
@@ -52,7 +53,7 @@ FlintDocument::FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database:
 string
 FlintDocument::do_get_value(Xapian::valueno valueid) const
 {
-    DEBUGCALL(DB, string, "FlintDocument::do_get_value", valueid);
+    LOGCALL(DB, string, "FlintDocument::do_get_value", valueid);
     string retval;
     value_table->get_value(retval, did, valueid);
     RETURN(retval);
@@ -63,7 +64,7 @@ FlintDocument::do_get_value(Xapian::valueno valueid) const
 void
 FlintDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    DEBUGCALL(DB, void, "FlintDocument::do_get_all_values", "[values_]");
+    LOGCALL_VOID(DB, "FlintDocument::do_get_all_values", values_);
     value_table->get_all_values(values_, did);
 }
 
@@ -72,6 +73,6 @@ FlintDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 string
 FlintDocument::do_get_data() const
 {
-    DEBUGCALL(DB, string, "FlintDocument::do_get_data", "");
+    LOGCALL(DB, string, "FlintDocument::do_get_data", NO_ARGS);
     RETURN(record_table->get_record(did));
 }

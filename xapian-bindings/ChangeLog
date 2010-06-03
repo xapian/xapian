@@ -4,6 +4,40 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Thu Jun 03 15:21:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am: Add missing
+	  SWIGTYPE_p_Xapian__StemImplementation.cs file.
+
+Tue Jun 01 16:23:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,java-swig/util.i,python/generate-python-exceptions,
+	  python/smoketest2.py,xapian.i: Wrap Xapian::StemImplementation.
+	  Currently only tested for Python, and requires explicit use of
+	  __disown__() there.
+
+Thu May 27 22:30:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian.i: Ignore Xapian::StemImplementation for now so that the
+	  tree builds while I sort out wrapping it properly.
+
+Thu May 27 09:34:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/except.i: zend_throw_exception() returns, so we should return
+	  control to PHP directly after calling it to avoid needless extra
+	  work and possible issues.
+
+Wed May 19 09:12:36 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Ensure that __all__ is populated after local
+	  symbols are deleted - this fixes "from xapian import *".  Fixes
+	  #477.
+	* python/pythontest2.py,python/test_xapian_star.py: Add a test that
+	  "from xapian import *" works - unfortunately, this requires a
+	  separate file, since the syntax is only valid at module level,
+	  and we don't want to pollute the namespace of the rest of the
+	  tests.
+
 Sun May 16 13:27:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Update list of generated java sources.

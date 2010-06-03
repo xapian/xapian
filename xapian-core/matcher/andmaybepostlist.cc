@@ -22,16 +22,16 @@
  */
 
 #include <config.h>
-
 #include "andmaybepostlist.h"
+
+#include "debuglog.h"
 #include "multiandpostlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 PostList *
 AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 {
-    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::process_next_or_skip_to", w_min << ", " << ret);
+    LOGCALL(MATCH, PostList *, "AndMaybePostList::process_next_or_skip_to", w_min | ret);
     handle_prune(l, ret);
     if (l->at_end()) {
 	// once l is over, so is the AND MAYBE
@@ -58,9 +58,28 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 }
 
 PostList *
+AndMaybePostList::sync_rhs(Xapian::weight w_min)
+{
+    LOGCALL(MATCH, PostList *, "AndMaybePostList::sync_rhs", w_min);
+    bool valid;
+    check_handling_prune(r, lhead, w_min - lmax, matcher, valid);
+    if (r->at_end()) {
+	PostList *tmp = l;
+	l = NULL;
+	RETURN(tmp);
+    }
+    if (valid) {
+	rhead = r->get_docid();
+    } else {
+	rhead = 0;
+    }
+    RETURN(NULL);
+}
+
+PostList *
 AndMaybePostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "AndMaybePostList::next", w_min);
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
@@ -76,7 +95,7 @@ AndMaybePostList::next(Xapian::weight w_min)
 PostList *
 AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "AndMaybePostList::skip_to", did | w_min);
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
@@ -97,7 +116,7 @@ AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::doccount
 AndMaybePostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_max", "");
+    LOGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_max", NO_ARGS);
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_max());
 }
@@ -105,7 +124,7 @@ AndMaybePostList::get_termfreq_max() const
 Xapian::doccount
 AndMaybePostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_min", "");
+    LOGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_min", NO_ARGS);
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_min());
 }
@@ -113,7 +132,7 @@ AndMaybePostList::get_termfreq_min() const
 Xapian::doccount
 AndMaybePostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_est", "");
+    LOGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_est", NO_ARGS);
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_est());
 }
@@ -122,8 +141,7 @@ TermFreqs
 AndMaybePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "AndMaybePostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "AndMaybePostList::get_termfreq_est_using_stats", stats);
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_est_using_stats(stats));
 }
@@ -131,7 +149,7 @@ AndMaybePostList::get_termfreq_est_using_stats(
 Xapian::docid
 AndMaybePostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "AndMaybePostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "AndMaybePostList::get_docid", NO_ARGS);
     Assert(lhead != 0); // check we've started
     RETURN(lhead);
 }
@@ -140,7 +158,7 @@ AndMaybePostList::get_docid() const
 Xapian::weight
 AndMaybePostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", NO_ARGS);
     Assert(lhead != 0); // check we've started
     if (lhead == rhead) RETURN(l->get_weight() + r->get_weight());
     RETURN(l->get_weight());
@@ -150,14 +168,14 @@ AndMaybePostList::get_weight() const
 Xapian::weight
 AndMaybePostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_maxweight", NO_ARGS);
     RETURN(lmax + rmax);
 }
 
 Xapian::weight
 AndMaybePostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::recalc_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "AndMaybePostList::recalc_maxweight", NO_ARGS);
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     RETURN(AndMaybePostList::get_maxweight());
@@ -166,7 +184,7 @@ AndMaybePostList::recalc_maxweight()
 bool
 AndMaybePostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "AndMaybePostList::at_end", "");
+    LOGCALL(MATCH, bool, "AndMaybePostList::at_end", NO_ARGS);
     RETURN(lhead == 0);
 }
 
@@ -180,7 +198,7 @@ AndMaybePostList::get_description() const
 Xapian::termcount
 AndMaybePostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_doclength", "");
+    LOGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_doclength", NO_ARGS);
     Assert(lhead != 0); // check we've started
     if (lhead == rhead) AssertEq(l->get_doclength(), r->get_doclength());
     RETURN(l->get_doclength());
@@ -189,7 +207,7 @@ AndMaybePostList::get_doclength() const
 Xapian::termcount
 AndMaybePostList::get_wdf() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_wdf", "");
+    LOGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_wdf", NO_ARGS);
     if (lhead == rhead) RETURN(l->get_wdf() + r->get_wdf());
     RETURN(l->get_wdf());
 }
@@ -197,7 +215,7 @@ AndMaybePostList::get_wdf() const
 Xapian::termcount
 AndMaybePostList::count_matching_subqs() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "AndMaybePostList::count_matching_subqs", "");
+    LOGCALL(MATCH, Xapian::termcount, "AndMaybePostList::count_matching_subqs", NO_ARGS);
     if (lhead == rhead)
 	RETURN(l->count_matching_subqs() + r->count_matching_subqs());
     RETURN(l->count_matching_subqs());

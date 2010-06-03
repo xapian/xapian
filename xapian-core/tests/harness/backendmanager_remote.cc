@@ -21,7 +21,7 @@
 
 #include <config.h>
 #include "backendmanager_remote.h"
-#include "utils.h"
+#include "str.h"
 #include <cstdlib>
 #include <string>
 
@@ -81,7 +81,7 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 					       unsigned int timeout)
 {
     std::string args = "-t";
-    args += om_tostring(timeout);
+    args += str(timeout);
     args += ' ';
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	if (remote_type == "brass") {

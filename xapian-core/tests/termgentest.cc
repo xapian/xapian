@@ -26,6 +26,7 @@
 #include <iostream>
 #include <string>
 
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -621,20 +622,20 @@ format_doc_termlist(const Xapian::Document & doc)
 	    // the length of the positionlist.
 	    if (it.get_wdf() != it.positionlist_count()) {
 	        output += ':';
-		output += om_tostring(it.get_wdf());
+		output += str(it.get_wdf());
 	    }
 	    char ch = '[';
 	    Xapian::PositionIterator posit;
 	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); posit++) {
 		output += ch;
 		ch = ',';
-		output += om_tostring(*posit);
+		output += str(*posit);
 	    }
 	    output += ']';
 	} else if (it.get_wdf() != 0) {
 	    // If no position list, display any non-zero wdfs.
 	    output += ':';
-	    output += om_tostring(it.get_wdf());
+	    output += str(it.get_wdf());
 	}
     }
     return output;

@@ -20,13 +20,14 @@
  */
 
 #include <config.h>
+#include "brass_alldocspostlist.h"
 
 #include <string>
 
-#include "brass_alldocspostlist.h"
 #include "brass_database.h"
+#include "debuglog.h"
 
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -35,20 +36,20 @@ BrassAllDocsPostList::BrassAllDocsPostList(Xapian::Internal::RefCntPtr<const Bra
 	: BrassPostList(db_, string(), true),
 	  doccount(doccount_)
 {
-    DEBUGCALL(DB, void, "BrassAllDocsPostList::BrassAllDocsPostList", db_.get() << ", " << doccount_);
+    LOGCALL_CTOR(DB, "BrassAllDocsPostList", db_.get() | doccount_);
 }
 
 Xapian::doccount
 BrassAllDocsPostList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassAllDocsPostList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "BrassAllDocsPostList::get_termfreq", NO_ARGS);
     RETURN(doccount);
 }
 
 Xapian::termcount
 BrassAllDocsPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::get_doclength", NO_ARGS);
 
     RETURN(BrassPostList::get_wdf());
 }
@@ -56,7 +57,7 @@ BrassAllDocsPostList::get_doclength() const
 Xapian::termcount
 BrassAllDocsPostList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::get_wdf", NO_ARGS);
     AssertParanoid(!at_end());
     RETURN(1);
 }
@@ -64,14 +65,14 @@ BrassAllDocsPostList::get_wdf() const
 PositionList *
 BrassAllDocsPostList::read_position_list()
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::read_position_list", "");
+    LOGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::read_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("BrassAllDocsPostList::read_position_list() not meaningful");
 }
 
 PositionList *
 BrassAllDocsPostList::open_position_list() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::open_position_list", "");
+    LOGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::open_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("BrassAllDocsPostList::open_position_list() not meaningful");
 }
 
@@ -79,9 +80,9 @@ string
 BrassAllDocsPostList::get_description() const
 {
     string desc = "BrassAllDocsPostList(did=";
-    desc += om_tostring(get_docid());
+    desc += str(get_docid());
     desc += ",doccount=";
-    desc += om_tostring(doccount);
+    desc += str(doccount);
     desc += ')';
     return desc;
 }

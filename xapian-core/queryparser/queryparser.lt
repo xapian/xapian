@@ -182,7 +182,7 @@ typedef struct yyParser yyParser;
 static void yy_parse_failed(yyParser *);
 
 #include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 
 #ifdef XAPIAN_DEBUG_LOG
 /* For tracing shifts, the names of all terminals and nonterminals

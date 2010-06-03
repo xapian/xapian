@@ -27,7 +27,7 @@
 
 #include "progclient.h"
 #include <xapian/error.h>
-#include "omdebug.h"
+#include "debuglog.h"
 
 #include <string>
 #include <vector>
@@ -72,15 +72,13 @@ ProgClient::ProgClient(const string &progname, const string &args,
 			 get_progcontext(progname, args),
 			 writable)
 {
-    DEBUGCALL(DB, void, "ProgClient::ProgClient", progname << ", " << args <<
-	      ", " << msecs_timeout << ", " << writable);
+    LOGCALL_VOID(DB, "ProgClient::ProgClient", progname | args | msecs_timeout | writable);
 }
 
 string
 ProgClient::get_progcontext(const string &progname, const string &args)
 {
-    DEBUGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname <<
-		     ", " << args);
+    LOGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname | args);
     RETURN("remote:prog(" + progname + " " + args);
 }
 
@@ -92,8 +90,7 @@ ProgClient::run_program(const string &progname, const string &args
 			)
 {
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
-    DEBUGCALL_STATIC(DB, int, "ProgClient::run_program", progname << ", " <<
-		     args << ", [&pid]");
+    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | "[&pid]");
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */
@@ -169,8 +166,7 @@ ProgClient::run_program(const string &progname, const string &args
     return 0;
 #endif
 #elif defined __WIN32__
-    DEBUGCALL_STATIC(DB, int, "ProgClient::run_program", progname << ", " <<
-		     args);
+    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args);
 
     static unsigned int pipecount = 0;
     char pipename[256];

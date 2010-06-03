@@ -35,7 +35,6 @@
 #include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
-#include "omdebug.h"
 
 using namespace std;
 

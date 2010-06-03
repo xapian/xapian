@@ -44,6 +44,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorT_std__string_t.cs \
 	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
+	SWIGTYPE_p_Xapian__StemImplementation.cs \
 	Registry.cs \
 	SimpleStopper.cs \
 	Sorter.cs \

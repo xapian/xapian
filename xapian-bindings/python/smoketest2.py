@@ -24,6 +24,15 @@ import xapian
 
 from testsuite import *
 
+# Stemmer which strips English vowels.
+class MyStemmer(xapian.StemImplementation):
+    def __init__(self):
+        super(MyStemmer, self).__init__()
+
+    def __call__(self, s):
+        import re
+        return re.sub(r'[aeiou]', '', s)
+
 def test_all():
     # Test the version number reporting functions give plausible results.
     v = "%d.%d.%d" % (xapian.major_version(),
@@ -324,6 +333,31 @@ def test_all():
     # Test OP_SCALE_WEIGHT and corresponding constructor
     expect_query(xapian.Query(xapian.Query.OP_SCALE_WEIGHT, xapian.Query('foo'), 5),
                  "5 * foo")
+
+def test_userstem():
+    mystem = MyStemmer()
+    stem = xapian.Stem(mystem.__disown__())
+    expect(stem('test'), 'tst')
+
+    stem = xapian.Stem(mystem.__disown__())
+    indexer = xapian.TermGenerator()
+    indexer.set_stemmer(stem)
+
+    doc = xapian.Document()
+    indexer.set_document(doc)
+    indexer.index_text('hello world')
+
+    s = '/'
+    for t in doc.termlist():
+        s += t.term
+        s += '/'
+    expect(s, '/Zhll/Zwrld/hello/world/')
+
+    stem = xapian.Stem(MyStemmer().__disown__())
+    parser = xapian.QueryParser()
+    parser.set_stemmer(stem)
+    parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
+    expect_query(parser.parse_query('color television'), '(clr:(pos=1) OR tlvsn:(pos=2))')
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

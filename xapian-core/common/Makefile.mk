@@ -11,7 +11,6 @@ noinst_HEADERS +=\
 	common/documentterm.h\
 	common/emptypostlist.h\
 	common/esetinternal.h\
-	common/expand.h\
 	common/expandweight.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
@@ -26,7 +25,6 @@ noinst_HEADERS +=\
 	common/multivaluelist.h\
 	common/noreturn.h\
 	common/omassert.h\
-	common/omdebug.h\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
 	common/omtime.h\
@@ -35,6 +33,7 @@ noinst_HEADERS +=\
 	common/positionlist.h\
 	common/pack.h\
 	common/postlist.h\
+	common/pretty.h\
 	common/progclient.h\
 	common/registryinternal.h\
 	common/remoteconnection.h\
@@ -89,7 +88,6 @@ lib_src +=\
 	common/io_utils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
-	common/omdebug.cc\
 	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\

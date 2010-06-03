@@ -23,8 +23,8 @@
 #include <xapian/postingiterator.h>
 #include <xapian/positioniterator.h>
 #include "postlist.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 using namespace std;
 
@@ -40,30 +40,30 @@ Xapian::PostingIterator::PostingIterator(Internal *internal_)
 }
 
 Xapian::PostingIterator::PostingIterator() : internal(0) {
-    DEBUGAPICALL(void, "Xapian::PostingIterator::PostingIterator", "");
+    LOGCALL_VOID(API, "Xapian::PostingIterator::PostingIterator", NO_ARGS);
 }
 
 Xapian::PostingIterator::~PostingIterator() {
-    DEBUGAPICALL(void, "Xapian::PostingIterator::~PostingIterator", "");
+    LOGCALL_VOID(API, "Xapian::PostingIterator::~PostingIterator", NO_ARGS);
 }
 
 Xapian::PostingIterator::PostingIterator(const Xapian::PostingIterator &other)
     : internal(other.internal)
 {
-    DEBUGAPICALL(void, "Xapian::PostingIterator::Xapian::PostingIterator", other);
+    LOGCALL_VOID(API, "Xapian::PostingIterator::Xapian::PostingIterator", other);
 }
 
 void
 Xapian::PostingIterator::operator=(const Xapian::PostingIterator &other)
 {
-    DEBUGAPICALL(void, "Xapian::PostingIterator::operator=", other);
+    LOGCALL_VOID(API, "Xapian::PostingIterator::operator=", other);
     internal = other.internal;
 }
 
 Xapian::docid
 Xapian::PostingIterator::operator *() const
 {
-    DEBUGAPICALL(Xapian::docid, "Xapian::PostingIterator::operator*", "");
+    LOGCALL(API, Xapian::docid, "Xapian::PostingIterator::operator*", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_docid());
@@ -72,7 +72,7 @@ Xapian::PostingIterator::operator *() const
 Xapian::PostingIterator &
 Xapian::PostingIterator::operator++()
 {
-    DEBUGAPICALL(void, "Xapian::PostingIterator::operator++", "");
+    LOGCALL_VOID(API, "Xapian::PostingIterator::operator++", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     Internal *p = internal->next();
@@ -85,7 +85,7 @@ Xapian::PostingIterator::operator++()
 void
 Xapian::PostingIterator::skip_to(Xapian::docid did)
 {
-    DEBUGAPICALL(void, "Xapian::PostingIterator::skip_to", did);
+    LOGCALL_VOID(API, "Xapian::PostingIterator::skip_to", did);
     Assert(internal.get());
     Assert(!internal->at_end());
     PostList *p = internal->skip_to(did, 0);
@@ -96,7 +96,7 @@ Xapian::PostingIterator::skip_to(Xapian::docid did)
 Xapian::termcount
 Xapian::PostingIterator::get_doclength() const
 {
-    DEBUGAPICALL(Xapian::termcount, "Xapian::PostingIterator::get_doclength", "");
+    LOGCALL(API, Xapian::termcount, "Xapian::PostingIterator::get_doclength", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_doclength());
@@ -105,7 +105,7 @@ Xapian::PostingIterator::get_doclength() const
 Xapian::termcount
 Xapian::PostingIterator::get_wdf() const
 {
-    DEBUGAPICALL(Xapian::termcount, "Xapian::PostingIterator::get_wdf", "");
+    LOGCALL(API, Xapian::termcount, "Xapian::PostingIterator::get_wdf", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_wdf());
@@ -114,7 +114,7 @@ Xapian::PostingIterator::get_wdf() const
 Xapian::PositionIterator
 Xapian::PostingIterator::positionlist_begin() const
 {
-    DEBUGAPICALL(Xapian::PositionIterator, "Xapian::PostingIterator::positionlist_begin", "");
+    LOGCALL(API, Xapian::PositionIterator, "Xapian::PostingIterator::positionlist_begin", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(Xapian::PositionIterator(internal->open_position_list()));

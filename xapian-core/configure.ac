@@ -795,8 +795,14 @@ AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
 
-dnl Set a flag for AM when shared libraries are enabled.
-dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
+dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+use_zlib_vg=no
+if test -n "$VALGRIND" ; then
+  case $host_os in
+    linux*) use_zlib_vg=yes ;;
+  esac
+fi
+AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 SAVE_LIBS="$LIBS"
@@ -910,7 +916,9 @@ AC_ARG_ENABLE(assertions,
 AC_ARG_ENABLE(log,
   [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc (no|yes|profile) [default=no]])],
   [case $enableval in
-    yes|profile|no) ;;
+    yes|no) ;;
+    profile)
+      AC_MSG_ERROR(['--enable-log=profile' is no longer supported - see http://trac.xapian.org/wiki/ProfilingXapian for alternatives.]) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
@@ -931,11 +939,6 @@ fi
 if test yes = "$enable_log"; then
   AC_DEFINE(XAPIAN_DEBUG_LOG,,
     [Define if you want a log of methods called and other debug messages])
-fi
-
-if test profile = "$enable_log"; then
-  AC_DEFINE(XAPIAN_DEBUG_PROFILE,,
-    [Define if you want code profiling via the logging infrastructure])
 fi
 
 dnl ******************************

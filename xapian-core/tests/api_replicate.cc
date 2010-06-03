@@ -32,6 +32,7 @@
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -424,7 +425,7 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
     off_t filesize = file_size(changesetpath);
     off_t len = 10;
     off_t copylen;
-    while (true) {
+    while (len < filesize) {
 	copylen = truncated_copy(changesetpath, brokenchangesetpath, len);
 	TEST_EQUAL(copylen, len);
 	tout << "Trying replication with a changeset truncated to " << len <<
@@ -444,8 +445,6 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 		len = filesize - 10;
 	    }
 	}
-	if (len >= filesize)
-	    break;
     }
     return;
 }

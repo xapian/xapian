@@ -39,7 +39,7 @@ CPP_OBJS=..\compiler
 CPP_SBRS=.
 
 
-"$(OUTDIR)\snowball.exe" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
+"$(OUTDIR)\snowball.exe" : "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LINK32) @<<
   $(LINK32_FLAGS) /out:"$(OUTDIR)\snowball.exe" $(DEF_FLAGS) $(OBJS)
 <<

@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009 Olly Betts
+ * Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,12 @@
 
 #include "database.h"
 #include "databasereplicator.h"
+#include "debuglog.h"
 #include "fileutils.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 #include "omassert.h"
-#include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
@@ -43,6 +43,7 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "serialise.h"
+#include "str.h"
 #include "utils.h"
 
 #include "autoptr.h"
@@ -63,8 +64,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 				       const string & start_revision,
 				       ReplicationInfo * info) const
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseMaster::write_changesets_to_fd",
-		 fd << ", " << start_revision << ", " << info);
+    LOGCALL_VOID(REPLICA, "DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
     if (info != NULL)
 	info->clear();
     Database db;
@@ -224,37 +224,37 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 DatabaseReplica::DatabaseReplica(const DatabaseReplica & other)
 	: internal(other.internal)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", other);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", other);
 }
 
 void
 DatabaseReplica::operator=(const DatabaseReplica & other)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::operator=", other);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::operator=", other);
     internal = other.internal;
 }
 
 DatabaseReplica::DatabaseReplica()
 	: internal(0)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", "");
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", NO_ARGS);
 }
 
 DatabaseReplica::DatabaseReplica(const string & path)
 	: internal(new DatabaseReplica::Internal(path))
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", path);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", path);
 }
 
 DatabaseReplica::~DatabaseReplica()
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::~DatabaseReplica", "");
+    LOGCALL_DTOR(REPLICA, "DatabaseReplica");
 }
 
 string
 DatabaseReplica::get_revision_info() const
 {
-    DEBUGAPICALL(string, "Xapian::DatabaseReplica::get_revision_info", "");
+    LOGCALL(REPLICA, string, "DatabaseReplica::get_revision_info", NO_ARGS);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
     RETURN(internal->get_revision_info());
@@ -263,7 +263,7 @@ DatabaseReplica::get_revision_info() const
 void
 DatabaseReplica::set_read_fd(int fd)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::set_read_fd", fd);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::set_read_fd", fd);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_read_fd on a closed replica.");
     internal->set_read_fd(fd);
@@ -273,7 +273,7 @@ bool
 DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
 				      int reader_close_time)
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info);
     if (info != NULL)
 	info->clear();
     if (internal.get() == NULL)
@@ -284,7 +284,7 @@ DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
 void
 DatabaseReplica::close()
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::close", "");
+    LOGCALL(REPLICA, bool, "DatabaseReplica::close", NO_ARGS);
     internal = NULL;
 }
 
@@ -331,7 +331,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  need_copy_next(false), offline_revision(), offline_needed_revision(),
 	  last_live_changeset_time(), conn(NULL)
 {
-    DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
 #else
@@ -371,7 +371,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 string
 DatabaseReplica::Internal::get_revision_info() const
 {
-    DEBUGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", "");
+    LOGCALL(REPLICA, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
     if (live_db.internal.empty())
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)
@@ -456,8 +456,8 @@ DatabaseReplica::Internal::check_message_type(char type, char expected) const
 {
     if (type != expected) {
 	throw NetworkError("Unexpected replication protocol message type (got "
-			   + om_tostring(type) + ", expected "
-			   + om_tostring(expected) + ")");
+			   + str(type) + ", expected "
+			   + str(expected) + ")");
     }
 }
 
@@ -509,7 +509,7 @@ bool
 DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 						int reader_close_time)
 {
-    DEBUGCALL(API, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
     if (live_db.internal.empty())
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)
@@ -625,7 +625,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 	    }
 	    default:
 		throw NetworkError("Unknown replication protocol message ("
-				   + om_tostring(type) + ")");
+				   + str(type) + ")");
 	}
     }
 }

@@ -33,7 +33,7 @@ OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
 "$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8converttest.exe" 
 
-ALL : HEADERS $(PROGRAMS) 
+ALL : $(PROGRAMS) 
 
 OMEGA_OBJS= \
  omindex.obj myhtmlparse.obj htmlparse.obj\

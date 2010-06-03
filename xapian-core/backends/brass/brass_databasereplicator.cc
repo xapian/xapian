@@ -32,12 +32,13 @@
 #include "brass_replicate_internal.h"
 #include "brass_types.h"
 #include "brass_version.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -59,8 +60,7 @@ bool
 BrassDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    DEBUGCALL(DB, bool, "BrassDatabaseReplicator::check_revision_at_least",
-	      rev << ", " << target);
+    LOGCALL(DB, bool, "BrassDatabaseReplicator::check_revision_at_least", rev | target);
 
     brass_revision_number_t rev_val;
     brass_revision_number_t target_val;
@@ -213,7 +213,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
-		msg += om_tostring(block_number);
+		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
 	    brass_io_write(fd, buf.data(), changeset_blocksize);
@@ -229,8 +229,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   const OmTime & end_time,
 						   bool valid) const
 {
-    DEBUGCALL(DB, string, "BrassDatabaseReplicator::apply_changeset_from_conn",
-	      "conn, end_time, " << valid);
+    LOGCALL(DB, string, "BrassDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
@@ -354,7 +353,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 string
 BrassDatabaseReplicator::get_uuid() const
 {
-    DEBUGCALL(DB, string, "BrassDatabaseReplicator::get_uuid", "");
+    LOGCALL(DB, string, "BrassDatabaseReplicator::get_uuid", NO_ARGS);
     BrassVersion version_file(db_dir);
     try {
 	version_file.read_and_check();

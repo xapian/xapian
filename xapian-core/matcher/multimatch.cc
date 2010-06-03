@@ -28,9 +28,10 @@
 #include "multimatch.h"
 
 #include "collapser.h"
+#include "debuglog.h"
 #include "submatch.h"
 #include "localmatch.h"
-#include "omdebug.h"
+#include "omassert.h"
 #include "omenquireinternal.h"
 
 #include "emptypostlist.h"
@@ -88,10 +89,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 		 Xapian::doccount number_of_subdbs,
 		 vector<Xapian::RSet> & subrsets)
 {
-    DEBUGCALL_STATIC(MATCH, void, "split_rset_by_db",
-		     (rset ? *rset : Xapian::RSet()) <<
-		     ", " << number_of_subdbs <<
-		     ", [subrsets(size=" << subrsets.size() << "]");
+    LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", rset | number_of_subdbs | subrsets);
     if (rset) {
 	if (number_of_subdbs == 1) {
 	    // The common case of a single database is easy to handle.
@@ -142,9 +140,7 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
 		    Xapian::Weight::Internal & stats)
 {
-    DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
-		     "[leaves(size=" << leaves.size() << ")], " <<
-		     errorhandler << ", " << stats);
+    LOGCALL_STATIC_VOID(MATCH, "prepare_sub_matches", leaves | errorhandler | stats);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -195,7 +191,7 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
 
 void 
 MultipleMatchSpy::operator()(const Xapian::Document &doc, Xapian::weight wt) {
-    LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc << ", " << wt);
+    LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
     vector<Xapian::MatchSpy *>::const_iterator i;
     for (i = spies.begin(); i != spies.end(); ++i) {
 	(**i)(doc, wt);
@@ -231,14 +227,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
 {
-    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
-	      collapse_max_ << ", " << collapse_key_ << ", " <<
-	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
-	      int(order_) << ", " << sort_key_ << ", " <<
-	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
-	      errorhandler_ << ", " << stats << ", [weight_], "
-	      "[matchspies_], " << have_sorter << ", " << have_mdecider);
+    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     if (!query) return;
     query->validate_query();
@@ -271,10 +260,13 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 		is_remote[i] = true;
 	    } else {
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
+#else
+	    // Avoid unused parameter warnings.
+	    (void)have_sorter;
+	    (void)have_mdecider;
+	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;
@@ -293,7 +285,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 Xapian::weight
 MultiMatch::getorrecalc_maxweight(PostList *pl)
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
+    LOGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
     Xapian::weight wt;
     if (recalculate_w_max) {
 	LOGLINE(MATCH, "recalculating max weight");
@@ -316,8 +308,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     const Xapian::MatchDecider *matchspy_legacy,
 		     const Xapian::KeyMaker *sorter)
 {
-    DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
-	      << ", " << check_at_least << ", ...");
+    LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | "mset" | stats | "mdecider" | "matchspy_legacy" | "sorter");
     AssertRel(check_at_least,>=,maxitems);
 
     if (!query) {

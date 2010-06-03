@@ -27,6 +27,7 @@
 #define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -388,8 +389,7 @@ make_msize1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize1, writable && !inmemory && !remote) {
-    // Generated databases not supported by inmemory or remote.
+DEFINE_TESTCASE(msize1, generated) {
     Xapian::Database db = get_database("msize1", make_msize1_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -439,8 +439,7 @@ make_msize2_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug related to ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize2, writable && !inmemory && !remote) {
-    // Generated databases not supported by inmemory or remote.
+DEFINE_TESTCASE(msize2, generated) {
     Xapian::Database db = get_database("msize2", make_msize2_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -486,9 +485,8 @@ make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
     }
 }
 
-/// Regression test for bug in decay of XOR, fixed in 1.2.1.
-DEFINE_TESTCASE(xordecay1, writable && !inmemory && !remote) {
-    // Generated databases not supported by inmemory or remote.
+/// Regression test for bug in decay of XOR, fixed in 1.2.1 and 1.0.21.
+DEFINE_TESTCASE(xordecay1, generated) {
     Xapian::Database db = get_database("xordecay1", make_xordecay1_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_XOR,
@@ -500,5 +498,142 @@ DEFINE_TESTCASE(xordecay1, writable && !inmemory && !remote) {
     Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
 
     TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
+    return true;
+}
+
+static void
+make_ordecay_db(Xapian::WritableDatabase &db, const string &)
+{
+    const char * p = "VJ=QC]LUNTaARLI;715RR^];A4O=P4ZG<2CS4EM^^VS[A6QENR";
+    for (int d = 0; p[d]; ++d) {
+	int l = int(p[d] - '0');
+	Xapian::Document doc;
+	for (int n = 1; n < l; ++n) {
+	    doc.add_term("N" + str(n));
+	    if (n % (d + 1) == 0) {
+		doc.add_term("M" + str(n));
+	    }
+	}
+	db.add_document(doc);
+    }
+}
+
+/// Regression test for bug in decay of OR to AND, fixed in 1.2.1 and 1.0.21.
+DEFINE_TESTCASE(ordecay1, generated) {
+    Xapian::Database db = get_database("ordecay", make_ordecay_db);
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				Xapian::Query("N20"),
+				Xapian::Query("N21")));
+
+    Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
+    for (unsigned int i = 1; i < msetall.size(); ++i) {
+	Xapian::MSet submset = enq.get_mset(0, i);
+	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
+    }
+    return true;
+}
+
+/** Regression test for bug in decay of OR to AND_MAYBE, fixed in 1.2.1 and
+ *  1.0.21.
+ */
+DEFINE_TESTCASE(ordecay2, generated) {
+    Xapian::Database db = get_database("ordecay", make_ordecay_db);
+    Xapian::Enquire enq(db);
+    std::vector<Xapian::Query> q;
+    q.push_back(Xapian::Query("M20"));
+    q.push_back(Xapian::Query("N21"));
+    q.push_back(Xapian::Query("N22"));
+    enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				Xapian::Query("N25"),
+				Xapian::Query(Xapian::Query::OP_AND,
+					      q.begin(),
+					      q.end())));
+
+    Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
+    for (unsigned int i = 1; i < msetall.size(); ++i) {
+	Xapian::MSet submset = enq.get_mset(0, i);
+	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
+    }
+    return true;
+}
+
+static void
+make_orcheck_db(Xapian::WritableDatabase &db, const string &)
+{
+    int t1[6] = {2, 4, 6, 8, 10, 0};
+    int t2[11] = {6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+    int t3[11] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+
+    for (unsigned i = 1; i <= 17; ++i) {
+	Xapian::Document doc;
+	db.replace_document(i, doc);
+    }
+    for (int * p = t1; *p != 0; ++p) {
+	Xapian::Document doc(db.get_document(*p));
+	doc.add_term("T1");
+	db.replace_document(*p, doc);
+    }
+    for (int * p = t2; *p != 0; ++p) {
+	Xapian::Document doc(db.get_document(*p));
+	doc.add_term("T2");
+	if (*p < 17) {
+	    doc.add_term("T2_lowfreq");
+	}
+	doc.add_value(2, "1");
+	db.replace_document(*p, doc);
+    }
+    for (int * p = t3; *p != 0; ++p) {
+	Xapian::Document doc(db.get_document(*p));
+	doc.add_term("T3");
+	if (*p < 17) {
+	    doc.add_term("T3_lowfreq");
+	}
+	doc.add_value(3, "1");
+	db.replace_document(*p, doc);
+    }
+}
+
+/** Regression test for bugs in the check() method of OrPostList. (ticket #485)
+ *  Bugs introduced and fixed between 1.2.0 and 1.2.1 (never in a release).
+ */
+DEFINE_TESTCASE(orcheck1, generated) {
+    Xapian::Database db = get_database("orcheck1", make_orcheck_db);
+    Xapian::Enquire enq(db);
+    Xapian::Query q1("T1");
+    Xapian::Query q2("T2");
+    Xapian::Query q2l("T2_lowfreq");
+    Xapian::Query q3("T3");
+    Xapian::Query q3l("T3_lowfreq");
+    Xapian::Query v2(Xapian::Query::OP_VALUE_RANGE, 2, "0", "2");
+    Xapian::Query v3(Xapian::Query::OP_VALUE_RANGE, 3, "0", "2");
+
+    tout << "Checking q2 OR q3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2, q3)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking q2l OR q3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2l, q3)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking q2 OR q3l\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2, q3l)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking v2 OR q3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, v2, q3)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking q2 OR v3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2, v3)));
+    // Order of results in this one is different, because v3 gives no weight,
+    // both documents are in q2, and document 8 has a higher length.
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 6, 8);
+
     return true;
 }

@@ -24,6 +24,7 @@
 #include <xapian.h>
 
 #include "cputimer.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -1292,7 +1293,7 @@ static bool test_qp_value_range3()
 	double start = low + j * step;
 	for (int k = 0; k <= steps; ++k) {
 	    double end = low + k * step;
-	    string query = om_tostring(start) + ".." + om_tostring(end);
+	    string query = str(start) + ".." + str(end);
 	    tout << "Query: " << query << '\n';
 	    Xapian::Query qobj = qp.parse_query(query);
 	    Xapian::Enquire enq(db);

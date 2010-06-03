@@ -32,7 +32,7 @@ CPP_SBRS=.
 OBJS= $(INTDIR)\getopt.obj 
 SRCS= $(INTDIR)\getopt.cc 
 
-"$(OUTDIR)\LIBGETOPT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBGETOPT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libgetopt.lib" $(DEF_FLAGS) $(OBJS)
 <<

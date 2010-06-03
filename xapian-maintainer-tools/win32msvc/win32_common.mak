@@ -68,7 +68,7 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\LIBCOMMON.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
+"$(OUTDIR)\LIBCOMMON.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(OBJS)
 <<

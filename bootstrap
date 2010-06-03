@@ -51,7 +51,7 @@ lazy_build() {
   checksum=$4
   tarball=$basename.$ext
   case $basename in
-    *[a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+    *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
   esac
 
   # Create the stamp file in INST so that rerunning bootstrap after
@@ -72,9 +72,12 @@ lazy_build() {
 	exit 1
       fi
     fi
-    case $package in
-    doxygen)
+    case $basename in
+    doxygen-*)
       $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+    *[13579][a-z])
+      # GNU alpha release
+      $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
     *)
       $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
     esac
@@ -128,8 +131,12 @@ case $srcdir in
 esac
 
 if [ -d ".git" ] ; then
+  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
+    test -d "$emptydir" || mkdir "$emptydir"
+  done
+
   sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
-  echo <<END >> .git/info/exclude~
+  cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 END
@@ -142,20 +149,18 @@ END
   # FIXME: Currently requires manual update...
   #svn:external revision for SWIG
   rev=11320
-  if [ -d swig ] ; then
-    git svn fetch -r"$rev" svn://svn.tartarus.org/swig/trunk/ swig/
-  else
-    git svn clone -r"$rev" svn://svn.tartarus.org/swig/trunk/ swig/
+  if [ ! -d swig ] ; then
+    git svn init svn://svn.tartarus.org/swig/trunk/ swig/
   fi
+  (cd swig && git svn fetch -r"$rev")
 
   # FIXME: Currently requires manual update...
   #svn:external revision for xapian-applications/omega/common
   rev=14328
-  if [ -d swig ] ; then
-    git svn fetch -r"$rev" svn://svn.xapian.org/xapian/trunk/xapian-core/common
-  else
-    git svn clone -r"$rev" svn://svn.xapian.org/xapian/trunk/xapian-core/common
+  if [ ! -d xapian-applications/omega/common ] ; then
+    git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
   fi
+  (cd xapian-applications/omega/common && git svn fetch -r"$rev")
 fi
 
 if [ "$1" = "--without-autotools" ] ; then
@@ -177,7 +182,8 @@ else
   lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
+  #lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
+  lazy_build libtool 2.2.7b tar.gz 6cf7bb650bcd93e89c86c685924f08656cb00f62
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
@@ -419,10 +425,6 @@ for target in $targets ; do
       echo "	cd $d && \$(MAKE) dist GZIP=-f" ;;
     search-xapian,distcheck)
       echo "	cd $d && \$(MAKE) disttest && \$(MAKE) dist GZIP=-f" ;;
-    xapian-bindings,distcheck)
-      # FIXME: distcheck doesn't currently work for xapian-bindings because
-      # xapian-core isn't installed.
-      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" ;;
     *)
       echo "	cd $d && \$(MAKE) $target" ;;
     esac

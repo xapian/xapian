@@ -1,3 +1,12 @@
+xapian-bindings (1.2.0-4) UNRELEASED; urgency=low
+
+  * debian/rules: Set TCLSH=/usr/bin/tclsh-default to make sure we use the
+    default version of tclsh even if another version is installed and the
+    preferred alternative.  Reported by Jonathan Nieder as a secondary issue in
+    #582217.
+
+ -- Olly Betts <olly@survex.com>  Thu, 20 May 2010 02:24:39 +0000
+
 xapian-bindings (1.2.0-3) experimental; urgency=low
 
   * Removing the call to autoreconf means we need libxapian-dev >= 1.2.0-2.
