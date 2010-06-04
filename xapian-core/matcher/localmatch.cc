@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@
 #include "omassert.h"
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
+#include "rset.h"
 #include "synonympostlist.h"
 #include "weightinternal.h"
 
@@ -43,12 +44,12 @@ using namespace std;
 
 LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
-	const Xapian::RSet & omrset,
+	const Xapian::RSet & omrset_,
 	const Xapian::Weight *wt_factory_)
-	: orig_query(*query), qlen(qlen_), db(db_),
-	  rset(db, omrset), wt_factory(wt_factory_), term_info(NULL)
+	: orig_query(*query), qlen(qlen_), db(db_), omrset(omrset_),
+	  wt_factory(wt_factory_), term_info(NULL)
 {
-    LOGCALL_VOID(MATCH, "LocalSubMatch::LocalSubMatch", db | query | qlen_ | omrset | wt_factory);
+    LOGCALL_VOID(MATCH, "LocalSubMatch::LocalSubMatch", db | query | qlen_ | omrset_ | wt_factory);
 }
 
 bool
@@ -61,6 +62,7 @@ LocalSubMatch::prepare_match(bool, Xapian::Weight::Internal & total_stats)
     my_stats.total_length = db->get_total_length();
     my_stats.collection_size = db->get_doccount();
 
+    RSetI rset(db, omrset);
     // Get the term-frequencies and relevant term-frequencies.
     Xapian::TermIterator titer = orig_query.get_terms();
     Xapian::TermIterator terms_end(NULL);

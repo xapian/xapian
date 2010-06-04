@@ -39,7 +39,6 @@
 #include "expandweight.h"
 #include "multimatch.h"
 #include "omenquireinternal.h"
-#include "rset.h"
 #include "str.h"
 #include "weightinternal.h"
 
