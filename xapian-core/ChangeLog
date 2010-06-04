@@ -1,3 +1,7 @@
+Fri Jun 04 14:22:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Make arrays static const.
+
 Fri Jun 04 13:25:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk: Note need to update include/xapian/version_h.cc
