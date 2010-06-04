@@ -1,3 +1,13 @@
+Fri Jun 04 15:28:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/esetinternal.h,common/omenquireinternal.h,
+	  common/rset.h,expand/esetinternal.cc,matcher/rset.cc: RSetI is used
+	  when collating statistics prior to performing the match, and when
+	  generating an ESet.  The second use is entirely unnecessary and just
+	  ends up with us copying the std::set<Xapian::docid> from inside the
+	  Xapian::RSet object, so eliminate it and just use the Xapian::RSet
+	  object directly.  This allows RSetI to be simplified somewhat too.
+
 Fri Jun 04 14:22:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Make arrays static const.

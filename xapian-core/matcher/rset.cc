@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007,2008,2009 Olly Betts
+ * Copyright 2003,2007,2008,2009,2010 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,34 +41,18 @@ RSetI::calculate_stats()
     for (doc = documents.begin(); doc != documents.end(); doc++) {
 	Assert(*doc);
 	LOGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
-	if (dbroot) {
-	    AutoPtr<TermList> tl(dbroot->open_term_list(*doc));
+	AutoPtr<TermList> tl(dbroot->open_term_list(*doc));
+	tl->next();
+	while (!tl->at_end()) {
+	    // FIXME - can this lookup be done faster?
+	    // Store termnames in a hash for each document, rather than
+	    // a list?
+	    string tname = tl->get_termname();
+	    if (reltermfreqs.find(tname) != reltermfreqs.end()) {
+		reltermfreqs[tname] ++;
+		LOGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+	    }
 	    tl->next();
-	    while (!tl->at_end()) {
-		// FIXME - can this lookup be done faster?
-		// Store termnames in a hash for each document, rather than
-		// a list?
-		string tname = tl->get_termname();
-		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
-		    reltermfreqs[tname] ++;
-		    LOGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
-		}
-		tl->next();
-	    }
-	} else {
-	    Xapian::TermIterator tl = root.termlist_begin(*doc);
-	    Xapian::TermIterator tlend = root.termlist_end(*doc);
-	    while (tl != tlend) {
-		// FIXME - can this lookup be done faster?
-		// Store termnames in a hash for each document, rather than
-		// a list?
-		string tname = *tl;
-		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
-		    reltermfreqs[tname] ++;
-		    LOGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
-		}
-		tl++;
-	    }
 	}
 	LOGLINE(WTCALC, "]");
     }
@@ -85,5 +69,5 @@ RSetI::contribute_stats(Xapian::Weight::Internal & stats)
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
 	stats.set_reltermfreq(i->first, i->second);
     }
-    stats.rset_size += size();
+    stats.rset_size += documents.size();
 }
