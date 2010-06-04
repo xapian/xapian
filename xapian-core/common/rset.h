@@ -45,7 +45,7 @@ class RSetI {
 	std::map<std::string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
 
-	std::set<Xapian::docid> documents;
+	const std::set<Xapian::docid> & documents;
 
 	/** Calculate the statistics.
 	 * 

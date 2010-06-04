@@ -1,3 +1,10 @@
+Fri Jun 04 16:05:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/rset.h: Just keep a reference to the set<docid> from the
+	  Xapian::RSet object rather than copying it (since we now only
+	  create the RSetI object transiently, so the Xapian::RSet object
+	  is definitely valid for its whole lifetime).
+
 Fri Jun 04 15:57:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,matcher/localmatch.cc,matcher/localmatch.h: Keep
