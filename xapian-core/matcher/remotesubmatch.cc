@@ -55,7 +55,7 @@ RemoteSubMatch::start_match(Xapian::doccount first,
 			    Xapian::doccount check_at_least,
 			    const Xapian::Weight::Internal & total_stats)
 {
-    LOGCALL_VOID(MATCH, "RemoteSubMatch::start_match", first | maxitems | check_at_least);
+    LOGCALL_VOID(MATCH, "RemoteSubMatch::start_match", first | maxitems | check_at_least | total_stats);
     db->send_global_stats(first, maxitems, check_at_least, total_stats);
 }
 
