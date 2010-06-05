@@ -1,3 +1,9 @@
+Sat Jun 05 15:03:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.h: Make QueryOptimiser::optimise_query()'s
+	  argument const pointer, since we only pass it to do_subquery() which
+	  takes a const pointer.
+
 Fri Jun 04 16:05:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/rset.h: Just keep a reference to the set<docid> from the
