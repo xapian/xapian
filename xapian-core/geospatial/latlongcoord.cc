@@ -1,5 +1,5 @@
-/** \file latlong.cc
- * \brief Latitude and longitude representations.
+/** @file latlong.cc
+ * @brief Latitude and longitude representations.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  *

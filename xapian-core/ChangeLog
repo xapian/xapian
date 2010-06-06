@@ -1,3 +1,9 @@
+Sun Jun 06 15:31:21 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlong_distance_keymaker.cc,
+	  geospatial/latlong_metrics.cc,geospatial/latlongcoord.cc: Change
+	  character used to introduce doxygen comments from \ to @.
+
 Sun Jun 06 15:21:15 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* include/xapian/geospatial.h: Make the constructor of

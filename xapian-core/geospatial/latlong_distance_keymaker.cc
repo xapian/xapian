@@ -1,5 +1,5 @@
-/** \file latlong_distance_keymaker.cc
- * \brief LatLongDistanceKeyMaker implementation.
+/** @file latlong_distance_keymaker.cc
+ * @brief LatLongDistanceKeyMaker implementation.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  *
