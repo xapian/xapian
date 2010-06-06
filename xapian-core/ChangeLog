@@ -1,3 +1,9 @@
+Sun Jun 06 15:21:15 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/geospatial.h: Make the constructor of
+	  GreatCircleMetric which takes a radius explicit, and fix and
+	  expand the documentation comment.
+
 Sun Jun 06 15:14:32 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* docs/geospatial.rst,geospatial/latlong_metrics.cc,

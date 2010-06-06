@@ -260,9 +260,12 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
 
     /** Construct a GreatCircleMetric using a specified radius.
      *
-     *  @param radius_ The radius of to use, in metres.
+     *  This is useful for data sets on which the points are not on Earth (eg,
+     *  a database of features on Mars).
+     *
+     *  @param radius_ The radius of the sphere to use, in metres.
      */
-    GreatCircleMetric(double radius_);
+    explicit GreatCircleMetric(double radius_);
 
     /** Return the great-circle distance between points on the sphere.
      */
