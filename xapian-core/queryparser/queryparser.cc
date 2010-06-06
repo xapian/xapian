@@ -24,7 +24,6 @@
 #include <xapian/queryparser.h>
 #include <xapian/termiterator.h>
 
-#include "omdebug.h"
 #include "queryparser_internal.h"
 #include "vectortermlist.h"
 
