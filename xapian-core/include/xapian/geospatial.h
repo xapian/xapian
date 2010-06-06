@@ -253,7 +253,7 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
   public:
     /** Construct a GreatCircleMetric.
      *
-     *  The (quadratic mean) radius of the earth will be used by this
+     *  The (quadratic mean) radius of the Earth will be used by this
      *  calculator.
      */
     GreatCircleMetric();

@@ -41,15 +41,15 @@ Calculating the exact distance between two geographical points is an involved
 subject.  In fact, even defining the meaning of a geographical point is very
 hard to do precisely - not only do you need to define a mathematical projection
 used to calculate the coordinates, you also need to choose a model of the shape
-of the earth, and identify a few sample points to identify the coordinates of
-particular locations.  Since the earth is constantly changing shape, these
+of the Earth, and identify a few sample points to identify the coordinates of
+particular locations.  Since the Earth is constantly changing shape, these
 coordinates also need to be defined at a particular date.
 
 There are a few standard datums which define all these - a very common datum is
 the WGS84 datum, which is the datum used by the GPS system.  Unless you have a
 good reason not to, we recommend using the WGS84 datum, since this will ensure
 that preset parameters of the functions built in to Xapian will have the
-correct values (currently, the only such parameter is the earth radius used by
+correct values (currently, the only such parameter is the Earth radius used by
 the GreatCircleMetric, but more may be added in future).
 
 Since there are lots of ways of calculating distances between two points, using

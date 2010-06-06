@@ -30,7 +30,7 @@
 using namespace Xapian;
 using namespace std;
 
-/** Quadratic mean radius of the earth in metres.
+/** Quadratic mean radius of the Earth in metres.
  */
 #define QUAD_EARTH_RADIUS_METRES 6372797.6
 

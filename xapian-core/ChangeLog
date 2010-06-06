@@ -1,3 +1,9 @@
+Sun Jun 06 15:14:32 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* docs/geospatial.rst,geospatial/latlong_metrics.cc,
+	  include/xapian/geospatial.h: Correct capitalisation of "earth" to
+	  "Earth".
+
 Sun Jun 06 15:04:42 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* Makefile.am,api/omqueryinternal.cc,api/postingsource.cc,
