@@ -36,11 +36,22 @@ FETCH_URL_TOOL=
 check_sha1sum() {
   checksum=$1
   tarball=$2
-  if ${SHA1SUM-sha1sum} --version > /dev/null 2>&1 ; then
-    echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c
+
+  # BusyBox sha1sum doesn't know --version so just run to see it it works.
+  if echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c 2>/dev/null ; then
+    : # Checksum OK!
   else
-    test "$checksum" = `openssl sha1 < "$tarball"`|| \
-      ( echo "$tarball: computed SHA1 checksum did NOT match" ; exit 1 )
+    # Either sha1sum wasn't installed, or the checksum failed to match.
+    case `openssl sha1 "$tarball" 2>/dev/null` in
+      *$checksum) ;;
+      "") echo "Need sha1sum or openssl installed to check SHA1 checksums"
+	exit 1
+	;;
+      *)
+	echo "$tarball: computed SHA1 checksum did NOT match"
+	exit 1
+	;;
+    esac
   fi
 }
 
