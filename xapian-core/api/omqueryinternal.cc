@@ -492,7 +492,7 @@ QUnserial::readexternal()
     string sourcedata(p, length);
     p += length;
 
-    return new Xapian::Query::Internal(source->unserialise(sourcedata), true);
+    return new Xapian::Query::Internal(source->unserialise_with_registry(sourcedata, reg), true);
 }
 
 static Xapian::Query::Internal *

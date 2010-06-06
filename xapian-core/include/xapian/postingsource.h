@@ -31,6 +31,8 @@
 
 namespace Xapian {
 
+class Registry;
+
 /** Base class which provides an "external" source of postings.
  *
  *  Warning: the PostingSource interface is currently experimental, and is
@@ -284,6 +286,22 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  @param s A serialised instance of this PostingSource subclass.
      */
     virtual PostingSource * unserialise(const std::string &s) const;
+
+    /** Create object given string serialisation returned by serialise().
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
+     *
+     *  This method is supplied with a Registry object, which can be used when
+     *  unserialising objects contained within the posting source.  The default
+     *  implementation simply calls unserialise() which doesn't take the
+     *  Registry object, so you do not need to implement this method unless you
+     *  want to take advantage of the Registry object when unserialising.
+     *
+     *  @param s A serialised instance of this PostingSource subclass.
+     */
+    virtual PostingSource * unserialise_with_registry(const std::string &s,
+				      const Registry & registry) const;
 
     /** Set this PostingSource to the start of the list of postings.
      *

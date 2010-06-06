@@ -102,6 +102,13 @@ PostingSource::unserialise(const string &) const
     throw Xapian::UnimplementedError("unserialise() not supported for this PostingSource");
 }
 
+PostingSource *
+PostingSource::unserialise_with_registry(const std::string &s,
+					 const Registry &) const
+{
+    return unserialise(s);
+}
+
 string
 PostingSource::get_description() const
 {

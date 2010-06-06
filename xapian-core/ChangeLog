@@ -1,3 +1,13 @@
+Sun Jun 06 15:04:42 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* Makefile.am,api/omqueryinternal.cc,api/postingsource.cc,
+	  api/registry.cc,common/output.h,common/registryinternal.h,
+	  docs/geospatial.rst,geospatial/,include/Makefile.mk,include/xapian.h,
+	  include/xapian/geospatial.h,include/xapian/postingsource.h,
+	  include/xapian/registry.h,tests/Makefile.am,tests/api_geospatial.cc:
+	  Apply patch geospatial_clean3.patch from ticket #481: adds basic
+	  geospatial search support.
+
 Sun Jun 06 04:34:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,configure.ac: Fix build failures with some

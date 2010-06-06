@@ -1,0 +1,5 @@
+<Directory>geospatial</Directory>
+
+<Description>
+Support for geospatial matching, and parsing of locations.
+</Description>
