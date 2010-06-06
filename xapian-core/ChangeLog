@@ -1,3 +1,9 @@
+Sun Jun 06 15:36:45 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlong_metrics.cc: Changed the clamping to 1.0 for
+	  {{{GreatCircleMetric}}} to be before the sqrt().  Also wrapped it
+	  in "rare()".
+
 Sun Jun 06 15:31:21 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* geospatial/latlong_distance_keymaker.cc,

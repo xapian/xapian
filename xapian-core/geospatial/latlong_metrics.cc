@@ -95,9 +95,11 @@ GreatCircleMetric::operator()(const LatLongCoord & a,
     double sin_half_long = sin(longdiff / 2);
     double h = sin_half_lat * sin_half_lat +
 	    sin_half_long * sin_half_long * cos(lata) * cos(latb);
-    double sqrt_h = sqrt(h);
-    if (sqrt_h > 1.0) sqrt_h = 1.0;
-    return 2 * radius * asin(sqrt_h);
+    if (rare(h > 1.0)) {
+	// Clamp to 1.0, asin(1.0) = M_PI / 2.0.
+	return radius * M_PI;
+    }
+    return 2 * radius * asin(sqrt(h));
 }
 
 LatLongMetric *
