@@ -1,3 +1,8 @@
+Sun Jun 06 15:10:47 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,xapian.i: Apply patch geospatial_clean3.patch
+	  from ticket #481: adds basic geospatial search support.
+
 Thu Jun 03 15:21:13 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am: Add missing

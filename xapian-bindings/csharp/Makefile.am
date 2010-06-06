@@ -27,6 +27,9 @@ XAPIAN_SWIG_CS_SRCS=\
 	Flint.cs \
 	InMemory.cs \
 	KeyMaker.cs \
+	LatLongCoord.cs \
+	LatLongCoords.cs \
+	LatLongMetric.cs \
 	MatchDecider.cs \
 	MatchSpy.cs \
 	MSet.cs \
@@ -41,6 +44,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
+	SWIGTYPE_p_p_char.cs \
+	SWIGTYPE_p_std__setT_Xapian__LatLongCoord_t__const_iterator.cs \
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorT_std__string_t.cs \
 	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \

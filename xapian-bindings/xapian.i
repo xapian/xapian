@@ -203,6 +203,7 @@ class ValueIterator {
 %ignore Xapian::PostingSource::clone;
 %ignore Xapian::PostingSource::serialise;
 %ignore Xapian::PostingSource::unserialise;
+%ignore Xapian::PostingSource::unserialise_with_registry;
 %ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
 
@@ -796,6 +797,9 @@ class Remote {
 %include <xapian/keymaker.h>
 
 %include <xapian/valuesetmatchdecider.h>
+
+%ignore Xapian::LatLongCoord::operator< const;
+%include <xapian/geospatial.h>
 
 namespace Xapian {
 
