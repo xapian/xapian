@@ -1,3 +1,10 @@
+Sun Jun 06 12:05:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/queryoptimiser.h: Make QueryOptimiser::optimise_query()'s
+	  argument const pointer, since we only pass it to do_subquery() which
+	  takes a const pointer.
+
 Sun Jun 06 12:03:09 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

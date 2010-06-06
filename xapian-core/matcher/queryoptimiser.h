@@ -107,7 +107,7 @@ class QueryOptimiser {
 	: db(db_), db_size(db.get_doccount()), localsubmatch(localsubmatch_),
 	  matcher(matcher_) { }
 
-    PostList * optimise_query(Xapian::Query::Internal * query) {
+    PostList * optimise_query(const Xapian::Query::Internal * query) {
 	return do_subquery(query, 1.0);
     }
 };
