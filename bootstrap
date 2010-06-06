@@ -182,8 +182,7 @@ else
   lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  #lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
-  lazy_build libtool 2.2.7b tar.gz 6cf7bb650bcd93e89c86c685924f08656cb00f62
+  lazy_build libtool 2.2.8 tar.gz e0fd6f9d39c81c2da8b548411c74a46c24442abf
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
