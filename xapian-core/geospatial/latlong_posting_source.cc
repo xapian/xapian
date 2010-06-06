@@ -170,7 +170,7 @@ LatLongDistancePostingSource::clone() const
 string
 LatLongDistancePostingSource::name() const
 {
-    return string("Xapian::LatLongDistancePostingSource");
+    return "Xapian::LatLongDistancePostingSource";
 }
 
 string

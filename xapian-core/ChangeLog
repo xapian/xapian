@@ -1,3 +1,10 @@
+Sun Jun 06 15:40:07 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlong_posting_source.cc: Change the name() method to
+	  just return a string literal, instead of wrapping one in string()
+	  to be returned, for consistency with all the other name()
+	  methods.
+
 Sun Jun 06 15:36:45 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* geospatial/latlong_metrics.cc: Changed the clamping to 1.0 for
