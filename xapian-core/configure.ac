@@ -93,7 +93,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
-LT_PREREQ([2.2.6])
+LT_PREREQ([2.2.8])
 LT_INIT
 
 AM_CXXFLAGS=
