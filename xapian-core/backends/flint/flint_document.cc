@@ -40,7 +40,7 @@ FlintDocument::FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database:
 	  value_table(value_table_),
 	  record_table(record_table_)
 {
-    LOGCALL_VOID(DB, "FlintDocument", database_ | value_table_ | record_table_ | did_ | lazy);
+    LOGCALL_CTOR(DB, "FlintDocument", database_ | value_table_ | record_table_ | did_ | lazy);
     // FIXME: this should work but isn't great - in fact I wonder if
     // we should cache the results anyway...
     if (!lazy) (void)record_table->get_record(did);

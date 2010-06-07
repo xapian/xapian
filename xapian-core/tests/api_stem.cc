@@ -51,7 +51,7 @@ DEFINE_TESTCASE(stem1, !backend) {
     return true;
 }
 
-/// New feature in 1.2.1 - "nb" and "nn" select the Norwegian stemmer.
+/// New feature in 1.0.21/1.2.1 - "nb" and "nn" select the Norwegian stemmer.
 DEFINE_TESTCASE(stem2, !backend) {
     Xapian::Stem st_norwegian("norwegian");
     TEST_EQUAL(st_norwegian.get_description(),

@@ -22,11 +22,8 @@
 
 #include "brass_version.h"
 
-#include "brass_io.h"
-
-#include "safeerrno.h"
-
 #include "debuglog.h"
+#include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
@@ -145,7 +142,7 @@ BrassVersion::read(const string & filename)
     char buf[256];
 
     const char * p = buf;
-    const char * end = p + brass_io_read(fd_in, buf, sizeof(buf), 33);
+    const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
 
     if (memcmp(buf, BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_LEN) != 0)
 	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
@@ -222,7 +219,7 @@ BrassVersion::write(const string & db_dir)
 					   errno);
 
     try {
-	brass_io_write(fd, s.data(), s.size());
+	io_write(fd, s.data(), s.size());
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -244,7 +241,7 @@ BrassVersion::sync(const string & db_dir, const string & tmpfile,
     sprintf(buf, "%08x", new_rev);
     filename.append(buf, 8);
 
-    if (!brass_io_sync(fd)) {
+    if (!io_sync(fd)) {
 	int save_errno = errno;
 	(void)close(fd);
 	throw Xapian::DatabaseOpeningError("Failed to sync new rev file: " + tmpfile,

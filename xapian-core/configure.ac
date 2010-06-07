@@ -93,7 +93,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
-LT_PREREQ([2.2.6])
+LT_PREREQ([2.2.8])
 LT_INIT
 
 AM_CXXFLAGS=
@@ -802,6 +802,8 @@ AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
+AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT,
+  [test nonono != "$enable_backend_brass$enable_backend_chert$enable_backend_flint"])
 
 dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no

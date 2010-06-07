@@ -22,10 +22,10 @@
 #define XAPIAN_INCLUDED_BRASS_TABLE_H
 
 #include "brass_defs.h"
-#include "brass_io.h"
 
 #include <zlib.h>
 
+#include "io_utils.h"
 #include "noreturn.h"
 #include "omassert.h"
 #include "str.h"
@@ -730,9 +730,9 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
     void sync() {
 	if (fd >= 0)
-	    brass_io_sync(fd);
+	    io_sync(fd);
 	if (fd_slab >= 0)
-	    brass_io_sync(fd_slab);
+	    io_sync(fd_slab);
     }
 
     void cancel();

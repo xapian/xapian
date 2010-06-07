@@ -38,7 +38,7 @@ FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    LOGCALL_VOID(DB, "FlintTermList", db_ | did_);
+    LOGCALL_CTOR(DB, "FlintTermList", db_ | did_);
 
     if (!db->termlist_table.get_exact_entry(flint_docid_to_key(did), data))
 	throw Xapian::DocNotFoundError("No termlist for document " + str(did));

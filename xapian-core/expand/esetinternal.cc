@@ -22,13 +22,14 @@
 
 #include "esetinternal.h"
 
+#include "xapian/enquire.h"
 #include "xapian/expanddecider.h"
 #include "database.h"
 #include "debuglog.h"
+#include "omenquireinternal.h"
 #include "expandweight.h"
 #include "omassert.h"
 #include "ortermlist.h"
-#include "rset.h"
 #include "str.h"
 #include "termlist.h"
 
@@ -66,11 +67,11 @@ struct CompareTermListSizeAscending {
  *  OrPostList objects.
  */
 static TermList *
-build_termlist_tree(const Xapian::Database &db, const RSetI & rset)
+build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 {
     Assert(!rset.empty());
 
-    const set<Xapian::docid> & docids = rset.documents;
+    const set<Xapian::docid> & docids = rset.internal->get_items();
 
     vector<TermList*> termlists;
     termlists.reserve(docids.size());
@@ -135,7 +136,7 @@ build_termlist_tree(const Xapian::Database &db, const RSetI & rset)
 void
 ESet::Internal::expand(Xapian::termcount max_esize,
 		       const Xapian::Database & db,
-		       const RSetI & rset,
+		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
 		       const Xapian::Internal::ExpandWeight & eweight)
 {

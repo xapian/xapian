@@ -36,7 +36,6 @@
 #include "brass_alltermslist.h"
 #include "brass_defs.h"
 #include "brass_document.h"
-#include "brass_io.h"
 #include "../flint_lock.h"
 #include "brass_metadata.h"
 #include "brass_positionlist.h"
@@ -48,6 +47,7 @@
 #include "brass_valuelist.h"
 #include "brass_values.h"
 #include "debuglog.h"
+#include "io_utils.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
@@ -105,7 +105,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    LOGCALL_VOID(DB, "BrassDatabase", brass_dir | action | block_size);
+    LOGCALL_CTOR(DB, "BrassDatabase", brass_dir | action | block_size);
     if (block_size == 0)
 	block_size = BRASS_DEFAULT_BLOCKSIZE;
 
@@ -165,7 +165,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 
 BrassDatabase::~BrassDatabase()
 {
-    LOGCALL_VOID(DB, "~BrassDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~BrassDatabase");
 }
 
 bool
@@ -269,8 +269,8 @@ BrassDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + brass_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -882,7 +882,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    LOGCALL_VOID(DB, "BrassWritableDatabase", dir | action | block_size);
+    LOGCALL_CTOR(DB, "BrassWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -893,7 +893,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 
 BrassWritableDatabase::~BrassWritableDatabase()
 {
-    LOGCALL_VOID(DB, "~BrassWritableDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~BrassWritableDatabase");
     dtor_called();
 }
 

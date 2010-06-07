@@ -285,5 +285,5 @@ check_SCRIPTS += zlib-vg.so
 CLEAN_FILES += zlib-vg.so
 
 zlib-vg.so: zlib-vg.c
-	$(CC_FOR_BUILD) -fPIC -shared -ldl -o zlib-vg.so zlib-vg.c
+	$(CC_FOR_BUILD) -fPIC -shared -ldl -o zlib-vg.so $(srcdir)/zlib-vg.c
 endif

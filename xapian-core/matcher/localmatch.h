@@ -1,7 +1,7 @@
 /** @file localmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,8 @@
 
 #include "database.h"
 #include "omqueryinternal.h"
-#include "rset.h"
 #include "submatch.h"
+#include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 #include <map>
@@ -49,11 +49,11 @@ class LocalSubMatch : public SubMatch {
     /// The (sub-)Database we're searching.
     const Xapian::Database::Internal *db;
 
-    /** The (sub-)RSet (used to calculate R and r).
+    /** The RSet (used to calculate R and r).
      *
      *  R and r are used in probabilistic weighting formulae.
      */
-    RSetI rset;
+    Xapian::RSet omrset;
 
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight * wt_factory;
@@ -66,7 +66,7 @@ class LocalSubMatch : public SubMatch {
     LocalSubMatch(const Xapian::Database::Internal *db,
 		  const Xapian::Query::Internal * query,
 		  Xapian::termcount qlen,
-		  const Xapian::RSet & omrset,
+		  const Xapian::RSet & omrset_,
 		  const Xapian::Weight *wt_factory);
 
     /// Fetch and collate statistics.

@@ -585,3 +585,83 @@ DEFINE_TESTCASE(ordecay2, generated) {
     }
     return true;
 }
+
+static void
+make_orcheck_db(Xapian::WritableDatabase &db, const string &)
+{
+    static const int t1[6] = {2, 4, 6, 8, 10, 0};
+    static const int t2[11] = {6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+    static const int t3[11] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+
+    for (unsigned i = 1; i <= 17; ++i) {
+	Xapian::Document doc;
+	db.replace_document(i, doc);
+    }
+    for (const int * p = t1; *p != 0; ++p) {
+	Xapian::Document doc(db.get_document(*p));
+	doc.add_term("T1");
+	db.replace_document(*p, doc);
+    }
+    for (const int * p = t2; *p != 0; ++p) {
+	Xapian::Document doc(db.get_document(*p));
+	doc.add_term("T2");
+	if (*p < 17) {
+	    doc.add_term("T2_lowfreq");
+	}
+	doc.add_value(2, "1");
+	db.replace_document(*p, doc);
+    }
+    for (const int * p = t3; *p != 0; ++p) {
+	Xapian::Document doc(db.get_document(*p));
+	doc.add_term("T3");
+	if (*p < 17) {
+	    doc.add_term("T3_lowfreq");
+	}
+	doc.add_value(3, "1");
+	db.replace_document(*p, doc);
+    }
+}
+
+/** Regression test for bugs in the check() method of OrPostList. (ticket #485)
+ *  Bugs introduced and fixed between 1.2.0 and 1.2.1 (never in a release).
+ */
+DEFINE_TESTCASE(orcheck1, generated) {
+    Xapian::Database db = get_database("orcheck1", make_orcheck_db);
+    Xapian::Enquire enq(db);
+    Xapian::Query q1("T1");
+    Xapian::Query q2("T2");
+    Xapian::Query q2l("T2_lowfreq");
+    Xapian::Query q3("T3");
+    Xapian::Query q3l("T3_lowfreq");
+    Xapian::Query v2(Xapian::Query::OP_VALUE_RANGE, 2, "0", "2");
+    Xapian::Query v3(Xapian::Query::OP_VALUE_RANGE, 3, "0", "2");
+
+    tout << "Checking q2 OR q3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2, q3)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking q2l OR q3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2l, q3)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking q2 OR q3l\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2, q3l)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking v2 OR q3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, v2, q3)));
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
+
+    tout << "Checking q2 OR v3\n";
+    enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
+				Xapian::Query(Xapian::Query::OP_OR, q2, v3)));
+    // Order of results in this one is different, because v3 gives no weight,
+    // both documents are in q2, and document 8 has a higher length.
+    mset_expect_order(enq.get_mset(0, db.get_doccount()), 6, 8);
+
+    return true;
+}

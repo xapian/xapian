@@ -124,7 +124,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  lastdocid(0),
 	  max_changesets(0)
 {
-    LOGCALL_VOID(DB, "FlintDatabase", flint_dir | action | block_size);
+    LOGCALL_CTOR(DB, "FlintDatabase", flint_dir | action | block_size);
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();
@@ -187,7 +187,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 
 FlintDatabase::~FlintDatabase()
 {
-    LOGCALL_VOID(DB, "~FlintDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~FlintDatabase");
 }
 
 void
@@ -1003,7 +1003,7 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    LOGCALL_VOID(DB, "FlintWritableDatabase", dir | action | block_size);
+    LOGCALL_CTOR(DB, "FlintWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -1014,7 +1014,7 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 
 FlintWritableDatabase::~FlintWritableDatabase()
 {
-    LOGCALL_VOID(DB, "~FlintWritableDatabase", NO_ARGS);
+    LOGCALL_DTOR(DB, "~FlintWritableDatabase");
     dtor_called();
 }
 

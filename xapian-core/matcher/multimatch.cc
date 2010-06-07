@@ -89,7 +89,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 		 Xapian::doccount number_of_subdbs,
 		 vector<Xapian::RSet> & subrsets)
 {
-    LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", (rset ? *rset : Xapian::RSet()) | number_of_subdbs | subrsets);
+    LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", rset | number_of_subdbs | subrsets);
     if (rset) {
 	if (number_of_subdbs == 1) {
 	    // The common case of a single database is easy to handle.
@@ -227,7 +227,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
 {
-    LOGCALL_VOID(MATCH, "MultiMatch", db_ | query_ | qlen | (omrset ? *omrset : Xapian::RSet()) | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
+    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     if (!query) return;
     query->validate_query();

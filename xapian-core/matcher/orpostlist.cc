@@ -39,7 +39,7 @@ OrPostList::OrPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
-    LOGCALL_VOID(MATCH, "OrPostList", left_ | right_ | matcher_ | dbsize_);
+    LOGCALL_CTOR(MATCH, "OrPostList", left_ | right_ | matcher_ | dbsize_);
     AssertRel(left_->get_termfreq_est(),>=,right_->get_termfreq_est());
 }
 
@@ -221,12 +221,12 @@ OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
     bool ldry = false;
     bool lvalid = false;
     bool rvalid = false;
-    if (lhead < did) {
+    if (lhead <= did) {
 	check_handling_prune(l, did, w_min - rmax, matcher, lvalid);
 	ldry = l->at_end();
     }
 
-    if (rhead < did) {
+    if (rhead <= did) {
 	check_handling_prune(r, did, w_min - lmax, matcher, rvalid);
 
 	if (r->at_end()) {
@@ -235,11 +235,20 @@ OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 	    valid = lvalid;
 	    RETURN(ret);
 	}
-	rhead = r->get_docid();
+	if (rvalid) {
+	    rhead = r->get_docid();
+	} else {
+	    rhead = did + 1;
+	}
     }
 
     if (!ldry) {
-	lhead = l->get_docid();
+	if (lvalid) {
+	    lhead = l->get_docid();
+	} else {
+	    lhead = did + 1;
+	}
+
 	if (lhead < rhead) {
 	    valid = lvalid;
 	} else if (rhead < lhead) {

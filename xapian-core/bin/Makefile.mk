@@ -2,7 +2,7 @@ EXTRA_DIST +=\
 	bin/dir_contents\
 	bin/Makefile
 
-## FIXME: if BUILD_BACKEND_FLINT||BUILD_BACKEND_CHERT||BUILD_BACKEND_BRASS
+if BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\
@@ -18,14 +18,18 @@ dist_man_MANS +=\
 	bin/xapian-replicate.1\
 	bin/xapian-replicate-server.1
 endif
-## endif
+endif
 
 if BUILD_BACKEND_CHERT
+if BUILD_BACKEND_FLINT
+## xapian-chert-update.cc uses FlintTable to read the old format chert db.
 bin_PROGRAMS +=\
 	bin/xapian-chert-update
+
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-chert-update.1
+endif
 endif
 endif
 

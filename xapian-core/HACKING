@@ -402,13 +402,13 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.6a is recommended and a hard minimum requirement.
+* libtool 2.2.8 is recommended and a hard minimum requirement.
 
   libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
 
-  libtool 2.2.4 and 2.2.6a include several bug-fixes over 2.2.
+  libtool 2.2.4, 2.2.6a, and 2.2.8 include several bug-fixes over 2.2.
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.

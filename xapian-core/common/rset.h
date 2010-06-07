@@ -1,7 +1,7 @@
 /* rset.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005,2006,2008,2009 Olly Betts
+ * Copyright 2003,2005,2006,2008,2009,2010 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -40,12 +40,12 @@ class RSetI {
 	RSetI(const RSetI &);
 	void operator=(const RSetI &);
 
-	// FIXME: should use one or the other (probably Xapian::Database)
-	const Xapian::Database root;
 	const Xapian::Database::Internal *dbroot;
 
 	std::map<std::string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
+
+	const std::set<Xapian::docid> & documents;
 
 	/** Calculate the statistics.
 	 * 
@@ -53,16 +53,20 @@ class RSetI {
 	 */
 	void calculate_stats();
     public:
-	std::set<Xapian::docid> documents;
 
-	RSetI(const Xapian::Database &root_, const Xapian::RSet & rset);
-	RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset);
+	/// Initialise with a Xapian::Database::Internal and a Xapian::RSet
+	RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset)
+	: dbroot(dbroot_), calculated_reltermfreqs(false),
+	  documents(rset.internal->get_items())
+	{ }
 
 	/** Mark a term for calculation of the reltermfreq.
 	 * 
 	 *  @param tname The term for which the reltermfreq is desired.
 	 */
-	void will_want_reltermfreq(const string & tname);
+	void will_want_reltermfreq(const string & tname) {
+	    reltermfreqs[tname] = 0;
+	}
 
 	/** Calculate the statistics, and add them to a stats object.
 	 * 
@@ -71,38 +75,6 @@ class RSetI {
 	 *  @param stats The stats object to pass the weights to.
 	 */
 	void contribute_stats(Xapian::Weight::Internal & stats);
-
-	/// Get the number of documents in the RSet.
-	Xapian::doccount size() const { return documents.size(); }
-
-	/// Is this RSet empty?
-	bool empty() const { return documents.empty(); }
 };
-
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
-
-/// Initialise with a Xapian::Database and a Xapian::RSet
-inline
-RSetI::RSetI(const Xapian::Database &root_, const Xapian::RSet & rset)
-	: root(root_), dbroot(NULL), calculated_reltermfreqs(false),
-	  documents(rset.internal->get_items())
-{
-}
-
-/// Initialise with a Xapian::Database::Internal and a Xapian::RSet
-inline
-RSetI::RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset)
-	: dbroot(dbroot_), calculated_reltermfreqs(false),
-	  documents(rset.internal->get_items())
-{
-}
-
-inline void
-RSetI::will_want_reltermfreq(const string & tname)
-{
-    reltermfreqs[tname] = 0;
-}
 
 #endif /* OM_HGUARD_RSET_H */

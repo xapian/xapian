@@ -38,7 +38,7 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    LOGCALL_VOID(DB, "BrassTermList", db_ | did_);
+    LOGCALL_CTOR(DB, "BrassTermList", db_ | did_);
 
     if (!db->termlist_table.get(BrassTermListTable::make_key(did), data))
 	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
