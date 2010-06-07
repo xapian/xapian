@@ -1,3 +1,10 @@
+Mon Jun 07 12:22:58 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlongcoord.cc: Don't do a special-case conversion of
+	  a longitude of -0.0 to 0.0.  There doesn't seem to be any benefit
+	  from doing this, and not doing it doesn't cause any tests to
+	  fail.
+
 Mon Jun 07 10:41:46 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* geospatial/latlong_posting_source.cc: Convert several instances

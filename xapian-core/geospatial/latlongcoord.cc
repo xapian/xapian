@@ -42,7 +42,6 @@ LatLongCoord::LatLongCoord(double latitude_, double longitude_)
     longitude = fmod(longitude_, 360);
     if (longitude <= -180) longitude += 360;
     if (longitude > 180) longitude -= 360;
-    if (longitude == -0.0) longitude = 0.0;
 }
 
 LatLongCoord
