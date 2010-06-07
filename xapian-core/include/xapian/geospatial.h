@@ -375,7 +375,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
  *  supplied (either in the constructor, or in the coordinates stored in a
  *  document), the closest pointwise distance is returned.
  *
- *  If a document contains no
+ *  If a document contains no coordinate stored in the specified slot, a
+ *  special value for the distance will be returned.  This defaults to a large
+ *  number, so that such results get a low rank, but may be specified by a
+ *  constructor parameter.
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 
