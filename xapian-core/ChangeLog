@@ -1,3 +1,18 @@
+Mon Jun 07 16:31:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,api/matchspy.cc,api/termlist.cc,backends/brass/,
+	  backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h,
+	  backends/remote/net_termlist.cc,backends/remote/net_termlist.h,
+	  common/ortermlist.h,common/termlist.h,expand/ortermlist.cc: Remove
+	  default OrTermList::skip_to() implementation and implement skip_to()
+	  in each class instead, as this allows a slightly more efficient
+	  implementation, and also avoids problems with calling skip_to() as
+	  the first operation for the many subclasses which have a "started"
+	  flag, which OrTermList::skip_to() won't set.
+
 Mon Jun 07 06:08:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Rename TermList class to Terms to

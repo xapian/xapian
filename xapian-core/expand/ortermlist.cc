@@ -157,6 +157,51 @@ OrTermList::next()
     RETURN(NULL);
 }
 
+TermList *
+OrTermList::skip_to(const string & term)
+{
+    LOGCALL(EXPAND, TermList *, "OrTermList::skip_to", term);
+    // If we've not started yet, both left_current and right_current will be
+    // empty, so we'll take the third case below which is what we want to do to
+    // get started.
+    if (left_current < right_current) {
+	handle_prune(left, left->skip_to(term));
+	if (left->at_end()) {
+	    TermList *ret = right;
+	    right = NULL;
+	    RETURN(ret);
+	}
+	left_current = left->get_termname();
+    } else if (left_current > right_current) {
+	handle_prune(right, right->skip_to(term));
+	if (right->at_end()) {
+	    TermList *ret = left;
+	    left = NULL;
+	    RETURN(ret);
+	}
+	right_current = right->get_termname();
+    } else {
+	AssertEq(left_current, right_current);
+	handle_prune(left, left->skip_to(term));
+	handle_prune(right, right->skip_to(term));
+	if (left->at_end()) {
+	    // right->at_end() may also be true, but our parent will deal with
+	    // that.
+	    TermList *ret = right;
+	    right = NULL;
+	    RETURN(ret);
+	}
+	if (right->at_end()) {
+	    TermList *ret = left;
+	    left = NULL;
+	    RETURN(ret);
+	}
+	left_current = left->get_termname();
+	right_current = right->get_termname();
+    }
+    RETURN(NULL);
+}
+
 bool
 OrTermList::at_end() const
 {
