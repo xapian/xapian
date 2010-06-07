@@ -1,3 +1,8 @@
+Mon Jun 07 02:16:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Arvid Ephraim Picciani for help fixing bootstrap for
+	  BusyBox sha1sum.
+
 Mon Jun 07 01:16:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/io_utils.cc: Whitespace tweak.
