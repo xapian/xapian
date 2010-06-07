@@ -1413,8 +1413,8 @@ def test_latlongcoords_iter():
     """
     coords = xapian.LatLongCoords()
     expect([c for c in coords], [])
-    coords.insert(xapian.LatLongCoord(0, 0))
-    coords.insert(xapian.LatLongCoord(0, 1))
+    coords.append(xapian.LatLongCoord(0, 0))
+    coords.append(xapian.LatLongCoord(0, 1))
     expect([str(c) for c in coords], ['Xapian::LatLongCoord(0, 0)',
                                       'Xapian::LatLongCoord(0, 1)'])
 

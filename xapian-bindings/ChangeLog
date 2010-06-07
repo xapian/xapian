@@ -1,3 +1,8 @@
+Mon Jun 07 20:06:26 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py,ruby/smoketest.rb: Convert calls to
+	  LatLongCoords::insert() to append(), to work with new API.
+
 Mon Jun 07 18:47:32 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
