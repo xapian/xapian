@@ -68,7 +68,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemo
 
     Xapian::GreatCircleMetric metric;
     Xapian::LatLongCoords centre;
-    centre.insert(coord1);
+    centre.append(coord1);
     double coorddist = metric(coord1, coord2);
     TEST_EQUAL_DOUBLE(coorddist, metric(coord2, coord3));
 
@@ -204,11 +204,11 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST(!g1.empty());
     TEST_EQUAL(g1.size(), 1);
     TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0))");
-    g1.insert(c2);
+    g1.append(c2);
     TEST_EQUAL(g1.size(), 2);
     TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0))");
     // c3 == c2, so already in the set, so no change if we add c3
-    g1.insert(c3);
+    g1.append(c3);
     TEST_EQUAL(g1.size(), 2);
     TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0))");
 
@@ -224,10 +224,6 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST(i1 != g1.end());
     ++i1;
     TEST(i1 == g1.end());
-
-    // Test erasing an element
-    g1.erase(c3);
-    TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0))");
 
     // Test building an empty LatLongCoords
     LatLongCoords g2;
@@ -279,7 +275,7 @@ DEFINE_TESTCASE(latlongkeymaker1, !backend) {
     LatLongCoord c4(3, 0);
 
     LatLongCoords g1(c1);
-    g1.insert(c2);
+    g1.append(c2);
 
     LatLongDistanceKeyMaker keymaker(0, g1, m1);
     Xapian::Document doc1;

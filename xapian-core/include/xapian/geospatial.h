@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
 #include <iterator>
-#include <set>
+#include <vector>
 #include <string>
 
 #include <xapian/derefwrapper.h>
@@ -130,10 +130,10 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 // Forward declaration.
 class LatLongCoordsIterator;
 
-/// A set of latitude-longitude coordinates.
+/// A sequence of latitude-longitude coordinates.
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// The coordinates.
-    std::set<LatLongCoord> coords;
+    std::vector<LatLongCoord> coords;
 
   public:
     /// Get an begin iterator for the coordinates.
@@ -142,40 +142,34 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// Get an end iterator for the coordinates.
     LatLongCoordsIterator end() const;
 
-    /// Get the number of coordinates in the set.
+    /// Get the number of coordinates in the container.
     size_t size() const
     {
 	return coords.size();
     }
 
-    /// Return true if and only if there are no coordinates in the set.
+    /// Return true if and only if there are no coordinates in the container.
     size_t empty() const
     {
 	return coords.empty();
     }
 
-    /// Insert a coordinate into the set.
-    void insert(const LatLongCoord & coord)
+    /// Append a coordinate to the end of the sequence.
+    void append(const LatLongCoord & coord)
     {
-	coords.insert(coord);
+	coords.push_back(coord);
     }
 
-    /// Remove a coordinate from the set.
-    void erase(const LatLongCoord & coord)
-    {
-	coords.erase(coord);
-    }
-
-    /// Construct an empty set of coordinates.
+    /// Construct an empty container.
     LatLongCoords() : coords() {}
 
-    /// Construct a set of coordinates containing one coordinate.
+    /// Construct a container holding one coordinate.
     LatLongCoords(const LatLongCoord & coord) : coords()
     {
-	coords.insert(coord);
+	coords.push_back(coord);
     }
 
-    /** Construct a set of coordinates by unserialising a string.
+    /** Construct by unserialising a string.
      *
      *  @param serialised the string to unserialise the coordinates from.
      *
@@ -199,10 +193,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
     friend class LatLongCoords;
 
     /// The current position of the iterator.
-    std::set<LatLongCoord>::const_iterator iter;
+    std::vector<LatLongCoord>::const_iterator iter;
 
     /// Constructor used by LatLongCoords.
-    LatLongCoordsIterator(std::set<LatLongCoord>::const_iterator iter_)
+    LatLongCoordsIterator(std::vector<LatLongCoord>::const_iterator iter_)
 	    : iter(iter_) {}
 
   public:
@@ -389,8 +383,8 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     /** Calculate the distance for the current document.
      *
      *  Returns true if the distance was calculated ok, or false if the
-     *  document didn't contain a valid serialised set of coordinates in the
-     *  appropriate value slot.
+     *  document didn't contain a valid serialised sequence of coordinates in
+     *  the appropriate value slot.
      */
     void calc_distance();
 
@@ -484,7 +478,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 	      metric(metric_.clone()),
 	      defkey(sortable_serialise(defdistance))
     {
-	centre.insert(centre_);
+	centre.append(centre_);
     }
 
     ~LatLongDistanceKeyMaker();

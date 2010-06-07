@@ -90,7 +90,7 @@ LatLongCoords::unserialise(const string & serialised)
     const char * end = ptr + serialised.size();
     LatLongCoords result;
     while (ptr != end) {
-	result.coords.insert(LatLongCoord::unserialise(&ptr, end));
+	result.coords.push_back(LatLongCoord::unserialise(&ptr, end));
     }
     if (ptr != end) {
 	throw SerialisationError("Junk found at end of serialised "
@@ -103,7 +103,7 @@ string
 LatLongCoords::serialise() const
 {
     string result;
-    set<LatLongCoord>::const_iterator coord;
+    vector<LatLongCoord>::const_iterator coord;
     for (coord = coords.begin(); coord != coords.end(); ++coord)
     {
 	result += serialise_double(coord->latitude);
@@ -116,7 +116,7 @@ string
 LatLongCoords::get_description() const
 {
     string res("Xapian::LatLongCoords(");
-    set<LatLongCoord>::const_iterator coord;
+    vector<LatLongCoord>::const_iterator coord;
     for (coord = coords.begin(); coord != coords.end(); ++coord) {
 	if (coord != coords.begin()) {
 	    res += ", ";

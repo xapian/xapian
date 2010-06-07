@@ -1,3 +1,17 @@
+Mon Jun 07 19:21:57 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlongcoord.cc,include/xapian/geospatial.h,
+	  tests/api_geospatial.cc: Change LatLongCoords to retain the order
+	  of coordinates, to allow future metrics to consider the
+	  coordinates as the boundary of a shape, rather than just a
+	  distinct set of points.  Use a vector instead of a set to hold
+	  the coordinates.  Remove the "erase" method, since this is less
+	  easy to define for a vector (and I was never particularly happy
+	  about the floating point comparisons involved in checking for
+	  equality when erasing a member from the set, anyway).  Rename the
+	  "insert" method to "append", since the coordinates are now
+	  ordered.
+
 Mon Jun 07 14:58:34 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* include/xapian/geospatial.h: Add an implementation for the
