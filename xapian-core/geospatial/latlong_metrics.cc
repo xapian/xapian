@@ -52,11 +52,11 @@ LatLongMetric::operator()(const LatLongCoords & a, const LatLongCoords &b) const
     }
     double min_dist = 0.0;
     bool have_min = false;
-    for (set<LatLongCoord>::const_iterator a_iter = a.begin();
+    for (LatLongCoordsIterator a_iter = a.begin();
 	 a_iter != a.end();
 	 ++a_iter)
     {
-	for (set<LatLongCoord>::const_iterator b_iter = b.begin();
+	for (LatLongCoordsIterator b_iter = b.begin();
 	     b_iter != b.end();
 	     ++b_iter)
 	{

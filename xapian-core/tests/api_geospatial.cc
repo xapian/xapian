@@ -74,7 +74,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemo
 
     // Test a search with no range restriction.
     {
-	Xapian::LatLongDistancePostingSource ps(0, centre, metric);
+	Xapian::LatLongDistancePostingSource ps(0, coord1, metric);
 	ps.init(db);
 
 	ps.next(0.0);

@@ -23,13 +23,16 @@
 #ifndef XAPIAN_INCLUDED_GEOSPATIAL_H
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
+#include <iterator>
+#include <set>
+#include <string>
+
+#include <xapian/derefwrapper.h>
 #include <xapian/enquire.h>
 #include <xapian/postingsource.h>
 #include <xapian/queryparser.h> // For sortable_serialise
 #include <xapian/keymaker.h>
 #include <xapian/visibility.h>
-#include <string>
-#include <set>
 
 namespace Xapian {
 
@@ -124,38 +127,40 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
     std::string get_description() const;
 };
 
-/** A set of latitude-longitude coordinate.
- */
+// Forward declaration.
+class LatLongCoordsIterator;
+
+/// A set of latitude-longitude coordinates.
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// The coordinates.
     std::set<LatLongCoord> coords;
 
   public:
-    std::set<LatLongCoord>::const_iterator begin() const
-    {
-	return coords.begin();
-    }
+    /// Get an begin iterator for the coordinates.
+    LatLongCoordsIterator begin() const;
 
-    std::set<LatLongCoord>::const_iterator end() const
-    {
-	return coords.end();
-    }
+    /// Get an end iterator for the coordinates.
+    LatLongCoordsIterator end() const;
 
+    /// Get the number of coordinates in the set.
     size_t size() const
     {
 	return coords.size();
     }
 
+    /// Return true if and only if there are no coordinates in the set.
     size_t empty() const
     {
 	return coords.empty();
     }
 
+    /// Insert a coordinate into the set.
     void insert(const LatLongCoord & coord)
     {
 	coords.insert(coord);
     }
 
+    /// Remove a coordinate from the set.
     void erase(const LatLongCoord & coord)
     {
 	coords.erase(coord);
@@ -187,6 +192,71 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// Return a string describing this object.
     std::string get_description() const;
 };
+
+/// An iterator across the values in a LatLongCoords object.
+class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
+    /// Friend class which needs to be able to construct us.
+    friend class LatLongCoords;
+
+    /// The current position of the iterator.
+    std::set<LatLongCoord>::const_iterator iter;
+
+    /// Constructor used by LatLongCoords.
+    LatLongCoordsIterator(std::set<LatLongCoord>::const_iterator iter_)
+	    : iter(iter_) {}
+
+  public:
+    /// Default constructor.  Produces an uninitialised iterator.
+    LatLongCoordsIterator();
+
+    /// Return the current value pointed to by the iterator.
+    LatLongCoord operator *() const {
+	return *iter;
+    }
+
+    /// Pre-increment operator.
+    LatLongCoordsIterator & operator++() {
+	++iter;
+	return *this;
+    }
+
+    /// Post-increment operator.
+    DerefWrapper_<LatLongCoord> operator++(int) {
+	LatLongCoord tmp = **this;
+	++iter;
+	return DerefWrapper_<LatLongCoord>(tmp);
+    }
+
+    /// Check for equality with another iterator.
+    bool operator==(const LatLongCoordsIterator &other) const
+    {
+	return iter == other.iter;
+    }
+
+    // Allow use as an STL iterator
+    typedef std::input_iterator_tag iterator_category;
+    typedef LatLongCoord value_type;
+    typedef size_t difference_type;
+    typedef LatLongCoord * pointer;
+    typedef LatLongCoord & reference;
+};
+
+inline LatLongCoordsIterator LatLongCoords::begin() const
+{
+    return LatLongCoordsIterator(coords.begin());
+}
+
+inline LatLongCoordsIterator LatLongCoords::end() const
+{
+    return LatLongCoordsIterator(coords.end());
+}
+
+/// Inequality test for LatLongCoordsIterator objects.
+inline bool
+operator!=(const LatLongCoordsIterator &a, const LatLongCoordsIterator &b)
+{
+    return !(a == b);
+}
 
 /** Base class for calculating distances between two lat/long coordinates.
  */

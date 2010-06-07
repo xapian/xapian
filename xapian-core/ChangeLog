@@ -1,3 +1,13 @@
+Mon Jun 07 14:33:39 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* geospatial/latlong_metrics.cc,include/xapian/geospatial.h,
+	  tests/api_geospatial.cc: Don't expose an STL set iterator for
+	  iterating through the contents of LatLongCoords: instead, define
+	  a LatLongCoordsIterator, which wraps this.  Avoids making the API
+	  depend on the STL implementation, and should make it easier to
+	  access the contents of the set from SWIG bindings.  Also, add
+	  some missing documentation comments to LatLongCoords methods.
+
 Mon Jun 07 12:22:58 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* geospatial/latlongcoord.cc: Don't do a special-case conversion of
