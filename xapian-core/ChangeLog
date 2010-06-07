@@ -1,3 +1,7 @@
+Mon Jun 07 00:58:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/io_utils.h: Fix header guard macro name to follow convention.
+
 Sun Jun 06 15:07:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac: Upgrade to using libtool 2.2.8.
