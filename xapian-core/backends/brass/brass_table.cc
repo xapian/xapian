@@ -67,12 +67,12 @@ PWRITE_PROTOTYPE
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 
-#include "brass_io.h"
 #include "brass_btreebase.h"
 #include "brass_cursor.h"
 
-#include "omassert.h"
 #include "debuglog.h"
+#include "io_utils.h"
+#include "omassert.h"
 #include "pack.h"
 #include "unaligned.h"
 #include "utils.h"
@@ -248,7 +248,7 @@ BrassTable::read_block(uint4 n, byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    brass_io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
+    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
 }
 
@@ -311,7 +311,7 @@ BrassTable::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    brass_io_write(handle, reinterpret_cast<const char *>(p), block_size);
+    io_write(handle, reinterpret_cast<const char *>(p), block_size);
 #endif
 }
 
@@ -1886,7 +1886,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 
 	// Do this as late as possible to allow maximum time for writes to be
 	// committed.
-	if (!brass_io_sync(handle)) {
+	if (!io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
@@ -1945,7 +1945,7 @@ BrassTable::write_changed_blocks(int changes_fd)
     pack_uint(buf, 2u); // Indicate the item is a list of blocks
     pack_string(buf, tablename);
     pack_uint(buf, block_size);
-    brass_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
     // write them to the file descriptor.
@@ -1956,14 +1956,13 @@ BrassTable::write_changed_blocks(int changes_fd)
 	while (base.find_changed_block(&n)) {
 	    buf.resize(0);
 	    pack_uint(buf, n + 1);
-	    brass_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
 	    read_block(n, p);
 
 	    // Write block n to the file.
-	    brass_io_write(changes_fd, reinterpret_cast<const char *>(p),
-			   block_size);
+	    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
 	    ++n;
 	}
 	delete[] p;
@@ -1974,7 +1973,7 @@ BrassTable::write_changed_blocks(int changes_fd)
     }
     buf.resize(0);
     pack_uint(buf, 0u);
-    brass_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 }
 
 void

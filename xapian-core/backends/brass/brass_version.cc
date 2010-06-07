@@ -24,8 +24,8 @@
 
 #include <xapian/error.h>
 
-#include "brass_io.h"
 #include "brass_version.h"
+#include "io_utils.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "str.h"
@@ -79,7 +79,7 @@ BrassVersion::create()
     }
 
     try {
-	brass_io_write(fd, buf, VERSIONFILE_SIZE);
+	io_write(fd, buf, VERSIONFILE_SIZE);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -107,7 +107,7 @@ BrassVersion::read_and_check()
     char buf[VERSIONFILE_SIZE + 1];
     size_t size;
     try {
-	size = brass_io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
+	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
     } catch (...) {
 	(void)close(fd);
 	throw;

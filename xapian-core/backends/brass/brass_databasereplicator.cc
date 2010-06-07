@@ -26,13 +26,13 @@
 
 #include "xapian/error.h"
 
-#include "brass_io.h"
 #include "../flint_lock.h"
 #include "brass_record.h"
 #include "brass_replicate_internal.h"
 #include "brass_types.h"
 #include "brass_version.h"
 #include "debuglog.h"
+#include "io_utils.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
@@ -126,8 +126,8 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     {
 	fdcloser closer(fd);
 
-	brass_io_write(fd, buf.data(), base_size);
-	brass_io_sync(fd);
+	io_write(fd, buf.data(), base_size);
+	io_sync(fd);
     }
 #if defined __WIN32__
     if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
@@ -216,11 +216,11 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
-	    brass_io_write(fd, buf.data(), changeset_blocksize);
+	    io_write(fd, buf.data(), changeset_blocksize);
 
 	    buf.erase(0, changeset_blocksize);
 	}
-	brass_io_sync(fd);
+	io_sync(fd);
     }
 }
 
