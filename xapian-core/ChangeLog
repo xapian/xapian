@@ -1,3 +1,8 @@
+Mon Jun 07 19:27:24 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_geospatial.cc: Fix latlongcoords1 to work with the new
+	  LatLongCoords semantics.
+
 Mon Jun 07 19:21:57 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* geospatial/latlongcoord.cc,include/xapian/geospatial.h,

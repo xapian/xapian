@@ -207,10 +207,6 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     g1.append(c2);
     TEST_EQUAL(g1.size(), 2);
     TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0))");
-    // c3 == c2, so already in the set, so no change if we add c3
-    g1.append(c3);
-    TEST_EQUAL(g1.size(), 2);
-    TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0))");
 
     // Test iterating through a set of LatLongCoords
     i1 = g1.begin();
@@ -224,6 +220,11 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST(i1 != g1.end());
     ++i1;
     TEST(i1 == g1.end());
+
+    // Test that duplicates are allowed in the list of coordinates, now.
+    g1.append(c3);
+    TEST_EQUAL(g1.size(), 3);
+    TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0), (1, 0))");
 
     // Test building an empty LatLongCoords
     LatLongCoords g2;
