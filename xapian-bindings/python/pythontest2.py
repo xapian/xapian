@@ -1407,6 +1407,18 @@ def test_import_star():
     """
     import test_xapian_star
 
+def test_latlongcoords_iter():
+    """Test LatLongCoordsIterator wrapping.
+
+    """
+    coords = xapian.LatLongCoords()
+    expect([c for c in coords], [])
+    coords.insert(xapian.LatLongCoord(0, 0))
+    coords.insert(xapian.LatLongCoord(0, 1))
+    expect([str(c) for c in coords], ['Xapian::LatLongCoord(0, 0)',
+                                      'Xapian::LatLongCoord(0, 1)'])
+
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)

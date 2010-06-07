@@ -799,6 +799,19 @@ class Remote {
 %include <xapian/valuesetmatchdecider.h>
 
 %ignore Xapian::LatLongCoord::operator< const;
+%ignore Xapian::LatLongCoordsIterator::operator++;
+%ignore Xapian::LatLongCoordsIterator::operator*;
+%ignore Xapian::LatLongCoordsIterator::operator==;
+%ignore operator!=(const LatLongCoordsIterator &, const LatLongCoordsIterator &);
+%extend Xapian::LatLongCoordsIterator {
+    const Xapian::LatLongCoord & get_coord() const {
+	return *(*self);
+    }
+    NEXT(Xapian::LatLongCoord, LatLongCoordsIterator)
+    bool equals(const LatLongCoordsIterator &other) const {
+        return (*self) == other;
+    }
+}
 %include <xapian/geospatial.h>
 
 namespace Xapian {

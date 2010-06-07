@@ -1,3 +1,10 @@
+Mon Jun 07 18:47:32 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  ruby/smoketest.rb,ruby/xapian.rb,xapian.i: Update to provide
+	  access to the LatLongCoordsIterator, and provide pythonic and
+	  rubyoid iterators for it.
+
 Sun Jun 06 15:10:47 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am,xapian.i: Apply patch geospatial_clean3.patch
