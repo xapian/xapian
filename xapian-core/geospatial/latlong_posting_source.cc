@@ -51,6 +51,23 @@ LatLongDistancePostingSource::calc_distance()
     dist = (*metric)(centre, coords);
 }
 
+/// Validate the parameters supplied to LatLongDistancePostingSource.
+static void
+validate_postingsource_params(double k1, double k2) {
+    if (k1 <= 0) {
+	string msg("k1 parameter to LatLongDistancePostingSource must be "
+		   "greater than 0; was ");
+	msg += str(k1);
+	throw InvalidArgumentError(msg);
+    }
+    if (k2 <= 0) {
+	string msg("k2 parameter to LatLongDistancePostingSource must be "
+		   "greater than 0; was ");
+	msg += str(k2);
+	throw InvalidArgumentError(msg);
+    }
+}
+
 LatLongDistancePostingSource::LatLongDistancePostingSource(
 	valueno slot_,
 	const LatLongCoords & centre_,
@@ -65,14 +82,7 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
 	  k1(k1_),
 	  k2(k2_)
 {
-    if (k1 <= 0)
-	throw InvalidArgumentError(
-	    "k1 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + str(k1));
-    if (k2 <= 0)
-	throw InvalidArgumentError(
-	    "k2 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + str(k2));
+    validate_postingsource_params(k1, k2);
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
@@ -90,14 +100,7 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
 	  k1(k1_),
 	  k2(k2_)
 {
-    if (k1 <= 0)
-	throw InvalidArgumentError(
-	    "k1 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + str(k1));
-    if (k2 <= 0)
-	throw InvalidArgumentError(
-	    "k2 parameter to LatLongDistancePostingSource must be greater "
-	    "than 0; was " + str(k2));
+    validate_postingsource_params(k1, k2);
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
@@ -223,8 +226,10 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
     const Xapian::LatLongMetric * metric_type =
 	    registry.get_lat_long_metric(new_metric_name);
     if (metric_type == NULL) {
-	throw InvalidArgumentError("LatLongMetric " + new_metric_name +
-				   " not registered");
+	string msg("LatLongMetric ");
+	msg += new_metric_name;
+	msg += " not registered";
+	throw InvalidArgumentError(msg);
     }
     LatLongMetric * new_metric =
 	    metric_type->unserialise(new_serialised_metric);
@@ -250,5 +255,8 @@ LatLongDistancePostingSource::init(const Database & db_)
 string
 LatLongDistancePostingSource::get_description() const
 {
-    return "Xapian::LatLongDistancePostingSource(slot=" + str(slot) + ")";
+    string result("Xapian::LatLongDistancePostingSource(slot=");
+    result += str(slot);
+    result += ")";
+    return result;
 }
