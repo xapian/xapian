@@ -1,3 +1,9 @@
+Mon Jun 07 06:08:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Rename TermList class to Terms to
+	  avoid confusion with the TermList typedef used elsewhere.  Add
+	  documentation comments for Terms and TermGroup classes.
+
 Mon Jun 07 02:18:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Switch to using io_utils instead of brass_io.

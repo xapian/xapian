@@ -1122,6 +1122,7 @@ struct ProbQuery {
     }
 };
 
+/// A group of terms separated only by whitespace.
 class TermGroup {
     vector<Term *> terms;
 
@@ -1263,7 +1264,8 @@ TermGroup::as_group(State *state) const
     return new Query(default_op, subqs.begin(), subqs.end());
 }
 
-class TermList {
+/// Some terms which form a positional sub-query.
+class Terms {
     vector<Term *> terms;
     size_t window;
 
@@ -1316,9 +1318,9 @@ class TermList {
     }
 
   public:
-    TermList() : window(0), uniform_prefixes(true) { }
+    Terms() : window(0), uniform_prefixes(true) { }
 
-    /// Add an unstemmed Term object to this TermList object.
+    /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
         if (terms.empty()) {
 	    prefixes = term->prefixes;
@@ -1368,7 +1370,7 @@ class TermList {
     /** Protected destructor, so an auto-variable of this type is a
      *  compile-time error - you must allocate this object with new.
      */
-    ~TermList() {
+    ~Terms() {
 	vector<Term *>::const_iterator t;
 	for (t = terms.begin(); t != terms.end(); ++t) {
 	    delete *t;
@@ -1774,12 +1776,12 @@ compound_term(T) ::= SYNONYM TERM(U). {
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
-%type phrase {TermList *}
+%type phrase {Terms *}
 
 %destructor phrase {$$->destroy();}
 
 phrase(P) ::= TERM(T). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
 }
 
@@ -1792,11 +1794,11 @@ phrase(P) ::= phrase(Q) TERM(T). {
 // 2 or more terms linked together into a phrase by punctuation.  There must be
 // at least 2 terms in order to be able to have punctuation between the terms!
 
-%type phrased_term {TermList *}
+%type phrased_term {Terms *}
 %destructor phrased_term {$$->destroy();}
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
     P->add_positional_term(U);
 }
@@ -1826,11 +1828,11 @@ group(P) ::= group(Q) GROUP_TERM(T). {
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2
 // terms in order for there to be any NEAR operators!
 
-%type near_expr {TermList *}
+%type near_expr {Terms *}
 %destructor near_expr {$$->destroy();}
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
@@ -1851,11 +1853,11 @@ near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
 // adj_expr - 2 or more terms with ADJ in between.  There must be at least 2
 // terms in order for there to be any ADJ operators!
 
-%type adj_expr {TermList *}
+%type adj_expr {Terms *}
 %destructor adj_expr {$$->destroy();}
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
