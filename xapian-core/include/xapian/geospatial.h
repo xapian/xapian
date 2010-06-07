@@ -207,10 +207,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
 
   public:
     /// Default constructor.  Produces an uninitialised iterator.
-    LatLongCoordsIterator();
+    LatLongCoordsIterator() {}
 
     /// Return the current value pointed to by the iterator.
-    LatLongCoord operator *() const {
+    const LatLongCoord & operator *() const {
 	return *iter;
     }
 

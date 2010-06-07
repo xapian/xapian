@@ -196,6 +196,9 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST_EQUAL(c1.get_description(), "Xapian::LatLongCoord(0, 0)");
     TEST_EQUAL(ptr, end);
 
+    // Test uninitialised iterator constructor
+    LatLongCoordsIterator i1;
+
     // Test building a set of LatLongCoords
     LatLongCoords g1(c1);
     TEST(!g1.empty());
@@ -208,7 +211,21 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     g1.insert(c3);
     TEST_EQUAL(g1.size(), 2);
     TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0))");
-    TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0), (1, 0))");
+
+    // Test iterating through a set of LatLongCoords
+    i1 = g1.begin();
+    TEST(i1 != g1.end());
+    TEST_EQUAL((*i1).serialise(), c1.serialise());
+    TEST_EQUAL((*(i1++)).serialise(), c1.serialise());
+    TEST(i1 != g1.end());
+    TEST_EQUAL((*i1).serialise(), c2.serialise());
+    i1 = g1.begin();
+    TEST_EQUAL((*(++i1)).serialise(), c2.serialise());
+    TEST(i1 != g1.end());
+    ++i1;
+    TEST(i1 == g1.end());
+
+    // Test erasing an element
     g1.erase(c3);
     TEST_EQUAL(g1.get_description(), "Xapian::LatLongCoords((0, 0))");
 
@@ -217,6 +234,7 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST(g2.empty());
     TEST_EQUAL(g2.size(), 0);
     TEST_EQUAL(g2.get_description(), "Xapian::LatLongCoords()");
+    TEST(g2.begin() == g2.end());
 
     return true;
 }
