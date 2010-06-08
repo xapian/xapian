@@ -1,3 +1,10 @@
+Tue Jun 08 13:03:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/,matcher/,weight/weightinternal.cc: Replace the still rather
+	  contorted mechanism for accumulating rel termfreqs for local
+	  databases with a simpler mechanism which is more efficient in both
+	  space and time.
+
 Mon Jun 07 16:31:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/maptermlist.h,api/matchspy.cc,api/termlist.cc,backends/brass/,

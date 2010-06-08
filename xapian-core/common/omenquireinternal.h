@@ -224,6 +224,8 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	struct TermFreqAndWeight {
 	    TermFreqAndWeight() { }
+	    explicit TermFreqAndWeight(Xapian::doccount tf)
+		: termfreq(tf), termweight(0.0) { }
 	    TermFreqAndWeight(Xapian::doccount tf, Xapian::weight wt)
 		: termfreq(tf), termweight(wt) { }
 	    Xapian::doccount termfreq;

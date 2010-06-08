@@ -30,7 +30,7 @@
 #include "collapser.h"
 #include "debuglog.h"
 #include "submatch.h"
-#include "localmatch.h"
+#include "localsubmatch.h"
 #include "omassert.h"
 #include "omenquireinternal.h"
 
@@ -278,6 +278,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
+    stats.mark_wanted_terms(*query);
     prepare_sub_matches(leaves, errorhandler, stats);
     stats.set_bounds_from_db(db);
 }
