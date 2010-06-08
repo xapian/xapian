@@ -1,3 +1,9 @@
+Tue Jun 08 14:32:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.h,backends/chert/chert_check.h,
+	  backends/flint/flint_check.h: Remove mutable from std::ostream &
+	  member - mutable doesn't make sense for a reference.
+
 Tue Jun 08 13:03:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/,matcher/,weight/weightinternal.cc: Replace the still rather
