@@ -23,6 +23,7 @@ OBJS= \
     $(INTDIR)/error.obj \
     $(INTDIR)/errorhandler.obj \
     $(INTDIR)/expanddecider.obj \
+    $(INTDIR)/keymaker.obj \
     $(INTDIR)/leafpostlist.obj \
     $(INTDIR)/matchspy.obj \
     $(INTDIR)/omdatabase.obj \
@@ -38,7 +39,6 @@ OBJS= \
     $(INTDIR)/registry.obj \
     $(INTDIR)/replication.obj \
     $(INTDIR)/sortable-serialise.obj \
-    $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valueiterator.obj\
     $(INTDIR)/valuerangeproc.obj \
@@ -53,6 +53,7 @@ SRCS= \
     $(INTDIR)/error.cc\
     $(INTDIR)/errorhandler.cc\
     $(INTDIR)/expanddecider.cc\
+    $(INTDIR)/keymaker.cc \
     $(INTDIR)/leafpostlist.cc\
     $(INTDIR)/matchspy.cc \
     $(INTDIR)/omdatabase.cc\
@@ -67,7 +68,6 @@ SRCS= \
     $(INTDIR)/postlist.cc\
     $(INTDIR)/registry.cc \
     $(INTDIR)/replication.cc \
-    $(INTDIR)/sorter.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valueiterator.cc\

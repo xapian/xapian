@@ -27,6 +27,7 @@ OBJS= \
     $(INTDIR)\msetpostlist.obj\
     $(INTDIR)\multiandpostlist.obj\
     $(INTDIR)\multimatch.obj\
+    $(INTDIR)\multixorpostlist.obj\
     $(INTDIR)\orpostlist.obj\
     $(INTDIR)\phrasepostlist.obj\
     $(INTDIR)\queryoptimiser.obj\
@@ -36,7 +37,6 @@ OBJS= \
     $(INTDIR)\valuerangepostlist.obj\
     $(INTDIR)\valuegepostlist.obj\
     $(INTDIR)\valuestreamdocument.obj\
-    $(INTDIR)\xorpostlist.obj\
     $(INTDIR)\remotesubmatch.obj
 
 
@@ -53,6 +53,7 @@ SRCS= \
     $(INTDIR)\msetpostlist.cc\
     $(INTDIR)\multiandpostlist.cc\
     $(INTDIR)\multimatch.cc\
+    $(INTDIR)\multixorpostlist.cc\
     $(INTDIR)\orpostlist.cc\
     $(INTDIR)\phrasepostlist.cc\
     $(INTDIR)\queryoptimiser.cc\
@@ -62,7 +63,6 @@ SRCS= \
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
     $(INTDIR)\valuestreamdocument.cc\
-    $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
 
 CLEAN :

@@ -16,12 +16,14 @@ ALL : "$(OUTDIR)\libmulti.lib"
 OBJS= \
                 $(INTDIR)\multi_postlist.obj \
                 $(INTDIR)\multi_termlist.obj \
-                $(INTDIR)\multi_alltermslist.obj
+                $(INTDIR)\multi_alltermslist.obj \
+                $(INTDIR)\multi_valuelist.obj
 
 SRCS= \
                 $(INTDIR)\multi_postlist.cc \
                 $(INTDIR)\multi_termlist.cc \
-                $(INTDIR)\multi_alltermslist.cc
+                $(INTDIR)\multi_alltermslist.cc \
+                $(INTDIR)\multi_valuelist.cc
 	
 CLEAN :
 	-@erase "$(OUTDIR)\libmulti.lib"

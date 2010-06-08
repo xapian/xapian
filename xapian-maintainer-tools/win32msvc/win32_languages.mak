@@ -26,8 +26,8 @@ LIBLANGUAGES_OBJS= \
                  $(INTDIR)\finnish.obj \
                  $(INTDIR)\french.obj \
                  $(INTDIR)\german.obj \
-		 $(INTDIR)\german2.obj \
-		 $(INTDIR)\hungarian.obj \
+                 $(INTDIR)\german2.obj \
+                 $(INTDIR)\hungarian.obj \
                  $(INTDIR)\italian.obj \
                  $(INTDIR)\lovins.obj \
                  $(INTDIR)\norwegian.obj \
@@ -36,9 +36,9 @@ LIBLANGUAGES_OBJS= \
                  $(INTDIR)\russian.obj \
                  $(INTDIR)\spanish.obj \
                  $(INTDIR)\swedish.obj \
-		 $(INTDIR)\romanian.obj \
-		 $(INTDIR)\kraaij_pohlmann.obj \
-		 $(INTDIR)\turkish.obj 
+                 $(INTDIR)\romanian.obj \
+                 $(INTDIR)\kraaij_pohlmann.obj \
+                 $(INTDIR)\turkish.obj 
 
 LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\danish.cc \
@@ -47,8 +47,8 @@ LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\finnish.cc \
                  $(INTDIR)\french.cc \
                  $(INTDIR)\german.cc \
-		 $(INTDIR)\german2.cc \
-		 $(INTDIR)\hungarian.cc \
+                 $(INTDIR)\german2.cc \
+                 $(INTDIR)\hungarian.cc \
                  $(INTDIR)\italian.cc \
                  $(INTDIR)\lovins.cc \
                  $(INTDIR)\norwegian.cc \
@@ -57,9 +57,9 @@ LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\russian.cc \
                  $(INTDIR)\spanish.cc \
                  $(INTDIR)\swedish.cc \
-		 $(INTDIR)\romanian.cc \
-		 $(INTDIR)\kraaij_pohlmann.cc \
-		 $(INTDIR)\turkish.cc 
+                 $(INTDIR)\romanian.cc \
+                 $(INTDIR)\kraaij_pohlmann.cc \
+                 $(INTDIR)\turkish.cc 
 
 LIBLANGUAGES_HEADERS= \
                  danish.h \
@@ -68,8 +68,8 @@ LIBLANGUAGES_HEADERS= \
                  finnish.h \
                  french.h \
                  german.h \
-		 german2.h \
-		 hungarian.h \
+                 german2.h \
+                 hungarian.h \
                  italian.h \
                  lovins.h \
                  norwegian.h \
@@ -78,9 +78,9 @@ LIBLANGUAGES_HEADERS= \
                  russian.h \
                  spanish.h \
                  swedish.h \
-		 romanian.h \
-		 kraaij_pohlmann.h \
-		 turkish.h 
+                 romanian.h \
+                 kraaij_pohlmann.h \
+                 turkish.h 
 
 MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
 		 
@@ -112,61 +112,61 @@ CPP_SBRS=.
 # Generate .h and .cc files from Snowball algorithms using Snowball compiler
 	
 ".\danish.h" ".\danish.cc" : ".\danish.sbl"
-	$(SBL) danish.sbl $(SBL_OPTIONS) -o danish -n InternalStemDanish -p Stem::Internal
+	$(SBL) danish.sbl $(SBL_OPTIONS) -o danish -n InternalStemDanish -p SnowballStemImplementation
 
 ".\dutch.h" ".\dutch.cc" : ".\dutch.sbl"
-	$(SBL) dutch.sbl $(SBL_OPTIONS) -o dutch -n InternalStemDutch -p Stem::Internal
+	$(SBL) dutch.sbl $(SBL_OPTIONS) -o dutch -n InternalStemDutch -p SnowballStemImplementation
 
 ".\english.h" ".\english.cc" : ".\english.sbl"
-	$(SBL) english.sbl $(SBL_OPTIONS) -o english -n InternalStemEnglish -p Stem::Internal
+	$(SBL) english.sbl $(SBL_OPTIONS) -o english -n InternalStemEnglish -p SnowballStemImplementation
 
 ".\french.h" ".\french.cc" : ".\french.sbl"
-	$(SBL) french.sbl $(SBL_OPTIONS) -o french -n InternalStemFrench -p Stem::Internal
+	$(SBL) french.sbl $(SBL_OPTIONS) -o french -n InternalStemFrench -p SnowballStemImplementation
 
 ".\german.h" ".\german.cc" : ".\german.sbl"
-	$(SBL) german.sbl $(SBL_OPTIONS) -o german -n InternalStemGerman -p Stem::Internal
+	$(SBL) german.sbl $(SBL_OPTIONS) -o german -n InternalStemGerman -p SnowballStemImplementation
 
 ".\german2.h" ".\german2.cc" : ".\german2.sbl"
-	$(SBL) german2.sbl $(SBL_OPTIONS) -o german2 -n InternalStemGerman2 -p Stem::Internal
+	$(SBL) german2.sbl $(SBL_OPTIONS) -o german2 -n InternalStemGerman2 -p SnowballStemImplementation
 
 ".\hungarian.h" ".\hungarian.cc" : ".\hungarian.sbl"
-	$(SBL) hungarian.sbl $(SBL_OPTIONS) -o hungarian -n InternalStemHungarian -p Stem::Internal
+	$(SBL) hungarian.sbl $(SBL_OPTIONS) -o hungarian -n InternalStemHungarian -p SnowballStemImplementation
 
 ".\italian.h" ".\italian.cc" : ".\italian.sbl"
-	$(SBL) italian.sbl $(SBL_OPTIONS) -o italian -n InternalStemItalian -p Stem::Internal
+	$(SBL) italian.sbl $(SBL_OPTIONS) -o italian -n InternalStemItalian -p SnowballStemImplementation
 
 ".\norwegian.h" ".\norwegian.cc" : ".\norwegian.sbl"
-	$(SBL) norwegian.sbl $(SBL_OPTIONS) -o norwegian -n InternalStemNorwegian -p Stem::Internal
+	$(SBL) norwegian.sbl $(SBL_OPTIONS) -o norwegian -n InternalStemNorwegian -p SnowballStemImplementation
 
 ".\porter.h" ".\porter.cc" : ".\porter.sbl"
-	$(SBL) porter.sbl $(SBL_OPTIONS) -o porter -n InternalStemPorter -p Stem::Internal
+	$(SBL) porter.sbl $(SBL_OPTIONS) -o porter -n InternalStemPorter -p SnowballStemImplementation
 
 ".\portuguese.h" ".\portuguese.cc" : ".\portuguese.sbl"
-	$(SBL) portuguese.sbl $(SBL_OPTIONS) -o portuguese -n InternalStemPortuguese -p Stem::Internal
+	$(SBL) portuguese.sbl $(SBL_OPTIONS) -o portuguese -n InternalStemPortuguese -p SnowballStemImplementation
 
 ".\russian.h" ".\russian.cc" : ".\russian.sbl"
-	$(SBL) russian.sbl $(SBL_OPTIONS) -o russian -n InternalStemRussian -p Stem::Internal
+	$(SBL) russian.sbl $(SBL_OPTIONS) -o russian -n InternalStemRussian -p SnowballStemImplementation
 
 ".\spanish.h" ".\spanish.cc" : ".\spanish.sbl"
-	$(SBL) spanish.sbl $(SBL_OPTIONS) -o spanish -n InternalStemSpanish -p Stem::Internal
+	$(SBL) spanish.sbl $(SBL_OPTIONS) -o spanish -n InternalStemSpanish -p SnowballStemImplementation
 
 ".\swedish.h" ".\swedish.cc" : ".\swedish.sbl"
-	$(SBL) swedish.sbl $(SBL_OPTIONS) -o swedish -n InternalStemSwedish -p Stem::Internal
+	$(SBL) swedish.sbl $(SBL_OPTIONS) -o swedish -n InternalStemSwedish -p SnowballStemImplementation
 
 ".\kraaij_pohlmann.h" ".\kraaij_pohlmann.cc" : ".\kraaij_pohlmann.sbl"
-	$(SBL) kraaij_pohlmann.sbl $(SBL_OPTIONS) -o kraaij_pohlmann -n InternalStemKraaij_pohlmann -p Stem::Internal
+	$(SBL) kraaij_pohlmann.sbl $(SBL_OPTIONS) -o kraaij_pohlmann -n InternalStemKraaij_pohlmann -p SnowballStemImplementation
 		
 ".\romanian.h" ".\romanian.cc" : ".\romanian.sbl"
-	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p Stem::Internal	
+	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p SnowballStemImplementation	
 
 ".\turkish.h" ".\turkish.cc" : ".\turkish.sbl"
-	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p Stem::Internal	
+	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p SnowballStemImplementation	
 
 ".\finnish.h" ".\finnish.cc" : ".\finnish.sbl"
-	$(SBL) finnish.sbl $(SBL_OPTIONS) -o finnish -n InternalStemFinnish -p Stem::Internal
+	$(SBL) finnish.sbl $(SBL_OPTIONS) -o finnish -n InternalStemFinnish -p SnowballStemImplementation
 
 ".\lovins.h" ".\lovins.cc" : ".\lovins.sbl"
-	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p Stem::Internal
+	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p SnowballStemImplementation
 
 
 "$(INTDIR)\stem.obj" : ".\stem.cc" 

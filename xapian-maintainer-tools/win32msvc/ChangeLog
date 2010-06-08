@@ -1,3 +1,9 @@
+Tue Jun 08 15:48:18 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* Makefile,win32_api.mak,win32_backends_multi.mak,win32_common.mak,
+	  win32_docsim.mak,win32_geospatial.mak,win32_languages.mak,
+	  win32_matcher.mak: Updates from Charlie Hull.
+
 Mon May 17 10:37:26 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	Patch from Charlie Hull:

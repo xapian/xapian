@@ -13,7 +13,7 @@ INTDIR=.\
 
 OBJS= \
 	$(INTDIR)\htmcalc.obj \
-	$(INTDIR)\latlong_distance_sorter.obj \
+	$(INTDIR)\latlong_distance_keymaker.obj \
 	$(INTDIR)\latlong_match_decider.obj \
 	$(INTDIR)\latlong_posting_source.obj \
 	$(INTDIR)\latlongcoord.obj \
@@ -22,7 +22,7 @@ OBJS= \
 
 SRCS= \
 	$(INTDIR)\htmcalc.cc \
-	$(INTDIR)\latlong_distance_sorter.cc \
+	$(INTDIR)\latlong_distance_keymaker.cc \
 	$(INTDIR)\latlong_match_decider.cc \
 	$(INTDIR)\latlong_posting_source.cc \
 	$(INTDIR)\latlongcoord.cc \
@@ -46,7 +46,7 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\libgeospatial.lib" : HEADERS $(INTDIR)\latlongparse_token.h "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
+"$(OUTDIR)\libgeospatial.lib" : $(INTDIR)\latlongparse_token.h "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libgeospatial.lib" $(DEF_FLAGS) $(OBJS)
 <<
@@ -68,5 +68,7 @@ $(INTDIR)\latlongparse_internal.cc $(INTDIR)\latlongparse_token.h: $(INTDIR)\lat
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.
