@@ -1,3 +1,8 @@
+Tue Jun 08 16:56:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/safewinsock2.h: Reword #error to avoid single quote which
+	  gives compilation warning with some GCC 4.2.1 on mingw.
+
 Tue Jun 08 14:32:28 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_check.h,backends/chert/chert_check.h,
