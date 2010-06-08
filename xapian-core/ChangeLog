@@ -1,3 +1,9 @@
+Tue Jun 08 16:02:18 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/harness/backendmanager_remotetcp.cc: Include <io.h> under
+	  __WIN32__, since Charlie Hull reports that it's needed for the
+	  call to _open_osfhandle.
+
 Tue Jun 08 15:55:28 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* common/safesyswait.h: Put contents of safesyswait.h back - the
