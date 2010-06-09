@@ -134,9 +134,10 @@ us (via the bug tracker or mailing lists).
 -fvisibility
 ------------
 
-When compiling with GCC >= 4.0, we automatically pass -fvisibility=hidden to
-g++ when building the library, and mark classes, methods, and functions which
-need exporting with attributes to make them visible.
+When compiling with GCC >= 4.0 for platforms which support symbol visibility,
+we automatically pass -fvisibility=hidden to g++ when building the library, and
+mark classes, methods, and functions which need exporting with attributes to
+make them visible.
 
 Should you wish to disable this for some reason, you can configure like so:
 

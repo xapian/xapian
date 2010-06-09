@@ -1,3 +1,13 @@
+Wed Jun 09 11:31:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac,include/xapian/visibility.h: Control use of
+	  GCC's visibility support with defined(XAPIAN_ENABLE_VISIBILITY)
+	  instead of !defined(XAPIAN_DISABLE_VISIBILITY), so it is only used
+	  when building the library, not when building code which uses it.
+	  Add check to configure that GCC actually supports visibility for
+	  the platform being built for, which fixes compiler warnings with
+	  platforms which don't (such as Mac OS X and mingw).
+
 Wed Jun 09 11:17:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: "private", etc as "access specifiers", not "visibility

@@ -763,7 +763,7 @@ AC_ARG_ENABLE(quiet,
   esac])
 
 AC_ARG_ENABLE(visibility,
-  [AS_HELP_STRING([--disable-visibility], [Disable use of GCC visibility [default=autodetect]])],
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
@@ -1032,11 +1032,17 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	if test no != "$enable_visibility"; then
+	  dnl GCC doesn't support symbol visibility on all platforms (notably
+	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	    AC_MSG_RESULT([yes])
+	    AC_DEFINE(XAPIAN_ENABLE_VISIBILITY, 1, [Define to enable use of visibility attributes])
+	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
