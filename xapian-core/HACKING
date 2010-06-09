@@ -1041,10 +1041,10 @@ to follow the style of the existing code.  In particular:
     };
 
   The rationale for this exception is that class definitions in header files
-  often have fairly long lines, so losing an indent level to the visibility
+  often have fairly long lines, so losing an indent level to the access
   specifier tends to make class definitions less readable.
 
-  The default visibility for a class is always "private", so there's no need
+  The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
   
     class Foo {
@@ -1065,7 +1065,7 @@ to follow the style of the existing code.  In particular:
     };
 
   If a class only contains public methods and data, consider declaring it as a
-  "struct" (the only difference in C++ is that the default visibility for a
+  "struct" (the only difference in C++ is that the default access for a
   struct is "public").
 
 * Put a space before the "(" after control flow constructs like "for", "if",
