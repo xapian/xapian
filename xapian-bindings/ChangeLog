@@ -1,3 +1,8 @@
+Wed Jun 09 13:36:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix cleaning of test directories to use "rm -rf"
+	  rather than "rm -f".
+
 Thu Jun 03 15:21:13 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am: Add missing
