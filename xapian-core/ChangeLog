@@ -1,3 +1,7 @@
+Wed Jun 09 11:04:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Note flex and bison needed to build doxygen.
+
 Wed Jun 09 05:25:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/win32_uuid.cc: Fix signed/unsigned comparison warning on
