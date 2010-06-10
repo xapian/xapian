@@ -343,7 +343,7 @@ class RSet {
 class MatchDecider {
   public:
     virtual bool operator() (const Xapian::Document &doc) const = 0;
-    virtual ~MatchDecider() { }
+    virtual ~MatchDecider();
 };
 
 /* MatchDecider and ExpandDecider are abstract classes, each only useful if it
@@ -357,7 +357,7 @@ class MatchDecider {
 class ExpandDecider {
   public:
     virtual bool operator() (const string &term) const = 0;
-    virtual ~ExpandDecider() { }
+    virtual ~ExpandDecider();
 };
 #endif
 

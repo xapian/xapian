@@ -1,3 +1,9 @@
+Thu Jun 10 04:26:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian.i: Change MatchDecider and ExpandDecider dtors to be
+	  declarations rather than empty definitions (should make no
+	  difference, but it's cleaner if they match the Xapian headers).
+
 Wed Jun 09 13:44:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian.i: Only mark Xapian::StemImplementation as a director class if
