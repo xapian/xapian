@@ -23,10 +23,11 @@ deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
 faster than with 1.1.x, but it's pretty unlikely you'll have an older version
 installed these days.
 
-Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
-(on Fedora, the package to install is e2fsprogs-devel).  This dependency isn't
-required on FreeBSD, NetBSD, and Microsoft Windows where we use built-in
-UUID functionality instead.
+Xapian 1.1.0 and higher also requires a library which can generate UUIDs.
+On FreeBSD, NetBSD, and Microsoft Windows, Xapian makes use of built-in UUID
+APIs.  On other platforms, you need to install libuuid which you can find in
+e2fsprogs (http://e2fsprogs.sourceforge.net/).  On Debian and Ubuntu, the
+package to install is uuid-dev, while on Fedora, it is e2fsprogs-devel.
 
 Compilers
 =========
