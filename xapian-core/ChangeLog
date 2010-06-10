@@ -1,3 +1,11 @@
+Thu Jun 10 00:21:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version_h.cc,
+	  include/xapian/visibility.h: We do need to have the visibility
+	  annotations on for code compiling against the library, so substitute
+	  the probed value of XAPIAN_ENABLE_VISIBILITY into <xapian/version.h>
+	  so it is available.
+
 Wed Jun 09 11:31:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL,configure.ac,include/xapian/visibility.h: Control use of
