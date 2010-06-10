@@ -1,3 +1,9 @@
+Thu Jun 10 15:14:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/safewinsock2.h: Reword #error to avoid single quote which
+	  gives compilation warning with some GCC 4.2.1 on mingw.
+
 Thu Jun 10 15:13:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
