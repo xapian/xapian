@@ -1,12 +1,132 @@
- 14488       olly Wed May 05 05:42:56 GMT 2010  Olly Betts <olly@survex.com>
+ 14681       olly Thu Jun 10 15:00:12 GMT 2010  Olly Betts <olly@survex.com>
 
  trunk only:
 
- 14485    richard Tue May 04 19:38:31 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* api/replication.cc,bin/xapian-replicate.cc,
-	  common/replicatetcpclient.h,common/replication.h,
-	  net/replicatetcpclient.cc,tests/api_replicate.cc: Fix a bug in
-	  replication, which triggered when multiple modifications were
+ 14672       olly Wed Jun 09 11:17:58 GMT 2010  Olly Betts <olly@survex.com>
+	* HACKING: "private", etc as "access specifiers", not "visibility
+	  specifiers".
+
+ 14671       olly Wed Jun 09 11:04:55 GMT 2010  Olly Betts <olly@survex.com>
+	* HACKING: Note flex and bison needed to build doxygen.
+
+ 14670       olly Wed Jun 09 05:25:10 GMT 2010  Olly Betts <olly@survex.com>
+	* common/win32_uuid.cc: Fix signed/unsigned comparison warning on
+	  mingw.
+
+ 14650       olly Mon Jun 07 02:16:30 GMT 2010  Olly Betts <olly@survex.com>
+	* AUTHORS: Add Arvid Ephraim Picciani for help fixing bootstrap for
+	  BusyBox sha1sum.
+
+ 14659       olly Mon Jun 07 16:31:24 GMT 2010  Olly Betts <olly@survex.com>
+	* api/maptermlist.h,api/matchspy.cc,api/termlist.cc,backends/brass/,
+	  backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h,
+	  backends/remote/net_termlist.cc,backends/remote/net_termlist.h,
+	  common/ortermlist.h,common/termlist.h,expand/ortermlist.cc: Remove
+	  default OrTermList::skip_to() implementation and implement skip_to()
+	  in each class instead, as this allows a slightly more efficient
+	  implementation, and also avoids problems with calling skip_to() as
+	  the first operation for the many subclasses which have a "started"
+	  flag, which OrTermList::skip_to() won't set.
+
+ 14676       olly Thu Jun 10 00:21:49 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac,include/xapian/version_h.cc,
+	  include/xapian/visibility.h: We do need to have the visibility
+	  annotations on for code compiling against the library, so substitute
+	  the probed value of XAPIAN_ENABLE_VISIBILITY into <xapian/version.h>
+	  so it is available.
+ 14673       olly Wed Jun 09 11:31:14 GMT 2010  Olly Betts <olly@survex.com>
+	* INSTALL,configure.ac,include/xapian/visibility.h: Control use of
+	  GCC's visibility support with defined(XAPIAN_ENABLE_VISIBILITY)
+	  instead of !defined(XAPIAN_DISABLE_VISIBILITY), so it is only used
+	  when building the library, not when building code which uses it.
+	  Add check to configure that GCC actually supports visibility for
+	  the platform being built for, which fixes compiler warnings with
+	  platforms which don't (such as Mac OS X and mingw).
+
+ 14632       olly Sun Jun 06 04:34:13 GMT 2010  Olly Betts <olly@survex.com>
+	* bin/Makefile.mk,configure.ac: Fix build failures with some
+	  combinations of backends disabled (partially addresses ticket#361).
+
+ 14623       olly Fri Jun 04 13:25:20 GMT 2010  Olly Betts <olly@survex.com>
+	* backends/Makefile.mk: Note need to update include/xapian/version_h.cc
+	  when adding a new backend.
+	* AUTHORS: Thanks to Conrad Hoffmann for pointing this omission out.
+
+	* common/,matcher/,weight/weightinternal.cc: Replace the still rather
+	  contorted mechanism for accumulating rel termfreqs for local
+	  databases with a simpler mechanism which is more efficient in both
+	  space and time.
+	* common/rset.h: Just keep a reference to the set<docid> from the
+	  Xapian::RSet object rather than copying it (since we now only
+	  create the RSetI object transiently, so the Xapian::RSet object
+	  is definitely valid for its whole lifetime).
+	* api/omenquire.cc,common/esetinternal.h,common/omenquireinternal.h,
+	  common/rset.h,expand/esetinternal.cc,matcher/rset.cc: RSetI is used
+	  when collating statistics prior to performing the match, and when
+	  generating an ESet.  The second use is entirely unnecessary and just
+	  ends up with us copying the std::set<Xapian::docid> from inside the
+	  Xapian::RSet object, so eliminate it and just use the Xapian::RSet
+	  object directly.  This allows RSetI to be simplified somewhat too.
+
+	 zlib
+	  can produce "uninitialised" output from "initialised" input - the
+	  output does decode to the input, so this is presumably just some
+	  unused bits in the output, so we use an LD_PRELOAD hack to get
+	  valgrind to check the input is initialised and then tell it that the
+	  output is initialised.
+
+	   Add the ability to specify your own stemming
+	  algorithm by subclassing Xapian::StemImplementation, mostly based on
+	  patch from Evgeny Sizikov in ticket#448.
+
+* Debug logging fully transitioned to newer debuglog.h interface and omdebug.h
+  compatibility header removed.
+
+* Drop support for --enable-log=profile - dedicated profiling tools are likely
+  to return more useful results.
+
+* Add new pretty printer for values reported by calls and returns in debug
+  logging - in particular, strings are now reported with non-printable
+  characters escaped.
+
+* Debug logging should have less runtime overhead when built in but not in use.
+
+	* bin/Makefile.mk,bin/xapian-check.cc,bin/xapian-compact.cc: Improve
+	  building with flint, chert and/or brass disabled (partially addresses
+	  ticket#361).
+	* matcher/multimatch.cc: Fix warnings with --disable-backend-remote
+	  (partially addresses ticket#361).
+
+	* tests/soaktest/: Add a "soaktest" testsuite, intended to contain
+	  long-running tests with random data.  Currently contains a single
+	  test which builds and runs random queries, checking that the
+	  results returned are consistent when asking for different result
+	  ranges.
+
+ 14515    richard Thu May 06 15:03:43 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* tests/api_replicate.cc: Add some extra debugging, to help
+	  identify the problem with ticket #472.
+
+	* common/safeuuid.h,configure.ac,INSTALL: Make use of built-in UUID API
+	  on FreeBSD and NetBSD.  (ticket#470)
+
+* tests/harness/fdtracker.cc: Don't pass NULL to closedir(). [portability]
+
+	* tests/api_anydb.cc: Test UUID is 36 characters long.
+
+ * Implement ValueRangePostList and
+	  ValueGePostList using a ValueList streaming values for the value
+	  slot of interest, rather than using an AllDocsPostList to get all
+	  documents, using that to open temporary documents for each
+	  document being considered, and then using that to get the value.
+	  I've observed a speedup of more than 70 times for range queries
+	  in a real-world situation with this change (a 29 second search
+	  became a 0.4 second search). (ticket#432)
+
+* Fix a bug in replication, which triggered when multiple modifications were
 	  made to a database while a full copy of the database was in
 	  progress.  In this situation, the client would fail to apply more
 	  than one changeset before trying (and failing) to make the
@@ -22,36 +142,27 @@
 	  A test for these changes will be committed to xapian-bindings
 	  shortly.
 
- 14467       olly Sat May 01 15:25:48 GMT 2010  Olly Betts <olly@survex.com>
-	* Merge change accidentally committed to brass-btree branch:
 	* tests/perftest/runprocess.cc: Use safesyswait.h, fixing build failure
 	  on "make check" on FreeBSD.
 
- 14463    richard Fri Apr 30 12:33:25 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* backends/brass/brass_databasereplicator.cc,
-	  backends/chert/chert_databasereplicator.cc,
-	  backends/flint/flint_databasereplicator.cc,tests/api_replicate.cc:
 	  If a DB file doesn't exist when applying a changeset, try
 	  creating it - this happens with lazy tables which aren't created
 	  in the initial revision copied.  Add replicate4 test to check
 	  that this works correctly with a lazily created position table.
 	  Fixes ticket #468.
 
- 14462       olly Fri Apr 30 07:09:31 GMT 2010  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst: Replication and PostingSource aren't
-	  experimental in 1.2.x.
+* docs/deprecation.rst,docs/replication.rst: Replication and PostingSource
+  aren't experimental in 1.2.x.
 
- 14461       olly Fri Apr 30 00:52:22 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/harness/testsuite.cc: Fix typo in previous commit.
-
- 14460       olly Thu Apr 29 23:46:09 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
+* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
 	  using it as it isn't available everywhere.  Fixes FTBFS on GNU Hurd.
 
- 14459       olly Thu Apr 29 12:11:48 GMT 2010  Olly Betts <olly@survex.com>
-	* configure.ac: Install headers under PREFIX/include not
+* configure.ac: Install headers under PREFIX/include not
 	  PREFIX/include/xapian.  This broke compiling code which didn't use
 	  XO_LIB_XAPIAN or xapian-config.
+
+ 14678       olly Thu Jun 10 01:08:21 GMT 2010  Olly Betts <olly@survex.com>
+	* HACKING: libtool 2.2.10 used for snapshots and releases now.
 
 Xapian-core 1.2.0 (2010-04-28):
 
@@ -410,7 +521,7 @@ documentation:
 portability:
 
 * Fix code to compile with Sun's C++ compiler.
- 
+
 * Fix our uuid_unparse_lower() replacement for older libuuid to actually
   compile (really fixes ticket#368).
 
