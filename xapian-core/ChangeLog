@@ -1,3 +1,10 @@
+Thu Jun 10 15:08:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Rename TermList class to Terms to
+	  avoid confusion with the TermList typedef used elsewhere.  Add
+	  documentation comments for Terms and TermGroup classes.
+
 Sun Jun 06 12:05:15 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

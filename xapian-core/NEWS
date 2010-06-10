@@ -1,13 +1,16 @@
- 14592       olly Tue Jun 01 11:35:37 GMT 2010  Olly Betts <olly@survex.com>
+ 14609       olly Thu Jun 03 07:44:44 GMT 2010  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.21 (2010-06-??):
 
 
 API:
 
+* Xapian::Stem now recognises "nb" and "nn" as additional codes for the
+  Norwegian stemmer.
 
 testsuite:
 
+* Improve test coverage of OP_VALUE_RANGE.
 
 matcher:
 
@@ -25,6 +28,9 @@ matcher:
 	  value of 0 to children of XOR postlists, because we need to know
 	  about all matching documents from the children even if they have
 	  a low weight.
+	* matcher/: Implement MultiXorPostList which returns correct weights
+	  for XOR of more than 2 subqueries, and drop XorPostList completely.
+	  (ticket#475)
 
 	* Add OrPostList::check() method, which calls check() on the
 	  sub-postlists, rather than falling back to skip_to().  This is
@@ -57,6 +63,9 @@ inmemory backend:
 
 build system:
 
+	* AUTHORS,Makefile.am,cmake/,configure.ac: Install files to make Xapian
+	  easier to use with cmake.  Thanks to Sune Vuorela for providing the
+	  desired output.
 
 documentation:
 
