@@ -49,7 +49,7 @@ class BtreeCheck : public FlintTable {
 	void print_spaces(int n) const;
 	void print_bytes(int n, const byte * p) const;
 
-	mutable std::ostream &out;
+	std::ostream &out;
 };
 
 #define OPT_SHORT_TREE  1

@@ -1,3 +1,10 @@
+Thu Jun 10 15:13:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_check.h,backends/quartz/btreecheck.h: Remove
+	  mutable from std::ostream & member - mutable doesn't make sense for a
+	  reference.
+
 Thu Jun 10 15:08:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
