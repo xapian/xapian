@@ -1,3 +1,7 @@
+Fri Jun 11 08:21:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Put SSE flags in AM_CXXFLAGS not CXXFLAGS.
+
 Fri Jun 11 07:08:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Default to building with SSE FP instructions for x86.

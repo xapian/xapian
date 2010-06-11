@@ -366,7 +366,7 @@ case $host_cpu in
       AC_MSG_RESULT([no])
     elif test yes = "$GXX"; then
       AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-      CXXFLAGS="$CXXFLAGS -mfpmath=sse -msse2 -mtune=generic -march=pentium4"
+      AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic -march=pentium4"
     else
       AC_MSG_RESULT([don't know how to for compiler $CXX])
     fi
