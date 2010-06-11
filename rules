@@ -113,7 +113,7 @@ maintclean: clean
 	rm -rf debian/libxapian$(libxapian_dev_soversion)-dev
 	rm -rf debian/xapian-doc
 	rm -rf debian/xapian-tools
-	rm -rf debian/tmp
+	rm -rf debian/tmp debian/tmp-sse2
 
 debian/control: debian/rules debian/control.in debian/compat debian/patches/series
 	rm -f debian/control.tmp
@@ -124,7 +124,12 @@ debian/control: debian/rules debian/control.in debian/compat debian/patches/seri
 	mv debian/control.tmp debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
+ifeq ($(DEB_HOST_ARCH), i386)
+	echo usr/lib/sse2 | cat debian/libxapianVERSION.install - > debian/debian/libxapian$(libxapian_soversion).install~
+	mv -f debian/debian/libxapian$(libxapian_soversion).install~ debian/libxapian$(libxapian_soversion).install
+else
 	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
+endif
 
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
@@ -146,7 +151,13 @@ configure-stamp: debian/control
 
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build
+ifeq ($(DEB_HOST_ARCH), i386)
+	cd build && ../configure $(confflags) --disable-sse
+	mkdir -p build-sse2
+	cd build-sse2 && ../configure $(confflags) --disable-static
+else
 	cd build && ../configure $(confflags)
+endif
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -155,7 +166,12 @@ build: build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build
+ifeq ($(DEB_HOST_ARCH), i386)
+	$(MAKE) -C build-sse2
+	$(MAKE_CHECK) -C build-sse2
+else
 	$(MAKE_CHECK) -C build
+endif
 	touch $@
 
 install: DH_OPTIONS=
@@ -169,6 +185,12 @@ install: build \
 
 	# Install the files into debian/tmp
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+ifeq ($(DEB_HOST_ARCH), i386)
+	$(MAKE) -C build-sse2 DESTDIR=$(CURDIR)/debian/tmp-sse2 install
+	mkdir $(CURDIR)/debian/tmp/usr/lib/sse2
+	mv $(CURDIR)/debian-sse2/tmp/usr/lib/libxapian*.so.* $(CURDIR)/debian/tmp/usr/lib/sse2
+	rm -rf $(CURDIR)/debian/tmp-sse2
+endif
 
 	# Empty dependency_libs to placate luddite release goal.
 	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian.la
@@ -222,7 +244,7 @@ binary-arch: build install
 clean: debian/control unpatch
 	dh_testdir
 	dh_testroot
-	rm -rf build
+	rm -rf build build-sse2
 	rm -f config.sub config.guess
 	dh_clean
 
