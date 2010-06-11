@@ -1,3 +1,10 @@
+Fri Jun 11 15:19:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Add topercent5 testcase which checks that
+	  an OR search including an non-existent term doesn't get 100%, and
+	  that the non-existent term doesn't score more than terms which do
+	  exist.
+
 Fri Jun 11 14:15:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: When using SSE FP instructions on x86 we
