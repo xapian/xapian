@@ -1,3 +1,9 @@
+Fri Jun 11 07:08:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default to building with SSE FP instructions for x86.
+	  This avoids issues with excess precision and it a bit faster too.
+	  Should fix ticket#487.
+
 Thu Jun 10 15:15:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

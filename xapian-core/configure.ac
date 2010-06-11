@@ -349,6 +349,32 @@ dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
 AC_SUBST(ANSI_CXXFLAGS)
 
+dnl x86 has excess precision issues with 387 FP instructions, which are
+dnl avoided by using SSE instructions instead.  This is also faster (~6% in
+dnl a CPU bound testcase).
+AC_ARG_ENABLE([sse],
+  [AS_HELP_STRING([--disable-sse], [disable use of SSE FP instructions (only affects x86)])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
+  esac])
+
+AC_MSG_CHECKING([whether to use SSE instructions on x86])
+case $host_cpu in
+  i*86)
+    if test "$enable_sse" = no ; then
+      AC_MSG_RESULT([no])
+    elif test yes = "$GXX"; then
+      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+      CXXFLAGS="$CXXFLAGS -mfpmath=sse -msse2 -mtune=generic -march=pentium4"
+    else
+      AC_MSG_RESULT([don't know how to for compiler $CXX])
+    fi
+    ;;
+  *)
+    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
+esac
+
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
