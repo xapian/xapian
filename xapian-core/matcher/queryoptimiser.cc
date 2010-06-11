@@ -244,7 +244,7 @@ struct CmpMaxOrTerms {
 	if (a->get_termfreq_max() == 0) return false;
 	if (b->get_termfreq_max() == 0) return true;
 
-#if defined(__i386__) || defined(__mc68000__)
+#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
 	// If the two get_maxweight() calls below return identical values in a

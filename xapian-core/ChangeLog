@@ -1,3 +1,18 @@
+Fri Jun 11 15:52:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Default to building with SSE FP instructions for x86.
+	  This avoids issues with excess precision and it a bit faster too.
+	  Should fix ticket#487.
+	* configure.ac: Put SSE flags in AM_CXXFLAGS not CXXFLAGS.
+	* matcher/queryoptimiser.cc: When using SSE FP instructions on x86 we
+	  can disable the use of volatile since there are no excess precision
+	  issues to work around.
+	* configure.ac: -march=pentium4 doesn't seem to give a measurable
+	  speed-up or size reduction (from Richard's tests) and it carries a
+	  small risk of introducing instructions which don't work on some
+	  obscure CPU which implements SSE2, so drop it.
+
 Thu Jun 10 15:14:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
