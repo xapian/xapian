@@ -1,8 +1,12 @@
 xapian-core (1.2.0-4) UNRELEASED; urgency=low
 
   * Drop quilt dependencies now we're using source format "3.0 (quilt)".
+  * On i386, build both SSE2 and i386 versions of the library.  The main
+    motivation is correctness (excess precision from 387 FP instructions
+    can cause inconsistencies in weight calculations) but the SSE2 build
+    is faster too (~6%).
 
- -- Olly Betts <olly@survex.com>  Thu, 06 May 2010 05:00:42 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 11 Jun 2010 12:35:08 +0000
 
 xapian-core (1.2.0-3) experimental; urgency=low
 
