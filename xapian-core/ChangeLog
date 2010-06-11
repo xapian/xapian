@@ -1,3 +1,15 @@
+Fri Jun 11 15:25:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc: Stop forcing the wdf_max value to be at least
+	  one in BM25Weight::get_maxpart() - this is no longer needed now we
+	  calculate percentages based on the number of matching subqueries, and
+	  it is more natural for a non-existent term to get zero weight (ditto
+	  for a term which always has wdf = 0.
+	* tests/api_anydb.cc: Change qterminfo1 to check that a non-existent
+	  term gets zero weight (previously we checked that it got a non-zero
+	  weight, but really we want to ensure that it contributes to
+	  percentage calculations, which new test topercent5 now does).
+
 Fri Jun 11 15:19:29 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_percentages.cc: Add topercent5 testcase which checks that
