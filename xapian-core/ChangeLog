@@ -1,3 +1,9 @@
+Fri Jun 11 14:15:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: When using SSE FP instructions on x86 we
+	  can disable the use of volatile since there are no excess precision
+	  issues to work around.
+
 Fri Jun 11 08:21:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Put SSE flags in AM_CXXFLAGS not CXXFLAGS.
