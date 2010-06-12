@@ -1,3 +1,9 @@
+Sat Jun 12 09:04:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_percentages.cc: Add topercent5 testcase which checks that
+	  an OR search including an non-existent term doesn't get 100%.
+
 Fri Jun 11 15:52:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

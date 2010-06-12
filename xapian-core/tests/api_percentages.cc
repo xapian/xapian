@@ -1,8 +1,8 @@
 /** @file api_percentages.cc
  * @brief Tests of percentage calculations.
  */
-/* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009 Lemur Consulting Ltd
+ * Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,5 +110,17 @@ DEFINE_TESTCASE(topercent3, remote) {
 	TEST_REL(i.get_percent(),<,100);
     }
 
+    return true;
+}
+
+/// Test that a search with a non-existent term doesn't get 100%.
+DEFINE_TESTCASE(topercent5, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Query q(Xapian::Query::OP_OR,
+		    Xapian::Query("paragraph"), Xapian::Query("xyzzy"));
+    enquire.set_query(q);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+    TEST(!mset.empty());
+    TEST(mset[0].get_percent() < 100);
     return true;
 }
