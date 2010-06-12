@@ -1,3 +1,9 @@
+Sat Jun 12 11:57:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix testcase weight_normalise - for a
+	  non-existent term, get_max_possible() can now return zero so you
+	  can't calculate the reciprocal of it.
+
 Sat Jun 12 06:25:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/util.i: Add workaround so xapian.BAD_VALUENO is a constant
