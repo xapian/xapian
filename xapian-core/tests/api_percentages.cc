@@ -251,7 +251,9 @@ DEFINE_TESTCASE(topercent5, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
     TEST(mset[0].get_percent() < 100);
-    // It would be odd if the non-existent term was worth more!
+    // It would be odd if the non-existent term was worth more, but in 1.0.x
+    // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
+    // better, but >50% would be more natural.
     TEST(mset[0].get_percent() >= 50);
     return true;
 }
