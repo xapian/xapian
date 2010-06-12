@@ -41,6 +41,13 @@ def test_all():
     v2 = xapian.version_string()
     expect(v2, v, "Unexpected version output")
 
+    def access_cvar():
+        return xapian.cvar
+
+    # Check that SWIG isn't generated cvar (regression test for ticket#297).
+    expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
+                     access_cvar)
+
     stem = xapian.Stem("english")
     expect(str(stem), "Xapian::Stem(english)", "Unexpected str(stem)")
 

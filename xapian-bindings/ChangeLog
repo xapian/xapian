@@ -1,3 +1,10 @@
+Sat Jun 12 06:25:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/util.i: Add workaround so xapian.BAD_VALUENO is a constant
+	  rather than variable which can't be written to. (ticket#297)
+	* python/smoketest2.py: Add regression test for this by checking that
+	  xapian.cvar doesn't exist.
+
 Thu Jun 10 04:26:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian.i: Change MatchDecider and ExpandDecider dtors to be
