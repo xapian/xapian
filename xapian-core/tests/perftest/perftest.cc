@@ -191,9 +191,12 @@ get_distro()
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
-    distro = "MSWin32 v" + str(osvi.dwMajorVersion) + "." +
-	    str(osvi.dwMinorVersion) + "." +
-	    str(osvi.dwBuildNumber);
+    distro = "Microsoft Windows v";
+    distro += str(osvi.dwMajorVersion);
+    distro += '.';
+    distro += str(osvi.dwMinorVersion);
+    distro += '.';
+    distro += str(osvi.dwBuildNumber);
 #else
     try {
 	distro = stdout_to_string("perftest/get_machine_info 2>/dev/null");
