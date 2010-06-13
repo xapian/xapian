@@ -46,7 +46,7 @@
 
 #ifdef __WIN32__
 # include "safewindows.h"
-#endif 
+#endif
 
 /* Tested on:
  * Linux, FreeBSD, IRIX, HP-UX, Microsoft Windows.
@@ -68,7 +68,7 @@ get_free_physical_memory()
      */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_PHYS_PAGES);
-#elif defined HAVE_SYSMP 
+#elif defined HAVE_SYSMP
     /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
     struct rminfo meminfo;
     if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
@@ -129,7 +129,7 @@ get_total_physical_memory()
     /* Linux: */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_PHYS_PAGES);
-#elif defined HAVE_SYSMP 
+#elif defined HAVE_SYSMP
     /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
     struct rminfo meminfo;
     if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
