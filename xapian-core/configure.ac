@@ -662,6 +662,7 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
+use_win32_uuid_api=0
 case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 *yes*)
   dnl We use zlib for compressing tags in brass/chert/flint.  We could
@@ -690,28 +691,35 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Find the UUID library (from e2fsprogs, not the OSSP one).
 
-  dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
-  AC_CHECK_HEADERS([uuid/uuid.h], [
-    dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
-    SAVE_LIBS=$LIBS
-    LIBS=
-    AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-      AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-      ])
-    if test x != x"$LIBS" ; then
-      XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
-    fi
-  ], [
-    dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
-    AC_CHECK_HEADERS([uuid.h], [
-      dnl Check for uuid_create with no extra libraries required.
-      AC_CHECK_FUNC([uuid_create], [], [
-	AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-      ])
-    ], [
-      AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-    ], [ ])
-  ], [ ])
+  case $host_os in
+    *mingw* | *cygwin*) dnl Use built-in API.
+      use_win32_uuid_api=1
+      ;;
+    *)
+      dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+      AC_CHECK_HEADERS([uuid/uuid.h], [
+	dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+	SAVE_LIBS=$LIBS
+	LIBS=
+	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  ])
+	if test x != x"$LIBS" ; then
+	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+	fi
+      ], [
+	dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+	AC_CHECK_HEADERS([uuid.h], [
+	  dnl Check for uuid_create with no extra libraries required.
+	  AC_CHECK_FUNC([uuid_create], [], [
+	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  ])
+	], [
+	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	], [ ])
+      ], [ ])
+      ;;
+  esac
 
   dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
   dnl uuid_unparse_lower(), only uuid_unparse().
@@ -724,6 +732,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   LIBS=$SAVE_LIBS
   ;;
 esac
+AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
