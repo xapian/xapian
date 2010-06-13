@@ -1,3 +1,8 @@
+Sun Jun 13 11:55:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Merge in __WIN32__ implementation from perftest in
+	  xapian-core.
+
 Fri May 14 01:39:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* freemem.cc: Use "safeunistd.h" instead of <unistd.h>.
