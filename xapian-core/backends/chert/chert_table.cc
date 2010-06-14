@@ -2012,6 +2012,8 @@ ChertTable::cancel()
 
     latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 
+    Btree_modified = false;
+
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].rewrite = false;

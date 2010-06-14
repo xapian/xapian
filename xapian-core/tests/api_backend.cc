@@ -637,3 +637,23 @@ DEFINE_TESTCASE(orcheck1, generated) {
 
     return true;
 }
+
+/** Regression test for bug fixed in 1.2.1 and 1.0.21.
+ *
+ *  We failed to mark the Btree as unmodified after cancel().
+ */
+DEFINE_TESTCASE(failedadd1, brass || chert || flint) {
+    Xapian::WritableDatabase db(get_writable_database());
+    Xapian::Document doc;
+    doc.add_term("foo");
+    db.add_document(doc);
+    Xapian::docid did = db.add_document(doc);
+    doc.add_term("abc");
+    doc.add_term(string(1000, 'm'));
+    doc.add_term("xyz");
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(did, doc));
+    db.commit();
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_termfreq("foo"), 0);
+    return true;
+}
