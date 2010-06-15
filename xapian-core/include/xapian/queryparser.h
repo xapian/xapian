@@ -444,13 +444,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		   calling get_msg() on the caught exception.  The current
      *		   possible values (in case you want to translate them) are:
      *
-     *			* Unknown range operation
-     *			* parse error
-     *			* Syntax: <expression> AND <expression>
-     *			* Syntax: <expression> AND NOT <expression>
-     *			* Syntax: <expression> NOT <expression>
-     *			* Syntax: <expression> OR <expression>
-     *			* Syntax: <expression> XOR <expression>
+     *			@li Unknown range operation
+     *			@li parse error
+     *			@li Syntax: <expression> AND <expression>
+     *			@li Syntax: <expression> AND NOT <expression>
+     *			@li Syntax: <expression> NOT <expression>
+     *			@li Syntax: <expression> OR <expression>
+     *			@li Syntax: <expression> XOR <expression>
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
