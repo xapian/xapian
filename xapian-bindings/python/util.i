@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2009 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@
 
 /* Include overrides for the documentation comments. */
 %include "extracomments.i"
-
 
 // Use SWIG directors for Python wrappers.
 #define XAPIAN_SWIG_DIRECTORS
@@ -71,6 +70,12 @@ namespace Xapian {
 
 /* We replace the get_hit() method with one which returns an MSetitem. */
 %rename(_get_hit_internal) Xapian::MSet::get_hit;
+
+/* Force xapian.BAD_VALUENO to be handled as a constant rather than a
+ * read-only variable (ticket#297).
+ */
+%ignore Xapian::BAD_VALUENO;
+%constant Xapian::valueno BAD_VALUENO = Xapian::BAD_VALUENO;
 
 %{
 namespace Xapian {

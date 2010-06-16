@@ -1,3 +1,11 @@
+Wed Jun 16 04:40:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/util.i: Add workaround so xapian.BAD_VALUENO is a constant
+	  rather than variable which can't be written to. (ticket#297)
+	* python/smoketest2.py: Add regression test for this by checking that
+	  xapian.cvar doesn't exist.
+
 Tue Apr 27 13:02:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.20.
