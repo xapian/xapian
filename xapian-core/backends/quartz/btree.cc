@@ -1768,6 +1768,8 @@ Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision
 	next_ptr = &Btree::next_default;
     }
 
+    Btree_modified = false;
+
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].p = new byte[block_size];
