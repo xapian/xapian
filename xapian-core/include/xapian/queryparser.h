@@ -392,7 +392,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /** Get the current default operator. */
     Query::op get_default_op() const;
 
-    /// Specify the database being searched.
+    /** Specify the database being searched.
+     *
+     *  The database is used for wildcard expansion (FLAG_WILDCARD and
+     *  FLAG_PARTIAL), spelling correction (FLAG_SPELLING_CORRECTION), and
+     *  synonyms (FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and
+     *  FLAG_AUTO_MULTIWORD_SYNONYMS).
+     */
     void set_database(const Database &db);
 
     /** Parse a query.
