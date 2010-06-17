@@ -211,7 +211,10 @@ class State {
 	    if (valno != Xapian::BAD_VALUENO) {
 		delete a;
 		delete b;
-		q = Query(Query::OP_VALUE_RANGE, valno, start, end);
+		if (end.empty())
+		    q = Query(Query::OP_VALUE_GE, valno, start);
+		else
+		    q = Query(Query::OP_VALUE_RANGE, valno, start, end);
 		return valno;
 	    }
 	}
@@ -639,23 +642,26 @@ just_had_synonym_operator:
 	    unsigned ch = 0;
 	    while (p != end) {
 		if (ch == '.' && *p == '.') {
-		    ++p;
-		    if (p == end || *p <= ' ' || *p == ')') break;
-
 		    string r;
-		    do {
+		    while (it != p) {
 			Unicode::append_utf8(r, *it++);
-		    } while (it != p);
-		    // Trim off the trailing "..".
-		    r.resize(r.size() - 2);
-		    Parse(pParser, RANGE_START, new Term(r), &state);
-		    r.resize(0);
-		    // Allow any character except whitespace and ')' in a
-		    // RANGE_END.  Or should we be consistent with RANGE_START?
-		    do {
-			Unicode::append_utf8(r, *p++);
-		    } while (p != end && *p > ' ' && *p != ')');
-		    Parse(pParser, RANGE_END, new Term(r), &state);
+		    }
+		    // Trim off the trailing ".".
+		    r.resize(r.size() - 1);
+		    ++p;
+		    // Either end of the range can be empty (for an open-ended
+		    // range) but both can't be empty.
+		    if (!r.empty() || (p != end && *p > ' ' && *p != ')')) {
+			Parse(pParser, RANGE_START, new Term(r), &state);
+			r.resize(0);
+			// Allow any character except whitespace and ')' in a
+			// RANGE_END.  Or should we be consistent with
+			// RANGE_START?
+			while (p != end && *p > ' ' && *p != ')') {
+			    Unicode::append_utf8(r, *p++);
+			}
+			Parse(pParser, RANGE_END, new Term(r), &state);
+		    }
 		    it = p;
 		    goto main_lex_loop;
 		}

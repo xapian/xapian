@@ -1,3 +1,7 @@
+Thu Jun 17 13:00:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Missing changes from previous commit.
+
 Thu Jun 17 11:37:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/valuerangeproc.cc: Add support for open-ended ranges
