@@ -988,6 +988,8 @@ phrased_term:
 			++p;
 			if (p == end || !is_wordchar(*p)) {
 			    it = p;
+			    // Drop out of IN_GROUP if we are in it.
+			    mode = DEFAULT;
 			    // Wildcard at end of term (also known as
 			    // "right truncation").
 			    Parse(pParser, WILD_TERM, term_obj, &state);

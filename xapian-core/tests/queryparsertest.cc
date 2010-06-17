@@ -886,6 +886,9 @@ static bool test_qp_flag_wildcard1()
     // Check empty wildcard followed by negation.
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
+    // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
+    qobj = qp.parse_query("abc muscl* main", flags);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) AND (muscle:(pos=2) SYNONYM musclebound:(pos=2)) AND main:(pos=3)))");
     return true;
 #endif
 }
