@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -70,6 +70,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
   private:
     /// Don't allow assignment.
     void operator=(const Weight &);
+
+    /// Don't allow copying.
+    Weight(const Weight &);
 
     /// A bitmask of the statistics this weighting scheme needs.
     stat_flags stats_needed;
@@ -248,9 +251,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     }
 
   protected:
-    /// Only allow subclasses to copy us.
-    Weight(const Weight &);
-
     /// Default constructor, needed by subclass constructors.
     Weight() : stats_needed() { }
 

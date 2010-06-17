@@ -1,3 +1,10 @@
+Thu Jun 17 14:04:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Xapian::Weight's copy ctor is now
+	  private rather than protected.  This is an API and ABI compatible
+	  change since there's no definition so a subclass which tried to
+	  access it before would fail to link.
+
 Thu Jun 17 13:00:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Missing changes from previous commit.
