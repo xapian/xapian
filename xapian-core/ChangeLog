@@ -1,3 +1,10 @@
+Thu Jun 17 11:37:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/valuerangeproc.cc: Add support for open-ended ranges
+	  (ticket#480).
+	* docs/queryparser.html,docs/valueranges.rst: Document.
+	* tests/queryparsertest.cc: Add feature tests.
+
 Thu Jun 17 06:15:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Switch out of IN_GROUP mode when we
