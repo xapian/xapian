@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.21.0  Fri Jun 18 16:41:32 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.0.21.
+
 1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
 	[Changes contributed by Olly Betts]
 	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
