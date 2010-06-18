@@ -547,8 +547,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
+     *  @param exclusive If true, each document can have at most one value of
+     *			 the field, so Xapian should combine multiple values
+     *			 with OP_OR.  If false, each document can have multiple
+     *			 values of the field, so Xapian combine them with
+     *			 OP_AND, as we would with filters with different
+     *			 prefixes.
      */
-    void add_boolean_prefix(const std::string & field, const std::string &prefix);
+    void add_boolean_prefix(const std::string &field, const std::string &prefix,
+			    bool exclusive = true);
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;

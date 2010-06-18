@@ -590,6 +590,13 @@ static const test test_or_queries[] = {
     { "site:1 OR site:2", "(0 * H1 OR 0 * H2)" },
     { "site:1 AND site:2", "(0 * H1 AND 0 * H2)" },
     { "foo AND site:2", "(Zfoo:(pos=1) AND 0 * H2)" },
+    // Non-exclusive boolean prefixes feature tests (ticket#402):
+    { "category:1 category:2", "0 * (XCAT1 AND XCAT2)" },
+    { "category:1 site2:2", "0 * (J2 AND XCAT1)" },
+    { "category:1 category:2 site2:2", "0 * (J2 AND XCAT1 AND XCAT2)" },
+    { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
+    { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
+    { "foo AND category:2", "(Zfoo:(pos=1) AND 0 * XCAT2)" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
@@ -629,7 +636,7 @@ static bool test_queryparser1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_boolean_prefix("authortitle", "B");
     );
@@ -2108,7 +2115,7 @@ static bool test_qp_near1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     queryparser.set_default_op(Xapian::Query::OP_NEAR);
     for (const test *p = test_near_queries; p->query; ++p) {
 	string expect, parsed;

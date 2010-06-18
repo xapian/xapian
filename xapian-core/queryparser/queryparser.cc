@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -126,18 +126,20 @@ void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
     Assert(internal.get());
-    internal->add_prefix(field, prefix, false);
+    internal->add_prefix(field, prefix, NON_BOOLEAN);
 }
 
 void
-QueryParser::add_boolean_prefix(const string &field, const string &prefix)
+QueryParser::add_boolean_prefix(const string &field, const string &prefix,
+				bool exclusive)
 {
     Assert(internal.get());
     // Don't allow the empty prefix to be set as boolean as it doesn't
     // really make sense.
     if (field.empty())
 	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
-    internal->add_prefix(field, prefix, true);
+    filter_type type = (exclusive ? BOOLEAN_EXCLUSIVE : BOOLEAN);
+    internal->add_prefix(field, prefix, type);
 }
 
 TermIterator

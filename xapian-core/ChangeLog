@@ -1,3 +1,14 @@
+Fri Jun 18 05:52:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h:
+	  Add new optional parameter to QueryParser::add_boolean_prefix() to
+	  allow the user to indicate a prefix isn't "exclusive" and that
+	  OP_AND should be used to combine multiple instances.  Fixes
+	  ticket#402.  This change should also improve efficiency as it
+	  avoids copying the lists of prefixes and compares them more
+	  efficiently.
+
 Fri Jun 18 02:51:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Fix doccomment typo.

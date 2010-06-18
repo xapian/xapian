@@ -1,7 +1,7 @@
 /* queryparser_internal.h: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006,2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,16 +35,18 @@ using namespace std;
 
 class State;
 
+typedef enum { NON_BOOLEAN, BOOLEAN, BOOLEAN_EXCLUSIVE } filter_type;
+
 /** Information about how to handle a prefix in the query string. */
 struct PrefixInfo {
-    /// Is this a boolean filter prefix?
-    bool filter;
+    /// The type of this prefix.
+    filter_type type;
 
     /// Prefix strings.
     list<string> prefixes;
 
-    PrefixInfo(bool filter_, const string & prefix)
-	: filter(filter_)
+    PrefixInfo(filter_type type_, const string & prefix)
+	: type(type_)
     {
 	prefixes.push_back(prefix);
     }
@@ -74,7 +76,8 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
     string corrected_query;
 
-    void add_prefix(const string &field, const string &prefix, bool filter);
+    void add_prefix(const string &field, const string &prefix,
+		    filter_type type);
 
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 			   bool &was_acronym);
