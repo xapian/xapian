@@ -1,3 +1,7 @@
+Fri Jun 18 02:51:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix doccomment typo.
+
 Thu Jun 17 14:04:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Xapian::Weight's copy ctor is now
