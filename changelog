@@ -5,8 +5,10 @@ xapian-core (1.2.0-4) UNRELEASED; urgency=low
     motivation is correctness (excess precision from 387 FP instructions
     can cause inconsistencies in weight calculations) but the SSE2 build
     is faster too (~6%).
+  * debian/rules: Try re-enabling optimisation on alpha - it's been more
+    than a year.
 
- -- Olly Betts <olly@survex.com>  Fri, 11 Jun 2010 12:35:08 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 18 Jun 2010 03:05:37 +0000
 
 xapian-core (1.2.0-3) experimental; urgency=low
 
