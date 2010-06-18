@@ -1,3 +1,9 @@
+Omega 1.0.21 (2010-05-18):
+
+portability:
+
+* Fix build failure in freemem.cc on Microsoft Windows.
+
 Omega 1.0.20 (2010-04-27):
 
 portability:
