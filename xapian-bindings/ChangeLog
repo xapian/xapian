@@ -1,3 +1,13 @@
+Fri Jun 18 16:23:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/pythontest2.py,python/test_xapian_star.py: Add a test that
+	  "from xapian import *" works - unfortunately, this requires a
+	  separate file, since the syntax is only valid at module level,
+	  and we don't want to pollute the namespace of the rest of the
+	  tests.  This is regression test for trunk, but here it just
+	  improves test coverage as this worked already.
+
 Wed Jun 16 04:40:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
