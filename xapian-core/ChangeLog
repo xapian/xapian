@@ -1,3 +1,8 @@
+Fri Jun 18 07:05:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Fix doccomment typo.
+
 Thu Jun 17 06:28:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

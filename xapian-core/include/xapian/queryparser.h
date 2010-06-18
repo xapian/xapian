@@ -92,7 +92,7 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
     /** Check for a valid range of this type.
      *
      *  If this ValueRangeProcessor recognises BEGIN..END it returns the
-     *  value number of range filter on.  Otherwise it returns
+     *  value number to range filter on.  Otherwise it returns
      *  Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
