@@ -1,3 +1,14 @@
+Xapian-bindings 1.0.21 (2010-06-18):
+
+Python:
+
+* xapian.BAD_VALUENO is now wrapped as a constant rather than variable which
+  can't be written to. (ticket#297)
+
+* Fix cleaning of test directories to use "rm -rf" rather than "rm -f".
+
+* Add test to check that "from xapian import *" works.
+
 Xapian-bindings 1.0.20 (2010-04-27):
 
 Python:
