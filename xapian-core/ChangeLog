@@ -1,3 +1,12 @@
+Mon Jun 21 15:15:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Unix putenv() requires the buffer passed to
+	  remain valid, as it stores it directly in the environment.  It's
+	  unclear from MSDN if _putenv() does the same, but _putenv_s() must
+	  allocate a copy since it needs to have an '=' in, so use that
+	  instead.  It also has an interface much like setenv(), so the code
+	  looks more similar.
+
 Mon Jun 21 06:07:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.cc: Add missing const.
