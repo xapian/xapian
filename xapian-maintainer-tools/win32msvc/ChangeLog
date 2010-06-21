@@ -1,3 +1,13 @@
+
+
+	* Patch from ticket#466:
+	* win32_tests.mak: add api_none.cc and api_replacedoc.cc to list
+	  of sources
+	* win32_applications_omega.cc: remove extra getopt.cc from sources,
+	  change dirent.cc to msvc_dirent.cc
+	* makebinaries.py: use Python 2.6.4
+	* xapdep/xapdep.c: improve checking for redundant strings in dep file
+
 Wed Mar 17 01:20:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* win32_tests.mak: Remove long-defunct remotetest.cc from list of
@@ -41,7 +51,7 @@ Wed Feb 03 16:18:16 GMT 2010  Richard Boulton <richard@tartarus.org>
 Mon Jun 22 15:30:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
 	* Makefile, win32_bindings_python.mak, config.mak, makebinaries.py: add
-	  Python 2.6 option 
+	  Python 2.6 option
 
 Tue Apr 21 13:33:51 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
@@ -60,7 +70,7 @@ Wed Mar 25 12:51:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	* win32_bindings_php.mak,win32_bindings_csharp.mak,
 	  win32_bindings_java-swig.mak,win32_bindings_ruby.mak: add example
 	  and doc files where they exist and DIST build target.
-	* config.mak,win32_bindings_python.mak: add ability to build two 
+	* config.mak,win32_bindings_python.mak: add ability to build two
 	  different Python versions, and add example files, and change
 	  BUILDDIST to DIST for consistency with other bindings.
 	* setup.py: add example & documentation files for Python.

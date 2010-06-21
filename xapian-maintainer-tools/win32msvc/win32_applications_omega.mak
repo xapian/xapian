@@ -10,7 +10,7 @@
 
 # Where the core is, relative to the Omega application
 # Change this to match your environment
-XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
+XAPIAN_CORE_REL_OMEGA=..\xapian-core-1.0.19
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -66,7 +66,7 @@ OMINDEX_OBJS= \
  	"$(OUTDIR)\utf8convert.obj" \
 	"$(OUTDIR)\sample.obj" \
 	"$(OUTDIR)\mkdtemp.obj" \
-	"$(OUTDIR)\dirent.obj" \
+	"$(OUTDIR)\msvc_dirent.obj" \
 	"$(OUTDIR)\diritor.obj" \
 	"$(OUTDIR)\runfilter.obj" \
 	"$(OUTDIR)\xpsxmlparse.obj"
@@ -127,11 +127,9 @@ SRCS= \
  	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\sample.cc" \
 	"$(INTDIR)\portability\mkdtemp.cc" \
-	"$(INTDIR)\dirent.cc" \
 	"$(INTDIR)\scriptindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
 	"$(INTDIR)\htmlparse.cc" \
-	"$(INTDIR)\getopt.cc" \
 	"$(INTDIR)\commonhelp.cc" \
 	"$(INTDIR)\utils.cc" \
 	"$(INTDIR)\hashterm.cc" \
@@ -208,7 +206,7 @@ PROGRAM_DEPENDENCIES =
   $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\md5test.exe" $(DEF_FLAGS) $(MD5TEST_OBJS)
 <<
 
-"$(INTDIR)\dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"
+"$(INTDIR)\msvc_dirent.obj" : ".\common\msvc_dirent.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -242,6 +240,7 @@ PROGRAM_DEPENDENCIES =
 
 
 # Calculate any header dependencies and automatically insert them into this file
+HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
     if exist "$(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)" $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND) 

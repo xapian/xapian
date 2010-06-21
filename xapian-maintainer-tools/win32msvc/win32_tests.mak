@@ -64,10 +64,12 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_generated.obj" \
     "$(OUTDIR)\api_metadata.obj" \
     "$(OUTDIR)\api_nodb.obj" \
+    "$(OUTDIR)\api_none.obj" \
     "$(OUTDIR)\api_percentages.obj" \
     "$(OUTDIR)\api_posdb.obj" \
     "$(OUTDIR)\api_qpbackend.obj" \
     "$(OUTDIR)\api_query.obj" \
+    "$(OUTDIR)\api_replacedoc.obj" \
     "$(OUTDIR)\api_scalability.obj" \
     "$(OUTDIR)\api_sorting.obj" \
     "$(OUTDIR)\api_spelling.obj" \
@@ -107,10 +109,12 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_metadata.cc" \
     "$(INTDIR)\api_nodb.cc" \
+    "$(INTDIR)\api_none.cc" \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
     "$(INTDIR)\api_qpbackend.cc" \
     "$(INTDIR)\api_query.cc" \
+    "$(INTDIR)\api_replacedoc.cc" \
     "$(INTDIR)\api_scalability.cc" \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_spelling.cc" \

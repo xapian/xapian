@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2010-03-02 for Xapian 1.0.18
+2010-04-16 for Xapian 1.0.19
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful

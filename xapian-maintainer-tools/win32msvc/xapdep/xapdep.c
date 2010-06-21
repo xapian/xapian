@@ -78,12 +78,15 @@ int main(int argc, char *argv[])
 			while(!feof(indep))
 			{
                 /* check for other random strings the compiler emits sometimes */
-                while ( (strcmp(buf, DISCARDSTRING)==0) || (strcmp(buf, DISCARDSTRING2)==0) )    
+                while ( (strncmp(buf, DISCARDSTRING, strlen(DISCARDSTRING))==0) || 
+                    (strncmp(buf, DISCARDSTRING2, strlen(DISCARDSTRING2))==0) )    
                 {
+                      sprintf(buf,""); /* don't use the discard string later */
                       if(feof(indep)) break;
                       else /* skip line */
                         fgets(buf, sizeof(buf), indep);
                 }
+                if(feof(indep)) break;
 
 				/* first line should be a .cc file, use this to generate the .obj file */
 				for (ch=0; (buf[ch]!='.') && (buf[ch]!='\0'); ++ch)
@@ -99,9 +102,10 @@ int main(int argc, char *argv[])
 						break;
                         
                     /* check for other random strings the compiler emits sometimes */
-                    if ( (strcmp(buf, DISCARDSTRING)==0) || (strcmp(buf, DISCARDSTRING2)==0) )  
+                    if ( (strncmp(buf, DISCARDSTRING, strlen(DISCARDSTRING))==0) || 
+                    (strncmp(buf, DISCARDSTRING2, strlen(DISCARDSTRING2))==0) )    
                         break;
-                        
+
                     /* clean up the dependencies and write them to the makefile */
 					ch=INSET;
 					endch=strlen(buf);
