@@ -343,10 +343,10 @@ def test_all():
 
 def test_userstem():
     mystem = MyStemmer()
-    stem = xapian.Stem(mystem.__disown__())
+    stem = xapian.Stem(mystem)
     expect(stem('test'), 'tst')
 
-    stem = xapian.Stem(mystem.__disown__())
+    stem = xapian.Stem(mystem)
     indexer = xapian.TermGenerator()
     indexer.set_stemmer(stem)
 
@@ -360,7 +360,7 @@ def test_userstem():
         s += '/'
     expect(s, '/Zhll/Zwrld/hello/world/')
 
-    stem = xapian.Stem(MyStemmer().__disown__())
+    stem = xapian.Stem(MyStemmer())
     parser = xapian.QueryParser()
     parser.set_stemmer(stem)
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)

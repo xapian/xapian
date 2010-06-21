@@ -773,7 +773,7 @@ class Remote {
 %ignore Xapian::StemImplementation;
 #else
 %feature("director") Xapian::StemImplementation;
-//%apply SWIGTYPE *DISOWN {Xapian::StemImplementation *};
+%apply SWIGTYPE *DISOWN { Xapian::StemImplementation *p };
 #endif
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;

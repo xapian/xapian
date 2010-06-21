@@ -1,3 +1,9 @@
+Mon Jun 21 05:58:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py,xapian.i: Sort out disowning of
+	  StemImplementation so you don't need to call __disown__() explicitly.
+	  Fixes ticket#448.
+
 Sat Jun 12 11:57:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: Fix testcase weight_normalise - for a
