@@ -142,6 +142,12 @@ QueryParser::add_boolean_prefix(const string &field, const string &prefix,
     internal->add_prefix(field, prefix, type);
 }
 
+void
+QueryParser::add_boolean_prefix(const string &field, const string &prefix)
+{
+    add_boolean_prefix(field, prefix, true);
+}
+
 TermIterator
 QueryParser::stoplist_begin() const
 {

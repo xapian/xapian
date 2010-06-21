@@ -1,3 +1,7 @@
+Mon Jun 21 05:21:32 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc: Update to match header ABI fix.
+
 Mon Jun 21 03:52:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: QueryParser::add_boolean_prefix() now
