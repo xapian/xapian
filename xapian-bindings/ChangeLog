@@ -1,3 +1,7 @@
+Mon Jun 21 13:17:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.21 and update from ChangeLog.
+
 Mon Jun 21 05:58:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/smoketest2.py,xapian.i: Sort out disowning of

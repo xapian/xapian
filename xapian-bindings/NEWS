@@ -1,3 +1,53 @@
+ 14733       olly Mon Jun 21 05:58:52 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.1 (2010-06-2?):
+
+Documentation:
+
+General:
+
+* Wrap Xapian::StemImplementation.  Currently this has only been tested for
+  Python.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Guile:
+
+* Remove non-functional disabled guile bindings left over from Open Muscat
+  days - if someone wanted to add guile bindings, it would be easier to start
+  from scratch.
+
+Java-SWIG:
+
+* Update list of generated java sources in the SWIG-based Java bindings.
+
+PHP:
+
+* zend_throw_exception() returns, so return control to PHP directly after
+  calling it to avoid needless extra work and possible issues.
+
+Python:
+
+* Fix "from xapian import *".  (ticket#477)
+
+* Fix testcase weight_normalise - a change in xapian-core means that
+  get_max_possible() can now return zero for a non-existent term, so don't
+  blindly calculate the reciprocal of it.
+
+* python/replicationtest2.py: Extend to check that changesets get applied
+  correctly.
+
+* python/smoketest2.py: Check len(mset) works (improving test coverage of
+  Python-specific wrapping).
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.0 (2010-04-28):
 
 This release includes all changes from 1.0.20 which are relevant.
@@ -177,6 +227,17 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.21 (2010-06-18):
+
+Python:
+
+* xapian.BAD_VALUENO is now wrapped as a constant rather than variable which
+  can't be written to. (ticket#297)
+
+* Fix cleaning of test directories to use "rm -rf" rather than "rm -f".
+
+* Add test to check that "from xapian import *" works.
 
 Xapian-bindings 1.0.20 (2010-04-27):
 
