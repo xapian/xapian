@@ -151,7 +151,7 @@ QueryParser::add_boolean_prefix(const string &field, const string &prefix)
 TermIterator
 QueryParser::stoplist_begin() const
 {
-    list<string> & sl = internal->stoplist;
+    const list<string> & sl = internal->stoplist;
     return TermIterator(new VectorTermList(sl.begin(), sl.end()));
 }
 
