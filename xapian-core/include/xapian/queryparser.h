@@ -552,10 +552,14 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			 with OP_OR.  If false, each document can have multiple
      *			 values of the field, so Xapian combine them with
      *			 OP_AND, as we would with filters with different
-     *			 prefixes.
+     *			 prefixes. [default: true]
      */
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
-			    bool exclusive = true);
+			    bool exclusive);
+
+    /* FIXME:1.1.3: Merge two versions into one with optional parameter
+     * "exclusive", default true. */
+    void add_boolean_prefix(const std::string &field, const std::string &prefix);
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
