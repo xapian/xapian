@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -769,11 +769,11 @@ class Remote {
 %include <xapian/queryparser.h>
 
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
-#ifdef XAPIAN_SWIG_NO_DISOWN
-%ignore Xapian::StemImplementation;
-#else
+#ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::StemImplementation;
-%apply SWIGTYPE *DISOWN { Xapian::StemImplementation *p };
+#else
+%ignore Xapian::StemImplementation;
+%ignore Xapian::Stem::Stem(Xapian::StemImplementation *);
 #endif
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;
