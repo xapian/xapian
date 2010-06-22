@@ -1,3 +1,7 @@
+Tue Jun 22 13:42:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.1.
+
 Tue Jun 22 13:23:49 GMT 2010  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Now get StemImplementation.cs instead of
