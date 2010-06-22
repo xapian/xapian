@@ -346,9 +346,8 @@ def test_userstem():
     stem = xapian.Stem(mystem)
     expect(stem('test'), 'tst')
 
-    stem = xapian.Stem(mystem)
     indexer = xapian.TermGenerator()
-    indexer.set_stemmer(stem)
+    indexer.set_stemmer(xapian.Stem(MyStemmer()))
 
     doc = xapian.Document()
     indexer.set_document(doc)
@@ -360,9 +359,8 @@ def test_userstem():
         s += '/'
     expect(s, '/Zhll/Zwrld/hello/world/')
 
-    stem = xapian.Stem(MyStemmer())
     parser = xapian.QueryParser()
-    parser.set_stemmer(stem)
+    parser.set_stemmer(xapian.Stem(MyStemmer()))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
     expect_query(parser.parse_query('color television'), '(clr:(pos=1) OR tlvsn:(pos=2))')
 

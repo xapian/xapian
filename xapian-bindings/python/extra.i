@@ -1231,6 +1231,34 @@ _enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
 Enquire.clear_matchspies = _enquire_match_spies_clear
 
 
+# Fix up Stem so that it keeps a python reference to stemmers supplied to it
+# so that they won't be deleted before the Enquire object.
+_stem_init_orig = Stem.__init__
+def _stem_init(self, *args):
+    _stem_init_orig(self, *args)
+    if len(args) > 0 and isinstance(args[0], StemImplementation):
+        self._stemimpl = args[0]
+_stem_init.__doc__ = Stem.__init__.__doc__
+Stem.__init__ = _stem_init
+
+# Fix up QueryParser.set_stemmer() to keep a python reference to the stemmers
+# supplied to it.
+_queryparser_set_stemmer_orig = QueryParser.set_stemmer
+def _queryparser_set_stemmer(self, stemmer):
+    _queryparser_set_stemmer_orig(self, stemmer)
+    self._stemmer = stemmer
+_queryparser_set_stemmer.__doc__ = _queryparser_set_stemmer_orig.__doc__
+QueryParser.set_stemmer = _queryparser_set_stemmer
+
+# Fix up TermGenerator.set_stemmer() to keep a python reference to the stemmers
+# supplied to it.
+_termgenerator_set_stemmer_orig = TermGenerator.set_stemmer
+def _termgenerator_set_stemmer(self, stemmer):
+    _termgenerator_set_stemmer_orig(self, stemmer)
+    self._stemmer = stemmer
+_termgenerator_set_stemmer.__doc__ = _termgenerator_set_stemmer_orig.__doc__
+TermGenerator.set_stemmer = _termgenerator_set_stemmer
+
 
 # Remove static methods which shouldn't be in the API.
 del Document_unserialise

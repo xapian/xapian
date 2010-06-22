@@ -1,3 +1,14 @@
+Tue Jun 22 08:29:11 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Wrap Stem.__init__, QueryParser.set_stemmer, and
+	  TermGenerator.set_stemmer to put a reference to the python
+	  object supplied into the object which will be using it.  This
+	  ensures that the python object doesn't get deleted too soon, and
+	  hopefully fixes #448.
+	* python/smoketest2.py: Modify test so that a reference to the
+	  newly created stemmer objects isn't explicitly held, to check
+	  that automatic references are being held correctly.
+
 Mon Jun 21 13:17:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.21 and update from ChangeLog.
