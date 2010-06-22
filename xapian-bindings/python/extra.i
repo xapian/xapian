@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -1231,13 +1231,13 @@ _enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
 Enquire.clear_matchspies = _enquire_match_spies_clear
 
 
-# Fix up Stem so that it keeps a python reference to stemmers supplied to it
-# so that they won't be deleted before the Enquire object.
+# Fix up Stem.__init__() so that it calls __disown__() on the passed
+# StemImplementation object so that Python won't delete it from under us.
 _stem_init_orig = Stem.__init__
 def _stem_init(self, *args):
     _stem_init_orig(self, *args)
     if len(args) > 0 and isinstance(args[0], StemImplementation):
-        self._stemimpl = args[0]
+        args[0].__disown__()
 _stem_init.__doc__ = Stem.__init__.__doc__
 Stem.__init__ = _stem_init
 
