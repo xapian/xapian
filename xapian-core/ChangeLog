@@ -1,3 +1,7 @@
+Tue Jun 22 14:45:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.1.
+
 Mon Jun 21 16:00:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.21 and update from ChangeLog.
