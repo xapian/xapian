@@ -24,14 +24,27 @@ import xapian
 
 from testsuite import *
 
+mystemmers = set()
+mystemmer_id = 0
 # Stemmer which strips English vowels.
 class MyStemmer(xapian.StemImplementation):
     def __init__(self):
+        global mystemmers
+        global mystemmer_id
         super(MyStemmer, self).__init__()
+        mystemmers.add(mystemmer_id)
+        self._id = mystemmer_id
+        mystemmer_id += 1
 
     def __call__(self, s):
         import re
         return re.sub(r'[aeiou]', '', s)
+
+    def __del__(self):
+        global mystemmers
+        if self._id not in mystemmers:
+            raise TestFail("MyStemmer #%d deleted more than once" % self._id)
+        mystemmers.remove(self._id)
 
 def test_all():
     # Test the version number reporting functions give plausible results.
@@ -363,6 +376,12 @@ def test_userstem():
     parser.set_stemmer(xapian.Stem(MyStemmer()))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
     expect_query(parser.parse_query('color television'), '(clr:(pos=1) OR tlvsn:(pos=2))')
+
+def test_zz9_check_leaks():
+    import gc
+    gc.collect()
+    if len(mystemmers):
+        TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):
