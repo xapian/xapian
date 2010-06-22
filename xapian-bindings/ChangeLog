@@ -1,3 +1,8 @@
+Tue Jun 22 13:22:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,java-swig/util.i: XAPIAN_SWIG_NO_DISOWN is no longer
+	  needed, so revert that.
+
 Tue Jun 22 11:18:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian.i: We don't need to use the DISOWN typemap now.
