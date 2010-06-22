@@ -358,6 +358,8 @@ def test_userstem():
     mystem = MyStemmer()
     stem = xapian.Stem(mystem)
     expect(stem('test'), 'tst')
+    stem2 = xapian.Stem(mystem)
+    expect(stem2('toastie'), 'tst')
 
     indexer = xapian.TermGenerator()
     indexer.set_stemmer(xapian.Stem(MyStemmer()))
