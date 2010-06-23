@@ -1,7 +1,7 @@
 %{
 /* csharp/util.i: custom C# typemaps for xapian-bindings
  *
- * Copyright (c) 2005,2006,2008,2009,2010 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,9 +25,6 @@
 
 // Use SWIG directors for C# wrappers.
 #define XAPIAN_SWIG_DIRECTORS
-
-// SWIG has no DISOWN typemap for C#.
-#define XAPIAN_SWIG_NO_DISOWN
 
 // Rename function and method names to match C# conventions (e.g. from
 // get_description() to GetDescription()).

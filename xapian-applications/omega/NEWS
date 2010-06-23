@@ -1,3 +1,7 @@
+Omega 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
 Omega 1.2.0 (2010-04-28):
 
 This release includes all changes from 1.0.20 which are relevant.
@@ -108,6 +112,12 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.21 (2010-05-18):
+
+portability:
+
+* Fix build failure in freemem.cc on Microsoft Windows.
 
 Omega 1.0.20 (2010-04-27):
 

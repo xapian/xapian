@@ -561,20 +561,20 @@ DEFINE_TESTCASE(ordecay2, generated) {
 static void
 make_orcheck_db(Xapian::WritableDatabase &db, const string &)
 {
-    int t1[6] = {2, 4, 6, 8, 10, 0};
-    int t2[11] = {6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
-    int t3[11] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+    static const int t1[6] = {2, 4, 6, 8, 10, 0};
+    static const int t2[11] = {6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+    static const int t3[11] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
 
     for (unsigned i = 1; i <= 17; ++i) {
 	Xapian::Document doc;
 	db.replace_document(i, doc);
     }
-    for (int * p = t1; *p != 0; ++p) {
+    for (const int * p = t1; *p != 0; ++p) {
 	Xapian::Document doc(db.get_document(*p));
 	doc.add_term("T1");
 	db.replace_document(*p, doc);
     }
-    for (int * p = t2; *p != 0; ++p) {
+    for (const int * p = t2; *p != 0; ++p) {
 	Xapian::Document doc(db.get_document(*p));
 	doc.add_term("T2");
 	if (*p < 17) {
@@ -583,7 +583,7 @@ make_orcheck_db(Xapian::WritableDatabase &db, const string &)
 	doc.add_value(2, "1");
 	db.replace_document(*p, doc);
     }
-    for (int * p = t3; *p != 0; ++p) {
+    for (const int * p = t3; *p != 0; ++p) {
 	Xapian::Document doc(db.get_document(*p));
 	doc.add_term("T3");
 	if (*p < 17) {
@@ -635,5 +635,46 @@ DEFINE_TESTCASE(orcheck1, generated) {
     // both documents are in q2, and document 8 has a higher length.
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 6, 8);
 
+    return true;
+}
+
+/** Regression test for bug fixed in 1.2.1 and 1.0.21.
+ *
+ *  We failed to mark the Btree as unmodified after cancel().
+ */
+DEFINE_TESTCASE(failedreplace1, brass || chert || flint) {
+    Xapian::WritableDatabase db(get_writable_database());
+    Xapian::Document doc;
+    doc.add_term("foo");
+    db.add_document(doc);
+    Xapian::docid did = db.add_document(doc);
+    doc.add_term("abc");
+    doc.add_term(string(1000, 'm'));
+    doc.add_term("xyz");
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(did, doc));
+    db.commit();
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_termfreq("foo"), 0);
+    return true;
+}
+
+DEFINE_TESTCASE(failedreplace2, brass || chert || flint) {
+    Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
+    db.commit();
+    Xapian::doccount db_size = db.get_doccount();
+    Xapian::Document doc;
+    doc.set_data("wibble");
+    doc.add_term("foo");
+    doc.add_value(0, "seven");
+    db.add_document(doc);
+    Xapian::docid did = db.add_document(doc);
+    doc.add_term("abc");
+    doc.add_term(string(1000, 'm'));
+    doc.add_term("xyz");
+    doc.add_value(0, "six");
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(did, doc));
+    db.commit();
+    TEST_EQUAL(db.get_doccount(), db_size);
+    TEST_EQUAL(db.get_termfreq("foo"), 0);
     return true;
 }

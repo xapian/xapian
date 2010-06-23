@@ -1,7 +1,7 @@
 /** @file localmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,13 +19,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_LOCALMATCH_H
-#define XAPIAN_INCLUDED_LOCALMATCH_H
+#ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
+#define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
 #include "database.h"
+#include "debuglog.h"
 #include "omqueryinternal.h"
-#include "rset.h"
 #include "submatch.h"
+#include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 #include <map>
@@ -41,7 +42,7 @@ class LocalSubMatch : public SubMatch {
     const Xapian::Weight::Internal * stats;
 
     /// The original query before any rearrangement.
-    Xapian::Query::Internal orig_query;
+    const Xapian::Query::Internal * query;
 
     /// The query length (used by some weighting schemes).
     Xapian::termcount qlen;
@@ -49,25 +50,31 @@ class LocalSubMatch : public SubMatch {
     /// The (sub-)Database we're searching.
     const Xapian::Database::Internal *db;
 
-    /** The (sub-)RSet (used to calculate R and r).
+    /** The RSet (used to calculate R and r).
      *
      *  R and r are used in probabilistic weighting formulae.
      */
-    RSetI rset;
+    Xapian::RSet rset;
 
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight * wt_factory;
 
     /// The termfreqs and weights of terms used in orig_query, or NULL.
-    std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> * term_info;
+    std::map<std::string,
+	     Xapian::MSet::Internal::TermFreqAndWeight> * term_info;
 
   public:
     /// Constructor.
-    LocalSubMatch(const Xapian::Database::Internal *db,
-		  const Xapian::Query::Internal * query,
-		  Xapian::termcount qlen,
-		  const Xapian::RSet & omrset,
-		  const Xapian::Weight *wt_factory);
+    LocalSubMatch(const Xapian::Database::Internal *db_,
+		  const Xapian::Query::Internal * query_,
+		  Xapian::termcount qlen_,
+		  const Xapian::RSet & rset_,
+		  const Xapian::Weight *wt_factory_)
+	: stats(NULL), query(query_), qlen(qlen_), db(db_), rset(rset_),
+	  wt_factory(wt_factory_), term_info(NULL)
+    {
+	LOGCALL_CTOR(MATCH, "LocalSubMatch", db_ | query_ | qlen_ | rset_ | wt_factory_);
+    }
 
     /// Fetch and collate statistics.
     bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);
@@ -80,7 +87,8 @@ class LocalSubMatch : public SubMatch {
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts,
+	std::map<std::string,
+		 Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts,
 	Xapian::termcount * total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
@@ -96,4 +104,4 @@ class LocalSubMatch : public SubMatch {
 					   double factor);
 };
 
-#endif /* XAPIAN_INCLUDED_LOCALMATCH_H */
+#endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

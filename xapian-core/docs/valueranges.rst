@@ -29,6 +29,11 @@ wants to, it can modify the start and end values (to convert them to the
 correct format so that for the string comparison which ``OP_VALUE_RANGE``
 uses).
 
+In Xapian 1.2.1 and later, ``Xapian::QueryParser`` supports open-ended
+ranges - if the start of the range is empty, that means any value less than
+the end, and similarly if the end is empty, that means any value greater
+than the start.  The start and end can't both be empty.
+
 StringValueRangeProcessor
 =========================
 
@@ -135,6 +140,10 @@ described above which only matches ranges with a prefix (e.g.
             return 4;
         }
     };
+
+If you want to support open-ended ranges, you need to handle begin or end
+being empty suitably.  ``Xapian::QueryParser`` won't call your subclass
+with both begin and end being empty.
 
 Using Several ValueRangeProcessors
 ==================================

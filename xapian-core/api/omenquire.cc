@@ -39,7 +39,6 @@
 #include "expandweight.h"
 #include "multimatch.h"
 #include "omenquireinternal.h"
-#include "rset.h"
 #include "str.h"
 #include "weightinternal.h"
 
@@ -696,8 +695,6 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 	RETURN(ESet());
     }
 
-    RSetI rseti(db, rset);
-
     LOGVALUE(MATCH, rset.size());
 
     /* The AutoPtrs will clean up any dynamically allocated
@@ -723,10 +720,10 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     }
 
     bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
-    ExpandWeight eweight(db, rseti.size(), use_exact_termfreq, k);
+    ExpandWeight eweight(db, rset.size(), use_exact_termfreq, k);
 
     Xapian::ESet eset;
-    eset.internal->expand(maxitems, db, rseti, edecider, eweight);
+    eset.internal->expand(maxitems, db, rset, edecider, eweight);
     RETURN(eset);
 }
 

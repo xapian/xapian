@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard ValueRangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,10 @@ StringValueRangeProcessor::operator()(string &begin, string &end)
 static bool
 decode_xxy(const string & s, int & x1, int &x2, int &y)
 {
+    if (s.size() == 0) {
+	x1 = x2 = y = -1;
+	return true;
+    }
     if (s.size() < 5 || s.size() > 10) return false;
     size_t i = s.find_first_not_of("0123456789");
     if (i < 1 || i > 2 || !(s[i] == '/' || s[i] == '-' || s[i] == '.'))
@@ -97,9 +101,21 @@ static const char max_month_length[12] = {
 static bool
 vet_dm(int d, int m)
 {
+    if (m == -1) return true;
     if (m > 12 || m < 1) return false;
     if (d < 1 || d > max_month_length[m - 1]) return false;
     return true;
+}
+
+// NB Assumes the length has been checked to be 10 already.
+static bool
+is_yyyy_mm_dd(const string &s)
+{
+    return (s.find_first_not_of("0123456789") == 4 &&
+	    s.find_first_not_of("0123456789", 5) == 7 &&
+	    s.find_first_not_of("0123456789", 8) == string::npos &&
+	    s[4] == s[7] &&
+	    (s[4] == '-' || s[4] == '.' || s[4] == '/'));
 }
 
 Xapian::valueno
@@ -108,27 +124,28 @@ DateValueRangeProcessor::operator()(string &begin, string &end)
     if (StringValueRangeProcessor::operator()(begin, end) == BAD_VALUENO)
 	return BAD_VALUENO;
 
-    if (begin.size() == 8 && end.size() == 8 &&
+    if ((begin.size() == 8 || begin.size() == 0) &&
+	(end.size() == 8 || end.size() == 0) &&
 	begin.find_first_not_of("0123456789") == string::npos &&
 	end.find_first_not_of("0123456789") == string::npos) {
 	// YYYYMMDD
 	return valno;
     }
-    if (begin.size() == 10 && end.size() == 10 &&
-	begin.find_first_not_of("0123456789") == 4 &&
-	end.find_first_not_of("0123456789") == 4 &&
-	begin.find_first_not_of("0123456789", 5) == 7 &&
-	end.find_first_not_of("0123456789", 5) == 7 &&
-	begin.find_first_not_of("0123456789", 8) == string::npos &&
-	end.find_first_not_of("0123456789", 8) == string::npos &&
-	begin[4] == begin[7] && end[4] == end[7] && begin[4] == end[4] &&
-	(end[4] == '-' || end[4] == '.' || end[4] == '/')) {
-	// YYYY-MM-DD
-	begin.erase(7, 1);
-	begin.erase(4, 1);
-	end.erase(7, 1);
-	end.erase(4, 1);
-	return valno;
+    if ((begin.size() == 10 || begin.size() == 0) &&
+	(end.size() == 10 || end.size() == 0)) {
+	if ((begin.empty() || is_yyyy_mm_dd(begin)) &&
+	    (end.empty() || is_yyyy_mm_dd(end))) {
+	    // YYYY-MM-DD
+	    if (!begin.empty()) {
+		begin.erase(7, 1);
+		begin.erase(4, 1);
+	    }
+	    if (!end.empty()) {
+		end.erase(7, 1);
+		end.erase(4, 1);
+	    }
+	    return valno;
+	}
     }
 
     int b_d, b_m, b_y;
@@ -163,19 +180,27 @@ DateValueRangeProcessor::operator()(string &begin, string &end)
 
 #ifdef SNPRINTF
     char buf[9];
-    SNPRINTF(buf, sizeof(buf), "%08d", b_y * 10000 + b_m * 100 + b_d);
-    begin.assign(buf, 8);
-    SNPRINTF(buf, sizeof(buf), "%08d", e_y * 10000 + e_m * 100 + e_d);
-    end.assign(buf, 8);
+    if (!begin.empty()) {
+	SNPRINTF(buf, sizeof(buf), "%08d", b_y * 10000 + b_m * 100 + b_d);
+	begin.assign(buf, 8);
+    }
+    if (!end.empty()) {
+	SNPRINTF(buf, sizeof(buf), "%08d", e_y * 10000 + e_m * 100 + e_d);
+	end.assign(buf, 8);
+    }
 #else
     char buf[100];
     buf[sizeof(buf) - 1] = '\0';
-    sprintf(buf, "%08d", b_y * 10000 + b_m * 100 + b_d);
-    if (buf[sizeof(buf) - 1]) abort(); // Buffer overrun!
-    begin.assign(buf, 8);
-    sprintf(buf, "%08d", e_y * 10000 + e_m * 100 + e_d);
-    if (buf[sizeof(buf) - 1]) abort(); // Buffer overrun!
-    end.assign(buf, 8);
+    if (!begin.empty()) {
+	sprintf(buf, "%08d", b_y * 10000 + b_m * 100 + b_d);
+	if (buf[sizeof(buf) - 1]) abort(); // Buffer overrun!
+	begin.assign(buf, 8);
+    }
+    if (!end.empty()) {
+	sprintf(buf, "%08d", e_y * 10000 + e_m * 100 + e_d);
+	if (buf[sizeof(buf) - 1]) abort(); // Buffer overrun!
+	end.assign(buf, 8);
+    }
 #endif
     return valno;
 }
@@ -191,28 +216,37 @@ NumberValueRangeProcessor::operator()(string &begin, string &end)
     const char * startptr;
     char * endptr;
 
-    errno = 0;
-    startptr = begin.c_str();
-    beginnum = strtod(startptr, &endptr);
-    if (endptr != startptr + begin.size())
-	// Invalid characters in string
-	return Xapian::BAD_VALUENO;
-    if (errno)
-	// Overflow or underflow
-	return Xapian::BAD_VALUENO;
+    if (!begin.empty()) {
+	errno = 0;
+	startptr = begin.c_str();
+	beginnum = strtod(startptr, &endptr);
+	if (endptr != startptr + begin.size())
+	    // Invalid characters in string
+	    return Xapian::BAD_VALUENO;
+	if (errno)
+	    // Overflow or underflow
+	    return Xapian::BAD_VALUENO;
+    } else {
+	// Silence GCC warning.
+	beginnum = 0.0;
+    }
 
-    errno = 0;
-    startptr = end.c_str();
-    endnum = strtod(startptr, &endptr);
-    if (endptr != startptr + end.size())
-	// Invalid characters in string
-	return Xapian::BAD_VALUENO;
-    if (errno)
-	// Overflow or underflow
-	return Xapian::BAD_VALUENO;
+    if (!end.empty()) {
+	errno = 0;
+	startptr = end.c_str();
+	endnum = strtod(startptr, &endptr);
+	if (endptr != startptr + end.size())
+	    // Invalid characters in string
+	    return Xapian::BAD_VALUENO;
+	if (errno)
+	    // Overflow or underflow
+	    return Xapian::BAD_VALUENO;
+	end.assign(Xapian::sortable_serialise(endnum));
+    }
 
-    begin.assign(Xapian::sortable_serialise(beginnum));
-    end.assign(Xapian::sortable_serialise(endnum));
+    if (!begin.empty()) {
+	begin.assign(Xapian::sortable_serialise(beginnum));
+    }
 
     return valno;
 }

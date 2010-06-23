@@ -229,7 +229,7 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
 static void
 set_max_changesets(int count) {
 #ifdef __WIN32__
-    _putenv(("XAPIAN_MAX_CHANGESETS=" + str(count)).c_str());
+    _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
 #else
     setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
 #endif

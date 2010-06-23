@@ -28,7 +28,8 @@
 
 #include <xapian/error.h>
 
-size_t io_read(int fd, char * p, size_t n, size_t min)
+size_t
+io_read(int fd, char * p, size_t n, size_t min)
 {
     size_t total = 0;
     while (n) {
@@ -49,7 +50,8 @@ size_t io_read(int fd, char * p, size_t n, size_t min)
 }
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
-void io_write(int fd, const char * p, size_t n)
+void
+io_write(int fd, const char * p, size_t n)
 {
     while (n) {
 	ssize_t c = write(fd, p, n);
