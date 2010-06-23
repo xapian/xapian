@@ -1,3 +1,9 @@
+Wed Jun 23 15:38:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Revert Xapian::Weight's copy ctor back
+	  to protected as GCC 4.1 fails to compile subclasses when it is
+	  private (this appears to be a compiler bug).
+
 Wed Jun 23 07:31:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Thank people who reported bugs fixed in 1.2.1.

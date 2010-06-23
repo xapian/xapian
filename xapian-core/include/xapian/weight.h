@@ -71,9 +71,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// Don't allow assignment.
     void operator=(const Weight &);
 
-    /// Don't allow copying.
-    Weight(const Weight &);
-
     /// A bitmask of the statistics this weighting scheme needs.
     stat_flags stats_needed;
 
@@ -251,6 +248,13 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     }
 
   protected:
+    /** Don't allow copying.
+     *
+     *  This would ideally be private, but that causes a compilation error
+     *  with GCC 4.1 (which appears to be a bug).
+     */
+    Weight(const Weight &);
+
     /// Default constructor, needed by subclass constructors.
     Weight() : stats_needed() { }
 
