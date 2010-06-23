@@ -55,6 +55,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	SimpleStopper.java\
 	Sorter.java\
 	Stem.java\
+	StemImplementation.java\
 	Stopper.java\
 	StringValueRangeProcessor.java\
 	SWIGTYPE_p_std__string.java\

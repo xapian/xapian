@@ -70,7 +70,7 @@ mechanism to allow you to select where to store the log and which types of
 message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
-   output to be stored in, or to the special value ``-`` to indicate that you
+   output to be appended to, or to the special value ``-`` to indicate that you
    would like debugging output to be sent to stderr.  Unless XAPIAN_DEBUG_LOG
    is set, no debug logging will be performed.  Occurrences of %p in
    XAPIAN_DEBUG_LOG will be replaced with the current process-id.
@@ -267,17 +267,19 @@ You will need the following tools installed to build from SVN:
 * perl 5 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
+* GNU flex (for building doxygen)
+* GNU bison (for building doxygen)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison
 
 If you want to build Omega, you'll also need::
 
     apt-get install libpcre3-dev
 
-On fedora, the uuid library can be installed by doing::
+On Fedora, the uuid library can be installed by doing::
 
     yum install e2fsprogs-devel
 
@@ -402,13 +404,13 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.6a is recommended and a hard minimum requirement.
+* libtool 2.2.10 is used to generate snapshots and releases.
 
-  libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
+  libtool 2.2.8 is the current hard minimum requirement.
+
+  libtool 2.2 is required for us to be able to override link_all_deplibs_CXX
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
-
-  libtool 2.2.4 and 2.2.6a include several bug-fixes over 2.2.
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
@@ -1039,10 +1041,10 @@ to follow the style of the existing code.  In particular:
     };
 
   The rationale for this exception is that class definitions in header files
-  often have fairly long lines, so losing an indent level to the visibility
+  often have fairly long lines, so losing an indent level to the access
   specifier tends to make class definitions less readable.
 
-  The default visibility for a class is always "private", so there's no need
+  The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
   
     class Foo {
@@ -1063,7 +1065,7 @@ to follow the style of the existing code.  In particular:
     };
 
   If a class only contains public methods and data, consider declaring it as a
-  "struct" (the only difference in C++ is that the default visibility for a
+  "struct" (the only difference in C++ is that the default access for a
   struct is "public").
 
 * Put a space before the "(" after control flow constructs like "for", "if",

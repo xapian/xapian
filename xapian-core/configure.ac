@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.0], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.1], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -31,7 +31,8 @@ dnl
 dnl LIBRARY_VERSION_INFO:
 dnl 21:11:6 1.0.20 No API changes
 dnl 22:0:0 1.2.0 Many API changes!
-LIBRARY_VERSION_INFO=22:0:0
+dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
+LIBRARY_VERSION_INFO=23:0:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
@@ -93,7 +94,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
-LT_PREREQ([2.2.6])
+LT_PREREQ([2.2.8])
 LT_INIT
 
 AM_CXXFLAGS=
@@ -348,6 +349,32 @@ fi
 dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
 AC_SUBST(ANSI_CXXFLAGS)
+
+dnl x86 has excess precision issues with 387 FP instructions, which are
+dnl avoided by using SSE instructions instead.  This is also faster (~6% in
+dnl a CPU bound testcase).
+AC_ARG_ENABLE([sse],
+  [AS_HELP_STRING([--disable-sse], [disable use of SSE FP instructions (only affects x86)])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
+  esac])
+
+AC_MSG_CHECKING([whether to use SSE instructions on x86])
+case $host_cpu in
+  i*86)
+    if test "$enable_sse" = no ; then
+      AC_MSG_RESULT([no])
+    elif test yes = "$GXX"; then
+      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+      AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic"
+    else
+      AC_MSG_RESULT([don't know how to for compiler $CXX])
+    fi
+    ;;
+  *)
+    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
+esac
 
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
@@ -636,6 +663,7 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
+use_win32_uuid_api=0
 case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 *yes*)
   dnl We use zlib for compressing tags in brass/chert/flint.  We could
@@ -664,28 +692,35 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Find the UUID library (from e2fsprogs, not the OSSP one).
 
-  dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
-  AC_CHECK_HEADERS([uuid/uuid.h], [
-    dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
-    SAVE_LIBS=$LIBS
-    LIBS=
-    AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-      AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-      ])
-    if test x != x"$LIBS" ; then
-      XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
-    fi
-  ], [
-    dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
-    AC_CHECK_HEADERS([uuid.h], [
-      dnl Check for uuid_create with no extra libraries required.
-      AC_CHECK_FUNC([uuid_create], [], [
-	AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-      ])
-    ], [
-      AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-    ], [ ])
-  ], [ ])
+  case $host_os in
+    *mingw* | *cygwin*) dnl Use built-in API.
+      use_win32_uuid_api=1
+      ;;
+    *)
+      dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+      AC_CHECK_HEADERS([uuid/uuid.h], [
+	dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+	SAVE_LIBS=$LIBS
+	LIBS=
+	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  ])
+	if test x != x"$LIBS" ; then
+	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+	fi
+      ], [
+	dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+	AC_CHECK_HEADERS([uuid.h], [
+	  dnl Check for uuid_create with no extra libraries required.
+	  AC_CHECK_FUNC([uuid_create], [], [
+	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  ])
+	], [
+	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	], [ ])
+      ], [ ])
+      ;;
+  esac
 
   dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
   dnl uuid_unparse_lower(), only uuid_unparse().
@@ -698,6 +733,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   LIBS=$SAVE_LIBS
   ;;
 esac
+AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
@@ -763,7 +799,7 @@ AC_ARG_ENABLE(quiet,
   esac])
 
 AC_ARG_ENABLE(visibility,
-  [AS_HELP_STRING([--disable-visibility], [Disable use of GCC visibility [default=autodetect]])],
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
@@ -1032,11 +1068,17 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	if test no != "$enable_visibility"; then
+	  dnl GCC doesn't support symbol visibility on all platforms (notably
+	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	    AC_MSG_RESULT([yes])
+	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
@@ -1193,7 +1235,15 @@ dnl where we'll always have GNU sed, and other sed's will just interpret
 dnl it as "r" (Solaris sed) or maybe literal "\r" which won't match.
 dnl
 dnl Use @@ around $MAIN_VERSION so we get " in the final output.
-$CXXCPP $cxxcpp_flags -DSTRING_VERSION="\"@@$MAIN_VERSION@@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//' > include/xapian/version.h.tmp
+$CXXCPP $cxxcpp_flags\
+	-DSTRING_VERSION="\"@@$MAIN_VERSION@@\""\
+	-DMAJOR_VERSION="\"$MAJOR_VERSION\""\
+	-DMINOR_VERSION="\"$MINOR_VERSION\""\
+	-DREVISION="\"$REVISION\""\
+	$dash_d_visibility\
+	$srcdir/include/xapian/version_h.cc|\
+	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//'\
+	> include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
 dnl needs a timestamp to know when to regenerate version.h because version_h.cc

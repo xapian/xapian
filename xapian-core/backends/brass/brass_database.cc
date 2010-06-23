@@ -36,7 +36,6 @@
 #include "brass_alltermslist.h"
 #include "brass_replicate_internal.h"
 #include "brass_document.h"
-#include "brass_io.h"
 #include "../flint_lock.h"
 #include "brass_metadata.h"
 #include "brass_positionlist.h"
@@ -47,6 +46,7 @@
 #include "brass_valuelist.h"
 #include "brass_values.h"
 #include "debuglog.h"
+#include "io_utils.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
@@ -366,8 +366,8 @@ BrassDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + brass_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -443,7 +443,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
 	    pack_uint(buf, 0u); // Changes can be applied to a live database.
 
-	    brass_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache

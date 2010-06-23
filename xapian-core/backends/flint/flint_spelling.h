@@ -1,7 +1,7 @@
 /** @file flint_spelling.h
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +146,9 @@ class FlintSpellingTermList : public TermList {
 
     Xapian::termcount get_collection_freq() const;
 
-    TermList *next();
+    TermList * next();
+
+    TermList * skip_to(const std::string & term);
 
     bool at_end() const;
 

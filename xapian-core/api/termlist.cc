@@ -1,7 +1,7 @@
 /** @file termlist.cc
  * @brief Abstract base class for termlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,9 +20,9 @@
 
 #include <config.h>
 
-#include "omassert.h"
-
 #include "termlist.h"
+
+#include "omassert.h"
 
 using namespace std;
 
@@ -43,29 +43,6 @@ TermIterator::Internal::get_collection_freq() const
     // This method isn't currently externally exposed (or used internally).
     Assert(false);
     return 0;
-}
-
-TermIterator::Internal *
-TermIterator::Internal::skip_to(const string & term)
-{
-    // This simple implementation just calls next until we're at or past the
-    // specified term.  Subclasses can override with a more efficient
-    // implementation if they are able to provide one.
-    while (!at_end() && get_termname() < term) {
-	Internal *tl = next();
-	if (tl) {
-	    while (!tl->at_end() && tl->get_termname() < term) {
-		Internal *ret = tl->next();
-		if (ret) {
-		    delete tl;
-		    tl = ret;
-		}
-	    }
-	    return tl;
-	}
-    }
-
-    return NULL;
 }
 
 }

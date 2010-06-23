@@ -1,7 +1,7 @@
 /* net_termlist.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,6 +92,16 @@ NetworkTermList::next()
     } else {
 	started = true;
     }
+    return NULL;
+}
+
+TermList *
+NetworkTermList::skip_to(const string & term)
+{
+    while (current_position != items.end() && current_position->tname < term) {
+	++current_position;
+    }
+    started = true;
     return NULL;
 }
 

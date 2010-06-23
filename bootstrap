@@ -36,11 +36,22 @@ FETCH_URL_TOOL=
 check_sha1sum() {
   checksum=$1
   tarball=$2
-  if ${SHA1SUM-sha1sum} --version > /dev/null 2>&1 ; then
-    echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c
+
+  # BusyBox sha1sum doesn't know --version so just run to see it it works.
+  if echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c 2>/dev/null ; then
+    : # Checksum OK!
   else
-    test "$checksum" = `openssl sha1 < "$tarball"`|| \
-      ( echo "$tarball: computed SHA1 checksum did NOT match" ; exit 1 )
+    # Either sha1sum wasn't installed, or the checksum failed to match.
+    case `openssl sha1 "$tarball" 2>/dev/null` in
+      *$checksum) ;;
+      "") echo "Need sha1sum or openssl installed to check SHA1 checksums"
+	exit 1
+	;;
+      *)
+	echo "$tarball: computed SHA1 checksum did NOT match"
+	exit 1
+	;;
+    esac
   fi
 }
 
@@ -182,8 +193,7 @@ else
   lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  #lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
-  lazy_build libtool 2.2.7b tar.gz 6cf7bb650bcd93e89c86c685924f08656cb00f62
+  lazy_build libtool 2.2.10 tar.gz e8fa9813d8e9a5497c636744e6fd3f55d86eec38
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
