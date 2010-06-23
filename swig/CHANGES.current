@@ -14,6 +14,12 @@ Backported from SWIG SVN trunk r11192:
 	    run a little faster (in tests with Xapian on x86-64 Ubuntu 9.04,
 	    the stripped wrapper library was 11% smaller and ran 2.7% faster).
 
+Backported from SWIG SVN trunk r11014:
+
+2008-12-29: drjoe
+	    allow for compilation with bison 2.4 which is more restrictive
+	    about $$ symbols than 2.3
+
 Backported from SWIG SVN trunk r10970:
 
 2008-12-07: olly
