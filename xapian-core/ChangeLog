@@ -116,7 +116,7 @@ Sun Jun 13 11:52:24 GMT 2010  Olly Betts <olly@survex.com>
 	  Clean up whitespace issues.  Put the __WIN32__ case last, as we
 	  tend to elsewhere (since most people reading the code probably
 	  want to see the other version).
-	  
+
 Sun Jun 13 11:32:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest.cc: "MSWin32" isn't the OS name.  Also,
