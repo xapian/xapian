@@ -1,3 +1,9 @@
+Wed Jun 23 04:11:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes
+	  compilation error for some platforms and/or compilers (my guess would
+	  be GCC 4.5 - it builds OK with GCC 4.4).  (ticket#489)
+
 Tue Jun 22 14:45:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.1.
