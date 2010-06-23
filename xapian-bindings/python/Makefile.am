@@ -16,7 +16,8 @@ DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
 endif
 
 EXTRA_DIST = util.i extra.i extracomments.i except.i $(DOCCOMMENTS_I) \
-	testsuite.py $(TESTS) $(BUILT_SOURCES)
+	testsuite.py $(TESTS) $(BUILT_SOURCES) \
+	test_xapian_star.py
 
 SUBDIRS = docs
 
