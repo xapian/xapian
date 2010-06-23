@@ -38,6 +38,361 @@ Mon Feb 22 20:40:29 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* tests/api_sorting.cc: Add sortfunctor3, and extend
 	  multivaluekeymaker1, to test this.
 
+Wed Jun 23 15:38:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Revert Xapian::Weight's copy ctor back
+	  to protected as GCC 4.1 fails to compile subclasses when it is
+	  private (this appears to be a compiler bug).
+
+Wed Jun 23 07:31:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Thank people who reported bugs fixed in 1.2.1.
+
+Wed Jun 23 06:52:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-core.spec.in: Update for 1.2.x - add e2fsprogs-devel to
+	  BuildRequires and add new files.
+
+Wed Jun 23 05:00:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Wording tweak.
+
+Wed Jun 23 04:11:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes
+	  compilation error for some platforms and/or compilers (my guess would
+	  be GCC 4.5 - it builds OK with GCC 4.4).  (ticket#489)
+
+Tue Jun 22 14:45:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.1.
+
+Mon Jun 21 16:00:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.21 and update from ChangeLog.
+
+Mon Jun 21 15:15:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Unix putenv() requires the buffer passed to
+	  remain valid, as it stores it directly in the environment.  It's
+	  unclear from MSDN if _putenv() does the same, but _putenv_s() must
+	  allocate a copy since it needs to have an '=' in, so use that
+	  instead.  It also has an interface much like setenv(), so the code
+	  looks more similar.
+
+Mon Jun 21 06:07:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc: Add missing const.
+
+Mon Jun 21 05:21:32 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc: Update to match header ABI fix.
+
+Mon Jun 21 03:52:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: QueryParser::add_boolean_prefix() now
+	  uses two overloaded forms instead of a default parameter so that we
+	  don't break the ABI.
+
+Fri Jun 18 16:56:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add 1.0.21 bug reporters.
+
+Fri Jun 18 05:52:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h:
+	  Add new optional parameter to QueryParser::add_boolean_prefix() to
+	  allow the user to indicate a prefix isn't "exclusive" and that
+	  OP_AND should be used to combine multiple instances.  Fixes
+	  ticket#402.  This change should also improve efficiency as it
+	  avoids copying the lists of prefixes and compares them more
+	  efficiently.
+
+Fri Jun 18 02:51:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix doccomment typo.
+
+Thu Jun 17 14:04:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Xapian::Weight's copy ctor is now
+	  private rather than protected.  This is an API and ABI compatible
+	  change since there's no definition so a subclass which tried to
+	  access it before would fail to link.
+
+Thu Jun 17 13:00:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Missing changes from previous commit.
+
+Thu Jun 17 11:37:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/valuerangeproc.cc: Add support for open-ended ranges
+	  (ticket#480).
+	* docs/queryparser.html,docs/valueranges.rst: Document.
+	* tests/queryparsertest.cc: Add feature tests.
+
+Thu Jun 17 06:15:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Switch out of IN_GROUP mode when we
+	  emit a WILDCARD.  Fixeds bug#484.
+	* tests/queryparsertest.cc: Add regression testcase to wildcard1.
+
+Thu Jun 17 02:42:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Rename failedadd1 to failedreplace1 as it's the
+	  replace which fails really.  Add failedreplace2 which adds explicit
+	  coverage for the case of a failed replace when the database isn't
+	  empty to start with.
+
+Tue Jun 15 12:45:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Note in the description of
+	  set_database() what the database is used for.
+
+Tue Jun 15 12:26:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix formatting of bullet list.
+
+Mon Jun 14 17:02:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_table.cc: cancel() now marks the Btree as
+	  unmodified.
+	* tests/api_backend.cc: Add regression test failedadd1.
+
+Sun Jun 13 16:07:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/safeuuid.h,configure.ac: Fix mingw build to
+	  use __WIN32__ UUID API.
+
+Sun Jun 13 12:25:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/perftest/freemem.cc: Fix whitespace to match Omega's version.
+
+Sun Jun 13 11:52:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/perftest/freemem.cc: Merge in changes from omega's version.
+	  Clean up whitespace issues.  Put the __WIN32__ case last, as we
+	  tend to elsewhere (since most people reading the code probably
+	  want to see the other version).
+
+Sun Jun 13 11:32:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: "MSWin32" isn't the OS name.  Also,
+	  prefer += to build up a string.
+
+Sat Jun 12 09:31:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Note that 1.0.x returned 4% for the top hit
+	  in topercent5, so checking it gets at least 50% is a regression test
+	  for that issue.
+
+Fri Jun 11 15:38:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: -march=pentium4 doesn't seem to give a measurable
+	  speed-up or size reduction (from Richard's tests) and it carries a
+	  small risk of introducing instructions which don't work on some
+	  obscure CPU which implements SSE2, so drop it.
+
+Fri Jun 11 15:25:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc: Stop forcing the wdf_max value to be at least
+	  one in BM25Weight::get_maxpart() - this is no longer needed now we
+	  calculate percentages based on the number of matching subqueries, and
+	  it is more natural for a non-existent term to get zero weight (ditto
+	  for a term which always has wdf = 0.
+	* tests/api_anydb.cc: Change qterminfo1 to check that a non-existent
+	  term gets zero weight (previously we checked that it got a non-zero
+	  weight, but really we want to ensure that it contributes to
+	  percentage calculations, which new test topercent5 now does).
+
+Fri Jun 11 15:19:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Add topercent5 testcase which checks that
+	  an OR search including an non-existent term doesn't get 100%, and
+	  that the non-existent term doesn't score more than terms which do
+	  exist.
+
+Fri Jun 11 14:15:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: When using SSE FP instructions on x86 we
+	  can disable the use of volatile since there are no excess precision
+	  issues to work around.
+
+Fri Jun 11 08:21:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Put SSE flags in AM_CXXFLAGS not CXXFLAGS.
+
+Fri Jun 11 07:08:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default to building with SSE FP instructions for x86.
+	  This avoids issues with excess precision and it a bit faster too.
+	  Should fix ticket#487.
+
+Thu Jun 10 15:15:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Jun 10 15:00:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Capitalise "Fedora".
+
+Thu Jun 10 11:27:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Reword UUID section - list platforms where we make use of
+	  built-in APIs first, give the URL for e2fsprogs home page, and
+	  give the package name for Debian and Ubuntu.
+
+Thu Jun 10 01:08:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: libtool 2.2.10 used for snapshots and releases now.
+
+Thu Jun 10 00:21:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version_h.cc,
+	  include/xapian/visibility.h: We do need to have the visibility
+	  annotations on for code compiling against the library, so substitute
+	  the probed value of XAPIAN_ENABLE_VISIBILITY into <xapian/version.h>
+	  so it is available.
+
+Wed Jun 09 11:31:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac,include/xapian/visibility.h: Control use of
+	  GCC's visibility support with defined(XAPIAN_ENABLE_VISIBILITY)
+	  instead of !defined(XAPIAN_DISABLE_VISIBILITY), so it is only used
+	  when building the library, not when building code which uses it.
+	  Add check to configure that GCC actually supports visibility for
+	  the platform being built for, which fixes compiler warnings with
+	  platforms which don't (such as Mac OS X and mingw).
+
+Wed Jun 09 11:17:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: "private", etc as "access specifiers", not "visibility
+	  specifiers".
+
+Wed Jun 09 11:04:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Note flex and bison needed to build doxygen.
+
+Wed Jun 09 05:25:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/win32_uuid.cc: Fix signed/unsigned comparison warning on
+	  mingw.
+
+Tue Jun 08 16:56:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/safewinsock2.h: Reword #error to avoid single quote which
+	  gives compilation warning with some GCC 4.2.1 on mingw.
+
+Tue Jun 08 14:32:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.h,backends/chert/chert_check.h,
+	  backends/flint/flint_check.h: Remove mutable from std::ostream &
+	  member - mutable doesn't make sense for a reference.
+
+Tue Jun 08 13:03:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/,matcher/,weight/weightinternal.cc: Replace the still rather
+	  contorted mechanism for accumulating rel termfreqs for local
+	  databases with a simpler mechanism which is more efficient in both
+	  space and time.
+
+Mon Jun 07 16:31:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,api/matchspy.cc,api/termlist.cc,backends/brass/,
+	  backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h,
+	  backends/remote/net_termlist.cc,backends/remote/net_termlist.h,
+	  common/ortermlist.h,common/termlist.h,expand/ortermlist.cc: Remove
+	  default OrTermList::skip_to() implementation and implement skip_to()
+	  in each class instead, as this allows a slightly more efficient
+	  implementation, and also avoids problems with calling skip_to() as
+	  the first operation for the many subclasses which have a "started"
+	  flag, which OrTermList::skip_to() won't set.
+
+Mon Jun 07 06:08:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Rename TermList class to Terms to
+	  avoid confusion with the TermList typedef used elsewhere.  Add
+	  documentation comments for Terms and TermGroup classes.
+
+Mon Jun 07 02:18:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Switch to using io_utils instead of brass_io.
+
+Mon Jun 07 02:16:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Arvid Ephraim Picciani for help fixing bootstrap for
+	  BusyBox sha1sum.
+
+Mon Jun 07 01:16:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/io_utils.cc: Whitespace tweak.
+
+Mon Jun 07 00:58:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/io_utils.h: Fix header guard macro name to follow convention.
+
+Sun Jun 06 15:07:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Upgrade to using libtool 2.2.8.
+
+Sun Jun 06 04:34:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk,configure.ac: Fix build failures with some
+	  combinations of backends disabled (partially addresses ticket#361).
+
+Sat Jun 05 16:30:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/remotesubmatch.cc: Add missing parameter of
+	  RemoteSubMatch::start_match() to debug logging.
+
+Sat Jun 05 15:03:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.h: Make QueryOptimiser::optimise_query()'s
+	  argument const pointer, since we only pass it to do_subquery() which
+	  takes a const pointer.
+
+Fri Jun 04 16:05:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/rset.h: Just keep a reference to the set<docid> from the
+	  Xapian::RSet object rather than copying it (since we now only
+	  create the RSetI object transiently, so the Xapian::RSet object
+	  is definitely valid for its whole lifetime).
+
+Fri Jun 04 15:57:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,matcher/localmatch.cc,matcher/localmatch.h: Keep
+	  a Xapian::RSet handle in the LocalSubMatch object and only create
+	  an RSetI object briefly in LocalSubMatch::prepare_match().
+
+Fri Jun 04 15:36:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: RSetI objects are no longer passed as parameters
+	  or return values, so we no longer need to handle them.
+
+Fri Jun 04 15:28:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/esetinternal.h,common/omenquireinternal.h,
+	  common/rset.h,expand/esetinternal.cc,matcher/rset.cc: RSetI is used
+	  when collating statistics prior to performing the match, and when
+	  generating an ESet.  The second use is entirely unnecessary and just
+	  ends up with us copying the std::set<Xapian::docid> from inside the
+	  Xapian::RSet object, so eliminate it and just use the Xapian::RSet
+	  object directly.  This allows RSetI to be simplified somewhat too.
+
+Fri Jun 04 14:22:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Make arrays static const.
+
+Fri Jun 04 13:25:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk: Note need to update include/xapian/version_h.cc
+	  when adding a new backend.
+	* AUTHORS: Thanks to Conrad Hoffmann for pointing this omission out.
+
 Thu Jun 03 15:01:44 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/soaktest/soaktest_queries.cc: Add missing include of str.h

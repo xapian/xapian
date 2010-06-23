@@ -1,7 +1,7 @@
 /* multi_termlist.h: C++ class declaration for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,6 +46,7 @@ class MultiTermList : public TermList {
 	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
 	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
+	TermList * skip_to(const std::string & term);
 	bool   at_end() const;
 
 	Xapian::termcount positionlist_count() const;

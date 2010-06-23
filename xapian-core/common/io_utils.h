@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_IO_UTILS
-#define XAPIAN_INCLUDED_IO_UTILS
+#ifndef XAPIAN_INCLUDED_IO_UTILS_H
+#define XAPIAN_INCLUDED_IO_UTILS_H
 
 #include <sys/types.h>
 #include "safefcntl.h"
@@ -73,4 +73,4 @@ size_t io_read(int fd, char * p, size_t n, size_t min);
 /** Write n bytes from block pointed to by p to file descriptor fd. */
 void io_write(int fd, const char * p, size_t n);
 
-#endif // XAPIAN_INCLUDED_IO_UTILS
+#endif // XAPIAN_INCLUDED_IO_UTILS_H

@@ -1,3 +1,101 @@
+Tue Jun 22 15:18:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest3.py,python/smoketest3.py: Update python3 tests
+	  to match the changes in the python 2 versions.  (They're not
+	  expected to work currently, though, due to unicode handling
+	  problems with the python 3 wrappers.)
+
+Tue Jun 22 15:17:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Remove wrapping of QueryParser.set_stemmer() and
+	  TermGenerator.set_stemmer(), which isn't needed with the better
+	  way of handling ownership of python stemmer subclasses which Olly
+	  committed in r14742.
+
+Tue Jun 22 13:42:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.1.
+
+Tue Jun 22 13:23:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Now get StemImplementation.cs instead of
+	  SWIGTYPE_p_Xapian__StemImplementation.cs.
+	* java-swig/Makefile.am: Add StemImplementation.java.
+
+Tue Jun 22 13:22:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,java-swig/util.i: XAPIAN_SWIG_NO_DISOWN is no longer
+	  needed, so revert that.
+
+Tue Jun 22 11:18:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian.i: We don't need to use the DISOWN typemap now.
+
+Tue Jun 22 10:55:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Call __disown__() on the StemImplementation rather
+	  than storing a reference to it.
+
+Tue Jun 22 10:19:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Add coverage for wrapping the same MyStemmer
+	  in a xapian.Stem more than once.
+
+Tue Jun 22 10:17:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Check that all MyStemmer objects get deleted,
+	  and that none get deleted more than once.
+
+Tue Jun 22 08:29:11 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Wrap Stem.__init__, QueryParser.set_stemmer, and
+	  TermGenerator.set_stemmer to put a reference to the python
+	  object supplied into the object which will be using it.  This
+	  ensures that the python object doesn't get deleted too soon, and
+	  hopefully fixes #448.
+	* python/smoketest2.py: Modify test so that a reference to the
+	  newly created stemmer objects isn't explicitly held, to check
+	  that automatic references are being held correctly.
+
+Mon Jun 21 13:17:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.21 and update from ChangeLog.
+
+Mon Jun 21 05:58:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py,xapian.i: Sort out disowning of
+	  StemImplementation so you don't need to call __disown__() explicitly.
+	  Fixes ticket#448.
+
+Sat Jun 12 11:57:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix testcase weight_normalise - for a
+	  non-existent term, get_max_possible() can now return zero so you
+	  can't calculate the reciprocal of it.
+
+Sat Jun 12 06:25:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/util.i: Add workaround so xapian.BAD_VALUENO is a constant
+	  rather than variable which can't be written to. (ticket#297)
+	* python/smoketest2.py: Add regression test for this by checking that
+	  xapian.cvar doesn't exist.
+
+Thu Jun 10 04:26:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian.i: Change MatchDecider and ExpandDecider dtors to be
+	  declarations rather than empty definitions (should make no
+	  difference, but it's cleaner if they match the Xapian headers).
+
+Wed Jun 09 13:44:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian.i: Only mark Xapian::StemImplementation as a director class if
+	  we aren't ignoring it.
+
+Wed Jun 09 13:36:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix cleaning of test directories to use "rm -rf"
+	  rather than "rm -f".
+
 Thu Jun 03 15:21:13 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am: Add missing

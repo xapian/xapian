@@ -1,7 +1,7 @@
 /* multi_termlist.cc: C++ class definition for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,6 +77,11 @@ Xapian::doccount MultiTermList::get_termfreq() const
 TermList * MultiTermList::next()
 {
     return tl->next();
+}
+
+TermList * MultiTermList::skip_to(const string & term)
+{
+    return tl->skip_to(term);
 }
 
 bool MultiTermList::at_end() const

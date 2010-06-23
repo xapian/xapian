@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_SAFEWINSOCK2_H
 
 #ifndef __WIN32__
-# error Including safewinsock2.h, but __WIN32__ isn't defined!
+# error Including safewinsock2.h, but __WIN32__ is not defined!
 #endif
 
 // Include windows.h ourselves first to avoid problems with winsock2.h

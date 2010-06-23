@@ -291,15 +291,6 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-class RSetI;
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const RSetI &) {
-    ps.os << "RSetI";
-    return ps;
-}
-
 class BrassCursor;
 
 template<class S>

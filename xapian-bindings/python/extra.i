@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -1305,6 +1305,18 @@ def _docsim_set_termfreqsource(self, decider):
 _docsim_set_termfreqsource.__doc__ = __docsim_set_termfreqsource_orig.__doc__
 DocSim.set_termfreqsource = _docsim_set_termfreqsource
 del _docsim_set_termfreqsource
+
+
+# Fix up Stem.__init__() so that it calls __disown__() on the passed
+# StemImplementation object so that Python won't delete it from under us.
+_stem_init_orig = Stem.__init__
+def _stem_init(self, *args):
+    _stem_init_orig(self, *args)
+    if len(args) > 0 and isinstance(args[0], StemImplementation):
+        args[0].__disown__()
+_stem_init.__doc__ = Stem.__init__.__doc__
+Stem.__init__ = _stem_init
+
 
 # Remove static methods which shouldn't be in the API.
 del Document_unserialise

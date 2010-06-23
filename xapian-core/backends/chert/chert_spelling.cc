@@ -1,7 +1,7 @@
 /** @file chert_spelling.cc
  * @brief Spelling correction data for a chert database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -550,6 +550,15 @@ ChertSpellingTermList::next()
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;
+    return NULL;
+}
+
+TermList *
+ChertSpellingTermList::skip_to(const string & term)
+{
+    while (!data.empty() && current_term < term) {
+	(void)ChertSpellingTermList::next();
+    }
     return NULL;
 }
 

@@ -95,7 +95,7 @@ CLEANFILES = \
 # databases created by test cases.
 clean-local:
 	-rmdir xapian
-	rm -f db_test_* dbs_replication
+	rm -rf db_test_* dbs_replication
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at

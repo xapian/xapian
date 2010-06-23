@@ -14,7 +14,6 @@ noinst_HEADERS +=\
 	backends/brass/brass_dbstats.h\
 	backends/brass/brass_document.h\
 	backends/brass/brass_inverter.h\
-	backends/brass/brass_io.h\
 	backends/brass/brass_lazytable.h\
 	backends/brass/brass_metadata.h\
 	backends/brass/brass_positionlist.h\
@@ -42,7 +41,6 @@ lib_src +=\
 	backends/brass/brass_dbstats.cc\
 	backends/brass/brass_document.cc\
 	backends/brass/brass_inverter.cc\
-	backends/brass/brass_io.cc\
 	backends/brass/brass_metadata.cc\
 	backends/brass/brass_positionlist.cc\
 	backends/brass/brass_postlist.cc\

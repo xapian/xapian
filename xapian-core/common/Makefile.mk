@@ -47,7 +47,6 @@ noinst_HEADERS +=\
 	common/replicatetcpserver.h\
 	common/replication.h\
 	common/replicationprotocol.h\
-	common/rset.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
@@ -95,6 +94,12 @@ lib_src +=\
 	common/str.cc\
 	common/stringutils.cc\
 	common/utils.cc
+
+if USE_WIN32_UUID_API
+lib_src +=\
+	common/win32_uuid.cc
+libxapian_la_LDFLAGS += -lrpcrt4
+endif
 
 noinst_LTLIBRARIES += libgetopt.la
 

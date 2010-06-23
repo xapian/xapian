@@ -14,7 +14,7 @@ Group: Applications/Databases
 URL: http://xapian.org/
 Requires: %{name}-libs = %{version}
 Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
-BuildRequires: gcc-c++ zlib-devel
+BuildRequires: gcc-c++ zlib-devel e2fsprogs-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -88,8 +88,11 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_bindir}/simplesearch
 %{_bindir}/simpleexpand
 %{_bindir}/xapian-check
+%{_bindir}/xapian-chert-update
 %{_bindir}/xapian-compact
 %{_bindir}/xapian-inspect
+%{_bindir}/xapian-replicate
+%{_bindir}/xapian-replicate-server
 %doc %{_datadir}/doc/%{name}-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/xapian-tcpsrv.1*
@@ -98,8 +101,11 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_mandir}/man1/delve.1*
 %{_mandir}/man1/copydatabase.1*
 %{_mandir}/man1/xapian-check.1*
+%{_mandir}/man1/xapian-chert-update.1*
 %{_mandir}/man1/xapian-compact.1*
 %{_mandir}/man1/xapian-inspect.1*
+%{_mandir}/man1/xapian-replicate.1*
+%{_mandir}/man1/xapian-replicate-server.1*
 
 %files libs
 %defattr(-, root, root)

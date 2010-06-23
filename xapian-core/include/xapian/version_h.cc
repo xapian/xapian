@@ -5,7 +5,7 @@ const char * dummy[] = {
 "/** @file version.h",
 " * @brief Define preprocesor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -88,8 +88,13 @@ const char * dummy[] = {
 #endif
 "#endif",
 "#endif",
-#endif
 "",
+#endif
+#ifdef XAPIAN_ENABLE_VISIBILITY
+"/// The library was compiled with GCC's -fvisibility=hidden option.",
+"#define XAPIAN_ENABLE_VISIBILITY",
+"",
+#endif
 "/// The version of Xapian as a C string literal.",
 "#define XAPIAN_VERSION ",STRING_VERSION,
 "",

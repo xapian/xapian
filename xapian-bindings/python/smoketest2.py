@@ -24,14 +24,27 @@ import xapian
 
 from testsuite import *
 
+mystemmers = set()
+mystemmer_id = 0
 # Stemmer which strips English vowels.
 class MyStemmer(xapian.StemImplementation):
     def __init__(self):
+        global mystemmers
+        global mystemmer_id
         super(MyStemmer, self).__init__()
+        mystemmers.add(mystemmer_id)
+        self._id = mystemmer_id
+        mystemmer_id += 1
 
     def __call__(self, s):
         import re
         return re.sub(r'[aeiou]', '', s)
+
+    def __del__(self):
+        global mystemmers
+        if self._id not in mystemmers:
+            raise TestFail("MyStemmer #%d deleted more than once" % self._id)
+        mystemmers.remove(self._id)
 
 def test_all():
     # Test the version number reporting functions give plausible results.
@@ -40,6 +53,13 @@ def test_all():
                       xapian.revision())
     v2 = xapian.version_string()
     expect(v2, v, "Unexpected version output")
+
+    def access_cvar():
+        return xapian.cvar
+
+    # Check that SWIG isn't generated cvar (regression test for ticket#297).
+    expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
+                     access_cvar)
 
     stem = xapian.Stem("english")
     expect(str(stem), "Xapian::Stem(english)", "Unexpected str(stem)")
@@ -336,12 +356,13 @@ def test_all():
 
 def test_userstem():
     mystem = MyStemmer()
-    stem = xapian.Stem(mystem.__disown__())
+    stem = xapian.Stem(mystem)
     expect(stem('test'), 'tst')
+    stem2 = xapian.Stem(mystem)
+    expect(stem2('toastie'), 'tst')
 
-    stem = xapian.Stem(mystem.__disown__())
     indexer = xapian.TermGenerator()
-    indexer.set_stemmer(stem)
+    indexer.set_stemmer(xapian.Stem(MyStemmer()))
 
     doc = xapian.Document()
     indexer.set_document(doc)
@@ -353,11 +374,16 @@ def test_userstem():
         s += '/'
     expect(s, '/Zhll/Zwrld/hello/world/')
 
-    stem = xapian.Stem(MyStemmer().__disown__())
     parser = xapian.QueryParser()
-    parser.set_stemmer(stem)
+    parser.set_stemmer(xapian.Stem(MyStemmer()))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
     expect_query(parser.parse_query('color television'), '(clr:(pos=1) OR tlvsn:(pos=2))')
+
+def test_zz9_check_leaks():
+    import gc
+    gc.collect()
+    if len(mystemmers):
+        TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):
