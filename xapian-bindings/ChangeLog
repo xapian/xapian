@@ -1,3 +1,8 @@
+Thu Jun 24 15:19:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/util.i: COMPILE_DL_XAPIAN is no longer used now we have dropped
+	  PHP4 support, so remove.
+
 Tue Jun 22 15:18:44 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/pythontest3.py,python/smoketest3.py: Update python3 tests
