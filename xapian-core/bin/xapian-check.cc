@@ -32,6 +32,7 @@
 
 #include <xapian.h>
 
+#include <stdexcept>
 #include <iostream>
 
 using namespace std;
@@ -53,6 +54,31 @@ static void show_usage() {
 " + = same as tbv\n"
 " e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
 "      "PROG_NAME" /var/lib/xapian/data/default/postlist fbv" << endl;
+}
+
+static void
+reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid)
+{
+    if (last_docid >= 0x40000000ul / sizeof(Xapian::termcount)) {
+	// The memory block needed by the vector would be >= 1GB.
+	cout << "Cross-checking document lengths between the postlist and "
+		"termlist tables would use more than 1GB of memory, so "
+		"skipping that check" << endl;
+	return;
+    }
+    try {
+	doclens.reserve(last_docid + 1);
+    } catch (const std::bad_alloc &) {
+	// Failed to allocate the required memory.
+	cout << "Couldn't allocate enough memory for cross-checking document "
+		"lengths between the postlist and termlist tables, so "
+		"skipping that check" << endl;
+    } catch (const std::length_error &) {
+	// There are too many elements for the vector to handle!
+	cout << "Couldn't allocate enough elements for cross-checking document "
+		"lengths between the postlist and termlist tables, so "
+		"skipping that check" << endl;
+    }
 }
 
 int
@@ -105,7 +131,8 @@ main(int argc, char **argv)
 	    // Check a whole flint database directory.
 	    try {
 		Xapian::Database db = Xapian::Flint::open(dir);
-		doclens.reserve(db.get_lastdocid() + 1);
+		Xapian::docid db_last_docid = db.get_lastdocid();
+		reserve_doclens(doclens, db_last_docid);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -150,7 +177,6 @@ main(int argc, char **argv)
 	    try {
 		Xapian::Database db = Xapian::Chert::open(dir);
 		db_last_docid = db.get_lastdocid();
-		doclens.reserve(db_last_docid + 1);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -158,6 +184,7 @@ main(int argc, char **argv)
 		     << "\nContinuing check anyway" << endl;
 		++errors;
 	    }
+	    reserve_doclens(doclens, db_last_docid);
 	    // This is a chert directory so try to check all the btrees.
 	    // Note: it's important to check termlist before postlist so
 	    // that we can cross-check the document lengths.
@@ -198,7 +225,6 @@ main(int argc, char **argv)
 	    try {
 		Xapian::Database db = Xapian::Brass::open(dir);
 		db_last_docid = db.get_lastdocid();
-		doclens.reserve(db_last_docid + 1);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -206,6 +232,7 @@ main(int argc, char **argv)
 		     << "\nContinuing check anyway" << endl;
 		++errors;
 	    }
+	    reserve_doclens(doclens, db_last_docid);
 	    // This is a brass directory so try to check all the btrees.
 	    // Note: it's important to check termlist before postlist so
 	    // that we can cross-check the document lengths.
