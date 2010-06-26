@@ -1,0 +1,80 @@
+#!/usr/bin/perl -w
+use strict;
+
+open NEWS, '<', 'NEWS' or die "Can't find 'NEWS' in current directory: $!\n";
+my $news = <NEWS>;
+my $rev1;
+if ($news =~ /^(?:up *to:)? *(\d+)\b/i) {
+    # Partly updated already.
+    $rev1 = $1 + 1;
+    # Discard that line...
+    $news = undef;
+} elsif ($news =~ /^\S+ (\d+\.[\d\.]*\d) \(/) {
+    # No updates since the last release.
+    my $last_release = $1;
+    print "Finding changes since release '$last_release'.\n";
+    open SVNINFO, "svn info|" or die $!;
+    my $svnroot;
+    while (<SVNINFO>) {
+	if (s/^Repository Root: //) {
+	    chomp;
+	    $svnroot = $_;
+	    last;
+	}
+    }
+    if (!defined $svnroot) {
+	die "svn info didn't tell us the repo root!\n";
+    }
+    close SVNINFO;
+    open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/\Q$last_release|" or die $!;
+    my $line = <SVNLOG>;
+    if ($line !~ /^-+$/) {
+	die "Unexpected output from svn log.\n";
+    }
+    $line = <SVNLOG>;
+    if ($line !~ /^r(\d+) \|/) {
+	die "Unexpected output from svn log.\n";
+    }
+    $rev1 = $1;
+} else {
+    die "Can't find revision in NEWS\n";
+}
+
+open BLAME, "svn blame -r$rev1:HEAD ChangeLog 2>/dev/null|" or die $!;
+
+open NEWSTMP, '>', 'NEWS~' or die $!;
+
+my $lines = 0;
+my $prefix = "";
+while (<BLAME>) {
+    print NEWSTMP if $lines == 0;
+    if (!s/^( *(\d+) +(\S+) )//) {
+	last if (/^ *-/);
+    } else {
+	if ($1 ne $prefix) {
+	    $prefix = $1;
+	    $_ = $prefix . $_;
+	    print NEWSTMP "\n";
+	} else {
+	    next if $_ eq "\n";
+	}
+    }
+    print NEWSTMP;
+    ++$lines;
+}
+close BLAME;
+if ($lines == 0) {
+    close NEWSTMP;
+    unlink 'NEWS~';
+    print "No ChangeLog entries since the last update to NEWS.\n";
+    exit 0;
+}
+
+print NEWSTMP "\n";
+print NEWSTMP $news if defined $news;
+while (<NEWS>) {
+    print NEWSTMP;
+}
+close NEWS;
+close NEWSTMP or die $!;
+rename 'NEWS~', 'NEWS' or die $!;
