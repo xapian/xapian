@@ -1887,14 +1887,6 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	    C[i].rewrite = false;
 	}
 
-	// Do this as late as possible to allow maximum time for writes to be
-	// committed.
-	if (!io_sync(handle)) {
-	    (void)::close(handle);
-	    handle = -1;
-	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-	}
-
 	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
 	// that a reader can't try to read a partially written base file.
 	string tmp = name;
@@ -1903,6 +1895,17 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	basefile += "base";
 	basefile += char(base_letter);
 	base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+
+	// Do this as late as possible to allow maximum time for writes to
+	// happen, and so the calls to io_sync() are adjacent which may be
+	// more efficient, at least with some Linux kernel versions.
+	if (!io_sync(handle)) {
+	    (void)::close(handle);
+	    handle = -1;
+	    (void)unlink(tmp);
+	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+	}
+
 #if defined __WIN32__
 	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
 #else

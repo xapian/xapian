@@ -1,3 +1,11 @@
+Sat Jun 26 11:09:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Sync the table right after the base
+	  file, which allows more time for the table changes to be written,
+	  and doing the sync together may be more efficient with some Linux
+	  kernel versions.
+	* backends/chert/chert_table.cc: Same change for chert.
+
 Sat Jun 26 06:46:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: Reorder the release checklist.
