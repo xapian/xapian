@@ -1,0 +1,23 @@
+Omega @VERSION@ (@DATE@):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
