@@ -1,3 +1,7 @@
+Sat Jun 26 15:36:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add template for NEWS entry.
+
 Sat Jun 26 11:09:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Sync the table right after the base
