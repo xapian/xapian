@@ -1,6 +1,9 @@
 #!/usr/bin/perl -w
 use strict;
+use POSIX;
 
+my $new_version;
+my $date = strftime("%Y-%m-%d", gmtime());
 open NEWS, '<', 'NEWS' or die "Can't find 'NEWS' in current directory: $!\n";
 my $news = <NEWS>;
 my $rev1;
@@ -9,9 +12,10 @@ if ($news =~ /^(?:up *to:)? *(\d+)\b/i) {
     $rev1 = $1 + 1;
     # Discard that line...
     $news = undef;
-} elsif ($news =~ /^\S+ (\d+\.[\d\.]*\d) \(/) {
+} elsif ($news =~ /^\S+ (\d[\d\.]*\.)(\d) \(/) {
     # No updates since the last release.
-    my $last_release = $1;
+    my $last_release = "$1$2";
+    $new_version = $1.($2+1);
     print "Finding changes since release '$last_release'.\n";
     open SVNINFO, "svn info|" or die $!;
     my $svnroot;
@@ -71,8 +75,23 @@ if ($lines == 0) {
 }
 
 print NEWSTMP "\n";
+if (defined $new_version) {
+    if (open NEWSSKEL, '<', 'NEWS.SKELETON') {
+	while (<NEWSSKEL>) {
+	    s/\@VERSION\@/$new_version/g;
+	    s/\@DATE\@/$date/g;
+	    print NEWSTMP;
+	}
+	close NEWSSKEL;
+    }
+}
 print NEWSTMP $news if defined $news;
 while (<NEWS>) {
+    if (!defined $new_version) {
+	if (s/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()\d{4}-\d\d-\d\d(\):)$/$1$date$3/) {
+	    $new_version = $2;
+	}
+    }
     print NEWSTMP;
 }
 close NEWS;
