@@ -1,3 +1,7 @@
+Sat Jun 26 06:46:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Reorder the release checklist.
+
 Thu Jun 24 08:03:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	  bin/xapian-check.cc: Don't try to check doclengths are consistent

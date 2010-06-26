@@ -1445,11 +1445,6 @@ This is a (hopefully complete) list of the jobs which need doing:
   with this milestone will need to be moved to another milestone (most likely
   the milestone you just added).
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
-  latest version and the date it was released.
-
-* Run /home/olly/tmp/xapian-website-update/update_website.sh
-
 * Update the wiki:
 
   Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
@@ -1460,10 +1455,15 @@ This is a (hopefully complete) list of the jobs which need doing:
   date of this release and adding an entry for the next release with an
   estimated release date.
 
-* Update the freshmeat entry at:
-  http://freshmeat.net/projects/xapian/releases/new
+* Update the website: version.php in the CVS module www.xapian.org contains the
+  latest version and the date it was released.
+
+* Run /home/olly/tmp/xapian-website-update/update_website.sh
 
 * Announce the new version on xapian-discuss
+
+* Update the freshmeat entry at:
+  http://freshmeat.net/projects/xapian/releases/new
 
 * Have a nice cup of tea!
 
