@@ -1,3 +1,85 @@
+ 14769       olly Sat Jun 26 15:36:37 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.2 (2010-06-26):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+	  bin/xapian-check.cc: Don't try to check doclengths are consistent
+	  between the postlist and termlist tables if it would use more than
+	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
+	  issue affects sup users, as sup allocates docids such that they are
+	  sparse and large docids can easily occur.
+
+	* backends/brass/brass_table.cc: Sync the table right after the base
+	  file, which allows more time for the table changes to be written,
+	  and doing the sync together may be more efficient with some Linux
+	  kernel versions.
+
+	  bin/xapian-check.cc: Don't try to check doclengths are consistent
+	  between the postlist and termlist tables if it would use more than
+	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
+	  issue affects sup users, as sup allocates docids such that they are
+	  sparse and large docids can easily occur.
+
+chert backend:
+
+	* backends/brass/brass_table.cc: Sync the table right after the base
+	  file, which allows more time for the table changes to be written,
+	  and doing the sync together may be more efficient with some Linux
+	  kernel versions.
+
+flint backend:
+
+	  bin/xapian-check.cc: Don't try to check doclengths are consistent
+	  between the postlist and termlist tables if it would use more than
+	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
+	  issue affects sup users, as sup allocates docids such that they are
+	  sparse and large docids can easily occur.
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+examples:
+
+
+portability:
+
+	* include/xapian/weight.h: Revert Xapian::Weight's copy ctor back
+	  to protected as GCC 4.1 fails to compile subclasses when it is
+	  private (this appears to be a compiler bug).
+
+	* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes
+	  compilation error for some platforms and/or compilers (my guess would
+	  be GCC 4.5 - it builds OK with GCC 4.4).  (ticket#489)
+
+packaging:
+
+	* xapian-core.spec.in: Update for 1.2.x - add e2fsprogs-devel to
+	  BuildRequires and add new files.
+
+debug code:
+
+
 Xapian-core 1.2.1 (2010-06-22):
 
 This release includes all changes from 1.0.21 which are relevant.
