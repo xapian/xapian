@@ -1,84 +1,42 @@
- 14769       olly Sat Jun 26 15:36:37 GMT 2010  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.2 (2010-06-26):
-
-
-API:
-
-
-testsuite:
-
-
-matcher:
-
+Xapian-core 1.2.2 (2010-06-27):
 
 brass backend:
 
-	  bin/xapian-check.cc: Don't try to check doclengths are consistent
-	  between the postlist and termlist tables if it would use more than
-	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
-	  issue affects sup users, as sup allocates docids such that they are
-	  sparse and large docids can easily occur.
-
-	* backends/brass/brass_table.cc: Sync the table right after the base
-	  file, which allows more time for the table changes to be written,
-	  and doing the sync together may be more efficient with some Linux
-	  kernel versions.
-
-	  bin/xapian-check.cc: Don't try to check doclengths are consistent
-	  between the postlist and termlist tables if it would use more than
-	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
-	  issue affects sup users, as sup allocates docids such that they are
-	  sparse and large docids can easily occur.
+* Sync changes from each Btree table to disk right after syncing changes to
+  its base file, which allows more time for the table changes to be written
+  and may also be more efficient with some Linux kernel versions.
 
 chert backend:
 
-	* backends/brass/brass_table.cc: Sync the table right after the base
-	  file, which allows more time for the table changes to be written,
-	  and doing the sync together may be more efficient with some Linux
-	  kernel versions.
+* Sync changes from each Btree table to disk right after syncing changes to
+  its base file, which allows more time for the table changes to be written
+  and may also be more efficient with some Linux kernel versions.
 
-flint backend:
+tools:
 
-	  bin/xapian-check.cc: Don't try to check doclengths are consistent
-	  between the postlist and termlist tables if it would use more than
-	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
-	  issue affects sup users, as sup allocates docids such that they are
-	  sparse and large docids can easily occur.
-
-
-remote backend:
-
-
-inmemory backend:
-
-
-build system:
-
-
-documentation:
-
+* xapian-check: Don't try to check document lengths are consistent between the
+  postlist and termlist tables if it would use more than 1GB of memory, and
+  handle std::bad_alloc or std::length_error when trying to allocate space
+  for this.  This issue affected sup users, as sup allocates docids such that
+  they are sparse and large docids can easily occur.
 
 examples:
 
+* delve: Show the database's UUID.
 
 portability:
 
-	* include/xapian/weight.h: Revert Xapian::Weight's copy ctor back
-	  to protected as GCC 4.1 fails to compile subclasses when it is
-	  private (this appears to be a compiler bug).
+* Revert 1.2.1 change to visibility of Xapian::Weight's copy constructor as
+  it making it private broke compilation with GCC 4.1 (which seems to be a
+  bug in this compiler version).
 
-	* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes
-	  compilation error for some platforms and/or compilers (my guess would
-	  be GCC 4.5 - it builds OK with GCC 4.4).  (ticket#489)
+* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes compilation
+  error which was masked if valgrind was installed.  (ticket#489)
 
 packaging:
 
-	* xapian-core.spec.in: Update for 1.2.x - add e2fsprogs-devel to
-	  BuildRequires and add new files.
-
-debug code:
-
+* xapian-core.spec: Update for 1.2.x - add e2fsprogs-devel to BuildRequires and
+  add new files to install.
 
 Xapian-core 1.2.1 (2010-06-22):
 
