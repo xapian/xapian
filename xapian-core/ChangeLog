@@ -1,3 +1,7 @@
+Sun Jun 27 03:03:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.2.2.
+
 Sat Jun 26 15:55:45 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Create from ChangeLog.
