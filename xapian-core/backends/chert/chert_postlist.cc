@@ -233,12 +233,12 @@ read_start_of_chunk(const char ** posptr,
 		    bool * is_last_chunk_ptr)
 {
     LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk", reinterpret_cast<const void*>(posptr) | reinterpret_cast<const void*>(end) | first_did_in_chunk | reinterpret_cast<const void*>(is_last_chunk_ptr));
+    Assert(is_last_chunk_ptr);
 
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
 	report_read_error(*posptr);
-    if (is_last_chunk_ptr)
-	LOGVALUE(DB, *is_last_chunk_ptr);
+    LOGVALUE(DB, *is_last_chunk_ptr);
 
     // Read what the final document ID in this chunk is.
     Xapian::docid increase_to_last;

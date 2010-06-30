@@ -1,3 +1,9 @@
+Wed Jun 30 10:54:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_postlist.cc: Remove unnecessary NULL check.
+	  Identified by Coverity's Scan.
+	* backends/chert/chert_postlist.cc: Same change for chert.
+
 Tue Jun 29 12:17:16 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_chunkedlisttable.h,
