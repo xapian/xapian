@@ -1,3 +1,9 @@
+Fri Jul 02 12:54:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+	  (ticket#492).
+
 Fri Jun 18 16:57:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add 1.0.21 bug reporters.
