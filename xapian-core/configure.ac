@@ -361,22 +361,6 @@ AC_ARG_ENABLE([sse],
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
   esac])
 
-AC_MSG_CHECKING([whether to use SSE instructions on x86])
-case $host_cpu in
-  i*86)
-    if test "$enable_sse" = no ; then
-      AC_MSG_RESULT([no])
-    elif test yes = "$GXX"; then
-      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-      AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic"
-    else
-      AC_MSG_RESULT([don't know how to for compiler $CXX])
-    fi
-    ;;
-  *)
-    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
-esac
-
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
@@ -1104,6 +1088,27 @@ else
   dnl WARNING_CXXFLAGS is set above.
   AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
+
+AC_MSG_CHECKING([whether to use SSE instructions on x86])
+case $host_cpu in
+  i*86)
+    if test "$enable_sse" = no ; then
+      AC_MSG_RESULT([no])
+    elif test yes = "$GXX"; then
+      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+      case $gxx_version in
+      3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
+      *)
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
+      esac
+    else
+      AC_MSG_RESULT([don't know how to for compiler $CXX])
+    fi
+    ;;
+  *)
+    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
+esac
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
