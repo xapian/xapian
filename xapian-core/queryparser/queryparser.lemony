@@ -683,7 +683,11 @@ just_had_synonym_operator:
 			Term * range = state.value_range(a, b);
 			if (!range) {
 			    state.error = "Unknown range operation";
-			    goto done;
+			    if (a.find(':', 1) == string::npos) {
+				goto done;
+			    }
+			    // Might be a boolean filter with ".." in.
+			    break;
 			}
 			Parse(pParser, RANGE, range, &state);
 		    }

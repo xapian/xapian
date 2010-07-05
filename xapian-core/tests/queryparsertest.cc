@@ -1386,6 +1386,50 @@ static const double test_value_range_numbers[] = {
     64 // Magic number which we stop at.
 };
 
+static const test test_value_range4_queries[] = {
+    { "id:19254@foo..example.com", "Q19254@foo..example.com" },
+    { "hello:world", "XHELLOworld" },
+    { "hello:mum..world", "VALUE_RANGE 1 mum world" },
+    { NULL, NULL }
+};
+
+/** Test a boolean filter which happens to contain "..".
+ *
+ *  Regression test for bug fixed in 1.2.3.
+ *
+ *  Also test that the same prefix can be set for a valuerange and filter.
+ */
+static bool test_qp_value_range4()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("id", "Q");
+    qp.add_boolean_prefix("hello", "XHELLO");
+    Xapian::StringValueRangeProcessor vrp_str(1, "hello:");
+    qp.add_valuerangeprocessor(&vrp_str);
+    for (const test *p = test_value_range4_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+
 // Test serialisation and unserialisation of various numbers.
 static bool test_value_range_serialise1()
 {
@@ -2239,6 +2283,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
+    TESTCASE(qp_value_range4),
     TESTCASE(qp_value_daterange1),
     TESTCASE(qp_value_daterange2),
     TESTCASE(qp_value_stringrange1),

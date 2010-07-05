@@ -1,3 +1,10 @@
+Mon Jul 05 06:46:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix to be smarter about handling a
+	  boolean filter term containing ".." in the presence of
+	  valuerangeprocessors.
+	* tests/queryparsertest.cc: Add regression test qp_value_range4.
+
 Mon Jul 05 04:10:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,queryparser/queryparser.lt: Clean up
