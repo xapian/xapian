@@ -1,4 +1,4 @@
-xapian-core (1.2.2-1) UNRELEASED; urgency=low
+xapian-core (1.2.2-1) experimental; urgency=low
 
   * New upstream release.
   * Drop quilt dependencies now we're using source format "3.0 (quilt)".
@@ -10,7 +10,7 @@ xapian-core (1.2.2-1) UNRELEASED; urgency=low
     than a year.
   * debian/patches: All patches incorporated upstream, so remove.
 
- -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 13:16:20 +0000
+ -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 13:30:53 +0000
 
 xapian-core (1.2.0-3) experimental; urgency=low
 
