@@ -24,7 +24,10 @@
 # Codename we're building packages for.  For backported packages, put the
 # codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
 # exist, the default is sid.
-CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
+#CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
+
+# Default to experimental for tcl 8.5 testing until Xapian 1.2.x hits unstable.
+CODENAME := $(shell cat debian/codename 2>/dev/null||echo experimental)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
@@ -100,7 +103,11 @@ BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 #
 # lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
 # for the current preferred version.
+ifeq ($(CODENAME), experimental)
+BUILD_DEPS += tcl-dev (>= 8.5), tcl (>= 8.5),# NB Trailing ',' required here!
+else
 BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
+endif
 TCLSH=/usr/bin/tclsh-default
 
 # Build depends for Ruby.
