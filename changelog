@@ -1,3 +1,9 @@
+xapian-omega (1.2.2-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 13:34:00 +0000
+
 xapian-omega (1.2.0-3) experimental; urgency=low
 
   * Removing the call to autoreconf means we need libxapian-dev >= 1.2.0-2.
