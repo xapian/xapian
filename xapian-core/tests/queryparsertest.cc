@@ -1387,8 +1387,8 @@ static const double test_value_range_numbers[] = {
 };
 
 static const test test_value_range4_queries[] = {
-    { "id:19254@foo..example.com", "Q19254@foo..example.com" },
-    { "hello:world", "XHELLOworld" },
+    { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
+    { "hello:world", "0 * XHELLOworld" },
     { "hello:mum..world", "VALUE_RANGE 1 mum world" },
     { NULL, NULL }
 };

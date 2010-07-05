@@ -659,6 +659,7 @@ just_had_synonym_operator:
 	    // token.  Sadly this has O(n^2) tendencies, though at least
 	    // "n" is the number of words in a query which is likely to
 	    // remain fairly small.  FIXME: can we tokenise more elegantly?
+	    Utf8Iterator it_initial = it;
 	    Utf8Iterator p = it;
 	    unsigned ch = 0;
 	    while (p != end) {
@@ -686,7 +687,9 @@ just_had_synonym_operator:
 			    if (a.find(':', 1) == string::npos) {
 				goto done;
 			    }
-			    // Might be a boolean filter with ".." in.
+			    // Might be a boolean filter with ".." in.  Leave
+			    // state.error in case it isn't.
+			    it = it_initial;
 			    break;
 			}
 			Parse(pParser, RANGE, range, &state);
@@ -874,6 +877,8 @@ just_had_synonym_operator:
 			// Build the unstemmed form in field.
 			field += ':';
 			field += name;
+			// Clear any pending value range error.
+			state.error = NULL;
 			Term * token = new Term(&state, name, prefix_info, field);
 			Parse(pParser, BOOLEAN_FILTER, token, &state);
 			continue;

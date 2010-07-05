@@ -1,3 +1,11 @@
+Mon Jul 05 11:40:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Restore iterator to start of
+	  where we tried to parse a range if we decide it might be a filter
+	  term instead.  Clear the error if we decide it is a filter.
+	* tests/queryparsertest.cc: Fix expected test output from
+	  qp_value_range4 testcase.
+
 Mon Jul 05 06:46:16 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix to be smarter about handling a
