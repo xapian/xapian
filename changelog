@@ -1,11 +1,13 @@
-xapian-bindings (1.2.0-4) UNRELEASED; urgency=low
+xapian-bindings (1.2.2-1) experimental; urgency=low
 
+  * New upstream release.
+  * Build against tcl 8.5 in experimental.  (Closes: #582217)
   * debian/rules: Set TCLSH=/usr/bin/tclsh-default to make sure we use the
     default version of tclsh even if another version is installed and the
     preferred alternative.  Reported by Jonathan Nieder as a secondary issue in
     #582217.
 
- -- Olly Betts <olly@survex.com>  Thu, 20 May 2010 02:24:39 +0000
+ -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 13:50:16 +0000
 
 xapian-bindings (1.2.0-3) experimental; urgency=low
 
