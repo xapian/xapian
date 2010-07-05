@@ -106,7 +106,7 @@ maintclean: clean
 	rm -rf debian/xapian-tools
 	rm -rf debian/tmp debian/tmp-sse2
 
-debian/control: debian/rules debian/control.in debian/compat debian/patches/series
+debian/control: debian/rules debian/control.in debian/compat
 	rm -f debian/control.tmp
 	sed -e 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' \
 	    -e 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
@@ -232,11 +232,11 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean: debian/control unpatch
+clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -rf build build-sse2
 	rm -f config.sub config.guess
 	dh_clean
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean patch unpatch
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
