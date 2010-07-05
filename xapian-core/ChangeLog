@@ -1,3 +1,11 @@
+Mon Jul 05 04:10:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,queryparser/queryparser.lt: Clean up
+	  how value ranges are handled to do the checking of the range in the
+	  lexer, which then passes a single token (RANGE) to the parser
+	  (instead of a RANGE_START token which is always followed by a
+	  RANGE_END token).
+
 Fri Jul 02 12:32:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use

@@ -155,6 +155,9 @@ class Term {
 	 termpos pos_ = 0)
 	: state(state_), name(name_), prefix_info(prefix_info_),
 	  unstemmed(unstemmed_), stem(stem_), pos(pos_) { }
+    // For RANGE tokens.
+    Term(valueno slot, const string &a, const string &b)
+	: name(a), unstemmed(b), pos(slot) { }
 
     string make_term(const string & prefix) const;
 
@@ -179,6 +182,9 @@ class Term {
      *  know).
      */
     Query * as_partial_query(State * state_) const;
+
+    /// Value range query.
+    Query as_value_range_query() const;
 
     Query get_query() const;
 
@@ -211,30 +217,17 @@ class State {
 	qpi->unstem.insert(make_pair(term, unstemmed));
     }
 
-    valueno value_range(Query & q, Term *a, Term *b) {
+    Term * value_range(const string &a, const string &b) {
 	list<ValueRangeProcessor *>::const_iterator i;
 	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
-	    string start = a->name;
-	    string end = b->name;
-	    Xapian::valueno valno = (**i)(start, end);
-	    if (valno != Xapian::BAD_VALUENO) {
-		delete a;
-		delete b;
-		if (end.empty())
-		    q = Query(Query::OP_VALUE_GE, valno, start);
-		else
-		    q = Query(Query::OP_VALUE_RANGE, valno, start, end);
-		return valno;
+	    string start = a;
+	    string end = b;
+	    Xapian::valueno slot = (**i)(start, end);
+	    if (slot != Xapian::BAD_VALUENO) {
+		return new Term(slot, start, end);
 	    }
 	}
-	// FIXME: Do we want to report an error for this?  If not we need
-	// to perform the above check in the tokeniser and if none of the
-	// ValueRangeProcessor classes like the range, we rollback to
-	// parsing the query without treating this as a range.  Needs
-	// more thought and probably a look at queries users actually
-	// enter.
-	error = "Unknown range operation";
-	return Xapian::BAD_VALUENO;
+	return NULL;
     }
 
     Query::op default_op() const { return qpi->default_op; }
@@ -400,6 +393,18 @@ Term::as_partial_query(State * state_) const
 			   subqs_full.begin(), subqs_full.end()));
 }
 
+Query
+Term::as_value_range_query() const
+{
+    Query q;
+    if (unstemmed.empty())
+	q = Query(Query::OP_VALUE_GE, pos, name);
+    else
+	q = Query(Query::OP_VALUE_RANGE, pos, name, unstemmed);
+    delete this;
+    return q;
+}
+
 inline bool
 is_phrase_generator(unsigned ch)
 {
@@ -475,6 +480,7 @@ struct yyParser;
 static yyParser *ParseAlloc();
 static void ParseFree(yyParser *);
 static void Parse(yyParser *, int, Term *, State *);
+static void yy_parse_failed(yyParser *);
 
 void
 QueryParser::Internal::add_prefix(const string &field, const string &prefix,
@@ -657,25 +663,29 @@ just_had_synonym_operator:
 	    unsigned ch = 0;
 	    while (p != end) {
 		if (ch == '.' && *p == '.') {
-		    string r;
+		    string a;
 		    while (it != p) {
-			Unicode::append_utf8(r, *it++);
+			Unicode::append_utf8(a, *it++);
 		    }
 		    // Trim off the trailing ".".
-		    r.resize(r.size() - 1);
+		    a.resize(a.size() - 1);
 		    ++p;
 		    // Either end of the range can be empty (for an open-ended
 		    // range) but both can't be empty.
-		    if (!r.empty() || (p != end && *p > ' ' && *p != ')')) {
-			Parse(pParser, RANGE_START, new Term(r), &state);
-			r.resize(0);
-			// Allow any character except whitespace and ')' in a
-			// RANGE_END.  Or should we be consistent with
-			// RANGE_START?
+		    if (!a.empty() || (p != end && *p > ' ' && *p != ')')) {
+			string b;
+			// Allow any character except whitespace and ')' in the
+			// upper bound.  Or should we be consistent with the
+			// lower bound?
 			while (p != end && *p > ' ' && *p != ')') {
-			    Unicode::append_utf8(r, *p++);
+			    Unicode::append_utf8(b, *p++);
 			}
-			Parse(pParser, RANGE_END, new Term(r), &state);
+			Term * range = state.value_range(a, b);
+			if (!range) {
+			    state.error = "Unknown range operation";
+			    goto done;
+			}
+			Parse(pParser, RANGE, range, &state);
 		    }
 		    it = p;
 		    goto main_lex_loop;
@@ -1615,26 +1625,18 @@ prob_expr(E) ::= term(T). {
 %type prob {ProbQuery *}
 %destructor prob {delete $$;}
 
-prob(P) ::= RANGE_START(A) RANGE_END(B). {
-    Query range;
-    Xapian::valueno valno = state->value_range(range, A, B);
-    if (valno == BAD_VALUENO) {
-	yy_parse_failed(yypParser);
-	return;
-    }
+prob(P) ::= RANGE(R). {
+    valueno slot = R->pos;
+    const Query & range = R->as_value_range_query();
     P = new ProbQuery;
-    P->add_filter_range(valno, range);
+    P->add_filter_range(slot, range);
 }
 
-prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
-    Query range;
-    Xapian::valueno valno = state->value_range(range, A, B);
-    if (valno == BAD_VALUENO) {
-	yy_parse_failed(yypParser);
-	return;
-    }
+prob(P) ::= stop_prob(Q) RANGE(R). {
+    valueno slot = R->pos;
+    const Query & range = R->as_value_range_query();
     P = Q;
-    P->append_filter_range(valno, range);
+    P->append_filter_range(slot, range);
 }
 
 prob(P) ::= stop_term(T) stop_term(U). {
