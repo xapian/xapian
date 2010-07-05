@@ -55,6 +55,11 @@ else
     DEB_BUILD_OPTIONS += nocheck
 endif
 
+# For i386 and *-i386.
+ifeq ($(patsubst %-i386,i386,$(DEB_HOST_ARCH)), i386)
+    XAPIAN_BUILD_SSE := 1
+endif
+
 ifeq ($(DEB_HOST_ARCH), avr32)
     # The avr32 buildd is repeatedly failing with "Took too long", so disable
     # optimisation and the testsuite for now for a faster build.
@@ -110,10 +115,9 @@ debian/control: debian/rules debian/control.in debian/compat debian/patches/seri
 	mv debian/control.tmp debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
-# For i386 and *-i386.
-ifeq ($(patsubst %-i386,i386,$(DEB_HOST_ARCH)), i386)
-	echo usr/lib/sse2 | cat debian/libxapianVERSION.install - > debian/debian/libxapian$(libxapian_soversion).install~
-	mv -f debian/debian/libxapian$(libxapian_soversion).install~ debian/libxapian$(libxapian_soversion).install
+ifdef XAPIAN_BUILD_SSE
+	echo usr/lib/sse2 | cat debian/libxapianVERSION.install - > debian/libxapian.install~
+	mv -f debian/libxapian.install~ debian/libxapian$(libxapian_soversion).install
 else
 	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
 endif
@@ -138,7 +142,7 @@ configure-stamp: debian/control
 
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build
-ifeq ($(DEB_HOST_ARCH), i386)
+ifdef XAPIAN_BUILD_SSE
 	cd build && ../configure $(confflags) --disable-sse
 	mkdir -p build-sse2
 	cd build-sse2 && ../configure $(confflags) --disable-static
@@ -153,7 +157,7 @@ build: build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build
-ifeq ($(DEB_HOST_ARCH), i386)
+ifdef XAPIAN_BUILD_SSE
 	$(MAKE) -C build-sse2
 	$(MAKE_CHECK) -C build-sse2
 else
@@ -172,7 +176,7 @@ install: build \
 
 	# Install the files into debian/tmp
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
-ifeq ($(DEB_HOST_ARCH), i386)
+ifdef XAPIAN_BUILD_SSE
 	$(MAKE) -C build-sse2 DESTDIR=$(CURDIR)/debian/tmp-sse2 install
 	mkdir $(CURDIR)/debian/tmp/usr/lib/sse2
 	mv $(CURDIR)/debian-sse2/tmp/usr/lib/libxapian*.so.* $(CURDIR)/debian/tmp/usr/lib/sse2
