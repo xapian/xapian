@@ -64,12 +64,6 @@ endif
 CFLAGS :=
 CXXFLAGS := -g
 
-ifeq ($(DEB_HOST_ARCH), hurd-i386)
-    # Testcase topercent2 fails without -ffloat-store - smells like an excess
-    # precision issue.
-    CXXFLAGS += -ffloat-store
-endif
-
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
 
 ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
