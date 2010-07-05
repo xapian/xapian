@@ -8,8 +8,9 @@ xapian-core (1.2.2-1) UNRELEASED; urgency=low
     weight calculations) but the SSE2 build is faster too (~6%).
   * debian/rules: Try re-enabling optimisation on alpha - it's been more
     than a year.
+  * debian/patches: All patches incorporated upstream, so remove.
 
- -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 12:46:32 +0000
+ -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 13:16:20 +0000
 
 xapian-core (1.2.0-3) experimental; urgency=low
 
