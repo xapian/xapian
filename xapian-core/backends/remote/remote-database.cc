@@ -33,6 +33,7 @@
 #include "net_termlist.h"
 #include "remote-document.h"
 #include "omassert.h"
+#include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"

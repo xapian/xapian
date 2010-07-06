@@ -25,7 +25,6 @@
 #include "database.h"
 #include "omenquireinternal.h"
 #include "omqueryinternal.h"
-#include "omtime.h"
 #include "remoteconnection.h"
 #include "valuestats.h"
 #include "xapian/weight.h"
