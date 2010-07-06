@@ -1,5 +1,6 @@
 usr/bin/xapian-config
 usr/include
+usr/lib/cmake/xapian
 usr/lib/libxapian.a
 usr/lib/libxapian.la
 usr/lib/libxapian.so
