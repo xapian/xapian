@@ -53,9 +53,7 @@ PerfTestLogger logger;
 static string
 time_to_string(const OmTime & time)
 {
-    string frac = str(time.usec);
-    frac = string(6 - frac.size(), '0') + frac;
-    return str(time.sec) + "." + frac;
+    return str(time.as_double());
 }
 
 static string
