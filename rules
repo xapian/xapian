@@ -171,7 +171,7 @@ install: build \
 	 debian/libxapian$(libxapian_dev_soversion)-dev.install
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Install the files into debian/tmp

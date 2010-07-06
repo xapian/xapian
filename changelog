@@ -10,8 +10,9 @@ xapian-core (1.2.2-1) experimental; urgency=low
     weight calculations) but the SSE2 build is faster too (~6%).
   * debian/rules: Try re-enabling optimisation on alpha - it's been more
     than a year.
+  * debian/rules: Use dh_prep instead of dh_clean -k.
 
- -- Olly Betts <olly@survex.com>  Tue, 06 Jul 2010 13:30:30 +0000
+ -- Olly Betts <olly@survex.com>  Tue, 06 Jul 2010 13:33:37 +0000
 
 xapian-core (1.2.0-3) experimental; urgency=low
 
