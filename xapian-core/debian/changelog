@@ -1,6 +1,8 @@
 xapian-core (1.2.2-1) experimental; urgency=low
 
-  * New upstream release.
+  * New upstream release:
+    + debian/patches: All patches incorporated upstream, so remove.
+    + Package new upstream cmake support files in libxapian-dev.
   * Drop quilt dependencies now we're using source format "3.0 (quilt)".
   * On i386 and *-i386, build both SSE2 and i386 versions of the library.  The
     main motivation is correctness (upstream now defaults to using SSE because
@@ -8,9 +10,8 @@ xapian-core (1.2.2-1) experimental; urgency=low
     weight calculations) but the SSE2 build is faster too (~6%).
   * debian/rules: Try re-enabling optimisation on alpha - it's been more
     than a year.
-  * debian/patches: All patches incorporated upstream, so remove.
 
- -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 14:28:21 +0000
+ -- Olly Betts <olly@survex.com>  Tue, 06 Jul 2010 13:30:30 +0000
 
 xapian-core (1.2.0-3) experimental; urgency=low
 
@@ -418,7 +419,7 @@ xapian-core (0.9.6-3) unstable; urgency=low
     + Add a link to the homepage.
 
  -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 04:14:49 +0100
- 
+
 xapian-core (0.9.6-2) unstable; urgency=low
 
   * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
@@ -427,14 +428,14 @@ xapian-core (0.9.6-2) unstable; urgency=low
     diskspace and a little time during the build.
 
  -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:29:10 +0100
- 
+
 xapian-core (0.9.6-1) unstable; urgency=low
 
   * New upstream release.
   * "Standards-Version: 3.7.2" - no changes required.
 
  -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:20:07 +0100
- 
+
 xapian-core (0.9.5-3) unstable; urgency=low
 
   * Create xapian-examples package.
@@ -472,7 +473,7 @@ xapian-core (0.9.4-3) unstable; urgency=low
 
 xapian-core (0.9.4-2) unstable; urgency=low
 
-  * Fix invalid date line in previous changelog entry. 
+  * Fix invalid date line in previous changelog entry.
 
  -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:33:08 +0000
 
@@ -490,7 +491,7 @@ xapian-core (0.9.3-1) unstable; urgency=low
     when using a shared library of Xapian.
   * Query parser bug fix with "+" terms when default op is AND.
   * Query parser supports "AND NOT" as a synonym for "NOT".
-  * Various bug fixes - some errors threw unhelpful exception types. 
+  * Various bug fixes - some errors threw unhelpful exception types.
   * Use updated versions of automake and libtool.
   * Various documentation, debug and packaging updates.
 
@@ -508,7 +509,7 @@ xapian-core (0.9.2-1) unstable; urgency=low
 xapian-core (0.9.1-2) unstable; urgency=low
 
   * Add new header xapian/dbfactory.h
-  * Add delve and quest to xapian-tools package. 
+  * Add delve and quest to xapian-tools package.
 
  -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 10:45:17 +0100
 
@@ -534,7 +535,7 @@ xapian-core (0.8.5-1) unstable; urgency=low
 xapian-core (0.8.4-1) unstable; urgency=low
 
   * New upstream release.
-  * API changes: 
+  * API changes:
     - Added constructors to Database and WritableDatabase.
       Auto::open() is now deprecated.
     - Removed the ability to write a Xapian object to an ostream directly.
@@ -622,7 +623,7 @@ xapian-core (0.8.0-5) unstable; urgency=low
     to sort this out properly.
     Also, build depend on debhelper >= 4.1.22, since this is needed for
     --list-missing.
-  
+
  -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 11:59:42 +0100
 
 xapian-core (0.8.0-4) unstable; urgency=low
@@ -648,7 +649,7 @@ xapian-core (0.8.0-2) unstable; urgency=low
 
   * Fixed postinst, postrm, and prerm scripts to have a #!/bin/sh line, so
     they actually work.
-  * Various tweaks to debian/rules suggested by looking at dh_make output. 
+  * Various tweaks to debian/rules suggested by looking at dh_make output.
 
  -- Richard Boulton <richard@tartarus.org>  Tue, 11 May 2004 17:00:03 +0100
 
