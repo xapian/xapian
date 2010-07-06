@@ -2017,10 +2017,9 @@ static bool test_qp_stem_all1()
     return true;
 }
 
-static double time_query_parse(const Xapian::Database & db,
-			       const string & q,
-			       int repetitions,
-			       unsigned flags)
+static double
+time_query_parse(const Xapian::Database & db, const string & q,
+		 int repetitions, unsigned flags)
 {
     Xapian::QueryParser qp;
     qp.set_database(db);

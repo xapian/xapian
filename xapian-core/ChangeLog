@@ -1,3 +1,7 @@
+Tue Jul 06 15:17:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix formatting.
+
 Tue Jul 06 14:13:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest.cc: Use str(OmTime::as_double()) rather than
