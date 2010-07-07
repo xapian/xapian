@@ -115,12 +115,7 @@ debian/control: debian/rules debian/control.in debian/compat
 	mv debian/control.tmp debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
-ifdef XAPIAN_BUILD_SSE
-	echo usr/lib/sse2 | cat debian/libxapianVERSION.install - > debian/libxapian.install~
-	mv -f debian/libxapian.install~ debian/libxapian$(libxapian_soversion).install
-else
 	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
-endif
 
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
