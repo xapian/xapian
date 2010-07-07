@@ -1,3 +1,10 @@
+xapian-core (1.2.2-4) experimental; urgency=low
+
+  * Add patch check-select-errors.patch which will hopefully fix erratic FTBFS
+    on alpha and mipsel, or at least help to debug them.
+
+ -- Olly Betts <olly@survex.com>  Wed, 07 Jul 2010 12:06:07 +0000
+
 xapian-core (1.2.2-3) experimental; urgency=low
 
   * The special case code to add 'usr/lib/sse2' to libxapian22.install doesn't
