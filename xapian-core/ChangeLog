@@ -1,3 +1,10 @@
+Wed Jul 07 13:18:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Fix documentation comment for Xapian::timeout
+	  type - it holds a time interval in milliseconds not microseconds
+	  (the API docs for the methods which use it explicitly document this
+	  correctly).
+
 Tue Jul 06 15:17:09 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Fix formatting.

@@ -1,7 +1,7 @@
 /** @file xapian/types.h
  *  @brief typedefs for Xapian
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,10 +78,10 @@ typedef unsigned termpos;
  */
 typedef int termpos_diff; /* FIXME: can overflow. */
 
-/** A timeout value in microseconds.
+/** A timeout value in milliseconds.
  *
- *  There are 1 million microseconds in a second, so for example, to set a
- *  timeout of 5 seconds use 5000000.
+ *  There are 1000 milliseconds in a second, so for example, to set a
+ *  timeout of 5 seconds use 5000.
  */
 typedef unsigned timeout;
 
