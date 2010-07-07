@@ -2,11 +2,11 @@ xapian-core (1.2.2-3) experimental; urgency=low
 
   * The special case code to add 'usr/lib/sse2' to libxapian22.install doesn't
     work as this file is generated when the source package is made, not at
-    binary package build time.  Since debhelper ignores globs which don't
-    match any files, just put 'usr/lib/sse2/*' in libxapian22.install
-    unconditionally instead.
+    binary package build time.  Instead use 'usr/lib/{,sse2}/libxapian.so.*'
+    which will package the sse2 version if it has been built, and won't give
+    an error if it doesn't.
 
- -- Olly Betts <olly@survex.com>  Wed, 07 Jul 2010 00:46:51 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 07 Jul 2010 03:04:44 +0000
 
 xapian-core (1.2.2-2) experimental; urgency=low
 
