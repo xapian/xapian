@@ -1,3 +1,0 @@
-usr/lib/libxapian.so.*
-# For i386 and *-i386 (dh_install will just ignore a glob with no matches):
-usr/lib/sse2/*
