@@ -1161,7 +1161,7 @@ struct ProbQuery {
 	// we AND them.
 	bool exclusive = (id.prefix_info->type == BOOLEAN_EXCLUSIVE);
 	Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
-	q = Query(op, q, qnew); // OP_AND!
+	q = Query(op, q, qnew);
     }
 
     void add_filter_range(Xapian::valueno slot, const Query & range) {
