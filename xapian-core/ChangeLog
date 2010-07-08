@@ -1,3 +1,7 @@
+Thu Jul 08 15:07:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/keymaker.cc: Fix comment typos.
+
 Thu Jul 08 14:50:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/brass/,backends/chert/,
