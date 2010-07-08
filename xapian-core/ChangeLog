@@ -1,3 +1,9 @@
+Thu Jul 08 12:35:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Retry select() if it fails with EINTR while waiting
+	  for connect(), and discriminate cases with same failure message to
+	  aid debugging.
+
 Thu Jul 08 05:09:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Remove comment left over from the

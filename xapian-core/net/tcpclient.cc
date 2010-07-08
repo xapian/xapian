@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2004,2005,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -109,7 +109,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #endif
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkError("Couldn't connect", saved_errno);
+	    throw Xapian::NetworkError("Couldn't connect (1)", saved_errno);
 	}
 
 	// wait for input to be available.
@@ -117,15 +117,24 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	FD_ZERO(&fdset);
 	FD_SET(socketfd, &fdset);
 
-	struct timeval tv;
-	tv.tv_sec = msecs_timeout_connect / 1000;
-	tv.tv_usec = msecs_timeout_connect % 1000 * 1000;
+	do {
+	    // FIXME: Reduce the timeout if we retry on EINTR.
+	    struct timeval tv;
+	    tv.tv_sec = msecs_timeout_connect / 1000;
+	    tv.tv_usec = msecs_timeout_connect % 1000 * 1000;
 
-	retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
+	    retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
+	} while (retval < 0 && errno == EINTR);
 
-	if (retval == 0) {
+	if (retval < 0) {
+	    int saved_errno = errno;
 	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkTimeoutError("Couldn't connect", ETIMEDOUT);
+	    throw Xapian::NetworkError("Couldn't connect (2)", saved_errno);
+	}
+
+	if (retval <= 0) {
+	    close_fd_or_socket(socketfd);
+	    throw Xapian::NetworkTimeoutError("Timed out waiting to connect", ETIMEDOUT);
 	}
 
 	int err = 0;
@@ -143,7 +152,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	}
 	if (err) {
 	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkError("Couldn't connect", err);
+	    throw Xapian::NetworkError("Couldn't connect (3)", err);
 	}
     }
 
