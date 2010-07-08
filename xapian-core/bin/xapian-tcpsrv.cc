@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,8 +88,8 @@ static void show_usage() {
 int main(int argc, char **argv) {
     string host;
     int port = 0;
-    int msecs_active_timeout = MSECS_ACTIVE_TIMEOUT_DEFAULT;
-    int msecs_idle_timeout   = MSECS_IDLE_TIMEOUT_DEFAULT;
+    double active_timeout = MSECS_ACTIVE_TIMEOUT_DEFAULT * 1e-3;
+    double idle_timeout   = MSECS_IDLE_TIMEOUT_DEFAULT * 1e-3;
 
     bool one_shot = false;
     bool verbose = true;
@@ -113,13 +113,13 @@ int main(int argc, char **argv) {
                 port = atoi(optarg);
 	        break;
 	    case 'a':
-                msecs_active_timeout = atoi(optarg);
-	        break;
+		active_timeout = atoi(optarg) * 1e-3;
+		break;
             case 'i':
-	        msecs_idle_timeout   = atoi(optarg);
-	        break;
+		idle_timeout = atoi(optarg) * 1e-3;
+		break;
 	    case 't':
-		msecs_active_timeout = msecs_idle_timeout = atoi(optarg);
+		active_timeout = idle_timeout = atoi(optarg) * 1e-3;
 		break;
 	    case 'o':
 		one_shot = true;
@@ -175,8 +175,8 @@ int main(int argc, char **argv) {
 	    cout << " port " << port << endl;
 	}
 
-	RemoteTcpServer server(dbnames, host, port, msecs_active_timeout,
-			       msecs_idle_timeout, writable, verbose);
+	RemoteTcpServer server(dbnames, host, port, active_timeout,
+			       idle_timeout, writable, verbose);
 
 	if (verbose)
 	    cout << "Listening..." << endl;

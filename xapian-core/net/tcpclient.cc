@@ -30,6 +30,7 @@
 #include "safefcntl.h"
 #include "socket_utils.h"
 
+#include <cmath>
 #include <cstring>
 #ifndef __WIN32__
 # include <netdb.h>
@@ -41,7 +42,7 @@
 
 int
 TcpClient::open_socket(const std::string & hostname, int port,
-		       int msecs_timeout_connect, bool tcp_nodelay)
+		       double timeout_connect, bool tcp_nodelay)
 {
     // FIXME: timeout on gethostbyname() ?
     struct hostent *host = gethostbyname(hostname.c_str());
@@ -120,8 +121,8 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	do {
 	    // FIXME: Reduce the timeout if we retry on EINTR.
 	    struct timeval tv;
-	    tv.tv_sec = msecs_timeout_connect / 1000;
-	    tv.tv_usec = msecs_timeout_connect % 1000 * 1000;
+	    tv.tv_sec = long(timeout_connect);
+	    tv.tv_usec = long(std::fmod(timeout_connect, 1.0) * 1e6);
 
 	    retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 	} while (retval < 0 && errno == EINTR);

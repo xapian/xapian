@@ -33,7 +33,7 @@
 
 #include "debuglog.h"
 #include "omassert.h"
-#include "omtime.h"
+#include "realtime.h"
 #include "serialise.h"
 #include "socket_utils.h"
 #include "utils.h"
@@ -81,7 +81,7 @@ RemoteConnection::~RemoteConnection()
 }
 
 void
-RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
+RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
     LOGCALL_VOID(REMOTE, "RemoteConnection::read_at_least", min_len | end_time);
 
@@ -120,7 +120,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     } while (buffer.length() < min_len);
 #else
     // If there's no end_time, just use blocking I/O.
-    if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
+    if (fcntl(fdin, F_SETFL, (end_time != 0.0) ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdin non-blocking-ness",
 				   context, errno);
     }
@@ -144,24 +144,24 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	if (errno != EAGAIN)
 	    throw Xapian::NetworkError("read failed", context, errno);
 
-	Assert(end_time.is_set());
+	Assert(end_time != 0.0);
 	while (true) {
 	    // Calculate how far in the future end_time is.
-	    OmTime time_diff = end_time - OmTime::now();
+	    double time_diff = end_time - RealTime::now();
 	    // Check if the timeout has expired.
-	    if (time_diff.sec < 0) {
+	    if (time_diff < 0) {
 		LOGLINE(REMOTE, "read: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 	    }
-
-	    struct timeval tv;
-	    tv.tv_sec = time_diff.sec;
-	    tv.tv_usec = time_diff.usec;
 
 	    // Use select to wait until there is data or the timeout is reached.
 	    fd_set fdset;
 	    FD_ZERO(&fdset);
 	    FD_SET(fdin, &fdset);
+
+	    struct timeval tv;
+	    tv.tv_sec = long(time_diff);
+	    tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
 
 	    int select_result = select(fdin + 1, &fdset, 0, &fdset, &tv);
 	    if (select_result > 0) break;
@@ -202,7 +202,7 @@ RemoteConnection::ready_to_read() const
 }
 
 void
-RemoteConnection::send_message(char type, const string &message, const OmTime & end_time)
+RemoteConnection::send_message(char type, const string &message, double end_time)
 {
     LOGCALL_VOID(REMOTE, "RemoteConnection::send_message", type | message | end_time);
     if (fdout == -1) {
@@ -251,7 +251,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     }
 #else
     // If there's no end_time, just use blocking I/O.
-    if (fcntl(fdout, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
+    if (fcntl(fdout, F_SETFL, (end_time != 0.0) ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
 				   context, errno);
     }
@@ -285,15 +285,15 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	FD_ZERO(&fdset);
 	FD_SET(fdout, &fdset);
 
-	OmTime time_diff(end_time - OmTime::now());
-	if (time_diff.sec < 0) {
+	double time_diff = end_time - RealTime::now();
+	if (time_diff < 0) {
 	    LOGLINE(REMOTE, "write: timeout has expired");
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	}
 
 	struct timeval tv;
-	tv.tv_sec = time_diff.sec;
-	tv.tv_usec = time_diff.usec;
+	tv.tv_sec = long(time_diff);
+	tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
 
 	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
 
@@ -314,7 +314,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 }
 
 void
-RemoteConnection::send_file(char type, const string &file, const OmTime & end_time)
+RemoteConnection::send_file(char type, const string &file, double end_time)
 {
     LOGCALL_VOID(REMOTE, "RemoteConnection::send_file", type | file | end_time);
     if (fdout == -1) {
@@ -392,7 +392,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     }
 #else
     // If there's no end_time, just use blocking I/O.
-    if (fcntl(fdout, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
+    if (fcntl(fdout, F_SETFL, (end_time != 0.0) ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
 				   context, errno);
     }
@@ -432,15 +432,15 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	FD_ZERO(&fdset);
 	FD_SET(fdout, &fdset);
 
-	OmTime time_diff(end_time - OmTime::now());
-	if (time_diff.sec < 0) {
+	double time_diff = end_time - RealTime::now();
+	if (time_diff < 0) {
 	    LOGLINE(REMOTE, "write: timeout has expired");
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	}
 
 	struct timeval tv;
-	tv.tv_sec = time_diff.sec;
-	tv.tv_usec = time_diff.usec;
+	tv.tv_sec = long(time_diff);
+	tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
 
 	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
 
@@ -461,7 +461,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 }
 
 char
-RemoteConnection::sniff_next_message_type(const OmTime & end_time)
+RemoteConnection::sniff_next_message_type(double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::sniff_next_message_type", end_time);
     if (fdin == -1) {
@@ -474,7 +474,7 @@ RemoteConnection::sniff_next_message_type(const OmTime & end_time)
 }
 
 char
-RemoteConnection::get_message(string &result, const OmTime & end_time)
+RemoteConnection::get_message(string &result, double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::get_message", result | end_time);
     if (fdin == -1) {
@@ -513,7 +513,7 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
 }
 
 char
-RemoteConnection::get_message_chunked(const OmTime & end_time)
+RemoteConnection::get_message_chunked(double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
     if (fdin == -1) {
@@ -554,7 +554,7 @@ RemoteConnection::get_message_chunked(const OmTime & end_time)
 
 bool
 RemoteConnection::get_message_chunk(string &result, size_t at_least,
-				    const OmTime & end_time)
+				    double end_time)
 {
     LOGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk", result | at_least | end_time);
     if (fdin == -1) {
@@ -593,7 +593,7 @@ write_all(int fd, const char * p, size_t n)
 }
 
 char
-RemoteConnection::receive_file(const string &file, const OmTime & end_time)
+RemoteConnection::receive_file(const string &file, double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::receive_file", file | end_time);
     if (fdin == -1) {
@@ -658,7 +658,7 @@ RemoteConnection::do_close(bool wait)
 	    // We can be called from a destructor, so we can't throw an
 	    // exception.
 	    try {
-		send_message(MSG_SHUTDOWN, string(), OmTime());
+		send_message(MSG_SHUTDOWN, string(), 0.0);
 	    } catch (...) {
 	    }
 #ifdef __WIN32__
@@ -698,22 +698,18 @@ RemoteConnection::do_close(bool wait)
 
 #ifdef __WIN32__
 DWORD
-RemoteConnection::calc_read_wait_msecs(const OmTime & end_time)
+RemoteConnection::calc_read_wait_msecs(double end_time)
 {
-    if (!end_time.is_set())
+    if (end_time == 0.0)
 	return INFINITE;
 
     // Calculate how far in the future end_time is.
-    OmTime now(OmTime::now());
+    double time_diff = end_time - RealTime::now();
 
-    DWORD msecs;
-
-    // msecs is unsigned, so we mustn't try and return a negative value
-    if (now > end_time) {
+    // DWORD is unsigned, so we mustn't try and return a negative value.
+    if (time_diff < 0.0) {
 	throw Xapian::NetworkTimeoutError("Timeout expired before starting read", context);
     }
-    OmTime time_diff = end_time - now;
-    msecs = time_diff.sec * 1000 + time_diff.usec / 1000;
-    return msecs;
+    return static_cast<DWORD>(time_diff * 1000.0);
 }
 #endif

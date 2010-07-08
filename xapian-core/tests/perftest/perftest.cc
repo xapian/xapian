@@ -2,7 +2,7 @@
  *  \brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009 Olly Betts
+ * Copyright 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 #include "freemem.h"
 #include "omassert.h"
 #include "perftest/perftest_all.h"
+#include "realtime.h"
 #include "runprocess.h"
 #include "str.h"
 #include "stringutils.h"
@@ -49,12 +50,6 @@
 using namespace std;
 
 PerfTestLogger logger;
-
-static string
-time_to_string(const OmTime & time)
-{
-    return str(time.as_double());
-}
 
 static string
 escape_xml(const string & str)
@@ -337,7 +332,7 @@ PerfTestLogger::indexing_begin(const string & dbname,
     write("   </params>\n");
     indexing_addcount = 0;
     indexing_unlogged_changes = false;
-    indexing_timer = OmTime::now();
+    indexing_timer = RealTime::now();
     last_indexlog_timer = indexing_timer;
     indexing_started = true;
 
@@ -348,13 +343,29 @@ void
 PerfTestLogger::indexing_log()
 {
     Assert(indexing_started);
-    last_indexlog_timer = OmTime::now();
-    OmTime elapsed(last_indexlog_timer - indexing_timer);
+    last_indexlog_timer = RealTime::now();
+    double elapsed(last_indexlog_timer - indexing_timer);
     write("   <item>"
-	  "<time>" + time_to_string(elapsed) + "</time>"
+	  "<time>" + str(elapsed) + "</time>"
 	  "<adds>" + str(indexing_addcount) + "</adds>"
 	  "</item>\n");
     indexing_unlogged_changes = false;
+}
+
+void
+PerfTestLogger::indexing_add()
+{
+    ++indexing_addcount;
+    indexing_unlogged_changes = true;
+    // Log every 1000 documents
+    if (indexing_addcount % 1000 == 0) {
+	indexing_log();
+    } else {
+	// Or after 5 seconds
+	double now = RealTime::now();
+	if (now > last_indexlog_timer + 5)
+	    indexing_log();
+    }
 }
 
 void
@@ -379,13 +390,19 @@ PerfTestLogger::searching_start(const string & description)
 }
 
 void
+PerfTestLogger::search_start()
+{
+    searching_timer = RealTime::now();
+}
+
+void
 PerfTestLogger::search_end(const Xapian::Query & query,
 			   const Xapian::MSet & mset)
 {
     Assert(searching_started);
-    OmTime elapsed(OmTime::now() - searching_timer);
+    double elapsed(RealTime::now() - searching_timer);
     write("    <search>"
-	  "<time>" + time_to_string(elapsed) + "</time>"
+	  "<time>" + str(elapsed) + "</time>"
 	  "<query>" + escape_xml(query.get_description()) + "</query>"
 	  "<mset>"
 	  "<size>" + str(mset.size()) + "</size>"

@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@
 #include "net_termlist.h"
 #include "remote-document.h"
 #include "omassert.h"
-#include "omtime.h"
+#include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -48,7 +48,7 @@
 
 using namespace std;
 
-RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
+RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 			       const string & context_, bool writable)
 	: link(fd, fd, context_),
 	  context(context_),
@@ -482,9 +482,7 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
 reply_type
 RemoteDatabase::get_message(string &result, reply_type required_type) const
 {
-    OmTime end_time;
-    if (timeout) end_time = OmTime::now() + timeout;
-
+    double end_time = RealTime::end_time(timeout);
     reply_type type = static_cast<reply_type>(link.get_message(result, end_time));
     if (type == REPLY_EXCEPTION) {
 	unserialise_error(result, "REMOTE:", context);
@@ -503,9 +501,7 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
 void
 RemoteDatabase::send_message(message_type type, const string &message) const
 {
-    OmTime end_time;
-    if (timeout) end_time = OmTime::now() + timeout;
-
+    double end_time = RealTime::end_time(timeout);
     link.send_message(static_cast<unsigned char>(type), message, end_time);
 }
 

@@ -48,7 +48,6 @@
 #include "flint_values.h"
 #include "debuglog.h"
 #include "io_utils.h"
-#include "omtime.h"
 #include "remoteconnection.h"
 #include "replicate_utils.h"
 #include "replication.h"
@@ -548,8 +547,7 @@ FlintDatabase::get_database_write_lock(bool creating)
 }
 
 void
-FlintDatabase::send_whole_database(RemoteConnection & conn,
-				   const OmTime & end_time)
+FlintDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 {
     LOGCALL_VOID(DB, "FlintDatabase::send_whole_database", conn | end_time);
 
@@ -608,7 +606,6 @@ FlintDatabase::write_changesets_to_fd(int fd,
     }
 
     RemoteConnection conn(-1, fd, "");
-    OmTime end_time;
 
     // While the starting revision number is less than the latest revision
     // number, look for a changeset, and write it.
@@ -624,7 +621,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    if (whole_db_copies_left == 0) {
 		conn.send_message(REPL_REPLY_FAIL,
 				  "Database changing too fast",
-				  end_time);
+				  0.0);
 		return;
 	    }
 	    whole_db_copies_left--;
@@ -633,7 +630,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    start_rev_num = get_revision_number();
 	    start_uuid = get_uuid();
 
-	    send_whole_database(conn, end_time);
+	    send_whole_database(conn, 0.0);
 	    if (info != NULL)
 		++(info->fullcopy_count);
 
@@ -648,7 +645,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		string buf;
 		needed_rev_num = get_revision_number();
 		buf += F_pack_uint(needed_rev_num);
-		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+		conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
 		if (info != NULL && start_rev_num == needed_rev_num)
 		    info->changed = true;
 	    } else {
@@ -662,7 +659,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 
 		string buf;
 		buf += F_pack_uint(start_rev_num + 1);
-		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+		conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
 		need_whole_db = true;
 	    }
 	} else {
@@ -697,7 +694,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		// FIXME - there is a race condition here - the file might get
 		// deleted between the file_exists() test and the access to
 		// send it.
-		conn.send_file(REPL_REPLY_CHANGESET, changes_name, end_time);
+		conn.send_file(REPL_REPLY_CHANGESET, changes_name, 0.0);
 		start_rev_num = changeset_end_rev_num;
 		if (info != NULL) {
 		    ++(info->changeset_count);
@@ -711,7 +708,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    }
 	}
     }
-    conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), end_time);
+    conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), 0.0);
 }
 
 void

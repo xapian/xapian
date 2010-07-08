@@ -33,7 +33,6 @@
 #include "brass_version.h"
 #include "debuglog.h"
 #include "io_utils.h"
-#include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
@@ -84,7 +83,7 @@ void
 BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 						      string & buf,
 						      RemoteConnection & conn,
-						      const OmTime & end_time) const
+						      double end_time) const
 {
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
@@ -156,7 +155,7 @@ void
 BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename,
 							string & buf,
 							RemoteConnection & conn,
-							const OmTime & end_time) const
+							double end_time) const
 {
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
@@ -226,7 +225,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 
 string
 BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
-						   const OmTime & end_time,
+						   double end_time,
 						   bool valid) const
 {
     LOGCALL(DB, string, "BrassDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
