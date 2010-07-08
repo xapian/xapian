@@ -1038,7 +1038,6 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider);
 
     try {
-	// FIXME: this copies the eset too much: pass it in by reference?
 	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);

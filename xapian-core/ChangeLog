@@ -1,3 +1,9 @@
+Thu Jul 08 15:18:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Xapian::ESet is a reference counted handle, so it
+	  is efficient to return by value - remove FIXME which suggests we
+	  should avoid doing so.
+
 Thu Jul 08 15:17:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Update FIXMEs - it's too late to fix stuff
