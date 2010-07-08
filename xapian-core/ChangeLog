@@ -1,3 +1,8 @@
+Thu Jul 08 15:13:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Remove FIXMEs about debug logging which have been
+	  addressed by the fairly recent debug logging improvements.
+
 Thu Jul 08 15:07:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/keymaker.cc: Fix comment typos.

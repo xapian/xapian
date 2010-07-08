@@ -1004,7 +1004,6 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  const MatchDecider *mdecider,
 		  const MatchDecider *matchspy) const
 {
-    // FIXME: display contents of pointer params, if they're not null.
     LOGCALL(API, Xapian::MSet, "Xapian::Enquire::get_mset", first | maxitems | check_at_least | rset | mdecider | matchspy);
 
     try {
@@ -1021,7 +1020,6 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider) const
 {
-    // FIXME: display contents of pointer params, if they're not null.
     LOGCALL(API, Xapian::MSet, "Xapian::Enquire::get_mset", first | maxitems | check_at_least | rset | mdecider);
 
     try {
@@ -1037,8 +1035,6 @@ ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 		  double k, const ExpandDecider * edecider) const
 {
-    // FIXME: display contents of pointer params and rset, if they're not
-    // null.
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider);
 
     try {
