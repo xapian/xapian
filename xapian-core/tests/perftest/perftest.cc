@@ -33,8 +33,8 @@
 #include "stringutils.h"
 #include "testrunner.h"
 #include "testsuite.h"
-#include "utils.h"
 
+#include <cstdlib>
 #include <iostream>
 
 #include "safeunistd.h"
@@ -474,7 +474,7 @@ class PerfTestRunner : public TestRunner
 	int result = 0;
 	if (!repetitions_parsed) {
 	    if (!repetitions_string.empty()) {
-		repetitions = atoi(repetitions_string);
+		repetitions = atoi(repetitions_string.c_str());
 	    }
 	    repetitions_parsed = true;
 	}
