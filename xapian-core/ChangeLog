@@ -1,3 +1,9 @@
+Fri Jul 09 04:39:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Remove unused std::string to const
+	  char * wrappers for standard functions, and remove the only use of
+	  rmdir()'s wrapper.
+
 Thu Jul 08 15:18:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Xapian::ESet is a reference counted handle, so it
