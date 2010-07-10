@@ -1,3 +1,10 @@
+Sat Jul 10 15:27:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: -D__WIN32__ on the g++ command line works for
+	  testing on Linux, so no need to have that in the code.  Add a couple
+	  of UNC path test cases which pass, and a commented-out one which
+	  fails.
+
 Sat Jul 10 14:58:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/fileutils.cc,common/fileutils.h: We use these routines to

@@ -27,13 +27,6 @@
 
 using namespace std;
 
-// Change 0 to 1 to force __WIN32__ for testing.
-#if 0
-#ifdef XAPIAN_UNIT_TEST
-# define __WIN32__
-#endif
-#endif
-
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
 static bool
@@ -144,6 +137,12 @@ int main() {
     // This one is impossible to reliably resolve without knowing the current
     // drive - if it is C:, then the answer is: "C:/abs/o/rel/a/tive"
     TEST_EQUAL(test_r_r_p("C:rel/a/tive", "/abs/o/lute"), "C:rel/a/tive");
+    // UNC paths tests:
+    TEST_EQUAL(test_r_r_p("\\\\SRV\\VOL\\FILE", "/a/b"), "\\\\SRV\\VOL\\FILE");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "\\\\SRV\\VOL\\DIR\\FILE"), "\\\\SRV\\VOL\\DIR\\rel/a/tive");
+#if 0 // Currently fails:
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "\\\\SRV\\VOL\\FILE"), "\\\\SRV\\VOL/abs/o/lute");
+#endif
 #endif
     return 0;
 }
