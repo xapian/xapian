@@ -2,7 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009 Olly Betts
+ * Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,46 +20,19 @@
  */
 
 #include <config.h>
+
 #include "fileutils.h"
 
-#include "stringutils.h"
 #include <string>
 
 using namespace std;
 
-static bool
-isabspath(const string & path)
-{
-    // Empty paths are never absolute.
-    if (path.empty()) return false;
-#ifdef __WIN32__
-    // On windows, paths may begin with a drive letter - but the part after the
-    // drive letter may still be relative.
-    if (path.size() >= 2 && path[1] == ':') {
-	if (path.size() == 2) return false;
-	if (path[2] != '/' && path[2] != '\\') return false;
-	return true;
-    }
-    if (path[0] != '/' && path[0] != '\\') return false;
-    return true;
-#else
-    // Assume we're on a unix system.
-    if (path[0] != '/') return false;
-    return true;
+// Change 0 to 1 to force __WIN32__ for testing.
+#if 0
+#ifdef XAPIAN_UNIT_TEST
+# define __WIN32__
 #endif
-}
-
-string
-calc_dirname(const string & filename)
-{
-    string::size_type slash = filename.rfind('/');
-#ifdef __WIN32__
-    string::size_type backslash = filename.rfind('\\');
-    if (backslash != string::npos && backslash > slash) slash = backslash;
 #endif
-    if (slash == string::npos) return "./";
-    return (filename.substr(0, slash) + "/");
-}
 
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
@@ -68,39 +41,110 @@ has_drive(const string &path)
 {
     return (path.size() >= 2 && path[1] == ':');
 }
-
-/// Return true iff a path consists only of a drive letter.
-static bool
-is_drive(const string &path)
-{
-    if (!has_drive(path)) return false;
-    if (path.size() == 2) return true;
-    if (path.size() == 3 && (path[2] == '\\' || path[2] == '/')) return true;
-    return false;
-}
 #endif
 
-string
-join_paths(const string & path1, const string & path2)
+void
+resolve_relative_path(string & path, const string & base_path)
 {
-    if (path1.empty()) return path2;
-#ifdef __WIN32__
-    if (isabspath(path2)) {
-	// If path2 has a drive, just return it.
-	// Otherwise, if path1 is only a drive specification, prepend that
-	// drive specifier to path2.
-	if (has_drive(path2)) return path2;
-	if (is_drive(path1)) return path1.substr(0, 2) + path2;
-	return path2;
+#ifndef __WIN32__
+    if (path.empty() || path[0] != '/') {
+	// path is relative.
+	string::size_type last_slash = base_path.rfind('/');
+	if (last_slash != string::npos)
+	    path.insert(0, base_path, 0, last_slash + 1);
     }
-    if (has_drive(path2)) return path2;
-    if (endswith(path1, '/') || endswith(path1, '\\'))
-	return path1 + path2;
-    return path1 + "\\" + path2;
 #else
-    // Assume we're on a unix system.
-    if (isabspath(path2)) return path2;
-    if (path1[path1.size() - 1] == '/') return path1 + path2;
-    return path1 + "/" + path2;
+    // Microsoft Windows paths may begin with a drive letter but still be
+    // relative within that drive.
+    bool drive = has_drive(path);
+    string::size_type p = (drive ? 2 : 0);
+    bool absolute = (p != path.size() && (path[p] == '/' || path[p] == '\\'));
+
+    if (absolute) {
+	// If path is absolute and has a drive specifier, just return it.  If
+	// it doesn't have a drive specifier and base_path does, prepend it
+	// to path.
+	if (!drive && has_drive(base_path))
+	    path.insert(0, base_path, 0, 2);
+	return;
+    }
+    // path is relative, so if it has no drive specifier or the same drive
+    // specifier as base_path, then we want to qualify it using base_path.
+    bool base_drive = has_drive(base_path);
+    if (!drive || (base_drive && (path[0] | 32) == (base_path[0] | 32))) {
+	string::size_type last_slash = base_path.find_last_of("/\\");
+	if (last_slash == string::npos && !drive && base_drive)
+	    last_slash = 1;
+	if (last_slash != string::npos) {
+	    string::size_type b = (drive && base_drive ? 2 : 0);
+	    path.insert(b, base_path, b, last_slash + 1 - b);
+	}
+
+    }
 #endif
 }
+
+#ifdef XAPIAN_UNIT_TEST
+inline string
+test_r_r_p(string a, const string & b)
+{
+    resolve_relative_path(a, b);
+    return a;
+}
+
+#include <cstdlib>
+#include <iostream>
+using namespace std;
+
+#define TEST_EQUAL(A, B) if ((A) != (B)) { cout << __FILE__ << ":" << __LINE__ << ": " << A << " != " << B << endl; exit(1); }
+
+int main() {
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", ""), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "/"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "//"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "foo"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "foo/"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "/foo"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "/foo/"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "foo/bar"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "foo/bar/"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "/foo/bar"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "/foo/bar/"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", ""), "rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "/"), "/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "//"), "//rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "foo"), "rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "foo/"), "foo/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "/foo"), "/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "/foo/"), "/foo/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "foo/bar"), "foo/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "foo/bar/"), "foo/bar/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "/foo/bar"), "/foo/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "/foo/bar/"), "/foo/bar/rel/a/tive");
+#ifndef __WIN32__
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "/foo\\bar"), "/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "/foo\\bar"), "/rel/a/tive");
+#else
+    TEST_EQUAL(test_r_r_p("\\dos\\path", ""), "\\dos\\path");
+    TEST_EQUAL(test_r_r_p("\\dos\\path", "/"), "\\dos\\path");
+    TEST_EQUAL(test_r_r_p("\\dos\\path", "\\"), "\\dos\\path");
+    TEST_EQUAL(test_r_r_p("\\dos\\path", "c:"), "c:\\dos\\path");
+    TEST_EQUAL(test_r_r_p("\\dos\\path", "c:\\"), "c:\\dos\\path");
+    TEST_EQUAL(test_r_r_p("\\dos\\path", "c:\\temp"), "c:\\dos\\path");
+    TEST_EQUAL(test_r_r_p("\\dos\\path", "c:\\temp\\"), "c:\\dos\\path");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "\\"), "\\rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "foo\\"), "foo\\rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel\\a\\tive", "/foo/"), "/foo/rel\\a\\tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "c:/foo/bar"), "c:/foo/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "c:foo/bar/"), "c:foo/bar/rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "c:"), "c:rel/a/tive");
+    TEST_EQUAL(test_r_r_p("rel/a/tive", "c:\\"), "c:\\rel/a/tive");
+    TEST_EQUAL(test_r_r_p("C:rel/a/tive", "c:\\foo\\bar"), "C:\\foo\\rel/a/tive");
+    TEST_EQUAL(test_r_r_p("C:rel/a/tive", "c:"), "C:rel/a/tive");
+    // This one is impossible to reliably resolve without knowing the current
+    // drive - if it is C:, then the answer is: "C:/abs/o/rel/a/tive"
+    TEST_EQUAL(test_r_r_p("C:rel/a/tive", "/abs/o/lute"), "C:rel/a/tive");
+#endif
+    return 0;
+}
+#endif

@@ -22,20 +22,13 @@
 #ifndef XAPIAN_INCLUDED_FILEUTILS_H
 #define XAPIAN_INCLUDED_FILEUTILS_H
 
-#include "xapian/visibility.h"
-
 #include <string>
 
-/** Return the path of the directory holding filename.
+/** Resolve @a path relative to @a base_path.
  *
- *  The returned path will always end with a directory separator.
+ *  Return @a path qualified to work as if you did "chdir(base_path)" first.
  */
-std::string calc_dirname(const std::string & filename);
-
-/** Join two paths together.
- *
- *  Pays attention to whether path2 is absolute or relative.
- */
-std::string join_paths(const std::string & path1, const std::string & path2);
+void resolve_relative_path(std::string & path,
+			   const std::string & base_path);
 
 #endif /* XAPIAN_INCLUDED_FILEUTILS_H */

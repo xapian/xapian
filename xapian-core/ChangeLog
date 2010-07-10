@@ -1,3 +1,14 @@
+Sat Jul 10 14:58:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc,common/fileutils.h: We use these routines to
+	  resolve a relative path (in a stub database file) in terms of a
+	  second path (the filename of that file), so just instead a
+	  routine to do exactly that, which is easier to code and more
+	  efficient.  The new implementation fixes several bugs with
+	  Microsoft Windows paths.  Some testcases (currently not used)
+	  are now present in fileutils.cc (ticket#243).
+	* backends/dbfactory.cc: Use the new API.
+
 Fri Jul 09 07:42:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest.cc: I missed a use of atoi() on std::string
