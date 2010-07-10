@@ -2,7 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,11 +24,11 @@
 
 #include <string>
 
-/** Resolve @a path relative to @a base_path.
+/** Resolve @a path relative to @a base.
  *
- *  Return @a path qualified to work as if you did "chdir(base_path)" first.
+ *  Return @a path qualified to work as if you did "chdir(<directory which base
+ *  is in>)" first.
  */
-void resolve_relative_path(std::string & path,
-			   const std::string & base_path);
+void resolve_relative_path(std::string & path, const std::string & base);
 
 #endif /* XAPIAN_INCLUDED_FILEUTILS_H */
