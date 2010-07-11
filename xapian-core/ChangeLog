@@ -1,3 +1,7 @@
+Sun Jul 11 13:14:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Support the \\?\ path syntax.
+
 Sat Jul 10 15:49:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/fileutils.cc,common/fileutils.h: Fix resolve_relative_path()

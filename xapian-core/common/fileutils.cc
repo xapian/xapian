@@ -23,6 +23,7 @@
 
 #include "fileutils.h"
 
+#include <cstring>
 #include <string>
 
 using namespace std;
@@ -59,23 +60,51 @@ resolve_relative_path(string & path, const string & base)
     bool absolute = (p != path.size() && slash(path[p]));
 
     if (absolute) {
-	// If path is absolute and has a drive specifier, just return it.  If
-	// it doesn't have a drive specifier, and base has a drive specifier or
-	// UNC \\SERVER\\VOLUME, prepend that to path.
-	if (!drive) {
-	    if (has_drive(base)) {
-		path.insert(0, base, 0, 2);
-	    } else if (base.size() >= 5 && slash(base[0]) && slash(base[1])) {
-		// Handle UNC base.
-		string::size_type sl = base.find_first_of("/\\", 2);
-		if (sl != string::npos) {
-		    sl = base.find_first_of("/\\", sl + 1);
-		    path.insert(0, base, 0, sl);
+	// If path is absolute and has a drive specifier, just return it.
+	if (drive)
+	    return;
+
+	// If base has a drive specifier prepend that to path.
+	if (has_drive(base)) {
+	    path.insert(0, base, 0, 2);
+	    return;
+	}
+
+	// If base has a UNC (\\SERVER\\VOLUME) or \\?\ prefix, prepend that
+	// to path.
+	if (base.size() >= 4 && memcmp(base.data(), "\\\\?\\", 4) == 0) {
+	    string::size_type sl = 0;
+	    if (base.size() >= 7 && memcmp(base.data() + 5, ":\\", 2) == 0) {
+		// "\\?\X:\"
+		sl = 6;
+	    } else if (base.size() >= 8 &&
+		       memcmp(base.data() + 4, "UNC\\", 4) == 0) {
+		// "\\?\UNC\server\volume\"
+		sl = base.find('\\', 8);
+		if (sl != string::npos)
+		    sl = base.find('\\', sl + 1);
+	    }
+	    if (sl) {
+		// With the \\?\ prefix, '/' isn't recognised so change it
+		// to '\' in path.
+		string::iterator i;
+		for (i = path.begin(); i != path.end(); ++i) {
+		    if (*i == '/')
+			*i = '\\';
 		}
+		path.insert(0, base, 0, sl);
+	    }
+	} else if (base.size() >= 5 && slash(base[0]) && slash(base[1])) {
+	    // Handle UNC base.
+	    string::size_type sl = base.find_first_of("/\\", 2);
+	    if (sl != string::npos) {
+		sl = base.find_first_of("/\\", sl + 1);
+		path.insert(0, base, 0, sl);
 	    }
 	}
 	return;
     }
+
     // path is relative, so if it has no drive specifier or the same drive
     // specifier as base, then we want to qualify it using base.
     bool base_drive = has_drive(base);
@@ -85,9 +114,17 @@ resolve_relative_path(string & path, const string & base)
 	    last_slash = 1;
 	if (last_slash != string::npos) {
 	    string::size_type b = (drive && base_drive ? 2 : 0);
+	    if (base.size() >= 4 && memcmp(base.data(), "\\\\?\\", 4) == 0) {
+		// With the \\?\ prefix, '/' isn't recognised so change it
+		// to '\' in path.
+		string::iterator i;
+		for (i = path.begin(); i != path.end(); ++i) {
+		    if (*i == '/')
+			*i = '\\';
+		}
+	    }
 	    path.insert(b, base, b, last_slash + 1 - b);
 	}
-
     }
 #endif
 }
@@ -100,13 +137,14 @@ test_r_r_p(string a, const string & b)
     return a;
 }
 
-#include <cstdlib>
 #include <iostream>
+
 using namespace std;
 
-#define TEST_EQUAL(A, B) if ((A) != (B)) { cout << __FILE__ << ":" << __LINE__ << ": " << A << " != " << B << endl; exit(1); }
+#define TEST_EQUAL(A, B) if ((A) != (B)) { cout << __FILE__ << ":" << __LINE__ << ": " << A << " != " << B << endl; rc = 1; }
 
 int main() {
+    int rc = 0;
     TEST_EQUAL(test_r_r_p("/abs/o/lute", ""), "/abs/o/lute");
     TEST_EQUAL(test_r_r_p("/abs/o/lute", "/"), "/abs/o/lute");
     TEST_EQUAL(test_r_r_p("/abs/o/lute", "//"), "/abs/o/lute");
@@ -165,7 +203,18 @@ int main() {
     TEST_EQUAL(test_r_r_p("/abs/o/lute", "//S/V/FILE"), "//S/V/abs/o/lute");
     TEST_EQUAL(test_r_r_p("/abs/o/lute", "//S/V/"), "//S/V/abs/o/lute");
     TEST_EQUAL(test_r_r_p("/abs/o/lute", "//S/V"), "//S/V/abs/o/lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "\\\\?\\C:\\wibble"), "\\\\?\\C:\\abs\\o\\lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "\\\\?\\UNC\\S\\V"), "\\\\?\\UNC\\S\\V\\abs\\o\\lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "\\\\?\\UNC\\S\\V\\"), "\\\\?\\UNC\\S\\V\\abs\\o\\lute");
+    TEST_EQUAL(test_r_r_p("/abs/o/lute", "\\\\?\\UNC\\S\\V\\TMP\\README.TXT"), "\\\\?\\UNC\\S\\V\\abs\\o\\lute");
+    TEST_EQUAL(test_r_r_p("r/elativ/e", "\\\\?\\C:\\wibble"), "\\\\?\\C:\\r\\elativ\\e");
+    TEST_EQUAL(test_r_r_p("r/elativ/e", "\\\\?\\C:\\wibble\\wobble"), "\\\\?\\C:\\wibble\\r\\elativ\\e");
+#if 0 // Is this a valid testcase?  It fails, but isn't relevant to Xapian.
+    TEST_EQUAL(test_r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V"), "\\\\?\\UNC\\S\\V\\r\\elativ\\e");
 #endif
-    return 0;
+    TEST_EQUAL(test_r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V\\"), "\\\\?\\UNC\\S\\V\\r\\elativ\\e");
+    TEST_EQUAL(test_r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V\\TMP\\README.TXT"), "\\\\?\\UNC\\S\\V\\TMP\\r\\elativ\\e");
+#endif
+    return rc;
 }
 #endif
