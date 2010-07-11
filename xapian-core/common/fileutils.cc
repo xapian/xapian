@@ -36,6 +36,13 @@ has_drive(const string &path)
     return (path.size() >= 2 && path[1] == ':');
 }
 
+/// Return true iff path is a UNCW path.
+static bool
+uncw_path(const string & path)
+{
+    return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4));
+}
+
 inline bool slash(char ch)
 {
     return ch == '/' || ch == '\\';
@@ -72,7 +79,7 @@ resolve_relative_path(string & path, const string & base)
 
 	// If base has a UNC (\\SERVER\\VOLUME) or \\?\ prefix, prepend that
 	// to path.
-	if (base.size() >= 4 && memcmp(base.data(), "\\\\?\\", 4) == 0) {
+	if (uncw_path(base)) {
 	    string::size_type sl = 0;
 	    if (base.size() >= 7 && memcmp(base.data() + 5, ":\\", 2) == 0) {
 		// "\\?\X:\"
@@ -114,7 +121,7 @@ resolve_relative_path(string & path, const string & base)
 	    last_slash = 1;
 	if (last_slash != string::npos) {
 	    string::size_type b = (drive && base_drive ? 2 : 0);
-	    if (base.size() >= 4 && memcmp(base.data(), "\\\\?\\", 4) == 0) {
+	    if (uncw_path(base)) {
 		// With the \\?\ prefix, '/' isn't recognised so change it
 		// to '\' in path.
 		string::iterator i;

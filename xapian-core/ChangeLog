@@ -1,3 +1,8 @@
+Sun Jul 11 14:59:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Factor out UNCW path check into a helper
+	  function.
+
 Sun Jul 11 14:56:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/fileutils.cc,tests/Makefile.am,tests/unittest.cc: Move the
