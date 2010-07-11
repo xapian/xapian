@@ -35,12 +35,14 @@ check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
 	    stemtest$(EXEEXT) \
 	    queryparsertest$(EXEEXT) \
-	    termgentest$(EXEEXT)
+	    termgentest$(EXEEXT) \
+	    unittest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
 	$(TESTS_ENVIRONMENT) ./internaltest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./stemtest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./queryparsertest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./termgentest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./unittest$(EXEEXT)
 
 check-inmemory: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
@@ -115,10 +117,11 @@ endif
 
 ## Test programs to be run
 TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- queryparsertest$(EXEEXT) termgentest$(EXEEXT)
+ queryparsertest$(EXEEXT) termgentest$(EXEEXT) unittest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = apitest internaltest stemtest queryparsertest termgentest
+check_PROGRAMS = \
+	apitest internaltest stemtest queryparsertest termgentest unittest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
@@ -181,6 +184,9 @@ queryparsertest_LDADD = ../libgetopt.la ../$(libxapian_la)
 termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
+
+unittest_SOURCES = unittest.cc
+unittest_LDFLAGS = -no-install $(ldflags)
 
 BUILT_SOURCES =
 
