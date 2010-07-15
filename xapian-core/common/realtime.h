@@ -90,7 +90,7 @@ inline void sleep(double t) {
 	tv.tv_usec = long(std::fmod(delta, 1.0) * 1e6);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 && errno == EINTR);
 #else
-    extern void xapian_sleep_milliseconds(unsigned int millisecs);
+    extern void ::xapian_sleep_milliseconds(unsigned int millisecs);
     double delta = RealTime::now() - t;
     if (delta <= 0.0)
 	return;

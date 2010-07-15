@@ -1,3 +1,8 @@
+Thu Jul 15 13:45:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/realtime.h:Explicitly specify global namespace for
+	  xapian_sleep_milliseconds prototype as MSVC seems to need this.
+
 Thu Jul 15 13:03:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix handling of groups of terms which
