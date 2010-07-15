@@ -1,3 +1,7 @@
+Thu Jul 15 08:13:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Fix reversed memcmp() test.
+
 Sun Jul 11 14:59:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/fileutils.cc: Factor out UNCW path check into a helper
