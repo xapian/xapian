@@ -1,3 +1,10 @@
+Thu Jul 15 13:03:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of groups of terms which
+	  are all stopwords - in situations where this causes a problem we now
+	  disable stopword checks for such groups.  (ticket#245)
+	* tests/queryparsertest.cc: Add regression testcases.
+
 Thu Jul 15 08:13:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/fileutils.cc: Fix reversed memcmp() test.

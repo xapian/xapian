@@ -239,6 +239,18 @@ class State {
     Database get_database() const {
 	return qpi->db;
     }
+
+    const Stopper * get_stopper() const {
+	return qpi->stopper;
+    }
+
+    size_t stoplist_size() const {
+	return qpi->stoplist.size();
+    }
+
+    void stoplist_resize(size_t s) {
+	qpi->stoplist.resize(s);
+    }
 };
 
 string
@@ -634,16 +646,22 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 main_lex_loop:
     enum {
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_GROUP,
-	EXPLICIT_SYNONYM
+	IN_GROUP2, EXPLICIT_SYNONYM
     } mode = DEFAULT;
     while (it != end && !state.error) {
 	bool last_was_operator = false;
+	bool last_was_operator_needing_term = false;
 	if (mode == EXPLICIT_SYNONYM) mode = DEFAULT;
 	if (false) {
 just_had_operator:
 	    if (it == end) break;
 	    mode = DEFAULT;
-just_had_synonym_operator:
+	    last_was_operator_needing_term = false;
+	    last_was_operator = true;
+	}
+	if (false) {
+just_had_operator_needing_term:
+	    last_was_operator_needing_term = true;
 	    last_was_operator = true;
 	}
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
@@ -654,7 +672,8 @@ just_had_synonym_operator:
 	    if (it == end) break;
 	}
 
-	if ((mode == DEFAULT || mode == IN_GROUP) && value_ranges) {
+	if (value_ranges &&
+	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2)) {
 	    // Scan forward to see if this could be the "start of range"
 	    // token.  Sadly this has O(n^2) tendencies, though at least
 	    // "n" is the number of words in a query which is likely to
@@ -709,7 +728,8 @@ just_had_synonym_operator:
 	    unsigned ch = *it++;
 	    newprev = ch;
 	    // Drop out of IN_GROUP mode.
-	    if (mode == IN_GROUP) mode = DEFAULT;
+	    if (mode == IN_GROUP || mode == IN_GROUP2)
+		mode = DEFAULT;
 	    switch (ch) {
 	      case '"': // Quoted phrase.
 		if (mode == DEFAULT) {
@@ -766,7 +786,7 @@ just_had_synonym_operator:
 			token = HATE;
 		    }
 		    Parse(pParser, token, NULL, &state);
-		    goto just_had_operator;
+		    goto just_had_operator_needing_term;
 		}
 		// Need to prevent the term after a LOVE or HATE starting a
 		// term group...
@@ -816,7 +836,7 @@ just_had_synonym_operator:
 		    }
 		    Parse(pParser, SYNONYM, NULL, &state);
 		    mode = EXPLICIT_SYNONYM;
-		    goto just_had_synonym_operator;
+		    goto just_had_operator_needing_term;
 		}
 		break;
 	    }
@@ -832,7 +852,7 @@ just_had_synonym_operator:
 
 	// A term, a prefix, or a boolean operator.
 	const PrefixInfo * prefix_info = NULL;
-	if ((mode == DEFAULT || mode == IN_GROUP || mode == EXPLICIT_SYNONYM) &&
+	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2 || mode == EXPLICIT_SYNONYM) &&
 	    !prefixmap.empty()) {
 	    // Check for a fieldname prefix (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
@@ -851,7 +871,7 @@ just_had_synonym_operator:
 
 		    if (prefix_info->type != NON_BOOLEAN) {
 			// Drop out of IN_GROUP if we're in it.
-			if (mode == IN_GROUP)
+			if (mode == IN_GROUP || mode == IN_GROUP2)
 			    mode = DEFAULT;
 			it = p;
 			string name;
@@ -923,7 +943,7 @@ phrased_term:
 	string term = parse_term(it, end, was_acronym);
 
 	// Boolean operators.
-	if ((mode == DEFAULT || mode == IN_GROUP) &&
+	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
@@ -1020,15 +1040,20 @@ phrased_term:
 	    Term * term_obj = new Term(&state, term, prefix_info,
 				       unstemmed_term, stem_term, term_pos++);
 
-	    if (mode == DEFAULT || mode == IN_GROUP) {
+	    if (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
 		if (it != end) {
 		    if ((flags & FLAG_WILDCARD) && *it == '*') {
 			Utf8Iterator p(it);
 			++p;
 			if (p == end || !is_wordchar(*p)) {
 			    it = p;
-			    // Drop out of IN_GROUP if we are in it.
-			    mode = DEFAULT;
+			    if (mode == IN_GROUP || mode == IN_GROUP2) {
+				// Drop out of IN_GROUP and flag that the group
+				// can be empty if all members are stopwords.
+				if (mode == IN_GROUP2)
+				    Parse(pParser, EMPTY_GROUP_OK, NULL, &state);
+				mode = DEFAULT;
+			    }
 			    // Wildcard at end of term (also known as
 			    // "right truncation").
 			    Parse(pParser, WILD_TERM, term_obj, &state);
@@ -1037,6 +1062,13 @@ phrased_term:
 		    }
 		} else {
 		    if (flags & FLAG_PARTIAL) {
+			if (mode == IN_GROUP || mode == IN_GROUP2) {
+			    // Drop out of IN_GROUP and flag that the group
+			    // can be empty if all members are stopwords.
+			    if (mode == IN_GROUP2)
+				Parse(pParser, EMPTY_GROUP_OK, NULL, &state);
+			    mode = DEFAULT;
+			}
 			// Final term of a partial match query, with no
 			// following characters - treat as a wildcard.
 			Parse(pParser, PARTIAL_TERM, term_obj, &state);
@@ -1074,7 +1106,8 @@ phrased_term:
 	    } else {
 		// See if the next token will be PHR_TERM - if so, this one
 		// needs to be TERM not GROUP_TERM.
-		if (mode == IN_GROUP && is_phrase_generator(*it)) {
+		if ((mode == IN_GROUP || mode == IN_GROUP2) &&
+		    is_phrase_generator(*it)) {
 		    // FIXME: can we clean this up?
 		    Utf8Iterator p = it;
 		    do {
@@ -1087,9 +1120,14 @@ phrased_term:
 		    }
 		}
 
-		Parse(pParser, (mode == IN_GROUP ? GROUP_TERM : TERM),
-		      term_obj, &state);
-		if (mode != DEFAULT && mode != IN_GROUP) continue;
+		int token = TERM;
+		if (mode == IN_GROUP || mode == IN_GROUP2) {
+		    mode = IN_GROUP2;
+		    token = GROUP_TERM;
+		}
+		Parse(pParser, token, term_obj, &state);
+		if (token == TERM && mode != DEFAULT)
+		    continue;
 	    }
 	}
 
@@ -1107,9 +1145,10 @@ phrased_term:
 		term_start_index = it.raw() - qs.data();
 		goto phrased_term;
 	    }
-	} else if (mode == DEFAULT || mode == IN_GROUP) {
+	} else if (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
+	    int old_mode = mode;
 	    mode = DEFAULT;
-	    if (!last_was_operator && is_whitespace(*it)) {
+	    if (!last_was_operator_needing_term && is_whitespace(*it)) {
 		newprev = ' ';
 		// Skip multiple whitespace.
 		do {
@@ -1118,7 +1157,11 @@ phrased_term:
 		// Don't generate a group unless the terms are only separated
 		// by whitespace.
 		if (it != end && is_wordchar(*it)) {
-		    mode = IN_GROUP;
+		    if (old_mode == IN_GROUP || old_mode == IN_GROUP2) {
+			mode = IN_GROUP2;
+		    } else {
+			mode = IN_GROUP;
+		    }
 		}
 	    }
 	}
@@ -1188,13 +1231,23 @@ struct ProbQuery {
 class TermGroup {
     vector<Term *> terms;
 
+    /** Controls how to handle a group where all terms are stopwords.
+     *
+     *  If true, then as_group() returns NULL.  If false, then the
+     *  stopword status of the terms is ignored.
+     */
+    bool empty_ok;
+
   public:
-    TermGroup() { }
+    TermGroup() : empty_ok(false) { }
 
     /// Add a Term object to this TermGroup object.
     void add_term(Term * term) {
 	terms.push_back(term);
     }
+
+    /// Set the empty_ok flag.
+    void set_empty_ok() { empty_ok = true; }
 
     /// Convert to a Xapian::Query * using default_op.
     Query * as_group(State *state) const;
@@ -1219,6 +1272,9 @@ class TermGroup {
 Query *
 TermGroup::as_group(State *state) const
 {
+    const Xapian::Stopper * stopper = state->get_stopper();
+    size_t stoplist_size = state->stoplist_size();
+reprocess:
     Query::op default_op = state->default_op();
     vector<Query> subqs;
     subqs.reserve(terms.size());
@@ -1234,7 +1290,7 @@ TermGroup::as_group(State *state) const
 	    TermIterator synend(db.synonym_keys_end((*i)->name));
 	    if (synkey == synend) {
 		// No multi-synonym matches.
-		if (state->is_stopword(*i)) {
+		if (stopper && (*stopper)((*i)->name)) {
 		    state->add_to_stoplist(*i);
 		} else {
 		    subqs.push_back((*i)->get_query_with_auto_synonyms());
@@ -1261,7 +1317,7 @@ TermGroup::as_group(State *state) const
 	    }
 	    if (i == begin) {
 		// No multi-synonym matches.
-		if (state->is_stopword(*i)) {
+		if (stopper && (*stopper)((*i)->name)) {
 		    state->add_to_stoplist(*i);
 		} else {
 		    subqs.push_back((*i)->get_query_with_auto_synonyms());
@@ -1273,7 +1329,7 @@ TermGroup::as_group(State *state) const
 	    vector<Query> subqs2;
 	    vector<Term*>::const_iterator j;
 	    for (j = begin; j != i; ++j) {
-		if (state->is_stopword(*j)) {
+		if (stopper && (*stopper)((*j)->name)) {
 		    state->add_to_stoplist(*j);
 		} else {
 		    subqs2.push_back((*j)->get_query());
@@ -1306,12 +1362,21 @@ TermGroup::as_group(State *state) const
     } else {
 	vector<Term*>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); ++i) {
-	    if (state->is_stopword(*i)) {
+	    if (stopper && (*stopper)((*i)->name)) {
 		state->add_to_stoplist(*i);
 	    } else {
 		subqs.push_back((*i)->get_query_with_auto_synonyms());
 	    }
 	}
+    }
+
+    if (!empty_ok && stopper && subqs.empty() &&
+	stoplist_size < state->stoplist_size()) {
+	// This group is all stopwords, so roll-back, disable stopper
+	// temporarily, and reprocess this group.
+	state->stoplist_resize(stoplist_size);
+	stopper = NULL;
+	goto reprocess;
     }
 
     delete this;
@@ -1618,7 +1683,6 @@ prob_expr(E) ::= prob(P). {
 	}
 	*E = Query(Query::OP_AND_NOT, *E, *P->hate);
     }
-    // FIXME what if E && E->empty() (all terms are stopwords)?
     delete P;
 }
 
@@ -1879,6 +1943,11 @@ group(P) ::= TERM(T) GROUP_TERM(U). {
 group(P) ::= group(Q) GROUP_TERM(T). {
     P = Q;
     P->add_term(T);
+}
+
+group(P) ::= group(Q) EMPTY_GROUP_OK. {
+    P = Q;
+    P->set_empty_ok();
 }
 
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2

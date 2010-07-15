@@ -141,6 +141,8 @@ static const test test_or_queries[] = {
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(Zhard:(pos=1) OR Zspace:(pos=2))" },
     { " white\r\nspace\ttest ", "(Zwhite:(pos=1) OR Zspace:(pos=2) OR Ztest:(pos=3))" },
+    { "one AND two three", "(Zone:(pos=1) AND (Ztwo:(pos=2) OR Zthree:(pos=3)))" },
+    { "one two AND three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND Zthree:(pos=3))" },
     { "one AND two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND /two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND/two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
@@ -1069,11 +1071,16 @@ static const test test_stop_queries[] = {
     // parse.
     { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
     // 0.9.6 and earlier ignored a stopword even if it was the only term.
-    // We don't ignore it in this case, which is probably better.  But
-    // an all-stopword query with multiple terms doesn't work, which
-    // prevents 'to be or not to be' for being searchable unless made
-    // into a phrase query.
+    // More recent versions don't ever treat a single term as a stopword.
     { "the", "the:(pos=1)" },
+    // 1.2.2 and earlier ignored an all-stopword query with multiple terms,
+    // which prevents 'to be or not to be' for being searchable unless the
+    // user made it into a phrase query or prefixed all terms with '+'
+    // (ticket#245).
+    { "an the a", "(an:(pos=1) AND the:(pos=2) AND a:(pos=3))" },
+    // Regression test for bug in initial version of the patch for the
+    // "all-stopword" case.
+    { "the AND a an", "(the:(pos=1) AND a:(pos=2) AND an:(pos=3))" },
     { NULL, NULL }
 };
 
