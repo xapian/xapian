@@ -1,3 +1,8 @@
+Wed Jul 21 18:00:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* unicode/tclUniData.cc: Fix comment - this is Unicode 5.2 data, not
+	  5.1.
+
 Thu Jul 15 13:45:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/realtime.h:Explicitly specify global namespace for
