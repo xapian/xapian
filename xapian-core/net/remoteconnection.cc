@@ -202,7 +202,8 @@ RemoteConnection::ready_to_read() const
 }
 
 void
-RemoteConnection::send_message(char type, const string &message, double end_time)
+RemoteConnection::send_message(char type, const string &message,
+			       double end_time)
 {
     LOGCALL_VOID(REMOTE, "RemoteConnection::send_message", type | message | end_time);
     if (fdout == -1) {

@@ -1,3 +1,7 @@
+Thu Jul 22 07:13:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Wrap line.
+
 Thu Jul 22 07:11:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/remoteserver.h,net/remoteserver.cc: Pass 1.0 for the end time
