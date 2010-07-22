@@ -76,6 +76,13 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     /// Send a message to the client.
     void send_message(reply_type type, const std::string &message);
 
+    /// Send a message to the client, with specific end_time.
+    void send_message(reply_type type, const std::string &message,
+		      double end_time) {
+	unsigned char type_as_char = static_cast<unsigned char>(type);
+	RemoteConnection::send_message(type_as_char, message, end_time);
+    }
+
     // all terms
     void msg_allterms(const std::string & message);
 

@@ -198,9 +198,9 @@ RemoteServer::run()
 	} catch (const Xapian::NetworkTimeoutError & e) {
 	    try {
 		// We've had a timeout, so the client may not be listening, so
-		// if we can't send the message right away, just exit and the
-		// client will cope.
-		RemoteConnection::send_message(REPLY_EXCEPTION, serialise_error(e), RealTime::now()); // FIXME: unless the timer granularity is poor, setting end_time to "now" will usually result in a timeout without trying to send anything...
+		// set the end_time to 1 and if we can't send the message right
+		// away, just exit and the client will cope.
+		send_message(REPLY_EXCEPTION, serialise_error(e), 1.0);
 	    } catch (...) {
 	    }
 	    // And rethrow it so our caller can log it and close the
