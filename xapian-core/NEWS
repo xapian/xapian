@@ -1,3 +1,43 @@
+Xapian-core 1.2.2 (2010-06-27):
+
+brass backend:
+
+* Sync changes from each Btree table to disk right after syncing changes to
+  its base file, which allows more time for the table changes to be written
+  and may also be more efficient with some Linux kernel versions.
+
+chert backend:
+
+* Sync changes from each Btree table to disk right after syncing changes to
+  its base file, which allows more time for the table changes to be written
+  and may also be more efficient with some Linux kernel versions.
+
+tools:
+
+* xapian-check: Don't try to check document lengths are consistent between the
+  postlist and termlist tables if it would use more than 1GB of memory, and
+  handle std::bad_alloc or std::length_error when trying to allocate space
+  for this.  This issue affected sup users, as sup allocates docids such that
+  they are sparse and large docids can easily occur.
+
+examples:
+
+* delve: Show the database's UUID.
+
+portability:
+
+* Revert 1.2.1 change to visibility of Xapian::Weight's copy constructor as
+  it making it private broke compilation with GCC 4.1 (which seems to be a
+  bug in this compiler version).
+
+* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes compilation
+  error which was masked if valgrind was installed.  (ticket#489)
+
+packaging:
+
+* xapian-core.spec: Update for 1.2.x - add e2fsprogs-devel to BuildRequires and
+  add new files to install.
+
 Xapian-core 1.2.1 (2010-06-22):
 
 This release includes all changes from 1.0.21 which are relevant.

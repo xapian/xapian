@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,6 @@
 class ChertTermList;
 class ChertAllDocsPostList;
 class RemoteConnection;
-class OmTime;
 
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
@@ -209,8 +208,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	/** Send a set of messages which transfer the whole database.
 	 */
-	void send_whole_database(RemoteConnection & conn,
-				 const OmTime & end_time);
+	void send_whole_database(RemoteConnection & conn, double end_time);
 
 	/** Get the revision stored in a changeset.
 	 */

@@ -1,7 +1,7 @@
 %{
 /* php/util.i: custom PHP typemaps for xapian-bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,12 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-/* We need to ensure that this is defined so that the module produced
- * exports get_module() and can be loaded by PHP. */
-#ifndef COMPILE_DL_XAPIAN
-#define COMPILE_DL_XAPIAN 1
-#endif
 
 #include "../xapian-version.h"
 %}

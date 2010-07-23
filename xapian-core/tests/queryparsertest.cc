@@ -141,6 +141,8 @@ static const test test_or_queries[] = {
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(Zhard:(pos=1) OR Zspace:(pos=2))" },
     { " white\r\nspace\ttest ", "(Zwhite:(pos=1) OR Zspace:(pos=2) OR Ztest:(pos=3))" },
+    { "one AND two three", "(Zone:(pos=1) AND (Ztwo:(pos=2) OR Zthree:(pos=3)))" },
+    { "one two AND three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND Zthree:(pos=3))" },
     { "one AND two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND /two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND/two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
@@ -1069,11 +1071,16 @@ static const test test_stop_queries[] = {
     // parse.
     { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
     // 0.9.6 and earlier ignored a stopword even if it was the only term.
-    // We don't ignore it in this case, which is probably better.  But
-    // an all-stopword query with multiple terms doesn't work, which
-    // prevents 'to be or not to be' for being searchable unless made
-    // into a phrase query.
+    // More recent versions don't ever treat a single term as a stopword.
     { "the", "the:(pos=1)" },
+    // 1.2.2 and earlier ignored an all-stopword query with multiple terms,
+    // which prevents 'to be or not to be' for being searchable unless the
+    // user made it into a phrase query or prefixed all terms with '+'
+    // (ticket#245).
+    { "an the a", "(an:(pos=1) AND the:(pos=2) AND a:(pos=3))" },
+    // Regression test for bug in initial version of the patch for the
+    // "all-stopword" case.
+    { "the AND a an", "(the:(pos=1) AND a:(pos=2) AND an:(pos=3))" },
     { NULL, NULL }
 };
 
@@ -1385,6 +1392,50 @@ static const double test_value_range_numbers[] = {
 
     64 // Magic number which we stop at.
 };
+
+static const test test_value_range4_queries[] = {
+    { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
+    { "hello:world", "0 * XHELLOworld" },
+    { "hello:mum..world", "VALUE_RANGE 1 mum world" },
+    { NULL, NULL }
+};
+
+/** Test a boolean filter which happens to contain "..".
+ *
+ *  Regression test for bug fixed in 1.2.3.
+ *
+ *  Also test that the same prefix can be set for a valuerange and filter.
+ */
+static bool test_qp_value_range4()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("id", "Q");
+    qp.add_boolean_prefix("hello", "XHELLO");
+    Xapian::StringValueRangeProcessor vrp_str(1, "hello:");
+    qp.add_valuerangeprocessor(&vrp_str);
+    for (const test *p = test_value_range4_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 
 // Test serialisation and unserialisation of various numbers.
 static bool test_value_range_serialise1()
@@ -1973,10 +2024,9 @@ static bool test_qp_stem_all1()
     return true;
 }
 
-static double time_query_parse(const Xapian::Database & db,
-			       const string & q,
-			       int repetitions,
-			       unsigned flags)
+static double
+time_query_parse(const Xapian::Database & db, const string & q,
+		 int repetitions, unsigned flags)
 {
     Xapian::QueryParser qp;
     qp.set_database(db);
@@ -2239,6 +2289,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
+    TESTCASE(qp_value_range4),
     TESTCASE(qp_value_daterange1),
     TESTCASE(qp_value_daterange2),
     TESTCASE(qp_value_stringrange1),

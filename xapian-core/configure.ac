@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.1], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.2], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -32,7 +32,8 @@ dnl LIBRARY_VERSION_INFO:
 dnl 21:11:6 1.0.20 No API changes
 dnl 22:0:0 1.2.0 Many API changes!
 dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
-LIBRARY_VERSION_INFO=23:0:1
+dnl 23:1:1 1.2.2 No API changes
+LIBRARY_VERSION_INFO=23:1:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
@@ -359,22 +360,6 @@ AC_ARG_ENABLE([sse],
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
   esac])
-
-AC_MSG_CHECKING([whether to use SSE instructions on x86])
-case $host_cpu in
-  i*86)
-    if test "$enable_sse" = no ; then
-      AC_MSG_RESULT([no])
-    elif test yes = "$GXX"; then
-      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-      AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic"
-    else
-      AC_MSG_RESULT([don't know how to for compiler $CXX])
-    fi
-    ;;
-  *)
-    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
-esac
 
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
@@ -1103,6 +1088,27 @@ else
   dnl WARNING_CXXFLAGS is set above.
   AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
+
+AC_MSG_CHECKING([whether to use SSE instructions on x86])
+case $host_cpu in
+  i*86)
+    if test "$enable_sse" = no ; then
+      AC_MSG_RESULT([no])
+    elif test yes = "$GXX"; then
+      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+      case $gxx_version in
+      3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
+      *)
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
+      esac
+    else
+      AC_MSG_RESULT([don't know how to for compiler $CXX])
+    fi
+    ;;
+  *)
+    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
+esac
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */

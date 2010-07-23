@@ -1,7 +1,7 @@
 /** @file remotetcpserver.h
  *  @brief TCP/IP socket based server for RemoteDatabase.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,11 +49,11 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
     /** Is this a WritableDatabase? */
     bool writable;
 
-    /** Timeout between messages during a single operation (in milliseconds). */
-    int msecs_active_timeout;
+    /** Timeout between messages during a single operation (in seconds). */
+    double active_timeout;
 
-    /** Timeout between operations (in milliseconds). */
-    int msecs_idle_timeout;
+    /** Timeout between operations (in seconds). */
+    double idle_timeout;
 
     /** Accept a connection and return the filedescriptor for it. */
     int accept_connection();
@@ -66,20 +66,17 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
      *  @param host	The hostname or address for the interface to listen on
      *			(or "" to listen on all interfaces).
      *  @param port	The TCP port number to listen on.
-     *  @param msecs_active_timeout	Timeout between messages during a
-     *					single operation (in milliseconds).
-     *  @param msecs_idle_timeout	Timeout between operations (in
-     *					milliseconds).
+     *  @param active_timeout	Timeout between messages during a single
+     *				operation (in seconds).
+     *  @param idle_timeout	Timeout between operations (in seconds).
      *	@param writable		Should we open the DB for writing?
      *	@param verbose		Should we produce output when connections are
      *				made or lost?
      */
     RemoteTcpServer(const std::vector<std::string> &dbpaths_,
-	      const std::string &host, int port,
-	      int msecs_active_timeout,
-	      int msecs_idle_timeout,
-	      bool writable,
-	      bool verbose);
+		    const std::string &host, int port,
+		    double active_timeout, double idle_timeout,
+		    bool writable, bool verbose);
 
     /** Handle a single connection on an already connected socket.
      *

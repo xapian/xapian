@@ -116,7 +116,6 @@ open_stub(Database &db, const string &file)
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
-    string stubdir = calc_dirname(file);
     string line;
     unsigned int line_no = 0;
     while (getline(stub, line)) {
@@ -130,27 +129,31 @@ open_stub(Database &db, const string &file)
 	line.erase(0, space + 1);
 
 	if (type == "auto") {
-	    db.add_database(Database(join_paths(stubdir, line)));
+	    resolve_relative_path(line, file);
+	    db.add_database(Database(line));
 	    continue;
 	}
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (type == "chert") {
-	    db.add_database(Chert::open(join_paths(stubdir, line)));
+	    resolve_relative_path(line, file);
+	    db.add_database(Chert::open(line));
 	    continue;
 	}
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (type == "flint") {
-	    db.add_database(Flint::open(join_paths(stubdir, line)));
+	    resolve_relative_path(line, file);
+	    db.add_database(Flint::open(line));
 	    continue;
 	}
 #endif
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	if (type == "brass") {
-	    db.add_database(Brass::open(join_paths(stubdir, line)));
+	    resolve_relative_path(line, file);
+	    db.add_database(Brass::open(line));
 	    continue;
 	}
 #endif
@@ -218,7 +221,6 @@ open_stub(WritableDatabase &db, const string &file, int action)
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
-    string stubdir = calc_dirname(file);
     string line;
     unsigned int line_no = 0;
     while (true) {
@@ -238,28 +240,31 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	line.erase(0, space + 1);
 
 	if (type == "auto") {
-	    db.add_database(WritableDatabase(join_paths(stubdir, line),
-					     action));
+	    resolve_relative_path(line, file);
+	    db.add_database(WritableDatabase(line, action));
 	    continue;
 	}
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (type == "chert") {
-	    db.add_database(Chert::open(join_paths(stubdir, line), action));
+	    resolve_relative_path(line, file);
+	    db.add_database(Chert::open(line, action));
 	    continue;
 	}
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (type == "flint") {
-	    db.add_database(Flint::open(join_paths(stubdir, line), action));
+	    resolve_relative_path(line, file);
+	    db.add_database(Flint::open(line, action));
 	    continue;
 	}
 #endif
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	if (type == "brass") {
-	    db.add_database(Brass::open(join_paths(stubdir, line), action));
+	    resolve_relative_path(line, file);
+	    db.add_database(Brass::open(line, action));
 	    continue;
 	}
 #endif

@@ -1,3 +1,8 @@
+Xapian-bindings 1.2.2 (2010-06-27):
+
+* No user-visible change except for bumping the version to indicate
+  compatibility with Xapian-core 1.2.2.
+
 Xapian-bindings 1.2.1 (2010-06-22):
 
 This release includes all changes from 1.0.21 which are relevant.

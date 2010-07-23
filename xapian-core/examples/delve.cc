@@ -70,6 +70,7 @@ static void
 show_db_stats(Database &db)
 {
     // Display a few database stats.
+    cout << "UUID = " << db.get_uuid() << endl;
     cout << "number of documents = " << db.get_doccount() << endl;
     cout << "average document length = " << db.get_avlength() << endl;
     cout << "document length lower bound = " << db.get_doclength_lower_bound()

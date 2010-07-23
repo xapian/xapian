@@ -27,7 +27,6 @@ noinst_HEADERS +=\
 	common/omassert.h\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
-	common/omtime.h\
 	common/ortermlist.h\
 	common/output.h\
 	common/positionlist.h\
@@ -35,6 +34,7 @@ noinst_HEADERS +=\
 	common/postlist.h\
 	common/pretty.h\
 	common/progclient.h\
+	common/realtime.h\
 	common/registryinternal.h\
 	common/remoteconnection.h\
 	common/remote-database.h\

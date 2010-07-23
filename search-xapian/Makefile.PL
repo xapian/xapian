@@ -80,7 +80,7 @@ my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
-if ($? || -f "${xapian_config_dir}Makefile") {
+if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     # Assume we're being asked to build against an uninstalled xapian-core.
     my $libtool = "${xapian_config_dir}libtool";
     unless (-x $libtool) {

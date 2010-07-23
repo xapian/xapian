@@ -55,6 +55,11 @@ else
     DEB_BUILD_OPTIONS += nocheck
 endif
 
+# For i386 and *-i386.
+ifeq ($(patsubst %-i386,i386,$(DEB_HOST_ARCH)), i386)
+    XAPIAN_BUILD_SSE := 1
+endif
+
 ifeq ($(DEB_HOST_ARCH), avr32)
     # The avr32 buildd is repeatedly failing with "Took too long", so disable
     # optimisation and the testsuite for now for a faster build.
@@ -63,12 +68,6 @@ endif
 
 CFLAGS :=
 CXXFLAGS := -g
-
-ifeq ($(DEB_HOST_ARCH), hurd-i386)
-    # Testcase topercent2 fails without -ffloat-store - smells like an excess
-    # precision issue.
-    CXXFLAGS += -ffloat-store
-endif
 
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
 
@@ -107,7 +106,7 @@ maintclean: clean
 	rm -rf debian/xapian-tools
 	rm -rf debian/tmp debian/tmp-sse2
 
-debian/control: debian/rules debian/control.in debian/compat debian/patches/series
+debian/control: debian/rules debian/control.in debian/compat
 	rm -f debian/control.tmp
 	sed -e 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' \
 	    -e 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
@@ -116,12 +115,7 @@ debian/control: debian/rules debian/control.in debian/compat debian/patches/seri
 	mv debian/control.tmp debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
-ifeq ($(DEB_HOST_ARCH), i386)
-	echo usr/lib/sse2 | cat debian/libxapianVERSION.install - > debian/debian/libxapian$(libxapian_soversion).install~
-	mv -f debian/debian/libxapian$(libxapian_soversion).install~ debian/libxapian$(libxapian_soversion).install
-else
 	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
-endif
 
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
@@ -143,7 +137,7 @@ configure-stamp: debian/control
 
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build
-ifeq ($(DEB_HOST_ARCH), i386)
+ifdef XAPIAN_BUILD_SSE
 	cd build && ../configure $(confflags) --disable-sse
 	mkdir -p build-sse2
 	cd build-sse2 && ../configure $(confflags) --disable-static
@@ -158,7 +152,7 @@ build: build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build
-ifeq ($(DEB_HOST_ARCH), i386)
+ifdef XAPIAN_BUILD_SSE
 	$(MAKE) -C build-sse2
 	$(MAKE_CHECK) -C build-sse2
 else
@@ -172,15 +166,15 @@ install: build \
 	 debian/libxapian$(libxapian_dev_soversion)-dev.install
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Install the files into debian/tmp
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
-ifeq ($(DEB_HOST_ARCH), i386)
+ifdef XAPIAN_BUILD_SSE
 	$(MAKE) -C build-sse2 DESTDIR=$(CURDIR)/debian/tmp-sse2 install
 	mkdir $(CURDIR)/debian/tmp/usr/lib/sse2
-	mv $(CURDIR)/debian-sse2/tmp/usr/lib/libxapian*.so.* $(CURDIR)/debian/tmp/usr/lib/sse2
+	mv $(CURDIR)/debian/tmp-sse2/usr/lib/libxapian*.so.* $(CURDIR)/debian/tmp/usr/lib/sse2
 	rm -rf $(CURDIR)/debian/tmp-sse2
 endif
 
@@ -233,11 +227,11 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean: debian/control unpatch
+clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -rf build build-sse2
 	rm -f config.sub config.guess
 	dh_clean
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean patch unpatch
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean

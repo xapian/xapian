@@ -1,3 +1,11 @@
+Omega 1.2.2 (2010-06-27):
+
+portability:
+
+* Apply getopt portability fixes from xapian-core 1.2.0, fixing build failures
+  on Mac OS X (and probably some other platforms with non-GNU getopt
+  implementations). (ticket#469)
+
 Omega 1.2.1 (2010-06-22):
 
 This release includes all changes from 1.0.21 which are relevant.

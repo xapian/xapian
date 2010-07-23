@@ -94,6 +94,234 @@ Sun Jun 06 15:04:42 GMT 2010  Richard Boulton <richard@tartarus.org>
 	  Apply patch geospatial_clean3.patch from ticket #481: adds basic
 	  geospatial search support.
 
+Thu Jul 22 07:13:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Wrap line.
+
+Thu Jul 22 07:11:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/remoteserver.h,net/remoteserver.cc: Pass 1.0 for the end time
+	  when relaying a NetworkTimeoutError, not RealTime::now() - any time
+	  in the past will do, we just want the operation to time out if it
+	  would block.  Removed related FIXME which is already resolved.
+
+Wed Jul 21 18:00:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* unicode/tclUniData.cc: Fix comment - this is Unicode 5.2 data, not
+	  5.1.
+
+Thu Jul 15 13:45:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/realtime.h:Explicitly specify global namespace for
+	  xapian_sleep_milliseconds prototype as MSVC seems to need this.
+
+Thu Jul 15 13:03:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of groups of terms which
+	  are all stopwords - in situations where this causes a problem we now
+	  disable stopword checks for such groups.  (ticket#245)
+	* tests/queryparsertest.cc: Add regression testcases.
+
+Thu Jul 15 08:13:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Fix reversed memcmp() test.
+
+Sun Jul 11 14:59:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Factor out UNCW path check into a helper
+	  function.
+
+Sun Jul 11 14:56:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc,tests/Makefile.am,tests/unittest.cc: Move the
+	  tests of resolve_relative_path() into a new "unittest" program so
+	  they actually are run by "make check".  (ticket#243)
+
+Sun Jul 11 13:14:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Support the \\?\ path syntax.
+
+Sat Jul 10 15:49:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc,common/fileutils.h: Fix resolve_relative_path()
+	  to handle UNC paths.
+
+Sat Jul 10 15:27:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: -D__WIN32__ on the g++ command line works for
+	  testing on Linux, so no need to have that in the code.  Add a couple
+	  of UNC path test cases which pass, and a commented-out one which
+	  fails.
+
+Sat Jul 10 14:58:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc,common/fileutils.h: We use these routines to
+	  resolve a relative path (in a stub database file) in terms of a
+	  second path (the filename of that file), so just instead a
+	  routine to do exactly that, which is easier to code and more
+	  efficient.  The new implementation fixes several bugs with
+	  Microsoft Windows paths.  Some testcases (currently not used)
+	  are now present in fileutils.cc (ticket#243).
+	* backends/dbfactory.cc: Use the new API.
+
+Fri Jul 09 07:42:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: I missed a use of atoi() on std::string
+	  but just call .cstr() on the string instead of dragging in utils.h.
+
+Fri Jul 09 04:39:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Remove unused std::string to const
+	  char * wrappers for standard functions, and remove the only use of
+	  rmdir()'s wrapper.
+
+Thu Jul 08 15:18:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Xapian::ESet is a reference counted handle, so it
+	  is efficient to return by value - remove FIXME which suggests we
+	  should avoid doing so.
+
+Thu Jul 08 15:17:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Update FIXMEs - it's too late to fix stuff
+	  in 1.1.x!
+
+Thu Jul 08 15:13:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Remove FIXMEs about debug logging which have been
+	  addressed by the fairly recent debug logging improvements.
+
+Thu Jul 08 15:07:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/keymaker.cc: Fix comment typos.
+
+Thu Jul 08 14:50:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/brass/,backends/chert/,
+	  backends/dbfactory_remote.cc,backends/flint/,
+	  backends/remote/remote-database.cc,bin/xapian-progsrv.cc,
+	  bin/xapian-tcpsrv.cc,common/,net/,tests/perftest/perftest.cc,
+	  tests/perftest/perftest.h: Replace use of OmTime with a double
+	  holding a count in seconds since the epoch.
+
+Thu Jul 08 12:35:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Retry select() if it fails with EINTR while waiting
+	  for connect(), and discriminate cases with same failure message to
+	  aid debugging.
+
+Thu Jul 08 05:09:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Remove comment left over from the
+	  "boolean exclusive" work.
+
+Wed Jul 07 13:18:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Fix documentation comment for Xapian::timeout
+	  type - it holds a time interval in milliseconds not microseconds
+	  (the API docs for the methods which use it explicitly document this
+	  correctly).
+
+Tue Jul 06 15:17:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix formatting.
+
+Tue Jul 06 14:13:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: Use str(OmTime::as_double()) rather than
+	  trying to assemble a string of a floating point number from strings
+	  of the sec and usec values.
+
+Tue Jul 06 14:03:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h,common/remote-database.h: Remove unused '#include
+	  "omtime.h"'.
+	* backends/remote/remote-database.cc: Add explicit '#include
+	  "omtime.h"'.
+
+Mon Jul 05 11:40:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Restore iterator to start of
+	  where we tried to parse a range if we decide it might be a filter
+	  term instead.  Clear the error if we decide it is a filter.
+	* tests/queryparsertest.cc: Fix expected test output from
+	  qp_value_range4 testcase.
+
+Mon Jul 05 06:46:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix to be smarter about handling a
+	  boolean filter term containing ".." in the presence of
+	  valuerangeprocessors.
+	* tests/queryparsertest.cc: Add regression test qp_value_range4.
+
+Mon Jul 05 04:10:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,queryparser/queryparser.lt: Clean up
+	  how value ranges are handled to do the checking of the range in the
+	  lexer, which then passes a single token (RANGE) to the parser
+	  (instead of a RANGE_START token which is always followed by a
+	  RANGE_END token).
+
+Fri Jul 02 12:32:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+	  (ticket#492).
+
+Wed Jun 30 10:54:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_postlist.cc: Remove unnecessary NULL check.
+	  Identified by Coverity's Scan.
+	* backends/chert/chert_postlist.cc: Same change for chert.
+
+Tue Jun 29 12:17:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_chunkedlisttable.h,
+	  backends/chert/chert_chunkedlisttable.h: Remove unused files.
+
+Sun Jun 27 04:31:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.2.2.
+
+Sun Jun 27 04:22:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Show the database's UUID.
+
+Sun Jun 27 03:30:16 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add "tools" section.
+
+Sun Jun 27 03:03:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.2.2.
+
+Sat Jun 26 15:55:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Create from ChangeLog.
+
+Sat Jun 26 15:36:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add template for NEWS entry.
+
+Sat Jun 26 11:09:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Sync the table right after the base
+	  file, which allows more time for the table changes to be written,
+	  and doing the sync together may be more efficient with some Linux
+	  kernel versions.
+	* backends/chert/chert_table.cc: Same change for chert.
+
+Sat Jun 26 06:46:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Reorder the release checklist.
+
+Thu Jun 24 08:03:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	  bin/xapian-check.cc: Don't try to check doclengths are consistent
+	  between the postlist and termlist tables if it would use more than
+	  1GB of memory, and handle std::bad_alloc or std::length_error.  This
+	  issue affects sup users, as sup allocates docids such that they are
+	  sparse and large docids can easily occur.
+
 Wed Jun 23 15:38:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Revert Xapian::Weight's copy ctor back
