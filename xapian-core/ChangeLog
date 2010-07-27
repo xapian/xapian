@@ -1,3 +1,8 @@
+Tue Jul 27 15:24:56 GMT 2010  Tim Brody <tdb2@ecs.soton.ac.uk>
+
+	* xapian-core.spec.in: Add xapian-metadata and cmake related files to
+	  RPM packaging.
+
 Thu Jul 22 07:13:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Wrap line.

@@ -93,6 +93,7 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_bindir}/xapian-inspect
 %{_bindir}/xapian-replicate
 %{_bindir}/xapian-replicate-server
+%{_bindir}/xapian-metadata
 %doc %{_datadir}/doc/%{name}-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/xapian-tcpsrv.1*
@@ -106,6 +107,7 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_mandir}/man1/xapian-inspect.1*
 %{_mandir}/man1/xapian-replicate.1*
 %{_mandir}/man1/xapian-replicate-server.1*
+%{_mandir}/man1/xapian-metadata.1*
 
 %files libs
 %defattr(-, root, root)
@@ -119,6 +121,7 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_libdir}/libxapian*.so
 %{_libdir}/libxapian*.a
 %{_libdir}/libxapian*.la
+%{_libdir}/cmake/xapian
 %{_datadir}/aclocal/xapian*.m4
 %doc %{_datadir}/doc/%{name}-devel-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
