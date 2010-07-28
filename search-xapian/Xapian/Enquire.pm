@@ -242,7 +242,7 @@ is reversed.  (default true)
 
 Get match set.
 
-=item get_eset
+=item get_eset <maxitems> <rset> [<decider]>
 
 Get set of query expansion terms.
 

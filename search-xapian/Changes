@@ -1,6 +1,8 @@
 Revision history for Perl extension Search::Xapian.
 
 1.2.3.0
+	[Changes contributed by Tim Brody]
+	- Allow user-specified ExpandDecider to be specified to get_eset().
 	[Changes contributed by Jess Robinson]
 	- Fix bogus "can't find libtool" error when rerunning Makefile.PL and
 	  XAPIAN_CONFIG isn't explicitly specified.
