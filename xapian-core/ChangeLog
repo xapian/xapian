@@ -1,3 +1,8 @@
+Fri Jul 30 08:13:22 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* common/safesyswait.h: Re-add this file, which had been dropped by
+	  the merge somehow.
+
 Fri Feb 05 17:45:24 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_matchspy.cc: Remove tests for score_evenness() and pass
