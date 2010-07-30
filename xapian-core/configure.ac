@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.3], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.2], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -28,22 +28,23 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian-1.1:
-dnl 0:0:0 1.1.0 Reset as library renamed
-dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
-dnl 2:0:0 1.1.2 Query::Internal::wqf removed
-dnl 3:0:0 1.1.3 Default implementation of Weight::clone() removed.
-LIBRARY_VERSION_INFO=3:0:0
+dnl LIBRARY_VERSION_INFO:
+dnl 21:11:6 1.0.20 No API changes
+dnl 22:0:0 1.2.0 Many API changes!
+dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
+dnl 23:1:1 1.2.2 No API changes
+LIBRARY_VERSION_INFO=23:1:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
-LIBRARY_VERSION_SUFFIX=-1.1
+LIBRARY_VERSION_SUFFIX=
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
+dnl Disabled for stable release series.
 dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
-test x"$program_suffix" != xNONE || program_suffix=-1.1
+dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
 
-dnl Where xapian.h, etc go.
-incdir=$includedir/xapian-1.1
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
+incdir=$includedir
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -94,7 +95,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
-LT_PREREQ([2.2.6])
+LT_PREREQ([2.2.8])
 LT_INIT
 
 AM_CXXFLAGS=
@@ -350,6 +351,16 @@ dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
 AC_SUBST(ANSI_CXXFLAGS)
 
+dnl x86 has excess precision issues with 387 FP instructions, which are
+dnl avoided by using SSE instructions instead.  This is also faster (~6% in
+dnl a CPU bound testcase).
+AC_ARG_ENABLE([sse],
+  [AS_HELP_STRING([--disable-sse], [disable use of SSE FP instructions (only affects x86)])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
+  esac])
+
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
@@ -378,6 +389,15 @@ AC_TRY_COMPILE([#include <typeinfo>],
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
+
+dnl Used by tests/harness/testsuite.cc
+AC_CHECK_FUNCS([sigaction])
+AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
+AC_TRY_COMPILE([#include <setjmp.h>],
+  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the `sigsetjmp' function])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no]))
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
@@ -628,6 +648,7 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
+use_win32_uuid_api=0
 case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 *yes*)
   dnl We use zlib for compressing tags in brass/chert/flint.  We could
@@ -656,20 +677,35 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Find the UUID library (from e2fsprogs, not the OSSP one).
 
-  dnl Check for uuid/uuid.h.
-  AC_CHECK_HEADERS(uuid/uuid.h, [], [
-    AC_MSG_ERROR([uuid/uuid.h not found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-    ], [ ])
-
-  dnl Check for uuid_generate in -luuid.
-  SAVE_LIBS=$LIBS
-  LIBS=
-  AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-    ])
-  if test x != x"$LIBS" ; then
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
-  fi
+  case $host_os in
+    *mingw* | *cygwin*) dnl Use built-in API.
+      use_win32_uuid_api=1
+      ;;
+    *)
+      dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+      AC_CHECK_HEADERS([uuid/uuid.h], [
+	dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+	SAVE_LIBS=$LIBS
+	LIBS=
+	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  ])
+	if test x != x"$LIBS" ; then
+	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+	fi
+      ], [
+	dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+	AC_CHECK_HEADERS([uuid.h], [
+	  dnl Check for uuid_create with no extra libraries required.
+	  AC_CHECK_FUNC([uuid_create], [], [
+	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  ])
+	], [
+	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	], [ ])
+      ], [ ])
+      ;;
+  esac
 
   dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
   dnl uuid_unparse_lower(), only uuid_unparse().
@@ -682,6 +718,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   LIBS=$SAVE_LIBS
   ;;
 esac
+AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
@@ -747,7 +784,7 @@ AC_ARG_ENABLE(quiet,
   esac])
 
 AC_ARG_ENABLE(visibility,
-  [AS_HELP_STRING([--disable-visibility], [Disable use of GCC visibility [default=autodetect]])],
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
@@ -778,9 +815,17 @@ AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
+AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT,
+  [test nonono != "$enable_backend_brass$enable_backend_chert$enable_backend_flint"])
 
-dnl Set a flag for AM when shared libraries are enabled.
-dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
+dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+use_zlib_vg=no
+if test -n "$VALGRIND" ; then
+  case $host_os in
+    linux*) use_zlib_vg=yes ;;
+  esac
+fi
+AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 SAVE_LIBS="$LIBS"
@@ -894,7 +939,9 @@ AC_ARG_ENABLE(assertions,
 AC_ARG_ENABLE(log,
   [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc (no|yes|profile) [default=no]])],
   [case $enableval in
-    yes|profile|no) ;;
+    yes|no) ;;
+    profile)
+      AC_MSG_ERROR(['--enable-log=profile' is no longer supported - see http://trac.xapian.org/wiki/ProfilingXapian for alternatives.]) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
@@ -915,11 +962,6 @@ fi
 if test yes = "$enable_log"; then
   AC_DEFINE(XAPIAN_DEBUG_LOG,,
     [Define if you want a log of methods called and other debug messages])
-fi
-
-if test profile = "$enable_log"; then
-  AC_DEFINE(XAPIAN_DEBUG_PROFILE,,
-    [Define if you want code profiling via the logging infrastructure])
 fi
 
 dnl ******************************
@@ -981,7 +1023,13 @@ if test yes = "$GXX"; then
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1" ;;
+	  dnl
+	  dnl Also, xapian-core seems to hit an aliasing bug in GCC 4.2:
+	  dnl   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35643
+	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
+	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
+	  dnl See http://trac.xapian.org/ticket/449 for more details.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -1005,11 +1053,17 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	if test no != "$enable_visibility"; then
+	  dnl GCC doesn't support symbol visibility on all platforms (notably
+	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	    AC_MSG_RESULT([yes])
+	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
@@ -1034,6 +1088,27 @@ else
   dnl WARNING_CXXFLAGS is set above.
   AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
+
+AC_MSG_CHECKING([whether to use SSE instructions on x86])
+case $host_cpu in
+  i*86)
+    if test "$enable_sse" = no ; then
+      AC_MSG_RESULT([no])
+    elif test yes = "$GXX"; then
+      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+      case $gxx_version in
+      3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
+      *)
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
+      esac
+    else
+      AC_MSG_RESULT([don't know how to for compiler $CXX])
+    fi
+    ;;
+  *)
+    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
+esac
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
@@ -1093,6 +1168,11 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Shared library extension.
+module=no
+eval "SHLIBEXT=$shrext_cmds"
+AC_SUBST(SHLIBEXT)
+
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
@@ -1109,6 +1189,8 @@ AC_CONFIG_FILES([
  docs/doxygen_api.conf
  docs/doxygen_source.conf
  xapian-core.spec
+ cmake/xapian-config.cmake
+ cmake/xapian-config-version.cmake
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
@@ -1159,7 +1241,15 @@ dnl where we'll always have GNU sed, and other sed's will just interpret
 dnl it as "r" (Solaris sed) or maybe literal "\r" which won't match.
 dnl
 dnl Use @@ around $MAIN_VERSION so we get " in the final output.
-$CXXCPP $cxxcpp_flags -DSTRING_VERSION="\"@@$MAIN_VERSION@@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//' > include/xapian/version.h.tmp
+$CXXCPP $cxxcpp_flags\
+	-DSTRING_VERSION="\"@@$MAIN_VERSION@@\""\
+	-DMAJOR_VERSION="\"$MAJOR_VERSION\""\
+	-DMINOR_VERSION="\"$MINOR_VERSION\""\
+	-DREVISION="\"$REVISION\""\
+	$dash_d_visibility\
+	$srcdir/include/xapian/version_h.cc|\
+	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//'\
+	> include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
 dnl needs a timestamp to know when to regenerate version.h because version_h.cc

@@ -23,7 +23,7 @@
 #include "slowvaluelist.h"
 
 #include "document.h"
-#include "utils.h"
+#include "str.h"
 
 #include "xapian/error.h"
 
@@ -124,10 +124,10 @@ string
 SlowValueList::get_description() const
 {
     string desc = "SlowValueList(slot=";
-    desc += om_tostring(slot);
+    desc += str(slot);
     if (last_docid != 0) {
 	desc += ", docid=";
-	desc += om_tostring(current_did);
+	desc += str(current_did);
 	desc += ", value=\"";
 	desc += current_value;
 	desc += "\")";

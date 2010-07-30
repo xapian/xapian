@@ -2,7 +2,7 @@
  * @brief Check consistency of a chert table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -121,6 +121,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    }
 	}
 
+	bool seen_doclen_initial_chunk = false;
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -146,6 +147,10 @@ check_chert_table(const char * tablename, string filename, int opts,
 		Xapian::docid did = 1;
 		if (key.size() > 2) {
 		    // Non-initial chunk.
+		    if (!seen_doclen_initial_chunk) {
+			cout << "Doclen initial chunk missing" << endl;
+			++errors;
+		    }
 		    pos = key.data();
 		    end = pos + key.size();
 		    pos += 2;
@@ -155,6 +160,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 			continue;
 		    }
 		}
+		seen_doclen_initial_chunk = true;
 
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
@@ -205,7 +211,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		    if (did > db_last_docid) {
 			cout << "document id " << did << " in doclen stream "
-			     << "is larger that get_last_docid() "
+			     << "is larger than get_last_docid() "
 			     << db_last_docid << endl;
 			++errors;
 		    }
@@ -218,9 +224,10 @@ check_chert_table(const char * tablename, string filename, int opts,
 			    termlist_doclen = doclens[did];
 
 			if (doclen != termlist_doclen) {
-			    cout << "doclen " << doclen << " doesn't match "
-				 << termlist_doclen
-				 << " in the termlist table" << endl;
+			    cout << "document id " << did << ": length "
+				 << doclen << " doesn't match "
+				 << termlist_doclen << " in the termlist table"
+				 << endl;
 			    ++errors;
 			}
 		    }
@@ -375,7 +382,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		    if (did > db_last_docid) {
 			cout << "document id " << did << " in value chunk "
-			     << "is larger that get_last_docid() "
+			     << "is larger than get_last_docid() "
 			     << db_last_docid << endl;
 			++errors;
 		    }

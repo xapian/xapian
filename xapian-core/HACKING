@@ -33,14 +33,11 @@ Xapian.
 	debugging messages.  See "Debugging Messages", below.
 
 --enable-log=profile
-	This enables compiling code into the library which reports to stderr
-	how long each method takes to execute.  The profiling machinery tries
-	to discount time spent in itself, but it will affect code generation
-	and cache use, and this feature is implemented by using the logging
-	macros so it only knows about functions and methods which have them, so
-	it is probably more invasive and the output less helpful than dedicated
-	profiling tools.  However, it may be useful and isn't much extra code
-	to maintain, so we've kept it around for now.
+	In 1.2.0 and earlier, this used to use the debug logging macros to
+	report to stderr how long each method takes to execute.  This feature
+	was removed in 1.2.1 - you are likely to get better results using
+	dedicated profiling tools - for more information see:
+	http://trac.xapian.org/wiki/ProfilingXapian
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -73,7 +70,7 @@ mechanism to allow you to select where to store the log and which types of
 message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
-   output to be stored in, or to the special value ``-`` to indicate that you
+   output to be appended to, or to the special value ``-`` to indicate that you
    would like debugging output to be sent to stderr.  Unless XAPIAN_DEBUG_LOG
    is set, no debug logging will be performed.  Occurrences of %p in
    XAPIAN_DEBUG_LOG will be replaced with the current process-id.
@@ -184,10 +181,10 @@ which you might find useful:
     By default, the testsuite harness uses ANSI escape sequences to give
     colour output if stdout is a tty.  You can disable this feature by setting
     XAPIAN_TESTSUITE_OUTPUT=plain (alternatively, piping the output (e.g.
-    through cat or more) will have the same effect).  Auto-detection can be
-    explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).  Any
-    other value forces the use of colour.  Colour output is always disabled on
-    Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
+    through ``cat`` or ``more``) will have the same effect).  Auto-detection
+    can be explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).
+    Any other value forces the use of colour.  Colour output is always disabled
+    on Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -270,17 +267,19 @@ You will need the following tools installed to build from SVN:
 * perl 5 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
+* GNU flex (for building doxygen)
+* GNU bison (for building doxygen)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison
 
 If you want to build Omega, you'll also need::
 
     apt-get install libpcre3-dev
 
-On fedora, the uuid library can be installed by doing::
+On Fedora, the uuid library can be installed by doing::
 
     yum install e2fsprogs-devel
 
@@ -405,13 +404,13 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.6a is recommended and a hard minimum requirement.
+* libtool 2.2.10 is used to generate snapshots and releases.
 
-  libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
+  libtool 2.2.8 is the current hard minimum requirement.
+
+  libtool 2.2 is required for us to be able to override link_all_deplibs_CXX
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
-
-  libtool 2.2.4 and 2.2.6a include several bug-fixes over 2.2.
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
@@ -627,7 +626,7 @@ problems from this, we specify a particular revision to import, but this does
 mean we need to monitor changes to xapian-core and decide when to update omega.
 The release checklist includes a reminder to check this.
 
-Warning Free Compilation
+Warning-Free Compilation
 ------------------------
 
 Compiling without warnings on every platform is our goal, though it's not
@@ -1042,10 +1041,10 @@ to follow the style of the existing code.  In particular:
     };
 
   The rationale for this exception is that class definitions in header files
-  often have fairly long lines, so losing an indent level to the visibility
+  often have fairly long lines, so losing an indent level to the access
   specifier tends to make class definitions less readable.
 
-  The default visibility for a class is always "private", so there's no need
+  The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
   
     class Foo {
@@ -1066,7 +1065,7 @@ to follow the style of the existing code.  In particular:
     };
 
   If a class only contains public methods and data, consider declaring it as a
-  "struct" (the only difference in C++ is that the default visibility for a
+  "struct" (the only difference in C++ is that the default access for a
   struct is "public").
 
 * Put a space before the "(" after control flow constructs like "for", "if",
@@ -1168,7 +1167,29 @@ to follow the style of the existing code.  In particular:
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
-  equivalent to the variable definition ``SomeClass foo``.
+  equivalent to the variable definition ``SomeClass foo``.  However, note that
+  ``new SomePODType()`` is *not* the same as ``new SomePODType`` (if
+  SomePODType is a POD (Plain Old Data) type) - the former will zero-initialise
+  scalar members of SomePODType.
+
+* When catching an exception which is an object, do it by const reference, so
+  like this::
+
+      try {
+	  foo();
+      } catch (const ErrorClass &e) {
+	  bar(e);
+      }
+
+  Catching by value is bad because it "slices" the object if an object of a
+  derived type is thrown.  Even if derived types aren't a worry, it also causes
+  the copy constructor to be called needlessly.
+
+  See also: http://www.parashift.com/c++-faq-lite/exceptions.html#faq-17.7
+
+  A const reference is preferable to a non-const reference as it stops the
+  object being inadvertently modified.  In the rare cases when you want to
+  modify the caught object, a non-const reference is OK.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
@@ -1332,17 +1353,17 @@ The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
 - excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 ::
 
-    class some_iterator {
-    public:
-	// ...
-	some_iterator& operator++();
+	class some_iterator {
+	public:
+	    // ...
+	    some_iterator& operator++();
 
-	some_iterator operator++(int) {
-	    some_iterator tmp = *this;
-	    operator++();
-	    return tmp;
-	}
-    };
+	    some_iterator operator++(int) {
+		some_iterator tmp = *this;
+		operator++();
+		return tmp;
+	    }
+	};
 
     The compiler is allowed to assume that the copy constructor only does
     a copy, and to optimize away unneeded copy operations.  The result
@@ -1366,7 +1387,7 @@ If you are find you are repeatedly changing the API headers (in include/)
 during development, then you may become annoyed that the docs/ subdirectory
 will rebuild the doxygen documentation every time you run "make" since this
 takes a while.  You can disable this temporarily (if you're using GNU make),
-by creating a file "docs/GNUmakefile" containing these two lines:
+by creating a file "docs/GNUmakefile" containing these two lines::
 
 %:
 	@echo "Skipping 'make $@' in docs"
@@ -1424,11 +1445,6 @@ This is a (hopefully complete) list of the jobs which need doing:
   with this milestone will need to be moved to another milestone (most likely
   the milestone you just added).
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
-  latest version and the date it was released.
-
-* Run /home/olly/tmp/xapian-website-update/update_website.sh
-
 * Update the wiki:
 
   Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
@@ -1439,10 +1455,15 @@ This is a (hopefully complete) list of the jobs which need doing:
   date of this release and adding an entry for the next release with an
   estimated release date.
 
-* Update the freshmeat entry at:
-  http://freshmeat.net/projects/xapian/releases/new
+* Update the website: version.php in the CVS module www.xapian.org contains the
+  latest version and the date it was released.
+
+* Run /home/olly/tmp/xapian-website-update/update_website.sh
 
 * Announce the new version on xapian-discuss
+
+* Update the freshmeat entry at:
+  http://freshmeat.net/projects/xapian/releases/new
 
 * Have a nice cup of tea!
 

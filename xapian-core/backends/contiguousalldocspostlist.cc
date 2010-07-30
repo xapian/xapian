@@ -25,7 +25,7 @@
 #include "contiguousalldocspostlist.h"
 
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -108,7 +108,7 @@ string
 ContiguousAllDocsPostList::get_description() const
 {
     string msg("ContiguousAllDocsPostList(1..");
-    msg += om_tostring(doccount);
+    msg += str(doccount);
     msg += ')';
     return msg;
 }

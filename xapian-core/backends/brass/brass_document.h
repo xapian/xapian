@@ -1,7 +1,7 @@
 /** @file brass_document.h
  * @brief A document read from a BrassDatabase.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,10 +40,10 @@ class BrassDocument : public Xapian::Document::Internal {
     /// Used for lazy access to document data.
     const BrassRecordTable *record_table;
 
-    /// BrassDocument::open_document() needs to call our private constructor.
+    /// BrassDatabase::open_document() needs to call our private constructor.
     friend class BrassDatabase;
 
-    /// Private constructor - only called by BrassDocument::open_document().
+    /// Private constructor - only called by BrassDatabase::open_document().
     BrassDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
 		  const BrassValueManager *value_manager_,

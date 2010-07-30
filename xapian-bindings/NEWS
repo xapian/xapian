@@ -19,7 +19,99 @@ Python:
 * Add test of a ValueCountMatchSpy, a TermCountMatchSpy and a
   MultipleMatchDecider.
 
+Xapian-bindings 1.2.2 (2010-06-27):
+
+* No user-visible change except for bumping the version to indicate
+  compatibility with Xapian-core 1.2.2.
+
+Xapian-bindings 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+General:
+
+* Wrap Xapian::StemImplementation.  Currently this has only been tested for
+  Python.  (ticket#448)
+
+Guile:
+
+* Remove non-functional disabled guile bindings left over from Open Muscat
+  days - if someone wanted to add guile bindings, it would be easier to start
+  from scratch.
+
+Java-SWIG:
+
+* Update list of generated java sources in the SWIG-based Java bindings.
+
+PHP:
+
+* zend_throw_exception() returns, so return control to PHP directly after
+  calling it to avoid needless extra work and possible issues.
+
+Python:
+
+* Fix "from xapian import *".  (ticket#477)
+
+* Fix testcase weight_normalise - a change in xapian-core means that
+  get_max_possible() can now return zero for a non-existent term, so don't
+  blindly calculate the reciprocal of it.
+
+* python/replicationtest2.py: Extend to check that changesets get applied
+  correctly.
+
+* python/smoketest2.py: Check len(mset) works (improving test coverage of
+  Python-specific wrapping).
+
+Xapian-bindings 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+Portability:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Xapian-bindings 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Tcl:
+
+* tcl8/docs/index.html: Document WritableDatabase::close() as a way to
+  sidestep the whole destructor issue.  (ticket#62)
+
+Xapian-bindings 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+General:
+
+* Update for the new Brass backend and other C++ API changes.
+
+* Wrap Database::get_doclength_lower_bound(),
+  Database::get_doclength_upper_bound(), Database::get_wdf_upper_bound(),
+  Database::valuestream_begin() and Database::valuestream_end() for all
+  languages. (ticket#431)
+
+* Wrap ValueIterator::skip_to() and ValueIterator::check() for all languages.
+
+Python:
+
+* Wrap valuestreams as Database.valuestream(), returning a ValueStreamIter
+  object which dereferences to a ValueStreamItem object,
+
+* Fix Enquire.clear_matchspies() wrapper which crashed in 1.1.3.
+
+Ruby:
+
+* Add safe wrapper for the valuestream iterator.
+
 Xapian-bindings 1.1.3 (2009-11-18):
+
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
 
 General:
 
@@ -36,7 +128,7 @@ General:
 PHP:
 
 * Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
-  as in standardly is on Microsoft Windows.  Fixes #411.
+  as it standardly is on Microsoft Windows.  Fixes #411.
 
 * Merged the PHP "smoketest" back together now we don't need to support
   PHP4 now.
@@ -149,6 +241,49 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.21 (2010-06-18):
+
+Python:
+
+* xapian.BAD_VALUENO is now wrapped as a constant rather than variable which
+  can't be written to. (ticket#297)
+
+* Fix cleaning of test directories to use "rm -rf" rather than "rm -f".
+
+* Add test to check that "from xapian import *" works.
+
+Xapian-bindings 1.0.20 (2010-04-27):
+
+Python:
+
+* Set PYTHONDONTWRITEBYTECODE=1 in the environment to prevent Python from
+  generating .pyc files in srcdir for Python >= 2.6, and use a Bourne shell
+  trap to delete them after running tests for older versions of Python.
+  (ticket#315)
+
+Ruby:
+
+* configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
+
+Xapian-bindings 1.0.19 (2010-04-15):
+
+Tcl:
+
+* tcl8/docs/index.html: Improve wording in a few places.
+
+Xapian-bindings 1.0.18 (2010-02-14):
+
+General:
+
+* Wrap new C++ API method Document::add_boolean_term().
+
+Ruby:
+
+* Generate entries in the Ruby rdocs for all classes which aren't documented
+  because of Ruby-specific methods.  Fixes ticket#417.
+
+* Avoid absolute paths in the generated rdocs.
 
 Xapian-bindings 1.0.17 (2009-11-18):
 

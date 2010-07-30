@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  *
  * This program is free software; you can redistribute it and/or
@@ -52,6 +52,7 @@
 #include "myhtmlparse.h"
 #include "runfilter.h"
 #include "sample.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utf8convert.h"
 #include "utils.h"
@@ -594,16 +595,20 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	record += "\ncaption=" + generate_sample(title, TITLE_SIZE);
     }
     record += "\ntype=" + mimetype;
-    if (last_mod != (time_t)-1)
-	record += "\nmodtime=" + long_to_string(last_mod);
-    if (size)
-	record += "\nsize=" + long_to_string(size);
+    if (last_mod != (time_t)-1) {
+	record += "\nmodtime=";
+	record += str(last_mod);
+    }
+    if (size) {
+	record += "\nsize=";
+	record += str(size);
+    }
     newdocument.set_data(record);
 
     // Index the title, document text, and keywords.
     indexer.set_document(newdocument);
     if (!title.empty()) {
-	indexer.index_text(title, 2);
+	indexer.index_text(title, 5);
 	indexer.increase_termpos(100);
     }
     if (!dump.empty()) {

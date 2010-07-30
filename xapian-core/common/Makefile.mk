@@ -11,12 +11,12 @@ noinst_HEADERS +=\
 	common/documentterm.h\
 	common/emptypostlist.h\
 	common/esetinternal.h\
-	common/expand.h\
 	common/expandweight.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/internaltypes.h\
+	common/io_utils.h\
 	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
@@ -25,7 +25,6 @@ noinst_HEADERS +=\
 	common/multivaluelist.h\
 	common/noreturn.h\
 	common/omassert.h\
-	common/omdebug.h\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
 	common/omtime.h\
@@ -34,6 +33,7 @@ noinst_HEADERS +=\
 	common/positionlist.h\
 	common/pack.h\
 	common/postlist.h\
+	common/pretty.h\
 	common/progclient.h\
 	common/registryinternal.h\
 	common/remoteconnection.h\
@@ -42,11 +42,11 @@ noinst_HEADERS +=\
 	common/remoteserver.h\
 	common/remotetcpclient.h\
 	common/remotetcpserver.h\
+	common/replicate_utils.h\
 	common/replicatetcpclient.h\
 	common/replicatetcpserver.h\
 	common/replication.h\
 	common/replicationprotocol.h\
-	common/rset.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
@@ -84,15 +84,22 @@ lib_src +=\
 	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
+	common/io_utils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
-	common/omdebug.cc\
+	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
 	common/str.cc\
 	common/stringutils.cc\
 	common/utils.cc
+
+if USE_WIN32_UUID_API
+lib_src +=\
+	common/win32_uuid.cc
+libxapian_la_LDFLAGS += -lrpcrt4
+endif
 
 noinst_LTLIBRARIES += libgetopt.la
 

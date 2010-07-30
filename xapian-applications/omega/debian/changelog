@@ -1,20 +1,52 @@
-xapian-omega (1.1.0-1) unstable; urgency=low
+xapian-omega (1.2.0-3) experimental; urgency=low
 
+  * Removing the call to autoreconf means we need libxapian-dev >= 1.2.0-2.
+  * Improve package long description.
+  * Update to require dh7 and use dh compact level 7.
+  * Switch to dpkg-source 3.0 (quilt) format.
+
+ -- Olly Betts <olly@survex.com>  Tue, 04 May 2010 12:33:37 +0000
+
+xapian-omega (1.2.0-2) experimental; urgency=low
+
+  * Don't need to autoreconf now.
+
+ -- Olly Betts <olly@survex.com>  Mon, 03 May 2010 16:01:10 +0000
+
+xapian-omega (1.2.0-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:40:41 +0000
+
+xapian-omega (1.1.5-1) experimental; urgency=low
+
+  * New upstream release:
+    + omindex now avoids reindexing unchanged files. (Closes: #569900)
   * Drop support for unsupported Debian and Ubuntu releases, and also Ubuntu
     dapper.
   * debian/control.in: Add libpcre3-dev to Build-Depends.
+  * debian/rules: Build in debian/build directory rather than build.
 
- -- Olly Betts <olly@survex.com>  Mon,  1 Dec 2008 04:36:43 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 10:18:28 +0000
 
-xapian-omega (1.0.17-2) UNRELEASED; urgency=low
+xapian-omega (1.0.19-1) unstable; urgency=low
 
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:13:39 +0000
+
+xapian-omega (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
   * debian/control.in:
     + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
     + Add "Vcs-Browser:" and "Vcs-svn:".
     + Standards-Version: 3.8.4 (no changes required).
   * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
+  * Register the documentation with doc-base.
 
- -- Olly Betts <olly@survex.com>  Wed, 27 Jan 2010 23:08:32 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 04 Feb 2010 09:21:01 +0000
 
 xapian-omega (1.0.17-1) unstable; urgency=low
 

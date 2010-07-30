@@ -28,7 +28,6 @@
 
 #include "alltermslist.h"
 #include "brass_table.h"
-#include "omdebug.h"
 #include "termlist.h"
 
 #include <string>

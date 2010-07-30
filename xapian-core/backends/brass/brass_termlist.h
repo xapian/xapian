@@ -1,7 +1,7 @@
 /** @file brass_termlist.h
  * @brief A TermList in a brass database.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,6 +126,8 @@ class BrassTermList : public TermList {
      *  @return Always returns 0 for a BrassTermList.
      */
     TermList * next();
+
+    TermList * skip_to(const std::string & term);
 
     /// Return true if the current position is past the last term in this list.
     bool at_end() const;

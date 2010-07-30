@@ -1,6 +1,6 @@
 /* brass_positionlist.cc: A position list in a brass database.
  *
- * Copyright (C) 2004,2005,2006,2008,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #include <xapian/types.h>
 
 #include "bitstream.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "pack.h"
 
 #include <string>
@@ -37,10 +37,10 @@ void
 BrassPositionListTable::set_positionlist(Xapian::docid did,
 					 const string & tname,
 					 Xapian::PositionIterator pos,
-					 const Xapian::PositionIterator &pos_end)
+					 const Xapian::PositionIterator &pos_end,
+					 bool check_for_update)
 {
-    DEBUGCALL(DB, void, "BrassPositionList::set_positionlist",
-	      did << ", " << tname << ", " << pos << ", " << pos_end);
+    LOGCALL_VOID(DB, "BrassPositionList::set_positionlist", did | tname | pos | pos_end | check_for_update);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
@@ -51,25 +51,27 @@ BrassPositionListTable::set_positionlist(Xapian::docid did,
     string s;
     pack_uint(s, poscopy.back());
 
-    if (poscopy.size() == 1) {
-	// Special case for single entry position list.
-	add(key, s);
-	return;
+    if (poscopy.size() > 1) {
+	BitWriter wr(s);
+	wr.encode(poscopy[0], poscopy.back());
+	wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
+	wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
+	swap(s, wr.freeze());
     }
 
-    BitWriter wr(s);
-    wr.encode(poscopy[0], poscopy.back());
-    wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
-    wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
-    add(key, wr.freeze());
+    if (check_for_update) {
+	string old_tag;
+	if (get_exact_entry(key, old_tag) && s == old_tag)
+	    return;
+    }
+    add(key, s);
 }
 
 Xapian::termcount
 BrassPositionListTable::positionlist_count(Xapian::docid did,
 					   const string & term) const
 {
-    DEBUGCALL(DB, void, "BrassPositionListTable::positionlist_count",
-	      did << ", " << term);
+    LOGCALL_VOID(DB, "BrassPositionListTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(make_key(did, term), data)) {
@@ -101,8 +103,7 @@ bool
 BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
 			     const string & tname)
 {
-    DEBUGCALL(DB, void, "BrassPositionList::read_data",
-	      table << ", " << did << ", " << tname);
+    LOGCALL_VOID(DB, "BrassPositionList::read_data", table | did | tname);
 
     have_started = false;
     positions.clear();
@@ -142,14 +143,14 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
 Xapian::termcount
 BrassPositionList::get_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassPositionList::get_size", "");
+    LOGCALL(DB, Xapian::termcount, "BrassPositionList::get_size", NO_ARGS);
     RETURN(positions.size());
 }
 
 Xapian::termpos
 BrassPositionList::get_position() const
 {
-    DEBUGCALL(DB, Xapian::termpos, "BrassPositionList::get_position", "");
+    LOGCALL(DB, Xapian::termpos, "BrassPositionList::get_position", NO_ARGS);
     Assert(have_started);
     RETURN(*current_pos);
 }
@@ -157,7 +158,7 @@ BrassPositionList::get_position() const
 void
 BrassPositionList::next()
 {
-    DEBUGCALL(DB, void, "BrassPositionList::next", "");
+    LOGCALL_VOID(DB, "BrassPositionList::next", NO_ARGS);
 
     if (!have_started) {
 	have_started = true;
@@ -170,7 +171,7 @@ BrassPositionList::next()
 void
 BrassPositionList::skip_to(Xapian::termpos termpos)
 {
-    DEBUGCALL(DB, void, "BrassPositionList::skip_to", termpos);
+    LOGCALL_VOID(DB, "BrassPositionList::skip_to", termpos);
     if (!have_started) {
 	have_started = true;
     }
@@ -180,6 +181,6 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
 bool
 BrassPositionList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassPositionList::at_end", "");
+    LOGCALL(DB, bool, "BrassPositionList::at_end", NO_ARGS);
     RETURN(current_pos == positions.end());
 }

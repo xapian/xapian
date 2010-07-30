@@ -14,6 +14,7 @@ noinst_HEADERS +=\
 	harness/backendmanager_remoteprog.h\
 	harness/backendmanager_remotetcp.h\
 	harness/cputimer.h\
+	harness/fdtracker.h\
 	harness/index_utils.h\
 	harness/unixcmds.h\
 	harness/scalability.h\
@@ -26,6 +27,7 @@ testharness_sources =\
 	harness/backendmanager.cc\
 	harness/backendmanager_multi.cc\
 	harness/cputimer.cc\
+	harness/fdtracker.cc\
 	harness/index_utils.cc\
 	harness/scalability.cc\
 	harness/testrunner.cc\

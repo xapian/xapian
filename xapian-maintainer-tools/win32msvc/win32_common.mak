@@ -18,9 +18,11 @@ OBJS= \
     $(INTDIR)\debuglog.obj\
     $(INTDIR)\fileutils.obj \
     $(INTDIR)\getopt.obj \
+    $(INTDIR)\io_utils.obj \
     $(INTDIR)\msvc_dirent.obj \
     $(INTDIR)\msvc_posix_wrapper.obj \
     $(INTDIR)\omdebug.obj \
+    $(INTDIR)\replicate_utils.obj \
     $(INTDIR)\safe.obj \
     $(INTDIR)\serialise-double.obj \
     $(INTDIR)\socket_utils.obj \
@@ -35,9 +37,11 @@ SRCS= \
     $(INTDIR)\debuglog.cc\
     $(INTDIR)\fileutils.cc \
     $(INTDIR)\getopt.cc \
+    $(INTDIR)\io_utils.cc \
     $(INTDIR)\msvc_dirent.cc \
     $(INTDIR)\msvc_posix_wrapper.cc \
     $(INTDIR)\omdebug.cc \
+    $(INTDIR)\replicate_utils.cc \
     $(INTDIR)\safe.cc \
     $(INTDIR)\serialise-double.cc \
     $(INTDIR)\socket_utils.cc \
@@ -45,8 +49,8 @@ SRCS= \
     $(INTDIR)\stringutils.cc \
     $(INTDIR)\utils.cc \
     $(INTDIR)\win32_uuid.cc 
-    
-  
+
+   
 CPP_PROJ=$(CPPFLAGS_EXTRA) -I..\win32\ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
@@ -59,11 +63,12 @@ CLEAN :
     -@erase "$(INTDIR)\*.pdb"
     -@erase "$(INTDIR)\getopt.obj"
     -@erase $(OBJS)
+    -@erase deps.d
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\LIBCOMMON.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
+"$(OUTDIR)\LIBCOMMON.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(OBJS)
 <<
@@ -81,5 +86,8 @@ CLEAN :
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.
+

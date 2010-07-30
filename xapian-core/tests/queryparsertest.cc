@@ -24,10 +24,12 @@
 #include <xapian.h>
 
 #include "cputimer.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -101,8 +103,12 @@ static const test test_or_queries[] = {
     { "(title:help)", "ZXThelp:(pos=1)" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "beer AND -lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "beer AND +lager", "(Zbeer:(pos=1) AND Zlager:(pos=2))" },
     { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
     { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND -C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND +C", "(a:(pos=1) OR (b:(pos=2) AND c:(pos=3)))" },
     { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
     { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
     { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
@@ -115,15 +121,21 @@ static const test test_or_queries[] = {
     { "foo -site:xapian.org bar", "((Zfoo:(pos=1) OR Zbar:(pos=2)) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(Zmail:(pos=1) FILTER Hxapian.org)" },
     { "-site:xapian.org mail", "(Zmail:(pos=1) AND_NOT Hxapian.org)" },
+    { "mail AND -site:xapian.org", "(Zmail:(pos=1) AND_NOT 0 * Hxapian.org)" },
     { "-Wredundant-decls", "(wredundant:(pos=1) PHRASE 2 decls:(pos=2))" },
     { "site:xapian.org", "0 * Hxapian.org" },
     { "mug +site:xapian.org -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
     { "mug -site:cvs.xapian.org +site:xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
+    { "mug +site:xapian.org AND -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT 0 * Hcvs.xapian.org)" },
+    { "mug site:xapian.org AND -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT 0 * Hcvs.xapian.org)" },
+    { "mug site:xapian.org AND +site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND 0 * Hcvs.xapian.org)" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "AND -windows", "Syntax: <expression> AND <expression>" }, 
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian AND -", "Syntax: <expression> AND <expression>" },
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
@@ -578,6 +590,13 @@ static const test test_or_queries[] = {
     { "site:1 OR site:2", "(0 * H1 OR 0 * H2)" },
     { "site:1 AND site:2", "(0 * H1 AND 0 * H2)" },
     { "foo AND site:2", "(Zfoo:(pos=1) AND 0 * H2)" },
+    // Non-exclusive boolean prefixes feature tests (ticket#402):
+    { "category:1 category:2", "0 * (XCAT1 AND XCAT2)" },
+    { "category:1 site2:2", "0 * (J2 AND XCAT1)" },
+    { "category:1 category:2 site2:2", "0 * (J2 AND XCAT1 AND XCAT2)" },
+    { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
+    { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
+    { "foo AND category:2", "(Zfoo:(pos=1) AND 0 * XCAT2)" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
@@ -617,7 +636,7 @@ static bool test_queryparser1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_boolean_prefix("authortitle", "B");
     );
@@ -874,6 +893,9 @@ static bool test_qp_flag_wildcard1()
     // Check empty wildcard followed by negation.
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
+    // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
+    qobj = qp.parse_query("abc muscl* main", flags);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) AND (muscle:(pos=2) SYNONYM musclebound:(pos=2)) AND main:(pos=3)))");
     return true;
 #endif
 }
@@ -1158,6 +1180,9 @@ static const test test_value_range1_queries[] = {
     { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "\"time flies\" 09:00..12:30", "((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "..b", "VALUE_RANGE 1  b" },
+    { "a..", "VALUE_GE 1 a" },
     { NULL, NULL }
 };
 
@@ -1197,6 +1222,9 @@ static const test test_value_range2_queries[] = {
     { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
     { "$10..20", "VALUE_RANGE 4 \255 \261" },
     { "$10..$20", "VALUE_RANGE 4 \255 \261" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "$..20", "VALUE_RANGE 4  \261" },
+    { "$10..", "VALUE_GE 4 \255" },
     { "12..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42", "VALUE_RANGE 3 12kg 42" },
@@ -1204,6 +1232,9 @@ static const test test_value_range2_queries[] = {
     { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "..2020.12.30", "VALUE_RANGE 1  20201230" },
+    { "1999.03.12..", "VALUE_GE 1 19990312" },
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
@@ -1281,7 +1312,7 @@ static bool test_qp_value_range3()
 	double start = low + j * step;
 	for (int k = 0; k <= steps; ++k) {
 	    double end = low + k * step;
-	    string query = om_tostring(start) + ".." + om_tostring(end);
+	    string query = str(start) + ".." + str(end);
 	    tout << "Query: " << query << '\n';
 	    Xapian::Query qobj = qp.parse_query(query);
 	    Xapian::Enquire enq(db);
@@ -2084,7 +2115,7 @@ static bool test_qp_near1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     queryparser.set_default_op(Xapian::Query::OP_NEAR);
     for (const test *p = test_near_queries; p->query; ++p) {
 	string expect, parsed;
@@ -2228,7 +2259,10 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

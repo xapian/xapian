@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,18 +26,19 @@
 
 #include "xapian/error.h"
 
-#include "brass_io.h"
 #include "../flint_lock.h"
 #include "brass_record.h"
 #include "brass_replicate_internal.h"
 #include "brass_types.h"
 #include "brass_version.h"
-#include "omdebug.h"
+#include "debuglog.h"
+#include "io_utils.h"
 #include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -59,8 +60,7 @@ bool
 BrassDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    DEBUGCALL(DB, bool, "BrassDatabaseReplicator::check_revision_at_least",
-	      rev << ", " << target);
+    LOGCALL(DB, bool, "BrassDatabaseReplicator::check_revision_at_least", rev | target);
 
     brass_revision_number_t rev_val;
     brass_revision_number_t target_val;
@@ -126,8 +126,8 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     {
 	fdcloser closer(fd);
 
-	brass_io_write(fd, buf.data(), base_size);
-	brass_io_sync(fd);
+	io_write(fd, buf.data(), base_size);
+	io_sync(fd);
     }
 #if defined __WIN32__
     if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
@@ -173,9 +173,21 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
     if (fd == -1) {
-	string msg = "Failed to open ";
-	msg += db_path;
-	throw DatabaseError(msg, errno);
+	if (file_exists(db_path)) {
+	    string msg = "Failed to open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
+#ifdef __WIN32__
+	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+	if (fd == -1) {
+	    string msg = "Failed to create and open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
     }
     {
 	fdcloser closer(fd);
@@ -201,14 +213,14 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
-		msg += om_tostring(block_number);
+		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
-	    brass_io_write(fd, buf.data(), changeset_blocksize);
+	    io_write(fd, buf.data(), changeset_blocksize);
 
 	    buf.erase(0, changeset_blocksize);
 	}
-	brass_io_sync(fd);
+	io_sync(fd);
     }
 }
 
@@ -217,8 +229,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   const OmTime & end_time,
 						   bool valid) const
 {
-    DEBUGCALL(DB, string, "BrassDatabaseReplicator::apply_changeset_from_conn",
-	      "conn, end_time, " << valid);
+    LOGCALL(DB, string, "BrassDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
@@ -278,8 +289,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 
     unsigned char changes_type = ptr[0];
     if (changes_type != 0) {
-	throw NetworkError("Unsupported changeset type (got %d)",
-				   changes_type);
+	throw NetworkError("Unsupported changeset type: " + str(changes_type));
 	// FIXME - support changes of type 1, produced when DANGEROUS mode is
 	// on.
     }
@@ -343,7 +353,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 string
 BrassDatabaseReplicator::get_uuid() const
 {
-    DEBUGCALL(DB, string, "BrassDatabaseReplicator::get_uuid", "");
+    LOGCALL(DB, string, "BrassDatabaseReplicator::get_uuid", NO_ARGS);
     BrassVersion version_file(db_dir);
     try {
 	version_file.read_and_check();

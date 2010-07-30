@@ -1,7 +1,7 @@
 /* brass_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,9 @@
 
 #include "noreturn.h"
 #include "omassert.h"
+#include "str.h"
 #include "stringutils.h"
 #include "unaligned.h"
-#include "utils.h"
 
 #include <algorithm>
 #include <string>
@@ -235,7 +235,7 @@ public:
 	    // brass doubles zero bytes, so this can still happen for terms
 	    // which contain one or more zero bytes.
 	    std::string msg("Key too long: length was ");
-	    msg += om_tostring(key_len);
+	    msg += str(key_len);
 	    msg += " bytes, maximum length of a key is "
 		   STRINGIZE(BRASS_BTREE_MAX_KEY_LEN) " bytes";
 	    throw Xapian::InvalidArgumentError(msg);
@@ -735,6 +735,12 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
 	/// Set to true when the database is opened to write.
 	bool writable;
+
+	/// Flag for tracking when cursors need to rebuild.
+	mutable bool cursor_created_since_last_modification;
+
+	/// Version count for tracking when cursors need to rebuild.
+	unsigned long cursor_version;
 
 	/* B-tree navigation functions */
 	bool prev(Brass::Cursor *C_, int j) const {

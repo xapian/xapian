@@ -36,7 +36,9 @@ using namespace std;
 // division by 0.  Fixed in 1.1.4 and 1.0.18.  Ticket#415.
 DEFINE_TESTCASE(nosubdatabases1, !backend) {
     Xapian::Database db;
-    TEST_EQUAL(db.get_metadata("foo"), std::string());
+    // Fails to compile with g++ 3.3.5 on OpenBSD (ticket#458):
+    // TEST_EQUAL(db.get_metadata("foo"), std::string());
+    TEST(db.get_metadata("foo").empty());
     TEST_EQUAL(db.metadata_keys_begin(), db.metadata_keys_end());
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());

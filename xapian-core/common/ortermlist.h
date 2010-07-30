@@ -1,7 +1,7 @@
 /** @file ortermlist.h
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,6 +66,8 @@ class OrTermList : public TermList {
 #endif
 
     TermList *next();
+
+    TermList * skip_to(const std::string & term);
 
     bool at_end() const;
 

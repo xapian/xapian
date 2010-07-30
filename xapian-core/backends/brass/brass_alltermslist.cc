@@ -1,6 +1,6 @@
 /* brass_alltermslist.cc: A termlist containing all terms in a brass database.
  *
- * Copyright (C) 2005,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,13 +23,14 @@
 #include "brass_alltermslist.h"
 #include "brass_postlist.h"
 
+#include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
 
 void
 BrassAllTermsList::read_termfreq_and_collfreq() const
 {
-    DEBUGCALL(DB, void, "BrassAllTermsList::read_termfreq_and_collfreq", "");
+    LOGCALL_VOID(DB, "BrassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
@@ -43,14 +44,14 @@ BrassAllTermsList::read_termfreq_and_collfreq() const
 
 BrassAllTermsList::~BrassAllTermsList()
 {
-    DEBUGCALL(DB, void, "~BrassAllTermsList", "");
+    LOGCALL_DTOR(DB, "BrassAllTermsList");
     delete cursor;
 }
 
 string
 BrassAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassAllTermsList::get_termname", "");
+    LOGCALL(DB, string, "BrassAllTermsList::get_termname", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
@@ -59,7 +60,7 @@ BrassAllTermsList::get_termname() const
 Xapian::doccount
 BrassAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassAllTermsList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "BrassAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -69,7 +70,7 @@ BrassAllTermsList::get_termfreq() const
 Xapian::termcount
 BrassAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassAllTermsList::get_collection_freq", "");
+    LOGCALL(DB, Xapian::termcount, "BrassAllTermsList::get_collection_freq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -79,14 +80,33 @@ BrassAllTermsList::get_collection_freq() const
 TermList *
 BrassAllTermsList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassAllTermsList::next", "");
+    LOGCALL(DB, TermList *, "BrassAllTermsList::next", NO_ARGS);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
 
+    if (rare(!cursor)) {
+	cursor = database->postlist_table.cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
+
+	if (prefix.empty()) {
+	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
+	} else {
+	    const string & key = pack_brass_postlist_key(prefix);
+	    if (cursor->find_entry_ge(key)) {
+		// The exact term we asked for is there, so just copy it rather
+		// than wasting effort unpacking it from the key.
+		current_term = prefix;
+		RETURN(NULL);
+	    }
+	}
+	goto first_time;
+    }
+
     while (true) {
 	cursor->next();
+first_time:
 	if (cursor->after_end()) {
 	    current_term.resize(0);
 	    RETURN(NULL);
@@ -116,11 +136,16 @@ BrassAllTermsList::next()
 TermList *
 BrassAllTermsList::skip_to(const string &term)
 {
-    DEBUGCALL(DB, TermList *, "BrassAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList *, "BrassAllTermsList::skip_to", term);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
+
+    if (rare(!cursor)) {
+	cursor = database->postlist_table.cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
+    }
 
     string key = pack_brass_postlist_key(term);
     if (cursor->find_entry_ge(key)) {
@@ -152,6 +177,6 @@ BrassAllTermsList::skip_to(const string &term)
 bool
 BrassAllTermsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassAllTermsList::at_end", "");
-    RETURN(cursor->after_end());
+    LOGCALL(DB, bool, "BrassAllTermsList::at_end", NO_ARGS);
+    RETURN(cursor && cursor->after_end());
 }

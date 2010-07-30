@@ -26,10 +26,10 @@
 
 #include "chert_cursor.h"
 #include "chert_database.h"
+#include "debuglog.h"
 #include "noreturn.h"
-#include "omdebug.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 Xapian::doccount
 ChertPostListTable::get_termfreq(const string & term) const
@@ -66,7 +66,7 @@ ChertPostListTable::get_doclength(Xapian::docid did,
 	doclen_pl.reset(new ChertPostList(db, string(), false));
     }
     if (!doclen_pl->jump_to(did))
-	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
+	throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
     return doclen_pl->get_wdf();
 }
 
@@ -191,11 +191,7 @@ read_start_of_first_chunk(const char ** posptr,
 			  Xapian::doccount * number_of_entries_ptr,
 			  Xapian::termcount * collection_freq_ptr)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk",
-		     (const void *)posptr << ", " <<
-		     (const void *)end << ", " <<
-		     (void *)number_of_entries_ptr << ", " <<
-		     (void *)collection_freq_ptr);
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void *)posptr | (const void *)end | (void *)number_of_entries_ptr | (void *)collection_freq_ptr);
 
     ChertPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
@@ -236,17 +232,13 @@ read_start_of_chunk(const char ** posptr,
 		    Xapian::docid first_did_in_chunk,
 		    bool * is_last_chunk_ptr)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk",
-		     reinterpret_cast<const void*>(posptr) << ", " <<
-		     reinterpret_cast<const void*>(end) << ", " <<
-		     first_did_in_chunk << ", " <<
-		     reinterpret_cast<const void*>(is_last_chunk_ptr));
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk", reinterpret_cast<const void*>(posptr) | reinterpret_cast<const void*>(end) | first_did_in_chunk | reinterpret_cast<const void*>(is_last_chunk_ptr));
+    Assert(is_last_chunk_ptr);
 
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
 	report_read_error(*posptr);
-    if (is_last_chunk_ptr)
-	LOGVALUE(DB, *is_last_chunk_ptr);
+    LOGVALUE(DB, *is_last_chunk_ptr);
 
     // Read what the final document ID in this chunk is.
     Xapian::docid increase_to_last;
@@ -320,9 +312,7 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::PostlistChunkWriter",
-	      orig_key_ << ", " << is_first_chunk_ << ", " << tname_ << ", " <<
-	      is_last_chunk_);
+    LOGCALL_VOID(DB, "PostlistChunkWriter::PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
 }
 
 void
@@ -399,7 +389,7 @@ write_start_of_chunk(string & chunk,
 void
 PostlistChunkWriter::flush(ChertTable *table)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
+    LOGCALL_VOID(DB, "PostlistChunkWriter::flush", table);
 
     /* This is one of the more messy parts involved with updating posting
      * list chunks.
@@ -686,8 +676,7 @@ ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> th
 	  cursor(this_db_->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
-    DEBUGCALL(DB, void, "ChertPostList::ChertPostList",
-	      this_db_.get() << ", " << term_ << ", " << keep_reference);
+    LOGCALL_VOID(DB, "ChertPostList::ChertPostList", this_db_.get() | term_ | keep_reference);
     string key = ChertPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
@@ -714,13 +703,13 @@ ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> th
 
 ChertPostList::~ChertPostList()
 {
-    DEBUGCALL(DB, void, "ChertPostList::~ChertPostList", "");
+    LOGCALL_VOID(DB, "ChertPostList::~ChertPostList", NO_ARGS);
 }
 
 Xapian::termcount
 ChertPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "ChertPostList::get_doclength", NO_ARGS);
     Assert(have_started);
     Assert(this_db.get());
     RETURN(this_db->get_doclength(did));
@@ -729,7 +718,7 @@ ChertPostList::get_doclength() const
 bool
 ChertPostList::next_in_chunk()
 {
-    DEBUGCALL(DB, bool, "ChertPostList::next_in_chunk", "");
+    LOGCALL(DB, bool, "ChertPostList::next_in_chunk", NO_ARGS);
     if (pos == end) RETURN(false);
 
     read_did_increase(&pos, end, &did);
@@ -746,7 +735,7 @@ ChertPostList::next_in_chunk()
 void
 ChertPostList::next_chunk()
 {
-    DEBUGCALL(DB, void, "ChertPostList::next_chunk", "");
+    LOGCALL_VOID(DB, "ChertPostList::next_chunk", NO_ARGS);
     if (is_last_chunk) {
 	is_at_end = true;
 	return;
@@ -773,9 +762,9 @@ ChertPostList::next_chunk()
     }
     if (newdid <= did) {
 	throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
-		om_tostring(newdid) +
+		str(newdid) +
 		") is not greater than final document ID in previous chunk (" +
-		om_tostring(did) + ")");
+		str(did) + ")");
     }
     did = newdid;
 
@@ -792,7 +781,7 @@ ChertPostList::next_chunk()
 PositionList *
 ChertPostList::read_position_list()
 {
-    DEBUGCALL(DB, PositionList *, "ChertPostList::read_position_list", "");
+    LOGCALL(DB, PositionList *, "ChertPostList::read_position_list", NO_ARGS);
     Assert(this_db.get());
     positionlist.read_data(&this_db->position_table, did, term);
     RETURN(&positionlist);
@@ -801,7 +790,7 @@ ChertPostList::read_position_list()
 PositionList *
 ChertPostList::open_position_list() const
 {
-    DEBUGCALL(DB, PositionList *, "ChertPostList::open_position_list", "");
+    LOGCALL(DB, PositionList *, "ChertPostList::open_position_list", NO_ARGS);
     Assert(this_db.get());
     RETURN(new ChertPositionList(&this_db->position_table, did, term));
 }
@@ -809,7 +798,7 @@ ChertPostList::open_position_list() const
 PostList *
 ChertPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *, "ChertPostList::next", w_min);
+    LOGCALL(DB, PostList *, "ChertPostList::next", w_min);
     (void)w_min; // no warning
 
     if (!have_started) {
@@ -830,7 +819,7 @@ ChertPostList::next(Xapian::weight w_min)
 bool
 ChertPostList::current_chunk_contains(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool, "ChertPostList::current_chunk_contains", desired_did);
+    LOGCALL(DB, bool, "ChertPostList::current_chunk_contains", desired_did);
     if (desired_did >= first_did_in_chunk &&
 	desired_did <= last_did_in_chunk) {
 	RETURN(true);
@@ -841,8 +830,7 @@ ChertPostList::current_chunk_contains(Xapian::docid desired_did)
 void
 ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, void,
-	      "ChertPostList::move_to_chunk_containing", desired_did);
+    LOGCALL_VOID(DB, "ChertPostList::move_to_chunk_containing", desired_did);
     (void)cursor->find_entry(ChertPostListTable::make_key(term, desired_did));
     Assert(!cursor->after_end());
 
@@ -890,8 +878,7 @@ ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 bool
 ChertPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool,
-	      "ChertPostList::move_forward_in_chunk_to_at_least", desired_did);
+    LOGCALL(DB, bool, "ChertPostList::move_forward_in_chunk_to_at_least", desired_did);
     if (did >= desired_did)
 	RETURN(true);
 
@@ -917,8 +904,7 @@ ChertPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 PostList *
 ChertPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *,
-	      "ChertPostList::skip_to", desired_did << ", " << w_min);
+    LOGCALL(DB, PostList *, "ChertPostList::skip_to", desired_did | w_min);
     (void)w_min; // no warning
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
@@ -953,7 +939,7 @@ ChertPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 bool
 ChertPostList::jump_to(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool, "ChertPostList::jump_to", desired_did);
+    LOGCALL(DB, bool, "ChertPostList::jump_to", desired_did);
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
     have_started = true;
@@ -982,7 +968,7 @@ ChertPostList::jump_to(Xapian::docid desired_did)
 string
 ChertPostList::get_description() const
 {
-    return term + ":" + om_tostring(number_of_entries);
+    return term + ":" + str(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.
@@ -991,7 +977,7 @@ ChertPostListTable::get_chunk(const string &tname,
 	  Xapian::docid did, bool adding,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
-    DEBUGCALL(DB, Xapian::docid, "ChertPostListTable::get_chunk", tname << ", " << did << ", " << adding << ", [from], [to]");
+    LOGCALL(DB, Xapian::docid, "ChertPostListTable::get_chunk", tname | did | adding | from | to);
     // Get chunk containing entry
     string key = make_key(tname, did);
 
@@ -1073,7 +1059,7 @@ ChertPostListTable::merge_changes(
     const map<Xapian::docid, Xapian::termcount> & doclens,
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
 {
-    DEBUGCALL(DB, void, "ChertPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
+    LOGCALL_VOID(DB, "ChertPostListTable::merge_changes", mod_plists | doclens | freq_deltas);
 
     // The cursor in the doclen_pl will no longer be valid, so reset it.
     doclen_pl.reset(0);

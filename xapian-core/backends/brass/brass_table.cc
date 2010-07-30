@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@
 #endif
 
 #include "omassert.h"
+#include "str.h"
 #include "stringutils.h" // For STRINGIZE().
 
 // Define to use "dangerous" mode - in this mode we write modified btree
@@ -66,12 +67,12 @@ PWRITE_PROTOTYPE
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 
-#include "brass_io.h"
 #include "brass_btreebase.h"
 #include "brass_cursor.h"
 
+#include "debuglog.h"
+#include "io_utils.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "pack.h"
 #include "unaligned.h"
 #include "utils.h"
@@ -209,7 +210,7 @@ void
 BrassTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
-    LOGCALL_VOID(DB, "BrassTable::read_block", n << ", " << (void*)p);
+    LOGCALL_VOID(DB, "BrassTable::read_block", n | (void*)p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -225,11 +226,11 @@ BrassTable::read_block(uint4 n, byte * p) const
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
 	    if (errno == EINTR) continue;
-	    string message = "Error reading block " + om_tostring(n) + ": ";
+	    string message = "Error reading block " + str(n) + ": ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read == 0) {
-	    string message = "Error reading block " + om_tostring(n) + ": got end of file";
+	    string message = "Error reading block " + str(n) + ": got end of file";
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read < m) {
 	    /* Read part of the block, which is not an error.  We should
@@ -247,7 +248,7 @@ BrassTable::read_block(uint4 n, byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    brass_io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
+    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
 }
 
@@ -260,7 +261,7 @@ BrassTable::read_block(uint4 n, byte * p) const
 void
 BrassTable::write_block(uint4 n, const byte * p) const
 {
-    LOGCALL_VOID(DB, "BrassTable::write_block", n << ", " << p);
+    LOGCALL_VOID(DB, "BrassTable::write_block", n | p);
     Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
@@ -310,7 +311,7 @@ BrassTable::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    brass_io_write(handle, reinterpret_cast<const char *>(p), block_size);
+    io_write(handle, reinterpret_cast<const char *>(p), block_size);
 #endif
 }
 
@@ -339,7 +340,7 @@ BrassTable::write_block(uint4 n, const byte * p) const
 void
 BrassTable::set_overwritten() const
 {
-    LOGCALL_VOID(DB, "BrassTable::set_overwritten", "");
+    LOGCALL_VOID(DB, "BrassTable::set_overwritten", NO_ARGS);
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -360,7 +361,7 @@ BrassTable::set_overwritten() const
 void
 BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 {
-    LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
+    LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ | j | n);
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
     Assert(p);
@@ -376,7 +377,8 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     if (writable && n == C[j].n) {
-	memcpy(p, C[j].p, block_size);
+	if (p != C[j].p)
+	    memcpy(p, C[j].p, block_size);
     } else {
 	read_block(n, p);
     }
@@ -392,11 +394,9 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 
     if (rare(j != GET_LEVEL(p))) {
 	string msg = "Expected block ";
-	msg += om_tostring(n);
-	msg += " to be level ";
-	msg += om_tostring(j);
+	msg += str(j);
 	msg += ", not ";
-	msg += om_tostring(GET_LEVEL(p));
+	msg += str(GET_LEVEL(p));
 	throw Xapian::DatabaseCorruptError(msg);
     }
 }
@@ -425,7 +425,7 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 void
 BrassTable::alter()
 {
-    LOGCALL_VOID(DB, "BrassTable::alter", "");
+    LOGCALL_VOID(DB, "BrassTable::alter", NO_ARGS);
     Assert(writable);
 #ifdef DANGEROUS
     C[0].rewrite = true;
@@ -470,7 +470,7 @@ BrassTable::alter()
 int
 BrassTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    LOGCALL_STATIC(DB, int, "BrassTable::find_in_block", (void*)p << ", " << (const void *)key.get_address() << ", " << leaf << ", " << c);
+    LOGCALL_STATIC(DB, int, "BrassTable::find_in_block", (void*)p | (const void *)key.get_address() | leaf | c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
@@ -603,7 +603,7 @@ BrassTable::split_root(uint4 split_n)
 void
 BrassTable::enter_key(int j, Key prevkey, Key newkey)
 {
-    LOGCALL_VOID(DB, "BrassTable::enter_key", j << ", prevkey, newkey");
+    LOGCALL_VOID(DB, "BrassTable::enter_key", j | "prevkey" | "newkey");
     Assert(writable);
     Assert(prevkey < newkey);
     AssertRel(j,>=,1);
@@ -695,7 +695,7 @@ BrassTable::mid_point(byte * p)
 void
 BrassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 {
-    LOGCALL_VOID(DB, "BrassTable::add_item_to_block", (void*)p << ", kt_, " << c);
+    LOGCALL_VOID(DB, "BrassTable::add_item_to_block", (void*)p | "kt_" | c);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -730,7 +730,7 @@ BrassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 void
 BrassTable::add_item(Item_wr kt_, int j)
 {
-    LOGCALL_VOID(DB, "BrassTable::add_item", "kt_, " << j);
+    LOGCALL_VOID(DB, "BrassTable::add_item", "kt_" | j);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -828,7 +828,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 void
 BrassTable::delete_item(int j, bool repeatedly)
 {
-    LOGCALL_VOID(DB, "BrassTable::delete_item", j << ", " << repeatedly);
+    LOGCALL_VOID(DB, "BrassTable::delete_item", j | repeatedly);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -967,7 +967,7 @@ BrassTable::add_kt(bool found)
 int
 BrassTable::delete_kt()
 {
-    LOGCALL(DB, int, "BrassTable::delete_kt", "");
+    LOGCALL(DB, int, "BrassTable::delete_kt", NO_ARGS);
     Assert(writable);
 
     bool found = find(C);
@@ -1031,7 +1031,7 @@ void BrassTable::form_key(const string & key) const
 void
 BrassTable::add(const string &key, string tag, bool already_compressed)
 {
-    LOGCALL_VOID(DB, "BrassTable::add", key << ", " << tag << ", " << already_compressed);
+    LOGCALL_VOID(DB, "BrassTable::add", key | tag | already_compressed);
     Assert(writable);
 
     if (handle < 0) create_and_open(block_size);
@@ -1138,6 +1138,10 @@ BrassTable::add(const string &key, string tag, bool already_compressed)
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
 }
 
 /* BrassTable::del(key) returns false if the key is not in the B-tree,
@@ -1175,13 +1179,17 @@ BrassTable::del(const string &key)
 
     item_count--;
     Btree_modified = true;
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
     RETURN(true);
 }
 
 bool
 BrassTable::get_exact_entry(const string &key, string & tag) const
 {
-    LOGCALL(DB, bool, "BrassTable::get_exact_entry", key << ", [&tag]");
+    LOGCALL(DB, bool, "BrassTable::get_exact_entry", key | tag);
     Assert(!key.empty());
 
     if (handle < 0) {
@@ -1217,7 +1225,7 @@ BrassTable::key_exists(const string &key) const
 bool
 BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) const
 {
-    LOGCALL(DB, bool, "BrassTable::read_tag", "C_, tag, " << keep_compressed);
+    LOGCALL(DB, bool, "BrassTable::read_tag", "C_" | tag | keep_compressed);
     Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
@@ -1287,10 +1295,10 @@ BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) cons
     }
     if (utag.size() != inflate_zstream->total_out) {
 	string msg = "compressed tag didn't expand to the expected size: ";
-	msg += om_tostring(utag.size());
+	msg += str(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += om_tostring((size_t)inflate_zstream->total_out);
+	msg += str((size_t)inflate_zstream->total_out);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -1310,7 +1318,7 @@ BrassTable::set_full_compaction(bool parity)
 }
 
 BrassCursor * BrassTable::cursor_get() const {
-    LOGCALL(DB, BrassCursor *, "BrassTable::cursor_get", "");
+    LOGCALL(DB, BrassCursor *, "BrassTable::cursor_get", NO_ARGS);
     if (handle < 0) {
 	if (handle == -2) {
 	    BrassTable::throw_database_closed();
@@ -1326,7 +1334,7 @@ BrassCursor * BrassTable::cursor_get() const {
 bool
 BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_)
 {
-    LOGCALL(DB, bool, "BrassTable::basic_open", revision_supplied << ", " << revision_);
+    LOGCALL(DB, bool, "BrassTable::basic_open", revision_supplied | revision_);
     int ch = 'X'; /* will be 'A' or 'B' */
 
     {
@@ -1451,7 +1459,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 void
 BrassTable::read_root()
 {
-    LOGCALL_VOID(DB, "BrassTable::read_root", "");
+    LOGCALL_VOID(DB, "BrassTable::read_root", NO_ARGS);
     if (faked_root_block) {
 	/* root block for an unmodified database. */
 	byte * p = C[0].p;
@@ -1497,7 +1505,7 @@ BrassTable::do_open_to_write(bool revision_supplied,
 			     brass_revision_number_t revision_,
 			     bool create_db)
 {
-    LOGCALL(DB, bool, "BrassTable::do_open_to_write", revision_supplied << ", " << revision_ << ", " << create_db);
+    LOGCALL(DB, bool, "BrassTable::do_open_to_write", revision_supplied | revision_ | create_db);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
@@ -1579,15 +1587,15 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(!readonly_),
+	  cursor_created_since_last_modification(false),
+	  cursor_version(0),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
 	  deflate_zstream(NULL),
 	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
-    LOGCALL_CTOR(DB, "BrassTable",
-		 tablename_ << "," << path_ << ", " << readonly_ << ", " <<
-		 compress_strategy_ << ", " << lazy_);
+    LOGCALL_CTOR(DB, "BrassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
 
 bool
@@ -1633,7 +1641,7 @@ BrassTable::lazy_alloc_deflate_zstream() const {
 	if (deflate_zstream->msg) {
 	    msg += deflate_zstream->msg;
 	} else {
-	    msg += om_tostring(err);
+	    msg += str(err);
 	}
 	msg += ')';
 	delete deflate_zstream;
@@ -1669,7 +1677,7 @@ BrassTable::lazy_alloc_inflate_zstream() const {
 	if (inflate_zstream->msg) {
 	    msg += inflate_zstream->msg;
 	} else {
-	    msg += om_tostring(err);
+	    msg += str(err);
 	}
 	msg += ')';
 	delete inflate_zstream;
@@ -1680,7 +1688,7 @@ BrassTable::lazy_alloc_inflate_zstream() const {
 
 bool
 BrassTable::exists() const {
-    LOGCALL(DB, bool, "BrassTable::exists", "");
+    LOGCALL(DB, bool, "BrassTable::exists", NO_ARGS);
     return (file_exists(name + "DB") &&
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
@@ -1705,7 +1713,7 @@ sys_unlink_if_exists(const string & filename)
 void
 BrassTable::erase()
 {
-    LOGCALL_VOID(DB, "BrassTable::erase", "");
+    LOGCALL_VOID(DB, "BrassTable::erase", NO_ARGS);
     close();
 
     sys_unlink_if_exists(name + "baseA");
@@ -1779,7 +1787,7 @@ BrassTable::~BrassTable() {
 }
 
 void BrassTable::close(bool permanent) {
-    LOGCALL_VOID(DB, "BrassTable::close", "");
+    LOGCALL_VOID(DB, "BrassTable::close", NO_ARGS);
 
     if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1810,7 +1818,7 @@ void BrassTable::close(bool permanent) {
 void
 BrassTable::flush_db()
 {
-    LOGCALL_VOID(DB, "BrassTable::flush_db", "");
+    LOGCALL_VOID(DB, "BrassTable::flush_db", NO_ARGS);
     Assert(writable);
     if (handle < 0) {
 	if (handle == -2) {
@@ -1834,8 +1842,7 @@ void
 BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 		   const string * changes_tail)
 {
-    LOGCALL_VOID(DB, "BrassTable::commit",
-		 revision << ", " << changes_fd << ", " << changes_tail);
+    LOGCALL_VOID(DB, "BrassTable::commit", revision | changes_fd | changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1877,14 +1884,6 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	    C[i].rewrite = false;
 	}
 
-	// Do this as late as possible to allow maximum time for writes to be
-	// committed.
-	if (!brass_io_sync(handle)) {
-	    (void)::close(handle);
-	    handle = -1;
-	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-	}
-
 	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
 	// that a reader can't try to read a partially written base file.
 	string tmp = name;
@@ -1893,6 +1892,17 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	basefile += "base";
 	basefile += char(base_letter);
 	base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+
+	// Do this as late as possible to allow maximum time for writes to
+	// happen, and so the calls to io_sync() are adjacent which may be
+	// more efficient, at least with some Linux kernel versions.
+	if (!io_sync(handle)) {
+	    (void)::close(handle);
+	    handle = -1;
+	    (void)unlink(tmp);
+	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+	}
+
 #if defined __WIN32__
 	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
 #else
@@ -1938,7 +1948,7 @@ BrassTable::write_changed_blocks(int changes_fd)
     pack_uint(buf, 2u); // Indicate the item is a list of blocks
     pack_string(buf, tablename);
     pack_uint(buf, block_size);
-    brass_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
     // write them to the file descriptor.
@@ -1949,14 +1959,13 @@ BrassTable::write_changed_blocks(int changes_fd)
 	while (base.find_changed_block(&n)) {
 	    buf.resize(0);
 	    pack_uint(buf, n + 1);
-	    brass_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
 	    read_block(n, p);
 
 	    // Write block n to the file.
-	    brass_io_write(changes_fd, reinterpret_cast<const char *>(p),
-			   block_size);
+	    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
 	    ++n;
 	}
 	delete[] p;
@@ -1967,13 +1976,13 @@ BrassTable::write_changed_blocks(int changes_fd)
     }
     buf.resize(0);
     pack_uint(buf, 0u);
-    brass_io_write(changes_fd, buf.data(), buf.size());
+    io_write(changes_fd, buf.data(), buf.size());
 }
 
 void
 BrassTable::cancel()
 {
-    LOGCALL_VOID(DB, "BrassTable::cancel", "");
+    LOGCALL_VOID(DB, "BrassTable::cancel", NO_ARGS);
     Assert(writable);
 
     if (handle < 0) {
@@ -2002,6 +2011,8 @@ BrassTable::cancel()
 
     latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 
+    Btree_modified = false;
+
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].rewrite = false;
@@ -2018,7 +2029,7 @@ BrassTable::cancel()
 bool
 BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revision_)
 {
-    LOGCALL(DB, bool, "BrassTable::do_open_to_read", revision_supplied << ", " << revision_);
+    LOGCALL(DB, bool, "BrassTable::do_open_to_read", revision_supplied | revision_);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
@@ -2064,7 +2075,7 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
 void
 BrassTable::open()
 {
-    LOGCALL_VOID(DB, "BrassTable::open", "");
+    LOGCALL_VOID(DB, "BrassTable::open", NO_ARGS);
     LOGLINE(DB, "opening at path " << name);
     close();
 
@@ -2108,7 +2119,7 @@ BrassTable::open(brass_revision_number_t revision)
 bool
 BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "BrassTable::prev_for_sequential", "C_, UNUSED(int)");
+    LOGCALL(DB, bool, "BrassTable::prev_for_sequential", "C_" | "/*dummy*/");
     int c = C_[0].c;
     if (c == DIR_START) {
 	byte * p = C_[0].p;
@@ -2160,7 +2171,7 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 bool
 BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "BrassTable::next_for_sequential", "C_, UNUSED(int)");
+    LOGCALL(DB, bool, "BrassTable::next_for_sequential", "C_" | "/*dummy*/");
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;
@@ -2213,7 +2224,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 bool
 BrassTable::prev_default(Brass::Cursor * C_, int j) const
 {
-    LOGCALL(DB, bool, "BrassTable::prev_default", "C_, " << j);
+    LOGCALL(DB, bool, "BrassTable::prev_default", "C_" | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);
@@ -2235,7 +2246,7 @@ BrassTable::prev_default(Brass::Cursor * C_, int j) const
 bool
 BrassTable::next_default(Brass::Cursor * C_, int j) const
 {
-    LOGCALL(DB, bool, "BrassTable::next_default", "C_, " << j);
+    LOGCALL(DB, bool, "BrassTable::next_default", "C_" | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);

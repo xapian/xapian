@@ -23,8 +23,10 @@
 
 #include <xapian.h>
 
+#include <iostream>
 #include <string>
 
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -103,6 +105,7 @@ static const test test_simple[] = {
     { "", "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80",
       "Z\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80:1 \xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80[1]" },
 
+    { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
     // way to implement them yet.
@@ -619,20 +622,20 @@ format_doc_termlist(const Xapian::Document & doc)
 	    // the length of the positionlist.
 	    if (it.get_wdf() != it.positionlist_count()) {
 	        output += ':';
-		output += om_tostring(it.get_wdf());
+		output += str(it.get_wdf());
 	    }
 	    char ch = '[';
 	    Xapian::PositionIterator posit;
 	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); posit++) {
 		output += ch;
 		ch = ',';
-		output += om_tostring(*posit);
+		output += str(*posit);
 	    }
 	    output += ']';
 	} else if (it.get_wdf() != 0) {
 	    // If no position list, display any non-zero wdfs.
 	    output += ':';
-	    output += om_tostring(it.get_wdf());
+	    output += str(it.get_wdf());
 	}
     }
     return output;
@@ -766,7 +769,10 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

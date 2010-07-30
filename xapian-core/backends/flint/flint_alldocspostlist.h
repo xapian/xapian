@@ -24,7 +24,11 @@
 
 #include <string>
 
+#include "autoptr.h"
+#include "flint_database.h"
 #include "leafpostlist.h"
+
+class FlintCursor;
 
 class FlintAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.

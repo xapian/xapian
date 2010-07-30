@@ -1,7 +1,7 @@
 /** @file queryoptimiser.cc
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,20 +26,20 @@
 #include "andmaybepostlist.h"
 #include "andnotpostlist.h"
 #include "const_database_wrapper.h"
+#include "debuglog.h"
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
 #include "externalpostlist.h"
 #include "multiandpostlist.h"
 #include "multimatch.h"
+#include "multixorpostlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "omqueryinternal.h"
 #include "orpostlist.h"
 #include "phrasepostlist.h"
 #include "postlist.h"
 #include "valuegepostlist.h"
 #include "valuerangepostlist.h"
-#include "xorpostlist.h"
 
 #include <algorithm>
 #include <list>
@@ -51,8 +51,7 @@ using namespace std;
 PostList *
 QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor)
 {
-    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_subquery",
-	      query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_subquery", query | factor);
 
     // Handle QueryMatchNothing.
     if (!query) RETURN(new EmptyPostList);
@@ -165,8 +164,7 @@ struct PosFilter {
 PostList *
 QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor)
 {
-    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_and_like",
-	      query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_and_like", query | factor);
 
     list<PosFilter> pos_filters;
     vector<PostList *> plists;
@@ -215,8 +213,7 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
 			    vector<PostList *> & and_plists,
 			    list<PosFilter> & pos_filters)
 {
-    DEBUGCALL(MATCH, void, "QueryOptimiser::do_and_like",
-	      query << ", " << factor << ", [and_plists], [pos_filters]");
+    LOGCALL_VOID(MATCH, "QueryOptimiser::do_and_like", query | factor | and_plists | pos_filters);
 
     Xapian::Query::Internal::op_t op = query->op;
     Assert(is_and_like(op));
@@ -277,7 +274,7 @@ struct CmpMaxOrTerms {
 	if (a->get_termfreq_max() == 0) return false;
 	if (b->get_termfreq_max() == 0) return true;
 
-#if defined(__i386__) || defined(__mc68000__)
+#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
 	// If the two get_maxweight() calls below return identical values in a
@@ -318,8 +315,7 @@ struct ComparePostListTermFreqAscending {
 PostList *
 QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 {
-    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like",
-	      query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like", query | factor);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -336,6 +332,11 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     Xapian::Query::Internal::subquery_list::const_iterator q;
     for (q = queries.begin(); q != queries.end(); ++q) {
 	postlists.push_back(do_subquery(*q, factor));
+    }
+
+    if (op == Xapian::Query::OP_XOR) {
+	RETURN(new MultiXorPostList(postlists.begin(), postlists.end(),
+				    matcher, db_size));
     }
 
     if (op == Xapian::Query::OP_ELITE_SET) {
@@ -367,8 +368,9 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     make_heap(postlists.begin(), postlists.end(),
 	      ComparePostListTermFreqAscending());
 
-    // Now build a tree of binary OrPostList or XorPostList objects.  The
-    // algorithm used to build the tree is like that used to build an
+    // Now build a tree of binary OrPostList objects.
+    //
+    // The algorithm used to build the tree is like that used to build an
     // optimal Huffman coding tree.  If we called next() repeatedly, this
     // arrangement would minimise the number of method calls.  Generally we
     // don't actually do that, but this arrangement is still likely to be a
@@ -379,20 +381,13 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 	//
 	//   l.get_termfreq_est() >= r.get_termfreq_est()
 	//
-	// We do this so that the OrPostList and XorPostList classes can be
-	// optimised assuming that this is the case.
+	// We do this so that the OrPostList class can be optimised assuming
+	// that this is the case.
 	PostList * r = postlists.front();
 	pop_heap(postlists.begin(), postlists.end(),
 		 ComparePostListTermFreqAscending());
 	postlists.pop_back();
-	PostList * l = postlists.front();
-
-	PostList * pl;
-	if (op == Xapian::Query::OP_XOR) {
-	    pl = new XorPostList(l, r, matcher, db_size);
-	} else {
-	    pl = new OrPostList(l, r, matcher, db_size);
-	}
+	PostList * pl = new OrPostList(postlists.front(), r, matcher, db_size);
 
 	if (postlists.size() == 1) RETURN(pl);
 
@@ -407,8 +402,7 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 PostList *
 QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
 {
-    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym",
-	      query << ", " << factor);
+    LOGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym", query | factor);
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.

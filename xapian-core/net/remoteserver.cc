@@ -1,8 +1,8 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 #include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "utils.h"
+#include "str.h"
 #include "weightinternal.h"
 
 /// Class to throw when we receive the connection closing message.
@@ -127,14 +127,14 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
     if (type == MSG_SHUTDOWN) throw ConnectionClosed();
     if (type >= MSG_MAX) {
 	string errmsg("Invalid message type ");
-	errmsg += om_tostring(type);
+	errmsg += str(type);
 	throw Xapian::NetworkError(errmsg);
     }
     if (required_type != MSG_MAX && type != unsigned(required_type)) {
 	string errmsg("Expecting message type ");
-	errmsg += om_tostring(int(required_type));
+	errmsg += str(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(int(type));
+	errmsg += str(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
     return static_cast<message_type>(type);
@@ -187,6 +187,8 @@ RemoteServer::run()
 		&RemoteServer::msg_writeaccess,
 		&RemoteServer::msg_getmetadata,
 		&RemoteServer::msg_setmetadata,
+		&RemoteServer::msg_addspelling,
+		&RemoteServer::msg_removespelling,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -195,7 +197,7 @@ RemoteServer::run()
 	    size_t type = get_message(idle_timeout, message);
 	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
 		string errmsg("Unexpected message type ");
-		errmsg += om_tostring(type);
+		errmsg += str(type);
 		throw Xapian::InvalidArgumentError(errmsg);
 	    }
 	    (this->*(dispatch[type]))(message);
@@ -679,4 +681,26 @@ RemoteServer::msg_setmetadata(const string & message)
     p += keylen;
     string val(p, p_end - p);
     wdb->set_metadata(key, val);
+}
+
+void
+RemoteServer::msg_addspelling(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::termcount freqinc = decode_length(&p, p_end, false);
+    wdb->add_spelling(string(p, p_end - p), freqinc);
+}
+
+void
+RemoteServer::msg_removespelling(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::termcount freqdec = decode_length(&p, p_end, false);
+    wdb->remove_spelling(string(p, p_end - p), freqdec);
 }

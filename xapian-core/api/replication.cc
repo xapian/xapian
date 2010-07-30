@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009 Olly Betts
+ * Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,12 @@
 
 #include "database.h"
 #include "databasereplicator.h"
+#include "debuglog.h"
 #include "fileutils.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 #include "omassert.h"
-#include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
@@ -43,9 +43,10 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "serialise.h"
+#include "str.h"
 #include "utils.h"
 
-#include <autoptr.h>
+#include "autoptr.h"
 #include <cstdio> // For rename().
 #include <fstream>
 #include <string>
@@ -63,14 +64,13 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 				       const string & start_revision,
 				       ReplicationInfo * info) const
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseMaster::write_changesets_to_fd",
-		 fd << ", " << start_revision << ", " << info);
+    LOGCALL_VOID(REPLICA, "DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
     if (info != NULL)
 	info->clear();
     Database db;
     try {
 	db = Database(path);
-    } catch (Xapian::DatabaseError & e) {
+    } catch (const Xapian::DatabaseError & e) {
 	RemoteConnection conn(-1, fd, "");
 	OmTime end_time;
 	conn.send_message(REPL_REPLY_FAIL,
@@ -123,8 +123,11 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// The id of the currently live database in the replica (0 or 1).
     int live_id;
 
-    /// The live database being replicated.
-    WritableDatabase live_db;
+    /** The live database being replicated.
+     *
+     *  This needs to be mutable because it is sometimes lazily opened.
+     */
+    mutable WritableDatabase live_db;
 
     /** Do we have an offline database currently?
      *
@@ -149,6 +152,12 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      *  made live.
      */
     string offline_needed_revision;
+
+    /** The time at which a changeset was last applied to the live database.
+     *
+     *  Set to 0 if no changeset applied to the live database so far.
+     */
+    OmTime last_live_changeset_time;
 
     /// The remote connection we're using.
     RemoteConnection * conn;
@@ -203,7 +212,8 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     void set_read_fd(int fd);
 
     /// Read and apply the next changeset.
-    bool apply_next_changeset(ReplicationInfo * info);
+    bool apply_next_changeset(ReplicationInfo * info,
+			      int reader_close_time);
 
     /// Return a string describing this object.
     string get_description() const { return path; }
@@ -214,37 +224,37 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 DatabaseReplica::DatabaseReplica(const DatabaseReplica & other)
 	: internal(other.internal)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", other);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", other);
 }
 
 void
 DatabaseReplica::operator=(const DatabaseReplica & other)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::operator=", other);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::operator=", other);
     internal = other.internal;
 }
 
 DatabaseReplica::DatabaseReplica()
 	: internal(0)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", "");
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", NO_ARGS);
 }
 
 DatabaseReplica::DatabaseReplica(const string & path)
 	: internal(new DatabaseReplica::Internal(path))
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", path);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica", path);
 }
 
 DatabaseReplica::~DatabaseReplica()
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::~DatabaseReplica", "");
+    LOGCALL_DTOR(REPLICA, "DatabaseReplica");
 }
 
 string
 DatabaseReplica::get_revision_info() const
 {
-    DEBUGAPICALL(string, "Xapian::DatabaseReplica::get_revision_info", "");
+    LOGCALL(REPLICA, string, "DatabaseReplica::get_revision_info", NO_ARGS);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
     RETURN(internal->get_revision_info());
@@ -253,27 +263,28 @@ DatabaseReplica::get_revision_info() const
 void
 DatabaseReplica::set_read_fd(int fd)
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::set_read_fd", fd);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::set_read_fd", fd);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_read_fd on a closed replica.");
     internal->set_read_fd(fd);
 }
 
 bool
-DatabaseReplica::apply_next_changeset(ReplicationInfo * info)
+DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
+				      int reader_close_time)
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info);
     if (info != NULL)
 	info->clear();
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset on a closed replica.");
-    RETURN(internal->apply_next_changeset(info));
+    RETURN(internal->apply_next_changeset(info, reader_close_time));
 }
 
 void
 DatabaseReplica::close()
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::close", "");
+    LOGCALL(REPLICA, bool, "DatabaseReplica::close", NO_ARGS);
     internal = NULL;
 }
 
@@ -318,9 +329,9 @@ DatabaseReplica::Internal::update_stub_database() const
 DatabaseReplica::Internal::Internal(const string & path_)
 	: path(path_), live_id(0), live_db(), have_offline_db(false),
 	  need_copy_next(false), offline_revision(), offline_needed_revision(),
-	  conn(NULL)
+	  last_live_changeset_time(), conn(NULL)
 {
-    DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
+    LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
 #else
@@ -360,10 +371,12 @@ DatabaseReplica::Internal::Internal(const string & path_)
 string
 DatabaseReplica::Internal::get_revision_info() const
 {
-    DEBUGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", "");
-    if (live_db.internal.size() != 1) {
+    LOGCALL(REPLICA, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
+    if (live_db.internal.empty())
+	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    if (live_db.internal.size() != 1)
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-    }
+
     string uuid = (live_db.internal[0])->get_uuid();
     string buf = encode_length(uuid.size());
     buf += uuid;
@@ -383,6 +396,7 @@ void
 DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 {
     have_offline_db = true;
+    last_live_changeset_time = OmTime();
     string offline_path = get_replica_path(live_id ^ 1);
     // If there's already an offline database, discard it.  This happens if one
     // copy of the database was sent, but further updates were needed before it
@@ -442,8 +456,8 @@ DatabaseReplica::Internal::check_message_type(char type, char expected) const
 {
     if (type != expected) {
 	throw NetworkError("Unexpected replication protocol message type (got "
-			   + om_tostring(type) + ", expected "
-			   + om_tostring(expected) + ")");
+			   + str(type) + ", expected "
+			   + str(expected) + ")");
     }
 }
 
@@ -454,7 +468,10 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     AutoPtr<DatabaseReplicator> replicator;
     try {
 	replicator.reset(DatabaseReplicator::open(replica_path));
-    } catch (Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseError &) {
+	return false;
+    }
+    if (offline_needed_revision.empty()) {
 	return false;
     }
     if (!replicator->check_revision_at_least(offline_revision,
@@ -489,20 +506,25 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 }
 
 bool
-DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
+DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
+						int reader_close_time)
 {
-    DEBUGCALL(API, bool,
-	      "DatabaseReplica::Internal::apply_next_changeset", info);
-    if (live_db.internal.size() != 1) {
+    LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
+    if (live_db.internal.empty())
+	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    if (live_db.internal.size() != 1)
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-    }
+
     OmTime end_time;
 
     while (true) {
 	char type = conn->sniff_next_message_type(end_time);
 	switch (type) {
-	    case REPL_REPLY_END_OF_CHANGES:
+	    case REPL_REPLY_END_OF_CHANGES: {
+		string buf;
+		(void)conn->get_message(buf, end_time);
 		RETURN(false);
+	    }
 	    case REPL_REPLY_DB_HEADER:
 		// Apply the copy - remove offline db in case of any error.
 		try {
@@ -540,23 +562,42 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 		if (!have_offline_db) {
 		    // Close the live db.
-		    live_db = WritableDatabase();
 		    string replica_path(get_replica_path(live_id));
+		    live_db = WritableDatabase();
+
+		    if (last_live_changeset_time.is_set()) {
+			// Wait until at least "reader_close_time" seconds have
+			// passed since the last changeset was applied, to
+			// allow any active readers to finish and be reopened.
+			OmTime endtime(last_live_changeset_time);
+			endtime.sec += reader_close_time;
+			while (true) {
+			    OmTime now(OmTime::now());
+			    if (now > endtime)
+				break;
+			    OmTime delta = endtime - now;
+			    sleep(delta.sec + 1);
+			}
+		    }
 
 		    // Open a replicator for the live path, and apply the
 		    // changeset.
 		    {
 			AutoPtr<DatabaseReplicator> replicator(
 				DatabaseReplicator::open(replica_path));
-			offline_needed_revision = replicator->
-				apply_changeset_from_conn(*conn, end_time, true);
-		    }
 
-		    // Close the replicator and open the live db again.
+			// Ignore the returned revision number, since we are live
+			// so the changeset must be safe to apply to a live DB.
+			replicator->apply_changeset_from_conn(*conn, end_time,
+							      true);
+		    }
+		    last_live_changeset_time = OmTime::now();
+
 		    if (info != NULL) {
 			++(info->changeset_count);
 			info->changed = true;
 		    }
+		    // Now the replicator is closed, open the live db again.
 		    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
 		    RETURN(true);
 		}
@@ -564,8 +605,13 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		{
 		    AutoPtr<DatabaseReplicator> replicator(
 			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
-		    offline_needed_revision = replicator->
+
+		    offline_revision = replicator->
 			    apply_changeset_from_conn(*conn, end_time, false);
+
+		    if (info != NULL) {
+			++(info->changeset_count);
+		    }
 		}
 		if (possibly_make_offline_live()) {
 		    if (info != NULL)
@@ -579,7 +625,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 	    }
 	    default:
 		throw NetworkError("Unknown replication protocol message ("
-				   + om_tostring(type) + ")");
+				   + str(type) + ")");
 	}
     }
 }

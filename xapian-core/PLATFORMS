@@ -5,8 +5,10 @@ we've not had any reports.
 
 The list is getting rather long these days, so to summarise, Xapian should
 compile on any fairly modern Unix or Unix-like platform with a compiler
-with decent ISO C++ support, except for AIX.  If you're using GCC, 2.95 is
-probably the minimum required version (or 3.3 if you have an ARM processor).
+with decent ISO C++ support, except for AIX.  If you're using GCC, 3.1
+is the minimum supported version, but you may need a newer version for some
+architectures (e.g. 3.3 on ARM).
+
 The only tested compiler we've failed to build with so far is Compaq C++ (see
 below for more information).
 
@@ -26,19 +28,6 @@ platform) we'd love to hear - please at least include the OS version (e.g.
 output from "uname -a"), compiler and version (e.g. output from g++ -v), and
 any switches you passed to configure.  Please also run "make check" and
 tell us if any tests fail.
-
-Two notes about GCC 2.95:
-
-* GCC 2.95 reports a lot of warnings about control reaching the end of
-  non-void functions - these are bogus, and can be safely ignored.
-
-* On many platforms, certain tests (deldoc1 notably) used to fail with
-  Xapian::Error exceptions - investigation revealed that the correct exception
-  was being thrown, but was leaking through the catch block somehow.  Adding
-  tracing code often made the test pass!  We believe this is a GCC 2.95 bug -
-  it's never been reported with GCC 3.0 or higher, nor with other compilers.
-  The testsuite framework should now detect such mishandled exceptions, and
-  skip the test in progress with an appropriate message.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
@@ -73,14 +62,14 @@ x86   |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
 x86   |#Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.4 |Passed| (td185)
 x86   |#Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.4 |Passed| (td186)
 x86   |#Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td186)
-x86   | Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.16|Passed| from Launchpad PPA
-x86   | Linux 2.6 Ubuntu 8.04 GCC 4.2.4| 1.0.16|Passed| from Launchpad PPA
-x86   | Linux 2.6 Ubuntu 8.10 GCC 4.3.2| 1.0.16|Passed| from Launchpad PPA
-x86   | Linux 2.6 Ubuntu 9.04 GCC 4.3.3| 1.0.16|Passed| from Launchpad PPA
-x86   | Linux 2.6 Ubuntu 9.10 GCC 4.4.1| 1.0.16|Passed| from Launchpad PPA
+x86   | Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.17|Passed| from Launchpad PPA
+x86   | Linux 2.6 Ubuntu 8.04 GCC 4.2.4| 1.0.17|Passed| from Launchpad PPA
+x86   | Linux 2.6 Ubuntu 8.10 GCC 4.3.2| 1.0.17|Passed| from Launchpad PPA
+x86   | Linux 2.6 Ubuntu 9.04 GCC 4.3.3| 1.0.17|Passed| from Launchpad PPA
+x86   | Linux 2.6 Ubuntu 9.10 GCC 4.4.1| 1.0.17|Passed| from Launchpad PPA
 x86   |#FreeBSD 6.2 GCC 3.4.6          | 1.0.4 |Passed| (td152)
-x86   |:kFreeBSD 7.2 Debian GCC 4.3.4  | 1.0.16|Passed|
-x86   |:Hurd 0.3 Debian sid GCC 4.3.4  | 1.0.16|Passed|
+x86   |:kFreeBSD 7.2 Debian GCC 4.3.4  | 1.0.17|Passed|
+x86   |:Hurd 0.3 Debian sid GCC 4.3.4  | 1.0.17|Passed|
 x86_64|&Linux 2.6 Debian 4.0 GCC 4.1.2 | 1.0.11|Passed| (atreus)
 x86_64|#Linux 2.6 RHEL AS4 GCC 3.2.3   | 1.0.0 |Passed| (was td189)
 x86_64|#Linux 2.6 RHEL AS4 GCC 3.4.6   | 1.0.1 |Passed| (td189)
@@ -89,32 +78,31 @@ x86_64|#Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.4 |Passed| (td159,163,165)
 x86_64|#Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.4 |Passed| (td162,166,179)
 x86_64|%Linux 2.6 SuSE 10 GCC 4.1.2    | 1.0.5 |Passed| (iceland.sgi.com)
 x86_64|#Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.4 |Passed| (td162)
-x86_64| Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.16|Passed| from Launchpad PPA
-x86_64| Linux 2.6 Ubuntu 8.04 GCC 4.2.4| 1.0.16|Passed| from Launchpad PPA
-x86_64| Linux 2.6 Ubuntu 8.10 GCC 4.3.2| 1.0.16|Passed| from Launchpad PPA
-x86_64| Linux 2.6 Ubuntu 9.04 GCC 4.3.3| 1.0.16|Passed| from Launchpad PPA
+x86_64| Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.17|Passed| from Launchpad PPA
+x86_64| Linux 2.6 Ubuntu 8.04 GCC 4.2.4| 1.0.17|Passed| from Launchpad PPA
+x86_64| Linux 2.6 Ubuntu 8.10 GCC 4.3.2| 1.0.17|Passed| from Launchpad PPA
+x86_64| Linux 2.6 Ubuntu 9.04 GCC 4.3.3| 1.0.17|Passed| from Launchpad PPA
 x86_64| Linux 2.6 Ubuntu 9.10 GCC 4.4.1| 1.0.17|Passed| from Olly Betts
-x86_64|:kFreeBSD 7.2 Debian GCC 4.3.4  | 1.0.16|Passed|
-alpha |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
+x86_64|:kFreeBSD 7.2 Debian GCC 4.3.4  | 1.0.17|Passed|
+alpha |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+alpha |:Linux 2.6 Debian 5.0 GCC 4.2.4 | 1.0.17|Passed|
 arm   |:Linux 2.6 Debian sid GCC 4.1.3 | 1.0.2 |Passed| core testsuite not run
-armel |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
-hppa  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
-ia64  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
+armel |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+hppa  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+ia64  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+ia64  |:Linux 2.6 Debian 5.0 GCC 4.3.2 | 1.0.17|Passed|
 ia64  |#Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.4 |Passed| (td178,188)
 ia64  |%Linux 2.6 SuSE 10 GCC 3.3.3    | 1.0.5 |Passed| (polly.sgi.com)
 ia64  |#Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.4 |Passed| (td187)
 ia64  |%Linux 2.6 SuSE 10 GCC 4.1.2    | 1.0.5 |Passed| (penguin.sgi.com)
 ia64  |#FreeBSD 6.2 GCC 3.4.6          | 1.0.3 |Passed| (td150)
-lpia  | Linux 2.6 Ubuntu 8.04 GCC 4.2.4| 1.0.16|Passed| from Launchpad PPA
-lpia  | Linux 2.6 Ubuntu 8.10 GCC 4.3.2| 1.0.16|Passed| from Launchpad PPA
-lpia  | Linux 2.6 Ubuntu 9.04 GCC 4.3.3| 1.0.17|Passed| from Launchpad PPA
-lpia  | Linux 2.6 Ubuntu 9.10 GCC 4.4.1| 1.0.16|Passed| from Launchpad PPA
 m68k  |:Linux 2.6 Debian sid GCC 4.3.3 | 1.0.12|Passed| core testsuite not run
-mips  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
-mipsel|:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
-ppc   |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
-s390  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
-sparc |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.16|Passed|
+mips  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+mipsel|:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+ppc   |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+s390  |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
+s390  |:Linux 2.6 Debian 4.0 GCC 4.1.2 | 1.0.17|Passed|
+sparc |:Linux 2.6 Debian sid GCC 4.3.4 | 1.0.17|Passed|
 sparc | Solaris 9 GCC 3.3              | 1.0.5 |Passed| from James Aylett
 sparc | Solaris 9 GCC 3.3 (-m64)       | 1.0.5 |Passed| from James Aylett
 sparc | Solaris 10 GCC 3.4.3           | 1.0.5 |Passed| from James Aylett

@@ -92,32 +92,38 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 using Unicode::is_currency;
 
-/// A structure identifying a group of filter terms.
+/// A structure identifying a group of filter terms or a value range.
 struct filter_group_id {
-    /** The prefix of the filter terms.
-     *  This is used for boolean filter terms.
+    /** The prefix info for boolean filter terms.
+     *
+     *  This is NULL for a value range.
      */
-    list<string> prefixes;
+    const PrefixInfo *prefix_info;
 
-    /** The value number of the filter terms.
+    /** The value number for a value range.
+     *
      *  This is used for value range terms.
      */
-    Xapian::valueno valno;
+    Xapian::valueno slot;
 
     /// Make a new filter_group_id for boolean filter terms.
-    explicit filter_group_id(const list<string> & prefixes_)
-	: prefixes(prefixes_), valno(Xapian::BAD_VALUENO) {}
+    explicit filter_group_id(const PrefixInfo * prefix_info_)
+	: prefix_info(prefix_info_), slot(Xapian::BAD_VALUENO) {}
 
     /// Make a new filter_group_id for value range terms.
-    explicit filter_group_id(Xapian::valueno valno_)
-	: prefixes(), valno(valno_) {}
+    explicit filter_group_id(Xapian::valueno slot_)
+	: prefix_info(NULL), slot(slot_) {}
 
-    /// Compare to another filter_group_id.
+    /// Ordering needed to allow storage in a map.
     bool operator<(const filter_group_id & other) const {
-	if (prefixes != other.prefixes) {
-	    return prefixes < other.prefixes;
-	}
-	return valno < other.valno;
+	// Check slot first since comparison is cheap.
+	if (slot != other.slot)
+	    return slot < other.slot;
+	if (!prefix_info || prefix_info == other.prefix_info)
+	    return false;
+	if (!other.prefix_info)
+	    return true;
+	return prefix_info->prefixes < other.prefix_info->prefixes;
     }
 };
 
@@ -132,22 +138,23 @@ class Term {
 
   public:
     string name;
-    list<string> prefixes;
+    const PrefixInfo * prefix_info;
     string unstemmed;
     QueryParser::stem_strategy stem;
     termpos pos;
 
     Term(const string &name_, termpos pos_) : name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
     Term(const string &name_) : name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
-    Term(const string &name_, const list<string> &prefixes_)
-	: name(name_), prefixes(prefixes_), stem(QueryParser::STEM_NONE), pos(0) { }
+    Term(const string &name_, const PrefixInfo * prefix_info_)
+	: name(name_), prefix_info(prefix_info_),
+	  stem(QueryParser::STEM_NONE), pos(0) { }
     Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
-    Term(State * state_, const string &name_, const list<string> &prefixes_,
+    Term(State * state_, const string &name_, const PrefixInfo * prefix_info_,
 	 const string &unstemmed_,
 	 QueryParser::stem_strategy stem_ = QueryParser::STEM_NONE,
 	 termpos pos_ = 0)
-	: state(state_), name(name_), prefixes(prefixes_), unstemmed(unstemmed_),
-	  stem(stem_), pos(pos_) { }
+	: state(state_), name(name_), prefix_info(prefix_info_),
+	  unstemmed(unstemmed_), stem(stem_), pos(pos_) { }
 
     string make_term(const string & prefix) const;
 
@@ -157,7 +164,9 @@ class Term {
 
     termpos get_termpos() const { return pos; }
 
-    filter_group_id get_filter_group_id() const { return filter_group_id(prefixes); }
+    filter_group_id get_filter_group_id() const {
+	return filter_group_id(prefix_info);
+    }
 
     Query * as_wildcarded_query(State * state) const;
 
@@ -211,7 +220,10 @@ class State {
 	    if (valno != Xapian::BAD_VALUENO) {
 		delete a;
 		delete b;
-		q = Query(Query::OP_VALUE_RANGE, valno, start, end);
+		if (end.empty())
+		    q = Query(Query::OP_VALUE_GE, valno, start);
+		else
+		    q = Query(Query::OP_VALUE_RANGE, valno, start, end);
 		return valno;
 	    }
 	}
@@ -262,6 +274,7 @@ Term::get_query_with_synonyms() const
     Query q = get_query();
 
     // Handle single-word synonyms with each prefix.
+    const list<string> & prefixes = prefix_info->prefixes;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	// First try the unstemmed term:
@@ -328,6 +341,7 @@ add_to_query(Query *& q, Query::op op, const Query & term)
 Query
 Term::get_query() const
 {
+    const list<string> & prefixes = prefix_info->prefixes;
     Assert(prefixes.size() >= 1);
     list<string>::const_iterator piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
@@ -340,8 +354,10 @@ Term::get_query() const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    Database db = state_->get_database();
+    const Database & db = state_->get_database();
     vector<Query> subqs;
+
+    const list<string> & prefixes = prefix_info->prefixes;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
@@ -359,9 +375,11 @@ Term::as_wildcarded_query(State * state_) const
 Query *
 Term::as_partial_query(State * state_) const
 {
-    Database db = state_->get_database();
+    const Database & db = state_->get_database();
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
+
+    const list<string> & prefixes = prefix_info->prefixes;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
@@ -460,18 +478,18 @@ static void Parse(yyParser *, int, Term *, State *);
 
 void
 QueryParser::Internal::add_prefix(const string &field, const string &prefix,
-				  bool filter)
+				  filter_type type)
 {
     map<string, PrefixInfo>::iterator p = prefixmap.find(field);
     if (p == prefixmap.end()) {
-       prefixmap.insert(make_pair(field, PrefixInfo(filter, prefix)));
+	prefixmap.insert(make_pair(field, PrefixInfo(type, prefix)));
     } else {
-       // Check that this is the same type of filter as the existing one(s).
-       if (p->second.filter != filter) {
-           throw Xapian::InvalidOperationError("Can't use add_prefix() and add_bool_prefix() on the same field name");
-       }
-       p->second.prefixes.push_back(prefix);
-    }
+	// Check that this is the same type of filter as the existing one(s).
+	if (p->second.type != type) {
+	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
+	}
+	p->second.prefixes.push_back(prefix);
+   }
 }
 
 string
@@ -560,12 +578,19 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     return term;
 }
 
+class ParserHandler {
+    yyParser * parser;
+
+  public:
+    explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
+    operator yyParser*() { return parser; }
+    ~ParserHandler() { ParseFree(parser); }
+};
+
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    yyParser * pParser = ParseAlloc();
-
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
     value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
@@ -585,17 +610,19 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 
     // If default_prefix is specified, use it.  Otherwise, use any list
     // that has been set for the empty prefix.
-    const PrefixInfo def_pfx(false, default_prefix);
+    const PrefixInfo def_pfx(NON_BOOLEAN, default_prefix);
     {
-	const PrefixInfo * default_prefixinfo = &def_pfx;
+	const PrefixInfo * default_prefix_info = &def_pfx;
 	if (default_prefix.empty()) {
 	    map<string, PrefixInfo>::const_iterator f = prefixmap.find("");
-	    if (f != prefixmap.end()) default_prefixinfo = &(f->second);
+	    if (f != prefixmap.end()) default_prefix_info = &(f->second);
 	}
 
 	// We always have the current prefix on the top of the stack.
-	prefix_stack.push_back(default_prefixinfo);
+	prefix_stack.push_back(default_prefix_info);
     }
+
+    ParserHandler pParser(ParseAlloc());
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -630,23 +657,26 @@ just_had_synonym_operator:
 	    unsigned ch = 0;
 	    while (p != end) {
 		if (ch == '.' && *p == '.') {
-		    ++p;
-		    if (p == end || *p <= ' ' || *p == ')') break;
-
 		    string r;
-		    do {
+		    while (it != p) {
 			Unicode::append_utf8(r, *it++);
-		    } while (it != p);
-		    // Trim off the trailing "..".
-		    r.resize(r.size() - 2);
-		    Parse(pParser, RANGE_START, new Term(r), &state);
-		    r.resize(0);
-		    // Allow any character except whitespace and ')' in a
-		    // RANGE_END.  Or should we be consistent with RANGE_START?
-		    do {
-			Unicode::append_utf8(r, *p++);
-		    } while (p != end && *p > ' ' && *p != ')');
-		    Parse(pParser, RANGE_END, new Term(r), &state);
+		    }
+		    // Trim off the trailing ".".
+		    r.resize(r.size() - 1);
+		    ++p;
+		    // Either end of the range can be empty (for an open-ended
+		    // range) but both can't be empty.
+		    if (!r.empty() || (p != end && *p > ' ' && *p != ')')) {
+			Parse(pParser, RANGE_START, new Term(r), &state);
+			r.resize(0);
+			// Allow any character except whitespace and ')' in a
+			// RANGE_END.  Or should we be consistent with
+			// RANGE_START?
+			while (p != end && *p > ' ' && *p != ')') {
+			    Unicode::append_utf8(r, *p++);
+			}
+			Parse(pParser, RANGE_END, new Term(r), &state);
+		    }
 		    it = p;
 		    goto main_lex_loop;
 		}
@@ -710,7 +740,15 @@ just_had_synonym_operator:
 		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_LOVEHATE)) {
-		    Parse(pParser, (ch == '+' ? LOVE : HATE), NULL, &state);
+		    int token;
+		    if (ch == '+') {
+			token = LOVE;
+		    } else if (last_was_operator) {
+			token = HATE_AFTER_AND;
+		    } else {
+			token = HATE;
+		    }
+		    Parse(pParser, token, NULL, &state);
 		    goto just_had_operator;
 		}
 		// Need to prevent the term after a LOVE or HATE starting a
@@ -776,7 +814,7 @@ just_had_synonym_operator:
 	newprev = 'A'; // Any letter will do...
 
 	// A term, a prefix, or a boolean operator.
-	const PrefixInfo * prefixinfo = NULL;
+	const PrefixInfo * prefix_info = NULL;
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == EXPLICIT_SYNONYM) &&
 	    !prefixmap.empty()) {
 	    // Check for a fieldname prefix (e.g. title:historical).
@@ -792,9 +830,9 @@ just_had_synonym_operator:
 		    // Special handling for prefixed fields, depending on the
 		    // type of the prefix.
 		    unsigned ch = *++p;
-		    prefixinfo = &(f->second);
+		    prefix_info = &(f->second);
 
-		    if (prefixinfo->filter) {
+		    if (prefix_info->type != NON_BOOLEAN) {
 			// Drop out of IN_GROUP if we're in it.
 			if (mode == IN_GROUP)
 			    mode = DEFAULT;
@@ -822,8 +860,7 @@ just_had_synonym_operator:
 			// Build the unstemmed form in field.
 			field += ':';
 			field += name;
-			const list<string> & prefixes = prefixinfo->prefixes;
-			Term * token = new Term(&state, name, prefixes, field);
+			Term * token = new Term(&state, name, prefix_info, field);
 			Parse(pParser, BOOLEAN_FILTER, token, &state);
 			continue;
 		    }
@@ -835,7 +872,7 @@ just_had_synonym_operator:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefixinfo);
+			prefix_stack.push_back(prefix_info);
 			continue;
 		    }
 
@@ -846,7 +883,7 @@ just_had_synonym_operator:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefixinfo);
+			prefix_stack.push_back(prefix_info);
 			continue;
 		    }
 
@@ -856,7 +893,7 @@ just_had_synonym_operator:
 		    } else {
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
-			prefixinfo = NULL;
+			prefix_info = NULL;
 		    }
 		}
 	    }
@@ -871,7 +908,7 @@ phrased_term:
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
-	    !prefixinfo &&
+	    !prefix_info &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
 
 	    string op = term;
@@ -937,9 +974,9 @@ phrased_term:
 	}
 
 	// If no prefix is set, use the default one.
-	if (!prefixinfo) prefixinfo = prefix_stack.back();
+	if (!prefix_info) prefix_info = prefix_stack.back();
 
-	Assert(!prefixinfo->filter);
+	Assert(prefix_info->type == NON_BOOLEAN);
 
 	{
 	    string unstemmed_term(term);
@@ -961,7 +998,7 @@ phrased_term:
 		}
 	    }
 
-	    Term * term_obj = new Term(&state, term, prefixinfo->prefixes,
+	    Term * term_obj = new Term(&state, term, prefix_info,
 				       unstemmed_term, stem_term, term_pos++);
 
 	    if (mode == DEFAULT || mode == IN_GROUP) {
@@ -971,6 +1008,8 @@ phrased_term:
 			++p;
 			if (p == end || !is_wordchar(*p)) {
 			    it = p;
+			    // Drop out of IN_GROUP if we are in it.
+			    mode = DEFAULT;
 			    // Wildcard at end of term (also known as
 			    // "right truncation").
 			    Parse(pParser, WILD_TERM, term_obj, &state);
@@ -990,11 +1029,10 @@ phrased_term:
 	    // Check spelling, if we're a normal term, and any of the prefixes
 	    // are empty.
 	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
-		list<string>::const_iterator prefixiter;
-		for (prefixiter = prefixinfo->prefixes.begin();
-		     prefixiter != prefixinfo->prefixes.end();
-		     ++prefixiter) {
-		    if (!prefixiter->empty())
+		const list<string> & prefixes = prefix_info->prefixes;
+		list<string>::const_iterator pfx_it;
+		for (pfx_it = prefixes.begin(); pfx_it != prefixes.end(); ++pfx_it) {
+		    if (!pfx_it->empty())
 			continue;
 		    if (!db.term_exists(term)) {
 			string suggestion = db.get_spelling_suggestion(term);
@@ -1073,7 +1111,6 @@ done:
 	    Parse(pParser, QUOTE, NULL, &state);
 	Parse(pParser, 0, NULL, &state);
     }
-    ParseFree(pParser);
 
     errmsg = state.error;
     return state.query;
@@ -1095,6 +1132,28 @@ struct ProbQuery {
 	delete hate;
     }
 
+    void add_filter(const filter_group_id & id, const Query & q) {
+	filter[id] = q;
+    }
+
+    void append_filter(const filter_group_id & id, const Query & qnew) {
+	Query & q = filter[id];
+	// We OR filters with the same prefix if they're exclusive, otherwise
+	// we AND them.
+	bool exclusive = (id.prefix_info->type == BOOLEAN_EXCLUSIVE);
+	Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
+	q = Query(op, q, qnew); // OP_AND!
+    }
+
+    void add_filter_range(Xapian::valueno slot, const Query & range) {
+	filter[filter_group_id(slot)] = range;
+    }
+
+    void append_filter_range(Xapian::valueno slot, const Query & range) {
+	Query & q = filter[filter_group_id(slot)];
+	q = Query(Query::OP_OR, q, range);
+    }
+
     Query merge_filters() const {
 	map<filter_group_id, Query>::const_iterator i = filter.begin();
 	Assert(i != filter.end());
@@ -1106,6 +1165,7 @@ struct ProbQuery {
     }
 };
 
+/// A group of terms separated only by whitespace.
 class TermGroup {
     vector<Term *> terms;
 
@@ -1230,7 +1290,7 @@ TermGroup::as_group(State *state) const
 	    if (state->is_stopword(*i)) {
 		state->add_to_stoplist(*i);
 	    } else {
-	    	subqs.push_back((*i)->get_query_with_auto_synonyms());
+		subqs.push_back((*i)->get_query_with_auto_synonyms());
 	    }
 	}
     }
@@ -1247,7 +1307,8 @@ TermGroup::as_group(State *state) const
     return new Query(default_op, subqs.begin(), subqs.end());
 }
 
-class TermList {
+/// Some terms which form a positional sub-query.
+class Terms {
     vector<Term *> terms;
     size_t window;
 
@@ -1263,9 +1324,9 @@ class TermList {
     bool uniform_prefixes;
 
     /** The list of prefixes of the terms added.
-     *  This will be empty if the terms have different prefixes.
+     *  This will be NULL if the terms have different prefixes.
      */
-    list<string> prefixes;
+    const list<string> * prefixes;
 
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
@@ -1273,17 +1334,19 @@ class TermList {
 	size_t n_terms = terms.size();
 	Xapian::termcount w = w_delta + terms.size();
 	if (uniform_prefixes) {
-	    list<string>::const_iterator piter;
-	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-		vector<Query> subqs;
-		subqs.reserve(n_terms);
-		vector<Term *>::const_iterator titer;
-		for (titer = terms.begin(); titer != terms.end(); ++titer) {
-		    Term * t = *titer;
-		    subqs.push_back(Query(t->make_term(*piter), 1, t->pos));
+	    if (prefixes) {
+		list<string>::const_iterator piter;
+		for (piter = prefixes->begin(); piter != prefixes->end(); ++piter) {
+		    vector<Query> subqs;
+		    subqs.reserve(n_terms);
+		    vector<Term *>::const_iterator titer;
+		    for (titer = terms.begin(); titer != terms.end(); ++titer) {
+			Term * t = *titer;
+			subqs.push_back(Query(t->make_term(*piter), 1, t->pos));
+		    }
+		    add_to_query(q, Query::OP_OR,
+				 Query(op, subqs.begin(), subqs.end(), w));
 		}
-		add_to_query(q, Query::OP_OR,
-			     Query(op, subqs.begin(), subqs.end(), w));
 	    }
 	} else {
 	    vector<Query> subqs;
@@ -1300,15 +1363,18 @@ class TermList {
     }
 
   public:
-    TermList() : window(0), uniform_prefixes(true) { }
+    Terms() : window(0), uniform_prefixes(true), prefixes(NULL) { }
 
-    /// Add an unstemmed Term object to this TermList object.
+    /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
-        if (terms.empty()) {
-	    prefixes = term->prefixes;
-	} else if (uniform_prefixes && prefixes != term->prefixes)  {
-	    prefixes.clear();
-	    uniform_prefixes = false;
+	const list<string> & term_prefixes = term->prefix_info->prefixes;
+	if (terms.empty()) {
+	    prefixes = &term_prefixes;
+	} else if (uniform_prefixes && prefixes != &term_prefixes) {
+	    if (*prefixes != term_prefixes)  {
+		prefixes = NULL;
+		uniform_prefixes = false;
+	    }
 	}
 	term->need_positions();
 	terms.push_back(term);
@@ -1352,7 +1418,7 @@ class TermList {
     /** Protected destructor, so an auto-variable of this type is a
      *  compile-time error - you must allocate this object with new.
      */
-    ~TermList() {
+    ~Terms() {
 	vector<Term *>::const_iterator t;
 	for (t = terms.begin(); t != terms.end(); ++t) {
 	    delete *t;
@@ -1395,7 +1461,7 @@ class TermList {
 %left XOR.
 %left AND NOT.
 %left NEAR ADJ.
-%left LOVE HATE SYNONYM.
+%left LOVE HATE HATE_AFTER_AND SYNONYM.
 
 // Destructors for terminal symbols:
 
@@ -1469,6 +1535,9 @@ expr(E) ::= bool_arg(A) NOT bool_arg(B). {
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+
+expr(E) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND]
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND"); }
 
 expr(E) ::= bool_arg(A) OR bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
@@ -1554,7 +1623,7 @@ prob(P) ::= RANGE_START(A) RANGE_END(B). {
 	return;
     }
     P = new ProbQuery;
-    P->filter[filter_group_id(valno)] = range;
+    P->add_filter_range(valno, range);
 }
 
 prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
@@ -1565,8 +1634,7 @@ prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
 	return;
     }
     P = Q;
-    Query & q = P->filter[filter_group_id(valno)];
-    q = Query(Query::OP_OR, q, range);
+    P->append_filter_range(valno, range);
 }
 
 prob(P) ::= stop_term(T) stop_term(U). {
@@ -1638,15 +1706,13 @@ prob(P) ::= stop_prob(Q) HATE BOOLEAN_FILTER(T). {
 
 prob(P) ::= BOOLEAN_FILTER(T). {
     P = new ProbQuery;
-    P->filter[T->get_filter_group_id()] = T->get_query();
+    P->add_filter(T->get_filter_group_id(), T->get_query());
     delete T;
 }
 
 prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
-    // We OR filters with the same prefix...
-    Query & q = P->filter[T->get_filter_group_id()];
-    q = Query(Query::OP_OR, q, T->get_query());
+    P->append_filter(T->get_filter_group_id(), T->get_query());
     delete T;
 }
 
@@ -1755,12 +1821,12 @@ compound_term(T) ::= SYNONYM TERM(U). {
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
-%type phrase {TermList *}
+%type phrase {Terms *}
 
 %destructor phrase {$$->destroy();}
 
 phrase(P) ::= TERM(T). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
 }
 
@@ -1773,11 +1839,11 @@ phrase(P) ::= phrase(Q) TERM(T). {
 // 2 or more terms linked together into a phrase by punctuation.  There must be
 // at least 2 terms in order to be able to have punctuation between the terms!
 
-%type phrased_term {TermList *}
+%type phrased_term {Terms *}
 %destructor phrased_term {$$->destroy();}
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
     P->add_positional_term(U);
 }
@@ -1807,11 +1873,11 @@ group(P) ::= group(Q) GROUP_TERM(T). {
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2
 // terms in order for there to be any NEAR operators!
 
-%type near_expr {TermList *}
+%type near_expr {Terms *}
 %destructor near_expr {$$->destroy();}
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
@@ -1832,11 +1898,11 @@ near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
 // adj_expr - 2 or more terms with ADJ in between.  There must be at least 2
 // terms in order for there to be any ADJ operators!
 
-%type adj_expr {TermList *}
+%type adj_expr {Terms *}
 %destructor adj_expr {$$->destroy();}
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
-    P = new TermList;
+    P = new Terms;
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {

@@ -1,7 +1,7 @@
 /** @file brass_version.cc
  * @brief BrassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 
 #include <xapian/error.h>
 
-#include "brass_io.h"
 #include "brass_version.h"
+#include "io_utils.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
-#include "utils.h"
+#include "str.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -44,9 +44,7 @@ using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define BRASS_VERSION 200912150
-// 200804180       Brass debuts.
-// 200903070 1.1.0 doclen bounds and wdf upper bound.
-// 200912150 1.1.4 shorter position, postlist, record and termlist keys.
+// 200912150 1.1.4 Brass debuts.
 
 #define MAGIC_STRING "IAmBrass"
 
@@ -81,7 +79,7 @@ BrassVersion::create()
     }
 
     try {
-	brass_io_write(fd, buf, VERSIONFILE_SIZE);
+	io_write(fd, buf, VERSIONFILE_SIZE);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -109,7 +107,7 @@ BrassVersion::read_and_check()
     char buf[VERSIONFILE_SIZE + 1];
     size_t size;
     try {
-	size = brass_io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
+	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -121,7 +119,7 @@ BrassVersion::read_and_check()
 	string msg = filename;
 	msg += ": Brass version file should be "
 	       STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
-	msg += om_tostring(size);
+	msg += str(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -137,7 +135,7 @@ BrassVersion::read_and_check()
     if (version != BRASS_VERSION) {
 	string msg = filename;
 	msg += ": Brass version file is version ";
-	msg += om_tostring(version);
+	msg += str(version);
 	msg += " but I only understand "STRINGIZE(BRASS_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }

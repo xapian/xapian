@@ -5,7 +5,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
- * Copyright 2009 Richard Boulton
+ * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@
 #include "flint_alldocspostlist.h"
 #include "flint_alltermslist.h"
 #include "flint_document.h"
-#include "flint_io.h"
 #include "../flint_lock.h"
 #include "flint_metadata.h"
 #include "flint_modifiedpostlist.h"
@@ -47,12 +46,15 @@
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "flint_values.h"
-#include "omdebug.h"
+#include "debuglog.h"
+#include "io_utils.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "replicate_utils.h"
 #include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -122,8 +124,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  lastdocid(0),
 	  max_changesets(0)
 {
-    DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
-	      ", " << block_size);
+    LOGCALL_CTOR(DB, "FlintDatabase", flint_dir | action | block_size);
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();
@@ -186,13 +187,13 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 
 FlintDatabase::~FlintDatabase()
 {
-    DEBUGCALL(DB, void, "~FlintDatabase", "");
+    LOGCALL_DTOR(DB, "~FlintDatabase");
 }
 
 void
 FlintDatabase::read_metainfo()
 {
-    DEBUGCALL(DB, void, "FlintDatabase::read_metainfo", "");
+    LOGCALL_VOID(DB, "FlintDatabase::read_metainfo", NO_ARGS);
 
     string tag;
     if (!postlist_table.get_exact_entry(METAINFO_KEY, tag)) {
@@ -211,7 +212,7 @@ FlintDatabase::read_metainfo()
 
 bool
 FlintDatabase::database_exists() {
-    DEBUGCALL(DB, bool, "FlintDatabase::database_exists", "");
+    LOGCALL(DB, bool, "FlintDatabase::database_exists", NO_ARGS);
     RETURN(record_table.exists() &&
 	   postlist_table.exists() &&
 	   termlist_table.exists());
@@ -220,7 +221,7 @@ FlintDatabase::database_exists() {
 void
 FlintDatabase::create_and_open_tables(unsigned int block_size)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::create_and_open_tables", "");
+    LOGCALL_VOID(DB, "FlintDatabase::create_and_open_tables", NO_ARGS);
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
@@ -259,7 +260,7 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
 void
 FlintDatabase::open_tables_consistent()
 {
-    DEBUGCALL(DB, void, "FlintDatabase::open_tables_consistent", "");
+    LOGCALL_VOID(DB, "FlintDatabase::open_tables_consistent", NO_ARGS);
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -336,7 +337,7 @@ FlintDatabase::open_tables_consistent()
 void
 FlintDatabase::open_tables(flint_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::open_tables", revision);
+    LOGCALL_VOID(DB, "FlintDatabase::open_tables", revision);
     version_file.read_and_check(readonly);
     record_table.open(revision);
 
@@ -359,7 +360,7 @@ FlintDatabase::open_tables(flint_revision_number_t revision)
 flint_revision_number_t
 FlintDatabase::get_revision_number() const
 {
-    DEBUGCALL(DB, flint_revision_number_t, "FlintDatabase::get_revision_number", "");
+    LOGCALL(DB, flint_revision_number_t, "FlintDatabase::get_revision_number", NO_ARGS);
     // We could use any table here, theoretically.
     RETURN(postlist_table.get_open_revision_number());
 }
@@ -367,7 +368,7 @@ FlintDatabase::get_revision_number() const
 flint_revision_number_t
 FlintDatabase::get_next_revision_number() const
 {
-    DEBUGCALL(DB, flint_revision_number_t, "FlintDatabase::get_next_revision_number", "");
+    LOGCALL(DB, flint_revision_number_t, "FlintDatabase::get_next_revision_number", NO_ARGS);
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
      * number.
@@ -399,8 +400,8 @@ FlintDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + flint_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -431,7 +432,7 @@ FlintDatabase::get_changeset_revisions(const string & path,
 void
 FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::set_revision_number", new_revision);
+    LOGCALL_VOID(DB, "FlintDatabase::set_revision_number", new_revision);
 
     postlist_table.flush_db();
     position_table.flush_db();
@@ -448,17 +449,9 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	flint_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
 	    // Don't generate a changeset for the first revision.
-	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
-#ifdef __WIN32__
-	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	    if (changes_fd < 0) {
-		string message = string("Couldn't open changeset ")
-			+ changes_name + " to write";
-		throw Xapian::DatabaseError(message, errno);
-	    }
+	    changes_fd = create_changeset_file(db_dir,
+					       "/changes" + str(old_revision),
+					       changes_name);
 	}
     }
 
@@ -475,7 +468,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
 	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
 
-	    flint_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache
@@ -517,7 +510,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 void
 FlintDatabase::reopen()
 {
-    DEBUGCALL(DB, void, "FlintDatabase::reopen", "");
+    LOGCALL_VOID(DB, "FlintDatabase::reopen", NO_ARGS);
     if (readonly) {
 	open_tables_consistent();
     }
@@ -526,7 +519,7 @@ FlintDatabase::reopen()
 void
 FlintDatabase::close()
 {
-    DEBUGCALL(DB, void, "FlintDatabase::close", "");
+    LOGCALL_VOID(DB, "FlintDatabase::close", NO_ARGS);
     postlist_table.close(true);
     position_table.close(true);
     termlist_table.close(true);
@@ -540,7 +533,7 @@ FlintDatabase::close()
 void
 FlintDatabase::get_database_write_lock(bool creating)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", creating);
+    LOGCALL_VOID(DB, "FlintDatabase::get_database_write_lock", creating);
     string explanation;
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
@@ -558,8 +551,7 @@ void
 FlintDatabase::send_whole_database(RemoteConnection & conn,
 				   const OmTime & end_time)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::send_whole_database",
-	      "conn" << ", " << "end_time");
+    LOGCALL_VOID(DB, "FlintDatabase::send_whole_database", conn | end_time);
 
     // Send the current revision number in the header.
     string buf;
@@ -601,8 +593,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 				      bool need_whole_db,
 				      ReplicationInfo * info)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::write_changesets_to_fd",
-	      fd << ", " << revision << ", " << need_whole_db << ", " << info);
+    LOGCALL_VOID(DB, "FlintDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
 
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     flint_revision_number_t start_rev_num = 0;
@@ -688,7 +679,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    }
 
 	    // Look for the changeset for revision start_rev_num.
-	    string changes_name = db_dir + "/changes" + om_tostring(start_rev_num);
+	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 	    if (file_exists(changes_name)) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
@@ -754,7 +745,7 @@ FlintDatabase::modifications_failed(flint_revision_number_t old_revision,
 void
 FlintDatabase::apply()
 {
-    DEBUGCALL(DB, void, "FlintDatabase::apply", "");
+    LOGCALL_VOID(DB, "FlintDatabase::apply", NO_ARGS);
     if (!postlist_table.is_modified() &&
 	!position_table.is_modified() &&
 	!termlist_table.is_modified() &&
@@ -782,7 +773,7 @@ FlintDatabase::apply()
 void
 FlintDatabase::cancel()
 {
-    DEBUGCALL(DB, void, "FlintDatabase::cancel", "");
+    LOGCALL_VOID(DB, "FlintDatabase::cancel", NO_ARGS);
     postlist_table.cancel();
     position_table.cancel();
     termlist_table.cancel();
@@ -795,28 +786,28 @@ FlintDatabase::cancel()
 Xapian::doccount
 FlintDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_doccount", "");
+    LOGCALL(DB, Xapian::doccount, "FlintDatabase::get_doccount", NO_ARGS);
     RETURN(record_table.get_doccount());
 }
 
 Xapian::docid
 FlintDatabase::get_lastdocid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "FlintDatabase::get_lastdocid", "");
+    LOGCALL(DB, Xapian::docid, "FlintDatabase::get_lastdocid", NO_ARGS);
     RETURN(lastdocid);
 }
 
 totlen_t
 FlintDatabase::get_total_length() const
 {
-    DEBUGCALL(DB, totlen_t, "FlintDatabase::get_total_length", "");
+    LOGCALL(DB, totlen_t, "FlintDatabase::get_total_length", NO_ARGS);
     RETURN(total_length);
 }
 
 Xapian::doclength
 FlintDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", "");
+    LOGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", NO_ARGS);
     Xapian::doccount doccount = record_table.get_doccount();
     if (doccount == 0) {
 	// Avoid dividing by zero when there are no documents.
@@ -828,7 +819,7 @@ FlintDatabase::get_avlength() const
 Xapian::termcount
 FlintDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "FlintDatabase::get_doclength", did);
     Assert(did != 0);
     RETURN(termlist_table.get_doclength(did));
 }
@@ -836,7 +827,7 @@ FlintDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 FlintDatabase::get_termfreq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "FlintDatabase::get_termfreq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_termfreq(term));
 }
@@ -844,7 +835,7 @@ FlintDatabase::get_termfreq(const string & term) const
 Xapian::termcount
 FlintDatabase::get_collection_freq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_collection_freq", term);
+    LOGCALL(DB, Xapian::termcount, "FlintDatabase::get_collection_freq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_collection_freq(term));
 }
@@ -852,7 +843,7 @@ FlintDatabase::get_collection_freq(const string & term) const
 bool
 FlintDatabase::term_exists(const string & term) const
 {
-    DEBUGCALL(DB, bool, "FlintDatabase::term_exists", term);
+    LOGCALL(DB, bool, "FlintDatabase::term_exists", term);
     Assert(!term.empty());
     return postlist_table.term_exists(term);
 }
@@ -866,7 +857,7 @@ FlintDatabase::has_positions() const
 LeafPostList *
 FlintDatabase::open_post_list(const string& term) const
 {
-    DEBUGCALL(DB, LeafPostList *, "FlintDatabase::open_post_list", term);
+    LOGCALL(DB, LeafPostList *, "FlintDatabase::open_post_list", term);
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
 
     if (term.empty()) {
@@ -883,7 +874,7 @@ FlintDatabase::open_post_list(const string& term) const
 TermList *
 FlintDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, TermList *, "FlintDatabase::open_term_list", did);
+    LOGCALL(DB, TermList *, "FlintDatabase::open_term_list", did);
     Assert(did != 0);
 
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
@@ -893,8 +884,7 @@ FlintDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 FlintDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "FlintDatabase::open_document",
-	      did << ", " << lazy);
+    LOGCALL(DB, Xapian::Document::Internal *, "FlintDatabase::open_document", did | lazy);
     Assert(did != 0);
 
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
@@ -922,7 +912,7 @@ FlintDatabase::open_position_list(Xapian::docid did, const string & term) const
 TermList *
 FlintDatabase::open_allterms(const string & prefix) const
 {
-    DEBUGCALL(DB, TermList *, "FlintDatabase::open_allterms", "");
+    LOGCALL(DB, TermList *, "FlintDatabase::open_allterms", NO_ARGS);
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
 				 prefix));
 }
@@ -966,7 +956,7 @@ FlintDatabase::open_synonym_keylist(const string & prefix) const
 string
 FlintDatabase::get_metadata(const string & key) const
 {
-    DEBUGCALL(DB, string, "FlintDatabase::get_metadata", key);
+    LOGCALL(DB, string, "FlintDatabase::get_metadata", key);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     string tag;
@@ -977,7 +967,7 @@ FlintDatabase::get_metadata(const string & key) const
 TermList *
 FlintDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    DEBUGCALL(DB, string, "FlintDatabase::open_metadata_keylist", "");
+    LOGCALL(DB, string, "FlintDatabase::open_metadata_keylist", NO_ARGS);
     FlintCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
     return new FlintMetadataTermList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
@@ -987,7 +977,7 @@ FlintDatabase::open_metadata_keylist(const std::string &prefix) const
 string
 FlintDatabase::get_revision_info() const
 {
-    DEBUGCALL(DB, string, "FlintDatabase::get_revision_info", "");
+    LOGCALL(DB, string, "FlintDatabase::get_revision_info", NO_ARGS);
     string buf;
     buf += F_pack_uint(get_revision_number());
     RETURN(buf);
@@ -996,7 +986,7 @@ FlintDatabase::get_revision_info() const
 string
 FlintDatabase::get_uuid() const
 {
-    DEBUGCALL(DB, string, "FlintDatabase::get_uuid", "");
+    LOGCALL(DB, string, "FlintDatabase::get_uuid", NO_ARGS);
     RETURN(version_file.get_uuid_string());
 }
 
@@ -1013,8 +1003,7 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
-	      << block_size);
+    LOGCALL_CTOR(DB, "FlintWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -1025,7 +1014,7 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 
 FlintWritableDatabase::~FlintWritableDatabase()
 {
-    DEBUGCALL(DB, void, "~FlintWritableDatabase", "");
+    LOGCALL_DTOR(DB, "~FlintWritableDatabase");
     dtor_called();
 }
 
@@ -1057,7 +1046,7 @@ FlintWritableDatabase::flush_postlist_changes() const
 void
 FlintWritableDatabase::close()
 {
-    DEBUGCALL(DB, void, "FlintWritableDatabase::close", "");
+    LOGCALL_VOID(DB, "FlintWritableDatabase::close", NO_ARGS);
     if (!transaction_active()) {
 	commit();
 	// FIXME: if commit() throws, should we still close?
@@ -1126,8 +1115,7 @@ FlintWritableDatabase::update_mod_plist(Xapian::docid did,
 Xapian::docid
 FlintWritableDatabase::add_document(const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid,
-	      "FlintWritableDatabase::add_document", document);
+    LOGCALL(DB, Xapian::docid, "FlintWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
     if (lastdocid == Xapian::docid(-1))
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
@@ -1139,8 +1127,7 @@ Xapian::docid
 FlintWritableDatabase::add_document_(Xapian::docid did,
 				     const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid,
-	      "FlintWritableDatabase::add_document_", did << ", " << document);
+    LOGCALL(DB, Xapian::docid, "FlintWritableDatabase::add_document_", did | document);
     Assert(did != 0);
     try {
 	// Add the record using that document ID.
@@ -1170,10 +1157,11 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		add_freq_delta(tname, 1, wdf);
 		insert_mod_plist(did, tname, wdf);
 
-		if (term.positionlist_begin() != term.positionlist_end()) {
+		PositionIterator pos = term.positionlist_begin();
+		if (pos != term.positionlist_end()) {
 		    position_table.set_positionlist(
 			did, tname,
-			term.positionlist_begin(), term.positionlist_end());
+			pos, term.positionlist_end(), false);
 		}
 	    }
 	}
@@ -1216,7 +1204,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 void
 FlintWritableDatabase::delete_document(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "FlintWritableDatabase::delete_document", did);
+    LOGCALL_VOID(DB, "FlintWritableDatabase::delete_document", did);
     Assert(did != 0);
 
     if (rare(modify_shortcut_docid == did)) {
@@ -1273,48 +1261,11 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     }
 }
 
-/** Compare the positionlists for a term iterator and a termlist.
- *
- *  @return true if they're equal, false otherwise.
- */
-static bool positionlists_equal(Xapian::TermIterator & termiter,
-				FlintTermList & termlist)
-{
-    if (termiter.positionlist_count() != termlist.positionlist_count())
-	return false;
-
-    return equal(termiter.positionlist_begin(),
-		 termiter.positionlist_end(),
-		 termlist.positionlist_begin());
-}
-
-/** Set the positionlist from the current entry in a term iterator.
- *
- *  @param position_table The positionlist table.
- *  @param did The document id to set the entry for.
- *  @param term The term iterator to read the new position list from.
- *
- *  If the new position list is empty, this will remove any existing
- *  position list for the term.
- */
-static void set_positionlist(FlintPositionListTable & position_table,
-			     Xapian::docid did,
-			     Xapian::TermIterator & term)
-{
-    PositionIterator it = term.positionlist_begin();
-    PositionIterator it_end = term.positionlist_end();
-    if (it != it_end) {
-	position_table.set_positionlist(did, *term, it, it_end);
-    } else {
-	position_table.delete_positionlist(did, *term);
-    }
-}
-
 void
 FlintWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "FlintWritableDatabase::replace_document", did << ", " << document);
+    LOGCALL_VOID(DB, "FlintWritableDatabase::replace_document", did | document);
     Assert(did != 0);
 
     try {
@@ -1400,7 +1351,12 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
-		    set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(
+			    did, new_tname,
+			    pos, term.positionlist_end(), false);
+		    }
 		    ++term;
 		} else {
 		    // Term already exists: look for wdf and positionlist changes.
@@ -1411,8 +1367,14 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
-		    if (!positionlists_equal(term, termlist)) 
-			set_positionlist(position_table, did, term);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(did, new_tname, pos,
+							term.positionlist_end(),
+							true);
+		    } else {
+			position_table.delete_positionlist(did, new_tname);
+		    }
 
 		    termlist.next();
 		    ++term;
@@ -1467,8 +1429,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 Xapian::Document::Internal *
 FlintWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "FlintWritableDatabase::open_document",
-	      did << ", " << lazy);
+    LOGCALL(DB, Xapian::Document::Internal *, "FlintWritableDatabase::open_document", did | lazy);
     modify_shortcut_document = FlintDatabase::open_document(did, lazy);
     // Store the docid only after open_document() successfully returns, so an
     // attempt to open a missing document doesn't overwrite this.
@@ -1479,7 +1440,7 @@ FlintWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 Xapian::termcount
 FlintWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) RETURN(i->second);
 
@@ -1489,7 +1450,7 @@ FlintWritableDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 FlintWritableDatabase::get_termfreq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintWritableDatabase::get_termfreq", tname);
+    LOGCALL(DB, Xapian::doccount, "FlintWritableDatabase::get_termfreq", tname);
     Xapian::doccount termfreq = FlintDatabase::get_termfreq(tname);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
     i = freq_deltas.find(tname);
@@ -1500,7 +1461,7 @@ FlintWritableDatabase::get_termfreq(const string & tname) const
 Xapian::termcount
 FlintWritableDatabase::get_collection_freq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_collection_freq", tname);
+    LOGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_collection_freq", tname);
     Xapian::termcount collfreq = FlintDatabase::get_collection_freq(tname);
 
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
@@ -1513,14 +1474,14 @@ FlintWritableDatabase::get_collection_freq(const string & tname) const
 bool
 FlintWritableDatabase::term_exists(const string & tname) const
 {
-    DEBUGCALL(DB, bool, "FlintWritableDatabase::term_exists", tname);
+    LOGCALL(DB, bool, "FlintWritableDatabase::term_exists", tname);
     RETURN(get_termfreq(tname) != 0);
 }
 
 LeafPostList *
 FlintWritableDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::open_post_list", tname);
+    LOGCALL(DB, LeafPostList *, "FlintWritableDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
@@ -1545,7 +1506,7 @@ FlintWritableDatabase::open_post_list(const string& tname) const
 TermList *
 FlintWritableDatabase::open_allterms(const string & prefix) const
 {
-    DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
+    LOGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", NO_ARGS);
     // If there are changes, terms may have been added or removed, and so we
     // need to flush (but don't commit - there may be a transaction in progress.
     if (change_count) flush_postlist_changes();
@@ -1614,8 +1575,7 @@ FlintWritableDatabase::clear_synonyms(const string & term) const
 void
 FlintWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    DEBUGCALL(DB, string, "FlintWritableDatabase::set_metadata",
-	      key << ", " << value);
+    LOGCALL(DB, string, "FlintWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

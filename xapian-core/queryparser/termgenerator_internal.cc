@@ -201,6 +201,9 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 		Unicode::append_utf8(term, ch);
 		if (++itor == Utf8Iterator()) goto endofterm;
 	    }
+	    // Don't index fish+chips as fish+ chips.
+	    if (Unicode::is_wordchar(*itor))
+		term.resize(len);
 	}
 
 endofterm:

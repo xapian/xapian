@@ -26,8 +26,8 @@
 #include <xapian/error.h>
 #include <xapian/termiterator.h>
 
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 #include "pack.h"
 #include "stringutils.h"
 #include "utils.h"
@@ -41,8 +41,7 @@ BrassTermListTable::set_termlist(Xapian::docid did,
 				 const Xapian::Document & doc,
 				 brass_doclen_t doclen)
 {
-    DEBUGCALL(DB, void, "BrassTermListTable::set_termlist",
-	      did << ", " << doc << ", " << doclen);
+    LOGCALL_VOID(DB, "BrassTermListTable::set_termlist", did | doc | doclen);
 
     string tag;
     pack_uint(tag, doclen);

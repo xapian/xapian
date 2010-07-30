@@ -1,3 +1,77 @@
+Sun Jun 27 05:00:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.2.
+
+Sat Jun 26 15:59:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add blank line to the end.
+
+Sat Jun 26 15:59:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add template NEWS entry.
+
+Tue Jun 22 13:55:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.21.
+	* NEWS,configure.ac: Update for 1.2.1.
+
+Sun Jun 13 11:55:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Merge in __WIN32__ implementation from perftest in
+	  xapian-core.
+
+Fri May 14 01:39:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Use "safeunistd.h" instead of <unistd.h>.
+
+Wed Apr 28 13:38:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.20.
+
+Wed Apr 28 06:44:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tell libtool not to link in deplibs on platforms where
+	  we know they aren't needed.
+	* configure.ac: On Linux, extract the library search path from ldconfig
+	  which gives us the default entries reliably.
+	* NEWS,configure.ac: 1.2.0.
+
+Thu Apr 15 04:32:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.5.
+
+Mon Feb 15 14:00:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.4.
+
+Mon Feb 15 13:51:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Add missing notes for 1.1.2 and 1.1.1 including changes from
+	  1.0.14 and 1.0.13 respectively.
+
+Mon Feb 15 13:28:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.0.18.
+
+Mon Feb 08 00:48:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Need to ship common/omassert.h.
+
+Sun Feb 07 23:03:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Need to ship common/str.h.
+
+Sun Feb 07 21:40:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omega.cc,omindex.cc,query.cc,utils.cc,utils.h: Use the
+	  optimised str() routine instead of int_to_string() and
+	  long_to_string().
+
+Fri Feb 05 23:29:12 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Increase the wdf boost for the document title from 2 to
+	  5, since 2 isn't really enough.
+
 Thu Feb 04 03:20:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,runfilter.cc: Use safesyswait.h.

@@ -28,6 +28,7 @@
 #include <cfloat>
 #include "safeerrno.h"
 
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -38,11 +39,10 @@ using namespace std;
 
 #include "omassert.h"
 #include "omqueryinternal.h"
+#include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
-#include "utils.h"
-#include "pack.h"
 
 static bool test_except1()
 {
@@ -72,7 +72,7 @@ static bool test_exception1()
 	    }
 	    throw;
 	}
-    } catch (Test_Exception & e) {
+    } catch (const Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
 	return true;
     }
@@ -227,25 +227,25 @@ static bool test_stringcomp1()
 
 static bool test_tostring1()
 {
-    TEST_EQUAL(om_tostring(0), "0");
-    TEST_EQUAL(om_tostring(10), "10");
-    TEST_EQUAL(om_tostring(10u), "10");
-    TEST_EQUAL(om_tostring(-10), "-10");
-    TEST_EQUAL(om_tostring(0xffffffff), "4294967295");
-    TEST_EQUAL(om_tostring(0x7fffffff), "2147483647");
-    TEST_EQUAL(om_tostring(0x7fffffffu), "2147483647");
-    TEST_EQUAL(om_tostring(-0x7fffffff), "-2147483647");
+    TEST_EQUAL(str(0), "0");
+    TEST_EQUAL(str(10), "10");
+    TEST_EQUAL(str(10u), "10");
+    TEST_EQUAL(str(-10), "-10");
+    TEST_EQUAL(str(0xffffffff), "4294967295");
+    TEST_EQUAL(str(0x7fffffff), "2147483647");
+    TEST_EQUAL(str(0x7fffffffu), "2147483647");
+    TEST_EQUAL(str(-0x7fffffff), "-2147483647");
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
      * (Currently only exists for windows.)
      */
-    TEST_EQUAL(om_tostring(10ll), "10");
-    TEST_EQUAL(om_tostring(-10ll), "-10");
-    TEST_EQUAL(om_tostring(0x200000000ll), "8589934592");
+    TEST_EQUAL(str(10ll), "10");
+    TEST_EQUAL(str(-10ll), "-10");
+    TEST_EQUAL(str(0x200000000ll), "8589934592");
 // We don't currently have an "unsigned long long" version since it's not required
 // anywhere in the library.
-//    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
+//    TEST_EQUAL(str(0x200000000ull), "8589934592");
 #endif
 
     return true;
@@ -483,7 +483,7 @@ static bool test_serialiseerror1()
     try {
 	// unserialise_error throws an exception.
 	unserialise_error(serialisation, "", "");
-    } catch (Xapian::Error & ecaught) {
+    } catch (const Xapian::Error & ecaught) {
 	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
 	threw = true;
     }
@@ -631,7 +631,10 @@ static const test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

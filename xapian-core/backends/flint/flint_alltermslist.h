@@ -1,6 +1,6 @@
 /* flint_alltermslist.h: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,19 +65,7 @@ class FlintAllTermsList : public AllTermsList {
   public:
     FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase> database_,
 		      const std::string & prefix_)
-	    : database(database_), prefix(prefix_), termfreq(0) {
-	cursor = database->postlist_table.cursor_get();
-	Assert(cursor); // The postlist table isn't optional.
-
-	// Position the cursor on the highest key before the first key we want,
-	// so that the first call to next() will put us on the first key we
-	// want.
-	if (prefix.empty()) {
-	    cursor->find_entry_lt(std::string("\x00\xff", 2));
-	} else {
-	    cursor->find_entry_lt(F_pack_string_preserving_sort(prefix));
-	}
-    }
+	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 
     /// Destructor.
     ~FlintAllTermsList();

@@ -1,17 +1,80 @@
-xapian-core (1.1.3+svn13841-1) experimental; urgency=low
+xapian-core (1.2.0-4) UNRELEASED; urgency=low
 
-  * Snapshot of current upstream SVN trunk, uploaded to experimental for
-    testing.
+  * Drop quilt dependencies now we're using source format "3.0 (quilt)".
+  * On i386, build both SSE2 and i386 versions of the library.  The main
+    motivation is correctness (excess precision from 387 FP instructions
+    can cause inconsistencies in weight calculations) but the SSE2 build
+    is faster too (~6%).
+  * debian/rules: Try re-enabling optimisation on alpha - it's been more
+    than a year.
+
+ -- Olly Betts <olly@survex.com>  Fri, 18 Jun 2010 03:05:37 +0000
+
+xapian-core (1.2.0-3) experimental; urgency=low
+
+  * debian/patches/ftbfs-on-hurd-fix.patch: Fix FTBFS on hurd due to SA_SIGINFO
+    not being defined.
+  * debian/patches/cursor-next-on-modified-table-fix-1.2.patch: Fix bug which
+    manifests in notmuch 0.3.1 testsuite. (Closes: #579951)
+  * Update to require dh7 and use dh compact level 7.
+  * Switch to dpkg-source 3.0 (quilt) format.
+
+ -- Olly Betts <olly@survex.com>  Wed, 05 May 2010 09:49:36 +0000
+
+xapian-core (1.2.0-2) experimental; urgency=low
+
+  * debian/patches/fix-header-installation-location.patch: Fix installation
+    location of headers.
+  * debian/rules: Empty dependency_libs in .la file.
+
+ -- Olly Betts <olly@survex.com>  Mon, 03 May 2010 02:04:37 +0000
+
+xapian-core (1.2.0-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Update "Suggests" of -dbg package (libgcc2-dbg and
+    libstdc++6-4.0-dbg removed; libstdc++6-4.4-dbg added).
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:33:26 +0000
+
+xapian-core (1.1.5-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/patches/runtest-no-fd-ulimit.patch: Drop patch - upstream now has
+    fd leak checking in the test harness and has removed the ulimit.
   * debian/control.in:
-    + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
-    + Add "Vcs-Browser:" and "Vcs-svn:".
     + Drop conflict on libxapian2 as that's too ancient to be relevant now.
     + Just use ${binary:Version} - sarge has reached EOL and I'm not intending
       to backport 1.1.x to dapper.
     + Add uuid-dev as a build dependency.
-  * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
 
- -- Olly Betts <olly@survex.com>  Tue, 26 Jan 2010 23:12:55 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 07:51:31 +0000
+
+xapian-core (1.0.19-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:01:52 +0000
+
+xapian-core (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
+    + Includes fix for Xapian ticket#250.  Closes: #564830
+
+ -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:17:31 +0000
+
+xapian-core (1.0.17+svn13879-1) experimental; urgency=low
+
+  * Snapshot from upstream branches/1.0 including patch for Xapian ticket#250.
+  * debian/control.in:
+    + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
+    + Add "Vcs-Browser:" and "Vcs-svn:".
+    + Standards-Version: 3.8.4 (no changes required).
+    + Add '${misc:Depends}' for xapian-doc to placate lintian.
+  * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
+  * debian/copyright: Update copyright years.
+
+ -- Olly Betts <olly@survex.com>  Tue, 02 Feb 2010 11:21:32 +0000
 
 xapian-core (1.0.17-1) unstable; urgency=low
 

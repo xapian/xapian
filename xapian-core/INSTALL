@@ -23,9 +23,11 @@ deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
 faster than with 1.1.x, but it's pretty unlikely you'll have an older version
 installed these days.
 
-Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
-(on Fedora, the package to install is e2fsprogs-devel).  On Microsoft Windows
-this isn't required, as we use built in UUID functionality instead.
+Xapian 1.1.0 and higher also requires a library which can generate UUIDs.
+On FreeBSD, NetBSD, and Microsoft Windows, Xapian makes use of built-in UUID
+APIs.  On other platforms, you need to install libuuid which you can find in
+e2fsprogs (http://e2fsprogs.sourceforge.net/).  On Debian and Ubuntu, the
+package to install is uuid-dev, while on Fedora, it is e2fsprogs-devel.
 
 Compilers
 =========
@@ -80,11 +82,9 @@ Options to give to configure
 ============================
 
 --enable-assertions
-	You should use this to build a version of Xapian with debugging
-	symbols and assertions to help with debugging.  Recommended for
-	initial development with Xapian - this helps to ensure that you
-	are using the API correctly.  It also enables many internal
-	consistency checks, so is useful if you suspect a bug in Xapian.
+	You should use this to build a version of Xapian with many internal
+	consistency checks.  This will run more slowly, but is useful if you
+	suspect a bug in Xapian.
 
 --enable-backend-brass
 --enable-backend-chert
@@ -135,9 +135,10 @@ us (via the bug tracker or mailing lists).
 -fvisibility
 ------------
 
-When compiling with GCC >= 4.0, we automatically pass -fvisibility=hidden to
-g++ when building the library, and mark classes, methods, and functions which
-need exporting with attributes to make them visible.
+When compiling with GCC >= 4.0 for platforms which support symbol visibility,
+we automatically pass -fvisibility=hidden to g++ when building the library, and
+mark classes, methods, and functions which need exporting with attributes to
+make them visible.
 
 Should you wish to disable this for some reason, you can configure like so:
 

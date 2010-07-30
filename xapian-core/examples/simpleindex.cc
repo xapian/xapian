@@ -81,6 +81,11 @@ try {
 	    para += line;
 	}
     }
+
+    // Explicitly commit so that we get to see any errors.  WritableDatabase's
+    // destructor will commit implicitly (unless we're in a transaction) but
+    // will swallow any exceptions produced.
+    db.commit();
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << endl;
     exit(1);

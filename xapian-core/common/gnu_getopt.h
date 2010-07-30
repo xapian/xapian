@@ -1,7 +1,7 @@
 /** @file gnu_getopt.h
  * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
  */
-/* Copyright 2004,2009 Olly Betts
+/* Copyright (C) 2004,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,6 +57,11 @@ gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
 
 #else
 
+#ifdef __CYGWIN__
+// Cygwin has __declspec(dllimport) magic on optarg, etc, so just pull in the
+// header there rather than trying to duplicate that.
+# include <getopt.h>
+#else
 extern "C" {
 extern char *optarg;
 extern int optind;
@@ -71,9 +76,10 @@ struct option {
     int val;
 };
 
-#define no_argument		0
-#define required_argument	1
-#define optional_argument	2
+# define no_argument		0
+# define required_argument	1
+# define optional_argument	2
+#endif
 
 // For internal use only.
 int

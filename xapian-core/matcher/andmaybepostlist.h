@@ -108,6 +108,11 @@ class AndMaybePostList : public BranchPostList {
 	    rmax = r->get_maxweight();
 	}
 
+	/** Synchronise the RHS to the LHS after construction.
+	 *  Used after constructing from a decomposing OrPostList
+	 */
+	PostList * sync_rhs(Xapian::weight w_min);
+
 	/** get_wdf() for ANDMAYBE postlists returns the sum of the wdfs of the
 	 *  sub postlists which are at the current document - this is desirable
 	 *  when the ANDMAYBE is part of a synonym.

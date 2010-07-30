@@ -24,7 +24,7 @@
 
 #include "brass_document.h"
 
-#include "omdebug.h"
+#include "debuglog.h"
 #include "brass_database.h"
 #include "brass_values.h"
 #include "brass_record.h"
@@ -36,7 +36,7 @@
 string
 BrassDocument::do_get_value(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, string, "BrassDocument::do_get_value", slot);
+    LOGCALL(DB, string, "BrassDocument::do_get_value", slot);
     RETURN(value_manager->get_value(did, slot));
 }
 
@@ -45,7 +45,7 @@ BrassDocument::do_get_value(Xapian::valueno slot) const
 void
 BrassDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    DEBUGCALL(DB, void, "BrassDocument::do_get_all_values", "[values_]");
+    LOGCALL_VOID(DB, "BrassDocument::do_get_all_values", values_);
     value_manager->get_all_values(values_, did);
 }
 
@@ -54,6 +54,6 @@ BrassDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 string
 BrassDocument::do_get_data() const
 {
-    DEBUGCALL(DB, string, "BrassDocument::do_get_data", "");
+    LOGCALL(DB, string, "BrassDocument::do_get_data", NO_ARGS);
     RETURN(record_table->get_record(did));
 }

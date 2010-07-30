@@ -1,7 +1,7 @@
 /** @file brass_metadata.cc
  * @brief Access to metadata for a brass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,11 +20,17 @@
  */
 
 #include <config.h>
+
 #include "brass_metadata.h"
 
+#include "brass_cursor.h"
+
 #include "database.h"
+#include "debuglog.h"
 #include "omassert.h"
 #include "stringutils.h"
+
+#include "xapian/error.h"
 
 using namespace std;
 
@@ -34,7 +40,7 @@ BrassMetadataTermList::BrassMetadataTermList(
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    DEBUGCALL(DB, void, "BrassMetadataTermList", "<database>, <cursor>");
+    LOGCALL_CTOR(DB, "BrassMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);
@@ -42,14 +48,14 @@ BrassMetadataTermList::BrassMetadataTermList(
 
 BrassMetadataTermList::~BrassMetadataTermList()
 {
-    DEBUGCALL(DB, void, "~BrassMetadataTermList", "");
+    LOGCALL_DTOR(DB, "BrassMetadataTermList");
     delete cursor;
 }
 
 string
 BrassMetadataTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassMetadataTermList::get_termname", "");
+    LOGCALL(DB, string, "BrassMetadataTermList::get_termname", NO_ARGS);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
     Assert(startswith(cursor->current_key, prefix));
@@ -71,7 +77,7 @@ BrassMetadataTermList::get_collection_freq() const
 TermList *
 BrassMetadataTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassMetadataTermList::next", "");
+    LOGCALL(DB, TermList *, "BrassMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -86,7 +92,7 @@ BrassMetadataTermList::next()
 TermList *
 BrassMetadataTermList::skip_to(const string &key)
 {
-    DEBUGCALL(DB, TermList *, "BrassMetadataTermList::skip_to", key);
+    LOGCALL(DB, TermList *, "BrassMetadataTermList::skip_to", key);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
@@ -103,6 +109,6 @@ BrassMetadataTermList::skip_to(const string &key)
 bool
 BrassMetadataTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassMetadataTermList::at_end", "");
+    LOGCALL(DB, bool, "BrassMetadataTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

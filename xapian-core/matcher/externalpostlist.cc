@@ -1,7 +1,7 @@
 /** @file externalpostlist.cc
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009 Olly Betts
+/* Copyright 2008,2009,2010 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,8 @@
 
 #include <xapian/postingsource.h>
 
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 using namespace std;
 
@@ -77,7 +77,7 @@ ExternalPostList::get_termfreq_max() const
 Xapian::weight
 ExternalPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "ExternalPostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "ExternalPostList::get_maxweight", NO_ARGS);
     // source will be NULL here if we've reached the end.
     if (source == NULL) RETURN(0.0);
     if (factor == 0.0) RETURN(0.0);
@@ -87,7 +87,7 @@ ExternalPostList::get_maxweight() const
 Xapian::docid
 ExternalPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "ExternalPostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "ExternalPostList::get_docid", NO_ARGS);
     Assert(current);
     RETURN(current);
 }
@@ -95,7 +95,7 @@ ExternalPostList::get_docid() const
 Xapian::weight
 ExternalPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "ExternalPostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "ExternalPostList::get_weight", NO_ARGS);
     Assert(source);
     if (factor == 0.0) RETURN(factor);
     RETURN(factor * source->get_weight());
@@ -128,7 +128,7 @@ ExternalPostList::open_position_list() const
 
 PostList *
 ExternalPostList::update_after_advance() {
-    DEBUGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", "");
+    LOGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", NO_ARGS);
     Assert(source);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
@@ -143,7 +143,7 @@ ExternalPostList::update_after_advance() {
 PostList *
 ExternalPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "ExternalPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "ExternalPostList::next", w_min);
     Assert(source);
     source->next(w_min);
     RETURN(update_after_advance());
@@ -152,8 +152,7 @@ ExternalPostList::next(Xapian::weight w_min)
 PostList *
 ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "ExternalPostList::skip_to",
-	      did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did | w_min);
     Assert(source);
     if (did <= current) RETURN(NULL);
     source->skip_to(did, w_min);
@@ -163,8 +162,7 @@ ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 PostList *
 ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 {
-    DEBUGCALL(MATCH, PostList *, "ExternalPostList::check",
-	      did << ", " << w_min << ", <valid>");
+    LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | valid);
     Assert(source);
     if (did <= current) {
 	valid = true;
@@ -184,7 +182,7 @@ ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 bool
 ExternalPostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "ExternalPostList::at_end", "");
+    LOGCALL(MATCH, bool, "ExternalPostList::at_end", NO_ARGS);
     RETURN(source == NULL);
 }
 

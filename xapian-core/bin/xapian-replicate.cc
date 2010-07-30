@@ -42,29 +42,35 @@ using namespace std;
 // Wait DEFAULT_INTERVAL seconds between updates unless --interval is passed.
 #define DEFAULT_INTERVAL 60
 
+// Number of seconds before we assume that a reader will be closed.
+#define READER_CLOSE_TIME 30
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -h, --host=HOST   host to connect to\n"
-"  -p, --port=PORT   port to connect to\n"
-"  -m, --master=DB   replicate database DB from the master\n"
-"  -i, --interval=N  wait N seconds between each connection to the master\n"
-"                    (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
-"  -o, --one-shot    replicate only once and then exit\n"
-"  -v, --verbose     be more verbose\n"
-"  --help            display this help and exit\n"
-"  --version         output version information and exit" << endl;
+"  -h, --host=HOST     host to connect to\n"
+"  -p, --port=PORT     port to connect to\n"
+"  -m, --master=DB     replicate database DB from the master\n"
+"  -i, --interval=N    wait N seconds between each connection to the master\n"
+"                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
+"  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
+"                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
+"  -o, --one-shot      replicate only once and then exit\n"
+"  -v, --verbose       be more verbose\n"
+"  --help              display this help and exit\n"
+"  --version           output version information and exit" << endl;
 }
 
 int
 main(int argc, char **argv)
 {
-    const char * opts = "h:p:m:i:ov";
+    const char * opts = "h:p:m:i:r:ov";
     const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
 	{"master",	required_argument,	0, 'm'},
 	{"interval",	required_argument,	0, 'i'},
+	{"reader-time",	required_argument,	0, 'r'},
 	{"one-shot",	no_argument,		0, 'o'},
 	{"verbose",	no_argument,		0, 'v'},
 	{"help",	no_argument, 0, OPT_HELP},
@@ -78,6 +84,7 @@ main(int argc, char **argv)
     int interval = DEFAULT_INTERVAL;
     bool one_shot = false;
     bool verbose = false;
+    int reader_close_time = READER_CLOSE_TIME;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -93,6 +100,9 @@ main(int argc, char **argv)
 		break;
 	    case 'i':
 		interval = atoi(optarg);
+		break;
+	    case 'r':
+		reader_close_time = atoi(optarg);
 		break;
 	    case 'o':
 		one_shot = true;
@@ -132,7 +142,8 @@ main(int argc, char **argv)
 		     << masterdb << endl;
 	    }
 	    Xapian::ReplicationInfo info;
-	    client.update_from_master(dbpath, masterdb, info);
+	    client.update_from_master(dbpath, masterdb, info,
+				      reader_close_time);
 	    if (verbose) {
 		cout << "Update complete: " <<
 			info.fullcopy_count << " copies, " <<

@@ -2,7 +2,9 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
+TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
+    PYTHONPATH=".:$$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 \
+    abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
@@ -23,6 +25,7 @@ endif
 
 EXTRA_DIST = util.i extra.i extracomments.i except.i \
 	testsuite.py testsuite2.py testsuite3.py \
+	test_xapian_star.py \
 	smoketest2.py smoketest3.py \
 	pythontest2.py pythontest3.py \
 	replicationtest2.py \
@@ -86,13 +89,13 @@ xapian/_xapian$(PYTHON_SO): _xapian.la
 CLEANFILES = \
     xapian/_xapian$(PYTHON_SO) \
     xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
-    $(srcdir)/testsuite.pyc
+    $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
 # databases created by test cases.
 clean-local:
 	-rmdir xapian
-	rm -f db_test_* dbs_replication
+	rm -rf db_test_* dbs_replication
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at

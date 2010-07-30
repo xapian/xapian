@@ -2,7 +2,7 @@ Source: xapian-core
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev, uuid-dev
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-core
@@ -30,7 +30,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Suggests: libc-dbg, libgcc1-dbg | libgcc2-dbg | libgcc4-dbg, zlib1g-dbg, libstdc++6-4.3-dbg | libstdc++6-4.2-dbg | libstdc++6-4.1-dbg | libstdc++6-4.0-dbg
+Suggests: libc-dbg, libgcc1-dbg | libgcc4-dbg, zlib1g-dbg, libstdc++6-4.4-dbg | libstdc++6-4.3-dbg | libstdc++6-4.2-dbg | libstdc++6-4.1-dbg
 Description: Debugging symbols for the Xapian Search engine library
  This package contains debugging symbols for the core Xapian library.
  .
@@ -87,6 +87,7 @@ Description: Basic tools for Xapian search engine library
 Package: xapian-doc
 Architecture: all
 Section: doc
+Depends: ${misc:Depends}
 Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${binary:Version})
 Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed

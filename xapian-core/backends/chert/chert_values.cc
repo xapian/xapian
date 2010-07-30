@@ -26,8 +26,8 @@
 #include "chert_cursor.h"
 #include "chert_postlist.h"
 #include "chert_termlist.h"
+#include "debuglog.h"
 #include "document.h"
-#include "omdebug.h"
 #include "pack.h"
 
 #include "xapian/error.h"
@@ -47,7 +47,7 @@ using namespace std;
 inline string
 make_slot_key(Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, string, "make_slot_key", did);
+    LOGCALL_STATIC(DB, string, "make_slot_key", did);
     // Add an extra character so that it can't clash with a termlist entry key
     // and will sort just after the corresponding termlist entry key.
     // FIXME: should we store this in the *same entry* as the list of terms?
@@ -61,7 +61,7 @@ make_slot_key(Xapian::docid did)
 inline string
 make_valuestats_key(Xapian::valueno slot)
 {
-    DEBUGCALL_STATIC(DB, string, "make_valuestats_key", slot);
+    LOGCALL_STATIC(DB, string, "make_valuestats_key", slot);
     string key("\0\xd0", 2);
     pack_uint_last(key, slot);
     RETURN(key);
@@ -156,7 +156,7 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 					    Xapian::docid did,
 					    string &chunk) const
 {
-    DEBUGCALL(DB, Xapian::docid, "ChertValueManager::get_chunk_containing_did", slot << ", " << did << "[chunk]");
+    LOGCALL(DB, Xapian::docid, "ChertValueManager::get_chunk_containing_did", slot | did | chunk);
     AutoPtr<ChertCursor> cursor(postlist_table->cursor_get());
     if (!cursor.get()) return 0;
 
@@ -513,7 +513,7 @@ ChertValueManager::get_all_values(map<Xapian::valueno, string> & values,
 void
 ChertValueManager::get_value_stats(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, void, "ChertValueManager::get_value_stats", slot);
+    LOGCALL_VOID(DB, "ChertValueManager::get_value_stats", slot);
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
     get_value_stats(slot, mru_valstats);
@@ -523,7 +523,7 @@ ChertValueManager::get_value_stats(Xapian::valueno slot) const
 void
 ChertValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
-    DEBUGCALL(DB, void, "ChertValueManager::get_value_stats", slot << ", [stats]");
+    LOGCALL_VOID(DB, "ChertValueManager::get_value_stats", slot | "[stats]");
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
 
@@ -556,7 +556,7 @@ ChertValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 void
 ChertValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
 {
-    DEBUGCALL(DB, void, "ChertValueManager::set_value_stats", "[value_stats]");
+    LOGCALL_VOID(DB, "ChertValueManager::set_value_stats", value_stats);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     for (i = value_stats.begin(); i != value_stats.end(); ++i) {
 	string key = make_valuestats_key(i->first);

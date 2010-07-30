@@ -15,35 +15,49 @@ ALL: TESTFORTOOLS MAKEHEADERS COPYMAKFILES MAKEALL
 CHECK: ALL DOTEST
 
 MAKEALL:
+# Note we must run each make process with the HEADERS target to calculate any missing dependencies and add them to the end of the makefile
    cd ..\common
-   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" 
    cd ..\api
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\backends
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\matcher
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\languages\compiler
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\queryparser
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\net
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\expand
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\unicode
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\weight
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\examples
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
 
 DOTEST:
@@ -51,8 +65,8 @@ DOTEST:
    cd ..\win32
 
 CLEAN: COPYMAKFILES
-   cd makedepend
-   nmake -f makedepend.mak CLEAN
+   cd xapdep
+   nmake -f xapdep.mak CLEAN
    cd ..
    cd ..\net
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -90,7 +104,7 @@ CLEAN: COPYMAKFILES
    -@erase ..\include\xapian\error.h
    -@erase ..\include\xapian\errordispatch.h
    if exist "$(XAPIAN_DEBUG_OR_RELEASE)" rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
-   -@erase makedepend.exe
+   -@erase xapdep.exe
    echo All Win32 parts have been cleaned!
 
 DISTCLEAN: CLEAN
@@ -138,7 +152,7 @@ COPYMAKFILES:
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\common\config.h
 
 # Test for tools that we MUST have   
-TESTFORTOOLS: makedepend.exe
+TESTFORTOOLS: xapdep.exe
 # Perl is needed for header generation
    if not exist $(PERL_EXE) exit(1) 
    
@@ -183,9 +197,9 @@ MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
 ..\include\xapian\version.h: version.h.in ..\configure.ac
     $(PERL_EXE) genversion.pl ..\configure.ac version.h.in ..\include\xapian\version.h
     
-makedepend.exe: 
-    cd makedepend
-    nmake -f makedepend.mak
-    copy makedepend.exe ..
+xapdep.exe: 
+    cd xapdep
+    nmake -f xapdep.mak
+    copy xapdep.exe ..
     cd ..
 

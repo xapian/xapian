@@ -1,7 +1,7 @@
 /** @file api_valuestream.cc
  * @brief Tests of valuestream functionality.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -62,6 +62,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
 	unsigned interval = 1;
 	while (interval < 1999) {
+	    tout.str(string());
 	    tout << "testing valuestream skip_to for slot " << slot
 		 << " with interval " << interval << endl;
 	    Xapian::docid did = 1;
@@ -76,7 +77,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
 		TEST_REL(actual_did,>=,did);
 		while (did < actual_did) {
 		    Xapian::Document doc = db.get_document(did);
-		    TEST_EQUAL(doc.get_value(slot), "");
+		    TEST_EQUAL(doc.get_value(slot), string());
 		    ++did;
 		}
 
@@ -137,7 +138,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 		    Xapian::docid actual_did = it.get_docid();
 		    while (did < actual_did) {
 			Xapian::Document doc = db.get_document(did);
-			TEST_EQUAL(doc.get_value(slot), "");
+			TEST_EQUAL(doc.get_value(slot), string());
 			++did;
 		    }
 

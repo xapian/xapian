@@ -1,7 +1,7 @@
 /** @file xapian-compact.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -250,6 +250,7 @@ main(int argc, char **argv)
 	if (!renumber)
 	    used_ranges.reserve(argc - 1 - optind);
 	Xapian::docid tot_off = 0;
+	Xapian::docid last_docid = 0;
 	enum { UNKNOWN, BRASS, CHERT, FLINT } backend = UNKNOWN;
 	const char * backend_names[] = {
 	    NULL,
@@ -357,10 +358,14 @@ main(int argc, char **argv)
 	    offset.push_back(tot_off);
 	    if (renumber)
 		tot_off += last;
+	    else if (last_docid < db.get_lastdocid())
+		last_docid = db.get_lastdocid();
 	    used_ranges.push_back(make_pair(first, last));
 
 	    sources.push_back(string(srcdir) + '/');
 	}
+	if (renumber)
+	    last_docid = tot_off;
 
 	if (!renumber && sources.size() > 1) {
 	    // We want to process the sources in ascending order of first
@@ -428,15 +433,27 @@ main(int argc, char **argv)
 	    }
 	}
 
-	if (backend == FLINT) {
-	    compact_flint(destdir, sources, offset, block_size, compaction,
-			  multipass, tot_off);
-	} else if (backend == BRASS) {
-	    compact_brass(destdir, sources, offset, block_size, compaction,
-			  multipass, tot_off);
-	} else {
+	if (backend == CHERT) {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 	    compact_chert(destdir, sources, offset, block_size, compaction,
-			  multipass, tot_off);
+			  multipass, last_docid);
+#else
+	    throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
+#endif
+	} else if (backend == BRASS) {
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	    compact_brass(destdir, sources, offset, block_size, compaction,
+			  multipass, last_docid);
+#else
+	    throw Xapian::FeatureUnavailableError("Brass backend disabled at build time");
+#endif
+	} else {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	    compact_flint(destdir, sources, offset, block_size, compaction,
+			  multipass, last_docid);
+#else
+	    throw Xapian::FeatureUnavailableError("Flint backend disabled at build time");
+#endif
 	}
 
 	// Create the version file ("iamchert", etc).
@@ -449,10 +466,21 @@ main(int argc, char **argv)
 	donor += "/donor.tmp";
 
 	if (backend == CHERT) {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 	    (void)Xapian::Chert::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
+#else
+	    // Handled above.
+	    exit(1);
+#endif
 	} else if (backend == BRASS) {
+#ifdef XAPIAN_HAS_BRASS_BACKEND
 	    (void)Xapian::Brass::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
+#else
+	    // Handled above.
+	    exit(1);
+#endif
 	} else {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	    (void)Xapian::Flint::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
 	    string from = donor;
 	    from += "/uuid";
@@ -463,6 +491,10 @@ main(int argc, char **argv)
 		     << to << "': " << strerror(errno) << endl;
 		exit(1);
 	    }
+#else
+	    // Handled above.
+	    exit(1);
+#endif
 	}
 	string from = donor;
 	from += backend_version_files[backend];

@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -151,8 +151,7 @@ ValuePostingSource::next(Xapian::weight min_wt)
 }
 
 void
-ValuePostingSource::skip_to(Xapian::docid min_docid,
-				  Xapian::weight min_wt)
+ValuePostingSource::skip_to(Xapian::docid min_docid, Xapian::weight min_wt)
 {
     if (!started) {
 	started = true;
@@ -275,7 +274,8 @@ ValueWeightPostingSource::init(const Database & db_)
     }
 
     if (upper_bound.empty()) {
-	// This should only happen if there are no entries, in which case the maxweight is 0.
+	// This should only happen if there are no entries, in which case the
+	// maxweight is 0.
 	set_maxweight(0.0);
     } else {
 	set_maxweight(sortable_unserialise(upper_bound));
@@ -524,7 +524,7 @@ FixedWeightPostingSource::unserialise(const string &s) const
     const char * s_end = p + s.size();
     double new_wt = unserialise_double(&p, s_end);
     if (p != s_end) {
-	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
+	throw Xapian::NetworkError("Bad serialised FixedWeightPostingSource - junk at end");
     }
     return new FixedWeightPostingSource(new_wt);
 }

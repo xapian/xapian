@@ -81,7 +81,7 @@ void uuid_clear(uuid_t uu)
 
 int uuid_is_null(const uuid_t uu)
 {
-    int i = 0;
+    unsigned i = 0;
     while (i < UUID_SIZE) {
 	if (uu[i++])
 	    return 0;

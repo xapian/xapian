@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,15 @@
 
 #include "weightinternal.h"
 
+#include "xapian/enquire.h"
+
 #include "omassert.h"
+#include "omenquireinternal.h"
 #include "str.h"
+#include "termlist.h"
+
+#include "autoptr.h"
+#include <set>
 
 using namespace std;
 
@@ -67,14 +74,39 @@ Weight::Internal::get_termfreq(const string & term) const
 }
 
 void
-Weight::Internal::set_termfreq(const string & term, Xapian::doccount tfreq)
+Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
+				   const Xapian::RSet &rset)
 {
-    // Can be called a second time, if a term occurs multiple times in the
-    // query; if this happens, the termfreq should be the same each time.
-    Assert(termfreqs.find(term) == termfreqs.end() ||
-	   termfreqs.find(term)->second.termfreq == 0 ||
-	   termfreqs.find(term)->second.termfreq == tfreq);
-    termfreqs[term].termfreq = tfreq;
+    total_length += subdb.get_total_length();
+    collection_size += subdb.get_doccount();
+    rset_size += rset.size();
+
+    map<string, TermFreqs>::iterator t;
+    for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
+	const string & term = t->first;
+	t->second.termfreq += subdb.get_termfreq(term);
+    }
+
+    const set<Xapian::docid> & items(rset.internal->get_items());
+    set<Xapian::docid>::const_iterator d;
+    for (d = items.begin(); d != items.end(); ++d) {
+	Xapian::docid did = *d;
+	Assert(did);
+	// The query is likely to far fewer terms than the documents, and we
+	// can skip the document's termlist, so look for each query term in the
+	// document.
+	AutoPtr<TermList> tl(subdb.open_term_list(did));
+	for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
+	    const string & term = t->first;
+	    TermList * ret = tl->skip_to(term);
+	    AssertEq(ret, NULL);
+	    (void)ret;
+	    if (tl->at_end())
+		break;
+	    if (term == tl->get_termname())
+		++t->second.reltermfreq;
+	}
+    }
 }
 
 Xapian::doccount
@@ -86,17 +118,6 @@ Weight::Internal::get_reltermfreq(const string & term) const
     map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
     Assert(tfreq != termfreqs.end());
     return tfreq->second.reltermfreq;
-}
-
-void
-Weight::Internal::set_reltermfreq(const string & term, Xapian::doccount rtfreq)
-{
-    // Can be called a second time, if a term occurs multiple times in the
-    // query; if this happens, the reltermfreq should be the same each time.
-    Assert(termfreqs.find(term) == termfreqs.end() ||
-	   termfreqs.find(term)->second.reltermfreq == 0 ||
-	   termfreqs.find(term)->second.reltermfreq == rtfreq);
-    termfreqs[term].reltermfreq = rtfreq;
 }
 
 string

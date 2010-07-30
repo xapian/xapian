@@ -28,6 +28,7 @@
 #include "omassert.h"
 #include "perftest/perftest_all.h"
 #include "runprocess.h"
+#include "str.h"
 #include "stringutils.h"
 #include "testrunner.h"
 #include "testsuite.h"
@@ -52,9 +53,9 @@ PerfTestLogger logger;
 static string
 time_to_string(const OmTime & time)
 {
-    string frac = om_tostring(time.usec);
+    string frac = str(time.usec);
     frac = string(6 - frac.size(), '0') + frac;
-    return om_tostring(time.sec) + "." + frac;
+    return str(time.sec) + "." + frac;
 }
 
 static string
@@ -153,7 +154,7 @@ get_ncpus()
 #ifdef __WIN32__
     SYSTEM_INFO siSysInfo;
     GetSystemInfo(&siSysInfo); 
-    ncpus = om_tostring(siSysInfo.dwNumberOfProcessors);
+    ncpus = str(siSysInfo.dwNumberOfProcessors);
 #else
     try {
 	// Works on Linux, at least back to kernel 2.2.26.
@@ -190,9 +191,12 @@ get_distro()
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
-    distro = "MSWin32 v" + om_tostring(osvi.dwMajorVersion) + "." +
-	    om_tostring(osvi.dwMinorVersion) + "." +
-	    om_tostring(osvi.dwBuildNumber);
+    distro = "Microsoft Windows v";
+    distro += str(osvi.dwMajorVersion);
+    distro += '.';
+    distro += str(osvi.dwMinorVersion);
+    distro += '.';
+    distro += str(osvi.dwBuildNumber);
 #else
     try {
 	distro = stdout_to_string("perftest/get_machine_info 2>/dev/null");
@@ -275,7 +279,7 @@ PerfTestLogger::open(const string & logpath)
 	write("  <ncpus>" + ncpus + "</ncpus>\n");
     if (!distro.empty())
 	write("  <distro>" + distro + "</distro>\n");
-    write("  <physmem>" + om_tostring(get_total_physical_memory()) + "</physmem>\n");
+    write("  <physmem>" + str(get_total_physical_memory()) + "</physmem>\n");
     write(" </machineinfo>\n");
 
     string svnrev = get_svnrev();
@@ -330,7 +334,7 @@ PerfTestLogger::indexing_begin(const string & dbname,
 	if (flush_threshold == 0)
 	    flush_threshold = 10000;
 	write("    <param name=\"flush_threshold\">" +
-	      escape_xml(om_tostring(flush_threshold)) + "</param>\n");
+	      escape_xml(str(flush_threshold)) + "</param>\n");
     }
     write("   </params>\n");
     indexing_addcount = 0;
@@ -350,7 +354,7 @@ PerfTestLogger::indexing_log()
     OmTime elapsed(last_indexlog_timer - indexing_timer);
     write("   <item>"
 	  "<time>" + time_to_string(elapsed) + "</time>"
-	  "<adds>" + om_tostring(indexing_addcount) + "</adds>"
+	  "<adds>" + str(indexing_addcount) + "</adds>"
 	  "</item>\n");
     indexing_unlogged_changes = false;
 }
@@ -386,10 +390,10 @@ PerfTestLogger::search_end(const Xapian::Query & query,
 	  "<time>" + time_to_string(elapsed) + "</time>"
 	  "<query>" + escape_xml(query.get_description()) + "</query>"
 	  "<mset>"
-	  "<size>" + om_tostring(mset.size()) + "</size>"
-	  "<lb>" + om_tostring(mset.get_matches_lower_bound()) + "</lb>"
-	  "<est>" + om_tostring(mset.get_matches_estimated()) + "</est>"
-	  "<ub>" + om_tostring(mset.get_matches_upper_bound()) + "</ub>"
+	  "<size>" + str(mset.size()) + "</size>"
+	  "<lb>" + str(mset.get_matches_lower_bound()) + "</lb>"
+	  "<est>" + str(mset.get_matches_estimated()) + "</est>"
+	  "<ub>" + str(mset.get_matches_upper_bound()) + "</ub>"
 	  "</mset>"
 	  "</search>\n");
     search_start();
@@ -410,7 +414,7 @@ PerfTestLogger::testcase_begin(const string & testcase)
     testcase_end();
     write(" <testcase name=\"" + testcase + "\" backend=\"" +
 	  backendmanager->get_dbtype() + "\" repnum=\"" +
-	  om_tostring(repetition_number) + "\">\n");
+	  str(repetition_number) + "\">\n");
     testcase_started = true;
 }
 

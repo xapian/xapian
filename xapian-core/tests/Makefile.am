@@ -15,6 +15,8 @@ endif
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
+CLEAN_FILES =
+
 libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 
 TESTS_ENVIRONMENT = ./runtest
@@ -138,6 +140,7 @@ collated_apitest_sources = \
  api_nodb.cc \
  api_none.cc \
  api_opsynonym.cc \
+ api_opvalue.cc \
  api_percentages.cc \
  api_posdb.cc \
  api_postingsource.cc \
@@ -150,6 +153,7 @@ collated_apitest_sources = \
  api_sorting.cc \
  api_sortingold.cc \
  api_spelling.cc \
+ api_stem.cc \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
@@ -275,3 +279,11 @@ check-local: remove-cached-databases
 
 include perftest/Makefile.mk
 include harness/Makefile.mk
+
+if USE_ZLIB_VG
+check_SCRIPTS += zlib-vg.so
+CLEAN_FILES += zlib-vg.so
+
+zlib-vg.so: zlib-vg.c
+	$(CC_FOR_BUILD) -fPIC -shared -ldl -o zlib-vg.so $(srcdir)/zlib-vg.c
+endif

@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 namespace Xapian {
 
+class Database;
 class Stem;
 
 /// Base class for stop-word decision functor.
@@ -87,7 +88,7 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
     /** Check for a valid range of this type.
      *
      *  If this ValueRangeProcessor recognises BEGIN..END it returns the
-     *  value number of range filter on.  Otherwise it returns
+     *  value number to range filter on.  Otherwise it returns
      *  Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
@@ -425,7 +426,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /** Get the current default operator. */
     Query::op get_default_op() const;
 
-    /// Specify the database being searched.
+    /** Specify the database being searched.
+     *
+     *  The database is used for wildcard expansion (FLAG_WILDCARD and
+     *  FLAG_PARTIAL), spelling correction (FLAG_SPELLING_CORRECTION), and
+     *  synonyms (FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and
+     *  FLAG_AUTO_MULTIWORD_SYNONYMS).
+     */
     void set_database(const Database &db);
 
     /** Parse a query.
@@ -436,6 +443,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		multiple values with bitwise-or (|) (default FLAG_DEFAULT).
      *	@param default_prefix  The default term prefix to use (default none).
      *		For example, you can pass "A" when parsing an "Author" field.
+     *
+     *  @exception If the query string can't be parsed, then
+     *		   Xapian::QueryParserError is thrown.  You can get an English
+     *		   error message to report to the user by catching it and
+     *		   calling get_msg() on the caught exception.  The current
+     *		   possible values (in case you want to translate them) are:
+     *
+     *			@li Unknown range operation
+     *			@li parse error
+     *			@li Syntax: <expression> AND <expression>
+     *			@li Syntax: <expression> AND NOT <expression>
+     *			@li Syntax: <expression> NOT <expression>
+     *			@li Syntax: <expression> OR <expression>
+     *			@li Syntax: <expression> XOR <expression>
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
@@ -526,8 +547,19 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
+     *  @param exclusive If true, each document can have at most one value of
+     *			 the field, so Xapian should combine multiple values
+     *			 with OP_OR.  If false, each document can have multiple
+     *			 values of the field, so Xapian combine them with
+     *			 OP_AND, as we would with filters with different
+     *			 prefixes. [default: true]
      */
-    void add_boolean_prefix(const std::string & field, const std::string &prefix);
+    void add_boolean_prefix(const std::string &field, const std::string &prefix,
+			    bool exclusive);
+
+    /* FIXME:1.1.3: Merge two versions into one with optional parameter
+     * "exclusive", default true. */
+    void add_boolean_prefix(const std::string &field, const std::string &prefix);
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;

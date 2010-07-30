@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,15 +21,16 @@
  */
 
 #include <config.h>
+#include "brass_termlist.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "expandweight.h"
 #include "brass_positionlist.h"
-#include "brass_termlist.h"
+#include "debuglog.h"
 #include "omassert.h"
 #include "pack.h"
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -37,12 +38,11 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    DEBUGCALL(DB, void, "BrassTermList",
-	      "[RefCntPtr<const BrassDatabase>], " << did_);
+    LOGCALL_CTOR(DB, "BrassTermList", db_ | did_);
 
     if (!db->termlist_table.get_exact_entry(BrassTermListTable::make_key(did),
 					    data))
-	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
+	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
 
     pos = data.data();
     end = pos + data.size();
@@ -79,21 +79,21 @@ BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db
 brass_doclen_t
 BrassTermList::get_doclength() const
 {
-    DEBUGCALL(DB, brass_doclen_t, "BrassTermList::get_doclength", "");
+    LOGCALL(DB, brass_doclen_t, "BrassTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
 }
 
 Xapian::termcount
 BrassTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::get_approx_size", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_approx_size", NO_ARGS);
     RETURN(termlist_size);
 }
 
 void
 BrassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(DB, void, "BrassTermList::accumulate_stats", "[stats&]");
+    LOGCALL_VOID(DB, "BrassTermList::accumulate_stats", stats);
     Assert(!at_end());
     stats.accumulate(current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
@@ -101,21 +101,21 @@ BrassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 string
 BrassTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "BrassTermList::get_termname", "");
+    LOGCALL(DB, string, "BrassTermList::get_termname", NO_ARGS);
     RETURN(current_term);
 }
 
 Xapian::termcount
 BrassTermList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_wdf", NO_ARGS);
     RETURN(current_wdf);
 }
 
 Xapian::doccount
 BrassTermList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "BrassTermList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "BrassTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
 	current_termfreq = db->get_termfreq(current_term);
     RETURN(current_termfreq);
@@ -124,7 +124,7 @@ BrassTermList::get_termfreq() const
 TermList *
 BrassTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "BrassTermList::next", "");
+    LOGCALL(DB, TermList *, "BrassTermList::next", NO_ARGS);
     Assert(!at_end());
     if (pos == end) {
 	pos = NULL;
@@ -167,24 +167,34 @@ BrassTermList::next()
     RETURN(NULL);
 }
 
+TermList *
+BrassTermList::skip_to(const string & term)
+{
+    LOGCALL(API, TermList *, "BrassTermList::skip_to", term);
+    while (pos != NULL && current_term < term) {
+	(void)BrassTermList::next();
+    }
+    RETURN(NULL);
+}
+
 bool
 BrassTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "BrassTermList::at_end", "");
+    LOGCALL(DB, bool, "BrassTermList::at_end", NO_ARGS);
     RETURN(pos == NULL);
 }
 
 Xapian::termcount
 BrassTermList::positionlist_count() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "BrassTermList::positionlist_count", "");
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::positionlist_count", NO_ARGS);
     RETURN(db->position_table.positionlist_count(did, current_term));
 }
 
 Xapian::PositionIterator
 BrassTermList::positionlist_begin() const
 {
-    DEBUGCALL(DB, Xapian::PositionIterator, "BrassTermList::positionlist_begin", "");
+    LOGCALL(DB, Xapian::PositionIterator, "BrassTermList::positionlist_begin", NO_ARGS);
     return Xapian::PositionIterator(
 	    new BrassPositionList(&db->position_table, did, current_term));
 }
