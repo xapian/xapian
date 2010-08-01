@@ -1080,22 +1080,20 @@ phrased_term:
 	    // Check spelling, if we're a normal term, and any of the prefixes
 	    // are empty.
 	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
-		const list<string> & prefixes = prefix_info->prefixes;
+		const list<string> & pfxes = prefix_info->prefixes;
 		list<string>::const_iterator pfx_it;
-		for (pfx_it = prefixes.begin(); pfx_it != prefixes.end(); ++pfx_it) {
+		for (pfx_it = pfxes.begin(); pfx_it != pfxes.end(); ++pfx_it) {
 		    if (!pfx_it->empty())
 			continue;
-		    if (!db.term_exists(term)) {
-			string suggestion = db.get_spelling_suggestion(term);
-			if (!suggestion.empty()) {
-			    if (corrected_query.empty()) corrected_query = qs;
-			    size_t term_end_index = it.raw() - qs.data();
-			    size_t n = term_end_index - term_start_index;
-			    size_t pos = term_start_index + correction_offset;
-			    corrected_query.replace(pos, n, suggestion);
-			    correction_offset += suggestion.size();
-			    correction_offset -= n;
-			}
+		    const string & suggest = db.get_spelling_suggestion(term);
+		    if (!suggest.empty()) {
+			if (corrected_query.empty()) corrected_query = qs;
+			size_t term_end_index = it.raw() - qs.data();
+			size_t n = term_end_index - term_start_index;
+			size_t pos = term_start_index + correction_offset;
+			corrected_query.replace(pos, n, suggest);
+			correction_offset += suggest.size();
+			correction_offset -= n;
 		    }
 		    break;
 		}

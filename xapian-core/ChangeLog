@@ -1,3 +1,15 @@
+Sun Aug 01 10:19:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Database::get_spelling_suggestion() will now
+	  suggest a correction even if the passed word is in the dictionary,
+	  provided the correction has at least the same frequency.  Partly
+	  addresses #225.
+	* queryparser/queryparser.lemony: Check spelling even if term is in
+	  the database.
+	* docs/spelling.rst: Update to reflect these changes.
+	* tests/api_spelling.cc,tests/queryparsertest.cc: Add test coverage for
+	  these changes.
+
 Tue Jul 27 15:24:56 GMT 2010  Tim Brody <tdb2@ecs.soton.ac.uk>
 
 	* xapian-core.spec.in: Add xapian-metadata and cmake related files to

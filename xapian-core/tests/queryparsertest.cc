@@ -1689,6 +1689,8 @@ static const test test_mispelled_queries[] = {
     { "documento", "document" },
     { "documento-documento", "document-document" },
     { "documento-searcho", "document-search" },
+    { "test saerch", "test search" },
+    { "paragraf search", "paragraph search" },
     { NULL, NULL }
 };
 
@@ -1698,6 +1700,14 @@ static bool test_qp_spell1()
     mkdir(".flint", 0755);
     string dbdir = ".flint/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    Xapian::Document doc;
+    doc.add_term("document", 6);
+    doc.add_term("search", 7);
+    doc.add_term("saerch", 1);
+    doc.add_term("paragraph", 8);
+    doc.add_term("paragraf", 2);
+    db.add_document(doc);
 
     db.add_spelling("document");
     db.add_spelling("search");
