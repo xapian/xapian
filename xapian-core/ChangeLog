@@ -1,3 +1,8 @@
+Mon Aug 02 12:08:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Add Literal() class to allow bypassing the pretty
+	  printer for interspersing literal strings.
+
 Sun Aug 01 10:19:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Database::get_spelling_suggestion() will now
