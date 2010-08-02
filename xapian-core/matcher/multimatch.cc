@@ -309,7 +309,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     const Xapian::MatchDecider *matchspy_legacy,
 		     const Xapian::KeyMaker *sorter)
 {
-    LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | "mset" | stats | "mdecider" | "matchspy_legacy" | "sorter");
+    LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("matchspy_legacy") | Literal("sorter"));
     AssertRel(check_at_least,>=,maxitems);
 
     if (!query) {

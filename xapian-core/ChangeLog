@@ -1,3 +1,12 @@
+Mon Aug 02 12:38:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_values.cc,
+	  backends/chert/chert_table.cc,backends/chert/chert_values.cc,
+	  backends/flint/flint_alldocspostlist.cc,
+	  backends/remote/remote-document.cc,matcher/multimatch.cc,
+	  matcher/remotesubmatch.cc,net/progclient.cc: Use new Literal()
+	  feature in debug logging of function calls.
+
 Mon Aug 02 12:08:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Add Literal() class to allow bypassing the pretty

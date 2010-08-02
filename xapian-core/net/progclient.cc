@@ -88,7 +88,7 @@ ProgClient::run_program(const string &progname, const string &args
 			)
 {
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | "[&pid]");
+    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&pid]"));
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */
