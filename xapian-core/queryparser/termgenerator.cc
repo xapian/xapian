@@ -1,4 +1,4 @@
-/** @file: termgenerator.cc
+/** @file termgenerator.cc
  * @brief TermGenerator class implementation
  */
 /* Copyright (C) 2007 Olly Betts

@@ -1,4 +1,4 @@
-/** @file chert-update.cc
+/** @file xapian-chert-update.cc
  * @brief Update a chert database to the new format keys
  */
 /* Copyright (C) 2003,2004,2005,2006,2007,2008,2009 Olly Betts

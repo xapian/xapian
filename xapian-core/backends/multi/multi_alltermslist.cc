@@ -1,4 +1,4 @@
-/** @file multialltermslist.cc
+/** @file multi_alltermslist.cc
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
