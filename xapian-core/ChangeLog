@@ -1,3 +1,8 @@
+Wed Aug 04 09:19:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.h,queryparser/termgenerator_internal.h: Fix
+	  incorrect @file doxygen directives.
+
 Tue Aug 03 14:42:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/fdtracker.h: Fix filename in @file.

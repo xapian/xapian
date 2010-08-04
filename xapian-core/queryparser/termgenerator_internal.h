@@ -1,4 +1,4 @@
-/** @file: termgenerator_internal.h
+/** @file termgenerator_internal.h
  * @brief TermGenerator class internals
  */
 /* Copyright (C) 2007 Olly Betts

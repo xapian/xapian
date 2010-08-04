@@ -1,4 +1,4 @@
-/** @file localmatch.h
+/** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
 /* Copyright (C) 2006,2007,2009,2010 Olly Betts
