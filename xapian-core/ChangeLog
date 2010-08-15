@@ -1,3 +1,8 @@
+Sun Aug 15 12:11:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-core.spec.in: Update BuildRequires to specify libuuid-devel
+	  instead of e2fsprogs-devel.
+
 Sun Aug 15 11:30:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,common/safeuuid.h,common/win32_uuid.cc,
