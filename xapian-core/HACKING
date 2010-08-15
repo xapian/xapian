@@ -281,7 +281,7 @@ If you want to build Omega, you'll also need::
 
 On Fedora, the uuid library can be installed by doing::
 
-    yum install e2fsprogs-devel
+    yum install libuuid-devel
 
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated

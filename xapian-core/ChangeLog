@@ -1,3 +1,11 @@
+Sun Aug 15 11:30:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,common/safeuuid.h,common/win32_uuid.cc,
+	  common/win32_uuid.h,configure.ac: libuuid moved from e2fsprogs to
+	  util-linux-ng about a year ago, so update documentation, comments,
+	  and configure error messages to reflect this.  Issue reported by
+	  David Jeske on xapian-devel list.
+
 Sun Aug 15 07:58:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: Under __WIN32__, we need

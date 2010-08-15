@@ -675,16 +675,18 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   fi
   LIBS=$SAVE_LIBS
 
-  dnl Find the UUID library (from e2fsprogs, not the OSSP one).
+  dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
   case $host_os in
     *mingw* | *cygwin*) dnl Use built-in API.
       use_win32_uuid_api=1
       ;;
     *)
-      dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+      dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
+      dnl (FreeBSD/NetBSD).
       AC_CHECK_HEADERS([uuid/uuid.h], [
-	dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
+	dnl -luuid.
 	SAVE_LIBS=$LIBS
 	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
@@ -698,7 +700,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	AC_CHECK_HEADERS([uuid.h], [
 	  dnl Check for uuid_create with no extra libraries required.
 	  AC_CHECK_FUNC([uuid_create], [], [
-	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
 	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
