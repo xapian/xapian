@@ -1,3 +1,7 @@
+Sun Aug 15 12:43:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Update.
+
 Sun Aug 15 12:11:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian-core.spec.in: Update BuildRequires to specify libuuid-devel
