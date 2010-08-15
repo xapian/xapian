@@ -41,6 +41,7 @@
 #endif
 
 #ifdef __WIN32__
+# include <io.h> // For _open_osfhandle().
 # include "safefcntl.h"
 # include "safewindows.h"
 #endif
