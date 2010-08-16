@@ -28,7 +28,7 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 
-#ifdef __linux__
+#if defined __linux__ || defined __APPLE__
 # include "safedirent.h"
 # include <cstdlib>
 
@@ -42,7 +42,7 @@ Xapian::Internal::closefrom(int fd)
     // Apparently supported by at least NetBSD, AIX, IRIX.
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
-#elif defined __linux__
+#elif defined __linux__ || defined __APPLE__
     // The loop might close the fd associated with dir if we don't take
     // special care to avoid that by either skipping this fd in the closing
     // loop (if dirfd() is available) or making sure we have a free fd below
@@ -62,10 +62,10 @@ Xapian::Internal::closefrom(int fd)
     path += str(getpid());
     path += "/fd";
     DIR * dir = opendir(path.c_str());
-#else
-    // FIXME: Or /dev/fd if any platforms with that aren't handled above -
-    // Mac OS X perhaps?
+#elif defined __linux__
     DIR * dir = opendir("/proc/self/fd");
+#elif defined __APPLE__ // Mac OS X
+    DIR * dir = opendir("/dev/fd");
 #endif
     if (dir) {
 	while (true) {

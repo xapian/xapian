@@ -1,3 +1,7 @@
+Mon Aug 16 16:46:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/closefrom.cc: Use /dev/fd on Mac OS X.
+
 Mon Aug 16 16:18:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/closefrom.cc: Need safeerrno.h and safeunistd.h on non-Linux
