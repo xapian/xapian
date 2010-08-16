@@ -27,6 +27,7 @@
 
 #include "progclient.h"
 #include <xapian/error.h>
+#include "closefrom.h"
 #include "debuglog.h"
 
 #include <string>
@@ -125,10 +126,7 @@ ProgClient::run_program(const string &progname, const string &args
     }
 
     // close unnecessary file descriptors
-    int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-    for (int fd = 2; fd < maxfd; ++fd) {
-	::close(fd);
-    }
+    closefrom(2);
 
     // Redirect stderr to /dev/null
     int stderrfd = open("/dev/null", O_WRONLY);

@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,6 +36,7 @@
 #include <cstring>
 #endif
 
+#include "closefrom.h"
 #include "omassert.h"
 
 #ifdef __CYGWIN__
@@ -185,14 +186,12 @@ FlintLock::lock(bool exclusive, string & explanation) {
 
 	// Make sure we don't hang on to open files which may get deleted but
 	// not have their disk space released until we exit.
-	int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	for (int i = 2; i < maxfd; ++i) {
-	    if (i != lockfd) {
-		// Retry on EINTR; just ignore other errors (we'll get
-		// EBADF if the fd isn't open so that's OK).
-		while (close(i) < 0 && errno == EINTR) { }
-	    }
+	for (int i = 2; i < lockfd; ++i) {
+	    // Retry on EINTR; just ignore other errors (we'll get
+	    // EBADF if the fd isn't open so that's OK).
+	    while (close(i) < 0 && errno == EINTR) { }
 	}
+	closefrom(lockfd + 1);
 
 	// FIXME: use special statically linked helper instead of cat.
 	execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));

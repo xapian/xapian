@@ -402,6 +402,12 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
 
+dnl Check for a more efficient way of closing fds during daemonisation.
+dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
+dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
+dnl dirfd() is useful for an efficient implementation on some platforms.
+AC_CHECK_FUNCS([closefrom dirfd])
+
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then

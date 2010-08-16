@@ -1,3 +1,10 @@
+Mon Aug 16 15:47:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc,common/Makefile.mk,common/closefrom.cc,
+	  common/closefrom.h,configure.ac,net/progclient.cc: Use closefrom()
+	  if available, otherwise provide our own implementation (optimised
+	  to some extent for many platforms).
+
 Sun Aug 15 12:43:04 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Update.
