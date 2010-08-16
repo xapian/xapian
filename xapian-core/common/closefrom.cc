@@ -24,13 +24,13 @@
 
 #include "closefrom.h"
 
+#include "safeerrno.h"
 #include "safefcntl.h"
+#include "safeunistd.h"
 
 #ifdef __linux__
 # include "safedirent.h"
-# include "safeerrno.h"
 # include <cstdlib>
-# include "safeunistd.h"
 
 using namespace std;
 #endif
