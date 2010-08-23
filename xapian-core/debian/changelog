@@ -1,3 +1,10 @@
+xapian-core (1.2.2-5) UNRELEASED; urgency=low
+
+  * debian/control.in:
+    + Standards-Version: 3.9.1 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Mon, 23 Aug 2010 14:17:15 +0000
+
 xapian-core (1.2.2-4) experimental; urgency=low
 
   * Add patch check-select-errors.patch which will hopefully fix erratic FTBFS
