@@ -1,3 +1,7 @@
+Mon Aug 23 15:08:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: Don't run autoreconf - it's no longer required.
+
 Tue Aug 03 14:11:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.rst: Update "flint and quartz" to "flint and chert"
