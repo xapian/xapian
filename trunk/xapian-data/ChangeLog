@@ -1,0 +1,89 @@
+Wed Dec 16 00:42:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* stemming/german/output.txt,stemming/german2/output.txt: Update
+	  expected output from the german and german2 stemmers to match the
+	  updated algorithms.
+
+Tue Sep 02 04:16:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* stemming/romanian/: Split out the romanian stemming test data into
+	  the vanilla files taken from Snowball and supplemental files with
+	  our extra data.  Our voc.txt and output.txt files now exactly match
+	  Snowball's.
+	* stemming/README: Update to document the new scheme.
+
+Tue Sep 02 02:59:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* stemming/: Rename all the stemming data files to match those in the
+	  Snowball sources, to make maintenance easier.
+
+Tue Sep 02 02:46:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* README: Reword.  Drop author attribution, as it's not relevant who
+	  wrote this two line note.
+
+Thu Oct 18 18:11:07 BST 2007  Olly Betts <olly@survex.com>
+
+	* stemming/turkish.st,stemming/turkish.voc: Append new Snowball
+	  turkish data.
+	* stemming/README: Note that most data here is from Snowball, but
+	  some may not be.
+
+Thu Mar 29 17:55:54 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* stemming/romanian.st: Oops - also remove corresponding word from the
+	  expected output file, or it won't work.
+
+Thu Mar 29 17:49:44 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* stemming/romanian.voc: Remove sample word which had a capital
+	  letter, since stemtest doesn't cope with these.
+
+Tue Mar 27 14:49:28 BST 2007  Olly Betts <olly@survex.com>
+
+	* stemming/romanian2.st,stemming/romanian2.voc: Remove romanian2
+	  vocab and output since the corresponding stemmer has been removed.
+
+Tue Mar 27 12:08:41 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* stemming/: Rename romanian1 vocab list to romanian, and update
+	  the output to correspond to that from the new romanian stemmer.
+
+Tue Mar 27 04:51:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* stemming/hungarian.voc: Lowercase terms with uppercase letters.
+	* stemming/: Import new stemming test data from snowball.
+
+Mon Feb 26 21:46:41 GMT 2007  Olly Betts <olly@survex.com>
+
+	* stemming/: Add vocab lists and stemmed equivalents for
+	  hungarian, kraaij_pohlmann, and romanian1.
+
+Mon Feb 26 20:18:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* stemming/: Use new snowball vocab lists and stemmed word lists -
+	  changes character set to UTF-8, and updates some of the stemmings
+	  to reflect changes in the snowball stemmers.
+
+Mon Oct 14 00:04:54 BST 2002  Olly Betts <olly@survex.com>
+
+	* stemming/: Use Snowball vocab lists instead of the old Xapian ones;
+	  removed stopword lists (we'll use the Snowball ones, but they want
+	  to be in xapian-core which everyone downloads, not with the stemmer
+	  test data which few people need).
+
+Sun Oct 13 03:44:58 BST 2002  Olly Betts <olly@survex.com>
+
+	* stemming/: Fixed layout of stopsource files where the muscat3.6
+	  style "e^a" accents have been changed into "é" etc.
+
+Sun Oct 13 03:34:09 BST 2002  Olly Betts <olly@survex.com>
+
+	* stemming/: Updated files so that they are correct for the Snowball
+	  stemmers (which use iso-8859-1 accents and produce slightly
+	  different results).
+
+Fri Apr 12 14:07:40 BST 2002  Olly Betts <olly@survex.com>
+
+	* Started ChangeLog; updated README files to refer to Xapian and
+	  www.xapian.org.

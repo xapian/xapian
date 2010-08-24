@@ -1,0 +1,5 @@
+<Directory>bin</Directory>
+
+<Description>
+Programs relating to the Xapian library.
+</Description>

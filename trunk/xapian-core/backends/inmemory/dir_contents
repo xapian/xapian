@@ -1,0 +1,9 @@
+<Directory>backends/inmemory</Directory>
+
+<Description>
+This backend stores a database entirely in memory.  When the
+database is closed these indexed contents are lost.
+
+This is useful for searching through relatively small amounts of data
+(such as a single large file) which hasn't previously been indexed.
+</Description>

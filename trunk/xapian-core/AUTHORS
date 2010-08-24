@@ -1,0 +1,151 @@
+Email about this project should be directed first to the
+xapian-discuss mailing list (see <http://xapian.org/lists>).  Please
+don't mail individual developers directly - you'll get a faster, more
+comprehensive answer by using the mailing list.
+
+Xapian has been developed by many individuals who voluntarily contributed
+their code to the Xapian project.  These people are:
+
+	Olly Betts <olly@survex.com>
+	Hein Ragas <hragas@users.sourceforge.net>
+	James Aylett <tartarus@users.sourceforge.net>
+	Sam Liddicott <samjam@users.sourceforge.net>
+	Richard Boulton <richard@tartarus.org>
+
+The Xapian project home page is: http://xapian.org/
+
+The Open Muscat code which Xapian has evolved from was developed by a team at
+BrightStation PLC:
+
+BrightStation developers:
+	Richard Boulton
+	Chris Emerson
+	Olly Betts
+	Martin Porter
+	Graham Simms
+
+Helpful comments, bug reports, small patches:
+	Hiranmay Ghosh (stemming algorithms)
+	Barry Wilkins (stemming algorithms)
+	Jonathan Fielder
+	Tom Mortimer
+	Fabrice Colin
+	Arjen van der Meijden
+	Hartmut Honisch
+	Robert Pollak
+	Jim Lynch
+	Kees van Reeuwijk
+	Olivier Galibert
+	Chris Good
+	Jan Algermissen
+	Peter Marelas
+	Gavin Kelman
+	John Ward
+	Malcolm Baldridge
+	Franck Meunier
+	Eric Ridge
+	Francis Irving
+	Alan Cox
+	Mike Boone
+	Michael Schlenker
+	Michael Sisolak
+	Sidnei da Silva
+	Christiano Anderson
+	Sungsoo Kim
+	Philip Neustrom
+	Alec Lind
+	Mike Trinkala
+	Jeff Breidenbach
+	Marien Zwart
+	Ludovic Levesque
+	Maarten den Heyer
+	Ruslan Spivak
+	Neal Becker
+	Charlie Hull
+	Alex Kushkuley
+	Markus Wörle
+	Mark Hammond
+	Grzegorz Bogdanowicz
+	Mikael Johansson
+	Tim Brody
+	Bruce Toll
+	Reuben Thomas
+	Daniel Ménard
+	William R. Sowerbutts
+	Floris Bos
+	Enrico Zini
+	Julien Touche
+	Krzysztof Klemm
+	Simon Tatham
+	Tomek Jackowiak
+	Maarten van der Veen
+	Jenny Black
+	Deron Meranda
+	Ron Kass
+	Marcus Rueckert
+	Petr Ročkai
+	Ralf Wildenhues
+	Aleph Thomas
+	Adam Sjøgren
+	Yuri Dario
+	Thomas Viehmann
+	David Spencer
+	Matthew Somerville
+	Alexandre Gauthier (Windows python packaging)
+	Henrik Brix Andersen
+	Wookey
+	David Versmisse
+	Reini Urban
+	Flavio daCosta
+	Ruslan Shevchenko
+	Daniel Andersson
+	Shane Evans
+	David Sainty
+	Todd Lipcon
+	Frank J. Bruzzaniti
+	Jim Spath
+	Muayyad Alsadi
+	Pablo Hoffman
+	Felix Antonius Wilhelm Ostmann
+	Kosei Moriyama
+	Tom Winch
+	Bruno Rezende
+	Armin Ronacher
+	Andreas Marienborg
+	Simon Willison
+	Rusty Conover
+	Benjamin Smith
+	Peter Karman
+	Marcus Ramberg
+	Joey Hess
+	Peter Kelm
+	Srijon Biswas
+	Johan Bergström
+	Ivo Jansch
+	Rolf Köhling
+	Andreas Flöter
+	Daniel Dickman
+	Rich Lane
+	Michael Vogt
+	Liu Haifeng
+	Dmitry Liakh
+	Carl Worth
+	Paul Rudin
+	Eric Voisard
+	Marek Mizier
+	Dagobert Michelsen
+	Josh Carlson
+	Pavel Strashkin
+	Kan-Ru Chen
+	Henry Combrinck
+	Emmanuel Engelhart
+	Craig A. Anderson
+	Jason Tackaberry
+	Tomas Carnecky
+	Sune Vuorela
+	Conrad Hoffmann
+	Arvid Ephraim Picciani
+	Jean-Paul Calderone
+	Evgeny Sizikov
+	Michel Pelletier
+	David Jeske

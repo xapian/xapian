@@ -1,0 +1,576 @@
+Revision history for Perl extension Search::Xapian.
+
+1.2.3.0  Tue Aug 24 06:03:12 UTC 2010
+	[Changes contributed by Tim Brody]
+	- Allow user-specified ExpandDecider to be specified to get_eset().
+	[Changes contributed by Jess Robinson]
+	- Fix bogus "can't find libtool" error when rerunning Makefile.PL and
+	  XAPIAN_CONFIG isn't explicitly specified.
+
+1.2.2.0  Sun Jun 27 03:31:36 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.2.
+
+1.2.1.0  Tue Jun 22 14:48:00 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.1.
+
+1.2.0.0  Wed Apr 28 10:44:15 UTC 2010
+	[This release includes all changes from 1.0.20 which are relevant.]
+
+1.1.5.0  Thu Apr 15 04:23:16 UTC 2010
+	[This release includes all changes from 1.0.19 which are relevant.]
+
+1.1.4.0  Mon Feb 15 14:08:51 UTC 2010
+	[This release includes all changes from 1.0.18 which are relevant.]
+	[Changes contributed by Henry Combrinck]
+	- Add wrappers for the spelling correction functionality (ticket#420).
+	- Add wrapper for Database::close() (ticket#422).
+
+1.1.3.0  Wed Nov 18 11:00:23 UTC 2009
+	[This release includes all changes from 1.0.15-17 which are relevant.]
+	[Changes contributed by Olly Betts]
+	- Wrap new Xapian::SerialisationError class.
+	- Ship simplematchdecider.pl example, which was added in 1.0.13.1 but
+	  accidentally not added to 1.1.1.0.
+	- Work around odd rerunning of Makefile.PL by MakeMaker when srcdir !=
+	  builddir.
+
+1.1.2.0  Thu Jul 23 04:14:29 UTC 2009
+	[This release includes all changes from 1.0.14 which are relevant.]
+
+1.1.1.0  Tue Jun  9 13:22:07 UTC 2009
+	[Changes contributed by Olly Betts]
+	- Add Search::Xapian::MSet::items() method which returns an array
+	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
+	  you get easy access to the MSet object itself too).
+	- Add the ability to tie an ESet to an array and a new
+	  Search::Xapian::ESet::items() method to make use of it.
+	- Add new translated version of the simple examples from the Python
+	  bindings.
+	- Add more fully featured examples: full-indexer.pl and
+	  full-searcher.pl.
+	- Add better test coverage for MatchDecider.
+	- Catch C++ exceptions from methods of Document and rethrow as Perl
+	  exceptions (ticket#284).
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
+
+1.1.0.0  Thu Apr 22 13:56:31 GMT 2009
+	[Changes contributed by Andreas Marienborg and Olly Betts]
+	- Xapian C++ exceptions classes are now wrapped and C++ exceptions
+	  are caught and rethrown in Perl as the wrapped classes.
+	[Changes contributed by Olly Betts]
+	- Xapian-core now uses libtool 2.2.x, which has required changes to
+	  the how we cram libtool into the MakeMaker-generated Makefile.
+	  However, there's still a wrinkle in this change - you can't currently
+	  run "make install" in a tree configured to use an uninstalled
+	  xapian-core.
+
+1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
+	  warning (Debian bug#578559).
+	- Fix testcase t/04functions.t to work with Perl compiled with
+	  -Duselongdouble (Debian bug#578558).
+
+1.0.19.0  Thu Apr 15 03:55:04 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Wrap Document::add_boolean_term() (new in C++ API in 1.0.18).
+	- Add test coverage for Document::remove_term().
+
+1.0.18.0  Sun Feb 14 10:22:53 UTC 2010
+	[Changes contributed by Henry Combrinck]
+	- Add wrappers for the spelling correction functionality (ticket#420).
+
+1.0.17.0  Wed Nov 18 02:02:41 UTC 2009
+	[Changes contributed by Olly Betts]
+	- Fix to build with compilers other than GCC by disabling Perl's
+	  #define for bool.  (ticket#404)
+
+1.0.16.0  Thu Sep 10 06:26:08 UTC 2009
+	[Changes contributed by Olly Betts]
+	- Improve documentation of QueryParser::set_default_op() and
+	  QueryParser::get_default_op().
+	- examples/: Use MSet::items() (new in 1.0.13.1).
+	- examples/simpleexpand.pl: Remove debug print statement left in by
+	  accident.
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
+	- Add better test coverage for MatchDecider.
+
+1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
+	[Changes contributed by Frank Lichtenheld]
+	- Run POD coverage tests if TEST_POD_COVERAGE is set rather than
+	  TEST_POD so that the other POD tests can easily be enabled without
+	  enabling the coverage tests.
+
+1.0.14.0  Tue Jul 21 16:10:19 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Add handling of C++ exceptions from methods of Document (ticket#284).
+
+1.0.13.1  Tue May 26 13:51:18 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Deprecate Search::Xapian::MSet::matches() and make it issue a
+	  warning.  Please use Search::Xapian::MSet::items() instead.
+	- Add another translated example: simplematchdecider.pl
+
+1.0.13.0  Sat May 23 15:10:39 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Add Search::Xapian::MSet::matches() method which returns an array
+	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
+	  you get access to the MSet object itself).
+	- Add new translated version of the simple examples from the Python
+	  bindings.
+	- Add more fully featured examples: full-indexer.pl and
+	  full-searcher.pl.
+
+1.0.12.0  Sun Apr 19 11:18:04 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Add handling of exceptions from Database::get_metadata() and methods
+	  of Enquire which might throw DatabaseModifiedError to address
+	  situation reported in ticket#284.
+	- Skip thread.t testcase if Perl is new enough, but wasn't built with
+	  thread support (reported by Felix Antonius Wilhelm Ostmann).
+	- Fix "fake VPATH" mode to work better.
+	[Changes contributed by Kosei Moriyama]
+	- Add test coverage for more WritableDatabase methods.
+
+1.0.11.0  Sun Mar 15 12:53:20 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Wrap the new FLAG_DEFAULT constant which gives the QueryParser
+	  default flag settings, allowing you to easily add flags to the
+	  default ones.
+
+1.0.10.0  Tue Dec 23 09:18:21 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Makefile.PL now supports a "fake VPATH" mode, to better support for
+	  building from SVN.  If you run "perl /path/to/Makefile.PL" then
+	  Makefile.PL will run Makefile.PL as nomal in /path/to, and then
+	  create a stub Makefile in the current directory which forwards any
+	  make invocations.
+
+1.0.9.0  Fri Oct 31 23:27:06 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Wrap Search::Xapian::get_major_version(), get_minor_version(),
+	  get_revision(), sortable_serialise(), and sortable_unserialise().
+	- Reject xapian-core < 1.0 with an error rather than just a warning.
+
+1.0.8.0  Thu Sep  4 05:38:22 GMT 2008
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.0.8.
+
+1.0.7.0  Thu Jul 17 00:18:17 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Handle exceptions from Xapian::Stem constructor (reported by Joey
+	  Hess in Debian BTS #486138).
+	- Fix testcase in t/parser.t for improved behaviour of xapian-core.
+	- Actually fill in @Search::Xapian::DB_NAMES.
+	- Search::Xapian::Query->new(<OP>, <TERMS>) now allows integers and
+	  numbers as terms - these are coerced to strings as with standard
+	  Perl parameter passing.
+
+1.0.6.0  Sun Mar 30 10:20:58 GMT 2008
+	[Changes contributed by Olly Betts]
+	- If the Search::Xapian and xapian-config versions don't match, and
+	  $ENV{AUTOMATED_TESTING} is true, then we need to unlink Makefile as
+	  well as exiting with status 0.
+	- Mention QueryParser flags in POD: FLAG_SPELLING_CORRECTION,
+	  FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS.
+	- Removed no-op method Enquire::register_match_decider() which is now
+	  deprecated in C++.  It doesn't do anything, and never has, so if
+	  you were calling it, you can just remove the call!
+	- Improve POD for Enquire::get_eset().
+	- Increment the reference counts of Sorter objects passed to methods
+	  of Enquire.  This means we'll leak them, but that's better than
+	  having them garbage collected while the C++ code is still using them.
+	  This will be fixed properly in a future release.
+	- You can now construct a Query from a mixed list of Query objects and
+	  strings (previously the list had to be all Query objects or all
+	  strings).
+	- Don't accept values with a leading '-' or '+' for OP_* constants -
+	  users should be using the defined constants for these which are all
+	  positive without an explicit '+'.
+	- Wrap OP_SCALE_WEIGHT, OP_VALUE_GE, OP_VALUE_LE, and the corresponding
+	  Query constructor overloads.
+	[Changes contributed by Matthew Somerville]
+	- Wrap optional prefix argument to WritableDatabase::allterms_begin()
+	  and WritableDatabase::allterms_end().
+
+1.0.5.0  Wed Jan 02 01:07:28 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Suppress MakeMaker warnings if CXX and/or XAPIAN_CONFIG are
+	  specified.
+	- If CXX and/or XAPIAN_CONFIG are specified in the environment, we
+	  make sure that they are preserved in Makefile.PL is rerun.
+	- If xapian-config isn't found, Makefile.PL now exits with status 0
+	  which CPAN tester script understand to mean "missing dependencies".
+	- If the Search::Xapian and xapian-config versions don't match, the
+	  usual warning is replaced by an error and exit with status 0 if
+	  $ENV{AUTOMATED_TESTING} is true.
+	- Emphasise in the README and POD that bug reports should be sent to
+	  the xapian-discuss mailing list or Xapian bug tracker, not to the
+	  CPAN bug tracker or individual authors.
+	- "use Exporter 'import';" rather than inheriting from Exporter to
+	  avoid pulling other symbols in.
+	- Rejig the constructors of the ValueRangeProcessor subclasses so that
+	  they should work with Perl 5.6 too.
+	- Wrap MultiValueSorter and Enquire::set_sort_by_key(), etc.
+	- Minor documentation improvements.
+	- Enhance t/parser.t to check results of NumberValueRangeProcessor.
+	- Fix QueryParser::parse_query() to catch Xapian::Error rather than
+	  const char * - it stopped throwing const char * in Xapian 1.0.0
+	  (bug#221).
+	- Wrap TermGenerator methods: set_database() and set_flags().
+	[Changes contributed by Rusty Conover]
+	- Wrap QueryParser flags: FLAG_SPELLING_CORRECTION, FLAG_SYNONYM,
+	  FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS.
+	- Wrap WritableDatabase methods: add_synonym(), remove_synonym(), and
+	  clear_synonyms().
+	- Wrap TermGenerator::FLAG_SPELLING and TermGenerator::set_database().
+
+1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
+	[Changes contributed by Olly Betts]
+	- Add all the POD pages to the "see also" on the main POD page.
+	- Fix typos and improve wording throughout the POD documentation.
+	- Add POD documentation for ValueIterator.
+	- Makefile.PL now accepts XAPIAN_CONFIG and CXX on the command line
+	  (like autoconf configure scripts) and values specified here are
+	  persistent across automatic reruns, so promote this usage over
+	  environmental variables.
+	- Compiling with GCC 4.2 gives many "deprecated conversion from string
+	  constant to 'char*'" warnings.  Most are from XS-generated code, but
+	  fix the small number which aren't.
+	- Make Search::Xapian work with 'use threads;' by adding 'sub
+	  CLONE_SKIP { 1 }' to all the classes (this requires Perl >= 5.8.7
+	  to work, but has no effect on older versions).  Using CLONE_SKIP
+	  means that Xapian objects aren't copied to subthreads, so the wrapped
+	  C++ objects don't get destroyed more than once.  Thanks to Ron Kass
+	  for suggesting this change.
+	- Add testcase thread.t to check that threaded use works as expected
+	  under Perl 5.8.7.
+	- BoolWeight objects are now blessed as class BoolWeight rather than
+	  class Weight.
+	- Fix test parser.t to match the fixed behaviour of STEM_ALL.
+	- Cleaned up unnecessary 'require Exporter;' and 'use Carp;'.
+	- Move the POD documentation to the end of the pm files and insert
+	  __END__ before them.
+	- A script to generate interlinked HTML documentation has been added
+	  (called makehtmldocs).
+
+1.0.3.0  Sat Sep 29 13:26:32 BST 2007
+	[Changes contributed by Olly Betts]
+	- Wrap Database::get_metadata() and WritableDatabase::set_metadata().
+	- Improve QueryParser pod documentation.
+	- PerlStopper::operator() now declared const as it should be.
+	- Suppress "deprecated" warnings from Xapian since we need to keep
+	  wrapping deprecated features.
+	- Suppress compilation warnings on some Linux distros.
+	- Add Xapian.lo to MANIFEST.SKIP (it's generated if we're building
+	  against an uninstalled xapian-core tree).
+	[Changes contributed by Reini Urban]
+	- Force LD to be "g++ -shared" for GCC on Cygwin since Perl < 5.9.5
+	  Cygwin packages need it.
+
+1.0.2.0  Thu Jul 05 15:44:03 BST 2007
+	[Changes contributed by Olly Betts]
+	- Disable NumberValueRangeProcessor tests, which need updating.
+
+1.0.1.0  Sat Jun 16 00:49:33 BST 2007
+	[Changes contributed by Olly Betts]
+	- Wrap new optional prefix argument to Database::allterms_begin() and
+	  Database::allterms_end().
+	- Test Database::allterms_begin() in t/search.t.
+	- Increment the reference counts of Stopper and ValueRangeProcessor
+	  objects passed to methods of QueryParser and TermGenerator.  This
+	  means we'll leak them, but that's better than having them garbage
+	  collected while the C++ code is still using them.  This will be
+	  fixed properly in a future release.
+
+1.0.0.0  Sat May 26 00:41:07 BST 2007
+	[Changes contributed by Olly Betts]
+	- Wrap new TermGenerator class.
+	- Wrap new QueryParser flags FLAG_PURE_NOT and FLAG_PARTIAL.
+	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
+	- Wrap ValueRangeProcessor and subclasses, and
+	  QueryParser::add_valuerangeprocessor().
+	- Removed wrappers for deprecated features which have now been removed
+	  from the C++ API.
+	- Fix small memory leaks in various methods when the C++ method throws
+	  an exception.
+	- MSet::convert_to_percentage() now actually works (and added feature
+	  tests to search.t to make sure it keeps working).
+	- Test WritableDatabase::add_value() in t/index.t.
+	- Test OP_VALUE_RANGE in new t/valuerange.t.
+	- Test ValueRangeProcessor and subclasses in t/parser.t.
+	- More tests for ESetIterator.
+	- Feature tests for new TermGenerator class.
+	- Add "make check" as an alias for "make test".
+
+0.9.10.0  Tue Mar 06 02:27:02 2007
+	[Changes contributed by Rusty Conover]
+	- Wrap MatchDecider and make it usable with Enquire::get_mset()
+	- Wrap check_at_least parameter of Enquire::get_mset()
+	[Changes contributed by Olly Betts]
+	- Wrap rset parameter of Enquire::get_mset()
+	- Make all get_mset parameter combinations available via
+	  Enquire::matches()
+	- Add tests for check_at_least and rset parameters of
+	  Enquire::get_mset()
+	- Avoid warning from MakeMaker when generating Makefile for linking
+	  against an uninstalled xapian-core tree.
+	- Correct several errors in the pod documentation for
+	  Search::Xapian::PositionIterator.
+
+0.9.9.1  Mon Dec 11 06:08:57 2006
+	[Changes contributed by Olly Betts]
+	- Fix typo in BoolWeight documentation.
+	- Fix BoolWeight default constructor (broken by changes in 0.9.9.0).
+	- Wrap TradWeight class.
+
+0.9.9.0  Mon Nov 09 02:31:09 2006
+	[Changes contributed by Olly Betts]
+	- Fix the BM25Weight constructors.
+	- Fix problem with isa not being known in Xapian::PostingIterator.
+	- Wrap the newly implemented transaction API to WritableDatabase.
+
+0.9.6.0  Sun Jun 04 01:14:00 2006
+	[Changes contributed by Olly Betts]
+	- Alex's CPAN email address bounces, so change occurrences of it
+	  to direct users to the xapian-discuss mailing list for now.
+	- Correct several occurrences of "Xapian::Search::" to
+	  "Search::Xapian::".
+	- Wrap Enquire::set_docid_order (and document set_sort_forward
+	  as deprecated.)
+	- Wrap new method Enquire::set_sort_by_relevance_then_value.
+	- Document Enquire::set_sort_by_* (and document set_sorting as
+	  deprecated.)
+	- Wrap the BM25Weight constructor which takes parameters
+	  (the default one is much less useful, since Xapian defaults
+	  to BM25Weight with the default parameters anyway!)
+	- Wrap Enquire::set_sort_by_value_then_relevance()
+	- Wrap the optional flags parameter to QueryParser::parse_query().
+	- Disable the wrappers for the transaction API to WritableDatabase
+	  - it's not implemented by any database backend yet, so it's not
+	  useful to wrap it at present.
+	- Fix PostingIterator != and == to handle both other PostingIterators
+	  and numbers like PositionIterator does.
+	- Wrap constants FLAG_BOOLEAN_ANY_CASE and FLAG_WILDCARD.
+	- Fix typos and other problems in the POD documentation.  Document all
+	  constants.
+	- Update the list of unwrapped classes and methods.
+	- Update the version in the README file.  Add code to Makefile.PL
+	  to check that the various references to the current version are
+	  all up-to-date.
+	- Makefile.PL now refuses to proceed if it can't find Xapian.
+	- Makefile.PL now checks that the Xapian version and Search::Xapian
+	  version match, and if not issues a non-fatal warning (for now).
+	- Makefile.PL now allows building against an uninstalled xapian-core
+	  tree (which is useful when doing development work on Search::Xapian
+	  itself).
+	- Add feature test for Document::termlist_begin().
+	[Changes contributed by Tim Brody]
+	- Add MANIFEST.SKIP to allow "make manifest".
+
+0.9.2.4  Fri Feb 15 14:59:23 2006
+	[Changes contributed by Olly Betts and Tim Brody]
+	- Catch C++ exceptions from QueryParser and rethrow them as Perl
+	  exceptions.
+	- Makefile.PL now checks environmental variable CXX for the C++
+	  compiler to use.
+	- Fixed cross-wired methods inside Enquire::get_matching_terms_begin
+	  and Enquire::get_matching_terms_end (thanks to Arne Georg Gleditsch
+	  for reporting this).
+	- $q = Query(op, @termlist) now handles terms with embedded zero bytes.
+	- Removed Query::clone() and = overload - they would die if ever used
+	  and aren't useful since a Query object is essentially immutable once
+	  constructed.
+	- Removed MSet::max_size - C++ only has it so MSet works as an STL
+	  container.
+	- RSet::size() returns doccount not termcount (though they're currently
+	  the same type underneath so this is an aesthetic internal change).
+	- Wrap most of the changed Xapian::QueryParser API.
+	- Wrap new SimpleStopper class (with test cases).
+	- Added PerlStopper class which can be subclassed in Perl to implement
+	  your own stop word algorithm.
+	- Wrap new Enquire sorting API methods.
+	- Updated list of unwrapped classes and methods in documentation.
+	- Make != and == work for comparing iterators (as well as ne and eq).
+
+0.9.2.3  Thu Feb 16 16:57:43 2006
+	[Changes contributed by Benjamin Smith]
+	- Corrected module names advertised in the POD.
+	- Added new_term method to Search:Xapian::Query.
+	- Fixed the package statement in BoolWeight.pm.
+	- Removed useless prototypes in Search::Xapian::Query.
+	- some extraneous blank lines removed (from >1 lines to just 1 line)
+	[Changes contributed by Peter Karman]
+	- Added set_sort_by_value method to Search::Xapian::Enquire
+	[Changes contributed by Marcus Ramberg]
+	- Fixed get_term_end in Search::Xapian::Query
+	- Added set_stemmer in Search::Xapian::QueryParser
+	- Added get_terms in Search::Xapian::Query
+
+0.9.2.2  Tue Sep  6 16:48:30 2005
+	[Changes contributed by Marcus Ramberg]
+	- Added a lot of documentation.
+	- Added support for setting weighting schemes in ::Enquire
+	- Added add_prefix and add_boolean_prefix to QueryParser.
+	- Added support for flags to parse_query
+	- Added basic exception handling for QueryParser.
+
+0.9.2.1  Mon Aug  8 12:24:34 2005
+	- Let perl know Search::Xapian::WritableDatabase is a subclass of
+	  Search::Xapian::Database by adding the latter to the former's @INC.
+
+0.9.2.0  Mon Aug  8 12:08:25 2005
+	- Removed 'set_window', 'set_cutoff', 'set_elite_set_size' and
+	  'set_length' methods from Xapian::Query class
+	- Switched Search::Xapian::Stopper from using now abstract
+	  Xapian::Stopper class to Xapian::SimpleStopper subclass.
+
+0.8.4.0  Wed Dec  8 03:36:13 2004
+	[Changes contributed by Olly Betts]
+	- Changed Database and WritableDatabase constructors to use the new C++
+	  constructors instead of the factory functions.
+	- Eliminated GNU-make-ism from generated Makefile.
+	- Added new test "exception.t" to test C++ -> Perl exception handling.
+
+0.8.3.1  Tue Nov  3 18:25:02 2004
+	[Changes contributed by Olly Betts]
+	- Fixed handling of optional parameters in Document::add_posting(),
+	  Document::add_term(), Document::remove_posting(),
+	  Enquire::set_cutoff(), Enquire::set_sorting(), and
+	  QueryParser::set_stemming_options().  Added test cases for
+	  the first three.
+	- Fixed wrapping of Enquire::get_matching_terms_begin() and
+	  get_matching_terms_end().
+	- Wrap versions of RSet::add_document(), RSet::remove_document(), and
+	  RSet::contains() which take MSetIterator instead of a docid.
+
+0.8.3.0  Tue Oct 27 20:32:36 2004
+	[Changes contributed by Olly Betts]
+	- Fixed exporting of DB_* constants.
+	- Makefile.PL now checks environmental variable XAPIAN_CONFIG.
+	- Wrap missing Database/WritableDatabase methods: get_lastdocid(),
+	  positionlist_begin(), and positionlist_end().
+	- Added WritableDatabase->new() which creates an inmemory database
+	- Wrap missing WritableDatabase methods: delete_document_by_term(),
+	  and replace_document_by_term().
+	- Wrap missing Document methods: remove_value(), and clear_values().
+	- Fixed usage message if MSet::fetch called with > 3 parameters.
+	- Fixed MSet::convert_to_percent() to actually return a value!
+	- Wrap missing MSetIterator methods: --, get_collapse_count().
+	- Removed bogus += methods from all iterators (these actually ignored
+	  the second argument and always incremented once).
+	- Cleaned up wrapping of ++ methods for all iterators.
+	- Wrap missing ESet methods: back().
+	- Fixed wrapping of ESetIterator methods: ==, !=.
+	- Wrap 3 argument form of Enquire::set_sorting().
+	- Wrap missing method PositionIterator::get_description().
+	- Fixed return value for Query::set_length().
+	- Wrap missing method Query::empty().
+	- Second argument to QueryParser::set_stemming_options() may now be
+	  omitted.
+	- Wrap ValueIterator class.
+	- Added tests of many of the new and fixed methods.
+	- Documentation now lists unwrapped classes and methods.
+
+0.8.0.4  Wed Jun  9 12:08:54 2004
+	[Changes contributed by Tim Brody]
+	- Wrappers for ::QueryParser and ::Stopper
+
+0.8.0.3  Thu Jun  3 13:14:39 2004
+	- Makefile.PL now uses xapian-config to determine
+	  library/include path
+	[Changes contributed by Olly Betts]
+	- Wrapped Database::postlist_begin() and postlist_end()
+	- Database::get_doccount(), get_avlength(), and get_termfreq()
+	  now return values correctly
+	- WritableDatabase::delete_document() and replace_document()
+	  now handle exceptions
+	- Wrapped all methods which WritableDatabase inherits from
+	  Database
+	- Fixed 2 warnings when building with GCC 3.3
+	- Added more test cases to index.t
+	- Corrected typemap - weight is a floating point value; other
+	  types are unsigned
+	- Wrapped Stem::get_description()
+
+0.8.0.2  Thu May 13 17:36:45 2004
+	- More error handling for Query and Document classes
+	- Fully wrapped PositionIterator and PostingIterator
+	- Optional arguments now supported for most methods
+
+0.8.0.1  Wed May 12 18:58:46 2004
+	- Improved Query class which uses new C++ constructor methods
+	  to allow the combination of an unlimited number of terms
+	- More verbose tests, covering all query operations
+
+0.8.0.0  Tue May  4 16:06:41 2004
+	- New version numbering scheme chases xapian version
+	- Added overloaded function for TermIterator class
+	- Wrapped all methods for Xapian::Enquire (except
+	  set_weighting_scheme, which is passed a Weight object - a
+	  class for which wrappers do not yet exist).
+	- Replaced AUTOLOAD method designed to reduce code redundancy
+	  in Enquire.pm with two separate methods (it was preventing
+	  attempts to call unwrapped methods from throwing errors).
+	[Changes contributed by Olly Betts]
+	- Converted to use xapian.h and Xapian:: classnames
+	- add_term is the new preferred name for add_term_nopos
+	- Added stubs for PostingIterator and PositionIterator
+	- String values are now passed in a zero-byte safe way
+	- OM_DB_* renamed to Search::Xapian::DB_*
+	- Now requires Xapian at least version 0.8.0
+	- Search::Xapian::Database::allterms_end() fixed (was returning
+	  the same as Search::Xapian::Database::allterms_begin()
+
+0.05  Tue Jan 14 01:43:45 2003
+	- OM_DB_CREATE_OR_* symbols wrapped
+	- Extra tests for argument validity for Search::Xapian::Query
+	  constructor
+	- Makefile.PL now prints where it has located om/om.h and
+	  libxapian.so files
+	[Changes contributed by Olly Betts]
+	- Most methods wrapped for OmESet, OmESetIterator, OmRSet
+	- OmMSet::empty() returns bool, not om_weight
+	- Fixed eq and ne for Search::Xapian::MSetIterator
+	- Fixed Search::Xapian::MSet::convert_to_percent()
+	- Moved #include-s to top of Xapian.xs to fix compilation
+	  problems
+	- Added 14 new test cases
+
+0.04  Thu Dec 26 18:17:54 2002
+	- Convenience method: $enq->set_query( $op, @terms ... );
+	  now autogenerates a query object with the arguments passed
+	  if the first of them is not itself a query object
+	- Convenience method: $enq = $db->enquire( [$query] );
+	  which autogenerates Enquire object, calling set_query() if
+	  it is passed a query with which to do so
+	- Added tests for tied MSet class
+	- Added $enquire->matches() method returning tied MSet object
+	- Removed deprecated OmSettings class
+
+0.03  Fri Nov  8 16:53:22 2002
+	- All methods wrapped for OmDatabase, OmWritableDatabase,
+	  OmDocument, OmEnquire, OmMSet, OmMSetIterator, OmQuery and
+	  OmSettings classes
+	- Overload pragma: copy constructor for all classes that
+	  support copying
+	- Overload pragma: '++' for MatchSetIterator
+	- Interface to all overloaded C++ constructors
+	- Mapping for OmQuery::op enumerated type to exported symbols
+	- Removed non-functioning 'MatchSet' method
+
+0.02  Sun Sep 15 19:48:32 2002
+	- Added bindings to create databases and index documents
+	- Added error handling for Database constructors
+	- 3 test scripts; create, index and search
+	- Fixed MatchSetIterator->get_docid returning wrong value
+	- Fixed string typemap
+
+0.01  Tue Sep 10 16:03:23 2002
+	- original version; created by h2xs 1.21 with options
+		-x -O -n Search::Xapian -A simplesearch.h
+

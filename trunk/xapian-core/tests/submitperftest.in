@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+#
+# Copyright 2008 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+"""Run a performance test, and submit the results to the public archive.
+
+Usage:
+
+submitperftest
+
+"""
+
+import sys
+sys.path.insert(0, r"@srcdir@")
+
+import os
+import re
+import urllib2
+import urllib2_file
+
+# URL to send submissions to.
+submission_path = "http://tartarus.org/richard/perftest/upload.cgi"
+
+class fdwrapper:
+    def __init__(self, fd, callback):
+        self.fd = fd
+
+    def __getattr__(self, attr):
+        print "getattr", attr
+        return getattr(self.fd, attr)
+
+def submit_perftest(filepath):
+    """Send the performance test results in a file to the server.
+
+    Returns a code number which can be used to find the results on the server
+    again.
+
+    """
+    fd = open(filepath, "r")
+    req = urllib2.Request(submission_path, {'file': fd})
+    try:
+        response = urllib2.urlopen(req)
+    except urllib2.HTTPError, e:
+        print "HTTPError: ", e.message, ": ", e.strerror
+        return
+
+    resdata = response.read()
+    g_begin = re.search('<!-- MSG_BEGIN[^\n]*\n', resdata)
+    g_end = re.search('MSG_END -->\n', resdata)
+    if g_begin is None or g_end is None:
+        print "Invalid return from submission server - test may not have been uploaded successfully"
+        return
+    lines = resdata[g_begin.end():g_end.start()].strip().split('\n')
+    if len(lines) < 2:
+        print "Unexpected return from submission server - test may not have been uploaded successfully"
+        return
+    if lines[0] != 'OK':
+        print "Unsuccessful submission: server said:\n" + '\n'.join(lines[1:])
+        return
+    print "Successful submission: server said:\n"
+    print '\n'.join(lines[1:])
+    
+
+def main():
+    submit_perftest(os.path.join(r"@builddir@", "perflog.xml"))
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,6 @@
+<Directory>include/xapian</Directory>
+
+<Description>
+This directory contains the externally visible header files which are
+needed to link applications against Xapian.
+</Description>

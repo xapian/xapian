@@ -1,0 +1,16 @@
+This directory contains test data for the Snowball stemming algorithms which
+Xapian uses.  If Snowball has test data for a language, we include it here.
+Sometimes we supplement Snowball's data with our own (or provide test data when
+Snowball doesn't provide any).
+
+There are two files which are from Snowball for each language (if Snowball
+has no test data these are empty):
+
+ <language>/voc.txt     -- A list of words, one per line.
+ <language>/output.txt  -- The result of stemming each word.
+
+Optionally, supplemental data is in these two files (if there is no
+supplemental data, these files aren't present):
+
+ <language>/voc2.txt    -- A list of words, one per line.
+ <language>/output2.txt -- The result of stemming each word.

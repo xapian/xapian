@@ -1,0 +1,52 @@
+# zlib deliberately checks the end condition less often than it should.
+# Debian etch and Ubuntu feisty both have this suppression, but only for:
+# obj:/usr/lib/libz.so.1.2.2
+{
+    zlib end condition check
+    Memcheck:Cond
+    obj:/usr/lib/libz.so.1.2.3
+    obj:/usr/lib/libz.so.1.2.3
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Cond
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Value4
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Value4
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Value8
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Value8
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Cond
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}

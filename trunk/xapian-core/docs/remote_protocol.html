@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>Xapian: Remote Backend Protocol</title>
+</head>
+<body bgcolor="white" text="black">
+<h1>Remote Backend Protocol</h1>
+
+<p>
+This document describes <em>version 35.0</em> of the protocol used by Xapian's
+remote backend.  The major protocol version increased to 35 in Xapian 1.1.5.
+Clients and servers must support matching major protocol versions and the
+client's minor protocol version must be the same or lower.  This means that for
+a minor protocol version change, you can upgrade first servers and then clients
+and everything should work during the upgrades.
+</p>
+
+<p>
+The protocol assumes a reliable two-way connection across which
+arbitrary data can be sent - this could be provided by a TCP socket for example
+(as it is with xapian-tcpsrv), but any such connection could be used.  For
+example, you could used xapian-progsrv across an ssh connection, or even
+a custom server across a suitable serial connection.
+</p>
+
+<p>
+All messages start with a single byte identifying code.  A message from client
+to server has a <code>MSG_XXX</code> identifying code, while a message from
+server to client has a <code>REPLY_XXX</code> identifying code (but note that a
+reply might not actually be in response to a message - REPLY_GREETING isn't -
+and some messages result in multiple replies).
+</p>
+
+<p>
+The identifying code is followed by the encoded length of the contents followed
+by the contents themselves.
+</p>
+
+<p>
+Inside the contents, strings are generally passed as an encoded
+length followed by the string data (this is indicated below by
+<code>L&lt;...&gt;</code>) except when the string is the last or only
+thing in the contents in which case we know the length because
+we know the length of the contents so we don't need to explicitly
+specify it.
+</p>
+
+<p>
+Integers are encoded using the same encoding used for string lengths
+(indicated by <code>I&lt;...&gt;</code> below).
+</p>
+
+<p>
+Floating pointing values are passed using a bit packed encoding of the sign
+and exponent and a base-256 encoding of the mantissa which avoids any rounding
+issues (assuming that both machines have FLT_RADIX equal to some power of 2).
+This is indicated by <code>F&lt;...&gt;</code> below.
+</p>
+
+<p>
+Boolean values are passed as a single byte which is the ASCII character
+value for <code>0</code> or <code>1</code>.  This is indicated by
+<code>B&lt;...&gt;</code> below.
+</p>
+
+<h2>Server greeting and statistics</h2>
+
+<ul>
+<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
+</ul>
+
+<p>
+The protocol major and minor versions are passed as a single byte each (e.g.
+<code>'\x1e\x01'</code> for version 30.1).  The server and client must
+understand the same protocol major version, and the server protocol minor
+version must be greater than or equal to that of the client (this means that
+the server understands newer MSG_<i>XXX</i>, but will only send newer
+REPLY_<i>YYY</i> in response to an appropriate client message.
+</p>
+
+<h2>Exception</h2>
+
+<ul>
+<li> <code>REPLY_EXCEPTION &lt;serialised Xapian::Error object&gt;</code>
+</ul>
+
+<p>
+If an unknown exception is caught by the server, this message is sent but
+with empty contents.
+</p>
+
+<p>
+This message can be sent at any point - the serialised exception is
+unserialised by the client and thrown.  The server and client both
+abort any current sequence of messages.
+</p>
+
+<h2>Write Access</h2>
+
+<ul>
+<li> <code>MSG_WRITEACCESS</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
+</ul>
+
+<p>
+The reply is the same as for <code>MSG_UPDATE</code>.  If write access isn't
+supported or the database is locked by another writer, then an exception is
+thrown.
+</p>
+
+<p>
+By default the server is also read-only, even if writing is supported.
+If the client wants to be able to write, it needs to request this
+explicitly.  We do this so that the same server can support multiple
+read-only clients and one writing client at once, without the protocol
+for read-only clients requiring an extra message.  The overhead of an
+extra message exchange for a writer is likely to matter as indexing
+is rarely so real-time critical as searching.
+</p>
+
+<h2>All Terms</h2>
+
+<ul>
+<li> <code>MSG_ALLTERMS</code>
+<li> <code>REPLY_ALLTERMS I&lt;term freq&gt; L&lt;term name&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Term Exists</h2>
+
+<ul>
+<li> <code>MSG_TERMEXISTS &lt;term name&gt;</code>
+<li> <code>REPLY_TERMEXISTS</code> or <code>REPLY_TERMDOESNTEXIST</code>
+</ul>
+
+<h2>Term Frequency</h2>
+
+<ul>
+<li> <code>MSG_TERMFREQ &lt;term name&gt;</code>
+<li> <code>REPLY_TERMFREQ I&lt;term freq&gt;</code>
+</ul>
+
+<h2>Collection Frequency</h2>
+
+<ul>
+<li> <code>MSG_COLLFREQ &lt;term name&gt;</code>
+<li> <code>REPLY_COLLFREQ I&lt;collection freq&gt;</code>
+</ul>
+
+<h2>Document</h2>
+
+<ul>
+<li> <code>MSG_DOCUMENT I&lt;document id&gt;</code>
+<li> <code>REPLY_DOCDATA L&lt;document data&gt;</code>
+<li> <code>REPLY_VALUE I&lt;value no&gt; &lt;value&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Document Length</h2>
+
+<ul>
+<li> <code>MSG_DOCLENGTH I&lt;document id&gt;</code>
+<li> <code>REPLY_DOCLENGTH I&lt;document length&gt;</code>
+</ul>
+
+<h2>Keep Alive</h2>
+
+<ul>
+<li> <code>MSG_KEEPALIVE</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Reopen</h2>
+
+<ul>
+<li> <code>MSG_REOPEN</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
+</ul>
+
+<p>The reply is the same as for <code>MSG_UPDATE</code>.</p>
+
+<h2>Query</h2>
+
+<ul>
+<li> <code>MSG_QUERY L&lt;serialised Xapian::Query object&gt;
+I&lt;query length&gt;
+I&lt;collapse max&gt; [I&lt;collapse key number&gt; (if collapse_max non-zero)]
+&lt;docid order&gt;
+I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
+&lt;percent cutoff&gt; F&lt;weight cutoff&gt; &lt;serialised Xapian::Weight object&gt; &lt;serialised Xapian::RSet object&gt; [L&lt;serialised Xapian::MatchSpy object&gt;...]
+</code>
+<li> <code>REPLY_STATS &lt;serialised Stats object&gt;</code>
+<li> <code>MSG_GETMSET I&lt;first&gt; I&lt;max items&gt; I&lt;check at least&gt;
+&lt;serialised global Stats object&gt;</code>
+<li> <code>REPLY_RESULTS 
+L&lt;the result of calling serialise_results() on each Xapian::MatchSpy&gt;
+&lt;serialised Xapian::MSet object&gt;</code>
+</ul>
+
+<p>docid order is <code>'0'</code>, <code>'1'</code> or <code>'2'</code>.</p>
+
+<p>sort by is <code>'0'</code>, <code>'1'</code>, <code>'2'</code> or <code>'3'</code>.</p>
+
+<h2>Termlist</h2>
+
+<ul>
+<li> <code>MSG_TERMLIST I&lt;document id&gt;</code>
+<li> <code>REPLY_DOCLENGTH I&lt;document length&gt;</code>
+<li> <code>REPLY_TERMLIST I&lt;wdf&gt; I&lt;term freq&gt; L&lt;term name&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Positionlist</h2>
+
+<ul>
+<li> <code>MSG_POSITIONLIST I&lt;document id&gt; &lt;term name&gt;</code>
+<li> <code>REPLY_POSITIONLIST I&lt;termpos delta - 1&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<p>
+Since positions must be strictly monotonically increasing, we encode
+<tt>(pos&nbsp;-&nbsp;lastpos&nbsp;-&nbsp;1)</tt> so that small differences
+between large position values can still be encoded compactly.  The first
+position is encoded as its true value.
+</p>
+
+<h2>Postlist</h2>
+
+<ul>
+<li> <code>MSG_POSTLIST &lt;term name&gt;</code>
+<li> <code>REPLY_POSTLISTSTART I&lt;termfreq&gt; I&lt;collfreq&gt;</code>
+<li> <code>REPLY_POSTLISTITEM I&lt;docid delta - 1&gt; I&lt;wdf&gt; F&lt;document length&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<p>
+Since document IDs in postlists must be strictly monotonically increasing, we
+encode <tt>(docid&nbsp;-&nbsp;lastdocid&nbsp;-&nbsp;1)</tt> so that small
+differences between large document IDs can still be encoded compactly.  The
+first document ID is encoded as its true value - 1 (since document IDs are always &gt; 0).
+</p>
+
+<h2>Shut Down</h2>
+
+<ul>
+<li> <code>MSG_SHUTDOWN</code>
+</ul>
+
+<p>
+No reply is sent - this message signals that the client has ended the session.
+</p>
+
+<h2>Update</h2>
+
+<ul>
+<li> <code>MSG_UPDATE</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
+</ul>
+
+<p>
+Only useful for a <code>WritableDatabase</code> (since the same statistics
+are sent when the connection is initiated in the <code>REPLY_GREETING</code>
+and they don't change if the database can't change).
+</p>
+
+<h2>Add document</h2>
+
+<ul>
+<li> <code>MSG_ADDDOCUMENT &lt;serialised Xapian::Document object&gt;</code>
+<li> <code>REPLY_ADDDOCUMENT I&lt;document id&gt;</code>
+</ul>
+
+<h2>Delete document</h2>
+
+<ul>
+<li> <code>MSG_DELETEDOCUMENT I&lt;document id&gt;</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Delete document by term</h2>
+
+<ul>
+<li> <code>MSG_DELETEDOCUMENTTERM &lt;term name&gt;</code>
+</ul>
+
+<h2>Replace document</h2>
+
+<ul>
+<li> <code>MSG_REPLACEDOCUMENT I&lt;document id&gt; &lt;serialised Xapian::Document object&gt;</code>
+</ul>
+
+<h2>Replace document by term</h2>
+
+<ul>
+<li> <code>MSG_REPLACEDOCUMENTTERM L&lt;term name&gt; &lt;serialised Xapian::Document object&gt;</code>
+</ul>
+
+<h2>Cancel</h2>
+
+<ul>
+<li> <code>MSG_CANCEL</code>
+</ul>
+
+<h2>Commit</h2>
+
+<ul>
+<li> <code>MSG_COMMIT</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Set metadata</h2>
+
+<ul>
+<li> <code>MSG_SETMETADATA L&lt;key&gt; &lt;value&gt;</code>
+</ul>
+
+<h2>Get metadata</h2>
+
+<ul>
+<li> <code>MSG_GETMETADATA &lt;key&gt;</code>
+<li> <code>REPLY_METADATA &lt;value&gt;</code>
+</ul>
+
+<h2>Add spelling</h2>
+
+<ul>
+<li> <code>MSG_ADDSPELLING I&lt;freqinc&gt; &lt;word&gt;</code>
+</ul>
+
+<h2>Remove spelling</h2>
+
+<ul>
+<li> <code>MSG_REMOVESPELLING I&lt;freqdec&gt; &lt;word&gt;</code>
+</ul>
+
+</body>
+</html>

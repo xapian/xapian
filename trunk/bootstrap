@@ -1,0 +1,467 @@
+#!/bin/sh
+# bootstrap a xapian source tree obtained from SVN to produce a tree like
+# you'd get from unpacking the results of "make dist"
+#
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+if [ "$1" = "--help" ] ; then
+  echo "$0 [--without-autotools|--clean]"
+  exit 0
+fi
+
+trap 'echo "Bootstrap failed"' EXIT
+set -e
+
+# The variables which specify the autotools to use.  And doxygen.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE DOXYGEN"
+
+# Tool for downloading a file from a URL (currently wget or curl).
+FETCH_URL_TOOL=
+
+check_sha1sum() {
+  checksum=$1
+  tarball=$2
+
+  # BusyBox sha1sum doesn't know --version so just run to see it it works.
+  if echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c 2>/dev/null ; then
+    : # Checksum OK!
+  else
+    # Either sha1sum wasn't installed, or the checksum failed to match.
+    case `openssl sha1 "$tarball" 2>/dev/null` in
+      *$checksum) ;;
+      "") echo "Need sha1sum or openssl installed to check SHA1 checksums"
+	exit 1
+	;;
+      *)
+	echo "$tarball: computed SHA1 checksum did NOT match"
+	exit 1
+	;;
+    esac
+  fi
+}
+
+lazy_build() {
+  package=$1
+  basename=$package-$2
+  ext=$3
+  checksum=$4
+  tarball=$basename.$ext
+  case $basename in
+    *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+  esac
+
+  # Create the stamp file in INST so that rerunning bootstrap after
+  # "rm -rf INST" recovers nicely.
+  stamp=../INST/$package.stamp
+
+  # Download the tarball if required.
+  if [ ! -f "$tarball" ] ; then
+    if [ -z "$FETCH_URL_TOOL" ] ; then
+      if ${WGET-wget} --version > /dev/null 2>&1 ; then
+	FETCH_URL_TOOL=${WGET-wget}
+      elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
+	# curl --version exists with code 2.
+	FETCH_URL_TOOL="${CURL-curl} -O"
+      else
+	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
+	echo "or download $url to directory `pwd` by hand and rerun this script." >&2
+	exit 1
+      fi
+    fi
+    case $basename in
+    doxygen-*)
+      $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+    *[13579][a-z])
+      # GNU alpha release
+      $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+    *)
+      $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+    esac
+  fi
+
+  if [ -f "$stamp" ] ; then
+    find_stdout=`find "$stamp" -newer "$tarball" -print`
+  else
+    find_stdout=
+  fi
+
+  if [ -z "$find_stdout" ] ; then
+    # Verify the tarball's checksum before building it.
+    check_sha1sum "$checksum" "$tarball"
+
+    for f in "$package"-* ; do
+      [ "$f" = "$tarball" ] || rm -rf "$f"
+    done
+
+    case $ext in
+    tar.bz2)
+      bzip2 -dc "$tarball"| tar xf - ;;
+    *)
+      gzip -dc "$tarball"| tar xf - ;;
+    esac
+
+    cd "$basename"
+    if test -n "$AUTOCONF" ; then
+      ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
+    else
+      ./configure --prefix "$instdir"
+    fi
+    make
+    make install
+    cd ..
+    rm -rf "$basename"
+
+    touch "$stamp"
+  fi
+}
+
+curdir=`pwd`
+
+# cd to srcdir if we aren't already there.
+srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
+case $srcdir in
+  ""|.)
+    srcdir=. ;;
+  *)
+    cd "$srcdir" ;;
+esac
+
+if [ -d ".git" ] ; then
+  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
+    test -d "$emptydir" || mkdir "$emptydir"
+  done
+
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  cat <<END >> .git/info/exclude~
+swig
+xapian-applications/omega/common
+END
+  if cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+    rm .git/info/exclude~
+  else
+    mv .git/info/exclude~ .git/info/exclude
+  fi
+
+  # FIXME: Currently requires manual update...
+  #svn:external revision for SWIG
+  rev=11320
+  if [ ! -d swig ] ; then
+    git svn init svn://svn.tartarus.org/swig/trunk/ swig/
+  fi
+  (cd swig && git svn fetch -r"$rev")
+
+  # FIXME: Currently requires manual update...
+  #svn:external revision for xapian-applications/omega/common
+  rev=14328
+  if [ ! -d xapian-applications/omega/common ] ; then
+    git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
+  fi
+  (cd xapian-applications/omega/common && git svn fetch -r"$rev")
+fi
+
+if [ "$1" = "--without-autotools" ] ; then
+  shift
+else
+  if [ "$1" = "--clean" ] ; then
+    shift
+    rm -rf INST
+  fi
+
+  [ -d INST ] || mkdir INST
+  instdir=`pwd`/INST
+
+  [ -d BUILD ] || mkdir BUILD
+  cd BUILD
+
+  # The last field is the SHA1 checksum of the tarball.
+  lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
+  lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
+  AUTOCONF=$instdir/bin/autoconf \
+  lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
+  lazy_build libtool 2.2.10 tar.gz e8fa9813d8e9a5497c636744e6fd3f55d86eec38
+
+  for v in $autotools ; do
+     tool=`echo "$v"|tr A-Z a-z`
+     eval "$v=\"\$instdir\"/bin/$tool;export $v"
+  done
+
+  cd ..
+fi
+
+case `${LIBTOOLIZE-libtoolize} --version` in
+"")
+  echo "${LIBTOOLIZE-libtoolize} not found"
+  exit 1 ;;
+"libtoolize (GNU libtool) 1.4.*")
+  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.4 which is too old - libtool 2.2 is required."
+  echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
+  exit 1 ;;
+"libtoolize (GNU libtool) 1.5.*")
+  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.5 which is too old - libtool 2.2 is required."
+  echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
+  exit 1 ;;
+esac
+
+ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
+
+intree_swig=no
+# We no longer snapshot xapian-applications/queryserver since it hasn't seen a
+# check-in for ages.
+modules=
+for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
+  d=$module
+  if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
+    echo "Bootstrapping \`$module'"
+    [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
+
+    # If we have a custom INSTALL file, preserve it since autoreconf insists on
+    # replacing INSTALL with "generic installation instructions" when --force
+    # is used.  Be careful to replace it if autoreconf fails.
+    if [ -f "$d/INSTALL" ] ; then
+      if grep 'generic installation instructions' "$d/INSTALL" >/dev/null 2>&1 ; then
+	:
+      else
+	mv -f "$d/INSTALL" "$d/INSTALL.preserved-by-bootstrap"
+      fi
+    fi
+
+    autoreconf_rc=
+    if [ swig = "$module" ] ; then
+      # SWIG provides its own bootstrapping script.
+      curdir=`pwd`
+      cd "$d"
+      ./autogen.sh || autoreconf_rc=$?
+      cd "$curdir"
+      # Use the uninstalled wrapper for the in-tree copy of SWIG.
+      intree_swig=yes
+    else
+      # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
+      # (but it doesn't check for -i).
+      #
+      # Use --force so that we update files if autoconf, automake, or libtool
+      # has been upgraded.
+      ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
+    fi
+    if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
+      mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
+    fi
+    if [ -n "$autoreconf_rc" ] ; then
+      exit $autoreconf_rc
+    fi
+    modules="$modules $module"
+  fi
+done
+
+# Search::Xapian doesn't use autotools.
+if [ -f "$srcdir/search-xapian/Makefile.PL" ] ; then
+  cd "$srcdir/search-xapian"
+  perl generate-perl-exceptions
+  cd "$curdir"
+  modules="$modules search-xapian"
+fi
+
+# Generate the top-level configure script.
+rm -f configure.tmp
+cat <<'TOP_OF_CONFIGURE' > configure.tmp
+#!/bin/sh
+# configure each submodule in a xapian source tree
+# Generated by Xapian top-level bootstrap script.
+#
+# Copyright (C) 2003,2004,2007,2008 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+trap 'echo "configure failed"' EXIT
+set -e
+
+# Produced escaped version of command suitable for pasting back into sh
+cmd=$0
+for a ; do
+ case $a in
+  *[^-A-Za-z0-9_+=:@/.,]*)
+   esc_a=`echo "$a"|sed 's!\([^-A-Za-z0-9_+=:@/.,]\)!\\\\\\1!g'`
+   cmd="$cmd $esc_a" ;;
+  *)
+   cmd="$cmd $a" ;;
+ esac
+done
+
+here=`pwd`
+TOP_OF_CONFIGURE
+
+# Produce an absolute path to srcdir.
+srcdir_abs=`pwd`
+# This section is unquoted so we can substitute variables.
+cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
+srcdir="$srcdir_abs"
+modules="$modules"
+MIDDLE_OF_CONFIGURE
+
+vars=
+if [ yes = "$intree_swig" ] ; then
+  # We want the path to SWIG to point into srcdir, which isn't known until
+  # configure-time, so we need to expand $here in configure.  We can't just set
+  # SWIG here and let the case below handle it as that would escape the value
+  # such that $here didn't get expanded at all.
+  echo ': ${SWIG="$here/swig/preinst-swig"}' >> configure.tmp
+  echo "export SWIG" >> configure.tmp
+  vars=' SWIG=$here/swig/preinst-swig'
+  # Kill any existing setting of SWIG so that we don't try to handle it again
+  # below.
+  SWIG=
+fi
+for tool in SWIG $autotools ; do
+  eval "val=\$$tool"
+  if [ -n "$val" ] ; then
+    echo ': ${'"$tool=\"$val\""'}' >> configure.tmp
+    echo "export $tool" >> configure.tmp
+    vars="$vars $tool='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
+  fi
+done
+if [ -n "$vars" ] ; then
+  # $vars will always have a leading space.
+  echo "set$vars "'"$@"' >> configure.tmp
+fi
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+dirs=
+XAPIAN_CONFIG=$here/xapian-core/xapian-config
+for d in $modules ; do
+  if [ "$here" = "$srcdir" ] ; then
+    configure=./configure
+    configure_from_here=$d/configure
+  else
+    configure=$srcdir/$d/configure
+    configure_from_here=$configure
+  fi
+  if [ -f "$configure_from_here" ] ; then
+    if [ -d "$d" ] ; then : ; else
+      case $d in
+      xapian-applications/*) [ -d xapian-applications ] || mkdir xapian-applications ;;
+      esac
+      mkdir "$d"
+    fi
+    echo "Configuring \`$d'"
+    # Use a shared config.cache for speed and to save a bit of diskspace, but
+    # don't share it with SWIG just in case it manages to probe and cache
+    # different answers (e.g. because it uses a C compiler).
+    case $d in
+    swig)
+      cd "$d" && "$configure" ${1+"$@"}
+      ;;
+    xapian-core)
+      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
+      ;;
+    *)
+      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
+      ;;
+    esac
+    cd "$here"
+    dirs="$dirs $d"
+  elif [ search-xapian = "$d" ] ; then
+    if [ "$here" = "$srcdir" ] ; then
+      makefilepl=Makefile.PL
+    else
+      [ -d "$d" ] || mkdir "$d"
+      makefilepl=$srcdir/$d/Makefile.PL
+    fi
+    cd "$d"
+    if [ -f "$makefilepl" ] ; then
+      echo "Configuring \`$d'"
+      # Extract any CXX=... argument from those passed to us.
+      unset cxxarg
+      for arg
+      do
+	case $arg in
+	  CXX=*) cxxarg=$arg ;;
+	esac
+      done
+      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
+      dirs="$dirs $d"
+    fi
+    cd "$here"
+  fi
+done
+
+rm -f Makefile.tmp
+cat <<EOF > Makefile.tmp
+# Makefile generated by:
+# $cmd
+EOF
+targets='all install uninstall install-strip clean distclean mostlyclean maintainer-clean dist check distcheck'
+for target in $targets ; do
+  echo
+  echo "$target:"
+  for d in $dirs ; do
+    case $d,$target in
+    swig,install*|swig,uninstall|swig,dist|swig,check|swig,distcheck|swig,all)
+      # Need to ensure swig is built before "make dist", "make check", etc.
+      echo "	cd $d && \$(MAKE)" ;;
+    swig,mostlyclean|search-xapian,mostlyclean)
+      echo "	cd $d && \$(MAKE) clean" ;;
+    search-xapian,install-strip)
+      echo "	cd $d && \$(MAKE) install" ;;
+    search-xapian,maintainer-clean)
+      echo "	cd $d && \$(MAKE) realclean" ;;
+    search-xapian,dist)
+      echo "	cd $d && \$(MAKE) dist GZIP=-f" ;;
+    search-xapian,distcheck)
+      echo "	cd $d && \$(MAKE) disttest && \$(MAKE) dist GZIP=-f" ;;
+    xapian-bindings,distcheck)
+      # FIXME: distcheck doesn't currently work for xapian-bindings because
+      # xapian-core isn't installed.
+      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" ;;
+    *)
+      echo "	cd $d && \$(MAKE) $target" ;;
+    esac
+  done
+  case $target in
+    distclean) echo "	rm -f Makefile config.cache" ;;
+    maintainer-clean) echo "	rm -f Makefile configure config.cache" ;;
+  esac
+done >> Makefile.tmp
+cat <<EOF >> Makefile.tmp
+
+recheck:
+	$cmd
+
+.PHONY: $targets recheck
+EOF
+mv -f Makefile.tmp Makefile
+trap - EXIT
+echo "Configured successfully - now run \"${MAKE-make}\""
+END_OF_CONFIGURE
+
+chmod +x configure.tmp
+mv -f configure.tmp configure
+
+trap - EXIT
+echo "Bootstrapped successfully - now run \"$srcdir/configure\" and \"${MAKE-make}\""

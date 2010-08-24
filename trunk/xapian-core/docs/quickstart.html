@@ -1,0 +1,606 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Quickstart</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<H1>Quickstart</H1>
+
+<P>
+The document contains a quick introduction to the basic concepts, and then
+a walk-through development of a simple application using the Xapian
+library, together with commentary on how the application could be taken
+further.  It deliberately avoids going into a lot of detail - see the
+<a href="index.html">rest of the documentation</a> for more detail.
+</P>
+
+<HR>
+<H2>Requirements</H2>
+
+<P>
+Before following the steps outlined in this document, you will need to have
+the Xapian library installed on your system.
+For instructions on obtaining and installing Xapian, read the
+<A HREF="install.html">Installation</A> document.
+</P>
+
+<HR>
+<H2>Databases</H2>
+
+<P>
+An information retrieval system using Xapian typically has two parts.  The
+first part is the <EM>indexer</EM>, which takes documents in various
+formats, processes them so that they can be efficiently searched, and
+stores the processed documents in an appropriate data structure (the
+<EM>database</EM>).  The second part is the <EM>searcher</EM>, which takes
+queries and reads the database to return a list of the documents relevant
+to each query.
+</P>
+<P>
+The database is the data structure which ties the indexer and searcher
+together, and is fundamental to the retrieval process.  Given how
+fundamental it is, it is unsurprising that different applications put
+different demands on the database.  For example, some applications may be
+happy to deal with searching a static collection of data, but need to do
+this extremely fast (for example, a web search engine which builds new
+databases from scratch nightly or even weekly).  Other applications may
+require that new data can be added to the system incrementally, but don't
+require extremely high performance searching (perhaps an email system,
+which is only being searched occasionally).  There are many other
+constraints which may be placed on an information retrieval system: for
+example, it may be required to have small database sizes, even at the
+expense of getting poorer results from the system.
+</P>
+<P>
+To provide the required flexibility, Xapian has the ability to use one of
+many available database <EM>backends</EM>, each of which satisfies a
+different set of constraints, and stores its data in a different way.
+
+Currently, these must be compiled into the whole system, and selected at
+runtime, but the ability to dynamically load modules for each of these
+backends is likely to be added in future, and would require little design
+modification.
+</P>
+<!--
+<P>
+If you are in a real hurry, you could probably skip the rest of this
+section, but it is helpful to understand roughly what information Xapian
+stores in a database and how it is structured, and the following
+subsections detail this.
+</P>
+
+<H3>The contents of a database</H3>
+
+<P>
+FIXME: to be written.
+Documents, terms, data, keys.
+What can be accessed fast, what can't.
+How each piece of data might be stored.
+</P>
+
+<H3><A NAME="flint_databases">Flint databases</A></H3>
+
+<P>
+FIXME: to be written.
+</P>
+-->
+
+<HR>
+<H2><A NAME="indexer">An example indexer</A></H2>
+
+<P>
+We now present sample code for an indexer. This is deliberately
+simplified to make it easier to follow. You can also read it in <A
+HREF="quickstartindex.cc.html">an HTML formatted version</A>.
+</P>
+<P>
+The &quot;indexer&quot; presented here is simply a small program which
+takes a path to a database and a set of parameters defining a document on
+the command line, and stores that document as a new entry in the database.
+</P>
+<H3>Include header files</H3>
+<P>
+The first requirement in any program using the Xapian library is to
+include the Xapian header file, &quot;<CODE>xapian.h</CODE>&quot;:
+<PRE>    #include &lt;xapian.h&gt;</PRE>
+</P>
+<P>
+We're going to use C++ iostreams for output, so we need to include
+the <CODE>iostream</CODE> header, and we'll also import everything
+from namespace <CODE>std</CODE> for convenience:
+<PRE>    #include &lt;iostream&gt;
+    using namespace std;</PRE>
+</P>
+<P>
+Our example only has a single function, <CODE>main()</CODE>, so next we
+define that:
+<PRE>    int main(int argc, char **argv)</PRE>
+</P>
+<H3>Options parsing</H3>
+<P>
+For this example we do very simple options parsing.  We are going to
+use the core functionality of Xapian of searching for specific terms in the
+database, and we are not going to use any of the extra facilities, such as
+the keys which may be associated with each document.  We are also going to
+store a simple string as the data associated with each document.
+</P><P>
+Thus, our command line syntax is:
+<UL><LI>
+<B>Parameter 1</B> - the (possibly relative) path to the database.
+</LI><LI>
+<B>Parameter 2</B> - the string to be stored as the document data.
+</LI><LI>
+<B>Parameters 3 onward</B> - the terms to be stored in the database.  The
+terms will be assumed to occur at successive positions in the document.
+</LI></UL>
+</P><P>
+The validity of a command line can therefore be checked very simply by
+ensuring that there are at least 3 parameters:
+<PRE>
+    if (argc &lt; 4) {
+        cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+                " &lt;path to database&gt; &lt;document data&gt; &lt;document terms&gt;" &lt;&lt; endl;
+        exit(1);
+    }
+</PRE>
+</P>
+
+<H3>Catching exceptions</H3>
+<P>
+When an error occurs in Xapian it is reported by means of the C++ exception
+mechanism.  All errors in Xapian are derived classes of
+<CODE>Xapian::Error</CODE>, so simple error handling can be performed by
+enclosing all the code in a try-catch block to catch any
+<CODE>Xapian::Error</CODE> exceptions.  A (hopefully) helpful message can be
+extracted from the <CODE>Xapian::Error</CODE> object by calling its
+<CODE>get_msg()</CODE> method, which returns a human readable string.
+</P>
+<P>
+Note that all calls to the Xapian library should be performed inside a
+try-catch block, since otherwise errors will result in uncaught exceptions;
+this usually results in the execution aborting.
+</P>
+<P>
+Note also that Xapian::Error is a virtual base class, and thus can't be copied:
+you must therefore catch exceptions by reference, as in the following example
+code:
+</P>
+<PRE>
+    try {
+        <B>[code which accesses Xapian]</B>
+    } catch (const Xapian::Error &amp; error) {
+        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+</PRE>
+
+<H3>Opening the database</H3>
+
+<P>
+In Xapian, a database is opened for writing by creating a
+Xapian::WritableDatabase object.
+</P>
+<P>
+If you pass Xapian::DB_CREATE_OR_OPEN and there isn't an existing database
+in the specified directory, Xapian will try to create a new empty database
+there.  If there is already database in the specified directory, it will be
+opened.
+</P>
+<P>
+If an error occurs when trying to open a database, or to create a new database,
+an exception, usually of type <CODE>Xapian::DatabaseOpeningError</CODE> or
+<CODE>Xapian::DatabaseCreateError</CODE>, will be thrown.
+</P>
+<P>
+The code to open a database for writing is, then:
+</P>
+
+<PRE>
+    Xapian::WritableDatabase database(argv[1], Xapian::DB_CREATE_OR_OPEN);
+</PRE>
+
+<H3>Preparing the new document</H3>
+
+<P>
+Now that we have the database open, we need to prepare a document to
+put in it.  This is done by creating a Xapian::Document object, filling
+this with data, and then giving it to the database.
+</P>
+
+<P>
+The first step, then, is to create the document:
+</P>
+<PRE>
+    Xapian::Document newdocument;
+</PRE>
+
+<P>
+Each <code>Xapian::Document</code> has a "cargo" known as the <i>document data</i>.
+This data is opaque to Xapian - the meaning of it is entirely user-defined.
+Typically it contains information to allow results to be displayed by the
+application, for example a URL for the indexed document and
+some text which is to be displayed when returning the document as search
+result.
+</P>
+<P>
+For our example, we shall simply store the second parameter given on the
+command line in the data field:
+</P>
+<PRE>
+    newdocument.set_data(string(argv[2]));
+</PRE>
+
+<P>
+The next step is to put the terms which are to be used when searching
+for the document into the Xapian::Document object.
+</P>
+<P>
+We shall use the <CODE>add_posting()</CODE> method, which adds an
+occurrence of a term to the struct.  The first parameter is the
+&quot;<EM>termname</EM>&quot;, which is a string defining the term.  This
+string can be anything, as long as the same string is always used to refer
+to the same term.  The string will often be the (possibly stemmed) text
+of the term, but might be in a compressed, or even hashed, form.
+In general, there is no upper limit to the length of a termname, but some
+database methods may impose their own limits.
+</P>
+<P>
+The second parameter is the position at which the term occurs within the
+document.  These positions start at 1.  This information is used for
+some search features such as phrase matching or passage retrieval, but
+is not essential to the search.
+</P>
+
+<P>
+We add postings for terms with the termname given as each of the remaining
+command line parameters:
+</P>
+<PRE>
+    for (int i = 3; i &lt; argc; ++i) {
+        newdocument.add_posting(argv[i], i - 2);
+    }
+</PRE>
+
+<H3>Adding the document to the database</H3>
+
+<P>
+Finally, we can add the document to the database.  This simply involves
+calling <CODE>Xapian::WritableDatabase::add_document()</CODE>, and passing it
+the <CODE>Xapian::Document</CODE> object:
+</P>
+<PRE>
+    database.add_document(newdocument);
+</PRE>
+
+<P>
+The operation of adding a document is atomic: either the document will be
+added, or an exception will be thrown and the document will not be in the
+new database.
+</P>
+<P>
+<CODE>add_document()</CODE> returns a value of type <CODE>Xapian::docid</CODE>.
+This is the document ID of the newly added document, which is simply a
+handle which can be used to access the document in future.
+</P>
+<P>
+Note that this use of <CODE>add_document()</CODE> is actually fairly
+inefficient: if we had a large database, it would be desirable to group
+as many document additions together as possible, by encapsulating
+them within a session.  For details of this, and of the transaction
+facility for performing sets of database modifications atomically, see
+the <A HREF="overview.html">API Overview</A>.
+</P>
+
+<HR>
+<H2><A NAME="searcher">An example searcher</A></H2>
+
+<P>
+Now we show the code for a simple searcher, which will search the
+database built by the indexer above. Again, you can read <A
+HREF="quickstartsearch.cc.html">an HTML formatted version</A>.
+</P>
+<P>
+The &quot;searcher&quot; presented here is, like the &quot;indexer&quot;,
+simply a small command line driven program.  It takes a path to a database
+and some search terms, performs a probabilistic search for documents
+represented by those terms and displays a ranked list of matching documents.
+</P>
+
+<H3>Setting up</H3>
+
+<P>
+Just like &quot;quickstartindex&quot;, we have a single-function example.
+So we include the Xapian header file, and begin:
+</P>
+<PRE>
+    #include &lt;xapian.h&gt;
+
+    int main(int argc, char **argv)
+    {
+</PRE>
+
+<H3>Options parsing</H3>
+<P>
+Again, we are going to use no special options, and have a very simple
+command line syntax:
+<UL><LI>
+<B>Parameter 1</B> - the (possibly relative) path to the database.
+</LI><LI>
+<B>Parameters 2 onward</B> - the terms to be searched for in the database.
+</LI></UL>
+</P><P>
+The validity of a command line can therefore be checked very simply by
+ensuring that there are at least 2 parameters:
+</P>
+<PRE>
+    if (argc &lt; 3) {
+        cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+                " &lt;path to database&gt; &lt;search terms&gt;" &lt;&lt; endl;
+        exit(1);
+    }
+</PRE>
+</P>
+
+<H3>Catching exceptions</H3>
+<P>
+Again, this is performed just as it was for the simple indexer.
+</P>
+<PRE>
+    try {
+        <B>[code which accesses Xapian]</B>
+    } catch (const Xapian::Error &amp; error) {
+        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+</PRE>
+
+<H3>Specifying the databases</H3>
+<P>
+Xapian has the ability to search over many databases simultaneously,
+possibly even with the databases distributed across a network of machines.
+Each database can be in its own format, so, for example, we might have a
+system searching across two remote databases and a flint database.
+</P>
+<P>
+To open a single database, we create a Xapian::Database object, passing
+the path to the database we want to open:
+</P>
+<PRE>
+    Xapian::Database db(argv[1]);
+</PRE>
+<P>
+You can also search multiple database by adding them together using
+<CODE>Xapian::Database::add_database</CODE>:
+</P>
+<PRE>
+    Xapian::Database databases;
+    databases.add_database(Xapian::Database(argv[1]));
+    databases.add_database(Xapian::Database(argv[2]));
+</PRE>
+
+<H3>Starting an enquire session</H3>
+<P>
+All searches across databases by Xapian are performed within the context of
+an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by a
+<CODE>Xapian::Enquire</CODE> object, and is across a specified collection of
+databases.  To change the database collection, it is necessary to open a
+new enquire session, by creating a new <CODE>Xapian::Enquire</CODE> object.
+<PRE>
+    Xapian::Enquire enquire(databases);
+</PRE>
+</P>
+<P>
+An enquire session is also the context within which all other database
+reading operations, such as query expansion and reading the data associated
+with a document, are performed.
+</P>
+
+<H3>Preparing to search</H3>
+
+<P>
+We are going to use all command line parameters from the second onward
+as terms to search for in the database.  For convenience, we shall store
+them in an STL vector.  This is probably the point at which we would want
+to apply a stemming algorithm, or any other desired normalisation and
+conversion operation, to the terms.
+<PRE>
+    vector&lt;string&gt; queryterms;
+    for (int optpos = 2; optpos &lt; argc; optpos++) {
+        queryterms.push_back(argv[optpos]);
+    }
+</PRE>
+</P>
+
+<P>
+Queries are represented within Xapian by <CODE>Xapian::Query</CODE> objects, so
+the next step is to construct one from our query terms.
+Conveniently there is a constructor which will take our vector
+of terms and create an <CODE>Xapian::Query</CODE> object from it.
+<PRE>
+    Xapian::Query query(Xapian::Query::OP_OR, queryterms.begin(), queryterms.end());
+</PRE>
+</P>
+
+<P>
+You will notice that we had to specify an operation to be performed on
+the terms (the <CODE>Xapian::Query::OP_OR</CODE> parameter).
+Queries in Xapian are actually
+fairly complex things: a full range of boolean operations can be applied to
+queries to restrict the result set, and probabilistic weightings are then
+applied to order the results by relevance.  By specifying the OR operation,
+we are not performing any boolean restriction, and are performing a
+traditional pure probabilistic search.
+</P>
+
+<P>
+We now print a message out to confirm to the user what the query being
+performed is.  This is done with the <CODE>Xapian::Query::get_description()</CODE>
+method, which is mainly included for debugging purposes, and displays
+a string representation of the query.
+</P>
+<PRE>
+    cout &lt;&lt; "Performing query `" &lt;&lt;
+         query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+</PRE>
+
+<H3>Performing the search</H3>
+<P>
+Now, we are ready to perform the search.  The first step of this is to
+give the query object to the enquire session.  Note that the query is
+copied at this operation, and that changing the Xapian::Query object after
+setting the query with it has no effect.
+</P>
+<PRE>
+    enquire.set_query(query);
+</PRE>
+
+<P>
+Next, we ask for the results of the search.  There is no need to tell
+Xapian to perform the search: it will do this automatically.  We use
+the <CODE>get_mset()</CODE> method to get the results, which are returned
+in an <CODE>Xapian::MSet</CODE> object.  (MSet for Match Set)
+</P>
+<P>
+<CODE>get_mset()</CODE> can take many parameters, such as a set of
+relevant documents to use, and various options to modify the search,
+but we give it the minimum; which is the first document to return (starting
+at 0 for the top ranked document), and the maximum number of documents
+to return (we specify 10 here):
+<PRE>
+    Xapian::MSet matches = enquire.get_mset(0, 10);
+</PRE>
+</P>
+
+<H3>Displaying the results of the search</H3>
+<P>
+Finally, we display the results of the search.  The results are stored in
+in the <CODE>Xapian::MSet</CODE> object, which provides the features required
+to be an STL-compatible container, so first we display how many items are in
+the MSet:
+<PRE>
+    cout &lt;&lt; matches.size() &lt;&lt; " results found" &lt;&lt; endl;
+</PRE>
+</P>
+
+<P>
+Now we display some information about each of the items in the
+<CODE>Xapian::MSet</CODE>.  We access these items using an
+<CODE>Xapian::MSetIterator</CODE>:
+<UL><LI>
+First, we display the document ID, accessed by <CODE>*i</CODE>.
+This is not usually very useful information to give to users, but it is
+at least a unique handle on each document.
+</LI><LI>
+Next, we display a &quot;percentage&quot; score for the document.  Readers
+familiar with Information Retrieval will not be surprised to hear that this
+is not really a percentage: it is just a value from 0 to 100, such that a
+more relevant document has a higher value.  We get this using
+<CODE>i.get_percent()</CODE>.
+</LI><LI>
+Last, we display the data associated with each returned document, which
+was specified by the user at database generation time.  To do this, we
+first use <CODE>i.get_document()</CODE> to get an <CODE>Xapian::Document</CODE>
+object representing the returned document; then we use the
+<CODE>get_data()</CODE> method of this object to get
+access to the data stored in this document.
+</LI></UL>
+<PRE>
+    Xapian::MSetIterator i;
+    for (i = matches.begin(); i != matches.end(); ++i) {
+        cout &lt;&lt; "Document ID " &lt;&lt; *i &lt;&lt; "\t";
+	cout &lt;&lt; i.get_percent() &lt;&lt; "% ";
+        Xapian::Document doc = i.get_document();
+	cout &lt;&lt; "[" &lt;&lt; doc.get_data() &lt;&lt; "]" &lt;&lt; endl;
+    }
+</PRE>
+</P>
+
+<HR>
+<H2>Compiling</H2>
+
+Now that we have the code written, all we need to do is compile it!
+
+<H3>Finding the Xapian library</H3>
+
+<P>
+A small utility, &quot;xapian-config&quot;, is installed along with Xapian
+to assist you in finding the installed Xapian library, and in generating
+the flags to pass to the compiler and linker to compile.
+</P><P>
+After a successful compilation, this utility should be in your path, so
+you can simply run
+<BLOCKQUOTE><CODE>xapian-config --cxxflags</CODE></BLOCKQUOTE>
+to determine the flags to pass to the compiler, and
+<BLOCKQUOTE><CODE>xapian-config --libs</CODE></BLOCKQUOTE>
+to determine the flags to pass to the linker.
+
+These flags are returned on the utility's standard output (so you could use
+backtick notation to include them on your command line).
+</P><P>
+If your project uses the GNU autoconf tool, you may also use the
+<CODE>XO_LIB_XAPIAN</CODE> macro, which is included as part of Xapian,
+and will check for an installation of Xapian and set (and
+<CODE>AC_SUBST</CODE>) the <CODE>XAPIAN_CXXFLAGS</CODE> and
+<CODE>XAPIAN_LIBS</CODE> variables to
+be the flags to pass to the compiler and linker, respectively.
+</P><P>
+If you don't use GNU autoconf, don't worry about this.
+</P>
+
+<H3>Compiling the quickstart examples</H3>
+Once you know the compilation flags, compilation is a simple matter of
+invoking the compiler!  For our example, we could compile the two
+utilities (quickstartindex and quickstartsearch) with the commands:
+<PRE>
+c++ quickstartindex.cc `xapian-config --libs --cxxflags` -o quickstartindex
+c++ quickstartsearch.cc `xapian-config --libs --cxxflags` -o quickstartsearch
+</PRE>
+
+<HR>
+<H2>Running the examples</H2>
+
+<P>
+Once we have compiled the above examples, we can build up a simple
+database as follows.  Note that we must first create a directory for
+the database files to live in; although Xapian will create new empty
+database files if they do not yet exist, it will not create a new
+directory for them.
+<PRE>
+$ mkdir proverbs
+$ ./quickstartindex proverbs \
+&gt; "people who live in glass houses should not throw stones" \
+&gt; people live glass house stone
+$ ./quickstartindex proverbs \
+&gt; "Don't look a gift horse in the mouth" \
+&gt; look gift horse mouth
+</PRE>
+</P>
+
+<P>
+Now, we should have a database with a couple of documents in it.  Looking
+in the database directory, you should see something like:
+<PRE>
+$ ls proverbs/
+<i>[some files]</i>
+</PRE>
+</P>
+<P>
+Given the small amount of data in the database, you may be concerned that
+the total size of these files is somewhat over 50k.  Be reassured that the
+database is block structured, here consisting of largely empty
+blocks, and will behave much better for large databases.
+</P>
+
+<P>
+We can now perform searches over the database using the quickstartsearch
+program.
+<PRE>
+$ ./quickstartsearch proverbs look
+Performing query `look'
+1 results found
+Document ID 2   50% [Don't look a gift horse in the mouth]
+</PRE>
+</P>
+
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

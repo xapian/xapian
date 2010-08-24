@@ -1,0 +1,101 @@
+Instructions for hacking on Xapian's bindings
+=============================================
+
+This file is aimed to help developers get started with working on
+Xapian's bindings.  You should also read the HACKING file in the
+xapian-core sources which gives information which isn't specific
+to the bindings.
+
+Extra options to give to configure:
+===================================
+
+Note: Non-developer configure options are described in INSTALL
+
+--enable-maintainer-mode
+	This tells configure to enable make dependencies for regenerating build
+	system files (such as configure, Makefile.in, and Makefile), and also
+	enables rules to rebuild the bindings glue code by rerunning SWIG.
+	You'll need to specify this if you're going to modify configure.ac, any
+	Makefile.am, or any .i file.
+
+Adding support for other programming languages
+==============================================
+
+Many languages can be done using SWIG, and it's probably easier to do so
+even though some languages may have better tools available just because it's
+less overall work.  SWIG makes it particularly easy to wrap a new method for
+all the supported languages at once, often by just copying the new method
+prototype into xapian.i (and for some headers we parse the Xapian header
+directly so no work is needed!)
+
+XS bindings for Perl have been contributed for Perl.  SWIG's Perl backend
+doesn't support directors, so we'd lose the ability to support callbacks
+(e.g. for Xapian::MatchDecider) if we switched these to use SWIG.
+
+We also currently have hand written JNI bindings for Java.  The plan is to
+move these over to using SWIG to reduce the maintenance cost (the SWIG
+generated bindings are also somewhat smaller, and allow us to support
+GCJ's CNI alternative to JNI).  Some work has been done and can be found
+in the java-swig subdirectory.
+
+What's really needed is someone interested in bindings for a particular
+language who knows that language well and will be using them actively.
+We can help with the Xapian and SWIG side, but without somebody who knows
+the language well it's hard to produce a solid, well tested set of bindings
+rather than just a token implementation...
+
+To be worth shipping in the xapian-bindings tarball, bindings for an additional
+language really need a version of the smoketest (so we can be confident that
+they actually work!), and also documentation and examples along the lines of
+the existing bindings (without these the bindings aren't likely to be useful to
+anyone else).
+
+To give an idea of how much work a set of bindings might be, the author of the
+Ruby bindings estimated they took about 25 hours, starting from not knowing
+SWIG.  However, the time taken could vary substantially depending on the
+language, how well you know it, and how well SWIG supports it.
+
+These are languages which SWIG supports and which people have done some work
+on producing Xapian bindings for:
+
+Pike		Bill Welliver has written some Pike bindings for Xapian
+		covering some of the API, which are available from here:
+		http://modules.gotpike.org/module_info.html?module_id=42
+		These bindings appear to be hand-coded rather than generated
+		using SWIG.
+
+Guile		rm@fabula.de did some work on getting Guile bindings working,
+		but sadly most of this was lost when his laptop's hard disk
+		died.
+
+These are the other languages which SWIG supports, but which nobody has yet
+(to our knowledge!) worked on producing Xapian bindings for (from
+http://www.swig.org/compare.html and SWIG release notes):
+
+Mzscheme	Supported by SWIG 1.3.6 onwards
+Ocaml		Supported by SWIG 1.3.14 onwards
+Pike		Supported by SWIG 1.3.14 onwards
+Chicken		Supported by SWIG 1.3.18 onwards
+Allegro CL	SWIG 1.3.28 added support for wrapping C++ with Allegro CL
+Modula-3	Supported by SWIG 1.3.22 onwards
+Lua		Supported by SWIG 1.3.26 onwards
+CLISP		Supported by SWIG 1.3.26 onwards
+Common Lisp with UFFI
+		Supported by SWIG 1.3.26 onwards
+
+These languages have support via patches against reasonably recent versions
+of SWIG:
+
+occam-pi	For a patch against SWIG 1.3.29 see:
+		http://article.gmane.org/gmane.comp.programming.swig.devel/16036
+Squirrel	For a patch against SWIG 1.3.28 see:
+		http://article.gmane.org/gmane.comp.programming.swig.devel/16000
+		("No attempts were made to support C++ classes because I do
+		not have such need right now.")
+Q		See http://thread.gmane.org/gmane.comp.programming.swig/5248
+		Patched version of SWIG 1.3.22 available from
+		http://q-lang.sourceforge.net/
+
+It may be possible to support a language which isn't listed above, but it's
+likely to be harder unless you're already familiar with the tools available
+for wrapping a C++ library for use with that language.
