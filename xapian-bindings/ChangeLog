@@ -1,3 +1,8 @@
+Tue Aug 24 05:09:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Don't run autoreconf - it's no longer
+	  required.
+
 Sun Jun 27 05:24:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.2.
