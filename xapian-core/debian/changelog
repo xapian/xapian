@@ -1,9 +1,11 @@
-xapian-core (1.2.2-5) UNRELEASED; urgency=low
+xapian-core (1.2.3-1) unstable; urgency=low
 
+  * New upstream release.
+  * Upload to unstable.
   * debian/control.in:
     + Standards-Version: 3.9.1 (no changes required).
 
- -- Olly Betts <olly@survex.com>  Mon, 23 Aug 2010 14:17:15 +0000
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 07:50:57 +0000
 
 xapian-core (1.2.2-4) experimental; urgency=low
 
