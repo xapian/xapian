@@ -1,3 +1,10 @@
+xapian-omega (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 08:38:35 +0000
+
 xapian-omega (1.2.2-1) experimental; urgency=low
 
   * New upstream release.
