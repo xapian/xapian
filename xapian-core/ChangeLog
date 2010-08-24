@@ -1,3 +1,7 @@
+Tue Aug 24 05:52:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Mon Aug 16 16:46:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/closefrom.cc: Use /dev/fd on Mac OS X.

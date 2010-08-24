@@ -1,3 +1,63 @@
+Xapian-core 1.2.3 (2010-08-24):
+
+API:
+
+* Database::get_spelling_suggestion() will now suggest a correction even if the
+  passed word is in the dictionary, provided the correction has at least the
+  same frequency.  Partly addresses #225.
+
+* QueryParser:
+
+  + Fix handling of groups of terms which are all stopwords - in situations
+    where this causes a problem we now disable stopword checks for such groups.
+    (ticket#245)
+
+  + Fix to be smarter about handling a boolean filter term containing ".." in
+    the presence of valuerangeprocessors.
+
+testsuite:
+
+* New "unittest" program for testing low level functions directly.  Currently
+  this has tests for the internal resolve_relative_path() function.
+  (ticket#243)
+
+remote backend:
+
+* Retry select() if it fails with EINTR while waiting for connect(), and
+  discriminate cases with same failure message to aid debugging.
+
+documentation:
+
+* Fix documentation comment for Xapian::timeout type - it holds a time interval
+  in milliseconds not microseconds (the API docs for the methods which use it
+  explicitly correctly document that the timeouts are in milliseconds).
+
+* libuuid moved from e2fsprogs to util-linux-ng about a year ago, so update
+  documentation, comments, and configure error messages to reflect this.
+
+portability:
+
+* Fix handling of some obscure cases of resolving relative paths on Microsoft
+  Windows.  (ticket#243).
+
+* Optimise closing of all unwanted file descriptors after forking by using
+  closefrom() if available, and otherwise providing our own implementation
+  (optimised to some extent for many platforms).
+
+* Fix test harness to build under Microsoft Windows (ticket#495).
+
+packaging:
+
+* xapian-core.spec: Add xapian-metadata and cmake related files to RPM
+  packaging.
+
+* xapian-core.spec: Update BuildRequires to specify libuuid-devel instead of
+  e2fsprogs-devel.
+
+debug code:
+
+* Improve logging of function parameter placeholder strings.
+
 Xapian-core 1.2.2 (2010-06-27):
 
 brass backend:
