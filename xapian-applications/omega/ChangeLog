@@ -1,3 +1,7 @@
+Tue Aug 24 05:58:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.3.
+
 Mon Aug 23 15:08:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian-omega.spec.in: Don't run autoreconf - it's no longer required.

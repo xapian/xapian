@@ -1,3 +1,15 @@
+Omega 1.2.3 (2010-08-24):
+
+documentation:
+
+* docs/termprefixes.html: Update "flint and quartz" to "flint and chert" as
+  quartz is no longer supported.  Give exact term length limit for flint and
+  chert.
+
+packaging:
+
+* xapian-omega.spec: Don't run autoreconf - it's no longer required.
+
 Omega 1.2.2 (2010-06-27):
 
 portability:
