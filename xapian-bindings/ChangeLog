@@ -1,3 +1,9 @@
+Wed Aug 25 15:15:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use sys.version_info tuple, rather than string splicing
+	  which assumes the Python "major.minor" is 3 characters (which would
+	  fail if Python 2.10 were ever released, for example).
+
 Tue Aug 24 06:02:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.3.

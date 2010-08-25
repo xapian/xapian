@@ -219,7 +219,7 @@ if test no != "$with_python" ; then
     dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
     dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
     AC_MSG_CHECKING([$PYTHON version])
-    version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
+    version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
       ;;
