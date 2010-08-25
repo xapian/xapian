@@ -24,10 +24,7 @@
 # Codename we're building packages for.  For backported packages, put the
 # codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
 # exist, the default is sid.
-#CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
-
-# Default to experimental for tcl 8.5 testing until Xapian 1.2.x hits unstable.
-CODENAME := $(shell cat debian/codename 2>/dev/null||echo experimental)
+CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
