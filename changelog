@@ -1,3 +1,9 @@
+xapian-bindings (1.2.3-2) unstable; urgency=low
+
+  * debian/rules: dh_clean -k -> dh_prep.
+
+ -- Olly Betts <olly@survex.com>  Wed, 25 Aug 2010 16:19:58 +0000
+
 xapian-bindings (1.2.3-1) unstable; urgency=low
 
   * New upstream release.
