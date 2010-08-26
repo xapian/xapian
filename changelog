@@ -1,3 +1,10 @@
+xapian-core (1.2.3-2) unstable; urgency=low
+
+  * Only include debug symbols for the shared library in the debug package
+    (Closes: #594455).
+
+ -- Olly Betts <olly@survex.com>  Thu, 26 Aug 2010 07:10:51 +0000
+
 xapian-core (1.2.3-1) unstable; urgency=low
 
   * New upstream release.
