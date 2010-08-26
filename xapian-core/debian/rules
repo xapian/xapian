@@ -216,9 +216,12 @@ binary-arch: build install
 	dh_installmenu
 	dh_installman
 	dh_installchangelogs ChangeLog
+	:
+	dh_strip --dbg-package=libxapian$(libxapian_soversion)-dbg
 	# Only keep debug symbols for the shared library.
-	dh_strip -p libxapian$(libxapian_soversion) --dbg-package=libxapian$(libxapian_soversion)-dbg
-	dh_strip -N libxapian$(libxapian_soversion)
+	rm -rf debian/libxapian$(libxapian_soversion)-dbg/usr/lib/debug/usr/lib/xapian-examples
+	rm -rf debian/libxapian$(libxapian_soversion)-dbg/usr/lib/debug/usr/bin
+	:
 	dh_link
 	dh_compress
 	dh_fixperms
