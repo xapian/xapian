@@ -1,3 +1,10 @@
+xapian-bindings (1.2.3-3) unstable; urgency=low
+
+  * debian/libxapian-ruby1.9.1.doc-base: Correct paths to rdocs to say "1.9.1"
+    not "1.9".
+
+ -- Olly Betts <olly@survex.com>  Fri, 27 Aug 2010 00:35:42 +0000
+
 xapian-bindings (1.2.3-2) unstable; urgency=low
 
   * debian/rules: Stop trying to build against tcl 8.5.
