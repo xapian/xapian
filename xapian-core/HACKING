@@ -1416,9 +1416,6 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the NEWS files using information from the ChangeLog files
 
-* Update the PLATFORMS file.  Don't forget to use reports from automated
-  builds: http://trac.xapian.org/wiki/AutomatedBuilds
-
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
