@@ -1,3 +1,10 @@
+Sat Aug 28 10:59:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc,common/const_database_wrapper.cc,net/tcpclient.cc,
+	  tests/api_replicate.cc,tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/testsuite.cc,tests/perftest/runprocess.cc,
+	  unicode/utf8itor.cc: Fix to compile with Sun C++.
+
 Sat Aug 28 10:30:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING,PLATFORMS: Move PLATFORMS information to the wiki and replace

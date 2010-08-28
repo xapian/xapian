@@ -43,6 +43,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <stdlib.h> // For setenv()
+
 using namespace std;
 
 static void rmtmpdir(const string & path) {
