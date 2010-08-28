@@ -28,7 +28,7 @@
 
 #include <vector>
 
-#include <cstdio>
+#include <stdio.h>
 #include <cstdlib>
 #include <ctime>
 

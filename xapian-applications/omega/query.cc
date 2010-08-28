@@ -34,7 +34,7 @@
 #include <cassert>
 #include <cctype>
 #include "safeerrno.h"
-#include <cstdio>
+#include <stdio.h>
 #include <cstdlib>
 #include <cstring>
 #include "strcasecmp.h"
