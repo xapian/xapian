@@ -557,15 +557,17 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
-#ifdef __SUNPRO_CC
+#if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
+    // Extra brackets needed to avoid this being misparsed as a function
+    // prototype.
+    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
+#else
+    // Older versions of Sun's C++ compiler need this workaround, but 5.8
+    // doesn't.  Unsure of the exact version it was fixed in.
     vector<unsigned> utf32_word;
     for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
 	utf32_word.push_back(*sunpro_it);
     }
-#else
-    // Extra brackets needed to avoid this being misparsed as a function
-    // prototype.
-    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
 #endif
 
     vector<unsigned> utf32_term;

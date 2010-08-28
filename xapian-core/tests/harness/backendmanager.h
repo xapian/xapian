@@ -44,8 +44,9 @@
 #define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
 #define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
 
-#ifdef __SUNPRO_CC
-class Xapian::WritableDatabase; // Sun's CC appears to need this to compile this file
+#if defined __SUNPRO_CC && __SUNPRO_CC - 0 < 0x580
+// Older versions of Sun's CC appears to need this to compile this file.
+class Xapian::WritableDatabase;
 #endif
 
 class BackendManager {
