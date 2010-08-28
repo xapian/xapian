@@ -414,6 +414,8 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
+dnl Used by tests/api_replicate.cc (Solaris < 10 only has putenv()):
+AC_CHECK_FUNCS([setenv])
 
 dnl Check for a more efficient way of closing fds during daemonisation.
 dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
