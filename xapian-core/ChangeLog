@@ -1,3 +1,11 @@
+Sat Aug 28 12:35:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Beef up the test for whether -lm is required and add
+	  a special case to force it to be for Sun's C++ compiler - there's
+	  some interaction with libtool and/or shared objects which means
+	  that the configure test doesn't think -lm is needed here when it
+	  is.
+
 Sat Aug 28 10:59:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc,common/const_database_wrapper.cc,net/tcpclient.cc,

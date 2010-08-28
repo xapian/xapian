@@ -365,17 +365,29 @@ AC_ARG_ENABLE([sse],
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
-dnl Don't use a constant argument to log as the compiler might simply evaluate
-dnl the whole expression at compile time.
-AC_TRY_LINK([#include <cmath>
-#include <cstdlib>
-using namespace std;], [double a = log((double)rand());], [AC_MSG_RESULT(no)], [
+dnl Don't use constant arguments as the compiler might simply evaluate the
+dnl whole expression at compile time, and it might inline certain functions
+dnl so test several functions.  Also write results using printf() so that
+dnl the compiler can't optimise away the computations.
+AC_TRY_LINK([#ifdef __SUNPRO_CC
+#error Need -lm for Sun C++ 5.9 under libtool 2.2.10
+#endif
+#include <cmath>
+#include <cstdio>
+#include <ctime>
+using namespace std;], [
+  double a = log(ceil(time(NULL)/7.0));
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));
+  ], [AC_MSG_RESULT(no)], [
     LIBS="-lm $LIBS"
     AC_TRY_LINK([#include <cmath>
-#include <cstdlib>
-using namespace std;], [double a = log((double)rand());],
+#include <cstdio>
+#include <ctime>
+using namespace std;], [
+  double a = log(ceil(time(NULL)/7.0));
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));],
 	[AC_MSG_RESULT(yes)],
-	[AC_MSG_ERROR([Failed to link a C++ program using log()])
+	[AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
     ])
 ])
 
