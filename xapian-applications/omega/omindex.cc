@@ -569,6 +569,77 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
+    } else if (mimetype == "text/csv") {
+	try {
+	    // Currently we assume that text files are UTF-8 unless they have a
+	    // byte-order mark.
+	    dump = file_to_string(file);
+	    md5_string(dump, md5);
+
+	    // Look for Byte-Order Mark (BOM).
+	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		// UTF-16 in big-endian/little-endian order - we just convert
+		// it as "UTF-16" and let the conversion handle the BOM as that
+		// way we avoid the copying overhead of erasing 2 bytes from
+		// the start of dump.
+		convert_to_utf8(dump, "UTF-16");
+	    } else if (startswith(dump, "\xef\xbb\xbf")) {
+		// UTF-8 with stupid Windows not-the-byte-order mark.
+		dump.erase(0, 3);
+	    } else {
+		// FIXME: What charset is the file?  Look at contents?
+	    }
+
+	    // Add 3 to allow for a 4 byte utf-8 sequence being appended when
+	    // output is SAMPLE_SIZE - 1 bytes long.
+	    sample.reserve(SAMPLE_SIZE + 3);
+	    size_t last_word_end = 0;
+	    bool in_space = true;
+	    Xapian::Utf8Iterator i(dump);
+	    for ( ; i != Xapian::Utf8Iterator(); ++i) {
+		if (sample.size() >= SAMPLE_SIZE) {
+		    // Need to truncate sample.
+		    if (last_word_end <= SAMPLE_SIZE / 2) {
+			// Monster word!  We'll have to just split it.
+			sample.replace(SAMPLE_SIZE - 3, string::npos, "...", 3);
+		    } else {
+			sample.replace(last_word_end, string::npos, " ...", 4);
+		    }
+		    break;
+		}
+
+		unsigned ch = *i;
+
+		// Treat '\' as escaping the following character and unescaped
+		// '"' and ',' as whitespace.
+		if (ch == '\\') {
+		    if (++i == Xapian::Utf8Iterator())
+			break;
+		    ch = *i;
+		} else if (ch == '"' || ch == ',') {
+		    ch = ' ';
+		}
+
+		if (ch <= ' ' || ch == 0xa0) {
+		    // FIXME: if all the whitespace characters between two
+		    // words are 0xa0 (non-breaking space) then perhaps we
+		    // should output 0xa0.
+		    if (!in_space) {
+			in_space = true;
+			last_word_end = sample.size();
+			sample += ' ';
+		    }
+		    continue;
+		}
+
+		Xapian::Unicode::append_utf8(sample, ch);
+		in_space = false;
+	    }
+
+	} catch (ReadError) {
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
+	    return;
+	}
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping" << endl;
@@ -821,6 +892,9 @@ main(int argc, char **argv)
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
+
+    // Comma-Separated Variable:
+    mime_map["csv"] = "text/csv";
 
     // PDF:
     mime_map["pdf"] = "application/pdf";
