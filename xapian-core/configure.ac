@@ -395,13 +395,16 @@ dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
 dnl Don't use a constant argument to log as the compiler might simply evaluate
 dnl the whole expression at compile time.
-AC_TRY_LINK([#include <math.h>
+AC_TRY_LINK([#ifdef __SUNPRO_CC
+#error Need -lm for Sun C++ 5.9
+#endif
+#include <math.h>
 #include <stdlib.h>], [double a = log((double)rand());], [AC_MSG_RESULT(no)], [
     LIBS="-lm $LIBS"
     AC_TRY_LINK([#include <math.h>
 #include <stdlib.h>], [double a = log((double)rand());],
 	[AC_MSG_RESULT(yes)],
-	[AC_MSG_ERROR([Failed to link a C++ program using log()])
+	[AC_MSG_ERROR([Failed to link a C++ program using <math.h>])
     ])
 ])
 

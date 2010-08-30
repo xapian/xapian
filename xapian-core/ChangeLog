@@ -1,3 +1,12 @@
+Mon Aug 30 05:21:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Beef up the test for whether -lm is required and add
+	  a special case to force it to be for Sun's C++ compiler - there's
+	  some interaction with libtool and/or shared objects which means
+	  that the configure test doesn't think -lm is needed here when it
+	  is.
+
 Mon Aug 30 04:38:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2.3's NEWS.
