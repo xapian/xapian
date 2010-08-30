@@ -244,7 +244,7 @@ struct CmpMaxOrTerms {
 	if (a->get_termfreq_max() == 0) return false;
 	if (b->get_termfreq_max() == 0) return true;
 
-#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__)
+#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__) || defined(__mc68010__) || defined(__mc68020__) || defined(__mc68030__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
 	// If the two get_maxweight() calls below return identical values in a
@@ -255,6 +255,10 @@ struct CmpMaxOrTerms {
 	// violates the antisymmetry property of the strict weak ordering
 	// required by nth_element().  This can have serious consequences (e.g.
 	// segfaults).
+	//
+	// Note that m68k only has excess precision in earlier models - 68040
+	// and later are OK:
+	// http://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
 	//
 	// To avoid this, we store each result in a volatile double prior to
 	// comparing them.  This means that the result of this test should
