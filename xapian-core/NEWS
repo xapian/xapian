@@ -47,6 +47,7 @@ inmemory backend:
 
 build system:
 
+* This release uses autoconf 2.67 rather than 2.65.
 
 documentation:
 

@@ -1,3 +1,9 @@
+Mon Aug 30 06:27:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Actaully make autoconf 2.64 a hard minimum requirement
+	  (as HACKING already documented).
+	* HACKING,NEWS,configure.ac: autoconf 2.67 is now used to bootstrap.
+
 Mon Aug 30 06:26:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

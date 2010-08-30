@@ -4,7 +4,7 @@ dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT([xapian-core], [1.2.3], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
-AC_PREREQ([2.63])
+AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
