@@ -1,3 +1,9 @@
+Mon Aug 30 06:18:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Enable use of SSE maths on x86 by default with Sun's
+	  compiler.
+
 Mon Aug 30 05:21:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
