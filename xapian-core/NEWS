@@ -1,4 +1,60 @@
-Xapian-core 1.0.21 (2010-06-18):
+ 14924       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.22 (2010-0?-??):
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* Fix documentation comment for Xapian::timeout type - it holds a time interval
+  in milliseconds not microseconds (the API docs for the methods which use it
+  explicitly correctly document that the timeouts are in milliseconds).
+
+examples:
+
+
+portability:
+
+	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+	  (ticket#492).
+
+* Fix test harness to build under Microsoft Windows (ticket#495).
+
+ 14924       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
+	* Backport change from trunk:
+	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
+	  when targetting models 68010, 68020, 68030 as well as 68000.
+
+packaging:
+
+* xapian-core.spec: Add cmake related files to RPM packaging.
+
+debug code:
+
+
+Xapian-core 1.0.21 (2010-08-30):
 
 API:
 
