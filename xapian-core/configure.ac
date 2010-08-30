@@ -256,8 +256,10 @@ WARNING_CXXFLAGS=
 ANSI_CXXFLAGS=
 AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
 if test yes = "$GXX"; then
+  compiler=gcc
   AC_MSG_RESULT([none required])
 else
+  compiler=unknown
   dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
   dnl this early in configure so such settings are used for other tests.
   case $CXX in
@@ -314,6 +316,7 @@ else
 	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
 	dnl (Looks like -features=tmplife was added around 2000 so just pass
 	dnl it unconditionally)
+	compiler=sun
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
 	case `$CXX -v 2>&1` in
@@ -1117,16 +1120,25 @@ case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
-    elif test yes = "$GXX"; then
-      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-      case $gxx_version in
-      3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
-        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
-      *)
-        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
-      esac
     else
-      AC_MSG_RESULT([don't know how to for compiler $CXX])
+      case $compiler in
+      gcc)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	case $gxx_version in
+	3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
+	*)
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
+	esac
+	;;
+      sun)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	AM_CXXFLAGS="$AM_CXXFLAGS -xarch-sse2"
+	;;
+      *)
+        AC_MSG_RESULT([don't know how to for compiler $CXX])
+	;;
+      esac
     fi
     ;;
   *)
