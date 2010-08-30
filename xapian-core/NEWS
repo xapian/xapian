@@ -1,3 +1,76 @@
+ 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
+
+backport candidates:
+
+backported to 1.0.22:
+ 14914       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
+	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
+	  when targetting models 68010, 68020, 68030 as well as 68000.
+
+ 14919       olly Sat Aug 28 12:35:25 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Beef up the test for whether -lm is required and add
+	  a special case to force it to be for Sun's C++ compiler - there's
+	  some interaction with libtool and/or shared objects which means
+	  that the configure test doesn't think -lm is needed here when it
+	  is.
+
+ 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Enable use of SSE maths on x86 by default with Sun's
+	  compiler.
+
+Xapian-core 1.2.4 (2010-08-30):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+	* HACKING,PLATFORMS: Move PLATFORMS information to the wiki and replace
+	  with a pointer.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix compilation with Sun's C++ compiler.
+
+* Fix testsuite to build on Solaris < 10.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.3 (2010-08-24):
 
 API:
@@ -36,6 +109,9 @@ documentation:
   documentation, comments, and configure error messages to reflect this.
 
 portability:
+
+	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+	  (ticket#492).
 
 * Fix handling of some obscure cases of resolving relative paths on Microsoft
   Windows.  (ticket#243).
