@@ -467,6 +467,62 @@ MultiValueCountMatchSpy::get_description() const {
 }
 
 
+void
+MultiValueSumMatchSpy::operator()(const Document &doc, weight) {
+    ++internal->total;
+    StringListUnserialiser i(doc.get_value(internal->slot));
+    StringListUnserialiser end;
+    for (; i != end; ++i) {
+	string val(*i);
+	++i;
+	if (i == end) {
+	    throw SerialisationError("Missing numeric value in MultiValueSumMatchSpy");
+	}
+	double num = sortable_unserialise(*i);
+	if (!val.empty()) {
+	    internal->values[val] += int(num);
+	}
+    }
+}
+
+MatchSpy *
+MultiValueSumMatchSpy::clone() const {
+    return new MultiValueSumMatchSpy(internal->slot);
+}
+
+string
+MultiValueSumMatchSpy::name() const {
+    return "Xapian::MultiValueSumMatchSpy";
+}
+
+string
+MultiValueSumMatchSpy::serialise() const {
+    string result;
+    result += encode_length(internal->slot);
+    return result;
+}
+
+MatchSpy *
+MultiValueSumMatchSpy::unserialise(const string & s,
+				     const Registry &) const{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    valueno new_slot = decode_length(&p, end, false);
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised MultiValueSumMatchSpy");
+    }
+
+    return new MultiValueSumMatchSpy(new_slot);
+}
+
+string
+MultiValueSumMatchSpy::get_description() const {
+    return "Xapian::MultiValueSumMatchSpy(" + str(internal->total) +
+	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
+}
+
+
 /** A bucket, used when building numeric ranges.
  */
 struct bucketval {

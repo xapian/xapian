@@ -391,6 +391,51 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueCountMatchSpy : public ValueCountMatch
 };
 
 
+/** Class for summing the counts of values in the matching documents.
+ *
+ *  This expects items in the value slot to be lists, created with
+ *  StringListSerialiser, containing values followed by counts.  The counts
+ *  must be serialised to strings with sortable_serialise().  So, for example,
+ *  if the document had two items "foo" and "bar" associated with it in the
+ *  slot, for which the counts were 2 and 3 respectively, the list of values
+ *  passed to StringListSerialiser would be: "foo", sortable_serialise(2),
+ *  "bar", sortable_serialise(3).  If this document was the only matching
+ *  document, MultiValueSumMatchSpy::values_begin() would return "foo" with a
+ *  frequency of 2 and "bar" with a frequency of 3.
+ *
+ *  Note - this is an experimental class.  In particular, the serialisation
+ *  format for counts will probably be changed in future (to something which
+ *  serialises integer values more compactly and efficiently than
+ *  sortable_serialise()).
+ */
+class XAPIAN_VISIBILITY_DEFAULT MultiValueSumMatchSpy : public ValueCountMatchSpy {
+  public:
+    /// Construct an empty MultiValueSumMatchSpy.
+    MultiValueSumMatchSpy() {}
+
+    /** Construct a MatchSpy which sums the values in a particular slot.
+     *
+     *  Further slots can be added by calling @a add_slot().
+     */
+    MultiValueSumMatchSpy(Xapian::valueno slot_)
+	    : ValueCountMatchSpy(slot_) {
+    }
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation tallies values for a matching document.
+     */
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+
+    virtual MatchSpy * clone() const;
+    virtual std::string name() const;
+    virtual std::string serialise() const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const Registry & context) const;
+    virtual std::string get_description() const;
+};
+
+
 /** A numeric range.
  *
  *  This is used to represent ranges of values returned by the match spies.

@@ -500,3 +500,61 @@ DEFINE_TESTCASE(numericrange2, writable)
 
     return true;
 }
+
+static void
+make_matchspy7_db(Xapian::WritableDatabase &db, const string &)
+{
+    {
+	Xapian::Document doc;
+	doc.add_term("all");
+	Xapian::StringListSerialiser s;
+	s.append("foo");
+	s.append(Xapian::sortable_serialise(2));
+	s.append("bar");
+	s.append(Xapian::sortable_serialise(3));
+	doc.add_value(0, s.get());
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("all");
+	Xapian::StringListSerialiser s;
+	s.append("food");
+	s.append(Xapian::sortable_serialise(1));
+	s.append("bar");
+	s.append(Xapian::sortable_serialise(4));
+	doc.add_value(0, s.get());
+	db.add_document(doc);
+    }
+}
+
+// Test MultiValueSumMatchSpy.
+DEFINE_TESTCASE(matchspy7, generated)
+{
+    Xapian::Database db = get_database("matchspy7", make_matchspy7_db);
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("all"));
+
+    Xapian::MultiValueSumMatchSpy myspy(0);
+
+    enquire.add_matchspy(&myspy);
+    Xapian::MSet mymset = enquire.get_mset(0, 100);
+    TEST_EQUAL(mymset.size(), 2);
+
+    Xapian::TermIterator i = myspy.values_begin();
+    TEST(i != myspy.values_end());
+    TEST(*i == "bar");
+    TEST_EQUAL(i.get_termfreq(), 7);
+    ++i;
+    TEST(i != myspy.values_end());
+    TEST(*i == "foo");
+    TEST_EQUAL(i.get_termfreq(), 2);
+    ++i;
+    TEST(i != myspy.values_end());
+    TEST(*i == "food");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    ++i;
+    TEST(i == myspy.values_end());
+
+    return true;
+}

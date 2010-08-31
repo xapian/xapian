@@ -194,6 +194,10 @@ Registry::Internal::add_defaults()
     Xapian::MatchSpy * spy;
     spy = new Xapian::ValueCountMatchSpy();
     matchspies[spy->name()] = spy;
+    spy = new Xapian::MultiValueCountMatchSpy();
+    matchspies[spy->name()] = spy;
+    spy = new Xapian::MultiValueSumMatchSpy();
+    matchspies[spy->name()] = spy;
 }
 
 void

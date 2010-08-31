@@ -1,3 +1,10 @@
+Tue Aug 31 12:38:32 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* api/matchspy.cc,api/registry.cc,include/xapian/matchspy.h,
+	  tests/api_matchspy.cc: Add experimental MultiValueSumMatchSpy,
+	  for situations where facet values have associated counts, and we
+	  want the sum of the counts in all documents seen.
+
 Fri Jul 30 08:13:22 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* common/safesyswait.h: Re-add this file, which had been dropped by
