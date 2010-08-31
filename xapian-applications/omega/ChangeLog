@@ -1,3 +1,8 @@
+Tue Aug 31 06:32:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix handling of quoting in CSV files to match what's
+	  most common.
+
 Tue Aug 31 05:41:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: The V in CSV is Values not Variable.

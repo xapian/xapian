@@ -595,8 +595,47 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    sample.reserve(SAMPLE_SIZE + 3);
 	    size_t last_word_end = 0;
 	    bool in_space = true;
+	    bool in_quotes = false;
 	    Xapian::Utf8Iterator i(dump);
 	    for ( ; i != Xapian::Utf8Iterator(); ++i) {
+		unsigned ch = *i;
+
+		if (!in_quotes) {
+		    // If not already in double quotes, '"' starts quoting and
+		    // ',' starts a new field.
+		    if (ch == '"') {
+			in_quotes = true;
+			continue;
+		    }
+		    if (ch == ',')
+			ch = ' ';
+		} else if (ch == '"') {
+		    // In double quotes, '"' either ends double quotes, or
+		    // if followed by another '"', means a literal '"'.
+		    if (++i == Xapian::Utf8Iterator())
+			break;
+		    ch = *i;
+		    if (ch != '"') {
+			in_quotes = false;
+			if (ch == ',')
+			    ch = ' ';
+		    }
+		}
+
+		if (ch <= ' ' || ch == 0xa0) {
+		    // FIXME: if all the whitespace characters between two
+		    // words are 0xa0 (non-breaking space) then perhaps we
+		    // should output 0xa0.
+		    if (in_space)
+			continue;
+		    last_word_end = sample.size();
+		    sample += ' ';
+		    in_space = true;
+		} else {
+		    Xapian::Unicode::append_utf8(sample, ch);
+		    in_space = false;
+		}
+
 		if (sample.size() >= SAMPLE_SIZE) {
 		    // Need to truncate sample.
 		    if (last_word_end <= SAMPLE_SIZE / 2) {
@@ -607,33 +646,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 		    }
 		    break;
 		}
-
-		unsigned ch = *i;
-
-		// Treat '\' as escaping the following character and unescaped
-		// '"' and ',' as whitespace.
-		if (ch == '\\') {
-		    if (++i == Xapian::Utf8Iterator())
-			break;
-		    ch = *i;
-		} else if (ch == '"' || ch == ',') {
-		    ch = ' ';
-		}
-
-		if (ch <= ' ' || ch == 0xa0) {
-		    // FIXME: if all the whitespace characters between two
-		    // words are 0xa0 (non-breaking space) then perhaps we
-		    // should output 0xa0.
-		    if (!in_space) {
-			in_space = true;
-			last_word_end = sample.size();
-			sample += ' ';
-		    }
-		    continue;
-		}
-
-		Xapian::Unicode::append_utf8(sample, ch);
-		in_space = false;
 	    }
 
 	} catch (ReadError) {
