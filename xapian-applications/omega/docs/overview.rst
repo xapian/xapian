@@ -186,7 +186,7 @@ know):
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
-* Comma-Separated Variable files (.csv)
+* CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext is available (comes with xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
   with xpdf) are available

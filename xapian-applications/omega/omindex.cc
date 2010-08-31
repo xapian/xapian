@@ -893,7 +893,7 @@ main(int argc, char **argv)
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
 
-    // Comma-Separated Variable:
+    // Comma-Separated Values:
     mime_map["csv"] = "text/csv";
 
     // PDF:
