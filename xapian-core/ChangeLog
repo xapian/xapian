@@ -1,3 +1,8 @@
+Tue Aug 31 14:37:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Document cases where FLAG_WILDCARD and
+	  FLAG_PARTIAL aren't currently supported.
+
 Mon Aug 30 06:27:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Actaully make autoconf 2.64 a hard minimum requirement
