@@ -199,7 +199,6 @@ try {
 	    OmegaExpandDecider decider(db);
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
-		if ((*i).empty()) continue;
 		if (!query_string.empty()) query_string += ' ';
 		query_string += pretty_term(*i);
 	    }

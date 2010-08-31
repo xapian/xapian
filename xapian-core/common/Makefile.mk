@@ -2,6 +2,7 @@ noinst_HEADERS +=\
 	common/alltermslist.h\
 	common/autoptr.h\
 	common/bitstream.h\
+	common/closefrom.h\
 	common/const_database_wrapper.h\
 	common/contiguousalldocspostlist.h\
 	common/database.h\
@@ -27,7 +28,6 @@ noinst_HEADERS +=\
 	common/omassert.h\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
-	common/omtime.h\
 	common/ortermlist.h\
 	common/output.h\
 	common/positionlist.h\
@@ -35,6 +35,7 @@ noinst_HEADERS +=\
 	common/postlist.h\
 	common/pretty.h\
 	common/progclient.h\
+	common/realtime.h\
 	common/registryinternal.h\
 	common/remoteconnection.h\
 	common/remote-database.h\
@@ -81,6 +82,7 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	common/bitstream.cc\
+	common/closefrom.cc\
 	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\

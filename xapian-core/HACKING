@@ -281,7 +281,7 @@ If you want to build Omega, you'll also need::
 
 On Fedora, the uuid library can be installed by doing::
 
-    yum install e2fsprogs-devel
+    yum install libuuid-devel
 
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
@@ -374,7 +374,9 @@ apt-get install texlive-pdfetex
 Autotools versions
 ------------------
 
-* autoconf 2.64 is recommended and a hard minimum requirement.
+* autoconf 2.67 is used to generate snapshots and releases.
+
+  autoconf 2.64 is a hard minimum requirement.
 
   autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
 
@@ -391,7 +393,9 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.10.2 is recommended and a hard minimum requirement.
+* automake 1.11.1 is used to generate snapshots and releases.
+
+  automake 1.10.2 is a hard minimum requirement.
 
   automake 1.7 adds support for per-program and per-library _CPPFLAGS.
 
@@ -1415,9 +1419,6 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the lists of deprecated/removed API methods in docs/deprecation.rst
 
 * Update the NEWS files using information from the ChangeLog files
-
-* Update the PLATFORMS file.  Don't forget to use reports from automated
-  builds: http://trac.xapian.org/wiki/AutomatedBuilds
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac

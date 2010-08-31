@@ -64,7 +64,7 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts,
 	Xapian::termcount * total_subqs_ptr)
 {
-    LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist_and_term_info", "[matcher]" | termfreqandwts | total_subqs_ptr);
+    LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist_and_term_info", Literal("[matcher]") | termfreqandwts | total_subqs_ptr);
     Xapian::MSet mset;
     db->get_mset(mset, matchspies);
     percent_factor = mset.internal->percent_factor;

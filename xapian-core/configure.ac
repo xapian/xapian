@@ -2,9 +2,9 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.2], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.3], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
-AC_PREREQ([2.63])
+AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -33,7 +33,8 @@ dnl 21:11:6 1.0.20 No API changes
 dnl 22:0:0 1.2.0 Many API changes!
 dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
 dnl 23:1:1 1.2.2 No API changes
-LIBRARY_VERSION_INFO=23:1:1
+dnl 23:2:1 1.2.3 No API changes
+LIBRARY_VERSION_INFO=23:2:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
@@ -255,8 +256,10 @@ WARNING_CXXFLAGS=
 ANSI_CXXFLAGS=
 AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
 if test yes = "$GXX"; then
+  compiler=gcc
   AC_MSG_RESULT([none required])
 else
+  compiler=unknown
   dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
   dnl this early in configure so such settings are used for other tests.
   case $CXX in
@@ -313,6 +316,7 @@ else
 	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
 	dnl (Looks like -features=tmplife was added around 2000 so just pass
 	dnl it unconditionally)
+	compiler=sun
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
 	case `$CXX -v 2>&1` in
@@ -364,17 +368,29 @@ AC_ARG_ENABLE([sse],
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
-dnl Don't use a constant argument to log as the compiler might simply evaluate
-dnl the whole expression at compile time.
-AC_TRY_LINK([#include <cmath>
-#include <cstdlib>
-using namespace std;], [double a = log((double)rand());], [AC_MSG_RESULT(no)], [
+dnl Don't use constant arguments as the compiler might simply evaluate the
+dnl whole expression at compile time, and it might inline certain functions
+dnl so test several functions.  Also write results using printf() so that
+dnl the compiler can't optimise away the computations.
+AC_TRY_LINK([#ifdef __SUNPRO_CC
+#error Need -lm for Sun C++ 5.9 under libtool 2.2.10
+#endif
+#include <cmath>
+#include <cstdio>
+#include <ctime>
+using namespace std;], [
+  double a = log(ceil(time(NULL)/7.0));
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));
+  ], [AC_MSG_RESULT(no)], [
     LIBS="-lm $LIBS"
     AC_TRY_LINK([#include <cmath>
-#include <cstdlib>
-using namespace std;], [double a = log((double)rand());],
+#include <cstdio>
+#include <ctime>
+using namespace std;], [
+  double a = log(ceil(time(NULL)/7.0));
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));],
 	[AC_MSG_RESULT(yes)],
-	[AC_MSG_ERROR([Failed to link a C++ program using log()])
+	[AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
     ])
 ])
 
@@ -401,6 +417,14 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
+dnl Used by tests/api_replicate.cc (Solaris < 10 only has putenv()):
+AC_CHECK_FUNCS([setenv])
+
+dnl Check for a more efficient way of closing fds during daemonisation.
+dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
+dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
+dnl dirfd() is useful for an efficient implementation on some platforms.
+AC_CHECK_FUNCS([closefrom dirfd])
 
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
@@ -675,16 +699,18 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   fi
   LIBS=$SAVE_LIBS
 
-  dnl Find the UUID library (from e2fsprogs, not the OSSP one).
+  dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
   case $host_os in
     *mingw* | *cygwin*) dnl Use built-in API.
       use_win32_uuid_api=1
       ;;
     *)
-      dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+      dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
+      dnl (FreeBSD/NetBSD).
       AC_CHECK_HEADERS([uuid/uuid.h], [
-	dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
+	dnl -luuid.
 	SAVE_LIBS=$LIBS
 	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
@@ -698,7 +724,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	AC_CHECK_HEADERS([uuid.h], [
 	  dnl Check for uuid_create with no extra libraries required.
 	  AC_CHECK_FUNC([uuid_create], [], [
-	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
 	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
@@ -1094,16 +1120,25 @@ case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
-    elif test yes = "$GXX"; then
-      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-      case $gxx_version in
-      3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
-        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
-      *)
-        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
-      esac
     else
-      AC_MSG_RESULT([don't know how to for compiler $CXX])
+      case $compiler in
+      gcc)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	case $gxx_version in
+	3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
+	*)
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
+	esac
+	;;
+      sun)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	AM_CXXFLAGS="$AM_CXXFLAGS -xarch-sse2"
+	;;
+      *)
+        AC_MSG_RESULT([don't know how to for compiler $CXX])
+	;;
+      esac
     fi
     ;;
   *)

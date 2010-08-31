@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,8 +84,6 @@ inline int socket_errno() {
 # define socket_errno() errno
 #endif
 
-class OmTime;
-
 /** A RemoteConnection object provides a bidirectional connection to another
  *  RemoteConnection object on a remote machine.
  *
@@ -127,10 +125,10 @@ class RemoteConnection {
      *
      *  @param min_len	Minimum number of bytes required in buffer.
      *  @param end_time	If this time is reached, then a timeout
-     *			exception will be thrown.  If end_time == OmTime(),
+     *			exception will be thrown.  If (end_time == 0.0),
      *			then keep trying indefinitely.
      */
-    void read_at_least(size_t min_len, const OmTime & end_time);
+    void read_at_least(size_t min_len, double end_time);
 
 #ifdef __WIN32__
     /** On Windows we use overlapped IO.  We share an overlapped structure
@@ -144,7 +142,7 @@ class RemoteConnection {
      *
      *  This will raise a timeout exception if end_time has already passed.
      */
-    DWORD calc_read_wait_msecs(const OmTime & end_time);
+    DWORD calc_read_wait_msecs(double end_time);
 #endif
 
   protected:
@@ -174,27 +172,27 @@ class RemoteConnection {
      *  Other than that restriction, this may be called at any time to
      *  determine what the next message waiting to be processed is: it will not
      *  affect subsequent calls which read messages.
-
+     *
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
      *  @return			Message type code.
      */
-    char sniff_next_message_type(const OmTime & end_time);
+    char sniff_next_message_type(double end_time);
 
     /** Read one message from fdin.
      *
      *  @param[out] result	Message data.
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
      *  @return			Message type code.
      */
-    char get_message(std::string &result, const OmTime & end_time);
+    char get_message(std::string &result, double end_time);
 
     /** Prepare to read one message from fdin in chunks.
      *
@@ -207,12 +205,12 @@ class RemoteConnection {
      *
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
      *  @return			Message type code.
      */
-    char get_message_chunked(const OmTime & end_time);
+    char get_message_chunked(double end_time);
 
     /** Read a chunk of a message from fdin.
      *
@@ -227,13 +225,13 @@ class RemoteConnection {
      *				returned).
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
      *  @return			true if at least at_least bytes are now in result.
      */
     bool get_message_chunk(std::string &result, size_t at_least,
-			   const OmTime & end_time);
+			   double end_time);
 
     /** Save the contents of a message as a file.
      *
@@ -241,12 +239,12 @@ class RemoteConnection {
      *				the file exists it will be overwritten.
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
      *  @return			Message type code.
      */
-    char receive_file(const std::string &file, const OmTime & end_time);
+    char receive_file(const std::string &file, double end_time);
 
     /** Send a message.
      *
@@ -254,10 +252,10 @@ class RemoteConnection {
      *  @param s		Message data.
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      */
-    void send_message(char type, const std::string & s, const OmTime & end_time);
+    void send_message(char type, const std::string & s, double end_time);
 
     /** Send the contents of a file as a message.
      *
@@ -265,10 +263,10 @@ class RemoteConnection {
      *  @param file		Path to file containing the Message data.
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
+     *				(end_time == 0.0) then the operation will
      *				never timeout.
      */
-    void send_file(char type, const std::string &file, const OmTime & end_time);
+    void send_file(char type, const std::string &file, double end_time);
 
     /** Shutdown the connection.
      *

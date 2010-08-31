@@ -47,6 +47,21 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Wed Aug 25 15:15:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use sys.version_info tuple, rather than string splicing
+	  which assumes the Python "major.minor" is 3 characters (which would
+	  fail if Python 2.10 were ever released, for example).
+
+Tue Aug 24 06:02:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.3.
+
+Tue Aug 24 05:09:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Don't run autoreconf - it's no longer
+	  required.
+
 Sun Jun 27 05:24:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.2.

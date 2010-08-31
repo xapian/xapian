@@ -100,7 +100,11 @@ BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 #
 # lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
 # for the current preferred version.
+ifeq ($(CODENAME), experimental)
+BUILD_DEPS += tcl-dev (>= 8.5), tcl (>= 8.5),# NB Trailing ',' required here!
+else
 BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
+endif
 TCLSH=/usr/bin/tclsh-default
 
 # Build depends for Ruby.
@@ -219,7 +223,7 @@ install: DH_OPTIONS=
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Install the files under 'debian/tmp'.

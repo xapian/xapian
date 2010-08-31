@@ -73,7 +73,8 @@ QueryParser Integration
 
 If FLAG_SPELLING_CORRECTION is passed to QueryParser::parse_query() and
 QueryParser::set_database() has been called, the QueryParser will look for
-corrections for words in the query which aren't found in the database.
+corrections for words in the query.  In Xapian 1.2.2 and earlier, it only
+did this for terms which aren't found in the database.
 
 If a correction is found, then a modified version of the query string will be
 generated which can be obtained by calling
@@ -129,6 +130,9 @@ transpose two adjacent characters.  The candidate with the smallest edit
 distance is found, and if more than one word has the smallest edit distance,
 that which occurs the most times is chosen.  If there's a tie of this too,
 it's essentially arbitrary which is chosen.
+
+If the word passed in is in the spelling dictionary, then a candidate will
+still be returned if one is found with the same or greater frequency.
 
 The maximum edit distance to consider can be specified as an optional parameter
 to Xapian::Database::get_spelling_suggestion().  If not specified, the default

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -557,15 +557,17 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
-#ifdef __SUNPRO_CC
+#if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
+    // Extra brackets needed to avoid this being misparsed as a function
+    // prototype.
+    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
+#else
+    // Older versions of Sun's C++ compiler need this workaround, but 5.8
+    // doesn't.  Unsure of the exact version it was fixed in.
     vector<unsigned> utf32_word;
     for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
 	utf32_word.push_back(*sunpro_it);
     }
-#else
-    // Extra brackets needed to avoid this being misparsed as a function
-    // prototype.
-    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
 #endif
 
     vector<unsigned> utf32_term;
@@ -574,6 +576,7 @@ Database::get_spelling_suggestion(const string &word,
     string result;
     int edist_best = max_edit_distance;
     Xapian::doccount freq_best = 0;
+    Xapian::doccount freq_exact = 0;
     while (true) {
 	TermList *ret = merger->next();
 	if (ret) merger.reset(ret);
@@ -619,9 +622,6 @@ Database::get_spelling_suggestion(const string &word,
 					       int(utf32_word.size()),
 					       edist_best);
 	    LOGLINE(SPELLING, "Edit distance " << edist);
-	    // If we have an exact match, return an empty string since there's
-	    // no correction required.
-	    if (edist == 0) RETURN(string());
 
 	    if (edist <= edist_best) {
 		Xapian::doccount freq = 0;
@@ -629,6 +629,14 @@ Database::get_spelling_suggestion(const string &word,
 		    freq += internal[j]->get_spelling_frequency(term);
 
 		LOGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
+		// Even if we have an exact match, there may be a much more
+		// frequent potential correction which will still be
+		// interesting.
+		if (edist == 0) {
+		    freq_exact = freq;
+		    continue;
+		}
+
 		if (edist < edist_best || freq > freq_best) {
 		    LOGLINE(SPELLING, "Best so far: \"" << term <<
 				      "\" edist " << edist << " freq " << freq);
@@ -639,6 +647,8 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
+    if (freq_best < freq_exact)
+	RETURN(string());
     RETURN(result);
 }
 

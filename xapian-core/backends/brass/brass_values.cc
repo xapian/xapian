@@ -528,7 +528,7 @@ BrassValueManager::get_value_stats(Xapian::valueno slot) const
 void
 BrassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
-    LOGCALL_VOID(DB, "BrassValueManager::get_value_stats", slot | "[stats]");
+    LOGCALL_VOID(DB, "BrassValueManager::get_value_stats", slot | Literal("[stats]"));
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
 

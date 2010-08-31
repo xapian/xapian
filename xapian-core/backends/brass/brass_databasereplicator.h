@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	void process_changeset_chunk_base(const std::string & tablename,
 					  std::string & buf,
 					  RemoteConnection & conn,
-					  const OmTime & end_time) const;
+					  double end_time) const;
 
 	/** Process a chunk which holds a list of changed blocks in the
 	 *  database.
@@ -44,7 +44,7 @@ class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	void process_changeset_chunk_blocks(const std::string & tablename,
 					    std::string & buf,
 					    RemoteConnection & conn,
-					    const OmTime & end_time) const;
+					    double end_time) const;
 
     public:
 	BrassDatabaseReplicator(const std::string & db_dir_);
@@ -54,7 +54,7 @@ class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	bool check_revision_at_least(const std::string & rev,
 				     const std::string & target) const;
 	std::string apply_changeset_from_conn(RemoteConnection & conn,
-					      const OmTime & end_time,
+					      double end_time,
 					      bool valid) const;
 	std::string get_uuid() const;
 	//@}

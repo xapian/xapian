@@ -36,7 +36,7 @@
 # include "msvc_posix_wrapper.h"
 #endif
 #include "omassert.h"
-#include "omtime.h"
+#include "realtime.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
@@ -72,10 +72,9 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 	db = Database(path);
     } catch (const Xapian::DatabaseError & e) {
 	RemoteConnection conn(-1, fd, "");
-	OmTime end_time;
 	conn.send_message(REPL_REPLY_FAIL,
 			  "Can't open database: " + e.get_msg(),
-			  end_time);
+			  0.0);
 	return;
     }
     if (db.internal.size() != 1) {
@@ -157,7 +156,7 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      *
      *  Set to 0 if no changeset applied to the live database so far.
      */
-    OmTime last_live_changeset_time;
+    double last_live_changeset_time;
 
     /// The remote connection we're using.
     RemoteConnection * conn;
@@ -175,7 +174,7 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 
     /** Apply a set of DB copy messages from the connection.
      */
-    void apply_db_copy(const OmTime & end_time);
+    void apply_db_copy(double end_time);
 
     /** Check that a message type is as expected.
      *
@@ -393,10 +392,10 @@ DatabaseReplica::Internal::remove_offline_db()
 }
 
 void
-DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
+DatabaseReplica::Internal::apply_db_copy(double end_time)
 {
     have_offline_db = true;
-    last_live_changeset_time = OmTime();
+    last_live_changeset_time = 0;
     string offline_path = get_replica_path(live_id ^ 1);
     // If there's already an offline database, discard it.  This happens if one
     // copy of the database was sent, but further updates were needed before it
@@ -515,20 +514,18 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
     if (live_db.internal.size() != 1)
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
 
-    OmTime end_time;
-
     while (true) {
-	char type = conn->sniff_next_message_type(end_time);
+	char type = conn->sniff_next_message_type(0.0);
 	switch (type) {
 	    case REPL_REPLY_END_OF_CHANGES: {
 		string buf;
-		(void)conn->get_message(buf, end_time);
+		(void)conn->get_message(buf, 0.0);
 		RETURN(false);
 	    }
 	    case REPL_REPLY_DB_HEADER:
 		// Apply the copy - remove offline db in case of any error.
 		try {
-		    apply_db_copy(end_time);
+		    apply_db_copy(0.0);
 		    if (info != NULL)
 			++(info->fullcopy_count);
 		    string replica_uuid;
@@ -565,19 +562,13 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 		    string replica_path(get_replica_path(live_id));
 		    live_db = WritableDatabase();
 
-		    if (last_live_changeset_time.is_set()) {
+		    if (last_live_changeset_time != 0.0) {
 			// Wait until at least "reader_close_time" seconds have
 			// passed since the last changeset was applied, to
 			// allow any active readers to finish and be reopened.
-			OmTime endtime(last_live_changeset_time);
-			endtime.sec += reader_close_time;
-			while (true) {
-			    OmTime now(OmTime::now());
-			    if (now > endtime)
-				break;
-			    OmTime delta = endtime - now;
-			    sleep(delta.sec + 1);
-			}
+			double until;
+			until = last_live_changeset_time + reader_close_time;
+			RealTime::sleep(until);
 		    }
 
 		    // Open a replicator for the live path, and apply the
@@ -586,12 +577,12 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 			AutoPtr<DatabaseReplicator> replicator(
 				DatabaseReplicator::open(replica_path));
 
-			// Ignore the returned revision number, since we are live
-			// so the changeset must be safe to apply to a live DB.
-			replicator->apply_changeset_from_conn(*conn, end_time,
-							      true);
+			// Ignore the returned revision number, since we are
+			// live so the changeset must be safe to apply to a
+			// live DB.
+			replicator->apply_changeset_from_conn(*conn, 0.0, true);
 		    }
-		    last_live_changeset_time = OmTime::now();
+		    last_live_changeset_time = RealTime::now();
 
 		    if (info != NULL) {
 			++(info->changeset_count);
@@ -607,7 +598,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 
 		    offline_revision = replicator->
-			    apply_changeset_from_conn(*conn, end_time, false);
+			    apply_changeset_from_conn(*conn, 0.0, false);
 
 		    if (info != NULL) {
 			++(info->changeset_count);
@@ -620,7 +611,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 		RETURN(true);
 	    case REPL_REPLY_FAIL: {
 		string buf;
-		(void)conn->get_message(buf, end_time);
+		(void)conn->get_message(buf, 0.0);
 		throw NetworkError("Unable to fully synchronise: " + buf);
 	    }
 	    default:

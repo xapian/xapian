@@ -26,7 +26,7 @@
 #include <xapian.h>
 
 #include "safeerrno.h"
-#include <cstdio> // For fdopen().
+#include <stdio.h> // For fdopen().
 #include <cstring>
 
 #ifdef HAVE_FORK
@@ -42,6 +42,7 @@
 #endif
 
 #ifdef __WIN32__
+# include <io.h> // For _open_osfhandle().
 # include "safefcntl.h"
 # include "safewindows.h"
 #endif

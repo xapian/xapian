@@ -41,10 +41,17 @@ struct PrettyOStream {
     PrettyOStream(S & os_) : os(os_) { }
 };
 
+struct Literal {
+    const char * _lit;
+    Literal(const char * lit) : _lit(lit) { }
+    Literal(const std::string & s) : _lit(s.c_str()) { }
+};
+
 }
 }
 
 using Xapian::Internal::PrettyOStream;
+using Xapian::Internal::Literal;
 
 /// Default is to output as std::ostream would.
 template<class S, class T>
@@ -52,6 +59,21 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T & t)
 {
     ps.os << t;
+    return ps;
+}
+
+/** Allow writing literal strings.
+ *
+ *  For example:
+ *
+ *  PrettyOStream<std::ostream> ps(std::cout);
+ *  ps << Literal("x = ") << x << Literal(", y = ") << y << endl;
+ */
+template<class S>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const Literal & t)
+{
+    ps.os << t._lit;
     return ps;
 }
 
@@ -182,14 +204,6 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, Xapian::termcount * p)
 {
     ps.os << "(Xapian::termcount*)" << (void*)p;
-    return ps;
-}
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const OmTime & t)
-{
-    ps.os << t.as_double() << "s";
     return ps;
 }
 

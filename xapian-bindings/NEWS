@@ -19,6 +19,12 @@ Python:
 * Add test of a ValueCountMatchSpy, a TermCountMatchSpy and a
   MultipleMatchDecider.
 
+Xapian-bindings 1.2.3 (2010-08-24):
+
+Packaging:
+
+* xapian-bindings.spec: Don't run autoreconf - it's no longer required.
+
 Xapian-bindings 1.2.2 (2010-06-27):
 
 * No user-visible change except for bumping the version to indicate

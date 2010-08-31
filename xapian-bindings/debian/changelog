@@ -1,11 +1,36 @@
-xapian-bindings (1.2.0-4) UNRELEASED; urgency=low
+xapian-bindings (1.2.3-3) unstable; urgency=low
 
+  * debian/libxapian-ruby1.9.1.doc-base: Correct paths to rdocs to say "1.9.1"
+    not "1.9".
+
+ -- Olly Betts <olly@survex.com>  Fri, 27 Aug 2010 00:35:42 +0000
+
+xapian-bindings (1.2.3-2) unstable; urgency=low
+
+  * debian/rules: Stop trying to build against tcl 8.5.
+  * debian/rules: dh_clean -k -> dh_prep.
+
+ -- Olly Betts <olly@survex.com>  Wed, 25 Aug 2010 16:22:03 +0000
+
+xapian-bindings (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+  * debian/control.in:
+    + Standards-Version: 3.9.1 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 09:05:31 +0000
+
+xapian-bindings (1.2.2-1) experimental; urgency=low
+
+  * New upstream release.
+  * Build against tcl 8.5 in experimental.  (Closes: #582217)
   * debian/rules: Set TCLSH=/usr/bin/tclsh-default to make sure we use the
     default version of tclsh even if another version is installed and the
     preferred alternative.  Reported by Jonathan Nieder as a secondary issue in
     #582217.
 
- -- Olly Betts <olly@survex.com>  Thu, 20 May 2010 02:24:39 +0000
+ -- Olly Betts <olly@survex.com>  Mon, 05 Jul 2010 13:50:16 +0000
 
 xapian-bindings (1.2.0-3) experimental; urgency=low
 
@@ -256,7 +281,7 @@ xapian-bindings (1.0.4-1) unstable; urgency=low
     + "make clean" now removes python/testsuite.pyc.  Closes: #442766
   * debian/rules: Override RUBY_LIB and RUBY_LIB_ARCH which now have different
     defaults upstream.
-  * debian/patch: Backport configure fix from upstream SVN to allow tcl8 to be 
+  * debian/patch: Backport configure fix from upstream SVN to allow tcl8 to be
     built on unstable.
   * debian/tclxapian.install: Also package "usr/share/tcltk/xapian*" which is
     where files get installed on unstable.
@@ -446,7 +471,7 @@ xapian-bindings (0.9.6-1) unstable; urgency=low
     in the path.
 
  -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:11:41 +0100
-  
+
 xapian-bindings (0.9.5-3) unstable; urgency=low
 
   * PHP bindings packages now have the correct "Depends:" and are able to
@@ -495,7 +520,7 @@ xapian-bindings (0.9.4-1) unstable; urgency=low
   * New upstream release.  (No package was made of 0.9.3)
   * Query constructor which takes a list of strings fixed.
   * Zero byte cleanliness.
-  * Improved tests. 
+  * Improved tests.
   * Other small fixes.
 
  -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:32:31 +0000

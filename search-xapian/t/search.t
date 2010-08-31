@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 115 };
+BEGIN { plan tests => 117 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -131,6 +131,8 @@ is( $eit->get_termname(), 'one', "expanded terms set contains correct terms");
 is( ++$eit, $eset->end(), "eset iterator reaches ESet::end() ok" );
 --$eit;
 is( $eit->get_termname(), 'one', "eset iterator decrement works ok" );
+ok( $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
+is( $eset->size(), 0, "expanded terms decider filtered" );
 
 # try an empty mset - this was giving begin != end
 my ($noquery, $nomatches);

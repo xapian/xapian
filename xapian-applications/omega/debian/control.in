@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ debhelper (>= 7), autotools-dev, libpcre3-dev,
     libxapian-dev (>= 1.2.0-2~)
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-applications/omega
 Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-applications/omega

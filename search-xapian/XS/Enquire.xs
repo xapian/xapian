@@ -234,12 +234,26 @@ Enquire::get_mset2(first, maxitems, func)
 	RETVAL
 
 ESet *
-Enquire::get_eset(maxitems, rset)
+Enquire::get_eset(maxitems, rset, func = NO_INIT)
     doccount    maxitems
     RSet *      rset
+    SV *        func
     CODE:
 	try {
-	    RETVAL = new ESet(THIS->get_eset(maxitems, *rset));
+	    ESet eset;
+	    switch (items) { /* items includes the hidden this pointer */
+		case 3:
+		    eset = THIS->get_eset(maxitems, *rset);
+		    break;
+		case 4: {
+		    perlExpandDecider d(func);
+		    eset = THIS->get_eset(maxitems, *rset, &d);
+		    break;
+		}
+		default:
+		    croak("Bad parameter count for get_eset");
+	    }
+	    RETVAL = new ESet(eset);
 	} catch (...) {
 	    handle_exception();
 	}

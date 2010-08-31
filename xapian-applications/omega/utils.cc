@@ -23,7 +23,7 @@
 
 #include "utils.h"
 
-#include <cstdio> // for sprintf/snprintf
+#include <stdio.h> // for sprintf/snprintf
 #include <cstdlib>
 
 #include <string>

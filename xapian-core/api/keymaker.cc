@@ -47,7 +47,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	// All values (except for the last if it's sorted forwards) need to
 	// be adjusted.
 	//
-	// FIXME: allow Xapian::BAD_VALNO to mean "relevance?"
+	// FIXME: allow Xapian::BAD_VALUENO to mean "relevance?"
 	string v = doc.get_value(i->first);
 	bool reverse_sort = i->second;
 
@@ -110,7 +110,7 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
 	// All values (except for the last if it's sorted forwards) need to
 	// be adjusted.
 	//
-	// FIXME: allow Xapian::BAD_VALNO to mean "relevance?"
+	// FIXME: allow Xapian::BAD_VALUENO to mean "relevance?"
 	string v = doc.get_value(i->first);
 	bool reverse_sort = !i->second;
 

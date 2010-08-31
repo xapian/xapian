@@ -17,6 +17,143 @@ Changes on MatchSpy branch:
 * Add document on categorisation, which describes how to use the new
   pre-defined matchspy classes for categorisation searches.
 
+ 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
+
+backport candidates:
+
+backported to 1.0.22:
+ 14914       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
+	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
+	  when targetting models 68010, 68020, 68030 as well as 68000.
+
+ 14919       olly Sat Aug 28 12:35:25 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Beef up the test for whether -lm is required and add
+	  a special case to force it to be for Sun's C++ compiler - there's
+	  some interaction with libtool and/or shared objects which means
+	  that the configure test doesn't think -lm is needed here when it
+	  is.
+
+ 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Enable use of SSE maths on x86 by default with Sun's
+	  compiler.
+
+Xapian-core 1.2.4 (2010-08-30):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* This release uses autoconf 2.67 rather than 2.65.
+
+documentation:
+
+	* HACKING,PLATFORMS: Move PLATFORMS information to the wiki and replace
+	  with a pointer.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix compilation with Sun's C++ compiler.
+
+* Fix testsuite to build on Solaris < 10.
+
+packaging:
+
+
+debug code:
+
+
+Xapian-core 1.2.3 (2010-08-24):
+
+API:
+
+* Database::get_spelling_suggestion() will now suggest a correction even if the
+  passed word is in the dictionary, provided the correction has at least the
+  same frequency.  Partly addresses #225.
+
+* QueryParser:
+
+  + Fix handling of groups of terms which are all stopwords - in situations
+    where this causes a problem we now disable stopword checks for such groups.
+    (ticket#245)
+
+  + Fix to be smarter about handling a boolean filter term containing ".." in
+    the presence of valuerangeprocessors.
+
+testsuite:
+
+* New "unittest" program for testing low level functions directly.  Currently
+  this has tests for the internal resolve_relative_path() function.
+  (ticket#243)
+
+remote backend:
+
+* Retry select() if it fails with EINTR while waiting for connect(), and
+  discriminate cases with same failure message to aid debugging.
+
+documentation:
+
+* Fix documentation comment for Xapian::timeout type - it holds a time interval
+  in milliseconds not microseconds (the API docs for the methods which use it
+  explicitly correctly document that the timeouts are in milliseconds).
+
+* libuuid moved from e2fsprogs to util-linux-ng about a year ago, so update
+  documentation, comments, and configure error messages to reflect this.
+
+portability:
+
+	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+	  (ticket#492).
+
+* Fix handling of some obscure cases of resolving relative paths on Microsoft
+  Windows.  (ticket#243).
+
+* Optimise closing of all unwanted file descriptors after forking by using
+  closefrom() if available, and otherwise providing our own implementation
+  (optimised to some extent for many platforms).
+
+* Fix test harness to build under Microsoft Windows (ticket#495).
+
+packaging:
+
+* xapian-core.spec: Add xapian-metadata and cmake related files to RPM
+  packaging.
+
+* xapian-core.spec: Update BuildRequires to specify libuuid-devel instead of
+  e2fsprogs-devel.
+
+debug code:
+
+* Improve logging of function parameter placeholder strings.
+
 Xapian-core 1.2.2 (2010-06-27):
 
 brass backend:

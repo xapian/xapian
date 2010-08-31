@@ -28,7 +28,7 @@
 string
 RemoteDocument::do_get_value(Xapian::valueno) const
 {
-    LOGCALL(DB, string, "RemoteDocument::do_get_value", "[slot]");
+    LOGCALL(DB, string, "RemoteDocument::do_get_value", Literal("[slot]"));
     // Our ctor sets the values, so we should never get here.
     Assert(false);
     RETURN(string());
@@ -37,7 +37,7 @@ RemoteDocument::do_get_value(Xapian::valueno) const
 void
 RemoteDocument::do_get_all_values(map<Xapian::valueno, string> &) const
 {
-    LOGCALL_VOID(DB, "RemoteDocument::do_get_all_values", "[&values_]");
+    LOGCALL_VOID(DB, "RemoteDocument::do_get_all_values", Literal("[&values_]"));
     // Our ctor sets the values, so we should never get here.
     Assert(false);
 }

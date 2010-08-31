@@ -22,7 +22,7 @@
 #include "runprocess.h"
 #include "stringutils.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 
 #include "safesyswait.h"
