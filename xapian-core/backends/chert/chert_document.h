@@ -1,7 +1,7 @@
 /** @file chert_document.h
  * @brief A document read from a ChertDatabase.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,10 +40,10 @@ class ChertDocument : public Xapian::Document::Internal {
     /// Used for lazy access to document data.
     const ChertRecordTable *record_table;
 
-    /// ChertDocument::open_document() needs to call our private constructor.
+    /// ChertDatabase::open_document() needs to call our private constructor.
     friend class ChertDatabase;
 
-    /// Private constructor - only called by ChertDocument::open_document().
+    /// Private constructor - only called by ChertDatabase::open_document().
     ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
 		  const ChertValueManager *value_manager_,

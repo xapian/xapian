@@ -35,7 +35,6 @@
 #include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
-#include "omdebug.h"
 
 using namespace std;
 
@@ -239,8 +238,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @return	Pointer to a new ValueList object which should be
 	 *		deleted by the caller once it is no longer needed.
 	 */
-
 	virtual ValueList * open_value_list(Xapian::valueno slot) const;
+
 	/** Open a term list.
 	 *
 	 *  This is a list of all the terms contained by a given document.
@@ -297,6 +296,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	open_document(Xapian::docid did, bool lazy) const = 0;
 
 	/** Create a termlist tree from trigrams of @a word.
+	 *
+	 *  You can assume word.size() > 1.
 	 *
 	 *  If there are no trigrams, returns NULL.
 	 */

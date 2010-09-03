@@ -1,4 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
+.. Copyright (C) 2010 Olly Betts
 
 ====================================
 Xapian Database Replication Protocol
@@ -20,8 +21,7 @@ layer abstraction for the connections; so the communication is based on a set
 of messages, each with a type, and some associated data.
 
 Where the following description refers to "packed" strings or integers, this
-means packed according to the same methods for packing these into flint
-databases.
+means packed according to the same methods for packing these into databases.
 
 Client messages
 ---------------
@@ -35,8 +35,8 @@ Server messages
 ---------------
 
 The server can send a variety of messages.  The message types are currently
-defined in an enum in flint_database.cc (in which each type is preceded by
-``REPL_REPLY_``):
+defined in an enum in common/replicationprotocol.h (in which each type is
+preceded by ``REPL_REPLY_``):
 
  - END_OF_CHANGES: this indicates that no further changes are needed, and ends
    the response to the original request.  It contains no data.
@@ -68,13 +68,13 @@ Changeset files
 ===============
 
 Changes are represented by changeset files.  When changeset logging is enabled
-for a flint database, just before each commit a changeset file is created in
+for a database, just before each commit a changeset file is created in
 the database directory.  This file contains a record of the changes made,
-currently in the following format (but note that this format may change between
-implementations of flint):
+currently in the following format (but note that this format may change in
+the future):
 
- - 12 bytes holding the string "FlintChanges" (used to check that a file is a
-   changeset file).
+ - 12 bytes holding the string "FlintChanges", "ChertChanges" or "BrassChanges"
+   (used to check that a file is a changeset file).
 
  - The format of the changeset (as a variable length unsigned integer).
 

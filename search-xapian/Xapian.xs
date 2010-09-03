@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+// Stop Perl headers from even thinking of doing '#define bool char' or
+// '#define bool int', which they would do with compilers other than GCC.
+#define HAS_BOOL
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -87,7 +91,47 @@ class perlMatchDecider : public Xapian::MatchDecider {
 	Document *pdoc = new Document(doc);
 	sv_setref_pv(arg, "Search::Xapian::Document", (void *)pdoc);
 	XPUSHs(arg);
-	XPUSHs(arg);
+
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	int decide_actual_result = POPi;
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return decide_actual_result;
+    }
+};
+
+class perlExpandDecider : public Xapian::ExpandDecider {
+    SV *callback;
+
+  public:
+    perlExpandDecider(SV *func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlExpandDecider() {
+	SvREFCNT_dec(callback);
+    }
+
+    bool operator()(const string &term) const {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+
+	XPUSHs(sv_2mortal(newSVpv(term.data(), term.size())));
 
 	PUTBACK;
 

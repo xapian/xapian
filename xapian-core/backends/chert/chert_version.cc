@@ -2,6 +2,7 @@
  * @brief ChertVersion class
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +25,11 @@
 
 #include <xapian/error.h>
 
-#include "chert_io.h"
 #include "chert_version.h"
+#include "io_utils.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
-#include "utils.h"
+#include "str.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -43,9 +44,10 @@
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define CHERT_VERSION 200903070
+#define CHERT_VERSION 200912150
 // 200804180       Chert debuts.
 // 200903070 1.1.0 doclen bounds and wdf upper bound.
+// 200912150 1.1.4 shorter position, postlist, record and termlist keys.
 
 #define MAGIC_STRING "IAmChert"
 
@@ -80,7 +82,7 @@ ChertVersion::create()
     }
 
     try {
-	chert_io_write(fd, buf, VERSIONFILE_SIZE);
+	io_write(fd, buf, VERSIONFILE_SIZE);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -108,7 +110,7 @@ ChertVersion::read_and_check()
     char buf[VERSIONFILE_SIZE + 1];
     size_t size;
     try {
-	size = chert_io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
+	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
     } catch (...) {
 	(void)close(fd);
 	throw;
@@ -120,7 +122,7 @@ ChertVersion::read_and_check()
 	string msg = filename;
 	msg += ": Chert version file should be "
 	       STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
-	msg += om_tostring(size);
+	msg += str(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -136,7 +138,7 @@ ChertVersion::read_and_check()
     if (version != CHERT_VERSION) {
 	string msg = filename;
 	msg += ": Chert version file is version ";
-	msg += om_tostring(version);
+	msg += str(version);
 	msg += " but I only understand "STRINGIZE(CHERT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }

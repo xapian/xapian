@@ -5,7 +5,7 @@
 
    Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
 	Free Software Foundation, Inc.
-   Copyright (C) 2004 Olly Betts (reworked to allow compilation as C++)
+   Copyright (C) 2004,2009,2010 Olly Betts (reworked to allow compilation as C++)
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License as
@@ -27,21 +27,17 @@
 # include <config.h>
 #endif
 
-#include <stdio.h>
+#include "gnu_getopt.h"
 
 /* #ifdef out all this code if we are using the GNU C Library.  GNU getopt
    is included in the GNU C Library, and linking in this code is a waste when
    using the GNU C library (especially if it is a shared library). */
 
-#define GNU_GETOPT_INTERFACE_VERSION 2
-#if defined __GLIBC__ && __GLIBC__ >= 2
-# include <gnu-versions.h>
-# if _GNU_GETOPT_INTERFACE_VERSION == GNU_GETOPT_INTERFACE_VERSION
-#  define ELIDE_CODE
-# endif
-#endif
+#ifndef USE_GLIBC_GNUGETOPT
 
-#ifndef ELIDE_CODE
+#include <cstdio>
+
+using std::fprintf;
 
 #ifdef VMS
 # include <unixlib.h>
@@ -59,6 +55,7 @@
 # endif
 #endif
 
+#ifndef __CYGWIN__
 /* This version of `getopt' appears to the caller like standard Unix `getopt'
    but it behaves differently for the user, since it allows the user
    to intersperse the options with the other arguments.
@@ -72,8 +69,6 @@
 
    GNU application programs can use a third alternative mode in which
    they can distinguish the relative order of options and other arguments.  */
-
-#include "gnu_getopt.h"
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
@@ -98,21 +93,6 @@ char *optarg;
 /* 1003.2 says this must be 1 before any call.  */
 int optind = 1;
 
-/* Formerly, initialization of getopt depended on optind==0, which
-   causes problems with re-calling getopt as programs generally don't
-   know that. */
-
-int __getopt_initialized;
-
-/* The next char to be scanned in the option-element
-   in which the last option character we returned was found.
-   This allows us to pick up the scan where we left off.
-
-   If this is zero, or a null string, it means resume the scan
-   by advancing to the next ARGV-element.  */
-
-static char *nextchar;
-
 /* Callers store zero here to inhibit the error message
    for unrecognized options.  */
 
@@ -123,6 +103,22 @@ int opterr = 1;
    system's own getopt implementation.  */
 
 int optopt = '?';
+#endif
+
+/* Formerly, initialization of getopt depended on optind==0, which
+   causes problems with re-calling getopt as programs generally don't
+   know that. */
+
+static int getopt_initialized;
+
+/* The next char to be scanned in the option-element
+   in which the last option character we returned was found.
+   This allows us to pick up the scan where we left off.
+
+   If this is zero, or a null string, it means resume the scan
+   by advancing to the next ARGV-element.  */
+
+static char *nextchar;
 
 /* Describe how to deal with options that follow non-option ARGV-elements.
 
@@ -247,7 +243,7 @@ exchange (char **argv)
 /* Initialize the internal data when the first call is made.  */
 
 static const char *
-_getopt_initialize (int argc, char *const *argv, const char *optstring)
+getopt_initialize (int argc, char *const *argv, const char *optstring)
 {
   /* Suppress possible unused warnings */
   (void)argc;
@@ -351,12 +347,12 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 
   optarg = NULL;
 
-  if (optind == 0 || !__getopt_initialized)
+  if (optind == 0 || !getopt_initialized)
     {
       if (optind == 0)
 	optind = 1;	/* Don't scan ARGV[0], the program name.  */
-      optstring = _getopt_initialize (argc, argv, optstring);
-      __getopt_initialized = 1;
+      optstring = getopt_initialize (argc, argv, optstring);
+      getopt_initialized = 1;
     }
 
   /* Test whether ARGV[optind] points to a non-option argument (i.e. it does

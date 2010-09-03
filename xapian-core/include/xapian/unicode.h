@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  The string is not copied into the iterator, so it must remain valid
      *  while the iteration is in progress.
      *
-     *  @param p A pointer to the start of the string to read.
+     *  @param p_ A pointer to the start of the string to read.
      *
      *  @param len The length of the string to read.
      */
@@ -90,7 +90,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  next called.  The string is not copied into the iterator, so it must
      *  remain valid while the iteration is in progress.
      *
-     *  @param p A pointer to the start of the null terminated string to read.
+     *  @param p_ A pointer to the start of the null terminated string to read.
      */
     explicit Utf8Iterator(const char *p_);
 
@@ -100,7 +100,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  next called.  The string is not copied into the iterator, so it must
      *  remain valid while the iteration is in progress.
      *
-     *  @param p A pointer to the start of the string to read.
+     *  @param p_ A pointer to the start of the string to read.
      *
      *  @param len The length of the string to read.
      */
@@ -179,6 +179,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     //@}
 };
 
+/// Functions associated with handling Unicode characters.
 namespace Unicode {
 
 /** Each Unicode character is in exactly one of these categories. */
@@ -296,6 +297,8 @@ inline bool is_wordchar(unsigned ch) {
 	    (1 << Xapian::Unicode::MODIFIER_LETTER) |
 	    (1 << Xapian::Unicode::OTHER_LETTER) |
 	    (1 << Xapian::Unicode::NON_SPACING_MARK) |
+	    (1 << Xapian::Unicode::ENCLOSING_MARK) |
+	    (1 << Xapian::Unicode::COMBINING_SPACING_MARK) |
 	    (1 << Xapian::Unicode::DECIMAL_DIGIT_NUMBER) |
 	    (1 << Xapian::Unicode::LETTER_NUMBER) |
 	    (1 << Xapian::Unicode::OTHER_NUMBER) |

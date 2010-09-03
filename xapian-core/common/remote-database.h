@@ -1,8 +1,8 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+ * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,6 @@
 #include "database.h"
 #include "omenquireinternal.h"
 #include "omqueryinternal.h"
-#include "omtime.h"
 #include "remoteconnection.h"
 #include "valuestats.h"
 #include "xapian/weight.h"
@@ -98,12 +97,12 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  @param timeout_ The timeout used with the network operations.
      *			Generally a Xapian::NetworkTimeoutError exception will
      *			be thrown if the remote end doesn't respond for this
-     *			length of time (in milliseconds).  A timeout of 0
-     *			means that operations will never timeout.
+     *			length of time (in seconds).  A timeout of 0 means that
+     *			operations will never timeout.
      *  @param context_ The context to return with any error messages.
      *	@param writable	Is this a WritableDatabase?
      */
-    RemoteDatabase(int fd, Xapian::timeout timeout_, const string & context_,
+    RemoteDatabase(int fd, double timeout_, const string & context_,
 		   bool writable);
 
     /// Receive a message from the server.
@@ -117,8 +116,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     bool get_posting(Xapian::docid &did, Xapian::weight &w, string &value);
 
-    /// The timeout value used in network communications, in milliseconds
-    Xapian::timeout timeout;
+    /// The timeout value used in network communications, in seconds.
+    double timeout;
 
   public:
     /// Return this pointer as a RemoteDatabase*.
@@ -143,6 +142,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param weight_cutoff		Weight cutoff.
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
+     * @param matchspies                The matchspies to use.  NULL if none.
      */
     void set_query(const Xapian::Query::Internal *query,
 		   Xapian::termcount qlen,
@@ -154,7 +154,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   bool sort_value_forward,
 		   int percent_cutoff, Xapian::weight weight_cutoff,
 		   const Xapian::Weight *wtscheme,
-		   const Xapian::RSet &omrset);
+		   const Xapian::RSet &omrset,
+		   const vector<Xapian::MatchSpy *> & matchspies);
 
     /** Get the stats from the remote server.
      *
@@ -169,7 +170,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 			   const Xapian::Weight::Internal &stats);
 
     /// Get the MSet from the remote server.
-    void get_mset(Xapian::MSet &mset);
+    void get_mset(Xapian::MSet &mset,
+		  const vector<Xapian::MatchSpy *> & matchspies);
 
     /// Get remote termlist.
     TermList * open_term_list(Xapian::docid did) const;
@@ -238,6 +240,14 @@ class RemoteDatabase : public Xapian::Database::Internal {
 				   const Xapian::Document & document);
 
     std::string get_uuid() const;
+
+    string get_metadata(const string & key) const;
+
+    void set_metadata(const string & key, const string & value);
+
+    void add_spelling(const std::string&, Xapian::termcount) const;
+
+    void remove_spelling(const std::string&,  Xapian::termcount freqdec) const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

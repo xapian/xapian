@@ -1,6 +1,6 @@
 # generate-python-exceptions: generate error handling code for Python bindings
 #
-# Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2009 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -23,7 +23,8 @@ use exception_data;
 my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter
+    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter KeyMaker
+    StemImplementation
 );
 
 my @posting_source_virtual_methods = qw(
@@ -183,6 +184,14 @@ EOF
 
 print FD <<'EOF';
 %exception Xapian::Stopper::get_description {
+    try {
+	$action
+    } catch (...) {
+	Xapian::SetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::StemImplementation::get_description {
     try {
 	$action
     } catch (...) {

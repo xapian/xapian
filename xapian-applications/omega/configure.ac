@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.1.0], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.2.3], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
@@ -16,11 +16,27 @@ LT_INIT
 dnl Checks for programs.
 AC_PROG_CXX
 
+case $host_os in
+  linux* | k*bsd*-gnu)
+    dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
+    link_all_deplibs_CXX=no
+    ;;
+esac
+
+case $host_os in
+  linux*)
+    dnl Extract search path from ldconfig which is more reliable than the way
+    dnl vanilla libtool extracts them from ld.so.conf.
+    d=`/sbin/ldconfig -N -X -v 2>&AS_MESSAGE_LOG_FD|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    test -z "$d" || sys_lib_dlsearch_path_spec=$d
+    ;;
+esac
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN
+XO_LIB_XAPIAN([], [], [xapian-config])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
@@ -47,7 +63,7 @@ AC_TRY_COMPILE([#include <stdint.h>],
 
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h], [], [], [ ])
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h sys/time.h]dnl
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])
@@ -94,7 +110,12 @@ AC_LINK_IFELSE([
 
 dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
 dnl limits on filter programs.
-AC_CHECK_FUNCS([mmap fork setrlimit socketpair sysmp pstat_getdynamic])
+AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic])
+
+dnl -lxnet is needed on Solaris and apparently on HP-UX too.
+AC_SEARCH_LIBS([socketpair], [xnet],
+  [AC_DEFINE(HAVE_SOCKETPAIR, 1,
+    [Define to 1 if you have the 'socketpair' function])])
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
@@ -247,14 +268,17 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-if test x"$enable_documentation" = xyes; then
-  dnl Check for perl. (Needed to make man pages from "--help" output).
+if test x"$USE_MAINTAINER_MODE" = xyes; then
+  dnl Check for perl. (Needed to make man pages from "--help" output, and to
+  dnl make the omegascript vim syntax mode.)
   AC_PATH_PROG(PERL, perl, [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+fi
 
+if test x"$enable_documentation" = xyes; then
   dnl Check for help2man. (Needed to make man pages from "--help" output).
   AC_PATH_PROG(HELP2MAN, help2man, [])
-  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required to build documentation])
 
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.

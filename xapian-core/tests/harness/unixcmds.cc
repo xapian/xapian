@@ -24,7 +24,7 @@
 
 #include <cstring>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"

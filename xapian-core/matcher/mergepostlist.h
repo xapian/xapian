@@ -26,6 +26,9 @@
 
 #include "postlist.h"
 
+class MultiMatch;
+class ValueStreamDocument;
+
 /** A postlist comprising postlists from different databases merged together.
  */
 class MergePostList : public PostList {
@@ -46,6 +49,14 @@ class MergePostList : public PostList {
 	 *  recalculated.
 	 */
 	MultiMatch *matcher;
+
+	/** Document proxy used for valuestream caching.
+	 *
+	 *  We need to notify this when the subdatabase changes, as then the
+	 *  cached valuestreams need to be cleared as they will be for the
+	 *  wrong subdatabase.
+	 */
+	ValueStreamDocument & vsdoc;
 
 	Xapian::ErrorHandler * errorhandler;
     public:
@@ -73,9 +84,15 @@ class MergePostList : public PostList {
 	 */
 	virtual Xapian::termcount get_doclength() const;
 
-	MergePostList(vector<PostList *> plists_,
-		      MultiMatch *matcher,
-		      Xapian::ErrorHandler * errorhandler_);
+	Xapian::termcount count_matching_subqs() const;
+
+	MergePostList(const std::vector<PostList *> & plists_,
+		      MultiMatch *matcher_,
+		      ValueStreamDocument & vsdoc_,
+		      Xapian::ErrorHandler * errorhandler_)
+	    : plists(plists_), current(-1), matcher(matcher_), vsdoc(vsdoc_),
+	      errorhandler(errorhandler_) { }
+
 	~MergePostList();
 };
 

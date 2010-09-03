@@ -21,7 +21,9 @@
 
 #include <xapian/unicode.h>
 
-#include <string.h>
+#include <cstring>
+
+using namespace std;
 
 inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
 

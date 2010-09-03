@@ -111,6 +111,8 @@ iterate over terms in a Document object):
 <tr><td><code>Document</code></td><td><code>termlist()</code> (also as default iterator)</td><td><code>termlist_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>ValueCountMatchSpy</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>ValueCountMatchSpy</code></td><td><code>top_values()</code></td><td><code>top_values_begin()</code></td><td><code>TermIter</code></td></tr>
 </table>
 
 <p>
@@ -254,6 +256,7 @@ wrapped like so for Python:
 </ul>
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
+<li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian.brass_open()</code>
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian.chert_open()</code>
 <li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian.flint_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>

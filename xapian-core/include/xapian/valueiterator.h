@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,13 +32,13 @@
 
 namespace Xapian {
 
-/// @internal A proxy class for an end ValueIterator.
+/// @private @internal A proxy class for an end ValueIterator.
 class ValueIteratorEnd_ { };
 
 /// Class for iterating over document values.
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
   public:
-    /// Class representing the valueiterator internals.
+    /// Class representing the ValueIterator internals.
     class Internal;
     /// @private @internal Reference counted internals.
     Xapian::Internal::RefCntPtr<Internal> internal;
@@ -75,10 +75,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     ValueIterator & operator++();
 
     /// Advance the iterator to the next position (postfix version).
-    DerefStringWrapper_ operator++(int) {
-	std::string value(**this);
+    DerefWrapper_<std::string> operator++(int) {
+	const std::string & value(**this);
 	operator++();
-	return DerefStringWrapper_(value);
+	return DerefWrapper_<std::string>(value);
     }
 
     /** Return the docid at the current position.
@@ -120,9 +120,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  @a did actually exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then returns true.  This is how chert behaves
-     *  because it stores values in streams which allow for an efficient
-     *  implementation of skip_to().
+     *  cost, in which case it then returns true.  This is how brass and
+     *  chert databases behave because they store values in streams which allow
+     *  for an efficient implementation of skip_to().
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the
@@ -165,6 +165,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     // @}
 };
 
+/// Equality test for ValueIterator objects.
 inline bool
 operator==(const ValueIterator &a, const ValueIterator &b)
 {
@@ -173,42 +174,49 @@ operator==(const ValueIterator &a, const ValueIterator &b)
     return a.internal.get() == b.internal.get();
 }
 
+/// @internal Equality test for ValueIterator object and end iterator.
 inline bool
 operator==(const ValueIterator &a, const ValueIteratorEnd_ &)
 {
     return a.internal.get() == NULL;
 }
 
+/// @internal Equality test for ValueIterator object and end iterator.
 inline bool
 operator==(const ValueIteratorEnd_ &a, const ValueIterator &b)
 {
     return b == a;
 }
 
+/// @internal Equality test for end iterators.
 inline bool
 operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &)
 {
     return true;
 }
 
+/// Inequality test for ValueIterator objects.
 inline bool
 operator!=(const ValueIterator &a, const ValueIterator &b)
 {
     return !(a == b);
 }
 
+/// @internal Inequality test for ValueIterator object and end iterator.
 inline bool
 operator!=(const ValueIterator &a, const ValueIteratorEnd_ &b)
 {
     return !(a == b);
 }
 
+/// @internal Inequality test for ValueIterator object and end iterator.
 inline bool
 operator!=(const ValueIteratorEnd_ &a, const ValueIterator &b)
 {
     return !(a == b);
 }
 
+/// @internal Inequality test for end iterators.
 inline bool
 operator!=(const ValueIteratorEnd_ &a, const ValueIteratorEnd_ &b)
 {

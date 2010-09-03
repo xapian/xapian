@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,10 +34,12 @@
 using namespace std;
 
 class DocumentValueList;
+class ValueStreamDocument;
 
 /// A document in the database, possibly plus modifications.
 class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
     friend class ::DocumentValueList;
+    friend class ::ValueStreamDocument;
     public:
 	/// Type to store values in.
 	typedef map<Xapian::valueno, string> document_values;
@@ -170,6 +172,11 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	bool terms_modified() const {
 	    return terms_here;
+	}
+
+	/// Return true if the document may have been modified.
+	bool modified() const {
+	    return terms_here || values_here || data_here;
 	}
 
 	/** Get the docid which is associated with this document (if any).

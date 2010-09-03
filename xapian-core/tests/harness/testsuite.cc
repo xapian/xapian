@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,28 +23,28 @@
 #include <config.h>
 
 #include "testsuite.h"
-#include "testrunner.h"
+
 #include "backendmanager.h"
+#include "fdtracker.h"
+#include "testrunner.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
 # include <valgrind/memcheck.h>
-# include <stdio.h>
 # include <sys/types.h>
 # include "safefcntl.h"
 # include "safeunistd.h"
 #endif
 
 #include <algorithm>
-#include <iomanip>
 #include <iostream>
 #include <set>
-#include <streambuf>
 
-#include <float.h> // For DBL_DIG.
-#include <math.h> // For ceil, fabs, log10.
-#include <stdlib.h>
-#include <string.h>
+#include <cfloat> // For DBL_DIG.
+#include <cmath> // For ceil, fabs, log10.
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "gnu_getopt.h"
 
@@ -61,7 +61,6 @@
 
 #include <xapian/error.h>
 #include "noreturn.h"
-#include "omdebug.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -72,6 +71,16 @@ bool verbose;
 
 #ifdef HAVE_VALGRIND
 static int vg_log_fd = -1;
+#endif
+
+#ifdef HAVE_SIGSETJMP
+# define SIGSETJMP(ENV, SAVESIGS) sigsetjmp(ENV, SAVESIGS)
+# define SIGLONGJMP(ENV, VAL) siglongjmp(ENV, VAL)
+# define SIGJMP_BUF sigjmp_buf
+#else
+# define SIGSETJMP(ENV, SAVESIGS) setjmp(ENV)
+# define SIGLONGJMP(ENV, VAL) longjmp(ENV, VAL)
+# define SIGJMP_BUF jmp_buf
 #endif
 
 /// The exception type we were expecting in TEST_EXCEPTION
@@ -94,6 +103,16 @@ bool test_driver::abort_on_error = false;
 string test_driver::col_red, test_driver::col_green;
 string test_driver::col_yellow, test_driver::col_reset;
 bool test_driver::use_cr = false;
+
+void
+test_driver::write_and_clear_tout()
+{
+    const string & s = tout.str();
+    if (!s.empty()) {
+	out << '\n' << s;
+	tout.str(string());
+    }
+}
 
 string
 test_driver::get_srcdir()
@@ -148,15 +167,46 @@ test_driver::test_driver(const test_desc *tests_)
 {
 }
 
-static jmp_buf jb;
+static SIGJMP_BUF jb;
 static int signum = 0;
+static void * sigaddr = NULL;
 
-/* Needs C linkage so we can pass it to signal() without problems. */
+// Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
+
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
+XAPIAN_NORETURN(static void handle_sig(int signum_, siginfo_t *si, void *));
+static void handle_sig(int signum_, siginfo_t *si, void *)
+{
+    // Disable all our signal handlers to avoid problems if the signal
+    // handling code causes a signal.
+    struct sigaction sa;
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    // We set the handlers with SA_RESETHAND, but that will only reset the
+    // handler for the signal which fired.
+    if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, NULL);
+    if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, NULL);
+    if (signum_ != SIGILL) sigaction(SIGILL, &sa, NULL);
+# ifdef SIGBUS
+    if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGSTKFLT
+    if (signum_ != SIGSTKFLT) sigaction(SIGSTKFLT, &sa, NULL);
+# endif
+    signum = signum_;
+    sigaddr = si->si_addr;
+    SIGLONGJMP(jb, 1);
+}
+
+#else
 
 XAPIAN_NORETURN(static void handle_sig(int signum_));
 static void handle_sig(int signum_)
 {
+    // Disable all our signal handlers to avoid problems if the signal
+    // handling code causes a signal.
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
@@ -167,8 +217,9 @@ static void handle_sig(int signum_)
     signal(SIGSTKFLT, SIG_DFL);
 #endif
     signum = signum_;
-    longjmp(jb, 1);
+    SIGLONGJMP(jb, 1);
 }
+#endif
 
 }
 
@@ -179,26 +230,61 @@ class SignalRedirector {
     SignalRedirector() : active(false) { }
     void activate() {
 	active = true;
+	signum = 0;
+	sigaddr = NULL;
+	// SA_SIGINFO not universal (e.g. not present on Linux < 2.2 and Hurd).
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
+	struct sigaction sa;
+	sa.sa_sigaction = handle_sig;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
+	sigaction(SIGSEGV, &sa, NULL);
+	sigaction(SIGFPE, &sa, NULL);
+	sigaction(SIGILL, &sa, NULL);
+# ifdef SIGBUS
+	sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGSTKFLT
+	sigaction(SIGSTKFLT, &sa, NULL);
+# endif
+#else
 	signal(SIGSEGV, handle_sig);
 	signal(SIGFPE, handle_sig);
 	signal(SIGILL, handle_sig);
-#ifdef SIGBUS
+# ifdef SIGBUS
 	signal(SIGBUS, handle_sig);
-#endif
-#ifdef SIGSTKFLT
+# endif
+# ifdef SIGSTKFLT
 	signal(SIGSTKFLT, handle_sig);
+# endif
 #endif
     }
     ~SignalRedirector() {
 	if (active) {
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
+	    struct sigaction sa;
+	    sa.sa_handler = SIG_DFL;
+	    sigemptyset(&sa.sa_mask);
+	    sa.sa_flags = 0;
+	    sigaction(SIGSEGV, &sa, NULL);
+	    sigaction(SIGFPE, &sa, NULL);
+	    sigaction(SIGILL, &sa, NULL);
+# ifdef SIGBUS
+	    sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGSTKFLT
+	    sigaction(SIGSTKFLT, &sa, NULL);
+# endif
+#else
 	    signal(SIGSEGV, SIG_DFL);
 	    signal(SIGFPE, SIG_DFL);
 	    signal(SIGILL, SIG_DFL);
-#ifdef SIGBUS
+# ifdef SIGBUS
 	    signal(SIGBUS, SIG_DFL);
-#endif
-#ifdef SIGSTKFLT
+# endif
+# ifdef SIGSTKFLT
 	    signal(SIGSTKFLT, SIG_DFL);
+# endif
 #endif
 	}
     }
@@ -213,15 +299,16 @@ class SignalRedirector {
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
-#ifdef HAVE_VALGRIND
     // This is used to make a note of how many times we've run the test
     volatile int runcount = 0;
-#endif
+
+    FDTracker fdtracker;
+    fdtracker.init();
 
     while (true) {
-	tout.str("");
-	SignalRedirector sig; // use object so signal handlers are reset
-	if (!setjmp(jb)) {
+	tout.str(string());
+	if (SIGSETJMP(jb, 1) == 0) {
+	    SignalRedirector sig; // use object so signal handlers are reset
 	    static bool catch_signals =
 		(getenv("XAPIAN_TESTSUITE_SIG_DFL") == NULL);
 	    if (catch_signals) sig.activate();
@@ -240,22 +327,19 @@ test_driver::runtest(const test_desc *test)
 		}
 #endif
 		if (!test->run()) {
-		    string s = tout.str();
-		    if (!s.empty()) {
-			out << '\n' << tout.str();
-			if (s[s.size() - 1] != '\n') out << endl;
-			tout.str("");
-		    }
-		    out << " " << col_red << "FAILED" << col_reset;
+		    out << col_red << " FAILED" << col_reset;
+		    write_and_clear_tout();
 		    return FAIL;
 		}
+		if (backendmanager)
+		    backendmanager->clean_up();
 #ifdef HAVE_VALGRIND
 		if (vg_log_fd != -1) {
 		    // We must empty tout before asking valgrind to perform its
 		    // leak checks, otherwise the buffers holding the output
 		    // may be identified as a memory leak (especially if >1K of
 		    // output has been buffered it appears...)
-		    tout.str("");
+		    tout.str(string());
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	while (true) { \
@@ -310,9 +394,9 @@ test_driver::runtest(const test_desc *test)
 		    }
 		    lseek(vg_log_fd, curpos, SEEK_SET);
 
-		    VALGRIND_DO_LEAK_CHECK;
 		    int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		    vg_errs = vg_errs2 - vg_errs;
+		    VALGRIND_DO_LEAK_CHECK;
 		    long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
@@ -337,8 +421,11 @@ test_driver::runtest(const test_desc *test)
 			// then we need to rerun the test to see if the leak is
 			// real...
 			if (runcount == 0) {
-			    out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
+			    out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
+			    // Ensure that any cached memory from fd tracking
+			    // is allocated before we rerun the test.
+			    (void)fdtracker.check();
 			    continue;
 			}
 			REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
@@ -358,8 +445,11 @@ test_driver::runtest(const test_desc *test)
 			// if more is leaked - hopefully this shouldn't give
 			// false positives.
 			if (runcount == 0) {
-			    out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
+			    out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
+			    // Ensure that any cached memory from fd tracking
+			    // is allocated before we rerun the test.
+			    (void)fdtracker.check();
 			    continue;
 			}
 			REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
@@ -367,62 +457,37 @@ test_driver::runtest(const test_desc *test)
 		    }
 		}
 #endif
-	    } catch (const TestFail &) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
+		if (!fdtracker.check()) {
+		    if (runcount == 0) {
+			out << col_yellow << " POSSIBLE FDLEAK:" << fdtracker.get_message() << col_reset;
+			++runcount;
+			continue;
+		    }
+		    out << col_red << " FDLEAK:" << fdtracker.get_message() << col_reset;
+		    return FAIL;
 		}
-		out << " " << col_red << "FAILED" << col_reset;
+	    } catch (const TestFail &) {
+		out << col_red << " FAILED" << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (const TestSkip &) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_yellow << "SKIPPED" << col_reset;
+		out << col_yellow << " SKIPPED" << col_reset;
+		write_and_clear_tout();
 		return SKIP;
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
 		if (expected_exception && expected_exception == errclass) {
-		    out << " " << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
+		    out << col_yellow << " C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
 		}
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << errclass << col_reset;
-		if (verbose) out << err.get_description() << endl;
+		out << " " << col_red << err.get_description() << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (const string & msg) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << "EXCEPTION: ";
-		size_t cutoff = min(size_t(40), msg.size());
-		cutoff = find(msg.begin(), msg.begin() + cutoff, '\n') - msg.begin();
-		if (verbose || cutoff == msg.size())
-		    out << msg;
-		else
-		    out << msg.substr(0, cutoff) << "...";
-		out << col_reset;
+		out << col_red << " EXCEPTION std::string " << msg << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (const std::exception & e) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
 		out << " " << col_red;
 #ifndef USE_RTTI
 		out << "std::exception";
@@ -443,43 +508,53 @@ test_driver::runtest(const test_desc *test)
 		out << name;
 # endif
 #endif
-		out << ": " << e.what();
+		out << ": " << e.what() << col_reset;
+		write_and_clear_tout();
+		return FAIL;
+	    } catch (const char * msg) {
+		out << col_red;
+		if (msg) {
+		    out << " EXCEPTION char * " << msg;
+		} else {
+		    out << " EXCEPTION (char*)NULL";
+		}
 		out << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (...) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << "UNKNOWN EXCEPTION" << col_reset;
+		out << col_red << " UNKNOWN EXCEPTION" << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    }
-	} else {
-	    // caught signal
-	    string s = tout.str();
-	    if (!s.empty()) {
-		out << '\n' << tout.str();
-		if (s[s.size() - 1] != '\n') out << endl;
-		tout.str("");
-	    }
-	    const char *signame = "SIGNAL";
-	    switch (signum) {
-		case SIGSEGV: signame = "SIGSEGV"; break;
-		case SIGFPE: signame = "SIGFPE"; break;
-		case SIGILL: signame = "SIGILL"; break;
+	    return PASS;
+	}
+
+	// Caught a signal.
+	const char *signame = "SIGNAL";
+	bool show_addr = true;
+	switch (signum) {
+	    case SIGSEGV: signame = "SIGSEGV"; break;
+	    case SIGFPE: signame = "SIGFPE"; break;
+	    case SIGILL: signame = "SIGILL"; break;
 #ifdef SIGBUS
-		case SIGBUS: signame = "SIGBUS"; break;
+	    case SIGBUS: signame = "SIGBUS"; break;
 #endif
 #ifdef SIGSTKFLT
-		case SIGSTKFLT: signame = "SIGSTKFLT"; break;
+	    case SIGSTKFLT:
+		signame = "SIGSTKFLT";
+		show_addr = false;
+		break;
 #endif
-	    }
-	    out << " " << col_red << signame << col_reset;
-	    return FAIL;
 	}
-	return PASS;
+	out << " " << col_red << signame;
+	if (show_addr) {
+	    char buf[40];
+	    sprintf(buf, " at %p", sigaddr);
+	    out << buf;
+	}
+	out << col_reset;
+	write_and_clear_tout();
+	return FAIL;
     }
 }
 
@@ -526,7 +601,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    out.flush();
 	    test_driver::test_result test_res = runtest(test);
 	    if (backendmanager)
-		backendmanager->posttest();
+		backendmanager->clean_up();
 	    switch (test_res) {
 		case PASS:
 		    ++res.succeeded;
@@ -540,8 +615,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    ++res.failed;
 		    out << endl;
 		    if (abort_on_error) {
-			out << "Test failed - aborting further tests." << endl;
-			return res;
+			throw "Test failed - aborting further tests";
 		    }
 		    break;
 		case SKIP:

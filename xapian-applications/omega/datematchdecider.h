@@ -22,7 +22,7 @@
 
 #include <xapian.h>
 
-#include <time.h>
+#include <ctime>
 #include <string>
 
 extern time_t set_start_or_end(const std::string & str, char * yyyymmddhhmm, char * yyyymmdd, char * raw4, bool start);

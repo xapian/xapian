@@ -31,6 +31,6 @@
 #if defined __DECCXX && defined HAVE_SYS_ERRNO_H
 # include <sys/errno.h>
 #endif
-#include <errno.h>
+#include <cerrno>
 
 #endif // XAPIAN_INCLUDED_SAFEERRNO_H

@@ -1,7 +1,7 @@
 /** @file termlist.h
  * @brief Abstract base class for termlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after tname (or at_end() if no terms after tname exist).
      */
-    virtual Internal * skip_to(const std::string &term);
+    virtual Internal * skip_to(const std::string &term) = 0;
 
     /// Return true if the current position is past the last term in this list.
     virtual bool at_end() const = 0;

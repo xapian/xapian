@@ -1,7 +1,7 @@
 /** @file chert_spelling.h
  * @brief Spelling correction data for a chert database.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,13 @@
 
 #include <xapian/types.h>
 
-#include "chert_table.h"
+#include "chert_lazytable.h"
 #include "termlist.h"
 
 #include <map>
 #include <set>
 #include <string>
-#include <string.h> // For memcpy() and memcmp().
+#include <cstring> // For memcpy() and memcmp().
 
 struct fragment {
     char data[4];
@@ -38,22 +38,22 @@ struct fragment {
     fragment() { }
 
     // Allow implicit conversion.
-    fragment(char data_[4]) { memcpy(data, data_, 4); }
+    fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string () const {
-	return string(data, data[0] == 'M' ? 4 : 3);
+	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 };
 
 inline bool operator<(const fragment &a, const fragment &b) {
-    return memcmp(a.data, b.data, 4) < 0;
+    return std::memcmp(a.data, b.data, 4) < 0;
 }
 
-class ChertSpellingTable : public ChertTable {
-    void toggle_fragment(fragment frag, const string & word);
+class ChertSpellingTable : public ChertLazyTable {
+    void toggle_fragment(fragment frag, const std::string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<fragment, std::set<std::string> > termlist_deltas;
@@ -68,7 +68,8 @@ class ChertSpellingTable : public ChertTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     ChertSpellingTable(const std::string & dbdir, bool readonly)
-	: ChertTable("spelling", dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
+	: ChertLazyTable("spelling", dbdir + "/spelling.", readonly,
+			 Z_DEFAULT_STRATEGY) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -78,7 +79,7 @@ class ChertSpellingTable : public ChertTable {
 
     TermList * open_termlist(const std::string & word);
 
-    Xapian::doccount get_word_frequency(const string & word) const;
+    Xapian::doccount get_word_frequency(const std::string & word) const;
 
     /** Override methods of ChertTable.
      *
@@ -89,13 +90,6 @@ class ChertSpellingTable : public ChertTable {
 
     bool is_modified() const {
 	return !wordfreq_changes.empty() || ChertTable::is_modified();
-    }
-
-    void create_and_open(unsigned int blocksize) {
-	// The spelling table is created lazily, but erase it in case we're
-	// overwriting an existing database and it already exists.
-	ChertTable::erase();
-	ChertTable::set_block_size(blocksize);
     }
 
     void flush_db() {
@@ -146,7 +140,9 @@ class ChertSpellingTermList : public TermList {
 
     Xapian::termcount get_collection_freq() const;
 
-    TermList *next();
+    TermList * next();
+
+    TermList * skip_to(const std::string & term);
 
     bool at_end() const;
 

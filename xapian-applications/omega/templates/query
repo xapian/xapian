@@ -33,6 +33,16 @@ $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
 <head>
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
 $if{$opt{topterms},$include{inc/toptermsjs}}
+<script type="text/javascript" language="javascript"><!--
+function f2(n) {return (n>9?"":"0")+n;}
+function write_date(time_t) {
+var d=new Date();d.setTime(time_t*1000);
+var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
+var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
+document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+}
+// -->
+</script>
 </head>
 <body bgcolor="#ffffff">
 <FORM NAME=P METHOD=GET 
@@ -73,8 +83,13 @@ ${<IMG SRC="/icons/omega/score-$div{$percentage,10}.png" ALT="$percentage%" HEIG
 <div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
 </div></div>
 <div style='float:left;margin-top:2px;font-size:x-small;'>
+$if{$and{$field{modtime},$ne{$field{modtime},-1}},
+<script type="text/javascript">write_date($field{modtime});</script>
+<noscript>
 <span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span><br>
+Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
+</noscript><br>
+}
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
 $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span><br>}
 <div title="Mark this document as relevant" style="float:left;background-color:#cfc;border:1px solid green;margin-top:2px;">
@@ -125,7 +140,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<INPUT TYPE=hidden NAME=B VALUE="$html{$_}">}
 </FORM>
-<hr><div align=right><i><small><a href="http://www.xapian.org/">$html{$version}</a></small></i></div>
+<hr><div align=right><i><small><a href="http://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
 $log{query.log}

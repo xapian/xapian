@@ -22,8 +22,8 @@
 #include <config.h>
 #include <xapian/positioniterator.h>
 #include "positionlist.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 Xapian::PositionIterator::PositionIterator(Internal *internal_)
 	: internal(internal_)
@@ -56,7 +56,7 @@ Xapian::PositionIterator::operator=(const Xapian::PositionIterator &o)
 Xapian::termpos
 Xapian::PositionIterator::operator *() const
 {
-    DEBUGAPICALL(Xapian::termpos, "Xapian::PositionIterator::operator*", "");
+    LOGCALL(API, Xapian::termpos, "Xapian::PositionIterator::operator*", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_position());
@@ -65,7 +65,7 @@ Xapian::PositionIterator::operator *() const
 Xapian::PositionIterator &
 Xapian::PositionIterator::operator++()
 {
-    DEBUGAPICALL(void, "Xapian::PositionIterator::operator++", "");
+    LOGCALL_VOID(API, "Xapian::PositionIterator::operator++", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     internal->next();
@@ -77,7 +77,7 @@ Xapian::PositionIterator::operator++()
 void
 Xapian::PositionIterator::skip_to(Xapian::termpos pos)
 {
-    DEBUGAPICALL(void, "Xapian::PositionIterator::skip_to", pos);
+    LOGCALL_VOID(API, "Xapian::PositionIterator::skip_to", pos);
     Assert(internal.get());
     Assert(!internal->at_end());
     internal->skip_to(pos);

@@ -84,7 +84,8 @@ $collapsed
              $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
 
 $date{TIME_T[,FMT]}
-	convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``)
+	convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``).  The
+	conversion is done in timezone UTC.
 
 $dbname
 	database name (multiple names are returned separated by "/").

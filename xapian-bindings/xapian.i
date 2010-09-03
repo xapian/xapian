@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -37,10 +37,12 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
-// Parse the visibility and deprecation support header files, so we don't get
-// errors when we %include other Xapian headers.
+// Parse the visibility support header, so we don't get errors when we %include
+// other Xapian headers.
 %include <xapian/visibility.h>
-%include <xapian/deprecated.h>
+
+// Kill the macro magic for deprecation warnings.
+#define XAPIAN_DEPRECATED()
 
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
@@ -181,7 +183,10 @@ class ValueIterator {
 	}
     }
 
-    Xapian::valueno get_valueno();
+    Xapian::docid get_docid() const;
+    Xapian::valueno get_valueno() const;
+    void skip_to(Xapian::docid docid_or_slot);
+    bool check(Xapian::docid docid);
     std::string get_description() const;
 };
 
@@ -196,6 +201,7 @@ class ValueIterator {
 %feature("director") Xapian::PostingSource;
 #endif
 %ignore Xapian::PostingSource::clone;
+%ignore Xapian::PostingSource::serialise;
 %ignore Xapian::PostingSource::unserialise;
 %ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
@@ -337,7 +343,7 @@ class RSet {
 class MatchDecider {
   public:
     virtual bool operator() (const Xapian::Document &doc) const = 0;
-    virtual ~MatchDecider() { }
+    virtual ~MatchDecider();
 };
 
 /* MatchDecider and ExpandDecider are abstract classes, each only useful if it
@@ -351,13 +357,14 @@ class MatchDecider {
 class ExpandDecider {
   public:
     virtual bool operator() (const string &term) const = 0;
-    virtual ~ExpandDecider() { }
+    virtual ~ExpandDecider();
 };
 #endif
 
 class Database;
+class MatchSpy;
 class Query;
-class Sorter;
+class KeyMaker;
 
 class Enquire {
   public:
@@ -366,6 +373,9 @@ class Enquire {
 
     void set_query(const Query & query, termcount qlen = 0);
     const Query& get_query();
+
+    void add_matchspy(MatchSpy * spy);
+    void clear_matchspies();
 
     void set_weighting_scheme(const Weight& weight);
     void set_collapse_key(Xapian::valueno collapse_key,
@@ -382,16 +392,22 @@ class Enquire {
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
 
     void set_sort_by_relevance();
-    void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+    void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
+    void set_sort_by_value(Xapian::valueno sort_key);
     void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
-					  bool ascending = true);
+					  bool reverse);
+    void set_sort_by_value_then_relevance(Xapian::valueno sort_key);
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
-					  bool ascending = true);
-    void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
-    void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
-                                        bool ascending = true);
-    void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
-                                        bool ascending = true);
+					  bool reverse);
+    void set_sort_by_relevance_then_value(Xapian::valueno sort_key);
+    void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
+    void set_sort_by_key(Xapian::Sorter * sorter);
+    void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
+                                        bool reverse);
+    void set_sort_by_key_then_relevance(Xapian::Sorter * sorter);
+    void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
+                                        bool reverse);
+    void set_sort_by_relevance_then_key(Xapian::Sorter * sorter);
 
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
@@ -440,6 +456,9 @@ class Enquire {
 
 }
 
+%ignore Xapian::Registry::operator=;
+%include <xapian/registry.h>
+
 /* Generated code won't compile if directors are enabled.  Disable for now
  * while we investigate.
  *
@@ -459,12 +478,13 @@ class Enquire {
 %ignore Xapian::Weight::operator=;
 %ignore Xapian::Weight::Weight(const Weight &);
 %ignore Xapian::Weight::clone;
+%ignore Xapian::Weight::serialise;
+%ignore Xapian::Weight::unserialise;
 %ignore Xapian::Weight::clone_;
 %ignore Xapian::Weight::init_;
-%warnfilter(842) Xapian::BoolWeight::unserialise;
-%warnfilter(842) Xapian::BM25Weight::unserialise;
-%warnfilter(842) Xapian::TradWeight::unserialise;
 %include <xapian/weight.h>
+
+%include <xapian/matchspy.h>
 
 namespace Xapian {
 
@@ -501,6 +521,11 @@ class Database {
 	doccount get_value_freq(Xapian::valueno valno) const;
 	string get_value_lower_bound(Xapian::valueno valno) const;
 	string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::termcount get_doclength_lower_bound() const;
+	Xapian::termcount get_doclength_upper_bound() const;
+	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
+	ValueIterator valuestream_begin(Xapian::valueno slot) const;
+	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const;
 	doclength get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);
@@ -571,6 +596,17 @@ namespace Auto {
     Database open_stub(const string & file);
 }
 
+namespace Brass {
+    %rename(brass_open) open;
+    Database open(const std::string &dir);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifndef SWIGTCL
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
+}
+
 namespace Chert {
     %rename(chert_open) open;
     Database open(const std::string &dir);
@@ -622,6 +658,17 @@ class Auto {
   public:
     static
     Database open_stub(const string & file);
+};
+
+class Brass {
+  private:
+    Brass();
+    ~Brass();
+  public:
+    static
+    Database open(const std::string &dir);
+    static
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
 };
 
 class Chert {
@@ -721,6 +768,13 @@ class Remote {
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
 %include <xapian/queryparser.h>
 
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
+#ifdef XAPIAN_SWIG_DIRECTORS
+%feature("director") Xapian::StemImplementation;
+#else
+%ignore Xapian::StemImplementation;
+%ignore Xapian::Stem::Stem(Xapian::StemImplementation *);
+#endif
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;
 %ignore Xapian::Stem::Stem();
@@ -738,17 +792,10 @@ class Remote {
 %ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
 %include <xapian/termgenerator.h>
 
-%feature("director") Xapian::Sorter;
-%include <xapian/sorter.h>
+%feature("director") Xapian::KeyMaker;
+%include <xapian/keymaker.h>
 
-%ignore Xapian::DatabaseReplica::internal;
-%ignore Xapian::DatabaseReplica::operator=;
-%ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
-%include <xapian/replication.h>
 %include <xapian/valuesetmatchdecider.h>
-
-%ignore Xapian::SerialisationContext::operator=;
-%include <xapian/serialisationcontext.h>
 
 namespace Xapian {
 

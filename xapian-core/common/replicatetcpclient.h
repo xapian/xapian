@@ -1,7 +1,7 @@
 /** @file replicatetcpclient.h
  *  @brief TCP/IP replication client class.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #include "remoteconnection.h"
 
 #include "xapian/visibility.h"
-#include "xapian/replication.h"
+#include "replication.h"
 
 #ifdef __WIN32__
 # define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     /** Attempt to open a TCP/IP socket connection to a replication server.
      *
      *  Connect to replication server running on port @a port of host @a hostname.
-     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a timeout_connect seconds.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
@@ -57,23 +57,23 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      *  methods which do, this method has been deliberately made "static".
      */
     static int open_socket(const std::string & hostname, int port,
-			   int msecs_timeout_connect);
+			   double timeout_connect);
 
   public:
     /** Constructor.
      *
      *  Connect to replication server running on port @a port of host @a hostname.
-     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a timeout_connect seconds.
      *
-     *  @param msecs_timeout_connect	 Timeout for trying to connect (in
-     *					 milliseconds).
+     *  @param timeout_connect	 Timeout for trying to connect (in seconds).
      */
     ReplicateTcpClient(const std::string & hostname, int port,
-		       int msecs_timeout_connect);
+		       double timeout_connect);
 
     void update_from_master(const std::string & path,
 			    const std::string & remotedb,
-			    Xapian::ReplicationInfo & info);
+			    Xapian::ReplicationInfo & info,
+			    double reader_close_time);
 
     /** Destructor. */
     ~ReplicateTcpClient();

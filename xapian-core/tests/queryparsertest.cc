@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,10 +24,12 @@
 #include <xapian.h>
 
 #include "cputimer.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -44,7 +46,7 @@ struct test {
     const char *expect;
 };
 
-static test test_or_queries[] = {
+static const test test_or_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "time_t", "Ztime_t:(pos=1)" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
@@ -79,6 +81,9 @@ static test test_or_queries[] = {
     { "\"hello world\" +python", "(Zpython:(pos=3) AND_MAYBE (hello:(pos=1) PHRASE 2 world:(pos=2)))" },
     // In 1.1.0, NON_SPACING_MARK was added as a word character.
     { "\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86", "Z\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86:(pos=1)" },
+    // In 1.1.4, ENCLOSING_MARK and COMBINING_SPACING_MARK were added, and
+    // code to ignore several zero-width space characters was added.
+    { "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80", "Z\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80:(pos=1)" },
     { "unmatched\"", "unmatched:(pos=1)" },
     { "unmatched \" \" ", "Zunmatch:(pos=1)" },
     { "hyphen-ated\" ", "(hyphen:(pos=1) PHRASE 2 ated:(pos=2))" },
@@ -98,8 +103,12 @@ static test test_or_queries[] = {
     { "(title:help)", "ZXThelp:(pos=1)" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "beer AND -lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "beer AND +lager", "(Zbeer:(pos=1) AND Zlager:(pos=2))" },
     { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
     { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND -C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND +C", "(a:(pos=1) OR (b:(pos=2) AND c:(pos=3)))" },
     { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
     { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
     { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
@@ -112,20 +121,28 @@ static test test_or_queries[] = {
     { "foo -site:xapian.org bar", "((Zfoo:(pos=1) OR Zbar:(pos=2)) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(Zmail:(pos=1) FILTER Hxapian.org)" },
     { "-site:xapian.org mail", "(Zmail:(pos=1) AND_NOT Hxapian.org)" },
+    { "mail AND -site:xapian.org", "(Zmail:(pos=1) AND_NOT 0 * Hxapian.org)" },
     { "-Wredundant-decls", "(wredundant:(pos=1) PHRASE 2 decls:(pos=2))" },
     { "site:xapian.org", "0 * Hxapian.org" },
     { "mug +site:xapian.org -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
     { "mug -site:cvs.xapian.org +site:xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
+    { "mug +site:xapian.org AND -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT 0 * Hcvs.xapian.org)" },
+    { "mug site:xapian.org AND -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT 0 * Hcvs.xapian.org)" },
+    { "mug site:xapian.org AND +site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND 0 * Hcvs.xapian.org)" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "AND -windows", "Syntax: <expression> AND <expression>" }, 
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian AND -", "Syntax: <expression> AND <expression>" },
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(Zhard:(pos=1) OR Zspace:(pos=2))" },
     { " white\r\nspace\ttest ", "(Zwhite:(pos=1) OR Zspace:(pos=2) OR Ztest:(pos=3))" },
+    { "one AND two three", "(Zone:(pos=1) AND (Ztwo:(pos=2) OR Zthree:(pos=3)))" },
+    { "one two AND three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND Zthree:(pos=3))" },
     { "one AND two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND /two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND/two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
@@ -152,6 +169,10 @@ static test test_or_queries[] = {
     { "category:Foo", "0 * XCAT:Foo" },
     { "category:foo", "0 * XCATfoo" },
     { "category:\xc3\x96oo", "0 * XCAT\xc3\x96oo" },
+    // Feature tests for quoted boolean terms:
+    { "category:\"Hello world\"", "0 * XCAT:Hello world" },
+    { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
+    { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },
@@ -570,6 +591,14 @@ static test test_or_queries[] = {
     { "site:1 site:2 site2:2", "0 * ((H1 OR H2) AND J2)" },
     { "site:1 OR site:2", "(0 * H1 OR 0 * H2)" },
     { "site:1 AND site:2", "(0 * H1 AND 0 * H2)" },
+    { "foo AND site:2", "(Zfoo:(pos=1) AND 0 * H2)" },
+    // Non-exclusive boolean prefixes feature tests (ticket#402):
+    { "category:1 category:2", "0 * (XCAT1 AND XCAT2)" },
+    { "category:1 site2:2", "0 * (J2 AND XCAT1)" },
+    { "category:1 category:2 site2:2", "0 * (J2 AND XCAT1 AND XCAT2)" },
+    { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
+    { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
+    { "foo AND category:2", "(Zfoo:(pos=1) AND 0 * XCAT2)" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
@@ -609,14 +638,14 @@ static bool test_queryparser1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_boolean_prefix("authortitle", "B");
     );
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_prefix("multisite", "B");
     );
-    for (test *p = test_or_queries; p->query; ++p) {
+    for (const test *p = test_or_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -639,7 +668,7 @@ static bool test_queryparser1()
     return true;
 }
 
-static test test_and_queries[] = {
+static const test test_and_queries[] = {
     { "internet explorer title:(http www)", "(Zinternet:(pos=1) AND Zexplor:(pos=2) AND ZXThttp:(pos=3) AND ZXTwww:(pos=4))" },
     // Regression test for bug in 0.9.2 and earlier - this would give
     // (two:(pos=2) AND_MAYBE (one:(pos=1) AND three:(pos=3)))
@@ -675,7 +704,7 @@ static bool test_qp_default_op1()
     queryparser.add_prefix("subject", "XT");
     queryparser.add_boolean_prefix("site", "H");
     queryparser.set_default_op(Xapian::Query::OP_AND);
-    for (test *p = test_and_queries; p->query; ++p) {
+    for (const test *p = test_and_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -772,7 +801,7 @@ static bool test_qp_odd_chars1()
 // Test right truncation.
 static bool test_qp_flag_wildcard1()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -866,6 +895,9 @@ static bool test_qp_flag_wildcard1()
     // Check empty wildcard followed by negation.
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
+    // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
+    qobj = qp.parse_query("abc muscl* main", flags);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) AND (muscle:(pos=2) SYNONYM musclebound:(pos=2)) AND main:(pos=3)))");
     return true;
 #endif
 }
@@ -873,7 +905,7 @@ static bool test_qp_flag_wildcard1()
 // Test right truncation with prefixes.
 static bool test_qp_flag_wildcard2()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -897,7 +929,7 @@ static bool test_qp_flag_wildcard2()
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -1033,17 +1065,22 @@ static bool test_qp_flag_bool_any_case1()
     return true;
 }
 
-static test test_stop_queries[] = {
+static const test test_stop_queries[] = {
     { "test the queryparser", "(test:(pos=1) AND queryparser:(pos=3))" },
     // Regression test for bug in 0.9.6 and earlier.  This would fail to
     // parse.
     { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
     // 0.9.6 and earlier ignored a stopword even if it was the only term.
-    // We don't ignore it in this case, which is probably better.  But
-    // an all-stopword query with multiple terms doesn't work, which
-    // prevents 'to be or not to be' for being searchable unless made
-    // into a phrase query.
+    // More recent versions don't ever treat a single term as a stopword.
     { "the", "the:(pos=1)" },
+    // 1.2.2 and earlier ignored an all-stopword query with multiple terms,
+    // which prevents 'to be or not to be' for being searchable unless the
+    // user made it into a phrase query or prefixed all terms with '+'
+    // (ticket#245).
+    { "an the a", "(an:(pos=1) AND the:(pos=2) AND a:(pos=3))" },
+    // Regression test for bug in initial version of the patch for the
+    // "all-stopword" case.
+    { "the AND a an", "(the:(pos=1) AND a:(pos=2) AND an:(pos=3))" },
     { NULL, NULL }
 };
 
@@ -1054,7 +1091,7 @@ static bool test_qp_stopper1()
     Xapian::SimpleStopper stop(stopwords, stopwords + 3);
     qp.set_stopper(&stop);
     qp.set_default_op(Xapian::Query::OP_AND);
-    for (test *p = test_stop_queries; p->query; ++p) {
+    for (const test *p = test_stop_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1077,7 +1114,7 @@ static bool test_qp_stopper1()
     return true;
 }
 
-static test test_pure_not_queries[] = {
+static const test test_pure_not_queries[] = {
     { "NOT windows", "(<alldocuments> AND_NOT Zwindow:(pos=1))" },
     { "a AND (NOT b)", "(Za:(pos=1) AND (<alldocuments> AND_NOT Zb:(pos=2)))" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
@@ -1092,7 +1129,7 @@ static bool test_qp_flag_pure_not1()
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(QueryParser::STEM_SOME);
-    for (test *p = test_pure_not_queries; p->query; ++p) {
+    for (const test *p = test_pure_not_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1134,7 +1171,7 @@ static bool test_qp_unstem_boolean_prefix()
     return true;
 }
 
-static test test_value_range1_queries[] = {
+static const test test_value_range1_queries[] = {
     { "a..b", "VALUE_RANGE 1 a b" },
     { "$50..100", "VALUE_RANGE 1 $50 100" },
     { "$50..$100", "VALUE_RANGE 1 $50 $100" },
@@ -1150,6 +1187,9 @@ static test test_value_range1_queries[] = {
     { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "\"time flies\" 09:00..12:30", "((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "..b", "VALUE_RANGE 1  b" },
+    { "a..", "VALUE_GE 1 a" },
     { NULL, NULL }
 };
 
@@ -1160,7 +1200,7 @@ static bool test_qp_value_range1()
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::StringValueRangeProcessor vrp(1);
     qp.add_valuerangeprocessor(&vrp);
-    for (test *p = test_value_range1_queries; p->query; ++p) {
+    for (const test *p = test_value_range1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1183,12 +1223,15 @@ static bool test_qp_value_range1()
     return true;
 }
 
-static test test_value_range2_queries[] = {
+static const test test_value_range2_queries[] = {
     { "a..b", "VALUE_RANGE 3 a b" },
     { "1..12", "VALUE_RANGE 2 \240 \256" },
     { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
     { "$10..20", "VALUE_RANGE 4 \255 \261" },
     { "$10..$20", "VALUE_RANGE 4 \255 \261" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "$..20", "VALUE_RANGE 4  \261" },
+    { "$10..", "VALUE_GE 4 \255" },
     { "12..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42", "VALUE_RANGE 3 12kg 42" },
@@ -1196,10 +1239,19 @@ static test test_value_range2_queries[] = {
     { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "..2020.12.30", "VALUE_RANGE 1  20201230" },
+    { "1999.03.12..", "VALUE_GE 1 19990312" },
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
     { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \240 \256 AND (VALUE_RANGE 5 \256 \265@ OR VALUE_RANGE 5 \251 \252))" },
+    // Check that a VRP which fails to match doesn't remove a prefix or suffix.
+    // 1.0.13/1.1.1 and earlier got this wrong in some cases.
+    { "$12a..13", "VALUE_RANGE 3 $12a 13" },
+    { "$12..13b", "VALUE_RANGE 3 $12 13b" },
+    { "$12..12kg", "VALUE_RANGE 3 $12 12kg" },
+    { "12..b12kg", "VALUE_RANGE 3 12 b12kg" },
     { NULL, NULL }
 };
 
@@ -1218,7 +1270,7 @@ static bool test_qp_value_range2()
     qp.add_valuerangeprocessor(&vrp_cash);
     qp.add_valuerangeprocessor(&vrp_weight);
     qp.add_valuerangeprocessor(&vrp_str);
-    for (test *p = test_value_range2_queries; p->query; ++p) {
+    for (const test *p = test_value_range2_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1244,7 +1296,7 @@ static bool test_qp_value_range2()
 // Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -1267,7 +1319,7 @@ static bool test_qp_value_range3()
 	double start = low + j * step;
 	for (int k = 0; k <= steps; ++k) {
 	    double end = low + k * step;
-	    string query = om_tostring(start) + ".." + om_tostring(end);
+	    string query = str(start) + ".." + str(end);
 	    tout << "Query: " << query << '\n';
 	    Xapian::Query qobj = qp.parse_query(query);
 	    Xapian::Enquire enq(db);
@@ -1341,6 +1393,50 @@ static const double test_value_range_numbers[] = {
     64 // Magic number which we stop at.
 };
 
+static const test test_value_range4_queries[] = {
+    { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
+    { "hello:world", "0 * XHELLOworld" },
+    { "hello:mum..world", "VALUE_RANGE 1 mum world" },
+    { NULL, NULL }
+};
+
+/** Test a boolean filter which happens to contain "..".
+ *
+ *  Regression test for bug fixed in 1.2.3.
+ *
+ *  Also test that the same prefix can be set for a valuerange and filter.
+ */
+static bool test_qp_value_range4()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("id", "Q");
+    qp.add_boolean_prefix("hello", "XHELLO");
+    Xapian::StringValueRangeProcessor vrp_str(1, "hello:");
+    qp.add_valuerangeprocessor(&vrp_str);
+    for (const test *p = test_value_range4_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+
 // Test serialisation and unserialisation of various numbers.
 static bool test_value_range_serialise1()
 {
@@ -1381,7 +1477,7 @@ static bool test_value_range_serialise1()
     return true;
 }
 
-static test test_value_daterange1_queries[] = {
+static const test test_value_daterange1_queries[] = {
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "01/30/60..02/02/59", "VALUE_RANGE 1 19600130 20590202" },
@@ -1397,7 +1493,90 @@ static bool test_qp_value_daterange1()
     Xapian::QueryParser qp;
     Xapian::DateValueRangeProcessor vrp_date(1, true, 1960);
     qp.add_valuerangeprocessor(&vrp_date);
-    for (test *p = test_value_daterange1_queries; p->query; ++p) {
+    for (const test *p = test_value_daterange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_value_daterange2_queries[] = {
+    { "created:12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
+    { "modified:03-12-99..04-14-01", "VALUE_RANGE 2 19990312 20010414" },
+    { "accessed:01/30/70..02/02/69", "VALUE_RANGE 3 19700130 20690202" },
+    { "1999-03-12..2001-04-14", "Unknown range operation" },
+    { "12/03/99..created:12/04/01", "Unknown range operation" },
+    { "12/03/99created:..12/04/01", "Unknown range operation" },
+    { "12/03/99..12/04/01created:", "Unknown range operation" },
+    { "12/03/99..02", "Unknown range operation" },
+    { "1999-03-12..2001", "Unknown range operation" },
+    { NULL, NULL }
+};
+
+// Feature test DateValueRangeProcessor with prefixes (added in 1.1.2).
+static bool test_qp_value_daterange2()
+{
+    Xapian::QueryParser qp;
+    Xapian::DateValueRangeProcessor vrp_cdate(1, "created:", true, true, 1970);
+    Xapian::DateValueRangeProcessor vrp_mdate(2, "modified:", true, true, 1970);
+    Xapian::DateValueRangeProcessor vrp_adate(3, "accessed:", true, true, 1970);
+    qp.add_valuerangeprocessor(&vrp_cdate);
+    qp.add_valuerangeprocessor(&vrp_mdate);
+    qp.add_valuerangeprocessor(&vrp_adate);
+    for (const test *p = test_value_daterange2_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_value_stringrange1_queries[] = {
+    { "tag:bar..foo", "VALUE_RANGE 1 bar foo" },
+    { "bar..foo", "VALUE_RANGE 0 bar foo" },
+    { NULL, NULL }
+};
+
+// Feature test StringValueRangeProcessor with prefixes (added in 1.1.2).
+static bool test_qp_value_stringrange1()
+{
+    Xapian::QueryParser qp;
+    Xapian::StringValueRangeProcessor vrp_default(0);
+    Xapian::StringValueRangeProcessor vrp_tag(1, "tag:", true);
+    qp.add_valuerangeprocessor(&vrp_tag);
+    qp.add_valuerangeprocessor(&vrp_default);
+    for (const test *p = test_value_stringrange1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1433,7 +1612,7 @@ struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     }
 };
 
-static test test_value_customrange1_queries[] = {
+static const test test_value_customrange1_queries[] = {
     { "mars author:Asimov..Bradbury", "(mars:(pos=1) FILTER VALUE_RANGE 4 asimov bradbury)" },
     { NULL, NULL }
 };
@@ -1444,7 +1623,7 @@ static bool test_qp_value_customrange1()
     Xapian::QueryParser qp;
     AuthorValueRangeProcessor vrp_author;
     qp.add_valuerangeprocessor(&vrp_author);
-    for (test *p = test_value_customrange1_queries; p->query; ++p) {
+    for (const test *p = test_value_customrange1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1499,7 +1678,7 @@ static bool test_qp_stoplist1()
     return true;
 }
 
-static test test_mispelled_queries[] = {
+static const test test_mispelled_queries[] = {
     { "doucment search", "document search" },
     { "doucment seeacrh", "document search" },
     { "docment seeacrh test", "document search test" },
@@ -1510,6 +1689,8 @@ static test test_mispelled_queries[] = {
     { "documento", "document" },
     { "documento-documento", "document-document" },
     { "documento-searcho", "document-search" },
+    { "test saerch", "test search" },
+    { "paragraf search", "paragraph search" },
     { NULL, NULL }
 };
 
@@ -1520,6 +1701,14 @@ static bool test_qp_spell1()
     string dbdir = ".flint/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
+    Xapian::Document doc;
+    doc.add_term("document", 6);
+    doc.add_term("search", 7);
+    doc.add_term("saerch", 1);
+    doc.add_term("paragraph", 8);
+    doc.add_term("paragraf", 2);
+    db.add_document(doc);
+
     db.add_spelling("document");
     db.add_spelling("search");
     db.add_spelling("paragraph");
@@ -1529,7 +1718,7 @@ static bool test_qp_spell1()
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
 
-    for (test *p = test_mispelled_queries; p->query; ++p) {
+    for (const test *p = test_mispelled_queries; p->query; ++p) {
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
@@ -1567,7 +1756,7 @@ static bool test_qp_spell2()
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
 
-    for (test *p = test_mispelled_queries; p->query; ++p) {
+    for (const test *p = test_mispelled_queries; p->query; ++p) {
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
@@ -1579,7 +1768,92 @@ static bool test_qp_spell2()
     return true;
 }
 
-static test test_synonym_queries[] = {
+static const test test_mispelled_wildcard_queries[] = {
+    { "doucment", "document" },
+    { "doucment*", "" },
+    { "doucment* seearch", "doucment* search" },
+    { "doucment* search", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser with wildcards.
+// Regression test for bug fixed in 1.1.3 and 1.0.17.
+static bool test_qp_spellwild1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_spellwild1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+
+    const test *p;
+    for (p = test_mispelled_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_WILDCARD);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+    for (p = test_mispelled_wildcard_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_WILDCARD);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
+static const test test_mispelled_partial_queries[] = {
+    { "doucment", "" },
+    { "doucment ", "document " },
+    { "documen", "" },
+    { "documen ", "document " },
+    { "seearch documen", "search documen" },
+    { "search documen", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser with FLAG_PARTIAL.
+// Regression test for bug fixed in 1.1.3 and 1.0.17.
+static bool test_qp_spellpartial1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_spellpartial1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+
+    for (const test *p = test_mispelled_partial_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_PARTIAL);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
+static const test test_synonym_queries[] = {
     { "searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
     { "search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
     { "Search", "(search:(pos=1) SYNONYM find:(pos=1))" },
@@ -1615,7 +1889,7 @@ static bool test_qp_synonym1()
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
 
-    for (test *p = test_synonym_queries; p->query; ++p) {
+    for (const test *p = test_synonym_queries; p->query; ++p) {
 	string expect = "Xapian::Query(";
 	expect += p->expect;
 	expect += ')';
@@ -1628,7 +1902,7 @@ static bool test_qp_synonym1()
     return true;
 }
 
-static test test_multi_synonym_queries[] = {
+static const test test_multi_synonym_queries[] = {
     { "sun OR tan OR cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3))" },
     { "sun tan", "((Zsun:(pos=1) OR Ztan:(pos=2)) SYNONYM bathe:(pos=1))" },
     { "sun tan cream", "((Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3)) SYNONYM lotion:(pos=1))" },
@@ -1656,7 +1930,7 @@ static bool test_qp_synonym2()
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
 
-    for (test *p = test_multi_synonym_queries; p->query; ++p) {
+    for (const test *p = test_multi_synonym_queries; p->query; ++p) {
 	string expect = "Xapian::Query(";
 	expect += p->expect;
 	expect += ')';
@@ -1671,7 +1945,7 @@ static bool test_qp_synonym2()
     return true;
 }
 
-static test test_synonym_op_queries[] = {
+static const test test_synonym_op_queries[] = {
     { "searching", "Zsearch:(pos=1)" },
     { "~searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
     { "~search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
@@ -1708,7 +1982,7 @@ static bool test_qp_synonym3()
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
 
-    for (test *p = test_synonym_op_queries; p->query; ++p) {
+    for (const test *p = test_synonym_op_queries; p->query; ++p) {
 	string expect = "Xapian::Query(";
 	expect += p->expect;
 	expect += ')';
@@ -1725,7 +1999,7 @@ static bool test_qp_synonym3()
     return true;
 }
 
-static test test_stem_all_queries[] = {
+static const test test_stem_all_queries[] = {
     { "\"chemical engineers\"", "(chemic:(pos=1) PHRASE 2 engin:(pos=2))" },
     { "chemical NEAR engineers", "(chemic:(pos=1) NEAR 11 engin:(pos=2))" },
     { "chemical engineers", "(chemic:(pos=1) OR engin:(pos=2))" },
@@ -1737,7 +2011,7 @@ static bool test_qp_stem_all1()
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(qp.STEM_ALL);
-    for (test *p = test_stem_all_queries; p->query; ++p) {
+    for (const test *p = test_stem_all_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1760,10 +2034,9 @@ static bool test_qp_stem_all1()
     return true;
 }
 
-static double time_query_parse(const Xapian::Database & db,
-			       const string & q,
-			       int repetitions,
-			       unsigned flags)
+static double
+time_query_parse(const Xapian::Database & db, const string & q,
+		 int repetitions, unsigned flags)
 {
     Xapian::QueryParser qp;
     qp.set_database(db);
@@ -1855,8 +2128,161 @@ static bool test_qp_scale1()
     return true;
 }
 
+static const test test_near_queries[] = {
+    { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
+    { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
+// FIXME: these give NEAR 2
+//    { "foo -baz bar", "((Zfoo:(pos=1) NEAR 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) NEAR 11 Zthree:(pos=3)))" },
+    { "foo bar", "(Zfoo:(pos=1) NEAR 11 Zbar:(pos=2))" },
+    { "foo bar baz", "(Zfoo:(pos=1) NEAR 12 Zbar:(pos=2) NEAR 12 Zbaz:(pos=3))" },
+    { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
+    { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
+    { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
+    { "author:orwell animal farm", "(ZAorwel:(pos=1) NEAR 12 Zanim:(pos=2) NEAR 12 Zfarm:(pos=3))" },
+    { "author:Orwell Animal Farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
+    { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
+    { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
+    { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
+    { "NOT windows", "Syntax: <expression> NOT <expression>" },
+    { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
+    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
+    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
+    { "OR foo", "Syntax: <expression> OR <expression>" },
+    { "XOR", "Syntax: <expression> XOR <expression>" },
+    { "hard\xa0space", "(Zhard:(pos=1) NEAR 11 Zspace:(pos=2))" },
+    { NULL, NULL }
+};
+
+static bool test_qp_near1()
+{
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("writer", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_prefix("authortitle", "A");
+    queryparser.add_prefix("authortitle", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    queryparser.add_boolean_prefix("site2", "J");
+    queryparser.add_boolean_prefix("multisite", "H");
+    queryparser.add_boolean_prefix("multisite", "J");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
+    queryparser.set_default_op(Xapian::Query::OP_NEAR);
+    for (const test *p = test_near_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = queryparser.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_stopword_group_or_queries[] = {
+    { "this is a test", "test:(pos=4)" },
+    { "test*", "(test:(pos=1) SYNONYM testable:(pos=1) SYNONYM tester:(pos=1))" },
+    { "a test*", "(test:(pos=2) SYNONYM testable:(pos=2) SYNONYM tester:(pos=2))" },
+    { "is a test*", "(test:(pos=3) SYNONYM testable:(pos=3) SYNONYM tester:(pos=3))" },
+    { "this is a test*", "(test:(pos=4) SYNONYM testable:(pos=4) SYNONYM tester:(pos=4))" },
+    { "this is a us* test*", "(user:(pos=4) OR (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { "this is a user test*", "(user:(pos=4) OR (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { NULL, NULL }
+};
+
+static const test test_stopword_group_and_queries[] = {
+    { "this is a test", "test:(pos=4)" },
+    { "test*", "(test:(pos=1) SYNONYM testable:(pos=1) SYNONYM tester:(pos=1))" },
+    { "a test*", "(test:(pos=2) SYNONYM testable:(pos=2) SYNONYM tester:(pos=2))" },
+    // Two stopwords + one wildcard failed in 1.0.16
+    { "is a test*", "(test:(pos=3) SYNONYM testable:(pos=3) SYNONYM tester:(pos=3))" },
+    // Three stopwords + one wildcard failed in 1.0.16
+    { "this is a test*", "(test:(pos=4) SYNONYM testable:(pos=4) SYNONYM tester:(pos=4))" },
+    // Three stopwords + two wildcards failed in 1.0.16
+    { "this is a us* test*", "(user:(pos=4) AND (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { "this is a user test*", "(user:(pos=4) AND (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { NULL, NULL }
+};
+
+// Regression test for bug fixed in 1.0.17 and 1.1.3.
+static bool test_qp_stopword_group1()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("test");
+    doc.add_term("tester");
+    doc.add_term("testable");
+    doc.add_term("user");
+    db.add_document(doc);
+
+    Xapian::SimpleStopper stopper;
+    stopper.add("this");
+    stopper.add("is");
+    stopper.add("a");
+
+    Xapian::QueryParser qp;
+    qp.set_stopper(&stopper);
+    qp.set_database(db);
+
+    // Process test cases with OP_OR first, then with OP_AND.
+    qp.set_default_op(Xapian::Query::OP_OR);
+    const test *p = test_stopword_group_or_queries;
+    for (int i = 1; i <= 2; ++i) {
+	for ( ; p->query; ++p) {
+	    string expect, parsed;
+	    if (p->expect)
+		expect = p->expect;
+	    else
+		expect = "parse error";
+	    try {
+		Xapian::Query qobj = qp.parse_query(p->query, qp.FLAG_WILDCARD);
+		parsed = qobj.get_description();
+		expect = string("Xapian::Query(") + expect + ')';
+	    } catch (const Xapian::QueryParserError &e) {
+		parsed = e.get_msg();
+	    } catch (const Xapian::Error &e) {
+		parsed = e.get_description();
+	    } catch (...) {
+		parsed = "Unknown exception!";
+	    }
+	    tout << "Query: " << p->query << '\n';
+	    TEST_STRINGS_EQUAL(parsed, expect);
+	}
+
+	qp.set_default_op(Xapian::Query::OP_AND);
+	p = test_stopword_group_and_queries;
+    }
+
+    return true;
+#endif
+}
+
 /// Test cases for the QueryParser.
-static test_desc tests[] = {
+static const test_desc tests[] = {
     TESTCASE(queryparser1),
     TESTCASE(qp_default_op1),
     TESTCASE(qp_odd_chars1),
@@ -1873,21 +2299,31 @@ static test_desc tests[] = {
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
+    TESTCASE(qp_value_range4),
     TESTCASE(qp_value_daterange1),
+    TESTCASE(qp_value_daterange2),
+    TESTCASE(qp_value_stringrange1),
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
     TESTCASE(qp_spell2),
+    TESTCASE(qp_spellwild1),
+    TESTCASE(qp_spellpartial1),
     TESTCASE(qp_synonym1),
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
+    TESTCASE(qp_near1),
+    TESTCASE(qp_stopword_group1),
     END_OF_TESTCASES
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

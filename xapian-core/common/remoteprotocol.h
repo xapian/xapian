@@ -1,8 +1,8 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,12 @@
 // 30.4: New query operator OP_SCALE_WEIGHT.
 // 30.5: New MSG_GETMSET which expects MSet's percent_factor to be returned.
 // 30.6: Support for OP_VALUE_GE and OP_VALUE_LE in query serialisation
-// 31: Clean up for Xapian 1.1.0
-// 32: Serialise termfreq and reltermfreqs together in serialise_stats.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 32
+// 31: 1.1.0 Clean up for Xapian 1.1.0
+// 32: 1.1.1 Serialise termfreq and reltermfreqs together in serialise_stats.
+// 33: 1.1.3 Support for passing matchspies over the remote connection.
+// 34: 1.1.4 Support for metadata over with remote databases.
+// 35: 1.1.5 Support for add_spelling() and remove_spelling().
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 35
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
@@ -72,6 +75,10 @@ enum message_type {
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
     MSG_DELETEDOCUMENT,		// Delete Document
     MSG_WRITEACCESS,		// Upgrade to WritableDatabase
+    MSG_GETMETADATA,		// Get metadata
+    MSG_SETMETADATA,		// Set metadata
+    MSG_ADDSPELLING,		// Add a spelling
+    MSG_REMOVESPELLING,		// Remove a spelling
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_MAX
@@ -99,6 +106,7 @@ enum reply_type {
     REPLY_VALUE,		// Document Value
     REPLY_ADDDOCUMENT,		// Add Document
     REPLY_RESULTS,		// Results (MSet)
+    REPLY_METADATA,		// Metadata
     REPLY_MAX
 };
 

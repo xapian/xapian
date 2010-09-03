@@ -1,6 +1,45 @@
 Revision history for Perl extension Search::Xapian.
 
-1.1.1.0  FIXME
+1.2.3.0  Tue Aug 24 06:03:12 UTC 2010
+	[Changes contributed by Tim Brody]
+	- Allow user-specified ExpandDecider to be specified to get_eset().
+	[Changes contributed by Jess Robinson]
+	- Fix bogus "can't find libtool" error when rerunning Makefile.PL and
+	  XAPIAN_CONFIG isn't explicitly specified.
+
+1.2.2.0  Sun Jun 27 03:31:36 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.2.
+
+1.2.1.0  Tue Jun 22 14:48:00 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.1.
+
+1.2.0.0  Wed Apr 28 10:44:15 UTC 2010
+	[This release includes all changes from 1.0.20 which are relevant.]
+
+1.1.5.0  Thu Apr 15 04:23:16 UTC 2010
+	[This release includes all changes from 1.0.19 which are relevant.]
+
+1.1.4.0  Mon Feb 15 14:08:51 UTC 2010
+	[This release includes all changes from 1.0.18 which are relevant.]
+	[Changes contributed by Henry Combrinck]
+	- Add wrappers for the spelling correction functionality (ticket#420).
+	- Add wrapper for Database::close() (ticket#422).
+
+1.1.3.0  Wed Nov 18 11:00:23 UTC 2009
+	[This release includes all changes from 1.0.15-17 which are relevant.]
+	[Changes contributed by Olly Betts]
+	- Wrap new Xapian::SerialisationError class.
+	- Ship simplematchdecider.pl example, which was added in 1.0.13.1 but
+	  accidentally not added to 1.1.1.0.
+	- Work around odd rerunning of Makefile.PL by MakeMaker when srcdir !=
+	  builddir.
+
+1.1.2.0  Thu Jul 23 04:14:29 UTC 2009
+	[This release includes all changes from 1.0.14 which are relevant.]
+
+1.1.1.0  Tue Jun  9 13:22:07 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Add Search::Xapian::MSet::items() method which returns an array
 	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
@@ -12,6 +51,10 @@ Revision history for Perl extension Search::Xapian.
 	- Add more fully featured examples: full-indexer.pl and
 	  full-searcher.pl.
 	- Add better test coverage for MatchDecider.
+	- Catch C++ exceptions from methods of Document and rethrow as Perl
+	  exceptions (ticket#284).
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
 
 1.1.0.0  Thu Apr 22 13:56:31 GMT 2009
 	[Changes contributed by Andreas Marienborg and Olly Betts]
@@ -23,6 +66,64 @@ Revision history for Perl extension Search::Xapian.
 	  However, there's still a wrinkle in this change - you can't currently
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
+
+1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
+	  warning (Debian bug#578559).
+	- Fix testcase t/04functions.t to work with Perl compiled with
+	  -Duselongdouble (Debian bug#578558).
+
+1.0.19.0  Thu Apr 15 03:55:04 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Wrap Document::add_boolean_term() (new in C++ API in 1.0.18).
+	- Add test coverage for Document::remove_term().
+
+1.0.18.0  Sun Feb 14 10:22:53 UTC 2010
+	[Changes contributed by Henry Combrinck]
+	- Add wrappers for the spelling correction functionality (ticket#420).
+
+1.0.17.0  Wed Nov 18 02:02:41 UTC 2009
+	[Changes contributed by Olly Betts]
+	- Fix to build with compilers other than GCC by disabling Perl's
+	  #define for bool.  (ticket#404)
+
+1.0.16.0  Thu Sep 10 06:26:08 UTC 2009
+	[Changes contributed by Olly Betts]
+	- Improve documentation of QueryParser::set_default_op() and
+	  QueryParser::get_default_op().
+	- examples/: Use MSet::items() (new in 1.0.13.1).
+	- examples/simpleexpand.pl: Remove debug print statement left in by
+	  accident.
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
+	- Add better test coverage for MatchDecider.
+
+1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
+	[Changes contributed by Frank Lichtenheld]
+	- Run POD coverage tests if TEST_POD_COVERAGE is set rather than
+	  TEST_POD so that the other POD tests can easily be enabled without
+	  enabling the coverage tests.
+
+1.0.14.0  Tue Jul 21 16:10:19 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Add handling of C++ exceptions from methods of Document (ticket#284).
+
+1.0.13.1  Tue May 26 13:51:18 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Deprecate Search::Xapian::MSet::matches() and make it issue a
+	  warning.  Please use Search::Xapian::MSet::items() instead.
+	- Add another translated example: simplematchdecider.pl
+
+1.0.13.0  Sat May 23 15:10:39 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Add Search::Xapian::MSet::matches() method which returns an array
+	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
+	  you get access to the MSet object itself).
+	- Add new translated version of the simple examples from the Python
+	  bindings.
+	- Add more fully featured examples: full-indexer.pl and
+	  full-searcher.pl.
 
 1.0.12.0  Sun Apr 19 11:18:04 GMT 2009
 	[Changes contributed by Olly Betts]

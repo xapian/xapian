@@ -194,6 +194,8 @@ class MultiAndPostList : public PostList {
      *  that in general.
      */
     Xapian::termcount get_wdf() const;
+
+    Xapian::termcount count_matching_subqs() const;
 };
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H

@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 #include "backendmanager_multi.h"
 
 #include "index_utils.h"
+#include "str.h"
 #include "utils.h"
 
 #include <cstdio> // For rename().
@@ -36,18 +37,19 @@ BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
 	: subtype(subtype_)
 {
     if (!(false
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	  || subtype == "flint"
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	  || subtype == "brass"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	  || subtype == "chert"
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	  || subtype == "flint"
 #endif
 	 )) {
 	throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
     }
 }
-
-BackendManagerMulti::~BackendManagerMulti() { }
 
 std::string
 BackendManagerMulti::get_dbtype() const
@@ -91,17 +93,23 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
 	string subdbdir = dbname;
 	subdbdir += "___";
-	subdbdir += om_tostring(n);
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	if (subtype == "flint") {
-	    dbs[n] = Xapian::Flint::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	    out << "flint " << subdbdir << '\n';
+	subdbdir += str(n);
+#if defined XAPIAN_HAS_BRASS_BACKEND
+	if (subtype == "brass") {
+	    dbs[n] = Xapian::Brass::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    out << "brass " << subdbdir << '\n';
 	}
 #endif
 #if defined XAPIAN_HAS_CHERT_BACKEND
 	if (subtype == "chert") {
 	    dbs[n] = Xapian::Chert::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	    out << "chert " << subdbdir << '\n';
+	}
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	if (subtype == "flint") {
+	    dbs[n] = Xapian::Flint::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    out << "flint " << subdbdir << '\n';
 	}
 #endif
 	

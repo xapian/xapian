@@ -1,7 +1,7 @@
 /* chert_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,10 +28,10 @@
 #include <xapian/error.h>
 
 #include "chert_table.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 static string
 hex_display_encode(const string & input)
 {
@@ -50,13 +50,15 @@ hex_display_encode(const string & input)
 
 #define DIR_START        11
 
-ChertCursor::ChertCursor(ChertTable *B_)
+ChertCursor::ChertCursor(const ChertTable *B_)
 	: is_positioned(false),
 	  is_after_end(false),
 	  tag_status(UNREAD),
 	  B(B_),
+	  version(B_->cursor_version),
 	  level(B_->level)
 {
+    B->cursor_created_since_last_modification = true;
     C = new Cursor[level + 1];
 
     for (int j = 0; j < level; j++) {
@@ -65,6 +67,36 @@ ChertCursor::ChertCursor(ChertTable *B_)
     }
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
+}
+
+void
+ChertCursor::rebuild()
+{
+    int new_level = B->level;
+    if (new_level <= level) {
+	for (int i = 0; i < new_level; i++) {
+	    C[i].n = BLK_UNUSED;
+	}
+	for (int j = new_level; j < level; ++j) {
+	    delete C[j].p;
+	}
+    } else {
+	Cursor * old_C = C;
+	C = new Cursor[new_level + 1];
+	for (int i = 0; i < level; i++) {
+	    C[i].p = old_C[i].p;
+	    C[i].n = BLK_UNUSED;
+	}
+	delete old_C;
+	for (int j = level; j < new_level; j++) {
+	    C[j].p = new byte[B->block_size];
+	    C[j].n = BLK_UNUSED;
+	}
+    }
+    level = new_level;
+    C[level].n = B->C[level].n;
+    C[level].p = B->C[level].p;
+    version = B->cursor_version;
 }
 
 ChertCursor::~ChertCursor()
@@ -80,21 +112,20 @@ ChertCursor::~ChertCursor()
 bool
 ChertCursor::prev()
 {
-    DEBUGCALL(DB, bool, "ChertCursor::prev", "");
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "ChertCursor::prev", NO_ARGS);
     Assert(!is_after_end);
-
-    if (!is_positioned) {
-	// We've read the last key and tag, and we're now not positioned.
-	// Simple fix - seek to the current key, and then it's as if we
-	// read the key but not the tag.
-	bool result = find_entry(current_key);
-	(void)result;
-	Assert(result);
-	tag_status = UNREAD;
-    }
-
-    if (tag_status != UNREAD) {
+    if (B->cursor_version != version || !is_positioned) {
+	// Either the cursor needs rebuilding (in which case find_entry() will
+	// call rebuild() and then reposition the cursor), or we've read the
+	// last key and tag, and we're now not positioned (in which case we
+	// seek to the current key, and then it's as if we read the key but not
+	// the tag).
+	if (!find_entry(current_key)) {
+	    // Exact entry was no longer there after rebuild(), and we've
+	    // automatically ended up on the entry before it.
+	    RETURN(true);
+	}
+    } else if (tag_status != UNREAD) {
 	while (true) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
@@ -125,9 +156,15 @@ ChertCursor::prev()
 bool
 ChertCursor::next()
 {
-    DEBUGCALL(DB, bool, "ChertCursor::next", "");
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "ChertCursor::next", NO_ARGS);
     Assert(!is_after_end);
+    if (B->cursor_version != version) {
+	// find_entry() will call rebuild().
+	(void)find_entry(current_key);
+	// If the key was found, we're now pointing to it, otherwise we're
+	// pointing to the entry before.  Either way, we now want to move to
+	// the next key.
+    }
     if (tag_status == UNREAD) {
 	while (true) {
 	    if (! B->next(C, 0)) {
@@ -156,8 +193,10 @@ ChertCursor::next()
 bool
 ChertCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "ChertCursor::find_entry", key);
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "ChertCursor::find_entry", key);
+    if (B->cursor_version != version) {
+	rebuild();
+    }
 
     is_after_end = false;
 
@@ -202,8 +241,10 @@ done:
 bool
 ChertCursor::find_entry_ge(const string &key)
 {
-    DEBUGCALL(DB, bool, "ChertCursor::find_entry_ge", key);
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "ChertCursor::find_entry_ge", key);
+    if (B->cursor_version != version) {
+	rebuild();
+    }
 
     is_after_end = false;
 
@@ -250,7 +291,7 @@ ChertCursor::get_key(string * key) const
 bool
 ChertCursor::read_tag(bool keep_compressed)
 {
-    DEBUGCALL(DB, bool, "ChertCursor::read_tag", keep_compressed);
+    LOGCALL(DB, bool, "ChertCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD) {
 	Assert(B->level <= level);
 	Assert(is_positioned);
@@ -271,11 +312,15 @@ ChertCursor::read_tag(bool keep_compressed)
 }
 
 bool
-ChertCursor::del()
+MutableChertCursor::del()
 {
     Assert(!is_after_end);
 
-    B->del(current_key);
+    // MutableChertCursor is only constructable from a non-const ChertTable*
+    // but we store that in the const ChertTable* "B" member of the ChertCursor
+    // class to avoid duplicating storage.  So we know it is safe to cast away
+    // that const again here.
+    (const_cast<ChertTable*>(B))->del(current_key);
 
     // If we're iterating an older revision of the tree, then the deletion
     // happens in a new (uncommitted) revision and the cursor still sees

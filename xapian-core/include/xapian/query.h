@@ -44,7 +44,7 @@ struct SortPosName;
 namespace Xapian {
 
 class PostingSource;
-class SerialisationContext;
+class Registry;
 
 /** Class representing a query.
  *
@@ -79,6 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	    /** Find occurrences of a list of terms with all the terms
 	     *  occurring within a specified window of positions.
+	     *
 	     *  Each occurrence of a term must be at a different position,
 	     *  but the order they appear in is irrelevant.
 	     *
@@ -89,8 +90,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	    /** Find occurrences of a list of terms with all the terms
 	     *  occurring within a specified window of positions, and all
-	     *  the terms appearing in the order specified.  Each occurrence
-	     *  of a term must be at a different position.
+	     *  the terms appearing in the order specified.
+	     *
+	     *  Each occurrence of a term must be at a different position.
 	     *
 	     *  The window parameter should be specified for this operation,
 	     *  but will default to the number of terms in the list.
@@ -174,7 +176,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  The Xapian::Query objects are specified with begin and end
 	 *  iterators.
 	 * 
-	 *  AND, OR, NEAR and PHRASE can take any number of subqueries.
+	 *  AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries.
 	 *  Other operators take exactly two subqueries.
 	 *
 	 *  The iterators may be to Xapian::Query objects, pointers to
@@ -285,16 +287,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Unserialise a query from a string produced by serialise().
 	 *
-	 *  The supplied context will be used to attempt to unserialise any
+	 *  The supplied registry will be used to attempt to unserialise any
 	 *  external PostingSource leaf nodes.  This method will fail if the
 	 *  query contains any external PostingSource leaf nodes which are not
-	 *  registered in the context.
+	 *  registered in the registry.
 	 *
 	 *  @param s The string representing the serialised query.
-	 *  @param context A context to use when unserialising the query.
+	 *  @param registry Xapian::Registry to use.
 	 */
 	static Query unserialise(const std::string & s,
-				 const SerialisationContext & context);
+				 const Registry & registry);
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -330,7 +332,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 
 #ifndef SWIG // SWIG has no interest in the internal class, so hide it completely.
 
-/// @internal Internal class, implementing most of Xapian::Query.
+/// @private @internal Internal class, implementing most of Xapian::Query.
 class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::LocalSubMatch;
     friend class ::MultiMatch;
@@ -360,6 +362,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 * For ELITE_SET, the number of terms to select from those specified.
 	 *
 	 * For RANGE, the value number to apply the range test to.
+	 *
+	 * For a leaf node, this is the within query frequency of the term.
 	 */
 	Xapian::termcount parameter;
 
@@ -377,23 +381,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// Position in query of this term - leaf node only
 	Xapian::termpos term_pos;
 
-	/// Within query frequency of this term - leaf node only
-	Xapian::termcount wqf;
-
 	/// External posting source.
 	Xapian::PostingSource * external_source;
 
 	/// Flag, indicating whether the external source is owned by the query.
 	bool external_source_owned;
-
-	/** swap the contents of this with another Xapian::Query::Internal,
-	 *  in a way which is guaranteed not to throw.  This is
-	 *  used with the assignment operator to make it exception
-	 *  safe.
-	 *  It's important to adjust swap with any addition of
-	 *  member variables!
-	 */
-	void swap(Query::Internal &other);
 
 	/// Copy another Xapian::Query::Internal into self.
 	void initialise_from_copy(const Query::Internal & copyme);
@@ -407,10 +399,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	Internal * simplify_query();
 
-	/** Perform checks that query is valid. (eg, has correct number of
+	/** Perform checks that query is valid. (e.g., has correct number of
 	 *  sub queries.)  Throw an exception if not.  This is initially called
 	 *  on the query before any simplifications have been made, and after
-	 *  simplications.
+	 *  simplifications.
 	 */
 	void validate_query() const;
 
@@ -467,7 +459,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	~Internal();
 
 	static Xapian::Query::Internal * unserialise(const std::string &s,
-						     const SerialisationContext & context);
+						     const Registry & registry);
 
 	/** Add a subquery. */
 	void add_subquery(const Query::Internal * subq);
@@ -505,6 +497,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 *  that is unclear, so this is a temporary workaround.
 	 */
 	Xapian::termcount get_parameter() const { return parameter; }
+
+	Xapian::termcount get_wqf() const { return parameter; }
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically - if you want to override

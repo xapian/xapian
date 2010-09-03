@@ -14,8 +14,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_databasereplicator.h\
 	backends/chert/chert_dbstats.h\
 	backends/chert/chert_document.h\
-	backends/chert/chert_io.h\
-	backends/chert/chert_lock.h\
+	backends/chert/chert_lazytable.h\
 	backends/chert/chert_metadata.h\
 	backends/chert/chert_modifiedpostlist.h\
 	backends/chert/chert_positionlist.h\
@@ -29,7 +28,6 @@ noinst_HEADERS +=\
 	backends/chert/chert_termlist.h\
 	backends/chert/chert_termlisttable.h\
 	backends/chert/chert_types.h\
-	backends/chert/chert_utils.h\
 	backends/chert/chert_valuelist.h\
 	backends/chert/chert_values.h\
 	backends/chert/chert_version.h
@@ -44,8 +42,6 @@ lib_src +=\
 	backends/chert/chert_databasereplicator.cc\
 	backends/chert/chert_dbstats.cc\
 	backends/chert/chert_document.cc\
-	backends/chert/chert_io.cc\
-	backends/chert/chert_lock.cc\
 	backends/chert/chert_metadata.cc\
 	backends/chert/chert_modifiedpostlist.cc\
 	backends/chert/chert_positionlist.cc\

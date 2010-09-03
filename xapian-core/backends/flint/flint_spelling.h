@@ -1,7 +1,7 @@
 /** @file flint_spelling.h
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include <string.h> // For memcpy() and memcmp().
+#include <cstring> // For memcpy() and memcmp().
 
 struct F_fragment {
     char data[4];
@@ -38,22 +38,22 @@ struct F_fragment {
     F_fragment() { }
 
     // Allow implicit conversion.
-    F_fragment(char data_[4]) { memcpy(data, data_, 4); }
+    F_fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string () const {
-	return string(data, data[0] == 'M' ? 4 : 3);
+	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 };
 
 inline bool operator<(const F_fragment &a, const F_fragment &b) {
-    return memcmp(a.data, b.data, 4) < 0;
+    return std::memcmp(a.data, b.data, 4) < 0;
 }
 
 class FlintSpellingTable : public FlintTable {
-    void toggle_fragment(F_fragment frag, const string & word);
+    void toggle_fragment(F_fragment frag, const std::string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<F_fragment, std::set<std::string> > termlist_deltas;
@@ -78,7 +78,7 @@ class FlintSpellingTable : public FlintTable {
 
     TermList * open_termlist(const std::string & word);
 
-    Xapian::doccount get_word_frequency(const string & word) const;
+    Xapian::doccount get_word_frequency(const std::string & word) const;
 
     /** Override methods of FlintTable.
      *
@@ -146,7 +146,9 @@ class FlintSpellingTermList : public TermList {
 
     Xapian::termcount get_collection_freq() const;
 
-    TermList *next();
+    TermList * next();
+
+    TermList * skip_to(const std::string & term);
 
     bool at_end() const;
 

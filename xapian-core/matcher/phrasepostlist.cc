@@ -22,12 +22,12 @@
  */
 
 #include <config.h>
-
 #include "phrasepostlist.h"
+
+#include "debuglog.h"
 #include "positionlist.h"
 #include "omassert.h"
-#include "omdebug.h"
-#include "utils.h"
+#include "str.h"
 
 #include <algorithm>
 
@@ -49,7 +49,7 @@ class PositionListCmpLt {
 bool
 NearPostList::test_doc()
 {
-    DEBUGCALL(MATCH, bool, "NearPostList::test_doc", "");
+    LOGCALL(MATCH, bool, "NearPostList::test_doc", NO_ARGS);
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::iterator i;
@@ -76,7 +76,7 @@ bool
 NearPostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
 		      Xapian::termcount min, Xapian::termcount max)
 {
-    DEBUGCALL(MATCH, bool, "NearPostList::do_test", "[plists], " << i << ", " << min << ", " << max);
+    LOGCALL(MATCH, bool, "NearPostList::do_test", plists | i | min | max);
     LOGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     Xapian::termcount tmp = max + 1;
     // take care to avoid underflow
@@ -147,15 +147,14 @@ NearPostList::get_wdf() const
 
     // Ensure that we always return a wdf of at least 1, since we know there
     // was at least one occurrence of the phrase.
-    return std::max(wdf, 1u);
+    return std::max(wdf, Xapian::termcount(1));
 }
 
 TermFreqs
 NearPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "NearPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "NearPostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - FIXME
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 2;
@@ -166,7 +165,7 @@ NearPostList::get_termfreq_est_using_stats(
 std::string
 NearPostList::get_description() const
 {
-    return "(Near " + om_tostring(window) + " " + source->get_description() + ")";
+    return "(Near " + str(window) + " " + source->get_description() + ")";
 }
 
 
@@ -176,7 +175,7 @@ NearPostList::get_description() const
 bool
 PhrasePostList::test_doc()
 {
-    DEBUGCALL(MATCH, bool, "PhrasePostList::test_doc", "");
+    LOGCALL(MATCH, bool, "PhrasePostList::test_doc", NO_ARGS);
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::iterator i;
@@ -211,7 +210,7 @@ bool
 PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
 			Xapian::termcount min, Xapian::termcount max)
 {
-    DEBUGCALL(MATCH, bool, "PhrasePostList::do_test", "[plists],  " << i << ", " << min << ", " << max);
+    LOGCALL(MATCH, bool, "PhrasePostList::do_test", plists | i | min | max);
     LOGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     Xapian::termpos idxi = plists[i]->index;
     LOGLINE(MATCH, "my idx in phrase is " << idxi);
@@ -275,15 +274,14 @@ PhrasePostList::get_wdf() const
 
     // Ensure that we always return a wdf of at least 1, since we know there
     // was at least one occurrence of the phrase.
-    return std::max(wdf / 2, 1u);
+    return std::max(wdf / 2, Xapian::termcount(1));
 }
 
 TermFreqs
 PhrasePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "PhrasePostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "PhrasePostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - FIXME
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 3;
@@ -294,6 +292,6 @@ PhrasePostList::get_termfreq_est_using_stats(
 std::string
 PhrasePostList::get_description() const
 {
-    return "(Phrase " + om_tostring(window) + " "
+    return "(Phrase " + str(window) + " "
 	   + source->get_description() + ")";
 }

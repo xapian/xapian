@@ -2,10 +2,10 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
- * Copyright 2007,2008 Lemur Consulting Ltd
+ * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,9 +28,10 @@
 #include "multimatch.h"
 
 #include "collapser.h"
+#include "debuglog.h"
 #include "submatch.h"
-#include "localmatch.h"
-#include "omdebug.h"
+#include "localsubmatch.h"
+#include "omassert.h"
 #include "omenquireinternal.h"
 
 #include "emptypostlist.h"
@@ -44,9 +45,11 @@
 
 #include "msetcmp.h"
 
+#include "valuestreamdocument.h"
 #include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
+#include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -56,6 +59,7 @@
 
 #include <algorithm>
 #include <cfloat> // For DBL_EPSILON.
+#include <climits> // For UINT_MAX.
 #include <vector>
 #include <map>
 #include <set>
@@ -85,10 +89,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 		 Xapian::doccount number_of_subdbs,
 		 vector<Xapian::RSet> & subrsets)
 {
-    DEBUGCALL_STATIC(MATCH, void, "split_rset_by_db",
-		     (rset ? *rset : Xapian::RSet()) <<
-		     ", " << number_of_subdbs <<
-		     ", [subrsets(size=" << subrsets.size() << "]");
+    LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", rset | number_of_subdbs | subrsets);
     if (rset) {
 	if (number_of_subdbs == 1) {
 	    // The common case of a single database is easy to handle.
@@ -139,9 +140,7 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
 		    Xapian::Weight::Internal & stats)
 {
-    DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
-		     "[leaves(size=" << leaves.size() << ")], " <<
-		     errorhandler << ", " << stats);
+    LOGCALL_STATIC_VOID(MATCH, "prepare_sub_matches", leaves | errorhandler | stats);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -173,6 +172,32 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
     }
 }
 
+/// Class which applies several match spies in turn.
+class MultipleMatchSpy : public Xapian::MatchSpy {
+  private:
+    /// List of match spies to call, in order.
+    const std::vector<Xapian::MatchSpy *> & spies;
+
+  public:
+    MultipleMatchSpy(const std::vector<Xapian::MatchSpy *> & spies_)
+	    : spies(spies_) {}
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation calls all the spies in turn.
+     */
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+};
+
+void 
+MultipleMatchSpy::operator()(const Xapian::Document &doc, Xapian::weight wt) {
+    LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = spies.begin(); i != spies.end(); ++i) {
+	(**i)(doc, wt);
+    }
+}
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -187,27 +212,22 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::valueno sort_key_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
-		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
-		       const Xapian::Weight * weight_)
+		       const Xapian::Weight * weight_,
+		       const vector<Xapian::MatchSpy *> & matchspies_,
+		       bool have_sorter, bool have_mdecider)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
 	  percent_cutoff(percent_cutoff_), weight_cutoff(weight_cutoff_),
 	  order(order_),
 	  sort_key(sort_key_), sort_by(sort_by_),
-	  sort_value_forward(sort_value_forward_), sorter(sorter_),
+	  sort_value_forward(sort_value_forward_),
 	  errorhandler(errorhandler_), weight(weight_),
-	  is_remote(db.internal.size())
+	  is_remote(db.internal.size()),
+	  matchspies(matchspies_)
 {
-    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
-	      collapse_max_ << ", " << collapse_key_ << ", " <<
-	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
-	      int(order_) << ", " << sort_key_ << ", " <<
-	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
-	      sorter_ << ", " <<
-	      errorhandler_ << ", " << stats << ", [weight_]");
+    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     if (!query) return;
     query->validate_query();
@@ -225,19 +245,28 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
+		if (have_sorter) {
+		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
+		}
+		if (have_mdecider) {
+		    throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
+		}
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
 				  percent_cutoff, weight_cutoff, weight,
-				  subrsets[i]);
+				  subrsets[i], matchspies);
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
+		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 		is_remote[i] = true;
 	    } else {
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
+#else
+	    // Avoid unused parameter warnings.
+	    (void)have_sorter;
+	    (void)have_mdecider;
+	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;
@@ -249,6 +278,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
+    stats.mark_wanted_terms(*query);
     prepare_sub_matches(leaves, errorhandler, stats);
     stats.set_bounds_from_db(db);
 }
@@ -256,7 +286,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 Xapian::weight
 MultiMatch::getorrecalc_maxweight(PostList *pl)
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
+    LOGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
     Xapian::weight wt;
     if (recalculate_w_max) {
 	LOGLINE(MATCH, "recalculating max weight");
@@ -276,11 +306,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::MSet & mset,
 		     const Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
-		     const Xapian::MatchDecider *matchspy)
+		     const Xapian::MatchDecider *matchspy_legacy,
+		     const Xapian::KeyMaker *sorter)
 {
-    DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
-	      << ", " << check_at_least << ", ...");
-    if (check_at_least < maxitems) check_at_least = maxitems;
+    LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("matchspy_legacy") | Literal("sorter"));
+    AssertRel(check_at_least,>=,maxitems);
 
     if (!query) {
 	mset = Xapian::MSet(); // FIXME: mset.get_firstitem() will return 0 not first
@@ -326,6 +356,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts_ptr;
     termfreqandwts_ptr = &termfreqandwts;
 
+    Xapian::termcount total_subqs = 0;
     // Keep a count of matches which we know exist, but we won't see.  This
     // occurs when a submatch is remote, and returns a lower bound on the
     // number of matching documents which is higher than the number of
@@ -335,7 +366,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	PostList *pl;
 	try {
 	    pl = leaves[i]->get_postlist_and_term_info(this,
-						       termfreqandwts_ptr);
+						       termfreqandwts_ptr,
+						       &total_subqs);
 	    if (termfreqandwts_ptr && !termfreqandwts.empty())
 		termfreqandwts_ptr = NULL;
 	    if (is_remote[i]) {
@@ -362,17 +394,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
     Assert(!postlists.empty());
 
+    ValueStreamDocument vsdoc(db);
+    ++vsdoc.ref_count;
+    Xapian::Document doc(&vsdoc);
+
     // Get a single combined postlist
     PostList *pl;
     if (postlists.size() == 1) {
 	pl = postlists.front();
     } else {
-	pl = new MergePostList(postlists, this, errorhandler);
+	pl = new MergePostList(postlists, this, vsdoc, errorhandler);
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
     {
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator tfwi;
 	for (tfwi = termfreqandwts.begin(); tfwi != termfreqandwts.end(); ++tfwi) {
@@ -384,6 +420,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Empty result set
     Xapian::doccount docs_matched = 0;
     Xapian::weight greatest_wt = 0;
+    Xapian::termcount greatest_wt_subqs_matched = 0;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    unsigned greatest_wt_subqs_db_num = UINT_MAX;
+#endif
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
@@ -396,11 +436,22 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
-    if (mdecider == NULL && matchspy == NULL) {
+    if (mdecider == NULL && matchspy_legacy == NULL) {
 	// If we have a matcher decider or match spy, the lower bound must be
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
 	matches_lower_bound = pl->get_termfreq_min();
+    }
+
+    // Prepare the matchspy
+    Xapian::MatchSpy *matchspy = NULL;
+    MultipleMatchSpy multispy(matchspies);
+    if (!matchspies.empty()) {
+	if (matchspies.size() == 1) {
+	    matchspy = matchspies[0];
+	} else {
+	    matchspy = &multispy;
+	}
     }
 
     // Check if any results have been asked for (might just be wanting
@@ -430,9 +481,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	return;
     }
 
-    // Number of documents considered by a decider or matchspy.
+    // Number of documents considered by a decider or matchspy_legacy.
     Xapian::doccount decider_considered = 0;
-    // Number of documents denied by the decider or matchspy.
+    // Number of documents denied by the decider or matchspy_legacy.
     Xapian::doccount decider_denied = 0;
 
     // Set max number of results that we want - this is used to decide
@@ -520,17 +571,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    calculated_weight = true;
 	}
 
-	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 	Xapian::docid did = pl->get_docid();
+	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
-	    doc = db.get_document_lazily(did);
-	    Assert(doc.get());
 	    if (sorter) {
-		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
+		new_item.sort_key = (*sorter)(doc);
 	    } else {
-		new_item.sort_key = doc->get_value(sort_key);
+		new_item.sort_key = vsdoc.get_value(sort_key);
 	    }
 
 	    // We're sorting by value (in part at least), so compare the item
@@ -538,12 +587,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // VAL, then new_item.wt won't yet be set, but that doesn't
 	    // matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) {
-		if (matchspy == NULL && mdecider == NULL && !collapser) {
+		if (mdecider == NULL && !collapser && matchspy_legacy == NULL) {
 		    // Document was definitely suitable for mset - no more
 		    // processing needed.
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
 		    if (!calculated_weight) wt = pl->get_weight();
+		    if (matchspy) {
+			matchspy->operator()(doc, wt);
+		    }
 		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}
@@ -556,34 +608,36 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    continue;
 		}
 		// We can't drop the item, because we need to show it
-		// to the matchspy, test whether the mdecider would
+		// to the matchspy_legacy, test whether the mdecider would
 		// accept it, and/or test whether it would be collapsed.
 		LOGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
 	    }
 	}
 
 	// Use the match spy and/or decision functors (if specified).
-	if (matchspy != NULL || mdecider != NULL) {
+	if (matchspy != NULL || mdecider != NULL || matchspy_legacy != NULL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	    // If the results are from a remote database, then the functor will
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
-		if (doc.get() == 0) {
-		    doc = db.get_document_lazily(did);
-		    Assert(doc.get());
-		}
-		Xapian::Document mydoc(doc.get());
-
 		++decider_considered;
-		if (matchspy && !matchspy->operator()(mydoc)) {
+		if (matchspy_legacy && !matchspy_legacy->operator()(doc)) {
 		    ++decider_denied;
 		    continue;
 		}
-		if (mdecider && !mdecider->operator()(mydoc)) {
+		if (mdecider && !mdecider->operator()(doc)) {
 		    ++decider_denied;
 		    continue;
+		}
+		if (matchspy) {
+		    if (!calculated_weight) {
+			wt = pl->get_weight();
+			new_item.wt = wt;
+			calculated_weight = true;
+		    }
+		    matchspy->operator()(doc, wt);
 		}
 	    }
 	}
@@ -599,7 +653,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Perform collapsing on key if requested.
 	if (collapser) {
 	    collapse_result res;
-	    res = collapser.process(new_item, pl, db, doc, mcmp);
+	    res = collapser.process(new_item, pl, vsdoc, mcmp);
 	    if (res == REJECTED) {
 		// If we're sorting by relevance primarily, then we throw away
 		// the lower weighted document anyway.
@@ -715,6 +769,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 new_greatest_weight:
 	    greatest_wt = wt;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    const unsigned int multiplier = db.internal.size();
+	    unsigned int db_num = (did - 1) % multiplier;
+	    if (is_remote[db_num]) {
+		// Note that the greatest weighted document came from a remote
+		// database, and which one.
+		greatest_wt_subqs_db_num = db_num;
+	    } else
+#endif
+	    {
+		greatest_wt_subqs_matched = pl->count_matching_subqs();
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+		greatest_wt_subqs_db_num = UINT_MAX;
+#endif
+	    }
 	    if (percent_cutoff) {
 		Xapian::weight w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
@@ -752,80 +821,20 @@ new_greatest_weight:
 	best = min_element(items.begin(), items.end(), mcmp);
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (best->did - 1) % multiplier; // which actual database
-	// If the top result is from a remote database, then we can
-	// just use the percentage scaling calculated for that
-	// database.
-	if (is_remote[n]) {
+	if (greatest_wt_subqs_db_num != UINT_MAX) {
+	    const unsigned int n = greatest_wt_subqs_db_num;
 	    RemoteSubMatch * rem_match;
 	    rem_match = static_cast<RemoteSubMatch*>(leaves[n].get());
-	    percent_scale = rem_match->get_percent_factor();
+	    percent_scale = rem_match->get_percent_factor() / 100.0;
 	} else
 #endif
-	if (termfreqandwts.size() > 1) {
-	    Xapian::termcount matching_terms = 0;
-	    map<string,
-		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
-
-	    // Special case for MatchAll queries.
-	    i = termfreqandwts.find(string());
-	    if (i != termfreqandwts.end()) {
-		percent_scale += i->second.termweight;
-		++matching_terms;
-	    }
-
-	    Xapian::TermIterator docterms = db.termlist_begin(best->did);
-	    Xapian::TermIterator docterms_end = db.termlist_end(best->did);
-	    while (docterms != docterms_end) {
-		i = termfreqandwts.find(*docterms);
-		if (i != termfreqandwts.end()) {
-		    LOGLINE(MATCH, "adding " << i->second.termweight <<
-			    " to percent_scale for term '" <<
-			    *docterms << "'");
-		    percent_scale += i->second.termweight;
-		    ++matching_terms;
-		    if (matching_terms == termfreqandwts.size()) break;
-		}
-		++docterms;
-	    }
-
-	    if (matching_terms < termfreqandwts.size()) {
-		if (percent_scale == 0.0) {
-		    // This happens if the only matching terms are synonyms.
-		    percent_scale = 1.0;
-		} else {
-		    // OK, work out weight corresponding to 100%
-		    double denom = 0;
-		    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
-			denom += i->second.termweight;
-
-		    LOGVALUE(MATCH, denom);
-		    LOGVALUE(MATCH, percent_scale);
-		    AssertRel(percent_scale,<=,denom);
-		    if (denom == 0) {
-			// This happens if the top-level operator is OP_SYNONYM.
-			percent_scale = 1.0 / greatest_wt;
-		    } else {
-			denom *= greatest_wt;
-			AssertRel(denom,>,0);
-			percent_scale /= denom;
-		    }
-		}
-	    } else {
-		// If all the terms match, the 2 sums of weights cancel.
-		percent_scale = 1.0 / greatest_wt;
-	    }
-	} else {
-	    // If there's only a single term in the query, the top document
-	    // must score 100%.
-	    percent_scale = 1.0 / greatest_wt;
+	{
+	    percent_scale = greatest_wt_subqs_matched / double(total_subqs);
+	    percent_scale /= greatest_wt;
 	}
 	Assert(percent_scale > 0);
 	if (percent_cutoff) {
-	    // FIXME: better to sort and binary chop maybe?  we
-	    // could use the sort above to find "best" too.
+	    // FIXME: better to sort and binary chop maybe?
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
@@ -876,7 +885,7 @@ new_greatest_weight:
 	    = items.size();
 	if (collapser && matches_lower_bound > uncollapsed_lower_bound)
 	    uncollapsed_lower_bound = matches_lower_bound;
-    } else if (docs_matched < check_at_least) {
+    } else if (!collapser && docs_matched < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
 	LOGLINE(MATCH, "Setting bounds equal");
@@ -920,7 +929,7 @@ new_greatest_weight:
 		    ", matches_upper_bound=" << matches_upper_bound);
 	}
 
-	if (matchspy || mdecider) {
+	if (mdecider || matchspy_legacy) {
 	    if (!percent_cutoff) {
 		if (!collapser) {
 		    // We're not collapsing or doing a percentage cutoff, so
@@ -984,7 +993,7 @@ new_greatest_weight:
 	       	matches_estimated = matches_lower_bound;
 	}
 
-	if (collapser || matchspy || mdecider) {
+	if (collapser || mdecider || matchspy_legacy) {
 	    LOGLINE(MATCH, "Clamping estimate between bounds: "
 		    "matches_lower_bound = " << matches_lower_bound <<
 		    ", matches_estimated = " << matches_estimated <<
@@ -1000,7 +1009,7 @@ new_greatest_weight:
 		matches_estimated = docs_matched;
 	}
 
-	if (collapser && !matchspy && !mdecider && !percent_cutoff) {
+	if (collapser && !mdecider && !percent_cutoff && !matchspy_legacy) {
 	    AssertRel(docs_matched,<=,uncollapsed_upper_bound);
 	    if (docs_matched > uncollapsed_lower_bound)
 		uncollapsed_lower_bound = docs_matched;

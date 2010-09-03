@@ -25,11 +25,11 @@
 
 #include "omqueryinternal.h"
 
-#include "serialisationcontextinternal.h"
-#include "omdebug.h"
-#include "utils.h"
+#include "debuglog.h"
+#include "registryinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 
 #include <xapian/error.h>
 #include <xapian/postingsource.h>
@@ -114,6 +114,20 @@ is_leaf(Xapian::Query::Internal::op_t op)
     return (op == Xapian::Query::Internal::OP_LEAF);
 }
 
+inline bool
+is_distributable(Xapian::Query::Internal::op_t op)
+{
+    switch (op) {
+	case Xapian::Query::OP_AND:
+	case Xapian::Query::OP_OR:
+	case Xapian::Query::OP_XOR:
+	case Xapian::Query::OP_SYNONYM:
+	    return true;
+	default:
+	    return false;
+    }
+}
+
 // Methods for Xapian::Query::Internal
 
 /** serialising method, for network matches.
@@ -145,7 +159,8 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	result += encode_length(tname.length());
 	result += tname;
 	if (term_pos != curpos) result += '@' + encode_length(term_pos);
-	if (wqf != 1) result += '#' + encode_length(wqf);
+	// parameter is wqf.
+	if (parameter != 1) result += '#' + encode_length(parameter);
 	++curpos;
     } else if (op == Xapian::Query::Internal::OP_EXTERNAL_SOURCE) {
 	string sourcename = external_source->name();
@@ -267,11 +282,12 @@ Xapian::Query::Internal::get_description() const
 
     if (is_leaf(op)) {
 	if (term_pos != 0) {
-	    opstr += "pos=" + om_tostring(term_pos);
+	    opstr += "pos=" + str(term_pos);
 	}
-	if (wqf != 1) {
+	// parameter is wqf.
+	if (parameter != 1) {
 	    if (!opstr.empty()) opstr += ",";
-	    opstr += "wqf=" + om_tostring(wqf);
+	    opstr += "wqf=" + str(parameter);
 	}
 	if (!opstr.empty()) opstr = ":(" + opstr + ")";
 	if (tname.empty()) return "<alldocuments>" + opstr;
@@ -282,7 +298,7 @@ Xapian::Query::Internal::get_description() const
 	case Xapian::Query::OP_VALUE_RANGE:
 	    opstr = get_op_name(op);
 	    opstr += ' ';
-	    opstr += om_tostring(parameter);
+	    opstr += str(parameter);
 	    opstr += ' ';
 	    opstr += tname;
 	    opstr += ' ';
@@ -292,12 +308,12 @@ Xapian::Query::Internal::get_description() const
 	case Xapian::Query::OP_VALUE_LE:
 	    opstr = get_op_name(op);
 	    opstr += ' ';
-	    opstr += om_tostring(parameter);
+	    opstr += str(parameter);
 	    opstr += ' ';
 	    opstr += tname;
 	    return opstr;
 	case Xapian::Query::OP_SCALE_WEIGHT:
-	    opstr += om_tostring(get_dbl_parameter());
+	    opstr += str(get_dbl_parameter());
 	    opstr += " * ";
 	    opstr += subqs[0]->get_description();
 	    return opstr;
@@ -312,7 +328,7 @@ Xapian::Query::Internal::get_description() const
     if (op == Xapian::Query::OP_NEAR ||
 	op == Xapian::Query::OP_PHRASE ||
 	op == Xapian::Query::OP_ELITE_SET)
-	opstr += om_tostring(parameter) + " ";
+	opstr += str(parameter) + " ";
 
     string description;
     subquery_list::const_iterator i;
@@ -327,7 +343,10 @@ Xapian::Query::Internal::get_description() const
 Xapian::termcount
 Xapian::Query::Internal::get_length() const
 {
-    if (is_leaf(op)) return wqf;
+    if (is_leaf(op)) {
+	// parameter is wqf.
+	return parameter;
+    }
     Xapian::termcount len = 0;
     subquery_list::const_iterator i;
     for (i = subqs.begin(); i != subqs.end(); ++i) {
@@ -399,16 +418,15 @@ class QUnserial {
     const char *p;
     const char *end;
     Xapian::termpos curpos;
-    const Xapian::SerialisationContext & ctx;
+    const Xapian::Registry & reg;
 
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readexternal();
     Xapian::Query::Internal * readcompound();
 
   public:
-    QUnserial(const string & s,
-	      const Xapian::SerialisationContext & ctx_)
-	    : p(s.c_str()), end(p + s.size()), curpos(1), ctx(ctx_) { }
+    QUnserial(const string & s, const Xapian::Registry & reg_)
+	    : p(s.c_str()), end(p + s.size()), curpos(1), reg(reg_) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -463,7 +481,7 @@ QUnserial::readexternal()
 
     size_t length = decode_length(&p, end, true);
     string sourcename(p, length);
-    const Xapian::PostingSource * source = ctx.get_posting_source(sourcename);
+    const Xapian::PostingSource * source = reg.get_posting_source(sourcename);
     if (source == NULL) {
 	throw Xapian::InvalidArgumentError("PostingSource " + sourcename +
 					   " not registered");
@@ -607,43 +625,21 @@ QUnserial::readcompound() {
 
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &s,
-		const Xapian::SerialisationContext & ctx)
+				     const Xapian::Registry & reg)
 {
     Assert(s.length() > 1);
-    QUnserial u(s, ctx);
+    QUnserial u(s, reg);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;
 }
 #else
 Xapian::Query::Internal *
-Xapian::Query::Internal::unserialise(const string &,
-		const Xapian::SerialisationContext & ctx)
+Xapian::Query::Internal::unserialise(const string &, const Xapian::Registry &)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }
 #endif
-
-/** Swap the contents of this with another Xapian::Query::Internal,
- *  in a way which is guaranteed not to throw.  This is
- *  used with the assignment operator to make it exception
- *  safe.
- *  It's important to adjust swap with any addition of
- *  member variables!
- */
-void
-Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
-{
-    std::swap(op, other.op);
-    subqs.swap(other.subqs);
-    std::swap(parameter, other.parameter);
-    std::swap(tname, other.tname);
-    std::swap(str_parameter, other.str_parameter);
-    std::swap(term_pos, other.term_pos);
-    std::swap(wqf, other.wqf);
-    std::swap(external_source, other.external_source);
-    std::swap(external_source_owned, other.external_source_owned);
-}
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	: Xapian::Internal::RefCntBase(),
@@ -653,7 +649,6 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  tname(copyme.tname),
 	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
-	  wqf(copyme.wqf),
 	  external_source(NULL),
 	  external_source_owned(false)
 {
@@ -680,10 +675,9 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 		 Xapian::termpos term_pos_)
 	: op(Xapian::Query::Internal::OP_LEAF),
 	  subqs(),
-	  parameter(0),
+	  parameter(wqf_),
 	  tname(tname_),
 	  term_pos(term_pos_),
-	  wqf(wqf_),
 	  external_source(NULL),
 	  external_source_owned(false)
 {
@@ -696,7 +690,6 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 	  parameter(parameter_),
 	  tname(),
 	  term_pos(0),
-	  wqf(0),
 	  external_source(NULL),
 	  external_source_owned(false)
 {
@@ -731,9 +724,8 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
     if (op == OP_VALUE_GE && value.empty()) {
 	// Map '<value> >= ""' to MatchAll.
 	op = OP_LEAF;
-	parameter = 0;
+	parameter = 1; // wqf
 	term_pos = 0;
-	wqf = 1;
     }
     validate_query();
 }
@@ -759,7 +751,7 @@ Xapian::Query::Internal::~Internal()
 Xapian::Query::Internal *
 Xapian::Query::Internal::end_construction()
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::end_construction", "");
+    LOGCALL_VOID(MATCH, "Xapian::Query::Internal::end_construction", NO_ARGS);
     validate_query();
     Xapian::Query::Internal * qint = simplify_query();
     if (qint) qint->validate_query();
@@ -769,16 +761,16 @@ Xapian::Query::Internal::end_construction()
 void
 Xapian::Query::Internal::validate_query() const
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
+    LOGCALL_VOID(MATCH, "Xapian::Query::Internal::validate_query", NO_ARGS);
 
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
 	subqs.size() > get_max_subqs(op)) {
 	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
-		" requires a minimum of " + om_tostring(get_min_subqs(op)) +
-		" and a maximum of " + om_tostring(get_max_subqs(op)) +
+		" requires a minimum of " + str(get_min_subqs(op)) +
+		" and a maximum of " + str(get_max_subqs(op)) +
 		" sub queries, had " +
-		om_tostring(subqs.size()) + ".");
+		str(subqs.size()) + ".");
     }
 
     if (op == OP_SCALE_WEIGHT && get_dbl_parameter() < 0) {
@@ -863,7 +855,7 @@ Xapian::Query::Internal::simplify_matchnothing()
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
-    DEBUGCALL(API, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", "");
+    LOGCALL(MATCH, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", NO_ARGS);
 
     // Simplify any MatchNothing nodes.
     if (simplify_matchnothing()) {
@@ -969,7 +961,8 @@ Xapian::Query::Internal::collapse_subqs()
 	    } else {
 		AssertEq((*s)->tname, (*sq)->tname);
 		AssertEq((*s)->term_pos, (*sq)->term_pos);
-		(*s)->wqf += (*sq)->wqf;
+		// parameter is wqf.
+		(*s)->parameter += (*sq)->parameter;
 		// Rather than incrementing sq, delete the current
 		// element, as it has been merged into the other
 		// equivalent term.
@@ -1047,7 +1040,7 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
+    } else if (op == subq->op && is_distributable(op)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {
@@ -1064,7 +1057,7 @@ Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
+    } else if (op == subq->op && is_distributable(op)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {
@@ -1082,7 +1075,7 @@ Xapian::Query::Internal::set_dbl_parameter(double dbl_parameter_)
     // We store the double parameter encoded as a string because
     // Xapian::Query::Internal is defined in an external API header and we want
     // to avoid any risk of ABI breakage (we suspect it would be OK, but it's
-    // not risking).  FIXME: rework in 1.1.x series - see ticket #280
+    // not risking).  FIXME:1.3: rework in 1.3.x series - see ticket #280
     str_parameter = serialise_double(dbl_parameter_);
 }
 
@@ -1092,7 +1085,7 @@ Xapian::Query::Internal::get_dbl_parameter() const
     // We store the double parameter encoded as a string because
     // Xapian::Query::Internal is defined in an external API header and we want
     // to avoid any risk of ABI breakage (we suspect it would be OK, but it's
-    // not risking).  FIXME: rework in 1.1.x series - see ticket #280
+    // not risking).  FIXME:1.3: rework in 1.3.x series - see ticket #280
     const char * p = str_parameter.data();
     const char * end = p + str_parameter.size();
     return unserialise_double(&p, end);

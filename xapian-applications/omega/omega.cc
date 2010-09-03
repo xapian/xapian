@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,9 +23,9 @@
 
 #include <config.h>
 
-#include <assert.h>
-#include <stdio.h>
-#include <time.h>
+#include <cassert>
+#include <cstdio>
+#include <ctime>
 
 #include <algorithm>
 #include <cstring>
@@ -39,6 +39,7 @@
 #include "utils.h"
 #include "cgiparam.h"
 #include "query.h"
+#include "str.h"
 
 using namespace std;
 
@@ -198,7 +199,6 @@ try {
 	    OmegaExpandDecider decider(db);
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
-		if ((*i).empty()) continue;
 		if (!query_string.empty()) query_string += ' ';
 		query_string += pretty_term(*i);
 	    }
@@ -289,7 +289,8 @@ try {
 	if (!v.empty()) {
 	    collapse_key = atoi(v.c_str());
 	    collapse = true;
-	    filters += filter_sep + int_to_string(collapse_key);
+	    filters += filter_sep;
+	    filters += str(collapse_key);
 	}
     }
 
@@ -323,7 +324,7 @@ try {
 	    sort_after = (atoi(val->second.c_str()) != 0);
 	}
 	// Add the sorting related options to filters too.
-	filters += int_to_string(sort_key);
+	filters += str(sort_key);
 	if (sort_after) {
 	    if (sort_ascending) {
 		filters += 'F';
@@ -346,13 +347,13 @@ try {
 
     parse_omegascript(); 
 } catch (const Xapian::Error &e) {
-    cout << "Exception: " << e.get_msg() << endl;
+    cout << "Exception: " << html_escape(e.get_msg()) << endl;
 } catch (const std::exception &e) {
-    cout << "Exception: std::exception " << e.what() << endl;
+    cout << "Exception: std::exception " << html_escape(e.what()) << endl;
 } catch (const string &s) {
-    cout << "Exception: " << s << endl;
+    cout << "Exception: " << html_escape(s) << endl;
 } catch (const char *s) {
-    cout << "Exception: " << s << endl;
+    cout << "Exception: " << html_escape(s) << endl;
 } catch (...) {
     cout << "Caught unknown exception" << endl;
 }

@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2009-03-26 for Xapian SVN HEAD
+2010-03-02 for Xapian SVN HEAD
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -16,6 +16,16 @@ If you have any feedback, bug reports or comments about these files,
 please DO NOT contact Ulrik, but please contact us at Lemur Consulting
 www.lemurconsulting.com
 
+Runtime requirements
+====================
+
+If you download a prebuilt version, you need:
+
+- Microsoft Windows 2000 or later (NT-based; 95/98/ME won't work)
+
+- It will usually be necessary to install the MSVC 2005 redistributable from
+  http://www.microsoft.com/downloads/details.aspx?familyid=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&displaylang=en
+
 What works?
 ===========
 
@@ -24,9 +34,7 @@ What works?
 - The xapian-progsrv and xapian-tcpsrv binaries
 - The delve, quest and copydatabase binaries
 - The Xapian example binaries
-- The libtest.lib and libbtreecheck libraries
-- The various tests that use the above, which are run as part of the makefile
-  in tests/
+- The testsuite, which is run as part of the makefile in tests/
 - omega, omindex and scriptindex (although these may have difficulty parsing
   Windows directory paths).
 
@@ -46,7 +54,9 @@ What doesn't work?
   not expect it to cause serious problems.
 
 - To get round the fact that MSVC doesn't do dependency checking correctly,
-we use an external program 'makedepend'.
+we use an external program 'xapdep'. Each Makefile use the -showIncludes switch of the MSVC
+compiler to generate a list of includes, which xapdep then processes and inserts
+into the Makefile in the various subdirectories.
 
 TODOS
 =====
@@ -90,7 +100,7 @@ How do I get the latest development sources?
 The development sources are held in a revision control system called
 subversion, so you will first need a subversion client installed to build
 the latest development sources.  Details of how to access the xapian
-repository are available at http://xapian.org/bleeding.php
+repository are available at http://xapian.org/bleeding
 
 When you check out the xapian sources, you will have a slightly different
 structure than that derived from the release tarballs:
@@ -125,7 +135,7 @@ You will need:
   OR...
 
 - You can also compile with
-Visual C++ 2005 Express Edition available without cost from:
+Visual C++ 2005/2008 Express Edition available without cost from:
 http://msdn.microsoft.com/vstudio/express/visualc/default.aspx
 
   OR...
@@ -148,10 +158,11 @@ http://www.zlib.net/zlib123-dll.zip
 and make sure the path to where you downloaded it matches the path in config.mak (ZLIB_DIR).
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak (PYTHON_DIR). 
-Note that the build system supports Python 2.4 and 2.5 currently, you must specify which you require.
+Note that the build system supports Python 2.4, 2.5, 2.6, and 3.0 currently, you must specify which you require.
+
 - To compile the PHP bindings you need:
 
-  a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1).
+  a. the PHP sources from www.php.net (we have used 5.2.1).
   b. the built sources from a Windows binary distribution
   c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
 
@@ -228,7 +239,7 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
    - to build, CHECK and also create a /dist subfolder containing a binary distribution, documentation and examples
 11d) nmake SWIGBUILD=1
    - to build from the development sources using SWIG (see above)
-   
+
 11e) For Python only, add an extra flag before CLEAN, CHECK or DIST:
     nmake PYTHON_VER=24 ..
  to make bindings for Python 2.4 or
@@ -258,6 +269,13 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
 The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below). 
 If you build using nmake DIST you will see a further /dist subfolder in each bindings's folder, containing 
  a binary distribution, documentation and examples.
+ 
+There is also a Python file designed to package up all the bindings for a particular release. To run this,
+install Python 2.4 - 2.6 and :
+
+18) python makebinaries.py x.y.z
+
+where x.y.z is the release number, e.g. 1.0.14
 
 Debug builds
 ===========

@@ -101,6 +101,11 @@ This re-opens the database(s) to the latest available version(s). It can be
 used either to make sure the latest results are returned, or to recover from 
 a Xapian::DatabaseModifiedError.
 
+=item close
+
+Close the database. This also implies a commit() unless a transaction is in
+progress.
+
 =item enquire [<query>]
 
 Returns a new L<Search::Xapian::Enquire> object. Any extra
@@ -137,6 +142,10 @@ returns true if this term exists in the database, or false otherwise.
 =item get_description
 
 return a description of this object.
+
+=item get_spelling_suggestion
+
+returns a suggested spelling correction.
 
 =item allterms_begin [<prefix>]
 

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,11 +25,11 @@
 
 #include <xapian.h>
 
-#include <float.h>
+#include <cfloat>
 #include "safeerrno.h"
 
+#include <iostream>
 #include <string>
-#include <list>
 
 using namespace std;
 
@@ -39,10 +39,10 @@ using namespace std;
 
 #include "omassert.h"
 #include "omqueryinternal.h"
+#include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
-#include "utils.h"
 
 static bool test_except1()
 {
@@ -72,7 +72,7 @@ static bool test_exception1()
 	    }
 	    throw;
 	}
-    } catch (Test_Exception & e) {
+    } catch (const Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
 	return true;
     }
@@ -227,25 +227,25 @@ static bool test_stringcomp1()
 
 static bool test_tostring1()
 {
-    TEST_EQUAL(om_tostring(0), "0");
-    TEST_EQUAL(om_tostring(10), "10");
-    TEST_EQUAL(om_tostring(10u), "10");
-    TEST_EQUAL(om_tostring(-10), "-10");
-    TEST_EQUAL(om_tostring(0xffffffff), "4294967295");
-    TEST_EQUAL(om_tostring(0x7fffffff), "2147483647");
-    TEST_EQUAL(om_tostring(0x7fffffffu), "2147483647");
-    TEST_EQUAL(om_tostring(-0x7fffffff), "-2147483647");
+    TEST_EQUAL(str(0), "0");
+    TEST_EQUAL(str(10), "10");
+    TEST_EQUAL(str(10u), "10");
+    TEST_EQUAL(str(-10), "-10");
+    TEST_EQUAL(str(0xffffffff), "4294967295");
+    TEST_EQUAL(str(0x7fffffff), "2147483647");
+    TEST_EQUAL(str(0x7fffffffu), "2147483647");
+    TEST_EQUAL(str(-0x7fffffff), "-2147483647");
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
      * (Currently only exists for windows.)
      */
-    TEST_EQUAL(om_tostring(10ll), "10");
-    TEST_EQUAL(om_tostring(-10ll), "-10");
-    TEST_EQUAL(om_tostring(0x200000000ll), "8589934592");
+    TEST_EQUAL(str(10ll), "10");
+    TEST_EQUAL(str(-10ll), "-10");
+    TEST_EQUAL(str(0x200000000ll), "8589934592");
 // We don't currently have an "unsigned long long" version since it's not required
 // anywhere in the library.
-//    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
+//    TEST_EQUAL(str(0x200000000ull), "8589934592");
 #endif
 
     return true;
@@ -421,44 +421,44 @@ static bool test_serialisedoc1()
     return true;
 }
 
+static void
+serialisequery1_helper(const Xapian::Query & query)
+{
+    string before = query.internal->serialise();
+    Xapian::Registry reg;
+    Xapian::Query::Internal * qint;
+    qint = Xapian::Query::Internal::unserialise(before, reg);
+    string after = qint->serialise();
+    delete qint;
+    TEST(before == after);
+}
+
 // Check serialisation of queries.
 static bool test_serialisequery1()
 {
     string s;
-    list<Xapian::Query> queries;
 
-    queries.push_back(Xapian::Query("foo"));
+    serialisequery1_helper(Xapian::Query("foo"));
 
     // Regression test for bug in 0.9.10 and earlier.
-    queries.push_back(Xapian::Query("foo", 1, 1));
+    serialisequery1_helper(Xapian::Query("foo", 1, 1));
 
-    queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
-				    Xapian::Query("foo", 1, 1),
-				    Xapian::Query("bar", 1, 1)));
+    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR,
+					 Xapian::Query("foo", 1, 1),
+					 Xapian::Query("bar", 1, 1)));
 
-    const char * words[] = { "paragraph", "word" };
-    queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
+    static const char * words[] = { "paragraph", "word" };
+    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
 
-    const char * words2[] = { "milk", "on", "fridge" };
-    queries.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				    Xapian::Query(Xapian::Query::OP_OR,
-						  Xapian::Query("leave"),
-						  Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
-						 ),
-				    2.5
-				   ));
-
-    list<Xapian::Query>::const_iterator query;
-    for (query = queries.begin(); query != queries.end(); query++) {
-	Xapian::Query::Internal * qint;
-
-	s = query->internal->serialise();
-	Xapian::SerialisationContext ctx;
-	qint = Xapian::Query::Internal::unserialise(s, ctx);
-
-	TEST(qint->serialise() == s);
-	delete qint;
-    }
+    static const char * words2[] = { "milk", "on", "fridge" };
+    serialisequery1_helper(
+	    Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+			  Xapian::Query(Xapian::Query::OP_OR,
+					Xapian::Query("leave"),
+					Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
+					),
+			  2.5)
+	    );
 
     return true;
 }
@@ -483,7 +483,7 @@ static bool test_serialiseerror1()
     try {
 	// unserialise_error throws an exception.
 	unserialise_error(serialisation, "", "");
-    } catch (Xapian::Error & ecaught) {
+    } catch (const Xapian::Error & ecaught) {
 	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
 	threw = true;
     }
@@ -583,12 +583,31 @@ static bool test_strbool1()
     return true;
 }
 
+/// Test pack_uint_preserving_sort()
+static bool test_pack_uint_preserving_sort1()
+{
+    string prev_packed;
+    for (unsigned int i = 0; i != 1000; ++i) {
+	string packed;
+	pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests					    #
 // ##################################################################
 
 /// The lists of tests to perform
-test_desc tests[] = {
+static const test_desc tests[] = {
     {"except1",			test_except1},
     {"exception1",		test_exception1},
     {"refcnt1",			test_refcnt1},
@@ -607,11 +626,15 @@ test_desc tests[] = {
 #endif
     {"static_assert1",		test_static_assert1},
     {"strbool1",		test_strbool1},
+    {"pack1",			test_pack_uint_preserving_sort1},
     {0, 0}
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

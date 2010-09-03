@@ -1,7 +1,7 @@
 /** @file chert_spelling.cc
  * @brief Spelling correction data for a chert database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 
 #include "expandweight.h"
 #include "chert_spelling.h"
-#include "chert_utils.h"
 #include "omassert.h"
 #include "ortermlist.h"
+#include "pack.h"
 
 #include <algorithm>
 #include <map>
@@ -182,7 +182,9 @@ ChertSpellingTable::merge_changes()
     for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
 	string key = "W" + j->first;
 	if (j->second) {
-	    add(key, pack_uint_last(j->second));
+	    string tag;
+	    pack_uint_last(tag, j->second);
+	    add(key, tag);
 	} else {
 	    del(key);
 	}
@@ -357,7 +359,8 @@ struct TermListGreaterApproxSize {
 TermList *
 ChertSpellingTable::open_termlist(const string & word)
 {
-    if (word.size() <= 1) return NULL;
+    // This should have been handled by Database::get_spelling_suggestion().
+    AssertRel(word.size(),>,1);
 
     // Merge any pending changes to disk, but don't call commit() so they
     // won't be switched live.
@@ -547,6 +550,15 @@ ChertSpellingTermList::next()
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;
+    return NULL;
+}
+
+TermList *
+ChertSpellingTermList::skip_to(const string & term)
+{
+    while (!data.empty() && current_term < term) {
+	(void)ChertSpellingTermList::next();
+    }
     return NULL;
 }
 

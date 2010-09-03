@@ -7,6 +7,7 @@
 #	--without csharp	Disable C# bindings
 #	--without php		Disable PHP bindings
 #	--without python	Disable Python bindings
+#	--without ruby		Disable Ruby bindings
 #	--without tcl8		Disable Tcl8 bindings
 
 %if 0%{?!_without_python:1}
@@ -15,6 +16,10 @@
 
 %if 0%{?!_without_php:1}
 %define php_extension_dir %(php-config --extension-dir)
+%endif
+
+%if 0%{?!_without_ruby:1}
+%define ruby_ver %(ruby -e "print RUBY_VERSION")
 %endif
 
 %if 0%{?!_without_tcl8:1}
@@ -36,6 +41,9 @@ BuildRequires: python-devel >= 2.3
 %if 0%{?!_without_php:1}
 BuildRequires: php-devel >= 5.0
 %endif
+%if 0%{?!_without_ruby:1}
+BuildRequires: ruby-devel >= 1.8
+%endif
 %if 0%{?!_without_tcl8:1}
 BuildRequires: tcl-devel >= 8.1
 %endif
@@ -52,70 +60,84 @@ offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
 files needed for scripts which use Xapian.
 
+%if 0%{?!_without_ruby:1}
+%package ruby
+Group: Development/Libraries
+Summary: Files needed for Ruby scripts which use Xapian.
+Requires: %{name} = %{version}, ruby >= %{ruby_ver}
+
+%description ruby
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing and running Ruby scripts which use Xapian.
+%endif
+
 %if 0%{?!_without_python:1}
 %package python
 Group: Development/Libraries
-Summary: Files needed for developing Python scripts which use Xapian.
+Summary: Files needed for Python scripts which use Xapian.
 Requires: %{name} = %{version}, python >= %{python_ver}
 
 %description python
 Xapian is an Open Source Probabilistic Information Retrieval framework. It
 offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
-files needed for developing Python scripts which use Xapian.
+files needed for developing and running Python scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_php:1}
 %package php
 Group: Development/Libraries
-Summary: Files needed for developing PHP scripts which use Xapian.
+Summary: Files needed for PHP scripts which use Xapian.
 Requires: %{name} = %{version}, php
 
 %description php
 Xapian is an Open Source Probabilistic Information Retrieval framework. It
 offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
-files needed for developing PHP scripts which use Xapian.
+files needed for developing and running PHP scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_tcl8:1}
 %package tcl8
 Group: Development/Libraries
-Summary: Files needed for developing TCL scripts which use Xapian.
+Summary: Files needed for Tcl scripts which use Xapian.
 Requires: %{name} = %{version}, tcl
 
 %description tcl8
 Xapian is an Open Source Probabilistic Information Retrieval framework. It
 offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
-files needed for developing TCL scripts which use Xapian.
+files needed for developing and running Tcl scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_csharp:1}
 %package csharp
 Group: Development/Libraries
-Summary: Files needed for developing C# applications which use Xapian.
+Summary: Files needed for C# applications which use Xapian.
 Requires: %{name} = %{version}, mono-core
 
 %description csharp
 Xapian is an Open Source Probabilistic Information Retrieval framework. It
 offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
-files needed for developing C# applications which use Xapian.
+files needed for developing and running C# applications which use Xapian.
 %endif
 
 %prep
 %setup -q -n %{name}-%{version}
 
 %build
-# FC6 (at least) has a patched libtool which knows not to set rpath for
-# /usr/lib64, which upstream libtool fails to do currently.  We can drop
-# this "autoreconf --force" and the "BuildRequires:" for the autotools
-# once upstream libtool is fixed.  Note: this overwrites INSTALL, but
-# that doesn't matter here as we don't package it.
-autoreconf --force
+# As of 1.1.0, Xapian uses libtool 2.2.x which allows us to override libtool's
+# sometimes conservative take on which directories are in the default dynamic
+# linker search path, so we no longer incorrectly try to set rpath for
+# /usr/lib64.  Hence there's no longer a need to run "autoreconf --force" here
+# and it's better not to as it avoids having to cope with incompatibilities
+# with older versions of the autotools which older distros have.
+#autoreconf --force
 # Only build the bindings we want.
-%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp}
+%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp} %{?!_without_ruby:--with-ruby}
 make
 
 %install
@@ -155,6 +177,15 @@ make install DESTDIR=%{buildroot}
 %{php_extension_dir}/xapian.so
 %{_datadir}/php/xapian.php
 %doc %{_datadir}/doc/%{name}-php-%{version}
+%endif
+
+%if 0%{?!_without_ruby:1}
+%files ruby
+%defattr(-, root, root)
+%{_libdir}/ruby
+/usr/lib/ruby
+%defattr(0644, root, root)
+%{_docdir}/xapian-bindings/ruby/
 %endif
 
 %if 0%{?!_without_tcl8:1}

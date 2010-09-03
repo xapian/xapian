@@ -2,7 +2,8 @@
  * @brief Support for flint database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2010 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,18 +27,19 @@
 
 #include "xapian/error.h"
 
-#include "flint_io.h"
-#include "flint_lock.h"
+#include "../flint_lock.h"
 #include "flint_record.h"
 #include "flint_replicate_internal.h"
 #include "flint_types.h"
 #include "flint_utils.h"
 #include "flint_version.h"
-#include "omdebug.h"
-#include "omtime.h"
+#include "debuglog.h"
+#include "io_utils.h"
 #include "remoteconnection.h"
+#include "replicate_utils.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -51,16 +53,19 @@ using namespace std;
 using namespace Xapian;
 
 FlintDatabaseReplicator::FlintDatabaseReplicator(const string & db_dir_)
-	: db_dir(db_dir_)
+	: db_dir(db_dir_),
+	  max_changesets(0)
 {
+    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
+    if (p)
+	max_changesets = atoi(p);
 }
 
 bool
 FlintDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    DEBUGCALL(DB, bool, "FlintDatabaseReplicator::check_revision_at_least",
-	      rev << ", " << target);
+    LOGCALL(DB, bool, "FlintDatabaseReplicator::check_revision_at_least", rev | target);
 
     flint_revision_number_t rev_val;
     flint_revision_number_t target_val;
@@ -84,7 +89,8 @@ void
 FlintDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 						      string & buf,
 						      RemoteConnection & conn,
-						      const OmTime & end_time) const
+						      double end_time,
+						      int changes_fd) const
 {
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
@@ -104,7 +110,7 @@ FlintDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	throw NetworkError("Invalid base file size in changeset");
 
     // Get the new base file into buf.
-    buf.erase(0, ptr - buf.data());
+    write_and_clear_changes(changes_fd, buf, ptr - buf.data());
     conn.get_message_chunk(buf, base_size, end_time);
 
     if (buf.size() < base_size)
@@ -118,12 +124,21 @@ FlintDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 #else
     int fd = ::open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
+    if (fd == -1) {
+	string msg = "Failed to open ";
+	msg += tmp_path;
+	throw DatabaseError(msg, errno);
+    }
     {
 	fdcloser closer(fd);
 
-	flint_io_write(fd, buf.data(), base_size);
-	flint_io_sync(fd);
+	io_write(fd, buf.data(), base_size);
+	io_sync(fd);
     }
+
+    // Finish writing the changeset before moving the base file into place.
+    write_and_clear_changes(changes_fd, buf, base_size);
+
 #if defined __WIN32__
     if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
 #else
@@ -143,15 +158,14 @@ FlintDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	    throw DatabaseError(msg, saved_errno);
 	}
     }
-
-    buf.erase(0, base_size);
 }
 
 void
 FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename,
 							string & buf,
 							RemoteConnection & conn,
-							const OmTime & end_time) const
+							double end_time,
+							int changes_fd) const
 {
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
@@ -159,7 +173,7 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     unsigned int changeset_blocksize;
     if (!F_unpack_uint(&ptr, end, &changeset_blocksize))
 	throw NetworkError("Invalid blocksize in changeset");
-    buf.erase(0, ptr - buf.data());
+    write_and_clear_changes(changes_fd, buf, ptr - buf.data());
 
     string db_path = db_dir + "/" + tablename + ".DB";
 #ifdef __WIN32__
@@ -167,6 +181,23 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 #else
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
+    if (fd == -1) {
+	if (file_exists(db_path)) {
+	    string msg = "Failed to open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
+#ifdef __WIN32__
+	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+	if (fd == -1) {
+	    string msg = "Failed to create and open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
+	}
+    }
     {
 	fdcloser closer(fd);
 
@@ -178,7 +209,7 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    uint4 block_number;
 	    if (!F_unpack_uint(&ptr, end, &block_number))
 		throw NetworkError("Invalid block number in changeset");
-	    buf.erase(0, ptr - buf.data());
+	    write_and_clear_changes(changes_fd, buf, ptr - buf.data());
 	    if (block_number == 0)
 		break;
 	    --block_number;
@@ -191,41 +222,30 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
-		msg += om_tostring(block_number);
+		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
-	    flint_io_write(fd, buf.data(), changeset_blocksize);
+	    io_write(fd, buf.data(), changeset_blocksize);
 
-	    buf.erase(0, changeset_blocksize);
+	    write_and_clear_changes(changes_fd, buf, changeset_blocksize);
 	}
-	flint_io_sync(fd);
+	io_sync(fd);
     }
 }
 
 string
 FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
-						   const OmTime & end_time,
+						   double end_time,
 						   bool valid) const
 {
-    DEBUGCALL(DB, string, "FlintDatabaseReplicator::apply_changeset_from_conn",
-	      "conn, end_time, " << valid);
+    LOGCALL(DB, string, "FlintDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
 
     // Lock the database to perform modifications.
-    FlintLock lock(db_dir + "/flintlock");
+    FlintLock lock(db_dir);
     string explanation;
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
-	string msg("Unable to get write lock on ");
-	msg += db_dir;
-	if (why == FlintLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == FlintLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == FlintLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw DatabaseLockError(msg);
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 
     char type = conn.get_message_chunked(end_time);
@@ -241,9 +261,9 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (!startswith(buf, CHANGES_MAGIC_STRING)) {
 	throw NetworkError("Invalid ChangeSet magic string");
     }
-    buf.erase(0, 12);
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
+    ptr += CONST_STRLEN(CHANGES_MAGIC_STRING);
 
     unsigned int changes_version;
     if (!F_unpack_uint(&ptr, end, &changes_version))
@@ -265,6 +285,14 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (ptr == end)
 	throw NetworkError("Unexpected end of changeset (1)");
 
+    int changes_fd = -1;
+    string changes_name;
+    if (max_changesets > 0) {
+	changes_fd = create_changeset_file(db_dir, "changes" + str(startrev),
+					   changes_name);
+    }
+    fdcloser closer(changes_fd);
+
     if (valid) {
 	// Check the revision number.
 	// If the database was not known to be valid, we cannot
@@ -278,14 +306,13 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 
     unsigned char changes_type = ptr[0];
     if (changes_type != 0) {
-	throw NetworkError("Unsupported changeset type (got %d)",
-				   changes_type);
+	throw NetworkError("Unsupported changeset type: " + str(changes_type));
 	// FIXME - support changes of type 1, produced when DANGEROUS mode is
 	// on.
     }
 
-    // Clear the bits of the buffer which have been read.
-    buf.erase(0, ptr + 1 - buf.data());
+    // Write and clear the bits of the buffer which have been read.
+    write_and_clear_changes(changes_fd, buf, ptr + 1 - buf.data());
 
     // Read the items from the changeset.
     while (true) {
@@ -314,14 +341,16 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// Process the chunk
 	if (ptr == end)
 	    throw NetworkError("Unexpected end of changeset (4)");
-	buf.erase(0, ptr - buf.data());
+	write_and_clear_changes(changes_fd, buf, ptr - buf.data());
 
 	switch (chunk_type) {
 	    case 1:
-		process_changeset_chunk_base(tablename, buf, conn, end_time);
+		process_changeset_chunk_base(tablename, buf, conn, end_time,
+					     changes_fd);
 		break;
 	    case 2:
-		process_changeset_chunk_blocks(tablename, buf, conn, end_time);
+		process_changeset_chunk_blocks(tablename, buf, conn, end_time,
+					       changes_fd);
 		break;
 	    default:
 		throw NetworkError("Unrecognised item type in changeset");
@@ -335,6 +364,7 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (ptr != end)
 	throw NetworkError("Junk found at end of changeset");
 
+    write_and_clear_changes(changes_fd, buf, buf.size());
     buf = F_pack_uint(reqrev);
     RETURN(buf);
 }
@@ -342,7 +372,7 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 string
 FlintDatabaseReplicator::get_uuid() const
 {
-    DEBUGCALL(DB, string, "FlintDatabaseReplicator::get_uuid", "");
+    LOGCALL(DB, string, "FlintDatabaseReplicator::get_uuid", NO_ARGS);
     FlintVersion version_file(db_dir);
     try {
 	version_file.read_and_check(true);

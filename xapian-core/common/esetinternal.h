@@ -1,7 +1,7 @@
 /** @file esetinternal.h
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +22,12 @@
 #define XAPIAN_INCLUDED_ESETINTERNAL_H
 
 #include "xapian/base.h"
-#include "xapian/types.h"
 #include "xapian/enquire.h"
+#include "xapian/types.h"
 
 #include <algorithm>
 #include <string>
 #include <vector>
-
-class RSetI;
 
 namespace Xapian {
     class Database;
@@ -101,7 +99,7 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
     /// Run the "expand" operation which fills the ESet.
     void expand(Xapian::termcount max_esize,
 		const Xapian::Database & db,
-		const RSetI & rset,
+		const Xapian::RSet & rset,
 		const Xapian::ExpandDecider * edecider,
 		const Xapian::Internal::ExpandWeight & eweight);
 

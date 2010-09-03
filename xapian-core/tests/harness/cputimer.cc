@@ -37,7 +37,7 @@
 #elif defined HAVE_FTIME
 # include <sys/timeb.h>
 #else
-# include <time.h>
+# include <ctime>
 #endif
 
 #include <cstring>
@@ -55,21 +55,14 @@ CPUTimer::get_current_cputime() const
 	FAIL_TEST(string("Couldn't measure CPU for self: ") + strerror(errno));
     }
 
-    t += r.ru_utime.tv_sec + r.ru_stime.tv_sec;
-    t += (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 0.000001;
-
-    if (getrusage(RUSAGE_CHILDREN, &r) == -1) {
-	FAIL_TEST(string("Couldn't measure CPU for kids: ") + strerror(errno));
-    }
-
-    t += r.ru_utime.tv_sec + r.ru_stime.tv_sec;
+    t = r.ru_utime.tv_sec + r.ru_stime.tv_sec;
     t += (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 0.000001;
 #elif defined HAVE_TIMES
     struct tms b;
     if (times(&b) == (clock_t)-1) {
 	FAIL_TEST(string("Couldn't measure CPU: ") + strerror(errno));
     }
-    t = (double)(b.tms_utime + b.tms_stime + b.tms_cutime + b.tms_cstime);
+    t = (double)(b.tms_utime + b.tms_stime);
 # ifdef HAVE_SYSCONF
     t /= sysconf(_SC_CLK_TCK);
 # else
@@ -77,8 +70,8 @@ CPUTimer::get_current_cputime() const
 # endif
 #else
     // FIXME: Fallback to just using wallclock time, which is probably only
-    // going to be used on Microsoft Windows, which seems to lack an API to get
-    // CPU time used by any children of a process.
+    // going to be used on Microsoft Windows, where nobody has implemented
+    // the code required to get the CPU time used by a process.
 # ifdef HAVE_FTIME 
     struct timeb tb;
 #  ifdef FTIME_RETURNS_VOID

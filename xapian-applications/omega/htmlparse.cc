@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,10 +30,10 @@
 
 #include <algorithm>
 
-#include <ctype.h>
+#include <cctype>
 #include <cstring>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 using namespace std;
 
@@ -91,7 +91,7 @@ p_whitespaceeqgt(char c)
 }
 
 bool
-HtmlParser::get_parameter(const string & param, string & value)
+HtmlParser::get_parameter(const string & param, string & value) const
 {
     map<string, string>::const_iterator i = parameters.find(param);
     if (i == parameters.end()) return false;
@@ -199,7 +199,7 @@ HtmlParser::parse_html(const string &body)
 		if (decl_end == body.end()) break;
 
 		// Default charset for XML is UTF-8.
-		charset = "UTF-8";
+		charset = "utf-8";
 
 		string decl(p + 6, decl_end);
 		size_t enc = decl.find("encoding");

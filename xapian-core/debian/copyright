@@ -3,7 +3,7 @@ package was originally created and maintained by Richard Boulton
 <richard@tartarus.org>.  It is currently maintained by Olly Betts
 <olly@survex.com>.
 
-It was downloaded from http://xapian.org/download.php
+It was downloaded from http://xapian.org/download
 
 Upstream Authors:
 
@@ -21,14 +21,14 @@ Upstream Authors:
 
 Copyright:
 
-  Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+  Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
   Copyright (C) 2003 Sam Liddicott
   Copyright (C) 2001,2002 Ananova Ltd
   Copyright (C) 2003 Orange PCS Ltd
   Copyright (C) 1999,2000,2001 BrightStation PLC
   Copyright (C) 2001 Hein Ragas
-  Copyright (C) 2003,2006 Richard Boulton
-  Copyright (C) 2007,2008 Lemur Consulting Ltd
+  Copyright (C) 2003,2006,2009,2010 Richard Boulton
+  Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ Copyright:
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-  See /usr/share/common-licenses/GPL for the full text of the GNU GPL.
+  See /usr/share/common-licenses/GPL-2 for the full text of the GNU GPL.
 
 The snowball sources in the languages subdirectory are licensed under
 the three clause BSD license:
@@ -76,6 +76,31 @@ the three clause BSD license:
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
+The following files are licensed under the MIT/X licence:
+
+    common/serialise-double.cc
+    common/serialise-double.h
+
+  Copyright (C) 2006,2007,2008,2009 Olly Betts
+ 
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+ 
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+ 
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+
 The files queryparser/lemon.c and queryparser/queryparser.lt (which are
 a parser generator and its output template file) bear the following
 statements respectively:
@@ -84,8 +109,25 @@ statements respectively:
 
   The author disclaims copyright to this source code.
 
-The Debian packaging is also licensed under the GPL v2 or later (see above)
-and the copyright details are:
+The Debian packaging is licensed under the MIT/X licence:
 
   Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-  Copyright (C) 2006,2007,2008 Olly Betts
+  Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+ 
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+ 
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.

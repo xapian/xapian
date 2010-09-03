@@ -68,7 +68,8 @@ DEFINE_TESTCASE(termstats, backend) {
 }
 
 // Check that stub databases work.
-DEFINE_TESTCASE(stubdb1, flint || chert || multi) {
+DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
+    // Only works for backends which have a path.
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb1";
     ofstream out(dbpath);
@@ -93,7 +94,8 @@ DEFINE_TESTCASE(stubdb1, flint || chert || multi) {
 }
 
 // Check that stub databases work remotely.
-DEFINE_TESTCASE(stubdb2, flint || chert || multi) {
+DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
+    // Only works for backends which have a path.
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb2";
     ofstream out(dbpath);
@@ -119,7 +121,8 @@ DEFINE_TESTCASE(stubdb2, flint || chert || multi) {
 }
 
 // Regression test - bad entries were ignored after a good entry prior to 1.0.8.
-DEFINE_TESTCASE(stubdb3, flint || chert || multi) {
+DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
+    // Only works for backends which have a path.
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb3";
     ofstream out(dbpath);
@@ -138,7 +141,8 @@ DEFINE_TESTCASE(stubdb3, flint || chert || multi) {
 }
 
 // Test a stub database with just a bad entry.
-DEFINE_TESTCASE(stubdb4, flint || chert || multi) {
+DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
+    // Only works for backends which have a path.
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb4";
     ofstream out(dbpath);
@@ -157,7 +161,8 @@ DEFINE_TESTCASE(stubdb4, flint || chert || multi) {
 
 // Test a stub database with a bad entry with no spaces (prior to 1.1.0 this
 // was deliberately allowed, though not documented.
-DEFINE_TESTCASE(stubdb5, flint || chert || multi) {
+DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
+    // Only works for backends which have a path.
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb5";
     ofstream out(dbpath);
@@ -370,7 +375,7 @@ class myMatchDecider : public Xapian::MatchDecider {
 };
 
 // Test Xapian::MatchDecider functor.
-DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
+DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -499,7 +504,7 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
 }
 
 // Test Xapian::MatchDecider functor used as a match spy.
-DEFINE_TESTCASE(matchfunctor2, backend && !remote) {
+DEFINE_TESTCASE(matchdecider2, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -541,7 +546,7 @@ class myMatchDecider2 : public Xapian::MatchDecider {
 
 
 // Regression test for lower bound using functor, sorting and collapsing.
-DEFINE_TESTCASE(matchfunctor3, backend) {
+DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(""));

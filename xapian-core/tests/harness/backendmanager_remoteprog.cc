@@ -1,7 +1,7 @@
 /** @file backendmanager_remoteprog.cc
  * @brief BackendManager subclass for remoteprog databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,6 @@
 #endif
 
 using namespace std;
-
-BackendManagerRemoteProg::~BackendManagerRemoteProg() { }
 
 std::string
 BackendManagerRemoteProg::get_dbtype() const
@@ -80,9 +78,9 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteProg::get_writable_database_as_database(const string & name)
+BackendManagerRemoteProg::get_writable_database_as_database()
 {
-    string args = get_writable_database_as_database_args(name);
+    string args = get_writable_database_as_database_args();
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -94,9 +92,9 @@ BackendManagerRemoteProg::get_writable_database_as_database(const string & name)
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteProg::get_writable_database_again(const string & name)
+BackendManagerRemoteProg::get_writable_database_again()
 {
-    string args = get_writable_database_again_args(name);
+    string args = get_writable_database_again_args();
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

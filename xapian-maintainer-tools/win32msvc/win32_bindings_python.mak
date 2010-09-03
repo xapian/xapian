@@ -38,6 +38,18 @@ PYTHON_INCLUDE = $(PYTHON_INCLUDE_25)
 PYTHON_INCLUDE_2 = $(PYTHON_INCLUDE_2_25)
 PYTHON_LIB_DIR= $(PYTHON_LIB_DIR_25)
 OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python25
+!else if "$(PYTHON_VER)" == "26"
+PYTHON_EXE = $(PYTHON_EXE_26)
+PYTHON_INCLUDE = $(PYTHON_INCLUDE_26)
+PYTHON_INCLUDE_2 = $(PYTHON_INCLUDE_2_26)
+PYTHON_LIB_DIR= $(PYTHON_LIB_DIR_26)
+OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python26
+!else if "$(PYTHON_VER)" == "30"
+PYTHON_EXE = $(PYTHON_EXE_30)
+PYTHON_INCLUDE = $(PYTHON_INCLUDE_30)
+PYTHON_INCLUDE_2 = $(PYTHON_INCLUDE_2_30)
+PYTHON_LIB_DIR= $(PYTHON_LIB_DIR_30)
+OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python30
 !else 
 # Must specify a version
 exit(1)
@@ -63,7 +75,6 @@ CLEAN : CLEANLOCAL
 	
 CLEANSWIG : CLEAN
 	-@erase /Q /s modern
-	-@erase generate-python-exceptions
 	-@erase exception_data.pm 
 	-@erase except.i 
 		
@@ -133,9 +144,6 @@ except.i: generate-python-exceptions
 	-copy "$(XAPIAN_CORE_REL_PYTHON)\exception_data.pm" exception_data.pm 
 	$(PERL_EXE) generate-python-exceptions exception_data.pm 
 		
-generate-python-exceptions: generate-python-exceptions.in
-	$(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" generate-python-exceptions.in > generate-python-exceptions
-
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
 	$(MANIFEST) "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd.manifest" -outputresource:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd;2"

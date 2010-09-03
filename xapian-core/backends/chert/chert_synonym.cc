@@ -19,12 +19,12 @@
  */
 
 #include <config.h>
+#include "chert_synonym.h"
 
-#include <xapian/error.h>
+#include "xapian/error.h"
 
 #include "chert_cursor.h"
-#include "chert_synonym.h"
-#include "chert_utils.h"
+#include "debuglog.h"
 #include "stringutils.h"
 #include "vectortermlist.h"
 
@@ -167,14 +167,14 @@ ChertSynonymTable::open_termlist(const string & term)
 
 ChertSynonymTermList::~ChertSynonymTermList()
 {
-    DEBUGCALL(DB, void, "~ChertSynonymTermList", "");
+    LOGCALL_DTOR(DB, "ChertSynonymTermList");
     delete cursor;
 }
 
 string
 ChertSynonymTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "ChertSynonymTermList::get_termname", "");
+    LOGCALL(DB, string, "ChertSynonymTermList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!cursor->current_key.empty());
     Assert(!at_end());
@@ -196,7 +196,7 @@ ChertSynonymTermList::get_collection_freq() const
 TermList *
 ChertSynonymTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "ChertSynonymTermList::next", "");
+    LOGCALL(DB, TermList *, "ChertSynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -211,7 +211,7 @@ ChertSynonymTermList::next()
 TermList *
 ChertSynonymTermList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "ChertSynonymTermList::skip_to", tname);
+    LOGCALL(DB, TermList *, "ChertSynonymTermList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(tname)) {
@@ -228,6 +228,6 @@ ChertSynonymTermList::skip_to(const string &tname)
 bool
 ChertSynonymTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "ChertSynonymTermList::at_end", "");
+    LOGCALL(DB, bool, "ChertSynonymTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

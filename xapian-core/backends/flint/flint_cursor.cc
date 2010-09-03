@@ -1,7 +1,7 @@
 /* flint_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,11 +27,11 @@
 
 #include <xapian/error.h>
 
+#include "debuglog.h"
 #include "flint_table.h"
 #include "omassert.h"
-#include "omdebug.h"
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 static string
 hex_display_encode(const string & input)
 {
@@ -55,8 +55,10 @@ FlintCursor::FlintCursor(FlintTable *B_)
 	  is_after_end(false),
 	  tag_status(UNREAD),
 	  B(B_),
+	  version(B_->cursor_version),
 	  level(B_->level)
 {
+    B->cursor_created_since_last_modification = true;
     C = new Cursor_[level + 1];
 
     for (int j = 0; j < level; j++) {
@@ -65,6 +67,36 @@ FlintCursor::FlintCursor(FlintTable *B_)
     }
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
+}
+
+void
+FlintCursor::rebuild()
+{
+    int new_level = B->level;
+    if (new_level <= level) {
+	for (int i = 0; i < new_level; i++) {
+	    C[i].n = BLK_UNUSED;
+	}
+	for (int j = new_level; j < level; ++j) {
+	    delete C[j].p;
+	}
+    } else {
+	Cursor_ * old_C = C;
+	C = new Cursor_[new_level + 1];
+	for (int i = 0; i < level; i++) {
+	    C[i].p = old_C[i].p;
+	    C[i].n = BLK_UNUSED;
+	}
+	delete old_C;
+	for (int j = level; j < new_level; j++) {
+	    C[j].p = new byte[B->block_size];
+	    C[j].n = BLK_UNUSED;
+	}
+    }
+    level = new_level;
+    C[level].n = B->C[level].n;
+    C[level].p = B->C[level].p;
+    version = B->cursor_version;
 }
 
 FlintCursor::~FlintCursor()
@@ -80,19 +112,20 @@ FlintCursor::~FlintCursor()
 bool
 FlintCursor::prev()
 {
-    DEBUGCALL(DB, bool, "FlintCursor::prev", "");
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "FlintCursor::prev", NO_ARGS);
     Assert(!is_after_end);
-
-    if (!is_positioned) {
-	// We've read the last key and tag, and we're now not positioned.
-	// Simple fix - seek to the current key, and then it's as if we
-	// read the key but not the tag.
-	(void)find_entry(current_key);
-	tag_status = UNREAD;
-    }
-
-    if (tag_status != UNREAD) {
+    if (B->cursor_version != version || !is_positioned) {
+	// Either the cursor needs rebuilding (in which case find_entry() will
+	// call rebuild() and then reposition the cursor), or we've read the
+	// last key and tag, and we're now not positioned (in which case we
+	// seek to the current key, and then it's as if we read the key but not
+	// the tag).
+	if (!find_entry(current_key)) {
+	    // Exact entry was no longer there after rebuild(), and we've
+	    // automatically ended up on the entry before it.
+	    RETURN(true);
+	}
+    } else if (tag_status != UNREAD) {
 	while (true) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
@@ -123,9 +156,15 @@ FlintCursor::prev()
 bool
 FlintCursor::next()
 {
-    DEBUGCALL(DB, bool, "FlintCursor::next", "");
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "FlintCursor::next", NO_ARGS);
     Assert(!is_after_end);
+    if (B->cursor_version != version) {
+	// find_entry() will call rebuild().
+	(void)find_entry(current_key);
+	// If the key was found, we're now pointing to it, otherwise we're
+	// pointing to the entry before.  Either way, we now want to move to
+	// the next key.
+    }
     if (tag_status == UNREAD) {
 	while (true) {
 	    if (! B->next(C, 0)) {
@@ -154,8 +193,10 @@ FlintCursor::next()
 bool
 FlintCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "FlintCursor::find_entry", key);
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "FlintCursor::find_entry", key);
+    if (B->cursor_version != version) {
+	rebuild();
+    }
 
     is_after_end = false;
 
@@ -200,8 +241,10 @@ done:
 bool
 FlintCursor::find_entry_ge(const string &key)
 {
-    DEBUGCALL(DB, bool, "FlintCursor::find_entry_ge", key);
-    Assert(B->level <= level);
+    LOGCALL(DB, bool, "FlintCursor::find_entry_ge", key);
+    if (B->cursor_version != version) {
+	rebuild();
+    }
 
     is_after_end = false;
 
@@ -248,7 +291,7 @@ FlintCursor::get_key(string * key) const
 bool
 FlintCursor::read_tag(bool keep_compressed)
 {
-    DEBUGCALL(DB, bool, "FlintCursor::read_tag", keep_compressed);
+    LOGCALL(DB, bool, "FlintCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD) {
 	Assert(B->level <= level);
 	Assert(is_positioned);

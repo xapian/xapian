@@ -20,13 +20,14 @@
  */
 
 #include <config.h>
+#include "chert_alldocspostlist.h"
 
 #include <string>
 
-#include "chert_alldocspostlist.h"
 #include "chert_database.h"
+#include "debuglog.h"
 
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 
@@ -35,20 +36,20 @@ ChertAllDocsPostList::ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const Che
 	: ChertPostList(db_, string(), true),
 	  doccount(doccount_)
 {
-    DEBUGCALL(DB, void, "ChertAllDocsPostList::ChertAllDocsPostList", db_.get() << ", " << doccount_);
+    LOGCALL_CTOR(DB, "ChertAllDocsPostList", db_.get() | doccount_);
 }
 
 Xapian::doccount
 ChertAllDocsPostList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertAllDocsPostList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "ChertAllDocsPostList::get_termfreq", NO_ARGS);
     RETURN(doccount);
 }
 
 Xapian::termcount
 ChertAllDocsPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::get_doclength", NO_ARGS);
 
     RETURN(ChertPostList::get_wdf());
 }
@@ -56,7 +57,7 @@ ChertAllDocsPostList::get_doclength() const
 Xapian::termcount
 ChertAllDocsPostList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::get_wdf", "");
+    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::get_wdf", NO_ARGS);
     AssertParanoid(!at_end());
     RETURN(1);
 }
@@ -64,14 +65,14 @@ ChertAllDocsPostList::get_wdf() const
 PositionList *
 ChertAllDocsPostList::read_position_list()
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::read_position_list", "");
+    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::read_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("ChertAllDocsPostList::read_position_list() not meaningful");
 }
 
 PositionList *
 ChertAllDocsPostList::open_position_list() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::open_position_list", "");
+    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::open_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("ChertAllDocsPostList::open_position_list() not meaningful");
 }
 
@@ -79,9 +80,9 @@ string
 ChertAllDocsPostList::get_description() const
 {
     string desc = "ChertAllDocsPostList(did=";
-    desc += om_tostring(get_docid());
+    desc += str(get_docid());
     desc += ",doccount=";
-    desc += om_tostring(doccount);
+    desc += str(doccount);
     desc += ')';
     return desc;
 }

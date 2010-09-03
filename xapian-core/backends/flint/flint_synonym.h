@@ -1,7 +1,7 @@
 /** @file flint_synonym.h
  * @brief Synonym data for a flint database.
  */
-/* Copyright (C) 2005,2007,2008 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 #include "alltermslist.h"
 #include "database.h"
 #include "flint_table.h"
-#include "omdebug.h"
 #include "termlist.h"
 
 #include <set>
@@ -132,21 +131,18 @@ class FlintSynonymTermList : public AllTermsList {
      */
     FlintCursor * cursor;
 
-    /// The number of terms in this list.
-    Xapian::termcount size;
-
     /// The prefix to restrict the terms to.
     string prefix;
 
   public:
     FlintSynonymTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 		      FlintCursor * cursor_,
-		      Xapian::termcount size_,
 		      const string & prefix_)
-	    : database(database_), cursor(cursor_), size(size_), prefix(prefix_)
+	    : database(database_), cursor(cursor_), prefix(prefix_)
     {
-	// Position the on the highest key before the first key we want, so
-	// that the first call to next() will put us on the first key we want.
+	// Position the cursor on the highest key before the first key we want,
+	// so that the first call to next() will put us on the first key we
+	// want.
 	if (prefix.empty()) {
 	    cursor->find_entry(string());
 	} else {

@@ -1,3 +1,176 @@
+Xapian-bindings 1.2.3 (2010-08-24):
+
+Packaging:
+
+* xapian-bindings.spec: Don't run autoreconf - it's no longer required.
+
+Xapian-bindings 1.2.2 (2010-06-27):
+
+* No user-visible change except for bumping the version to indicate
+  compatibility with Xapian-core 1.2.2.
+
+Xapian-bindings 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+General:
+
+* Wrap Xapian::StemImplementation.  Currently this has only been tested for
+  Python.  (ticket#448)
+
+Guile:
+
+* Remove non-functional disabled guile bindings left over from Open Muscat
+  days - if someone wanted to add guile bindings, it would be easier to start
+  from scratch.
+
+Java-SWIG:
+
+* Update list of generated java sources in the SWIG-based Java bindings.
+
+PHP:
+
+* zend_throw_exception() returns, so return control to PHP directly after
+  calling it to avoid needless extra work and possible issues.
+
+Python:
+
+* Fix "from xapian import *".  (ticket#477)
+
+* Fix testcase weight_normalise - a change in xapian-core means that
+  get_max_possible() can now return zero for a non-existent term, so don't
+  blindly calculate the reciprocal of it.
+
+* python/replicationtest2.py: Extend to check that changesets get applied
+  correctly.
+
+* python/smoketest2.py: Check len(mset) works (improving test coverage of
+  Python-specific wrapping).
+
+Xapian-bindings 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+Portability:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Xapian-bindings 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Tcl:
+
+* tcl8/docs/index.html: Document WritableDatabase::close() as a way to
+  sidestep the whole destructor issue.  (ticket#62)
+
+Xapian-bindings 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+General:
+
+* Update for the new Brass backend and other C++ API changes.
+
+* Wrap Database::get_doclength_lower_bound(),
+  Database::get_doclength_upper_bound(), Database::get_wdf_upper_bound(),
+  Database::valuestream_begin() and Database::valuestream_end() for all
+  languages. (ticket#431)
+
+* Wrap ValueIterator::skip_to() and ValueIterator::check() for all languages.
+
+Python:
+
+* Wrap valuestreams as Database.valuestream(), returning a ValueStreamIter
+  object which dereferences to a ValueStreamItem object,
+
+* Fix Enquire.clear_matchspies() wrapper which crashed in 1.1.3.
+
+Ruby:
+
+* Add safe wrapper for the valuestream iterator.
+
+Xapian-bindings 1.1.3 (2009-11-18):
+
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
+
+General:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+* Wrap the new MatchSpy class, and associated features.
+
+* Don't wrap PostingSource::serialise(), Weight::serialise() and
+  Weight::unserialise() as they aren't useful from the bindings.
+
+* Update for the Sorter to KeyMaker changes.
+
+PHP:
+
+* Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
+  as it standardly is on Microsoft Windows.  Fixes #411.
+
+* Merged the PHP "smoketest" back together now we don't need to support
+  PHP4 now.
+
+Python:
+
+* Fix a memory leak on error (in theory - we've not got a way to generate this
+  error, so haven't been able to reproduce the leak or test the fix).
+
+Xapian-bindings 1.1.2 (2009-07-23):
+
+This release includes all changes from 1.0.14 which are relevant to trunk.
+
+Python:
+
+* Several changes towards fully supporting Python 3, but more work is required.
+  (ticket#246)
+
+Xapian-bindings 1.1.1 (2009-06-09):
+
+This release includes all changes from 1.0.13 which are relevant to trunk.
+
+General:
+
+* Wrap the recently added extra parameter to Enquire::set_collapse_key().
+
+CSharp:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  C# yet, and to use Query("") and Query() instead.
+
+* configure: If we don't find a C# compiler, don't test an empty command name
+  further which saves a fork and avoids an odd looking message.
+
+PHP:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  PHP yet, and to use Query("") and Query() instead.
+
+Python:
+
+* Wrap Query::MatchAll and Query::MatchNothing for Python and document how they
+  are wrapped (ticket#158).
+
+* python/smoketest2.py,python/smoketest3.py: Update tests with FLAG_PARTIAL to
+  expect SYNONYM in generated query.
+
+Ruby:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  Ruby yet, and to use Query("") and Query() instead.
+
+Tcl:
+
+* Wrap Query::MatchAll and Query::MatchNothing for Tcl and document how they
+  are wrapped (ticket#158).
+
 Xapian-bindings 1.1.0 (2009-04-22):
 
 Documentation:
@@ -53,6 +226,144 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.21 (2010-06-18):
+
+Python:
+
+* xapian.BAD_VALUENO is now wrapped as a constant rather than variable which
+  can't be written to. (ticket#297)
+
+* Fix cleaning of test directories to use "rm -rf" rather than "rm -f".
+
+* Add test to check that "from xapian import *" works.
+
+Xapian-bindings 1.0.20 (2010-04-27):
+
+Python:
+
+* Set PYTHONDONTWRITEBYTECODE=1 in the environment to prevent Python from
+  generating .pyc files in srcdir for Python >= 2.6, and use a Bourne shell
+  trap to delete them after running tests for older versions of Python.
+  (ticket#315)
+
+Ruby:
+
+* configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
+
+Xapian-bindings 1.0.19 (2010-04-15):
+
+Tcl:
+
+* tcl8/docs/index.html: Improve wording in a few places.
+
+Xapian-bindings 1.0.18 (2010-02-14):
+
+General:
+
+* Wrap new C++ API method Document::add_boolean_term().
+
+Ruby:
+
+* Generate entries in the Ruby rdocs for all classes which aren't documented
+  because of Ruby-specific methods.  Fixes ticket#417.
+
+* Avoid absolute paths in the generated rdocs.
+
+Xapian-bindings 1.0.17 (2009-11-18):
+
+Packaging:
+
+* Improve RPM package summaries - the files are needed to *use* scripts as well
+  as to develop them.  Use "Tcl" instead of "TCL" as the former is more
+  conventional.
+
+Portability:
+
+* python/Makefile.am: Restore the "./" path to the sourced file
+  libtoolconfig.tmp as ksh requires it.
+
+Java:
+
+* Fix memory leak when passing a MatchDecider to Enquire::get_mset().
+
+Xapian-bindings 1.0.16 (2009-09-10):
+
+Python:
+
+* Improved docstrings for QueryParser::set_default_op() and
+  QueryParser::get_default_op() (automatically generated from changes in
+  xapian-core).
+
+Xapian-bindings 1.0.15 (2009-08-26):
+
+Python:
+
+* Don't break long words when wrapping text in the generated API documentation
+  comments as this was causing identifiers to be broken in two.
+
+Xapian-bindings 1.0.14 (2009-07-21):
+
+General:
+
+* configure: If $CSC is empty, don't try to run it.  This was a cosmetic bug
+  and the only side-effect was an odd looking message.
+
+Python:
+
+* Rename methods at build-time using SWIG rather than a run-time in Python, as
+  the latter approach adds a small time overhead when the module is being
+  loaded.
+
+Ruby:
+
+* Fix to accept an integer value > MAXINT for a double parameter.
+
+Xapian-bindings 1.0.13 (2009-05-23):
+
+Packaging:
+
+* xapian-bindings.spec: Update C# packaging for rename of XapianSharp.so to
+  _XapianSharp.so in 1.0.11.
+  
+* xapian-bindings.spec: Update Tcl8 packaging for where we now install the
+  bindings since 1.0.6.
+
+PHP:
+
+* Backport fix from SWIG SVN for misuse of formatted error function in
+  SWIG-generated code.
+
+Python:
+
+* Change the SWIG-generated wrapper code so it doesn't attempt to acquire
+  Python's Global Interpreter Lock (GIL) in situations where we know that it
+  will already be locked.  This avoids some dead-locks with mod_python (due to
+  mod_python bugs which are apparently unlikely to ever be fixed), and results
+  in smaller wrappers which run a little faster (in tests with Xapian on x86-64
+  Ubuntu 9.04, the stripped wrapper library was 11% smaller and ran 2.7%
+  faster). (ticket#185)
+
+* README,python/docs/index.html: Update documentation of the above mod_python
+  issue and also document the related mod_wsgi issue.  The status is now that
+  everything seems to work if you stick to the main interpreter (ticket#364).
+
+* Backport fix from SWIG SVN for misuse of formatted error function in
+  SWIG-generated code.
+
+* python/docs/examples/simplematchdecider.py: Read "avoid_value" from the
+  second parameter, not the third.
+
+* python/docs/examples/simplematchdecider.py,
+  python/docs/examples/simplesearch.py: Make use of str.join() for simpler,
+  clearer code.
+
+Ruby:
+
+* README: Note that the testsuite fails due to a bug in the test/unit module in
+  Ruby 1.9.0, but applications using the bindings should work, and that the
+  testsuite works with Ruby 1.9.1.  Drop all mention of Ruby 1.6.x as that
+  appears to be completely dead both upstream and in the wild.
 
 Xapian-bindings 1.0.12 (2009-04-19):
 

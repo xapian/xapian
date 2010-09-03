@@ -86,6 +86,8 @@ class ExternalPostList : public PostList {
 
     bool at_end() const;
 
+    Xapian::termcount count_matching_subqs() const;
+
     string get_description() const;
 };
 

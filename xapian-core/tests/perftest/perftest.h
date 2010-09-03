@@ -2,6 +2,7 @@
  *  \brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,10 +24,10 @@
 #define XAPIAN_INCLUDED_PERFTEST_H
 
 #include <xapian.h>
+
 #include <fstream>
 #include <map>
 #include <string>
-#include "omtime.h"
 
 class PerfTestLogger {
     std::ofstream out;
@@ -38,11 +39,11 @@ class PerfTestLogger {
     bool indexing_started;
     Xapian::doccount indexing_addcount;
     bool indexing_unlogged_changes;
-    OmTime indexing_timer;
-    OmTime last_indexlog_timer;
+    double indexing_timer;
+    double last_indexlog_timer;
 
     bool searching_started;
-    OmTime searching_timer;
+    double searching_timer;
 
     /** Write a log entry for the current indexing run.
      */
@@ -71,19 +72,7 @@ class PerfTestLogger {
 
     /** Log the addition of a document in an indexing run.
      */
-    void indexing_add() {
-	++indexing_addcount;
-	indexing_unlogged_changes = true;
-	// Log every 1000 documents
-	if (indexing_addcount % 1000 == 0) {
-	    indexing_log();
-	} else {
-	    // Or after 5 seconds
-	    OmTime now(OmTime::now());
-	    if (now > last_indexlog_timer + OmTime(5, 0))
-		indexing_log();
-	}
-    }
+    void indexing_add();
 
     /** Log the end of an indexing run.
      */
@@ -95,10 +84,7 @@ class PerfTestLogger {
 
     /** Log the start of a search.
      */
-    void search_start()
-    {
-	searching_timer = OmTime::now();
-    }
+    void search_start();
 
     /** Log the completion of a search.
      */

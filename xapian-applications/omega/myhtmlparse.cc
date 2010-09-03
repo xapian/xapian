@@ -25,8 +25,10 @@
 
 #include "utf8convert.h"
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
+
+using namespace std;
 
 inline void
 lowercase_string(string &str)

@@ -19,22 +19,48 @@ new2(other)
 
 string
 Document::get_value(valueno valno)
+    CODE:
+	try {
+	    RETVAL = THIS->get_value(valno);
+	} catch (...) {
+	    handle_exception();
+	}
+    OUTPUT:
+	RETVAL
 
 void
 Document::add_value(valno, value)
     valueno	valno
     string	value
     CODE:
-        THIS->add_value(valno, value);
+	try {
+	    THIS->add_value(valno, value);
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Document::remove_value(valueno valno)
+    CODE:
+	try {
+	    THIS->remove_value(valno);
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Document::clear_values()
 
 string
 Document::get_data()
+    CODE:
+	try {
+	    RETVAL = THIS->get_data();
+	} catch (...) {
+	    handle_exception();
+	}
+    OUTPUT:
+	RETVAL
 
 void
 Document::set_data(data)
@@ -48,23 +74,40 @@ Document::add_posting(tname, tpos, wdfinc = NO_INIT)
     termpos	tpos
     termcount	wdfinc
     CODE:
-	/* FIXME: catch exceptions for case where tname is empty? */
-        if (items == 4) { /* items includes the hidden this pointer */
-            THIS->add_posting(tname, tpos, wdfinc);
-        } else {
-            THIS->add_posting(tname, tpos);
-        }
+	try {
+	    if (items == 4) { /* items includes the hidden this pointer */
+		THIS->add_posting(tname, tpos, wdfinc);
+	    } else {
+		THIS->add_posting(tname, tpos);
+	    }
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Document::add_term(tname, wdfinc = NO_INIT)
     string	tname
     termcount	wdfinc
     CODE:
-        if (items == 3) { /* items includes the hidden this pointer */
-            THIS->add_term(tname, wdfinc);
-        } else {
-            THIS->add_term(tname);
-        }
+	try {
+	    if (items == 3) { /* items includes the hidden this pointer */
+		THIS->add_term(tname, wdfinc);
+	    } else {
+		THIS->add_term(tname);
+	    }
+	} catch (...) {
+	    handle_exception();
+	}
+
+void
+Document::add_boolean_term(tname)
+    string	tname
+    CODE:
+	try {
+	    THIS->add_boolean_term(tname);
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Document::remove_posting(tname, tpos, wdfdec = NO_INIT)
@@ -78,9 +121,8 @@ Document::remove_posting(tname, tpos, wdfdec = NO_INIT)
             } else {
                 THIS->remove_posting(tname, tpos);
             }
-        }
-        catch (const Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
+        } catch (...) {
+	    handle_exception();
         }
 
 void
@@ -89,9 +131,8 @@ Document::remove_term(tname)
     CODE:
 	try {
             THIS->remove_term(tname);  
-        }
-        catch (const Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
+        } catch (...) {
+            handle_exception();
         }
 
 void
@@ -99,11 +140,23 @@ Document::clear_terms()
 
 termcount
 Document::termlist_count()
+    CODE:
+	try {
+	    RETVAL = THIS->termlist_count();
+	} catch (...) {
+	    handle_exception();
+	}
+    OUTPUT:
+        RETVAL
 
 TermIterator *
 Document::termlist_begin()
     CODE:
-        RETVAL = new TermIterator(THIS->termlist_begin());
+	try {
+	    RETVAL = new TermIterator(THIS->termlist_begin());
+	} catch (...) {
+	    handle_exception();
+	}
     OUTPUT:
         RETVAL
 
@@ -116,11 +169,23 @@ Document::termlist_end()
 
 termcount
 Document::values_count()
+    CODE:
+	try {
+	    RETVAL = THIS->values_count();
+	} catch (...) {
+	    handle_exception();
+	}
+    OUTPUT:
+        RETVAL
 
 ValueIterator *
 Document::values_begin()
     CODE:
-        RETVAL = new ValueIterator(THIS->values_begin());
+	try {
+	    RETVAL = new ValueIterator(THIS->values_begin());
+	} catch (...) {
+	    handle_exception();
+	}
     OUTPUT:
         RETVAL
 

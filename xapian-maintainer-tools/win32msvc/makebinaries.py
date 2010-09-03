@@ -123,6 +123,9 @@ md5it(filename)
 filename = 'xapian-python-bindings for Python 2.5.1 -%s.win32.exe' % rev
 os.system ('copy "..\\Release\\Python25\\dist\\%s" ' % filename)
 md5it(filename)
+filename = 'xapian-python-bindings for Python 2.6.2 -%s.win32.exe' % rev
+os.system ('copy "..\\Release\\Python26\\dist\\%s" ' % filename)
+md5it(filename)
 
 zipandmd5it("xapian-%s-bindings-ruby.zip" % rev,"..\\Release\\Ruby\\dist\\*.*")
 zipandmd5it("xapian-%s-bindings-csharp.zip" % rev,"..\\Release\\CSharp\\dist\\*.*")

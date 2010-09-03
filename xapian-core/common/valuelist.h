@@ -78,7 +78,7 @@ class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
      *  exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then sets @a valid to true.
+     *  cost, in which case it then returns true.
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the

@@ -33,14 +33,11 @@ Xapian.
 	debugging messages.  See "Debugging Messages", below.
 
 --enable-log=profile
-	This enables compiling code into the library which reports to stderr
-	how long each method takes to execute.  The profiling machinery tries
-	to discount time spent in itself, but it will affect code generation
-	and cache use, and this feature is implemented by using the logging
-	macros so it only knows about functions and methods which have them, so
-	it is probably more invasive and the output less helpful than dedicated
-	profiling tools.  However, it may be useful and isn't much extra code
-	to maintain, so we've kept it around for now.
+	In 1.2.0 and earlier, this used to use the debug logging macros to
+	report to stderr how long each method takes to execute.  This feature
+	was removed in 1.2.1 - you are likely to get better results using
+	dedicated profiling tools - for more information see:
+	http://trac.xapian.org/wiki/ProfilingXapian
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -73,7 +70,7 @@ mechanism to allow you to select where to store the log and which types of
 message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
-   output to be stored in, or to the special value ``-`` to indicate that you
+   output to be appended to, or to the special value ``-`` to indicate that you
    would like debugging output to be sent to stderr.  Unless XAPIAN_DEBUG_LOG
    is set, no debug logging will be performed.  Occurrences of %p in
    XAPIAN_DEBUG_LOG will be replaced with the current process-id.
@@ -91,11 +88,11 @@ These environment variables only have any effect if you ran configure with the
 
 The format is::
 
-<message type> <pid> [<this>] <message>
+    <message type> <pid> [<this>] <message>
 
 For example::
 
-A 16747 [0x57ad1e0] void Xapian::Query::Internal::validate_query()
+    A 16747 [0x57ad1e0] void Xapian::Query::Internal::validate_query()
 
 Each nested call adds another space before the ``[`` so you can easily see
 which function call and return messages correspond.
@@ -133,9 +130,10 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, chert, or flint backends using ``make check-inmemory``, ``make
-check-remoteprog``, ``make check-remotetcp``, ``make check-multi``, ``make
-check-chert``, or ``make check-flint`` respectively.
+multi-database, brass, chert, or flint backends using ``make check-inmemory``,
+``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
+``make check-brass``, ``make check-chert``, or ``make check-flint``
+respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
 backend, and ``make check-none`` will run those tests which don't use any
@@ -183,10 +181,10 @@ which you might find useful:
     By default, the testsuite harness uses ANSI escape sequences to give
     colour output if stdout is a tty.  You can disable this feature by setting
     XAPIAN_TESTSUITE_OUTPUT=plain (alternatively, piping the output (e.g.
-    through cat or more) will have the same effect).  Auto-detection can be
-    explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).  Any
-    other value forces the use of colour.  Colour output is always disabled on
-    Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
+    through ``cat`` or ``more``) will have the same effect).  Auto-detection
+    can be explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).
+    Any other value forces the use of colour.  Colour output is always disabled
+    on Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -269,15 +267,21 @@ You will need the following tools installed to build from SVN:
 * perl 5 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
+* GNU flex (for building doxygen)
+* GNU bison (for building doxygen)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison
 
 If you want to build Omega, you'll also need::
 
-apt-get install libpcre3-dev
+    apt-get install libpcre3-dev
+
+On Fedora, the uuid library can be installed by doing::
+
+    yum install libuuid-devel
 
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
@@ -287,9 +291,9 @@ versions of the tools required, we either include the source to these tools in
 the SVN repo directly (in the case of Snowball and Lemon), or pull them in to
 an SVN checkout using svn:externals (SWIG), or the bootstrap script will lazily
 download, build, and install them within the source tree (autoconf, automake,
-and libtool).  To download the source tarballs for these, bootstrap will use
-wget or curl if installed.  If not, it will give an error telling you the
-URL to download from by hand and where to copy the file to.
+libtool, and doxygen).  To download the source tarballs for these, bootstrap
+will use wget or curl if installed.  If not, it will give an error telling you
+the URL to download from by hand and where to copy the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -342,9 +346,9 @@ documentation), but you can configure and build.
 
 The documentation tools are:
 
-* doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
-  documentation for Xapian::Query).
-* dot (part of Graphviz)
+* doxygen (v1.5.9 is used for 1.1.x snapshots and releases; 1.4.6 produced
+  incomplete documentation for Xapian::Query).
+* dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs ">1.8.10")
 * gs (part of Ghostscript)
 * pdflatex (in texlive-latex-base on Debian/Ubuntu)
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
@@ -361,7 +365,7 @@ will look for them there.
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
 
 On Debian 4.0 (etch) you may also need:
 
@@ -370,7 +374,9 @@ apt-get install texlive-pdfetex
 Autotools versions
 ------------------
 
-* autoconf 2.63 is recommended and a hard minimum requirement.
+* autoconf 2.67 is used to generate snapshots and releases.
+
+  autoconf 2.64 is a hard minimum requirement.
 
   autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
 
@@ -385,7 +391,11 @@ Autotools versions
   autoconf 2.63 fixes a regression in AC_C_BIGENDIAN introduced in 2.62
   (Omega uses this macro).
 
-* automake 1.10.2 is recommended and a hard minimum requirement.
+  autoconf 2.64 generates smaller configure scripts by using shell functions.
+
+* automake 1.11.1 is used to generate snapshots and releases.
+
+  automake 1.10.2 is a hard minimum requirement.
 
   automake 1.7 adds support for per-program and per-library _CPPFLAGS.
 
@@ -398,13 +408,13 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.6a is recommended and a hard minimum requirement.
+* libtool 2.2.10 is used to generate snapshots and releases.
 
-  libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
+  libtool 2.2.8 is the current hard minimum requirement.
+
+  libtool 2.2 is required for us to be able to override link_all_deplibs_CXX
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
-
-  libtool 2.2.4 and 2.2.6a include several bug-fixes over 2.2.
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
@@ -500,6 +510,36 @@ Use of C++ Features
   Just put the declaration in the header file, and put the definition in a .cc
   file with the same basename.
 
+Include ordering for source files
+---------------------------------
+
+To help us move towards a consistent ordering of #include lines in source
+files, please follow the following policy when ordering them:
+
+* #include <config.h> should be first, and use <> not "" (as recommended by the
+  autoconf manual).
+
+* The header corresponding to the source file should be next. This means that
+  compilation of the library ensures that each header with a corresponding
+  source file is "self supporting" (i.e. it implicitly or explicitly includes
+  all of the headers it requires).
+
+* External xapian-core headers, alphabetically. When included from other
+  external headers, use <> to reduce problems with finding headers in the
+  user's source tree by mistake. In sources and internal headers, use "" (?) -
+  practically this makes no difference as we have -I for srcdir and builddir,
+  but <> suggests installed header files so "" seems more natural).
+
+* Internal headers, alphabetically (using "").
+
+* "Safe" versions of library headers (include these first to avoid issues if
+  other library headers include the ones we want to wrap). Use "" and order
+  alphabetically.
+
+* Library headers, alphabetically.
+
+* Standard C++ headers, alphabetically. Use the modern (no .h suffix) names.
+
 C++ Portability Issues
 ======================
 
@@ -508,9 +548,6 @@ Web Resources
 
 The "C++ FAQ Lite" covers many frequently asked C++ questions:
 http://www.parashift.com/c++-faq-lite/
-
-The libstdc++-porting-howto discusses various C++ portability issues:
-http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
 
 Header Portability Issues
 -------------------------
@@ -568,6 +605,13 @@ provided by sys/stat.h under UNIX) and provides a compatibility wrapper for
 mkdir() which takes 2 arguments (so code using mkdir can always just pass
 two arguments).
 
+<sys/wait.h>:
+-------------
+
+To get `WEXITSTATUS` or `WIFEXITED` defined, '#include "safesyswait.h"'.
+Note that this won't provide `waitpid()`, etc on Microsoft Windows, since
+these functions are only really useful to use when `fork()` is available.
+
 <unistd.h>:
 -----------
 
@@ -586,7 +630,7 @@ problems from this, we specify a particular revision to import, but this does
 mean we need to monitor changes to xapian-core and decide when to update omega.
 The release checklist includes a reminder to check this.
 
-Warning Free Compilation
+Warning-Free Compilation
 ------------------------
 
 Compiling without warnings on every platform is our goal, though it's not
@@ -602,7 +646,7 @@ when doing development work on Xapian.  This promotes warnings to errors,
 which should ensure you at least don't introduce new warnings for the compiler
 you're using.
 
-If you configure with --enable-maintainer-mode, and are using GCC 4.0 or newer,
+If you configure with --enable-maintainer-mode, and are using GCC 4.1 or newer,
 this is done for you automatically.  This is intended to be an aid rather than
 a form of automated punishment - it's all too easy to miss a new warning as
 once a file is compiled, you don't see it unless you modify that file or one of
@@ -936,6 +980,16 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
+keyword like so::
+
+    class XAPIAN_DEPRECATED() Foo {
+      public:
+        Foo() { };
+
+        // ...
+    };
+
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
 XAPIAN_DEPRECATED (this works with recent GCC versions though)::
@@ -961,7 +1015,10 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists.php>
+<http://xapian.org/lists>
+
+Also, please read the following section on licensing of patches before
+submitting a patch.
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -988,10 +1045,10 @@ to follow the style of the existing code.  In particular:
     };
 
   The rationale for this exception is that class definitions in header files
-  often have fairly long lines, so losing an indent level to the visibility
+  often have fairly long lines, so losing an indent level to the access
   specifier tends to make class definitions less readable.
 
-  The default visibility for a class is always "private", so there's no need
+  The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
   
     class Foo {
@@ -1012,7 +1069,7 @@ to follow the style of the existing code.  In particular:
     };
 
   If a class only contains public methods and data, consider declaring it as a
-  "struct" (the only difference in C++ is that the default visibility for a
+  "struct" (the only difference in C++ is that the default access for a
   struct is "public").
 
 * Put a space before the "(" after control flow constructs like "for", "if",
@@ -1073,31 +1130,117 @@ to follow the style of the existing code.  In particular:
         }
     }
 
-* For standard ISO C headers, we now prefer the C++ form for ISO C headers
-  (e.g. "#include <cstdlib>" rather than "#include <stdlib.h>") for new code (a
-  *lot* of the existing code currently uses the old form, but there are a few
-  semantic differences, so we're holding off on a wholesale conversion until
-  1.1.x to avoid potentially disruptive changes with no direct benefit to
-  users).
+* For standard ISO C headers, prefer the C++ form for ISO C headers (e.g.
+  "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's a good
+  reason (e.g. portability) to do otherwise.  Be sure to document such
+  exceptions to avoid another developer changing them to the standard form.
+  Global exceptions: <signal.h> (lots of POSIX stuff which e.g. Sun's compiler
+  doesn't provide in <csignal>).
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
   for this form for years, and GCC 4.3 dropped support entirely).
 
-* When passing an empty string to a method expecting ``const std::string &``
-  prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
-  is more likely to directly use a special "empty string representation" (it
-  does with GCC at least).
+* Some guidelines for efficient use of std::string:
+
+  + When passing an empty string to a method expecting ``const std::string &``
+    prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
+    is more likely to directly use a special "empty string representation" (it
+    does with GCC at least).
+
+  + To make a string object empty, ``s.resize(0)`` (if you want to keep the
+    current reserved space) or ``s = string()`` (if you don't) seem the best
+    options.
+
+  + Use ``std::string::assign()`` rather than building a temporary string
+    object and assigning that.  For example, ``foo = std::string(ptr, len);``
+    is better written as ``foo.assign(ptr, len);``.
+
+  + It's generally better to build up strings using ``+=`` rather than
+    combining series of components with ``+``.  So ``foo = a + " and " + c`` is
+    better written as ``foo = a; foo += " and "; foo += c;``.  It's possible
+    for compilers to handle the former without a lot of temporary string
+    objects by returning a proxy object to allow the concatenation to happen
+    lazily, but not all compilers do this, and it's likely to still have some
+    overhead.  Note that GCC 4.1 seems to produce larger code in some cases for
+    the latter approach, but it's a definite win with GCC 4.4.
+
+  * ``std::string(1, '\0')`` seems to be slightly more efficient than
+    ``std::string("", 1)`` for constructing a std::string containing a single
+    ASCII nul character.
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
-  equivalent to the variable definition ``SomeClass foo``.
+  equivalent to the variable definition ``SomeClass foo``.  However, note that
+  ``new SomePODType()`` is *not* the same as ``new SomePODType`` (if
+  SomePODType is a POD (Plain Old Data) type) - the former will zero-initialise
+  scalar members of SomePODType.
+
+* When catching an exception which is an object, do it by const reference, so
+  like this::
+
+      try {
+	  foo();
+      } catch (const ErrorClass &e) {
+	  bar(e);
+      }
+
+  Catching by value is bad because it "slices" the object if an object of a
+  derived type is thrown.  Even if derived types aren't a worry, it also causes
+  the copy constructor to be called needlessly.
+
+  See also: http://www.parashift.com/c++-faq-lite/exceptions.html#faq-17.7
+
+  A const reference is preferable to a non-const reference as it stops the
+  object being inadvertently modified.  In the rare cases when you want to
+  modify the caught object, a non-const reference is OK.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
 to the AUTHORS file (unless you specifically request us not to).  If you see we
 have forgotten to do this, please draw it to our attention so that we can
 address the omission.
+
+Licensing of patches
+====================
+
+If you want a patch to be considered for inclusion in the Xapian sources, you
+must own the copyright on this patch.  Employers often claim copyright on code
+written by their employees (even if the code is written in their spare time),
+so please check with your employer if this applies.  Be aware that even if you
+are a student your university may try and claim some rights on code which you
+write.
+
+Patches which are submitted to Xapian will only be included if they are
+licensed for distribution under each of the following licenses:
+
+ - GPL version 2 and all later versions (see the file "COPYING" for details).
+ - MIT/X license::
+
+ Copyright (c) <year> <copyright holders>
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
+
+The current distribution of Xapian contains many files which are only licensed
+under the GPL, but we are working towards being able to distribute Xapian under
+a more permissive license, and are not willing to accept patches which we will
+have to rewrite before this can happen.
 
 Developers with SVN access:
 ===========================
@@ -1214,17 +1357,17 @@ The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
 - excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 ::
 
-    class some_iterator {
-    public:
-	// ...
-	some_iterator& operator++();
+	class some_iterator {
+	public:
+	    // ...
+	    some_iterator& operator++();
 
-	some_iterator operator++(int) {
-	    some_iterator tmp = *this;
-	    operator++();
-	    return tmp;
-	}
-    };
+	    some_iterator operator++(int) {
+		some_iterator tmp = *this;
+		operator++();
+		return tmp;
+	    }
+	};
 
     The compiler is allowed to assume that the copy constructor only does
     a copy, and to optimize away unneeded copy operations.  The result
@@ -1248,7 +1391,7 @@ If you are find you are repeatedly changing the API headers (in include/)
 during development, then you may become annoyed that the docs/ subdirectory
 will rebuild the doxygen documentation every time you run "make" since this
 takes a while.  You can disable this temporarily (if you're using GNU make),
-by creating a file "docs/GNUmakefile" containing these two lines:
+by creating a file "docs/GNUmakefile" containing these two lines::
 
 %:
 	@echo "Skipping 'make $@' in docs"
@@ -1277,21 +1420,18 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the NEWS files using information from the ChangeLog files
 
-* Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
-  http://www.oligarchy.co.uk/tinderbox/xapian/status.html
-
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
-* Update the status of bug reports fixed by this release from "fixed" to
-  "released":
-  http://trac.xapian.org/report/12
-  Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
+* Make sure the submitters of fixed bugs are mentioned in the "thanks" list in
+  xapian-core/AUTHORS.  Check the list for the appropriate milestone::
+
+   http://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
 
 * On atreus, svn tag the source trees for the new revision - use the
   svn-tag-release script, running it with the new version number, for example:
 
-  xapian-maintainer-tools/svn-tag-release 0.9.0
+  xapian-maintainer-tools/svn-tag-release 1.0.14
 
   This script also generates tarballs for the new release and copies them
   across to the website.
@@ -1303,29 +1443,28 @@ This is a (hopefully complete) list of the jobs which need doing:
   http://trac.xapian.org/admin/ticket/milestones
 
 * Mark the current milestone as completed.  In order to do so, any unfixed bugs
-  with this milestone will need to be updated to the milestone you just added.
+  with this milestone will need to be moved to another milestone (most likely
+  the milestone you just added).
+
+* Update the wiki:
+
+  Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
+  http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
+  which should be moved to the archived section.
+
+  Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
+  date of this release and adding an entry for the next release with an
+  estimated release date.
 
 * Update the website: version.php in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
 * Run /home/olly/tmp/xapian-website-update/update_website.sh
 
-* Update the wiki:
-
-  Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
-  http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.  Also update
-  http://wiki.xapian.org/RoadMap to record the date of the release and the
-  estimated date for the next release.
-
-  Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
-  date of this release and adding an entry for the next release with an
-  estimated release date.
+* Announce the new version on xapian-discuss
 
 * Update the freshmeat entry at:
   http://freshmeat.net/projects/xapian/releases/new
-
-* Announce the new version on xapian-discuss
 
 * Have a nice cup of tea!
 
@@ -1337,31 +1476,58 @@ for which packages have been produced (currently xapian-core, xapian-bindings
 and xapian-applications/omega).  After each release, these should be
 updated as follows:
 
-* If any patches are being applied when building the debian package
-  (ie, there is a patch file "debian/patch"), and these patches are
-  now incorporated into the release, remove or update the patch file.
+* If there are any patch files in "debian/patches", check if these have been
+  incorporated into the new release, and if so remove them and update
+  "debian/patches/series".  If there are no patches left and
+  "debian/patches/series" is empty or only contains lines starting with a "#"
+  then the dependency on quilt is automatically omitted.
 
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
-  like so: "dch -v 0.9.7-1".  The new version number should be the
-  version number of the release followed by "-1" (ie, a debian
+  like so: "dch -v 1.0.14-1".  The new version number should be the
+  version number of the release followed by "-1" (i.e., a debian
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
   changes in the new release.
 
-* Use xapian-maintainer-tools/debian/svn-tag-debs to tag all the files in the
-  debian control directory with the tag "debian-VERSION-1" - eg, for a new
-  release of version 0.9.6, tag with "debian-0.9.6-1".
+* Run ``xapian-maintainer-tools/debian/svn-tag-debs`` to tag all the files in the
+  debian control directory - e.g., for a new release of version 1.0.14, it tags
+  with "tags/debian-1.0.14-1".
 
-* Use xapian-maintainer-tools/debian/make-source-packages to make and upload
-  new source packages for the various Debian and Ubuntu versions we provide
-  packages for.  Currently this script must be run on atreus.
+* ``cd xapian-maintainer-tools/debian``
 
-* Build debs for oldstable, stable, unstable, dapper, edgy, feisty, and gutsy.
-  The scripts xapian-maintainer-tools/debian/create-chroot and
-  xapian-maintainer-tools/debian/build-packages allow building these in
-  a series of chroots on a single machine using pbuilder.
+* Run ``./make-source-packages`` to make new source packages for Debian unstable.
 
+* Run ``sudo ./build-packages`` to build binary packages from these source
+  packages.
 
+* Test the packages.
+
+* Run ``debsign build/*_amd64.changes`` to GPG sign the packages.
+
+* Run ``dput build/*_amd64.changes`` to upload them to Debian.
+
+* For the Ubuntu backports::
+
+   ./backport-source-packages xapian-core 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-omega 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-bindings 1.0.15-1 jaunty intrepid hardy dapper
+
+  And once libsearch-xapian-perl is uploaded to Debian unstable::
+
+   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 jaunty intrepid hardy
+
+  Then sign::
+
+   debsign build/*99*_source.changes
+
+  Upload::
+
+   dput xapian-backports build/xapian-core*99*_source.changes
+
+  Wait for that to have a chance to build, and then::
+
+   dput xapian-backports build/xapian-[bo]*99*_source.changes
+   dput xapian-backports build/libsearch-xapian-perl*_source.changes
 
 .. vim: syntax=

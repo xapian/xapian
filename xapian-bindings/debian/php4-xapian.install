@@ -1,5 +1,0 @@
-usr/lib/php4/*/xapian.so
-usr/share/php4/xapian.php
-usr/share/doc/xapian-bindings/php/index.html usr/share/doc/php4-xapian
-usr/share/doc/xapian-bindings/php/examples/*.php4 usr/share/doc/php4-xapian/examples
-etc/php4/conf.d/xapian.ini

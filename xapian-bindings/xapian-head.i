@@ -23,7 +23,6 @@
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
-#include <xapian/replication.h>
 
 #include <string>
 #include <vector>
@@ -33,6 +32,17 @@ using namespace std;
 // If a backend has been disabled in xapian-core (manually or automatically) we
 // include a stub definition here so the bindings can still be built.
 namespace Xapian {
+#ifndef XAPIAN_HAS_BRASS_BACKEND
+    namespace Brass {
+	static Database open(const string &) {
+	    throw FeatureUnavailableError("Brass backend not supported");
+	}
+	static WritableDatabase open(const string &, int, int = 8192) {
+	    throw FeatureUnavailableError("Brass backend not supported");
+	}
+    }
+#endif
+
 #ifndef XAPIAN_HAS_CHERT_BACKEND
     namespace Chert {
 	static Database open(const string &) {

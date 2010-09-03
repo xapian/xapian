@@ -47,6 +47,16 @@ WritableDatabase::flush()
         }
 
 void
+WritableDatabase::close()
+    CODE:
+	try {
+	    THIS->close();
+	}
+	catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
 WritableDatabase::begin_transaction(flushed = NO_INIT)
     bool flushed
     CODE:
@@ -414,6 +424,28 @@ WritableDatabase::clear_synonyms(string term)
     CODE:
 	try {
 	    THIS->clear_synonyms(term);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
+WritableDatabase::add_spelling(word, freqinc = 1)
+    string word
+    termcount freqinc
+    CODE:
+	try {
+	    THIS->add_spelling(word, freqinc);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
+WritableDatabase::remove_spelling(word, freqdec  = 1)
+    string word
+    termcount freqdec
+    CODE:
+	try {
+	    THIS->remove_spelling(word, freqdec);
 	} catch (const Error &error) {
 	    croak( "Exception: %s", error.get_msg().c_str() );
 	}

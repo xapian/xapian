@@ -16,6 +16,7 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libremote.lib" \
     "$(OUTDIR)\libflint.lib" \
     "$(OUTDIR)\libchert.lib" \
+    "$(OUTDIR)\libbrass.lib" \
     $(NULL)
 
 OBJS=   $(INTDIR)\database.obj \
@@ -25,7 +26,8 @@ OBJS=   $(INTDIR)\database.obj \
         $(INTDIR)\alltermslist.obj \
         $(INTDIR)\valuelist.obj \
         $(INTDIR)\slowvaluelist.obj \
-        $(INTDIR)\contiguousalldocspostlist.obj
+        $(INTDIR)\contiguousalldocspostlist.obj \
+        $(INTDIR)\flint_lock.obj 
 
 SRCS=   $(INTDIR)\database.cc \
         $(INTDIR)\databasereplicator.cc\
@@ -34,7 +36,8 @@ SRCS=   $(INTDIR)\database.cc \
         $(INTDIR)\alltermslist.cc \
         $(INTDIR)\valuelist.cc \
         $(INTDIR)\slowvaluelist.cc \
-        $(INTDIR)\contiguousalldocspostlist.cc
+        $(INTDIR)\contiguousalldocspostlist.cc \
+        $(INTDIR)\flint_lock.cc 
 
 
 	  
@@ -45,7 +48,9 @@ CLEAN :
 	-@erase /q "$(INTDIR)\*.pch"
 	-@erase /q "$(INTDIR)\*.pdb"
 	-@erase /q $(OBJS)
-	cd chert
+	cd brass
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\chert
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
@@ -68,10 +73,15 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBBACKEND.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBBACKEND.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(OBJS)
 <<
+
+"$(OUTDIR)\libbrass.lib":
+       cd brass
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       cd ..
 
 "$(OUTDIR)\libflint.lib":
        cd flint
@@ -111,5 +121,8 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.
+

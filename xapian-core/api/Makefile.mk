@@ -8,13 +8,16 @@ EXTRA_DIST +=\
 	api/Makefile
 
 lib_src +=\
+	api/decvalwtsource.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/emptypostlist.cc\
 	api/error.cc\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
+	api/keymaker.cc\
 	api/leafpostlist.cc\
+	api/matchspy.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\
@@ -25,10 +28,9 @@ lib_src +=\
 	api/omtermlistiterator.cc\
 	api/postingsource.cc\
 	api/postlist.cc\
+	api/registry.cc\
 	api/replication.cc\
-	api/serialisationcontext.cc\
 	api/sortable-serialise.cc\
-	api/sorter.cc\
 	api/termlist.cc\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\

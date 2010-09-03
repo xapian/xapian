@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 #include "xapian/query.h"
 
 #include "database.h"
-#include "localmatch.h"
+#include "localsubmatch.h"
 #include "omenquireinternal.h"
 #include "postlist.h"
 
@@ -43,6 +43,13 @@ class QueryOptimiser {
     LocalSubMatch & localsubmatch;
 
     MultiMatch * matcher;
+
+    /** How many leaf subqueries there are.
+     *
+     *  Used for scaling percentages when the highest weighted document doesn't
+     *  "match all terms".
+     */
+    Xapian::termcount total_subqs;
 
     /** Optimise a Xapian::Query::Internal subtree into a PostList subtree.
      *
@@ -102,11 +109,13 @@ class QueryOptimiser {
 		   LocalSubMatch & localsubmatch_,
 		   MultiMatch * matcher_)
 	: db(db_), db_size(db.get_doccount()), localsubmatch(localsubmatch_),
-	  matcher(matcher_) { }
+	  matcher(matcher_), total_subqs(0) { }
 
-    PostList * optimise_query(Xapian::Query::Internal * query) {
+    PostList * optimise_query(const Xapian::Query::Internal * query) {
 	return do_subquery(query, 1.0);
     }
+
+    Xapian::termcount get_total_subqueries() const { return total_subqs; }
 };
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

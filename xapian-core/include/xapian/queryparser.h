@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 namespace Xapian {
 
+class Database;
 class Stem;
 
 /// Base class for stop-word decision functor.
@@ -56,11 +57,12 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     SimpleStopper() { }
 
     /// Initialise from a pair of iterators.
-#ifndef __SUNPRO_CC
+#if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
 #else
-    // Sun's C++ doesn't cope with the Iterator pointing to const char *.
+    // Older versions of Sun's C++ compiler don't cope with the Iterator
+    // pointing to const char *.
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) {
 	while (begin != end) stop_words.insert(*begin++);
@@ -84,10 +86,10 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
     /// Destructor.
     virtual ~ValueRangeProcessor();
 
-    /** See if <begin>..<end> is a valid value range.
+    /** Check for a valid range of this type.
      *
-     *  If this ValueRangeProcessor recognises <begin>..<end> it returns the
-     *  value number of range filter on.  Otherwise it returns
+     *  If this ValueRangeProcessor recognises BEGIN..END it returns the
+     *  value number to range filter on.  Otherwise it returns
      *  Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
@@ -98,7 +100,12 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
  *  The end points can be any strings.
  */
 class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor {
+  protected:
     Xapian::valueno valno;
+
+  private:
+    bool prefix;
+    std::string str;
 
   public:
     /** Constructor.
@@ -106,20 +113,36 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
      *  @param valno_	The value number to return from operator().
      */
     StringValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_) { }
+	: valno(valno_), str() { }
 
-    /// Any strings are valid as begin and end.
-    Xapian::valueno operator()(std::string &, std::string &) {
-	return valno;
-    }
+    /** Constructor.
+     *
+     *  @param valno_	The value number to return from operator().
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this range.
+     *  @param prefix_	Flag specifying whether to check for str_ as a prefix
+     *			or a suffix.
+     */
+    StringValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+			      bool prefix_ = true)
+	: valno(valno_), prefix(prefix_), str(str_) { }
+
+    /** Check for a valid range of this type.
+     *
+     *  If no prefix or suffix is specified, then this always returns the
+     *  value slot specified at construction time.
+     *
+     *  If a prefix or suffix is specified, this is checked for first, and
+     *  it it doesn't match, this method returns Xapian::BAD_VALUENO.
+     */
+    Xapian::valueno operator()(std::string &, std::string &);
 };
 
 /** Handle a date range.
  *
  *  Begin and end must be dates in a recognised format.
  */
-class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProcessor {
-    Xapian::valueno valno;
+class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRangeProcessor {
     bool prefer_mdy;
     int epoch_year;
 
@@ -136,11 +159,55 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
      */
     DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
 			    int epoch_year_ = 1970)
-	: valno(valno_), prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
+	: StringValueRangeProcessor(valno_),
+	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
-    /** See if <begin>..<end> is a valid date value range.
+    /** Constructor.
      *
-     *  If <begin>..<end> is a sensible date range, this method returns the
+     *  @param valno_	    The value number to return from operator().
+     *
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this date range.
+     *
+     *  @param prefix_  Whether to look for the string at the start or end of
+     *                  the values.  If true, the string is a prefix; if
+     *                  false, the string is a suffix (default: true).
+     *
+     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
+     *			    month/day/year rather than day/month/year?
+     *			    (default: false)
+     *
+     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
+     *			    years (default: 1970, so 1/1/69 is 2069 while
+     *			    1/1/70 is 1970).
+     *
+     *  The string supplied in str_ is used by @a operator() to decide whether
+     *  the pair of strings supplied to it constitute a valid range.  If
+     *  prefix_ is true, the first value in a range must begin with str_ (and
+     *  the second value may optionally begin with str_);
+     *  if prefix_ is false, the second value in a range must end with str_
+     *  (and the first value may optionally end with str_).
+     *
+     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
+     *  strings are required at the start or end of the strings defining the
+     *  range.
+     *
+     *  The remainder of both strings defining the endpoints must be valid
+     *  dates.
+     *
+     *  For example, if str_ is "created:" and prefix_ is true, and the range
+     *  processor has been added to the queryparser, the queryparser will
+     *  accept "created:1/1/2000..31/12/2001".
+     */
+    DateValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+			    bool prefix_ = true,
+			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
+	: StringValueRangeProcessor(valno_, str_, prefix_),
+	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
+
+    /** Check for a valid range of this type.
+     *
+     *  If BEGIN..END is a sensible date range, this method returns the
      *  value number of range filter on.  Otherwise it returns
      *  Xapian::BAD_VALUENO.
      */
@@ -154,18 +221,14 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
  *  will sort in the same order as the numbers (the same values can be
  *  used to implement a numeric sort).
  */
-class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
-    Xapian::valueno valno;
-    bool prefix;
-    std::string str;
-
+class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRangeProcessor {
   public:
     /** Constructor.
      *
      *  @param valno_   The value number to return from operator().
      */
     NumberValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_), prefix(false) { }
+	: StringValueRangeProcessor(valno_) { }
 
     /** Constructor.
      *
@@ -201,11 +264,11 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      */
     NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
 			      bool prefix_ = true)
-	: valno(valno_), prefix(prefix_), str(str_) { }
+	: StringValueRangeProcessor(valno_, str_, prefix_) { }
 
-    /** See if <begin>..<end> is a valid numeric value range.
+    /** Check for a valid range of this type.
      *
-     *  If <begin>..<end> is a valid numeric value range, and has the
+     *  If BEGIN..END is a valid numeric value range, and has the
      *  appropriate prefix or suffix (if specified) required for this
      *  NumberValueRangeProcessor, this method returns the value number of
      *  range filter on, and sets begin and end to the appropriate serialised
@@ -235,6 +298,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_BOOLEAN_ANY_CASE = 8,
 	/** Support right truncation (e.g. Xap*).
 	 *
+	 *  Currently you can't use wildcards with boolean filter prefixes,
+	 *  or in a phrase (either an explicitly quoted one, or one implicitly
+	 *  generated by hyphens or other punctuation).
+	 *
 	 *  NB: You need to tell the QueryParser object which database to
 	 *  expand wildcards from by calling set_database.
 	 */
@@ -253,6 +320,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  final word as a wildcarded match, unless it is followed by
 	 *  whitespace, to produce more stable results from interactive
 	 *  searches.
+	 *
+	 *  Currently FLAG_PARTIAL doesn't do anything if the final word
+	 *  in the query has a boolean filter prefix, or if it is in a phrase
+	 *  (either an explicitly quoted one, or one implicitly generated by
+	 *  hyphens or other punctuation).  It also doesn't do anything if
+	 *  if the final word is part of a value range.
 	 *
 	 *  NB: You need to tell the QueryParser object which database to
 	 *  expand wildcards from by calling set_database.
@@ -348,13 +421,29 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Set the stopper.
     void set_stopper(const Stopper *stop = NULL);
 
-    /** Set the default boolean operator. */
+    /** Set the default operator.
+     *
+     *  This operator is used to combine non-filter query items when no
+     *  explicit operator is used.
+     *
+     *  The most useful values for this are OP_OR (the default) and OP_AND.
+     *  OP_NEAR and OP_PHRASE can also be useful.
+     *
+     *  So for example, 'weather forecast' is parsed as if it were 'weather OR
+     *  forecast' by default.
+     */
     void set_default_op(Query::op default_op);
 
-    /** Get the default boolean operator. */
+    /** Get the current default operator. */
     Query::op get_default_op() const;
 
-    /// Specify the database being searched.
+    /** Specify the database being searched.
+     *
+     *  The database is used for wildcard expansion (FLAG_WILDCARD and
+     *  FLAG_PARTIAL), spelling correction (FLAG_SPELLING_CORRECTION), and
+     *  synonyms (FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and
+     *  FLAG_AUTO_MULTIWORD_SYNONYMS).
+     */
     void set_database(const Database &db);
 
     /** Parse a query.
@@ -365,6 +454,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		multiple values with bitwise-or (|) (default FLAG_DEFAULT).
      *	@param default_prefix  The default term prefix to use (default none).
      *		For example, you can pass "A" when parsing an "Author" field.
+     *
+     *  @exception If the query string can't be parsed, then
+     *		   Xapian::QueryParserError is thrown.  You can get an English
+     *		   error message to report to the user by catching it and
+     *		   calling get_msg() on the caught exception.  The current
+     *		   possible values (in case you want to translate them) are:
+     *
+     *			@li Unknown range operation
+     *			@li parse error
+     *			@li Syntax: <expression> AND <expression>
+     *			@li Syntax: <expression> AND NOT <expression>
+     *			@li Syntax: <expression> NOT <expression>
+     *			@li Syntax: <expression> OR <expression>
+     *			@li Syntax: <expression> XOR <expression>
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
@@ -391,9 +494,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  If any prefixes are specified for the empty field name (i.e. you
      *  call this method with an empty string as the first parameter)
-     *  these prefixes will be used as the default prefix.  If you do
-     *  this and also specify the @c default_prefix parameter to
-     *  @c parse_query(), then the @c default_prefix parameter will override.
+     *  these prefixes will be used for terms without a field specifier.
+     *  If you do this and also specify the @c default_prefix parameter to @c
+     *  parse_query(), then the @c default_prefix parameter will override.
+     *
+     *  If the prefix parameter is empty, then "field:word" will produce the
+     *  term "word" (and this can be one of several prefixes for a particular
+     *  field, or for terms without a field specifier).
      *
      *  If you call @c add_prefix() and @c add_boolean_prefix() for the
      *  same value of @a field, a @c Xapian::InvalidOperationError exception
@@ -451,8 +558,19 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
+     *  @param exclusive If true, each document can have at most one value of
+     *			 the field, so Xapian should combine multiple values
+     *			 with OP_OR.  If false, each document can have multiple
+     *			 values of the field, so Xapian combine them with
+     *			 OP_AND, as we would with filters with different
+     *			 prefixes. [default: true]
      */
-    void add_boolean_prefix(const std::string & field, const std::string &prefix);
+    void add_boolean_prefix(const std::string &field, const std::string &prefix,
+			    bool exclusive);
+
+    /* FIXME:1.1.3: Merge two versions into one with optional parameter
+     * "exclusive", default true. */
+    void add_boolean_prefix(const std::string &field, const std::string &prefix);
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;

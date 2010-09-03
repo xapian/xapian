@@ -6,11 +6,12 @@ noinst_HEADERS +=\
 	matcher/exactphrasepostlist.h\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
-	matcher/localmatch.h\
+	matcher/localsubmatch.h\
 	matcher/mergepostlist.h\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
 	matcher/multiandpostlist.h\
+	matcher/multixorpostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
 	matcher/queryoptimiser.h\
@@ -19,7 +20,7 @@ noinst_HEADERS +=\
 	matcher/synonympostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
-	matcher/xorpostlist.h
+	matcher/valuestreamdocument.h
 
 EXTRA_DIST +=\
 	matcher/dir_contents\
@@ -40,18 +41,18 @@ lib_src +=\
 	matcher/collapser.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
-	matcher/localmatch.cc\
+	matcher/localsubmatch.cc\
 	matcher/mergepostlist.cc\
 	matcher/msetcmp.cc\
 	matcher/msetpostlist.cc\
 	matcher/multiandpostlist.cc\
 	matcher/multimatch.cc\
+	matcher/multixorpostlist.cc\
 	matcher/orpostlist.cc\
 	matcher/phrasepostlist.cc\
 	matcher/queryoptimiser.cc\
-	matcher/rset.cc\
 	matcher/selectpostlist.cc\
 	matcher/synonympostlist.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
-	matcher/xorpostlist.cc
+	matcher/valuestreamdocument.cc

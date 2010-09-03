@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.h
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -43,12 +43,10 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
   public:
-    BackendManagerRemoteTcp(const std::string & remote_type_);
+    BackendManagerRemoteTcp(const std::string & remote_type_)
+	: BackendManagerRemote(remote_type_) { }
 
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~BackendManagerRemoteTcp();
+    ~BackendManagerRemoteTcp();
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
@@ -62,13 +60,13 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 					 unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    Xapian::Database get_writable_database_as_database(const std::string & name = std::string());
+    Xapian::Database get_writable_database_as_database();
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
+    Xapian::WritableDatabase get_writable_database_again();
 
     /// Called after each test, to perform any necessary cleanup.
-    virtual void posttest();
+    void clean_up();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H

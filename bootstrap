@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,8 +27,8 @@ fi
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
-# The variables which specify the autotools to use.
-autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
+# The variables which specify the autotools to use.  And doxygen.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE DOXYGEN"
 
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
@@ -36,11 +36,22 @@ FETCH_URL_TOOL=
 check_sha1sum() {
   checksum=$1
   tarball=$2
-  if ${SHA1SUM-sha1sum} --version > /dev/null 2>&1 ; then
-    echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c
+
+  # BusyBox sha1sum doesn't know --version so just run to see it it works.
+  if echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c 2>/dev/null ; then
+    : # Checksum OK!
   else
-    test "$checksum" = `openssl sha1 < "$tarball"`|| \
-      ( echo "$tarball: computed SHA1 checksum did NOT match" ; exit 1 )
+    # Either sha1sum wasn't installed, or the checksum failed to match.
+    case `openssl sha1 "$tarball" 2>/dev/null` in
+      *$checksum) ;;
+      "") echo "Need sha1sum or openssl installed to check SHA1 checksums"
+	exit 1
+	;;
+      *)
+	echo "$tarball: computed SHA1 checksum did NOT match"
+	exit 1
+	;;
+    esac
   fi
 }
 
@@ -51,7 +62,7 @@ lazy_build() {
   checksum=$4
   tarball=$basename.$ext
   case $basename in
-    *[a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+    *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
   esac
 
   # Create the stamp file in INST so that rerunning bootstrap after
@@ -72,7 +83,15 @@ lazy_build() {
 	exit 1
       fi
     fi
-    $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball"
+    case $basename in
+    doxygen-*)
+      $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+    *[13579][a-z])
+      # GNU alpha release
+      $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+    *)
+      $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+    esac
   fi
 
   if [ -f "$stamp" ] ; then
@@ -97,7 +116,18 @@ lazy_build() {
     esac
 
     cd "$basename"
-    ./configure --prefix="$instdir"
+    # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
+    # which stops it building on each new OS X release.
+    if [ -f qtools/qglobal.h ] ; then
+	sed 's!^[	 ]*#[	 ]*error.*Mac *OS *X is unsupported!// &!' \
+	    qtools/qglobal.h > qtools/qglobal.hT
+	mv qtools/qglobal.hT qtools/qglobal.h
+    fi
+    if test -n "$AUTOCONF" ; then
+      ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
+    else
+      ./configure --prefix "$instdir"
+    fi
     make
     make install
     cd ..
@@ -118,6 +148,39 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
+if [ -d ".git" ] ; then
+  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
+    test -d "$emptydir" || mkdir "$emptydir"
+  done
+
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  cat <<END >> .git/info/exclude~
+swig
+xapian-applications/omega/common
+END
+  if cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+    rm .git/info/exclude~
+  else
+    mv .git/info/exclude~ .git/info/exclude
+  fi
+
+  # FIXME: Currently requires manual update...
+  #svn:external revision for SWIG
+  rev=11320
+  if [ ! -d swig ] ; then
+    git svn init svn://svn.tartarus.org/swig/trunk/ swig/
+  fi
+  (cd swig && git svn fetch -r"$rev")
+
+  # FIXME: Currently requires manual update...
+  #svn:external revision for xapian-applications/omega/common
+  rev=14328
+  if [ ! -d xapian-applications/omega/common ] ; then
+    git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
+  fi
+  (cd xapian-applications/omega/common && git svn fetch -r"$rev")
+fi
+
 if [ "$1" = "--without-autotools" ] ; then
   shift
 else
@@ -133,9 +196,11 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build autoconf 2.63 tar.bz2 f15e14aa34acf871b47f659ef99a2e6707db4a18
-  lazy_build automake 1.10.2 tar.bz2 fad55795a57b82d107808ae1bf51f72eba45c921
-  lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
+  lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
+  lazy_build autoconf 2.67 tar.bz2 0aa3dff106c6373e26dab75a516a696c900317a6
+  AUTOCONF=$instdir/bin/autoconf \
+  lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
+  lazy_build libtool 2.2.10 tar.gz e8fa9813d8e9a5497c636744e6fd3f55d86eec38
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`

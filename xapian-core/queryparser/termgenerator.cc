@@ -1,4 +1,4 @@
-/** @file: termgenerator.cc
+/** @file termgenerator.cc
  * @brief TermGenerator class implementation
  */
 /* Copyright (C) 2007 Olly Betts
@@ -26,7 +26,7 @@
 
 #include "termgenerator_internal.h"
 
-#include "utils.h"
+#include "str.h"
 
 using namespace std;
 using namespace Xapian;
@@ -129,7 +129,7 @@ TermGenerator::get_description() const
 	s += ", doc=";
 	s += internal->doc.get_description();
 	s += ", termpos=";
-	s += om_tostring(internal->termpos);
+	s += str(internal->termpos);
     }
     s += ")";
     return s;

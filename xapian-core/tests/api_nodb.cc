@@ -269,6 +269,12 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	string language = langs.substr(i, spc - i);
 	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
+	if (language.size() > 2) {
+	    string expected("Xapian::Stem(");
+	    expected += language;
+	    expected += ')';
+	    TEST_EQUAL(stemmer.get_description(), expected);
+	}
 
 	if (spc == string::npos) break;
 	i = spc + 1;
@@ -415,13 +421,6 @@ DEFINE_TESTCASE(rset4, !backend) {
     rset.add_document(1);
     // In 1.0.7 this gave: RSet(RSet(RSet::Internal(, 1))
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(RSet::Internal(1))");
-    return true;
-}
-
-// Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
-DEFINE_TESTCASE(opvaluege1, !backend) {
-    Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");
-    TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
     return true;
 }
 

@@ -23,13 +23,14 @@
 
 #include <config.h>
 #include "andnotpostlist.h"
+
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 PostList *
 AndNotPostList::advance_to_next_match(Xapian::weight w_min, PostList *ret)
 {
-    DEBUGCALL(MATCH, PostList *, "AndNotPostList::advance_to_next_match", w_min << ", " << ret);
+    LOGCALL(MATCH, PostList *, "AndNotPostList::advance_to_next_match", w_min | ret);
     handle_prune(l, ret);
     if (l->at_end()) {
 	lhead = 0;
@@ -64,13 +65,13 @@ AndNotPostList::AndNotPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), dbsize(dbsize_)
 {
-    DEBUGCALL(MATCH, void, "AndNotPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
+    LOGCALL_CTOR(MATCH, "AndNotPostList", left_ | right_ | matcher_ | dbsize_);
 }
 
 PostList *
 AndNotPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "AndNotPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "AndNotPostList::next", w_min);
     RETURN(advance_to_next_match(w_min, l->next(w_min)));
 }
 
@@ -80,7 +81,7 @@ AndNotPostList::sync_and_skip_to(Xapian::docid id,
 				 Xapian::docid lh,
 				 Xapian::docid rh)
 {
-    DEBUGCALL(MATCH, PostList *, "AndNotPostList::sync_and_skip_to", id << ", " << w_min << ", " << lh << ", " << rh);
+    LOGCALL(MATCH, PostList *, "AndNotPostList::sync_and_skip_to", id | w_min | lh | rh);
     lhead = lh;
     rhead = rh;
     RETURN(skip_to(id, w_min));
@@ -89,7 +90,7 @@ AndNotPostList::sync_and_skip_to(Xapian::docid id,
 PostList *
 AndNotPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "AndNotPostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "AndNotPostList::skip_to", did | w_min);
     if (did <= lhead) RETURN(NULL);
     RETURN(advance_to_next_match(w_min, l->skip_to(did, w_min)));
 }
@@ -97,7 +98,7 @@ AndNotPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::doccount
 AndNotPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_max", "");
+    LOGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_max", NO_ARGS);
     // Max is when as many docs as possible on left, and none excluded.
     RETURN(l->get_termfreq_max());
 }
@@ -105,7 +106,7 @@ AndNotPostList::get_termfreq_max() const
 Xapian::doccount
 AndNotPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_min", "");
+    LOGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_min", NO_ARGS);
     // Min is when as few docs as possible on left, and maximum are excluded.
     Xapian::doccount l_min = l->get_termfreq_min();
     Xapian::doccount r_max = r->get_termfreq_max();
@@ -116,7 +117,7 @@ AndNotPostList::get_termfreq_min() const
 Xapian::doccount
 AndNotPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_est", "");
+    LOGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_est", NO_ARGS);
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))
@@ -129,8 +130,7 @@ TermFreqs
 AndNotPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	      "AndNotPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "AndNotPostList::get_termfreq_est_using_stats", stats);
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))
@@ -159,7 +159,7 @@ AndNotPostList::get_termfreq_est_using_stats(
 Xapian::docid
 AndNotPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "AndNotPostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "AndNotPostList::get_docid", NO_ARGS);
     RETURN(lhead);
 }
 
@@ -167,7 +167,7 @@ AndNotPostList::get_docid() const
 Xapian::weight
 AndNotPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "AndNotPostList::get_weight", NO_ARGS);
     RETURN(l->get_weight());
 }
 
@@ -175,14 +175,14 @@ AndNotPostList::get_weight() const
 Xapian::weight
 AndNotPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "AndNotPostList::get_maxweight", NO_ARGS);
     RETURN(l->get_maxweight());
 }
 
 Xapian::weight
 AndNotPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::recalc_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "AndNotPostList::recalc_maxweight", NO_ARGS);
     // l cannot be NULL here because it is only set to NULL when the tree
     // decays, so this can never be called at that point.
     RETURN(l->recalc_maxweight());
@@ -191,7 +191,7 @@ AndNotPostList::recalc_maxweight()
 bool
 AndNotPostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "AndNotPostList::at_end", "");
+    LOGCALL(MATCH, bool, "AndNotPostList::at_end", NO_ARGS);
     RETURN(lhead == 0);
 }
 
@@ -204,13 +204,20 @@ AndNotPostList::get_description() const
 Xapian::termcount
 AndNotPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_doclength", "");
+    LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_doclength", NO_ARGS);
     RETURN(l->get_doclength());
 }
 
 Xapian::termcount
 AndNotPostList::get_wdf() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdf", "");
+    LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdf", NO_ARGS);
     RETURN(l->get_wdf());
+}
+
+Xapian::termcount
+AndNotPostList::count_matching_subqs() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::count_matching_subqs", NO_ARGS);
+    RETURN(l->count_matching_subqs());
 }

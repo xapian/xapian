@@ -2,6 +2,7 @@
  *
  * Copyright 2008,2009 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +24,12 @@
 
 #include "api_postingsource.h"
 
-#include <string>
 #include <xapian.h>
 
+#include <string>
+
 #include "testutils.h"
-#include "utils.h"
+#include "str.h"
 #include "apitest.h"
 
 using namespace std;
@@ -362,7 +364,7 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
 
 // Check that valueweightsource gives the correct bounds for those databases
 // which support value statistics.
-DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
+DEFINE_TESTCASE(valueweightsource2, valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
     src.init(db);
@@ -375,7 +377,7 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
-DEFINE_TESTCASE(valueweightsource3, backend && valuestats && !multi) {
+DEFINE_TESTCASE(valueweightsource3, valuestats && !multi) {
     // FIXME: multi doesn't support iterating valuestreams yet.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
@@ -474,8 +476,8 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     Xapian::weight get_weight() const {
 	if (did > maxid_accessed) {
 	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
-		      "for docid " + om_tostring(did) + ", max id accessed "
-		      "should be " + om_tostring(maxid_accessed));
+		      "for docid " + str(did) + ", max id accessed "
+		      "should be " + str(maxid_accessed));
 	}
 	return 5 - did;
     }
@@ -500,7 +502,7 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 };
 
 // Test a posting source with a variable maxweight.
-DEFINE_TESTCASE(changemaxweightsource1, backend && !multi && !remote) {
+DEFINE_TESTCASE(changemaxweightsource1, backend && !remote && !multi) {
     // The ChangeMaxweightPostingSource doesn't work with multi or remote.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
@@ -540,6 +542,64 @@ DEFINE_TESTCASE(changemaxweightsource1, backend && !multi && !remote) {
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
 	}
+    }
+
+    return true;
+}
+
+// Test using a valueweightpostingsource which has no entries.
+DEFINE_TESTCASE(emptyvalwtsource1, backend && !remote && !multi) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    Xapian::ValueWeightPostingSource src2(11); // A non-empty slot.
+    Xapian::ValueWeightPostingSource src3(100); // An empty slot.
+    Xapian::Query q1("leav");
+    Xapian::Query q2(&src2);
+    Xapian::Query q3(&src3);
+    Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query(Xapian::Query::OP_AND_MAYBE, q1, q2), q3);
+
+    // Perform search without ORring with the posting source.
+    Xapian::doccount size1;
+    {
+	enq.set_query(q1);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+	TEST_REL(mset.get_max_possible(), >, 0.0);
+	size1 = mset.size();
+	TEST_REL(size1, >, 0);
+    }
+
+    // Perform a search with just the non-empty posting source, checking it
+    // returns something.
+    {
+	enq.set_query(q2);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+	TEST_REL(mset.get_max_possible(), >, 0.0);
+	TEST_REL(mset.size(), >, 0);
+    }
+
+    // Perform a search with just the empty posting source, checking it returns
+    // nothing.
+    {
+	enq.set_query(q3);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+
+	// get_max_possible() returns 0 here for backends which track the upper
+	// bound on value slot entries, MAX_DBL for backends which don't.
+	// Either is valid.
+	TEST_REL(mset.get_max_possible(), >=, 0.0);
+
+	TEST_EQUAL(mset.size(), 0);
+    }
+
+    // Perform a search with the posting source ORred with the normal query.
+    // This is a regression test - it used to return nothing.
+    {
+	enq.set_query(q);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+	TEST_REL(mset.get_max_possible(), >, 0.0);
+	TEST_REL(mset.size(), >, 0.0);
+	TEST_EQUAL(mset.size(), size1);
     }
 
     return true;

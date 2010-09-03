@@ -141,3 +141,9 @@
 #ifdef _MSC_VER
 # pragma warning(disable:4800)
 #endif
+
+/* Disable MSVC warning about macros with missing parameters */
+#ifdef _MSC_VER
+# pragma warning(disable:4003)
+#endif
+

@@ -2,7 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,17 +28,16 @@
 #include "xapian/document.h"
 #include "xapian/enquire.h"
 #include "xapian/query.h"
-#include "xapian/sorter.h"
+#include "xapian/keymaker.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <map>
 #include <set>
 
 using namespace std;
 
 class OmExpand;
-class RSetI;
 class MultiMatch;
 
 namespace Xapian {
@@ -146,13 +146,20 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	sort_setting sort_by;
 	bool sort_value_forward;
 
-	Sorter * sorter;
+	KeyMaker * sorter;
 
 	/** The error handler, if set.  (0 if not set).
 	 */
 	ErrorHandler * errorhandler;
 
-	mutable Weight * weight; // mutable so get_mset can set default
+	/** The weight to use for this query.
+	 *
+	 *  This is mutable so that the default BM25Weight object can be
+	 *  created lazily when first required.
+	 */
+	mutable Weight * weight;
+
+	vector<MatchSpy *> spies;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();
@@ -169,8 +176,9 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	const Query & get_query();
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
-		      const RSet *omrset, const MatchDecider *mdecider,
-		      const MatchDecider *matchspy) const;
+		      const RSet *omrset,
+		      const MatchDecider *mdecider,
+		      const MatchDecider *matchspy_legacy) const;
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
 		      double k, const ExpandDecider *edecider) const;
 
@@ -216,6 +224,8 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	struct TermFreqAndWeight {
 	    TermFreqAndWeight() { }
+	    explicit TermFreqAndWeight(Xapian::doccount tf)
+		: termfreq(tf), termweight(0.0) { }
 	    TermFreqAndWeight(Xapian::doccount tf, Xapian::weight wt)
 		: termfreq(tf), termweight(wt) { }
 	    Xapian::doccount termfreq;

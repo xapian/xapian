@@ -17,10 +17,8 @@ ALL : "$(OUTDIR)\libmatcher.lib"
 OBJS= \
     $(INTDIR)\andmaybepostlist.obj\
     $(INTDIR)\andnotpostlist.obj\
-    $(INTDIR)\andpostlist.obj\
     $(INTDIR)\branchpostlist.obj\
     $(INTDIR)\collapser.obj\
-    $(INTDIR)\emptysubmatch.obj\
     $(INTDIR)\exactphrasepostlist.obj\
     $(INTDIR)\externalpostlist.obj\
     $(INTDIR)\localmatch.obj\
@@ -37,6 +35,7 @@ OBJS= \
     $(INTDIR)\synonympostlist.obj\
     $(INTDIR)\valuerangepostlist.obj\
     $(INTDIR)\valuegepostlist.obj\
+    $(INTDIR)\valuestreamdocument.obj\
     $(INTDIR)\xorpostlist.obj\
     $(INTDIR)\remotesubmatch.obj
 
@@ -44,10 +43,8 @@ OBJS= \
 SRCS= \
     $(INTDIR)\andmaybepostlist.cc\
     $(INTDIR)\andnotpostlist.cc\
-    $(INTDIR)\andpostlist.cc\
     $(INTDIR)\branchpostlist.cc\
     $(INTDIR)\collapser.cc\
-    $(INTDIR)\emptysubmatch.cc\
     $(INTDIR)\exactphrasepostlist.cc\
     $(INTDIR)\externalpostlist.cc\
     $(INTDIR)\localmatch.cc\
@@ -64,6 +61,7 @@ SRCS= \
     $(INTDIR)\synonympostlist.cc\
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
+    $(INTDIR)\valuestreamdocument.cc\
     $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
 
@@ -86,7 +84,7 @@ CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-"$(OUTDIR)\LIBMATCHER.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBMATCHER.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libmatcher.lib" $(DEF_FLAGS) $(OBJS)
 <<
@@ -105,5 +103,7 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

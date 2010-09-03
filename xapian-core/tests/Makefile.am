@@ -15,16 +15,18 @@ endif
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
+CLEAN_FILES =
+
 libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-        check-multi check-multi-chert check-multi-flint \
-        check-remote \
-	check-remoteprog check-remoteprog-chert check-remoteprog-flint\
-	check-remotetcp check-remotetcp-chert check-remotetcp-flint\
-        check-chert check-flint up remove-cached-databases
+        check-multi check-multi-brass check-multi-chert check-multi-flint \
+        check-remote check-remoteprog check-remotetcp \
+	check-remoteprog-brass check-remoteprog-chert check-remoteprog-flint\
+	check-remotetcp-brass check-remotetcp-chert check-remotetcp-flint\
+	check-brass check-chert check-flint up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)
@@ -33,12 +35,14 @@ check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
 	    stemtest$(EXEEXT) \
 	    queryparsertest$(EXEEXT) \
-	    termgentest$(EXEEXT)
+	    termgentest$(EXEEXT) \
+	    unittest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
 	$(TESTS_ENVIRONMENT) ./internaltest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./stemtest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./queryparsertest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./termgentest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./unittest$(EXEEXT)
 
 check-inmemory: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
@@ -58,11 +62,21 @@ else
 endif
 
 check-remotetcp: apitest$(EXEEXT)
+if BUILD_BACKEND_BRASS
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
+endif
 ## If both chert and flint are enabled, just run remotetcp_flint.
 if BUILD_BACKEND_FLINT
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
 else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+endif
+
+if BUILD_BACKEND_BRASS
+check-remoteprog-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_brass
+check-remotetcp-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -78,6 +92,13 @@ check-remoteprog-flint: apitest$(EXEEXT)
 check-remotetcp-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
 endif
+endif
+
+if BUILD_BACKEND_BRASS
+check-multi-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_brass
+check-brass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b brass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -96,44 +117,53 @@ endif
 
 ## Test programs to be run
 TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- queryparsertest$(EXEEXT) termgentest$(EXEEXT)
+ queryparsertest$(EXEEXT) termgentest$(EXEEXT) unittest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = apitest internaltest stemtest queryparsertest termgentest
+check_PROGRAMS = \
+	apitest internaltest stemtest queryparsertest termgentest unittest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
 
 ## Sources:
 
-noinst_HEADERS = apitest.h
+noinst_HEADERS = apitest.h dbcheck.h
 
 collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
  api_closedb.cc \
  api_collapse.cc \
+ api_compact.cc \
  api_db.cc \
  api_generated.cc \
+ api_matchspy.cc \
  api_metadata.cc \
  api_nodb.cc \
+ api_none.cc \
  api_opsynonym.cc \
+ api_opvalue.cc \
  api_percentages.cc \
  api_posdb.cc \
  api_postingsource.cc \
+ api_qpbackend.cc \
  api_query.cc \
+ api_replacedoc.cc \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \
  api_sorting.cc \
+ api_sortingold.cc \
  api_spelling.cc \
+ api_stem.cc \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
  api_valuestream.cc \
  api_wrdb.cc
 
-apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
+apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
 apitest_LDFLAGS = -no-install $(ldflags)
@@ -154,6 +184,9 @@ queryparsertest_LDADD = ../libgetopt.la ../$(libxapian_la)
 termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
+
+unittest_SOURCES = unittest.cc
+unittest_LDFLAGS = -no-install $(ldflags)
 
 BUILT_SOURCES =
 
@@ -206,6 +239,7 @@ EXTRA_DIST +=\
 	testdata/apitest_manydocs.txt \
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
+	testdata/apitest_declen.txt \
 	testdata/etext.txt \
 	testdata/flint-0.9.9/flicklock \
 	testdata/flint-0.9.9/iamflint \
@@ -241,7 +275,7 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 remove-cached-databases:
-	rm -rf .chert .flint .multi .multichert .multiflint .stub
+	rm -rf .brass .chert .flint .multibrass .multichert .multiflint .stub
 
 clean-local: remove-cached-databases
 
@@ -251,3 +285,11 @@ check-local: remove-cached-databases
 
 include perftest/Makefile.mk
 include harness/Makefile.mk
+
+if USE_ZLIB_VG
+check_SCRIPTS += zlib-vg.so
+CLEAN_FILES += zlib-vg.so
+
+zlib-vg.so: zlib-vg.c
+	$(CC_FOR_BUILD) -fPIC -shared -ldl -o zlib-vg.so $(srcdir)/zlib-vg.c
+endif

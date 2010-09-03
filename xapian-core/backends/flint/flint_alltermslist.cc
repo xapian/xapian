@@ -1,6 +1,6 @@
 /* flint_alltermslist.cc: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007,2008 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,17 +19,17 @@
  */
 
 #include <config.h>
-
 #include "flint_alltermslist.h"
+
+#include "debuglog.h"
 #include "flint_postlist.h"
 #include "flint_utils.h"
-
 #include "stringutils.h"
 
 void
 FlintAllTermsList::read_termfreq_and_collfreq() const
 {
-    DEBUGCALL(DB, void, "FlintAllTermsList::read_termfreq_and_collfreq", "");
+    LOGCALL_VOID(DB, "FlintAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
@@ -43,14 +43,14 @@ FlintAllTermsList::read_termfreq_and_collfreq() const
 
 FlintAllTermsList::~FlintAllTermsList()
 {
-    DEBUGCALL(DB, void, "~FlintAllTermsList", "");
+    LOGCALL_DTOR(DB, "FlintAllTermsList");
     delete cursor;
 }
 
 string
 FlintAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "FlintAllTermsList::get_termname", "");
+    LOGCALL(DB, string, "FlintAllTermsList::get_termname", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
@@ -59,7 +59,7 @@ FlintAllTermsList::get_termname() const
 Xapian::doccount
 FlintAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintAllTermsList::get_termfreq", "");
+    LOGCALL(DB, Xapian::doccount, "FlintAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -69,7 +69,7 @@ FlintAllTermsList::get_termfreq() const
 Xapian::termcount
 FlintAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_collection_freq", "");
+    LOGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_collection_freq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -79,17 +79,36 @@ FlintAllTermsList::get_collection_freq() const
 TermList *
 FlintAllTermsList::next()
 {
-    DEBUGCALL(DB, TermList *, "FlintAllTermsList::next", "");
+    LOGCALL(DB, TermList *, "FlintAllTermsList::next", NO_ARGS);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
 
+    if (rare(!cursor)) {
+	cursor = database->postlist_table.cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
+
+	if (prefix.empty()) {
+	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
+	} else {
+	    const string & key = F_pack_string_preserving_sort(prefix);
+	    if (cursor->find_entry_ge(key)) {
+		// The exact term we asked for is there, so just copy it rather
+		// than wasting effort unpacking it from the key.
+		current_term = prefix;
+		RETURN(NULL);
+	    }
+	}
+	goto first_time;
+    }
+
     while (true) {
 	cursor->next();
+first_time:
 	if (cursor->after_end()) {
-	    current_term = "";
-	    break;
+	    current_term.resize(0);
+	    RETURN(NULL);
 	}
 
 	const char *p = cursor->current_key.data();
@@ -98,29 +117,34 @@ FlintAllTermsList::next()
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
 
-	if (!startswith(current_term, prefix)) {
-	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
-	    current_term = "";
-	    break;
-	}
-
 	// If this key is for the first chunk of a postlist, we're done.
 	// Otherwise we need to skip past continuation chunks until we find the
 	// first chunk of the next postlist.
 	if (p == pend) break;
     }
+
+    if (!startswith(current_term, prefix)) {
+	// We've reached the end of the prefixed terms.
+	cursor->to_end();
+	current_term.resize(0);
+    }
+
     RETURN(NULL);
 }
 
 TermList *
 FlintAllTermsList::skip_to(const string &term)
 {
-    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList *, "FlintAllTermsList::skip_to", term);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
+
+    if (rare(!cursor)) {
+	cursor = database->postlist_table.cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
+    }
 
     if (cursor->find_entry_ge(F_pack_string_preserving_sort(term))) {
 	// The exact term we asked for is there, so just copy it rather than
@@ -128,7 +152,7 @@ FlintAllTermsList::skip_to(const string &term)
 	current_term = term;
     } else {
 	if (cursor->after_end()) {
-	    current_term = "";
+	    current_term.resize(0);
 	    RETURN(NULL);
 	}
 
@@ -142,7 +166,7 @@ FlintAllTermsList::skip_to(const string &term)
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
 	cursor->to_end();
-	current_term = "";
+	current_term.resize(0);
     }
 
     RETURN(NULL);
@@ -151,6 +175,6 @@ FlintAllTermsList::skip_to(const string &term)
 bool
 FlintAllTermsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "FlintAllTermsList::at_end", "");
-    RETURN(cursor->after_end());
+    LOGCALL(DB, bool, "FlintAllTermsList::at_end", NO_ARGS);
+    RETURN(cursor && cursor->after_end());
 }

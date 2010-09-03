@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,14 +35,11 @@ using namespace std;
 /// The RemoteTcpServer constructor, taking a database and a listening port.
 RemoteTcpServer::RemoteTcpServer(const vector<std::string> &dbpaths_,
 				 const std::string & host, int port,
-				 int msecs_active_timeout_,
-				 int msecs_idle_timeout_,
-				 bool writable_,
-				 bool verbose_)
+				 double active_timeout_, double idle_timeout_,
+				 bool writable_, bool verbose_)
     : TcpServer(host, port, true, verbose_),
       dbpaths(dbpaths_), writable(writable_),
-      msecs_active_timeout(msecs_active_timeout_),
-      msecs_idle_timeout(msecs_idle_timeout_)
+      active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
 }
 
@@ -51,8 +48,7 @@ RemoteTcpServer::handle_one_connection(int socket)
 {
     try {
 	RemoteServer sserv(dbpaths, socket, socket,
-			   msecs_active_timeout, msecs_idle_timeout,
-			   writable);
+			   active_timeout, idle_timeout, writable);
 	sserv.run();
     } catch (const Xapian::NetworkTimeoutError &e) {
 	if (verbose)

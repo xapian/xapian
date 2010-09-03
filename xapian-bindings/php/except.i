@@ -1,6 +1,6 @@
 /* php/except.i: Custom PHP exception handling.
  *
- * Copyright 2006,2007,2008 Olly Betts
+ * Copyright 2006,2007,2010 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 static void
 XapianExceptionHandler()
 {
+    TSRMLS_FETCH();
     string msg;
     try {
 	// Rethrow so we can look at the exception if it was a Xapian::Error.
@@ -49,6 +50,7 @@ XapianExceptionHandler()
 	$function
     } catch (...) {
 	XapianExceptionHandler();
+	return;
     }
 }
 

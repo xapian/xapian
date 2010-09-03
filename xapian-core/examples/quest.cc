@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +60,7 @@ static void show_usage() {
 
 int
 main(int argc, char **argv)
-{
+try {
     const char * opts = "d:m:s:hv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
@@ -77,76 +77,79 @@ main(int argc, char **argv)
 
     bool have_database = false;
 
-    try {
-	Xapian::Database db;
+    Xapian::Database db;
 
-	int c;
-	while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	    switch (c) {
-		case 'm':
-		    msize = atoi(optarg);
-		    break;
-		case 'd':
-		    db.add_database(Xapian::Database(optarg));
-		    have_database = true;
-		    break;
-		case 's':
-		    try {
-			stemmer = Xapian::Stem(optarg);
-		    } catch (const Xapian::Error &) {
-			cerr << "Unknown stemming language '" << optarg
-			     << "'.\n"
-				"Available language names are: "
-			     << Xapian::Stem::get_available_languages() << endl;
-			exit(1);
-		    }
-		    break;
-		case 'v':
-		    cout << PROG_NAME" - "PACKAGE_STRING << endl;
-		    exit(0);
-		case 'h':
-		    cout << PROG_NAME" - "PROG_DESC"\n\n";
-		    show_usage();
-		    exit(0);
-		case ':': // missing parameter
-		case '?': // unknown option
-		    show_usage();
+    int c;
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+	switch (c) {
+	    case 'm':
+		msize = atoi(optarg);
+		break;
+	    case 'd':
+		db.add_database(Xapian::Database(optarg));
+		have_database = true;
+		break;
+	    case 's':
+		try {
+		    stemmer = Xapian::Stem(optarg);
+		} catch (const Xapian::InvalidArgumentError &) {
+		    cerr << "Unknown stemming language '" << optarg
+			 << "'.\n"
+			    "Available language names are: "
+			 << Xapian::Stem::get_available_languages() << endl;
 		    exit(1);
-	    }
+		}
+		break;
+	    case 'v':
+		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		exit(0);
+	    case 'h':
+		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		show_usage();
+		exit(0);
+	    case ':': // missing parameter
+	    case '?': // unknown option
+		show_usage();
+		exit(1);
 	}
+    }
 
-	if (!have_database || argc - optind != 1) {
-	    show_usage();
-	    exit(1);
-	}
-
-	Xapian::QueryParser parser;
-	parser.set_database(db);
-	parser.set_default_op(Xapian::Query::OP_OR);
-	parser.set_stemmer(stemmer);
-	parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-	parser.set_stopper(&mystopper);
-
-	Xapian::Query query = parser.parse_query(argv[optind]);
-	cout << "Query: " << query.get_description() << endl;
-
-	Xapian::Enquire enquire(db);
-	enquire.set_query(query);
-
-	Xapian::MSet mset = enquire.get_mset(0, msize);
-
-	cout << "MSet:" << endl;
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
-	    Xapian::Document doc = i.get_document();
-	    string data = doc.get_data();
-	    cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
-	}
-	cout << flush;
-    } catch (const Xapian::QueryParserError & e) {
-	cout << "Couldn't parse query: " << e.get_msg() << endl;
-	exit(1);
-    } catch (const Xapian::Error & err) {
-	cout << err.get_description() << endl;
+    if (argc - optind != 1) {
+	show_usage();
 	exit(1);
     }
+
+    Xapian::QueryParser parser;
+    parser.set_database(db);
+    parser.set_default_op(Xapian::Query::OP_OR);
+    parser.set_stemmer(stemmer);
+    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    parser.set_stopper(&mystopper);
+
+    Xapian::Query query = parser.parse_query(argv[optind]);
+    cout << "Query: " << query.get_description() << endl;
+
+    if (!have_database) {
+	cout << "No database specified so not running the query." << endl;
+	exit(0);
+    }
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(query);
+
+    Xapian::MSet mset = enquire.get_mset(0, msize);
+
+    cout << "MSet:" << endl;
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+	Xapian::Document doc = i.get_document();
+	string data = doc.get_data();
+	cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
+    }
+    cout << flush;
+} catch (const Xapian::QueryParserError & e) {
+    cout << "Couldn't parse query: " << e.get_msg() << endl;
+    exit(1);
+} catch (const Xapian::Error & err) {
+    cout << err.get_description() << endl;
+    exit(1);
 }

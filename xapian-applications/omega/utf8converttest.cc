@@ -1,6 +1,6 @@
 /* utf8converttest.cc: test convert_to_utf8()
  *
- * Copyright (C) 2008 Olly Betts
+ * Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -42,7 +42,10 @@ static const testcase tests[] = {
     { "iso-8859-1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
     { "ISO-8859-1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
     { "ISO8859-1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
+#if !defined USE_ICONV || defined __GNU_LIBRARY__
+    // "8859_1" is not understood by Solaris iconv, for example.
     { "8859_1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
+#endif
     { "UTF16BE", "\0T\0e\0s\0t", 8, "Test" },
     { "UTF16", "\xfe\xff\0T\0e\0s\0t", 10, "Test" },
     { "UTF16LE", "T\0e\0s\0t\0", 8, "Test" },

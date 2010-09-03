@@ -56,7 +56,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable_base {
 	uint4 get_root() const { return root; }
 	uint4 get_level() const { return level; }
 	uint4 get_bit_map_size() const { return bit_map_size; }
-	uint4 get_item_count() const { return item_count; }
+	chert_tablesize_t get_item_count() const { return item_count; }
 	uint4 get_last_block() const { return last_block; }
 	bool get_have_fakeroot() const { return have_fakeroot; }
 	bool get_sequential() const { return sequential; }
@@ -73,7 +73,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable_base {
 	void set_level(uint4 level_) {
 	    level = level_;
 	}
-	void set_item_count(uint4 item_count_) {
+	void set_item_count(chert_tablesize_t item_count_) {
 	    item_count = item_count_;
 	}
 	void set_have_fakeroot(bool have_fakeroot_) {
@@ -126,19 +126,13 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable_base {
 
 	void extend_bit_map();
 
-	/** Do most of the error handling from unpack_uint() */
-	bool do_unpack_uint(const char **start, const char *end,
-			    uint4 *dest, std::string &err_msg,
-			    const std::string &basename,
-			    const char *varname);
-
 	/* Decoded values from the base file follow */
 	uint4 revision;
 	uint4 block_size;
 	uint4 root;
 	uint4 level;
 	uint4 bit_map_size;
-	uint4 item_count;
+	chert_tablesize_t item_count;
 	uint4 last_block;
 	bool have_fakeroot;
 	bool sequential;

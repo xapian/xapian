@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,16 @@
 
 #include "esetinternal.h"
 
+#include "xapian/enquire.h"
 #include "xapian/expanddecider.h"
 #include "database.h"
+#include "debuglog.h"
+#include "omenquireinternal.h"
 #include "expandweight.h"
+#include "omassert.h"
 #include "ortermlist.h"
-#include "rset.h"
+#include "str.h"
 #include "termlist.h"
-#include "utils.h"
 
 #include "autoptr.h"
 #include <set>
@@ -43,7 +46,7 @@ string
 Internal::ExpandTerm::get_description() const
 {
     string desc("ExpandTerm(");
-    desc += om_tostring(wt);
+    desc += str(wt);
     desc += ", ";
     desc += term;
     desc += ')';
@@ -64,11 +67,11 @@ struct CompareTermListSizeAscending {
  *  OrPostList objects.
  */
 static TermList *
-build_termlist_tree(const Xapian::Database &db, const RSetI & rset)
+build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 {
     Assert(!rset.empty());
 
-    const set<Xapian::docid> & docids = rset.documents;
+    const set<Xapian::docid> & docids = rset.internal->get_items();
 
     vector<TermList*> termlists;
     termlists.reserve(docids.size());
@@ -133,13 +136,11 @@ build_termlist_tree(const Xapian::Database &db, const RSetI & rset)
 void
 ESet::Internal::expand(Xapian::termcount max_esize,
 		       const Xapian::Database & db,
-		       const RSetI & rset,
+		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
 		       const Xapian::Internal::ExpandWeight & eweight)
 {
-    DEBUGCALL(EXPAND, void, "ESet::Internal::expand",
-	      max_esize << ", " << db << ", [rseti], " <<
-	      edecider << ", [eweight]");
+    LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
     // These two cases are handled by our caller.
     Assert(max_esize);
     Assert(!rset.empty());
@@ -205,7 +206,7 @@ string
 ESet::Internal::get_description() const
 {
     string desc("ESet::Internal(ebound=");
-    desc += om_tostring(ebound);
+    desc += str(ebound);
 
     vector<Xapian::Internal::ExpandTerm>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {

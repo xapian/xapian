@@ -12,8 +12,6 @@ noinst_HEADERS +=\
 	backends/flint/flint_database.h\
 	backends/flint/flint_databasereplicator.h\
 	backends/flint/flint_document.h\
-	backends/flint/flint_io.h\
-	backends/flint/flint_lock.h\
 	backends/flint/flint_metadata.h\
 	backends/flint/flint_modifiedpostlist.h\
 	backends/flint/flint_positionlist.h\
@@ -39,8 +37,6 @@ lib_src +=\
 	backends/flint/flint_database.cc\
 	backends/flint/flint_databasereplicator.cc\
 	backends/flint/flint_document.cc\
-	backends/flint/flint_io.cc\
-	backends/flint/flint_lock.cc\
 	backends/flint/flint_metadata.cc\
 	backends/flint/flint_modifiedpostlist.cc\
 	backends/flint/flint_positionlist.cc\

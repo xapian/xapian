@@ -1,7 +1,7 @@
 /** @file replicatetcpserver.cc
  * @brief TCP/IP replication server class.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,9 +23,7 @@
 #include "replicatetcpserver.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
-
-#include "omtime.h"
+#include "replication.h"
 
 using namespace std;
 
@@ -45,13 +43,13 @@ ReplicateTcpServer::handle_one_connection(int socket)
     try {
 	// Read start_revision from the client.
 	string start_revision;
-	if (client.get_message(start_revision, OmTime()) != 'R') {
+	if (client.get_message(start_revision, 0.0) != 'R') {
 	    throw Xapian::NetworkError("Bad replication client message");
 	}
 
 	// Read dbname from the client.
 	string dbname;
-	if (client.get_message(dbname, OmTime()) != 'D') {
+	if (client.get_message(dbname, 0.0) != 'D') {
 	    throw Xapian::NetworkError("Bad replication client message (2)");
 	}
 	if (dbname.find("..") != string::npos) {

@@ -18,10 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_UNIXCMDS_H
-#define XAPIAN_INCLUDED_UNIXCMDS_H
-
-#include <ctime>
+#ifndef XAPIAN_INCLUDED_CPUTIMER_H
+#define XAPIAN_INCLUDED_CPUTIMER_H
 
 class CPUTimer {
     double start;
@@ -38,4 +36,4 @@ class CPUTimer {
     }
 };
 
-#endif // XAPIAN_INCLUDED_UNIXCMDS_H
+#endif // XAPIAN_INCLUDED_CPUTIMER_H

@@ -1,0 +1,7 @@
+<Directory>backends/brass</Directory>
+
+<Description>
+Brass is the development backend for the Xapian 1.2.x series.
+It's highly efficient, and also (aims to) use significantly less disk space
+than previous Xapian backends.  All Xapian features are supported.
+</Description>

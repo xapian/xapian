@@ -24,7 +24,7 @@
 
 #include "document.h"
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 #include "xapian/error.h"
 
@@ -67,7 +67,7 @@ DocumentValueList::next()
 }
 
 void
-DocumentValueList::skip_to(Xapian::valueno slot)
+DocumentValueList::skip_to(Xapian::docid slot)
 {
     it = doc->values.lower_bound(slot);
 }
@@ -78,7 +78,7 @@ DocumentValueList::get_description() const
     string desc = "DocumentValueList(";
     if (!at_end()) {
 	desc += "slot=";
-	desc += om_tostring(get_valueno());
+	desc += str(get_valueno());
 	desc += ", value=\"";
 	desc += get_value();
 	desc += "\")";

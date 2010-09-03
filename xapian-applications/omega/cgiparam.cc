@@ -25,16 +25,14 @@
 
 #include "cgiparam.h"
 
-#include <stdio.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <climits>
+#include <cstdlib>
+#include <cstring>
 #include <map>
 #include <string>
 
-using std::string;
-using std::map;
-using std::multimap;
+using namespace std;
 
 multimap<string, string> cgi_params;
 

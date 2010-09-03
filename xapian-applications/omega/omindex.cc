@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  *
  * This program is free software; you can redistribute it and/or
@@ -34,12 +34,12 @@
 
 #include <sys/types.h>
 #include "safeunistd.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "safefcntl.h"
 #include "safeerrno.h"
-#include <time.h>
+#include <ctime>
 
 #include <xapian.h>
 
@@ -52,6 +52,7 @@
 #include "myhtmlparse.h"
 #include "runfilter.h"
 #include "sample.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utf8convert.h"
 #include "utils.h"
@@ -99,6 +100,40 @@ static string
 shell_protect(const string & file)
 {
     string safefile = file;
+#ifdef __WIN32__
+    bool need_to_quote = false;
+    for (string::iterator i = safefile.begin(); i != safefile.end(); ++i) {
+	unsigned char ch = *i;
+	if (!isalnum(ch) && ch < 128) {
+	    if (ch == '/') {
+		// Convert Unix path separators to backslashes.  C library
+		// functions understand "/" in paths, but external commands
+		// generally don't, and also may interpret a leading '/' as
+		// introducing a command line option.
+		*i = '\\';
+	    } else if (ch == ' ') {
+		need_to_quote = true;
+	    } else if (ch < 32 || strchr("<>\"|*?", ch)) {
+		// Check for invalid characters in the filename.
+		string m("Invalid character '");
+		m += ch;
+		m += "' in filename \"";
+		m += file;
+		m += '"';
+		throw m;
+	    }
+	}
+    }
+    if (safefile[0] == '-') {
+	// If the filename starts with a '-', protect it from being treated as
+	// an option by prepending ".\".
+	safefile.insert(0, ".\\");
+    }
+    if (need_to_quote) {
+	safefile.insert(0, "\"");
+	safefile += '"';
+    }
+#else
     string::size_type p = 0;
     if (!safefile.empty() && safefile[0] == '-') {
 	// If the filename starts with a '-', protect it from being treated as
@@ -115,6 +150,7 @@ shell_protect(const string & file)
 	}
 	++p;
     }
+#endif
     return safefile;
 }
 
@@ -131,7 +167,7 @@ static bool ensure_tmpdir() {
 	tmpdir.assign(dir_template);
 	tmpdir += '/';
     }
-    delete dir_template;
+    delete [] dir_template;
     return (p != NULL);
 }
 
@@ -237,7 +273,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    text = file_to_string(file);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping\n";
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
 	MyHtmlParser p;
@@ -256,7 +292,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping\n";
+	    cout << "indexing disallowed by meta tag - skipping" << endl;
 	    return;
 	}
 	dump = p.dump;
@@ -285,7 +321,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping\n";
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/pdf") {
@@ -294,7 +330,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
 	get_pdf_metainfo(safefile, title, keywords);
@@ -344,7 +380,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
 
@@ -363,7 +399,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-excel") {
@@ -371,7 +407,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-powerpoint") {
@@ -379,7 +415,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -390,10 +426,13 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	} else if (startswith(tail, "spreadsheetml.")) {
 	    args = " xl/sharedStrings.xml";
 	} else if (startswith(tail, "presentationml.")) {
-	    args = " ppt/slides/slide*.xml";
+	    // unzip returns exit code 11 if a file to extract wasn't found
+	    // which we want to ignore, because there may be no notesSlides
+	    // or comments.
+	    args = " ppt/slides/slide*.xml ppt/notesSlides/notesSlide*.xml ppt/comments/comment*.xml 2>/dev/null||test $? = 11";
 	} else {
 	    // Don't know how to index this type.
-	    cout << "unknown Office 2007 MIME subtype - skipping\n";
+	    cout << "unknown Office 2007 MIME subtype - skipping" << endl;
 	    return;
 	}
 	string safefile = shell_protect(file);
@@ -403,7 +442,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.wordperfect") {
@@ -414,7 +453,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-works") {
@@ -423,7 +462,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-abiword") {
@@ -435,7 +474,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping\n";
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-abiword-compressed") {
@@ -446,7 +485,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "text/rtf") {
@@ -459,14 +498,14 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // produce them.
 	    p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping\n";
+	    cout << "indexing disallowed by meta tag - skipping" << endl;
 	    return;
 	}
 	dump = p.dump;
@@ -481,7 +520,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-dvi") {
@@ -495,7 +534,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "image/vnd.djvu") {
@@ -507,7 +546,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-xpsdocument") {
@@ -527,18 +566,101 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xpsparser.parse_html(dump);
 	    dump = xpsparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    return;
+	}
+    } else if (mimetype == "text/csv") {
+	try {
+	    // Currently we assume that text files are UTF-8 unless they have a
+	    // byte-order mark.
+	    dump = file_to_string(file);
+	    md5_string(dump, md5);
+
+	    // Look for Byte-Order Mark (BOM).
+	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		// UTF-16 in big-endian/little-endian order - we just convert
+		// it as "UTF-16" and let the conversion handle the BOM as that
+		// way we avoid the copying overhead of erasing 2 bytes from
+		// the start of dump.
+		convert_to_utf8(dump, "UTF-16");
+	    } else if (startswith(dump, "\xef\xbb\xbf")) {
+		// UTF-8 with stupid Windows not-the-byte-order mark.
+		dump.erase(0, 3);
+	    } else {
+		// FIXME: What charset is the file?  Look at contents?
+	    }
+
+	    // Add 3 to allow for a 4 byte utf-8 sequence being appended when
+	    // output is SAMPLE_SIZE - 1 bytes long.
+	    sample.reserve(SAMPLE_SIZE + 3);
+	    size_t last_word_end = 0;
+	    bool in_space = true;
+	    bool in_quotes = false;
+	    Xapian::Utf8Iterator i(dump);
+	    for ( ; i != Xapian::Utf8Iterator(); ++i) {
+		unsigned ch = *i;
+
+		if (!in_quotes) {
+		    // If not already in double quotes, '"' starts quoting and
+		    // ',' starts a new field.
+		    if (ch == '"') {
+			in_quotes = true;
+			continue;
+		    }
+		    if (ch == ',')
+			ch = ' ';
+		} else if (ch == '"') {
+		    // In double quotes, '"' either ends double quotes, or
+		    // if followed by another '"', means a literal '"'.
+		    if (++i == Xapian::Utf8Iterator())
+			break;
+		    ch = *i;
+		    if (ch != '"') {
+			in_quotes = false;
+			if (ch == ',')
+			    ch = ' ';
+		    }
+		}
+
+		if (ch <= ' ' || ch == 0xa0) {
+		    // FIXME: if all the whitespace characters between two
+		    // words are 0xa0 (non-breaking space) then perhaps we
+		    // should output 0xa0.
+		    if (in_space)
+			continue;
+		    last_word_end = sample.size();
+		    sample += ' ';
+		    in_space = true;
+		} else {
+		    Xapian::Unicode::append_utf8(sample, ch);
+		    in_space = false;
+		}
+
+		if (sample.size() >= SAMPLE_SIZE) {
+		    // Need to truncate sample.
+		    if (last_word_end <= SAMPLE_SIZE / 2) {
+			// Monster word!  We'll have to just split it.
+			sample.replace(SAMPLE_SIZE - 3, string::npos, "...", 3);
+		    } else {
+			sample.replace(last_word_end, string::npos, " ...", 4);
+		    }
+		    break;
+		}
+	    }
+
+	} catch (ReadError) {
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
     } else {
 	// Don't know how to index this type.
-	cout << "unknown MIME type - skipping\n";
+	cout << "unknown MIME type - skipping" << endl;
 	return;
     }
 
     // Compute the MD5 of the file if we haven't already.
     if (md5.empty() && md5_file(file, md5) == 0) {
-	cout << "failed to read file to calculate MD5 checksum - skipping\n";
+	cout << "failed to read file to calculate MD5 checksum - skipping" << endl;
 	return;
     }
 
@@ -556,16 +678,20 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	record += "\ncaption=" + generate_sample(title, TITLE_SIZE);
     }
     record += "\ntype=" + mimetype;
-    if (last_mod != (time_t)-1)
-	record += "\nmodtime=" + long_to_string(last_mod);
-    if (size)
-	record += "\nsize=" + long_to_string(size);
+    if (last_mod != (time_t)-1) {
+	record += "\nmodtime=";
+	record += str(last_mod);
+    }
+    if (size) {
+	record += "\nsize=";
+	record += str(size);
+    }
     newdocument.set_data(record);
 
     // Index the title, document text, and keywords.
     indexer.set_document(newdocument);
     if (!title.empty()) {
-	indexer.index_text(title, 2);
+	indexer.index_text(title, 5);
 	indexer.increase_termpos(100);
     }
     if (!dump.empty()) {
@@ -618,26 +744,20 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     if (!skip_duplicates) {
 	// If this document has already been indexed, update the existing
 	// entry.
-	try {
-	    if (did) {
-		// We already found out the document id above.
-		db.replace_document(did, newdocument);
-	    } else if (last_mod <= last_mod_max) {
-		// We checked for the UID term and didn't find it.
-		did = db.add_document(newdocument);
-	    } else {
-		did = db.replace_document(urlterm, newdocument);
-	    }
-	    if (did < updated.size()) {
-		updated[did] = true;
-		cout << "updated." << endl;
-	    } else {
-		cout << "added." << endl;
-	    }
-	} catch (...) {
-	    // FIXME: is this ever actually needed?
-	    db.add_document(newdocument);
-	    cout << "added (failed re-seek for duplicate)." << endl;
+	if (did) {
+	    // We already found out the document id above.
+	    db.replace_document(did, newdocument);
+	} else if (last_mod <= last_mod_max) {
+	    // We checked for the UID term and didn't find it.
+	    did = db.add_document(newdocument);
+	} else {
+	    did = db.replace_document(urlterm, newdocument);
+	}
+	if (did < updated.size()) {
+	    updated[did] = true;
+	    cout << "updated." << endl;
+	} else {
+	    cout << "added." << endl;
 	}
     } else {
 	// If this were a duplicate, we'd have skipped it above.
@@ -778,17 +898,24 @@ main(int argc, char **argv)
     // Plain text:
     mime_map["txt"] = "text/plain";
     mime_map["text"] = "text/plain";
+
     // HTML:
     mime_map["html"] = "text/html";
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
+
+    // Comma-Separated Values:
+    mime_map["csv"] = "text/csv";
+
     // PDF:
     mime_map["pdf"] = "application/pdf";
+
     // PostScript:
     mime_map["ps"] = "application/postscript";
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
+
     // OpenDocument:
     // FIXME: need to find sample documents to test all of these.
     mime_map["odt"] = "application/vnd.oasis.opendocument.text";
@@ -808,6 +935,7 @@ main(int argc, char **argv)
     mime_map["otf"] = "application/vnd.oasis.opendocument.formula-template";
     mime_map["oti"] = "application/vnd.oasis.opendocument.image-template";
     mime_map["oth"] = "application/vnd.oasis.opendocument.text-web";
+
     // OpenOffice/StarOffice documents:
     mime_map["sxc"] = "application/vnd.sun.xml.calc";
     mime_map["stc"] = "application/vnd.sun.xml.calc.template";
@@ -819,6 +947,7 @@ main(int argc, char **argv)
     mime_map["sxw"] = "application/vnd.sun.xml.writer";
     mime_map["sxg"] = "application/vnd.sun.xml.writer.global";
     mime_map["stw"] = "application/vnd.sun.xml.writer.template";
+
     // MS Office 2007 formats:
     mime_map["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // Word 2007
     mime_map["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template"; // Word 2007 template
@@ -828,6 +957,25 @@ main(int argc, char **argv)
     mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"; // PowerPoint 2007 slideshow
     mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"; // PowerPoint 2007 template
     mime_map["xps"] = "application/vnd.ms-xpsdocument";
+
+    // Macro-enabled variants - these appear to be the same formats as the
+    // above.  Currently we just treat them as the same mimetypes to avoid
+    // having to check for twice as many possible content-types.
+    // MS say: application/vnd.ms-word.document.macroEnabled.12
+    mime_map["docm"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    // MS say: application/vnd.ms-word.template.macroEnabled.12
+    mime_map["dotm"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
+    // MS say: application/vnd.ms-excel.sheet.macroEnabled.12
+    mime_map["xlsm"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    // MS say: application/vnd.ms-excel.template.macroEnabled.12
+    mime_map["xltm"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template";
+    // MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
+    mime_map["pptm"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    // MS say: application/vnd.ms-powerpoint.slideshow.macroEnabled.12
+    mime_map["ppsm"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+    // MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
+    mime_map["potm"] = "application/vnd.openxmlformats-officedocument.presentationml.template";
+
     // Some other word processor formats:
     mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
@@ -837,18 +985,22 @@ main(int argc, char **argv)
     mime_map["abw"] = "application/x-abiword"; // AbiWord
     mime_map["zabw"] = "application/x-abiword-compressed"; // AbiWord compressed
     mime_map["rtf"] = "text/rtf";
+
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";
     mime_map["xlb"] = "application/vnd.ms-excel";
     mime_map["xlt"] = "application/vnd.ms-excel"; // Excel template
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
+
     // Perl:
     mime_map["pl"] = "text/x-perl";
     mime_map["pm"] = "text/x-perl";
     mime_map["pod"] = "text/x-perl";
+
     // TeX DVI:
     mime_map["dvi"] = "application/x-dvi";
+
     // DjVu:
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
@@ -929,9 +1081,9 @@ main(int argc, char **argv)
 	case 's':
 	    try {
 		stemmer = Xapian::Stem(optarg);
-	    } catch (const Xapian::Error &) {
-		cerr << "Unknown stemming language '" << optarg << "'.\n";
-		cerr << "Available language names are: "
+	    } catch (const Xapian::InvalidArgumentError &) {
+		cerr << "Unknown stemming language '" << optarg << "'.\n"
+			"Available language names are: "
 		     << Xapian::Stem::get_available_languages() << endl;
 		return 1;
 	    }
@@ -947,11 +1099,11 @@ main(int argc, char **argv)
     }
 
     if (dbpath.empty()) {
-	cerr << PROG_NAME": you must specify a database with --db.\n";
+	cerr << PROG_NAME": you must specify a database with --db." << endl;
 	return 1;
     }
     if (baseurl.empty()) {
-	cerr << PROG_NAME": --url not specified, assuming `/'.\n";
+	cerr << PROG_NAME": --url not specified, assuming `/'." << endl;
     }
     // baseurl mustn't end '/' or you end up with the wrong URL
     // (//thing is different to /thing). We could probably make this
@@ -1018,7 +1170,7 @@ main(int argc, char **argv)
 	    }
 	}
 	db.commit();
-	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
+	// cout << "\n\nNow we have " << db.get_doccount() << " documents." << endl;
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_msg() << endl;

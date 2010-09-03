@@ -1,7 +1,7 @@
 /** @file backendmanager_inmemory.cc
  * @brief BackendManager subclass for inmemory databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,6 @@
 #include "backendmanager_inmemory.h"
 
 using namespace std;
-
-BackendManagerInMemory::~BackendManagerInMemory() { }
 
 std::string
 BackendManagerInMemory::get_dbtype() const

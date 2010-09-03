@@ -1,7 +1,8 @@
 /** @file steminternal.h
  *  @brief Base class for implementations of stemming algorithms
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2010 Olly Betts
+ * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,11 +25,8 @@
 #include <xapian/base.h>
 #include <xapian/stem.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
-
-// FIXME: we might want to make Stem::Internal a virtual base class and have
-// Stem::Internal::Snowball to allow for non-Snowball stemmers...
 
 typedef unsigned char symbol;
 
@@ -65,11 +63,11 @@ SET_CAPACITY(symbol* p, int n)
     reinterpret_cast<int *>(void_p)[-2] = n;
 }
 
-typedef int (*among_function)(Xapian::Stem::Internal *);
+typedef int (*among_function)(Xapian::StemImplementation *);
 
 struct among {
     int s_size;		/* length of search string (in symbols) */
-    const symbol * s;	/* search string */
+    unsigned s;		/* offset in pool to search string */
     int substring_i;	/* index to longest matching substring */
     int result;		/* result of the lookup */
 };
@@ -77,14 +75,14 @@ struct among {
 extern symbol * create_s();
 
 inline void lose_s(symbol * p) {
-    if (p) free(reinterpret_cast<char *>(p) - HEAD);
+    if (p) std::free(reinterpret_cast<char *>(p) - HEAD);
 }
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);
 
 namespace Xapian {
 
-class Stem::Internal : public Xapian::Internal::RefCntBase {
+class SnowballStemImplementation : public StemImplementation {
     int slice_check();
 
   protected:
@@ -104,8 +102,10 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
     int eq_v(const symbol * v) { return eq_s(SIZE(v), v); }
     int eq_v_b(const symbol * v) { return eq_s_b(SIZE(v), v); }
 
-    int find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f);
-    int find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f);
+    int find_among(const symbol *pool, const struct among * v, int v_size,
+		   const unsigned char * fnum, const among_function * f);
+    int find_among_b(const symbol *pool, const struct among * v, int v_size,
+		     const unsigned char * fnum, const among_function * f);
 
     int replace_s(int c_bra, int c_ket, int s_size, const symbol * s);
     int slice_from_s(int s_size, const symbol * s);
@@ -127,19 +127,17 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
 
   public:
     /// Perform initialisation common to all Snowball stemmers.
-    Internal() : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
+    SnowballStemImplementation()
+	: p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
 
     /// Perform cleanup common to all Snowball stemmers.
-    virtual ~Internal();
+    virtual ~SnowballStemImplementation();
 
     /// Stem the specified word.
-    std::string operator()(const std::string & word);
+    virtual std::string operator()(const std::string & word);
 
     /// Virtual method implemented by the subclass to actually do the work.
     virtual int stem() = 0;
-
-    /// Return string describing this object.
-    virtual const char * get_description() const = 0;
 };
 
 }

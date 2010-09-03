@@ -1,7 +1,8 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009 Olly Betts
+# Copyright (C) 2008,2009,2010 Olly Betts
+# Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,7 +24,7 @@ import xapian
 import shutil
 import random
 
-from .testsuite import *
+from testsuite import *
 
 def setup_database():
     """Set up and return an inmemory database with 5 documents.
@@ -46,9 +47,11 @@ def setup_database():
     db.add_document(doc)
     doc.set_data("was it warm? two")
     doc.add_term("two", 2)
+    doc.add_value(0, xapian.sortable_serialise(2))
     db.add_document(doc)
     doc.set_data("was it warm? three")
     doc.add_term("three", 3)
+    doc.add_value(0, xapian.sortable_serialise(1.5))
     db.add_document(doc)
     doc.set_data("was it warm? four it")
     doc.add_term("four", 4)
@@ -56,7 +59,7 @@ def setup_database():
     doc.add_posting("it", 7)
     doc.add_value(5, 'five')
     doc.add_value(9, 'nine')
-    doc.add_value(0, 'zero')
+    doc.add_value(0, xapian.sortable_serialise(2))
     db.add_document(doc)
 
     expect(db.get_doccount(), 5)
@@ -631,6 +634,72 @@ def test_postinglist_iter():
                          'Iterator has moved, and does not support random access',
                          getattr, postings[i], 'positer')
 
+def test_valuestream_iter():
+    """Test a valuestream iterator on Database.
+
+    """
+    db = setup_database()
+
+    # Check basic iteration
+    expect([(item.docid, item.value) for item in db.valuestream(0)],
+           [(3, '\xa4'), (4, '\xa2'), (5, '\xa4')])
+    expect([(item.docid, item.value) for item in db.valuestream(1)], [])
+    expect([(item.docid, item.value) for item in db.valuestream(5)],
+           [(5, "five")])
+    expect([(item.docid, item.value) for item in db.valuestream(9)],
+           [(5, "nine")])
+
+    # Test skip_to() on iterator with no values, and behaviours when called
+    # after already returning StopIteration.
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+    expect_exception(StopIteration, "", i.__next__)
+    i = db.valuestream(1)
+    expect_exception(StopIteration, "", i.__next__)
+    expect_exception(StopIteration, "", i.skip_to, 1)
+
+    # Test that skipping to a value works, and that skipping doesn't have to
+    # advance.
+    i = db.valuestream(0)
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(1)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(5)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.skip_to, 6)
+
+    # Test that alternating skip_to() and next() works.
+    i = db.valuestream(0)
+    item = next(i)
+    expect((item.docid, item.value), (3, '\xa4'))
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = next(i)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.skip_to, 6)
+
+    # Test that next works correctly after skip_to() called with an earlier
+    # item.
+    i = db.valuestream(0)
+    item = i.skip_to(4)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = i.skip_to(1)
+    expect((item.docid, item.value), (4, '\xa2'))
+    item = next(i)
+    expect((item.docid, item.value), (5, '\xa4'))
+
+    # Test that next works correctly after skipping to last item
+    i = db.valuestream(0)
+    item = i.skip_to(5)
+    expect((item.docid, item.value), (5, '\xa4'))
+    expect_exception(StopIteration, "", i.__next__)
+
 def test_position_iter():
     """Test position iterator for a document in a database.
 
@@ -656,7 +725,7 @@ def test_value_iter():
     items = list(doc.values())
     expect(len(items), 3)
     expect(items[0].num, 0)
-    expect(items[0].value, 'zero')
+    expect(items[0].value, xapian.sortable_serialise(2))
     expect(items[1].num, 5)
     expect(items[1].value, 'five')
     expect(items[2].num, 9)
@@ -704,8 +773,8 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('he')], ['hello'])
     expect([item for item in dbr.synonym_keys('hello')], ['hello'])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_metadata_keys_iter():
@@ -754,8 +823,8 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('it')], ['item1', 'item2'])
     expect([item for item in dbr.metadata_keys('type')], ['type'])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_spell():
@@ -778,8 +847,8 @@ def test_spell():
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [('hello', 1), ('mell', 2)])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_queryparser_custom_vrp():
@@ -891,6 +960,9 @@ def test_weight_normalise():
         expect(mset1.get_max_attained(), 0)
 
         max_possible = mset1.get_max_possible()
+        if query == "notpresent":
+            expect(max_possible, 0)
+            continue
         mult = 1.0 / max_possible
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
 
@@ -939,7 +1011,7 @@ def test_postingsource():
             self.current = -1
 
         def get_termfreq_min(self): return 0
-        def get_termfreq_est(self): return self.max / 2
+        def get_termfreq_est(self): return int(self.max / 2)
         def get_termfreq_max(self): return self.max
         def next(self, minweight):
             self.current += 2
@@ -982,7 +1054,7 @@ def test_postingsource():
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_postingsource2():
@@ -999,7 +1071,7 @@ def test_postingsource2():
 
     source = xapian.ValueWeightPostingSource(1)
     query = xapian.Query(source)
-    # del source # Check that query keeps a reference to it.
+    del source # Check that query keeps a reference to it.
 
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
@@ -1007,7 +1079,7 @@ def test_postingsource2():
 
     expect([item.docid for item in mset], [2, 1, 5, 3, 4, 8, 9, 6, 7, 10])
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_value_stats():
@@ -1033,7 +1105,7 @@ def test_value_stats():
     expect(db.get_value_lower_bound(2), "")
     expect(db.get_value_upper_bound(2), "")
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_get_uuid():
@@ -1053,11 +1125,11 @@ def test_get_uuid():
     db.add_database(db1)
     expect(db1.get_uuid(), db.get_uuid())
 
-    del db1
-    del db2
-    del dbr1
-    del dbr2
-    del db
+    db1.close()
+    db2.close()
+    dbr1.close()
+    dbr2.close()
+    db.close()
     shutil.rmtree(dbpath + "1")
     shutil.rmtree(dbpath + "2")
 
@@ -1158,8 +1230,6 @@ def test_value_mods():
 
     db.close()
     expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
-
-    del db
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1290,6 +1360,55 @@ def test_preserve_enquire_sorter():
     enq = make_enq3(db)
     enq.set_query(xapian.Query('foo'))
     enq.get_mset(0, 10)
+
+def test_matchspy():
+    """Test use of matchspies.
+
+    """
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, "was", "it")
+    enq = xapian.Enquire(db)
+    enq.set_query(query)
+
+    def set_matchspy_deref(enq):
+        """Set a matchspy, and then drop the reference, to check that it
+        doesn't get deleted too soon.
+        """
+        spy = xapian.ValueCountMatchSpy(0)
+        enq.add_matchspy(spy)
+        del spy
+    set_matchspy_deref(enq)
+    mset = enq.get_mset(0, 10)
+    expect(len(mset), 5)
+
+    spy = xapian.ValueCountMatchSpy(0)
+    enq.add_matchspy(spy)
+    # Regression test for clear_matchspies() - used to always raise an
+    # exception due to a copy and paste error in its definition.
+    enq.clear_matchspies()
+    mset = enq.get_mset(0, 10)
+    expect([item for item in list(spy.values())], [])
+
+    enq.add_matchspy(spy)
+    mset = enq.get_mset(0, 10)
+    expect(spy.get_total(), 5)
+    expect([(item.term, item.termfreq) for item in list(spy.values())], [
+           (xapian.sortable_serialise(1.5), 1),
+           (xapian.sortable_serialise(2), 2),
+    ])
+    expect([(item.term, item.termfreq) for item in spy.top_values(10)], [
+           (xapian.sortable_serialise(2), 2),
+           (xapian.sortable_serialise(1.5), 1),
+    ])
+
+def test_import_star():
+    """Test that "from xapian import *" works.
+
+    This is a regression test - this failed in the 1.2.0 release.
+    It's not normally good style to use it, but it should work anyway!
+
+    """
+    import test_xapian_star
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

@@ -3,19 +3,23 @@
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
 #include <config.h>
@@ -26,8 +30,8 @@
 
 #include "serialise-double.h"
 
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 
 #include <algorithm>
 #include <string>
@@ -104,7 +108,7 @@ std::string serialise_double(double v)
 	    result += char(exp + 128);
 	} else {
 	    if (exp < -32768 || exp > 32767) {
-		throw Xapian::NetworkError("Insane exponent in floating point number");
+		throw Xapian::InternalError("Insane exponent in floating point number");
 	    }
 	    result += negative ? char(0x8f) : char(0x0f);
 	    result += char(unsigned(exp + 32768) & 0xff);
@@ -134,7 +138,7 @@ std::string serialise_double(double v)
 double unserialise_double(const char ** p, const char *end)
 {
     if (end - *p < 2) {
-	throw Xapian::NetworkError("Bad encoded double: insufficient data");
+	throw Xapian::SerialisationError("Bad encoded double: insufficient data");
     }
     unsigned char first = *(*p)++;
     if (first == 0 && *(*p) == 0) {
@@ -150,7 +154,7 @@ double unserialise_double(const char ** p, const char *end)
 	int bigexp = static_cast<unsigned char>(*(*p)++);
 	if (exp == 15) {
 	    if (*p == end) {
-		throw Xapian::NetworkError("Bad encoded double: short large exponent");
+		throw Xapian::SerialisationError("Bad encoded double: short large exponent");
 	    }
 	    exp = bigexp | (static_cast<unsigned char>(*(*p)++) << 8);
 	    exp -= 32768;
@@ -162,7 +166,7 @@ double unserialise_double(const char ** p, const char *end)
     }
 
     if (size_t(end - *p) < mantissa_len) {
-	throw Xapian::NetworkError("Bad encoded double: short mantissa");
+	throw Xapian::SerialisationError("Bad encoded double: short mantissa");
     }
 
     double v = 0.0;

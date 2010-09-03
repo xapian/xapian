@@ -1,4 +1,4 @@
-/* mergepostlist.cc: MERGE of two posting lists
+/* mergepostlist.cc: merge postlists from different databases
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
@@ -22,28 +22,21 @@
  */
 
 #include <config.h>
+#include "mergepostlist.h"
+
 #include "multimatch.h"
 #include "emptypostlist.h"
-#include "mergepostlist.h"
 #include "branchpostlist.h"
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
+#include "valuestreamdocument.h"
 #include "xapian/errorhandler.h"
 
 // NB don't prune - even with one sublist we still translate docids...
 
-MergePostList::MergePostList(std::vector<PostList *> plists_,
-			     MultiMatch *matcher_,
-			     Xapian::ErrorHandler * errorhandler_)
-	: plists(plists_), current(-1), matcher(matcher_),
-	  errorhandler(errorhandler_)
-{
-    DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
-}
-
 MergePostList::~MergePostList()
 {
-    DEBUGCALL(MATCH, void, "MergePostList::~MergePostList", "");
+    LOGCALL_VOID(MATCH, "MergePostList::~MergePostList", NO_ARGS);
     std::vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	delete *i;
@@ -53,7 +46,7 @@ MergePostList::~MergePostList()
 PostList *
 MergePostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "MergePostList::next", w_min);
     LOGVALUE(MATCH, current);
     if (current == -1) current = 0;
     while (true) {
@@ -62,7 +55,9 @@ MergePostList::next(Xapian::weight w_min)
 	try {
 	    next_handling_prune(plists[current], w_min, matcher);
 	    if (!plists[current]->at_end()) break;
-	    current++;
+	    ++current;
+	    if (unsigned(current) >= plists.size()) break;
+	    vsdoc.new_subdb(current);
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
 		LOGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
@@ -74,7 +69,6 @@ MergePostList::next(Xapian::weight w_min)
 		throw;
 	    }
 	}
-	if (unsigned(current) >= plists.size()) break;
 	if (matcher) matcher->recalc_maxweight();
     }
     LOGVALUE(MATCH, current);
@@ -84,7 +78,7 @@ MergePostList::next(Xapian::weight w_min)
 PostList *
 MergePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "MergePostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "MergePostList::skip_to", did | w_min);
     (void)did;
     (void)w_min;
     // MergePostList doesn't return documents in docid order, so skip_to
@@ -95,14 +89,14 @@ MergePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::termcount
 MergePostList::get_wdf() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::get_wdf", "");
+    LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_wdf", NO_ARGS);
     RETURN(plists[current]->get_wdf());
 }
 
 Xapian::doccount
 MergePostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_max", "");
+    LOGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_max", NO_ARGS);
     // sum of termfreqs for all children
     Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
@@ -115,7 +109,7 @@ MergePostList::get_termfreq_max() const
 Xapian::doccount
 MergePostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_min", "");
+    LOGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_min", NO_ARGS);
     // sum of termfreqs for all children
     Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
@@ -128,7 +122,7 @@ MergePostList::get_termfreq_min() const
 Xapian::doccount
 MergePostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_est", "");
+    LOGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_est", NO_ARGS);
     // sum of termfreqs for all children
     Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
@@ -141,7 +135,7 @@ MergePostList::get_termfreq_est() const
 Xapian::docid
 MergePostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "MergePostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "MergePostList::get_docid", NO_ARGS);
     Assert(current != -1);
     // FIXME: this needs fixing so we can prune plists - see MultiPostlist
     // for code which does this...
@@ -151,7 +145,7 @@ MergePostList::get_docid() const
 Xapian::weight
 MergePostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MergePostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "MergePostList::get_weight", NO_ARGS);
     Assert(current != -1);
     return plists[current]->get_weight();
 }
@@ -159,7 +153,7 @@ MergePostList::get_weight() const
 const string *
 MergePostList::get_collapse_key() const
 {
-    DEBUGCALL(MATCH, string *, "MergePostList::get_collapse_key", "");
+    LOGCALL(MATCH, string *, "MergePostList::get_collapse_key", NO_ARGS);
     Assert(current != -1);
     return plists[current]->get_collapse_key();
 }
@@ -167,14 +161,14 @@ MergePostList::get_collapse_key() const
 Xapian::weight
 MergePostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MergePostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "MergePostList::get_maxweight", NO_ARGS);
     return w_max;
 }
 
 Xapian::weight
 MergePostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MergePostList::recalc_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "MergePostList::recalc_maxweight", NO_ARGS);
     w_max = 0;
     vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
@@ -204,7 +198,7 @@ MergePostList::recalc_maxweight()
 bool
 MergePostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "MergePostList::at_end", "");
+    LOGCALL(MATCH, bool, "MergePostList::at_end", NO_ARGS);
     Assert(current != -1);
     return unsigned(current) >= plists.size();    
 }
@@ -223,7 +217,14 @@ MergePostList::get_description() const
 Xapian::termcount
 MergePostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", "");
+    LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", NO_ARGS);
     Assert(current != -1);
     return plists[current]->get_doclength();
+}
+
+Xapian::termcount
+MergePostList::count_matching_subqs() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "MergePostList::count_matching_subqs", NO_ARGS);
+    RETURN(plists[current]->count_matching_subqs());
 }

@@ -4,7 +4,8 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,12 +23,57 @@
  * USA
  */
 
-$php_version = substr(PHP_VERSION, 0, 1);
+include "php5/xapian.php";
 
-include "php$php_version/xapian.php";
+# Test the version number reporting functions give plausible results.
+$v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
+$v2 = Xapian::version_string();
+if ($v != $v2) {
+    print "Unexpected version output ($v != $v2)\n";
+    exit(1);
+}
 
-# Include PHP version specific code.
-include "smoketest$php_version.php";
+$db = Xapian::inmemory_open();
+$db2 = Xapian::inmemory_open();
+
+# Check PHP5 handling of Xapian::DocNotFoundError
+try {
+    $doc2 = $db->get_document(2);
+    print "Retrieved non-existent document\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DocNotFoundError: Docid 2 not found") {
+	print "DocNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
+# Check QueryParser parsing error.
+try {
+    $qp = new XapianQueryParser;
+    $qp->parse_query("test AND");
+    print "Successfully parsed bad query\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "QueryParserError: Syntax: <expression> AND <expression>") {
+	print "QueryParserError Exception string not as expected, got: '$e->getMessage()'\n";
+	exit(1);
+    }
+}
+
+# Regression test for bug#193, fixed in 1.0.3.
+$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
+$a = '$10';
+$b = '20';
+$vrp->apply($a, $b);
+if (Xapian::sortable_unserialise($a) != 10) {
+    print Xapian::sortable_unserialise($a)." != 10\n";
+    exit(1);
+}
+if (Xapian::sortable_unserialise($b) != 20) {
+    print Xapian::sortable_unserialise($b)." != 20\n";
+    exit(1);
+}
 
 $stem = new XapianStem("english");
 if ($stem->get_description() != "Xapian::Stem(english)") {
@@ -65,29 +111,29 @@ if ($db->get_doccount() != 1) {
 }
 
 $terms = array("smoke", "test", "terms");
-$query = new XapianQuery($op_or, $terms);
+$query = new XapianQuery(XapianQuery::OP_OR, $terms);
 if ($query->get_description() != "Xapian::Query((smoke OR test OR terms))") {
     print "Unexpected \$query->get_description()\n";
     exit(1);
 }
-$query1 = new XapianQuery($op_phrase, array("smoke", "test", "tuple"));
+$query1 = new XapianQuery(XapianQuery::OP_PHRASE, array("smoke", "test", "tuple"));
 if ($query1->get_description() != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))") {
     print "Unexpected \$query1->get_description()\n";
     exit(1);
 }
-$query2 = new XapianQuery($op_xor, array(new XapianQuery("smoke"), $query1, "string"));
+$query2 = new XapianQuery(XapianQuery::OP_XOR, array(new XapianQuery("smoke"), $query1, "string"));
 if ($query2->get_description() != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
     print "Unexpected \$query2->get_description()\n";
     exit(1);
 }
 $subqs = array("a", "b");
-$query3 = new XapianQuery($op_or, $subqs);
+$query3 = new XapianQuery(XapianQuery::OP_OR, $subqs);
 if ($query3->get_description() != "Xapian::Query((a OR b))") {
     print "Unexpected \$query3->get_description()\n";
     exit(1);
 }
 $enq = new XapianEnquire($db);
-$enq->set_query(new XapianQuery($op_or, "there", "is"));
+$enq->set_query(new XapianQuery(XapianQuery::OP_OR, "there", "is"));
 $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
     print "Unexpected \$mset->size()\n";
@@ -99,8 +145,8 @@ if ($terms != "is there") {
     exit(1);
 }
 
-if ($op_elite_set != 10) {
-    print "OP_ELITE_SET is $op_elite_set not 10\n";
+if (XapianQuery::OP_ELITE_SET != 10) {
+    print "OP_ELITE_SET is XapianQuery::OP_ELITE_SET not 10\n";
     exit(1);
 }
 
@@ -136,7 +182,7 @@ if ($db->get_metadata('Foo') !== 'Foo') {
 }
 
 # Test OP_SCALE_WEIGHT and corresponding constructor
-$query4 = new XapianQuery($op_scale_weight, new XapianQuery('foo'), 5.0);
+$query4 = new XapianQuery(XapianQuery::OP_SCALE_WEIGHT, new XapianQuery('foo'), 5.0);
 if ($query4->get_description() != "Xapian::Query(5 * foo)") {
     print "Unexpected \$query4->get_description()\n";
     exit(1);
@@ -262,12 +308,39 @@ if ($query_wqf->get_description() != 'Xapian::Query(wqf:(wqf=3))') {
     exit(1);
 }
 
-
-$query = new XapianQuery($op_value_ge, 0, "100");
+$query = new XapianQuery(XapianQuery::OP_VALUE_GE, 0, "100");
 if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
     print "Unexpected \$query->get_description():\n";
     print $query->get_description() . "\n";
     exit(1);
+}
+
+# Test access to matchspy values:
+{
+    $matchspy = new XapianValueCountMatchSpy(0);
+    $enquire->add_matchspy($matchspy);
+    $enquire->get_mset(0, 10);
+    $beg = $matchspy->values_begin();
+    $end = $matchspy->values_end();
+    $values = array();
+    while (!($beg->equals($end))) {
+        $values[$beg->get_term()] = $beg->get_termfreq();
+        $beg->next();
+    }
+    $expected = array(
+        "ABB" => 1,
+	"ABC" => 1,
+	"ABC\0" => 1,
+	"ABCD" => 1,
+	"ABC\xff" => 1,
+    );
+    if ($values != $expected) {
+        print "Unexpected matchspy values():\n";
+	var_dump($values);
+	var_dump($expected);
+	print "\n";
+	exit(1);
+    }
 }
 
 ?>

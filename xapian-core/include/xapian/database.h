@@ -37,7 +37,6 @@
 #include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
-/// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
 
 /** This class is used to access a database, or a group of databases.
@@ -573,9 +572,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  after so that the modifications stand and fall without affecting
 	 *  modifications before or after.
 	 *
-	 *  The downside of these calls to commit() is that small transactions
-	 *  can harm indexing performance in the same way that explicitly
-	 *  calling commit() frequently can.
+	 *  The downside of these implicit calls to commit() is that small
+	 *  transactions can harm indexing performance in the same way that
+	 *  explicitly calling commit() frequently can.
 	 *
 	 *  If you're applying atomic groups of changes and only wish to
 	 *  ensure that each group is either applied or not applied, then
@@ -759,9 +758,16 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  term, the lowest document ID will be used for the document,
 	 *  otherwise a new document ID will be generated as for add_document.
 	 *
-	 *  The intended use is to allow UIDs from another system to easily
-	 *  be mapped to terms in Xapian, although this method probably has
-	 *  other uses.
+	 *  One common use is to allow UIDs from another system to easily be
+	 *  mapped to terms in Xapian.  Note that this method doesn't
+	 *  automatically add unique_term as a term, so you'll need to call
+	 *  document.add_term(unique_term) first when using replace_document()
+	 *  in this way.
+	 *
+	 *  Another possible use is to allow groups of documents to be marked for
+	 *  later deletion - for example, you could add a "deletion date" term
+	 *  to documents at index time and use this method to easily and efficiently
+	 *  delete all documents due for deletion on a particular date.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see commit() for more details.

@@ -1,8 +1,8 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,20 +33,22 @@
 #include "net_termlist.h"
 #include "remote-document.h"
 #include "omassert.h"
+#include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 #include "stringutils.h" // For STRINGIZE().
-#include "utils.h"
 #include "weightinternal.h"
 
 #include <string>
 #include <vector>
 
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 
 using namespace std;
 
-RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
+RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 			       const string & context_, bool writable)
 	: link(fd, fd, context_),
 	  context(context_),
@@ -95,9 +97,9 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     if (protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
 	protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
 	string errmsg("Unknown protocol version ");
-	errmsg += om_tostring(protocol_major);
+	errmsg += str(protocol_major);
 	errmsg += '.';
-	errmsg += om_tostring(protocol_minor);
+	errmsg += str(protocol_minor);
 	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
 	throw Xapian::NetworkError(errmsg, context);
     }
@@ -407,10 +409,10 @@ RemoteDatabase::read_value_stats(Xapian::valueno valno) const
 	mru_valno = valno;
 	mru_valstats.freq = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
-	mru_valstats.lower_bound = string(p, len);
+	mru_valstats.lower_bound.assign(p, len);
 	p += len;
 	len = decode_length(&p, p_end, true);
-	mru_valstats.upper_bound = string(p, len);
+	mru_valstats.upper_bound.assign(p, len);
 	p += len;
 	if (p != p_end) {
 	    throw Xapian::NetworkError("Bad REPLY_VALUESTATS message received", context);
@@ -480,18 +482,16 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
 reply_type
 RemoteDatabase::get_message(string &result, reply_type required_type) const
 {
-    OmTime end_time;
-    if (timeout) end_time = OmTime::now() + timeout;
-
+    double end_time = RealTime::end_time(timeout);
     reply_type type = static_cast<reply_type>(link.get_message(result, end_time));
     if (type == REPLY_EXCEPTION) {
 	unserialise_error(result, "REMOTE:", context);
     }
     if (required_type != REPLY_MAX && type != required_type) {
 	string errmsg("Expecting reply type ");
-	errmsg += om_tostring(int(required_type));
+	errmsg += str(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(int(type));
+	errmsg += str(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
 
@@ -501,9 +501,7 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
 void
 RemoteDatabase::send_message(message_type type, const string &message) const
 {
-    OmTime end_time;
-    if (timeout) end_time = OmTime::now() + timeout;
-
+    double end_time = RealTime::end_time(timeout);
     link.send_message(static_cast<unsigned char>(type), message, end_time);
 }
 
@@ -536,7 +534,8 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 bool sort_value_forward,
 			 int percent_cutoff, Xapian::weight weight_cutoff,
 			 const Xapian::Weight *wtscheme,
-			 const Xapian::RSet &omrset)
+			 const Xapian::RSet &omrset,
+			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string tmp = query->serialise();
     string message = encode_length(tmp.size());
@@ -561,7 +560,23 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     message += encode_length(tmp.size());
     message += tmp;
 
-    message += serialise_rset(omrset);
+    tmp = serialise_rset(omrset);
+    message += encode_length(tmp.size());
+    message += tmp;
+
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	tmp = (*i)->name();
+	if (tmp.empty()) {
+	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
+	}
+	message += encode_length(tmp.size());
+	message += tmp;
+
+	tmp = (*i)->serialise();
+	message += encode_length(tmp.size());
+	message += tmp;
+    }
 
     send_message(MSG_QUERY, message);
 }
@@ -592,11 +607,24 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 }
 
 void
-RemoteDatabase::get_mset(Xapian::MSet &mset)
+RemoteDatabase::get_mset(Xapian::MSet &mset,
+			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string message;
     get_message(message, REPLY_RESULTS);
-    mset = unserialise_mset(message);
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	if (p == p_end)
+	    throw Xapian::NetworkError("Expected serialised matchspy");
+	size_t len = decode_length(&p, p_end, true);
+	string spyresults(p, len);
+	p += len;
+	(*i)->merge_results(spyresults);
+    }
+    mset = unserialise_mset(p, p_end);
 }
 
 void
@@ -691,4 +719,40 @@ string
 RemoteDatabase::get_uuid() const
 {
     return uuid;
+}
+
+string
+RemoteDatabase::get_metadata(const string & key) const
+{
+    send_message(MSG_GETMETADATA, key);
+    string metadata;
+    get_message(metadata, REPLY_METADATA);
+    return metadata;
+}
+
+void
+RemoteDatabase::set_metadata(const string & key, const string & value)
+{
+    string data = encode_length(key.size());
+    data += key;
+    data += value;
+    send_message(MSG_SETMETADATA, data);
+}
+
+void
+RemoteDatabase::add_spelling(const string & word,
+			     Xapian::termcount freqinc) const
+{
+    string data = encode_length(freqinc);
+    data += word;
+    send_message(MSG_ADDSPELLING, data);
+}
+
+void
+RemoteDatabase::remove_spelling(const string & word,
+				Xapian::termcount freqdec) const
+{
+    string data = encode_length(freqdec);
+    data += word;
+    send_message(MSG_REMOVESPELLING, data);
 }

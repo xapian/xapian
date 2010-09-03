@@ -88,12 +88,17 @@ TermFreqs
 LeafPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
-    LOGCALL(MATCH, TermFreqs,
-	    "LeafPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "LeafPostList::get_termfreq_est_using_stats", stats);
     if (term.empty()) {
 	RETURN(TermFreqs(stats.collection_size, stats.rset_size));
     }
     map<string, TermFreqs>::const_iterator i = stats.termfreqs.find(term);
     Assert(i != stats.termfreqs.end());
     RETURN(i->second);
+}
+
+Xapian::termcount
+LeafPostList::count_matching_subqs() const
+{
+    return 1;
 }

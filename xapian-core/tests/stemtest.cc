@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include <config.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <string>
 #include <fstream>
@@ -167,7 +167,7 @@ test_stemdict()
 // ##################################################################
 
 /// The lists of tests to perform
-test_desc tests[] = {
+static const test_desc tests[] = {
     {"stemrandom",		test_stemrandom},
     {"stemjunk",		test_stemjunk},
     {"stemdict",		test_stemdict},
@@ -175,7 +175,7 @@ test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     string langs = Xapian::Stem::get_available_languages();
     test_driver::add_command_line_option("languages", 'l', &langs);
 
@@ -202,4 +202,7 @@ int main(int argc, char **argv)
 	result = max(result, test_driver::run(tests));
     }
     return result;
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

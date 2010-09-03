@@ -1,7 +1,7 @@
 /** @file backendmanager_local.h
  * @brief BackendManager subclass for local databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,19 +23,21 @@
 
 #include <xapian.h>
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-# include "backendmanager_flint.h"
-# define BackendManagerLocal BackendManagerFlint
-#elif defined XAPIAN_HAS_CHERT_BACKEND
+#if defined XAPIAN_HAS_CHERT_BACKEND
 # include "backendmanager_chert.h"
 # define BackendManagerLocal BackendManagerChert
+#elif defined XAPIAN_HAS_BRASS_BACKEND
+# include "backendmanager_brass.h"
+# define BackendManagerLocal BackendManagerBrass
+#elif defined XAPIAN_HAS_FLINT_BACKEND
+# include "backendmanager_flint.h"
+# define BackendManagerLocal BackendManagerFlint
 #else
 # include "backendmanager.h"
 class BackendManagerLocal : public BackendManager {
     BackendManagerLocal() {
 	SKIP_TEST("No local database backend enabled");
     }
-    ~BackendManagerLocal() { }
 };
 #endif
 

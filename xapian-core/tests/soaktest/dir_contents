@@ -1,0 +1,7 @@
+<Directory>tests/soaktest</Directory>
+
+<Description>
+This directory contains a testsuite for "soak" testing Xapian - it generates
+and runs random sequences of operations, checking the validity of the output
+whenever possible.
+</Description>

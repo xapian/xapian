@@ -1,7 +1,7 @@
 /** @file remotetcpclient.h
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
     /** Attempt to open a TCP/IP socket connection to xapian-tcpsrv.
      *
      *  Connect to xapian-tcpsrv running on port @a port of host @a hostname.
-     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a timeout_connect seconds.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
@@ -51,7 +51,7 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  methods which do, this method has been deliberately made "static".
      */
     static int open_socket(const std::string & hostname, int port,
-			   int msecs_timeout_connect);
+			   double timeout_connect);
 
     /** Get a context string for use when constructing Xapian::NetworkError.
      *
@@ -67,16 +67,15 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  Attempts to open a TCP/IP connection to xapian-tcpsrv running on port
      *  @a port of host @a hostname.
      *
-     *  @param msecs_timeout_connect	 Timeout for trying to connect (in
-     *					 milliseconds).
-     *  @param msecs_timeout	Timeout during communication after successfully
-     *				connecting (in milliseconds).
+     *  @param timeout_connect	Timeout for trying to connect (in seconds).
+     *  @param timeout		Timeout during communication after successfully
+     *				connecting (in seconds).
      *	@param writable		Is this a WritableDatabase?
      */
     RemoteTcpClient(const std::string & hostname, int port,
-	      int msecs_timeout, int msecs_timeout_connect, bool writable)
-	: RemoteDatabase(open_socket(hostname, port, msecs_timeout_connect),
-			 msecs_timeout, get_tcpcontext(hostname, port),
+		    double timeout_, double timeout_connect, bool writable)
+	: RemoteDatabase(open_socket(hostname, port, timeout_connect),
+			 timeout_, get_tcpcontext(hostname, port),
 			 writable) { }
 
     /** Destructor. */

@@ -1,6 +1,7 @@
-/* base.h: Reference-counted pointers
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file base.h
+ * @brief Reference-counted pointers
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2007 Olly Betts
  *

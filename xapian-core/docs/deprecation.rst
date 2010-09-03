@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010 Olly Betts
 
 ===========
 Deprecation
@@ -47,6 +47,13 @@ If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
 documentation comments for the feature, or the list at the end
 of this file, will describe possible alternatives to the deprecated feature.
+
+If you want to disable deprecation warnings temporarily, you can do so
+by passing ``"-DXAPIAN_DEPRECATED(X)=X"`` to the compiler (the quotes are
+needed to protect the brackets from the shell).  If your build system uses
+make, you might do this like so::
+
+    make 'CPPFLAGS="-DXAPIAN_DEPRECATED(X)=X"'
 
 API and ABI compatibility
 -------------------------
@@ -177,6 +184,33 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
                                                       ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
                                                       ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.1.3       1.3.0 ``Sorter`` abstract base class.     Use ``KeyMaker`` class instead, which has the same semantics, but has
+                                                      been renamed to indicate that the keys produced may be used for purposes
+                                                      other than sorting (we plan to allow collapsing on generated keys in the
+                                                      future).
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.1.3       1.3.0 ``MultiValueSorter`` class.         Use ``MultiValueKeyMaker`` class instead.  Note that
+                                                      ``MultiValueSorter::add()`` becomes ``MultiValueKeyMaker::add_value()``,
+                                                      but the sense of the direction flag is reversed (to be consistent with
+                                                      ``Enquire::set_sort_by_value()``), so::
+ 
+                                                        MultiValueSorter sorter;
+                                                        // Primary ordering is forwards on value 4.
+                                                        sorter.add(4);
+                                                        // Secondary ordering is reverse on value 5.
+                                                        sorter.add(5, false);
+                                                     
+                                                      becomes::
+ 
+                                                        MultiValueKeyMaker sorter;
+                                                        // Primary ordering is forwards on value 4.
+                                                        sorter.add_value(4);
+                                                        // Secondary ordering is reverse on value 5.
+                                                        sorter.add_value(5, true);
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.1.3      1.3.0  ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method
+                  ``Enquire::get_mset()``             instead.
 ========== ====== =================================== ========================================================================
 
 Bindings
@@ -203,24 +237,15 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ========== ====== =================================== ========================================================================
 ========== ====== =================================== ========================================================================
 
-Features currently marked as experimental
-=========================================
-
-Native C++ API
---------------
-
-============== ===============================================================================================================
-Name           Details
-============== ===============================================================================================================
-Replication    Replication API (in particular, the ReplicationInfo structure) is likely to be changed in future.  Also, the
-               format for changesets (both on-disk and over the network) is likely to change (to allow compression of
-	       changesets).  See tickets `#347 <http://trac.xapian.org/ticket/347>`_ and
-	       `#348 <http://trac.xapian.org/ticket/348>`_.
--------------- ---------------------------------------------------------------------------------------------------------------
-PostingSource  The PostingSource API is new, and has already been through several redesigns before release.  While we think
-	       that we now have a good design, we are concerned that wider use of it will show that the API needs to be
-	       adjusted again, so we're marking it as experimental for now.
-============== ===============================================================================================================
+.. Features currently marked as experimental
+.. =========================================
+.. Native C++ API
+.. --------------
+.. ============== ===============================================================================================================
+.. Name           Details
+.. ============== ===============================================================================================================
+.. -------------- ---------------------------------------------------------------------------------------------------------------
+.. ============== ===============================================================================================================
 
 Features removed from Xapian
 ============================
@@ -351,6 +376,9 @@ Removed Feature name                        Upgrade suggestion and comments
         throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
         the document specified doesn't      specified document ID.
         exist.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.5   delve -k                            Accepted as an undocumented alias for -V since 0.9.10 for compatibility with 0.9.9
+                                            and earlier.  Just use -V instead.
 ======= =================================== ==================================================================================
 
 

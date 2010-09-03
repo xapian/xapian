@@ -16,7 +16,12 @@ SUBDIRS = . docs
 
 INCLUDES = -I$(top_srcdir)/common
 
+BUILT_SOURCES = extra/omegascript.vim
+
 EXTRA_DIST =\
+	extra/omegascript.vim \
+	extra/omegascript.vim.in \
+	gen-omegascript-vim \
 	templates/query \
 	templates/topterms \
 	templates/opensearch \
@@ -93,13 +98,16 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
+	common/omassert.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safesysselect.h\
 	common/safesysstat.h\
+	common/safesyswait.h\
 	common/safeunistd.h\
 	common/safewindows.h\
+	common/str.h\
 	common/stringutils.h
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
@@ -115,13 +123,13 @@ libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
- utf8convert.cc datematchdecider.cc weight.cc
+ utf8convert.cc datematchdecider.cc weight.cc common/str.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
- runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc
+ runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
@@ -154,6 +162,11 @@ omindex.1: omindex$(EXEEXT) makemanpage
 
 scriptindex.1: scriptindex$(EXEEXT) makemanpage
 	./makemanpage ./scriptindex $(srcdir)/scriptindex.cc scriptindex.1
+endif
+
+if MAINTAINER_MODE
+extra/omegascript.vim: extra/omegascript.vim.in query.cc configure.ac
+	$(PERL) $(srcdir)/gen-omegascript-vim "$(srcdir)" "$(PACKAGE_VERSION)"
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

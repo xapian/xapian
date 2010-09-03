@@ -1,7 +1,7 @@
 /** @file flint_spelling.cc
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -357,7 +357,8 @@ struct TermListGreaterApproxSize {
 TermList *
 FlintSpellingTable::open_termlist(const string & word)
 {
-    if (word.size() <= 1) return NULL;
+    // This should have been handled by Database::get_spelling_suggestion().
+    AssertRel(word.size(),>,1);
 
     // Merge any pending changes to disk, but don't call commit() so they
     // won't be switched live.
@@ -547,6 +548,15 @@ FlintSpellingTermList::next()
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;
+    return NULL;
+}
+
+TermList *
+FlintSpellingTermList::skip_to(const string & term)
+{
+    while (!data.empty() && current_term < term) {
+	(void)FlintSpellingTermList::next();
+    }
     return NULL;
 }
 

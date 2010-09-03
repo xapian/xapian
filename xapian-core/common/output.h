@@ -26,20 +26,13 @@
 #ifndef XAPIAN_INCLUDED_OUTPUT_H
 #define XAPIAN_INCLUDED_OUTPUT_H
 
-#include <fstream>
+#include <ostream>
 
 /// @Internal Helper macro for defining stream output of Xapian class.
 #define XAPIAN_OUTPUT_FUNCTION(CLASS) \
 inline std::ostream & \
 operator<<(std::ostream & os, const CLASS & object) { \
     return os << object.get_description(); \
-}
-
-/// @Internal Helper macro for defining stream output of pointer to class.
-#define XAPIAN_OUTPUT_FUNCTION_PTR(CLASS) \
-inline std::ostream & \
-operator<<(std::ostream & os, const CLASS * object) { \
-    return os << object->get_description(); \
 }
 
 #include <xapian/database.h>
@@ -51,7 +44,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::Document)
 
 #include <xapian/query.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Query)
-XAPIAN_OUTPUT_FUNCTION_PTR(Xapian::Query::Internal)
+XAPIAN_OUTPUT_FUNCTION(Xapian::Query::Internal)
 
 #include <xapian/enquire.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::RSet)
@@ -76,7 +69,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::TermIterator)
 #include <xapian/valueiterator.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::ValueIterator)
 
-#include <xapian/replication.h>
+#include "replication.h"
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
 

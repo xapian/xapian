@@ -1,8 +1,8 @@
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010 Olly Betts
 
-.. FIXME: Once chert settles down, update this for chert
+.. FIXME: Once brass settles down, update this for brass
 
 ============================
 Xapian Administrator's Guide
@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.0.5.
+The document is up-to-date for Xapian version 1.2.0.
 
 Databases
 =========
@@ -46,8 +46,8 @@ even if empty; spelling and synonym tables are new in 1.0.2):
    document which each term occurs at.
  - A value table, which holds the "values" (used for sorting, collapsing, and
    other match-time calculations) associated with each document in the
-   database (only for flint - chert stores values in the postlist and termlist
-   tables).
+   database (only for flint - newer backends store values in the postlist and
+   termlist tables).
  - A spelling table, which holds data for suggesting spelling corrections.
  - A synonym table, which holds a synonym dictionary.
 
@@ -58,22 +58,20 @@ searches are never going to be performed on the database, it is not necessary
 to store any positionlist information.
 
 If you look at a Xapian database, you will see that each of these tables
-actually uses 2 or 3 files.  For example, for a "flint" format database the
+actually uses 2 or 3 files.  For example, for a "chert" format database the
 termlist table is stored in the files "termlist.baseA", "termlist.baseB"
 and "termlist.DB".
 
-Of these files, only the ".DB" file actually stores the data.  The ".baseA"
-and ".baseB" files are used to keep track of where to start looking for that
-data in the ".DB" file.  Often, only one of the ".baseA" and ".baseB" files
-will be present; each of these files refers to a revision of the database, and
-there may be more than one valid revision of the database stored in the ".DB"
-file at once.
+The ".DB" file actually stores the data, and is structured as a tree of
+blocks, which have a default size of 8KB (though this can be set, either
+through the Xapian API, or with some of the tools detailed later in this
+document).
 
-The ".DB" file is structured as a set of blocks, which have a default size of
-8KB (though this can be set, either through the Xapian API, or with some of
-the tools detailed later in this document).  The first block is used for
-header information, so a ".DB" file with only a single entry will be 16KB in
-size.
+The ".baseA" and ".baseB" files are used to keep track of where to start
+looking for data in the ".DB" file (the root of the tree), and which blocks are
+in use.  Often only one of the ".baseA" and ".baseB" files will be present;
+each of these files refers to a revision of the database, and there may be more
+than one valid revision of the database stored in the ".DB" file at once.
 
 Changing the blocksize may have performance implications, but it is hard to
 tell whether these will be positive or negative for a particular combination
@@ -125,10 +123,10 @@ at any given instant, there is only permitted to be a single object modifying
 a database, but there may (simultaneously) be many objects reading the
 database at once.
 
-Xapian enforces this restriction using lock-files.  For a flint or chert
-database, each Xapian database directory contains a lock file named
-``flintlock`` (chert uses the same name as the locking technique is the
-same).
+Xapian enforces this restriction using by having a writer lock the database.
+Each Xapian database directory contains a lock file named
+``flintlock`` (we've kept the same name as flint used, since the locking
+technique is the same).
 
 This lock-file will always exist, but will be locked using ``fcntl()`` when the
 database is open for writing.  Because of the semantics of ``fcntl()`` locking,
@@ -150,7 +148,7 @@ the number of modifications since the database was created, and is needed to
 implement the atomic modification functionality.  It is stored as a 32 bit
 integer, so there is a chance that a very frequently updated database could
 cause this to overflow.  The consequence of such an overflow would be to throw
-database errors.
+an exception reporting that the database has run out of revision numbers.
 
 This isn't likely to be a practical problem, since it would take nearly a year
 for a database to reach this limit if 100 modifications were committed every
@@ -158,8 +156,8 @@ second, and no normal Xapian system will commit more than once every few
 seconds.  However, if you are concerned, you can use the ``xapian-compact``
 tool to make a fresh copy of the database with the revision number set to 1.
 
-For a "flint" database, the revision number of each table can be displayed by
-the ``xapian-check`` tool.
+The revision number of each table can be displayed by the ``xapian-check``
+tool.
 
 Network file systems
 --------------------
@@ -179,8 +177,20 @@ this requires a lock daemon to be running.
 Which database format to use?
 -----------------------------
 
-As of release 1.0.0, you should use the flint format (which is now the
-default).  Support for the older quartz format was removed in 1.1.0.
+As of release 1.2.0, you should generally use the chert format (which is now
+the default).
+
+Support for the pre-1.0 quartz format (deprecated in 1.0) was removed in 1.1.0.
+See below for how to convert a quartz database to a flint one.
+
+The flint backend (the default for 1.0) is still supported by 1.2.x, but
+deprecated - only use it if you already have flint databases, and plan to
+migrate away.
+
+There's also a development backend called brass.  The main distinguishing
+feature of this is that the format may change incompatibly from time to time.
+It passes Xapian's extensive testsuite, but has seen less real world use
+than chert.
 
 Can I put other files in the database directory?
 ------------------------------------------------
@@ -190,7 +200,7 @@ database, it is reasonable to wish to put this in files inside the Xapian
 database directory, for neatness.  For example, you might wish to store a list
 of the prefixes you've applied to terms for specific fields in the database.
 
-Xapian's "flint" backend doesn't perform any operations
+Current Xapian backends don't do anything
 which will break this technique, so as long as you don't choose a filename
 that Xapian uses itself, there should be no problems.  However, be aware that
 new versions of Xapian may use new files in the database directory, and it is
@@ -256,7 +266,7 @@ preserved while modifications continue.
 
 Progressive backups are not recommended for Xapian databases: Xapian database
 files are block-structured, and modifications are spread throughout the
-database file.  Therefore, a progressive backup tool will not be able to take
+/database file.  Therefore, a progressive backup tool will not be able to take
 a backup by storing only the new parts of the database.  Modifications will
 normally be so extensive that most parts of the database have been modified,
 however, if only a small number of modifications have been made, a binary diff
@@ -300,18 +310,18 @@ smaller a database is, the faster it can be searched, so if there aren't
 expected to be many further modifications, it can be desirable to compact the
 database.
 
-Xapian includes a tool, "xapian-compact" for compacting "flint" format
-databases.
-This tool makes a copy of a database, and takes advantage of the sorted nature
-of the source Xapian database to write the database out without leaving so
-much space for future modifications.  This can result in a large space saving.
+Xapian includes a tool called "xapian-compact" for compacting databases.
+This tool makes a copy of a database, and takes advantage of
+the sorted nature of the source Xapian database to write the database out
+without leaving spare space for future modifications.  This can result in a
+large space saving.
 
-The downside of these tools is that future modifications may take a little
+The downside of compaction is that future modifications may take a little
 longer, due to needing to reorganise the database to make space for them.
 However, modifications are still possible, and if many modifications are made,
-the database will eventually adjust itself.
+the database will gradually develop spare space.
 
-The tools have an option ("-F") to perform a "fuller" compaction.  This option
+There's an option ("-F") to perform a "fuller" compaction.  This option
 compacts the database as much as possible, but it violates the design of the
 Btree format slightly to achieve this, so it is not recommended if further
 modifications are at all likely in future.  If you do need to modify a "fuller"
@@ -349,13 +359,29 @@ is usually faster, but requires more disk space for the temporary files.
 Checking database integrity
 ---------------------------
 
-Xapian includes a command-line tool to check that a flint database is
+Xapian includes a command-line tool to check that a database is
 self-consistent.  This tool, "xapian-check", runs through the entire database,
 checking that all the internal nodes are correctly connected.  It can also be
-used on a single table in a flint database, by specifying the prefix of the
-table: for example, this command will check the termlist table of database "foo"::
+used on a single table, for example, this command will check the termlist table
+of database "foo"::
 
-  xapian-check foo/termlist
+  xapian-check foo/termlist.DB
+
+
+Converting a flint database to a chert database
+------------------------------------------------
+
+It is possible to convert a flint database to a chert database by
+using the "copydatabase" example program included with Xapian.  This is a
+lot slower to run than "xapian-compact", since it has to perform the
+sorting of the term occurrence data from scratch, but should be faster than a
+re-index from source data since it doesn't need to perform the tokenisation
+step.  It is also useful if you no longer have the source data available.
+
+The following command will copy a database from "SOURCE" to "DESTINATION",
+creating the new database at "DESTINATION" as a chert database::
+
+  copydatabase SOURCE DESTINATION
 
 
 Converting a quartz database to a flint database
@@ -377,6 +403,8 @@ creating the new database at "DESTINATION" as a flint database::
 
 Converting a 0.9.x flint database to work with 1.0.y
 ----------------------------------------------------
+
+In 0.9.x, flint was the development backend.
 
 Due to a bug in the flint position list encoding in 0.9.x which made flint
 databases non-portable between platforms, we had to make an incompatible

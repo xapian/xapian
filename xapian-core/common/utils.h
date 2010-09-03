@@ -28,15 +28,10 @@
 #include <string>
 using std::string;
 
-#include "str.h"
-
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
-
-// For compatibility.
-#define om_tostring(V) str(V)
 
 /** Return true if the file fname exists.
  */
@@ -48,30 +43,15 @@ bool file_exists(const string &fname);
 XAPIAN_VISIBILITY_DEFAULT
 bool dir_exists(const string &dirname);
 
-/// Allow atoi to work directly on C++ strings.
-inline int atoi(const string &s) { return atoi(s.c_str()); }
-
 /// Allow unlink to work directly on C++ strings.
 inline int unlink(const string &filename) { return unlink(filename.c_str()); }
 
 /// Allow system to work directly on C++ strings.
 inline int system(const string &command) { return system(command.c_str()); }
 
-#ifdef HAVE_LINK
-/// Allow link to work directly on C++ strings.
-inline int link(const string &o, const string &n) {
-    return link(o.c_str(), n.c_str());
-}
-#endif
-
 /// Allow mkdir to work directly on C++ strings.
 inline int mkdir(const string &filename, mode_t mode) {
     return mkdir(filename.c_str(), mode);
-}
-
-/// Allow rmdir to work directly on C++ strings.
-inline int rmdir(const string &filename) {
-    return rmdir(filename.c_str());
 }
 
 /// Allow stat to work directly on C++ strings.

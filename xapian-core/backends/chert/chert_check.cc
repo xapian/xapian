@@ -29,13 +29,6 @@
 
 using namespace std;
 
-#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
-#define GET_LEVEL(b)     getint1(b, 4)
-#define MAX_FREE(b)      getint2(b, 5)
-#define TOTAL_FREE(b)    getint2(b, 7)
-#define DIR_END(b)       getint2(b, 9)
-#define DIR_START        11
-
 void ChertTableCheck::print_spaces(int n) const
 {
     while (n--) out.put(' ');

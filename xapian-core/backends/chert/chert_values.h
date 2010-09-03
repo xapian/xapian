@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_CHERT_VALUES_H
 #define XAPIAN_INCLUDED_CHERT_VALUES_H
 
-#include "chert_utils.h"
+#include "pack.h"
 #include "valuestats.h"
 
 #include "xapian/error.h"
@@ -32,17 +32,17 @@
 #include <string>
 
 /** Generate a key for a value stream chunk. */
-inline string
+inline std::string
 make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
 {
     std::string key("\0\xd8", 2);
-    key += pack_uint(slot);
-    key += pack_uint_preserving_sort(did);
+    pack_uint(key, slot);
+    pack_uint_preserving_sort(key, did);
     return key;
 }
 
 inline Xapian::docid
-docid_from_key(Xapian::valueno required_slot, const string & key)
+docid_from_key(Xapian::valueno required_slot, const std::string & key)
 {
     const char * p = key.data();
     const char * end = p + key.length();
@@ -187,15 +187,11 @@ class ValueChunkReader {
 
     Xapian::docid get_docid() const { return did; }
 
-    const string & get_value() const { return value; }
+    const std::string & get_value() const { return value; }
 
     void next();
 
-    void skip_to(Xapian::docid target) {
-	while (!at_end() && target > did) {
-	    next();
-	}
-    }
+    void skip_to(Xapian::docid target);
 };
 
 #endif // XAPIAN_INCLUDED_CHERT_VALUES_H

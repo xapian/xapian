@@ -4,6 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +29,7 @@
 
 #include <xapian/base.h>
 #include <xapian/deprecated.h>
-#include <xapian/sorter.h>
+#include <xapian/keymaker.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -39,6 +40,7 @@ class Database;
 class Document;
 class ErrorHandler;
 class ExpandDecider;
+class MatchSpy;
 class MSetIterator;
 class Query;
 class Weight;
@@ -396,11 +398,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	//@}
 };
 
+/// Equality test for MSetIterator objects.
 inline bool operator==(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for MSetIterator objects.
 inline bool operator!=(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index != b.index);
@@ -540,11 +544,13 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	//@}
 };
 
+/// Equality test for ESetIterator objects.
 inline bool operator==(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for ESetIterator objects.
 inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index != b.index);
@@ -685,6 +691,32 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	const Xapian::Query & get_query() const;
 
+	/** Add a matchspy.
+	 *
+	 *  This matchspy will be called with some of the documents which match
+	 *  the query, during the match process.  Exactly which of the matching
+	 *  documents are passed to it depends on exactly when certain
+	 *  optimisations occur during the match process, but it can be
+	 *  controlled to some extent by setting the @a checkatleast parameter
+	 *  to @a get_mset().
+	 *
+	 *  In particular, if there are enough matching documents, at least the
+	 *  number specified by @a checkatleast will be passed to the matchspy.
+	 *  This means that you can force the matchspy to be shown all matching
+	 *  documents by setting @a checkatleast to the number of documents in
+	 *  the database.
+	 *
+	 *  @param spy       The MatchSpy subclass to add.  The caller must
+	 *                   ensure that this remains valid while the Enquire
+	 *                   object remains active, or until @a
+	 *                   clear_matchspies() is called.
+	 */
+	void add_matchspy(MatchSpy * spy);
+
+	/** Remove all the matchspies.
+	 */
+	void clear_matchspies();
+
 	/** Set the weighting scheme to use for queries.
 	 *
 	 *  @param weight_  the new weighting scheme.  If no weighting scheme
@@ -786,9 +818,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the sorting to be by value only.
 	 *
-	 *  NB sorting of values uses a string comparison, so you'll need to
-	 *  store numbers padded with leading zeros or spaces, or with the
-	 *  number of digits prepended.
+	 *  Note that sorting by values uses a string comparison, so to use
+	 *  this to sort by a numeric value you'll need to store the numeric
+	 *  values in a manner which sorts appropriately.  For example, you
+	 *  could use Xapian::sortable_serialise() (which works for floating
+	 *  point numbers as well as integers), or store numbers padded with
+	 *  leading zeros or spaces, or with the number of digits prepended.
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
@@ -804,16 +839,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param reverse   If true, reverses the sort order.
          */
-	void set_sort_by_key(Xapian::Sorter * sorter, bool reverse);
+	void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::Sorter * sorter));
+	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::KeyMaker * sorter));
 
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
 	 *
-	 *  NB sorting of values uses a string comparison, so you'll need to
-	 *  store numbers padded with leading zeros or spaces, or with the
-	 *  number of digits prepended.
+	 *  Note that sorting by values uses a string comparison, so to use
+	 *  this to sort by a numeric value you'll need to store the numeric
+	 *  values in a manner which sorts appropriately.  For example, you
+	 *  could use Xapian::sortable_serialise() (which works for floating
+	 *  point numbers as well as integers), or store numbers padded with
+	 *  leading zeros or spaces, or with the number of digits prepended.
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
@@ -831,16 +869,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param reverse   If true, reverses the sort order.
 	 */
-	void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
+	void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::Sorter * sorter));
+	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter));
 
 	/** Set the sorting to be by relevance then value.
 	 *
-	 *  NB sorting of values uses a string comparison, so you'll need to
-	 *  store numbers padded with leading zeros or spaces, or with the
-	 *  number of digits prepended.
+	 *  Note that sorting by values uses a string comparison, so to use
+	 *  this to sort by a numeric value you'll need to store the numeric
+	 *  values in a manner which sorts appropriately.  For example, you
+	 *  could use Xapian::sortable_serialise() (which works for floating
+	 *  point numbers as well as integers), or store numbers padded with
+	 *  leading zeros or spaces, or with the number of digits prepended.
 	 *
 	 *  Note that with the default BM25 weighting scheme parameters,
 	 *  non-identical documents will rarely have the same weight, so
@@ -872,10 +913,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param reverse   If true, reverses the sort order.
 	 */
-	void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
+	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::Sorter * sorter));
+	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter));
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -916,6 +957,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     assumed to be a relatively expensive test so may
 	 *		     be applied in a lazier fashion.
 	 *
+	 *		     @deprecated this parameter is deprecated - use the
+	 *		     newer MatchSpy class and add_matchspy() method
+	 *		     instead.
+	 *
 	 *  @return	     A Xapian::MSet object containing the results of the
 	 *		     query.
 	 *
@@ -924,8 +969,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0,
-		      const MatchDecider * matchspy = 0) const;
+		      const MatchDecider * mdecider = 0) const;
+	XAPIAN_DEPRECATED(
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		      Xapian::doccount checkatleast,
+		      const RSet * omrset,
+		      const MatchDecider * mdecider,
+		      const MatchDecider * matchspy) const);
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
@@ -1058,7 +1108,7 @@ Enquire::set_sort_by_value(Xapian::valueno sort_key)
 }
 
 inline void
-Enquire::set_sort_by_key(Xapian::Sorter * sorter)
+Enquire::set_sort_by_key(Xapian::KeyMaker * sorter)
 {
     return set_sort_by_key(sorter, true);
 }
@@ -1070,7 +1120,7 @@ Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)
 }
 
 inline void
-Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)
+Enquire::set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter)
 {
     return set_sort_by_key_then_relevance(sorter, true);
 }
@@ -1082,7 +1132,7 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)
 }
 
 inline void
-Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)
+Enquire::set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter)
 {
     return set_sort_by_relevance_then_key(sorter, true);
 }

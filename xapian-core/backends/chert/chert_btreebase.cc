@@ -1,7 +1,8 @@
 /* chert_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,16 +27,17 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
-#include "chert_btreebase.h"
-#include "chert_io.h"
-#include "chert_utils.h"
-#include "utils.h"
 #include <xapian/error.h>
-#include "omassert.h"
 
-#include <limits.h>
+#include "chert_btreebase.h"
+#include "io_utils.h"
+#include "omassert.h"
+#include "pack.h"
+#include "str.h"
+#include "utils.h"
 
 #include <algorithm>
+#include <climits>
 #include <cstring>
 
 using namespace std;
@@ -64,6 +66,7 @@ using namespace std;
  * ITEM_COUNT
  * LAST_BLOCK
  * HAVE_FAKEROOT
+ * SEQUENTIAL
  * REVISION2	A second copy of the revision number, for consistency checks.
  * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
  * REVISION3	A third copy of the revision number, for consistency checks.
@@ -137,16 +140,37 @@ ChertTable_base::~ChertTable_base()
     bit_map0 = 0;
 }
 
-bool
-ChertTable_base::do_unpack_uint(const char **start, const char *end,
-			   uint4 *dest, string &err_msg, 
-			   const string &basename,
-			   const char *varname)
+/** Do most of the error handling from unpack_uint() */
+static bool
+do_unpack_uint(const char **start, const char *end,
+	       uint4 *dest, string &err_msg, 
+	       const string &basename,
+	       const char *varname)
 {
     bool result = unpack_uint(start, end, dest);
-    if (!result) {
-	err_msg += "Unable to read " + string(varname) + " from " +
-		    basename + "\n";
+    if (rare(!result)) {
+	err_msg += "Unable to read ";
+	err_msg += varname;
+	err_msg += " from ";
+	err_msg += basename;
+	err_msg += '\n';
+    }
+    return result;
+}
+
+static bool
+do_unpack_uint(const char **start, const char *end,
+	       chert_tablesize_t *dest, string &err_msg, 
+	       const string &basename,
+	       const char *varname)
+{
+    bool result = unpack_uint(start, end, dest);
+    if (rare(!result)) {
+	err_msg += "Unable to read ";
+	err_msg += varname;
+	err_msg += " from ";
+	err_msg += basename;
+	err_msg += '\n';
     }
     return result;
 }
@@ -185,13 +209,13 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     char buf[REASONABLE_BASE_SIZE];
 
     const char *start = buf;
-    const char *end = buf + chert_io_read(h, buf, REASONABLE_BASE_SIZE, 0);
+    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE, 0);
 
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;
     DO_UNPACK_UINT_ERRCHECK(&start, end, format);
     if (format != CURR_FORMAT) {
-	err_msg += "Bad base file format " + om_tostring(format) + " in " +
+	err_msg += "Bad base file format " + str(format) + " in " +
 		    basename + "\n";
 	return false;
     }
@@ -225,7 +249,7 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     if (revision != revision2) {
 	err_msg += "Revision number mismatch in " +
 		basename + ": " +
-		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
+		str(revision) + " vs " + str(revision2) + "\n";
 	return false;
     }
 
@@ -241,8 +265,8 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     size_t n = end - start;
     if (n < bit_map_size) {
 	memcpy(bit_map0, start, n);
-	(void)chert_io_read(h, reinterpret_cast<char *>(bit_map0) + n,
-			    bit_map_size - n, bit_map_size - n);
+	(void)io_read(h, reinterpret_cast<char *>(bit_map0) + n,
+		      bit_map_size - n, bit_map_size - n);
 	n = 0;
     } else {
 	memcpy(bit_map0, start, bit_map_size);
@@ -253,7 +277,7 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
 
     start = buf;
     end = buf + n;
-    end += chert_io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
+    end += io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
 
     uint4 revision3;
     if (!unpack_uint(&start, end, &revision3)) {
@@ -265,7 +289,7 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     if (revision != revision3) {
 	err_msg += "Revision number mismatch in " +
 		basename + ": " +
-		om_tostring(revision) + " vs " + om_tostring(revision3) + "\n";
+		str(revision) + " vs " + str(revision3) + "\n";
 	return false;
     }
 
@@ -287,21 +311,21 @@ ChertTable_base::write_to_file(const string &filename,
     calculate_last_block();
 
     string buf;
-    buf += pack_uint(revision);
-    buf += pack_uint(CURR_FORMAT);
-    buf += pack_uint(block_size);
-    buf += pack_uint(static_cast<uint4>(root));
-    buf += pack_uint(static_cast<uint4>(level));
-    buf += pack_uint(static_cast<uint4>(bit_map_size));
-    buf += pack_uint(static_cast<uint4>(item_count));
-    buf += pack_uint(static_cast<uint4>(last_block));
-    buf += pack_uint(have_fakeroot);
-    buf += pack_uint(sequential);
-    buf += pack_uint(revision);
+    pack_uint(buf, revision);
+    pack_uint(buf, CURR_FORMAT);
+    pack_uint(buf, block_size);
+    pack_uint(buf, static_cast<uint4>(root));
+    pack_uint(buf, static_cast<uint4>(level));
+    pack_uint(buf, static_cast<uint4>(bit_map_size));
+    pack_uint(buf, item_count);
+    pack_uint(buf, static_cast<uint4>(last_block));
+    pack_uint(buf, have_fakeroot);
+    pack_uint(buf, sequential);
+    pack_uint(buf, revision);
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    buf += pack_uint(revision);  // REVISION2
+    pack_uint(buf, revision);  // REVISION2
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
@@ -317,21 +341,21 @@ ChertTable_base::write_to_file(const string &filename,
 
     if (changes_fd >= 0) {
 	string changes_buf;
-	changes_buf += pack_uint(1u); // Indicate the item is a base file.
-	changes_buf += pack_string(tablename);
+	pack_uint(changes_buf, 1u); // Indicate the item is a base file.
+	pack_string(changes_buf, tablename);
 	changes_buf += base_letter; // The base file letter.
-	changes_buf += pack_uint(buf.size());
-	chert_io_write(changes_fd, changes_buf.data(), changes_buf.size());
-	chert_io_write(changes_fd, buf.data(), buf.size());
+	pack_uint(changes_buf, buf.size());
+	io_write(changes_fd, changes_buf.data(), changes_buf.size());
+	io_write(changes_fd, buf.data(), buf.size());
 	if (changes_tail != NULL) {
-	    chert_io_write(changes_fd, changes_tail->data(), changes_tail->size());
+	    io_write(changes_fd, changes_tail->data(), changes_tail->size());
 	    // changes_tail is only specified for the final table, so sync.
-	    chert_io_sync(changes_fd);
+	    io_sync(changes_fd);
 	}
     }
 
-    chert_io_write(h, buf.data(), buf.size());
-    chert_io_sync(h);
+    io_write(h, buf.data(), buf.size());
+    io_sync(h);
 }
 
 /*

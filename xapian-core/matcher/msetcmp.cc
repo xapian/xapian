@@ -1,6 +1,6 @@
 /* msetcmp.cc - MSetItem comparison functions and functors.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,9 +105,9 @@ msetcmp_by_relevance_then_value(const Xapian::Internal::MSetItem &a,
 static mset_cmp mset_cmp_table[] = {
     // Xapian::Enquire::Internal::REL
     msetcmp_by_relevance<false>,
-    msetcmp_by_relevance<false>, // Shouldn't be needed.
+    0,
     msetcmp_by_relevance<true>,
-    msetcmp_by_relevance<true>, // Shouldn't be needed.
+    0,
     // Xapian::Enquire::Internal::VAL
     msetcmp_by_value<false, false>,
     msetcmp_by_value<true, false>,
@@ -126,5 +126,6 @@ static mset_cmp mset_cmp_table[] = {
 };
 
 mset_cmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_value_forward) {
+    if (sort_by == Xapian::Enquire::Internal::REL) sort_value_forward = false;
     return mset_cmp_table[sort_by * 4 + sort_forward * 2 + sort_value_forward];
 }

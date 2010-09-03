@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,6 +84,58 @@ BackendManager::getwritedb_inmemory(const vector<string> &files)
 }
 #endif
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+string
+BackendManager::createdb_brass(const vector<string> &files)
+{
+    string parent_dir = ".brass";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = files.begin();
+	 i != files.end(); i++) {
+	dbdir += '=';
+	dbdir += *i;
+    }
+    // If the database is readonly, we can reuse it if it exists.
+    if (create_dir_if_needed(dbdir)) {
+	// Directory was created, so do the indexing.
+	Xapian::WritableDatabase db(Xapian::Brass::open(dbdir, Xapian::DB_CREATE, 2048));
+	index_files_to_database(db, files);
+	db.commit();
+    }
+    return dbdir;
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_brass(const string & name,
+				 const vector<string> & files)
+{
+    string dbdir = getwritedb_brass_path(name);
+
+    // For a writable database we need to start afresh each time.
+    rm_rf(dbdir);
+    (void)create_dir_if_needed(dbdir);
+
+    // directory was created, so do the indexing.
+    Xapian::WritableDatabase db(Xapian::Brass::open(dbdir, Xapian::DB_CREATE, 2048));
+    index_files_to_database(db, files);
+    return db;
+}
+
+std::string
+BackendManager::getwritedb_brass_path(const string & name)
+{
+    string parent_dir = ".brass";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+    return dbdir;
+}
+#endif
+
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 string
 BackendManager::createdb_chert(const vector<string> &files)
@@ -102,6 +154,7 @@ BackendManager::createdb_chert(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }
@@ -154,6 +207,7 @@ BackendManager::createdb_flint(const vector<string> &files)
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, files);
+	db.commit();
     }
     return dbdir;
 }
@@ -188,6 +242,8 @@ BackendManager::getwritedb_flint_path(const string & name)
 
 #endif
 
+BackendManager::~BackendManager() { }
+
 std::string
 BackendManager::get_dbtype() const
 {
@@ -216,6 +272,67 @@ Xapian::Database
 BackendManager::get_database(const string & file)
 {
     return do_get_database(vector<string>(1, file));
+}
+
+Xapian::Database
+BackendManager::get_database(const std::string &dbname,
+			     void (*gen)(Xapian::WritableDatabase&,
+					 const std::string &),
+			     const std::string &arg)
+{
+    string dbleaf = "db__";
+    dbleaf += dbname;
+    const string & path = get_writable_database_path(dbleaf);
+    try {
+	return Xapian::Database(path);
+    } catch (const Xapian::DatabaseOpeningError &) {
+    }
+    rm_rf(path);
+
+    string tmp_dbleaf(dbleaf);
+    tmp_dbleaf += '~';
+    string tmp_path(path);
+    tmp_path += '~';
+
+    {
+	Xapian::WritableDatabase wdb = get_writable_database(tmp_dbleaf,
+							     string());
+	gen(wdb, arg);
+    }
+    rename(tmp_path.c_str(), path.c_str());
+
+    return Xapian::Database(path);
+}
+
+std::string
+BackendManager::get_database_path(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg)
+{
+    string dbleaf = "db__";
+    dbleaf += dbname;
+    const string & path = get_writable_database_path(dbleaf);
+    try {
+	(void)Xapian::Database(path);
+	return path;
+    } catch (const Xapian::DatabaseOpeningError &) {
+    }
+    rm_rf(path);
+
+    string tmp_dbleaf(dbleaf);
+    tmp_dbleaf += '~';
+    string tmp_path(path);
+    tmp_path += '~';
+
+    {
+	Xapian::WritableDatabase wdb = get_writable_database(tmp_dbleaf,
+							     string());
+	gen(wdb, arg);
+    }
+    rename(tmp_path.c_str(), path.c_str());
+
+    return path;
 }
 
 string
@@ -252,7 +369,7 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 }
 
 Xapian::Database
-BackendManager::get_writable_database_as_database(const string &)
+BackendManager::get_writable_database_as_database()
 {
     string msg = "Backend ";
     msg += get_dbtype();
@@ -261,7 +378,7 @@ BackendManager::get_writable_database_as_database(const string &)
 }
 
 Xapian::WritableDatabase
-BackendManager::get_writable_database_again(const string &)
+BackendManager::get_writable_database_again()
 {
     string msg = "Backend ";
     msg += get_dbtype();
@@ -270,7 +387,7 @@ BackendManager::get_writable_database_again(const string &)
 }
 
 void
-BackendManager::posttest()
+BackendManager::clean_up()
 {
 }
 

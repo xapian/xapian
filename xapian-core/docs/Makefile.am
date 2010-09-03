@@ -17,16 +17,16 @@ HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst deprecation.rst glossary.rst \
+RSTDOCS = admin_notes.rst categorisation.rst deprecation.rst glossary.rst \
  postingsource.rst replication.rst replication_protocol.rst \
  sorting.rst serialisation.rst spelling.rst synonyms.rst \
  termgenerator.rst valueranges.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
+EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
-	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
+	doxygen_source_header.html_tmpl doxygen_source_footer.html_tmpl \
 	$(RSTDOCS) \
 	dir_contents
 
@@ -79,7 +79,7 @@ maintainer-clean-local:
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/apidoc
 
-MAINTAINERCLEANFILES = doxygen_api_conf doxygen_full_conf \
+MAINTAINERCLEANFILES = doxygen_api.conf doxygen_source.conf \
 	code_structure.html apidoc.pdf \
 	$(RSTHTML)
 
@@ -101,11 +101,16 @@ include docsource.mk
 code_structure.html: gen_codestructure_doc $(DIR_CONTENTS_FILES)
 	./gen_codestructure_doc code_structure.html $(DIR_CONTENTS_FILES)
 
-apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
+apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api.conf \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 	rm -rf apidoc
-	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
+	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api.conf
+	## Regression test - 1.0.17 failed to generate docs from error.h in a
+	## VPATH build.
+	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
+	  ( echo "No api docs for Xapian::RuntimeError" ; \
+	    rm apidoc/html/index.html ; exit 1 )
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
 	if test "x$(PNGCRUSH)" != x ; then \
@@ -122,10 +127,11 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 apidoc/html/index.html: apidoc.pdf
 
 sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
-		doxygen_full_conf \
-		$(srcdir)/doxygen_full_header.html_tmpl \
-		$(srcdir)/doxygen_full_footer.html_tmpl
-	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
+		doxygen_source.conf \
+		$(srcdir)/doxygen_source_header.html_tmpl \
+		$(srcdir)/doxygen_source_footer.html_tmpl
+	rm -rf sourcedoc
+	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_source.conf
 
 .rst.html:
 	$(RST2HTML) --exit-status=warning $< $@

@@ -29,8 +29,8 @@
 #include <vector>
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -45,7 +45,7 @@ last_day(int y, int m)
 }
 
 #ifndef SNPRINTF
-#include <stdarg.h>
+#include <cstdarg>
 
 static int my_snprintf(char *str, size_t size, const char *format, ...)
 {

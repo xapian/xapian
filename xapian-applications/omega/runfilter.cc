@@ -1,6 +1,7 @@
-/* runfilter.cc: run an external filter and capture its output in a std::string.
+/** @file runfilter.cc
+ * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,42 +20,32 @@
 
 #include <config.h>
 
+#include "runfilter.h"
+
 #include <iostream>
 #include <string>
 
 #include <sys/types.h>
 #include "safeerrno.h"
 #include "safefcntl.h"
-#include <stdio.h>
+#include <cstdio>
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
 #ifdef HAVE_SYS_RESOURCE_H
 # include <sys/resource.h>
 #endif
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
+#include "safesyswait.h"
 #include "safeunistd.h"
 
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
-# include <signal.h>
+# include <csignal>
 #endif
 
 #include "freemem.h"
-#include "runfilter.h"
-
-#ifdef __WIN32__
-# ifndef WIFEXITED
-#  define WIFEXITED(status) (status != -1)
-# endif
-# ifndef WEXITSTATUS
-#  define WEXITSTATUS(status) (status)
-# endif
-#endif
 
 #ifdef _MSC_VER
 # define popen _popen
@@ -131,12 +122,14 @@ stdout_to_string(const string &cmd)
 	ssize_t res = read(fd, buf, sizeof(buf));
 	if (res == 0) break;
 	if (res == -1) {
-	    if (errno != EINTR) {
-		close(fd);
-		int status;
-		(void)waitpid(child, &status, 0);
-		throw ReadError();
+	    if (errno == EINTR) {
+		// read() interrupted by a signal, so retry.
+		continue;
 	    }
+	    close(fd);
+	    int status;
+	    (void)waitpid(child, &status, 0);
+	    throw ReadError();
 	}
 	out.append(buf, res);
     }

@@ -396,7 +396,11 @@ DEFINE_TESTCASE(synonym4, backend) {
 	tout << "mset2:" << mset2 << '\n';
 
 	TEST_NOT_EQUAL(mset1.size(), 0);
-	TEST_EQUAL(mset1[0].get_percent(), 100.0);
+	if (*i != Xapian::Query::OP_XOR) {
+	    TEST_EQUAL(mset1[0].get_percent(), 100);
+	} else {
+	    TEST(mset1[0].get_percent() != 100);
+	}
 	check_msets_contain_same_docs(mset1, mset2);
     }
 

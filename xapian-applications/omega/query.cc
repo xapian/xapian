@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -31,14 +31,14 @@
 #include <set>
 #include <vector>
 
-#include <assert.h>
-#include <ctype.h>
+#include <cassert>
+#include <cctype>
 #include "safeerrno.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include "strcasecmp.h"
-#include <time.h>
+#include <ctime>
 
 #include "safeunistd.h"
 #include <sys/types.h>
@@ -60,6 +60,7 @@
 #include "query.h"
 #include "cgiparam.h"
 #include "loadfile.h"
+#include "str.h"
 #include "stringutils.h"
 #include "transform.h"
 #include "values.h"
@@ -74,7 +75,7 @@ using Xapian::Utf8Iterator;
 using Xapian::Unicode::is_wordchar;
 
 #ifndef SNPRINTF
-#include <stdarg.h>
+#include <cstdarg>
 
 static int my_snprintf(char *str, size_t size, const char *format, ...)
 {
@@ -492,7 +493,7 @@ percent_encode(const string &str)
     }
 }
 
-static string
+string
 html_escape(const string &str)
 {
     string res;
@@ -1088,7 +1089,7 @@ eval(const string &fmt, const vector<string> &param)
 		vector<string>::const_iterator i;
 		for (i = args.begin(); i != args.end(); i++)
 		    total += string_to_int(*i);
-		value = int_to_string(total);
+		value = str(total);
 		break;
 	    }
 	    case CMD_addfilter:
@@ -1130,7 +1131,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_collapsed: {
-		value = int_to_string(collapsed);
+		value = str(collapsed);
 		break;
 	    }
 	    case CMD_date:
@@ -1154,7 +1155,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_dbsize: {
 		static Xapian::doccount dbsize;
 		if (!dbsize) dbsize = db.get_doccount();
-		value = int_to_string(dbsize);
+		value = str(dbsize);
 		break;
 	    }
 	    case CMD_def: {
@@ -1181,8 +1182,8 @@ eval(const string &fmt, const vector<string> &param)
 		if (denom == 0) {
 		    value = "divide by 0";
 		} else {
-		    value = int_to_string(string_to_int(args[0]) /
-					  string_to_int(args[1]));
+		    value = str(string_to_int(args[0]) /
+				string_to_int(args[1]));
 		}
 		break;
 	    }
@@ -1269,7 +1270,7 @@ eval(const string &fmt, const vector<string> &param)
 		    if (j == string::npos) j = l.size();
 		    if (j - i == s.length()) {
 			if (memcmp(s.data(), l.data() + i, j - i) == 0) {
-			    value = int_to_string(count);
+			    value = str(count);
 			    break;
 			}
 		    }
@@ -1283,11 +1284,11 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_freq:
 		try {
-		    value = int_to_string(mset.get_termfreq(args[0]));
+		    value = str(mset.get_termfreq(args[0]));
 		} catch (const Xapian::InvalidOperationError&) {
 		    // An MSet will raise this error if it's empty and not
 		    // associated with a search.
-		    value = int_to_string(db.get_termfreq(args[0]));
+		    value = str(db.get_termfreq(args[0]));
 		}
 		break;
             case CMD_ge:
@@ -1318,7 +1319,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_hit:
 		// 0-based mset index
-		value = int_to_string(hit_no);
+		value = str(hit_no);
 		break;
 	    case CMD_hitlist:
 #if 0
@@ -1355,7 +1356,7 @@ eval(const string &fmt, const vector<string> &param)
 		hit_no = 0;
 		break;
 	    case CMD_hitsperpage:
-		value = int_to_string(hits_per_page);
+		value = str(hits_per_page);
 		break;
 	    case CMD_hostname: {
 	        value = args[0];
@@ -1388,7 +1389,7 @@ eval(const string &fmt, const vector<string> &param)
 	        break;
 	    case CMD_id:
 		// document id
-		value = int_to_string(q0);
+		value = str(q0);
 		break;
 	    case CMD_if:
 		if (!args[0].empty())
@@ -1400,12 +1401,12 @@ eval(const string &fmt, const vector<string> &param)
 	        value = eval_file(args[0]);
 	        break;
 	    case CMD_last:
-		value = int_to_string(last);
+		value = str(last);
 		break;
 	    case CMD_lastpage: {
 		int l = mset.get_matches_estimated();
 		if (l > 0) l = (l - 1) / hits_per_page + 1;
-		value = int_to_string(l);
+		value = str(l);
 		break;
 	    }
             case CMD_le:
@@ -1417,7 +1418,7 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "0";
 		} else {
 		    size_t length = count(args[0].begin(), args[0].end(), '\t');
-		    value = int_to_string(length + 1);
+		    value = str(length + 1);
 		}
 		break;
 	    case CMD_list: {
@@ -1526,7 +1527,7 @@ eval(const string &fmt, const vector<string> &param)
 		    int x = string_to_int(*i);
 		    if (x > val) val = x;
 	        }
-		value = int_to_string(val);
+		value = str(val);
 		break;
 	    }
 	    case CMD_min: {
@@ -1536,12 +1537,12 @@ eval(const string &fmt, const vector<string> &param)
 		    int x = string_to_int(*i);
 		    if (x < val) val = x;
 	        }
-		value = int_to_string(val);
+		value = str(val);
 		break;
 	    }
 	    case CMD_msize:
 		// number of matches
-		value = int_to_string(mset.get_matches_estimated());
+		value = str(mset.get_matches_estimated());
 		break;
 	    case CMD_msizeexact:
 		// is msize exact?
@@ -1554,8 +1555,8 @@ eval(const string &fmt, const vector<string> &param)
 		if (denom == 0) {
 		    value = "divide by 0";
 		} else {
-		    value = int_to_string(string_to_int(args[0]) %
-					  string_to_int(args[1]));
+		    value = str(string_to_int(args[0]) %
+				string_to_int(args[1]));
 		}
 		break;
 	    }
@@ -1564,7 +1565,7 @@ eval(const string &fmt, const vector<string> &param)
 		int total = string_to_int(*i++);
 		while (i != args.end())
 		    total *= string_to_int(*i++);
-		value = int_to_string(total);
+		value = str(total);
 		break;
 	    }
 	    case CMD_muldiv: {
@@ -1573,7 +1574,7 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "divide by 0";
 		} else {
 		    int num = string_to_int(args[0]) * string_to_int(args[1]);
-		    value = int_to_string(num / denom);
+		    value = str(num / denom);
 		}
 		break;
 	    }
@@ -1621,7 +1622,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_percentage:
 		// percentage score
-		value = int_to_string(percent);
+		value = str(percent);
 		break;
 	    case CMD_prettyterm:
 		value = pretty_term(args[0]);
@@ -1639,7 +1640,7 @@ eval(const string &fmt, const vector<string> &param)
 		int start = string_to_int(args[0]);
 		int end = string_to_int(args[1]);
 	        while (start <= end) {
-		    value = value + int_to_string(start);
+		    value += str(start);
 		    if (start < end) value += '\t';
 		    start++;
 		}
@@ -1658,21 +1659,24 @@ eval(const string &fmt, const vector<string> &param)
 		map<Xapian::docid, bool>::iterator i = ticked.find(id);
 		if (i != ticked.end()) {
 		    i->second = false; // icky side-effect
-		    value = int_to_string(id);
+		    value = str(id);
 		}
 		break;
 	    }
 	    case CMD_relevants:	{
 		for (map <Xapian::docid, bool>::const_iterator i = ticked.begin();
 		     i != ticked.end(); i++) {
-		    if (i->second) value += int_to_string(i->first) + '\t';
+		    if (i->second) {
+			value += str(i->first);
+			value += '\t';
+		    }
 		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
 	    case CMD_score:
 	        // Score (0 to 10)
-		value = int_to_string(percent / 10);
+		value = str(percent / 10);
 		break;
 	    case CMD_set:
 		option[args[0]] = args[1];
@@ -1759,8 +1763,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_sub:
-		value = int_to_string(string_to_int(args[0]) -
-				      string_to_int(args[1]));
+		value = str(string_to_int(args[0]) - string_to_int(args[1]));
 		break;
 	    case CMD_substr: {
 		int start = string_to_int(args[1]);
@@ -1809,7 +1812,7 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    case CMD_thispage:
-		value = int_to_string(topdoc / hits_per_page + 1);
+		value = str(topdoc / hits_per_page + 1);
 		break;
 	    case CMD_time:
 		if (usec != -1) {
@@ -1823,7 +1826,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_topdoc:
 		// first document on current page of hit list (counting from 0)
-		value = int_to_string(topdoc);
+		value = str(topdoc);
 		break;
 	    case CMD_topterms:
 		if (enquire) {
@@ -1890,7 +1893,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_unpack:
-		value = int_to_string(binary_string_to_int(args[0]));
+		value = str(binary_string_to_int(args[0]));
 		break;
 	    case CMD_unstem: {
 		const string &term = args[0];

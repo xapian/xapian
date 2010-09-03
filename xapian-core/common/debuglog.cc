@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 
 #include "debuglog.h"
 
@@ -38,7 +38,7 @@
 
 using namespace std;
 
-DebugLogger xapian_debuglogger__;
+DebugLogger xapian_debuglogger_;
 
 // We use O_SYNC to attempt to ensure that debug output is written to disk so
 // that none is lost if we crash.  Some platforms (e.g. mingw) don't support
@@ -140,4 +140,4 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
     }
 }
 
-#endif // XAPIAN_DEBUG_VERBOSE
+#endif // XAPIAN_DEBUG_LOG

@@ -1,7 +1,7 @@
 /** @file chert_modifiedpostlist.cc
  * @brief A ChertPostList plus pending modifications
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
  */
 
 #include <config.h>
+#include "chert_modifiedpostlist.h"
 
 #include "chert_database.h"
-#include "chert_modifiedpostlist.h"
+#include "debuglog.h"
 
 ChertModifiedPostList::~ChertModifiedPostList()
 {
@@ -32,6 +33,9 @@ void
 ChertModifiedPostList::skip_deletes(Xapian::weight w_min)
 {
     while (!ChertPostList::at_end()) {
+	while (it != mods.end() && it->second.first == 'D' &&
+	       it->first < ChertPostList::get_docid())
+	    ++it;
 	if (it == mods.end()) return;
 	if (it->first != ChertPostList::get_docid()) return;
 	if (it->second.first != 'D') return;
@@ -52,13 +56,14 @@ ChertModifiedPostList::get_docid() const
 {
     if (it == mods.end()) return ChertPostList::get_docid();
     if (ChertPostList::at_end()) return it->first;
+    Assert(it->second.first != 'D');
     return min(it->first, ChertPostList::get_docid());
 }
 
 Xapian::termcount
 ChertModifiedPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertModifiedPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "ChertModifiedPostList::get_doclength", NO_ARGS);
     if (it != mods.end() && (ChertPostList::at_end() || it->first <= ChertPostList::get_docid()))
 	RETURN(this_db->get_doclength(it->first));
     RETURN(ChertPostList::get_doclength());
@@ -71,7 +76,7 @@ ChertModifiedPostList::get_wdf() const
     Xapian::docid unmod_did = ChertPostList::get_docid();
     if (it != mods.end() && it->first <= unmod_did) {
 	if (it->first < unmod_did) return it->second.second;
-	return ChertPostList::get_wdf() + it->second.second;
+	return it->second.second;
     }
     return ChertPostList::get_wdf();
 }

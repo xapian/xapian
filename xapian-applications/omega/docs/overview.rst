@@ -20,7 +20,7 @@ section below for details of the supplied templates.
 
 Omega parses queries using the ``Xapian::QueryParser`` class - for the supported
 syntax, see queryparser.html in the xapian-core documentation
-- available online at: http://www.xapian.org/docs/queryparser.html
+- available online at: http://xapian.org/docs/queryparser.html
 
 Term construction
 =================
@@ -186,6 +186,7 @@ know):
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
+* CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext is available (comes with xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
   with xpdf) are available
@@ -199,8 +200,8 @@ know):
   catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
   catdoc)
-* MS Office 2007 documents (.docx, .dotx, .xlsx, .xlst, .pptx, .potx, .ppsx) if
-  unzip is available
+* MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,
+  .xltm, .pptx, .pptm, .potx, .potm, .ppsx, .ppsm) if unzip is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * AbiWord documents (.abw)
@@ -220,6 +221,7 @@ The syntax of --mime-type is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
 of:
 
+   - text/csv
    - text/html
    - text/plain
    - text/rtf

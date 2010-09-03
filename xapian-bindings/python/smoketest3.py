@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -22,7 +22,29 @@
 import sys
 import xapian
 
-from .testsuite import *
+from testsuite import *
+
+mystemmers = set()
+mystemmer_id = 0
+# Stemmer which strips English vowels.
+class MyStemmer(xapian.StemImplementation):
+    def __init__(self):
+        global mystemmers
+        global mystemmer_id
+        super(MyStemmer, self).__init__()
+        mystemmers.add(mystemmer_id)
+        self._id = mystemmer_id
+        mystemmer_id += 1
+
+    def __call__(self, s):
+        import re
+        return re.sub(r'[aeiou]', '', s)
+
+    def __del__(self):
+        global mystemmers
+        if self._id not in mystemmers:
+            raise TestFail("MyStemmer #%d deleted more than once" % self._id)
+        mystemmers.remove(self._id)
 
 def test_all():
     # Test the version number reporting functions give plausible results.
@@ -31,6 +53,13 @@ def test_all():
                       xapian.revision())
     v2 = xapian.version_string()
     expect(v2, v, "Unexpected version output")
+
+    def access_cvar():
+        return xapian.cvar
+
+    # Check that SWIG isn't generated cvar (regression test for ticket#297).
+    expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
+                     access_cvar)
 
     stem = xapian.Stem("english")
     expect(str(stem), "Xapian::Stem(english)", "Unexpected str(stem)")
@@ -63,6 +92,9 @@ def test_all():
     expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, '1', '4'),
                  "VALUE_RANGE 0 1 4")
 
+    expect_query(xapian.Query.MatchAll, "<alldocuments>")
+    expect_query(xapian.Query.MatchNothing, "")
+
     # Feature test for Query.__iter__
     term_count = 0
     for term in query2:
@@ -73,6 +105,7 @@ def test_all():
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
     expect(mset.size(), 1, "Unexpected mset.size()")
+    expect(len(mset), 1, "Unexpected mset.size()")
 
     # Feature test for Enquire.matching_terms(docid)
     term_count = 0
@@ -320,6 +353,37 @@ def test_all():
     # Test OP_SCALE_WEIGHT and corresponding constructor
     expect_query(xapian.Query(xapian.Query.OP_SCALE_WEIGHT, xapian.Query('foo'), 5),
                  "5 * foo")
+
+def test_userstem():
+    mystem = MyStemmer()
+    stem = xapian.Stem(mystem)
+    expect(stem('test'), 'tst')
+    stem2 = xapian.Stem(mystem)
+    expect(stem2('toastie'), 'tst')
+
+    indexer = xapian.TermGenerator()
+    indexer.set_stemmer(xapian.Stem(MyStemmer()))
+
+    doc = xapian.Document()
+    indexer.set_document(doc)
+    indexer.index_text('hello world')
+
+    s = '/'
+    for t in doc.termlist():
+        s += t.term
+        s += '/'
+    expect(s, '/Zhll/Zwrld/hello/world/')
+
+    parser = xapian.QueryParser()
+    parser.set_stemmer(xapian.Stem(MyStemmer()))
+    parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
+    expect_query(parser.parse_query('color television'), '(clr:(pos=1) OR tlvsn:(pos=2))')
+
+def test_zz9_check_leaks():
+    import gc
+    gc.collect()
+    if len(mystemmers):
+        TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

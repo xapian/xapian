@@ -33,7 +33,7 @@ typedef enum {
     EMPTY,
     ADDED,
     REJECTED,
-    REPLACED,
+    REPLACED
 } collapse_result;
 
 /// Class tracking information for a given value of the collapse key.
@@ -134,16 +134,14 @@ class Collapser {
      *  @param item		The new item.
      *  @param postlist		PostList to try to get collapse key from
      *				(this happens for a remote match).
-     *  @param db		Database match is running over.
-     *  @param[inout] doc	Lazily create document for getting values.
+     *  @param doc		Document for getting values.
      *  @param mcmp		MSetItem comparison functor.
      *
      *  @return How @a item was handled: EMPTY, ADDED, REJECTED or REPLACED.
      */
     collapse_result process(Xapian::Internal::MSetItem & item,
 			    PostList * postlist,
-			    const Xapian::Database & db,
-			    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> & doc,
+			    Xapian::Document::Internal & vsdoc,
 			    const MSetCmp & mcmp);
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,

@@ -30,7 +30,6 @@
 #include "chert_positionlist.h"
 #include "leafpostlist.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 #include "autoptr.h"
 #include <map>
@@ -85,17 +84,12 @@ class ChertPostListTable : public ChertTable {
 
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
-	    string key = make_key(term);
-	    key += pack_uint_preserving_sort(did);
-	    return key;
+	    return pack_chert_postlist_key(term, did);
 	}
 
 	/// Compose a key from a termname.
 	static string make_key(const string & term) {
-	    // Special case for doclen lists.
-	    if (term.empty()) return string("\x00\xe0", 2);
-
-	    return pack_string_preserving_sort(term);
+	    return pack_chert_postlist_key(term);
 	}
 
 	bool term_exists(const string & term) const {
@@ -117,6 +111,10 @@ class ChertPostListTable : public ChertTable {
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,
 					Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+
+	/** Check if document @a did exists. */
+	bool document_exists(Xapian::docid did,
+			     Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
 };
 
 /** A postlist in a chert database.
@@ -272,7 +270,7 @@ class ChertPostList : public LeafPostList {
 	/// Read the number of entries and the collection frequency.
 	static void read_number_of_entries(const char ** posptr,
 					   const char * end,
-					   Xapian::termcount * number_of_entries_ptr,
+					   Xapian::doccount * number_of_entries_ptr,
 					   Xapian::termcount * collection_freq_ptr);
 };
 

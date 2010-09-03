@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007 Olly Betts
+ * Copyright 2003,2004,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include <string>
 
 #include <xapian/base.h>
+#include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -36,17 +37,6 @@ namespace Xapian {
 class Database;
 class PostingIterator;
 class TermIterator;
-
-/** @internal A wrapper class for a termpos which returns the termpos if
- *  dereferenced with *.  We need this to implement input_iterator semantics.
- */
-class TermPosWrapper {
-    private:
-	termpos pos;
-    public:
-	explicit TermPosWrapper(termpos pos_) : pos(pos_) { }
-	termpos operator*() const { return pos; }
-};
 
 /** An iterator pointing to items in a list of positions.
  */
@@ -87,10 +77,10 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
 	PositionIterator & operator++();
 
-	TermPosWrapper operator++(int) {
+	DerefWrapper_<termpos> operator++(int) {
 	    Xapian::termpos tmp = **this;
 	    operator++();
-	    return TermPosWrapper(tmp);
+	    return DerefWrapper_<termpos>(tmp);
 	}
 
 	// extra method, not required for an input_iterator

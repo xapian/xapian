@@ -2,12 +2,18 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
+TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
+    PYTHONPATH=".:$$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 \
+    abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
-# FIXME: replicationtest.py is failing, and I can't see why - disable it
-# temporarily as Richard is away and snapshots aren't building.
+
+# FIXME: replicationtest.py attempts to test the concurrent performance of
+# performing replication whilst modifications are in progress.  However, it
+# sometimes fails due to a race condition in it.  It also contains hard-coded
+# paths to the replication scripts, which assume the file layout in an SVN
+# checkout.  Therefore, we don't run it by default currently.
 # replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
@@ -19,6 +25,7 @@ endif
 
 EXTRA_DIST = util.i extra.i extracomments.i except.i \
 	testsuite.py testsuite2.py testsuite3.py \
+	test_xapian_star.py \
 	smoketest2.py smoketest3.py \
 	pythontest2.py pythontest3.py \
 	replicationtest2.py \
@@ -75,19 +82,20 @@ xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
 xapian/_xapian$(PYTHON_SO): _xapian.la
 	-test -d xapian || mkdir xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
+## ksh requires a path on the sourced file.
 	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = \
     xapian/_xapian$(PYTHON_SO) \
     xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
-    $(srcdir)/testsuite.pyc
+    $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
 # databases created by test cases.
 clean-local:
 	-rmdir xapian
-	rm -f db_test_* dbs_replication
+	rm -rf db_test_* dbs_replication
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
@@ -99,7 +107,7 @@ except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
 
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
-	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
+	$(PYTHON) $(srcdir)/doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
 	@stamp=modern/xapian_wrap.stamp; $(make_many_locked)

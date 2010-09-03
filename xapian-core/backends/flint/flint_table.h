@@ -1,7 +1,7 @@
 /* flint_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,9 +31,9 @@
 #include "flint_cursor.h"
 
 #include "noreturn.h"
+#include "str.h"
 #include "stringutils.h"
 #include "unaligned.h"
-#include "utils.h"
 
 #include <algorithm>
 #include <string>
@@ -178,9 +178,9 @@ public:
 	// Key size
 	setint1(p, I2, newsize - I2);
 	// Copy the main part of the key, possibly truncating.
-	memmove(p + I2 + K1, newkey.get_address() + K1, i);
+	std::memmove(p + I2 + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
-	memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
+	std::memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
 	// Set tag contents to block number
 //	set_block_given_by(n);
 	setint4(p, newsize, n);
@@ -207,19 +207,19 @@ public:
 	    // flint doubles zero bytes, so this can still happen for terms
 	    // which contain one or more zero bytes.
 	    std::string msg("Key too long: length was ");
-	    msg += om_tostring(key_len);
+	    msg += str(key_len);
 	    msg += " bytes, maximum length of a key is "
 		   STRINGIZE(FLINT_BTREE_MAX_KEY_LEN) " bytes";
 	    throw Xapian::InvalidArgumentError(msg);
 	}
 
 	set_key_len(key_len + K1 + C2);
-	memmove(p + I2 + K1, key_.data(), key_len);
+	std::memmove(p + I2 + K1, key_.data(), key_len);
 	set_component_of(1);
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed) {
-	memmove(p + cd, start, len);
+	std::memmove(p + cd, start, len);
 	set_size(cd + len);
 	if (compressed) *p |= 0x80;
     }
@@ -264,6 +264,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 
 	/// Assignment not allowed
         FlintTable & operator=(const FlintTable &);
+
+	/// Return true if there are no entries in the table.
+	bool really_empty() const;
 
     public:
 	/** Create a new Btree object.
@@ -414,25 +417,20 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
 	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  All modifications since the
-	 *  previous commit() will be lost.
+	 *  If an error occurs during the operation, an exception will be
+	 *  thrown.
 	 *
-	 *  If key is empty, then the null item is replaced.  If key.length()
-	 *  exceeds the limit on key size, false is returned.
+	 *  If key is empty, then the null item is replaced.
 	 *
-	 *  e.g.    ok = btree.add("TODAY", "Mon 9 Oct 2000");
+	 *  e.g.    btree.add("TODAY", "Mon 9 Oct 2000");
 	 *
 	 *  @param key   The key to store in the table.
 	 *  @param tag   The tag to store in the table.
 	 *  @param already_compressed	true if tag is already compressed,
 	 *		for example because it is being opaquely copied
 	 *		(default: false).
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
 	 */
-	bool add(const std::string &key, std::string tag, bool already_compressed = false);
+	void add(const std::string &key, std::string tag, bool already_compressed = false);
 
 	/** Delete an entry from the table.
 	 *
@@ -441,15 +439,13 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  an empty key can't be removed, and false is returned.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  All modifications since the
-	 *  previous commit() will be lost.
+	 *  by an exception.
 	 *
-	 *  e.g.    ok = btree.del("TODAY")
+	 *  e.g.    bool deleted = btree.del("TODAY")
 	 *
 	 *  @param key   The key to remove from the table.
 	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
+	 *  @return true if an entry was removed; false if it did not exist.
 	 */
 	bool del(const std::string &key);
 
@@ -523,10 +519,27 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *
 	 *  The count does not include the ever-present item with null key.
 	 *
+	 *  Use @a empty() if you only want to know if the table is empty or
+	 *  not.
+	 *
 	 *  @return The number of entries in the table.
 	 */
 	flint_tablesize_t get_entry_count() const {
 	    return item_count;
+	}
+
+	/// Return true if there are no entries in the table.
+	bool empty() const {
+	    // Prior to 1.1.4/1.0.18, item_count was stored in 32 bits, so we
+	    // can't trust it as there could be more than 1<<32 entries.
+	    //
+	    // In theory it should wrap, so if non-zero the table isn't empty,
+	    // but the table this was first noticed in wasn't off by a multiple
+	    // of 1<<32.
+
+	    // An empty table will always have level == 0, and most non-empty
+	    // tables will have more levels, so use that as a short-cut.
+	    return (level == 0) && really_empty();
 	}
 
 	/** Get a cursor for reading from the table.
@@ -680,6 +693,12 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 
 	/// Set to true when the database is opened to write.
 	bool writable;
+
+	/// Flag for tracking when cursors need to rebuild.
+	mutable bool cursor_created_since_last_modification;
+
+	/// Version count for tracking when cursors need to rebuild.
+	unsigned long cursor_version;
 
 	/* B-tree navigation functions */
 	bool prev(Cursor_ *C_, int j) const {

@@ -174,9 +174,35 @@ document(s) will either be fully replaced, or the document(s) fail to be
 replaced and an exception is thrown (possibly at a later time when flush is
 called or the database is closed).
 
+=item add_spelling <word> <freqinc>
+
+Add a word to the spelling dictionary.
+
+If the word is already present, its frequency is increased.
+
+Parameters:
+    word        The word to add.
+    freqinc     How much to increase its frequency by (default 1).
+
+=item remove_spelling <word> <freqdec>
+
+Remove a word from the spelling dictionary.
+
+The word's frequency is decreased, and if would become zero or less
+then the word is removed completely.
+
+Parameters:
+    word        The word to remove.
+    freqdec     How much to decrease its frequency by (default 1).
+
 =item reopen
 
-Re-open the database. makes sure you have a fresh db handle.
+Re-open the database to ensure you are using the latest revision.
+
+=item close
+
+Close the database. This also implies a commit() unless a transaction is in
+progress.
 
 =back
 

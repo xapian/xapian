@@ -1,6 +1,6 @@
 /* chert_positionlist.h: A position list in a chert database.
  *
- * Copyright (C) 2005,2006,2008 Olly Betts
+ * Copyright (C) 2005,2006,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,8 @@
 
 #include <xapian/types.h>
 
-#include "chert_table.h"
-#include "chert_utils.h"
+#include "chert_lazytable.h"
+#include "pack.h"
 #include "positionlist.h"
 
 #include <string>
@@ -32,12 +32,15 @@
 
 using namespace std;
 
-class ChertPositionListTable : public ChertTable {
-    static string make_key(Xapian::docid did, const string & tname) {
-	return pack_uint_preserving_sort(did) + tname;
+class ChertPositionListTable : public ChertLazyTable {
+  public:
+    static string make_key(Xapian::docid did, const string & term) {
+	string key;
+	pack_uint_preserving_sort(key, did);
+	key += term;
+	return key;
     }
 
-  public:
     /** Create a new ChertPositionListTable object.
      *
      *  This method does not create or open the table on disk - you
@@ -47,12 +50,18 @@ class ChertPositionListTable : public ChertTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     ChertPositionListTable(const string & dbdir, bool readonly)
-	: ChertTable("position", dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
+	: ChertLazyTable("position", dbdir + "/position.", readonly,
+			 DONT_COMPRESS) { }
 
-    /// Set the position list for term tname in document did.
+    /** Set the position list for term tname in document did.
+     *
+     *  @param check_for_update If true, check if the new list is the same as
+     *				the existing list (if there is one).
+     */
     void set_positionlist(Xapian::docid did, const string & tname,
 			  Xapian::PositionIterator pos,
-			  const Xapian::PositionIterator &pos_end);
+			  const Xapian::PositionIterator &pos_end,
+			  bool check_for_update);
 
     /// Delete the position list for term tname in document did.
     void delete_positionlist(Xapian::docid did, const string & tname) {

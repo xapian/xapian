@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@
 #include "flint_termlisttable.h"
 #include "flint_values.h"
 #include "flint_version.h"
-#include "flint_lock.h"
+#include "../flint_lock.h"
 
 #include "flint_types.h"
 
@@ -42,7 +42,6 @@
 class FlintTermList;
 class FlintAllDocsPostList;
 class RemoteConnection;
-class OmTime;
 
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
@@ -215,14 +214,13 @@ class FlintDatabase : public Xapian::Database::Internal {
 
 	/** Send a set of messages which transfer the whole database.
 	 */
-	void send_whole_database(RemoteConnection & conn,
-				 const OmTime & end_time);
+	void send_whole_database(RemoteConnection & conn, double end_time);
 
 	/** Get the revision stored in a changeset.
 	 */
 	void get_changeset_revisions(const string & path,
 				     flint_revision_number_t * startrev,
-				     flint_revision_number_t * endrev);
+				     flint_revision_number_t * endrev) const;
     public:
 	/** Create and open a flint database.
 	 *
@@ -308,8 +306,59 @@ class FlintWritableDatabase : public FlintDatabase {
 	/// If change_count reaches this threshold we automatically flush.
 	Xapian::doccount flush_threshold;
 
+	/** A pointer to the last document which was returned by
+	 *  open_document(), or NULL if there is no such valid document.  This
+	 *  is used purely for comparing with a supplied document to help with
+	 *  optimising replace_document.  When the document internals are
+	 *  deleted, this pointer gets set to NULL.
+	 */
+	mutable Xapian::Document::Internal * modify_shortcut_document;
+
+	/** The document ID for the last document returned by open_document().
+	 */
+	mutable Xapian::docid modify_shortcut_docid;
+
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
+
+	/// Close all the tables permanently.
+	void close();
+
+	/** Add or modify an entry in freq_deltas.
+	 *
+	 *  @param tname The term to modify the entry for.
+	 *  @param tf_delta The change in the term frequency delta.
+	 *  @param cf_delta The change in the collection frequency delta.
+	 */
+	void add_freq_delta(const string & tname,
+			    Xapian::termcount_diff tf_delta,
+			    Xapian::termcount_diff cf_delta);
+
+	/** Insert modifications for a new document to the postlists.
+	 *
+	 *  @param did The document ID to insert the entry for.
+	 *  @param tname The term to insert the entry for.
+	 *  @param wdf The new wdf value to store.
+	 */
+	void insert_mod_plist(Xapian::docid did,
+			      const string & tname,
+			      Xapian::termcount wdf);
+
+	/** Update the stored modifications to the postlists.
+	 *
+	 *  @param did The document ID to modify the entry for.
+	 *  @param tname The term to modify the entry for.
+	 *  @param type The type of change to the postlist.
+	 *  @param wdf The new wdf value to store.
+	 *
+	 *  If type is 'A', and an existing entry is in the stored
+	 *  modifications, the stored type will be set to 'M'.  In all other
+	 *  cases, the stored type is simply the value supplied.
+	 */
+	void update_mod_plist(Xapian::docid did,
+			      const string & tname,
+			      char type,
+			      Xapian::termcount wdf);
 
 	//@{
 	/** Implementation of virtual methods: see Database::Internal for
@@ -333,6 +382,10 @@ class FlintWritableDatabase : public FlintDatabase {
 #endif
 	void delete_document(Xapian::docid did);
 	void replace_document(Xapian::docid did, const Xapian::Document & document);
+
+	Xapian::Document::Internal * open_document(Xapian::docid did,
+						   bool lazy = false) const;
+
 	//@}
 
     public:
@@ -371,6 +424,7 @@ class FlintWritableDatabase : public FlintDatabase {
 	void clear_synonyms(const string & word) const;
 
 	void set_metadata(const string & key, const string & value);
+	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
 };
 

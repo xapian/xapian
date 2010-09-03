@@ -21,9 +21,10 @@
 
 #include <config.h>
 
-#include "omassert.h"
-#include "omdebug.h"
 #include "inmemory_positionlist.h"
+
+#include "debuglog.h"
+#include "omassert.h"
 
 InMemoryPositionList::InMemoryPositionList(const OmDocumentTerm::term_positions & positions_)
     : positions(positions_), mypos(positions.begin()),

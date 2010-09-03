@@ -35,8 +35,11 @@ class ChertVersion {
     /// The filename of the version file.
     std::string filename;
 
-    /// The UUID of this database.
-    uuid_t uuid;
+    /** The UUID of this database.
+     *
+     *  This is mutable for older uuid libraries which take non-const uuid_t.
+     */
+    mutable uuid_t uuid;
 
   public:
     ChertVersion(const std::string & dbdir) : filename(dbdir) {

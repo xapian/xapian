@@ -2,7 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008 Olly Betts
+ * Copyright (C) 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,24 +20,13 @@
  */
 
 #include <config.h>
+
 #include "fileutils.h"
 
-#include "stringutils.h"
+#include <cstring>
 #include <string>
 
 using namespace std;
-
-string
-calc_dirname(const string & filename)
-{
-    string::size_type slash = filename.rfind('/');
-#ifdef __WIN32__
-    string::size_type backslash = filename.rfind('\\');
-    if (backslash != string::npos && backslash > slash) slash = backslash;
-#endif
-    if (slash == string::npos) return "./";
-    return (filename.substr(0, slash) + "/");
-}
 
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
@@ -47,60 +36,102 @@ has_drive(const string &path)
     return (path.size() >= 2 && path[1] == ':');
 }
 
-/// Return true iff a path consists only of a drive letter.
+/// Return true iff path is a UNCW path.
 static bool
-is_drive(const string &path)
+uncw_path(const string & path)
 {
-    if (!has_drive(path)) return false;
-    if (path.size() == 2) return true;
-    if (path.size() == 3 && (path[2] == '\\' || path[2] == '/')) return true;
-    return false;
+    return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0);
+}
+
+inline bool slash(char ch)
+{
+    return ch == '/' || ch == '\\';
 }
 #endif
 
-string
-join_paths(const string & path1, const string & path2)
+void
+resolve_relative_path(string & path, const string & base)
 {
-    if (path1.empty()) return path2;
-#ifdef __WIN32__
-    if (isabspath(path2)) {
-	// If path2 has a drive, just return it.
-	// Otherwise, if path1 is only a drive specification, prepend that
-	// drive specifier to path2.
-	if (has_drive(path2)) return path2;
-	if (is_drive(path1)) return path1.substr(0, 2) + path2;
-	return path2;
+#ifndef __WIN32__
+    if (path.empty() || path[0] != '/') {
+	// path is relative.
+	string::size_type last_slash = base.rfind('/');
+	if (last_slash != string::npos)
+	    path.insert(0, base, 0, last_slash + 1);
     }
-    if (has_drive(path2)) return path2;
-    if (endswith(path1, '/') || endswith(path1, '\\'))
-	return path1 + path2;
-    return path1 + "\\" + path2;
 #else
-    // Assume we're on a unix system.
-    if (isabspath(path2)) return path2;
-    if (path1[path1.size() - 1] == '/') return path1 + path2;
-    return path1 + "/" + path2;
-#endif
-}
+    // Microsoft Windows paths may begin with a drive letter but still be
+    // relative within that drive.
+    bool drive = has_drive(path);
+    string::size_type p = (drive ? 2 : 0);
+    bool absolute = (p != path.size() && slash(path[p]));
 
-bool
-isabspath(const string & path)
-{
-    // Empty paths are never absolute.
-    if (path.empty()) return false;
-#ifdef __WIN32__
-    // On windows, paths may begin with a drive letter - but the part after the
-    // drive letter may still be relative.
-    if (path.size() >= 2 && path[1] == ':') {
-	if (path.size() == 2) return false;
-	if (path[2] != '/' && path[2] != '\\') return false;
-	return true;
+    if (absolute) {
+	// If path is absolute and has a drive specifier, just return it.
+	if (drive)
+	    return;
+
+	// If base has a drive specifier prepend that to path.
+	if (has_drive(base)) {
+	    path.insert(0, base, 0, 2);
+	    return;
+	}
+
+	// If base has a UNC (\\SERVER\\VOLUME) or \\?\ prefix, prepend that
+	// to path.
+	if (uncw_path(base)) {
+	    string::size_type sl = 0;
+	    if (base.size() >= 7 && memcmp(base.data() + 5, ":\\", 2) == 0) {
+		// "\\?\X:\"
+		sl = 6;
+	    } else if (base.size() >= 8 &&
+		       memcmp(base.data() + 4, "UNC\\", 4) == 0) {
+		// "\\?\UNC\server\volume\"
+		sl = base.find('\\', 8);
+		if (sl != string::npos)
+		    sl = base.find('\\', sl + 1);
+	    }
+	    if (sl) {
+		// With the \\?\ prefix, '/' isn't recognised so change it
+		// to '\' in path.
+		string::iterator i;
+		for (i = path.begin(); i != path.end(); ++i) {
+		    if (*i == '/')
+			*i = '\\';
+		}
+		path.insert(0, base, 0, sl);
+	    }
+	} else if (base.size() >= 5 && slash(base[0]) && slash(base[1])) {
+	    // Handle UNC base.
+	    string::size_type sl = base.find_first_of("/\\", 2);
+	    if (sl != string::npos) {
+		sl = base.find_first_of("/\\", sl + 1);
+		path.insert(0, base, 0, sl);
+	    }
+	}
+	return;
     }
-    if (path[0] != '/' && path[0] != '\\') return false;
-    return true;
-#else
-    // Assume we're on a unix system.
-    if (path[0] != '/') return false;
-    return true;
+
+    // path is relative, so if it has no drive specifier or the same drive
+    // specifier as base, then we want to qualify it using base.
+    bool base_drive = has_drive(base);
+    if (!drive || (base_drive && (path[0] | 32) == (base[0] | 32))) {
+	string::size_type last_slash = base.find_last_of("/\\");
+	if (last_slash == string::npos && !drive && base_drive)
+	    last_slash = 1;
+	if (last_slash != string::npos) {
+	    string::size_type b = (drive && base_drive ? 2 : 0);
+	    if (uncw_path(base)) {
+		// With the \\?\ prefix, '/' isn't recognised so change it
+		// to '\' in path.
+		string::iterator i;
+		for (i = path.begin(); i != path.end(); ++i) {
+		    if (*i == '/')
+			*i = '\\';
+		}
+	    }
+	    path.insert(b, base, b, last_slash + 1 - b);
+	}
+    }
 #endif
 }

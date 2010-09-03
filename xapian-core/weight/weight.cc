@@ -36,7 +36,7 @@ namespace Xapian {
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
@@ -56,8 +56,7 @@ void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      const string & term, Xapian::termcount wqf, double factor)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
-	    ", " << term << ", " << wqf << ", " << factor);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | term | wqf | factor);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
@@ -82,8 +81,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      double factor, Xapian::doccount termfreq,
 	      Xapian::doccount reltermfreq)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
-	    ", " << factor << ", " << termfreq << ", " << reltermfreq);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | factor | termfreq | reltermfreq);
     // Synonym case.
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
@@ -111,5 +109,23 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 }
 
 Weight::~Weight() { }
+
+string
+Weight::name() const
+{
+    return string();
+}
+
+string
+Weight::serialise() const
+{
+    throw Xapian::UnimplementedError("serialise() not supported for this Xapian::Weight subclass");
+}
+
+Weight *
+Weight::unserialise(const string &) const
+{
+    throw Xapian::UnimplementedError("unserialise() not supported for this Xapian::Weight subclass");
+}
 
 }

@@ -19,9 +19,10 @@
  */
 
 #include <config.h>
-
-#include "flint_database.h"
 #include "flint_modifiedpostlist.h"
+
+#include "debuglog.h"
+#include "flint_database.h"
 
 FlintModifiedPostList::~FlintModifiedPostList()
 {
@@ -32,6 +33,9 @@ void
 FlintModifiedPostList::skip_deletes(Xapian::weight w_min)
 {
     while (!FlintPostList::at_end()) {
+	while (it != mods.end() && it->second.first == 'D' &&
+	       it->first < FlintPostList::get_docid())
+	    ++it;
 	if (it == mods.end()) return;
 	if (it->first != FlintPostList::get_docid()) return;
 	if (it->second.first != 'D') return;
@@ -52,13 +56,14 @@ FlintModifiedPostList::get_docid() const
 {
     if (it == mods.end()) return FlintPostList::get_docid();
     if (FlintPostList::at_end()) return it->first;
+    Assert(it->second.first != 'D');
     return min(it->first, FlintPostList::get_docid());
 }
 
 Xapian::termcount
 FlintModifiedPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintModifiedPostList::get_doclength", "");
+    LOGCALL(DB, Xapian::termcount, "FlintModifiedPostList::get_doclength", NO_ARGS);
     if (it != mods.end() && (FlintPostList::at_end() || it->first <= FlintPostList::get_docid()))
 	RETURN(this_db->get_doclength(it->first));
     RETURN(FlintPostList::get_doclength());
@@ -71,7 +76,7 @@ FlintModifiedPostList::get_wdf() const
     Xapian::docid unmod_did = FlintPostList::get_docid();
     if (it != mods.end() && it->first <= unmod_did) {
 	if (it->first < unmod_did) return it->second.second;
-	return FlintPostList::get_wdf() + it->second.second;
+	return it->second.second;
     }
     return FlintPostList::get_wdf();
 }

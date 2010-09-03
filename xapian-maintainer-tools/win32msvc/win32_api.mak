@@ -16,12 +16,16 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 OBJS= \
+    $(INTDIR)/decvalwtsource.obj\
     $(INTDIR)/documentvaluelist.obj\
     $(INTDIR)/editdistance.obj \
+    $(INTDIR)/emptypostlist.obj \
     $(INTDIR)/error.obj \
     $(INTDIR)/errorhandler.obj \
     $(INTDIR)/expanddecider.obj \
+    $(INTDIR)/keymaker.obj \
     $(INTDIR)/leafpostlist.obj \
+    $(INTDIR)/matchspy.obj \
     $(INTDIR)/omdatabase.obj \
     $(INTDIR)/omdocument.obj \
     $(INTDIR)/omenquire.obj \
@@ -30,12 +34,11 @@ OBJS= \
     $(INTDIR)/omquery.obj \
     $(INTDIR)/omqueryinternal.obj \
     $(INTDIR)/omtermlistiterator.obj \
-    $(INTDIR)/postlist.obj \
     $(INTDIR)/postingsource.obj \
+    $(INTDIR)/postlist.obj \
+    $(INTDIR)/registry.obj \
     $(INTDIR)/replication.obj \
-    $(INTDIR)/serialisationcontext.obj \
     $(INTDIR)/sortable-serialise.obj \
-    $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valueiterator.obj\
     $(INTDIR)/valuerangeproc.obj \
@@ -43,12 +46,16 @@ OBJS= \
     $(INTDIR)/version.obj
     
 SRCS= \
+    $(INTDIR)/decvalwtsource.cc\
     $(INTDIR)/documentvaluelist.cc\
     $(INTDIR)/editdistance.cc\
+    $(INTDIR)/emptypostlist.cc\
     $(INTDIR)/error.cc\
     $(INTDIR)/errorhandler.cc\
     $(INTDIR)/expanddecider.cc\
+    $(INTDIR)/keymaker.cc\
     $(INTDIR)/leafpostlist.cc\
+    $(INTDIR)/matchspy.cc \
     $(INTDIR)/omdatabase.cc\
     $(INTDIR)/omdocument.cc\
     $(INTDIR)/omenquire.cc\
@@ -57,12 +64,11 @@ SRCS= \
     $(INTDIR)/omquery.cc\
     $(INTDIR)/omqueryinternal.cc\
     $(INTDIR)/omtermlistiterator.cc\
-    $(INTDIR)/postlist.cc\
     $(INTDIR)/postingsource.cc \
+    $(INTDIR)/postlist.cc\
+    $(INTDIR)/registry.cc \
     $(INTDIR)/replication.cc \
-    $(INTDIR)/serialisationcontext.cc \
     $(INTDIR)/sortable-serialise.cc\
-    $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valueiterator.cc\
     $(INTDIR)/valuerangeproc.cc\
@@ -85,7 +91,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBAPI.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBAPI.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libapi.lib" $(DEF_FLAGS) $(OBJS)
 <<
@@ -103,5 +109,7 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

@@ -88,8 +88,8 @@ load_file(const string &file_name, size_t max_to_read,
     output.reserve(n);
     while (n) {
 	int c = read(fd, blk, min(n, sizeof(blk)));
-	if (c < 0) {
-	    if (errno == EINTR) continue;
+	if (c <= 0) {
+	    if (c < 0 && errno == EINTR) continue;
 	    break;
 	}
 	output.append(blk, c);

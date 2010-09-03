@@ -2,8 +2,9 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -103,12 +104,22 @@ class MSetIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = MSetItem(self._iter, self._mset)
             self._iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self._iter == self._end:
+            raise StopIteration
+        else:
+            r = MSetItem(self._iter, self._mset)
+            next(self._iter)
             return r
 
 
@@ -125,11 +136,8 @@ def _mset_gen_iter(self):
     return MSetIter(self)
 MSet.__iter__ = _mset_gen_iter
 
-MSet.__len__ = MSet.size
+MSet.__len__ = lambda self: MSet.size(self)
 
-# We replace the get_hit() method with one which returns an MSetItem.  We first
-# have to copy the internal method, so that we can call it.
-MSet._get_hit_internal = MSet.get_hit
 def _mset_getitem(self, index):
     """Get an item from the MSet.
 
@@ -191,12 +199,22 @@ class ESetIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = ESetItem(self._iter)
             self._iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self._iter == self._end:
+            raise StopIteration
+        else:
+            r = ESetItem(self._iter)
+            next(self._iter)
             return r
 
 # Modify the ESet to allow access to the python iterators, and have other
@@ -211,7 +229,7 @@ def _eset_gen_iter(self):
     return ESetIter(self)
 ESet.__iter__ = _eset_gen_iter
 
-ESet.__len__ = ESet.size
+ESet.__len__ = lambda self: ESet.size(self)
 
 
 #######################################
@@ -372,9 +390,26 @@ class TermIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if not self._moved:
             self._iter.next()
+            self._moved = True
+
+        if self._iter == self._end:
+            self._lastterm = None
+            raise StopIteration
+        else:
+            self._lastterm = self._iter.get_term()
+            self._moved = False
+            if self._return_strings:
+                return self._lastterm
+            return TermListItem(self, self._lastterm)
+
+    # For Python3:
+    def __next__(self):
+        if not self._moved:
+            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -549,11 +584,6 @@ def _database_gen_metadata_keys_iter(self, prefix=""):
                     self._metadata_keys_end(prefix),
                     return_strings=True)
 Database.metadata_keys = _database_gen_metadata_keys_iter
-Database._metadata_keys_begin = Database.metadata_keys_begin
-del Database.metadata_keys_begin
-Database._metadata_keys_end = Database.metadata_keys_end
-del Database.metadata_keys_end
-
 
 # Modify Document to add an "__iter__()" method and a "termlist()" method.
 def _document_gen_termlist_iter(self):
@@ -615,6 +645,50 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     return TermIter(self.unstem_begin(tname), self.unstem_end(tname),
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
+
+# Modify ValueCountMatchSpy to add an "values()" method.
+def wrapper():
+    begin = ValueCountMatchSpy.values_begin
+    del ValueCountMatchSpy.values_begin
+    end = ValueCountMatchSpy.values_end
+    del ValueCountMatchSpy.values_end
+    def values_iter(self):
+        """Get an iterator over all the values in the slot.
+
+        Values will be returned in ascending alphabetical order.
+
+        The iterator will return TermListItem objects: the value can be
+        accessed as the `term` property, and the frequency can be accessed as
+        the `termfreq` property.
+
+        """
+        return TermIter(begin(self), end(self), has_termfreq=TermIter.EAGER)
+    return values_iter
+ValueCountMatchSpy.values = wrapper()
+del wrapper
+
+# Modify ValueCountMatchSpy to add an "top_values()" method.
+def wrapper():
+    begin = ValueCountMatchSpy.top_values_begin
+    del ValueCountMatchSpy.top_values_begin
+    end = ValueCountMatchSpy.top_values_end
+    del ValueCountMatchSpy.top_values_end
+    def top_values_iter(self, maxvalues):
+        """Get an iterator over the most frequent values for the slot.
+
+        Values will be returned in descending order of frequency.  Values with
+        the same frequency will be returned in ascending alphabetical order.
+
+        The iterator will return TermListItem objects: the value can be
+        accessed as the `term` property, and the frequency can be accessed as
+        the `termfreq` property.
+
+        """
+        return TermIter(begin(self, maxvalues), end(self, maxvalues),
+                        has_termfreq=TermIter.EAGER)
+    return top_values_iter
+ValueCountMatchSpy.top_values = wrapper()
+del wrapper
 
 # When we make a query, keep a note of postingsources involved, so they won't
 # be deleted. This hack can probably be removed once xapian bug #186 is fixed.
@@ -870,9 +944,22 @@ class PostingIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if not self._moved:
             self._iter.next()
+            self._moved = True
+
+        if self._iter == self._end:
+            raise StopIteration
+        else:
+            self._moved = False
+            return PostingItem(self)
+
+    # For Python3:
+    def __next__(self):
+        if not self._moved:
+            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -935,12 +1022,22 @@ class PositionIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = self.iter.get_termpos()
             self.iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = self.iter.get_termpos()
+            next(self.iter)
             return r
 
 # Modify Database to add a "positionlist()" method.
@@ -986,12 +1083,22 @@ class ValueIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
             self.iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
+            next(self.iter)
             return r
 
 # Modify Document to add a "values()" method.
@@ -1004,19 +1111,136 @@ def _document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
 Document.values = _document_gen_values_iter
 
-# Set the list of names which should be public.
-# Note that this needs to happen at the end of xapian.py.
-__all__ = []
-for item in dir():
-    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
-        continue
-    __all__.append(item)
-__all__ = tuple(__all__)
+
+##########################################
+# Support for iteration of value streams #
+##########################################
+
+class ValueStreamItem(object):
+    """An item returned from iteration of the values in a document.
+
+    The item supports access to the following attributes:
+
+     - `docid`: The docid for the item.
+     - `value`: The contents of the value.
+
+    """
+
+    __slots__ = ('docid', 'value', )
+
+    def __init__(self, docid, value):
+        self.docid = docid
+        self.value = value
+
+class ValueStreamIter(object):
+    """An iterator over all the values stored in a document.
+
+    The iterator will return ValueStreamItem objects, in ascending order of value number.
+
+    """
+    def __init__(self, start, end):
+        self.iter = start
+        self.end = end
+        self.moved = True
+
+    def __iter__(self):
+        return self
+
+    # For Python2:
+    def next(self):
+        if not self.moved:
+            self.iter.next()
+            self.moved = True
+
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            self.moved = False
+            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+    # For Python3:
+    def __next__(self):
+        if not self.moved:
+            self.iter.next()
+            self.moved = True
+
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            self.moved = False
+            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+    def skip_to(self, docid):
+        """Skip the iterator forward.
+
+        The iterator is advanced to the first document with a document ID
+        which is greater than or equal to the supplied document ID.
+
+        If there are no such items, this will raise StopIteration.
+
+        This returns the item which the iterator is moved to.  The subsequent
+        item will be returned the next time that next() is called (unless
+        skip_to() is called again first).
+
+        """
+        if self.iter != self.end:
+            self.iter.skip_to(docid)
+        if self.iter == self.end:
+            self.moved = True
+            raise StopIteration
+        self.moved = False
+        return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
+
+# Modify Database to add a "valuestream()" method, and remove the
+# valuestream_begin() and valuestream_end() methods.
+def wrapper():
+    vs_begin = Database.valuestream_begin
+    vs_end = Database.valuestream_end
+    def _database_gen_valuestream_iter(self, slot):
+        """Get an iterator over all the values stored in a slot in the database.
+
+        The iterator will return ValueStreamItem objects, in ascending order of
+        document id.
+
+        """
+        return ValueStreamIter(vs_begin(self, slot), vs_end(self, slot))
+    return _database_gen_valuestream_iter
+Database.valuestream = wrapper()
+del wrapper
+del Database.valuestream_begin
+del Database.valuestream_end
+
+# Fix up Enquire so that it keeps a python reference to the deciders supplied
+# to it so that they won't be deleted before the Enquire object.  This hack can
+# probably be removed once xapian bug #186 is fixed.
+_enquire_add_matchspy_orig = Enquire.add_matchspy
+def _enquire_match_spy_add(self, decider):
+    if not hasattr(self, '_deciders'):
+        self._deciders = []
+    self._deciders.append(decider)
+    _enquire_add_matchspy_orig(self, decider)
+_enquire_match_spy_add.__doc__ = Enquire.add_matchspy.__doc__
+Enquire.add_matchspy = _enquire_match_spy_add
+
+_enquire_clear_matchspies_orig = Enquire.clear_matchspies
+def _enquire_match_spies_clear(self):
+    _enquire_clear_matchspies_orig(self)
+    if hasattr(self, '_deciders'):
+        del self._deciders
+_enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
+Enquire.clear_matchspies = _enquire_match_spies_clear
 
 
-# Fix up ValueRangeProcessor by replacing its __call__ method (which doesn't
-# work) with its __call() method (which we define with an %extend in util.i)
-ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
+# Fix up Stem.__init__() so that it calls __disown__() on the passed
+# StemImplementation object so that Python won't delete it from under us.
+_stem_init_orig = Stem.__init__
+def _stem_init(self, *args):
+    _stem_init_orig(self, *args)
+    if len(args) > 0 and isinstance(args[0], StemImplementation):
+        args[0].__disown__()
+_stem_init.__doc__ = Stem.__init__.__doc__
+Stem.__init__ = _stem_init
+
 
 # Remove static methods which shouldn't be in the API.
 del Document_unserialise
@@ -1026,6 +1250,24 @@ del Query_unserialise
 Query.MatchAll = Query("")
 Query.MatchNothing = Query()
 
+# Require to support the non-pythonic iterators for Python 3 - these can be
+# removed once support for the non-pythonic iterators is dropped in 1.3.0.
+ESetIterator.__next__ = lambda self: ESetIterator.next(self)
+MSetIterator.__next__ = lambda self: MSetIterator.next(self)
+PostingIterator.__next__ = lambda self: PostingIterator.next(self)
+PositionIterator.__next__ = lambda self: PositionIterator.next(self)
+TermIterator.__next__ = lambda self: TermIterator.next(self)
+ValueIterator.__next__ = lambda self: ValueIterator.next(self)
+
+
+# Set the list of names which should be public.
+# Note that this needs to happen at the end of xapian.py.
+__all__ = []
+for item in dir():
+    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
+        continue
+    __all__.append(item)
+__all__ = tuple(__all__)
 %}
 
 /* vim:syntax=python:set expandtab: */

@@ -1,7 +1,7 @@
 /** @file api_valuestream.cc
  * @brief Tests of valuestream functionality.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -56,13 +56,13 @@ DEFINE_TESTCASE(valuestream1, backend && !multi) {
 }
 
 /// Test skip_to() on a valuestream iterator.
-DEFINE_TESTCASE(valuestream2, backend && !multi) {
-    // FIXME: enable for multi once support is in place.
+DEFINE_TESTCASE(valuestream2, backend) {
     Xapian::Database db = get_database("etext");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
 	unsigned interval = 1;
 	while (interval < 1999) {
+	    tout.str(string());
 	    tout << "testing valuestream skip_to for slot " << slot
 		 << " with interval " << interval << endl;
 	    Xapian::docid did = 1;
@@ -74,9 +74,10 @@ DEFINE_TESTCASE(valuestream2, backend && !multi) {
 
 		// Check that the skipped documents had no values.
 		Xapian::docid actual_did = it.get_docid();
+		TEST_REL(actual_did,>=,did);
 		while (did < actual_did) {
 		    Xapian::Document doc = db.get_document(did);
-		    TEST_EQUAL(doc.get_value(slot), "");
+		    TEST_EQUAL(doc.get_value(slot), string());
 		    ++did;
 		}
 
@@ -92,8 +93,7 @@ DEFINE_TESTCASE(valuestream2, backend && !multi) {
 }
 
 /// Test check() on a valuestream iterator.
-DEFINE_TESTCASE(valuestream3, backend && !multi) {
-    // FIXME: enable for multi once support is in place.
+DEFINE_TESTCASE(valuestream3, backend) {
     Xapian::Database db = get_database("etext");
 
     // Check combinations of check with other operations.
@@ -138,7 +138,7 @@ DEFINE_TESTCASE(valuestream3, backend && !multi) {
 		    Xapian::docid actual_did = it.get_docid();
 		    while (did < actual_did) {
 			Xapian::Document doc = db.get_document(did);
-			TEST_EQUAL(doc.get_value(slot), "");
+			TEST_EQUAL(doc.get_value(slot), string());
 			++did;
 		    }
 
@@ -298,6 +298,355 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
     // No need to test behaviour of check() - check is only allowed to be
     // called with document IDs which exist, so can never be called for a
     // FixedWeightPostingSource with an empty database.
+
+    return true;
+}
+
+// Test DecreasingValueWeightPostingSource.
+DEFINE_TESTCASE(decvalwtsource1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(2));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    // Check basic function
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1);
+	src.init(db);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(0.0);
+	TEST(src.at_end());
+    }
+
+    // Check skipping to end of list due to weight
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    // Check behaviour with a restricted range
+    doc.add_value(1, Xapian::sortable_serialise(2));
+    db.add_document(doc);
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.skip_to(3, 1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	TEST(src.check(3, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    return true;
+}
+
+// Test DecreasingValueWeightPostingSource with out-of-order sections at
+// start, and with repeated weights.
+DEFINE_TESTCASE(decvalwtsource2, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    // Check basic function
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1);
+	src.init(db);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(0.0);
+	TEST(src.at_end());
+    }
+
+    // Check skipping to end of list due to weight
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    // Check behaviour with a restricted range
+    doc.add_value(1, Xapian::sortable_serialise(2));
+    db.add_document(doc);
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+	src.init(db);
+
+	TEST(src.check(1, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.skip_to(4, 1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+	src.init(db);
+
+	TEST(src.check(1, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	TEST(src.check(4, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    return true;
+}
+
+// Test DecreasingValueWeightPostingSource with an actual query.
+DEFINE_TESTCASE(decvalwtsource3, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_term("foo");
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_term("bar");
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    Xapian::DecreasingValueWeightPostingSource ps(1, 2, 5);
+    Xapian::Query q(&ps);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset1(enq.get_mset(0, 1));
+    Xapian::MSet mset2(enq.get_mset(0, 2));
+    Xapian::MSet mset3(enq.get_mset(0, 3));
+    Xapian::MSet mset4(enq.get_mset(0, 4));
+
+    TEST_EQUAL(mset1.size(), 1);
+    TEST_EQUAL(mset2.size(), 2);
+    TEST_EQUAL(mset3.size(), 3);
+    TEST_EQUAL(mset4.size(), 4);
+
+    TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
+    TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
+    TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
+
+    return true;
+}
+
+// Test DecreasingValueWeightPostingSource with an actual query on a fixed
+// dataset (so we can cover the remote backend too).
+DEFINE_TESTCASE(decvalwtsource4, backend && !multi) {
+    Xapian::Database db = get_database("apitest_declen");
+
+    Xapian::DecreasingValueWeightPostingSource ps(11, 2, 5);
+    Xapian::Query q(&ps);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset1(enq.get_mset(0, 1));
+    Xapian::MSet mset2(enq.get_mset(0, 2));
+    Xapian::MSet mset3(enq.get_mset(0, 3));
+    Xapian::MSet mset4(enq.get_mset(0, 4));
+
+    TEST_EQUAL(mset1.size(), 1);
+    TEST_EQUAL(mset2.size(), 2);
+    TEST_EQUAL(mset3.size(), 3);
+    TEST_EQUAL(mset4.size(), 4);
+
+    TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
+    TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
+    TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
+
+    return true;
+}
+
+// Regression test - used to get segfaults if
+// DecreasingValueWeightPostingSource was pointed at an empty slot.
+DEFINE_TESTCASE(decvalwtsource5, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    doc.add_value(2, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    {
+	Xapian::DecreasingValueWeightPostingSource ps(1);
+	Xapian::Query q(&ps);
+	Xapian::Enquire enq(db);
+	enq.set_query(q);
+	Xapian::MSet mset1(enq.get_mset(0, 3));
+	TEST_EQUAL(mset1.size(), 2);
+    }
+    {
+	Xapian::DecreasingValueWeightPostingSource ps(2);
+	Xapian::Query q(&ps);
+	Xapian::Enquire enq(db);
+	enq.set_query(q);
+	Xapian::MSet mset1(enq.get_mset(0, 3));
+	TEST_EQUAL(mset1.size(), 1);
+    }
+    {
+	Xapian::DecreasingValueWeightPostingSource ps(3);
+	Xapian::Query q(&ps);
+	Xapian::Enquire enq(db);
+	enq.set_query(q);
+	Xapian::MSet mset1(enq.get_mset(0, 3));
+	TEST_EQUAL(mset1.size(), 0);
+    }
 
     return true;
 }

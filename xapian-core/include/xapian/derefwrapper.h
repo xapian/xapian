@@ -1,7 +1,7 @@
 /** @file  derefwrapper.h
- *  @brief Class for wrapping std::string returned by an input_iterator.
+ *  @brief Class for wrapping type returned by an input_iterator.
  */
-/* Copyright (C) 2004,2008 Olly Betts
+/* Copyright (C) 2004,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,21 +22,25 @@
 #ifndef XAPIAN_INCLUDED_DEREFWRAPPER_H
 #define XAPIAN_INCLUDED_DEREFWRAPPER_H
 
-#include <string>
-
 namespace Xapian {
 
-/** @internal Class which returns a std::string when dereferenced with *.
+/** @private @internal Class which returns a value when dereferenced with
+ *  operator*.
  *
  *  We need this wrapper class to implement input_iterator semantics for the
- *  postfix operator++ methods of TermIterator and ValueIterator.
+ *  postfix operator++ methods of some of our iterator classes.
  */
-class DerefStringWrapper_ {
-    std::string s;
+template<typename T>
+class DerefWrapper_ {
+    /// Don't allow assignment.
+    void operator=(const DerefWrapper_ &);
+
+    /// The value.
+    T res;
 
   public:
-    explicit DerefStringWrapper_(const std::string & s_) : s(s_) { }
-    const std::string & operator*() const { return s; }
+    explicit DerefWrapper_(const T &res_) : res(res_) { }
+    const T & operator*() const { return res; }
 };
 
 }

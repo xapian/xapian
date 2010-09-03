@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -31,10 +31,11 @@
 
 #include "backendmanager.h" // For XAPIAN_BIN_PATH.
 #include "omassert.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 #include "unixcmds.h"
+#include "utils.h"
 
 #include "apitest.h"
 
@@ -1095,24 +1096,53 @@ DEFINE_TESTCASE(replacedoc4, writable) {
 DEFINE_TESTCASE(replacedoc5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
-    Xapian::Document doc1;
-    doc1.add_posting("hello", 1);
-    doc1.add_posting("world", 2);
+    {
+	Xapian::Document doc;
+	doc.add_posting("hello", 1);
+	doc.add_posting("world", 2);
 
-    Xapian::docid did = db.add_document(doc1);
-    TEST_EQUAL(did, 1);
-    db.commit();
+	Xapian::docid did = db.add_document(doc);
+	TEST_EQUAL(did, 1);
+	db.commit();
+    }
 
-    Xapian::Document doc2 = db.get_document(1);
-    TEST(db.has_positions());
-    TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-    TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
-    db.replace_document(1, doc2);
-    db.commit();
+    {
+	Xapian::Document doc = db.get_document(1);
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+	db.replace_document(1, doc);
+	db.commit();
 
-    TEST(db.has_positions());
-    TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-    TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+    }
+
+    // Brass, chert and flint now spot simple cases of replacing the same
+    // document and don't do needless work.  Force them to actually do the
+    // replacement to make sure that case works.
+
+    {
+	Xapian::Document doc;
+	doc.add_term("Q2");
+	db.add_document(doc);
+	db.commit();
+    }
+
+    {
+	Xapian::Document doc = db.get_document(1);
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+	(void)db.get_document(2);
+	db.replace_document(1, doc);
+	db.commit();
+
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+    }
 
     return true;
 }
@@ -1164,10 +1194,10 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
 
     for (int n = 1; n <= 20; ++n) {
 	Xapian::Document doc;
-	string uterm = "U" + om_tostring(n % 16);
+	string uterm = "U" + str(n % 16);
 	doc.add_term(uterm);
-	doc.add_term(om_tostring(n));
-	doc.add_term(om_tostring(n ^ 9));
+	doc.add_term(str(n));
+	doc.add_term(str(n ^ 9));
 	doc.add_term("all");
 	doc.set_data("pass1");
 	db.add_document(doc);
@@ -1183,14 +1213,14 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
 	15, 15, 15, 15
     };
     for (int n = 1; n <= 20; ++n) {
-	string uterm = "U" + om_tostring(n % 16);
+	string uterm = "U" + str(n % 16);
 	if (uterm == "U2") {
 	    db.delete_document(uterm);
 	} else {
 	    Xapian::Document doc;
 	    doc.add_term(uterm);
-	    doc.add_term(om_tostring(n));
-	    doc.add_term(om_tostring(n ^ 9));
+	    doc.add_term(str(n));
+	    doc.add_term(str(n ^ 9));
 	    doc.add_term("all");
 	    doc.set_data("pass2");
 	    db.replace_document(uterm, doc);
@@ -1308,8 +1338,8 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
 
     for (int n = 1; n <= 20; ++n) {
 	Xapian::Document doc;
-	doc.add_term(om_tostring(n));
-	doc.add_term(om_tostring(n ^ 9));
+	doc.add_term(str(n));
+	doc.add_term(str(n ^ 9));
 	doc.add_term("all");
 	doc.set_data("pass1");
 	db.add_document(doc);
@@ -1458,18 +1488,12 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, writable) {
+DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
     const string & dbtype = get_dbtype();
-    string path, base_ext;
-    if (dbtype == "flint") {
-	path = ".flint/dbw";
-	base_ext = ".baseB";
-    } else if (dbtype == "chert") {
-	path = ".chert/dbw";
-	base_ext = ".baseB";
-    } else {
-	SKIP_TEST("Test only supported for flint and chert backends");
-    }
+    string path = ".";
+    path += dbtype;
+    path += "/dbw";
+    const char * base_ext = ".baseB";
 
     Xapian::Document doc;
     {
@@ -1663,6 +1687,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 246; i <= 290; ++i) {
+	tout.str(string());
 	tout << "Term length " << i << endl;
 	Xapian::Document doc;
 	string term(i, 'X');
@@ -1680,6 +1705,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     }
 
     for (Xapian::doccount j = 240; j <= 245; ++j) {
+	tout.str(string());
 	tout << "Term length " << j << endl;
 	Xapian::Document doc;
 	string term(j, 'X');
@@ -1690,10 +1716,11 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     db.commit();
 
     {
-	// Currently flint and chert escape zero byte from terms in keys for
-	// some tables, so a term with 126 zero bytes won't work either.
+	// Currently brass, flint and chert escape zero bytes from terms in
+	// keys for some tables, so a term with 127 zero bytes won't work
+	// either.
 	Xapian::Document doc;
-	doc.add_term(string(126, '\0'));
+	doc.add_term(string(127, '\0'));
 	db.add_document(doc);
 	try {
 	    db.commit();
@@ -1753,7 +1780,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+DEFINE_TESTCASE(lazytablebug1, brass || chert || flint) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 
@@ -1785,7 +1812,7 @@ DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
  *  Chert also has the same duff code but this testcase doesn't actually 
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, flint || chert) {
+DEFINE_TESTCASE(cursordelbug1, brass || chert || flint) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 
@@ -1794,7 +1821,7 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
 	Xapian::Document doc;
-	doc.add_term("XC" + om_tostring(terms[i]));
+	doc.add_term("XC" + str(terms[i]));
 	doc.add_term("XTabc");
 	doc.add_term("XAdef");
 	doc.add_term("XRghi");
@@ -1806,7 +1833,7 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
     db.commit();
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
-	db.delete_document("XC" + om_tostring(terms[i]));
+	db.delete_document("XC" + str(terms[i]));
     }
 
     db.commit();
@@ -1870,7 +1897,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
 	tout.str(string());
     	Xapian::Document doc;
-	string val = "val" + om_tostring(num);
+	string val = "val" + str(num);
 	tout << "Setting val '" << val << "' in doc " << num << "\n";
 	doc.add_value(1, val);
 	db.add_document(doc);
@@ -1929,7 +1956,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	string val;
 
 	if (num % 5 != 0) {
-	    val = "newval" + om_tostring(num);
+	    val = "newval" + str(num);
 	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    doc.add_value(1, val);
 	} else {

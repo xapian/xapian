@@ -3,8 +3,10 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
+ * Copyright 2009,2010 Richard Boulton
+ * Copyright 2009 Kan-Ru Chen
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +29,6 @@
 #include "chert_database.h"
 
 #include <xapian/error.h>
-#include <xapian/replication.h>
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
@@ -36,8 +37,7 @@
 #include "chert_alltermslist.h"
 #include "chert_replicate_internal.h"
 #include "chert_document.h"
-#include "chert_io.h"
-#include "chert_lock.h"
+#include "../flint_lock.h"
 #include "chert_metadata.h"
 #include "chert_modifiedpostlist.h"
 #include "chert_positionlist.h"
@@ -45,14 +45,17 @@
 #include "chert_record.h"
 #include "chert_spellingwordslist.h"
 #include "chert_termlist.h"
-#include "chert_utils.h"
 #include "chert_valuelist.h"
 #include "chert_values.h"
-#include "omdebug.h"
-#include "omtime.h"
+#include "debuglog.h"
+#include "io_utils.h"
+#include "pack.h"
 #include "remoteconnection.h"
+#include "replicate_utils.h"
+#include "replication.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
+#include "str.h"
 #include "stringutils.h"
 #include "utils.h"
 #include "valuestats.h"
@@ -67,19 +70,23 @@
 
 #include <algorithm>
 #include "autoptr.h"
-#include <cstdio> // For rename().
-#include <list>
 #include <string>
 
 using namespace std;
 using namespace Xapian;
 
 // The maximum safe term length is determined by the postlist.  There we
-// store the term followed by "\x00\x00" then a length byte, then up to
-// 4 bytes of docid.  The Btree manager's key length limit is 252 bytes
-// so the maximum safe term length is 252 - 2 - 1 - 4 = 245 bytes.  If
-// the term contains zero bytes, the limit is lower (by one for each zero byte
-// in the term).
+// store the term using pack_string_preserving_sort() which takes the
+// length of the string plus an extra byte (assuming the string doesn't
+// contain any zero bytes), followed by the docid with encoded with
+// pack_uint_preserving_sort() which takes up to 5 bytes.
+//
+// The Btree manager's key length limit is 252 bytes so the maximum safe term
+// length is 252 - 1 - 5 = 246 bytes.  We use 245 rather than 246 for
+// consistency with flint.
+//
+// If the term contains zero bytes, the limit is lower (by one for each zero
+// byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
 /** Delete file, throwing an error if we can't delete it (but not if it
@@ -115,15 +122,10 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  // Keep the same lockfile name as flint since the locking is
-	  // compatible and this avoids the possibility of creating a chert and
-	  // flint database in the same directory (which will result in one
-	  // being corrupt since the Btree filenames overlap).
-	  lock(db_dir + "/flintlock"),
+	  lock(db_dir),
 	  max_changesets(0)
 {
-    DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
-	      ", " << block_size);
+    LOGCALL_CTOR(DB, "ChertDatabase", chert_dir | action | block_size);
 
     if (action == XAPIAN_DB_READONLY) {
 	open_tables_consistent();
@@ -186,21 +188,19 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 
 ChertDatabase::~ChertDatabase()
 {
-    DEBUGCALL(DB, void, "~ChertDatabase", "");
+    LOGCALL_DTOR(DB, "~ChertDatabase");
 }
 
 bool
 ChertDatabase::database_exists() {
-    DEBUGCALL(DB, bool, "ChertDatabase::database_exists", "");
-    RETURN(record_table.exists() &&
-	   postlist_table.exists() &&
-	   termlist_table.exists());
+    LOGCALL(DB, bool, "ChertDatabase::database_exists", NO_ARGS);
+    RETURN(record_table.exists() && postlist_table.exists());
 }
 
 void
 ChertDatabase::create_and_open_tables(unsigned int block_size)
 {
-    DEBUGCALL(DB, void, "ChertDatabase::create_and_open_tables", "");
+    LOGCALL_VOID(DB, "ChertDatabase::create_and_open_tables", NO_ARGS);
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
@@ -208,13 +208,8 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
     // record_table is considered to imply existence of the database.
     version_file.create();
     postlist_table.create_and_open(block_size);
-    // The position table is created lazily, but erase it in case we're
-    // overwriting an existing database and it already exists.
-    position_table.erase();
-    position_table.set_block_size(block_size);
-
+    position_table.create_and_open(block_size);
     termlist_table.create_and_open(block_size);
-
     synonym_table.create_and_open(block_size);
     spelling_table.create_and_open(block_size);
     record_table.create_and_open(block_size);
@@ -223,8 +218,7 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
 
     // Check consistency
     chert_revision_number_t revision = record_table.get_open_revision_number();
-    if (revision != termlist_table.get_open_revision_number() ||
-	revision != postlist_table.get_open_revision_number()) {
+    if (revision != postlist_table.get_open_revision_number()) {
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
 
@@ -234,7 +228,7 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
 void
 ChertDatabase::open_tables_consistent()
 {
-    DEBUGCALL(DB, void, "ChertDatabase::open_tables_consistent", "");
+    LOGCALL_VOID(DB, "ChertDatabase::open_tables_consistent", NO_ARGS);
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -257,10 +251,10 @@ ChertDatabase::open_tables_consistent()
 	return;
     }
 
-    // In case the position, value, synonym, and/or spelling tables don't
-    // exist yet.
+    // Set the block_size for optional tables as they may not currently exist.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
+    termlist_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
@@ -311,14 +305,14 @@ ChertDatabase::open_tables_consistent()
 void
 ChertDatabase::open_tables(chert_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "ChertDatabase::open_tables", revision);
+    LOGCALL_VOID(DB, "ChertDatabase::open_tables", revision);
     version_file.read_and_check();
     record_table.open(revision);
 
-    // In case the position, value, synonym, and/or spelling tables don't
-    // exist yet.
+    // Set the block_size for optional tables as they may not currently exist.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
+    termlist_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
@@ -334,7 +328,7 @@ ChertDatabase::open_tables(chert_revision_number_t revision)
 chert_revision_number_t
 ChertDatabase::get_revision_number() const
 {
-    DEBUGCALL(DB, chert_revision_number_t, "ChertDatabase::get_revision_number", "");
+    LOGCALL(DB, chert_revision_number_t, "ChertDatabase::get_revision_number", NO_ARGS);
     // We could use any table here, theoretically.
     RETURN(postlist_table.get_open_revision_number());
 }
@@ -342,7 +336,7 @@ ChertDatabase::get_revision_number() const
 chert_revision_number_t
 ChertDatabase::get_next_revision_number() const
 {
-    DEBUGCALL(DB, chert_revision_number_t, "ChertDatabase::get_next_revision_number", "");
+    LOGCALL(DB, chert_revision_number_t, "ChertDatabase::get_next_revision_number", NO_ARGS);
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
      * number.
@@ -356,7 +350,7 @@ ChertDatabase::get_next_revision_number() const
 void
 ChertDatabase::get_changeset_revisions(const string & path,
 				       chert_revision_number_t * startrev,
-				       chert_revision_number_t * endrev)
+				       chert_revision_number_t * endrev) const
 {
     int changes_fd = -1;
 #ifdef __WIN32__
@@ -374,8 +368,8 @@ ChertDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + chert_io_read(changes_fd, buf,
-					  REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(changes_fd, buf,
+				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
@@ -406,7 +400,7 @@ ChertDatabase::get_changeset_revisions(const string & path,
 void
 ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, void, "ChertDatabase::set_revision_number", new_revision);
+    LOGCALL_VOID(DB, "ChertDatabase::set_revision_number", new_revision);
 
     value_manager.merge_changes();
 
@@ -424,17 +418,9 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	chert_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
 	    // Don't generate a changeset for the first revision.
-	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
-#ifdef __WIN32__
-	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	    if (changes_fd < 0) {
-		string message = string("Couldn't open changeset ")
-			+ changes_name + " to write";
-		throw Xapian::DatabaseError(message, errno);
-	    }
+	    changes_fd = create_changeset_file(db_dir,
+					       "/changes" + str(old_revision),
+					       changes_name);
 	}
     }
 
@@ -444,19 +430,19 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    string buf;
 	    chert_revision_number_t old_revision = get_revision_number();
 	    buf += CHANGES_MAGIC_STRING;
-	    buf += pack_uint(CHANGES_VERSION);
-	    buf += pack_uint(old_revision);
-	    buf += pack_uint(new_revision);
+	    pack_uint(buf, CHANGES_VERSION);
+	    pack_uint(buf, old_revision);
+	    pack_uint(buf, new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should contain pack_uint(1u)
-	    buf += pack_uint(0u); // Changes can be applied to a live database.
+	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
+	    pack_uint(buf, 0u); // Changes can be applied to a live database.
 
-	    chert_io_write(changes_fd, buf.data(), buf.size());
+	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache
-	    // available is limited.  Do the position and value tables just
-	    // before that, because they're also critical to search speed.
+	    // available is limited.  Do the position table just before that
+	    // as having that cached will also improve search performance.
 	    termlist_table.write_changed_blocks(changes_fd);
 	    synonym_table.write_changed_blocks(changes_fd);
 	    spelling_table.write_changed_blocks(changes_fd);
@@ -474,7 +460,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	string changes_tail; // Data to be appended to the changes file
 	if (changes_fd >= 0) {
 	    changes_tail += '\0';
-	    changes_tail += pack_uint(new_revision);
+	    pack_uint(changes_tail, new_revision);
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
 
@@ -491,14 +477,14 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 void
 ChertDatabase::reopen()
 {
-    DEBUGCALL(DB, void, "ChertDatabase::reopen", "");
+    LOGCALL_VOID(DB, "ChertDatabase::reopen", NO_ARGS);
     if (readonly) open_tables_consistent();
 }
 
 void
 ChertDatabase::close()
 {
-    DEBUGCALL(DB, void, "ChertDatabase::close", "");
+    LOGCALL_VOID(DB, "ChertDatabase::close", NO_ARGS);
     postlist_table.close(true);
     position_table.close(true);
     termlist_table.close(true);
@@ -511,73 +497,52 @@ ChertDatabase::close()
 void
 ChertDatabase::get_database_write_lock(bool creating)
 {
-    DEBUGCALL(DB, void, "ChertDatabase::get_database_write_lock", creating);
+    LOGCALL_VOID(DB, "ChertDatabase::get_database_write_lock", creating);
     string explanation;
-    ChertLock::reason why = lock.lock(true, explanation);
-    if (why != ChertLock::SUCCESS) {
-	if (why == ChertLock::UNKNOWN && !creating && !database_exists()) {
+    FlintLock::reason why = lock.lock(true, explanation);
+    if (why != FlintLock::SUCCESS) {
+	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
 	    string msg("No chert database found at path `");
 	    msg += db_dir;
 	    msg += '\'';
 	    throw Xapian::DatabaseOpeningError(msg);
 	}
-	string msg("Unable to acquire database write lock on ");
-	msg += db_dir;
-	if (why == ChertLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == ChertLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == ChertLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw Xapian::DatabaseLockError(msg);
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 }
 
 void
-ChertDatabase::send_whole_database(RemoteConnection & conn,
-				   const OmTime & end_time)
+ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 {
-    DEBUGCALL(DB, void, "ChertDatabase::send_whole_database",
-	      "conn" << ", " << "end_time");
+    LOGCALL_VOID(DB, "ChertDatabase::send_whole_database", conn | end_time);
 
     // Send the current revision number in the header.
     string buf;
     string uuid = get_uuid();
     buf += encode_length(uuid.size());
     buf += uuid;
-    buf += pack_uint(get_revision_number());
+    pack_uint(buf, get_revision_number());
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
     // Send all the tables.  The tables which we want to be cached best after
     // the copy finished are sent last.
-    const char * tablenames[] = {
-	"termlist",
-	"synonym",
-	"spelling",
-	"record",
-	"position",
-	"postlist"
-    };
-    list<string> filenames;
-    const char ** tablenameptr;
-    for (tablenameptr = tablenames;
-	 tablenameptr != tablenames + (sizeof(tablenames) / sizeof(const char *));
-	 ++tablenameptr) {
-	filenames.push_back(string(*tablenameptr) + ".DB");
-	filenames.push_back(string(*tablenameptr) + ".baseA");
-	filenames.push_back(string(*tablenameptr) + ".baseB");
-    };
-    filenames.push_back("iamchert");
-
-    for (list<string>::const_iterator i = filenames.begin();
-	 i != filenames.end(); ++i) {
-	string filepath = db_dir + "/" + *i;
+    static const char filenames[] =
+	"\x0b""termlist.DB""\x0e""termlist.baseA\x0e""termlist.baseB"
+	"\x0a""synonym.DB""\x0d""synonym.baseA\x0d""synonym.baseB"
+	"\x0b""spelling.DB""\x0e""spelling.baseA\x0e""spelling.baseB"
+	"\x09""record.DB""\x0c""record.baseA\x0c""record.baseB"
+	"\x0b""position.DB""\x0e""position.baseA\x0e""position.baseB"
+	"\x0b""postlist.DB""\x0e""postlist.baseA\x0e""postlist.baseB"
+	"\x08""iamchert";
+    string filepath = db_dir;
+    filepath += '/';
+    for (const char * p = filenames; *p; p += *p + 1) {
+	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
+        filepath.replace(db_dir.size() + 1, string::npos, leaf);
 	if (file_exists(filepath)) {
 	    // FIXME - there is a race condition here - the file might get
 	    // deleted between the file_exists() test and the access to send it.
-	    conn.send_message(REPL_REPLY_DB_FILENAME, *i, end_time);
+	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
 	}
     }
@@ -589,8 +554,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 				      bool need_whole_db,
 				      ReplicationInfo * info)
 {
-    DEBUGCALL(DB, void, "ChertDatabase::write_changesets_to_fd",
-	      fd << ", " << revision << ", " << need_whole_db << ", " << info);
+    LOGCALL_VOID(DB, "ChertDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
 
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     chert_revision_number_t start_rev_num = 0;
@@ -604,8 +568,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	need_whole_db = true;
     }
 
-    RemoteConnection conn(-1, fd, "");
-    OmTime end_time;
+    RemoteConnection conn(-1, fd, string());
 
     // While the starting revision number is less than the latest revision
     // number, look for a changeset, and write it.
@@ -621,7 +584,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    if (whole_db_copies_left == 0) {
 		conn.send_message(REPL_REPLY_FAIL,
 				  "Database changing too fast",
-				  end_time);
+				  0.0);
 		return;
 	    }
 	    whole_db_copies_left--;
@@ -630,7 +593,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    start_rev_num = get_revision_number();
 	    start_uuid = get_uuid();
 
-	    send_whole_database(conn, end_time);
+	    send_whole_database(conn, 0.0);
 	    if (info != NULL)
 		++(info->fullcopy_count);
 
@@ -644,8 +607,8 @@ ChertDatabase::write_changesets_to_fd(int fd,
 
 		string buf;
 		needed_rev_num = get_revision_number();
-		buf += pack_uint(needed_rev_num);
-		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+		pack_uint(buf, needed_rev_num);
+		conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
 		if (info != NULL && start_rev_num == needed_rev_num)
 		    info->changed = true;
 	    } else {
@@ -658,8 +621,8 @@ ChertDatabase::write_changesets_to_fd(int fd,
 		// database transfer.
 
 		string buf;
-		buf += pack_uint(start_rev_num + 1);
-		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+		pack_uint(buf, start_rev_num + 1);
+		conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
 		need_whole_db = true;
 	    }
 	} else {
@@ -676,7 +639,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    }
 
 	    // Look for the changeset for revision start_rev_num.
-	    string changes_name = db_dir + "/changes" + om_tostring(start_rev_num);
+	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 	    if (file_exists(changes_name)) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
@@ -694,7 +657,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 		// FIXME - there is a race condition here - the file might get
 		// deleted between the file_exists() test and the access to
 		// send it.
-		conn.send_file(REPL_REPLY_CHANGESET, changes_name, end_time);
+		conn.send_file(REPL_REPLY_CHANGESET, changes_name, 0.0);
 		start_rev_num = changeset_end_rev_num;
 		if (info != NULL) {
 		    ++(info->changeset_count);
@@ -708,7 +671,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    }
 	}
     }
-    conn.send_message(REPL_REPLY_END_OF_CHANGES, "", end_time);
+    conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), 0.0);
 }
 
 void
@@ -742,7 +705,7 @@ ChertDatabase::modifications_failed(chert_revision_number_t old_revision,
 void
 ChertDatabase::apply()
 {
-    DEBUGCALL(DB, void, "ChertDatabase::apply", "");
+    LOGCALL_VOID(DB, "ChertDatabase::apply", NO_ARGS);
     if (!postlist_table.is_modified() &&
 	!position_table.is_modified() &&
 	!termlist_table.is_modified() &&
@@ -770,7 +733,7 @@ ChertDatabase::apply()
 void
 ChertDatabase::cancel()
 {
-    DEBUGCALL(DB, void, "ChertDatabase::cancel", "");
+    LOGCALL_VOID(DB, "ChertDatabase::cancel", NO_ARGS);
     postlist_table.cancel();
     position_table.cancel();
     termlist_table.cancel();
@@ -783,28 +746,28 @@ ChertDatabase::cancel()
 Xapian::doccount
 ChertDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertDatabase::get_doccount", "");
+    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_doccount", NO_ARGS);
     RETURN(record_table.get_doccount());
 }
 
 Xapian::docid
 ChertDatabase::get_lastdocid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "ChertDatabase::get_lastdocid", "");
+    LOGCALL(DB, Xapian::docid, "ChertDatabase::get_lastdocid", NO_ARGS);
     RETURN(stats.get_last_docid());
 }
 
 totlen_t
 ChertDatabase::get_total_length() const
 {
-    DEBUGCALL(DB, totlen_t, "ChertDatabase::get_total_length", "");
+    LOGCALL(DB, totlen_t, "ChertDatabase::get_total_length", NO_ARGS);
     RETURN(stats.get_total_doclen());
 }
 
 Xapian::doclength
 ChertDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertDatabase::get_avlength", "");
+    LOGCALL(DB, Xapian::doclength, "ChertDatabase::get_avlength", NO_ARGS);
     Xapian::doccount doccount = record_table.get_doccount();
     if (doccount == 0) {
 	// Avoid dividing by zero when there are no documents.
@@ -816,7 +779,7 @@ ChertDatabase::get_avlength() const
 Xapian::termcount
 ChertDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_doclength", did);
     Assert(did != 0);
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
@@ -825,7 +788,7 @@ ChertDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 ChertDatabase::get_termfreq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_termfreq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_termfreq(term));
 }
@@ -833,7 +796,7 @@ ChertDatabase::get_termfreq(const string & term) const
 Xapian::termcount
 ChertDatabase::get_collection_freq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertDatabase::get_collection_freq", term);
+    LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_collection_freq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_collection_freq(term));
 }
@@ -841,21 +804,21 @@ ChertDatabase::get_collection_freq(const string & term) const
 Xapian::doccount
 ChertDatabase::get_value_freq(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
     RETURN(value_manager.get_value_freq(valno));
 }
 
 std::string
 ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
     RETURN(value_manager.get_value_lower_bound(valno));
 }
 
 std::string
 ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
     RETURN(value_manager.get_value_upper_bound(valno));
 }
 
@@ -880,7 +843,7 @@ ChertDatabase::get_wdf_upper_bound(const string & term) const
 bool
 ChertDatabase::term_exists(const string & term) const
 {
-    DEBUGCALL(DB, bool, "ChertDatabase::term_exists", term);
+    LOGCALL(DB, bool, "ChertDatabase::term_exists", term);
     Assert(!term.empty());
     return postlist_table.term_exists(term);
 }
@@ -888,13 +851,13 @@ ChertDatabase::term_exists(const string & term) const
 bool
 ChertDatabase::has_positions() const
 {
-    return position_table.get_entry_count() > 0;
+    return !position_table.empty();
 }
 
 LeafPostList *
 ChertDatabase::open_post_list(const string& term) const
 {
-    DEBUGCALL(DB, LeafPostList *, "ChertDatabase::open_post_list", term);
+    LOGCALL(DB, LeafPostList *, "ChertDatabase::open_post_list", term);
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
 
     if (term.empty()) {
@@ -911,7 +874,7 @@ ChertDatabase::open_post_list(const string& term) const
 ValueList *
 ChertDatabase::open_value_list(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, ValueList *, "ChertDatabase::open_value_list", slot);
+    LOGCALL(DB, ValueList *, "ChertDatabase::open_value_list", slot);
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertValueList(slot, ptrtothis));
 }
@@ -919,8 +882,10 @@ ChertDatabase::open_value_list(Xapian::valueno slot) const
 TermList *
 ChertDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, TermList *, "ChertDatabase::open_term_list", did);
+    LOGCALL(DB, TermList *, "ChertDatabase::open_term_list", did);
     Assert(did != 0);
+    if (!termlist_table.is_open())
+	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertTermList(ptrtothis, did));
@@ -929,8 +894,7 @@ ChertDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 ChertDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "ChertDatabase::open_document",
-	      did << ", " << lazy);
+    LOGCALL(DB, Xapian::Document::Internal *, "ChertDatabase::open_document", did | lazy);
     Assert(did != 0);
     if (!lazy) {
 	// This will throw DocNotFoundError if the document doesn't exist.
@@ -959,7 +923,7 @@ ChertDatabase::open_position_list(Xapian::docid did, const string & term) const
 TermList *
 ChertDatabase::open_allterms(const string & prefix) const
 {
-    DEBUGCALL(DB, TermList *, "ChertDatabase::open_allterms", "");
+    LOGCALL(DB, TermList *, "ChertDatabase::open_allterms", NO_ARGS);
     RETURN(new ChertAllTermsList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
 				 prefix));
 }
@@ -997,14 +961,13 @@ ChertDatabase::open_synonym_keylist(const string & prefix) const
     ChertCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
     return new ChertSynonymTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
-				    cursor, synonym_table.get_entry_count(),
-				    prefix);
+				    cursor, prefix);
 }
 
 string
 ChertDatabase::get_metadata(const string & key) const
 {
-    DEBUGCALL(DB, string, "ChertDatabase::get_metadata", key);
+    LOGCALL(DB, string, "ChertDatabase::get_metadata", key);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     string tag;
@@ -1015,7 +978,7 @@ ChertDatabase::get_metadata(const string & key) const
 TermList *
 ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    DEBUGCALL(DB, string, "ChertDatabase::open_metadata_keylist", "");
+    LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
     return new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
@@ -1025,16 +988,16 @@ ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 string
 ChertDatabase::get_revision_info() const
 {
-    DEBUGCALL(DB, string, "ChertDatabase::get_revision_info", "");
+    LOGCALL(DB, string, "ChertDatabase::get_revision_info", NO_ARGS);
     string buf;
-    buf += pack_uint(get_revision_number());
+    pack_uint(buf, get_revision_number());
     RETURN(buf);
 }
 
 string
 ChertDatabase::get_uuid() const
 {
-    DEBUGCALL(DB, string, "ChertDatabase::get_uuid", "");
+    LOGCALL(DB, string, "ChertDatabase::get_uuid", NO_ARGS);
     RETURN(version_file.get_uuid_string());
 }
 
@@ -1051,8 +1014,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    DEBUGCALL(DB, void, "ChertWritableDatabase", dir << ", " << action << ", "
-	      << block_size);
+    LOGCALL_CTOR(DB, "ChertWritableDatabase", dir | action | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
@@ -1063,7 +1025,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 
 ChertWritableDatabase::~ChertWritableDatabase()
 {
-    DEBUGCALL(DB, void, "~ChertWritableDatabase", "");
+    LOGCALL_DTOR(DB, "~ChertWritableDatabase");
     dtor_called();
 }
 
@@ -1089,17 +1051,85 @@ ChertWritableDatabase::flush_postlist_changes() const
 }
 
 void
+ChertWritableDatabase::close()
+{
+    LOGCALL_VOID(DB, "ChertWritableDatabase::close", NO_ARGS);
+    if (!transaction_active()) {
+	commit();
+	// FIXME: if commit() throws, should we still close?
+    }
+    ChertDatabase::close();
+}
+
+void
 ChertWritableDatabase::apply()
 {
     value_manager.set_value_stats(value_stats);
     ChertDatabase::apply();
 }
 
+void
+ChertWritableDatabase::add_freq_delta(const string & tname,
+				      Xapian::termcount_diff tf_delta,
+				      Xapian::termcount_diff cf_delta)
+{
+    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+    i = freq_deltas.find(tname);
+    if (i == freq_deltas.end()) {
+	freq_deltas.insert(make_pair(tname, make_pair(tf_delta, cf_delta)));
+    } else {
+	i->second.first += tf_delta;
+	i->second.second += cf_delta;
+    }
+}
+
+void
+ChertWritableDatabase::insert_mod_plist(Xapian::docid did,
+					const string & tname,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+    j->second[did] = make_pair('A', wdf);
+}
+
+void
+ChertWritableDatabase::update_mod_plist(Xapian::docid did,
+					const string & tname,
+					char type,
+					Xapian::termcount wdf)
+{
+    // Find or make the appropriate entry in mod_plists.
+    map<string, map<docid, pair<char, termcount> > >::iterator j;
+    j = mod_plists.find(tname);
+    if (j == mod_plists.end()) {
+	map<docid, pair<char, termcount> > m;
+	j = mod_plists.insert(make_pair(tname, m)).first;
+    }
+
+    map<docid, pair<char, termcount> >::iterator k;
+    k = j->second.find(did);
+    if (k == j->second.end()) {
+	j->second.insert(make_pair(did, make_pair(type, wdf)));
+    } else {
+	if (type == 'A') {
+	    // Adding an entry which has already been deleted.
+	    Assert(k->second.first == 'D');
+	    type = 'M';
+	}
+	k->second = make_pair(type, wdf);
+    }
+}
+
 Xapian::docid
 ChertWritableDatabase::add_document(const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid,
-	      "ChertWritableDatabase::add_document", document);
+    LOGCALL(DB, Xapian::docid, "ChertWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
     if (stats.get_last_docid() == Xapian::docid(-1))
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
@@ -1111,8 +1141,7 @@ Xapian::docid
 ChertWritableDatabase::add_document_(Xapian::docid did,
 				     const Xapian::Document & document)
 {
-    DEBUGCALL(DB, Xapian::docid,
-	      "ChertWritableDatabase::add_document_", did << ", " << document);
+    LOGCALL(DB, Xapian::docid, "ChertWritableDatabase::add_document_", did | document);
     Assert(did != 0);
     try {
 	// Add the record using that document ID.
@@ -1134,36 +1163,22 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
-		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
-		}
+		add_freq_delta(tname, 1, wdf);
+		insert_mod_plist(did, tname, wdf);
 
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		Assert(j->second.find(did) == j->second.end());
-		j->second.insert(make_pair(did, make_pair('A', wdf)));
-
-		if (term.positionlist_begin() != term.positionlist_end()) {
+		PositionIterator pos = term.positionlist_begin();
+		if (pos != term.positionlist_end()) {
 		    position_table.set_positionlist(
 			did, tname,
-			term.positionlist_begin(), term.positionlist_end());
+			pos, term.positionlist_end(), false);
 		}
 	    }
 	}
 	LOGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
 
-	// Set the termlist
-	termlist_table.set_termlist(did, document, new_doclen);
+	// Set the termlist.
+	if (termlist_table.is_open())
+	    termlist_table.set_termlist(did, document, new_doclen);
 
 	// Set the new document length
 	Assert(doclens.find(did) == doclens.end() || doclens[did] == static_cast<Xapian::termcount>(-1));
@@ -1199,8 +1214,11 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 void
 ChertWritableDatabase::delete_document(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "ChertWritableDatabase::delete_document", did);
+    LOGCALL_VOID(DB, "ChertWritableDatabase::delete_document", did);
     Assert(did != 0);
+
+    if (!termlist_table.is_open())
+	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
     if (rare(modify_shortcut_docid == did)) {
 	// The modify_shortcut document can't be used for a modification
@@ -1230,37 +1248,15 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	    position_table.delete_positionlist(did, tname);
 	    termcount wdf = termlist.get_wdf();
 
-	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-	    i = freq_deltas.find(tname);
-	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-	    } else {
-		--i->second.first;
-		i->second.second -= wdf;
-	    }
-
-	    // Remove did from tname's postlist
-	    map<string, map<docid, pair<char, termcount> > >::iterator j;
-	    j = mod_plists.find(tname);
-	    if (j == mod_plists.end()) {
-		map<docid, pair<char, termcount> > m;
-		j = mod_plists.insert(make_pair(tname, m)).first;
-	    }
-
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k == j->second.end()) {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    } else {
-		// Deleting a document we added/modified since the last flush.
-		k->second = make_pair('D', 0u);
-	    }
+	    add_freq_delta(tname, -1, -wdf);
+	    update_mod_plist(did, tname, 'D', 0u);
 
 	    termlist.next();
 	}
 
 	// Remove the termlist.
-	termlist_table.delete_termlist(did);
+	if (termlist_table.is_open())
+	    termlist_table.delete_termlist(did);
 
 	// Mark this document as removed.
 	doclens[did] = static_cast<Xapian::termcount>(-1);
@@ -1283,7 +1279,7 @@ void
 ChertWritableDatabase::replace_document(Xapian::docid did,
 					const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "ChertWritableDatabase::replace_document", did << ", " << document);
+    LOGCALL_VOID(DB, "ChertWritableDatabase::replace_document", did | document);
     Assert(did != 0);
 
     try {
@@ -1295,6 +1291,16 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    return;
 	}
 
+	if (!termlist_table.is_open()) {
+	    // We can replace an *unused* docid <= last_docid too.
+	    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+	    if (!postlist_table.document_exists(did, ptrtothis)) {
+		(void)add_document_(did, document);
+		return;
+	    }
+	    throw Xapian::FeatureUnavailableError("Database has no termlist");
+	}
+
 	// Check for a document read from this database being replaced - ie, a
 	// modification operation.
 	bool modifying = false;
@@ -1304,6 +1310,10 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		// We have a docid, it matches, and the pointer matches, so we
 		// can skip modification of any data which hasn't been modified
 		// in the document.
+		if (!document.internal->modified()) {
+		    // If the document is unchanged, we've nothing to do.
+		    return;
+		}
 		modifying = true;
 		LOGLINE(DB, "Detected potential document modification shortcut.");
 	    } else {
@@ -1316,104 +1326,87 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    // FIXME - in the case where there is overlap between the new
-	    // termlist and the old termlist, it would be better to compare the
-	    // two lists, and make the minimum set of modifications required.
-	    // This would lead to smaller changesets for replication, and
-	    // probably be faster overall.
-
-	    // First, add entries to remove the postings in the underlying
-	    // record.
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
-
-	    termlist.next();
-	    while (!termlist.at_end()) {
-		string tname = termlist.get_termname();
-		termcount wdf = termlist.get_wdf();
-
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
-		} else {
-		    --i->second.first;
-		    i->second.second -= wdf;
-		}
-
-		// Remove did from tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k == j->second.end()) {
-		    j->second.insert(make_pair(did, make_pair('D', 0u)));
-		} else {
-		    // Modifying a document we added/modified since the last
-		    // flush.
-		    k->second = make_pair('D', 0u);
-		}
-
-		termlist.next();
-	    }
-
-	    stats.delete_document(termlist.get_doclength());
-
-	    chert_doclen_t new_doclen = 0;
 	    Xapian::TermIterator term = document.termlist_begin();
-	    Xapian::TermIterator term_end = document.termlist_end();
-	    for ( ; term != term_end; ++term) {
-		termcount wdf = term.get_wdf();
-		// Calculate the new document length
-		new_doclen += wdf;
-		stats.check_wdf(wdf);
+	    chert_doclen_t new_doclen = termlist.get_doclength();
+	    string old_tname, new_tname;
 
-		string tname = *term;
-		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
-		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-		i = freq_deltas.find(tname);
-		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
+	    stats.delete_document(new_doclen);
+	    termlist.next();
+	    while (!termlist.at_end() || term != document.termlist_end()) {
+		int cmp;
+		if (termlist.at_end()) {
+		    cmp = 1;
+		    new_tname = *term;
 		} else {
-		    ++i->second.first;
-		    i->second.second += wdf;
+		    old_tname = termlist.get_termname();
+		    if (term != document.termlist_end()) {
+			new_tname = *term;
+			cmp = old_tname.compare(new_tname);
+		    } else {
+			cmp = -1;
+		    }
 		}
 
-		// Add did to tname's postlist
-		map<string, map<docid, pair<char, termcount> > >::iterator j;
-		j = mod_plists.find(tname);
-		if (j == mod_plists.end()) {
-		    map<docid, pair<char, termcount> > m;
-		    j = mod_plists.insert(make_pair(tname, m)).first;
-		}
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k != j->second.end()) {
-		    Assert(k->second.first == 'D');
-		    k->second.first = 'M';
-		    k->second.second = wdf;
-		} else {
-		    j->second.insert(make_pair(did, make_pair('A', wdf)));
-		}
+		if (cmp < 0) {
+		    // Term old_tname has been deleted.
+		    termcount old_wdf = termlist.get_wdf();
+		    new_doclen -= old_wdf;
+		    add_freq_delta(old_tname, -1, -old_wdf);
+		    position_table.delete_positionlist(did, old_tname);
+		    update_mod_plist(did, old_tname, 'D', 0u);
+		    termlist.next();
+		} else if (cmp > 0) {
+		    // Term new_tname as been added.
+		    termcount new_wdf = term.get_wdf();
+		    new_doclen += new_wdf;
+		    stats.check_wdf(new_wdf);
+		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
+			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+		    add_freq_delta(new_tname, 1, new_wdf);
+		    update_mod_plist(did, new_tname, 'A', new_wdf);
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(
+			    did, new_tname,
+			    pos, term.positionlist_end(), false);
+		    }
+		    ++term;
+		} else if (cmp == 0) {
+		    // Term already exists: look for wdf and positionlist changes.
+		    termcount old_wdf = termlist.get_wdf();
+		    termcount new_wdf = term.get_wdf();
 
-		PositionIterator it = term.positionlist_begin();
-		PositionIterator it_end = term.positionlist_end();
-		if (it != it_end) {
-		    position_table.set_positionlist(did, tname, it, it_end);
-		} else {
-		    position_table.delete_positionlist(did, tname);
+		    // Check the stats even if wdf hasn't changed, because
+		    // this is the only document, the stats will have been
+		    // zeroed.
+		    stats.check_wdf(new_wdf);
+
+		    if (old_wdf != new_wdf) {
+		    	new_doclen += new_wdf - old_wdf;
+			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
+			update_mod_plist(did, new_tname, 'M', new_wdf);
+		    }
+
+		    PositionIterator pos = term.positionlist_begin();
+		    if (pos != term.positionlist_end()) {
+			position_table.set_positionlist(did, new_tname, pos,
+							term.positionlist_end(),
+							true);
+		    } else {
+			position_table.delete_positionlist(did, new_tname);
+		    }
+
+		    ++term;
+		    termlist.next();
 		}
 	    }
 	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
-	    // Set the termlist
-	    termlist_table.set_termlist(did, document, new_doclen);
+	    // Set the termlist.
+	    if (termlist_table.is_open())
+		termlist_table.set_termlist(did, document, new_doclen);
 
 	    // Set the new document length
 	    doclens[did] = new_doclen;
@@ -1450,8 +1443,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 Xapian::Document::Internal *
 ChertWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "ChertWritableDatabase::open_document",
-	      did << ", " << lazy);
+    LOGCALL(DB, Xapian::Document::Internal *, "ChertWritableDatabase::open_document", did | lazy);
     modify_shortcut_document = ChertDatabase::open_document(did, lazy);
     // Store the docid only after open_document() successfully returns, so an
     // attempt to open a missing document doesn't overwrite this.
@@ -1462,12 +1454,12 @@ ChertWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 Xapian::termcount
 ChertWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) {
 	Xapian::termcount doclen = i->second;
 	if (doclen == static_cast<Xapian::termcount>(-1)) {
-	    throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
+	    throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
 	}
 	RETURN(doclen);
     }
@@ -1477,7 +1469,7 @@ ChertWritableDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 ChertWritableDatabase::get_termfreq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_termfreq", tname);
+    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_termfreq", tname);
     Xapian::doccount termfreq = ChertDatabase::get_termfreq(tname);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
     i = freq_deltas.find(tname);
@@ -1488,7 +1480,7 @@ ChertWritableDatabase::get_termfreq(const string & tname) const
 Xapian::termcount
 ChertWritableDatabase::get_collection_freq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_collection_freq", tname);
+    LOGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_collection_freq", tname);
     Xapian::termcount collfreq = ChertDatabase::get_collection_freq(tname);
 
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
@@ -1501,7 +1493,7 @@ ChertWritableDatabase::get_collection_freq(const string & tname) const
 Xapian::doccount
 ChertWritableDatabase::get_value_freq(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
     if (i != value_stats.end()) RETURN(i->second.freq);
@@ -1511,7 +1503,7 @@ ChertWritableDatabase::get_value_freq(Xapian::valueno valno) const
 std::string
 ChertWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
     if (i != value_stats.end()) RETURN(i->second.lower_bound);
@@ -1521,7 +1513,7 @@ ChertWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
 std::string
 ChertWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
 {
-    DEBUGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
     if (i != value_stats.end()) RETURN(i->second.upper_bound);
@@ -1531,14 +1523,14 @@ ChertWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
 bool
 ChertWritableDatabase::term_exists(const string & tname) const
 {
-    DEBUGCALL(DB, bool, "ChertWritableDatabase::term_exists", tname);
+    LOGCALL(DB, bool, "ChertWritableDatabase::term_exists", tname);
     RETURN(get_termfreq(tname) != 0);
 }
 
 LeafPostList *
 ChertWritableDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "ChertWritableDatabase::open_post_list", tname);
+    LOGCALL(DB, LeafPostList *, "ChertWritableDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
@@ -1566,7 +1558,7 @@ ChertWritableDatabase::open_post_list(const string& tname) const
 ValueList *
 ChertWritableDatabase::open_value_list(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, ValueList *, "ChertWritableDatabase::open_value_list", slot);
+    LOGCALL(DB, ValueList *, "ChertWritableDatabase::open_value_list", slot);
     // If there are changes, we don't have code to iterate the modified value
     // list so we need to flush (but don't commit - there may be a transaction
     // in progress).
@@ -1577,7 +1569,7 @@ ChertWritableDatabase::open_value_list(Xapian::valueno slot) const
 TermList *
 ChertWritableDatabase::open_allterms(const string & prefix) const
 {
-    DEBUGCALL(DB, TermList *, "ChertWritableDatabase::open_allterms", "");
+    LOGCALL(DB, TermList *, "ChertWritableDatabase::open_allterms", NO_ARGS);
     // If there are changes, terms may have been added or removed, and so we
     // need to flush (but don't commit - there may be a transaction in
     // progress).
@@ -1648,8 +1640,7 @@ ChertWritableDatabase::clear_synonyms(const string & term) const
 void
 ChertWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    DEBUGCALL(DB, string, "ChertWritableDatabase::set_metadata",
-	      key << ", " << value);
+    LOGCALL(DB, string, "ChertWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

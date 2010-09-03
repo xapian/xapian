@@ -26,9 +26,9 @@
 #include "flint_cursor.h"
 #include "flint_database.h"
 #include "flint_utils.h"
+#include "debuglog.h"
 #include "noreturn.h"
-#include "omdebug.h"
-#include "utils.h"
+#include "str.h"
 
 Xapian::doccount
 FlintPostListTable::get_termfreq(const string & term) const
@@ -160,11 +160,7 @@ read_start_of_first_chunk(const char ** posptr,
 			  Xapian::doccount * number_of_entries_ptr,
 			  Xapian::termcount * collection_freq_ptr)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk",
-		     (const void *)posptr << ", " <<
-		     (const void *)end << ", " <<
-		     (void *)number_of_entries_ptr << ", " <<
-		     (void *)collection_freq_ptr);
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void *)posptr | (const void *)end | (void *)number_of_entries_ptr | (void *)collection_freq_ptr);
 
     FlintPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
@@ -208,11 +204,7 @@ read_start_of_chunk(const char ** posptr,
 		    Xapian::docid first_did_in_chunk,
 		    bool * is_last_chunk_ptr)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk",
-		     reinterpret_cast<const void*>(posptr) << ", " <<
-		     reinterpret_cast<const void*>(end) << ", " <<
-		     first_did_in_chunk << ", " <<
-		     reinterpret_cast<const void*>(is_last_chunk_ptr));
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk", reinterpret_cast<const void*>(posptr) | reinterpret_cast<const void*>(end) | first_did_in_chunk | reinterpret_cast<const void*>(is_last_chunk_ptr));
 
     // Read whether this is the last chunk
     if (!F_unpack_bool(posptr, end, is_last_chunk_ptr))
@@ -278,7 +270,7 @@ class FlintPostlistChunkReader {
 	    return wdf;
 	}
 	flint_doclen_t get_doclength() const {
-	    DEBUGCALL(DB, flint_doclen_t, "FlintPostlistChunkReader::get_doclength", "");
+	    LOGCALL(DB, flint_doclen_t, "FlintPostlistChunkReader::get_doclength", NO_ARGS);
 	    RETURN(doclength);
 	}
 
@@ -323,9 +315,7 @@ FlintPostlistChunkWriter::FlintPostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    DEBUGCALL(DB, void, "FlintPostlistChunkWriter::FlintPostlistChunkWriter",
-	      orig_key_ << ", " << is_first_chunk_ << ", " << tname_ << ", " <<
-	      is_last_chunk_);
+    LOGCALL_VOID(DB, "FlintPostlistChunkWriter::FlintPostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
 }
 
 void
@@ -345,7 +335,7 @@ FlintPostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 	    is_last_chunk = save_is_last_chunk;
 	    is_first_chunk = false;
 	    first_did = did;
-	    chunk = "";
+	    chunk.resize(0);
 	    orig_key = FlintPostListTable::make_key(tname, first_did);
 	} else {
 	    chunk.append(F_pack_uint(did - current_did - 1));
@@ -358,7 +348,7 @@ FlintPostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 /** Make the data to go at the start of the very first chunk.
  */
 static inline string
-make_start_of_first_chunk(Xapian::termcount entries,
+make_start_of_first_chunk(Xapian::doccount entries,
 			  Xapian::termcount collectionfreq,
 			  Xapian::docid new_did)
 {
@@ -380,7 +370,7 @@ make_start_of_chunk(bool new_is_last_chunk,
 void
 FlintPostlistChunkWriter::flush(FlintTable *table)
 {
-    DEBUGCALL(DB, void, "FlintPostlistChunkWriter::flush", table);
+    LOGCALL_VOID(DB, "FlintPostlistChunkWriter::flush", table);
 
     /* This is one of the more messy parts involved with updating posting
      * list chunks.
@@ -424,7 +414,8 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 
 	    // Extract existing counts from the first chunk so we can reinsert
 	    // them into the block we're renaming.
-	    Xapian::termcount num_ent, coll_freq;
+	    Xapian::doccount num_ent;
+	    Xapian::termcount coll_freq;
 	    {
 		cursor->read_tag();
 		const char *tagpos = cursor->current_tag.data();
@@ -561,7 +552,8 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    Assert(ok);
 	    Assert(!tag.empty());
 
-	    Xapian::termcount num_ent, coll_freq;
+	    Xapian::doccount num_ent;
+	    Xapian::termcount coll_freq;
 	    {
 		const char * tagpos = tag.data();
 		const char * tagend = tagpos + tag.size();
@@ -660,8 +652,7 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> th
 	  cursor(this_db->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
-    DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
-	      this_db_.get() << ", " << term_);
+    LOGCALL_VOID(DB, "FlintPostList::FlintPostList", this_db_.get() | term_);
     string key = FlintPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
@@ -686,13 +677,13 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> th
 
 FlintPostList::~FlintPostList()
 {
-    DEBUGCALL(DB, void, "FlintPostList::~FlintPostList", "");
+    LOGCALL_VOID(DB, "FlintPostList::~FlintPostList", NO_ARGS);
 }
 
 bool
 FlintPostList::next_in_chunk()
 {
-    DEBUGCALL(DB, bool, "FlintPostList::next_in_chunk", "");
+    LOGCALL(DB, bool, "FlintPostList::next_in_chunk", NO_ARGS);
     if (pos == end) RETURN(false);
 
     read_did_increase(&pos, end, &did);
@@ -709,7 +700,7 @@ FlintPostList::next_in_chunk()
 void
 FlintPostList::next_chunk()
 {
-    DEBUGCALL(DB, void, "FlintPostList::next_chunk", "");
+    LOGCALL_VOID(DB, "FlintPostList::next_chunk", NO_ARGS);
     if (is_last_chunk) {
 	is_at_end = true;
 	return;
@@ -736,9 +727,9 @@ FlintPostList::next_chunk()
     }
     if (newdid <= did) {
 	throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
-		om_tostring(newdid) +
+		str(newdid) +
 		") is not greater than final document ID in previous chunk (" +
-		om_tostring(did) + ")");
+		str(did) + ")");
     }
     did = newdid;
 
@@ -752,10 +743,18 @@ FlintPostList::next_chunk()
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
+Xapian::termcount
+FlintPostList::get_doclength() const
+{
+    LOGCALL(DB, Xapian::termcount, "FlintPostList::get_doclength", NO_ARGS);
+    Assert(have_started);
+    RETURN(static_cast<Xapian::termcount>(doclength));
+}
+
 PositionList *
 FlintPostList::read_position_list()
 {
-    DEBUGCALL(DB, PositionList *, "FlintPostList::read_position_list", "");
+    LOGCALL(DB, PositionList *, "FlintPostList::read_position_list", NO_ARGS);
     positionlist.read_data(&this_db->position_table, did, term);
     RETURN(&positionlist);
 }
@@ -763,14 +762,14 @@ FlintPostList::read_position_list()
 PositionList *
 FlintPostList::open_position_list() const
 {
-    DEBUGCALL(DB, PositionList *, "FlintPostList::open_position_list", "");
+    LOGCALL(DB, PositionList *, "FlintPostList::open_position_list", NO_ARGS);
     RETURN(new FlintPositionList(&this_db->position_table, did, term));
 }
 
 PostList *
 FlintPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *, "FlintPostList::next", w_min);
+    LOGCALL(DB, PostList *, "FlintPostList::next", w_min);
     (void)w_min; // no warning
 
     if (!have_started) {
@@ -792,7 +791,7 @@ FlintPostList::next(Xapian::weight w_min)
 bool
 FlintPostList::current_chunk_contains(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool, "FlintPostList::current_chunk_contains", desired_did);
+    LOGCALL(DB, bool, "FlintPostList::current_chunk_contains", desired_did);
     if (desired_did >= first_did_in_chunk &&
 	desired_did <= last_did_in_chunk) {
 	RETURN(true);
@@ -803,8 +802,7 @@ FlintPostList::current_chunk_contains(Xapian::docid desired_did)
 void
 FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, void,
-	      "FlintPostList::move_to_chunk_containing", desired_did);
+    LOGCALL_VOID(DB, "FlintPostList::move_to_chunk_containing", desired_did);
     (void)cursor->find_entry(FlintPostListTable::make_key(term, desired_did));
     Assert(!cursor->after_end());
 
@@ -852,8 +850,7 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 bool
 FlintPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool,
-	      "FlintPostList::move_forward_in_chunk_to_at_least", desired_did);
+    LOGCALL(DB, bool, "FlintPostList::move_forward_in_chunk_to_at_least", desired_did);
     if (desired_did > last_did_in_chunk) {
 	pos = end;
 	RETURN(false);
@@ -870,8 +867,7 @@ FlintPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 PostList *
 FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *,
-	      "FlintPostList::skip_to", desired_did << ", " << w_min);
+    LOGCALL(DB, PostList *, "FlintPostList::skip_to", desired_did | w_min);
     (void)w_min; // no warning
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
@@ -906,7 +902,7 @@ FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 string
 FlintPostList::get_description() const
 {
-    return term + ":" + om_tostring(number_of_entries);
+    return term + ":" + str(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.
@@ -933,7 +929,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 
 	*from = NULL;
-	*to = new FlintPostlistChunkWriter("", true, tname, true);
+	*to = new FlintPostlistChunkWriter(string(), true, tname, true);
 	return Xapian::docid(-1);
     }
 
@@ -996,7 +992,7 @@ FlintPostListTable::merge_changes(
     const map<Xapian::docid, Xapian::termcount> & doclens,
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
 {
-    DEBUGCALL(DB, void, "FlintPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
+    LOGCALL_VOID(DB, "FlintPostListTable::merge_changes", mod_plists | doclens | freq_deltas);
     map<string, map<Xapian::docid, pair<char, Xapian::termcount> > >::const_iterator i;
     for (i = mod_plists.begin(); i != mod_plists.end(); ++i) {
 	if (i->second.empty()) continue;
@@ -1014,7 +1010,8 @@ FlintPostListTable::merge_changes(
 	    // Read start of first chunk to get termfreq and collfreq.
 	    const char *pos = tag.data();
 	    const char *end = pos + tag.size();
-	    Xapian::termcount termfreq, collfreq;
+	    Xapian::doccount termfreq;
+	    Xapian::termcount collfreq;
 	    Xapian::docid firstdid, lastdid;
 	    bool islast;
 	    if (pos == end) {

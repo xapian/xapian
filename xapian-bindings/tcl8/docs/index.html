@@ -24,9 +24,9 @@ In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  Tcl8 uses
 UTF-8 as its internal representation, except that ASCII nul (character value
 0) is represented as the overlong (and thus invalid) UTF-8 sequence
-<code>\xc0\x80</code>.  We don't current convert this to/from
+<code>\xc0\x80</code>.  We don't currently convert this to/from
 <code>\x00</code> so you should avoid passing strings containing ASCII nul
-to/from Xapian from Tcl8.
+between Tcl and Xapian.
 </p>
 
 <h2>Destructors</h2>
@@ -42,13 +42,24 @@ to/from Xapian from Tcl8.
    correctly.  This only matters for the Xapian::WritableDatabase class, and we
    avoid wrapping the problematic factory functions to avoid setting a
    trap for the unwary - these are the WritableDatabase versions of
+   <code>Xapian::Brass::open</code>,
    <code>Xapian::Chert::open</code>, and <code>Xapian::Flint::open</code>.
    You can just use a <code>Xapian::WritableDatabase</code> constructor
-   instead (and set <code>XAPIAN_PREFER_CHERT</code> in the environment to
-   select chert rather than flint).
+   instead (and set <code>XAPIAN_PREFER_BRASS</code> in the environment to
+   select brass rather than chert).  You can't create a flint database this
+   way, but flint is now deprecated.
 </p>
 
 <p>
+  As of Xapian 1.1.0, you can explicitly close the database, so the lack
+  of a call to the destructor isn't an issue:
+
+<blockquote><pre>
+xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
+xapian_db close
+</pre></blockquote>
+
+  If you want compatibility with Xapian 1.0.x, then
   Michael Schlenker reports that this form works (i.e. the destructor gets
   called):
 
@@ -57,7 +68,7 @@ xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
 rename xapiandb ""
 </pre></blockquote>
 
-  However, apparently none of these forms works:
+  However, apparently none of these forms work:
 
 <blockquote><pre>
 xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
@@ -149,6 +160,7 @@ wrapped like so for Tcl:
 
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
+<li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian::brass_open</code> (but note that the WritableDatabase version isn't wrapped - see
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see

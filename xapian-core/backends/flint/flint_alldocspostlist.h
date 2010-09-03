@@ -24,7 +24,11 @@
 
 #include <string>
 
+#include "autoptr.h"
+#include "flint_database.h"
 #include "leafpostlist.h"
+
+class FlintCursor;
 
 class FlintAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.
@@ -55,7 +59,7 @@ class FlintAllDocsPostList : public LeafPostList {
 	db(db_), doccount(doccount_), cursor(db->termlist_table.cursor_get()),
 	current_did(0)
     {
-	cursor->find_entry("");
+	cursor->find_entry(std::string());
     }
 
     Xapian::doccount get_termfreq() const;

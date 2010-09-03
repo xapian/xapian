@@ -1,7 +1,7 @@
-/* gnu_getopt.h: Wrappers to allow GNU getopt to be used cleanly from C++ code.
- *
- * ----START-LICENCE----
- * Copyright 2004 Olly Betts
+/** @file gnu_getopt.h
+ * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
+ */
+/* Copyright (C) 2004,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,9 +22,9 @@
 #ifndef XAPIAN_INCLUDED_GNU_GETOPT_H
 #define XAPIAN_INCLUDED_GNU_GETOPT_H
 
-// We need to include a header to get __GLIBC__ defined.  Hopefully ctype.h
+// We need to include a header to get __GLIBC__ defined.  Hopefully <cctype>
 // is a safe bet.
-#include <ctype.h>
+#include <cctype>
 
 #define GNU_GETOPT_INTERFACE_VERSION 2
 #if defined __GLIBC__ && __GLIBC__ >= 2
@@ -57,10 +57,17 @@ gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
 
 #else
 
+#ifdef __CYGWIN__
+// Cygwin has __declspec(dllimport) magic on optarg, etc, so just pull in the
+// header there rather than trying to duplicate that.
+# include <getopt.h>
+#else
+extern "C" {
 extern char *optarg;
 extern int optind;
 extern int opterr;
 extern int optopt;
+}
 
 struct option {
     const char *name;
@@ -69,9 +76,10 @@ struct option {
     int val;
 };
 
-#define no_argument		0
-#define required_argument	1
-#define optional_argument	2
+# define no_argument		0
+# define required_argument	1
+# define optional_argument	2
+#endif
 
 // For internal use only.
 int

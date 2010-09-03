@@ -1,7 +1,7 @@
 /** @file xapian-progsrv.cc
  * @brief Remote server for use with ProgClient.
  */
-/* Copyright (C) 2002,2003,2006,2007,2008 Olly Betts
+/* Copyright (C) 2002,2003,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ static void show_usage() {
 
 int main(int argc, char **argv)
 {
-    unsigned int timeout = 60000;
+    double timeout = 60.0;
     bool writable = false;
     bool syntax_error = false;
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
 	    case 't':
-		timeout = atoi(optarg);
+		timeout = atoi(optarg) * 1e-3;
 		break;
 	    case 'w':
 		writable = true;

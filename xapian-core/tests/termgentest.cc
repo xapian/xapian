@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,10 @@
 
 #include <xapian.h>
 
+#include <iostream>
 #include <string>
 
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -58,7 +60,7 @@ struct test {
     const char *expect;
 };
 
-static test test_simple[] = {
+static const test test_simple[] = {
     // A basic test with a hyphen
     { "", "simple-example", "example[2] simple[1]" },
     { "cont,weight=2",
@@ -98,8 +100,12 @@ static test test_simple[] = {
     { "", "c++ -d--", "Zc++:1 Zd:1 c++[1] d[2]" },
     { "", "cd'r toebehoren", "Zcd'r:1 Ztoebehoren:1 cd'r[1] toebehoren[2]" },
 
+    // In 1.1.4, ENCLOSING_MARK and COMBINING_SPACING_MARK were added, and
+    // code to ignore several zero-width space characters was added.
+    { "", "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80",
+      "Z\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80:1 \xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80[1]" },
 
-
+    { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
     // way to implement them yet.
@@ -616,20 +622,20 @@ format_doc_termlist(const Xapian::Document & doc)
 	    // the length of the positionlist.
 	    if (it.get_wdf() != it.positionlist_count()) {
 	        output += ':';
-		output += om_tostring(it.get_wdf());
+		output += str(it.get_wdf());
 	    }
 	    char ch = '[';
 	    Xapian::PositionIterator posit;
 	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); posit++) {
 		output += ch;
 		ch = ',';
-		output += om_tostring(*posit);
+		output += str(*posit);
 	    }
 	    output += ']';
 	} else if (it.get_wdf() != 0) {
 	    // If no position list, display any non-zero wdfs.
 	    output += ':';
-	    output += om_tostring(it.get_wdf());
+	    output += str(it.get_wdf());
 	}
     }
     return output;
@@ -642,7 +648,7 @@ static bool test_termgen1()
     termgen.set_document(doc);
     string prefix;
 
-    for (test *p = test_simple; p->text; ++p) {
+    for (const test *p = test_simple; p->text; ++p) {
 	int weight = 1;
 	bool new_doc = true;
 	bool nopos = false;
@@ -755,7 +761,7 @@ static bool test_tg_spell2()
 }
 
 /// Test cases for the TermGenerator.
-static test_desc tests[] = {
+static const test_desc tests[] = {
     TESTCASE(termgen1),
     TESTCASE(tg_spell1),
     TESTCASE(tg_spell2),
@@ -763,7 +769,10 @@ static test_desc tests[] = {
 };
 
 int main(int argc, char **argv)
-{
+try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
+} catch (const char * e) {
+    cout << e << endl;
+    return 1;
 }

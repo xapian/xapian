@@ -29,7 +29,7 @@
 #include "documentvaluelist.h"
 #include "maptermlist.h"
 #include "serialise.h"
-#include "utils.h"
+#include "str.h"
 
 #include <xapian/error.h>
 #include <xapian/types.h>
@@ -55,21 +55,21 @@ Document::Document() : internal(new Xapian::Document::Internal)
 string
 Document::get_value(Xapian::valueno value) const
 {
-    DEBUGAPICALL(string, "Document::get_value", value);
+    LOGCALL(API, string, "Document::get_value", value);
     RETURN(internal->get_value(value));
 }
 
 string
 Document::get_data() const
 {
-    DEBUGAPICALL(string, "Document::get_data", "");
+    LOGCALL(API, string, "Document::get_data", NO_ARGS);
     RETURN(internal->get_data());
 }
 
 void
 Document::set_data(const string &data)
 {
-    DEBUGAPICALL(void, "Document::set_data", data);
+    LOGCALL_VOID(API, "Document::set_data", data);
     internal->set_data(data);
 }
 
@@ -98,21 +98,21 @@ Document::get_description() const
 void
 Document::add_value(Xapian::valueno valueno, const string &value)
 {
-    DEBUGAPICALL(void, "Document::add_value", valueno << ", " << value);
+    LOGCALL_VOID(API, "Document::add_value", valueno | value);
     internal->add_value(valueno, value);
 }
 
 void
 Document::remove_value(Xapian::valueno valueno)
 {
-    DEBUGAPICALL(void, "Document::remove_value", valueno);
+    LOGCALL_VOID(API, "Document::remove_value", valueno);
     internal->remove_value(valueno);
 }
 
 void
 Document::clear_values()
 {
-    DEBUGAPICALL(void, "Document::clear_values", "");
+    LOGCALL_VOID(API, "Document::clear_values", NO_ARGS);
     internal->clear_values();
 }
 
@@ -121,8 +121,7 @@ Document::add_posting(const string & tname,
 			Xapian::termpos tpos,
 			Xapian::termcount wdfinc)
 {
-    DEBUGAPICALL(void, "Document::add_posting",
-		 tname << ", " << tpos << ", " << wdfinc);
+    LOGCALL_VOID(API, "Document::add_posting", tname | tpos | wdfinc);
     if (tname.empty()) {
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -132,7 +131,7 @@ Document::add_posting(const string & tname,
 void
 Document::add_term(const string & tname, Xapian::termcount wdfinc)
 {
-    DEBUGAPICALL(void, "Document::add_term", tname << ", " << wdfinc);
+    LOGCALL_VOID(API, "Document::add_term", tname | wdfinc);
     if (tname.empty()) {
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -143,8 +142,7 @@ void
 Document::remove_posting(const string & tname, Xapian::termpos tpos,
 			 Xapian::termcount wdfdec)
 {
-    DEBUGAPICALL(void, "Document::remove_posting",
-		 tname << ", " << tpos << ", " << wdfdec);
+    LOGCALL_VOID(API, "Document::remove_posting", tname | tpos | wdfdec);
     if (tname.empty()) {
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -154,40 +152,40 @@ Document::remove_posting(const string & tname, Xapian::termpos tpos,
 void
 Document::remove_term(const string & tname)
 {
-    DEBUGAPICALL(void, "Document::remove_term", tname);
+    LOGCALL_VOID(API, "Document::remove_term", tname);
     internal->remove_term(tname);
 }
 
 void
 Document::clear_terms()
 {
-    DEBUGAPICALL(void, "Document::clear_terms", "");
+    LOGCALL_VOID(API, "Document::clear_terms", NO_ARGS);
     internal->clear_terms();
 }
 
 Xapian::termcount
 Document::termlist_count() const {
-    DEBUGAPICALL(Xapian::termcount, "Document::termlist_count", "");
+    LOGCALL(API, Xapian::termcount, "Document::termlist_count", NO_ARGS);
     RETURN(internal->termlist_count());
 }
 
 TermIterator
 Document::termlist_begin() const
 {
-    DEBUGAPICALL(TermIterator, "Document::termlist_begin", "");
+    LOGCALL(API, TermIterator, "Document::termlist_begin", NO_ARGS);
     RETURN(TermIterator(internal->open_term_list()));
 }
 
 Xapian::termcount
 Document::values_count() const {
-    DEBUGAPICALL(Xapian::termcount, "Document::values_count", "");
+    LOGCALL(API, Xapian::termcount, "Document::values_count", NO_ARGS);
     RETURN(internal->values_count());
 }
 
 ValueIterator
 Document::values_begin() const
 {
-    DEBUGAPICALL(ValueIterator, "Document::values_begin", "");
+    LOGCALL(API, ValueIterator, "Document::values_begin", NO_ARGS);
     // Calling values_count() has the side effect of making sure that they have
     // been read into the std::map "values" member of internal.
     if (internal->values_count() == 0) RETURN(ValueIterator());
@@ -197,21 +195,21 @@ Document::values_begin() const
 docid
 Document::get_docid() const
 {
-    DEBUGAPICALL(docid, "Document::get_docid", "");
+    LOGCALL(API, docid, "Document::get_docid", NO_ARGS);
     RETURN(internal->get_docid());
 }
 
 std::string
 Document::serialise() const
 {
-    DEBUGAPICALL(std::string, "Document::serialise", "");
+    LOGCALL(API, std::string, "Document::serialise", NO_ARGS);
     return serialise_document(*this);
 }
 
 Document
 Document::unserialise(const std::string &s)
 {
-    DEBUGAPICALL_STATIC(Document, "Document::unserialise", s);
+    LOGCALL_STATIC(API, Document, "Document::unserialise", s);
     return unserialise_document(s);
 }
 
@@ -222,7 +220,7 @@ Document::unserialise(const std::string &s)
 void
 OmDocumentTerm::add_position(Xapian::termpos tpos)
 {
-    DEBUGAPICALL(void, "OmDocumentTerm::add_position", tpos);
+    LOGCALL_VOID(DB, "OmDocumentTerm::add_position", tpos);
 
     // We generally expect term positions to be added in approximately
     // increasing order, so check the end first
@@ -243,14 +241,14 @@ OmDocumentTerm::add_position(Xapian::termpos tpos)
 void
 OmDocumentTerm::remove_position(Xapian::termpos tpos)
 {
-    DEBUGAPICALL(void, "OmDocumentTerm::remove_position", tpos);
+    LOGCALL_VOID(DB, "OmDocumentTerm::remove_position", tpos);
     
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.
     vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	throw Xapian::InvalidArgumentError("Position `" + om_tostring(tpos) +
+	throw Xapian::InvalidArgumentError("Position `" + str(tpos) +
 				     "' not found in list of positions that `" +
 				     tname +
 				     "' occurs at,"
@@ -265,8 +263,8 @@ OmDocumentTerm::get_description() const
     string description;
 
     description = "OmDocumentTerm(" + tname +
-	    ", wdf = " + om_tostring(wdf) +
-	    ", positions[" + om_tostring(positions.size()) + "]" +
+	    ", wdf = " + str(wdf) +
+	    ", positions[" + str(positions.size()) + "]" +
 	    ")";
     return description;
 }
@@ -277,10 +275,10 @@ Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
     if (values_here) {
 	map<Xapian::valueno, string>::const_iterator i;
 	i = values.find(valueid);
-	if (i == values.end()) return "";
+	if (i == values.end()) return string();
 	return i->second;
     }
-    if (!database.get()) return "";
+    if (!database.get()) return string();
     return do_get_value(valueid);
 }
 	
@@ -288,7 +286,7 @@ string
 Xapian::Document::Internal::get_data() const
 {
     if (data_here) return data;
-    if (!database.get()) return "";
+    if (!database.get()) return string();
     return do_get_data();
 }
 
@@ -302,7 +300,7 @@ Xapian::Document::Internal::set_data(const string &data_)
 TermList *
 Xapian::Document::Internal::open_term_list() const
 {
-    DEBUGCALL(MATCH, TermList *, "Document::Internal::open_term_list", "");
+    LOGCALL(MATCH, TermList *, "Document::Internal::open_term_list", NO_ARGS);
     if (terms_here) {
 	RETURN(new MapTermList(terms.begin(), terms.end()));
     }
@@ -329,7 +327,7 @@ Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
     need_values();
     map<Xapian::valueno, string>::iterator i = values.find(valueno);
     if (i == values.end()) {
-	throw Xapian::InvalidArgumentError("Value #" + om_tostring(valueno) +
+	throw Xapian::InvalidArgumentError("Value #" + str(valueno) +
 		" is not present in document, in "
 		"Xapian::Document::Internal::remove_value()");
     }
@@ -450,7 +448,7 @@ Xapian::Document::Internal::need_terms() const
 Xapian::valueno
 Xapian::Document::Internal::values_count() const
 {
-    LOGLINE(API, "Xapian::Document::Internal::values_count() called");
+    LOGLINE(DB, "Xapian::Document::Internal::values_count() called");
     need_values();
     Assert(values_here);
     return values.size();
@@ -465,12 +463,12 @@ Xapian::Document::Internal::get_description() const
 
     if (values_here) {
 	if (data_here) description += ", ";
-	description += "values[" + om_tostring(values.size()) + "]";
+	description += "values[" + str(values.size()) + "]";
     }
 
     if (terms_here) {
 	if (data_here || values_here) description += ", ";
-	description += "terms[" + om_tostring(terms.size()) + "]";
+	description += "terms[" + str(terms.size()) + "]";
     }
 
     if (database.get()) {

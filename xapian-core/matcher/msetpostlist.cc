@@ -1,7 +1,7 @@
 /** @file msetpostlist.cc
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007,2009 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,34 +21,35 @@
 #include <config.h>
 
 #include "msetpostlist.h"
+
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
 
 Xapian::doccount
 MSetPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_min", "");
+    LOGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_min", NO_ARGS);
     RETURN(mset_internal->matches_lower_bound);
 }
 
 Xapian::doccount
 MSetPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_est", "");
+    LOGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_est", NO_ARGS);
     RETURN(mset_internal->matches_estimated);
 }
 
 Xapian::doccount
 MSetPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_max", "");
+    LOGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_max", NO_ARGS);
     RETURN(mset_internal->matches_upper_bound);
 }
 
 Xapian::weight
 MSetPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::get_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "MSetPostList::get_maxweight", NO_ARGS);
     // If we've not started, return max_possible from our MSet so that this
     // value gets used to set max_possible in the combined MSet.
     if (cursor == -1) RETURN(mset_internal->max_possible);
@@ -57,6 +58,7 @@ MSetPostList::get_maxweight() const
     // can return from now on is the weight of the current item.
     if (decreasing_relevance) {
 	// FIXME: This is actually a reduction in the maxweight...
+	if (at_end()) RETURN(0);
 	RETURN(mset_internal->items[cursor].wt);
     }
 
@@ -67,7 +69,7 @@ MSetPostList::get_maxweight() const
 Xapian::docid
 MSetPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, Xapian::docid, "MSetPostList::get_docid", "");
+    LOGCALL(MATCH, Xapian::docid, "MSetPostList::get_docid", NO_ARGS);
     Assert(cursor != -1);
     RETURN(mset_internal->items[cursor].did);
 }
@@ -75,7 +77,7 @@ MSetPostList::get_docid() const
 Xapian::weight
 MSetPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::get_weight", "");
+    LOGCALL(MATCH, Xapian::weight, "MSetPostList::get_weight", NO_ARGS);
     Assert(cursor != -1);
     RETURN(mset_internal->items[cursor].wt);
 }
@@ -83,7 +85,7 @@ MSetPostList::get_weight() const
 const string *
 MSetPostList::get_collapse_key() const
 {
-    DEBUGCALL(MATCH, string *, "MSetPostList::get_collapse_key", "");
+    LOGCALL(MATCH, string *, "MSetPostList::get_collapse_key", NO_ARGS);
     Assert(cursor != -1);
     RETURN(&mset_internal->items[cursor].collapse_key);
 }
@@ -97,14 +99,14 @@ MSetPostList::get_doclength() const
 Xapian::weight
 MSetPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::recalc_maxweight", "");
+    LOGCALL(MATCH, Xapian::weight, "MSetPostList::recalc_maxweight", NO_ARGS);
     RETURN(MSetPostList::get_maxweight());
 }
 
 PostList *
 MSetPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "MSetPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "MSetPostList::next", w_min);
     Assert(cursor == -1 || !at_end());
     ++cursor;
     if (decreasing_relevance) {
@@ -133,7 +135,7 @@ MSetPostList::skip_to(Xapian::docid, Xapian::weight)
 bool
 MSetPostList::at_end() const
 {
-    DEBUGCALL(MATCH, bool, "MSetPostList::at_end", "");
+    LOGCALL(MATCH, bool, "MSetPostList::at_end", NO_ARGS);
     Assert(cursor != -1);
     RETURN(size_t(cursor) >= mset_internal->items.size());
 }

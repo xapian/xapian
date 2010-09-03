@@ -4,6 +4,7 @@ EXTRA_DIST +=\
 
 noinst_HEADERS +=\
 	harness/backendmanager.h\
+	harness/backendmanager_brass.h\
 	harness/backendmanager_chert.h\
 	harness/backendmanager_flint.h\
 	harness/backendmanager_inmemory.h\
@@ -13,6 +14,7 @@ noinst_HEADERS +=\
 	harness/backendmanager_remoteprog.h\
 	harness/backendmanager_remotetcp.h\
 	harness/cputimer.h\
+	harness/fdtracker.h\
 	harness/index_utils.h\
 	harness/unixcmds.h\
 	harness/scalability.h\
@@ -25,12 +27,17 @@ testharness_sources =\
 	harness/backendmanager.cc\
 	harness/backendmanager_multi.cc\
 	harness/cputimer.cc\
+	harness/fdtracker.cc\
 	harness/index_utils.cc\
 	harness/scalability.cc\
 	harness/testrunner.cc\
 	harness/testsuite.cc\
 	harness/testutils.cc\
 	harness/unixcmds.cc
+
+if BUILD_BACKEND_BRASS
+testharness_sources += harness/backendmanager_brass.cc
+endif
 
 if BUILD_BACKEND_CHERT
 testharness_sources += harness/backendmanager_chert.cc

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,10 +69,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 
 	TermIterator & operator++();
 
-	DerefStringWrapper_ operator++(int) {
-	    std::string term(**this);
+	DerefWrapper_<std::string> operator++(int) {
+	    const std::string & term(**this);
 	    operator++();
-	    return DerefStringWrapper_(term);
+	    return DerefWrapper_<std::string>(term);
 	}
 
 	/** Skip the iterator to term tname, or the first term after tname
@@ -122,12 +122,14 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	//@}
 };
 
+/// Equality test for TermIterator objects.
 inline bool
 operator==(const TermIterator &a, const TermIterator &b)
 {
     return (a.internal.get() == b.internal.get());
 }
 
+/// Inequality test for TermIterator objects.
 inline bool
 operator!=(const TermIterator &a, const TermIterator &b)
 {

@@ -1,7 +1,7 @@
 /** @file backendmanager_chert.cc
  * @brief BackendManager subclass for chert databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,6 @@
 #include "backendmanager_chert.h"
 
 using namespace std;
-
-BackendManagerChert::~BackendManagerChert() { }
 
 std::string
 BackendManagerChert::get_dbtype() const
@@ -53,17 +51,13 @@ BackendManagerChert::get_writable_database_path(const string & name)
 }
 
 Xapian::Database
-BackendManagerChert::get_writable_database_as_database(const string & name)
+BackendManagerChert::get_writable_database_as_database()
 {
-    if (name.empty())
-	return Xapian::Chert::open(".chert/" + last_wdb_name);
-    return Xapian::Chert::open(".chert/" + name);
+    return Xapian::Chert::open(".chert/" + last_wdb_name);
 }
 
 Xapian::WritableDatabase
-BackendManagerChert::get_writable_database_again(const string & name)
+BackendManagerChert::get_writable_database_again()
 {
-    if (name.empty())
-	return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
-    return Xapian::Chert::open(".chert/" + name, Xapian::DB_OPEN);
+    return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
 }

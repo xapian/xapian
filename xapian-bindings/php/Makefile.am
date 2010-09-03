@@ -15,7 +15,7 @@ TESTS = smoketest.php
 
 BUILT_SOURCES = php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php
 
-EXTRA_DIST = except.i util.i $(TESTS) smoketest5.php $(BUILT_SOURCES)
+EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 

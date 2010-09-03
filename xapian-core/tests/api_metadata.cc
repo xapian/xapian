@@ -2,7 +2,7 @@
  * @brief Test the user metadata functionality.
  */
 /* Copyright (C) 2007,2009 Olly Betts
- * Copyright (C) 2007,2008 Lemur Consulting Ltd
+ * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ DEFINE_TESTCASE(metadata1, writable) {
     TEST_EQUAL(db.get_metadata("foo"), "");
     try {
 	db.set_metadata("foo", "bar");
-    } catch (Xapian::UnimplementedError &) {
+    } catch (const Xapian::UnimplementedError &) {
 	SKIP_TEST("Metadata not supported by this backend");
     }
     TEST_EQUAL(db.get_metadata("foo"), "bar");
@@ -51,6 +51,21 @@ DEFINE_TESTCASE(metadata1, writable) {
     TEST_EQUAL(db.get_metadata("foo"), "");
 
     TEST_EQUAL(db.get_doccount(), 0);
+
+    // Check for transparent handling of zero bytes.
+    db.set_metadata("foo", "value of foo");
+    db.set_metadata(string("foo\0bar", 7), string(1, '\0'));
+    db.set_metadata(string("foo\0", 4), string("foo\0bar", 7));
+
+    TEST_EQUAL(db.get_metadata("foo"), "value of foo");
+    TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
+    TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
+
+    db.commit();
+
+    TEST_EQUAL(db.get_metadata("foo"), "value of foo");
+    TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
+    TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
 
     return true;
 }
@@ -122,7 +137,8 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
 }
 
 // Test metadata iterators.
-DEFINE_TESTCASE(metadata5, writable) {
+// !remote because the remote backend doesn't support metadata iteration.
+DEFINE_TESTCASE(metadata5, writable && !remote) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.
@@ -136,7 +152,7 @@ DEFINE_TESTCASE(metadata5, writable) {
 
     try {
 	db.set_metadata("foo", "val");
-    } catch (Xapian::UnimplementedError &) {
+    } catch (const Xapian::UnimplementedError &) {
 	SKIP_TEST("Metadata not supported by this backend");
     }
     db.commit();

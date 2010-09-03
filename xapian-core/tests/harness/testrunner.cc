@@ -1,8 +1,8 @@
 /** \file testrunner.cc
  *  \brief Run multiple tests for different backends.
  */
-/* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009 Olly Betts
+/* Copyright 2008,2009 Lemur Consulting Ltd
+ * Copyright 2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
+#include "backendmanager_brass.h"
 #include "backendmanager_chert.h"
 #include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
@@ -52,16 +53,21 @@ struct BackendProperties {
 static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,metadata,valuestats,inmemory" },
+    { "brass", "backend,transactions,positional,writable,spelling,metadata,"
+	       "synonyms,replicas,valuestats,generated,brass" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,valuestats,chert" },
+	       "synonyms,replicas,valuestats,generated,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,flint" },
-    { "multi_flint", "backend,positional,multi" },
+	       "synonyms,replicas,generated,flint" },
+    { "multi_brass", "backend,positional,valuestats,multi" },
     { "multi_chert", "backend,positional,valuestats,multi" },
-    { "remoteprog_flint", "backend,remote,transactions,positional,writable" },
-    { "remotetcp_flint", "backend,remote,transactions,positional,writable" },
-    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable" },
-    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable" },
+    { "multi_flint", "backend,positional,multi" },
+    { "remoteprog_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remotetcp_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remoteprog_flint", "backend,remote,transactions,positional,writable,metadata" },
+    { "remotetcp_flint", "backend,remote,transactions,positional,writable,metadata" },
     { NULL, NULL }
 };
 
@@ -82,9 +88,11 @@ TestRunner::set_properties(const string & properties)
     metadata = false;
     replicas = false;
     valuestats = false;
+    generated = false;
     inmemory = false;
-    flint = false;
+    brass = false;
     chert = false;
+    flint = false;
 
     // Read the properties specified in the string
     string::size_type pos = 0;
@@ -117,12 +125,16 @@ TestRunner::set_properties(const string & properties)
 	    replicas = true;
 	else if (propname == "valuestats")
 	    valuestats = true;
+	else if (propname == "generated")
+	    generated = true;
 	else if (propname == "inmemory")
 	    inmemory = true;
-	else if (propname == "flint")
-	    flint = true;
+	else if (propname == "brass")
+	    brass = true;
 	else if (propname == "chert")
 	    chert = true;
+	else if (propname == "flint")
+	    flint = true;
 	else
 	    throw Xapian::InvalidArgumentError("Unknown property '" + propname + "' found in proplist");
 
@@ -170,7 +182,6 @@ TestRunner::do_tests_for_backend(BackendManager * manager)
 	cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl;
 	result_so_far = max(result_so_far, run());
     }
-    delete manager;
 }
 
 int
@@ -182,43 +193,99 @@ TestRunner::run_tests(int argc, char ** argv)
 	test_driver::parse_command_line(argc, argv);
 	srcdir = test_driver::get_srcdir();
 
-	do_tests_for_backend(new BackendManager);
+	{
+	    BackendManager m;
+	    do_tests_for_backend(&m);
+	}
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	do_tests_for_backend(new BackendManagerInMemory);
+	{
+	    BackendManagerInMemory m;
+	    do_tests_for_backend(&m);
+	}
+#endif
+
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	{
+	    BackendManagerBrass m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	do_tests_for_backend(new BackendManagerChert);
+	{
+	    BackendManagerChert m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	do_tests_for_backend(new BackendManagerFlint);
+	{
+	    BackendManagerFlint m;
+	    do_tests_for_backend(&m);
+	}
 #endif
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	{
+	    BackendManagerMulti m("brass");
+	    do_tests_for_backend(&m);
+	}
+#endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	do_tests_for_backend(new BackendManagerMulti("chert"));
+	{
+	    BackendManagerMulti m("chert");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	do_tests_for_backend(new BackendManagerMulti("flint"));
+	{
+	    BackendManagerMulti m("flint");
+	    do_tests_for_backend(&m);
+	}
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	{
+	    BackendManagerRemoteProg m("brass");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("brass");
+	    do_tests_for_backend(&m);
+	}
+#endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	do_tests_for_backend(new BackendManagerRemoteProg("chert"));
-	do_tests_for_backend(new BackendManagerRemoteTcp("chert"));
+	{
+	    BackendManagerRemoteProg m("chert");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("chert");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	do_tests_for_backend(new BackendManagerRemoteProg("flint"));
-	do_tests_for_backend(new BackendManagerRemoteTcp("flint"));
+	{
+	    BackendManagerRemoteProg m("flint");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("flint");
+	    do_tests_for_backend(&m);
+	}
 #endif
 #endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
-	return false;
+	return 1;
     } catch (const std::string &e) {
 	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
-	return false;
+	return 1;
+    } catch (const char * e) {
+	cout << e << endl;
+	return 1;
     }
     return result_so_far;
 }

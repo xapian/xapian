@@ -24,7 +24,7 @@
 #include "utils.h"
 
 #include <stdio.h> // for sprintf/snprintf
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <string>
 
@@ -52,18 +52,6 @@ int
 string_to_int(const string &s)
 {
     return atoi(s.c_str());
-}
-
-string
-int_to_string(int val)
-{
-    CONVERT_TO_STRING("%d")
-}
-
-string
-long_to_string(long val)
-{
-    CONVERT_TO_STRING("%ld")
 }
 
 string

@@ -31,72 +31,37 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
-"$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe"
+"$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8converttest.exe" 
 
-ALL : HEADERS $(PROGRAMS) 
+ALL : $(PROGRAMS) 
 
 OMEGA_OBJS= \
-	"$(OUTDIR)\omega.obj" \
-	"$(OUTDIR)\query.obj" \
-	"$(OUTDIR)\cgiparam.obj" \
-	"$(OUTDIR)\utils.obj" \
-	"$(OUTDIR)\configfile.obj" \
-	"$(OUTDIR)\date.obj" \
-	"$(OUTDIR)\cdb_init.obj" \
-	"$(OUTDIR)\cdb_find.obj" \
-	"$(OUTDIR)\cdb_hash.obj" \
-	"$(OUTDIR)\cdb_unpack.obj" \
- 	"$(OUTDIR)\loadfile.obj" \
- 	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\datematchdecider.obj" 
+ omindex.obj myhtmlparse.obj htmlparse.obj\
+ getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj md5.obj\
+ md5wrap.obj xmlparse.obj metaxmlparse.obj utf8convert.obj sample.obj diritor.obj\
+ runfilter.obj freemem.obj msvc_dirent.obj xpsxmlparse.obj mkdtemp.obj
 	
 OMINDEX_OBJS= \
-	"$(OUTDIR)\omindex.obj" \
-	"$(OUTDIR)\myhtmlparse.obj" \
-	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\getopt.obj" \
-	"$(OUTDIR)\commonhelp.obj" \
-	"$(OUTDIR)\utils.obj" \
-	"$(OUTDIR)\hashterm.obj" \
- 	"$(OUTDIR)\loadfile.obj" \
- 	"$(OUTDIR)\md5.obj" \
- 	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\xmlparse.obj" \
- 	"$(OUTDIR)\metaxmlparse.obj" \
- 	"$(OUTDIR)\utf8convert.obj" \
-	"$(OUTDIR)\sample.obj" \
-	"$(OUTDIR)\mkdtemp.obj" \
-	"$(OUTDIR)\dirent.obj" \
-	"$(OUTDIR)\diritor.obj" \
-	"$(OUTDIR)\runfilter.obj" \
-    "$(OUTDIR)\xpsxmlparse.obj"
+ omindex.obj myhtmlparse.obj htmlparse.obj\
+ getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj md5.obj\
+ md5wrap.obj xmlparse.obj metaxmlparse.obj utf8convert.obj sample.obj diritor.obj\
+ runfilter.obj freemem.obj msvc_dirent.obj xpsxmlparse.obj mkdtemp.obj
 	
 	
 SCRIPTINDEX_OBJS= \
-	"$(OUTDIR)\scriptindex.obj" \
-	"$(OUTDIR)\myhtmlparse.obj" \
-	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\getopt.obj" \
-	"$(OUTDIR)\commonhelp.obj" \
-	"$(OUTDIR)\utils.obj" \
-	"$(OUTDIR)\hashterm.obj" \
-	"$(OUTDIR)\loadfile.obj" \
-	"$(OUTDIR)\safe.obj" \
-	"$(OUTDIR)\utf8convert.obj" \
-	"$(OUTDIR)\utf8truncate.obj" 
+ scriptindex.obj myhtmlparse.obj htmlparse.obj\
+ getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj\
+ safe.obj stringutils.obj utf8convert.obj utf8truncate.obj
 	
 	
 HTMLPARSETEST_OBJS= \
- 	"$(OUTDIR)\htmlparsetest.obj" \
-	"$(OUTDIR)\myhtmlparse.obj" \
- 	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\utf8convert.obj" 
+htmlparsetest.obj myhtmlparse.obj htmlparse.obj utf8convert.obj
 
 MD5TEST_OBJS= \
- 	"$(OUTDIR)\md5.obj" \
- 	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\md5test.obj" 
+md5test.obj md5wrap.obj md5.obj
 
+UTF8CONVERTTEST_OBJS= \
+utf8converttest.obj utf8convert.obj
 
 SRCS= \
 	"$(INTDIR)\omega.cc" \
@@ -127,17 +92,16 @@ SRCS= \
  	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\sample.cc" \
 	"$(INTDIR)\portability\mkdtemp.cc" \
-	"$(INTDIR)\dirent.cc" \
 	"$(INTDIR)\scriptindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
 	"$(INTDIR)\htmlparse.cc" \
-	"$(INTDIR)\getopt.cc" \
+	"$(INTDIR)\common\getopt.cc" \
 	"$(INTDIR)\commonhelp.cc" \
 	"$(INTDIR)\utils.cc" \
 	"$(INTDIR)\hashterm.cc" \
 	"$(INTDIR)\loadfile.cc" \
 	"$(INTDIR)\common\safe.cc" \
-	"$(INTDIR)\utf8convert.cc" \
+	"$(INTDIR)\utf8converttest.cc" \
 	"$(INTDIR)\utf8truncate.cc" \
  	"$(INTDIR)\htmlparsetest.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
@@ -148,7 +112,9 @@ SRCS= \
  	"$(INTDIR)\md5test.cc" \
 	"$(INTDIR)\diritor.cc" \
 	"$(INTDIR)\runfilter.cc" \
-    "$(OUTDIR)\xpsxmlparse.cc"
+    "$(OUTDIR)\xpsxmlparse.cc" \
+    "$(OUTDIR)\weight.cc" \
+    "$(OUTDIR)\freemem.cc"
     
 	
 CLEAN :
@@ -157,14 +123,13 @@ CLEAN :
 	-@erase $(OMINDEX_OBJS)
 	-@erase $(SCRIPTINDEX_OBJS)
 	-@erase $(HTMLPARSETEST_OBJS)
+    -@erase $(UTF8CONVERTTEST_OBJS)
 	-@erase $(MD5TEST_OBJS)
 	-@erase "$(INTDIR)\*.pdb"
 
-#"$(OUTDIR)" :
-#    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- -I "." -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
+-I.. -I. -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
  -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
@@ -208,23 +173,40 @@ PROGRAM_DEPENDENCIES =
   $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\md5test.exe" $(DEF_FLAGS) $(MD5TEST_OBJS)
 <<
 
-"$(INTDIR)\dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"
+"$(OUTEXEDIR)\UTF8CONVERTTEST.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(UTF8CONVERTTEST_OBJS)
+                      $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\UTF8CONVERTTEST.exe" $(DEF_FLAGS) $(UTF8CONVERTTEST_OBJS)
+<<
+
+# rules for various files in subfolders
+
+"dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-
-"$(INTDIR)\getopt.obj" : ".\common\getopt.cc"
+"getopt.obj" : ".\common\getopt.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"$(INTDIR)\mkdtemp.obj" : ".\portability\mkdtemp.cc"
+"stringutils.obj" : ".\common\stringutils.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"$(INTDIR)\safe.obj" : ".\common\safe.cc"
+"mkdtemp.obj" : ".\portability\mkdtemp.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"safe.obj" : ".\common\safe.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"msvc_dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\common\msvc_dirent.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -243,5 +225,7 @@ PROGRAM_DEPENDENCIES =
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "$(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)" $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

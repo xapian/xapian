@@ -53,10 +53,10 @@ class BackendManagerRemote : public BackendManager {
 					 unsigned int timeout);
 
     /// Get the args for opening the last opened WritableDatabase.
-    std::string get_writable_database_as_database_args(const std::string & name);
+    std::string get_writable_database_as_database_args();
 
     /// Get the args for opening the last opened WritableDatabase again.
-    std::string get_writable_database_again_args(const std::string & name);
+    std::string get_writable_database_again_args();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTE_H

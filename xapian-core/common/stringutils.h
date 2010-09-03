@@ -1,7 +1,7 @@
 /** @file stringutils.h
  * @brief Various handy helpers which std::string really should provide.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include <algorithm>
 #include <string>
-#include <string.h>
+#include <cstring>
 
 /** Helper macro for STRINGIZE - the nested call is required because of how
  *  # works in macros.
@@ -51,13 +51,13 @@ startswith(const std::string & s, char pfx)
 inline bool
 startswith(const std::string & s, const char * pfx, size_t len)
 {
-    return s.size() >= len && (memcmp(s.data(), pfx, len) == 0);
+    return s.size() >= len && (std::memcmp(s.data(), pfx, len) == 0);
 }
 
 inline bool
 startswith(const std::string & s, const char * pfx)
 {
-    return startswith(s, pfx, strlen(pfx));
+    return startswith(s, pfx, std::strlen(pfx));
 }
 
 inline bool
@@ -75,13 +75,13 @@ endswith(const std::string & s, char sfx)
 inline bool
 endswith(const std::string & s, const char * sfx, size_t len)
 {
-    return s.size() >= len && (memcmp(s.data() + s.size() - len, sfx, len) == 0);
+    return s.size() >= len && (std::memcmp(s.data() + s.size() - len, sfx, len) == 0);
 }
 
 inline bool
 endswith(const std::string & s, const char * sfx)
 {
-    return endswith(s, sfx, strlen(sfx));
+    return endswith(s, sfx, std::strlen(sfx));
 }
 
 inline bool
@@ -129,49 +129,59 @@ namespace Xapian {
 // Warning (suggestion) 818: [...] # Type `int' is larger than type `bool',
 // truncation in value may result.
 
+inline unsigned char C_tab_(char ch) {
+    using Xapian::Internal::is_tab;
+    return is_tab[static_cast<unsigned char>(ch)];
+}
+
 inline bool C_isdigit(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_DIGIT);
+    return bool(C_tab_(ch) & IS_DIGIT);
 }
 
 inline bool C_isxdigit(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_HEX);
+    return bool(C_tab_(ch) & IS_HEX);
+}
+
+inline bool C_islcxdigit(char ch) {
+    using namespace Xapian::Internal;
+    return (C_tab_(ch) & (IS_UPPER|IS_HEX)) == IS_HEX;
 }
 
 inline bool C_isupper(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_UPPER);
+    return bool(C_tab_(ch) & IS_UPPER);
 }
 
 inline bool C_islower(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_LOWER);
+    return bool(C_tab_(ch) & IS_LOWER);
 }
 
 inline bool C_isalpha(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER));
+    return bool(C_tab_(ch) & (IS_UPPER|IS_LOWER));
 }
 
 inline bool C_isalnum(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER|IS_DIGIT));
+    return bool(C_tab_(ch) & (IS_UPPER|IS_LOWER|IS_DIGIT));
 }
 
 inline bool C_isspace(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_SPACE);
+    return bool(C_tab_(ch) & IS_SPACE);
 }
 
 inline bool C_issign(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_SIGN);
+    return bool(C_tab_(ch) & IS_SIGN);
 }
 
 inline bool C_isupdig(char ch) {
     using namespace Xapian::Internal;
-    return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_DIGIT));
+    return bool(C_tab_(ch) & (IS_UPPER|IS_DIGIT));
 }
 
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }

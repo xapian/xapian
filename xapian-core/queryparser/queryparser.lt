@@ -1,8 +1,8 @@
 /* Driver template for the LEMON parser generator.
 ** The author disclaims copyright to this source code.
 **
-** Synced with upstream CVS rev 1.43:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.43
+** Synced with upstream CVS rev 1.45:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.45
 */
 /* First off, code is included that follows the "include" declaration
 ** in the input grammar file. */
@@ -61,6 +61,18 @@
 #define YY_NO_ACTION      (YYNSTATE+YYNRULE+2)
 #define YY_ACCEPT_ACTION  (YYNSTATE+YYNRULE+1)
 #define YY_ERROR_ACTION   (YYNSTATE+YYNRULE)
+
+/* Define the yytestcase() macro to be a no-op if is not already defined
+** otherwise.
+**
+** Applications can choose to define yytestcase() in the %include section
+** to a macro that can assist in verifying code coverage.  For production
+** code the yytestcase() macro should be turned off.  But it is useful
+** for testing.
+*/
+#ifndef yytestcase
+# define yytestcase(X)
+#endif
 
 /* Next are the tables used to determine what action to take based on the
 ** current state and lookahead token.  These tables are used to implement
@@ -166,13 +178,10 @@ struct yyParser {
 };
 typedef struct yyParser yyParser;
 
-/* Prototype this here so we can call it from a rule action (ick). */
-static void yy_parse_failed(yyParser *);
-
 #include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
 static const char *const yyTokenName[] = {
@@ -206,7 +215,7 @@ static const char *ParseRuleName(int ruleNum){
   }
   return "Unknown";
 }
-#endif /* XAPIAN_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_LOG */
 
 /* 
 ** This function allocates a new parser.
@@ -389,7 +398,7 @@ static void yy_shift(
 #if 0
 %%
 #endif
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
   unsigned i;
   LOGLINE(QUERYPARSER, "Shift " << yyNewState);
   string stack("Stack:");
@@ -429,7 +438,7 @@ static void yy_reduce(
   int yysize;                     /* Amount to pop the stack */
   ParseARG_FETCH;
   yymsp = &yypParser->yystack.back();
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
   LOGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
 #endif
 
@@ -478,6 +487,7 @@ static void yy_reduce(
 /*
 ** The following code executes when the parse fails
 */
+#ifndef YYNOERRORRECOVERY
 static void yy_parse_failed(
   yyParser *yypParser           /* The parser */
 ){
@@ -489,6 +499,7 @@ static void yy_parse_failed(
 %%
   ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
+#endif /* YYNOERRORRECOVERY */
 
 /*
 ** The following code executes when a syntax error first occurs.
@@ -630,6 +641,18 @@ static void Parse(
       }
       yypParser->yyerrcnt = 3;
       yyerrorhit = 1;
+#elif defined(YYNOERRORRECOVERY)
+      /* If the YYNOERRORRECOVERY macro is defined, then do not attempt to
+      ** do any kind of error recovery.  Instead, simply invoke the syntax
+      ** error routine and continue going as if nothing had happened.
+      **
+      ** Applications can set this macro (for example inside %include) if
+      ** they intend to abandon the parse upon the first syntax error seen.
+      */
+      yy_syntax_error(yypParser,yymajor,yyminorunion);
+      yy_destructor(yypParser,(YYCODETYPE)yymajor,&yyminorunion);
+      yymajor = YYNOCODE;
+      
 #else  /* YYERRORSYMBOL is not defined */
       /* This is what we do if the grammar does not define ERROR:
       **

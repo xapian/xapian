@@ -26,9 +26,9 @@
 #include "chert_cursor.h"
 #include "chert_postlist.h"
 #include "chert_termlist.h"
-#include "chert_utils.h"
+#include "debuglog.h"
 #include "document.h"
-#include "omdebug.h"
+#include "pack.h"
 
 #include "xapian/error.h"
 #include "xapian/valueiterator.h"
@@ -47,19 +47,24 @@ using namespace std;
 inline string
 make_slot_key(Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, string, "make_slot_key", did);
+    LOGCALL_STATIC(DB, string, "make_slot_key", did);
     // Add an extra character so that it can't clash with a termlist entry key
     // and will sort just after the corresponding termlist entry key.
     // FIXME: should we store this in the *same entry* as the list of terms?
-    RETURN(chert_docid_to_key(did) + string(1, '\0'));
+    string key;
+    pack_uint_preserving_sort(key, did);
+    key += '\0';
+    RETURN(key);
 }
 
 /** Generate a key for a value statistics item. */
 inline string
 make_valuestats_key(Xapian::valueno slot)
 {
-    DEBUGCALL_STATIC(DB, string, "make_valuestats_key", slot);
-    RETURN(string("\0\xd0", 2) + pack_uint_last(slot));
+    LOGCALL_STATIC(DB, string, "make_valuestats_key", slot);
+    string key("\0\xd0", 2);
+    pack_uint_last(key, slot);
+    RETURN(key);
 }
 
 void
@@ -86,6 +91,41 @@ ValueChunkReader::next()
     did += delta + 1;
     if (!unpack_string(&p, end, value))
 	throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+}
+
+void
+ValueChunkReader::skip_to(Xapian::docid target)
+{
+    if (p == NULL || target <= did)
+	return;
+
+    size_t value_len;
+    while (p != end) {
+	// Get the next docid
+	Xapian::docid delta;
+	if (rare(!unpack_uint(&p, end, &delta)))
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
+	did += delta + 1;
+
+	// Get the length of the string
+	if (rare(!unpack_uint(&p, end, &value_len))) {
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value length");
+	}
+
+	// Check that it's not too long
+	if (rare(value_len > size_t(end - p))) {
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+	}
+
+	// Assign the value and return only if we've reached the target
+	if (did >= target) {
+	    value.assign(p, value_len);
+	    p += value_len;
+	    return;
+	}
+	p += value_len;
+    }
+    p = NULL;
 }
 
 void
@@ -116,14 +156,14 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 					    Xapian::docid did,
 					    string &chunk) const
 {
-    DEBUGCALL(DB, Xapian::docid, "ChertValueManager::get_chunk_containing_did", slot << ", " << did << "[chunk]");
+    LOGCALL(DB, Xapian::docid, "ChertValueManager::get_chunk_containing_did", slot | did | chunk);
     AutoPtr<ChertCursor> cursor(postlist_table->cursor_get());
     if (!cursor.get()) return 0;
 
     bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
     if (!exact) {
 	// If we didn't find a chunk starting with docid did, then we need
-	// to check that the chunk:
+	// to check if the chunk contains did.
 	const char * p = cursor->current_key.data();
 	const char * end = p + cursor->current_key.size();
 
@@ -178,10 +218,10 @@ class ValueUpdater {
 	    new_first_did = did;
 	} else {
 	    AssertRel(did,>,prev_did);
-	    tag += pack_uint(did - prev_did - 1);
+	    pack_uint(tag, did - prev_did - 1);
 	}
 	prev_did = did;
-	tag += pack_string(value);
+	pack_string(tag, value);
 	if (tag.size() >= CHUNK_SIZE_THRESHOLD) write_tag();
     }
 
@@ -235,7 +275,8 @@ class ValueUpdater {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
 		first_did = did;
-	    } else if (!cursor->after_end()) {
+	    } else {
+		Assert(!cursor->after_end());
 		// Otherwise we need to unpack it from the key we found.
 		// We may have found a non-value-chunk entry in which case
 		// docid_from_key() returns 0.
@@ -252,13 +293,13 @@ class ValueUpdater {
 		// FIXME:swap(cursor->current_tag, ctag);
 		ctag = cursor->current_tag;
 		reader.assign(ctag.data(), ctag.size(), first_did);
-		if (cursor->next()) {
-		    const string & key = cursor->current_key;
-		    Xapian::docid next_first_did = docid_from_key(slot, key);
-		    if (next_first_did) last_allowed_did = next_first_did - 1;
-		    Assert(last_allowed_did);
-		    AssertRel(last_allowed_did,>=,first_did);
-		}
+	    }
+	    if (cursor->next()) {
+		const string & key = cursor->current_key;
+		Xapian::docid next_first_did = docid_from_key(slot, key);
+		if (next_first_did) last_allowed_did = next_first_did - 1;
+		Assert(last_allowed_did);
+		AssertRel(last_allowed_did,>=,first_did);
 	    }
 	}
 
@@ -280,7 +321,7 @@ class ValueUpdater {
 void
 ChertValueManager::merge_changes()
 {
-    {
+    if (termlist_table->is_open()) {
 	map<Xapian::docid, string>::const_iterator i;
 	for (i = slots.begin(); i != slots.end(); ++i) {
 	    const string & enc = i->second;
@@ -347,24 +388,32 @@ ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
         }
 
 	add_value(did, slot, value);
-	slots_used += pack_uint(slot - prev_slot - 1);
-	prev_slot = slot;
+	if (termlist_table->is_open()) {
+	    pack_uint(slots_used, slot - prev_slot - 1);
+	    prev_slot = slot;
+	}
 	++it;
     }
-    swap(slots[did], slots_used);
+    if (slots_used.empty() && slots.find(did) == slots.end()) {
+	// Adding a new document with no values which we didn't just remove.
+    } else {
+	swap(slots[did], slots_used);
+    }
 }
 
 void
 ChertValueManager::delete_document(Xapian::docid did,
 				   map<Xapian::valueno, ValueStats> & value_stats)
 {
+    Assert(termlist_table->is_open());
     map<Xapian::docid, string>::iterator it = slots.find(did);
     string s;
     if (it != slots.end()) {
-	s = it->second;
+	swap(s, it->second);
     } else {
 	// Get from table, making a swift exit if this document has no values.
 	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
+	slots.insert(make_pair(did, string()));
     }
     const char * p = s.data();
     const char * end = p + s.size();
@@ -437,6 +486,8 @@ ChertValueManager::get_all_values(map<Xapian::valueno, string> & values,
 				  Xapian::docid did) const
 {
     Assert(values.empty());
+    if (!termlist_table->is_open())
+	throw Xapian::FeatureUnavailableError("Database has no termlist");
     map<Xapian::docid, string>::const_iterator i = slots.find(did);
     string s;
     if (i != slots.end()) {
@@ -462,7 +513,7 @@ ChertValueManager::get_all_values(map<Xapian::valueno, string> & values,
 void
 ChertValueManager::get_value_stats(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, void, "ChertValueManager::get_value_stats", slot);
+    LOGCALL_VOID(DB, "ChertValueManager::get_value_stats", slot);
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
     get_value_stats(slot, mru_valstats);
@@ -472,7 +523,7 @@ ChertValueManager::get_value_stats(Xapian::valueno slot) const
 void
 ChertValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
-    DEBUGCALL(DB, void, "ChertValueManager::get_value_stats", slot << ", [stats]");
+    LOGCALL_VOID(DB, "ChertValueManager::get_value_stats", slot | Literal("[stats]"));
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
 
@@ -505,14 +556,15 @@ ChertValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 void
 ChertValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
 {
-    DEBUGCALL(DB, void, "ChertValueManager::set_value_stats", "[value_stats]");
+    LOGCALL_VOID(DB, "ChertValueManager::set_value_stats", value_stats);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     for (i = value_stats.begin(); i != value_stats.end(); ++i) {
 	string key = make_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
-	    string new_value = pack_uint(stats.freq);
-	    new_value += pack_string(stats.lower_bound);
+	    string new_value;
+	    pack_uint(new_value, stats.freq);
+	    pack_string(new_value, stats.lower_bound);
 	    // We don't store or count empty values, so neither of the bounds
 	    // can be empty.  So we can safely store an empty upper bound when
 	    // the bounds are equal.

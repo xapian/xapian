@@ -1,8 +1,8 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,20 +25,20 @@
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
 #include <signal.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "autoptr.h"
-#include "serialisationcontextinternal.h"
 #include "multimatch.h"
 #include "omassert.h"
-#include "omtime.h"
+#include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "utils.h"
+#include "str.h"
 #include "weightinternal.h"
 
 /// Class to throw when we receive the connection closing message.
@@ -46,8 +46,7 @@ struct ConnectionClosed { };
 
 RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   int fdin_, int fdout_,
-			   Xapian::timeout active_timeout_,
-			   Xapian::timeout idle_timeout_,
+			   double active_timeout_, double idle_timeout_,
 			   bool writable_)
     : RemoteConnection(fdin_, fdout_, std::string()),
       db(NULL), wdb(NULL), writable(writable_),
@@ -114,27 +113,24 @@ RemoteServer::~RemoteServer()
 }
 
 message_type
-RemoteServer::get_message(Xapian::timeout timeout, string & result,
+RemoteServer::get_message(double timeout, string & result,
 			  message_type required_type)
 {
-    unsigned int type;
-    OmTime end_time;
-    if (timeout)
-	end_time = OmTime::now() + timeout;
-    type = RemoteConnection::get_message(result, end_time);
+    double end_time = RealTime::end_time(timeout);
+    unsigned int type = RemoteConnection::get_message(result, end_time);
 
     // Handle "shutdown connection" message here.
     if (type == MSG_SHUTDOWN) throw ConnectionClosed();
     if (type >= MSG_MAX) {
 	string errmsg("Invalid message type ");
-	errmsg += om_tostring(type);
+	errmsg += str(type);
 	throw Xapian::NetworkError(errmsg);
     }
     if (required_type != MSG_MAX && type != unsigned(required_type)) {
 	string errmsg("Expecting message type ");
-	errmsg += om_tostring(int(required_type));
+	errmsg += str(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(int(type));
+	errmsg += str(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
     return static_cast<message_type>(type);
@@ -143,9 +139,7 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
 void
 RemoteServer::send_message(reply_type type, const string &message)
 {
-    OmTime end_time;
-    if (active_timeout)
-	end_time = OmTime::now() + active_timeout;
+    double end_time = RealTime::end_time(active_timeout);
     unsigned char type_as_char = static_cast<unsigned char>(type);
     RemoteConnection::send_message(type_as_char, message, end_time);
 }
@@ -185,6 +179,10 @@ RemoteServer::run()
 		&RemoteServer::msg_replacedocumentterm,
 		&RemoteServer::msg_deletedocument,
 		&RemoteServer::msg_writeaccess,
+		&RemoteServer::msg_getmetadata,
+		&RemoteServer::msg_setmetadata,
+		&RemoteServer::msg_addspelling,
+		&RemoteServer::msg_removespelling,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -193,16 +191,16 @@ RemoteServer::run()
 	    size_t type = get_message(idle_timeout, message);
 	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
 		string errmsg("Unexpected message type ");
-		errmsg += om_tostring(type);
+		errmsg += str(type);
 		throw Xapian::InvalidArgumentError(errmsg);
 	    }
 	    (this->*(dispatch[type]))(message);
 	} catch (const Xapian::NetworkTimeoutError & e) {
 	    try {
 		// We've had a timeout, so the client may not be listening, so
-		// if we can't send the message right away, just exit and the
-		// client will cope.
-		RemoteConnection::send_message(REPLY_EXCEPTION, serialise_error(e), OmTime::now());
+		// set the end_time to 1 and if we can't send the message right
+		// away, just exit and the client will cope.
+		send_message(REPLY_EXCEPTION, serialise_error(e), 1.0);
 	    } catch (...) {
 	    }
 	    // And rethrow it so our caller can log it and close the
@@ -354,6 +352,22 @@ RemoteServer::msg_update(const string &)
     send_message(REPLY_UPDATE, message);
 }
 
+/** Structure holding a list of match spies.
+ *
+ *  The main reason for the existence of this structure is to make it easy to
+ *  ensure that the match spies are all deleted after use.
+ */
+struct MatchSpyList {
+    vector<Xapian::MatchSpy *> spies;
+
+    ~MatchSpyList() {
+	vector<Xapian::MatchSpy *>::const_iterator i;
+	for (i = spies.begin(); i != spies.end(); ++i) {
+	    delete *i;
+	}
+    }
+};
+
 void
 RemoteServer::msg_query(const string &message_in)
 {
@@ -363,7 +377,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), ctx));
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), reg));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -405,28 +419,49 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Weight object.
     len = decode_length(&p, p_end, true);
-    const Xapian::Weight * wttype = ctx.get_weighting_scheme(string(p, len));
+    string wtname(p, len);
+    p += len;
+
+    const Xapian::Weight * wttype = reg.get_weighting_scheme(wtname);
     if (wttype == NULL) {
 	// Note: user weighting schemes should be registered by adding them to
-	// a SerialisationContext, and setting the context using
-	// RemoteServer::set_context().
+	// a Registry, and setting the context using
+	// RemoteServer::set_registry().
 	throw Xapian::InvalidArgumentError("Weighting scheme " +
-					   string(p, len) + " not registered");
+					   wtname + " not registered");
     }
-    p += len;
 
     len = decode_length(&p, p_end, true);
     AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
     p += len;
 
     // Unserialise the RSet object.
-    Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
+    len = decode_length(&p, p_end, true);
+    Xapian::RSet rset = unserialise_rset(string(p, len));
+    p += len;
+
+    // Unserialise any MatchSpy objects.
+    MatchSpyList matchspies;
+    while (p != p_end) {
+	len = decode_length(&p, p_end, true);
+	string spytype(p, len);
+	const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
+	if (spyclass == NULL) {
+	    throw Xapian::InvalidArgumentError("Match spy " + spytype +
+					       " not registered");
+	}
+	p += len;
+
+	len = decode_length(&p, p_end, true);
+	matchspies.spies.push_back(spyclass->unserialise(string(p, len), reg));
+	p += len;
+    }
 
     Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, local_stats, wt.get());
+		     local_stats, wt.get(), matchspies.spies, false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -446,9 +481,17 @@ RemoteServer::msg_query(const string &message_in)
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
 
-    send_message(REPLY_RESULTS, serialise_mset(mset));
+    message.resize(0);
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.spies.begin(); i != matchspies.spies.end(); ++i) {
+	string spy_results = (*i)->serialise_results();
+	message += encode_length(spy_results.size());
+	message += spy_results;
+    }
+    message += serialise_mset(mset);
+    send_message(REPLY_RESULTS, message);
 }
 
 void
@@ -612,4 +655,46 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
+}
+
+void
+RemoteServer::msg_getmetadata(const string & message)
+{
+    send_message(REPLY_METADATA, db->get_metadata(message));
+}
+
+void
+RemoteServer::msg_setmetadata(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    size_t keylen = decode_length(&p, p_end, false);
+    string key(p, keylen);
+    p += keylen;
+    string val(p, p_end - p);
+    wdb->set_metadata(key, val);
+}
+
+void
+RemoteServer::msg_addspelling(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::termcount freqinc = decode_length(&p, p_end, false);
+    wdb->add_spelling(string(p, p_end - p), freqinc);
+}
+
+void
+RemoteServer::msg_removespelling(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::termcount freqdec = decode_length(&p, p_end, false);
+    wdb->remove_spelling(string(p, p_end - p), freqdec);
 }

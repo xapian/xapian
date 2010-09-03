@@ -1,13 +1,13 @@
 
 Package: php@PHP_VERSION@-xapian
-Section: web
+Section: php
 Architecture: any
 Depends: ${php@PHP_VERSION@:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-doc
 Description: Xapian search engine interface for PHP@PHP_VERSION@
  This package provides Xapian PHP bindings built for PHP@PHP_VERSION@.
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance

@@ -1,6 +1,6 @@
 /* freemem.cc: determine how much free physical memory there is.
  *
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,10 +23,8 @@
 #include "freemem.h"
 
 #include <sys/types.h>
-#include <limits.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#include <climits>
+#include "safeunistd.h"
 #ifdef HAVE_SYS_SYSCTL_H
 # include <sys/sysctl.h>
 #endif
@@ -47,29 +45,30 @@
 #endif
 
 #ifdef __WIN32__
-#include "safewindows.h"
-#endif 
+# include "safewindows.h"
+#endif
 
 /* Tested on:
- * Windows, Linux, FreeBSD, IRIX, HP-UX.
+ * Linux, FreeBSD, IRIX, HP-UX, Microsoft Windows.
  */
 
 long
 get_free_physical_memory()
 {
-#ifdef __WIN32__
-    MEMORYSTATUSEX statex;
-    statex.dwLength = sizeof (statex);
-    GlobalMemoryStatusEx (&statex);
-    return statex.ullAvailPhys;
-#else
+#ifndef __WIN32__
     long pagesize = 1;
     long pages = -1;
-#if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
-    /* Linux: */
+#if defined(_SC_PAGESIZE) && defined(_SC_PHYS_PAGES)
+    /* Linux:
+     * _SC_AVPHYS_PAGES is "available memory", but that excludes memory being
+     * used by the OS VM cache, which will often be almost all memory which
+     * isn't otherwise used, so used _SC_PHYS_PAGES which is just memory -
+     * that's good enough for Omega's use where we really just want to avoid
+     * runaway filter processes for dragging down the system.
+     */
     pagesize = sysconf(_SC_PAGESIZE);
-    pages = sysconf(_SC_AVPHYS_PAGES);
-#elif defined HAVE_SYSMP 
+    pages = sysconf(_SC_PHYS_PAGES);
+#elif defined HAVE_SYSMP
     /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
     struct rminfo meminfo;
     if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
@@ -108,29 +107,29 @@ get_free_physical_memory()
 	return mem;
     }
     return -1;
+#else
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    GlobalMemoryStatusEx(&statex);
+    return statex.ullAvailPhys;
 #endif
 }
 
 /* Tested on:
- * Windows, Linux.
+ * Linux, Microsoft Windows.
  */
 
 long
 get_total_physical_memory()
 {
-#ifdef __WIN32__
-    MEMORYSTATUSEX statex;
-    statex.dwLength = sizeof (statex);
-    GlobalMemoryStatusEx (&statex);
-    return statex.ullTotalPhys;
-#else
+#ifndef __WIN32__
     long pagesize = 1;
     long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
     /* Linux: */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_PHYS_PAGES);
-#elif defined HAVE_SYSMP 
+#elif defined HAVE_SYSMP
     /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
     struct rminfo meminfo;
     if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
@@ -169,5 +168,10 @@ get_total_physical_memory()
 	return mem;
     }
     return -1;
+#else
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    GlobalMemoryStatusEx(&statex);
+    return statex.ullTotalPhys;
 #endif
 }

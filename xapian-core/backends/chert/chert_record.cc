@@ -20,23 +20,33 @@
  */
 
 #include <config.h>
+
 #include "chert_record.h"
-#include "chert_utils.h"
-#include "utils.h"
+
 #include <xapian/error.h>
+#include "debuglog.h"
 #include "omassert.h"
-#include "omdebug.h"
+#include "pack.h"
+#include "str.h"
 
 using std::string;
+
+inline string
+make_key(Xapian::docid did)
+{
+    string key;
+    pack_uint_preserving_sort(key, did);
+    return key;
+}
 
 string
 ChertRecordTable::get_record(Xapian::docid did) const
 {
-    DEBUGCALL(DB, string, "ChertRecordTable::get_record", did);
+    LOGCALL(DB, string, "ChertRecordTable::get_record", did);
     string tag;
 
-    if (!get_exact_entry(chert_docid_to_key(did), tag)) {
-	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
+    if (!get_exact_entry(make_key(did), tag)) {
+	throw Xapian::DocNotFoundError("Document " + str(did) + " not found.");
     }
 
     RETURN(tag);
@@ -45,22 +55,27 @@ ChertRecordTable::get_record(Xapian::docid did) const
 Xapian::doccount
 ChertRecordTable::get_doccount() const
 {   
-    DEBUGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", "");
-    STATIC_ASSERT_TYPE_DOMINATES(Xapian::doccount, chert_tablesize_t);
-    RETURN(get_entry_count());
+    LOGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", NO_ARGS);
+    chert_tablesize_t count = get_entry_count();
+    if (rare(count > chert_tablesize_t(Xapian::doccount(-1)))) {
+	// If we've got more entries than there are possible docids, the
+	// database is in an odd state.
+	throw Xapian::DatabaseCorruptError("Impossibly many entries in the record table");
+    }
+    RETURN(Xapian::doccount(count));
 }
 
 void
 ChertRecordTable::replace_record(const string & data, Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "ChertRecordTable::replace_record", data << ", " << did);
-    add(chert_docid_to_key(did), data);
+    LOGCALL_VOID(DB, "ChertRecordTable::replace_record", data | did);
+    add(make_key(did), data);
 }
 
 void
 ChertRecordTable::delete_record(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "ChertRecordTable::delete_record", did);
-    if (!del(chert_docid_to_key(did)))
-	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + om_tostring(did));
+    LOGCALL_VOID(DB, "ChertRecordTable::delete_record", did);
+    if (!del(make_key(did)))
+	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
 }

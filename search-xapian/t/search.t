@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 114 };
+BEGIN { plan tests => 117 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -55,6 +55,7 @@ is( $query->get_description, "Xapian::Query((test PHRASE 3 help PHRASE 3 one))",
 
 ok( $enq = $db->enquire( $query ), "db queries return ok"  );
 ok( $enq = $db->enquire( OP_OR, 'test', 'help' ), "in-line db queries return ok" );
+is( $db->get_spelling_suggestion( 'tost' ), 'test', "spelling suggestion ok" );
 
 ok( $query = Search::Xapian::Query->new(OP_SCALE_WEIGHT, $query, 3.14), "OP_SCALE_WEIGHT understood" );
 
@@ -105,13 +106,13 @@ is( $matches3->size, $matches->size, "rset and check_at_least don't change mset 
 my $d;
 # This was generating a warning converting "0" to an RSet object:
 ok( $matches3 = $enq->get_mset(0, 10,
-			sub { $d = $#_; return $_[0]->get_value(0) ne ""; }),
+			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
        	"get_mset with matchdecider" );
 ok( defined $d, "matchdecider was called" );
 ok( $d == 1, "matchdecider got an argument" );
 
 sub mdecider {
-    $d = $#_;
+    $d = scalar @_;
     return $_[0]->get_value(0) ne "";
 }
 
@@ -130,6 +131,8 @@ is( $eit->get_termname(), 'one', "expanded terms set contains correct terms");
 is( ++$eit, $eset->end(), "eset iterator reaches ESet::end() ok" );
 --$eit;
 is( $eit->get_termname(), 'one', "eset iterator decrement works ok" );
+ok( $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
+is( $eset->size(), 0, "expanded terms decider filtered" );
 
 # try an empty mset - this was giving begin != end
 my ($noquery, $nomatches);

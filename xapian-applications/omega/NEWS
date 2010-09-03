@@ -1,3 +1,118 @@
+Omega 1.2.3 (2010-08-24):
+
+documentation:
+
+* docs/termprefixes.html: Update "flint and quartz" to "flint and chert" as
+  quartz is no longer supported.  Give exact term length limit for flint and
+  chert.
+
+packaging:
+
+* xapian-omega.spec: Don't run autoreconf - it's no longer required.
+
+Omega 1.2.2 (2010-06-27):
+
+portability:
+
+* Apply getopt portability fixes from xapian-core 1.2.0, fixing build failures
+  on Mac OS X (and probably some other platforms with non-GNU getopt
+  implementations). (ticket#469)
+
+Omega 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+Omega 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+build system:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Omega 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Omega 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+omega:
+
+* Use the optimised integer to string conversion routines from xapian-core.
+
+Omega 1.1.3 (2009-11-18):
+
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
+
+templates:
+
+* templates/query: If JavaScript is available, convert $field{modtime} to a
+  string on the client-side so that the timezone is correct.  If JavaScript
+  isn't available, fall back to the existing behaviour of using UTC.
+  (ticket#314)
+
+build system:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+Omega 1.1.2 (2009-07-23):
+
+This release includes all changes from 1.0.14 which are relevant.
+
+indexers:
+
+* omindex:
+
+  + Handle the "macroenabled" versions of MS Office 2007 files too
+    (ticket#290).
+
+  + Extract pptx notesSlides and comments, if present.  (ticket#290).
+
+Omega 1.1.1 (2009-06-09):
+
+This release includes all changes from 1.0.13 which are relevant.
+
+indexers:
+
+* omindex:
+
+  + Check the last modification time of files before reindexing (ticket#342).
+
+  + Add "--spelling" option to index spelling correction data.
+
+* scriptindex:
+
+  + Add new "spell" action for indexing spelling correction data (ticket#296).
+
+omega:
+
+* Add $suggestion and $opt{spelling} to provide access to spelling correction
+  (ticket#296).
+
+* Add $opt{weighting} to allow the weighting scheme and parameters to be
+  specified (ticket#298).
+
+* If SERVER_PROTOCOL in the environment is set to INCLUDED, then our output is
+  being included in another page (e.g. using SSI) so suppress the output of any
+  HTTP headers.
+
+templates:
+
+* templates/query: Offer any spelling correction QueryParser gives.
+
+build system:
+
+* configure: Sync warning flags used with GCC with xapian-core apart from
+  -Woverloaded-virtual which fires for MyHtmlParser::parse_html().  That
+  probably should be tidied up at some point, but not right now.
+
 Omega 1.1.0 (2009-04-23):
 
 indexers:
@@ -17,6 +132,145 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.21 (2010-05-18):
+
+portability:
+
+* Fix build failure in freemem.cc on Microsoft Windows.
+
+Omega 1.0.20 (2010-04-27):
+
+portability:
+
+* Fix build failure on Mac OS X and possibly some other platforms (regression
+  caused by fix for getopt-related warnings on Cygwin in 1.0.19).
+
+Omega 1.0.19 (2010-04-15):
+
+portability:
+
+* Fix getopt-related warning on Cygwin.
+
+Omega 1.0.18 (2010-02-14):
+
+indexers:
+
+* Make the default charset "utf-8" not "UTF-8" as we lower case explicitly
+  specified character sets to compare to see if we need to reparse.  Previously
+  XML documents which explicitly specified their character set as UTF-8 would
+  cause needless restart or the parser.
+
+* omindex:
+
+  + Increase the wdf boost for the document title from 2 to 5, since 2 isn't
+    really enough.
+
+* scriptindex:
+
+  + Don't abort with "Unknown Exception" if indexing is disallowed or we hit
+    </body> for a document which had an overridden character set.  Fixes
+    ticket#410.
+
+Omega 1.0.17 (2009-11-18):
+
+indexers:
+
+* omindex:
+
+  + On Linux, change the memory limit on external filters to use _SC_PHYS_PAGES
+    since _SC_AVPHYS_PAGES excludes pages used by the OS cache and so will
+    often report a really low value.  Fixes Debian bug#548987 and ticket#358.
+
+  + Fix likely crash when reading output from external filter program if read()
+    is interrupted by a signal.
+
+  + Fix potential crash when indexing PostScript files (fixed by using delete[]
+    (not delete) for array allocated by new[]).
+
+testsuite:
+
+* utf8converttest: Charset "8859_1" isn't understood by Solaris libiconv, and
+  isn't a standard charset name, so just test it when using our built-in
+  converter and GNU libc.
+
+portability:
+
+* Fix build failure on Mac OS X 10.6.
+
+* Also check for socketpair() in -lxnet if it isn't found without, which
+  enables resource limits on external filter programs called by omindex on
+  Solaris, and possibly some other platforms.  Fixes ticket#412.
+
+Omega 1.0.16 (2009-09-10):
+
+* omega: Fix cross-site scripting vulnerability in reporting of exceptions
+  (CVE-2009-2947).
+
+Omega 1.0.15 (2009-08-26):
+
+general:
+
+* omegascript.vim: The list of OmegaScript commands in the vim mode was rather
+  out of date, and a few commands were misclassified.  Fix both problems and
+  avoid future recurrences by automatically generating those lists from the
+  command list in query.cc.
+
+documentation:
+
+* omegascript.html: Document that $date uses UTC.  (ticket#314)
+
+templates:
+
+* query: Link to "xapian.org" rather than "www.xapian.org".
+
+* inc/toptermsjs: Use double-quotes rather than single quotes for parameter
+  values on the <script> tag.
+
+portability:
+
+* omindex: Implement correct handling of paths when calling external filter
+  programs on Microsoft Windows.
+
+Omega 1.0.14 (2009-07-21):
+
+indexers:
+
+* omindex: Make sure that output is flushed after every message, not just after
+  some of them.
+
+portability:
+
+* Avoid infinite loop in omindex and scriptindex when reading files under
+  Cygwin with automatic end of line translation enabled.  This same bug can
+  also manifest on Unix platforms if the file is truncated by another process
+  while being read.
+
+Omega 1.0.13 (2009-05-23):
+
+indexers:
+
+* omindex:
+
+  + If the filter program needed for a file format isn't installed, report this
+    explicitly when skipping subsequent files with the extension instead of
+    misleadingly reporting "Unknown extension".
+
+  + Make -s actually work as a short-form for --stemmer (as documented by
+    "omindex --help" and "man omindex").
+
+  + Drop the copyright info from the output of --version as it's perennially
+    out of date and we don't report it for any other Xapian programs.
+
+* scriptindex:
+
+  + Add new "valuenumeric" action to add a document value using
+    Xapian::sortable_serialise() to allow numeric sorting (ticket#260).
+
+build system:
+
+* configure: Enable more GCC warnings - "-Wstrict-null-sentinel" for 4.0+,
+  "-Wlogical-op -Wmissing-declarations" for 4.3+.
 
 Omega 1.0.12 (2009-04-19):
 

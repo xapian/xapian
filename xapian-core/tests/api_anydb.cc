@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -404,7 +404,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (get_dbtype().substr(0, 5) != "multi") {
+    if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -523,7 +523,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
@@ -539,7 +539,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
     TEST_REL(pct,>,60);
-    TEST_REL(pct,<,75);
+    TEST_REL(pct,<,76);
 
     ++i;
 
@@ -551,7 +551,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
@@ -1434,8 +1434,8 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 
     TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
     TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
-    // non-existent terms still have weight
-    TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
+    // non-existent terms should have 0 weight.
+    TEST_EQUAL(mymset1a.get_termweight(term3), 0);
 
     TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
@@ -1772,7 +1772,6 @@ DEFINE_TESTCASE(spaceterms1, backend) {
 // test that XOR queries work
 DEFINE_TESTCASE(xor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("this"));
     Xapian::Stem stemmer("english");
 
     vector<string> terms;
@@ -1785,7 +1784,40 @@ DEFINE_TESTCASE(xor1, backend) {
     enquire.set_query(query);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
+    //	Docid	this	word	of	Match?
+    //	1	*			*
+    //	2	*	*	*	*
+    //	3	*		*
+    //	4	*	*
+    //	5	*			*
+    //	6	*			*
     mset_expect_order(mymset, 1, 2, 5, 6);
+
+    return true;
+}
+
+/// Test that weighted XOR queries work (bug fixed in 1.2.1 and 1.0.21).
+DEFINE_TESTCASE(xor2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Stem stemmer("english");
+
+    vector<string> terms;
+    terms.push_back(stemmer("this"));
+    terms.push_back(stemmer("word"));
+    terms.push_back(stemmer("of"));
+
+    Xapian::Query query(Xapian::Query::OP_XOR, terms.begin(), terms.end());
+    enquire.set_query(query);
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    //	Docid	LEN	this	word	of	Match?
+    //	1	28	2			*
+    //	2	81	5	8	1	*
+    //	3	15	1		2
+    //	4	31	1	1
+    //	5	15	1			*
+    //	6	15	1			*
+    mset_expect_order(mymset, 2, 1, 5, 6);
 
     return true;
 }
@@ -1971,62 +2003,8 @@ DEFINE_TESTCASE(emptyterm1, backend) {
     return true;
 }
 
-// Feature test for Query::OP_VALUE_RANGE.
-DEFINE_TESTCASE(valuerange1, backend) {
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    static const char * vals[] = {
-	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z", NULL
-    };
-    for (const char **start = vals; *start; ++start) {
-	for (const char **end = vals; *end; ++end) {
-	    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 1, *start, *end);
-	    enq.set_query(query);
-	    Xapian::MSet mset = enq.get_mset(0, 20);
-	    // Check that documents in the MSet match the value range filter.
-	    set<Xapian::docid> matched;
-	    Xapian::MSetIterator i;
-	    for (i = mset.begin(); i != mset.end(); ++i) {
-		matched.insert(*i);
-		string value = db.get_document(*i).get_value(1);
-		tout << "'" << *start << "' <= '" << value << "' <= '" << *end << "'" << endl;
-		TEST(value >= *start);
-		TEST(value <= *end);
-	    }
-	    // Check that documents not in the MSet don't match the value range filter.
-	    for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-		if (matched.find(j) == matched.end()) {
-		    string value = db.get_document(j).get_value(1);
-		    tout << value << " < '" << *start << "' or > '" << *end << "'" << endl;
-		    TEST(value < *start || value > *end);
-		}
-	    }
-	}
-    }
-    return true;
-}
-
-// Regression test for Query::OP_VALUE_LE - used to return document IDs for
-// non-existent documents.
-DEFINE_TESTCASE(valuerange2, backend && writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.set_data("5");
-    doc.add_value(0, "5");
-    db.replace_document(5, doc);
-    Xapian::Enquire enq(db);
-
-    Xapian::Query query(Xapian::Query::OP_VALUE_LE, 0, "6");
-    enq.set_query(query);
-    Xapian::MSet mset = enq.get_mset(0, 20);
-
-    TEST_EQUAL(mset.size(), 1);
-    TEST_EQUAL(*(mset[0]), 5);
-    return true;
-}
-
 // Test for alldocs postlist with a sparse database.
-DEFINE_TESTCASE(alldocspl1, backend && writable) {
+DEFINE_TESTCASE(alldocspl1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.set_data("5");
@@ -2045,7 +2023,7 @@ DEFINE_TESTCASE(alldocspl1, backend && writable) {
 }
 
 // Test reading and writing a modified alldocspostlist.
-DEFINE_TESTCASE(alldocspl2, backend && writable) {
+DEFINE_TESTCASE(alldocspl2, writable) {
     Xapian::PostingIterator i, end;
     {
 	Xapian::WritableDatabase db = get_writable_database();
@@ -2127,71 +2105,6 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
     return true;
 }
 
-// Feature test for Query::OP_VALUE_GE.
-DEFINE_TESTCASE(valuege1, backend) {
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    static const char * vals[] = {
-	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z", NULL
-    };
-    for (const char **start = vals; *start; ++start) {
-	Xapian::Query query(Xapian::Query::OP_VALUE_GE, 1, *start);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, 20);
-	// Check that documents in the MSet match the value range filter.
-	set<Xapian::docid> matched;
-	Xapian::MSetIterator i;
-	for (i = mset.begin(); i != mset.end(); ++i) {
-	    matched.insert(*i);
-	    string value = db.get_document(*i).get_value(1);
-	    tout << "'" << *start << "' <= '" << value << "'" << endl;
-	    TEST_REL(value,>=,*start);
-	}
-	// Check that documents not in the MSet don't match the value range
-	// filter.
-	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-	    if (matched.find(j) == matched.end()) {
-		string value = db.get_document(j).get_value(1);
-		tout << value << " < '" << *start << "'" << endl;
-		TEST_REL(value,<,*start);
-	    }
-	}
-    }
-    return true;
-}
-
-// Feature test for Query::OP_VALUE_LE.
-DEFINE_TESTCASE(valuele1, backend) {
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    static const char * vals[] = {
-	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z", NULL
-    };
-    for (const char **end = vals; *end; ++end) {
-	Xapian::Query query(Xapian::Query::OP_VALUE_LE, 1, *end);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, 20);
-	// Check that documents in the MSet match the value range filter.
-	set<Xapian::docid> matched;
-	Xapian::MSetIterator i;
-	for (i = mset.begin(); i != mset.end(); ++i) {
-	    matched.insert(*i);
-	    string value = db.get_document(*i).get_value(1);
-	    tout << "'" << *end << "' <= '" << value << "'" << endl;
-	    TEST(value <= *end);
-	}
-	// Check that documents not in the MSet don't match the value range filter.
-	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-	    if (matched.find(j) == matched.end()) {
-		string value = db.get_document(j).get_value(1);
-		tout << value << " < '" << *end << "'" << endl;
-		TEST(value > *end);
-	    }
-	}
-    }
-    return true;
-}
-
 // Feature test for Query::OP_SCALE_WEIGHT.
 DEFINE_TESTCASE(scaleweight1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
@@ -2209,7 +2122,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 	"leave \"milk notpresent\"",
 	NULL
     };
-    static double multipliers[] = {
+    static const double multipliers[] = {
 	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
 	0, 0
     };
@@ -2217,7 +2130,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     for (const char **qstr = queries; *qstr; ++qstr) {
 	Xapian::Query query1 = qp.parse_query(*qstr);
 	tout << "query1: " << query1.get_description() << endl;
-	for (double *multp = multipliers; multp[0] != multp[1]; ++multp) {
+	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;
 	    if (mult < 0) {
 		TEST_EXCEPTION(Xapian::InvalidArgumentError,
@@ -2350,6 +2263,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
     SKIP_TEST_FOR_BACKEND("inmemory");
     Xapian::Database db = get_database("apitest_simpledata");
     string uuid1 = db.get_uuid();
+    TEST_EQUAL(uuid1.size(), 36);
 
     // A database with no sub-databases has an empty UUID.
     Xapian::Database db2;

@@ -45,7 +45,7 @@ class ChertAllDocsModifiedPostList : public ChertAllDocsPostList {
   public:
     ChertAllDocsModifiedPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
 				 Xapian::doccount doccount_,
-				 map<Xapian::docid, Xapian::termcount> & doclens_);
+				 const map<Xapian::docid, Xapian::termcount> & doclens_);
 
     Xapian::docid get_docid() const;
 

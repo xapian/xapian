@@ -9,7 +9,12 @@ $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 my $builddir;
 
 my $srcdir = $0;
-if ($srcdir =~ s!/[^/]*$!!) {
+if ($srcdir =~ s!/([^/]*)$!!) {
+    # Set $0 to be just the leafname.  If we don't, WriteMakefile() reruns this
+    # script for reasons unknown, leading to a seemingly infinite loop
+    # consuming increasing amounts of memory.  With setting $0, it still reruns
+    # this script, but only once.
+    $0 = $1;
     chomp($builddir = `pwd`);
     chdir $srcdir;
 }
@@ -65,7 +70,7 @@ END
     exit(0);
 }
 chomp($xver);
-$xver =~ s/.*\s//; # "xapian 1.0.4" -> "1.0.4"
+$xver =~ s/.*\s//; # "xapian 1.2.0" -> "1.2.0"
 
 my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
@@ -75,7 +80,7 @@ my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
-if ($? || -f "${xapian_config_dir}Makefile") {
+if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     # Assume we're being asked to build against an uninstalled xapian-core.
     my $libtool = "${xapian_config_dir}libtool";
     unless (-x $libtool) {
@@ -121,16 +126,17 @@ push @writemakefile_args, (
 #       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
-    'CC'                => $CC,
+    'CC'		=> $CC,
     'CCFLAGS'		=> $CCFLAGS,
-    'LD'                => $LD,
+    'LD'		=> $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
     'OBJECT'		=> '$(BASEEXT)$(OBJ_EXT) handle_exception$(OBJ_EXT)',
-    'XSOPT'             => '-C++',
+    'XSOPT'		=> '-C++',
     # 'typemap' is implicitly added to this list.
-    'TYPEMAPS'          => ['perlobject.map', 'typemap-errorclasses'],
+    'TYPEMAPS'		=> ['perlobject.map', 'typemap-errorclasses'],
     # Add "make check" as alias for "make test".
-    'depend'		=> { 'check' => 'test' },
+    # Make sure that we rebuild the Makefile if the version number changes.
+    'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
 WriteMakefile(@writemakefile_args);
 
@@ -146,8 +152,8 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    # There's no chance that we'll work with xapian-core 0.x.y.
-    my $no_chance = ($xver =~ /^0/);
+    # We definitely need Xapian 1.2.x.
+    my $no_chance = ($xver !~ /^1\.2\./);
     my $msg;
     if ($no_chance) {
 	$msg = "Xapian version $xver is incompatible with Search::Xapian $VERSION\n";

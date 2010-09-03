@@ -1,5 +1,5 @@
 /* @file win32_uuid.h
- * @brief Provide UUID functions compatible with libuuid from e2fsprogs.
+ * @brief Provide UUID functions compatible with libuuid from util-linux-ng.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  *

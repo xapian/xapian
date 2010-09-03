@@ -1,7 +1,7 @@
 /** @file api_spelling.cc
  * @brief Test the spelling correction suggestion API.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,30 @@
 #include <string>
 
 using namespace std;
+
+// Test add_spelling() and remove_spelling(), which remote dbs support.
+DEFINE_TESTCASE(spell0, spelling || remote) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    db.add_spelling("hello");
+    db.add_spelling("cell", 2);
+    db.commit();
+    db.add_spelling("zig");
+    db.add_spelling("ch");
+    db.add_spelling("hello", 2);
+    db.remove_spelling("hello", 2);
+    db.remove_spelling("cell", 6);
+    db.commit();
+    db.remove_spelling("hello");
+    db.remove_spelling("nonsuch");
+    db.remove_spelling("zzzzzzzzz", 1000000);
+    db.remove_spelling("aarvark");
+    db.remove_spelling("hello");
+    db.commit();
+    db.remove_spelling("hello");
+
+    return true;
+}
 
 // Test basic spelling correction features.
 DEFINE_TESTCASE(spell1, spelling) {
@@ -255,6 +279,25 @@ DEFINE_TESTCASE(spell6, spelling) {
     Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "sell");
+
+    return true;
+}
+
+// Test suggestions when there's an exact match.
+DEFINE_TESTCASE(spell7, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    // Check that the more frequent term is chosen.
+    db.add_spelling("word", 57);
+    db.add_spelling("wrod", 3);
+    db.add_spelling("sword", 56);
+    db.add_spelling("words", 57);
+    db.add_spelling("ward", 58);
+    db.commit();
+    TEST_EQUAL(db.get_spelling_suggestion("ward"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("words"), "word");
+    TEST_EQUAL(db.get_spelling_suggestion("sword"), "word");
+    TEST_EQUAL(db.get_spelling_suggestion("wrod"), "word");
 
     return true;
 }

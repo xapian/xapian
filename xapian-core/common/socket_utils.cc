@@ -29,7 +29,7 @@
 // to be a good idea.  We cribbed this test from the python sources - see, for
 // example, http://svn.python.org/view?rev=47223&view=rev
 # if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
-#  include <stdlib.h> // For _set_invalid_parameter_handler(), etc.
+#  include <cstdlib> // For _set_invalid_parameter_handler(), etc.
 #  include <crtdbg.h> // For _CrtSetReportMode, etc.
 
 /** A dummy invalid parameter handler which ignores the error. */
