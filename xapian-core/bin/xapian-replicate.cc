@@ -150,6 +150,12 @@ main(int argc, char **argv)
 			info.changeset_count << " changesets, " <<
 			(info.changed ? "new live database" : "no changes to live database") <<
 			endl;
+		if (info.fullcopy_count > 0 && !info.changed) {
+		    cout <<
+"Replication using a full copy failed. This is usually due to changes being\n"
+"made at remote end too frequently. Ensure that sufficient changesets are\n"
+"present at remote end by setting XAPIAN_MAX_CHANGESETS" << endl;
+		}
 	    }
 	} catch (const Xapian::NetworkError &error) {
 	    // Don't stop running if there's a network error - just log to
