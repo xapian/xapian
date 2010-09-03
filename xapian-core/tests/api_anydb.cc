@@ -2267,7 +2267,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
 
     // A database with no sub-databases has an empty UUID.
     Xapian::Database db2;
-    TEST_EQUAL(string(), db2.get_uuid());
+    TEST(db2.get_uuid().empty());
 
     db2.add_database(db);
     TEST_EQUAL(uuid1, db2.get_uuid());
@@ -2281,7 +2281,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
     // This relies on InMemory databases not supporting uuids.
     // A multi-database containing a database with no uuid has no uuid.
     db2.add_database(Xapian::InMemory::open());
-    TEST_EQUAL(string(), db2.get_uuid());
+    TEST(db2.get_uuid().empty());
 #endif
 
     return true;
