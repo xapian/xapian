@@ -2,7 +2,7 @@
  * @brief Class to manage replication of databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,6 @@
 #include "xapian/types.h"
 
 class RemoteConnection;
-class OmTime;
 
 namespace Xapian {
 
@@ -81,7 +80,7 @@ class DatabaseReplicator {
 	 *  are performed.
 	 */
 	virtual std::string apply_changeset_from_conn(RemoteConnection & conn,
-						      const OmTime & end_time,
+						      double end_time,
 						      bool db_valid) const = 0;
 
 	/** Get a UUID for the replica.

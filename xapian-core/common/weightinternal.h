@@ -1,8 +1,8 @@
 /** @file weightinternal.h
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
-/* Copyright 2007 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+/* Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,9 @@
 #include "xapian/weight.h"
 
 #include "xapian/database.h"
+#include "xapian/query.h"
 
+#include "database.h"
 #include "internaltypes.h"
 
 #include <map>
@@ -51,6 +53,8 @@ struct TermFreqs {
 
 namespace Xapian {
 
+class RSet;
+
 /** Class to hold statistics for a given collection. */
 class Weight::Internal {
   public:
@@ -72,8 +76,24 @@ class Weight::Internal {
 
     Internal() : total_length(0), collection_size(0), rset_size(0) { }
 
-    /** Add in the supplied statistics from a sub-database. */
+    /** Add in the supplied statistics from a sub-database.
+     *
+     *  Used for remote databases, where we pass across a serialised stats
+     *  object, unserialise it, and add it to our total.
+     */
     Internal & operator +=(const Internal & inc);
+
+    /// Mark the terms we need to collate stats for.
+    void mark_wanted_terms(const Xapian::Query::Internal &query) {
+	Xapian::TermIterator t;
+	for (t = query.get_terms(); t != Xapian::TermIterator(); ++t) {
+	    termfreqs.insert(make_pair(*t, TermFreqs()));
+	}
+    }
+
+    /// Accumulate the rtermfreqs for terms marked by mark_wanted_terms().
+    void accumulate_stats(const Xapian::Database::Internal &sub_db,
+			  const Xapian::RSet &rset);
 
     /** Get the term-frequency of the given term.
      *
@@ -82,18 +102,12 @@ class Weight::Internal {
      */
     Xapian::doccount get_termfreq(const std::string & term) const;
 
-    /** Set the term-frequency for the given term. */
-    void set_termfreq(const std::string & term, Xapian::doccount tfreq);
-
     /** Get the relevant term-frequency for the given term.
      *
      *  This is "r_t", the number of relevant documents in the collection
      *  indexed by the given term.
      */
     Xapian::doccount get_reltermfreq(const std::string & term) const;
-
-    /** Set the relevant term-frequency for the given term. */
-    void set_reltermfreq(const std::string & term, Xapian::doccount rtfreq);
 
     Xapian::doclength get_average_length() const {
 	if (rare(collection_size == 0)) return 0;

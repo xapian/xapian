@@ -282,3 +282,22 @@ DEFINE_TESTCASE(spell6, spelling) {
 
     return true;
 }
+
+// Test suggestions when there's an exact match.
+DEFINE_TESTCASE(spell7, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    // Check that the more frequent term is chosen.
+    db.add_spelling("word", 57);
+    db.add_spelling("wrod", 3);
+    db.add_spelling("sword", 56);
+    db.add_spelling("words", 57);
+    db.add_spelling("ward", 58);
+    db.commit();
+    TEST_EQUAL(db.get_spelling_suggestion("ward"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("words"), "word");
+    TEST_EQUAL(db.get_spelling_suggestion("sword"), "word");
+    TEST_EQUAL(db.get_spelling_suggestion("wrod"), "word");
+
+    return true;
+}

@@ -1,7 +1,7 @@
 /** @file remotetcpclient.cc
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,11 +31,11 @@ using namespace std;
 
 int
 RemoteTcpClient::open_socket(const string & hostname, int port,
-			     int msecs_timeout_connect)
+			     double timeout_connect)
 {
     // If TcpClient::open_socket() throws, fill in the context.
     try {
-	return TcpClient::open_socket(hostname, port, msecs_timeout_connect, true);
+	return TcpClient::open_socket(hostname, port, timeout_connect, true);
     } catch (const Xapian::NetworkTimeoutError & e) {
 	throw Xapian::NetworkTimeoutError(e.get_msg(), get_tcpcontext(hostname, port),
 					  e.get_error_string());

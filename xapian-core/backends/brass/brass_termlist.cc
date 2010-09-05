@@ -166,6 +166,16 @@ BrassTermList::next()
     RETURN(NULL);
 }
 
+TermList *
+BrassTermList::skip_to(const string & term)
+{
+    LOGCALL(API, TermList *, "BrassTermList::skip_to", term);
+    while (pos != NULL && current_term < term) {
+	(void)BrassTermList::next();
+    }
+    RETURN(NULL);
+}
+
 bool
 BrassTermList::at_end() const
 {

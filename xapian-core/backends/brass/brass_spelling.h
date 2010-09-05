@@ -143,7 +143,9 @@ class BrassSpellingTermList : public TermList {
 
     Xapian::termcount get_collection_freq() const;
 
-    TermList *next();
+    TermList * next();
+
+    TermList * skip_to(const std::string & term);
 
     bool at_end() const;
 

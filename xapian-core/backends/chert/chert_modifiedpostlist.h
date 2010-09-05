@@ -26,6 +26,7 @@
 
 using namespace std;
 
+#include "chert_database.h"
 #include "chert_postlist.h"
 
 class ChertModifiedPostList : public ChertPostList {

@@ -100,7 +100,7 @@ FlintAllDocsPostList::read_did_from_current_key()
 PostList *
 FlintAllDocsPostList::next(Xapian::weight /*w_min*/)
 {
-    LOGCALL(DB, PostList *, "FlintAllDocsPostList::next", "/*w_min*/");
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::next", Literal("/*w_min*/"));
     Assert(!at_end());
     if (!cursor->next()) RETURN(NULL);
     RETURN(read_did_from_current_key());
@@ -109,7 +109,7 @@ FlintAllDocsPostList::next(Xapian::weight /*w_min*/)
 PostList *
 FlintAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 {
-    LOGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to", did | "/*w_min*/");
+    LOGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to", did | Literal("/*w_min*/"));
 
     if (did <= current_did || at_end()) RETURN(NULL);
 

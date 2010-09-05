@@ -44,7 +44,6 @@
 class BrassTermList;
 class BrassAllDocsPostList;
 class RemoteConnection;
-class OmTime;
 
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
@@ -195,8 +194,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 
 	/** Send a set of messages which transfer the whole database.
 	 */
-	void send_whole_database(RemoteConnection & conn,
-				 const OmTime & end_time);
+	void send_whole_database(RemoteConnection & conn, double end_time);
 
 	/** Get the revision stored in a changeset.
 	 */

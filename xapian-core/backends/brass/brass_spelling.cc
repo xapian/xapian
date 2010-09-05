@@ -556,6 +556,15 @@ BrassSpellingTermList::next()
     return NULL;
 }
 
+TermList *
+BrassSpellingTermList::skip_to(const string & term)
+{
+    while (!data.empty() && current_term < term) {
+	(void)BrassSpellingTermList::next();
+    }
+    return NULL;
+}
+
 bool
 BrassSpellingTermList::at_end() const
 {

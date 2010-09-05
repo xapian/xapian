@@ -27,6 +27,7 @@
 
 #include "progclient.h"
 #include <xapian/error.h>
+#include "closefrom.h"
 #include "debuglog.h"
 
 #include <string>
@@ -62,17 +63,15 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
 #endif
 
 ProgClient::ProgClient(const string &progname, const string &args,
-		       int msecs_timeout, bool writable)
+		       double timeout_, bool writable)
 	: RemoteDatabase(run_program(progname, args
 #ifndef __WIN32__
 						   , pid
 #endif
         ),
-			 msecs_timeout,
-			 get_progcontext(progname, args),
-			 writable)
+			 timeout_, get_progcontext(progname, args), writable)
 {
-    LOGCALL_VOID(DB, "ProgClient::ProgClient", progname | args | msecs_timeout | writable);
+    LOGCALL_VOID(DB, "ProgClient::ProgClient", progname | args | timeout_ | writable);
 }
 
 string
@@ -90,7 +89,7 @@ ProgClient::run_program(const string &progname, const string &args
 			)
 {
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | "[&pid]");
+    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&pid]"));
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */
@@ -127,10 +126,7 @@ ProgClient::run_program(const string &progname, const string &args
     }
 
     // close unnecessary file descriptors
-    int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-    for (int fd = 2; fd < maxfd; ++fd) {
-	::close(fd);
-    }
+    closefrom(2);
 
     // Redirect stderr to /dev/null
     int stderrfd = open("/dev/null", O_WRONLY);

@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
-#define XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
+#ifndef XAPIAN_INCLUDED_UNALIGNED_H
+#define XAPIAN_INCLUDED_UNALIGNED_H
 
 #include "omassert.h"
 
@@ -78,4 +78,4 @@ setint4(unsigned char *p, int c, int x)
     p[c + 3] = static_cast<unsigned char>(x);
 }
 
-#endif // XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
+#endif // XAPIAN_INCLUDED_UNALIGNED_H

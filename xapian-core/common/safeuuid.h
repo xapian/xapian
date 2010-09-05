@@ -22,17 +22,18 @@
 #ifndef XAPIAN_INCLUDED_SAFEUUID_H
 #define XAPIAN_INCLUDED_SAFEUUID_H
 
-#ifdef __WIN32__
+#if defined __CYGWIN__ || defined __WIN32__
 # include "common/win32_uuid.h"
 #elif defined HAVE_UUID_UUID_H
 # include <uuid/uuid.h>
 
 // Some UUID libraries lack const qualifiers.  Solaris is a particular
-// example which survives today (2009).  The libuuid from e2fsprogs gained
-// const qualifiers in 2001.  It's hard to cast uuid_t suitably as it is a
-// typedef for an array in at least some implementations, but we probably can't
-// safely assume that.  We don't need to pass const uuid_t, but we do need to
-// pass const char *, so fix that with a macro wrapper for uuid_parse().
+// example which survives today (2009).  The libuuid from e2fsprogs (now in
+// util-linux-ng) gained const qualifiers in 2001.  It's hard to cast uuid_t
+// suitably as it is a typedef for an array in at least some implementations,
+// but we probably can't safely assume that.  We don't need to pass const
+// uuid_t, but we do need to pass const char *, so fix that with a macro
+// wrapper for uuid_parse().
 # ifndef uuid_parse
 #  define uuid_parse(IN, UU) (uuid_parse)(const_cast<char*>(IN), (UU))
 # endif

@@ -1,4 +1,4 @@
-/** @file: termgenerator_internal.cc
+/** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
 /* Copyright (C) 2007,2010 Olly Betts

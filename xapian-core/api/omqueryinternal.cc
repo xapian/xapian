@@ -1075,7 +1075,7 @@ Xapian::Query::Internal::set_dbl_parameter(double dbl_parameter_)
     // We store the double parameter encoded as a string because
     // Xapian::Query::Internal is defined in an external API header and we want
     // to avoid any risk of ABI breakage (we suspect it would be OK, but it's
-    // not risking).  FIXME: rework in 1.1.x series - see ticket #280
+    // not risking).  FIXME:1.3: rework in 1.3.x series - see ticket #280
     str_parameter = serialise_double(dbl_parameter_);
 }
 
@@ -1085,7 +1085,7 @@ Xapian::Query::Internal::get_dbl_parameter() const
     // We store the double parameter encoded as a string because
     // Xapian::Query::Internal is defined in an external API header and we want
     // to avoid any risk of ABI breakage (we suspect it would be OK, but it's
-    // not risking).  FIXME: rework in 1.1.x series - see ticket #280
+    // not risking).  FIXME:1.3: rework in 1.3.x series - see ticket #280
     const char * p = str_parameter.data();
     const char * end = p + str_parameter.size();
     return unserialise_double(&p, end);

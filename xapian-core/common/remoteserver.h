@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -54,27 +54,34 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /** Timeout for actions during a conversation.
      *
-     *  The timeout is specified in milliseconds.  If the timeout is exceeded
-     *  then a Xapian::NetworkTimeoutError is thrown.
+     *  The timeout is specified in seconds.  If the timeout is exceeded then a
+     *  Xapian::NetworkTimeoutError is thrown.
      */
-    Xapian::timeout active_timeout;
+    double active_timeout;
 
     /** Timeout while waiting for a new action from the client.
      *
-     *  The timeout is specified in milliseconds.  If the timeout is exceeded
-     *  then a Xapian::NetworkTimeoutError is thrown.
+     *  The timeout is specified in seconds.  If the timeout is exceeded then a
+     *  Xapian::NetworkTimeoutError is thrown.
      */
-    Xapian::timeout idle_timeout;
+    double idle_timeout;
 
     /// The registry, which allows unserialisation of user subclasses.
     Xapian::Registry reg;
 
     /// Accept a message from the client.
-    message_type get_message(Xapian::timeout timeout, std::string & result,
+    message_type get_message(double timeout, std::string & result,
 			     message_type required_type = MSG_MAX);
 
     /// Send a message to the client.
     void send_message(reply_type type, const std::string &message);
+
+    /// Send a message to the client, with specific end_time.
+    void send_message(reply_type type, const std::string &message,
+		      double end_time) {
+	unsigned char type_as_char = static_cast<unsigned char>(type);
+	RemoteConnection::send_message(type_as_char, message, end_time);
+    }
 
     // all terms
     void msg_allterms(const std::string & message);
@@ -162,15 +169,15 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *  @param fdout	The file descriptor to write to (fdin and fdout may be
      *			the same).
      *  @param active_timeout_	Timeout for actions during a conversation
-     *			(specified in milliseconds).
+     *			(specified in seconds).
      *  @param idle_timeout_	Timeout while waiting for a new action from
-     *			the client (specified in milliseconds).
+     *			the client (specified in seconds).
      *  @param writable Should the database be opened for writing?
      */
     RemoteServer(const std::vector<std::string> &dbpaths,
 		 int fdin, int fdout,
-		 Xapian::timeout active_timeout_,
-		 Xapian::timeout idle_timeout_,
+		 double active_timeout_,
+		 double idle_timeout_,
 		 bool writable = false);
 
     /// Destructor.

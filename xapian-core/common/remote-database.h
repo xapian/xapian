@@ -25,7 +25,6 @@
 #include "database.h"
 #include "omenquireinternal.h"
 #include "omqueryinternal.h"
-#include "omtime.h"
 #include "remoteconnection.h"
 #include "valuestats.h"
 #include "xapian/weight.h"
@@ -98,12 +97,12 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  @param timeout_ The timeout used with the network operations.
      *			Generally a Xapian::NetworkTimeoutError exception will
      *			be thrown if the remote end doesn't respond for this
-     *			length of time (in milliseconds).  A timeout of 0
-     *			means that operations will never timeout.
+     *			length of time (in seconds).  A timeout of 0 means that
+     *			operations will never timeout.
      *  @param context_ The context to return with any error messages.
      *	@param writable	Is this a WritableDatabase?
      */
-    RemoteDatabase(int fd, Xapian::timeout timeout_, const string & context_,
+    RemoteDatabase(int fd, double timeout_, const string & context_,
 		   bool writable);
 
     /// Receive a message from the server.
@@ -117,8 +116,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     bool get_posting(Xapian::docid &did, Xapian::weight &w, string &value);
 
-    /// The timeout value used in network communications, in milliseconds
-    Xapian::timeout timeout;
+    /// The timeout value used in network communications, in seconds.
+    double timeout;
 
   public:
     /// Return this pointer as a RemoteDatabase*.

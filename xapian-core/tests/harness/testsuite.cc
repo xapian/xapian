@@ -31,7 +31,6 @@
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
 # include <valgrind/memcheck.h>
-# include <cstdio>
 # include <sys/types.h>
 # include "safefcntl.h"
 # include "safeunistd.h"
@@ -43,12 +42,13 @@
 
 #include <cfloat> // For DBL_DIG.
 #include <cmath> // For ceil, fabs, log10.
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
 #include "gnu_getopt.h"
 
-#include <csetjmp>
+#include <setjmp.h>
 #include <signal.h>
 
 #include <exception>

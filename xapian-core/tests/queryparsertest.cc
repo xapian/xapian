@@ -141,6 +141,8 @@ static const test test_or_queries[] = {
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(Zhard:(pos=1) OR Zspace:(pos=2))" },
     { " white\r\nspace\ttest ", "(Zwhite:(pos=1) OR Zspace:(pos=2) OR Ztest:(pos=3))" },
+    { "one AND two three", "(Zone:(pos=1) AND (Ztwo:(pos=2) OR Zthree:(pos=3)))" },
+    { "one two AND three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND Zthree:(pos=3))" },
     { "one AND two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND /two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND/two/three", "(Zone:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
@@ -590,6 +592,13 @@ static const test test_or_queries[] = {
     { "site:1 OR site:2", "(0 * H1 OR 0 * H2)" },
     { "site:1 AND site:2", "(0 * H1 AND 0 * H2)" },
     { "foo AND site:2", "(Zfoo:(pos=1) AND 0 * H2)" },
+    // Non-exclusive boolean prefixes feature tests (ticket#402):
+    { "category:1 category:2", "0 * (XCAT1 AND XCAT2)" },
+    { "category:1 site2:2", "0 * (J2 AND XCAT1)" },
+    { "category:1 category:2 site2:2", "0 * (J2 AND XCAT1 AND XCAT2)" },
+    { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
+    { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
+    { "foo AND category:2", "(Zfoo:(pos=1) AND 0 * XCAT2)" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
@@ -629,7 +638,7 @@ static bool test_queryparser1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_boolean_prefix("authortitle", "B");
     );
@@ -886,6 +895,9 @@ static bool test_qp_flag_wildcard1()
     // Check empty wildcard followed by negation.
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
+    // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
+    qobj = qp.parse_query("abc muscl* main", flags);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) AND (muscle:(pos=2) SYNONYM musclebound:(pos=2)) AND main:(pos=3)))");
     return true;
 #endif
 }
@@ -1059,11 +1071,16 @@ static const test test_stop_queries[] = {
     // parse.
     { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
     // 0.9.6 and earlier ignored a stopword even if it was the only term.
-    // We don't ignore it in this case, which is probably better.  But
-    // an all-stopword query with multiple terms doesn't work, which
-    // prevents 'to be or not to be' for being searchable unless made
-    // into a phrase query.
+    // More recent versions don't ever treat a single term as a stopword.
     { "the", "the:(pos=1)" },
+    // 1.2.2 and earlier ignored an all-stopword query with multiple terms,
+    // which prevents 'to be or not to be' for being searchable unless the
+    // user made it into a phrase query or prefixed all terms with '+'
+    // (ticket#245).
+    { "an the a", "(an:(pos=1) AND the:(pos=2) AND a:(pos=3))" },
+    // Regression test for bug in initial version of the patch for the
+    // "all-stopword" case.
+    { "the AND a an", "(the:(pos=1) AND a:(pos=2) AND an:(pos=3))" },
     { NULL, NULL }
 };
 
@@ -1170,6 +1187,9 @@ static const test test_value_range1_queries[] = {
     { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "\"time flies\" 09:00..12:30", "((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "..b", "VALUE_RANGE 1  b" },
+    { "a..", "VALUE_GE 1 a" },
     { NULL, NULL }
 };
 
@@ -1209,6 +1229,9 @@ static const test test_value_range2_queries[] = {
     { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
     { "$10..20", "VALUE_RANGE 4 \255 \261" },
     { "$10..$20", "VALUE_RANGE 4 \255 \261" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "$..20", "VALUE_RANGE 4  \261" },
+    { "$10..", "VALUE_GE 4 \255" },
     { "12..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42", "VALUE_RANGE 3 12kg 42" },
@@ -1216,6 +1239,9 @@ static const test test_value_range2_queries[] = {
     { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
+    // Feature test for single-ended ranges (ticket#480):
+    { "..2020.12.30", "VALUE_RANGE 1  20201230" },
+    { "1999.03.12..", "VALUE_GE 1 19990312" },
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
@@ -1366,6 +1392,50 @@ static const double test_value_range_numbers[] = {
 
     64 // Magic number which we stop at.
 };
+
+static const test test_value_range4_queries[] = {
+    { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
+    { "hello:world", "0 * XHELLOworld" },
+    { "hello:mum..world", "VALUE_RANGE 1 mum world" },
+    { NULL, NULL }
+};
+
+/** Test a boolean filter which happens to contain "..".
+ *
+ *  Regression test for bug fixed in 1.2.3.
+ *
+ *  Also test that the same prefix can be set for a valuerange and filter.
+ */
+static bool test_qp_value_range4()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("id", "Q");
+    qp.add_boolean_prefix("hello", "XHELLO");
+    Xapian::StringValueRangeProcessor vrp_str(1, "hello:");
+    qp.add_valuerangeprocessor(&vrp_str);
+    for (const test *p = test_value_range4_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 
 // Test serialisation and unserialisation of various numbers.
 static bool test_value_range_serialise1()
@@ -1619,6 +1689,8 @@ static const test test_mispelled_queries[] = {
     { "documento", "document" },
     { "documento-documento", "document-document" },
     { "documento-searcho", "document-search" },
+    { "test saerch", "test search" },
+    { "paragraf search", "paragraph search" },
     { NULL, NULL }
 };
 
@@ -1628,6 +1700,14 @@ static bool test_qp_spell1()
     mkdir(".flint", 0755);
     string dbdir = ".flint/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    Xapian::Document doc;
+    doc.add_term("document", 6);
+    doc.add_term("search", 7);
+    doc.add_term("saerch", 1);
+    doc.add_term("paragraph", 8);
+    doc.add_term("paragraf", 2);
+    db.add_document(doc);
 
     db.add_spelling("document");
     db.add_spelling("search");
@@ -1954,10 +2034,9 @@ static bool test_qp_stem_all1()
     return true;
 }
 
-static double time_query_parse(const Xapian::Database & db,
-			       const string & q,
-			       int repetitions,
-			       unsigned flags)
+static double
+time_query_parse(const Xapian::Database & db, const string & q,
+		 int repetitions, unsigned flags)
 {
     Xapian::QueryParser qp;
     qp.set_database(db);
@@ -2096,7 +2175,7 @@ static bool test_qp_near1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
-    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
     queryparser.set_default_op(Xapian::Query::OP_NEAR);
     for (const test *p = test_near_queries; p->query; ++p) {
 	string expect, parsed;
@@ -2220,6 +2299,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
+    TESTCASE(qp_value_range4),
     TESTCASE(qp_value_daterange1),
     TESTCASE(qp_value_daterange2),
     TESTCASE(qp_value_stringrange1),

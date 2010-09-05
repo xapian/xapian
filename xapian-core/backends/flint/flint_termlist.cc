@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -167,6 +167,16 @@ FlintTermList::next()
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
+    RETURN(NULL);
+}
+
+TermList *
+FlintTermList::skip_to(const string & term)
+{
+    LOGCALL(API, TermList *, "FlintTermList::skip_to", term);
+    while (pos != NULL && current_term < term) {
+	(void)FlintTermList::next();
+    }
     RETURN(NULL);
 }
 

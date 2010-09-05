@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1434,8 +1434,8 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 
     TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
     TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
-    // non-existent terms still have weight
-    TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
+    // non-existent terms should have 0 weight.
+    TEST_EQUAL(mymset1a.get_termweight(term3), 0);
 
     TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
@@ -2267,7 +2267,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
 
     // A database with no sub-databases has an empty UUID.
     Xapian::Database db2;
-    TEST_EQUAL(string(), db2.get_uuid());
+    TEST(db2.get_uuid().empty());
 
     db2.add_database(db);
     TEST_EQUAL(uuid1, db2.get_uuid());
@@ -2281,7 +2281,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
     // This relies on InMemory databases not supporting uuids.
     // A multi-database containing a database with no uuid has no uuid.
     db2.add_database(Xapian::InMemory::open());
-    TEST_EQUAL(string(), db2.get_uuid());
+    TEST(db2.get_uuid().empty());
 #endif
 
     return true;

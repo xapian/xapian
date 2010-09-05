@@ -1,7 +1,7 @@
 /** @file progclient.h
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,14 +78,14 @@ class ProgClient : public RemoteDatabase {
   public:
     /** Constructor.
      *
-     *  @param progname		The program used to create the connection.
-     *  @param args		Any arguments to the program.
-     *  @param msecs_timeout	Timeout for communication (in milliseconds).
-     *  @param writable		Is this a WritableDatabase?
+     *  @param progname	The program used to create the connection.
+     *  @param args	Any arguments to the program.
+     *  @param timeout	Timeout for communication (in seconds).
+     *  @param writable	Is this a WritableDatabase?
      */
     ProgClient(const std::string &progname,
 	       const std::string &arg,
-	       int msecs_timeout,
+	       double msecs_timeout,
 	       bool writable);
 
     /** Destructor. */

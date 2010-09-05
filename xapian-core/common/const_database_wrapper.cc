@@ -303,6 +303,7 @@ Xapian::docid
 ConstDatabaseWrapper::add_document(const Xapian::Document &)
 {
     nonconst_access();
+    return 0;
 }
 
 void
@@ -328,6 +329,7 @@ ConstDatabaseWrapper::replace_document(const string &,
 				       const Xapian::Document &)
 {
     nonconst_access();
+    return 0;
 }
 
 void
@@ -341,4 +343,5 @@ RemoteDatabase *
 ConstDatabaseWrapper::as_remotedatabase()
 {
     nonconst_access();
+    return NULL;
 }

@@ -1,57 +1,290 @@
- 14488       olly Wed May 05 05:42:56 GMT 2010  Olly Betts <olly@survex.com>
+ 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
 
- trunk only:
+backport candidates:
 
- 14485    richard Tue May 04 19:38:31 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* api/replication.cc,bin/xapian-replicate.cc,
-	  common/replicatetcpclient.h,common/replication.h,
-	  net/replicatetcpclient.cc,tests/api_replicate.cc: Fix a bug in
-	  replication, which triggered when multiple modifications were
-	  made to a database while a full copy of the database was in
-	  progress.  In this situation, the client would fail to apply more
-	  than one changeset before trying (and failing) to make the
-	  database live, due to an incorrect assignment of the new revision
-	  number to "offline_needed_revision" instead of
-	  "offline_revision".  Also, replication now only sleeps for a
-	  period (to allow reader to catch up) after a changeset has been
-	  applied to a live database - previously, it would sleep
-	  unnecessarily after a changeset had been applied to an offline
-	  database.  Also, make the period for which replication sleeps in
-	  this situation configurable with the "-r" command line option to
-	  xapian-replicate.
-	  A test for these changes will be committed to xapian-bindings
-	  shortly.
+backported to 1.0.22:
+ 14914       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
+	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
+	  when targetting models 68010, 68020, 68030 as well as 68000.
 
- 14467       olly Sat May 01 15:25:48 GMT 2010  Olly Betts <olly@survex.com>
-	* Merge change accidentally committed to brass-btree branch:
-	* tests/perftest/runprocess.cc: Use safesyswait.h, fixing build failure
-	  on "make check" on FreeBSD.
+ 14919       olly Sat Aug 28 12:35:25 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Beef up the test for whether -lm is required and add
+	  a special case to force it to be for Sun's C++ compiler - there's
+	  some interaction with libtool and/or shared objects which means
+	  that the configure test doesn't think -lm is needed here when it
+	  is.
 
- 14463    richard Fri Apr 30 12:33:25 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* backends/brass/brass_databasereplicator.cc,
-	  backends/chert/chert_databasereplicator.cc,
-	  backends/flint/flint_databasereplicator.cc,tests/api_replicate.cc:
-	  If a DB file doesn't exist when applying a changeset, try
-	  creating it - this happens with lazy tables which aren't created
-	  in the initial revision copied.  Add replicate4 test to check
-	  that this works correctly with a lazily created position table.
-	  Fixes ticket #468.
+ 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Enable use of SSE maths on x86 by default with Sun's
+	  compiler.
 
- 14462       olly Fri Apr 30 07:09:31 GMT 2010  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst: Replication and PostingSource aren't
-	  experimental in 1.2.x.
+Xapian-core 1.2.4 (2010-08-30):
 
- 14461       olly Fri Apr 30 00:52:22 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/harness/testsuite.cc: Fix typo in previous commit.
 
- 14460       olly Thu Apr 29 23:46:09 GMT 2010  Olly Betts <olly@survex.com>
-	* tests/harness/testsuite.cc: Check is SA_SIGINFO is defined before
-	  using it as it isn't available everywhere.  Fixes FTBFS on GNU Hurd.
+API:
 
- 14459       olly Thu Apr 29 12:11:48 GMT 2010  Olly Betts <olly@survex.com>
-	* configure.ac: Install headers under PREFIX/include not
-	  PREFIX/include/xapian.  This broke compiling code which didn't use
-	  XO_LIB_XAPIAN or xapian-config.
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* This release uses autoconf 2.67 rather than 2.65.
+
+documentation:
+
+	* HACKING,PLATFORMS: Move PLATFORMS information to the wiki and replace
+	  with a pointer.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix compilation with Sun's C++ compiler.
+
+* Fix testsuite to build on Solaris < 10.
+
+packaging:
+
+
+debug code:
+
+
+Xapian-core 1.2.3 (2010-08-24):
+
+API:
+
+* Database::get_spelling_suggestion() will now suggest a correction even if the
+  passed word is in the dictionary, provided the correction has at least the
+  same frequency.  Partly addresses #225.
+
+* QueryParser:
+
+  + Fix handling of groups of terms which are all stopwords - in situations
+    where this causes a problem we now disable stopword checks for such groups.
+    (ticket#245)
+
+  + Fix to be smarter about handling a boolean filter term containing ".." in
+    the presence of valuerangeprocessors.
+
+testsuite:
+
+* New "unittest" program for testing low level functions directly.  Currently
+  this has tests for the internal resolve_relative_path() function.
+  (ticket#243)
+
+remote backend:
+
+* Retry select() if it fails with EINTR while waiting for connect(), and
+  discriminate cases with same failure message to aid debugging.
+
+documentation:
+
+* Fix documentation comment for Xapian::timeout type - it holds a time interval
+  in milliseconds not microseconds (the API docs for the methods which use it
+  explicitly correctly document that the timeouts are in milliseconds).
+
+* libuuid moved from e2fsprogs to util-linux-ng about a year ago, so update
+  documentation, comments, and configure error messages to reflect this.
+
+portability:
+
+	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+	  (ticket#492).
+
+* Fix handling of some obscure cases of resolving relative paths on Microsoft
+  Windows.  (ticket#243).
+
+* Optimise closing of all unwanted file descriptors after forking by using
+  closefrom() if available, and otherwise providing our own implementation
+  (optimised to some extent for many platforms).
+
+* Fix test harness to build under Microsoft Windows (ticket#495).
+
+packaging:
+
+* xapian-core.spec: Add xapian-metadata and cmake related files to RPM
+  packaging.
+
+* xapian-core.spec: Update BuildRequires to specify libuuid-devel instead of
+  e2fsprogs-devel.
+
+debug code:
+
+* Improve logging of function parameter placeholder strings.
+
+Xapian-core 1.2.2 (2010-06-27):
+
+brass backend:
+
+* Sync changes from each Btree table to disk right after syncing changes to
+  its base file, which allows more time for the table changes to be written
+  and may also be more efficient with some Linux kernel versions.
+
+chert backend:
+
+* Sync changes from each Btree table to disk right after syncing changes to
+  its base file, which allows more time for the table changes to be written
+  and may also be more efficient with some Linux kernel versions.
+
+tools:
+
+* xapian-check: Don't try to check document lengths are consistent between the
+  postlist and termlist tables if it would use more than 1GB of memory, and
+  handle std::bad_alloc or std::length_error when trying to allocate space
+  for this.  This issue affected sup users, as sup allocates docids such that
+  they are sparse and large docids can easily occur.
+
+examples:
+
+* delve: Show the database's UUID.
+
+portability:
+
+* Revert 1.2.1 change to visibility of Xapian::Weight's copy constructor as
+  it making it private broke compilation with GCC 4.1 (which seems to be a
+  bug in this compiler version).
+
+* tests/harness/testsuite.cc: Need <cstdio> for sprintf().  Fixes compilation
+  error which was masked if valgrind was installed.  (ticket#489)
+
+packaging:
+
+* xapian-core.spec: Update for 1.2.x - add e2fsprogs-devel to BuildRequires and
+  add new files to install.
+
+Xapian-core 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+API:
+
+* QueryParser: Add support for open-ended ranges (ticket#480).
+
+* Add new optional parameter to QueryParser::add_boolean_prefix() to allow the
+  user to indicate a prefix isn't "exclusive" and that multiple instances
+  should be combined with OP_AND rather than OP_OR.  Fixes ticket#402.  This
+  change should also improve efficiency as it avoids copying the lists of
+  prefixes and compares them more efficiently.
+
+* You can now specify a custom stemming algorithm by subclassing
+  Xapian::StemImplementation, mostly based on patch from Evgeny Sizikov in
+  ticket#448.
+
+* Fix replication bug: when multiple commits were made to the master database
+  while a client was performing a full copy, the client would only apply the
+  first changeset and then try to make the database live, but fail due to
+  trying to set the wrong revision number.
+
+* Replication no longer sleeps between applying changesets to an offline
+  database.  It's only necessary to sleep for a live database (to allow readers
+  to complete a search without getting DatabaseModifiedErrror.
+
+* xapian-replicate: Add new "-r" command line option to specify how long
+  replication sleeps for between applying changesets to a live database.
+
+* If a Btree table doesn't exist when applying a replication changeset, create
+  it.  This fixes replicating a revision where a lazy table is created.
+  (ticket#468)
+
+testsuite:
+
+* zlib can produce "uninitialised" output from "initialised" input - the
+  output does decode to the input, so this is presumably just some unused bits
+  in the output, so we use an LD_PRELOAD hack to get valgrind to check the
+  input is initialised and then tell it that the output is initialised.
+
+* Don't pass NULL to closedir(), which fixes test harness failures on platorms
+  without /proc/self/fd.
+
+* Use safesyswait.h, fixing build failure on "make check" on FreeBSD.
+
+* Check is SA_SIGINFO is defined before using it as it isn't available
+  everywhere.  Fixes testsuite build failure on GNU Hurd.
+
+* Add a "soaktest" testsuite, intended to contain long-running tests with
+  random data.  Currently contains a single test which builds and runs random
+  queries, checking that the results returned are consistent when asking for
+  different result ranges.
+
+* Test UUID returned by Database::get_uuid() is 36 characters long.
+
+matcher:
+
+* Xapian no longer forces the wdf_max value to be at least one in
+  BM25Weight::get_maxpart().  We used to do this so that a non-existent term in
+  the query would cause it not to achieve 100%, but now we calculate
+  percentages based on the number of matching subqueries, and it is more
+  natural for a non-existent term to get zero weight (ditto for a term which
+  always has wdf 0).
+
+* OP_VALUE_RANGE and OP_VALUE_GE now use value streams directly which is much
+  more efficient for chert (the default backend in 2.2.x).  As an example, a
+  range query testcase which previously took 29 seconds now takes 0.4 seconds
+  (70 times faster).  (ticket#432)
+
+* The term statistics from multiple databases are now gathered in a simpler
+  way which is a bit faster and uses less memory.
+
+build system:
+
+* Install headers under PREFIX/include not PREFIX/include/xapian.  If you used
+  XO_LIB_XAPIAN or xapian-config in your build system, the headers would still
+  have been found.
+
+* Releases and snapshots are now generated with libtool 2.2.10 instead of
+  2.2.6.
+
+* Fix build failures with some combinations of backends disabled (partially
+  addresses ticket#361 - some combinations still fail).
+
+* Add check to configure that GCC actually supports visibility for the platform
+  being built for, which fixes compiler warnings with platforms which don't
+  (such as Mac OS X and mingw).
+
+documentation:
+
+* Update documentation - replication and PostingSource aren't experimental in
+  1.2.x.
+
+portability:
+
+* Make use of built-in UUID API on FreeBSD and NetBSD.  (ticket#470)
+
+* Fix mingw build.
+
+debug code:
+
+* Add new pretty printer for values reported by calls and returns in debug
+  logging - in particular, strings are now reported with non-printable
+  characters escaped.
+
+* Debug logging should have less runtime overhead when built in but not in use.
+
+* Drop support for --enable-log=profile - dedicated profiling tools are likely
+  to return more useful results.
 
 Xapian-core 1.2.0 (2010-04-28):
 
@@ -410,7 +643,7 @@ documentation:
 portability:
 
 * Fix code to compile with Sun's C++ compiler.
- 
+
 * Fix our uuid_unparse_lower() replacement for older libuuid to actually
   compile (really fixes ticket#368).
 
@@ -831,6 +1064,74 @@ debug code:
 * Faster integer to string functions inside the library (this is a general
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
+
+Xapian-core 1.0.21 (2010-06-18):
+
+API:
+
+* Xapian::Stem now recognises "nb" and "nn" as additional codes for the
+  Norwegian stemmer.
+
+* Xapian::QueryParser now correctly parses a wildcarded term in between two
+  other terms (ticket#484).
+
+testsuite:
+
+* Improve test coverage of OP_VALUE_RANGE and MSet::get_percent().
+
+matcher:
+
+* OP_OR could skip a matching document if it decayed to OP_AND or OP_AND_MAYBE
+  during the match in some cases.  Fixes ticket#476.
+
+* OP_XOR with non-leaf subqueries could skip matching documents in some cases,
+  and OP_XOR of three or more sub-queries could return incorrect weights.
+  Fixes ticket#475.
+
+* OP_OR is now more efficient if a subquery is potentially expensive (e.g.
+  ValueRangePostList, OP_NEAR, OP_PHRASE).  A 10-fold speed-up with
+  ValueRangePostList has been observed.
+
+flint backend:
+
+* When iterating a table, if the table changes underneath we could end up
+  returning the same entry twice.  (Debian#579951)
+
+* A cancelled transaction (or a failing operation implicitly cancelling
+  pending changes) now marks the tables as unmodified, which fixes an exception
+  trying to read block 0 if one of the tables is empty on disk.
+
+quartz backend:
+
+* When iterating a table, if the table changes underneath we could end up
+  returning the same entry twice.  (Debian#579951)
+
+remote backend:
+
+* When daemonising, read the max fd to close with sysconf() instead of using
+  a hardcoded value of 256, and work even if stdin and stdout have been closed.
+
+build system:
+
+* Install files to make Xapian easier to use with cmake.
+
+documentation:
+
+* Update the list of languages that the Xapian::Stem constructor recognises.
+
+* Assorted minor improvements to the collated API documentation.
+
+portability:
+
+* On x86 processors, Xapian now defaults to using SSE2 FP instructions.  This
+  avoids issues with excess precision and it a bit faster too.  If you need
+  to support processors without SSE2 (this means pre-Pentium4 for Intel) then
+  configure with --disable-sse.  (ticket#387)
+
+* Fix warning when compiling for mingw with GCC 4.2.1.
+
+* Remove mutable from a couple of reference class members - mutable doesn't
+  make sense for a reference and some compilers warn about it.
 
 Xapian-core 1.0.20 (2010-04-27):
 

@@ -25,7 +25,7 @@
 #include "xapian/query.h"
 
 #include "database.h"
-#include "localmatch.h"
+#include "localsubmatch.h"
 #include "omenquireinternal.h"
 #include "postlist.h"
 

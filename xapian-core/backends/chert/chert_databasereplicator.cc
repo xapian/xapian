@@ -34,7 +34,6 @@
 #include "chert_version.h"
 #include "debuglog.h"
 #include "io_utils.h"
-#include "omtime.h"
 #include "pack.h"
 #include "remoteconnection.h"
 #include "replicate_utils.h"
@@ -90,7 +89,7 @@ void
 ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 						      string & buf,
 						      RemoteConnection & conn,
-						      const OmTime & end_time,
+						      double end_time,
 						      int changes_fd) const
 {
     const char *ptr = buf.data();
@@ -165,7 +164,7 @@ void
 ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename,
 							string & buf,
 							RemoteConnection & conn,
-							const OmTime & end_time,
+							double end_time,
 							int changes_fd) const
 {
     const char *ptr = buf.data();
@@ -236,7 +235,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 
 string
 ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
-						   const OmTime & end_time,
+						   double end_time,
 						   bool valid) const
 {
     LOGCALL(DB, string, "ChertDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);

@@ -1,7 +1,7 @@
 /** @file bm25weight.cc
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -177,9 +177,7 @@ BM25Weight::get_maxpart() const
     LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_maxpart", NO_ARGS);
     Xapian::doclength normlen_lb = max(get_doclength_lower_bound() * len_factor,
 				       param_min_normlen);
-
-    // FIXME: need to force non-zero wdf_max to stop percentages breaking...
-    double wdf_max(max(get_wdf_upper_bound(), Xapian::termcount(1)));
+    double wdf_max(get_wdf_upper_bound());
     double denom = param_k1 * (normlen_lb * param_b + (1 - param_b)) + wdf_max;
     AssertRel(denom,>,0);
     RETURN(termweight * wdf_max * (param_k1 + 1) / denom);

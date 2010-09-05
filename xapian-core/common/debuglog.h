@@ -23,7 +23,6 @@
 
 #ifdef XAPIAN_DEBUG_LOG
 
-#include "omtime.h"
 #include "output.h"
 #include "pretty.h"
 

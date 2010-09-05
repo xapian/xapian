@@ -605,7 +605,7 @@ ChertTable::split_root(uint4 split_n)
 void
 ChertTable::enter_key(int j, Key prevkey, Key newkey)
 {
-    LOGCALL_VOID(DB, "ChertTable::enter_key", j | "prevkey" | "newkey");
+    LOGCALL_VOID(DB, "ChertTable::enter_key", j | Literal("prevkey") | Literal("newkey"));
     Assert(writable);
     Assert(prevkey < newkey);
     AssertRel(j,>=,1);
@@ -697,7 +697,7 @@ ChertTable::mid_point(byte * p)
 void
 ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 {
-    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p | "kt_" | c);
+    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p | Literal("kt_") | c);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -732,7 +732,7 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 void
 ChertTable::add_item(Item_wr kt_, int j)
 {
-    LOGCALL_VOID(DB, "ChertTable::add_item", "kt_" | j);
+    LOGCALL_VOID(DB, "ChertTable::add_item", Literal("kt_") | j);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -1227,7 +1227,7 @@ ChertTable::key_exists(const string &key) const
 bool
 ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 {
-    LOGCALL(DB, bool, "ChertTable::read_tag", "C_" | tag | keep_compressed);
+    LOGCALL(DB, bool, "ChertTable::read_tag", Literal("C_") | tag | keep_compressed);
     Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
@@ -1886,14 +1886,6 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	    C[i].rewrite = false;
 	}
 
-	// Do this as late as possible to allow maximum time for writes to be
-	// committed.
-	if (!io_sync(handle)) {
-	    (void)::close(handle);
-	    handle = -1;
-	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-	}
-
 	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
 	// that a reader can't try to read a partially written base file.
 	string tmp = name;
@@ -1902,6 +1894,17 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	basefile += "base";
 	basefile += char(base_letter);
 	base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+
+	// Do this as late as possible to allow maximum time for writes to
+	// happen, and so the calls to io_sync() are adjacent which may be
+	// more efficient, at least with some Linux kernel versions.
+	if (!io_sync(handle)) {
+	    (void)::close(handle);
+	    handle = -1;
+	    (void)unlink(tmp);
+	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+	}
+
 #if defined __WIN32__
 	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
 #else
@@ -2011,6 +2014,8 @@ ChertTable::cancel()
 
     latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 
+    Btree_modified = false;
+
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].rewrite = false;
@@ -2117,7 +2122,7 @@ ChertTable::open(chert_revision_number_t revision)
 bool
 ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "ChertTable::prev_for_sequential", "C_" | "/*dummy*/");
+    LOGCALL(DB, bool, "ChertTable::prev_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     int c = C_[0].c;
     if (c == DIR_START) {
 	byte * p = C_[0].p;
@@ -2169,7 +2174,7 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 bool
 ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 {
-    LOGCALL(DB, bool, "ChertTable::next_for_sequential", "C_" | "/*dummy*/");
+    LOGCALL(DB, bool, "ChertTable::next_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;
@@ -2222,7 +2227,7 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 bool
 ChertTable::prev_default(Cursor * C_, int j) const
 {
-    LOGCALL(DB, bool, "ChertTable::prev_default", "C_" | j);
+    LOGCALL(DB, bool, "ChertTable::prev_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);
@@ -2244,7 +2249,7 @@ ChertTable::prev_default(Cursor * C_, int j) const
 bool
 ChertTable::next_default(Cursor * C_, int j) const
 {
-    LOGCALL(DB, bool, "ChertTable::next_default", "C_" | j);
+    LOGCALL(DB, bool, "ChertTable::next_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);

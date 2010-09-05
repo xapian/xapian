@@ -35,7 +35,7 @@
 #include "autoptr.h"
 #include "multimatch.h"
 #include "omassert.h"
-#include "omtime.h"
+#include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -46,8 +46,7 @@ struct ConnectionClosed { };
 
 RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   int fdin_, int fdout_,
-			   Xapian::timeout active_timeout_,
-			   Xapian::timeout idle_timeout_,
+			   double active_timeout_, double idle_timeout_,
 			   bool writable_)
     : RemoteConnection(fdin_, fdout_, std::string()),
       db(NULL), wdb(NULL), writable(writable_),
@@ -114,14 +113,11 @@ RemoteServer::~RemoteServer()
 }
 
 message_type
-RemoteServer::get_message(Xapian::timeout timeout, string & result,
+RemoteServer::get_message(double timeout, string & result,
 			  message_type required_type)
 {
-    unsigned int type;
-    OmTime end_time;
-    if (timeout)
-	end_time = OmTime::now() + timeout;
-    type = RemoteConnection::get_message(result, end_time);
+    double end_time = RealTime::end_time(timeout);
+    unsigned int type = RemoteConnection::get_message(result, end_time);
 
     // Handle "shutdown connection" message here.
     if (type == MSG_SHUTDOWN) throw ConnectionClosed();
@@ -143,9 +139,7 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
 void
 RemoteServer::send_message(reply_type type, const string &message)
 {
-    OmTime end_time;
-    if (active_timeout)
-	end_time = OmTime::now() + active_timeout;
+    double end_time = RealTime::end_time(active_timeout);
     unsigned char type_as_char = static_cast<unsigned char>(type);
     RemoteConnection::send_message(type_as_char, message, end_time);
 }
@@ -204,9 +198,9 @@ RemoteServer::run()
 	} catch (const Xapian::NetworkTimeoutError & e) {
 	    try {
 		// We've had a timeout, so the client may not be listening, so
-		// if we can't send the message right away, just exit and the
-		// client will cope.
-		RemoteConnection::send_message(REPLY_EXCEPTION, serialise_error(e), OmTime::now());
+		// set the end_time to 1 and if we can't send the message right
+		// away, just exit and the client will cope.
+		send_message(REPLY_EXCEPTION, serialise_error(e), 1.0);
 	    } catch (...) {
 	    }
 	    // And rethrow it so our caller can log it and close the

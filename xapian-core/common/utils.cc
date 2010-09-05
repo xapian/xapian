@@ -97,7 +97,7 @@ removedir(const string &dirname)
 	    }
 	}
     }
-    if (rmdir(dirname)) {
+    if (rmdir(dirname.c_str())) {
 	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
     }
 }

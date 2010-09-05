@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -248,7 +248,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     }
 
   protected:
-    /// Only allow subclasses to copy us.
+    /** Don't allow copying.
+     *
+     *  This would ideally be private, but that causes a compilation error
+     *  with GCC 4.1 (which appears to be a bug).
+     */
     Weight(const Weight &);
 
     /// Default constructor, needed by subclass constructors.

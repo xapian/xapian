@@ -30,7 +30,7 @@
 #include "collapser.h"
 #include "debuglog.h"
 #include "submatch.h"
-#include "localmatch.h"
+#include "localsubmatch.h"
 #include "omassert.h"
 #include "omenquireinternal.h"
 
@@ -278,6 +278,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
+    stats.mark_wanted_terms(*query);
     prepare_sub_matches(leaves, errorhandler, stats);
     stats.set_bounds_from_db(db);
 }
@@ -308,7 +309,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     const Xapian::MatchDecider *matchspy_legacy,
 		     const Xapian::KeyMaker *sorter)
 {
-    LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | "mset" | stats | "mdecider" | "matchspy_legacy" | "sorter");
+    LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("matchspy_legacy") | Literal("sorter"));
     AssertRel(check_at_least,>=,maxitems);
 
     if (!query) {

@@ -178,9 +178,6 @@ struct yyParser {
 };
 typedef struct yyParser yyParser;
 
-/* Prototype this here so we can call it from a rule action (ick). */
-static void yy_parse_failed(yyParser *);
-
 #include "omassert.h"
 #include "debuglog.h"
 

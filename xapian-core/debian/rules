@@ -49,18 +49,15 @@ export DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 confflags := --prefix=/usr --sysconfdir=/etc
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
     confflags += --build $(DEB_HOST_GNU_TYPE)
-    ifeq ($(DEB_HOST_ARCH), alpha)
-	# The alpha buildd is failing with a SEGV while trying to skip testcase
-	# nomoredocids1 for the inmemory backend.  Skipping works by throwing
-	# an exception so this smells like a toolchain bug to me.  Disabling
-	# optimisation seems to avoid this (and fixes a SEGV in the generated
-	# code for firefox #503051).
-	DEB_BUILD_OPTIONS += noopt
-    endif
 else
     confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
     # Disable the testsuite when cross-compiling.
     DEB_BUILD_OPTIONS += nocheck
+endif
+
+# For i386 and *-i386.
+ifeq ($(patsubst %-i386,i386,$(DEB_HOST_ARCH)), i386)
+    XAPIAN_BUILD_SSE := 1
 endif
 
 ifeq ($(DEB_HOST_ARCH), avr32)
@@ -71,12 +68,6 @@ endif
 
 CFLAGS :=
 CXXFLAGS := -g
-
-ifeq ($(DEB_HOST_ARCH), hurd-i386)
-    # Testcase topercent2 fails without -ffloat-store - smells like an excess
-    # precision issue.
-    CXXFLAGS += -ffloat-store
-endif
 
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
 
@@ -113,9 +104,9 @@ maintclean: clean
 	rm -rf debian/libxapian$(libxapian_dev_soversion)-dev
 	rm -rf debian/xapian-doc
 	rm -rf debian/xapian-tools
-	rm -rf debian/tmp
+	rm -rf debian/tmp debian/tmp-sse2
 
-debian/control: debian/rules debian/control.in debian/compat debian/patches/series
+debian/control: debian/rules debian/control.in debian/compat
 	rm -f debian/control.tmp
 	sed -e 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' \
 	    -e 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
@@ -146,7 +137,13 @@ configure-stamp: debian/control
 
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build
+ifdef XAPIAN_BUILD_SSE
+	cd build && ../configure $(confflags) --disable-sse
+	mkdir -p build-sse2
+	cd build-sse2 && ../configure $(confflags) --disable-static
+else
 	cd build && ../configure $(confflags)
+endif
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -155,7 +152,12 @@ build: build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build
+ifdef XAPIAN_BUILD_SSE
+	$(MAKE) -C build-sse2
+	$(MAKE_CHECK) -C build-sse2
+else
 	$(MAKE_CHECK) -C build
+endif
 	touch $@
 
 install: DH_OPTIONS=
@@ -164,11 +166,17 @@ install: build \
 	 debian/libxapian$(libxapian_dev_soversion)-dev.install
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Install the files into debian/tmp
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+ifdef XAPIAN_BUILD_SSE
+	$(MAKE) -C build-sse2 DESTDIR=$(CURDIR)/debian/tmp-sse2 install
+	mkdir $(CURDIR)/debian/tmp/usr/lib/sse2
+	mv $(CURDIR)/debian/tmp-sse2/usr/lib/libxapian*.so.* $(CURDIR)/debian/tmp/usr/lib/sse2
+	rm -rf $(CURDIR)/debian/tmp-sse2
+endif
 
 	# Empty dependency_libs to placate luddite release goal.
 	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian.la
@@ -208,7 +216,12 @@ binary-arch: build install
 	dh_installmenu
 	dh_installman
 	dh_installchangelogs ChangeLog
+	:
 	dh_strip --dbg-package=libxapian$(libxapian_soversion)-dbg
+	# Only keep debug symbols for the shared library.
+	rm -rf debian/libxapian$(libxapian_soversion)-dbg/usr/lib/debug/usr/lib/xapian-examples
+	rm -rf debian/libxapian$(libxapian_soversion)-dbg/usr/lib/debug/usr/bin
+	:
 	dh_link
 	dh_compress
 	dh_fixperms
@@ -219,11 +232,11 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean: debian/control unpatch
+clean: debian/control
 	dh_testdir
 	dh_testroot
-	rm -rf build
+	rm -rf build build-sse2
 	rm -f config.sub config.guess
 	dh_clean
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean patch unpatch
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean

@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -123,17 +123,26 @@ class ValueCountTermList : public TermList {
 	return NULL;
     }
 
+    TermList * skip_to(const string & term) {
+	while (it != spy->values.end() && it->first < term) {
+	    ++it;
+	}
+	started = true;
+	return NULL;
+    }
+
     bool at_end() const {
 	Assert(started);
 	return it == spy->values.end();
     }
 
-    Xapian::termcount get_approx_size() const { unsupported_method(); }
-    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
+    Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
+	return Xapian::PositionIterator(NULL);
     }
-    Xapian::termcount positionlist_count() const { unsupported_method(); }
+    Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
 
 /** A string with a corresponding frequency.
@@ -212,17 +221,26 @@ class StringAndFreqTermList : public TermList {
 	return NULL;
     }
 
+    TermList * skip_to(const string & term) {
+	while (it != values.end() && it->get_string() < term) {
+	    ++it;
+	}
+	started = true;
+	return NULL;
+    }
+
     bool at_end() const {
 	Assert(started);
 	return it == values.end();
     }
 
-    Xapian::termcount get_approx_size() const { unsupported_method(); }
-    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
+    Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
+	return Xapian::PositionIterator(NULL);
     }
-    Xapian::termcount positionlist_count() const { unsupported_method(); }
+    Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
 
 /** Get the most frequent items from a map from string to frequency.
