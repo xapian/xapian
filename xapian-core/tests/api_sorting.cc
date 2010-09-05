@@ -209,7 +209,7 @@ DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
     Xapian::MultiValueKeyMaker sorter(keys, keys + 4);
 
     Xapian::Document doc;
-    TEST_EQUAL(sorter(doc), string());
+    TEST(sorter(doc).empty());
 
     doc.add_value(1, "foo");
     TEST_EQUAL(sorter(doc), string("\0\0foo", 5));

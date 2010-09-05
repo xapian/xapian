@@ -77,7 +77,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
 		TEST_REL(actual_did,>=,did);
 		while (did < actual_did) {
 		    Xapian::Document doc = db.get_document(did);
-		    TEST_EQUAL(doc.get_value(slot), string());
+		    TEST(doc.get_value(slot).empty());
 		    ++did;
 		}
 
@@ -138,7 +138,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 		    Xapian::docid actual_did = it.get_docid();
 		    while (did < actual_did) {
 			Xapian::Document doc = db.get_document(did);
-			TEST_EQUAL(doc.get_value(slot), string());
+			TEST(doc.get_value(slot).empty());
 			++did;
 		    }
 

@@ -1,3 +1,14 @@
+Fri Sep 03 13:08:53 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-replicate.cc: If a fullcopy was attempted, but was not
+	  put live, display an explanatory message (if verbose is true).
+
+Fri Sep 03 05:54:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_modifiedpostlist.h,
+	  backends/flint/flint_modifiedpostlist.h,tests/: Fixes required to
+	  build on OpenBSD 4.5 with GCC 3.3.5.
+
 Tue Aug 31 14:37:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Document cases where FLAG_WILDCARD and
