@@ -1,3 +1,7 @@
+Sun Sep 05 12:55:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Fix typo ("Ruby" should be "Perl").
+
 Sun Sep 05 12:49:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove accidentally added ';' from Ruby checks.

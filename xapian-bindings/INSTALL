@@ -160,7 +160,7 @@ Installing without root access
      make
      make install
 
-     And then you'll need to tell Ruby to look for modules in this directory:
+     And then you'll need to tell Perl to look for modules in this directory:
 
      perl -I$HOME/my_perl_modules myscript.pl
 
