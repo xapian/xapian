@@ -186,6 +186,7 @@ know):
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
+* CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext is available (comes with xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
   with xpdf) are available
@@ -220,6 +221,7 @@ The syntax of --mime-type is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
 of:
 
+   - text/csv
    - text/html
    - text/plain
    - text/rtf

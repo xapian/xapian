@@ -4,8 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 use Carp;
-
-use UNIVERSAL qw( isa );
+use Scalar::Util 'blessed';
 
 require DynaLoader;
 
@@ -36,7 +35,7 @@ sub clone() {
 
 sub equal() {
   my ($self, $other) = @_;
-  if( isa($other, 'Search::Xapian::PostingIterator') ) {
+  if( blessed($other) && $other->isa('Search::Xapian::PostingIterator') ) {
     $self->equal1($other);
   } else {
     ($self+0) == ($other+0);
@@ -45,7 +44,7 @@ sub equal() {
 
 sub nequal() {
   my ($self, $other) = @_;
-  if( isa($other, 'Search::Xapian::PostingIterator') ) {
+  if( blessed($other) && $other->isa('Search::Xapian::PostingIterator') ) {
     $self->nequal1($other);
   } else {
     ($self+0) != ($other+0);

@@ -1,5 +1,26 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.3.0  Tue Aug 24 06:03:12 UTC 2010
+	[Changes contributed by Tim Brody]
+	- Allow user-specified ExpandDecider to be specified to get_eset().
+	[Changes contributed by Jess Robinson]
+	- Fix bogus "can't find libtool" error when rerunning Makefile.PL and
+	  XAPIAN_CONFIG isn't explicitly specified.
+
+1.2.2.0  Sun Jun 27 03:31:36 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.2.
+
+1.2.1.0  Tue Jun 22 14:48:00 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.1.
+
+1.2.0.0  Wed Apr 28 10:44:15 UTC 2010
+	[This release includes all changes from 1.0.20 which are relevant.]
+
+1.1.5.0  Thu Apr 15 04:23:16 UTC 2010
+	[This release includes all changes from 1.0.19 which are relevant.]
+
 1.1.4.0  Mon Feb 15 14:08:51 UTC 2010
 	[This release includes all changes from 1.0.18 which are relevant.]
 	[Changes contributed by Henry Combrinck]
@@ -45,6 +66,18 @@ Revision history for Perl extension Search::Xapian.
 	  However, there's still a wrinkle in this change - you can't currently
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
+
+1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
+	  warning (Debian bug#578559).
+	- Fix testcase t/04functions.t to work with Perl compiled with
+	  -Duselongdouble (Debian bug#578558).
+
+1.0.19.0  Thu Apr 15 03:55:04 UTC 2010
+	[Changes contributed by Olly Betts]
+	- Wrap Document::add_boolean_term() (new in C++ API in 1.0.18).
+	- Add test coverage for Document::remove_term().
 
 1.0.18.0  Sun Feb 14 10:22:53 UTC 2010
 	[Changes contributed by Henry Combrinck]

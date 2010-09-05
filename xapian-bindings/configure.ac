@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.1.4], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.2.3], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -64,11 +64,27 @@ AC_SUBST(NO_UNDEFINED)
 dnl Checks for programs.
 AC_PROG_CXX
 
+case $host_os in
+  linux* | k*bsd*-gnu)
+    dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
+    link_all_deplibs_CXX=no
+    ;;
+esac
+
+case $host_os in
+  linux*)
+    dnl Extract search path from ldconfig which is more reliable than the way
+    dnl vanilla libtool extracts them from ld.so.conf.
+    d=`/sbin/ldconfig -N -X -v 2>&AS_MESSAGE_LOG_FD|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    test -z "$d" || sys_lib_dlsearch_path_spec=$d
+    ;;
+esac
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [], [xapian-config-1.1])
+XO_LIB_XAPIAN([], [], [xapian-config])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.
@@ -171,14 +187,6 @@ AC_ARG_WITH(tcl,
   [],
   [with_tcl=])
 
-dnl Guile support doesn't currently work, so avoid user disappointment by
-dnl not advertising it in "./configure --help"
-dnl AC_ARG_WITH(guile,
-dnl   AC_HELP_STRING([--with-guile], [enable Guile bindings]),
-dnl   [],
-dnl   [with_guile=])
-with_guile=no
-
 AC_ARG_WITH(csharp,
   AC_HELP_STRING([--with-csharp], [enable CSharp bindings]),
   [],
@@ -189,13 +197,12 @@ AC_ARG_WITH(java,
   [],
   [with_java=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
+case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
   test -z "$with_php" && with_php=no
   test -z "$with_tcl" && with_tcl=no
-  test -z "$with_guile" && with_guile=no
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
   test -z "$with_ruby" && with_ruby=no
@@ -212,7 +219,7 @@ if test no != "$with_python" ; then
     dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
     dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
     AC_MSG_CHECKING([$PYTHON version])
-    version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
+    version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
       ;;
@@ -463,20 +470,6 @@ if test no != "$with_tcl" ; then
   fi
 fi
 
-dnl if test yes = "$with_guile" ; then
-dnl   AC_PATH_PROGS(GUILE, ["${GUILE-guile}"], [])
-dnl   AC_ARG_VAR(GUILE, [guile interpreter])
-dnl   if test -n "$GUILE" ;  then
-dnl     dnl test guile version?
-dnl     dnl any paths?
-dnl     BINDINGS="$BINDINGS guile"
-dnl   else
-dnl     if test yes = "$with_guile" ; then
-dnl       AC_MSG_ERROR([guile not found])
-dnl     fi
-dnl   fi
-dnl fi
-
 if test no != "$with_csharp" ; then
   csc_note=
   AC_ARG_VAR(CSC, [CSharp compiler command])
@@ -724,7 +717,7 @@ if test no != "$with_ruby" ; then
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($ruby is $version)])
+	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($RUBY is $version)])
       fi
       RUBY=
       ;;
@@ -913,7 +906,6 @@ AC_CONFIG_FILES([Makefile
  csharp/AssemblyInfo.cs
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
-dnl guile/Makefile
 AC_OUTPUT
 
 echo ""

@@ -41,7 +41,7 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\LIBWEIGHT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
+"$(OUTDIR)\LIBWEIGHT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libweight.lib" $(DEF_FLAGS) $(OBJS)
 <<
@@ -59,5 +59,7 @@ CLEAN :
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

@@ -1,3 +1,43 @@
+Omega 1.2.3 (2010-08-24):
+
+documentation:
+
+* docs/termprefixes.html: Update "flint and quartz" to "flint and chert" as
+  quartz is no longer supported.  Give exact term length limit for flint and
+  chert.
+
+packaging:
+
+* xapian-omega.spec: Don't run autoreconf - it's no longer required.
+
+Omega 1.2.2 (2010-06-27):
+
+portability:
+
+* Apply getopt portability fixes from xapian-core 1.2.0, fixing build failures
+  on Mac OS X (and probably some other platforms with non-GNU getopt
+  implementations). (ticket#469)
+
+Omega 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+Omega 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+build system:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Omega 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
 Omega 1.1.4 (2010-02-15):
 
 This release includes all changes from 1.0.18 which are relevant.
@@ -92,6 +132,25 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.21 (2010-05-18):
+
+portability:
+
+* Fix build failure in freemem.cc on Microsoft Windows.
+
+Omega 1.0.20 (2010-04-27):
+
+portability:
+
+* Fix build failure on Mac OS X and possibly some other platforms (regression
+  caused by fix for getopt-related warnings on Cygwin in 1.0.19).
+
+Omega 1.0.19 (2010-04-15):
+
+portability:
+
+* Fix getopt-related warning on Cygwin.
 
 Omega 1.0.18 (2010-02-14):
 

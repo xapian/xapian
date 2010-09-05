@@ -48,6 +48,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	SimpleStopper.cs \
 	Sorter.cs \
 	Stem.cs \
+	StemImplementation.cs \
 	Stopper.cs \
 	StringValueRangeProcessor.cs \
 	TermGenerator.cs \

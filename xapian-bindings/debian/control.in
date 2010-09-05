@@ -2,8 +2,8 @@ Source: xapian-bindings
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
-Standards-Version: 3.8.4
-Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
+Standards-Version: 3.9.1
+Build-Depends: @BUILD_DEPS@ autotools-dev, libxapian-dev (>= 1.2.0-2~)
 XS-Python-Version: all
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-bindings
@@ -29,32 +29,11 @@ Description: Xapian search engine interface for Tcl
  The Xapian Tcl bindings provide an interface to the Xapian library from the
  Tcl programming language, allowing both indexing and retrieval operations.
 
-Package: libxapian-ruby1.8
-Section: ruby
-Architecture: any
-Depends: ${ruby:Depends}, ${shlibs:Depends}, ${misc:Depends}
-Suggests: xapian-doc
-Description: Xapian search engine interface for Ruby 1.8
- This package provides Xapian Ruby bindings built for Ruby 1.8.
- .
- The Xapian search engine library is a highly adaptable toolkit which allows
- developers to easily add advanced indexing and search facilities to their own
- applications.  It implements the probabilistic model of information retrieval,
- and provides facilities for performing ranked free-text searches, relevance
- feedback, phrase searching, boolean searching, stemming, and simultaneous
- update and searching.  It is highly scalable, and is capable of working with
- collections containing hundreds of millions of documents.
- .
- The Xapian Ruby bindings provide an interface to the Xapian library from the
- Ruby programming language, allowing both indexing and retrieval operations.
-
 Package: python-xapian
 Section: python
 Architecture: any
 Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-doc
-Conflicts: @PYTHON_OLD_PACKAGES@
-Replaces: @PYTHON_OLD_PACKAGES@
 Provides: ${python:Provides}
 XB-Python-Version: ${python:Versions}
 Description: Xapian search engine interface for Python

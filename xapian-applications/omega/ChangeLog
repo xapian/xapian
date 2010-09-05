@@ -1,3 +1,82 @@
+Tue Aug 31 06:32:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix handling of quoting in CSV files to match what's
+	  most common.
+
+Tue Aug 31 05:41:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: The V in CSV is Values not Variable.
+
+Mon Aug 30 14:56:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for indexing .csv files.
+
+Sat Aug 28 11:46:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* cdb_find.cc,cdb_init.cc,cgiparam.cc,date.cc,md5.cc,query.cc,utils.cc,
+	  values.h: Fix to compile with Sun C++.
+
+Sat Aug 28 11:36:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omega.cc: An ESet can't contain empty terms, so there's no need to
+	  check for them.
+
+Tue Aug 24 05:58:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.3.
+
+Mon Aug 23 15:08:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: Don't run autoreconf - it's no longer required.
+
+Tue Aug 03 14:11:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Update "flint and quartz" to "flint and chert"
+	  as quartz is no longer supported.  Give exact term length limit for
+	  flint and chert.
+
+Sun Jun 27 05:00:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.2.
+
+Sat Jun 26 15:59:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add blank line to the end.
+
+Sat Jun 26 15:59:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add template NEWS entry.
+
+Tue Jun 22 13:55:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.21.
+	* NEWS,configure.ac: Update for 1.2.1.
+
+Sun Jun 13 11:55:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Merge in __WIN32__ implementation from perftest in
+	  xapian-core.
+
+Fri May 14 01:39:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Use "safeunistd.h" instead of <unistd.h>.
+
+Wed Apr 28 13:38:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.20.
+
+Wed Apr 28 06:44:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tell libtool not to link in deplibs on platforms where
+	  we know they aren't needed.
+	* configure.ac: On Linux, extract the library search path from ldconfig
+	  which gives us the default entries reliably.
+	* NEWS,configure.ac: 1.2.0.
+
+Thu Apr 15 04:32:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.5.
+
 Mon Feb 15 14:00:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.1.4.

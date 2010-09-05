@@ -32,6 +32,8 @@
 #include <cstring>		/* for memcpy() */
 #include "md5.h"
 
+using namespace std;
+
 #ifndef WORDS_BIGENDIAN
 #define byteReverse(buf, len)	/* Nothing */
 #else

@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009 Olly Betts
+# Copyright (C) 2008,2009,2010 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -960,6 +960,9 @@ def test_weight_normalise():
         expect(mset1.get_max_attained(), 0)
 
         max_possible = mset1.get_max_possible()
+        if query == "notpresent":
+            expect(max_possible, 0)
+            continue
         mult = 1.0 / max_possible
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
 
@@ -1397,6 +1400,15 @@ def test_matchspy():
            (xapian.sortable_serialise(2), 2),
            (xapian.sortable_serialise(1.5), 1),
     ])
+
+def test_import_star():
+    """Test that "from xapian import *" works.
+
+    This is a regression test - this failed in the 1.2.0 release.
+    It's not normally good style to use it, but it should work anyway!
+
+    """
+    import test_xapian_star
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

@@ -9,6 +9,10 @@
 
 #include "cdb_int.h"
 
+#include <cstring>
+
+using namespace std;
+
 int
 cdb_find(struct cdb *cdbp, const void *key, unsigned klen)
 {

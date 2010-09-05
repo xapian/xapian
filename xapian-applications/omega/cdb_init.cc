@@ -19,6 +19,9 @@
 #endif
 #include "safesysstat.h"
 #include "cdb_int.h"
+#include <cstring>
+
+using namespace std;
 
 int
 cdb_init(struct cdb *cdbp, int fd)

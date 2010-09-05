@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -1210,16 +1210,6 @@ del wrapper
 del Database.valuestream_begin
 del Database.valuestream_end
 
-# Set the list of names which should be public.
-# Note that this needs to happen at the end of xapian.py.
-__all__ = []
-for item in dir():
-    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
-        continue
-    __all__.append(item)
-__all__ = tuple(__all__)
-
-
 # Fix up Enquire so that it keeps a python reference to the deciders supplied
 # to it so that they won't be deleted before the Enquire object.  This hack can
 # probably be removed once xapian bug #186 is fixed.
@@ -1241,6 +1231,16 @@ _enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
 Enquire.clear_matchspies = _enquire_match_spies_clear
 
 
+# Fix up Stem.__init__() so that it calls __disown__() on the passed
+# StemImplementation object so that Python won't delete it from under us.
+_stem_init_orig = Stem.__init__
+def _stem_init(self, *args):
+    _stem_init_orig(self, *args)
+    if len(args) > 0 and isinstance(args[0], StemImplementation):
+        args[0].__disown__()
+_stem_init.__doc__ = Stem.__init__.__doc__
+Stem.__init__ = _stem_init
+
 
 # Remove static methods which shouldn't be in the API.
 del Document_unserialise
@@ -1259,6 +1259,15 @@ PositionIterator.__next__ = lambda self: PositionIterator.next(self)
 TermIterator.__next__ = lambda self: TermIterator.next(self)
 ValueIterator.__next__ = lambda self: ValueIterator.next(self)
 
+
+# Set the list of names which should be public.
+# Note that this needs to happen at the end of xapian.py.
+__all__ = []
+for item in dir():
+    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
+        continue
+    __all__.append(item)
+__all__ = tuple(__all__)
 %}
 
 /* vim:syntax=python:set expandtab: */

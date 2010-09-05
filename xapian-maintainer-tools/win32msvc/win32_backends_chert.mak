@@ -24,7 +24,6 @@ OBJS= \
                 $(INTDIR)\chert_databasereplicator.obj\
                 $(INTDIR)\chert_dbstats.obj\
                 $(INTDIR)\chert_document.obj\
-                $(INTDIR)\chert_io.obj\
                 $(INTDIR)\chert_metadata.obj\
                 $(INTDIR)\chert_modifiedpostlist.obj\
                 $(INTDIR)\chert_positionlist.obj\
@@ -50,7 +49,6 @@ SRCS= \
                 $(INTDIR)\chert_databasereplicator.cc\
                 $(INTDIR)\chert_dbstats.cc\
                 $(INTDIR)\chert_document.cc\
-                $(INTDIR)\chert_io.cc\
                 $(INTDIR)\chert_metadata.cc\
                 $(INTDIR)\chert_modifiedpostlist.cc\
                 $(INTDIR)\chert_positionlist.cc\
@@ -87,12 +85,12 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBCHERT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
+"$(OUTDIR)\LIBCHERT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libchert.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-"$(OUTDIR)\LIBCHERTBTREECHECK.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(LIBCHERTBTREECHECK_OBJS)
+"$(OUTDIR)\LIBCHERTBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBCHERTBTREECHECK_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libchertbtreecheck.lib" $(DEF_FLAGS) $(LIBCHERTBTREECHECK_OBJS)
 <<
@@ -110,5 +108,7 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+    -@erase deps.d
+    $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+# DO NOT DELETE THIS LINE -- xapdep depends on it.

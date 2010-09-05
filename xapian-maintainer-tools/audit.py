@@ -33,6 +33,12 @@ copy_unrec_re = re.compile(r'Copyright')
 
 directive_re = re.compile(r'\s*#\s*error')
 
+# Copyright holders which mean code is GPL only.
+gplonly = [
+    'BrightStation PLC',
+    'Ananova Ltd',
+]
+
 licenses = [
     ('lgpl2+', r'''
      is free software; you can redistribute it and\/or modify it under the
@@ -54,6 +60,14 @@ licenses = [
     '''),
     ('pub_domain', r'''
     The authors of this program disclaim copyright.
+    '''),
+    ('mit_x', r'''
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files \(the "Software"\),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
     '''),
 ]
 
@@ -398,6 +412,21 @@ class SourceChecker:
         else:
             self.check_file(self.toppath)
 
+    def get_relicense_classses(self):
+        classes = {}
+        for path, details in self.files.iteritems():
+            if 'gpl2+' not in details.licenses:
+                classes.setdefault('nongpl', []).append(path)
+                continue
+            cls = 'gpl'
+            holders = [item[0] for item in details.holders]
+            for holder in gplonly:
+                if holder in holders:
+                    cls = 'gplonly'
+                    break
+            classes.setdefault(cls, []).append(path)
+        return classes
+
     def get_ownership(self):
         """Get a dict holding ownership, keyed by copyright holder.
 
@@ -514,3 +543,25 @@ for license in checker.get_ownership():
         value.extend(holder)
         writer.writerow(value)
 copyrightfd.close()
+
+relicense_classes = checker.get_relicense_classses()
+print ('%d files:' % len(checker.files))
+print ('%d files "tainted" by unrelicensable GPL code' %
+       len(relicense_classes.get('gplonly', ())))
+print ('%d files "tainted" by relicensable GPL code' %
+       len(relicense_classes.get('gpl', ())))
+print ('%d files "untainted" by GPL code' %
+       len(relicense_classes.get('nongpl', ())))
+
+fd = open("license_classes.csv", "wb")
+writer = csv.writer(fd)
+writer.writerow(("Status", "File path"))
+for cls, paths in sorted(relicense_classes.iteritems()):
+    status = {
+        'gpl': "GPL, but probably relicensable",
+        'nongpl': "License other than GPL",
+        'gplonly': "GPL, probably non-relicensable",
+    }[cls]
+    for path in sorted(paths):
+        writer.writerow((status, path))
+fd.close()
