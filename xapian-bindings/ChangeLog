@@ -1,3 +1,276 @@
+Sun Sep 05 23:24:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Merge Kosei's SWIG-based Perl bindings from GSoC 2009.
+
+Sun Sep 05 12:55:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Fix typo ("Ruby" should be "Perl").
+
+Sun Sep 05 12:49:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove accidentally added ';' from Ruby checks.
+
+Fri Aug 14 16:45:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/lib/:Add "1;" into end of lib/*.pm files.
+
+Thu Aug 13 12:36:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix some lines and clean up code.
+
+Wed Aug 12 14:11:49 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* INSTALL,perl/util.i.in:Add and fix some lines to describe
+	SWIG based perl biding.
+
+Wed Aug 12 12:59:30 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/docs/index.html:Fix Makefile to
+	generate docs/index.html from pod document of Search::Xapian.
+
+Wed Aug 12 09:32:17 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Remove and replace some lines and clean
+	up code.
+
+Wed Aug 12 06:22:31 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/lib/,perl/lib/MSet/Tied.pm,perl/lib/,
+	perl/util.i.in:Remove perl code from lib/*.pm files, add pod
+	document of Search::Xapian to util.i.in, and fix test environment
+	and test programs in Makefile.am.
+
+Tue Aug 11 10:01:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_sort_by_key(), set_sort_by_key_then_relevance()
+	and set_sort_by_relevance_then_key() of Enquire using %feature("shadow")
+	directive.
+
+Mon Aug 10 16:11:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/t/search.t: Modifire some tests to use get_termname()
+	instead of stringification operator because now we haven't
+	support it, and remove some machdecider tests since we also
+	haven't support it.
+	* perl/util.i.in:Fix MSetIterator::clone(), remove
+	MSetIterator::get_docid() since same function is already
+	defined at xapian.i, and add overloaded operators of
+	ESetIterator.
+
+Mon Aug 10 16:03:10 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add CLONE_SKIP functions for thread support.
+
+Sat Aug 08 03:35:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix internal function call of MSet::FETCH.
+
+Fri Aug 07 15:29:21 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add tie support of MSetIterator and
+	ESetIterator. Wrap function MSet::matches() and
+	MSet::items(). Add class MSet::Tied. Wrap overload operators
+	of ESet.
+
+Fri Aug 07 06:03:05 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/lib/TermIterator.pm,perl/lib/ValueIterator.pm,
+	perl/t/document.t,perl/t/index.t,perl/util.i.in:
+	Remove "" operator wrapping, modify test cases and
+	pod documents. Because modifying SWIG is needed to
+	support "" operator.
+
+Thu Aug 06 08:29:25 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Wrap operator overload of MSetIterator.
+
+Wed Aug 05 14:42:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Replace each iterator's function 'inc()'
+	to 'increment()', which is macro 'NEXT' defined in xapian.i
+	and renamed in per/util.i, because both two function's
+	operation is same.
+
+Wed Aug 05 14:39:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Remove new object constructing operation
+	in TermIterator's inc() function. Because it prevents a
+	destruction of other object (such as WritableDatabase).
+
+Fri Jul 31 16:32:19 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add constant variable FLAG_SPELLING for
+	TermGenerator::set_flags().
+
+Fri Jul 31 16:28:53 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Replace get_mset() definition to %rename.
+
+Thu Jul 30 11:54:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Modifying some proxy functions using %feature("shadow")
+	directive for removing repeatedly defined functions (constructor of
+	QueryParser, SimpleStopper and WritableDatabase).
+
+Wed Jul 29 10:04:51 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/t/index.t,perl/t/parser.t: Fix exception tests because
+	previous test suppose working of XS binding with bug.
+
+Wed Jul 29 01:24:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix add_valuerangeprocessor to push
+	ValueRangeProcessors object into it's member array
+	since storing all ValueRangeProcessors objects which
+	added.
+
+Tue Jul 28 06:09:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_stopper of TermGenerator to keep
+	SimpleStopper reference	in the object for it won't be deleted.
+	Similar fix for set_sort_by_key, set_sort_by_key_then_relevance,
+	set_sort_by_relevance_then_key to keep MultiValueSorter.
+
+Tue Jul 28 03:56:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_stopper to keep SimpleStopper reference
+	in object for it won't be deleted. Same fix for add_valuerangeprocessor.
+
+Mon Jul 27 09:31:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add operator overload support for PositionIterator,
+	fix new3_WritableDatabase, and TermIterator::clone for overloading
+	operator '='.
+
+Mon Jul 27 06:40:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add function new3_WritableDatabase and
+	WritableDatabase::new to construct WritableDatabase
+	correctly.
+
+Thu Jul 23 16:58:26 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Wrap functions SimpleStopper::stop_word,
+	QueryParser::new and SimpleStopper::new.
+
+Wed Jul 22 15:23:39 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add wrapper functions for Stem::stem_word,
+	WritableDatabase::replace_document_by_term,
+	writabledatabase::delete_document_by_term,
+	some ValueIterator functions and some TermIterator functions.
+	Add operator overload support for ValueIterator and
+	TermIterator, but now double quotation operator is
+	commented out temporarily to avoid error.
+
+Tue Jul 21 17:20:01 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am:Fix the way of compile xapian_wrap.cc
+	and Xapian.pm for multiple file compilation.
+
+Tue Jul 21 17:05:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Ignore Xapian::Query::Query for taking away
+	duplication of definition. Change some argument handling process
+	of Xapian::Query::new* functions.
+
+Mon Jul 20 13:37:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Add wrapper function get_mset() and it's
+	internal function get_mset1. Fix newN() function to handle
+	multiple query argument well by introducing typemap which
+	maps perl array to SV **.
+
+Fri Jul 17 14:52:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/generate-perl-exceptions: Add exception
+	wrapping refering python/generate-python-exceptions and
+	search-xapian/handle_exception.cc .
+
+Thu Jul 16 13:45:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Rename constructors of Query and Enquire::set_query,
+	add wrapper function newN for generatig new query, add function
+	Database::enquire, Query::new and Enquire::set_query.
+
+Tue Jul 14 15:02:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac: Fix PERL_XAPIAN_VERSION to get binding's
+	version number. Previously it gets from xaian-core's one.
+
+Tue Jul 14 07:52:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: Add some options for testing.
+	* perl/util.i.in: Fix for variable $VERSION.
+
+Mon Jul 13 11:43:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Add a valiable $VERSION for adjusting
+	usage how to get version number.
+
+Mon Jul 13 11:32:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: Add swig's -const and -proxy option to
+	wrap constant values correctly.
+	* perl/util.i.in: Add %constant directive for wraipping
+	constant values. Fix generation process of OP_NAMES, DB_NAMES,
+	FLAG_NAMES and STEM_NAMES because of change of above constant
+	value handling.
+
+Sun Jul 12 23:47:54 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Fix that array OP_NAMES, DB_NAMES, FLAG_NAMES
+	and STEM_NAES could contain values correctory.
+	* perl/Makefile.am: Fix a spelling mistake.
+
+Mon Jul 06 05:50:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/util.i.in:  Add some hashes such as EXPORT_TAGS
+	for exporter module. And add arrays OP_NAMES, DB_NAMES, FLAG_NAMES and
+	STEM_NAMES to util.i.in.
+	* perl/lib/,perl/lib/MSet/Tied.pm,perl/lib/:Rename directory
+	name 'Xapian' to 'lib' to process Test::Pod.
+
+Sun Jun 28 20:44:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac,perl/util.i,perl/util.i.in: Add VERSION variable
+	into Xapian.pm. To do this, add #define directive into perl/util.i
+	and get version number from configure.
+
+Sun Jun 28 17:56:03 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: To override module name (from 'xapian'
+	to 'Search::Xapian') add swig's '-module Search::Xapian' option,
+	change test environment from 'perl' to 'prove', and change directory
+	to install Xapian.pm.
+	* configure.ac: Remove '/auto/Search/Xapian' from PERL_LIB variable,
+	and add dot into PERL_SO variable.
+
+Mon Jun 22 02:53:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac,perl/Makefile.am: Add configure test to get appropriate
+	  setting for directories to install perl files into. Also add test to
+	  get perl module extension.
+	* perl/util.i: Add %rename directive to rename "next()" function in
+	  xapian-bindings/xapian.i and "next(Xapian::weight min_wt)" function
+	  in xapian-core/include/xapian/postingsource.h because these functions
+	  conflicts perl's "next" keyword.
+
+Sun Jun 21 21:45:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/xapian.pm: remove a generated file (xapian.pm) from repository.
+	* ChangeLog: add log message of revision 12910 (Mon Jun 15 17:58:09 GMT 2009).
+
+Mon Jun 15 17:58:09 GMT 2009  Kosei Moriyama <cou929@gmail.comm>
+
+	* Makefile.am,configure.ac: Add --with-perl configure option,
+	  and add configure test to get appropriate setting for include
+	  path for perl.
+	* perl/Makefile.am, perl/docs/Makefile.am,
+	  perl/docs/examples/, perl/docs/index.html,
+	  perl/t/, perl/util.i, perl/xapian.pm: Add perl subdirectory to
+	  build system.
+
 Wed Aug 25 15:15:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use sys.version_info tuple, rather than string splicing

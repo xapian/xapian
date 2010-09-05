@@ -197,7 +197,12 @@ AC_ARG_WITH(java,
   [],
   [with_java=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java in
+AC_ARG_WITH(perl,
+  AC_HELP_STRING([--with-perl], [enable Perl bindings]),
+  [],
+  [with_perl=])
+
+case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -206,6 +211,7 @@ case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java in
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
   test -z "$with_ruby" && with_ruby=no
+  test -z "$with_perl" && with_perl=no
   ;;
 esac
 
@@ -806,6 +812,41 @@ if test no != "$with_ruby" ; then
   fi
 fi
 
+if test yes = "$with_perl" ; then
+  AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
+  AC_ARG_VAR(PERL, [perl interpreter])
+  if test -n "$PERL" ;  then
+    AC_ARG_VAR(PERL_INC, [Directory to include XS headers])
+    if test -z "$PERL_INC" ; then
+      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
+    fi
+    AC_SUBST(PERL_INC)
+
+    AC_ARG_VAR(PERL_LIB, [Directory to install perl files into])
+    if test -z "$PERL_LIB" ; then
+      [PERL_LIB=`$PERL -MConfig -e 'print $Config{sitearch};'`];
+    fi
+    AC_SUBST(PERL_LIB)
+
+    AC_ARG_VAR(PERL_SO, [for perl module extension])
+    if test -z "$PERL_SO" ; then
+      [PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`];
+    fi
+    AC_SUBST(PERL_SO)
+    
+    if test -z "$PERL_XAPIAN_VERSION" ; then
+      [PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0];
+    fi
+    AC_SUBST(PERL_XAPIAN_VERSION)
+
+    BINDINGS="$BINDINGS perl"
+  else
+    if test yes = "$with_perl" ; then
+      AC_MSG_ERROR([perl not found])
+    fi
+  fi
+fi
+
 AC_SUBST(BINDINGS)
 
 dnl Set flags to control warnings (enable more, or disable annoying ones)
@@ -905,7 +946,9 @@ AC_CONFIG_FILES([Makefile
  csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs
  ruby/Makefile ruby/docs/Makefile
- xapian-bindings.spec])
+ xapian-bindings.spec
+ perl/Makefile perl/docs/Makefile perl/util.i
+ ])
 AC_OUTPUT
 
 echo ""

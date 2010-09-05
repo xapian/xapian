@@ -18,11 +18,12 @@ EXTRA_DIST = xapian.i xapian-head.i generic/except.i \
 DISTCLEANFILES = xapian-version.h
 
 SUBDIRS = @BINDINGS@
-DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp
+DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp perl
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON_LIB="`pwd`/../_inst/tmp_pylib" \
 	PHP_EXTENSION_DIR="`pwd`/../_inst/tmp_phpext" \
 	RUBY_LIB="`pwd`/../_inst/tmp_rubylib" \
 	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
-	TCL_LIB="`pwd`/../_inst/tmp_tcllib"
+	TCL_LIB="`pwd`/../_inst/tmp_tcllib" \
+	PERL_LIB="`pwd`/../_inst/tmp_perllib"

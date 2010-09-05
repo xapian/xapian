@@ -48,6 +48,7 @@ The simplest way to compile this package is:
        --with-tcl	    enable Tcl bindings
        --with-java	    enable Java bindings
        --with-csharp	    enable CSharp bindings
+       --with-perl	    enable Perl bindings
 
      If you've requested particular bindings using these options, then
      configure will fail with an error if it is missing the prerequisite
@@ -152,6 +153,16 @@ Installing without root access
      And then add the following to the start of your script to load Xapian:
 
      load [file join "/home/USERNAME/my_tcl_modules" xapian.so]
+
+  Perl:
+
+     ./configure --with-perl --prefix=$HOME/install PERL_LIB=$HOME/my_perl_modules
+     make
+     make install
+
+     And then you'll need to tell Perl to look for modules in this directory:
+
+     perl -I$HOME/my_perl_modules myscript.pl
 
 Compilers and Options
 =====================
