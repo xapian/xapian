@@ -769,7 +769,7 @@ if test no != "$with_ruby" ; then
 
 	AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then
-	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`];
+	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB)
 

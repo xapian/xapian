@@ -1,3 +1,7 @@
+Sun Sep 05 12:49:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove accidentally added ';' from Ruby checks.
+
 Fri Aug 14 16:45:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/lib/:Add "1;" into end of lib/*.pm files.
