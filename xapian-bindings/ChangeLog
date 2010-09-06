@@ -1,3 +1,7 @@
+Mon Sep 06 02:07:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Whitespace tweaks.
+
 Mon Sep 06 02:02:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Tweak help message for PERL_INC.

@@ -815,7 +815,7 @@ fi
 if test yes = "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
-  if test -n "$PERL" ;  then
+  if test -n "$PERL" ; then
     AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
@@ -833,7 +833,7 @@ if test yes = "$with_perl" ; then
       [PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`];
     fi
     AC_SUBST(PERL_SO)
-    
+
     if test -z "$PERL_XAPIAN_VERSION" ; then
       [PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0];
     fi
