@@ -29,9 +29,19 @@ clean-local:
 
 BUILT_SOURCES = Xapian.pm xapian_wrap.cc
 
-EXTRA_DIST = util.i except.i index.html $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i except.i $(TESTS) $(BUILT_SOURCES)
 
-SUBDIRS = docs
+exampledatadir = $(docdir)/perl/examples
+dist_exampledata_DATA = \
+	docs/examples/full-indexer.pl \
+	docs/examples/full-searcher.pl \
+	docs/examples/simpleexpand.pl \
+	docs/examples/simpleindex.pl \
+	docs/examples/simplematchdecider.pl \
+	docs/examples/simplesearch.pl
+
+docdatadir = $(docdir)/perl
+dist_docdata_DATA = docs/index.html
 
 perllibdir = $(PERL_LIB)/auto/Search/Xapian
 perllib_LTLIBRARIES = Xapian.la

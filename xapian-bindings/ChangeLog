@@ -1,3 +1,8 @@
+Mon Sep 06 05:37:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/docs/Makefile.am: Merge perl/docs/Makefile.am
+	  into perl/Makefile.am and fix to install.
+
 Mon Sep 06 03:30:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Fix "make clean" to work properly.
