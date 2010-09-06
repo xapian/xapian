@@ -1,3 +1,7 @@
+Mon Sep 06 02:43:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/: Update with newer testcases from Search::Xapian.
+
 Mon Sep 06 02:27:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Build shared object as Xapian.la not xapian.la as
