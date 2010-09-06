@@ -816,7 +816,7 @@ if test yes = "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ;  then
-    AC_ARG_VAR(PERL_INC, [Directory to include XS headers])
+    AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
     fi

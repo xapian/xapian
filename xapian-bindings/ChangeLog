@@ -1,3 +1,7 @@
+Mon Sep 06 02:02:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tweak help message for PERL_INC.
+
 Sun Sep 05 23:24:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Merge Kosei's SWIG-based Perl bindings from GSoC 2009.
