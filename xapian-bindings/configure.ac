@@ -824,18 +824,18 @@ if test yes = "$with_perl" ; then
 
     AC_ARG_VAR(PERL_LIB, [Directory to install perl files into])
     if test -z "$PERL_LIB" ; then
-      [PERL_LIB=`$PERL -MConfig -e 'print $Config{sitearch};'`];
+      PERL_LIB=`$PERL -MConfig -e 'print $Config{sitearch};'`
     fi
     AC_SUBST(PERL_LIB)
 
     AC_ARG_VAR(PERL_SO, [for perl module extension])
     if test -z "$PERL_SO" ; then
-      [PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`];
+      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`
     fi
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      [PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0];
+      PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0
     fi
     AC_SUBST(PERL_XAPIAN_VERSION)
 
