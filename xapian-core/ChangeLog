@@ -1,3 +1,8 @@
+Mon Sep 06 07:10:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add support for --enable-sse=sse and --enable-sse=sse2
+	  to allow control of which SSE instructions to use.
+
 Fri Sep 03 13:08:53 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-replicate.cc: If a fullcopy was attempted, but was not

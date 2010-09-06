@@ -359,10 +359,13 @@ dnl x86 has excess precision issues with 387 FP instructions, which are
 dnl avoided by using SSE instructions instead.  This is also faster (~6% in
 dnl a CPU bound testcase).
 AC_ARG_ENABLE([sse],
-  [AS_HELP_STRING([--disable-sse], [disable use of SSE FP instructions (only affects x86)])],
+[AS_HELP_STRING([--disable-sse],
+		[disable use of SSE FP instructions on x86])]
+[AS_HELP_STRING([[--enable-sse[=sse|sse2]]],
+		[set which SSE FP instructions to use on x86 (default: sse2)])],
   [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
+    sse|sse2|yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-sse or --disable-sse]) ;;
   esac])
 
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
@@ -1121,19 +1124,21 @@ case $host_cpu in
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
     else
+      dnl Default to sse2.
+      test enable_sse != yes || enable_sse=sse2
       case $compiler in
       gcc)
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
 	case $gxx_version in
 	3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse" ;;
 	*)
-	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic" ;;
 	esac
 	;;
       sun)
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	AM_CXXFLAGS="$AM_CXXFLAGS -xarch-sse2"
+	AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"
 	;;
       *)
         AC_MSG_RESULT([don't know how to for compiler $CXX])
