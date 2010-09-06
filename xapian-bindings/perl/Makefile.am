@@ -5,9 +5,29 @@ include ../generic/generic.mk
 TESTS_ENVIRONMENT = prove -I.libs -Ilib
 
 ## Test programs to be run
-TESTS = t/*.t
+TESTS = \
+	t/01use.t \
+	t/02pod.t \
+	t/03podcoverage.t \
+	t/04functions.t \
+	t/create.t \
+	t/databasemodified.t \
+	t/document.t \
+	t/exception.t \
+	t/index.t \
+	t/parser.t \
+	t/search.t \
+	t/sorter.t \
+	t/termgenerator.t \
+	t/thread.t \
+	t/tied.t \
+	t/valuerange.t \
+	t/writabledatabase.t
 
-BUILT_SOURCES = xapian_wrap.cc
+clean-local:
+	rm -rf testdb*
+
+BUILT_SOURCES = Xapian.pm xapian_wrap.cc
 
 EXTRA_DIST = util.i except.i index.html $(TESTS) $(BUILT_SOURCES)
 
@@ -36,6 +56,7 @@ except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 BUILT_SOURCES += docs/index.html
 docs/index.html: Xapian.pm
 	pod2html Xapian.pm > docs/index.html
+	rm -f pod2htm?.tmp
 
 xapian_wrap.cc Xapian.pm: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
@@ -52,7 +73,9 @@ xapian_wrap.stamp: $(SWIG_sources) util.i except.i
 
 -include xapian_wrap.d
 
-CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
+CLEANFILES = $(BUILT_SOURCES) \
+	pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp \
+	Search Xapian
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif

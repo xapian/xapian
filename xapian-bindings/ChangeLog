@@ -1,3 +1,7 @@
+Mon Sep 06 03:30:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Fix "make clean" to work properly.
+
 Mon Sep 06 03:17:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Fix path to index.html in rule.
