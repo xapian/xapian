@@ -14,7 +14,7 @@ EXTRA_DIST = util.i except.i index.html $(TESTS) $(BUILT_SOURCES)
 SUBDIRS = docs
 
 perllibdir = $(PERL_LIB)/auto/Search/Xapian
-perllib_LTLIBRARIES = xapian.la
+perllib_LTLIBRARIES = Xapian.la
 
 perlmoddir = $(PERL_LIB)/Search
 perlmod_DATA = Xapian.pm
@@ -24,9 +24,9 @@ perlPOD_DATA = lib/*
 
 AM_CPPFLAGS = -I$(PERL_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
-xapian_la_SOURCES = xapian_wrap.cc
-xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
+Xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
+Xapian_la_SOURCES = xapian_wrap.cc
+Xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i

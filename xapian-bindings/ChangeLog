@@ -1,3 +1,8 @@
+Mon Sep 06 02:27:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Build shared object as Xapian.la not xapian.la as
+	  Perl looks for it capitalised.
+
 Mon Sep 06 02:14:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: No need to m4 quote shell fragments without [] in.
