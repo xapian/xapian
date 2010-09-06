@@ -1,3 +1,7 @@
+Mon Sep 06 05:40:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't try to generate perl/docs/Makefile.
+
 Mon Sep 06 05:37:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,perl/docs/Makefile.am: Merge perl/docs/Makefile.am

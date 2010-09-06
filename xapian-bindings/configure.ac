@@ -812,7 +812,7 @@ if test no != "$with_ruby" ; then
   fi
 fi
 
-if test yes = "$with_perl" ; then
+if test no != "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ; then
@@ -947,7 +947,7 @@ AC_CONFIG_FILES([Makefile
  csharp/AssemblyInfo.cs
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec
- perl/Makefile perl/docs/Makefile perl/util.i
+ perl/Makefile perl/util.i
  ])
 AC_OUTPUT
 
