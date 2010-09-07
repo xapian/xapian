@@ -1,3 +1,9 @@
+Tue Sep 07 04:39:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* outlookmsg2html.in: If the required perl modules aren't available,
+	  exit with status 127 which omindex interprets as "filter not
+	  installed" and won't try further .msg files.
+
 Tue Sep 07 02:24:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,docs/overview.rst,omindex.cc,

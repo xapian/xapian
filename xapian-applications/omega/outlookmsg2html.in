@@ -24,8 +24,16 @@
 # IN THE SOFTWARE.
 
 use strict;
-use Email::Outlook::Message;
-use HTML::Entities;
+eval {
+    require Email::Outlook::Message;
+    require HTML::Entities;
+};
+if ($@) {
+    print STDERR $@;
+    # Exit with code 127 which omindex interprets as "filter not installed"
+    # and won't try further .msg files.
+    exit 127;
+}
 
 handle_mimepart(new Email::Outlook::Message($ARGV[0])->to_email_mime);
 
@@ -48,7 +56,7 @@ sub handle_mimepart {
 	}
     } elsif ($type eq 'text') {
 	if ($sub eq 'plain') {
-	    print "<pre>", encode_entities($e->body), "</pre>\n";
+	    print "<pre>", HTML::Entities::encode_entities($e->body), "</pre>\n";
 	    return 1;
 	} elsif ($sub eq 'html') {
 	    my $m = $e->body;
