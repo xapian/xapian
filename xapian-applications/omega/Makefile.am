@@ -69,11 +69,14 @@ EXTRA_DIST =\
 	images/score-9.png \
 	xapian-omega.spec
 
-AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
+AM_CPPFLAGS = \
+	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
+	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
+dist_pkglibbin_SCRIPTS = outlookmsg2html
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
@@ -89,7 +92,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
  commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h datematchdecider.h sample.h strcasecmp.h\
+ namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h
 
@@ -129,7 +132,8 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
- runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc
+ runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
+ pkglibbindir.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif

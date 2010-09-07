@@ -268,12 +268,11 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-if test x"$USE_MAINTAINER_MODE" = xyes; then
-  dnl Check for perl. (Needed to make man pages from "--help" output, and to
-  dnl make the omegascript vim syntax mode.)
-  AC_PATH_PROG(PERL, perl, [])
-  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
-fi
+dnl Check for perl.  Needed for outlookmsg2html script.
+dnl (And in maintainer-mode, also to make man pages from "--help" output, and
+dnl to make the omegascript vim syntax mode.)
+AC_PATH_PROG(PERL, perl, [])
+test -z "$PERL" && AC_MSG_ERROR([perl is required])
 
 if test x"$enable_documentation" = xyes; then
   dnl Check for help2man. (Needed to make man pages from "--help" output).
@@ -515,4 +514,5 @@ dnl **************************
 
 AC_CONFIG_FILES([Makefile docs/Makefile xapian-omega.spec])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
+AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
 AC_OUTPUT

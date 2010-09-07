@@ -50,6 +50,7 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
+#include "pkglibbindir.h"
 #include "runfilter.h"
 #include "sample.h"
 #include "str.h"
@@ -652,6 +653,34 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
+    } else if (mimetype == "application/vnd.ms-outlook") {
+	string cmd = get_pkglibdindir() + "/outlookmsg2html " + shell_protect(file);
+	MyHtmlParser p;
+	try {
+	    dump = stdout_to_string(cmd);
+	    // FIXME: what should the default charset be?
+	    p.parse_html(dump, "iso-8859-1", false);
+	} catch (const string & newcharset) {
+	    try {
+		p.reset();
+		p.parse_html(dump, newcharset, true);
+	    } catch (bool) {
+	    }
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    return;
+	} catch (bool) {
+	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
+	    // indexing is disallowed
+	}
+	if (!p.indexing_allowed) {
+	    cout << "indexing disallowed by meta tag - skipping" << endl;
+	    return;
+	}
+	dump = p.dump;
+	title = p.title;
+	keywords = p.keywords;
+	sample = p.sample;
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping" << endl;
@@ -992,6 +1021,7 @@ main(int argc, char **argv)
     mime_map["xlt"] = "application/vnd.ms-excel"; // Excel template
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
+    mime_map["msg"] = "application/vnd.ms-outlook"; // Outlook .msg email
 
     // Perl:
     mime_map["pl"] = "text/x-perl";

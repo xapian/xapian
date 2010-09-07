@@ -1,3 +1,9 @@
+Tue Sep 07 02:24:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,docs/overview.rst,omindex.cc,
+	  outlookmsg2html.in,pkglibbindir.cc,pkglibbindir.h: Add support for
+	  indexing .msg files from Microsoft Outlook.  (ticket#334)
+
 Tue Aug 31 06:32:15 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix handling of quoting in CSV files to match what's

@@ -204,6 +204,8 @@ know):
   .xltm, .pptx, .pptm, .potx, .potm, .ppsx, .ppsm) if unzip is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
+* MS Outlook message (.msg) if perl with Email::Outlook::Message and
+  HTML::Parser modules is available
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw) if gzip is available
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -230,6 +232,7 @@ of:
    - application/pdf
    - application/postscript
    - application/vnd.ms-excel
+   - application/vnd.ms-outlook
    - application/vnd.ms-powerpoint
    - application/vnd.ms-works
    - application/vnd.ms-xpsdocument
