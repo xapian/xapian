@@ -822,9 +822,15 @@ if test no != "$with_perl" ; then
     fi
     AC_SUBST(PERL_INC)
 
-    AC_ARG_VAR(PERL_LIB, [Directory to install perl files into])
+    AC_ARG_VAR(PERL_ARCH, [Directory to install architecture-dependent perl files into])
+    if test -z "$PERL_ARCH" ; then
+      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch};'`
+    fi
+    AC_SUBST(PERL_ARCH)
+
+    AC_ARG_VAR(PERL_LIB, [Directory to install architecture-independent perl files into])
     if test -z "$PERL_LIB" ; then
-      PERL_LIB=`$PERL -MConfig -e 'print $Config{sitearch};'`
+      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib};'`
     fi
     AC_SUBST(PERL_LIB)
 

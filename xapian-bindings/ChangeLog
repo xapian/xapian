@@ -1,3 +1,12 @@
+Tue Sep 07 10:19:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,perl/Makefile.am: Install
+	  architecture-independent perl files in the appropriate directory.
+	* perl/Makefile.am,perl/lib/,perl/Search/Xapian/: Structure source
+	  and build trees more like installed tree so we don't need to create
+	  symlinks to run tests in the uninstalled tree.  Fix tests to work
+	  when srcdir != builddir.
+
 Mon Sep 06 05:40:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't try to generate perl/docs/Makefile.

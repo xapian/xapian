@@ -2,7 +2,7 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = prove -I.libs -Ilib
+TESTS_ENVIRONMENT = prove -I.libs -I. -I"$(srcdir)"
 
 ## Test programs to be run
 TESTS = \
@@ -27,7 +27,7 @@ TESTS = \
 clean-local:
 	rm -rf testdb*
 
-BUILT_SOURCES = Xapian.pm xapian_wrap.cc
+BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc
 
 EXTRA_DIST = util.i except.i $(TESTS) $(BUILT_SOURCES)
 
@@ -43,14 +43,58 @@ dist_exampledata_DATA = \
 docdatadir = $(docdir)/perl
 dist_docdata_DATA = docs/index.html
 
-perllibdir = $(PERL_LIB)/auto/Search/Xapian
-perllib_LTLIBRARIES = Xapian.la
+perlarchdir = $(PERL_ARCH)/auto/Search/Xapian
+perlarch_LTLIBRARIES = Xapian.la
 
-perlmoddir = $(PERL_LIB)/Search
-perlmod_DATA = Xapian.pm
-
-perlPODdir = $(PERL_LIB)/Search/Xapian
-perlPOD_DATA = lib/*
+perllibdir = $(PERL_LIB)
+nobase_dist_perllib_DATA = \
+	Search/Xapian.pm \
+	Search/Xapian/AssertionError.pm \
+	Search/Xapian/BM25Weight.pm \
+	Search/Xapian/BoolWeight.pm \
+	Search/Xapian/DatabaseCorruptError.pm \
+	Search/Xapian/DatabaseCreateError.pm \
+	Search/Xapian/DatabaseError.pm \
+	Search/Xapian/DatabaseLockError.pm \
+	Search/Xapian/DatabaseModifiedError.pm \
+	Search/Xapian/DatabaseOpeningError.pm \
+	Search/Xapian/Database.pm \
+	Search/Xapian/DatabaseVersionError.pm \
+	Search/Xapian/DocNotFoundError.pm \
+	Search/Xapian/Document.pm \
+	Search/Xapian/Enquire.pm \
+	Search/Xapian/Error.pm \
+	Search/Xapian/ESetIterator.pm \
+	Search/Xapian/ESet.pm \
+	Search/Xapian/FeatureUnavailableError.pm \
+	Search/Xapian/InternalError.pm \
+	Search/Xapian/InvalidArgumentError.pm \
+	Search/Xapian/InvalidOperationError.pm \
+	Search/Xapian/LogicError.pm \
+	Search/Xapian/MSetIterator.pm \
+	Search/Xapian/MSet.pm \
+	Search/Xapian/MultiValueSorter.pm \
+	Search/Xapian/NetworkError.pm \
+	Search/Xapian/NetworkTimeoutError.pm \
+	Search/Xapian/PerlStopper.pm \
+	Search/Xapian/PositionIterator.pm \
+	Search/Xapian/PostingIterator.pm \
+	Search/Xapian/QueryParserError.pm \
+	Search/Xapian/QueryParser.pm \
+	Search/Xapian/Query.pm \
+	Search/Xapian/RangeError.pm \
+	Search/Xapian/RSet.pm \
+	Search/Xapian/RuntimeError.pm \
+	Search/Xapian/SimpleStopper.pm \
+	Search/Xapian/Stem.pm \
+	Search/Xapian/Stopper.pm \
+	Search/Xapian/TermGenerator.pm \
+	Search/Xapian/TermIterator.pm \
+	Search/Xapian/TradWeight.pm \
+	Search/Xapian/UnimplementedError.pm \
+	Search/Xapian/ValueIterator.pm \
+	Search/Xapian/Weight.pm \
+	Search/Xapian/WritableDatabase.pm
 
 AM_CPPFLAGS = -I$(PERL_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
@@ -64,28 +108,26 @@ except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
 
 BUILT_SOURCES += docs/index.html
-docs/index.html: Xapian.pm
-	pod2html Xapian.pm > docs/index.html
+docs/index.html: Search/Xapian.pm
+	pod2html Search/Xapian.pm > docs/index.html
 	rm -f pod2htm?.tmp
 
-xapian_wrap.cc Xapian.pm: xapian_wrap.stamp
+xapian_wrap.cc Search/Xapian.pm: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
 xapian_wrap.stamp: $(SWIG_sources) util.i except.i
 	$(multitarget_begin)
-	-rm -f Search Xapian
-	ln -s . Search
-	ln -s lib Xapian
+	test -d Search || mkdir Search
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -perl -module Search::Xapian -proxy -const \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	mv Xapian.pm Search/Xapian.pm
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	$(multitarget_end)
 
 -include xapian_wrap.d
 
 CLEANFILES = $(BUILT_SOURCES) \
-	pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp \
-	Search Xapian
+	pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
