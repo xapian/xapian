@@ -1,3 +1,10 @@
+xapian-omega (1.2.4-1) UNRELEASED; urgency=low
+
+  * debian/control: Suggests: libemail-outlook-message-perl and
+    libhtml-parser-perl for Outlook .msg parsing.
+
+ -- Olly Betts <olly@survex.com>  Tue, 07 Sep 2010 02:45:13 +0000
+
 xapian-omega (1.2.3-1) unstable; urgency=low
 
   * New upstream release.

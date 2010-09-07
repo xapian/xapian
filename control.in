@@ -14,7 +14,8 @@ Section: web
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, ghostscript,
-    catdoc, libwps-tools, catdvi, djvulibre-bin, perl
+    catdoc, libwps-tools, catdvi, djvulibre-bin, perl,
+    libemail-outlook-message-perl, libhtml-parser-perl
 Recommends: apache2|httpd-cgi
 Description: CGI search interface and indexers using Xapian
  This package contains:
