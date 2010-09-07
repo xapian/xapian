@@ -1,3 +1,9 @@
+Tue Sep 07 11:54:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am,ruby/docs/generate-rdoc-stubs,
+	  ruby/generate-rdoc-stubs: Fix generation of rdocs to work when srcdir
+	  != buildir (broken by last but one commit).
+
 Tue Sep 07 10:46:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am: Eliminate

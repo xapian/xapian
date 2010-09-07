@@ -2,12 +2,13 @@
 use strict;
 
 my ($srcdir) = ($0 =~ m!^(.*?)[^/]*$!);
-my $dir = '../../../xapian-core/docs/apidoc/xml';
+my $dir = '../../xapian-core/docs/apidoc/xml';
 
 my %documented = ();
 
-open XAPIAN_RB, '<', "${srcdir}/../xapian.rb" or die $!;
-my $out = 'xapian.rb';
+open XAPIAN_RB, '<', "${srcdir}/xapian.rb" or die $!;
+mkdir 'docs', 0777 unless -d 'docs';
+my $out = 'docs/xapian.rb';
 open OUT, '>', $out."T" or die $!;
 while (<XAPIAN_RB>) {
     print OUT $_;

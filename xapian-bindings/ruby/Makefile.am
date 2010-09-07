@@ -97,8 +97,8 @@ BUILT_SOURCES += docs/rdocs/index.html
 
 docs/rdocs: docs/rdocs/index.html
 
-docs/xapian.rb: docs/generate-rdoc-stubs xapian.rb ../../xapian-core/docs/apidoc/xml/index.xml
-	cd docs && $(PERL) $(srcdir)/docs/generate-rdoc-stubs
+docs/xapian.rb: generate-rdoc-stubs xapian.rb ../../xapian-core/docs/apidoc/xml/index.xml
+	$(PERL) $(srcdir)/generate-rdoc-stubs
 
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
