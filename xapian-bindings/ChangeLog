@@ -1,3 +1,8 @@
+Tue Sep 07 10:46:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am: Eliminate
+	  csharp/docs/Makefile.am similarly.
+
 Tue Sep 07 10:28:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac,php/Makefile.am,php/docs/Makefile.am,python/Makefile.am,

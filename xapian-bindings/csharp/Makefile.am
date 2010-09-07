@@ -7,8 +7,6 @@ TESTS_ENVIRONMENT = $(RUN_CSHARP)
 ## Test programs to be run
 TESTS = SmokeTest.exe
 
-SUBDIRS = docs
-
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
@@ -117,3 +115,12 @@ CLEANFILES += $(BUILT_SOURCES) xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
+
+exampledatadir = $(docdir)/csharp/examples
+dist_exampledata_DATA =\
+	docs/examples/SimpleSearch.cs\
+	docs/examples/SimpleIndex.cs\
+	docs/examples/SimpleExpand.cs
+
+docdatadir = $(docdir)/csharp
+dist_docdata_DATA = docs/index.html

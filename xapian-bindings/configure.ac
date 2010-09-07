@@ -948,8 +948,7 @@ AC_CONFIG_FILES([Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  java-swig/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
- csharp/Makefile csharp/docs/Makefile
- csharp/AssemblyInfo.cs
+ csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
  perl/Makefile perl/util.i
  xapian-bindings.spec
