@@ -942,18 +942,17 @@ AC_SUBST([AUTOM4TE])
 
 AC_CONFIG_FILES([Makefile
  xapian-version.h
- python/Makefile python/docs/Makefile
- php/Makefile php/docs/Makefile
+ python/Makefile
+ php/Makefile
  java/Makefile java/native/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  java-swig/Makefile
- tcl8/Makefile tcl8/docs/Makefile
- tcl8/pkgIndex.tcl
+ tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs
- ruby/Makefile ruby/docs/Makefile
- xapian-bindings.spec
+ ruby/Makefile
  perl/Makefile perl/util.i
+ xapian-bindings.spec
  ])
 AC_OUTPUT
 

@@ -9,7 +9,6 @@ TESTS_ENVIRONMENT = \
 TESTS = smoketest.tcl
 
 EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl pkgIndex.tcl.in
-SUBDIRS = docs
 
 tcllibdir = @TCL_LIB@/xapian@VERSION@
 
@@ -50,3 +49,12 @@ CLEANFILES += $(BUILT_SOURCES)
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
+
+exampledatadir = $(docdir)/tcl8/examples
+dist_exampledata_DATA = \
+	docs/examples/simpleexpand.tcl \
+	docs/examples/simpleindex.tcl \
+	docs/examples/simplesearch.tcl
+
+docdatadir = $(docdir)/tcl8
+dist_docdata_DATA = docs/index.html

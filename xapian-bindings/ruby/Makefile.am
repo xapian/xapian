@@ -9,9 +9,7 @@ TESTS = smoketest.rb
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
-
-SUBDIRS = . docs
+EXTRA_DIST = util.i docs/rdocs $(TESTS) $(BUILT_SOURCES)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -24,11 +22,6 @@ rubylibarch_LTLIBRARIES = _xapian.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.la
-
-# Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the file ourselves.
-uninstall-local:
-	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
 
 AM_CPPFLAGS = -I$(RUBY_INC) -I$(RUBY_INC_ARCH)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
@@ -60,8 +53,56 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 
 CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
 else
+CLEANFILES =
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
 
 # Compatibility wrapper which configure creates when required.
 DISTCLEANFILES = rubyio.h
+
+exampledatadir = $(docdir)/ruby/examples
+dist_exampledata_DATA = \
+	docs/examples/simpleexpand.rb \
+	docs/examples/simpleindex.rb \
+	docs/examples/simplematchdecider.rb \
+	docs/examples/simplesearch.rb
+
+docdatadir = $(docdir)/ruby
+dist_docdata_DATA = docs/index.html
+
+install-data-local:
+	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
+	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
+	  for dir in `find rdocs -type d -print` ; do \
+	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
+	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
+	  done ; \
+	  for f in `find rdocs -type f -print` ; do \
+	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
+	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
+	  done
+
+uninstall-local:
+	## Because we don't install the .la file, "make uninstall" doesn't work
+	## and we need to remove the file ourselves.
+	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
+	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
+	  for f in `find rdocs -type f -print` ; do \
+	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
+	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
+	  done
+
+if DOCUMENTATION_RULES
+BUILT_SOURCES += docs/rdocs/index.html
+
+docs/rdocs: docs/rdocs/index.html
+
+docs/xapian.rb: docs/generate-rdoc-stubs xapian.rb ../../xapian-core/docs/apidoc/xml/index.xml
+	cd docs && $(PERL) $(srcdir)/docs/generate-rdoc-stubs
+
+docs/rdocs/index.html: docs/xapian.rb
+	rm -rf docs/rdocs
+	cd docs && $(RDOC) --op rdocs xapian.rb
+endif
+
+CLEANFILES += docs/xapian.rb

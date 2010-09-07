@@ -31,8 +31,6 @@ EXTRA_DIST = util.i extra.i extracomments.i except.i \
 	replicationtest2.py \
 	$(TESTS) $(BUILT_SOURCES)
 
-SUBDIRS = docs
-
 pkgpylibdir = @PYTHON_LIB@/xapian
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
@@ -130,3 +128,13 @@ CLEANFILES += $(BUILT_SOURCES) modern/xapian_wrap.d modern/xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
+
+exampledatadir = $(docdir)/python/examples
+dist_exampledata_DATA = \
+	docs/examples/simpleindex.py \
+	docs/examples/simpleexpand.py \
+	docs/examples/simplematchdecider.py \
+	docs/examples/simplesearch.py
+
+docdatadir = $(docdir)/python
+dist_docdata_DATA = docs/index.html

@@ -1,3 +1,12 @@
+Tue Sep 07 10:28:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/Makefile.am,php/docs/Makefile.am,python/Makefile.am,
+	  python/docs/Makefile.am,ruby/Makefile.am,ruby/docs/Makefile.am,
+	  tcl8/Makefile.am,tcl8/docs/Makefile.am: Eliminate separate
+	  Makefile.am in docs subdirectory of each language subdirectory and
+	  just inline any rules into the main sub-Makefile.am, which allows
+	  make to run more of the build in parallel.
+
 Tue Sep 07 10:19:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac,perl/Makefile.am: Install

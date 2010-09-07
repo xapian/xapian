@@ -17,8 +17,6 @@ BUILT_SOURCES = php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php
 
 EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES)
 
-SUBDIRS = docs
-
 phpextdir = $(PHP_EXTENSION_DIR)
 
 phpext_LTLIBRARIES = xapian.la
@@ -71,3 +69,12 @@ CLEANFILES = $(BUILT_SOURCES) php5/xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
+
+exampledatadir = $(docdir)/php/examples
+dist_exampledata_DATA =\
+	docs/examples/simplesearch.php5\
+	docs/examples/simpleindex.php5\
+	docs/examples/simpleexpand.php5
+
+docdatadir = $(docdir)/php
+dist_docdata_DATA = docs/index.html
