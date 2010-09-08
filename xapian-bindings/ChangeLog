@@ -1,3 +1,9 @@
+Wed Sep 08 03:10:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/01use.t: Revert debug change, as it has served its purpose.
+	* configure.ac: Handle the "_svn<rev>" suffix of snapshot versions
+	  specially for Perl, to match how this is handled for Search::Xapian.
+
 Wed Sep 08 02:00:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/t/01use.t: This test is mysteriously failing in the snapshot

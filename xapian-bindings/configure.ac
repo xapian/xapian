@@ -841,7 +841,13 @@ if test no != "$with_perl" ; then
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0
+      dnl snapshot versions are like: 1.2.3_svn14971
+      case $PACKAGE_VERSION in
+      *_svn*)
+	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
+      *)
+	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
+      esac
     fi
     AC_SUBST(PERL_XAPIAN_VERSION)
 
