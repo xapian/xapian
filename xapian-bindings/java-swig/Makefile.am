@@ -2,8 +2,6 @@
 
 include ../generic/generic.mk
 
-#SUBDIRS = docs
-
 TESTS_ENVIRONMENT = \
   LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test
 
