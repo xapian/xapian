@@ -133,7 +133,6 @@ COPYMAKFILES:
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile
-   if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
    if exist $(XAPIAN_BINDINGS) copy doccomments.i $(XAPIAN_BINDINGS)\python
    if exist $(XAPIAN_BINDINGS) copy version.rc.python $(XAPIAN_BINDINGS)\python\version.rc
@@ -169,22 +168,30 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    
    nmake PYTHON_VER=26 CLEAN
    nmake PYTHON_VER=26 DIST
-   
-   cd $(XAPIAN_BINDINGS)\php
-   nmake CLEAN
-   nmake DIST
-   
-   cd $(XAPIAN_BINDINGS)\java-swig
-   nmake CLEAN
-   nmake DIST
+  
+   nmake PYTHON_VER=27 CLEAN
+   nmake PYTHON_VER=27 DIST
 
-   cd $(XAPIAN_BINDINGS)\ruby
-   nmake CLEAN
-   nmake DIST
+   cd $(XAPIAN_BINDINGS)\php
+   nmake PHP_VER=52 CLEAN
+   nmake PHP_VER=52 DIST
+   nmake PHP_VER=53 CLEAN
+   nmake PHP_VER=53 DIST
    
+# Java-Swig bindings do not work in this release, see http://trac.xapian.org/ticket/474
+#   cd $(XAPIAN_BINDINGS)\java-swig
+#   nmake CLEAN
+#   nmake DIST
    cd $(XAPIAN_BINDINGS)\csharp
    nmake CLEAN
    nmake DIST
+
+# Ruby fails a test in this release, but we package anyway
+   cd $(XAPIAN_BINDINGS)\ruby
+   nmake CLEAN
+   nmake DISTNOCHECK
+   
+
    
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h

@@ -99,13 +99,13 @@
 #define PACKAGE_NAME "xapian-core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "xapian-core 1.1.0"
+#define PACKAGE_STRING "xapian-core 1.2.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "xapian-core"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.1.0"
+#define PACKAGE_VERSION "1.2.3"
 
 /* explicit prototype needed for pread (if any) */
 /* #undef PREAD_PROTOTYPE */
@@ -128,7 +128,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "1.1.0"
+#define VERSION "1.2.3"
 
 /* Define if you want debugging to be enabled (will cause some slow down) */
 /* #undef XAPIAN_DEBUG */

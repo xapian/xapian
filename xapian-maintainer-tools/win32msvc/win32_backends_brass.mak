@@ -24,7 +24,6 @@ OBJS= \
                 $(INTDIR)\brass_dbstats.obj\
                 $(INTDIR)\brass_document.obj\
                 $(INTDIR)\brass_inverter.obj\
-                $(INTDIR)\brass_io.obj\
                 $(INTDIR)\brass_metadata.obj\
                 $(INTDIR)\brass_positionlist.obj\
                 $(INTDIR)\brass_postlist.obj\
@@ -49,7 +48,6 @@ SRCS= \
                 $(INTDIR)\brass_dbstats.cc\
                 $(INTDIR)\brass_document.cc\
                 $(INTDIR)\brass_inverter.cc\
-                $(INTDIR)\brass_io.cc\
                 $(INTDIR)\brass_metadata.cc\
                 $(INTDIR)\brass_positionlist.cc\
                 $(INTDIR)\brass_postlist.cc\

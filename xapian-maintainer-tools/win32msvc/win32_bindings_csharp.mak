@@ -20,10 +20,10 @@ ASSEMBLY=XapianCSharp
 BINDING=_XapianSharp
 
 XAPIAN_SWIG_CSHARP_SRCS=\
-    AssemblyInfo.cs \
     Auto.cs \
     BM25Weight.cs \
     BoolWeight.cs \
+    Brass.cs \
     Chert.cs \
     Database.cs \
     DateValueRangeProcessor.cs \
@@ -34,6 +34,8 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     ExpandDecider.cs \
     Flint.cs \
     InMemory.cs \
+    KeyMaker.cs \
+    MatchSpy.cs \
     MatchDecider.cs \
     MSet.cs \
     MSetIterator.cs \
@@ -44,13 +46,14 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     PostingSource.cs \
     Query.cs \
     QueryParser.cs \
+    Registry.cs \
     Remote.cs \
     RSet.cs \
-    SerialisationContext.cs \
     SimpleStopper.cs \
     SmokeTest.cs \
     Sorter.cs \
     Stem.cs \
+    StemImplementation.cs \
     Stopper.cs \
     StringValueRangeProcessor.cs \
     SWIGTYPE_p_std__string.cs \

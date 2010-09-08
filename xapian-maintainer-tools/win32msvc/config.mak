@@ -24,7 +24,7 @@ NULL=nul
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\..\xapian-applications\omega
+XAPIAN_APPLICATIONS=..\..\xapian-omega
 XAPIAN_BINDINGS=..\..\xapian-bindings
 
 #  ------------- Perl settings-------------
@@ -87,6 +87,22 @@ PYTHON_INCLUDE_2_26=$(PYTHON_DIR_26)\PC
 # includes any version numbers and debug suffixes ('_d'))
 PYTHON_LIB_DIR_26=$(PYTHON_DIR_26)\libs
 
+# Python folder for 2.7
+PYTHON_DIR_27=c:\Python27
+# Python executable
+PYTHON_EXE_27=$(PYTHON_DIR_27)\python.exe 
+ #PYTHON_INCLUDE : Set this to the directory that contains python.h
+PYTHON_INCLUDE_27=$(PYTHON_DIR_27)\include
+#A 'PC' directory is also included for people building from a source tree.
+PYTHON_INCLUDE_2_27=$(PYTHON_DIR_27)\PC
+
+# PYTHON_LIB_DIR : Set this to the directory containing python*.lib
+# It should only be necessary to change this for source builds of Python,
+# where the files are in 'PCBuild' rather than 'libs' (this magically works
+# as Python uses a #pragma to reference the library base name - which
+# includes any version numbers and debug suffixes ('_d'))
+PYTHON_LIB_DIR_27=$(PYTHON_DIR_27)\libs
+
 # Python folder for 3.0
 PYTHON_DIR_30=c:\Program Files\Python30
 # Python executable
@@ -109,34 +125,56 @@ PYTHON_LIB_DIR_30=$(PYTHON_DIR_30)\libs
 
 # -------------end Python settings-------------
 
-
 # -------------PHP settings-------------
 # PHP source folder
-PHP_SRC_DIR=C:\work\php-5.2.1
+PHP52_SRC_DIR=C:\work\php-5.2.1
 
-PHP_INCLUDE_CPPFLAGS= \
--I "$(PHP_SRC_DIR)" -I "$(PHP_SRC_DIR)\tsrm" -I "$(PHP_SRC_DIR)\Zend" -I "$(PHP_SRC_DIR)\main" -I "$(PHP_SRC_DIR)\regex"  \
--D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1 \
-
-# version 4 or 5: Define exactly the one you want and leave the other one 
-# commented out. Note you will have to modify the paths below as well.
-#PHP_MAJOR_VERSION = 4
-PHP_MAJOR_VERSION = 5
+PHP52_INCLUDE_CPPFLAGS= \
+-I "$(PHP52_SRC_DIR)" -I "$(PHP52_SRC_DIR)\tsrm" -I "$(PHP52_SRC_DIR)\Zend" -I "$(PHP52_SRC_DIR)\main" -I "$(PHP52_SRC_DIR)\regex"  \
+-D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1 
 
 # PHP_EXE_DIR: Set this to the folder where the PHP executable is
 # PHP_LIB : Set this to the path to the PHP library 
 !if "$(DEBUG)"=="1"
-PHP_EXE_DIR=C:\php-5.2.1\Debug_TS
-PHP_LIB=$(PHP_EXE_DIR)\php5ts_debug.lib
-PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
+PHP52_EXE_DIR="$(PHP52_SRC_DIR)\Debug_TS"
+PHP52_LIB="$(PHP52_EXE_DIR)\php5ts_debug.lib"
+PHP52_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
 !else
-PHP_EXE_DIR=C:\work\php-5.2.1-win32
-PHP_LIB=$(PHP_EXE_DIR)\dev\php5ts.lib
-PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
+PHP52_EXE_DIR="$(PHP52_SRC_DIR)\Release_TS"
+PHP52_LIB="$(PHP52_EXE_DIR)\php5ts.lib"
+PHP52_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 !endif
 
 #    PHP executable
-PHP_EXE=$(PHP_EXE_DIR)\PHP.exe 
+PHP52_EXE="$(PHP52_EXE_DIR)\PHP.exe"
+
+# PHP 5.3.0 only -----------------
+# We need to build separate bindings for PHP 5.3.0 as the module API has changed
+
+# PHP source folder - built from a snapshot according to http://wiki.php.net/internals/windows/stepbystepbuild
+PHP53_SRC_DIR=C:\php-sdk\php53dev\vc9\x86\php5.3-201009020830
+
+PHP53_INCLUDE_CPPFLAGS= \
+-I "$(PHP53_SRC_DIR)" -I "$(PHP53_SRC_DIR)\tsrm" -I "$(PHP53_SRC_DIR)\Zend" -I "$(PHP53_SRC_DIR)\main" \
+-D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1 
+#-I "$(PHP53_SRC_DIR)\regex"  \
+
+# PHP_EXE_DIR: Set this to the folder where the PHP executable is
+# PHP_LIB : Set this to the path to the PHP library 
+!if "$(DEBUG)"=="1"
+PHP53_EXE_DIR="$(PHP53_SRC_DIR)\Debug_TS"
+PHP53_LIB="$(PHP53_EXE_DIR)\php5ts_debug.lib"
+PHP53_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
+!else
+PHP53_EXE_DIR="$(PHP53_SRC_DIR)\Release_TS"
+PHP53_LIB="$(PHP53_EXE_DIR)\php5ts.lib"
+PHP53_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
+!endif
+
+#    PHP executable
+PHP53_EXE=$(PHP53_EXE_DIR)\PHP.exe 
+# end PHP 5.3.0 only -----------------
+
 # ------------- end PHP settings-------------
 
 # -------------Ruby settings-------------
@@ -171,7 +209,7 @@ JAVA_PATHSEP=/
 
 # ------------- C# settings ------------
 
-CSC="$(LIBPATH)\csc.exe"
+CSC="C:\WINDOWS\Microsoft.NET\Framework\v3.5\csc.exe"
 SN="C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\sn.exe"
 
 # ------------- end C# settings ------------
@@ -189,6 +227,12 @@ ZLIB_DIR=C:\gnu\zlib123-dll
 ZLIB_INCLUDE_DIR=$(ZLIB_DIR)\include
 ZLIB_LIB_DIR=$(ZLIB_DIR)\lib
 ZLIB_BIN_DIR=$(ZLIB_DIR)
+
+PCRE_DIR=C:\Program Files\GnuWin32
+PCRE_INCLUDE_DIR=$(PCRE_DIR)\include
+PCRE_LIB_DIR=$(PCRE_DIR)\lib
+
+
 
 #--------------------------------------
 # Visual C++ Compiler and linker programs, and flags for these

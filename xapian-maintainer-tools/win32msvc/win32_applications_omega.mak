@@ -10,7 +10,7 @@
 
 # Where the core is, relative to the Omega application
 # Change this to match your environment
-XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
+XAPIAN_CORE_REL_OMEGA=..\xapian-core
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -31,37 +31,81 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
-"$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8converttest.exe" 
+"$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8converttest.exe"
 
-ALL : $(PROGRAMS) 
+ALL : HEADERS $(PROGRAMS) 
 
 OMEGA_OBJS= \
- omindex.obj myhtmlparse.obj htmlparse.obj\
- getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj md5.obj\
- md5wrap.obj xmlparse.obj metaxmlparse.obj utf8convert.obj sample.obj diritor.obj\
- runfilter.obj freemem.obj msvc_dirent.obj xpsxmlparse.obj mkdtemp.obj
-	
+	"$(OUTDIR)\omega.obj" \
+	"$(OUTDIR)\query.obj" \
+	"$(OUTDIR)\cgiparam.obj" \
+	"$(OUTDIR)\utils.obj" \
+	"$(OUTDIR)\configfile.obj" \
+	"$(OUTDIR)\date.obj" \
+	"$(OUTDIR)\cdb_init.obj" \
+	"$(OUTDIR)\cdb_find.obj" \
+	"$(OUTDIR)\cdb_hash.obj" \
+	"$(OUTDIR)\cdb_unpack.obj" \
+	"$(OUTDIR)\loadfile.obj" \
+	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\datematchdecider.obj" \
+	"$(OUTDIR)\weight.obj" \
+	"$(OUTDIR)\str.obj" \
+	"$(OUTDIR)\transform.obj" 
+    
 OMINDEX_OBJS= \
- omindex.obj myhtmlparse.obj htmlparse.obj\
- getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj md5.obj\
- md5wrap.obj xmlparse.obj metaxmlparse.obj utf8convert.obj sample.obj diritor.obj\
- runfilter.obj freemem.obj msvc_dirent.obj xpsxmlparse.obj mkdtemp.obj
+	"$(OUTDIR)\omindex.obj" \
+	"$(OUTDIR)\myhtmlparse.obj" \
+	"$(OUTDIR)\htmlparse.obj" \
+	"$(OUTDIR)\getopt.obj" \
+	"$(OUTDIR)\commonhelp.obj" \
+	"$(OUTDIR)\utils.obj" \
+	"$(OUTDIR)\hashterm.obj" \
+ 	"$(OUTDIR)\loadfile.obj" \
+ 	"$(OUTDIR)\md5.obj" \
+ 	"$(OUTDIR)\md5wrap.obj" \
+ 	"$(OUTDIR)\xmlparse.obj" \
+ 	"$(OUTDIR)\metaxmlparse.obj" \
+ 	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\sample.obj" \
+	"$(OUTDIR)\diritor.obj" \
+	"$(OUTDIR)\mkdtemp.obj" \
+	"$(OUTDIR)\runfilter.obj" \
+	"$(OUTDIR)\freemem.obj" \
+	"$(OUTDIR)\msvc_dirent.obj" \
+	"$(OUTDIR)\xpsxmlparse.obj" \
+	"$(OUTDIR)\str.obj"
 	
 	
 SCRIPTINDEX_OBJS= \
- scriptindex.obj myhtmlparse.obj htmlparse.obj\
- getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj\
- safe.obj stringutils.obj utf8convert.obj utf8truncate.obj
+	"$(OUTDIR)\scriptindex.obj" \
+	"$(OUTDIR)\myhtmlparse.obj" \
+	"$(OUTDIR)\htmlparse.obj" \
+	"$(OUTDIR)\getopt.obj" \
+	"$(OUTDIR)\commonhelp.obj" \
+	"$(OUTDIR)\utils.obj" \
+	"$(OUTDIR)\hashterm.obj" \
+	"$(OUTDIR)\loadfile.obj" \
+	"$(OUTDIR)\safe.obj" \
+	"$(OUTDIR)\stringutils.obj" \
+	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\utf8truncate.obj" 
 	
 	
 HTMLPARSETEST_OBJS= \
-htmlparsetest.obj myhtmlparse.obj htmlparse.obj utf8convert.obj
+ 	"$(OUTDIR)\htmlparsetest.obj" \
+	"$(OUTDIR)\myhtmlparse.obj" \
+ 	"$(OUTDIR)\htmlparse.obj" \
+	"$(OUTDIR)\utf8convert.obj" 
 
 MD5TEST_OBJS= \
-md5test.obj md5wrap.obj md5.obj
+ 	"$(OUTDIR)\md5.obj" \
+ 	"$(OUTDIR)\md5wrap.obj" \
+ 	"$(OUTDIR)\md5test.obj" 
 
 UTF8CONVERTTEST_OBJS= \
-utf8converttest.obj utf8convert.obj
+ 	"$(OUTDIR)\utf8convert.obj" \
+ 	"$(OUTDIR)\utf8converttest.obj" 
 
 SRCS= \
 	"$(INTDIR)\omega.cc" \
@@ -75,7 +119,6 @@ SRCS= \
 	"$(INTDIR)\cdb_hash.cc" \
 	"$(INTDIR)\cdb_unpack.cc" \
  	"$(INTDIR)\loadfile.cc" \
- 	"$(INTDIR)\utf8convert.cc" \
  	"$(INTDIR)\datematchdecider.cc" \
 	"$(INTDIR)\omindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
@@ -95,13 +138,12 @@ SRCS= \
 	"$(INTDIR)\scriptindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
 	"$(INTDIR)\htmlparse.cc" \
-	"$(INTDIR)\common\getopt.cc" \
 	"$(INTDIR)\commonhelp.cc" \
 	"$(INTDIR)\utils.cc" \
 	"$(INTDIR)\hashterm.cc" \
 	"$(INTDIR)\loadfile.cc" \
 	"$(INTDIR)\common\safe.cc" \
-	"$(INTDIR)\utf8converttest.cc" \
+	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\utf8truncate.cc" \
  	"$(INTDIR)\htmlparsetest.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
@@ -112,9 +154,11 @@ SRCS= \
  	"$(INTDIR)\md5test.cc" \
 	"$(INTDIR)\diritor.cc" \
 	"$(INTDIR)\runfilter.cc" \
-    "$(OUTDIR)\xpsxmlparse.cc" \
-    "$(OUTDIR)\weight.cc" \
-    "$(OUTDIR)\freemem.cc"
+	"$(OUTDIR)\xpsxmlparse.cc" \
+	"$(OUTDIR)\common\stringutils.cc" \
+	"$(OUTDIR)\common\str.cc" \
+	"$(OUTDIR)\common\safe.cc" \
+	"$(OUTDIR)\transform.cc"
     
 	
 CLEAN :
@@ -123,19 +167,22 @@ CLEAN :
 	-@erase $(OMINDEX_OBJS)
 	-@erase $(SCRIPTINDEX_OBJS)
 	-@erase $(HTMLPARSETEST_OBJS)
-    -@erase $(UTF8CONVERTTEST_OBJS)
 	-@erase $(MD5TEST_OBJS)
+	-@erase $(UTF8CONVERTTEST_OBJS)
 	-@erase "$(INTDIR)\*.pdb"
 
+#"$(OUTDIR)" :
+#    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
--I.. -I. -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
+ -I "." -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
+ -I "$(PCRE_INCLUDE_DIR)" \
  -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(PCRE_LIB_DIR)/pcre.lib"
 
 PROGRAM_DEPENDENCIES = 
 
@@ -173,40 +220,39 @@ PROGRAM_DEPENDENCIES =
   $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\md5test.exe" $(DEF_FLAGS) $(MD5TEST_OBJS)
 <<
 
-"$(OUTEXEDIR)\UTF8CONVERTTEST.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(UTF8CONVERTTEST_OBJS)
+"$(OUTEXEDIR)\utf8converttest.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(UTF8CONVERTTEST_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\UTF8CONVERTTEST.exe" $(DEF_FLAGS) $(UTF8CONVERTTEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\utf8converttest.exe" $(DEF_FLAGS) $(UTF8CONVERTTEST_OBJS)
 <<
 
-# rules for various files in subfolders
-
-"dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"
+"$(INTDIR)\msvc_dirent.obj" : ".\common\msvc_dirent.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"getopt.obj" : ".\common\getopt.cc"
+
+"$(INTDIR)\getopt.obj" : ".\common\getopt.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"stringutils.obj" : ".\common\stringutils.cc"
+"$(INTDIR)\mkdtemp.obj" : ".\portability\mkdtemp.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"mkdtemp.obj" : ".\portability\mkdtemp.cc"
+"$(INTDIR)\safe.obj" : ".\common\safe.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"safe.obj" : ".\common\safe.cc"
+"$(INTDIR)\stringutils.obj" : ".\common\stringutils.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-"msvc_dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\common\msvc_dirent.cc"
+"$(INTDIR)\str.obj" : ".\common\str.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

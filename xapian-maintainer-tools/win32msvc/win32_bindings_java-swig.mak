@@ -19,6 +19,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Auto.java\
 	BM25Weight.java\
 	BoolWeight.java\
+    Brass.java\
     Chert.java\
 	Database.java\
 	DateValueRangeProcessor.java\
@@ -37,7 +38,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	PositionIterator.java\
 	PostingIterator.java\
     PostingSource.java\
-	Quartz.java\
 	Query.java\
 	QueryParser.java\
 	Remote.java\
