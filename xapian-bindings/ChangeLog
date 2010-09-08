@@ -1,3 +1,8 @@
+Wed Sep 08 02:00:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/01use.t: This test is mysteriously failing in the snapshot
+	  builder, so add a line of code to help debug this.
+
 Wed Sep 08 00:24:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Remove commented out SUBDIRS line.
