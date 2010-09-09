@@ -130,11 +130,11 @@ you were using the original database have finished.
 Calling reopen
 --------------
 
-The reopen method is usually an efficient way to ensure that a database is
+`Database::reopen()` is usually an efficient way to ensure that a database is
 up-to-date with the latest changes.  Unfortunately, it does not currently work
-correctly with databases which are being updated by the replication client.
-The workaround is simple; don't use the reopen() method on databases created by
-the replication client: instead, you should close the database and open it
+as you might expect with databases which are being updated by the replication
+client.  The workaround is simple; don't use the reopen() method on such
+databases: instead, you should close the database and open it
 again from scratch.
 
 Briefly, the issue is that the databases created by the replication client are
@@ -142,11 +142,11 @@ created in a subdirectory of the target path supplied to the client, rather
 than at that path.  A "stub database" file is then created in that directory,
 pointing to the database.  This allows the database which readers open to be
 switched atomically after a database copy has occurred.  The reopen() method
-doesn't currently re-read the stub database file in this situation, so ends up
+doesn't re-read the stub database file in this situation, so ends up
 attempting to read the old database which has been deleted.
 
-Ticket #434 in the Xapian Trac system gives some more details and discussion
-about this issue, and will be updated when a fix is implemented.
+We intend to fix this issue in the Brass backend (currently under development
+by eliminating this hidden use of a stub database file).
 
 Alternative approaches
 ======================
