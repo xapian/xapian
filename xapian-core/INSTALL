@@ -39,7 +39,8 @@ or a reasonable approximation to it.
 If you're using MS Visual C++, see the Xapian download page for a link to
 a set of suitable makefiles: http://xapian.org/download
 
-If you're using GCC, we currently recommend GCC 3.3 or newer.
+If you're using GCC, we currently recommend GCC 4.1 or newer (this is the
+oldest version we regularly test with).
 
 The minimum required GCC version is 3.1 (2.95.2 and earlier don't have
 the <sstream> header; 3.0 adds support for the <limits> header and has
