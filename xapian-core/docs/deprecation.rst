@@ -129,6 +129,37 @@ an entire release series to pass.
 Any planned deprecations will be documented in the list of deprecations and
 removed features at the end of this file.
 
+Support for Other Software
+==========================
+
+Support for other software doesn't follow the same deprecation rules as
+for API features.
+
+Our guiding principle for supporting version of other software is that
+we don't aim to actively support versions which are no longer supported
+"upstream".
+
+So Xapian 1.1.0 doesn't support PHP4 because the PHP team no longer did
+when it was released.  By the API deprecation rules we should have announced
+this when Xapian 1.0.0 was released, but we don't have control over when and
+to what timescales other software providers discontinue support for older
+versions.
+
+Sometimes we can support such versions without extra effort (e.g. Tcl's
+stubs mechanism means Tcl 8.1 probably still works, even though the last
+8.1.x release was over a decade ago), and in some cases Linux distros
+continue to support software after upstream stops.
+
+But in most cases keeping support around is a maintenance overhead and
+we'd rather spend our time on more useful things.
+
+Note that there's no guarantee that we will support and continue to
+support versions just because upstream still does.  For example, we ceased
+providing backported packages for Ubuntu dapper with Xapian 1.1.0 - in this
+case, it's because we felt that if you're conservative enough to run dapper,
+you'd probably prefer to stick with 1.0.x until you upgrade to hardy (the next
+Ubuntu LTS release).  But we may decide not to support versions for other
+reasons too.
 
 How to avoid using deprecated features
 ======================================
