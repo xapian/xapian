@@ -367,10 +367,6 @@ required documentation tools::
 
     apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
 
-On Debian 4.0 (etch) you may also need:
-
-apt-get install texlive-pdfetex
-
 Autotools versions
 ------------------
 
