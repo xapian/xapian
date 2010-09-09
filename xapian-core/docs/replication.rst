@@ -1,5 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2008 Olly Betts
+.. Copyright (C) 2008,2010 Olly Betts
 
 =======================================
 Xapian Database Replication Users Guide
@@ -72,7 +72,7 @@ Firstly, on the master machine, the indexer must be run with the environment
 variable `XAPIAN_MAX_CHANGESETS` set to a non-zero value.  (Currently, the
 actual value it is set to is irrelevant, but I suggest using a value of 10).
 This will cause changeset files to be created whenever a transaction is
-performed, which allow the transaction to be replaced efficiently on a replica
+performed, which allow the transaction to be replayed efficiently on a replica
 of the database.
 
 Secondly, also on the master machine, run the `xapian-replicate-server` server

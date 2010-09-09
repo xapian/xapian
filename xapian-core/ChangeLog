@@ -1,3 +1,7 @@
+Thu Sep 09 00:05:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Fix a typo.
+
 Mon Sep 06 07:10:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add support for --enable-sse=sse and --enable-sse=sse2
