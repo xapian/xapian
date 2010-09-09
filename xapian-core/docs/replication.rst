@@ -82,7 +82,7 @@ network interface to serve on.  The `--help` option will cause usage
 information to be displayed.  For example, if `/var/search/dbs`` contains a
 set of Xapian databases to be replicated::
 
-  ./xapian-replicate-server /var/search/dbs -p 7010
+  xapian-replicate-server /var/search/dbs -p 7010
 
 would run a server allowing access to these databases, on port 7010.
 
@@ -93,7 +93,7 @@ the `-m` option to the client.  One non-option argument is required - this is
 the name that the database should be stored in on the slave machine.  For
 example, contacting the above server from the same machine::
 
-  ./xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
+  xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
 
 would produce a database "foo2" containing a replica of the database
 "/var/search/dbs/foo".

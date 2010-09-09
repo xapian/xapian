@@ -1,3 +1,8 @@
+Thu Sep 09 00:07:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Assume xapian tools are installed on PATH not
+	  in the current directory for example commands.
+
 Thu Sep 09 00:05:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/replication.rst: Fix a typo.
