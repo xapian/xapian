@@ -177,8 +177,9 @@ Copying database after each update
 Databases could be pushed to the slaves after each update simply by copying the
 entire database from the master (using scp, ftp, http or one of the many other
 transfer options).  After the copy is completed, the new database would be made
-live (perhaps by symlink switching, if symlinks are available).  After a
-reasonable interval to allow searches in progress on the old database to
+live by indirecting access through a stub database and switching what it points to.
+
+After a sufficient interval to allow searches in progress on the old database to
 complete, the old database would be removed.  (On UNIX filesystems, the old
 database could be unlinked immediately, and the resources used by it would be
 automatically freed as soon as the current searches using it complete.)
