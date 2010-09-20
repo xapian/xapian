@@ -1,3 +1,9 @@
+Mon Sep 20 08:26:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_modifiedpostlist.h: Fixes required to
+	  build on OpenBSD 4.5 with GCC 3.3.5.
+
 Mon Sep 20 08:21:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

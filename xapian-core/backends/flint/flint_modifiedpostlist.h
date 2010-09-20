@@ -26,6 +26,7 @@
 
 using namespace std;
 
+#include "flint_database.h"
 #include "flint_postlist.h"
 
 class FlintModifiedPostList : public FlintPostList {
