@@ -1,6 +1,6 @@
- 14924       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
+ 14989       olly Mon Sep 20 08:26:31 GMT 2010  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.22 (2010-0?-??):
+Xapian-core 1.0.22 (2010-09-20):
 
 API:
 
@@ -28,8 +28,13 @@ build system:
 
 documentation:
 
-* Fix documentation comment for Xapian::timeout type - it holds a time interval
-  in milliseconds not microseconds (the API docs for the methods which use it
+* deprecation.html: Add guidelines for supporting other software.
+
+* Document cases where QueryParser's FLAG_WILDCARD and FLAG_PARTIAL aren't
+  currently supported.
+
+* Fix documentation for Xapian::timeout type - it holds a time interval in
+  milliseconds not microseconds (the API docs for the methods which use it
   explicitly correctly document that the timeouts are in milliseconds).
 
 examples:
@@ -37,15 +42,25 @@ examples:
 
 portability:
 
-	* configure.ac: Don't pass -mtune=generic unless GCC >= 4.2 is in use
-	  (ticket#492).
+* configure: Don't pass -mtune=generic unless GCC >= 4.2 is in use (ticket#492).
+
+* configure: Add support for --enable-sse=sse and --enable-sse=sse2 to allow
+  control of which SSE instructions to use.
+
+* configure: Enable use of SSE maths on x86 by default with Sun's compiler.
+
+* configure: Beef up the test for whether -lm is required and add a special
+  case to force it to be for Sun's C++ compiler - there's some interaction with
+  libtool and/or shared objects which means that the previous configure test
+  did'nt think -lm is needed here when it is.
 
 * Fix test harness to build under Microsoft Windows (ticket#495).
 
- 14924       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
-	* Backport change from trunk:
-	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
-	  when targetting models 68010, 68020, 68030 as well as 68000.
+	* backends/flint/flint_modifiedpostlist.h: Fixes required to
+	  build on OpenBSD 4.5 with GCC 3.3.5.
+
+* Need to avoid excess precision on m68k when targeting models 68010, 68020,
+  68030 as well as 68000.
 
 packaging:
 
@@ -54,7 +69,7 @@ packaging:
 debug code:
 
 
-Xapian-core 1.0.21 (2010-08-30):
+Xapian-core 1.0.21 (2010-06-18):
 
 API:
 
