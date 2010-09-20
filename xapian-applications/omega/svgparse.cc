@@ -21,28 +21,67 @@
 #include <config.h>
 
 #include "svgparse.h"
+#include "stringutils.h"
+
+using namespace std;
 
 void
 SvgParser::process_text(const string &text)
 {
-    if (in_text) {
-	if (!dump.empty())
-	    dump += ' ';
-	dump += text;
+    string * target = NULL;
+    switch (state) {
+	case TEXT:
+	    target = &dump;
+	    break;
+	case TITLE:
+	    target = &title;
+	    break;
+	case KEYWORDS:
+	    target = &keywords;
+	    break;
+	case METADATA: case OTHER:
+	    // Ignore context in other places.
+	    return;
     }
+    if (!target->empty())
+	*target += ' ';
+    *target += text;
 }
 
 void
 SvgParser::opening_tag(const string &tag)
 {
-    if (tag == "text")
-	in_text = true;
-    // FIXME: handle <metadata>
+    switch (state) {
+	case OTHER:
+	    if (tag == "text")
+		state = TEXT;
+	    else if (tag == "metadata")
+		state = METADATA;
+	    return;
+	case METADATA:
+	    // Ignore nested "dc:" tags - for example dc:title is also used to
+	    // specify the creator's name inside dc:creator.
+	    if (dc_tag.empty() && startswith(tag, "dc:")) {
+		dc_tag = tag;
+		if (tag == "dc:title")
+		    state = TITLE;
+		else if (tag == "dc:subject")
+		    state = KEYWORDS;
+	    }
+	    return;
+	case KEYWORDS: case TEXT: case TITLE:
+	    // Avoid compiler warnings.
+	    break;
+    }
 }
 
 void
 SvgParser::closing_tag(const string &tag)
 {
-    if (tag == "text")
-	in_text = false;
+    if (tag == "text" || tag == "metadata") {
+	state = OTHER;
+    } else if (tag == dc_tag) {
+	dc_tag.resize(0);
+	state = METADATA;
+    }
 }

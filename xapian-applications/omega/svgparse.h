@@ -24,13 +24,14 @@
 #include "htmlparse.h"
 
 class SvgParser : public HtmlParser {
-    bool in_text;
+    enum { OTHER, TEXT, METADATA, TITLE, KEYWORDS } state;
+    string dc_tag;
   public:
-    SvgParser() : in_text(false) { }
+    SvgParser() : state(OTHER) { }
     void process_text(const string &text);
     void opening_tag(const string &tag);
     void closing_tag(const string &tag);
-    string dump;
+    string title, keywords, dump;
 };
 
 #endif // OMEGA_INCLUDED_SVGPARSE_H

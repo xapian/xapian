@@ -686,6 +686,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	SvgParser svgparser;
 	svgparser.parse_html(file_to_string(file));
 	dump = svgparser.dump;
+	title = svgparser.title;
+	keywords = svgparser.keywords;
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping" << endl;
