@@ -1,3 +1,9 @@
+Mon Sep 20 08:12:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Document cases where FLAG_WILDCARD and
+	  FLAG_PARTIAL aren't currently supported.
+
 Mon Aug 30 06:18:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
