@@ -186,7 +186,8 @@ if ($edit_cl) {
 	my $diff = '';
 	my $whitespace = '';
 	my $fnm;
-	my $want_tabs;
+	# Property changes don't have an "Index: [...]" line.
+	my $want_tabs = -1;
 	while (<CI>) {
 	    $diff .= $_;
 	    if (/^Index: (.*)/) {
