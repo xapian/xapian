@@ -1,3 +1,9 @@
+Mon Sep 20 08:18:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Add support for --enable-sse=sse and --enable-sse=sse2
+	  to allow control of which SSE instructions to use.
+
 Mon Sep 20 08:12:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
