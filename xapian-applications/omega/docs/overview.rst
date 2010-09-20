@@ -186,6 +186,7 @@ know):
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
+* SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext is available (comes with xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
@@ -274,6 +275,7 @@ of:
    - application/x-abiword
    - application/x-abiword-compressed
    - application/x-dvi
+   - image/svg+xml
    - image/vnd.djvu
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -

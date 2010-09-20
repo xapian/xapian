@@ -1,3 +1,8 @@
+Mon Sep 20 05:30:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/overview.rst,omindex.cc,svgparse.cc,svgparse.h: Add
+	  support for indexing SVG files.
+
 Tue Sep 07 04:39:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* outlookmsg2html.in: If the required perl modules aren't available,

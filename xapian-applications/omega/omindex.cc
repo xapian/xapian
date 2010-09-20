@@ -55,6 +55,7 @@
 #include "sample.h"
 #include "str.h"
 #include "stringutils.h"
+#include "svgparse.h"
 #include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
@@ -681,6 +682,10 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	title = p.title;
 	keywords = p.keywords;
 	sample = p.sample;
+    } else if (mimetype == "image/svg+xml") {
+	SvgParser svgparser;
+	svgparser.parse_html(file_to_string(file));
+	dump = svgparser.dump;
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping" << endl;
@@ -1034,6 +1039,9 @@ main(int argc, char **argv)
     // DjVu:
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
+
+    // SVG:
+    mime_map["svg"] = "image/svg+xml";
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfS",
 					 longopts, NULL)) != -1) {
