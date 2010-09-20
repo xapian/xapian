@@ -1,3 +1,8 @@
+Mon Sep 20 06:49:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Call closing_tag() for XML empty tag syntax (like
+	  "<tag foo=bar />").
+
 Mon Sep 20 05:30:54 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/overview.rst,omindex.cc,svgparse.cc,svgparse.h: Add
