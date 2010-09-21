@@ -1,3 +1,8 @@
+Tue Sep 21 10:43:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow phrase
+	  generators between a probabilistic prefix and the term itself.
+
 Thu Sep 09 11:18:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL: Raise recommended GCC version from 3.3 to 4.1, since that's

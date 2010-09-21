@@ -926,10 +926,20 @@ just_had_operator_needing_term:
 			continue;
 		    }
 
+		    if (ch != ':') {
+			// Allow 'path:/usr/local' but not 'foo::bar::baz'.
+			while (is_phrase_generator(ch)) {
+			    if (++p == end)
+				goto not_prefix;
+			    ch = *p;
+			}
+		    }
+
 		    if (is_wordchar(ch)) {
 			// Prefixed term.
 			it = p;
 		    } else {
+not_prefix:
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
 			prefix_info = NULL;
