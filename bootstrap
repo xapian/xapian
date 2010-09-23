@@ -429,7 +429,10 @@ for target in $targets ; do
   echo "$target:"
   for d in $dirs ; do
     case $d,$target in
-    swig,install*|swig,uninstall|swig,dist|swig,check|swig,distcheck|swig,all)
+    swig,install*|swig,uninstall)
+      # Nothing to do with swig when installing/uninstalling.
+      ;;
+    swig,dist|swig,check|swig,distcheck|swig,all)
       # Need to ensure swig is built before "make dist", "make check", etc.
       echo "	cd $d && \$(MAKE)" ;;
     swig,mostlyclean|search-xapian,mostlyclean)
