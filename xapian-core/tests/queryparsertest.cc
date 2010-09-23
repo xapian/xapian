@@ -70,9 +70,19 @@ static test test_or_queries[] = {
     { "author:\"milne a.a.\"", "(Amilne:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
     // Regression test for bug reported in 0.9.7.
     { "site:/path/name", "0 * H/path/name" },
-    // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.0.
-    { "author:/path/name", "(author:(pos=1) PHRASE 3 path:(pos=2) PHRASE 3 name:(pos=3))" },
-    // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.0.
+    // Regression test for bug introduced (and fixed) in SVN prior to 1.0.0.
+    { "author:/path/name", "(Apath:(pos=1) PHRASE 2 Aname:(pos=2))" },
+    // Feature tests for change to allow phrase generators after prefix in 1.2.4.
+    { "author:/", "Zauthor:(pos=1)" },
+    { "author::", "Zauthor:(pos=1)" },
+    { "author:/ foo", "(Zauthor:(pos=1) OR Zfoo:(pos=2))" },
+    { "author:: foo", "(Zauthor:(pos=1) OR Zfoo:(pos=2))" },
+    { "author::foo", "(author:(pos=1) PHRASE 2 foo:(pos=2))" },
+    { "author:/ AND foo", "(Zauthor:(pos=1) AND Zfoo:(pos=2))" },
+    { "author:: AND foo", "(Zauthor:(pos=1) AND Zfoo:(pos=2))" },
+    { "foo AND author:/", "(Zfoo:(pos=1) AND Zauthor:(pos=2))" },
+    { "foo AND author::", "(Zfoo:(pos=1) AND Zauthor:(pos=2))" },
+    // Regression test for bug introduced into (and fixed) in SVN prior to 1.0.0.
     { "author:(title::case)", "(Atitle:(pos=1) PHRASE 2 Acase:(pos=2))" },
     // Regression test for bug fixed in 1.0.4 - the '+' would be ignored there
     // because the whitespace after the '"' wasn't noticed.

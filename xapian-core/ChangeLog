@@ -1,3 +1,9 @@
+Thu Sep 23 04:44:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow phrase
+	  generators between a probabilistic prefix and the term itself.
+
 Mon Sep 20 13:53:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
