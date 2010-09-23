@@ -216,7 +216,7 @@ if test no != "$with_python" ; then
     dnl for Pythonic iterator support, and it's now > 4.5 years since the last
     dnl 2.1.x release and 2.5 is out.
     AC_MSG_CHECKING([$PYTHON version])
-    version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
+    version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [2.[2-9]*|2.1[0-9]*|[3-9].*])
       ;;

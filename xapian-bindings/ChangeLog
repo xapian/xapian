@@ -1,3 +1,10 @@
+Thu Sep 23 07:06:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Use sys.version_info tuple, rather than string splicing
+	  which assumes the Python "major.minor" is 3 characters (which would
+	  fail if Python 2.10 were ever released, for example).
+
 Wed Jun 23 10:18:49 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/Makefile.am: Add test_xapian_star.py to distribution -
