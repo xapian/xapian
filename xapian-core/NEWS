@@ -1,9 +1,11 @@
- 14989       olly Mon Sep 20 08:26:31 GMT 2010  Olly Betts <olly@survex.com>
+ 14994       olly Thu Sep 23 04:44:34 GMT 2010  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.22 (2010-09-20):
+Xapian-core 1.0.22 (2010-09-23):
 
 API:
 
+* Xapian::QueryParser: Allow phrase generators between a probabilistic prefix
+  and the term itself (e.g. path:/usr/local).
 
 testsuite:
 
@@ -42,7 +44,8 @@ examples:
 
 portability:
 
-* configure: Don't pass -mtune=generic unless GCC >= 4.2 is in use (ticket#492).
+* configure: Don't pass -mtune=generic unless GCC >= 4.2 is in use
+  (ticket#492).
 
 * configure: Add support for --enable-sse=sse and --enable-sse=sse2 to allow
   control of which SSE instructions to use.
@@ -56,8 +59,7 @@ portability:
 
 * Fix test harness to build under Microsoft Windows (ticket#495).
 
-	* backends/flint/flint_modifiedpostlist.h: Fixes required to
-	  build on OpenBSD 4.5 with GCC 3.3.5.
+* Fix to build on OpenBSD 4.5 with GCC 3.3.5.
 
 * Need to avoid excess precision on m68k when targeting models 68010, 68020,
   68030 as well as 68000.
