@@ -460,6 +460,12 @@ cat <<EOF >> Makefile.tmp
 recheck:
 	$cmd
 
+Makefile: configure
+	$cmd
+	
+configure: bootstrap
+	./bootstrap
+
 .PHONY: $targets recheck
 EOF
 mv -f Makefile.tmp Makefile
