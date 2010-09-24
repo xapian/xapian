@@ -1,5 +1,9 @@
 package Search::Xapian::Weight;
 
+use 5.006;
+use strict;
+use warnings;
+
 # In a new thread, copy objects of this class to unblessed, undef values.
 sub CLONE_SKIP { 1 }
 

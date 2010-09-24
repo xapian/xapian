@@ -1,5 +1,9 @@
 package Search::Xapian::PerlStopper;
 
+use 5.006;
+use strict;
+use warnings;
+
 use Search::Xapian::Stopper;
 
 @Search::Xapian::PerlStopper::ISA = qw(Search::Xapian::Stopper);
