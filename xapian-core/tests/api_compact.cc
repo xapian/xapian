@@ -33,6 +33,7 @@
 #include <xapian.h>
 
 #include <cstdlib>
+#include <fstream>
 #include "safesyswait.h"
 
 #include "str.h"
@@ -252,6 +253,36 @@ DEFINE_TESTCASE(compactmultichunks1, generated) {
     TEST_EQUAL(WEXITSTATUS(status), 0);
 
     Xapian::Database indb(indbpath);
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+// Test compacting from a stub database.
+DEFINE_TESTCASE(compactstub1, brass || chert || flint) {
+    int status;
+
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
+
+    const char * stubpath = ".stub/compactstub1";
+    const char * stubpathfile = ".stub/compactstub1/XAPIANDB";
+    mkdir(".stub", 0755);
+    mkdir(stubpath, 0755);
+    ofstream stub(stubpathfile);
+    TEST(stub.is_open());
+    stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
+    stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+
+    string outdbpath = get_named_writable_database_path("compactstub1out");
+    rm_rf(outdbpath);
+
+    status = system(cmd + stubpath + ' ' + outdbpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+
+    Xapian::Database indb(stubpath);
     Xapian::Database outdb(outdbpath);
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
