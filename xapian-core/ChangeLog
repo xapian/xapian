@@ -1,3 +1,8 @@
+Sun Sep 26 13:59:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Extend to work on stub database files too.
+	* tests/api_compact.cc: Add feature test compactstub2.
+
 Sun Sep 26 13:28:45 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Inputs can now be stub database directories,

@@ -326,7 +326,9 @@ XapianCompactor::XapianCompactor(const char * destdir_, bool renumber_,
     offset.reserve(estimated_sources);
     if (!renumber)
 	used_ranges.reserve(estimated_sources);
-    compact_to_stub = (stat(string(destdir) + "/XAPIANDB", &sb) == 0);
+    compact_to_stub =
+	(stat(destdir, &sb) == 0 && S_ISREG(sb.st_mode)) ||
+	(stat(string(destdir) + "/XAPIANDB", &sb) == 0);
 }
 
 void
@@ -342,39 +344,50 @@ XapianCompactor::add_source(const string & srcdir)
 	exit(1);
     }
 
-    string file = srcdir;
-    file += "/XAPIANDB";
-    if (stat(file.c_str(), &sb) == 0) {
-	// Stub database directory.
-	ifstream stub(file.c_str());
-	string line;
-	unsigned int line_no = 0;
-	while (getline(stub, line)) {
-	    ++line_no;
-	    if (line.empty() || line[0] == '#')
-		continue;
-	    string::size_type space = line.find(' ');
-	    if (space == string::npos) space = line.size();
-
-	    string type(line, 0, space);
-	    line.erase(0, space + 1);
-
-	    if (type == "auto" || type == "chert" || type == "flint" ||
-		type == "brass") {
-		resolve_relative_path(line, file);
-		add_source(line);
-		continue;
+    if (stat(srcdir, &sb) == 0) {
+	bool is_stub = false;
+	string file = srcdir;
+	if (S_ISREG(sb.st_mode)) {
+	    // Stub database file.
+	    is_stub = true;
+	} else if (S_ISDIR(sb.st_mode)) {
+	    file += "/XAPIANDB";
+	    if (stat(file.c_str(), &sb) == 0 && S_ISREG(sb.st_mode)) {
+		// Stub database directory.
+		is_stub = true;
 	    }
-
-	    if (type == "remote" || type == "inmemory") {
-		cout << argv0 << ": Can't compact stub entry of type '"
-		     << type << '\'' << endl;
-	    } else {
-		cout << argv0 << ": Bad line in stub file" << endl;
-	    }
-	    exit(1);
 	}
-	return;
+	if (is_stub) {
+	    ifstream stub(file.c_str());
+	    string line;
+	    unsigned int line_no = 0;
+	    while (getline(stub, line)) {
+		++line_no;
+		if (line.empty() || line[0] == '#')
+		    continue;
+		string::size_type space = line.find(' ');
+		if (space == string::npos) space = line.size();
+
+		string type(line, 0, space);
+		line.erase(0, space + 1);
+
+		if (type == "auto" || type == "chert" || type == "flint" ||
+		    type == "brass") {
+		    resolve_relative_path(line, file);
+		    add_source(line);
+		    continue;
+		}
+
+		if (type == "remote" || type == "inmemory") {
+		    cout << argv0 << ": Can't compact stub entry of type '"
+			 << type << '\'' << endl;
+		} else {
+		    cout << argv0 << ": Bad line in stub file" << endl;
+		}
+		exit(1);
+	    }
+	    return;
+	}
     }
 
     if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
