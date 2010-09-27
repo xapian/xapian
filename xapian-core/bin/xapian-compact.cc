@@ -43,6 +43,8 @@
 # include "safewindows.h"
 #endif
 
+#include "noreturn.h"
+#include "omassert.h"
 // FIXME: Bodge for now - plan is to move compaction into the library, and
 // then we can just:
 // #include "fileutils.h"
@@ -245,6 +247,27 @@ class XapianCompactor {
     void compact();
 };
 
+XAPIAN_NORETURN(
+    static void
+    backend_mismatch(const string &dbpath1, int backend1,
+		     const string &dbpath2, int backend2)
+);
+static void
+backend_mismatch(const string &dbpath1, int backend1,
+		 const string &dbpath2, int backend2)
+{
+    string msg = "All databases must be the same type ('";
+    msg += dbpath1;
+    msg += "' is ";
+    msg += backend_names[backend1];
+    msg += ", but '";
+    msg += dbpath2;
+    msg += "' is ";
+    msg += backend_names[backend2];
+    msg += ')';
+    throw Xapian::InvalidArgumentError(msg);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -346,11 +369,7 @@ XapianCompactor::add_source(const string & srcdir)
     // Check destdir isn't the same as any source directory, unless it is a
     // stub database.
     if (!compact_to_stub && srcdir == destdir) {
-	cout << argv0
-	     << ": destination may not be the same as any source directory, "
-		"unless it is a stub database."
-	     << endl;
-	exit(1);
+	throw Xapian::InvalidArgumentError("destination may not be the same as any source directory, unless it is a stub database");
     }
 
     if (stat(srcdir, &sb) == 0) {
@@ -388,12 +407,13 @@ XapianCompactor::add_source(const string & srcdir)
 		}
 
 		if (type == "remote" || type == "inmemory") {
-		    cout << argv0 << ": Can't compact stub entry of type '"
-			 << type << '\'' << endl;
-		} else {
-		    cout << argv0 << ": Bad line in stub file" << endl;
+		    string msg = "Can't compact stub entry of type '";
+		    msg += type;
+		    msg += '\'';
+		    throw Xapian::InvalidOperationError(msg);
 		}
-		exit(1);
+
+		throw Xapian::DatabaseError("Bad line in stub file");
 	    }
 	    return;
 	}
@@ -403,36 +423,24 @@ XapianCompactor::add_source(const string & srcdir)
 	if (backend == UNKNOWN) {
 	    backend = FLINT;
 	} else if (backend != FLINT) {
-	    cout << argv0 << ": All databases must be the same type.\n";
-	    cout << argv0 << ": '" << first_source << "' is "
-		 << backend_names[backend] << ", but "
-		 "'" << srcdir << "' is flint." << endl;
-	    exit(1);
+	    backend_mismatch(first_source, backend, srcdir, FLINT);
 	}
     } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
 	if (backend == UNKNOWN) {
 	    backend = CHERT;
 	} else if (backend != CHERT) {
-	    cout << argv0 << ": All databases must be the same type.\n";
-	    cout << argv0 << ": '" << first_source << "' is "
-		 << backend_names[backend] << ", but "
-		 "'" << srcdir << "' is chert." << endl;
-	    exit(1);
+	    backend_mismatch(first_source, backend, srcdir, CHERT);
 	}
     } else if (stat(string(srcdir) + "/iambrass", &sb) == 0) {
 	if (backend == UNKNOWN) {
 	    backend = BRASS;
 	} else if (backend != BRASS) {
-	    cout << argv0 << ": All databases must be the same type.\n";
-	    cout << argv0 << ": '" << first_source << "' is "
-		 << backend_names[backend] << ", but "
-		 "'" << srcdir << "' is brass." << endl;
-	    exit(1);
+	    backend_mismatch(first_source, backend, srcdir, BRASS);
 	}
     } else {
-	cout << argv0 << ": '" << srcdir
-	     << "' is not a flint, chert or brass database directory" << endl;
-	exit(1);
+	string msg = srcdir;
+	msg += ": not a flint, chert or brass database";
+	throw Xapian::InvalidArgumentError(msg);
     }
 
     if (first_source.empty())
@@ -448,12 +456,7 @@ XapianCompactor::add_source(const string & srcdir)
 	Xapian::PostingIterator it = db.postlist_begin(string());
 	// This test should never fail, since db.get_doccount() is
 	// non-zero!
-	if (it == db.postlist_end(string())) {
-	    cerr << argv0 << ": database '" << srcdir << "' has "
-		 << num_docs << " documents, but iterating all "
-		 "documents finds none" << endl;
-	    exit(1);
-	}
+	Assert(it != db.postlist_end(string()));
 	first = *it;
 
 	if (renumber && first) {
@@ -529,13 +532,19 @@ XapianCompactor::compact()
 		continue;
 	    // Check for overlap with the previous database's range.
 	    if (p.first <= last_end) {
-		cout << argv0
-		    << ": when merging databases, --no-renumber is only currently supported if the databases have disjoint ranges of used document ids.\n";
-		cout << sources[order[j - 1]] << " has range "
-		     << last_start << "-" << last_end << '\n';
-		cout << sources[n] << " has range "
-		     << p.first << "-" << p.second << endl;
-		exit(1);
+		string msg = "when merging databases, --no-renumber is only currently supported if the databases have disjoint ranges of used document ids: ";
+		msg += sources[order[j - 1]];
+		msg += " has range ";
+		msg += str(last_start);
+		msg += '-';
+		msg += str(last_end);
+		msg += ", ";
+		msg += sources[n];
+		msg += " has range ";
+		msg += str(p.first);
+		msg += '-';
+		msg += str(p.second);
+		throw Xapian::InvalidOperationError(msg);
 	    }
 	    last_start = p.first;
 	    last_end = p.second;
@@ -562,9 +571,9 @@ XapianCompactor::compact()
 	    if (mkdir(destdir, 0755) == 0)
 		break;
 	    if (errno != EEXIST) {
-		cout << argv0 << ": cannot create directory '"
-		     << destdir << "': " << strerror(errno) << endl;
-		exit(1);
+		string msg = destdir;
+		msg += ": mkdir failed";
+		throw Xapian::DatabaseError(msg, errno);
 	    }
 	}
     } else {
@@ -580,9 +589,9 @@ XapianCompactor::compact()
 		    errno = EEXIST; // stat might have changed it
 	    }
 	    if (errno) {
-		cerr << argv0 << ": cannot create directory '"
-		     << destdir << "': " << strerror(errno) << endl;
-		exit(1);
+		string msg = destdir;
+		msg +=  ": cannot create directory";
+		throw Xapian::DatabaseError(msg, errno);
 	    }
 	}
     }
@@ -641,9 +650,12 @@ XapianCompactor::compact()
 	string to(destdir);
 	to += "/uuid";
 	if (rename(from.c_str(), to.c_str()) == -1) {
-	    cerr << argv0 << ": cannot rename '" << from << "' to '"
-		 << to << "': " << strerror(errno) << endl;
-	    exit(1);
+	    string msg = "Cannot rename '";
+	    msg += from;
+	    msg += "' to '";
+	    msg += to;
+	    msg += '\'';
+	    throw Xapian::DatabaseError(msg, errno);
 	}
 #else
 	// Handled above.
@@ -655,9 +667,12 @@ XapianCompactor::compact()
     string to(destdir);
     to += backend_version_files[backend];
     if (rename(from.c_str(), to.c_str()) == -1) {
-	cerr << argv0 << ": cannot rename '" << from << "' to '"
-	     << to << "': " << strerror(errno) << endl;
-	exit(1);
+	string msg = "Cannot rename '";
+	msg += from;
+	msg += "' to '";
+	msg += to;
+	msg += '\'';
+	throw Xapian::DatabaseError(msg, errno);
     }
 
     rm_rf(donor);
@@ -675,8 +690,13 @@ XapianCompactor::compact()
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
 	if (rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-	    cout << argv0 << ": cannot rename file FIXME" << endl;
-	    exit(1);
+	    // FIXME: try to clean up?
+	    string msg = "Cannot rename '";
+	    msg += new_stub_file;
+	    msg += "' to '";
+	    msg += stub_file;
+	    msg += '\'';
+	    throw Xapian::DatabaseError(msg, errno);
 	}
     }
 }
