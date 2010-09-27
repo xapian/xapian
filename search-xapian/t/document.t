@@ -7,7 +7,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 24 };
+BEGIN { plan tests => 25 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -76,6 +76,7 @@ ok( $database->get_doclength(3) == 101 );
 ok( $it = $doc->termlist_begin());
 ok( $it ne $doc->termlist_end());
 ok( "$it" eq "a" );
+ok( $it->get_termname() eq "a" );
 ++$it;
 ok( $it eq $doc->termlist_end());
 
