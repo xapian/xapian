@@ -1,3 +1,8 @@
+Mon Sep 27 03:50:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Suppress output from xapian-compact in
+	  compactstub2 (which I'd disabled for debugging).
+
 Sun Sep 26 13:59:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Extend to work on stub database files too.

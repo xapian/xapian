@@ -295,7 +295,7 @@ DEFINE_TESTCASE(compactstub1, brass || chert || flint) {
 DEFINE_TESTCASE(compactstub2, brass || chert || flint) {
     int status;
 
-    string cmd = XAPIAN_COMPACT" ";//SILENT" ";
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
 
     const char * stubpath = ".stub/compactstub2";
     mkdir(".stub", 0755);
