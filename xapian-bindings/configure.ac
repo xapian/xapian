@@ -165,6 +165,9 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Need perl in maintainer mode to generate the except.i file for python.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+  dnl Need python in maintainer mode to run doxy2swig.py.
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
+  test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
 AC_ARG_WITH(python,

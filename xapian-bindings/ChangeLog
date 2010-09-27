@@ -1,3 +1,7 @@
+Mon Sep 27 12:51:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need python in maintainer mode to run doxy2swig.py.
+
 Wed Sep 08 03:10:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/t/01use.t: Revert debug change, as it has served its purpose.
