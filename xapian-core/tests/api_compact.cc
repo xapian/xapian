@@ -318,3 +318,63 @@ DEFINE_TESTCASE(compactstub2, brass || chert || flint) {
 
     return true;
 }
+
+// Test compacting a stub database file to itself.
+DEFINE_TESTCASE(compactstub3, brass || chert || flint) {
+    int status;
+
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
+
+    const char * stubpath = ".stub/compactstub3";
+    mkdir(".stub", 0755);
+    ofstream stub(stubpath);
+    TEST(stub.is_open());
+    stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
+    stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+
+    Xapian::doccount in_docs;
+    {
+	Xapian::Database indb(stubpath);
+	in_docs = indb.get_doccount();
+    }
+
+    status = system(cmd + stubpath + ' ' + stubpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+    Xapian::Database outdb(stubpath);
+
+    TEST_EQUAL(in_docs, outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+// Test compacting a stub database directory to itself.
+DEFINE_TESTCASE(compactstub4, brass || chert || flint) {
+    int status;
+
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
+
+    const char * stubpath = ".stub/compactstub4";
+    const char * stubpathfile = ".stub/compactstub4/XAPIANDB";
+    mkdir(".stub", 0755);
+    mkdir(stubpath, 0755);
+    ofstream stub(stubpathfile);
+    TEST(stub.is_open());
+    stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
+    stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+
+    Xapian::doccount in_docs;
+    {
+	Xapian::Database indb(stubpath);
+	in_docs = indb.get_doccount();
+    }
+
+    status = system(cmd + stubpath + ' ' + stubpath);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+    Xapian::Database outdb(stubpath);
+
+    TEST_EQUAL(in_docs, outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}

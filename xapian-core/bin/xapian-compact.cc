@@ -35,7 +35,6 @@
 #include <cstring>
 #include "safesysstat.h"
 #include <sys/types.h>
-#include "utils.h"
 
 #include "safeunistd.h"
 #include "safefcntl.h"
@@ -44,17 +43,19 @@
 # include "safewindows.h"
 #endif
 
-#include "stringutils.h"
-
-#include <xapian.h>
-
-#include "gnu_getopt.h"
-
 // FIXME: Bodge for now - plan is to move compaction into the library, and
 // then we can just:
 // #include "fileutils.h"
 #define resolve_relative_path my_resolve_relative_path
 #include "../common/fileutils.cc"
+
+#include "stringutils.h"
+#include "str.h"
+#include "utils.h"
+
+#include <xapian.h>
+
+#include "gnu_getopt.h"
 
 using namespace std;
 
@@ -196,7 +197,7 @@ static const char * backend_version_files[] = {
 class XapianCompactor {
     string destdir;
     bool renumber;
-    bool compact_to_stub;
+    enum { STUB_NO, STUB_FILE, STUB_DIR } compact_to_stub;
     bool multipass;
     size_t block_size;
     compaction_level compaction;
@@ -215,9 +216,31 @@ class XapianCompactor {
     vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
 
   public:
-    XapianCompactor(const char * destdir_, bool renumber_, bool multipass_,
-		    size_t block_size_, compaction_level compaction_,
-		    size_t estimated_sources);
+    XapianCompactor();
+    void set_block_size(size_t block_size_) { block_size = block_size_; }
+    void set_renumber(bool renumber_) { renumber = renumber_; }
+    void set_multipass(bool multipass_) { multipass = multipass_; }
+    void set_compaction_level(compaction_level compaction_) {
+	compaction = compaction_;
+    }
+    void set_destdir(const string & destdir_) {
+	destdir = destdir_;
+	compact_to_stub = STUB_NO;
+	if (stat(destdir, &sb) == 0 && S_ISREG(sb.st_mode)) {
+	    // Stub file.
+	    compact_to_stub = STUB_FILE;
+	} else if (stat(destdir + "/XAPIANDB", &sb) == 0 &&
+		   S_ISREG(sb.st_mode)) {
+	    // Stub directory.
+	    compact_to_stub = STUB_DIR;
+	}
+    }
+    void set_source_count_hint(size_t estimated_sources) {
+	sources.reserve(estimated_sources);
+	offset.reserve(estimated_sources);
+	if (!renumber)
+	    used_ranges.reserve(estimated_sources);
+    }
     void add_source(const string & srcdir);
     void compact();
 };
@@ -237,10 +260,7 @@ main(int argc, char **argv)
 	{NULL,		0, 0, 0}
     };
 
-    compaction_level compaction = FULL;
-    size_t block_size = 8192;
-    bool multipass = false;
-    bool renumber = true;
+    XapianCompactor compactor;
 
     argv0 = argv[0];
 
@@ -249,7 +269,7 @@ main(int argc, char **argv)
 	switch (c) {
 	    case 'b': {
 		char *p;
-		block_size = strtoul(optarg, &p, 10);
+		size_t block_size = strtoul(optarg, &p, 10);
 		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
 		    ++p;
 		    block_size *= 1024;
@@ -261,19 +281,20 @@ main(int argc, char **argv)
 			 << endl;
 		    exit(1);
 		}
+		compactor.set_block_size(block_size);
 		break;
 	    }
 	    case 'n':
-		compaction = STANDARD;
+		compactor.set_compaction_level(STANDARD);
 		break;
 	    case 'F':
-		compaction = FULLER;
+		compactor.set_compaction_level(FULLER);
 		break;
 	    case 'm':
-		multipass = true;
+		compactor.set_multipass(true);
 		break;
 	    case OPT_NO_RENUMBER:
-		renumber = false;
+		compactor.set_renumber(false);
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -294,12 +315,10 @@ main(int argc, char **argv)
     }
 
     // Path to the database to create.
-    const char *destdir = argv[argc - 1];
+    compactor.set_destdir(argv[argc - 1]);
 
     try {
-	XapianCompactor compactor(destdir, renumber, multipass, block_size,
-				  compaction, argc - 1 - optind);
-
+	compactor.set_source_count_hint(argc - 1 - optind);
 	for (int i = optind; i < argc - 1; ++i) {
 	    compactor.add_source(argv[i]);
 	}
@@ -314,21 +333,11 @@ main(int argc, char **argv)
     }
 }
 
-XapianCompactor::XapianCompactor(const char * destdir_, bool renumber_,
-				 bool multipass_, size_t block_size_,
-				 compaction_level compaction_,
-				 size_t estimated_sources)
-    : destdir(destdir_), renumber(renumber_), multipass(multipass_),
-      block_size(block_size_), compaction(compaction_), tot_off(0),
+XapianCompactor::XapianCompactor()
+    : renumber(true), multipass(false),
+      block_size(8192), compaction(FULL), tot_off(0),
       last_docid(0), backend(UNKNOWN)
 {
-    sources.reserve(estimated_sources);
-    offset.reserve(estimated_sources);
-    if (!renumber)
-	used_ranges.reserve(estimated_sources);
-    compact_to_stub =
-	(stat(destdir, &sb) == 0 && S_ISREG(sb.st_mode)) ||
-	(stat(string(destdir) + "/XAPIANDB", &sb) == 0);
 }
 
 void
@@ -536,21 +545,45 @@ XapianCompactor::compact()
 	swap(used_ranges, used_ranges_);
     }
 
-    // If the destination database directory doesn't exist, create it.
-    if (mkdir(destdir, 0755) < 0) {
-	// Check why mkdir failed.  It's ok if the directory already
-	// exists, but we also get EEXIST if there's an existing file with
-	// that name.
-	if (errno == EEXIST) {
-	    if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
-		errno = 0;
-	    else
-		errno = EEXIST; // stat might have changed it
+    string stub_file;
+    if (compact_to_stub) {
+	stub_file = destdir;
+	if (compact_to_stub == STUB_DIR) {
+	    stub_file += "/XAPIANDB";
+	    destdir += '/';
+	} else {
+	    destdir += '_';
 	}
-	if (errno) {
-	    cerr << argv0 << ": cannot create directory '"
-		 << destdir << "': " << strerror(errno) << endl;
-	    exit(1);
+	size_t sfx = destdir.size();
+	time_t now = time(NULL);
+	while (true) {
+	    destdir.resize(sfx);
+	    destdir += str(now++);
+	    if (mkdir(destdir, 0755) == 0)
+		break;
+	    if (errno != EEXIST) {
+		cout << argv0 << ": cannot create directory '"
+		     << destdir << "': " << strerror(errno) << endl;
+		exit(1);
+	    }
+	}
+    } else {
+	// If the destination database directory doesn't exist, create it.
+	if (mkdir(destdir, 0755) < 0) {
+	    // Check why mkdir failed.  It's ok if the directory already
+	    // exists, but we also get EEXIST if there's an existing file with
+	    // that name.
+	    if (errno == EEXIST) {
+		if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
+		    errno = 0;
+		else
+		    errno = EEXIST; // stat might have changed it
+	    }
+	    if (errno) {
+		cerr << argv0 << ": cannot create directory '"
+		     << destdir << "': " << strerror(errno) << endl;
+		exit(1);
+	    }
 	}
     }
 
@@ -628,4 +661,22 @@ XapianCompactor::compact()
     }
 
     rm_rf(donor);
+
+    if (compact_to_stub) {
+	string new_stub_file = destdir;
+	new_stub_file += "/new_stub.tmp";
+	{
+	    ofstream new_stub(new_stub_file.c_str());
+#ifndef __WIN32__
+	    size_t slash = destdir.find_last_of('/');
+#else
+	    size_t slash = destdir.find_last_of("/\\");
+#endif
+	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
+	}
+	if (rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
+	    cout << argv0 << ": cannot rename file FIXME" << endl;
+	    exit(1);
+	}
+    }
 }

@@ -1,3 +1,10 @@
+Mon Sep 27 03:50:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Add support for compacting to a stub database,
+	  which can be one of the inputs (for atomic update).
+	* tests/api_compact.cc: Add testcases compactstub3 and compactstub4 as
+	  feature tests for this.
+
 Mon Sep 27 03:50:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Suppress output from xapian-compact in
