@@ -102,6 +102,7 @@ noinst_HEADERS +=\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
+	common/realtime.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
