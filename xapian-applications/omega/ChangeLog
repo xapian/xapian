@@ -1,3 +1,8 @@
+Tue Sep 28 04:10:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.h: Add methods to read the owner and group, and to check
+	  who can read the file.
+
 Tue Sep 28 01:39:15 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix typo.

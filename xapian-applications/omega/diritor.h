@@ -1,6 +1,6 @@
 /* diritor.h: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,10 @@
 #include "safedirent.h"
 #include "safeerrno.h"
 #include "safesysstat.h"
+
+#include <sys/types.h>
+#include <grp.h> // For getgrgid().
+#include <pwd.h> // For getpwuid().
 
 #include "common/noreturn.h"
 
@@ -111,6 +115,33 @@ class DirectoryIterator {
     off_t get_mtime() {
 	if (!statbuf_valid) call_stat();
 	return statbuf.st_mtime;
+    }
+
+    const char * get_owner() {
+	if (!statbuf_valid) call_stat();
+	struct passwd * pwentry = getpwuid(statbuf.st_uid);
+	return pwentry ? pwentry->pw_name : NULL;
+    }
+
+    const char * get_group() {
+	if (!statbuf_valid) call_stat();
+	struct group * grentry = getgrgid(statbuf.st_gid);
+	return grentry ? grentry->gr_name : NULL;
+    }
+
+    bool is_owner_readable() {
+	if (!statbuf_valid) call_stat();
+	return (statbuf.st_mode & S_IRUSR);
+    }
+
+    bool is_group_readable() {
+	if (!statbuf_valid) call_stat();
+	return (statbuf.st_mode & S_IRGRP);
+    }
+
+    bool get_other_read() {
+	if (!statbuf_valid) call_stat();
+	return (statbuf.st_mode & S_IROTH);
     }
 };
 
