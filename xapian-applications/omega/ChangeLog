@@ -1,3 +1,9 @@
+Tue Sep 28 06:14:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ./: Update svn:externals to latest common from xapian-core.
+	* query.cc: Use RealTime::now() to time running the query.  Include
+	  more enquire set-up in the time.
+
 Tue Sep 28 05:26:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index file owner and read permissions, to allow finding

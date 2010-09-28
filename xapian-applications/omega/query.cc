@@ -45,11 +45,7 @@
 #include "safesysstat.h"
 #include "safefcntl.h"
 
-#ifdef HAVE_GETTIMEOFDAY
-#include <sys/time.h>
-#elif defined HAVE_FTIME
-#include <sys/timeb.h>
-#endif
+#include "realtime.h"
 
 #include <cdb.h>
 
@@ -122,7 +118,7 @@ static string queryterms;
 
 static string error_msg;
 
-static long int sec = 0, usec = -1;
+static double secs = -1;
 
 static bool suppress_http_headers = false;
 
@@ -400,27 +396,6 @@ run_query()
 	enquire->set_collapse_key(collapse_key);
     }
 
-#ifdef HAVE_GETTIMEOFDAY
-    struct timeval tv;
-    if (gettimeofday(&tv, 0) == 0) {
-	sec = tv.tv_sec;
-	usec = tv.tv_usec;
-    }
-#elif defined(FTIME_RETURNS_VOID)
-    struct timeb tp;
-    ftime(&tp);
-    sec = tp.time;
-    usec = tp.millitm * 1000;
-#elif defined(HAVE_FTIME)
-    struct timeb tp;
-    if (ftime(&tp) == 0) {
-	sec = tp.time;
-	usec = tp.millitm * 1000;
-    }
-#else
-    sec = time(NULL);
-    if (sec != (time_t)-1) usec = 0;
-#endif
     if (!query.empty()) {
 	enquire->set_query(query);
 	// We could use the value of topdoc as first parameter, but we
@@ -433,45 +408,6 @@ run_query()
 	mset = enquire->get_mset(0, topdoc + hits_per_page,
 				 topdoc + max(hits_per_page + 1, min_hits),
 				 &rset, mdecider);
-    }
-    if (usec != -1) {
-#ifdef HAVE_GETTIMEOFDAY
-	if (gettimeofday(&tv, 0) == 0) {
-	    sec = tv.tv_sec - sec;
-	    usec = tv.tv_usec - usec;
-	    if (usec < 0) {
-		--sec;
-		usec += 1000000;
-	    }
-	} else {
-	    usec = -1;
-	}
-#elif defined(FTIME_RETURNS_VOID)
-	ftime(&tp);
-	sec = tp.time - sec;
-	usec = tp.millitm * 1000 - usec;
-	if (usec < 0) {
-	    --sec;
-	    usec += 1000000;
-	}
-#elif defined(HAVE_FTIME)
-	if (ftime(&tp) == 0) {
-	    sec = tp.time - sec;
-	    usec = tp.millitm * 1000 - usec;
-	    if (usec < 0) {
-		--sec;
-		usec += 1000000;
-	    }
-	} else {
-	    usec = -1;
-	}
-#else
-	usec = time(NULL);
-	if (usec != -1) {
-	    sec = sec - usec;
-	    usec = 0;
-	}
-#endif
     }
 }
 
@@ -1815,9 +1751,9 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(topdoc / hits_per_page + 1);
 		break;
 	    case CMD_time:
-		if (usec != -1) {
+		if (secs >= 0) {
 		    char buf[64];
-		    my_snprintf(buf, sizeof(buf), "%ld.%06ld", sec, usec);
+		    my_snprintf(buf, sizeof(buf), "%.6f", secs);
 		    // MSVC's snprintf omits the zero byte if the string if
 		    // sizeof(buf) long.
 		    buf[sizeof(buf) - 1] = '\0';
@@ -2221,7 +2157,11 @@ ensure_match()
 {
     if (done_query) return;
 
+    secs = RealTime::now();
     run_query();
+    if (secs != -1)
+	secs = RealTime::now() - secs;
+
     done_query = true;
     last = mset.get_matches_lower_bound();
     if (last == 0) {
