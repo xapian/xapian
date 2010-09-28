@@ -1,3 +1,45 @@
+ 15011       olly Tue Sep 28 01:27:41 GMT 2010  Olly Betts <olly@survex.com>
+
+backported to 1.0.22:
+
+ 14918       olly Sat Aug 28 11:46:22 GMT 2010  Olly Betts <olly@survex.com>
+	* cdb_find.cc,cdb_init.cc,cgiparam.cc,date.cc,md5.cc,query.cc,utils.cc,
+	  values.h: Fix to compile with Sun C++.
+
+Omega 1.2.4 (2010-09-28):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing text and metadata from SVG files.
+
+  + Add explicit support for indexing CSV files (better samples than from
+    using '-Mcsv:text/plain').
+
+  + Add support for indexing .msg files from Microsoft Outlook (using the Perl
+    module Email::Outlook::Message.  (ticket#334)
+
+  + Improve --help for --mime-type option.
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.2.3 (2010-08-24):
 
 documentation:

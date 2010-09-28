@@ -1,3 +1,7 @@
+Tue Sep 28 01:31:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Tue Sep 28 01:27:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Improve --help for --mime-type option.
