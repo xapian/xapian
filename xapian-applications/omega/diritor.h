@@ -146,7 +146,7 @@ class DirectoryIterator {
 	return (statbuf.st_mode & S_IRGRP);
     }
 
-    bool get_other_read() {
+    bool is_other_readable() {
 	ensure_statbuf_valid();
 	return (statbuf.st_mode & S_IROTH);
     }

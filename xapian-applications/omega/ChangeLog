@@ -1,3 +1,8 @@
+Tue Sep 28 05:20:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.h: Rename get_other_read() to is_other_readable() for
+	  consistency.
+
 Tue Sep 28 04:16:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.cc,diritor.h: Rearrange so that the setting of statbuf_valid
