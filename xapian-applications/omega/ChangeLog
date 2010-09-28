@@ -1,3 +1,9 @@
+Tue Sep 28 04:16:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h: Rearrange so that the setting of statbuf_valid
+	  gets inlined so the compiler should be able to optimise out
+	  subsequent calls to call_stat().
+
 Tue Sep 28 04:10:28 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.h: Add methods to read the owner and group, and to check

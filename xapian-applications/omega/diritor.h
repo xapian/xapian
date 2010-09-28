@@ -42,6 +42,13 @@ class DirectoryIterator {
 
     void call_stat();
 
+    void ensure_statbuf_valid() {
+	if (!statbuf_valid) {
+	    call_stat();
+	    statbuf_valid = true;
+	}
+    }
+
   public:
 
     DirectoryIterator(bool follow_symlinks_)
@@ -100,7 +107,7 @@ class DirectoryIterator {
 	}
 #endif
 
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 
 	if (S_ISREG(statbuf.st_mode)) return REGULAR_FILE;
 	if (S_ISDIR(statbuf.st_mode)) return DIRECTORY;
@@ -108,39 +115,39 @@ class DirectoryIterator {
     }
 
     off_t get_size() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	return statbuf.st_size;
     }
 
     off_t get_mtime() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	return statbuf.st_mtime;
     }
 
     const char * get_owner() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	struct passwd * pwentry = getpwuid(statbuf.st_uid);
 	return pwentry ? pwentry->pw_name : NULL;
     }
 
     const char * get_group() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	struct group * grentry = getgrgid(statbuf.st_gid);
 	return grentry ? grentry->gr_name : NULL;
     }
 
     bool is_owner_readable() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	return (statbuf.st_mode & S_IRUSR);
     }
 
     bool is_group_readable() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	return (statbuf.st_mode & S_IRGRP);
     }
 
     bool get_other_read() {
-	if (!statbuf_valid) call_stat();
+	ensure_statbuf_valid();
 	return (statbuf.st_mode & S_IROTH);
     }
 };
