@@ -1,3 +1,10 @@
+Tue Sep 28 05:26:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index file owner and read permissions, to allow finding
+	  documents with a particular owner, and so searches can be restricted
+	  to documents a user is able to read.
+	* docs/termprefixes.rst: Document term prefixes used by the above.
+
 Tue Sep 28 05:20:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.h: Rename get_other_read() to is_other_readable() for

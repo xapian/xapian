@@ -37,6 +37,8 @@ G
         newsGroup (or similar entity - e.g. a web forum name)
 H	
         Hostname
+I
+	boolean filter term for "can see" permission (mnemonic: Include)
 K	
         Keyword
 L	
@@ -45,6 +47,8 @@ M
         Month (numeric format: YYYYMM)
 N	
         ISO couNtry code (or domaiN name)
+O
+	Owner
 P	
         Pathname
 Q	
@@ -59,6 +63,8 @@ U
         full URL of indexed document - if the resulting term would be > 240
 	characters, a hashing scheme is used to prevent overflowing
 	the Xapian term length limit (see omindex for how to do this).
+V
+	boolean filter term for "can't see" permission (mnemonic: grep -v)
 W	
         "weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
@@ -70,7 +76,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: BCEFIJOV
+Reserved but currently unallocated: BCEFJ
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.

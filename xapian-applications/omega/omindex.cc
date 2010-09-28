@@ -226,7 +226,7 @@ get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 }
 
 static void
-index_file(const string &url, const string &mimetype, time_t last_mod, off_t size)
+index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 {
     string file = root + url;
     string title, sample, keywords, dump;
@@ -239,6 +239,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
+
+    time_t last_mod = d.get_mtime();
 
     Xapian::docid did = 0; 
     if (skip_duplicates) {
@@ -718,10 +720,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	record += "\nmodtime=";
 	record += str(last_mod);
     }
-    if (size) {
-	record += "\nsize=";
-	record += str(size);
-    }
+    record += "\nsize=";
+    record += str(d.get_size());
     newdocument.set_data(record);
 
     // Index the title, document text, and keywords.
@@ -776,6 +776,24 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
     // Add MD5 as a value to allow duplicate documents to be collapsed together.
     newdocument.add_value(VALUE_MD5, md5);
+
+    bool inc_tag_added = false;
+    if (d.is_other_readable()) {
+	inc_tag_added = true;
+	newdocument.add_term("I*");
+    } else if (d.is_group_readable()) {
+	const char * group = d.get_group();
+	if (group) {
+	    newdocument.add_term(string("I#") + group);
+	    inc_tag_added = true;
+	}
+    }
+    const char * owner = d.get_owner();
+    if (owner) {
+	newdocument.add_term(string("O") + owner);
+	if (!inc_tag_added && d.is_owner_readable())
+	    newdocument.add_term(string("I@") + owner);
+    }
 
     if (!skip_duplicates) {
 	// If this document has already been indexed, update the existing
@@ -871,8 +889,7 @@ index_directory(size_t depth_limit, const string &dir,
 			// It's in our MIME map so we know how to index it.
 			const string & mimetype = mt->second;
 			try {
-			    time_t mtime = d.get_mtime();
-			    index_file(indexroot + url, mimetype, mtime, size);
+			    index_file(indexroot + url, mimetype, d);
 			} catch (NoSuchFilter) {
 			    // FIXME: we ought to ignore by mime-type not
 			    // extension.
