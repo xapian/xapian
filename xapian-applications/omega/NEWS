@@ -1112,7 +1112,7 @@ omega:
   when sorting on a value.  Removed "SORTBANDS" CGI parameter since it no
   longer does anything.
 
-* Added $find{LIST,STRING} to return the subscript of the first occurence of
+* Added $find{LIST,STRING} to return the subscript of the first occurrence of
   string STRING in list LIST.
 
 * Added $lookup{CDBFILE,KEY} OmegaScript command to perform a lookup in a CDB
