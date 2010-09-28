@@ -408,14 +408,14 @@ indexers:
     HTML document then reparse the document if it isn't the encoding we're
     already using so that any preceding <title> is converted correctly
     (bug#292).
-	  
+
   + Convert text from meta tag parameters to UTF-8 (bug#293).
-  
+
   + Handle <meta charset="..."> (new in HTML 5).
-	  
+
   + Fix bug in HTML tag parameter parsing which was probably just a small
     performance penalty in real world cases, but could perhaps result in
-    parsing bogus extra parameters in carefully contrived situations.  
+    parsing bogus extra parameters in carefully contrived situations.
 
 portability:
 
@@ -475,10 +475,10 @@ indexers:
 
 * omindex:
 
- + Add support for DjVu files.
+  + Add support for DjVu files.
 
- + If we get an error trying to read a directory entry, report it to the user
-   rather than ignoring it.
+  + If we get an error trying to read a directory entry, report it to the user
+    rather than ignoring it.
 
 omega:
 
@@ -528,7 +528,7 @@ indexers:
 
   + The 'BOOLEAN' action now ignores an empty input rather than adding just the
     prefix as a term.
-  
+
   + The 'UNIQUE' action now issues an warning for empty input but otherwise
     ignores it.
 
@@ -1112,7 +1112,7 @@ omega:
   when sorting on a value.  Removed "SORTBANDS" CGI parameter since it no
   longer does anything.
 
-* Added	$find{LIST,STRING} to return the subscript of the first occurence of
+* Added $find{LIST,STRING} to return the subscript of the first occurence of
   string STRING in list LIST.
 
 * Added $lookup{CDBFILE,KEY} OmegaScript command to perform a lookup in a CDB
