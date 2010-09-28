@@ -1,3 +1,7 @@
+Tue Sep 28 06:32:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* query.cc: Apply permission filters if USER and/or GROUP are set.
+
 Tue Sep 28 06:14:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* ./: Update svn:externals to latest common from xapian-core.
