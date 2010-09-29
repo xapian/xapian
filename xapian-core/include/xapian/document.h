@@ -227,7 +227,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  database!
 	 *
 	 *  @return If this document came from a database, return the document
-	 *	    id in that database.  Otherwise, return 0.
+	 *	    id in that database.  Otherwise, return 0 (in Xapian
+	 *	    1.0.22/1.2.4 or later; prior to this the returned value was
+	 *	    uninitialised).
 	 */
 	docid get_docid() const;
 

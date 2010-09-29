@@ -1,3 +1,11 @@
+Wed Sep 29 11:13:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* common/document.h: Initialise docid to 0 when creating a document
+	  from scratch, as documented.
+	* tests/api_none.cc: Add regression test document2.
+	* include/xapian/document.h: Document that return value is unreliable
+	  in this case prior to the next 1.0 and 1.2 releases.
+
 Wed Sep 29 07:06:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: FreeBSD and OpenBSD don't need explicit dependency
