@@ -1,3 +1,8 @@
+Wed Sep 29 05:19:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Package the Perl bindings too (patch from
+	  Tim Brody).
+
 Wed Sep 29 04:44:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Don't install Xapian.la.

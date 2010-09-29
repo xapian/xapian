@@ -5,6 +5,7 @@
 # you can disable particular bindings by passing these options to rpmbuild:
 #
 #	--without csharp	Disable C# bindings
+#	--without perl		Disable Perl bindings
 #	--without php		Disable PHP bindings
 #	--without python	Disable Python bindings
 #	--without ruby		Disable Ruby bindings
@@ -24,6 +25,11 @@
 
 %if 0%{?!_without_tcl8:1}
 %define tcl_lib %(echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|tclsh)
+%endif
+
+%if 0%{?!_without_perl:1}
+%define perl_lib %(%{__perl} -MConfig -e 'print $Config{installsitelib}')
+%define perl_arch %(%{__perl} -MConfig -e 'print $Config{installsitearch}')
 %endif
 
 Summary: Bindings for the Xapian Probabilistic Information Retrieval Library
@@ -49,6 +55,11 @@ BuildRequires: tcl-devel >= 8.1
 %endif
 %if 0%{?!_without_csharp:1}
 BuildRequires: mono-devel >= 1.1 
+%endif
+%if 0%{?!_without_perl:1}
+# http://fedoraproject.org/wiki/Packaging/Perl
+# perl-devel doesn't exist on RHEL 5 so use ExtUtils::MakeMaker for perl.h
+BuildRequires: perl(ExtUtils::MakeMaker)
 %endif
 BuildRequires: autoconf automake libtool
 Source0: http://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
@@ -125,6 +136,21 @@ indexing and search facilities to applications. This package provides the
 files needed for developing and running C# applications which use Xapian.
 %endif
 
+%if 0%{?!_without_perl:1}
+%package perl
+Group: Development/Libraries
+Summary: Files needed for Perl applications which use Xapian.
+Requires: %{name} = %{version}
+Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+Requires: perl(Exporter) perl(DynaLoader)
+
+%description perl
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing and running Perl applications which use Xapian.
+%endif
+
 %prep
 %setup -q -n %{name}-%{version}
 
@@ -137,7 +163,7 @@ files needed for developing and running C# applications which use Xapian.
 # with older versions of the autotools which older distros have.
 #autoreconf --force
 # Only build the bindings we want.
-%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp} %{?!_without_ruby:--with-ruby}
+%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp} %{?!_without_ruby:--with-ruby} %{?!_without_perl:--with-perl}
 make
 
 %install
@@ -203,4 +229,13 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/mono/XapianSharp
 %{_libdir}/mono/gac/XapianSharp
 %doc %{_datadir}/doc/%{name}-csharp-%{version}
+%endif
+
+%if 0%{?!_without_perl:1}
+%files perl
+%defattr(-, root, root)
+%{perl_arch}/auto/Search/Xapian/Xapian.so
+%{perl_lib}/Search/Xapian.pm
+%{perl_lib}/Search/Xapian
+%doc %{_datadir}/doc/%{name}/perl
 %endif
