@@ -1,3 +1,8 @@
+Wed Sep 29 07:06:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: FreeBSD and OpenBSD don't need explicit dependency
+	  libraries, so set link_all_deplibs_CXX=no there.
+
 Wed Sep 29 07:04:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Just check @link_all_deplibs_CXX@ which we adjust
