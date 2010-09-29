@@ -1,3 +1,9 @@
+Wed Sep 29 07:04:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Just check @link_all_deplibs_CXX@ which we adjust
+	  in configure rather than duplicating configure's list of platforms
+	  where explicit dependencies aren't required.
+
 Mon Sep 27 04:28:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Convert error messages to stdout/stderr to

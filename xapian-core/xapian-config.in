@@ -71,18 +71,11 @@ need_explicit_dependencies()
     extract_dlname "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
     [ -n "$dlname" ] || return 0 # "true"
 
-    # If libtool has been patched to give link_all_deplibs=no, don't link them.
+    # Vanilla libtool set this to either "yes" or "unknown" and then handles
+    # both of these the same way, but our configure forces this to "no" on
+    # platforms where we know that is appropriate.
     [ no != "@link_all_deplibs_CXX@" ] || return 1 # "false"
 
-    # Handle cases which libtool thinks are "unknown", but we know are "no".
-    if [ yes != "@link_all_deplibs_CXX@" ]; then
-	case "@host_os@" in
-	linux* | k*bsd*-gnu)
-	    # We don't need dependency_libs for shared libraries on these
-	    # platforms, but upstream libtool doesn't know this (yet).
-	    return 1 ;; # "false"
-	esac
-    fi
     return 0 # "true"
 }
 
