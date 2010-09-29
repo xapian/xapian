@@ -59,6 +59,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "transform.h"
+#include "unixperm.h"
 #include "values.h"
 #include "weight.h"
 
@@ -397,35 +398,9 @@ run_query()
     }
 
     if (!query.empty()) {
-	// Apply permission filters.
-	string user, group;
-	MCI i = cgi_params.find("USER");
-	if (i != cgi_params.end()) user = i->second;
-	i = cgi_params.find("GROUP");
-	if (i != cgi_params.end()) group = i->second;
-	if (!user.empty() || !group.empty()) {
-	    vector<string> allow;
-	    vector<string> deny;
-	    allow.push_back("I*");
-	    if (!user.empty()) {
-		allow.push_back("I@" + user);
-		deny.push_back("V@" + user);
-	    }
-	    if (!group.empty()) {
-		allow.push_back("I#" + group);
-		deny.push_back("V#" + group);
-	    }
-	    query = Xapian::Query(query.OP_FILTER,
-				  query,
-				  Xapian::Query(query.OP_OR,
-						allow.begin(),
-						allow.end()));
-	    query = Xapian::Query(query.OP_AND_NOT,
-				  query,
-				  Xapian::Query(query.OP_OR,
-						deny.begin(),
-						deny.end()));
-	}
+	const char * remote_user = getenv("REMOTE_USER");
+	if (remote_user)
+	    apply_unix_permissions(query, remote_user);
 
 	enquire->set_query(query);
 	// We could use the value of topdoc as first parameter, but we

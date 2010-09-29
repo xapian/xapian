@@ -94,7 +94,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
- weight.h svgparse.h
+ weight.h svgparse.h unixperm.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -127,7 +127,7 @@ libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
- utf8convert.cc datematchdecider.cc weight.cc common/str.cc
+ utf8convert.cc datematchdecider.cc weight.cc common/str.cc unixperm.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\

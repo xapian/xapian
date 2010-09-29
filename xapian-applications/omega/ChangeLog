@@ -1,3 +1,9 @@
+Wed Sep 29 04:14:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,query.cc,unixperm.cc,unixperm.h: Pull out
+	  permission checks into a separate file and check Unix user and group
+	  permissions based on environmental variable REMOTE_USER, if set.
+
 Tue Sep 28 08:06:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Ship common/realtime.h.
