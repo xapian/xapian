@@ -5,6 +5,8 @@ Revision history for Perl extension Search::Xapian.
 	- Make sure all Perl files have 'use strict;' and 'use warnings;'.
 	- Remove superfluous 'use Carp;' from generated error classes.
 	- t/document.t: Test TermIterator::get_termname().
+	[Changes contributed by Tim Brody]
+	- New testcase t/10query.t.
 
 1.2.3.0  Tue Aug 24 06:03:12 UTC 2010
 	[Changes contributed by Tim Brody]
