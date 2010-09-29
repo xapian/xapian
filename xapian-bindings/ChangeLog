@@ -1,3 +1,8 @@
+Wed Sep 29 05:35:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Fix to delete libxapian_jni.la rather than
+	  xapian.la.
+
 Wed Sep 29 05:33:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,xapian-bindings.spec.in: Don't install or package

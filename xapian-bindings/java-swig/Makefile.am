@@ -102,7 +102,7 @@ jni_LTLIBRARIES = libxapian_jni.la
 # module) and JVMs don't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
 install-data-hook:
-	rm -f $(DESTDIR)$(jnidir)/xapian.la
+	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
