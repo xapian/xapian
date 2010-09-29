@@ -207,16 +207,7 @@ sub new {
       $query = Search::Xapianc::new_Query( @_ );
     } else {
       shift @_;
-      my $items = scalar(@_);
-      my @arr;
-      foreach my $item (@_) {
-	  if ( ref( $item ) eq 'Search::Xapian::Query' ) {
-	      push(@arr, ref($item));
-	  } else {
-	      push(@arr, $item);
-	  }
-      }
-     $query = Search::Xapian::newN( $op, $items, \@arr );
+      $query = Search::Xapian::newN( $op, \@_ );
     }
   }
   return $query;
@@ -247,18 +238,24 @@ sub new {
 }
 
 %inline %{
-Xapian::Query * newN(int op_, int items, SV ** q) {
+Xapian::Query * newN(int op_, SV *q_) {
 	Xapian::Query::op op = (Xapian::Query::op)op_;
+	AV *q = (AV *) SvRV(q_);
 	Xapian::Query * ret;
 
 	try {
+	    int items = av_len(q) + 1;
 	    vector<Xapian::Query> queries;
 	    queries.reserve(items);
 
 	    for( int i = 0; i < items; i++ ) {
-		SV *sv = (SV *)q[i];
-		if (sv_isa(sv, "Search::Xapian::Query")) {
-		    Xapian::Query *query = (Xapian::Query*) SvIV((SV*) SvRV(sv));
+		SV **svp = av_fetch(q, i, NULL);
+		if( svp == NULL )
+		    croak("Unexpected NULL returned by av_fetch()");
+		SV *sv = *svp;
+		if ( sv_isa(sv, "Search::Xapian::Query")) {
+		    Xapian::Query *query;
+		    SWIG_ConvertPtr(sv, (void **)&query, SWIGTYPE_p_Xapian__Query, 0);
 		    queries.push_back(*query);
 		} else if ( SvOK(sv) ) {
 		    STRLEN len;

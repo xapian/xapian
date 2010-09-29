@@ -1,3 +1,9 @@
+Wed Sep 29 02:30:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/10query.t,perl/util.i.in: Fix building a
+	  Query from subqueries which are themselves Query objects.  Patch
+	  from Tim Brody.
+
 Mon Sep 27 13:00:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Fix $(PHP_MAJOR_VERSION) to literal 5 in two places.

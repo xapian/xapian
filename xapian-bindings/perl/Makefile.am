@@ -10,6 +10,7 @@ TESTS = \
 	t/02pod.t \
 	t/03podcoverage.t \
 	t/04functions.t \
+	t/10query.t \
 	t/create.t \
 	t/databasemodified.t \
 	t/document.t \
