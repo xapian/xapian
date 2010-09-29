@@ -47,6 +47,18 @@ dist_docdata_DATA = docs/index.html
 perlarchdir = $(PERL_ARCH)/auto/Search/Xapian
 perlarch_LTLIBRARIES = Xapian.la
 
+# Remove the .la file - Xapian.la is never linked against (it's a module)
+# and Perl doesn't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
+install-data-hook:
+	rm -f $(DESTDIR)$(perlarchdir)/Xapian.la
+
+# Because we don't install the .la file, "make uninstall" doesn't work and
+# we need to remove the file ourselves.
+uninstall-local:
+	eval `grep '^dlname=' $(perlarch_LTLIBRARIES)` ; \
+	  rm -f $(DESTDIR)$(perlarchdir)/"$$dlname"
+
 perllibdir = $(PERL_LIB)
 nobase_dist_perllib_DATA = \
 	Search/Xapian.pm \

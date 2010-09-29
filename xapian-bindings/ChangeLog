@@ -1,3 +1,7 @@
+Wed Sep 29 04:44:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Don't install Xapian.la.
+
 Wed Sep 29 02:30:49 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,perl/t/10query.t,perl/util.i.in: Fix building a
