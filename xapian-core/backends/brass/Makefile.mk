@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	backends/brass/brass_alltermslist.h\
 	backends/brass/brass_btreebase.h\
 	backends/brass/brass_check.h\
+	backends/brass/brass_compact.h\
 	backends/brass/brass_cursor.h\
 	backends/brass/brass_database.h\
 	backends/brass/brass_databasereplicator.h\
@@ -35,6 +36,7 @@ lib_src +=\
 	backends/brass/brass_alldocspostlist.cc\
 	backends/brass/brass_alltermslist.cc\
 	backends/brass/brass_btreebase.cc\
+	backends/brass/brass_compact.cc\
 	backends/brass/brass_cursor.cc\
 	backends/brass/brass_database.cc\
 	backends/brass/brass_databasereplicator.cc\

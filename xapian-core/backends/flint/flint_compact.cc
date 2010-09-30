@@ -1,5 +1,5 @@
-/** @file xapian-compact-chert.cc
- * @brief Compact a chert database, or merge and compact several.
+/** @file flint_compact-flint.cc
+ * @brief Compact a flint database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include "xapian-compact.h"
+#include <xapian/compactor.h>
 
 #include <algorithm>
 #include <queue>
@@ -32,20 +32,20 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 
-#include "chert_table.h"
-#include "chert_cursor.h"
+#include "flint_table.h"
+#include "flint_compact.h"
+#include "flint_cursor.h"
+#include "flint_utils.h"
 #include "internaltypes.h"
-#include "pack.h"
 #include "utils.h"
-#include "valuestats.h"
 
 #include <xapian.h>
 
 using namespace std;
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
-// the same name in xapian-compact-flint.cc.
-namespace ChertCompact {
+// the same name in chert_compact.cc.
+namespace FlintCompact {
 
 static inline bool
 is_metainfo_key(const string & key)
@@ -59,25 +59,7 @@ is_user_metadata_key(const string & key)
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
 }
 
-static inline bool
-is_valuestats_key(const string & key)
-{
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xd0';
-}
-
-static inline bool
-is_valuechunk_key(const string & key)
-{
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xd8';
-}
-
-static inline bool
-is_doclenchunk_key(const string & key)
-{
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0';
-}
-
-class PostlistCursor : private ChertCursor {
+class PostlistCursor : private FlintCursor {
     Xapian::docid offset;
 
   public:
@@ -85,8 +67,8 @@ class PostlistCursor : private ChertCursor {
     Xapian::docid firstdid;
     Xapian::termcount tf, cf;
 
-    PostlistCursor(ChertTable *in, Xapian::docid offset_)
-	: ChertCursor(in), offset(offset_), firstdid(0)
+    PostlistCursor(FlintTable *in, Xapian::docid offset_)
+	: FlintCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry(string());
 	next();
@@ -94,11 +76,11 @@ class PostlistCursor : private ChertCursor {
 
     ~PostlistCursor()
     {
-	delete ChertCursor::get_table();
+	delete FlintCursor::get_table();
     }
 
     bool next() {
-	if (!ChertCursor::next()) return false;
+	if (!FlintCursor::next()) return false;
 	// We put all chunks into the non-initial chunk form here, then fix up
 	// the first chunk for each term in the merged database as we merge.
 	read_tag();
@@ -107,59 +89,31 @@ class PostlistCursor : private ChertCursor {
 	tf = cf = 0;
 	if (is_metainfo_key(key)) return true;
 	if (is_user_metadata_key(key)) return true;
-	if (is_valuestats_key(key)) return true;
-	if (is_valuechunk_key(key)) {
-	    const char * p = key.data();
-	    const char * end = p + key.length();
-	    p += 2;
-	    Xapian::valueno slot;
-	    if (!unpack_uint(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&p, end, &did))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    did += offset;
-	    
-	    key.assign("\0\xd8", 2);
-	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, did);
-	    return true;
-	}
-
 	// Adjust key if this is *NOT* an initial chunk.
-	// key is: pack_string_preserving_sort(key, tname)
-	// plus optionally: pack_uint_preserving_sort(key, did)
+	// key is: F_pack_string_preserving_sort(tname)
+	// plus optionally: F_pack_uint_preserving_sort(did)
 	const char * d = key.data();
 	const char * e = d + key.size();
-	if (is_doclenchunk_key(key)) {
-	    d += 2;
-	} else {
-	    string tname;
-	    if (!unpack_string_preserving_sort(&d, e, tname))
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	}
-
+	string tname;
+	if (!F_unpack_string_preserving_sort(&d, e, tname))
+	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 	if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
-	    if (!unpack_uint(&d, e, &tf) ||
-		!unpack_uint(&d, e, &cf) ||
-		!unpack_uint(&d, e, &firstdid)) {
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
+	    if (!F_unpack_uint(&d, e, &tf) ||
+		!F_unpack_uint(&d, e, &cf) ||
+		!F_unpack_uint(&d, e, &firstdid)) {
+		throw Xapian::DatabaseCorruptError("Bad postlist tag");
 	    }
 	    ++firstdid;
 	    tag.erase(0, d - tag.data());
 	} else {
 	    // Not an initial chunk, so adjust key.
 	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+	    if (!F_unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    if (is_doclenchunk_key(key)) {
-		key.erase(tmp);
-	    } else {
-		key.erase(tmp - 1);
-	    }
+	    key.erase(tmp);
 	}
 	firstdid += offset;
 	return true;
@@ -177,32 +131,17 @@ class PostlistCursorGt {
     }
 };
 
-static string
-encode_valuestats(Xapian::doccount freq,
-		  const string & lbound, const string & ubound)
-{
-    string value;
-    pack_uint(value, freq);
-    pack_string(value, lbound);
-    // We don't store or count empty values, so neither of the bounds
-    // can be empty.  So we can safely store an empty upper bound when
-    // the bounds are equal.
-    if (lbound != ubound) value += ubound;
-    return value;
-}
-
 static void
-merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
-		vector<string>::const_iterator b, vector<string>::const_iterator e,
+merge_postlists(Xapian::Compactor & compactor,
+		FlintTable * out, vector<Xapian::docid>::const_iterator offset,
+		vector<string>::const_iterator b,
+		vector<string>::const_iterator e,
 		Xapian::docid last_docid)
 {
     totlen_t tot_totlen = 0;
-    Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
-    Xapian::termcount wdf_ubound = 0;
-    Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	ChertTable *in = new ChertTable("postlist", *b, true);
+	FlintTable *in = new FlintTable("postlist", *b, true);
 	in->open();
 	if (in->empty()) {
 	    // Skip empty tables.
@@ -210,7 +149,7 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	    continue;
 	}
 
-	// PostlistCursor takes ownership of ChertTable in and is
+	// PostlistCursor takes ownership of FlintTable in and is
 	// responsible for deleting it.
 	PostlistCursor * cur = new PostlistCursor(in, *offset);
 	// Merge the METAINFO tags from each database into one.
@@ -221,31 +160,11 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	    const char * data = cur->tag.data();
 	    const char * end = data + cur->tag.size();
 	    Xapian::docid dummy_did = 0;
-	    if (!unpack_uint(&data, end, &dummy_did)) {
+	    if (!F_unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
-
-	    Xapian::termcount doclen_lbound_tmp;
-	    if (!unpack_uint(&data, end, &doclen_lbound_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    doclen_lbound = min(doclen_lbound, doclen_lbound_tmp);
-
-	    Xapian::termcount wdf_ubound_tmp;
-	    if (!unpack_uint(&data, end, &wdf_ubound_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    wdf_ubound = max(wdf_ubound, wdf_ubound_tmp);
-
-	    Xapian::termcount doclen_ubound_tmp;
-	    if (!unpack_uint(&data, end, &doclen_ubound_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    doclen_ubound_tmp += wdf_ubound_tmp;
-	    doclen_ubound = max(doclen_ubound, doclen_ubound_tmp);
-
 	    totlen_t totlen = 0;
-	    if (!unpack_uint_last(&data, end, &totlen)) {
+	    if (!F_unpack_uint_last(&data, end, &totlen)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
 	    tot_totlen += totlen;
@@ -261,12 +180,8 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 
     {
-	string tag;
-	pack_uint(tag, last_docid);
-	pack_uint(tag, doclen_lbound);
-	pack_uint(tag, wdf_ubound);
-	pack_uint(tag, doclen_ubound - wdf_ubound);
-	pack_uint_last(tag, tot_totlen);
+	string tag = F_pack_uint(last_docid);
+	tag += F_pack_uint_last(tot_totlen);
 	out->add(string(1, '\0'), tag);
     }
 
@@ -281,7 +196,8 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 
 	    const string & tag = cur->tag;
 	    if (key == last_key) {
-		last_tag = resolve_duplicate_metadata(key, last_tag, tag);
+		last_tag = compactor.resolve_duplicate_metadata(key,
+								last_tag, tag);
 	    } else {
 		if (!last_key.empty())
 		    out->add(last_key, last_tag);
@@ -300,86 +216,6 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	    out->add(last_key, last_tag);
     }
 
-    {
-	// Merge valuestats.
-	Xapian::doccount freq = 0;
-	string lbound, ubound;
-
-	string last_tag;
-	while (!pq.empty()) {
-	    PostlistCursor * cur = pq.top();
-	    const string& key = cur->key;
-	    if (!is_valuestats_key(key)) break;
-	    if (key != last_key) {
-		// For the first valuestats key, last_key will be the previous
-		// key we wrote, which we don't want to overwrite.  This is the
-		// only time that freq will be 0, so check that.
-		if (freq) {
-		    out->add(last_key, encode_valuestats(freq, lbound, ubound));
-		    freq = 0;
-		}
-		last_key = key;
-	    }
-
-	    const string & tag = cur->tag;
-
-	    const char * pos = tag.data();
-	    const char * end = pos + tag.size();
-
-	    Xapian::doccount f;
-	    string l, u;
-	    if (!unpack_uint(&pos, end, &f)) {
-		if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-		throw Xapian::RangeError("Frequency statistic in value table is too large");
-	    }
-	    if (!unpack_string(&pos, end, l)) {
-		if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-		throw Xapian::RangeError("Lower bound in value table is too large");
-	    }
-	    size_t len = end - pos;
-	    if (len == 0) {
-		u = l;
-	    } else {
-		u.assign(pos, len);
-	    }
-	    if (freq == 0) {
-		freq = f;
-		lbound = l;
-		ubound = u;
-	    } else {
-		freq += f;
-		if (l < lbound) lbound = l;
-		if (u > ubound) ubound = u;
-	    }
-
-	    pq.pop();
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	}
-
-	if (freq) {
-	    out->add(last_key, encode_valuestats(freq, lbound, ubound));
-	}
-    }
-
-    // Merge valuestream chunks.
-    while (!pq.empty()) {
-	PostlistCursor * cur = pq.top();
-	const string & key = cur->key;
-	if (!is_valuechunk_key(key)) break;
-	Assert(!is_user_metadata_key(key));
-	out->add(key, cur->tag);
-	pq.pop();
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
-	}
-    }
-
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string> > tags;
     while (true) {
@@ -391,29 +227,21 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 	Assert(cur == NULL || !is_user_metadata_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
-		string first_tag;
-	        pack_uint(first_tag, tf);
-		pack_uint(first_tag, cf);
-		pack_uint(first_tag, tags[0].first - 1);
+		string first_tag = F_pack_uint(tf);
+		first_tag += F_pack_uint(cf);
+		first_tag += F_pack_uint(tags[0].first - 1);
 		string tag = tags[0].second;
 		tag[0] = (tags.size() == 1) ? '1' : '0';
 		first_tag += tag;
 		out->add(last_key, first_tag);
-
-		string term;
-		if (!is_doclenchunk_key(last_key)) {
-		    const char * p = last_key.data();
-		    const char * end = p + last_key.size();
-		    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
-			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
-		}
-
 		vector<pair<Xapian::docid, string> >::const_iterator i;
 		i = tags.begin();
 		while (++i != tags.end()) {
+		    string new_key = last_key;
+		    new_key += F_pack_uint_preserving_sort(i->first);
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(pack_chert_postlist_key(term, i->first), tag);
+		    out->add(new_key, tag);
 		}
 	    }
 	    tags.clear();
@@ -432,20 +260,20 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 }
 
-struct MergeCursor : public ChertCursor {
-    MergeCursor(ChertTable *in) : ChertCursor(in) {
+struct MergeCursor : public FlintCursor {
+    MergeCursor(FlintTable *in) : FlintCursor(in) {
 	find_entry(string());
 	next();
     }
 
     ~MergeCursor() {
-	delete ChertCursor::get_table();
+	delete FlintCursor::get_table();
     }
 };
 
 struct CursorGt {
     /// Return true if and only if a's key is strictly greater than b's key.
-    bool operator()(const ChertCursor *a, const ChertCursor *b) {
+    bool operator()(const FlintCursor *a, const FlintCursor *b) {
 	if (b->after_end()) return false;
 	if (a->after_end()) return true;
 	return (a->current_key > b->current_key);
@@ -547,16 +375,16 @@ struct PrefixCompressedStringItorGt {
 };
 
 static void
-merge_spellings(ChertTable * out,
+merge_spellings(FlintTable * out,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	ChertTable *in = new ChertTable("spelling", *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable("spelling", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (!in->empty()) {
-	    // The MergeCursor takes ownership of ChertTable in and is
+	    // The MergeCursor takes ownership of FlintTable in and is
 	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
 	} else {
@@ -640,7 +468,7 @@ merge_spellings(ChertTable * out,
 		Xapian::termcount freq;
 		const char * p = cur->current_tag.data();
 		const char * end = p + cur->current_tag.size();
-		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
+		if (!F_unpack_uint_last(&p, end, &freq) || freq == 0) {
 		    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 		}
 		tot_freq += freq;
@@ -653,8 +481,7 @@ merge_spellings(ChertTable * out,
 		cur = pq.top();
 		pq.pop();
 	    }
-	    tag.resize(0);
-	    pack_uint_last(tag, tot_freq);
+	    tag = F_pack_uint_last(tot_freq);
 	}
 	out->add(key, tag);
     }
@@ -711,16 +538,16 @@ struct ByteLengthPrefixedStringItorGt {
 };
 
 static void
-merge_synonyms(ChertTable * out,
+merge_synonyms(FlintTable * out,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	ChertTable *in = new ChertTable("synonym", *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable("synonym", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (!in->empty()) {
-	    // The MergeCursor takes ownership of ChertTable in and is
+	    // The MergeCursor takes ownership of FlintTable in and is
 	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
 	} else {
@@ -797,7 +624,8 @@ merge_synonyms(ChertTable * out,
 }
 
 static void
-multimerge_postlists(ChertTable * out, const char * tmpdir,
+multimerge_postlists(Xapian::Compactor & compactor,
+		     FlintTable * out, const char * tmpdir,
 		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
@@ -818,11 +646,12 @@ multimerge_postlists(ChertTable * out, const char * tmpdir,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    ChertTable tmptab("postlist", dest, false);
+	    FlintTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(compactor, &tmptab, off.begin() + i,
+			    tmp.begin() + i, tmp.begin() + j, 0);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -838,7 +667,8 @@ multimerge_postlists(ChertTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), last_docid);
+    merge_postlists(compactor,
+		    out, off.begin(), tmp.begin(), tmp.end(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -850,17 +680,17 @@ multimerge_postlists(ChertTable * out, const char * tmpdir,
 
 static void
 merge_docid_keyed(const char * tablename,
-		  ChertTable *out, const vector<string> & inputs,
+		  FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
-	ChertTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
+	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
 	in.open();
 	if (in.empty()) continue;
 
-	ChertCursor cur(&in);
+	FlintCursor cur(&in);
 	cur.find_entry(string());
 
 	string key;
@@ -870,14 +700,13 @@ merge_docid_keyed(const char * tablename,
 		Xapian::docid did;
 		const char * d = cur.current_key.data();
 		const char * e = d + cur.current_key.size();
-		if (!unpack_uint_preserving_sort(&d, e, &did)) {
+		if (!F_unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
 		    msg += inputs[i];
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
 		did += off;
-		key.resize(0);
-		pack_uint_preserving_sort(key, did);
+		key = F_pack_uint_preserving_sort(did);
 		if (d != e) {
 		    // Copy over the termname for the position table.
 		    key.append(d, e - d);
@@ -893,12 +722,13 @@ merge_docid_keyed(const char * tablename,
 
 }
 
-using namespace ChertCompact;
+using namespace FlintCompact;
 
 void
-compact_chert(const char * destdir, const vector<string> & sources,
+compact_flint(Xapian::Compactor & compactor,
+	      const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
-	      compaction_level compaction, bool multipass,
+	      Xapian::Compactor::compaction_level compaction, bool multipass,
 	      Xapian::docid last_docid) {
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
@@ -920,8 +750,9 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	{ "record",	RECORD,		Z_DEFAULT_STRATEGY,	false },
 	{ "termlist",	TERMLIST,	Z_DEFAULT_STRATEGY,	false },
 	{ "position",	POSITION,	DONT_COMPRESS,		true },
+	{ "value",	VALUE,		DONT_COMPRESS,		true },
 	{ "spelling",	SPELLING,	Z_DEFAULT_STRATEGY,	true },
-	{ "synonym",    SYNONYM,	Z_DEFAULT_STRATEGY,	true }
+	{ "synonym",	SYNONYM,	Z_DEFAULT_STRATEGY,	true }
     };
     const table_list * tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
@@ -932,7 +763,7 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	// need special handling.  The other tables have keys sorted in
 	// docid order, so we can merge them by simply copying all the keys
 	// from each source table in turn.
-	set_status(t->name, string());
+	compactor.set_status(t->name, string());
 
 	string dest = destdir;
 	dest += '/';
@@ -970,25 +801,12 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    inputs.push_back(s);
 	}
 
-	// If any inputs lack a termlist table, suppress it in the output.
-	if (t->type == TERMLIST && inputs_present != sources.size()) {
-	    if (inputs_present != 0) {
-		string m = str(inputs_present);
-		m += " of ";
-		m += str(sources.size());
-		m += " inputs present, so suppressing output";
-		set_status(t->name, m);
-		continue;
-	    }
-	    output_will_exist = false;
-	}
-
 	if (!output_will_exist) {
-	    set_status(t->name, "doesn't exist");
+	    compactor.set_status(t->name, "doesn't exist");
 	    continue;
 	}
 
-	ChertTable out(t->name, dest, false, t->compress_strategy, t->lazy);
+	FlintTable out(t->name, dest, false, t->compress_strategy, t->lazy);
 	if (!t->lazy) {
 	    out.create_and_open(block_size);
 	} else {
@@ -996,16 +814,16 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    out.set_block_size(block_size);
 	}
 
-	out.set_full_compaction(compaction != STANDARD);
-	if (compaction == FULLER) out.set_max_item_size(1);
+	out.set_full_compaction(compaction != compactor.STANDARD);
+	if (compaction == compactor.FULLER) out.set_max_item_size(1);
 
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(&out, destdir, last_docid,
+		    multimerge_postlists(compactor, &out, destdir, last_docid,
 					 inputs, offset);
 		} else {
-		    merge_postlists(&out, offset.begin(),
+		    merge_postlists(compactor, &out, offset.begin(),
 				    inputs.begin(), inputs.end(),
 				    last_docid);
 		}
@@ -1017,7 +835,7 @@ compact_chert(const char * destdir, const vector<string> & sources,
 		merge_synonyms(&out, inputs.begin(), inputs.end());
 		break;
 	    default:
-		// Position, Record, Termlist
+		// Position, Record, Termlist, Value.
 		merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
 		break;
 	}
@@ -1036,7 +854,7 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    }
 	}
 	if (bad_stat) {
-	    set_status(t->name, "Done (couldn't stat all the DB files)");
+	    compactor.set_status(t->name, "Done (couldn't stat all the DB files)");
 	} else {
 	    string status;
 	    if (out_size == in_size) {
@@ -1059,7 +877,7 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    }
 	    status += str(out_size);
 	    status += "K)";
-	    set_status(t->name, status);
+	    compactor.set_status(t->name, status);
 	}
     }
 }

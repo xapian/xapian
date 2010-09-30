@@ -1,7 +1,7 @@
 /** @file xapian.h
  *  @brief Public interfaces for the Xapian library.
  */
-// Copyright (C) 2003,2004,2005,2007,2008,2009 Olly Betts
+// Copyright (C) 2003,2004,2005,2007,2008,2009,2010 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,6 +61,9 @@
 
 // Unicode support
 #include <xapian/unicode.h>
+
+// Database compaction and merging
+#include <xapian/compactor.h>
 
 // ELF visibility annotations for GCC.
 #include <xapian/visibility.h>

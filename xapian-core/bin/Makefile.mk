@@ -68,22 +68,7 @@ bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir
 bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
 bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_compact_CPPFLAGS =\
-	-I$(top_srcdir)/backends/brass\
-	-I$(top_srcdir)/backends/chert\
-	-I$(top_srcdir)/backends/flint
-bin_xapian_compact_SOURCES =\
-	bin/xapian-compact.cc\
-	bin/xapian-compact.h
-if BUILD_BACKEND_BRASS
-bin_xapian_compact_SOURCES += bin/xapian-compact-brass.cc
-endif
-if BUILD_BACKEND_CHERT
-bin_xapian_compact_SOURCES += bin/xapian-compact-chert.cc
-endif
-if BUILD_BACKEND_FLINT
-bin_xapian_compact_SOURCES += bin/xapian-compact-flint.cc
-endif
+bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint

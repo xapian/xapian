@@ -11,6 +11,7 @@ inc_HEADERS =\
 
 xapianinclude_HEADERS =\
 	include/xapian/base.h\
+	include/xapian/compactor.h\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
 	include/xapian/deprecated.h\

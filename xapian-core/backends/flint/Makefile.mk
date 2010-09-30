@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_alltermslist.h\
 	backends/flint/flint_btreebase.h\
 	backends/flint/flint_check.h\
+	backends/flint/flint_compact.h\
 	backends/flint/flint_cursor.h\
 	backends/flint/flint_database.h\
 	backends/flint/flint_databasereplicator.h\
@@ -33,6 +34,7 @@ lib_src +=\
 	backends/flint/flint_alldocspostlist.cc\
 	backends/flint/flint_alltermslist.cc\
 	backends/flint/flint_btreebase.cc\
+	backends/flint/flint_compact.cc\
 	backends/flint/flint_cursor.cc\
 	backends/flint/flint_database.cc\
 	backends/flint/flint_databasereplicator.cc\

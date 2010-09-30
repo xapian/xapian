@@ -22,40 +22,10 @@
 
 #include <config.h>
 
-#include "xapian-compact.h"
-
-#include "safeerrno.h"
-
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-
-#include <cstdio> // for rename()
-#include <cstdlib>
-#include <cstring>
-#include "safesysstat.h"
-#include <sys/types.h>
-
-#include "safeunistd.h"
-#include "safefcntl.h"
-
-#ifdef __WIN32__
-# include "safewindows.h"
-#endif
-
-#include "noreturn.h"
-#include "omassert.h"
-// FIXME: Bodge for now - plan is to move compaction into the library, and
-// then we can just:
-// #include "fileutils.h"
-#define resolve_relative_path my_resolve_relative_path
-#include "../common/fileutils.cc"
-
-#include "stringutils.h"
-#include "str.h"
-#include "utils.h"
-
 #include <xapian.h>
+
+#include <cstdlib>
+#include <iostream>
 
 #include "gnu_getopt.h"
 
@@ -88,184 +58,34 @@ static void show_usage() {
 "  --version         output version information and exit" << endl;
 }
 
-static const char * argv0 = PROG_NAME;
-
-/// Append filename argument arg to command cmd with suitable escaping.
-static bool
-append_filename_argument(string & cmd, const string & arg) {
-#ifdef __WIN32__
-    cmd.reserve(cmd.size() + arg.size() + 3);
-    cmd += " \"";
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '/') {
-	    // Convert Unix path separators to backslashes.  C library
-	    // functions understand "/" in paths, but we are going to
-	    // call commands like "deltree" or "rd" which don't.
-	    cmd += '\\';
-	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
-	    // Check for illegal characters in filename.
-	    return false;
-	} else {
-	    cmd += *i;
-	}
-    }
-    cmd += '"';
-#else
-    // Allow for escaping a few characters.
-    cmd.reserve(cmd.size() + arg.size() + 10);
-
-    // Prevent a leading "-" on the filename being interpreted as a command
-    // line option.
-    if (arg[0] == '-')
-	cmd += " ./";
-    else
-	cmd += ' ';
-
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	// Don't escape a few safe characters which are common in filenames.
-	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
-	    cmd += '\\';
-	}
-	cmd += *i;
-    }
-#endif
-    return true;
-}
-
-#ifdef __WIN32__
-static bool running_on_win9x() {
-    static int win9x = -1;
-    if (win9x == -1) {
-	OSVERSIONINFO info;
-	memset(&info, 0, sizeof(OSVERSIONINFO));
-	info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	if (GetVersionEx(&info)) {
-	    win9x = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
-	}
-    }
-    return win9x;
-}
-#endif
-
-/// Remove a directory and contents, just like the Unix "rm -rf" command.
-static void rm_rf(const string &filename) {
-    // Check filename exists and is actually a directory
-    struct stat sb;
-    if (filename.empty() || stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode))
-	return;
-
-#ifdef __WIN32__
-    string cmd;
-    if (running_on_win9x()) {
-	// For 95-like systems:
-	cmd = "deltree /y";
-    } else {
-	// For NT-like systems:
-	cmd = "rd /s /q";
-    }
-#else
-    string cmd("rm -rf");
-#endif
-    if (!append_filename_argument(cmd, filename)) return;
-    system(cmd);
-}
-
-class CmpByFirstUsed {
-    const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
-
+class MyCompactor : public Xapian::Compactor {
   public:
-    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
-	: used_ranges(ur) { }
+    void set_status(const string & table, const string & status);
 
-    bool operator()(size_t a, size_t b) {
-	return used_ranges[a].first < used_ranges[b].first;
-    }
+    string
+    resolve_duplicate_metadata(const string & key,
+			       const string & tag1,
+			       const string & tag2);
 };
 
-static const char * backend_names[] = {
-    NULL,
-    "brass",
-    "chert",
-    "flint"
-};
-
-static const char * backend_version_files[] = {
-    NULL,
-    "/iambrass",
-    "/iamchert",
-    "/iamflint"
-};
-
-class XapianCompactor {
-    string destdir;
-    bool renumber;
-    enum { STUB_NO, STUB_FILE, STUB_DIR } compact_to_stub;
-    bool multipass;
-    size_t block_size;
-    compaction_level compaction;
-
-    Xapian::docid tot_off;
-    Xapian::docid last_docid;
-
-    enum { UNKNOWN, BRASS, CHERT, FLINT } backend;
-
-    struct stat sb;
-
-    string first_source;
-
-    vector<string> sources;
-    vector<Xapian::docid> offset;
-    vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
-
-  public:
-    XapianCompactor();
-    void set_block_size(size_t block_size_) { block_size = block_size_; }
-    void set_renumber(bool renumber_) { renumber = renumber_; }
-    void set_multipass(bool multipass_) { multipass = multipass_; }
-    void set_compaction_level(compaction_level compaction_) {
-	compaction = compaction_;
-    }
-    void set_destdir(const string & destdir_) {
-	destdir = destdir_;
-	compact_to_stub = STUB_NO;
-	if (stat(destdir, &sb) == 0 && S_ISREG(sb.st_mode)) {
-	    // Stub file.
-	    compact_to_stub = STUB_FILE;
-	} else if (stat(destdir + "/XAPIANDB", &sb) == 0 &&
-		   S_ISREG(sb.st_mode)) {
-	    // Stub directory.
-	    compact_to_stub = STUB_DIR;
-	}
-    }
-    void set_source_count_hint(size_t estimated_sources) {
-	sources.reserve(estimated_sources);
-	offset.reserve(estimated_sources);
-	if (!renumber)
-	    used_ranges.reserve(estimated_sources);
-    }
-    void add_source(const string & srcdir);
-    void compact();
-};
-
-XAPIAN_NORETURN(
-    static void
-    backend_mismatch(const string &dbpath1, int backend1,
-		     const string &dbpath2, int backend2)
-);
-static void
-backend_mismatch(const string &dbpath1, int backend1,
-		 const string &dbpath2, int backend2)
+void
+MyCompactor::set_status(const string & table, const string & status)
 {
-    string msg = "All databases must be the same type ('";
-    msg += dbpath1;
-    msg += "' is ";
-    msg += backend_names[backend1];
-    msg += ", but '";
-    msg += dbpath2;
-    msg += "' is ";
-    msg += backend_names[backend2];
-    msg += ')';
-    throw Xapian::InvalidArgumentError(msg);
+    if (!status.empty())
+	cout << '\r' << table << ": " << status << endl;
+    else
+	cout << table << " ..." << flush;
+}
+
+string
+MyCompactor::resolve_duplicate_metadata(const string & key,
+					const string & tag1,
+					const string & tag2)
+{
+    (void)key;
+    if (tag1 != tag2)
+	cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+    return tag1;
 }
 
 int
@@ -283,9 +103,7 @@ main(int argc, char **argv)
 	{NULL,		0, 0, 0}
     };
 
-    XapianCompactor compactor;
-
-    argv0 = argv[0];
+    MyCompactor compactor;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -308,10 +126,10 @@ main(int argc, char **argv)
 		break;
 	    }
 	    case 'n':
-		compactor.set_compaction_level(STANDARD);
+		compactor.set_compaction_level(compactor.STANDARD);
 		break;
 	    case 'F':
-		compactor.set_compaction_level(FULLER);
+		compactor.set_compaction_level(compactor.FULLER);
 		break;
 	    case 'm':
 		compactor.set_multipass(true);
@@ -341,382 +159,16 @@ main(int argc, char **argv)
     compactor.set_destdir(argv[argc - 1]);
 
     try {
-	compactor.set_source_count_hint(argc - 1 - optind);
 	for (int i = optind; i < argc - 1; ++i) {
 	    compactor.add_source(argv[i]);
 	}
 
 	compactor.compact();
     } catch (const Xapian::Error &error) {
-	cerr << argv0 << ": " << error.get_description() << endl;
+	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
     } catch (const char * msg) {
-	cerr << argv0 << ": " << msg << endl;
+	cerr << argv[0] << ": " << msg << endl;
 	exit(1);
     }
-}
-
-XapianCompactor::XapianCompactor()
-    : renumber(true), multipass(false),
-      block_size(8192), compaction(FULL), tot_off(0),
-      last_docid(0), backend(UNKNOWN)
-{
-}
-
-void
-XapianCompactor::add_source(const string & srcdir)
-{
-    // Check destdir isn't the same as any source directory, unless it is a
-    // stub database.
-    if (!compact_to_stub && srcdir == destdir) {
-	throw Xapian::InvalidArgumentError("destination may not be the same as any source directory, unless it is a stub database");
-    }
-
-    if (stat(srcdir, &sb) == 0) {
-	bool is_stub = false;
-	string file = srcdir;
-	if (S_ISREG(sb.st_mode)) {
-	    // Stub database file.
-	    is_stub = true;
-	} else if (S_ISDIR(sb.st_mode)) {
-	    file += "/XAPIANDB";
-	    if (stat(file.c_str(), &sb) == 0 && S_ISREG(sb.st_mode)) {
-		// Stub database directory.
-		is_stub = true;
-	    }
-	}
-	if (is_stub) {
-	    ifstream stub(file.c_str());
-	    string line;
-	    unsigned int line_no = 0;
-	    while (getline(stub, line)) {
-		++line_no;
-		if (line.empty() || line[0] == '#')
-		    continue;
-		string::size_type space = line.find(' ');
-		if (space == string::npos) space = line.size();
-
-		string type(line, 0, space);
-		line.erase(0, space + 1);
-
-		if (type == "auto" || type == "chert" || type == "flint" ||
-		    type == "brass") {
-		    resolve_relative_path(line, file);
-		    add_source(line);
-		    continue;
-		}
-
-		if (type == "remote" || type == "inmemory") {
-		    string msg = "Can't compact stub entry of type '";
-		    msg += type;
-		    msg += '\'';
-		    throw Xapian::InvalidOperationError(msg);
-		}
-
-		throw Xapian::DatabaseError("Bad line in stub file");
-	    }
-	    return;
-	}
-    }
-
-    if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
-	if (backend == UNKNOWN) {
-	    backend = FLINT;
-	} else if (backend != FLINT) {
-	    backend_mismatch(first_source, backend, srcdir, FLINT);
-	}
-    } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
-	if (backend == UNKNOWN) {
-	    backend = CHERT;
-	} else if (backend != CHERT) {
-	    backend_mismatch(first_source, backend, srcdir, CHERT);
-	}
-    } else if (stat(string(srcdir) + "/iambrass", &sb) == 0) {
-	if (backend == UNKNOWN) {
-	    backend = BRASS;
-	} else if (backend != BRASS) {
-	    backend_mismatch(first_source, backend, srcdir, BRASS);
-	}
-    } else {
-	string msg = srcdir;
-	msg += ": not a flint, chert or brass database";
-	throw Xapian::InvalidArgumentError(msg);
-    }
-
-    if (first_source.empty())
-	first_source = srcdir;
-
-    Xapian::Database db(srcdir);
-    Xapian::docid first = 0, last = 0;
-
-    // "Empty" databases might have spelling or synonym data so can't
-    // just be completely ignored.
-    Xapian::doccount num_docs = db.get_doccount();
-    if (num_docs != 0) {
-	Xapian::PostingIterator it = db.postlist_begin(string());
-	// This test should never fail, since db.get_doccount() is
-	// non-zero!
-	Assert(it != db.postlist_end(string()));
-	first = *it;
-
-	if (renumber && first) {
-	    // Prune any unused docids off the start of this source
-	    // database.
-	    //
-	    // tot_off could wrap here, but it's unsigned, so that's
-	    // OK.
-	    tot_off -= (first - 1);
-	}
-
-	// There may be unused documents at the end of the range.
-	// Binary chop using skip_to to find the last actually used
-	// document id.
-	last = db.get_lastdocid();
-	Xapian::docid last_lbound = first + num_docs - 1;
-	while (last_lbound < last) {
-	    Xapian::docid mid;
-	    mid = last_lbound + (last - last_lbound + 1) / 2;
-	    it.skip_to(mid);
-	    if (it == db.postlist_end(string())) {
-		last = mid - 1;
-		it = db.postlist_begin(string());
-		continue;
-	    }
-	    last_lbound = *it;
-	}
-    }
-    offset.push_back(tot_off);
-    if (renumber)
-	tot_off += last;
-    else if (last_docid < db.get_lastdocid())
-	last_docid = db.get_lastdocid();
-    used_ranges.push_back(make_pair(first, last));
-
-    sources.push_back(string(srcdir) + '/');
-}
-
-void
-XapianCompactor::compact()
-{
-    if (renumber)
-	last_docid = tot_off;
-
-    if (!renumber && sources.size() > 1) {
-	// We want to process the sources in ascending order of first
-	// docid.  So we create a vector "order" with ascending integers
-	// and then sort so the indirected order is right.  Then we reorder
-	// the vectors into that order and check the ranges are disjoint.
-	vector<size_t> order;
-	order.reserve(sources.size());
-	for (size_t i = 0; i < sources.size(); ++i)
-	    order.push_back(i);
-
-	sort(order.begin(), order.end(), CmpByFirstUsed(used_ranges));
-
-	// Reorder the vectors to be in ascending of first docid, and
-	// set all the offsets to 0.
-	vector<string> sources_(sources.size());
-	vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
-	used_ranges_.reserve(sources.size());
-
-	Xapian::docid last_start = 0, last_end = 0;
-	for (size_t j = 0; j != order.size(); ++j) {
-	    size_t n = order[j];
-
-	    swap(sources_[j], sources[n]);
-	    used_ranges_.push_back(used_ranges[n]);
-
-	    const pair<Xapian::docid, Xapian::docid> p = used_ranges[n];
-	    // Skip empty databases.
-	    if (p.first == 0 && p.second == 0)
-		continue;
-	    // Check for overlap with the previous database's range.
-	    if (p.first <= last_end) {
-		string msg = "when merging databases, --no-renumber is only currently supported if the databases have disjoint ranges of used document ids: ";
-		msg += sources[order[j - 1]];
-		msg += " has range ";
-		msg += str(last_start);
-		msg += '-';
-		msg += str(last_end);
-		msg += ", ";
-		msg += sources[n];
-		msg += " has range ";
-		msg += str(p.first);
-		msg += '-';
-		msg += str(p.second);
-		throw Xapian::InvalidOperationError(msg);
-	    }
-	    last_start = p.first;
-	    last_end = p.second;
-	}
-
-	swap(sources, sources_);
-	swap(used_ranges, used_ranges_);
-    }
-
-    string stub_file;
-    if (compact_to_stub) {
-	stub_file = destdir;
-	if (compact_to_stub == STUB_DIR) {
-	    stub_file += "/XAPIANDB";
-	    destdir += '/';
-	} else {
-	    destdir += '_';
-	}
-	size_t sfx = destdir.size();
-	time_t now = time(NULL);
-	while (true) {
-	    destdir.resize(sfx);
-	    destdir += str(now++);
-	    if (mkdir(destdir, 0755) == 0)
-		break;
-	    if (errno != EEXIST) {
-		string msg = destdir;
-		msg += ": mkdir failed";
-		throw Xapian::DatabaseError(msg, errno);
-	    }
-	}
-    } else {
-	// If the destination database directory doesn't exist, create it.
-	if (mkdir(destdir, 0755) < 0) {
-	    // Check why mkdir failed.  It's ok if the directory already
-	    // exists, but we also get EEXIST if there's an existing file with
-	    // that name.
-	    if (errno == EEXIST) {
-		if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
-		    errno = 0;
-		else
-		    errno = EEXIST; // stat might have changed it
-	    }
-	    if (errno) {
-		string msg = destdir;
-		msg +=  ": cannot create directory";
-		throw Xapian::DatabaseError(msg, errno);
-	    }
-	}
-    }
-
-    if (backend == CHERT) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	compact_chert(destdir.c_str(), sources, offset, block_size, compaction,
-		      multipass, last_docid);
-#else
-	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
-#endif
-    } else if (backend == BRASS) {
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	compact_brass(destdir.c_str(), sources, offset, block_size, compaction,
-		      multipass, last_docid);
-#else
-	throw Xapian::FeatureUnavailableError("Brass backend disabled at build time");
-#endif
-    } else {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	compact_flint(destdir.c_str(), sources, offset, block_size, compaction,
-		      multipass, last_docid);
-#else
-	throw Xapian::FeatureUnavailableError("Flint backend disabled at build time");
-#endif
-    }
-
-    // Create the version file ("iamchert", etc).
-    //
-    // This file contains a UUID, and we want the copy to have a fresh
-    // UUID since its revision counter is reset to 1.  Currently the
-    // easiest way to do this is to create a dummy "donor" database and
-    // harvest its version file.
-    string donor = destdir;
-    donor += "/donor.tmp";
-
-    if (backend == CHERT) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	(void)Xapian::Chert::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
-#else
-	// Handled above.
-	exit(1);
-#endif
-    } else if (backend == BRASS) {
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	(void)Xapian::Brass::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
-#else
-	// Handled above.
-	exit(1);
-#endif
-    } else {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	(void)Xapian::Flint::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
-	string from = donor;
-	from += "/uuid";
-	string to(destdir);
-	to += "/uuid";
-	if (rename(from.c_str(), to.c_str()) == -1) {
-	    string msg = "Cannot rename '";
-	    msg += from;
-	    msg += "' to '";
-	    msg += to;
-	    msg += '\'';
-	    throw Xapian::DatabaseError(msg, errno);
-	}
-#else
-	// Handled above.
-	exit(1);
-#endif
-    }
-    string from = donor;
-    from += backend_version_files[backend];
-    string to(destdir);
-    to += backend_version_files[backend];
-    if (rename(from.c_str(), to.c_str()) == -1) {
-	string msg = "Cannot rename '";
-	msg += from;
-	msg += "' to '";
-	msg += to;
-	msg += '\'';
-	throw Xapian::DatabaseError(msg, errno);
-    }
-
-    rm_rf(donor);
-
-    if (compact_to_stub) {
-	string new_stub_file = destdir;
-	new_stub_file += "/new_stub.tmp";
-	{
-	    ofstream new_stub(new_stub_file.c_str());
-#ifndef __WIN32__
-	    size_t slash = destdir.find_last_of('/');
-#else
-	    size_t slash = destdir.find_last_of("/\\");
-#endif
-	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
-	}
-	if (rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-	    // FIXME: try to clean up?
-	    string msg = "Cannot rename '";
-	    msg += new_stub_file;
-	    msg += "' to '";
-	    msg += stub_file;
-	    msg += '\'';
-	    throw Xapian::DatabaseError(msg, errno);
-	}
-    }
-}
-
-void
-set_status(const string & table, const string & status)
-{
-    if (!status.empty())
-	cout << '\r' << table << ": " << status << endl;
-    else
-	cout << table << " ..." << flush;
-}
-
-string
-resolve_duplicate_metadata(const string & key,
-			   const string & tag1,
-			   const string & tag2)
-{
-    (void)key;
-    if (tag1 != tag2)
-	cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
-    return tag1;
 }

@@ -8,6 +8,7 @@ EXTRA_DIST +=\
 	api/Makefile
 
 lib_src +=\
+	api/compactor.cc\
 	api/decvalwtsource.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\

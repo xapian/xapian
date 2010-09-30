@@ -1,5 +1,5 @@
-/** @file xapian-compact-brass.cc
- * @brief Compact a brass database, or merge and compact several.
+/** @file xapian-compact-chert.cc
+ * @brief Compact a chert database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include "xapian-compact.h"
+#include <xapian/compactor.h>
 
 #include <algorithm>
 #include <queue>
@@ -32,8 +32,9 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 
-#include "brass_table.h"
-#include "brass_cursor.h"
+#include "chert_table.h"
+#include "chert_compact.h"
+#include "chert_cursor.h"
 #include "internaltypes.h"
 #include "pack.h"
 #include "utils.h"
@@ -45,7 +46,7 @@ using namespace std;
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in xapian-compact-flint.cc.
-namespace BrassCompact {
+namespace ChertCompact {
 
 static inline bool
 is_metainfo_key(const string & key)
@@ -77,7 +78,7 @@ is_doclenchunk_key(const string & key)
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0';
 }
 
-class PostlistCursor : private BrassCursor {
+class PostlistCursor : private ChertCursor {
     Xapian::docid offset;
 
   public:
@@ -85,8 +86,8 @@ class PostlistCursor : private BrassCursor {
     Xapian::docid firstdid;
     Xapian::termcount tf, cf;
 
-    PostlistCursor(BrassTable *in, Xapian::docid offset_)
-	: BrassCursor(in), offset(offset_), firstdid(0)
+    PostlistCursor(ChertTable *in, Xapian::docid offset_)
+	: ChertCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry(string());
 	next();
@@ -94,11 +95,11 @@ class PostlistCursor : private BrassCursor {
 
     ~PostlistCursor()
     {
-	delete BrassCursor::get_table();
+	delete ChertCursor::get_table();
     }
 
     bool next() {
-	if (!BrassCursor::next()) return false;
+	if (!ChertCursor::next()) return false;
 	// We put all chunks into the non-initial chunk form here, then fix up
 	// the first chunk for each term in the merged database as we merge.
 	read_tag();
@@ -119,7 +120,7 @@ class PostlistCursor : private BrassCursor {
 	    if (!unpack_uint_preserving_sort(&p, end, &did))
 		throw Xapian::DatabaseCorruptError("bad value key");
 	    did += offset;
-	    
+
 	    key.assign("\0\xd8", 2);
 	    pack_uint(key, slot);
 	    pack_uint_preserving_sort(key, did);
@@ -192,8 +193,10 @@ encode_valuestats(Xapian::doccount freq,
 }
 
 static void
-merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
-		vector<string>::const_iterator b, vector<string>::const_iterator e,
+merge_postlists(Xapian::Compactor & compactor,
+		ChertTable * out, vector<Xapian::docid>::const_iterator offset,
+		vector<string>::const_iterator b,
+		vector<string>::const_iterator e,
 		Xapian::docid last_docid)
 {
     totlen_t tot_totlen = 0;
@@ -202,7 +205,7 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
     Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	BrassTable *in = new BrassTable("postlist", *b, true);
+	ChertTable *in = new ChertTable("postlist", *b, true);
 	in->open();
 	if (in->empty()) {
 	    // Skip empty tables.
@@ -210,7 +213,7 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 	    continue;
 	}
 
-	// PostlistCursor takes ownership of BrassTable in and is
+	// PostlistCursor takes ownership of ChertTable in and is
 	// responsible for deleting it.
 	PostlistCursor * cur = new PostlistCursor(in, *offset);
 	// Merge the METAINFO tags from each database into one.
@@ -281,7 +284,8 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 
 	    const string & tag = cur->tag;
 	    if (key == last_key) {
-		last_tag = resolve_duplicate_metadata(key, last_tag, tag);
+		last_tag = compactor.resolve_duplicate_metadata(key,
+								last_tag, tag);
 	    } else {
 		if (!last_key.empty())
 		    out->add(last_key, last_tag);
@@ -392,7 +396,7 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		string first_tag;
-	        pack_uint(first_tag, tf);
+		pack_uint(first_tag, tf);
 		pack_uint(first_tag, cf);
 		pack_uint(first_tag, tags[0].first - 1);
 		string tag = tags[0].second;
@@ -413,7 +417,7 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
 		while (++i != tags.end()) {
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(pack_brass_postlist_key(term, i->first), tag);
+		    out->add(pack_chert_postlist_key(term, i->first), tag);
 		}
 	    }
 	    tags.clear();
@@ -432,20 +436,20 @@ merge_postlists(BrassTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 }
 
-struct MergeCursor : public BrassCursor {
-    MergeCursor(BrassTable *in) : BrassCursor(in) {
+struct MergeCursor : public ChertCursor {
+    MergeCursor(ChertTable *in) : ChertCursor(in) {
 	find_entry(string());
 	next();
     }
 
     ~MergeCursor() {
-	delete BrassCursor::get_table();
+	delete ChertCursor::get_table();
     }
 };
 
 struct CursorGt {
     /// Return true if and only if a's key is strictly greater than b's key.
-    bool operator()(const BrassCursor *a, const BrassCursor *b) {
+    bool operator()(const ChertCursor *a, const ChertCursor *b) {
 	if (b->after_end()) return false;
 	if (a->after_end()) return true;
 	return (a->current_key > b->current_key);
@@ -547,16 +551,16 @@ struct PrefixCompressedStringItorGt {
 };
 
 static void
-merge_spellings(BrassTable * out,
+merge_spellings(ChertTable * out,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	BrassTable *in = new BrassTable("spelling", *b, true, DONT_COMPRESS, true);
+	ChertTable *in = new ChertTable("spelling", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (!in->empty()) {
-	    // The MergeCursor takes ownership of BrassTable in and is
+	    // The MergeCursor takes ownership of ChertTable in and is
 	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
 	} else {
@@ -711,16 +715,16 @@ struct ByteLengthPrefixedStringItorGt {
 };
 
 static void
-merge_synonyms(BrassTable * out,
+merge_synonyms(ChertTable * out,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	BrassTable *in = new BrassTable("synonym", *b, true, DONT_COMPRESS, true);
+	ChertTable *in = new ChertTable("synonym", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (!in->empty()) {
-	    // The MergeCursor takes ownership of BrassTable in and is
+	    // The MergeCursor takes ownership of ChertTable in and is
 	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
 	} else {
@@ -797,7 +801,8 @@ merge_synonyms(BrassTable * out,
 }
 
 static void
-multimerge_postlists(BrassTable * out, const char * tmpdir,
+multimerge_postlists(Xapian::Compactor & compactor,
+		     ChertTable * out, const char * tmpdir,
 		     Xapian::docid last_docid,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
@@ -818,11 +823,12 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    BrassTable tmptab("postlist", dest, false);
+	    ChertTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(compactor, &tmptab, off.begin() + i,
+			    tmp.begin() + i, tmp.begin() + j, 0);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -838,7 +844,8 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), last_docid);
+    merge_postlists(compactor,
+		    out, off.begin(), tmp.begin(), tmp.end(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -850,17 +857,17 @@ multimerge_postlists(BrassTable * out, const char * tmpdir,
 
 static void
 merge_docid_keyed(const char * tablename,
-		  BrassTable *out, const vector<string> & inputs,
+		  ChertTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
-	BrassTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
+	ChertTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
 	in.open();
 	if (in.empty()) continue;
 
-	BrassCursor cur(&in);
+	ChertCursor cur(&in);
 	cur.find_entry(string());
 
 	string key;
@@ -893,12 +900,13 @@ merge_docid_keyed(const char * tablename,
 
 }
 
-using namespace BrassCompact;
+using namespace ChertCompact;
 
 void
-compact_brass(const char * destdir, const vector<string> & sources,
+compact_chert(Xapian::Compactor & compactor,
+	      const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
-	      compaction_level compaction, bool multipass,
+	      Xapian::Compactor::compaction_level compaction, bool multipass,
 	      Xapian::docid last_docid) {
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
@@ -932,7 +940,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	// need special handling.  The other tables have keys sorted in
 	// docid order, so we can merge them by simply copying all the keys
 	// from each source table in turn.
-	set_status(t->name, string());
+	compactor.set_status(t->name, string());
 
 	string dest = destdir;
 	dest += '/';
@@ -977,18 +985,18 @@ compact_brass(const char * destdir, const vector<string> & sources,
 		m += " of ";
 		m += str(sources.size());
 		m += " inputs present, so suppressing output";
-		set_status(t->name, m);
+		compactor.set_status(t->name, m);
 		continue;
 	    }
 	    output_will_exist = false;
 	}
 
 	if (!output_will_exist) {
-	    set_status(t->name, "doesn't exist");
+	    compactor.set_status(t->name, "doesn't exist");
 	    continue;
 	}
 
-	BrassTable out(t->name, dest, false, t->compress_strategy, t->lazy);
+	ChertTable out(t->name, dest, false, t->compress_strategy, t->lazy);
 	if (!t->lazy) {
 	    out.create_and_open(block_size);
 	} else {
@@ -996,16 +1004,16 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	    out.set_block_size(block_size);
 	}
 
-	out.set_full_compaction(compaction != STANDARD);
-	if (compaction == FULLER) out.set_max_item_size(1);
+	out.set_full_compaction(compaction != compactor.STANDARD);
+	if (compaction == compactor.FULLER) out.set_max_item_size(1);
 
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(&out, destdir, last_docid,
+		    multimerge_postlists(compactor, &out, destdir, last_docid,
 					 inputs, offset);
 		} else {
-		    merge_postlists(&out, offset.begin(),
+		    merge_postlists(compactor, &out, offset.begin(),
 				    inputs.begin(), inputs.end(),
 				    last_docid);
 		}
@@ -1036,7 +1044,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	    }
 	}
 	if (bad_stat) {
-	    set_status(t->name, "Done (couldn't stat all the DB files)");
+	    compactor.set_status(t->name, "Done (couldn't stat all the DB files)");
 	} else {
 	    string status;
 	    if (out_size == in_size) {
@@ -1059,7 +1067,7 @@ compact_brass(const char * destdir, const vector<string> & sources,
 	    }
 	    status += str(out_size);
 	    status += "K)";
-	    set_status(t->name, status);
+	    compactor.set_status(t->name, status);
 	}
     }
 }
