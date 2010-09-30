@@ -914,12 +914,12 @@ compact_chert(const char * destdir, const vector<string> & sources,
     };
 
     static const table_list tables[] = {
-	// name	    type	compress_strategy	lazy
-	{ "postlist",   POSTLIST,	DONT_COMPRESS,		false },
-	{ "record",	    RECORD,	Z_DEFAULT_STRATEGY,	false },
-	{ "termlist",   TERMLIST,	Z_DEFAULT_STRATEGY,	false },
-	{ "position",   POSITION,	DONT_COMPRESS,		true },
-	{ "spelling",   SPELLING,	Z_DEFAULT_STRATEGY,	true },
+	// name		type		compress_strategy	lazy
+	{ "postlist",	POSTLIST,	DONT_COMPRESS,		false },
+	{ "record",	RECORD,		Z_DEFAULT_STRATEGY,	false },
+	{ "termlist",	TERMLIST,	Z_DEFAULT_STRATEGY,	false },
+	{ "position",	POSITION,	DONT_COMPRESS,		true },
+	{ "spelling",	SPELLING,	Z_DEFAULT_STRATEGY,	true },
 	{ "synonym",    SYNONYM,	Z_DEFAULT_STRATEGY,	true }
     };
     const table_list * tables_end = tables +

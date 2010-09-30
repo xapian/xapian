@@ -1,3 +1,9 @@
+Thu Sep 30 05:44:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc,
+	  bin/xapian-compact-flint.cc: Fix indentation of table data
+	  arrays.
+
 Thu Sep 30 05:32:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Only
