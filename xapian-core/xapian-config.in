@@ -1,7 +1,7 @@
 #!/bin/sh
 # @configure_input@
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2009 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2009,2010 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -35,6 +35,7 @@ Options:
   --cxxflags   output all preprocessor and C++ compiler flags
   --libs       output all linker flags
   --ltlibs     output linker flags for linking using GNU libtool
+  --static     make other options report values for static linking
   --swigflags  output preprocessor flags for use with SWIG
   --help       output this help and exit
   --version    output version information and exit
@@ -63,6 +64,7 @@ is_uninstalled()
 
 need_explicit_dependencies()
 {
+    [ no = "$static" ] || return 0 # "true"
     # For static libraries, we need to explicitly link with dependency_libs
     # on all platforms.  If we only have static libraries, then "$dlname"
     # will be empty.
@@ -154,7 +156,9 @@ extract_dependency_libs_() {
 
 builddir=`echo $0|sed 's![^/]*$!!'`
 xo_lib_xapian=no
+static=no
 
+actions=
 while [ 0 != "$#" ] ; do
     arg=$1
     shift
@@ -170,6 +174,34 @@ while [ 0 != "$#" ] ; do
 	exit 0
 	;;
 
+    --cxxflags|--swigflags|--libs|--ltlibs)
+	actions="$actions $arg"
+	;;
+
+    --static)
+	static=yes
+	;;
+
+    --from-xo-lib-xapian)
+	# Top Secret option which allows us to give a more helpful error
+	# message if we're asked to link with an uninstalled libxapian
+	# and libtool isn't in use.
+	xo_lib_xapian=yes
+	;;
+
+    -*)
+	echo "$0: Unrecognized option: $arg" 1>&2
+	show_usage 1 1>&2
+	;;
+
+    *)
+	show_usage 1 1>&2
+	;;
+    esac
+done
+
+for arg in $actions ; do
+    case $arg in
     --cxxflags)
 	if is_uninstalled ; then
 	    set_I_for_uninstalled
@@ -201,13 +233,6 @@ while [ 0 != "$#" ] ; do
 	    I="-I@includedir@"
 	fi
 	echo "$I"
-	;;
-
-    --from-xo-lib-xapian)
-	# Top Secret option which allows us to give a more helpful error
-	# message if we're asked to link with an uninstalled libxapian
-	# and libtool isn't in use.
-	xo_lib_xapian=yes
 	;;
 
     --libs)
@@ -245,6 +270,7 @@ while [ 0 != "$#" ] ; do
 	    # configuring against a xapian-core tree which hasn't been built
 	    # yet (the top level bootstrap script relies on this).
 	    [ ./ != "$builddir" ] && F="$F$builddir"
+	    [ no = "$static" ] || F="-static-libtool-libs $F"
 	    echo "${F}libxapian.la"
 	    continue
 	fi
@@ -268,15 +294,6 @@ while [ 0 != "$#" ] ; do
 
 	set_L_to_library_path
 	echo "$F$L-lxapian"
-	;;
-
-    -*)
-	echo "$0: Unrecognized option: $arg" 1>&2
-	show_usage 1 1>&2
-	;;
-
-    *)
-	show_usage 1 1>&2
 	;;
     esac
 done

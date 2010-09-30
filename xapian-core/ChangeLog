@@ -1,3 +1,9 @@
+Thu Sep 30 08:37:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-config.in: Add --static option which makes other options
+	  report values for static linking.
+
 Thu Sep 23 13:35:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.0.22.
