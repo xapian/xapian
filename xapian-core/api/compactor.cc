@@ -41,9 +41,9 @@
 #include "noreturn.h"
 #include "omassert.h"
 #include "fileutils.h"
-
 #include "stringutils.h"
 #include "str.h"
+#include "utils.h"
 
 #include "backends/brass/brass_compact.h"
 #include "backends/brass/brass_version.h"
