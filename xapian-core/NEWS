@@ -1,8 +1,41 @@
- 14928       olly Mon Aug 30 06:04:13 GMT 2010  Olly Betts <olly@survex.com>
+ 15034       olly Thu Sep 30 06:16:11 GMT 2010  Olly Betts <olly@survex.com>
 
 backport candidates:
 
 backported to 1.0.22:
+
+ 15031       olly Wed Sep 29 11:13:18 GMT 2010  Olly Betts <olly@survex.com>
+	* common/document.h: Initialise docid to 0 when creating a document
+	  from scratch, as documented.
+	* tests/api_none.cc: Add regression test document2.
+	* include/xapian/document.h: Document that return value is unreliable
+	  in this case prior to the next 1.0 and 1.2 releases.
+
+ 15002       olly Sun Sep 26 11:11:49 GMT 2010  Olly Betts <olly@survex.com>
+	* xapian-config.in: Add --static option which makes other options
+	  report values for static linking.
+
+ 14991       olly Tue Sep 21 10:43:17 GMT 2010  Olly Betts <olly@survex.com>
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow phrase
+	  generators between a probabilistic prefix and the term itself.
+
+ 14939       olly Fri Sep 03 05:54:09 GMT 2010  Olly Betts <olly@survex.com>
+	* backends/chert/chert_modifiedpostlist.h,
+	  backends/flint/flint_modifiedpostlist.h,tests/: Fixes required to
+	  build on OpenBSD 4.5 with GCC 3.3.5.
+
+ 14978       olly Thu Sep 09 03:15:00 GMT 2010  Olly Betts <olly@survex.com>
+	* docs/deprecation.rst: Actually write down our guidelines for
+	  supporting other software.
+
+ 14961       olly Mon Sep 06 07:10:02 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Add support for --enable-sse=sse and --enable-sse=sse2
+	  to allow control of which SSE instructions to use.
+
+ 14938       olly Tue Aug 31 14:37:44 GMT 2010  Olly Betts <olly@survex.com>
+	* include/xapian/queryparser.h: Document cases where FLAG_WILDCARD and
+	  FLAG_PARTIAL aren't currently supported.
+
  14914       olly Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
 	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
 	  when targetting models 68010, 68020, 68030 as well as 68000.
@@ -18,11 +51,49 @@ backported to 1.0.22:
 	* configure.ac: Enable use of SSE maths on x86 by default with Sun's
 	  compiler.
 
-Xapian-core 1.2.4 (2010-08-30):
+Xapian-core 1.2.4 (2010-09-30):
 
+ 14980       olly Thu Sep 09 11:18:47 GMT 2010  Olly Betts <olly@survex.com>
+	* INSTALL: Raise recommended GCC version from 3.3 to 4.1, since that's
+	  the oldest we regularly test with.
+
+ 14979       olly Thu Sep 09 11:14:03 GMT 2010  Olly Betts <olly@survex.com>
+	* HACKING: Debian etch was discontinued 6 months ago, so it's no longer
+	  useful to document packages for developing Xapian on it.
+
+ 14977       olly Thu Sep 09 00:20:16 GMT 2010  Olly Betts <olly@survex.com>
+	* docs/replication.rst: Adjust text to reflect conclusions about the
+	  issues in ticket#434.
+
+ 14976       olly Thu Sep 09 00:10:03 GMT 2010  Olly Betts <olly@survex.com>
+	* docs/replication.rst: Don't suggest using a symlink to switch between
+	  databases - a stub database is much better.
+
+ 14975       olly Thu Sep 09 00:07:02 GMT 2010  Olly Betts <olly@survex.com>
+	* docs/replication.rst: Assume xapian tools are installed on PATH not
+	  in the current directory for example commands.
+
+ 14941    richard Fri Sep 03 13:08:53 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* bin/xapian-replicate.cc: If a fullcopy was attempted, but was not
+	  put live, display an explanatory message (if verbose is true).
 
 API:
 
+	* bin/xapian-compact.cc: Add support for compacting to a stub database,
+	  which can be one of the inputs (for atomic update).
+	* tests/api_compact.cc: Add testcases compactstub3 and compactstub4 as
+	  feature tests for this.
+
+	* bin/xapian-compact.cc: Inputs can now be stub database directories
+	or files,
+	  in which case the databases in the stub are used as inputs.
+	* tests/api_compact.cc: Add feature test compactstub1.
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Only
+	  skip producing an output table when there are only some inputs
+	  for the termlist - for spellings and synonyms, we want to produce
+	  an output in this case.
+	* tests/api_compact.cc: Add regression test compactmissingtables1.
 
 testsuite:
 
@@ -46,6 +117,9 @@ inmemory backend:
 
 
 build system:
+
+	* configure.ac: FreeBSD and OpenBSD don't need explicit dependency
+	  libraries, so set link_all_deplibs_CXX=no there.
 
 * This release uses autoconf 2.67 rather than 2.65.
 
