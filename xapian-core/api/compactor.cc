@@ -44,11 +44,13 @@
 
 #include "stringutils.h"
 #include "str.h"
-#include "utils.h"
 
 #include "backends/brass/brass_compact.h"
+#include "backends/brass/brass_version.h"
 #include "backends/chert/chert_compact.h"
+#include "backends/chert/chert_version.h"
 #include "backends/flint/flint_compact.h"
+#include "backends/flint/flint_version.h"
 
 #include <xapian.h>
 
@@ -71,13 +73,6 @@ static const char * backend_names[] = {
     "brass",
     "chert",
     "flint"
-};
-
-static const char * backend_version_files[] = {
-    NULL,
-    "/iambrass",
-    "/iamchert",
-    "/iamflint"
 };
 
 enum { STUB_NO, STUB_FILE, STUB_DIR };
@@ -481,60 +476,29 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
     // Create the version file ("iamchert", etc).
     //
     // This file contains a UUID, and we want the copy to have a fresh
-    // UUID since its revision counter is reset to 1.  Currently the
-    // easiest way to do this is to create a dummy "donor" database and
-    // harvest its version file.
-    string donor = destdir;
-    donor += "/donor.tmp";
-
+    // UUID since its revision counter is reset to 1.
     if (backend == CHERT) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	(void)Xapian::Chert::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
+	ChertVersion(destdir).create();
 #else
 	// Handled above.
 	exit(1);
 #endif
     } else if (backend == BRASS) {
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-	(void)Xapian::Brass::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
+	BrassVersion(destdir).create();
 #else
 	// Handled above.
 	exit(1);
 #endif
     } else {
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	(void)Xapian::Flint::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
-	string from = donor;
-	from += "/uuid";
-	string to(destdir);
-	to += "/uuid";
-	if (rename(from.c_str(), to.c_str()) == -1) {
-	    string msg = "Cannot rename '";
-	    msg += from;
-	    msg += "' to '";
-	    msg += to;
-	    msg += '\'';
-	    throw Xapian::DatabaseError(msg, errno);
-	}
+	FlintVersion(destdir).create();
 #else
 	// Handled above.
 	exit(1);
 #endif
     }
-    string from = donor;
-    from += backend_version_files[backend];
-    string to(destdir);
-    to += backend_version_files[backend];
-    if (rename(from.c_str(), to.c_str()) == -1) {
-	string msg = "Cannot rename '";
-	msg += from;
-	msg += "' to '";
-	msg += to;
-	msg += '\'';
-	throw Xapian::DatabaseError(msg, errno);
-    }
-
-    removedir(donor);
 
     if (compact_to_stub) {
 	string new_stub_file = destdir;

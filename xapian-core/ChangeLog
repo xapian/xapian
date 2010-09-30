@@ -1,3 +1,9 @@
+Thu Sep 30 14:46:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc: Use the ChertVersion, etc classes to make sure that
+	  the new database has a new UUID rather than creating a "donor"
+	  database and then stealing its version/uuid file.
+
 Thu Sep 30 14:33:46 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk,api/compactor.cc,backends/brass/Makefile.mk,
