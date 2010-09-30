@@ -969,7 +969,8 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    inputs.push_back(s);
 	}
 
-	if (inputs_present != sources.size()) {
+	// If any inputs lack a termlist table, suppress it in the output.
+	if (t->type == TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
 		cout << '\r' << t->name << ": " << inputs_present
 		     << " of " << sources.size() << " inputs present "

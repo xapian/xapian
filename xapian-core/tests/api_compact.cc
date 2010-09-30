@@ -378,3 +378,55 @@ DEFINE_TESTCASE(compactstub4, brass || chert || flint) {
 
     return true;
 }
+
+static void
+make_all_tables(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_term("foo");
+    db.add_document(doc);
+    db.add_spelling("foo");
+    db.add_synonym("foobar", "foo");
+
+    db.commit();
+}
+
+static void
+make_missing_tables(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_term("foo");
+    db.add_document(doc);
+
+    db.commit();
+}
+
+DEFINE_TESTCASE(compactmissingtables1, generated) {
+    int status;
+
+    string a = get_database_path("compactmissingtables1a",
+				 make_all_tables);
+    a += ' ';
+    string b = get_database_path("compactmissingtables1b",
+				 make_missing_tables);
+    b += ' ';
+
+    string cmd = XAPIAN_COMPACT" "SILENT" ";
+    string out = get_named_writable_database_path("compactmissingtables1out");
+
+    rm_rf(out);
+    status = system(cmd + a + b + out);
+    TEST_EQUAL(WEXITSTATUS(status), 0);
+    check_sparse_uid_terms(out);
+
+    {
+	Xapian::Database db(out);
+	TEST_NOT_EQUAL(db.spellings_begin(), db.spellings_end());
+	TEST_NOT_EQUAL(db.synonym_keys_begin(), db.synonym_keys_end());
+	// FIXME: arrange for input b to not have a termlist table.
+//	TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
+    }
+
+    return true;
+}
+

@@ -1,3 +1,11 @@
+Thu Sep 30 05:32:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Only
+	  skip producing an output table when there are only some inputs
+	  for the termlist - for spellings and synonyms, we want to produce
+	  an output in this case.
+	* tests/api_compact.cc: Add regression test compactmissingtables1.
+
 Wed Sep 29 11:13:18 GMT 2010  Olly Betts <olly@survex.com>
 
 	* common/document.h: Initialise docid to 0 when creating a document
