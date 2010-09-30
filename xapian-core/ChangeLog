@@ -1,3 +1,7 @@
+Thu Sep 30 15:21:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Convert compaction tests to use the new API.
+
 Thu Sep 30 14:54:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc,
