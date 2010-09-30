@@ -1,3 +1,9 @@
+Thu Sep 30 14:54:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc,
+	  backends/flint/flint_compact.cc: Correct filenames in @file doxygen
+	  comments.
+
 Thu Sep 30 14:46:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc: Use the ChertVersion, etc classes to make sure that

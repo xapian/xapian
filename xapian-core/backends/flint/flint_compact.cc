@@ -1,4 +1,4 @@
-/** @file flint_compact-flint.cc
+/** @file flint_compact.cc
  * @brief Compact a flint database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts

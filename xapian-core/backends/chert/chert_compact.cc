@@ -1,4 +1,4 @@
-/** @file xapian-compact-chert.cc
+/** @file chert_compact.cc
  * @brief Compact a chert database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
