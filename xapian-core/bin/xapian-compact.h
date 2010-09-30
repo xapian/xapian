@@ -47,4 +47,11 @@ compact_flint(const char * destdir, const std::vector<std::string> & sources,
 	      compaction_level compaction, bool multipass,
 	      Xapian::docid last_docid);
 
+void set_status(const std::string & table, const std::string & status);
+
+std::string
+resolve_duplicate_metadata(const std::string & key,
+			   const std::string & tag1,
+			   const std::string & tag2);
+
 #endif

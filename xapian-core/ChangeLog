@@ -1,3 +1,7 @@
+Thu Sep 30 06:16:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* bin/: Eliminate uses of <iostream> in bin/xapian-compact-*.cc.
+
 Thu Sep 30 05:44:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc,

@@ -700,3 +700,23 @@ XapianCompactor::compact()
 	}
     }
 }
+
+void
+set_status(const string & table, const string & status)
+{
+    if (!status.empty())
+	cout << '\r' << table << ": " << status << endl;
+    else
+	cout << table << " ..." << flush;
+}
+
+string
+resolve_duplicate_metadata(const string & key,
+			   const string & tag1,
+			   const string & tag2)
+{
+    (void)key;
+    if (tag1 != tag2)
+	cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+    return tag1;
+}

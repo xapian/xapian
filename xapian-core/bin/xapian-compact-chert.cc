@@ -24,7 +24,6 @@
 #include "xapian-compact.h"
 
 #include <algorithm>
-#include <iostream>
 #include <queue>
 
 #include <cstdio>
@@ -282,10 +281,10 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 
 	    const string & tag = cur->tag;
 	    if (key == last_key) {
-		if (tag != last_tag)
-		    cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+		last_tag = resolve_duplicate_metadata(key, last_tag, tag);
 	    } else {
-		out->add(key, tag);
+		if (!last_key.empty())
+		    out->add(last_key, last_tag);
 		last_key = key;
 		last_tag = tag;
 	    }
@@ -297,6 +296,8 @@ merge_postlists(ChertTable * out, vector<Xapian::docid>::const_iterator offset,
 		delete cur;
 	    }
 	}
+	if (!last_key.empty())
+	    out->add(last_key, last_tag);
     }
 
     {
@@ -931,7 +932,7 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	// need special handling.  The other tables have keys sorted in
 	// docid order, so we can merge them by simply copying all the keys
 	// from each source table in turn.
-	cout << t->name << " ..." << flush;
+	set_status(t->name, string());
 
 	string dest = destdir;
 	dest += '/';
@@ -972,16 +973,18 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	// If any inputs lack a termlist table, suppress it in the output.
 	if (t->type == TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
-		cout << '\r' << t->name << ": " << inputs_present
-		     << " of " << sources.size() << " inputs present "
-			"so suppressing output" << endl;
+		string m = str(inputs_present);
+		m += " of ";
+		m += str(sources.size());
+		m += " inputs present, so suppressing output";
+		set_status(t->name, m);
 		continue;
 	    }
 	    output_will_exist = false;
 	}
 
 	if (!output_will_exist) {
-	    cout << '\r' << t->name << ": doesn't exist" << endl;
+	    set_status(t->name, "doesn't exist");
 	    continue;
 	}
 
@@ -1023,7 +1026,6 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	out.flush_db();
 	out.commit(1);
 
-	cout << '\r' << t->name << ": ";
 	off_t out_size = 0;
 	if (!bad_stat) {
 	    struct stat sb;
@@ -1034,21 +1036,30 @@ compact_chert(const char * destdir, const vector<string> & sources,
 	    }
 	}
 	if (bad_stat) {
-	    cout << "Done (couldn't stat all the DB files)";
+	    set_status(t->name, "Done (couldn't stat all the DB files)");
 	} else {
+	    string status;
 	    if (out_size == in_size) {
-		cout << "Size unchanged (";
-	    } else if (out_size < in_size) {
-		cout << "Reduced by "
-		     << 100 * double(in_size - out_size) / in_size << "% "
-		     << in_size - out_size << "K (" << in_size << "K -> ";
+		status = "Size unchanged (";
 	    } else {
-		cout << "INCREASED by "
-		     << 100 * double(out_size - in_size) / in_size << "% "
-		     << out_size - in_size << "K (" << in_size << "K -> ";
+		off_t delta;
+		if (out_size < in_size) {
+		    delta = in_size - out_size;
+		    status = "Reduced by ";
+		} else {
+		    delta = out_size - in_size;
+		    status = "INCREASED by ";
+		}
+		status += str(100 * delta / in_size);
+		status += "% ";
+		status += str(delta);
+		status += "K (";
+		status += str(in_size);
+		status += "K -> ";
 	    }
-	    cout << out_size << "K)";
+	    status += str(out_size);
+	    status += "K)";
+	    set_status(t->name, status);
 	}
-	cout << endl;
     }
 }
