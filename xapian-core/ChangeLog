@@ -1,3 +1,8 @@
+Thu Sep 30 15:23:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Remove unwanted check left over from cut and
+	  pasting code from a previous testcase.
+
 Thu Sep 30 15:21:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Convert compaction tests to use the new API.

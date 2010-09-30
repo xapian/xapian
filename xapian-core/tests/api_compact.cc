@@ -451,8 +451,6 @@ DEFINE_TESTCASE(compactmissingtables1, generated) {
     compact.add_source(b);
     compact.compact();
 
-    check_sparse_uid_terms(out);
-
     {
 	Xapian::Database db(out);
 	TEST_NOT_EQUAL(db.spellings_begin(), db.spellings_end());
