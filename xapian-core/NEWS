@@ -1,4 +1,4 @@
- 15034       olly Thu Sep 30 06:16:11 GMT 2010  Olly Betts <olly@survex.com>
+ 15043       olly Thu Sep 30 15:26:52 GMT 2010  Olly Betts <olly@survex.com>
 
 backport candidates:
 
@@ -79,21 +79,26 @@ Xapian-core 1.2.4 (2010-09-30):
 
 API:
 
+	* Convert compaction code into a Xapian::Compactor class, and make
+	  xapian-compact a simple wrapper around this new class.  (ticket#175)
+
+    FIXME: todo
+    + document Xapian::Compactor (doxygen comments, maybe topic doc)
+    + replace cut-and-pasted code in backends/*/*_compact.cc with calls to the
+	original version
+    + factor out common code from backend versions?
+
 	* bin/xapian-compact.cc: Add support for compacting to a stub database,
 	  which can be one of the inputs (for atomic update).
-	* tests/api_compact.cc: Add testcases compactstub3 and compactstub4 as
-	  feature tests for this.
 
 	* bin/xapian-compact.cc: Inputs can now be stub database directories
 	or files,
 	  in which case the databases in the stub are used as inputs.
-	* tests/api_compact.cc: Add feature test compactstub1.
 
 	* bin/xapian-compact-brass.cc,bin/xapian-compact-chert.cc: Only
 	  skip producing an output table when there are only some inputs
 	  for the termlist - for spellings and synonyms, we want to produce
 	  an output in this case.
-	* tests/api_compact.cc: Add regression test compactmissingtables1.
 
 testsuite:
 
