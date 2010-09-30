@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007 Olly Betts
+ * Copyright 2003,2004,2005,2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -193,7 +193,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
         Internal()
 	    : database(0), data_here(false), values_here(false),
-	      terms_here(false) { }
+	      terms_here(false), did(0) { }
 
 	/** Destructor.
 	 *

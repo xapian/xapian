@@ -65,3 +65,12 @@ DEFINE_TESTCASE(document1, !backend) {
     TEST(doc.termlist_begin() == doc.termlist_end());
     return true;
 }
+
+/// Regression test - the docid wasn't initialised prior to 1.0.22/1.2.4.
+DEFINE_TESTCASE(document2, !backend) {
+    Xapian::Document doc;
+    // The return value is uninitialised, so running under valgrind this
+    // will fail reliably prior to the fix.
+    TEST_EQUAL(doc.get_docid(), 0);
+    return true;
+}
