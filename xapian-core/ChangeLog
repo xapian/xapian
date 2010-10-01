@@ -1,3 +1,7 @@
+Fri Oct 01 02:00:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Oct 01 01:54:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/brass/brass_compact.cc,

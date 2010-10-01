@@ -1,4 +1,4 @@
- 15043       olly Thu Sep 30 15:26:52 GMT 2010  Olly Betts <olly@survex.com>
+ 15046       olly Fri Oct 01 01:54:41 GMT 2010  Olly Betts <olly@survex.com>
 
 backport candidates:
 
@@ -51,7 +51,7 @@ backported to 1.0.22:
 	* configure.ac: Enable use of SSE maths on x86 by default with Sun's
 	  compiler.
 
-Xapian-core 1.2.4 (2010-09-30):
+Xapian-core 1.2.4 (2010-10-01):
 
  14980       olly Thu Sep 09 11:18:47 GMT 2010  Olly Betts <olly@survex.com>
 	* INSTALL: Raise recommended GCC version from 3.3 to 4.1, since that's
@@ -84,9 +84,6 @@ API:
 
     FIXME: todo
     + document Xapian::Compactor (doxygen comments, maybe topic doc)
-    + replace cut-and-pasted code in backends/*/*_compact.cc with calls to the
-	original version
-    + factor out common code from backend versions?
 
 	* bin/xapian-compact.cc: Add support for compacting to a stub database,
 	  which can be one of the inputs (for atomic update).
