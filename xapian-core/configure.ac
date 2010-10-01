@@ -468,8 +468,8 @@ AC_ARG_ENABLE(documentation,
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
-  esac])
-test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
+  esac],
+  [enable_documentation=$USE_MAINTAINER_MODE])
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
 
