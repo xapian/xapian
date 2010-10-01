@@ -40,6 +40,7 @@
 #include "utils.h"
 #include "valuestats.h"
 
+#include "../prefix_compressed_strings.h"
 #include <xapian.h>
 
 using namespace std;
@@ -453,100 +454,6 @@ struct CursorGt {
 	if (b->after_end()) return false;
 	if (a->after_end()) return true;
 	return (a->current_key > b->current_key);
-    }
-};
-
-#define MAGIC_XOR_VALUE 96
-
-// FIXME: copied from backends/flint/flint_spelling.cc.
-class PrefixCompressedStringItor {
-    const unsigned char * p;
-    size_t left;
-    string current;
-
-    PrefixCompressedStringItor(const unsigned char * p_, size_t left_,
-			       const string &current_)
-	: p(p_), left(left_), current(current_) { }
-
-  public:
-    PrefixCompressedStringItor(const std::string & s)
-	: p(reinterpret_cast<const unsigned char *>(s.data())),
-	  left(s.size()) {
-	if (left) {
-	    operator++();
-	} else {
-	    p = NULL;
-	}
-    }
-
-    const string & operator*() const {
-	return current;
-    }
-
-    PrefixCompressedStringItor operator++(int) {
-	const unsigned char * old_p = p;
-	size_t old_left = left;
-	string old_current = current;
-	operator++();
-	return PrefixCompressedStringItor(old_p, old_left, old_current);
-    }
-
-    PrefixCompressedStringItor & operator++() {
-	if (left == 0) {
-	    p = NULL;
-	} else {
-	    if (!current.empty()) {
-		current.resize(*p++ ^ MAGIC_XOR_VALUE);
-		--left;
-	    }
-	    size_t add;
-	    if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
-		throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
-	    current.append(reinterpret_cast<const char *>(p + 1), add);
-	    p += add + 1;
-	    left -= add + 1;
-	}
-	return *this;
-    }
-
-    bool at_end() const {
-	return p == NULL;
-    }
-};
-
-// FIXME: copied from backends/flint/flint_spelling.cc.
-class PrefixCompressedStringWriter {
-    string current;
-    string & out;
-
-  public:
-    PrefixCompressedStringWriter(string & out_) : out(out_) { }
-
-    void append(const string & word) {
-	// If this isn't the first entry, see how much of the previous one
-	// we can reuse.
-	if (!current.empty()) {
-	    size_t len = min(current.size(), word.size());
-	    size_t i;
-	    for (i = 0; i < len; ++i) {
-		if (current[i] != word[i]) break;
-	    }
-	    out += char(i ^ MAGIC_XOR_VALUE);
-	    out += char((word.size() - i) ^ MAGIC_XOR_VALUE);
-	    out.append(word.data() + i, word.size() - i);
-	} else {
-	    out += char(word.size() ^ MAGIC_XOR_VALUE);
-	    out += word;
-	}
-	current = word;
-    }
-};
-
-struct PrefixCompressedStringItorGt {
-    /// Return true if and only if a's string is strictly greater than b's.
-    bool operator()(const PrefixCompressedStringItor *a,
-		    const PrefixCompressedStringItor *b) {
-	return (**a > **b);
     }
 };
 
