@@ -19,10 +19,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-import sys
-import xapian
-import shutil
+import os
 import random
+import shutil
+import sys
+import tempfile
+import xapian
 
 from testsuite import *
 
@@ -1409,6 +1411,88 @@ def test_import_star():
 
     """
     import test_xapian_star
+
+def test_compactor():
+    """Test that xapian.Compactor works.
+
+    """
+    tmpdir = tempfile.mkdtemp()
+    try:
+        db1path = os.path.join(tmpdir, 'db1')
+        db2path = os.path.join(tmpdir, 'db2')
+        db3path = os.path.join(tmpdir, 'db3')
+
+        # Set up a couple of sample input databases
+        db1 = xapian.WritableDatabase(db1path, xapian.DB_CREATE_OR_OVERWRITE)
+        doc1 = xapian.Document()
+        doc1.add_term('Hello')
+        doc1.add_term('Hello1')
+        doc1.add_value(0, 'Val1')
+        db1.set_metadata('key', '1')
+        db1.set_metadata('key1', '1')
+        db1.add_document(doc1)
+        db1.flush()
+
+        db2 = xapian.WritableDatabase(db2path, xapian.DB_CREATE_OR_OVERWRITE)
+        doc2 = xapian.Document()
+        doc2.add_term('Hello')
+        doc2.add_term('Hello2')
+        doc2.add_value(0, 'Val2')
+        db2.set_metadata('key', '2')
+        db2.set_metadata('key2', '2')
+        db2.add_document(doc2)
+        db2.flush()
+
+        # Compact with the default compactor
+        # Metadata conflicts are resolved by picking the first value
+        c = xapian.Compactor()
+        c.add_source(db1path)
+        c.add_source(db2path)
+        c.set_destdir(db3path)
+        c.compact()
+
+        db3 = xapian.Database(db3path)
+        expect([(item.term, item.termfreq) for item in db3.allterms()],
+               [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
+        expect(db3.get_document(1).get_value(0), 'Val1')
+        expect(db3.get_document(2).get_value(0), 'Val2')
+        expect(db3.get_metadata('key'), '1')
+        expect(db3.get_metadata('key1'), '1')
+        expect(db3.get_metadata('key2'), '2')
+
+        context("testing a custom compactor which merges duplicate metadata")
+        class MyCompactor(xapian.Compactor):
+            def __init__(self):
+                xapian.Compactor.__init__(self)
+                self.log = []
+
+            def set_status(self, table, status):
+                if len(status) == 0:
+                    self.log.append('Starting %s' % table)
+                else:
+                    self.log.append('%s: %s' % (table, status))
+
+            def resolve_duplicate_metadata(self, key, val1, val2):
+                return val1 + ',' + val2
+
+        c = MyCompactor()
+        c.add_source(db1path)
+        c.add_source(db2path)
+        c.set_destdir(db3path)
+        c.compact()
+        log = '\n'.join(c.log)
+        # Check we got some messages in the log
+        expect('Starting postlist' in log, True)
+
+        db3 = xapian.Database(db3path)
+        expect([(item.term, item.termfreq) for item in db3.allterms()],
+               [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
+        expect(db3.get_metadata('key'), '1,2')
+        expect(db3.get_metadata('key1'), '1')
+        expect(db3.get_metadata('key2'), '2')
+
+    finally:
+        shutil.rmtree(tmpdir)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

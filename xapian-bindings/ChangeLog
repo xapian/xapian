@@ -1,3 +1,9 @@
+Fri Oct 01 12:10:55 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/generate-python-exceptions,
+	  python/pythontest2.py,xapian.i: Wrap the new Xapian::Compactor
+	  class as a Director class, and add a testcase for it in python.
+
 Wed Sep 29 05:35:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Fix to delete libxapian_jni.la rather than

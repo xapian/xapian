@@ -797,6 +797,9 @@ class Remote {
 
 %include <xapian/valuesetmatchdecider.h>
 
+%feature("director") Xapian::Compactor;
+%include <xapian/compactor.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON

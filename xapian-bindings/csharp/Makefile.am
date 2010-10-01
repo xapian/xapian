@@ -15,6 +15,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	BoolWeight.cs \
 	Brass.cs \
 	Chert.cs \
+	Compactor.cs \
 	Database.cs \
 	DateValueRangeProcessor.cs \
 	Document.cs \

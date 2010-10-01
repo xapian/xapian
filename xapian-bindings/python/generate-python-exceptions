@@ -24,7 +24,7 @@ my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
     MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter KeyMaker
-    StemImplementation
+    StemImplementation Compactor
 );
 
 my @posting_source_virtual_methods = qw(
@@ -192,6 +192,22 @@ print FD <<'EOF';
     }
 }
 %exception Xapian::StemImplementation::get_description {
+    try {
+	$action
+    } catch (...) {
+	Xapian::SetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::Compactor::set_status {
+    try {
+	$action
+    } catch (...) {
+	Xapian::SetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::Compactor::resolve_duplicate_metadata {
     try {
 	$action
     } catch (...) {
