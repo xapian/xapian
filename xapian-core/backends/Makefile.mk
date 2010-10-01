@@ -1,5 +1,6 @@
 noinst_HEADERS +=\
 	backends/flint_lock.h\
+	backends/byte_length_strings.h\
 	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h
 

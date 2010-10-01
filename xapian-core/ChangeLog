@@ -1,3 +1,11 @@
+Fri Oct 01 01:54:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/brass/brass_compact.cc,
+	  backends/byte_length_strings.h,backends/chert/chert_compact.cc,
+	  backends/flint/flint_compact.cc: Factor out 3 copies of
+	  ByteLengthPrefixedStringItor and ByteLengthPrefixedStringItorGt into
+	  their own file.
+
 Fri Oct 01 01:28:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/brass/brass_compact.cc,

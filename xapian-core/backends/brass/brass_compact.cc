@@ -40,6 +40,7 @@
 #include "utils.h"
 #include "valuestats.h"
 
+#include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
 #include <xapian.h>
 
@@ -570,56 +571,6 @@ merge_spellings(BrassTable * out,
 	out->add(key, tag);
     }
 }
-
-class ByteLengthPrefixedStringItor {
-    const unsigned char * p;
-    size_t left;
-
-    ByteLengthPrefixedStringItor(const unsigned char * p_, size_t left_)
-	: p(p_), left(left_) { }
-
-  public:
-    ByteLengthPrefixedStringItor(const std::string & s)
-	: p(reinterpret_cast<const unsigned char *>(s.data())),
-	  left(s.size()) { }
-
-    string operator*() const {
-	size_t len = *p ^ MAGIC_XOR_VALUE;
-	return string(reinterpret_cast<const char *>(p + 1), len);
-    }
-
-    ByteLengthPrefixedStringItor operator++(int) {
-	const unsigned char * old_p = p;
-	size_t old_left = left;
-	operator++();
-	return ByteLengthPrefixedStringItor(old_p, old_left);
-    }
-
-    ByteLengthPrefixedStringItor & operator++() {
-	if (!left) {
-	    throw Xapian::DatabaseCorruptError("Bad synonym data (none left)");
-	}
-	size_t add = (*p ^ MAGIC_XOR_VALUE) + 1;
-	if (left < add) {
-	    throw Xapian::DatabaseCorruptError("Bad synonym data (too little left)");
-	}
-	p += add;
-	left -= add;
-	return *this;
-    }
-
-    bool at_end() const {
-	return left == 0;
-    }
-};
-
-struct ByteLengthPrefixedStringItorGt {
-    /// Return true if and only if a's string is strictly greater than b's.
-    bool operator()(const ByteLengthPrefixedStringItor *a,
-		    const ByteLengthPrefixedStringItor *b) {
-	return (**a > **b);
-    }
-};
 
 static void
 merge_synonyms(BrassTable * out,
