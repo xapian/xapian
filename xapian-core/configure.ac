@@ -367,7 +367,8 @@ AC_ARG_ENABLE([sse],
   [case ${enableval} in
     sse|sse2|yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-sse or --disable-sse]) ;;
-  esac])
+  esac],
+  [enable_sse=yes])
 
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt

@@ -1,3 +1,7 @@
+Fri Oct 01 09:29:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default enable_sse to yes to fix build on x86.
+
 Fri Oct 01 09:10:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo in SSE handling code which stopped it
