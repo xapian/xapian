@@ -1126,7 +1126,7 @@ case $host_cpu in
       AC_MSG_RESULT([no])
     else
       dnl Default to sse2.
-      test enable_sse != yes || enable_sse=sse2
+      test "$enable_sse" != yes || enable_sse=sse2
       case $compiler in
       gcc)
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
