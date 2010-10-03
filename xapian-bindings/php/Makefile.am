@@ -31,7 +31,7 @@ phpext_LTLIBRARIES = xapian.la
 # to be a suitable location which is guaranteed to be in the include_path
 # by default.
 phpincdir = $(datadir)/php$(PHP_MAJOR_VERSION)
-phpinc_DATA = php$(PHP_MAJOR_VERSION)/xapian.php
+phpinc_DATA = php5/xapian.php
 
 # Remove the .la file - xapian.la is never linked against (it's a module)
 # and PHP doesn't use libltdl.  Note that the library gets installed by
@@ -48,7 +48,7 @@ uninstall-local:
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-xapian_la_SOURCES = php$(PHP_MAJOR_VERSION)/xapian_wrap.cc
+xapian_la_SOURCES = php5/xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
 if MAINTAINER_MODE

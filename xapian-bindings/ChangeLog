@@ -1,3 +1,8 @@
+Sun Oct 03 12:10:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/Makefile.am: Fix $(PHP_MAJOR_VERSION) to literal 5 in two places.
+
 Sun Oct 03 12:09:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
