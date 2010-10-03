@@ -1,3 +1,11 @@
+Sun Oct 03 06:39:53 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/orpostlist.cc,matcher/orpostlist.h: Back out the addition of
+	  OrPostList::check() in 1.0.21.  This change slows down some other
+	  cases, which we've addressed in 1.2.x, but we now want to avoid
+	  invasive changes in 1.0.x, so restoring things to how they were in
+	  1.0.20 seems the prudent course of action.
+
 Thu Sep 30 10:03:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

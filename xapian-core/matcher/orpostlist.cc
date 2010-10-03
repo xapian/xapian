@@ -3,7 +3,6 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2003,2004,2007 Olly Betts
- * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -180,87 +179,6 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 
     PostList *ret = r;
     r = NULL;
-    RETURN(ret);
-}
-
-PostList *
-OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
-{
-    DEBUGCALL(MATCH, PostList *, "OrPostList::check", did << ", " << w_min);
-    if (w_min > minmax) {
-	// we can replace the OR with another operator
-	PostList *ret;
-	if (w_min > lmax) {
-	    if (w_min > rmax) {
-		DEBUGLINE(MATCH, "OR -> AND (in check)");
-		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
-		did = std::max(did, std::max(lhead, rhead));
-	    } else {
-		DEBUGLINE(MATCH, "OR -> AND MAYBE (in check) (1)");
-		AndMaybePostList * ret2 = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
-		ret = ret2;
-		handle_prune(ret, ret2->sync_rhs(w_min));
-		did = std::max(did, rhead);
-	    }
-	} else {
-	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
-	    Assert(w_min > rmax);
-	    DEBUGLINE(MATCH, "OR -> AND MAYBE (in check) (2)");
-	    AndMaybePostList * ret2 = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
-	    ret = ret2;
-	    handle_prune(ret, ret2->sync_rhs(w_min));
-	    did = std::max(did, lhead);
-	}
-
-	l = r = NULL;
-	check_handling_prune(ret, did, w_min, matcher, valid);
-	RETURN(ret);
-    }
-
-    bool ldry = false;
-    bool lvalid = false;
-    bool rvalid = false;
-    if (lhead <= did) {
-	check_handling_prune(l, did, w_min - rmax, matcher, lvalid);
-	ldry = l->at_end();
-    }
-
-    if (rhead <= did) {
-	check_handling_prune(r, did, w_min - lmax, matcher, rvalid);
-
-	if (r->at_end()) {
-	    PostList *ret = l;
-	    l = NULL;
-	    valid = lvalid;
-	    RETURN(ret);
-	}
-	if (rvalid) {
-	    rhead = r->get_docid();
-	} else {
-	    rhead = did + 1;
-	}
-    }
-
-    if (!ldry) {
-	if (lvalid) {
-	    lhead = l->get_docid();
-	} else {
-	    lhead = did + 1;
-	}
-
-	if (lhead < rhead) {
-	    valid = lvalid;
-	} else if (rhead < lhead) {
-	    valid = rvalid;
-	} else {
-	    valid = lvalid || rvalid;
-	}
-	RETURN(NULL);
-    }
-
-    PostList *ret = r;
-    r = NULL;
-    valid = rvalid;
     RETURN(ret);
 }
 
