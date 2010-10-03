@@ -1,3 +1,22 @@
+Xapian-bindings 1.0.22 (2010-10-03):
+
+Packaging:
+
+* RPM: Don't package _XapianSharp.la.
+
+CSharp:
+
+* Don't install _XapianSharp.la.
+
+Python:
+
+* configure: Use sys.version_info tuple, rather than string splicing which
+  assumes the Python "major.minor" is 3 characters (which would fail if Python
+  2.10 were ever released, for example).
+
+* Add test_xapian_star.py to distribution - fixes failure of "test_import_star"
+  testcase in pythontest.py.
+
 Xapian-bindings 1.0.21 (2010-06-18):
 
 Python:
