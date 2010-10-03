@@ -1,32 +1,24 @@
- 14994       olly Thu Sep 23 04:44:34 GMT 2010  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.22 (2010-09-23):
+Xapian-core 1.0.22 (2010-10-03):
 
 API:
+
+* Xapian::Document: Initialise docid to 0 when creating a document from
+  scratch, as documented.
 
 * Xapian::QueryParser: Allow phrase generators between a probabilistic prefix
   and the term itself (e.g. path:/usr/local).
 
-testsuite:
-
-
 matcher:
 
-
-flint backend:
-
-
-quartz backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
+* Back out the OP_OR efficiency improvement made in 1.0.21 since this change
+  slows down some other common cases.  We'll address this fully in 1.2.4, but
+  that fix is more invasive than we are comfortable with for 1.0.x at this
+  point.
 
 build system:
 
+* xapian-config: Add --static option which makes other options report values
+  for static linking.
 
 documentation:
 
@@ -38,9 +30,6 @@ documentation:
 * Fix documentation for Xapian::timeout type - it holds a time interval in
   milliseconds not microseconds (the API docs for the methods which use it
   explicitly correctly document that the timeouts are in milliseconds).
-
-examples:
-
 
 portability:
 
@@ -67,9 +56,6 @@ portability:
 packaging:
 
 * xapian-core.spec: Add cmake related files to RPM packaging.
-
-debug code:
-
 
 Xapian-core 1.0.21 (2010-06-18):
 
