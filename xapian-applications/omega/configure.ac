@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.0.21], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.0.22], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])

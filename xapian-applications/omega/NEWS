@@ -1,3 +1,9 @@
+Omega 1.0.22 (2010-10-03):
+
+portability:
+
+* Fix to compile with Sun C++.
+
 Omega 1.0.21 (2010-05-18):
 
 portability:
