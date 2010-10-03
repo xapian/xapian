@@ -1,3 +1,10 @@
+Sun Oct 03 10:18:04 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Default enable_sse to yes to fix build on x86.
+	* configure.ac: Fix typo in SSE handling code which stopped it
+	  defaulting as intended.
+
 Sun Oct 03 06:39:53 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/orpostlist.cc,matcher/orpostlist.h: Back out the addition of
