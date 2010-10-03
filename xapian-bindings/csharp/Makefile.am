@@ -69,6 +69,18 @@ EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
 lib_LTLIBRARIES = _XapianSharp.la
 
+# Remove the .la file - _XapianSharp.la is never linked against (it's a module)
+# and C# doesn't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
+install-data-hook:
+	rm -f $(DESTDIR)$(libdir)/_XapianSharp.la
+
+# Because we don't install the .la file, "make uninstall" doesn't work and
+# we need to remove the file ourselves.
+uninstall-local:
+	eval `grep '^dlname=' $(lib_LTLIBRARIES)` ; \
+	  rm -f $(DESTDIR)$(libdir)/"$$dlname"
+
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 _XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 _XapianSharp_la_SOURCES = xapian_wrap.cc

@@ -198,7 +198,6 @@ make install DESTDIR=%{buildroot}
 %if 0%{?!_without_csharp:1}
 %files csharp
 %defattr(-, root, root)
-%{_libdir}/_XapianSharp.la
 %{_libdir}/_XapianSharp.so
 %{_libdir}/mono/XapianSharp
 %{_libdir}/mono/gac/XapianSharp
