@@ -38,7 +38,7 @@ try {
 	int rc = 1;
 	if (argv[1]) {
 	    if (strcmp(argv[1], "--version") == 0) {
-		cout << "simpleexpand" << endl;
+		cout << "simplesearch" << endl;
 		exit(0);
 	    }
 	    if (strcmp(argv[1], "--help") == 0) {
