@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2010 Olly Betts
 .. Copyright (C) 2009 Lemur Consulting Ltd
 
 =============================
@@ -66,10 +66,9 @@ many documents they looked at by calling ``spy0.get_total()``.  (All the spies
 will have looked at the same number of documents.)  You can read the values
 from, say, ``spy0`` like this::
 
-    const map<string, size_t> & cat = spy0.get_values();
-    map<string, size_t>::const_iterator i;
-    for (i = cat.begin(); i != cat.end(); ++i) {
-        cout << i->first << ": " << i->second << endl;
+    Xapian::TermIterator i;
+    for (i = spy0.values_begin(); i != spy0.values_end(); ++i) {
+        cout << *i << ": " << i->get_termfreq() << endl;
     }
 
 Restricting by category values
