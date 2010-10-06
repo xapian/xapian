@@ -1,3 +1,7 @@
+Wed Oct 06 14:30:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.0.22 and ChangeLog.
+
 Wed Oct 06 12:39:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add two more testcases for having a phrase
