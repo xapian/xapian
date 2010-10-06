@@ -1,3 +1,8 @@
+Wed Oct 06 12:31:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/index.html: Add links to replication and facets documents, and
+	  fix typo in serialistion document link.
+
 Wed Oct 06 12:12:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am,docs/categorisation.rst,docs/facets.rst: Change the
