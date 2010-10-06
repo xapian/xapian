@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,9 +32,6 @@
 namespace Xapian {
 
 /** Base class which provides an "external" source of postings.
- *
- *  Warning: the PostingSource interface is currently experimental, and is
- *  liable to change between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow assignment.

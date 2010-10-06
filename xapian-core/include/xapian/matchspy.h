@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -161,9 +161,6 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 
 
 /** Class for counting the frequencies of values in the matching documents.
- *
- *  Warning: this API is currently experimental, and is liable to change
- *  between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
   public:
