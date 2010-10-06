@@ -1,3 +1,7 @@
+Wed Oct 06 08:36:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/simplesearch.cc: Fix cut and paste error in usage message.
+
 Wed Oct 06 00:12:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/emptypostlist.cc,matcher/queryoptimiser.cc: In the query

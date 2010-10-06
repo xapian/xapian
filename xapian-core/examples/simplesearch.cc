@@ -45,7 +45,7 @@ try {
 		rc = 0;
 	    }
 	}
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY [-- [DOCID...]]" << endl;
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY" << endl;
 	exit(rc);
     }
 
