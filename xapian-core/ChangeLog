@@ -1,3 +1,8 @@
+Wed Oct 06 12:39:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add two more testcases for having a phrase
+	  generator between prefix and term.
+
 Wed Oct 06 12:37:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h,include/xapian/postingsource.h: Remove

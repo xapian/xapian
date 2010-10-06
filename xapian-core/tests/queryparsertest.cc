@@ -75,6 +75,8 @@ static const test test_or_queries[] = {
     // Regression test for bug introduced (and fixed) in SVN prior to 1.0.0.
     { "author:/path/name", "(Apath:(pos=1) PHRASE 2 Aname:(pos=2))" },
     // Feature tests for change to allow phrase generators after prefix in 1.2.4.
+    { "author:/path", "ZApath:(pos=1)" },
+    { "author:-Foo", "Afoo:(pos=1)" },
     { "author:/", "Zauthor:(pos=1)" },
     { "author::", "Zauthor:(pos=1)" },
     { "author:/ foo", "(Zauthor:(pos=1) OR Zfoo:(pos=2))" },
