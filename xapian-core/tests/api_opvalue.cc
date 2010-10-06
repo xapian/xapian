@@ -88,6 +88,43 @@ DEFINE_TESTCASE(valuerange2, writable) {
     return true;
 }
 
+static void
+make_valuerange5(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_value(0, "BOOK");
+    db.add_document(doc);
+    doc.add_value(0, "VOLUME");
+    db.add_document(doc);
+}
+
+// Check that lower and upper bounds are used.
+DEFINE_TESTCASE(valuerange5, generated) {
+    Xapian::Database db = get_database("valuerange5", make_valuerange5);
+    if (db.get_value_lower_bound(0).empty()) {
+	// This backend (i.e. flint) doesn't support value bounds, or else
+	// there are no instances of this value.  In the former case,
+	// get_value_upper_bound() should throw an exception.
+	TEST_EXCEPTION(Xapian::UnimplementedError,
+		db.get_value_upper_bound(0));
+	return true;
+    }
+
+    Xapian::Enquire enq(db);
+
+    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 0, "APPLE", "BANANA");
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+
+    Xapian::Query query2(Xapian::Query::OP_VALUE_RANGE, 0, "WALRUS", "ZEBRA");
+    enq.set_query(query2);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+
+    return true;
+}
+
 // Feature test for Query::OP_VALUE_GE.
 DEFINE_TESTCASE(valuege1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));

@@ -116,6 +116,12 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    Xapian::valueno valno(query->parameter);
 	    const string & range_begin = query->tname;
 	    const string & range_end = query->str_parameter;
+	    const string & lb = db.get_value_lower_bound(valno);
+	    if (!lb.empty() &&
+		(range_end < lb ||
+		 range_begin > db.get_value_upper_bound(valno))) {
+		RETURN(new EmptyPostList);
+	    }
 	    RETURN(new ValueRangePostList(&db, valno, range_begin, range_end));
 	}
 
@@ -124,6 +130,11 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 		++total_subqs;
 	    Xapian::valueno valno(query->parameter);
 	    const string & range_begin = query->tname;
+	    const string & lb = db.get_value_lower_bound(valno);
+	    if (!lb.empty() &&
+		range_begin > db.get_value_upper_bound(valno)) {
+		RETURN(new EmptyPostList);
+	    }
 	    RETURN(new ValueGePostList(&db, valno, range_begin));
 	}
 
@@ -132,6 +143,9 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 		++total_subqs;
 	    Xapian::valueno valno(query->parameter);
 	    const string & range_end = query->tname;
+	    if (range_end < db.get_value_lower_bound(valno)) {
+		RETURN(new EmptyPostList);
+	    }
 	    RETURN(new ValueRangePostList(&db, valno, "", range_end));
 	}
 
