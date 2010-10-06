@@ -17,7 +17,7 @@ HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst categorisation.rst deprecation.rst glossary.rst \
+RSTDOCS = admin_notes.rst facets.rst deprecation.rst glossary.rst \
  postingsource.rst replication.rst replication_protocol.rst \
  sorting.rst serialisation.rst spelling.rst synonyms.rst \
  termgenerator.rst valueranges.rst

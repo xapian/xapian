@@ -2,9 +2,9 @@
 .. Copyright (C) 2007,2010 Olly Betts
 .. Copyright (C) 2009 Lemur Consulting Ltd
 
-=============================
-Xapian Categorisation Support
-=============================
+=======================
+Xapian Faceting Support
+=======================
 
 .. contents:: Table of contents
 
@@ -18,28 +18,27 @@ user the ability to narrow down their search by filtering it to only include
 documents with a particular value of a particular category.  This is often
 referred to as ``faceted search``.
 
-In some applications, you may have many different categories (for example
-colour, price, width, height) but not always want to offer all of them
-for every search.  If all the results are red, and none have width, it's
-not useful to offer to narrow the search by colour or width.  Also, the
-user interface may not have room to include every category, so you may
-want to select the "best" few categories to show the user.
+You may have many multiple facets (for example colour, manufacturer, product
+type) so Xapian allows you to handle multiple facets at once.
 
-How to make use of the categorisation functionality
-===================================================
+How to use Faceting
+===================
 
 Indexing
 --------
 
-When indexing a document, you need to add each category in a different
-number value slot.
+When indexing a document, you need to add each facet in a different numbered
+value slot.
 
 Searching
 ---------
 
-At search time, you need to pass a ``Xapian::ValueCountMatchSpy`` object for
-each category you want to look at to ``Xapian::Enquire::add_matchspy()``, like
-so::
+Finding Facets
+~~~~~~~~~~~~~~
+
+At search time, for each facet you want to consider, you need to call
+``Xapian::Enquire::add_matchspy()`` with a ``Xapian::ValueCountMatchSpy``
+object, like so::
 
     Xapian::ValueCountMatchSpy spy0(0);
     Xapian::ValueCountMatchSpy spy1(1);
@@ -55,13 +54,13 @@ so::
     Xapian::MSet mset = enq.get_mset(0, 10, 10000);
 
 The ``10000`` in the call to ``get_mset()`` tells Xapian to check at least
-10000 documents, so the MatchSpies will be passed at least 10000 documents
-to tally category information from (unless fewer than 10000 documents match the
-query, in which case it will see all of them).  Setting this higher will make
-the counts exact, but Xapian will have to do more work for most queries so
-searches will be slower.
+10000 documents, so the MatchSpy objects will be passed at least 10000
+documents to tally facet information from (unless fewer than 10000 documents
+match the query, in which case they will see all of them).  Setting this to
+``db.get_doccount()`` will make the facet counts exact, but Xapian will have to
+do more work for most queries so searches will be slower.
 
-The ``spy`` objects now contain the category information.  You can find out how
+The ``spy`` objects now contain the facet information.  You can find out how
 many documents they looked at by calling ``spy0.get_total()``.  (All the spies
 will have looked at the same number of documents.)  You can read the values
 from, say, ``spy0`` like this::
@@ -71,10 +70,10 @@ from, say, ``spy0`` like this::
         cout << *i << ": " << i->get_termfreq() << endl;
     }
 
-Restricting by category values
-------------------------------
+Restricting by Facet Values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you're using the categorisation to offer the user choices for narrowing down
+If you're using the facets to offer the user choices for narrowing down
 their search results, you then need to be able to apply a suitable filter.
 
 For a single value, you could use ``Xapian::Query::OP_VALUE_RANGE`` with the
