@@ -1,3 +1,7 @@
+Wed Oct 06 12:11:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/internals.html: Add link to replication protocol.
+
 Wed Oct 06 08:36:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* examples/simplesearch.cc: Fix cut and paste error in usage message.
