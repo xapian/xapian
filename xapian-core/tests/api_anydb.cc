@@ -2128,6 +2128,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     };
 
     for (const char **qstr = queries; *qstr; ++qstr) {
+	tout.str(string());
 	Xapian::Query query1 = qp.parse_query(*qstr);
 	tout << "query1: " << query1.get_description() << endl;
 	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {

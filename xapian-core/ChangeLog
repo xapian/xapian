@@ -1,3 +1,7 @@
+Thu Oct 07 03:53:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Clear tout before each iteration in scaleweight1.
+
 Wed Oct 06 14:30:34 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.0.22 and ChangeLog.
