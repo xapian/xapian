@@ -272,7 +272,7 @@ if test no != "$with_python" ; then
 	mingw* | pw32*)
 	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
 	cygwin*)
-	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]]')` ;;
+	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]])'` ;;
 	*)
 	  PYTHON_LIBS= ;;
 	esac

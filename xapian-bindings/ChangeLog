@@ -1,3 +1,8 @@
+Fri Oct 08 13:32:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo in code to set PYTHON_LIBS under cygwin.
+	  (ticket#509)
+
 Fri Oct 01 12:10:55 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* csharp/Makefile.am,python/generate-python-exceptions,
