@@ -1,7 +1,7 @@
 /* selectpostlist.h: Parent class for classes which only return selected docs
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2003,2004,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +43,7 @@ class SelectPostList : public PostList {
     public:
 	PostList *next(Xapian::weight w_min);
 	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+	PostList *check(Xapian::docid did, Xapian::weight w_min, bool &valid);
 
 	// pass all these through to the underlying source PostList
 	Xapian::doccount get_termfreq_max() const { return source->get_termfreq_max(); }

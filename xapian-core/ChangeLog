@@ -1,3 +1,10 @@
+Fri Oct 08 13:10:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/selectpostlist.cc,matcher/selectpostlist.h: Implement
+	  SelectPostList::check() so that check() on OP_NEAR and OP_PHRASE
+	  subqueries won't end up checking potentially huge numbers of
+	  documents.
+
 Fri Oct 08 12:29:50 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Add testcase phrase3 to provide coverage for
