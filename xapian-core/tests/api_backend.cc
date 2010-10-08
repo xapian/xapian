@@ -678,3 +678,18 @@ DEFINE_TESTCASE(failedreplace2, brass || chert || flint) {
     TEST_EQUAL(db.get_termfreq("foo"), 0);
     return true;
 }
+
+/// Coverage for SelectPostList::skip_to().
+DEFINE_TESTCASE(phrase3, positional) {
+    Xapian::Database db = get_database("apitest_phrase");
+
+    const char * phrase_words[] = { "phrase", "near" };
+    Xapian::Query q(Xapian::Query::OP_NEAR, phrase_words, phrase_words + 2, 12);
+    q = Xapian::Query(Xapian::Query::OP_AND_MAYBE, Xapian::Query("pad"), q);
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(q);
+    Xapian::MSet mset = enquire.get_mset(0, 5);
+
+    return true;
+}
