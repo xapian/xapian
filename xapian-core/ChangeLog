@@ -1,3 +1,9 @@
+Fri Oct 08 10:36:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/orpostlist.cc,matcher/orpostlist.h: Fix performance
+	  regression in some cases caused by the introduction of
+	  OrPostList::check().
+
 Thu Oct 07 03:53:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Clear tout before each iteration in scaleweight1.

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2003,2004,2009,2010 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -37,6 +37,7 @@
 class OrPostList : public BranchPostList {
     private:
         Xapian::docid lhead, rhead;
+	bool lvalid, rvalid;
         Xapian::weight lmax, rmax, minmax;
 	Xapian::doccount dbsize;
     public:
