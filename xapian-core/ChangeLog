@@ -1,3 +1,8 @@
+Sun Oct 10 06:14:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* unicode/utf8itor.cc: Correct comments and use bad_cont() in another
+	  place (no change to code once inlining is taken into account).
+
 Sun Oct 10 06:11:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc: Improve test coverage for

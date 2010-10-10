@@ -1,6 +1,6 @@
 /* utf8itor.cc: iterate over a utf8 string.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006,2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,8 @@ Utf8Iterator::calculate_sequence_length() const
     unsigned char ch = *p;
 
     seqlen = 1;
-    // Single byte encoding (0x00-0x7f) or overlong sequence (0x80-0xc1).
+    // Single byte encoding (0x00-0x7f) or invalid (0x80-0xbf) or overlong
+    // sequence (0xc0-0xc1).
     //
     // (0xc0 and 0xc1 would start 2 byte sequences for characters which are
     // representable in a single byte, and we should not decode these.)
@@ -85,7 +86,7 @@ Utf8Iterator::calculate_sequence_length() const
 
     if (ch < 0xe0) {
 	if (p + 1 == end || // Not enough bytes
-	    (p[1] & 0xc0) != 0x80) // Overlong encoding
+	    bad_cont(p[1])) // Invalid
 	    return;
 	seqlen = 2;
 	return;
