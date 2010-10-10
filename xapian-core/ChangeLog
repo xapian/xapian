@@ -1,3 +1,9 @@
+Sun Oct 10 07:29:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Check Stem("none") too.  Check
+	  Stem("").get_description().  No need to check a bogus language name
+	  here as stemlangs2 now does that.
+
 Sun Oct 10 07:22:41 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_stem.cc: Test an invalid languages name with each possible
