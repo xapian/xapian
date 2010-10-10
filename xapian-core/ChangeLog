@@ -1,3 +1,9 @@
+Sun Oct 10 07:22:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_stem.cc: Test an invalid languages name with each possible
+	  byte value at the start to improve coverage of the switch in
+	  api/stem.cc.
+
 Sun Oct 10 06:14:42 GMT 2010  Olly Betts <olly@survex.com>
 
 	* unicode/utf8itor.cc: Correct comments and use bad_cont() in another

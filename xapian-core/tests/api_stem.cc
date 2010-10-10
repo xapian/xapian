@@ -64,3 +64,13 @@ DEFINE_TESTCASE(stem2, !backend) {
 		   Xapian::Stem("en").get_description());
     return true;
 }
+
+// Provides coverage for the switch in api/stem.cc.
+DEFINE_TESTCASE(stemlangs2, !backend) {
+    string lang("xdummy");
+    for (unsigned ch = 0; ch <= 255; ++ch) {
+	lang[0] = ch;
+	TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem(lang));
+    }
+    return true;
+}
