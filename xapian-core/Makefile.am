@@ -34,7 +34,7 @@ EXTRA_PROGRAMS =
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
         check-chert check-flint check-perftest \
-	coverage-reconfigure coverage-check
+	coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -84,6 +84,11 @@ check-perf:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
 
 coverage-reconfigure: distclean
+	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
+	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
+	$(srcdir)/configure CXXFLAGS='-O0 --coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND= --enable-maintainer-mode
+
+coverage-reconfigure-maintainer-mode: distclean
 	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
 	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
 	$(srcdir)/configure CXXFLAGS='-O0 --coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=

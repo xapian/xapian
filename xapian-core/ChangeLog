@@ -1,3 +1,9 @@
+Sun Oct 10 09:59:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Add coverage-reconfigure-maintainer-mode target which
+	  is just like coverage-reconfigure except it also passes
+	  --enable-maintainer-mode.
+
 Sun Oct 10 07:29:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Check Stem("none") too.  Check
