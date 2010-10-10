@@ -90,10 +90,10 @@ COVERAGE_CONFIGURE = \
     --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
 
 coverage-reconfigure: distclean
-	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
+	$(COVERAGE_CONFIGURE)
 
 coverage-reconfigure-maintainer-mode: distclean
-	$(COVERAGE_CONFIGURE)
+	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
 
 coverage-check:
 	## GNU find and xargs specific.

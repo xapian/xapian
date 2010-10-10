@@ -1,3 +1,8 @@
+Sun Oct 10 11:00:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix so coverage-reconfigure-maintainer-mode adds
+	  --enable-maintainer-mode rather than coverage-reconfigure!
+
 Sun Oct 10 10:45:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Factor out COVERAGE_CONFIGURE to make future changes
