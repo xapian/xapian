@@ -1,3 +1,8 @@
+Sun Oct 10 10:45:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Factor out COVERAGE_CONFIGURE to make future changes
+	  easier.
+
 Sun Oct 10 09:59:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Add coverage-reconfigure-maintainer-mode target which

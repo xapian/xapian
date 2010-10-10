@@ -83,15 +83,17 @@ endif
 check-perf:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
 
+## --disable-shared as shared builds fail for me on x86-64 Debian etch.
+## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
+COVERAGE_CONFIGURE = \
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' \
+    --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+
 coverage-reconfigure: distclean
-	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
-	$(srcdir)/configure CXXFLAGS='-O0 --coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND= --enable-maintainer-mode
+	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
 
 coverage-reconfigure-maintainer-mode: distclean
-	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
-	$(srcdir)/configure CXXFLAGS='-O0 --coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+	$(COVERAGE_CONFIGURE)
 
 coverage-check:
 	## GNU find and xargs specific.
