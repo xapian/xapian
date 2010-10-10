@@ -1,3 +1,8 @@
+Sun Oct 10 00:33:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Tweak testcase utf8iterator2 to add coverage
+	  for Utf8Iterator(const char *).
+
 Fri Oct 08 13:10:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/selectpostlist.cc,matcher/selectpostlist.h: Implement

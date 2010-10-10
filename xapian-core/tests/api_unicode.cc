@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ static const testcase2 testcases2[] = {
 DEFINE_TESTCASE(utf8iterator2,!backend) {
     const testcase2 * p;
     for (p = testcases2; p->a; ++p) {
-	Xapian::Utf8Iterator a(p->a, strlen(p->a));
+	Xapian::Utf8Iterator a(p->a);
 
 	TEST(a != Xapian::Utf8Iterator());
 	TEST_EQUAL(*a, p->n);
