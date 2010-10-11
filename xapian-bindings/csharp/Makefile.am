@@ -72,7 +72,7 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
-EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
+EXTRA_DIST = util.i SmokeTest.cs $(BUILT_SOURCES)
 
 lib_LTLIBRARIES = _XapianSharp.la
 
@@ -104,7 +104,7 @@ SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 
-CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
+CLEANFILES = XapianSharp.snk $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp

@@ -1,3 +1,9 @@
+Mon Oct 11 12:28:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: No need to list AssemblyInfo.cs.in in EXTRA_DIST
+	  or AssemblyInfo.cs in CLEANFILES - automake takes care of
+	  distributing and cleaning these.
+
 Mon Oct 11 12:21:33 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tcl8/Makefile.am: No need to list pkgIndex.tcl.in in EXTRA_DIST or
