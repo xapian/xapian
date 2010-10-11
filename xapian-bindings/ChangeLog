@@ -1,3 +1,10 @@
+Mon Oct 11 11:58:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Don't explicitly list files in EXTRA_DIST which automake
+	  will ship anyway.  Don't ship xapian-version.h as configure will
+	  generate that (xapian.spec is different - we put that in the tarball
+	  so rpmbuild can find it).
+
 Mon Oct 11 11:51:57 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: No need to explicitly list xapian-version.h in
