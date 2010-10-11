@@ -1,3 +1,8 @@
+Mon Oct 11 12:29:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: We don't want to distribute util.i - configure
+	  generates it from util.i.in.
+
 Mon Oct 11 12:28:14 GMT 2010  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: No need to list AssemblyInfo.cs.in in EXTRA_DIST

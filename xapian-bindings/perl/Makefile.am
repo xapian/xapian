@@ -30,7 +30,7 @@ clean-local:
 
 BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc
 
-EXTRA_DIST = util.i except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = except.i $(TESTS) $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/perl/examples
 dist_exampledata_DATA = \
