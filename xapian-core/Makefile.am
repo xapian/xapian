@@ -26,6 +26,7 @@ SUBDIRS = . docs tests
 noinst_HEADERS =
 BUILT_SOURCES =
 noinst_LTLIBRARIES =
+CLEANFILES =
 DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 bin_PROGRAMS =
@@ -112,7 +113,7 @@ coverage-check:
 
 bin_SCRIPTS = xapian-config
 
-CLEANFILES = xapian-config
+DISTCLEANFILES += xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
  include/xapian/error.h include/xapian/errordispatch.h generate-exceptions \
@@ -169,8 +170,6 @@ MAINTAINERCLEANFILES += $(dist_man_MANS)
 endif
 
 if DOCUMENTATION_RULES
-CLEANFILES += $(dist_man_MANS)
-
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif

@@ -1,3 +1,9 @@
+Mon Oct 11 11:46:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Remove xapian-config on "make distclean" rather than
+	  "make clean", since configure builds it.  Never remove man pages
+	  under "make clean".
+
 Mon Oct 11 11:41:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Fix typo - CLEAN_FILES should be CLEANFILES.
