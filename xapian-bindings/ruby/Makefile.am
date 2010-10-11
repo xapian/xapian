@@ -29,6 +29,7 @@ _xapian_la_LDFLAGS = -avoid-version -module -shrext ".$(RUBY_DLEXT)" $(NO_UNDEFI
 _xapian_la_SOURCES = xapian_wrap.cc xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(RUBY_LIBS)
 
+CLEANFILES =
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
@@ -51,11 +52,9 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 
 -include xapian_wrap.d
 
-CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
-else
-CLEANFILES =
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += xapian_wrap.stamp
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 # Compatibility wrapper which configure creates when required.
 DISTCLEANFILES = rubyio.h

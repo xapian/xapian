@@ -65,10 +65,9 @@ php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 
 -include xapian_wrap.d
 
-CLEANFILES = $(BUILT_SOURCES) php5/xapian_wrap.stamp
-else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = php5/xapian_wrap.stamp
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/php/examples
 dist_exampledata_DATA =\

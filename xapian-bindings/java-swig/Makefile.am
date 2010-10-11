@@ -143,7 +143,6 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 
 -include xapian_wrap.d
 
-CLEANFILES += $(BUILT_SOURCES)
-else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += xapian_wrap.stamp
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)

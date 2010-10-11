@@ -44,11 +44,8 @@ xapian_wrap.cc: $(SWIG_sources) except.i util.i
 	mv xapian_wrap_d.tmp xapian_wrap.d
 
 -include xapian_wrap.d
-
-CLEANFILES += $(BUILT_SOURCES)
-else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/tcl8/examples
 dist_exampledata_DATA = \

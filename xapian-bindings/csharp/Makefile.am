@@ -124,10 +124,9 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 
 -include xapian_wrap.d
 
-CLEANFILES += $(BUILT_SOURCES) xapian_wrap.stamp
-else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += xapian_wrap.stamp
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/csharp/examples
 dist_exampledata_DATA =\

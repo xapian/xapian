@@ -140,8 +140,6 @@ xapian_wrap.stamp: $(SWIG_sources) util.i except.i
 
 -include xapian_wrap.d
 
-CLEANFILES = $(BUILT_SOURCES) \
-	pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp
-else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)

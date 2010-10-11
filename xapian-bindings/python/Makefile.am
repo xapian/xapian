@@ -124,10 +124,9 @@ modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i $(DOCCOMMENTS_I) extra
 
 -include modern/xapian_wrap.d
 
-CLEANFILES += $(BUILT_SOURCES) modern/xapian_wrap.d modern/xapian_wrap.stamp
-else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += modern/xapian_wrap.d modern/xapian_wrap.stamp
 endif
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/python/examples
 dist_exampledata_DATA = \
