@@ -8,7 +8,7 @@ TESTS_ENVIRONMENT = \
 ## Test programs to be run
 TESTS = smoketest.tcl
 
-EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl pkgIndex.tcl.in
+EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
 
 tcllibdir = @TCL_LIB@/xapian@VERSION@
 
@@ -34,7 +34,6 @@ nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
-CLEANFILES = pkgIndex.tcl
 
 if MAINTAINER_MODE
 xapian_wrap.cc: $(SWIG_sources) except.i util.i
