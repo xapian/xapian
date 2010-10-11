@@ -150,7 +150,14 @@ esac
 
 if [ -d ".git" ] ; then
   for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
-    test -d "$emptydir" || mkdir "$emptydir"
+    if test -d "$emptydir" ; then
+      :
+    else
+      parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
+      if test -d "$parent" ; then
+	mkdir "$emptydir"
+      fi
+    fi
   done
 
   sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
