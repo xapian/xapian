@@ -1,3 +1,8 @@
+Mon Oct 11 11:11:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Drop special case to remove man pages on "make clean"
+	  in maintainer-mode.
+
 Wed Sep 29 04:14:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,query.cc,unixperm.cc,unixperm.h: Pull out

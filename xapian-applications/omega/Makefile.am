@@ -160,8 +160,6 @@ MAINTAINERCLEANFILES = $(dist_man_MANS)
 endif
 
 if DOCUMENTATION_RULES
-CLEANFILES = $(dist_man_MANS)
-
 omindex.1: omindex$(EXEEXT) makemanpage
 	./makemanpage ./omindex $(srcdir)/omindex.cc omindex.1
 
