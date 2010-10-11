@@ -1,3 +1,9 @@
+Mon Oct 11 11:51:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: No need to explicitly list xapian-version.h in
+	  DISTCLEANFILES - automake will remove in for us on "make distclean"
+	  since it is created by AC_CONFIG_FILES in configure.ac.
+
 Fri Oct 08 13:32:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo in code to set PYTHON_LIBS under cygwin.
