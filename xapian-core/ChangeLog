@@ -1,3 +1,8 @@
+Mon Oct 11 11:41:32 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Fix typo - CLEAN_FILES should be CLEANFILES.
+	  This means that where zlib-vg.so is used, it now gets cleaned up.
+
 Sun Oct 10 11:00:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fix so coverage-reconfigure-maintainer-mode adds

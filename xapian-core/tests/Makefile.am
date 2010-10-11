@@ -15,7 +15,7 @@ endif
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
-CLEAN_FILES =
+CLEANFILES =
 
 libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 
@@ -288,7 +288,7 @@ include harness/Makefile.mk
 
 if USE_ZLIB_VG
 check_SCRIPTS += zlib-vg.so
-CLEAN_FILES += zlib-vg.so
+CLEANFILES += zlib-vg.so
 
 zlib-vg.so: zlib-vg.c
 	$(CC_FOR_BUILD) -fPIC -shared -ldl -o zlib-vg.so $(srcdir)/zlib-vg.c
