@@ -461,8 +461,7 @@ for target in $targets ; do
     esac
   done
   case $target in
-    distclean) echo "	rm -f Makefile config.cache" ;;
-    maintainer-clean) echo "	rm -f Makefile configure config.cache" ;;
+    distclean|maintainer-clean) echo "	rm -f Makefile config.cache" ;;
   esac
 done >> Makefile.tmp
 cat <<EOF >> Makefile.tmp
