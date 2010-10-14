@@ -71,7 +71,7 @@ static const testcase testcases[] = {
     { "\xf4P\x80\x80", "\xc3\xb4P\xc2\x80\xc2\x80" },
     { "\xf4\x80P\x80", "\xc3\xb4\xc2\x80P\xc2\x80" },
     { "\xf4\x80\x80P", "\xc3\xb4\xc2\x80\xc2\x80P" },
-    { "\xfe\xffxyzzy", "\xc3\xbe\xce\xbfxyzzy" },
+    { "\xfe\xffxyzzy", "\xc3\xbe\xc3\xbfxyzzy" },
     // Overlong encodings:
     { "\xc0\x80", "\xc3\x80\xc2\x80" },
     { "\xc0\xbf", "\xc3\x80\xc2\xbf" },
@@ -90,6 +90,7 @@ static const testcase testcases[] = {
 DEFINE_TESTCASE(utf8iterator1,!backend) {
     const testcase * p;
     for (p = testcases; p->a; ++p) {
+	tout.str(string());
 	tout << '"' << p->a << "\" and \"" << p->b << '"' << endl;
 	size_t a_len = strlen(p->a);
 	Xapian::Utf8Iterator a(p->a, a_len);
