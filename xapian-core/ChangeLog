@@ -1,3 +1,8 @@
+Thu Oct 14 01:16:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Expand tested cases to (hopefully) cover all
+	  conditional combinations in unicode/utf8itor.cc.
+
 Mon Oct 11 11:46:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Remove xapian-config on "make distclean" rather than
