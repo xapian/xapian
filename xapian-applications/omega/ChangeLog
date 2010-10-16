@@ -1,3 +1,10 @@
+Sat Oct 16 06:13:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Probe for any options needed to enable large file
+	  support.  Handling files >= 2GB isn't especially useful, but more
+	  importantly this is needed to allow omindex to index files on filing
+	  systems with 64 bit inodes on some platforms (e.g. 32-bit Linux).
+
 Mon Oct 11 11:11:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Drop special case to remove man pages on "make clean"

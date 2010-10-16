@@ -507,6 +507,9 @@ AC_SUBST(QUIET)
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
+dnl Enable large file support if possible.
+AC_SYS_LARGEFILE
+
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
 AC_SUBST([AUTOM4TE])
