@@ -59,7 +59,13 @@ static void show_usage() {
 }
 
 class MyCompactor : public Xapian::Compactor {
+    bool quiet;
+
   public:
+    MyCompactor() : quiet(false) { }
+
+    void set_quiet(bool quiet_) { quiet = quiet_; }
+
     void set_status(const string & table, const string & status);
 
     string
@@ -71,6 +77,8 @@ class MyCompactor : public Xapian::Compactor {
 void
 MyCompactor::set_status(const string & table, const string & status)
 {
+    if (quiet)
+	return;
     if (!status.empty())
 	cout << '\r' << table << ": " << status << endl;
     else
@@ -91,13 +99,14 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
 int
 main(int argc, char **argv)
 {
-    const char * opts = "b:nFm";
+    const char * opts = "b:nFmq";
     const struct option long_opts[] = {
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
 	{"multipass",	no_argument, 0, 'm'},
 	{"blocksize",	required_argument, 0, 'b'},
 	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
+	{"quiet",	no_argument, 0, 'q'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
@@ -136,6 +145,9 @@ main(int argc, char **argv)
 		break;
 	    case OPT_NO_RENUMBER:
 		compactor.set_renumber(false);
+		break;
+	    case 'q':
+		compactor.set_quiet(true);
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
