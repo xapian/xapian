@@ -42,6 +42,7 @@ static char separator = ' ';
 static bool verbose = false;
 static bool showvalues = false;
 static bool showdocdata = false;
+static bool count_zero_length_docs = false;
 
 #define PROG_NAME "delve"
 #define PROG_DESC "Inspect the contents of a Xapian database"
@@ -59,6 +60,7 @@ static void show_usage() {
 "  -V<valueno>           output value valueno for each document referred to\n"
 "                        (or each document in the database if no -r options)\n"
 "  -d                    output document data for each document referred to\n"
+"  -z                    for db, count documents with length 0\n"
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf and termfreq for termlist; number of terms for db;\n"
 "                        termfreq when showing all terms)\n"
@@ -78,6 +80,22 @@ show_db_stats(Database &db)
     cout << "document length upper bound = " << db.get_doclength_upper_bound()
 	 << endl;
     cout << "highest document id ever used = " << db.get_lastdocid() << endl;
+
+    if (count_zero_length_docs) {
+	Xapian::doccount empty_docs = 0;
+	if (db.get_avlength() == 0) {
+	    // All documents are empty.
+	    empty_docs = db.get_doccount();
+	} else {
+	    Xapian::PostingIterator d = db.postlist_begin(string());
+	    while (d != db.postlist_end(string())) {
+		if (d.get_doclength() == 0)
+		    ++empty_docs;
+		++d;
+	    }
+	}
+	cout << "number of zero-length documents = " << empty_docs << endl;
+    }
 
     if (verbose) {
 	// To find the number of terms, we have to count them!
@@ -213,7 +231,7 @@ main(int argc, char **argv) try {
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "ar:t:s:1vV::d")) != -1) {
+    while ((c = gnu_getopt(argc, argv, "ar:t:s:1vV::dz")) != -1) {
 	switch (c) {
 	    case 'a':
 		all_terms = true;
@@ -267,6 +285,9 @@ main(int argc, char **argv) try {
 		break;
 	    case 'v':
 		verbose = true;
+		break;
+	    case 'z':
+		count_zero_length_docs = true;
 		break;
 	    default:
 		show_usage();
