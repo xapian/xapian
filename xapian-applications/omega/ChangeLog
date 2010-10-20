@@ -1,3 +1,8 @@
+Wed Oct 20 10:30:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Add boolean terms with add_boolean_term()
+	  so they get wdf of 0 and don't contribute to document length.
+
 Sat Oct 16 06:13:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configure.ac: Probe for any options needed to enable large file

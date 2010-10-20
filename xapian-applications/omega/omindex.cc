@@ -738,37 +738,38 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	indexer.index_text(keywords);
     }
 
-    newdocument.add_term("T" + mimetype); // mimeType
+    newdocument.add_boolean_term("T" + mimetype); // mimeType
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
 	j += 3;
 	string::size_type k = baseurl.find('/', j);
 	if (k == string::npos) {
-	    newdocument.add_term("P/"); // Path
-	    newdocument.add_term("H" + baseurl.substr(j));
+	    newdocument.add_boolean_term("P/"); // Path
+	    newdocument.add_boolean_term("H" + baseurl.substr(j));
 	} else {
-	    newdocument.add_term("P" + baseurl.substr(k)); // Path
+	    newdocument.add_boolean_term("P" + baseurl.substr(k)); // Path
 	    string::const_iterator l;
 	    l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
 	    string::size_type host_len = l - baseurl.begin() - j;
-	    newdocument.add_term("H" + baseurl.substr(j, host_len)); // Host
+	    // Host:
+	    newdocument.add_boolean_term("H" + baseurl.substr(j, host_len));
 	}
     } else {
-	newdocument.add_term("P" + baseurl); // Path
+	newdocument.add_boolean_term("P" + baseurl); // Path
     }
 
     struct tm *tm = localtime(&last_mod);
     string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-    newdocument.add_term(date_term); // Date (YYYYMMDD)
+    newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
     date_term.resize(7);
     date_term[0] = 'M';
-    newdocument.add_term(date_term); // Month (YYYYMM)
+    newdocument.add_boolean_term(date_term); // Month (YYYYMM)
     date_term.resize(5);
     date_term[0] = 'Y';
-    newdocument.add_term(date_term); // Year (YYYY)
+    newdocument.add_boolean_term(date_term); // Year (YYYY)
 
-    newdocument.add_term(urlterm); // Url
+    newdocument.add_boolean_term(urlterm); // Url
 
     // Add last_mod as a value to allow "sort by date".
     newdocument.add_value(VALUE_LASTMOD,
@@ -780,19 +781,19 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     bool inc_tag_added = false;
     if (d.is_other_readable()) {
 	inc_tag_added = true;
-	newdocument.add_term("I*");
+	newdocument.add_boolean_term("I*");
     } else if (d.is_group_readable()) {
 	const char * group = d.get_group();
 	if (group) {
-	    newdocument.add_term(string("I#") + group);
+	    newdocument.add_boolean_term(string("I#") + group);
 	    inc_tag_added = true;
 	}
     }
     const char * owner = d.get_owner();
     if (owner) {
-	newdocument.add_term(string("O") + owner);
+	newdocument.add_boolean_term(string("O") + owner);
 	if (!inc_tag_added && d.is_owner_readable())
-	    newdocument.add_term(string("I@") + owner);
+	    newdocument.add_boolean_term(string("I@") + owner);
     }
 
     if (!skip_duplicates) {

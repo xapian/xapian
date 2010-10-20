@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -518,7 +518,7 @@ index_file(const char *fname, istream &stream,
 			if (prefix_needs_colon(term, value[0])) term += ':';
 			term += value;
 
-			doc.add_term(term);
+			doc.add_boolean_term(term);
 			break;
 		    }
 		    case Action::HASH: {
@@ -643,13 +643,13 @@ again:
 			}
 			if (yyyymmdd.empty()) break;
 			// Date (YYYYMMDD)
-			doc.add_term("D" + yyyymmdd);
+			doc.add_boolean_term("D" + yyyymmdd);
 			yyyymmdd.resize(6);
 			// Month (YYYYMM)
-			doc.add_term("M" + yyyymmdd);
+			doc.add_boolean_term("M" + yyyymmdd);
 			yyyymmdd.resize(4);
 			// Year (YYYY)
-			doc.add_term("Y" + yyyymmdd);
+			doc.add_boolean_term("Y" + yyyymmdd);
 			break;
 		    }
 		    default:
