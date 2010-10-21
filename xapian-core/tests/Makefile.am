@@ -286,6 +286,7 @@ check-local: remove-cached-databases
 include perftest/Makefile.mk
 include harness/Makefile.mk
 
+EXTRA_DIST += zlib-vg.c
 if USE_ZLIB_VG
 check_SCRIPTS += zlib-vg.so
 CLEANFILES += zlib-vg.so
