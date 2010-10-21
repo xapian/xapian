@@ -1,3 +1,8 @@
+Thu Oct 21 12:05:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,unixperm.cc: Fix to build on platforms where
+	  getgrouplist() exists but takes int* not gid_t* (e.g. Mac OS X).
+
 Wed Oct 20 10:30:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc,scriptindex.cc: Add boolean terms with add_boolean_term()

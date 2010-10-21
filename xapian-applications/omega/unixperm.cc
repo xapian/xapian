@@ -26,8 +26,15 @@
 #include <sys/types.h>
 #include <grp.h>
 #include <pwd.h>
+#include "safeunistd.h"
 
 #include <cstring>
+
+#ifdef GETGROUPLIST_TAKES_INT_P
+# define GID_T int
+#else
+# define GID_T gid_t
+#endif
 
 using namespace std;
 
@@ -51,11 +58,11 @@ apply_unix_permissions(Xapian::Query & query, const char * user)
 #ifdef HAVE_GETGROUPLIST
     int ngroups = 32;
 
-    gid_t *groups = new gid_t[ngroups];
+    GID_T *groups = new GID_T[ngroups];
 
     while (getgrouplist(user, pwent->pw_gid, groups, &ngroups) == -1) {
 	delete [] groups;
-	groups = new gid_t[ngroups];
+	groups = new GID_T[ngroups];
     }
 
     for (int i = 0; i < ngroups; i++) {

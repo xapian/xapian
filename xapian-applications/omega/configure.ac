@@ -77,15 +77,23 @@ dnl Check for time functions.
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(gettimeofday ftime)
 
-dnl Use for Unix permission checks.
-AC_CHECK_FUNCS([getgrouplist])
-
 dnl See if ftime() returns void (as it does on mingw).
 if test $ac_cv_func_ftime = yes ; then
   AC_TRY_COMPILE([#include <sys/timeb.h>],
     [struct timeb tp; int i = ftime(&tp);],
     ,
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
+fi
+
+dnl Use for Unix permission checks.
+AC_CHECK_FUNCS([getgrouplist])
+
+dnl See if getgrouplist() takes gid_t * (e.g. Linux) or int * (e.g. OS X).
+if test $ac_cv_func_getgrouplist = yes ; then
+  AC_TRY_COMPILE([#include <grp.h>
+#include <unistd.h>],
+    [int g[10]; int n = 10; return getgrouplist("root", 1, g, &n) == -1;],
+    AC_DEFINE([GETGROUPLIST_TAKES_INT_P], 1, [Define if getgrouplist takes int *]))
 fi
 
 dnl Check for lstat() (not available under mingw for example).
