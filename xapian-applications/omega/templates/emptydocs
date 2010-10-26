@@ -1,0 +1,6 @@
+<h1>Documents with no text</h1>
+<ul>
+$map{$emptydocs{$cgi{TERM}},
+<li> <a href="$html{$field{url,$_}}">$or{$field{title,$_},$field{url,$_}}</a>
+}
+</ul>

@@ -106,6 +106,17 @@ $def{MACRONAME,VALUE}
 $defaultop
 	"and" or "or" (set from CGI variable DEFAULTOP).
 
+$emptydocs[{TERM}]
+	returns a list of docids of any documents with document length zero
+	(such documents probably only contain scanned images, rather than
+	machine readable text, or suggest the input filter isn't working well).
+	If TERM is specified, only consider documents matching TERM, otherwise
+	all documents are considered (so Tapplication/pdf reports all PDF files
+	for which no text was found).
+
+	If you're using omindex, note that it skips files with zero size, so
+	these won't get reported here as they aren't present in the database.
+
 $env{VAR}
 	lookup variable ``VAR`` in the environment.
 
@@ -114,10 +125,12 @@ $error
         be parsed, or a Xapian exception has been thrown) or empty if there
 	wasn't an error.
 
-$field{NAME}
-	lookup field in record.  If multiple instances of field exist the
-	field values are returned tab separated, which means you can pass the
-	results to ``$map``, e.g.::
+$field{NAME[,DOCID]}
+	lookup field ``NAME`` in document ``DOCID``.  If ``DOCID`` is omitted
+	then the current hit is used (which only works inside ``$hitlist``).
+
+	If multiple instances of field exist the field values are returned tab
+	separated, which means you can pass the results to ``$map``, e.g.::
 
             $map{$field{keywords},<b>$html{$_}</b><br>}
 

@@ -658,7 +658,62 @@ print_query_string(const char *after)
 }
 #endif
 
-static map<string, string> field;
+class Fields {
+    mutable Xapian::docid did_cached;
+    mutable map<string, string> fields;
+
+    void read_fields(Xapian::docid did) const;
+
+  public:
+    Fields() : did_cached(0) { }
+
+    const string & get_field(Xapian::docid did, const string & field) const {
+	if (did != did_cached) read_fields(did);
+	return fields[field];
+    }
+};
+
+void
+Fields::read_fields(Xapian::docid did) const
+{
+    fields.clear();
+    did_cached = did;
+    const string & data = db.get_document(did).get_data();
+
+    // Parse document data.
+    string::size_type i = 0;
+    const string & names = option["fieldnames"];
+    if (!names.empty()) {
+	// Each line is a field, with fieldnames taken from corresponding
+	// entries in the tab-separated list specified by $opt{fieldnames}.
+	string::size_type n = 0;
+	do {
+	    string::size_type n0 = n;
+	    n = names.find('\t', n);
+	    string::size_type i0 = i;
+	    i = data.find('\n', i);
+	    fields.insert(make_pair(names.substr(n0, n  - n0),
+				    data.substr(i0, i - i0)));
+	} while (++n && ++i);
+    } else {
+	// Each line is a field, in the format NAME=VALUE.  We assume the field
+	// name doesn't contain an "=".  Lines without an "=" are currently
+	// just ignored.
+	do {
+	    string::size_type i0 = i;
+	    i = data.find('\n', i);
+	    string line = data.substr(i0, i - i0);
+	    string::size_type j = line.find('=');
+	    if (j != string::npos) {
+		string & value = fields[line.substr(0, j)];
+		if (!value.empty()) value += '\t';
+		value += line.substr(j + 1);
+	    }
+	} while (++i);
+    }
+}
+
+static Fields fields;
 static Xapian::docid q0;
 static Xapian::doccount hit_no;
 static int percent;
@@ -683,6 +738,7 @@ CMD_def,
 CMD_defaultop,
 CMD_div,
 CMD_eq,
+CMD_emptydocs,
 CMD_env,
 CMD_error,
 CMD_field,
@@ -799,10 +855,11 @@ T(dbsize,	   0, 0, N, 0), // database size (# of documents)
 T(def,		   2, 2, 1, 0), // define a macro
 T(defaultop,	   0, 0, N, 0), // default operator: "and" or "or"
 T(div,		   2, 2, N, 0), // integer divide
+T(emptydocs,	   0, 1, N, 0), // list of empty documents
 T(env,		   1, 1, N, 0), // environment variable
 T(error,	   0, 0, N, 0), // error message
 T(eq,		   2, 2, N, 0), // test equality
-T(field,	   1, 1, N, 0), // lookup field in record
+T(field,	   1, 2, N, 0), // lookup field in record
 T(filesize,	   1, 1, N, 0), // pretty printed filesize
 T(filters,	   0, 0, N, 0), // serialisation of current filters
 T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
@@ -1131,6 +1188,18 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_eq:
 		if (args[0] == args[1]) value = "true";
 		break;
+	    case CMD_emptydocs: {
+		string t;
+		if (!args.empty())
+		    t = args[0];
+		Xapian::PostingIterator i;
+		for (i = db.postlist_begin(t); i != db.postlist_end(t); ++i) {
+		    if (i.get_doclength() != 0) continue;
+		    if (!value.empty()) value += '\t';
+		    value += str(*i);
+		}
+		break;
+	    }
 	    case CMD_env: {
 		char *env = getenv(args[0].c_str());
 		if (env != NULL) value = env;
@@ -1142,9 +1211,12 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		value = error_msg;
 		break;
-	    case CMD_field:
-		value = field[args[0]];
+	    case CMD_field: {
+		Xapian::docid did = q0;
+		if (args.size() > 1) did = string_to_int(args[1]);
+		value = fields.get_field(did, args[0]);
 		break;
+	    }
 	    case CMD_filesize: {
 		// FIXME: rounding?  i18n?
 		int size = string_to_int(args[0]);
@@ -1979,47 +2051,6 @@ print_caption(const string &fmt, const vector<string> &param)
     weight = mset[hit_no].get_weight();
     percent = mset.convert_to_percent(mset[hit_no]);
     collapsed = mset[hit_no].get_collapse_count();
-
-    Xapian::Document doc = db.get_document(q0);
-    string text = doc.get_data();
-
-    // Parse document data.
-    field.clear();
-    string::size_type i = 0;
-    string fieldnames = option["fieldnames"];
-    if (!fieldnames.empty()) {
-	// Each line is a field, with fieldnames taken from corresponding
-	// entries in the tab-separated list specified by $opt{fieldnames}.
-	string::size_type n = 0, n2;
-	while (true) {
-	    n2 = fieldnames.find('\t', n);
-	    string::size_type old_i = i;
-	    i = text.find('\n', i);
-	    field[fieldnames.substr(n, n2 - n)] = text.substr(old_i, i - old_i);
-	    if (n2 == string::npos || i == string::npos) break;
-	    ++i;
-	    n = n2 + 1;
-	}
-    } else {
-	// Each line is a field, in the format NAME=VALUE.  We assume the field
-	// name doesn't contain an "=".  Lines without an "=" are currently
-	// just ignored.
-	while (true) {
-	    string::size_type old_i = i;
-	    i = text.find('\n', i);
-	    string line = text.substr(old_i, i - old_i);
-	    string::size_type j = line.find('=');
-	    if (j != string::npos) {
-		string key = line.substr(0, j);
-		string value = field[key];
-		if (!value.empty()) value += '\t';
-		value += line.substr(j + 1);
-		field[key] = value;
-	    }
-	    if (i == string::npos) break;
-	    ++i;
-	}
-    }
 
     return eval(fmt, param);
 }
