@@ -421,6 +421,10 @@ The OmegaScript templates supplied with Omega are:
  * opensearch - Provides results in OpenSearch format (for more details
    see http://www.opensearch.org/).
  * xml - Provides results in a custom XML format.
+ * emptydocs - Shows a list of documents with zero length.  If CGI parameter
+   TERM is set to a non-empty value, then only documents indexed by that given
+   term are shown (e.g. TERM=Tapplication/pdf to show PDF files with no text);
+   otherwise all zero length documents are shown.
 
 There are also "helper fragments" used by the templates above:
 
