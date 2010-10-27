@@ -872,12 +872,15 @@ index_directory(size_t depth_limit, const string &dir,
 			if (changed) mt = mime_map.find(ext);
 		    }
 		    if (mt != mime_map.end()) {
-			if (mt->second.empty()) {
+			const string & mimetype = mt->second;
+			if (mimetype.empty()) {
 			    cout << "Skipping file, required filter not "
 				    "installed: \"" << file << "\""
 				 << endl;
 			    continue;
 			}
+			if (mimetype == "ignore")
+			    continue;
 
 			// Only check the file size if we recognise the
 			// extension to avoid a call to stat()/lstat() for
@@ -891,7 +894,6 @@ index_directory(size_t depth_limit, const string &dir,
 			}
 
 			// It's in our MIME map so we know how to index it.
-			const string & mimetype = mt->second;
 			try {
 			    index_file(indexroot + url, mimetype, d);
 			} catch (NoSuchFilter) {
@@ -1065,6 +1067,16 @@ main(int argc, char **argv)
 
     // SVG:
     mime_map["svg"] = "image/svg+xml";
+
+    // Extensions to quietly ignore:
+    mime_map["a"] = "ignore";
+    mime_map["dll"] = "ignore";
+    mime_map["dylib"] = "ignore";
+    mime_map["exe"] = "ignore";
+    mime_map["lib"] = "ignore";
+    mime_map["o"] = "ignore";
+    mime_map["obj"] = "ignore";
+    mime_map["so"] = "ignore";
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfS",
 					 longopts, NULL)) != -1) {

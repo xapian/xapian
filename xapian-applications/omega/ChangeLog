@@ -1,3 +1,9 @@
+Wed Oct 27 05:37:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Quietly ignore files with mimetype set
+	  to "ignore".  The initial list of extensions set to ignore is:
+	      .a .dll .dylib .exe .lib .o .obj .so
+
 Wed Oct 27 02:25:01 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Report get_description() for Xapian exceptions, which

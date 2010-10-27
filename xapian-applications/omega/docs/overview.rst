@@ -277,6 +277,18 @@ of:
    - application/x-dvi
    - image/svg+xml
    - image/vnd.djvu
+   - ignore (magic token to tell omindex to quietly ignore such files)
+
+By default, files with the following extensions are marked as 'ignore'::
+
+   - a
+   - dll
+   - dylib
+   - exe
+   - lib
+   - o
+   - obj
+   - so
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: --mime-type doc:
