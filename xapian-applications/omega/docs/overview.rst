@@ -215,6 +215,7 @@ know):
 * DjVu files (.djv, .djvu) if djvutxt is available
 * XPS files (.xps) if unzip is available
 * Debian packages (.deb, .udeb) if dpkg-deb is available
+* RPM packages (.rpm) if rpm is available
 
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance::
@@ -277,6 +278,7 @@ of:
    - application/x-abiword-compressed
    - application/x-debian-package
    - application/x-dvi
+   - application/x-redhat-package-manager
    - image/svg+xml
    - image/vnd.djvu
    - ignore (magic token to tell omindex to quietly ignore such files)
