@@ -1,3 +1,9 @@
+Wed Oct 27 01:56:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,query.cc,values.h: Add file size as a value, and set up a
+	  NumberValueRangeProcessor so size: works in the query (has to be in
+	  bytes currently).
+
 Wed Oct 27 01:31:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Report get_description() for Xapian exceptions, which

@@ -106,6 +106,7 @@ static Xapian::Query query;
 Xapian::Query::op default_op = Xapian::Query::OP_OR; // default matching mode
 
 static Xapian::QueryParser qp;
+static Xapian::NumberValueRangeProcessor * size_vrp = NULL;
 static Xapian::Stem *stemmer = NULL;
 
 static string eval_file(const string &fmtfile);
@@ -218,6 +219,11 @@ set_probabilistic(const string &oldp)
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
     qp.set_database(db);
+    // FIXME: provide a custom VRP which handles size:10..20K, etc.
+    if (!size_vrp)
+	size_vrp = new Xapian::NumberValueRangeProcessor(VALUE_SIZE, "size:",
+							 true);
+    qp.add_valuerangeprocessor(size_vrp);
     // std::map::insert() won't overwrite an existing entry, so we'll prefer
     // the first user_prefix for which a particular term prefix is specified.
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");

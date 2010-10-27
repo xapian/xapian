@@ -778,6 +778,9 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     // Add MD5 as a value to allow duplicate documents to be collapsed together.
     newdocument.add_value(VALUE_MD5, md5);
 
+    // Add the file size as a value to allow "sort by size" and size ranges.
+    newdocument.add_value(VALUE_SIZE, Xapian::sortable_serialise(d.get_size()));
+
     bool inc_tag_added = false;
     if (d.is_other_readable()) {
 	inc_tag_added = true;
