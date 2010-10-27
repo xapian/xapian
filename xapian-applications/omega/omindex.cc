@@ -1235,7 +1235,7 @@ main(int argc, char **argv)
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents." << endl;
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
-	cout << "Exception: " << e.get_msg() << endl;
+	cout << "Exception: " << e.get_description() << endl;
     } catch (const string &s) {
 	cout << "Exception: " << s << endl;
     } catch (const char *s) {
