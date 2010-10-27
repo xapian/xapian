@@ -702,20 +702,14 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    dump.assign(desc, idx + 1, string::npos);
 	}
     } else if (mimetype == "application/x-redhat-package-manager") {
-	string cmd("rpm -qip ");
+	string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p ");
 	cmd += shell_protect(file);
-	const string & info = stdout_to_string(cmd);
-	string::size_type end = 0;
-	string::size_type idx = info.find("\nSummary     : ");
+	const string & desc = stdout_to_string(cmd);
+	// First line is summary, which we use as the title.
+	string::size_type idx = desc.find('\n');
+	title.assign(desc, 0, idx);
 	if (idx != string::npos) {
-	    idx += CONST_STRLEN("\nSummary     : ");
-	    end = info.find('\n', idx);
-	    title.assign(info, idx, end - idx);
-	}
-	idx = info.find("\nDescription :\n", end);
-	if (idx != string::npos) {
-	    idx += CONST_STRLEN("\nDescription :\n");
-	    dump.assign(info, idx, string::npos);
+	    dump.assign(desc, idx + 1, string::npos);
 	}
     } else {
 	// Don't know how to index this type.

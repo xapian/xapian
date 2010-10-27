@@ -1,3 +1,8 @@
+Wed Oct 27 09:51:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use rpm's --qf option to produce output which is simpler
+	  to parse.
+
 Wed Oct 27 09:32:22 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Add support for indexing RPM packages
