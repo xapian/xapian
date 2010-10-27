@@ -1,3 +1,8 @@
+Wed Oct 27 01:31:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Report get_description() for Xapian exceptions, which
+	  is provides additional information above get_msg().
+
 Tue Oct 26 12:00:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document the new emptydocs template.

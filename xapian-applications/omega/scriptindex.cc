@@ -606,7 +606,7 @@ again:
 			} catch (const Xapian::Error &e) {
 			    // Hmm, what happened?
 			    cout << "Caught exception in UNIQUE!" << endl;
-			    cout << "E: " << e.get_msg() << endl;
+			    cout << "E: " << e.get_description() << endl;
 			    database.commit();
 			    goto again;
 			}
@@ -693,7 +693,7 @@ again:
 		    if (verbose) cout << "Replace: " << docid << endl;
 		    repcount ++;
 		} catch (const Xapian::Error &e) {
-		    cout << "E: " << e.get_msg() << endl;
+		    cout << "E: " << e.get_description() << endl;
 		    // Possibly the document was deleted by another
 		    // process in the meantime...?
 		    docid = database.add_document(doc);
@@ -824,7 +824,7 @@ try {
     cout << "records (added, replaced, deleted) = (" << addcount << ", "
 	 << repcount << ", " << delcount << ")" << endl;
 } catch (const Xapian::Error &error) {
-    cout << "Exception: " << error.get_msg() << endl;
+    cout << "Exception: " << error.get_description() << endl;
     exit(1);
 } catch (const std::bad_alloc &) {
     cout << "Exception: std::bad_alloc" << endl;
