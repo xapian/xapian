@@ -690,6 +690,17 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	dump = svgparser.dump;
 	title = svgparser.title;
 	keywords = svgparser.keywords;
+    } else if (mimetype == "application/x-debian-package") {
+	string cmd("dpkg-deb -f ");
+	cmd += shell_protect(file);
+	cmd += " Description";
+	const string & desc = stdout_to_string(cmd);
+	// First line is short description, which we use as the title.
+	string::size_type idx = desc.find('\n');
+	title.assign(desc, 0, idx);
+	if (idx != string::npos) {
+	    dump.assign(desc, idx + 1, string::npos);
+	}
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping" << endl;
@@ -1067,6 +1078,10 @@ main(int argc, char **argv)
 
     // SVG:
     mime_map["svg"] = "image/svg+xml";
+
+    // Debian packages:
+    mime_map["deb"] = "application/x-debian-package";
+    mime_map["udeb"] = "application/x-debian-package";
 
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";

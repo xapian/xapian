@@ -214,6 +214,7 @@ know):
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
 * XPS files (.xps) if unzip is available
+* Debian packages (.deb, .udeb) if dpkg-deb is available
 
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance::
@@ -274,6 +275,7 @@ of:
    - application/vnd.wordperfect
    - application/x-abiword
    - application/x-abiword-compressed
+   - application/x-debian-package
    - application/x-dvi
    - image/svg+xml
    - image/vnd.djvu
