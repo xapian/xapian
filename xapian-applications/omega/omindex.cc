@@ -87,6 +87,7 @@ static string site_term, host_term;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
 static Xapian::TermGenerator indexer;
+static Xapian::doccount old_docs_not_seen;
 static vector<bool> updated;
 static string tmpdir;
 
@@ -264,7 +265,10 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 		    // exception is if the URL was long and hashed to the
 		    // same URL as an existing document indexed in the same
 		    // batch.
-		    if (usual(did < updated.size())) updated[did] = true;
+		    if (usual(did < updated.size() && !updated[did])) {
+			updated[did] = true;
+			--old_docs_not_seen;
+		    }
 		    return;
 		}
 	    }
@@ -820,7 +824,10 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    did = db.replace_document(urlterm, newdocument);
 	}
 	if (did < updated.size()) {
-	    updated[did] = true;
+	    if (usual(!updated[did])) {
+		updated[did] = true;
+		--old_docs_not_seen;
+	    }
 	    cout << "updated." << endl;
 	} else {
 	    cout << "added." << endl;
@@ -1285,6 +1292,7 @@ main(int argc, char **argv)
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
+	old_docs_not_seen = db.get_doccount();
 
 	if (spelling) {
 	    indexer.set_database(db);
@@ -1293,16 +1301,28 @@ main(int argc, char **argv)
 	indexer.set_stemmer(stemmer);
 
 	index_directory(depth_limit, start_url, mime_map);
-	if (!skip_duplicates && !preserve_unupdated) {
-	    for (Xapian::docid did = 1; did < updated.size(); ++did) {
-		if (!updated[did]) {
-		    try {
-			db.delete_document(did);
-			cout << "Deleted document #" << did << endl;
-		    } catch (const Xapian::DocNotFoundError &) {
-		    }
-		}
+	if (!skip_duplicates && !preserve_unupdated &&
+	    old_docs_not_seen) {
+	    if (verbose) {
+		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
 	    }
+	    Xapian::PostingIterator alldocs = db.postlist_begin(string());
+	    Xapian::docid did = *alldocs;
+	    do {
+		if (!updated[did]) {
+		    alldocs.skip_to(did);
+		    if (alldocs == db.postlist_end(string()))
+			break;
+		    if (*alldocs != did) {
+			// Document #did didn't exist before we started.
+			did = *alldocs;
+			continue;
+		    }
+		    db.delete_document(did);
+		    if (--old_docs_not_seen == 0)
+			break;
+		}
+	    } while (++did < updated.size());
 	}
 	db.commit();
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents." << endl;

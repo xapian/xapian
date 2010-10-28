@@ -1,3 +1,12 @@
+Thu Oct 28 10:38:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Track how many documents in the index we haven't seen
+	  in this index run - if this is 0, we don't need to check for docs
+	  to delete at all; otherwise we can at least use it to know when we
+	  have found them all.  Use a PostingIterator over all documents to
+	  avoid having to catch exceptions from delete_document() for gaps
+	  in the used docids.
+
 Thu Oct 28 04:52:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Add quotes around directory name in "Entering directory"
