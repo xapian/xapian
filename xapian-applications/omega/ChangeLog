@@ -1,3 +1,8 @@
+Thu Oct 28 03:34:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Eliminate the message "Caught unknown exception in
+	  index_directory, rethrowing" as it isn't actually informative.
+
 Thu Oct 28 01:43:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Variable dbpath doesn't need to be global.

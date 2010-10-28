@@ -847,18 +847,15 @@ index_directory(size_t depth_limit, const string &dir,
 	    url += d.leafname();
 	    string file = root + url;
 	    switch (d.get_type()) {
-		case DirectoryIterator::DIRECTORY:
-		    if (depth_limit == 1) continue;
-		    try {
-			size_t new_limit = depth_limit;
-			if (new_limit) --new_limit;
-			url += '/';
-			index_directory(new_limit, url, mime_map);
-		    } catch (...) {
-			cout << "Caught unknown exception in index_directory, rethrowing" << endl;
-			throw;
+		case DirectoryIterator::DIRECTORY: {
+		    size_t new_limit = depth_limit;
+		    if (new_limit) {
+			if (--new_limit == 0) continue;
 		    }
+		    url += '/';
+		    index_directory(new_limit, url, mime_map);
 		    continue;
+		}
 		case DirectoryIterator::REGULAR_FILE: {
 		    string ext;
 		    string::size_type dot = url.find_last_of('.');
