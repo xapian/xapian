@@ -82,7 +82,6 @@ static bool spelling = false;
 
 static string dbpath;
 static string root;
-static string indexroot;
 static string baseurl;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
@@ -766,18 +765,28 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	j += 3;
 	string::size_type k = baseurl.find('/', j);
 	if (k == string::npos) {
-	    newdocument.add_boolean_term("P/"); // Path
+	    // Path:
+	    newdocument.add_boolean_term("P/");
+	    // Host:
 	    newdocument.add_boolean_term("H" + baseurl.substr(j));
 	} else {
-	    newdocument.add_boolean_term("P" + baseurl.substr(k)); // Path
+	    // Path:
+	    string::size_type path_len = baseurl.size() - k;
+	    // Subtract one to lose the trailing /, unless it's the initial / too.
+	    if (path_len > 1) --path_len;
+	    newdocument.add_boolean_term("P" + baseurl.substr(k, path_len));
+	    // Host:
 	    string::const_iterator l;
 	    l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
 	    string::size_type host_len = l - baseurl.begin() - j;
-	    // Host:
 	    newdocument.add_boolean_term("H" + baseurl.substr(j, host_len));
 	}
     } else {
-	newdocument.add_boolean_term("P" + baseurl); // Path
+	// Path:
+	string::size_type path_len = baseurl.size();
+	// Subtract one to lose the trailing /, unless it's the initial / too.
+	if (path_len > 1) --path_len;
+	newdocument.add_boolean_term("P" + baseurl.substr(0, path_len));
     }
 
     struct tm *tm = localtime(&last_mod);
@@ -849,7 +858,7 @@ static void
 index_directory(size_t depth_limit, const string &dir,
 		map<string, string>& mime_map)
 {
-    string path = root + indexroot + dir;
+    string path = root + dir;
 
     cout << "[Entering directory " << dir << "]" << endl;
 
@@ -858,15 +867,15 @@ index_directory(size_t depth_limit, const string &dir,
 	d.start(path);
 	while (d.next()) try {
 	    string url = dir;
-	    if (!url.empty() && url[url.size() - 1] != '/') url += '/';
 	    url += d.leafname();
-	    string file = root + indexroot + url;
+	    string file = root + url;
 	    switch (d.get_type()) {
 		case DirectoryIterator::DIRECTORY:
 		    if (depth_limit == 1) continue;
 		    try {
 			size_t new_limit = depth_limit;
 			if (new_limit) --new_limit;
+			url += '/';
 			index_directory(new_limit, url, mime_map);
 		    } catch (...) {
 			cout << "Caught unknown exception in index_directory, rethrowing" << endl;
@@ -916,7 +925,7 @@ index_directory(size_t depth_limit, const string &dir,
 
 			// It's in our MIME map so we know how to index it.
 			try {
-			    index_file(indexroot + url, mimetype, d);
+			    index_file(url, mimetype, d);
 			} catch (NoSuchFilter) {
 			    // FIXME: we ought to ignore by mime-type not
 			    // extension.
@@ -1207,13 +1216,9 @@ main(int argc, char **argv)
     if (baseurl.empty()) {
 	cerr << PROG_NAME": --url not specified, assuming `/'." << endl;
     }
-    // baseurl mustn't end '/' or you end up with the wrong URL
-    // (//thing is different to /thing). We could probably make this
-    // safe a different way, by ensuring that we don't put a leading '/'
-    // on leafnames when scanning a directory, but this will do.
-    if (!baseurl.empty() && baseurl[baseurl.length() - 1] == '/') {
-	cout << "baseurl has trailing '/' ... removing ... " << endl;
-	baseurl.resize(baseurl.size() - 1);
+    // baseurl must end in a '/'.
+    if (!endswith(baseurl, '/')) {
+	baseurl += '/';
     }
 
     if (optind >= argc || optind + 2 < argc) {
@@ -1224,13 +1229,25 @@ main(int argc, char **argv)
 	return 1;
     }
     root = argv[optind];
+    if (!endswith(root, '/')) {
+	root += '/';
+    }
+    string start_url;
     if (optind + 2 == argc) {
-	indexroot = argv[optind + 1]; // relative to root
-	if (indexroot.empty() || indexroot[0] != '/') {
-	    indexroot = "/" + indexroot;
+	start_url = argv[optind + 1];
+	if (startswith(start_url, '/')) {
+	    // Make relative to root.
+	    if (!startswith(start_url, root)) {
+		cerr << PROG_NAME": '" << argv[optind + 1] << "' "
+		    "is not a subdirectory of '" << argv[optind] << "'."
+		     << endl;
+		return 1;
+	    }
+	    start_url.erase(0, root.size());
 	}
-    } else {
-	indexroot = ""; // index the whole of root
+	if (!endswith(start_url, '/')) {
+	    start_url += '/';
+	}
     }
 
     int exitcode = 1;
@@ -1259,7 +1276,7 @@ main(int argc, char **argv)
 	}
 	indexer.set_stemmer(stemmer);
 
-	index_directory(depth_limit, "/", mime_map);
+	index_directory(depth_limit, start_url, mime_map);
 	if (!skip_duplicates && !preserve_unupdated) {
 	    for (Xapian::docid did = 1; did < updated.size(); ++did) {
 		if (!updated[did]) {
