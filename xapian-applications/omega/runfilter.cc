@@ -84,10 +84,9 @@ stdout_to_string(const string &cmd)
 	setrlimit(RLIMIT_CPU, &cpu_limit);
 
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
-	// Limit process data to 7/8 of free physical memory.
+	// Limit process data to free physical memory.
 	long mem = get_free_physical_memory();
 	if (mem > 0) {
-	    mem = (mem / 8) * 7;
 	    struct rlimit ram_limit = { mem, RLIM_INFINITY } ;
 #ifdef RLIMIT_AS
 	    setrlimit(RLIMIT_AS, &ram_limit);

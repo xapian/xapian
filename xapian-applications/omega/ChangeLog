@@ -1,3 +1,9 @@
+Thu Oct 28 11:49:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* runfilter.cc: Make the memory limit for filter processes the size
+	  of physical memory, not 7/8 of this value, which is a little less
+	  arbitrary (ticket#424).
+
 Thu Oct 28 11:47:38 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Under --duplicate=ignore, fix so that old documents which
