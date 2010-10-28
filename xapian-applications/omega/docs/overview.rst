@@ -34,10 +34,10 @@ lower-case, and are also stemmed before adding to the
 database.
 
 The "english" stemmer is used by default - you can configure this for omindex
-and scriptindex with "--stemmer LANGUAGE" (use 'none' to disable stemming, see
-omindex --help for the list of accepted language names).  At search time you
-can configure the stemmer by adding $set{stemmer,LANGUAGE} to the top of you
-OmegaScript template.
+and scriptindex with ``--stemmer=LANGUAGE`` (use ``--stemmer=none`` to disable
+stemming, see omindex ``--help`` for the list of accepted language names).  At
+search time you can configure the stemmer by adding ``$set{stemmer,LANGUAGE}``
+to the top of your OmegaScript template.
 
 The two term types are used as follows when building the query:
 B(oolean) terms with the same prefix are ORed together, with all the
@@ -171,7 +171,7 @@ $ omindex -p --db /var/lib/omega/data/default --url /products/large /www/example
 because that would make the large products part of a new site,
 '/products/large', which is unlikely to be what you want, as large
 products would no longer come up in a search of the products
-site. (Note that the --depth-limit option may come in handy if you have
+site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, and AbiWord
@@ -218,11 +218,12 @@ know):
 * RPM packages (.rpm) if rpm is available
 
 If you have additional extensions that represent one of these types, you need
-to add an additional MIME mapping using the --mime-type option. For instance::
+to add an additional MIME mapping using the ``--mime-type`` option.  For
+instance::
 
 $ omindex --db /var/lib/omega/data/default --url /press /www/example/press  --mime-type doc:application/postscript
 
-The syntax of --mime-type is 'ext:type', where ext is the extension of
+The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
 of:
 
@@ -295,7 +296,7 @@ By default, files with the following extensions are marked as 'ignore'::
    - so
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
-for example to not index .doc files, use: --mime-type doc:
+for example to not index .doc files, use: ``--mime-type=doc:``
 
 The lookup of extensions in the MIME mappings is case sensitive, but if an
 extension isn't found and includes upper case ASCII letters, they're converted
@@ -324,9 +325,10 @@ the database using omindex. If this is a problem for you, an
 alternative is to index each subsite into a different database, and
 merge all the databases together when searching.
 
---depth-limit allows you to prevent omindex from descending more than
-a certain number of directories.  If you wish to replicate the old
---no-recurse option, use ----depth-limit=1.
+``--depth-limit`` allows you to prevent omindex from descending more than
+a certain number of directories.  Specifying ``--depth-limit=0`` means no limit
+is imposed on recursion; ``--depth-limit=1`` means don't descend into any
+subdirectories of the start directory.
 
 HTML Parsing
 ============

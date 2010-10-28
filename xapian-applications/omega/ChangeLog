@@ -1,3 +1,8 @@
+Thu Oct 28 13:54:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Improve mark-up, and tweak wording in a few
+	  places.
+
 Thu Oct 28 13:46:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Update docs for --duplicates and
