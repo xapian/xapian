@@ -839,13 +839,13 @@ index_directory(size_t depth_limit, const string &dir,
     string path = root + dir;
 
     if (verbose)
-	cout << "[Entering directory " << dir << "]" << endl;
+	cout << "[Entering directory \"" << dir << "\"]" << endl;
 
     DirectoryIterator d(follow_symlinks);
     try {
 	d.start(path);
     } catch (const std::string & error) {
-	cout << error << " - skipping directory" << endl;
+	cout << error << " - skipping directory \"" << dir << "\"" << endl;
 	return;
     }
 
