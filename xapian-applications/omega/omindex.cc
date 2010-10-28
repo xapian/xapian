@@ -959,9 +959,8 @@ main(int argc, char **argv)
     // If overwrite is true, the database will be created anew even if it
     // already exists.
     bool overwrite = false;
-    // If preserve_unupdated is false, delete any documents we don't
-    // replace (if in replace duplicates mode)
-    bool preserve_unupdated = false;
+    // If delete_removed_documents is true, delete any documents we don't see.
+    bool delete_removed_documents = true;
     size_t depth_limit = 0;
 
     static const struct option longopts[] = {
@@ -969,6 +968,7 @@ main(int argc, char **argv)
 	{ "version",	no_argument,		NULL, 'v' },
 	{ "overwrite",	no_argument,		NULL, 'o' },
 	{ "duplicates",	required_argument,	NULL, 'd' },
+	{ "preserve-removed",	no_argument,	NULL, 'p' },
 	{ "preserve-nonduplicates",	no_argument,	NULL, 'p' },
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
@@ -1123,8 +1123,9 @@ main(int argc, char **argv)
 "Usage: "PROG_NAME" [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n\n"
 "Options:\n"
 "  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
-"  -p, --preserve-nonduplicates  don't delete unupdated documents in\n"
-"                                duplicate replace mode\n"
+"  -p, --preserve-removed   keep documents in the database which seem to have\n"
+"                           been removed from disk\n"
+"      --preserve-nonduplicates  deprecated alias for -p\n"
 "  -D, --db                 path to database to use\n"
 "  -U, --url                base url DIRECTORY represents (default: /)\n"
 "  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
@@ -1152,8 +1153,8 @@ main(int argc, char **argv)
 		break;
 	    }
 	    break;
-	case 'p': // don't delete unupdated documents
-	    preserve_unupdated = true;
+	case 'p': // Keep documents even if the files have been removed.
+	    delete_removed_documents = false;
 	    break;
 	case 'l': { // Set recursion limit
 	    int arg = atoi(optarg);
@@ -1290,7 +1291,7 @@ main(int argc, char **argv)
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
 	    old_docs_not_seen = db.get_doccount();
 	    old_lastdocid = db.get_lastdocid();
-	    if (!preserve_unupdated) {
+	    if (delete_removed_documents) {
 		// + 1 so that old_lastdocid is a valid subscript.
 		updated.resize(old_lastdocid + 1);
 	    }
@@ -1313,7 +1314,7 @@ main(int argc, char **argv)
 	indexer.set_stemmer(stemmer);
 
 	index_directory(depth_limit, start_url, mime_map);
-	if (!preserve_unupdated && old_docs_not_seen) {
+	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
 	    }

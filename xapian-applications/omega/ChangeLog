@@ -1,3 +1,11 @@
+Thu Oct 28 13:27:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Deprecated "--preserve-nonduplicates" in favour of new
+	  long option "--preserve-removed" which does the same thing, but has
+	  a (hopefully) clearer name.  Rename the variable it controls from
+	  preserve_unupdated to delete_removed_documents (with the opposite
+	  sense).
+
 Thu Oct 28 12:08:59 GMT 2010  Olly Betts <olly@survex.com>
 
 	* configfile.cc: Only append '/' to directory values if they don't
