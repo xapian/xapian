@@ -963,8 +963,6 @@ main(int argc, char **argv)
 	{ 0, 0, NULL, 0 }
     };
 
-    int getopt_ret;
-
     map<string, string> mime_map;
     // Plain text:
     mime_map["txt"] = "text/plain";
@@ -1098,7 +1096,8 @@ main(int argc, char **argv)
     mime_map["so"] = "ignore";
 
     string dbpath;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfS",
+    int getopt_ret;
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfSV",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1115,6 +1114,7 @@ main(int argc, char **argv)
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
 "  -S, --spelling           index data for spelling correction\n"
+"  -V, --verbose            show more information about what is happening\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
 	    print_stemmer_help("     ");

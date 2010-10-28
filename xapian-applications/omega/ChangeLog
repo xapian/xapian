@@ -1,3 +1,7 @@
+Thu Oct 28 04:50:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Document --verbose in --help.  Actually recognise -V.
+
 Thu Oct 28 04:01:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Move the directory iteration loop out of the try/catch
