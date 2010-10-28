@@ -1,3 +1,9 @@
+Thu Oct 28 01:28:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: The Host and Path terms are the same for every document
+	  in a single invocation of omindex, so calculate them just once up
+	  front.
+
 Thu Oct 28 01:13:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Eliminate the leading slash on filenames in output, so

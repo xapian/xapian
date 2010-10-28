@@ -83,6 +83,7 @@ static bool spelling = false;
 static string dbpath;
 static string root;
 static string baseurl;
+static string site_term, host_term;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
 static Xapian::TermGenerator indexer;
@@ -758,36 +759,13 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	indexer.index_text(keywords);
     }
 
-    newdocument.add_boolean_term("T" + mimetype); // mimeType
-    string::size_type j;
-    j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
-    if (j > 0 && baseurl.substr(j, 3) == "://") {
-	j += 3;
-	string::size_type k = baseurl.find('/', j);
-	if (k == string::npos) {
-	    // Path:
-	    newdocument.add_boolean_term("P/");
-	    // Host:
-	    newdocument.add_boolean_term("H" + baseurl.substr(j));
-	} else {
-	    // Path:
-	    string::size_type path_len = baseurl.size() - k;
-	    // Subtract one to lose the trailing /, unless it's the initial / too.
-	    if (path_len > 1) --path_len;
-	    newdocument.add_boolean_term("P" + baseurl.substr(k, path_len));
-	    // Host:
-	    string::const_iterator l;
-	    l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
-	    string::size_type host_len = l - baseurl.begin() - j;
-	    newdocument.add_boolean_term("H" + baseurl.substr(j, host_len));
-	}
-    } else {
-	// Path:
-	string::size_type path_len = baseurl.size();
-	// Subtract one to lose the trailing /, unless it's the initial / too.
-	if (path_len > 1) --path_len;
-	newdocument.add_boolean_term("P" + baseurl.substr(0, path_len));
-    }
+    // mimeType:
+    newdocument.add_boolean_term("T" + mimetype);
+
+    newdocument.add_boolean_term(site_term);
+
+    if (!host_term.empty())
+	newdocument.add_boolean_term(host_term);
 
     struct tm *tm = localtime(&last_mod);
     string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
@@ -1248,6 +1226,36 @@ main(int argc, char **argv)
 	if (!endswith(start_url, '/')) {
 	    start_url += '/';
 	}
+    }
+
+    string::size_type j;
+    j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
+    if (j > 0 && baseurl.substr(j, 3) == "://") {
+	j += 3;
+	string::size_type k = baseurl.find('/', j);
+	if (k == string::npos) {
+	    // Path:
+	    site_term = "P/";
+	    // Host:
+	    host_term = "H" + baseurl.substr(j);
+	} else {
+	    // Path:
+	    string::size_type path_len = baseurl.size() - k;
+	    // Subtract one to lose the trailing /, unless it's the initial / too.
+	    if (path_len > 1) --path_len;
+	    site_term = "P" + baseurl.substr(k, path_len);
+	    // Host:
+	    string::const_iterator l;
+	    l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
+	    string::size_type host_len = l - baseurl.begin() - j;
+	    host_term = "H" + baseurl.substr(j, host_len);
+	}
+    } else {
+	// Path:
+	string::size_type path_len = baseurl.size();
+	// Subtract one to lose the trailing /, unless it's the initial / too.
+	if (path_len > 1) --path_len;
+	site_term = "P" + baseurl.substr(0, path_len);
     }
 
     int exitcode = 1;
