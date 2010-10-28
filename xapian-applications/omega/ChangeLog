@@ -1,3 +1,7 @@
+Thu Oct 28 01:43:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Variable dbpath doesn't need to be global.
+
 Thu Oct 28 01:28:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: The Host and Path terms are the same for every document

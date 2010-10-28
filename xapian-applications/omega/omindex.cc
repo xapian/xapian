@@ -80,7 +80,6 @@ static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static bool spelling = false;
 
-static string dbpath;
 static string root;
 static string baseurl;
 static string site_term, host_term;
@@ -1093,6 +1092,7 @@ main(int argc, char **argv)
     mime_map["obj"] = "ignore";
     mime_map["so"] = "ignore";
 
+    string dbpath;
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfS",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
