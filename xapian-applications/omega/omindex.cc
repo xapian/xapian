@@ -79,6 +79,7 @@ using namespace std;
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static bool spelling = false;
+static bool verbose = false;
 
 static string root;
 static string baseurl;
@@ -837,7 +838,8 @@ index_directory(size_t depth_limit, const string &dir,
 {
     string path = root + dir;
 
-    cout << "[Entering directory " << dir << "]" << endl;
+    if (verbose)
+	cout << "[Entering directory " << dir << "]" << endl;
 
     DirectoryIterator d(follow_symlinks);
     try {
@@ -892,8 +894,10 @@ index_directory(size_t depth_limit, const string &dir,
 			// file type.
 			off_t size = d.get_size();
 			if (size == 0) {
-			    cout << "Skipping empty file: \"" << file << "\""
-				 << endl;
+			    if (verbose) {
+				cout << "Skipping empty file: \"" << file << "\""
+				     << endl;
+			    }
 			    continue;
 			}
 
@@ -915,8 +919,10 @@ index_directory(size_t depth_limit, const string &dir,
 		    continue;
 		}
 		default:
-		    cout << "Not a regular file \"" << file
-			 << "\" - skipping" << endl;
+		    if (verbose) {
+			cout << "Not a regular file \"" << file
+			     << "\" - skipping" << endl;
+		    }
 	    }
 	} catch (const std::string & error) {
 	    cout << error << " - skipping" << endl;
@@ -952,6 +958,7 @@ main(int argc, char **argv)
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ "stemmer",	required_argument,	NULL, 's' },
 	{ "spelling",	no_argument,		NULL, 'S' },
+	{ "verbose",	no_argument,		NULL, 'V' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1176,6 +1183,9 @@ main(int argc, char **argv)
 	    break;
 	case 'S':
 	    spelling = true;
+	    break;
+	case 'V':
+	    verbose = true;
 	    break;
 	case ':': // missing param
 	    return 1;
