@@ -235,7 +235,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     string file = root + url;
     string title, sample, keywords, dump;
 
-    cout << "Indexing \"" << url << "\" as " << mimetype << " ... " << flush;
+    if (verbose)
+	cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
 
     string urlterm("U");
     urlterm += baseurl;
@@ -250,7 +251,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     if (skip_duplicates) {
 	Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	if (p != db.postlist_end(urlterm)) {
-	    cout << "duplicate. Ignored." << endl;
+	    if (verbose)
+		cout << "already indexed, not updating" << endl;
 	    did = *p;
 	    if (usual(did < updated.size() && !updated[did])) {
 		updated[did] = true;
@@ -269,7 +271,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 		string value = doc.get_value(VALUE_LASTMOD);
 		time_t old_last_mod = binary_string_to_int(value);
 		if (last_mod <= old_last_mod) {
-		    cout << "Already indexed." << endl;
+		    if (verbose)
+			cout << "already indexed" << endl;
 		    // The docid should be in updated - the only valid
 		    // exception is if the URL was long and hashed to the
 		    // same URL as an existing document indexed in the same
@@ -283,6 +286,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    }
 	}
     }
+
+    if (verbose) cout << flush;
 
     string md5;
     if (mimetype == "text/html") {
@@ -838,15 +843,18 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 		--old_docs_not_seen;
 	    }
 	}
-	if (did < old_lastdocid) {
-	    cout << "updated." << endl;
-	} else {
-	    cout << "added." << endl;
+	if (verbose) {
+	    if (did < old_lastdocid) {
+		cout << "updated" << endl;
+	    } else {
+		cout << "added" << endl;
+	    }
 	}
     } else {
 	// If this were a duplicate, we'd have skipped it above.
 	db.add_document(newdocument);
-	cout << "added." << endl;
+	if (verbose)
+	    cout << "added" << endl;
     }
 }
 
@@ -903,9 +911,11 @@ index_directory(size_t depth_limit, const string &dir,
 		if (mt != mime_map.end()) {
 		    const string & mimetype = mt->second;
 		    if (mimetype.empty()) {
-			cout << "Skipping file, required filter not "
-				"installed: \"" << file << "\""
-			     << endl;
+			if (verbose) {
+			    cout << "Skipping file, required filter not "
+				    "installed: \"" << file << "\""
+				 << endl;
+			}
 			continue;
 		    }
 		    if (mimetype == "ignore")
@@ -1337,7 +1347,6 @@ main(int argc, char **argv)
 	    } while (++did < updated.size());
 	}
 	db.commit();
-	// cout << "\n\nNow we have " << db.get_doccount() << " documents." << endl;
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_description() << endl;

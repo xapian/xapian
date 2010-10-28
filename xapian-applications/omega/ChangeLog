@@ -1,3 +1,9 @@
+Thu Oct 28 14:46:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Disable more output unless --verbose is specified.  Don't
+	  flush the "Indexing" partial message until we get to the potentially
+	  time consuming actions.
+
 Thu Oct 28 13:54:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Improve mark-up, and tweak wording in a few
