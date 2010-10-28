@@ -304,22 +304,21 @@ insensitive lookup for mappings specified with a lower-case extension, but
 you can set different handling for differently cased variants if you need
 to.
 
---duplicates configures how omindex handles duplicates (detected on
-URL). 'ignore' means to ignore a document if it already appears to be
-in the database; 'replace' means to replace the document in the
-database with a new one by indexing this file, and 'duplicate' means
-to index this file as a new document, leaving the previous one in the
-database as well. The last strategy is very fast, but is liable to do
-strange things to your results set. In general, 'ignore' is useful for
-completely static documents (e.g. archive sites), while 'replace' is
-the most generally useful.
+The ``--duplicates`` option controls how omindex handles documents which map
+to a URL which is already in the database.  The default (which can be
+explicitly set with ``--duplicates=replace``) is to reindex if the last
+modified time of the file is newer than that recorded in the database.
+The alternative is ``--duplicates=ignore``, which will never reindex an
+existing document.  If you only add documents, this avoids the overhead
+of checking the last modified time.  It also allows you to prioritise
+adding completely new documents to the database over updating existing ones.
 
-With 'replace', omindex will remove any document it finds in the
-database that it did not update - in other words, it will clear out
-everything that doesn't exist any more. However if you are building up
+By default, omindex will remove any document in the database which has a URL
+that doesn't correspond to a file seen on disk - in other words, it will clear
+out everything that doesn't exist any more.  However if you are building up
 an omega database with several runs of omindex, this is not
 appropriate (as each run would delete the data from the previous run),
-so you should use the --preserve-nonduplicates. Note that if you
+so you should use the ``--preserve-removed`` option.  Note that if you
 choose to work like this, it is impossible to prune old documents from
 the database using omindex. If this is a problem for you, an
 alternative is to index each subsite into a different database, and
