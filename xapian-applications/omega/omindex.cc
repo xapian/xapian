@@ -87,8 +87,11 @@ static string site_term, host_term;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
 static Xapian::TermGenerator indexer;
+
 static Xapian::doccount old_docs_not_seen;
+static Xapian::docid old_lastdocid;
 static vector<bool> updated;
+
 static string tmpdir;
 
 static time_t last_mod_max;
@@ -245,8 +248,14 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 
     Xapian::docid did = 0; 
     if (skip_duplicates) {
-        if (db.term_exists(urlterm)) {
+	Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	if (p != db.postlist_end(urlterm)) {
 	    cout << "duplicate. Ignored." << endl;
+	    did = *p;
+	    if (usual(did < updated.size() && !updated[did])) {
+		updated[did] = true;
+		--old_docs_not_seen;
+	    }
 	    return;
 	}
     } else {
@@ -828,6 +837,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 		updated[did] = true;
 		--old_docs_not_seen;
 	    }
+	}
+	if (did < old_lastdocid) {
 	    cout << "updated." << endl;
 	} else {
 	    cout << "added." << endl;
@@ -1277,9 +1288,11 @@ main(int argc, char **argv)
     try {
 	if (!overwrite) {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
-	    if (!skip_duplicates) {
-		// + 1 so that db.get_lastdocid() is a valid subscript.
-		updated.resize(db.get_lastdocid() + 1);
+	    old_docs_not_seen = db.get_doccount();
+	    old_lastdocid = db.get_lastdocid();
+	    if (!preserve_unupdated) {
+		// + 1 so that old_lastdocid is a valid subscript.
+		updated.resize(old_lastdocid + 1);
 	    }
 	    try {
 		string ubound = db.get_value_upper_bound(VALUE_LASTMOD);
@@ -1292,7 +1305,6 @@ main(int argc, char **argv)
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
-	old_docs_not_seen = db.get_doccount();
 
 	if (spelling) {
 	    indexer.set_database(db);
@@ -1301,8 +1313,7 @@ main(int argc, char **argv)
 	indexer.set_stemmer(stemmer);
 
 	index_directory(depth_limit, start_url, mime_map);
-	if (!skip_duplicates && !preserve_unupdated &&
-	    old_docs_not_seen) {
+	if (!preserve_unupdated && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
 	    }

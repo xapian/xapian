@@ -1,3 +1,9 @@
+Thu Oct 28 11:47:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Under --duplicate=ignore, fix so that old documents which
+	  aren't seen get deleted, which wasn't implemented before (to suppress
+	  this deletion, pass -p as well).
+
 Thu Oct 28 10:38:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Track how many documents in the index we haven't seen
