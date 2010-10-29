@@ -651,8 +651,10 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	weight = new BM25Weight;
     }
 
+    Xapian::doccount first_orig = first;
     {
 	Xapian::doccount docs = db.get_doccount();
+	first = min(first, docs);
 	maxitems = min(maxitems, docs);
 	check_at_least = min(check_at_least, docs);
 	check_at_least = max(check_at_least, maxitems);
@@ -670,6 +672,9 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
 		   stats, mdecider, matchspy_legacy, sorter);
+    if (first_orig != first && retval.internal.get()) {
+	retval.internal->firstitem = first_orig;
+    }
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 

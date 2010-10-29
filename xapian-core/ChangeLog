@@ -1,3 +1,9 @@
+Fri Oct 29 12:13:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: If first is larger than get_doccount() then clamp
+	  it to avid pointlessly trying to allocate far too much memory.
+	* tests/api_backend.cc: Regression test msetfirst2.
+
 Thu Oct 21 09:38:44 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/Makefile.am: Add zlib-vg.c to distribution tarballs.

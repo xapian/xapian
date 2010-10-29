@@ -693,3 +693,19 @@ DEFINE_TESTCASE(phrase3, positional) {
 
     return true;
 }
+
+/// Check that get_mset(<large number>, 10) doesn't exhaust memory needlessly.
+// Regression test for fix in 1.2.4.
+DEFINE_TESTCASE(msetfirst2, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+    // Before the fix, this tried to allocated too much memory.
+    mset = enquire.get_mset(0xfffffff0, 1);
+    TEST_EQUAL(mset.get_firstitem(), 0xfffffff0);
+    // Check that the number of documents gets clamped too.
+    mset = enquire.get_mset(1, 0xfffffff0);
+    TEST_EQUAL(mset.get_firstitem(), 1);
+    return true;
+}
