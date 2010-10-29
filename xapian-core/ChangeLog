@@ -1,3 +1,10 @@
+Fri Oct 29 12:32:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Empty query now return MSet with firstitem
+	  set correctly.
+	* tests/api_backend.cc: Extend msetfirst2 to be a regression test for
+	  this issue too.
+
 Fri Oct 29 12:13:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: If first is larger than get_doccount() then clamp
