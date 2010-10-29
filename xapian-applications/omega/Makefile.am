@@ -124,11 +124,12 @@ AM_LDFLAGS = $(ICONV_LDFLAGS)
 noinst_LTLIBRARIES = libtransform.la
 libtransform_la_SOURCES = transform.cc
 libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
+libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
  utf8convert.cc datematchdecider.cc weight.cc common/str.cc unixperm.cc
-omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
+omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\

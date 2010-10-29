@@ -1,3 +1,9 @@
+Fri Oct 29 09:26:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Put $(PCRE_LIBS) in libtransform_la_LIBADD rather than
+	  omega_LDADD (more correct, but probably doesn't actually make any
+	  difference).
+
 Thu Oct 28 14:46:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Disable more output unless --verbose is specified.  Don't
