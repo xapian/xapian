@@ -1,3 +1,8 @@
+Fri Oct 29 14:26:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use the CSV parser to generate a nicer sample for files
+	  of type application/vnd.ms-excel.
+
 Fri Oct 29 09:26:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Put $(PCRE_LIBS) in libtransform_la_LIBADD rather than

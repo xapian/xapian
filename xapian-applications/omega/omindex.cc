@@ -230,6 +230,68 @@ get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 }
 
 static void
+generate_sample_from_csv(const string & csv_data, string & sample)
+{
+    // Add 3 to allow for a 4 byte utf-8 sequence being appended when
+    // output is SAMPLE_SIZE - 1 bytes long.
+    sample.reserve(SAMPLE_SIZE + 3);
+    size_t last_word_end = 0;
+    bool in_space = true;
+    bool in_quotes = false;
+    Xapian::Utf8Iterator i(csv_data);
+    for ( ; i != Xapian::Utf8Iterator(); ++i) {
+	unsigned ch = *i;
+
+	if (!in_quotes) {
+	    // If not already in double quotes, '"' starts quoting and
+	    // ',' starts a new field.
+	    if (ch == '"') {
+		in_quotes = true;
+		continue;
+	    }
+	    if (ch == ',')
+		ch = ' ';
+	} else if (ch == '"') {
+	    // In double quotes, '"' either ends double quotes, or
+	    // if followed by another '"', means a literal '"'.
+	    if (++i == Xapian::Utf8Iterator())
+		break;
+	    ch = *i;
+	    if (ch != '"') {
+		in_quotes = false;
+		if (ch == ',')
+		    ch = ' ';
+	    }
+	}
+
+	if (ch <= ' ' || ch == 0xa0) {
+	    // FIXME: if all the whitespace characters between two
+	    // words are 0xa0 (non-breaking space) then perhaps we
+	    // should output 0xa0.
+	    if (in_space)
+		continue;
+	    last_word_end = sample.size();
+	    sample += ' ';
+	    in_space = true;
+	} else {
+	    Xapian::Unicode::append_utf8(sample, ch);
+	    in_space = false;
+	}
+
+	if (sample.size() >= SAMPLE_SIZE) {
+	    // Need to truncate sample.
+	    if (last_word_end <= SAMPLE_SIZE / 2) {
+		// Monster word!  We'll have to just split it.
+		sample.replace(SAMPLE_SIZE - 3, string::npos, "...", 3);
+	    } else {
+		sample.replace(last_word_end, string::npos, " ...", 4);
+	    }
+	    break;
+	}
+    }
+}
+
+static void
 index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 {
     string file = root + url;
@@ -425,13 +487,14 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-excel") {
-	string cmd = "xls2csv -q0 -dutf-8 " + shell_protect(file);
+	string cmd = "xls2csv -q1 -dutf-8 " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
+	generate_sample_from_csv(dump, sample);
     } else if (mimetype == "application/vnd.ms-powerpoint") {
 	string cmd = "catppt -dutf-8 " + shell_protect(file);
 	try {
@@ -612,64 +675,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 
-	    // Add 3 to allow for a 4 byte utf-8 sequence being appended when
-	    // output is SAMPLE_SIZE - 1 bytes long.
-	    sample.reserve(SAMPLE_SIZE + 3);
-	    size_t last_word_end = 0;
-	    bool in_space = true;
-	    bool in_quotes = false;
-	    Xapian::Utf8Iterator i(dump);
-	    for ( ; i != Xapian::Utf8Iterator(); ++i) {
-		unsigned ch = *i;
-
-		if (!in_quotes) {
-		    // If not already in double quotes, '"' starts quoting and
-		    // ',' starts a new field.
-		    if (ch == '"') {
-			in_quotes = true;
-			continue;
-		    }
-		    if (ch == ',')
-			ch = ' ';
-		} else if (ch == '"') {
-		    // In double quotes, '"' either ends double quotes, or
-		    // if followed by another '"', means a literal '"'.
-		    if (++i == Xapian::Utf8Iterator())
-			break;
-		    ch = *i;
-		    if (ch != '"') {
-			in_quotes = false;
-			if (ch == ',')
-			    ch = ' ';
-		    }
-		}
-
-		if (ch <= ' ' || ch == 0xa0) {
-		    // FIXME: if all the whitespace characters between two
-		    // words are 0xa0 (non-breaking space) then perhaps we
-		    // should output 0xa0.
-		    if (in_space)
-			continue;
-		    last_word_end = sample.size();
-		    sample += ' ';
-		    in_space = true;
-		} else {
-		    Xapian::Unicode::append_utf8(sample, ch);
-		    in_space = false;
-		}
-
-		if (sample.size() >= SAMPLE_SIZE) {
-		    // Need to truncate sample.
-		    if (last_word_end <= SAMPLE_SIZE / 2) {
-			// Monster word!  We'll have to just split it.
-			sample.replace(SAMPLE_SIZE - 3, string::npos, "...", 3);
-		    } else {
-			sample.replace(last_word_end, string::npos, " ...", 4);
-		    }
-		    break;
-		}
-	    }
-
+	    generate_sample_from_csv(dump, sample);
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
