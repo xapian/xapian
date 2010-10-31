@@ -2293,6 +2293,32 @@ static bool test_qp_stopword_group1()
 #endif
 }
 
+/// Regression test for bug with default_op set such that we get an exception.
+// Fixed in 1.2.4.
+static bool test_qp_default_op2()
+{
+    Xapian::QueryParser qp;
+    static const Xapian::Query::op ops[] = {
+	Xapian::Query::OP_AND_NOT,
+	Xapian::Query::OP_AND_MAYBE,
+	Xapian::Query::OP_FILTER,
+	Xapian::Query::OP_VALUE_RANGE,
+	Xapian::Query::OP_SCALE_WEIGHT,
+	Xapian::Query::OP_VALUE_GE,
+	Xapian::Query::OP_VALUE_LE
+    };
+    const Xapian::Query::op * p;
+    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
+	tout << *p << endl;
+	qp.set_default_op(*p);
+	// Before the fix, we tried to free an object twice when parsing the
+	// following query with default_op set such that we get an exception.
+	TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		       qp.parse_query("a-b NEAR c NEAR d"));
+    }
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static const test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -2328,6 +2354,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
     TESTCASE(qp_stopword_group1),
+    TESTCASE(qp_default_op2),
     END_OF_TESTCASES
 };
 

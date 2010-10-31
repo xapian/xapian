@@ -373,8 +373,9 @@ Term::as_wildcarded_query(State * state_) const
 	    ++t;
 	}
     }
+    Query * q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
     delete this;
-    return new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
+    return q;
 }
 
 Query *
@@ -397,12 +398,13 @@ Term::as_partial_query(State * state_) const
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs_full.push_back(Query(make_term(*piter), 1, pos));
     }
+    Query * q = new Query(Query::OP_OR,
+			  Query(Query::OP_SYNONYM,
+				subqs_partial.begin(), subqs_partial.end()),
+			  Query(Query::OP_SYNONYM,
+				subqs_full.begin(), subqs_full.end()));
     delete this;
-    return new Query(Query::OP_OR,
-		     Query(Query::OP_SYNONYM,
-			   subqs_partial.begin(), subqs_partial.end()),
-		     Query(Query::OP_SYNONYM,
-			   subqs_full.begin(), subqs_full.end()));
+    return q;
 }
 
 Query
@@ -1387,16 +1389,18 @@ reprocess:
 	goto reprocess;
     }
 
-    delete this;
-
-    if (subqs.empty()) return NULL;
-
-    if (default_op == Query::OP_NEAR ||
-	default_op == Query::OP_PHRASE) {
-	return new Query(default_op, subqs.begin(), subqs.end(),
-			 subqs.size() + 9);
+    Query * q = NULL;
+    if (!subqs.empty()) {
+	if (default_op == Query::OP_NEAR ||
+	    default_op == Query::OP_PHRASE) {
+	    q = new Query(default_op, subqs.begin(), subqs.end(),
+			     subqs.size() + 9);
+	} else {
+	    q = new Query(default_op, subqs.begin(), subqs.end());
+	}
     }
-    return new Query(default_op, subqs.begin(), subqs.end());
+    delete this;
+    return q;
 }
 
 /// Some terms which form a positional sub-query.
