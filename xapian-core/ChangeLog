@@ -1,3 +1,9 @@
+Mon Nov 01 10:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* tests/soaktest/soaktest_queries.cc: Fix compilation: call c_str()
+	  on argument to atoi, now that util.h no longer defines a string
+	  wrapper.
+
 Sun Oct 31 10:51:12 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Don't delete this in TermGroup, etc
