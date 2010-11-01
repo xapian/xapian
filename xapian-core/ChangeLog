@@ -1,3 +1,14 @@
+Mon Nov 01 14:47:37 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* matcher/multimatch.cc,matcher/multixorpostlist.cc,
+	  matcher/multixorpostlist.h: Add debugging to print out the
+	  postlist description after recalculation of maxweight, and to
+	  MultiXorPostList methods.  Fix problem shown by soaktest where
+	  the matcher was not told to recalculate the maxweight after a
+	  MultiXorPostList child reached end, which was causing an
+	  assertion failure in debug builds.  (This could also have been
+	  causing some performance problems, but I have not measurements.)
+
 Mon Nov 01 10:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* tests/soaktest/soaktest_queries.cc: Fix compilation: call c_str()
