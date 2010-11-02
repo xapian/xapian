@@ -1,6 +1,6 @@
 /* md5wrap.cc: wrapper functions to allow easy use of MD5 from C++.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,12 +48,22 @@
 using namespace std;
 
 bool
-md5_file(const string &file_name, string &md5)
+md5_file(const string &file_name, string &md5, bool try_noatime)
 {
-    mode_t mode = O_RDONLY;
-    mode |= O_STREAMING;
+    mode_t mode = O_RDONLY|O_STREAMING;
+#if defined O_NOATIME && O_NOATIME != 0
+    if (try_noatime) mode |= O_NOATIME;
+#else
+    (void)try_noatime;
+#endif
 
     int fd = open(file_name.c_str(), mode);
+#if defined O_NOATIME && O_NOATIME != 0
+    if (fd < 0 && (mode & O_NOATIME)) {
+	mode &= ~O_NOATIME;
+	fd = open(file_name.c_str(), mode);
+    }
+#endif
     if (fd < 0) return false;
 
 #ifdef HAVE_POSIX_FADVISE

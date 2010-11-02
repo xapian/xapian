@@ -1,3 +1,10 @@
+Tue Nov 02 09:48:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h,loadfile.cc,loadfile.h,md5wrap.cc,md5wrap.h,
+	  omindex.cc,scriptindex.cc: Use O_NOATIME if available and either the
+	  file is owned by the current euid, or the current euid is 0 (i.e.
+	  we're running as root).  Fixes ticket#222.
+
 Fri Oct 29 14:26:25 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use the CSV parser to generate a nicer sample for files

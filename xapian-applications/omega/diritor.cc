@@ -21,31 +21,33 @@
 
 #include "diritor.h"
 
+#include "safeunistd.h"
+#include <sys/types.h>
 #include "safeerrno.h"
 
 #include <cstring>
 
 using namespace std;
 
+uid_t DirectoryIterator::euid = geteuid();
+
 void
 DirectoryIterator::call_stat()
 {
-    string file = path;
-    file += '/';
-    file += leafname();
+    build_path();
     int retval;
 #ifdef HAVE_LSTAT
     if (follow_symlinks) {
 #endif
-	retval = stat(file.c_str(), &statbuf);
+	retval = stat(path.c_str(), &statbuf);
 #ifdef HAVE_LSTAT
     } else {
-	retval = lstat(file.c_str(), &statbuf);
+	retval = lstat(path.c_str(), &statbuf);
     }
 #endif
     if (retval == -1) {
 	string error = "Can't stat \"";
-	error += file;
+	error += path;
 	error += "\" (";
 	error += strerror(errno);
 	error += ')';
@@ -54,10 +56,20 @@ DirectoryIterator::call_stat()
 }
 
 void
+DirectoryIterator::build_path()
+{
+    if (path.length() == path_len) {
+	path += '/';
+	path += leafname();
+    }
+}
+
+void
 DirectoryIterator::start(const std::string & path_)
 {
     if (dir) closedir(dir);
     path = path_;
+    path_len = path.length();
     dir = opendir(path.c_str());
     if (dir == NULL) {
 	string error = "Can't open directory \"";

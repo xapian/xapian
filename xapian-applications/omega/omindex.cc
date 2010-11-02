@@ -46,7 +46,6 @@
 #include "commonhelp.h"
 #include "diritor.h"
 #include "hashterm.h"
-#include "loadfile.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
@@ -175,14 +174,6 @@ static bool ensure_tmpdir() {
     }
     delete [] dir_template;
     return (p != NULL);
-}
-
-static string
-file_to_string(const string &file)
-{
-    string out;
-    if (!load_file(file, out)) throw ReadError();
-    return out;
 }
 
 static void
@@ -355,7 +346,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     if (mimetype == "text/html") {
 	string text;
 	try {
-	    text = file_to_string(file);
+	    text = d.file_to_string();
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
@@ -388,7 +379,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	try {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
-	    dump = file_to_string(file);
+	    dump = d.file_to_string();
 	    md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
@@ -554,7 +545,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	// FIXME: Implement support for metadata.
 	try {
 	    XmlParser xmlparser;
-	    string text = file_to_string(file);
+	    string text = d.file_to_string();
 	    xmlparser.parse_html(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
@@ -658,7 +649,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	try {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
-	    dump = file_to_string(file);
+	    dump = d.file_to_string();
 	    md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
@@ -710,7 +701,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	sample = p.sample;
     } else if (mimetype == "image/svg+xml") {
 	SvgParser svgparser;
-	svgparser.parse_html(file_to_string(file));
+	svgparser.parse_html(d.file_to_string());
 	dump = svgparser.dump;
 	title = svgparser.title;
 	keywords = svgparser.keywords;
@@ -742,7 +733,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     }
 
     // Compute the MD5 of the file if we haven't already.
-    if (md5.empty() && md5_file(file, md5) == 0) {
+    if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
 	cout << "failed to read file to calculate MD5 checksum - skipping" << endl;
 	return;
     }

@@ -24,6 +24,7 @@
 
 #include "safedirent.h"
 #include "safeerrno.h"
+#include "safefcntl.h"
 #include "safesysstat.h"
 
 #include <sys/types.h>
@@ -32,8 +33,15 @@
 
 #include "common/noreturn.h"
 
+#include "loadfile.h"
+#include "runfilter.h" // For class ReadError.
+
 class DirectoryIterator {
+    static uid_t euid;
+
     std::string path;
+    std::string::size_type path_len;
+
     DIR * dir;
     struct dirent *entry;
     struct stat statbuf;
@@ -48,6 +56,8 @@ class DirectoryIterator {
 	    statbuf_valid = true;
 	}
     }
+
+    void build_path();
 
   public:
 
@@ -69,6 +79,7 @@ class DirectoryIterator {
     //
     //  @return false if there are no more entries.
     bool next() {
+	path.resize(path_len);
 	errno = 0;
 	do {
 	    entry = readdir(dir);
@@ -81,6 +92,8 @@ class DirectoryIterator {
     XAPIAN_NORETURN(void next_failed() const);
 
     const char * leafname() const { return entry->d_name; }
+
+    const std::string & pathname() const { return path; }
 
     typedef enum { REGULAR_FILE, DIRECTORY, OTHER } type;
 
@@ -149,6 +162,25 @@ class DirectoryIterator {
     bool is_other_readable() {
 	ensure_statbuf_valid();
 	return (statbuf.st_mode & S_IROTH);
+    }
+
+    bool try_noatime() {
+#if defined O_NOATIME && O_NOATIME != 0
+	if (euid == 0) return true;
+	ensure_statbuf_valid();
+	return statbuf.st_uid == euid;
+#else
+	return false;
+#endif
+    }
+
+    std::string file_to_string() {
+	build_path();
+	std::string out;
+	int flags = NOCACHE;
+	if (try_noatime()) flags |= NOATIME;
+	if (!load_file(path, out, flags)) throw ReadError();
+	return out;
     }
 };
 
