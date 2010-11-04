@@ -53,7 +53,33 @@ convert_to_utf8(string & text, const string & charset)
 
 #ifdef USE_ICONV
     iconv_t conv = iconv_open("UTF-8", charset.c_str());
-    if (conv == (iconv_t)-1) return;
+    if (conv == (iconv_t)-1) {
+	// Try correcting common misspellings of UTF-16 and UCS-2 charsets.
+	// In particular, handle ' ' or '_' instead of '-', and a missing '-'.
+	//
+	// Note: libiconv on OSX doesn't support these misspellings, though
+	// libiconv on Ubuntu does.
+	string fixedcharset;
+
+	if (charset.size() >= 4) {
+	    string start = charset.substr(0, 3);
+	    if (strcasecmp(start.c_str(), "ucs") == 0 ||
+		strcasecmp(start.c_str(), "utf") == 0) {
+		if (charset[3] == ' ' || charset[3] == '_') {
+		    fixedcharset = start + "-" + charset.substr(4);
+		} else {
+		    fixedcharset = start + "-" + charset.substr(3);
+		}
+	    }
+	}
+
+	if (!fixedcharset.empty()) {
+	    conv = iconv_open("UTF-8", fixedcharset.c_str());
+	    if (conv == (iconv_t)-1) return;
+	} else {
+	    return;
+	}
+    }
 
     string tmp;
 

@@ -1,3 +1,11 @@
+Thu Nov 04 09:01:08 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* utf8convert.cc,utf8converttest.cc: If iconv can't handle a
+	  charset, check if it's of the form (UTF|UCS)[_ ]?.* and if so,
+	  convert to the official hypenated form.  Should fix failure of
+	  utf8converttest on OSX, where it fails due to iconv not
+	  supporting "UTF16".
+
 Tue Nov 02 09:48:19 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.cc,diritor.h,loadfile.cc,loadfile.h,md5wrap.cc,md5wrap.h,
