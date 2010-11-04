@@ -416,7 +416,7 @@ for d in $modules ; do
       for arg
       do
 	case $arg in
-	  C(XX|XXFLAGS|PPFLAGS)=*) passthru_args="$passthru_args \"$arg\"" ;;
+	  CXX=*|CXXFLAGS=*|CPPFLAGS=*) passthru_args="$passthru_args \"$arg\"" ;;
 	esac
       done
       perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG"$passthru_args
