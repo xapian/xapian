@@ -15,7 +15,8 @@ To install this module type the following:
 By default, Makefile.PL looks for xapian-config on your PATH.  You can specify
 a path for xapian-config by passing XAPIAN_CONFIG=/path/to/xapian-config on
 the command line after Makefile.PL.  Similarly, you can specify a C++ compiler
-by passing CXX=/usr/local/bin/g++ after Makefile.PL.  For example:
+by passing CXX=/usr/local/bin/g++ after Makefile.PL, as well as CXXFLAGS and
+CPPFLAGS to add additional compiler flags.  For example:
 
    perl Makefile.PL XAPIAN_CONFIG=/home/jim/bin/xapian-config CXX=g++-4.3
 

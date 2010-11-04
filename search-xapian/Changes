@@ -1,10 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.4.0  Fri Sep 24 13:45:08 UTC 2010
+1.2.4.0  Thu Nov  5 11:02:08 UTC 2010
 	[Changes contributed by Olly Betts]
 	- Make sure all Perl files have 'use strict;' and 'use warnings;'.
 	- Remove superfluous 'use Carp;' from generated error classes.
 	- t/document.t: Test TermIterator::get_termname().
+	- Makefile.PL now looks for CXXFLAGS and CPPFLAGS passed on the
+	  command line, and adds tehm to CCFLAGS in the generated Makefile.
 	[Changes contributed by Tim Brody]
 	- New testcase t/10query.t.
 
