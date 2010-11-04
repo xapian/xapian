@@ -1,3 +1,8 @@
+Thu Nov 04 11:39:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utf8converttest.cc: Add back in testcases for charset names with
+	  hyphens in.
+
 Thu Nov 04 09:01:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* utils.cc: Fix misuse of BUFSIZE which should be sizeof(buf) (issue
