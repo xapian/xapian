@@ -1,3 +1,8 @@
+Thu Nov 04 09:01:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utils.cc: Fix misuse of BUFSIZE which should be sizeof(buf) (issue
+	  reported by compilation with CPPFLAGS=-D_GLIBCXX_DEBUG).
+
 Thu Nov 04 09:01:08 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* utf8convert.cc,utf8converttest.cc: If iconv can't handle a
