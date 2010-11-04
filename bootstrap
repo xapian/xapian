@@ -410,15 +410,16 @@ for d in $modules ; do
     cd "$d"
     if [ -f "$makefilepl" ] ; then
       echo "Configuring \`$d'"
-      # Extract any CXX=... argument from those passed to us.
-      unset cxxarg
+      # Extract any parameters which we know Makefile.PL understands from 
+      # from those passed to us.
+      passthru_args=
       for arg
       do
 	case $arg in
-	  CXX=*) cxxarg=$arg ;;
+	  C(XX|XXFLAGS|PPFLAGS)=*) passthru_args="$passthru_args \"$arg\"" ;;
 	esac
       done
-      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
+      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG"$passthru_args
       dirs="$dirs $d"
     fi
     cd "$here"
