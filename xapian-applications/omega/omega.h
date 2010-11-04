@@ -70,4 +70,6 @@ extern string date_start, date_end, date_span;
 
 extern const string default_dbname;
 
+extern bool set_content_type, suppress_http_headers;
+
 #endif // OMEGA_INCLUDED_OMEGA_H

@@ -55,6 +55,10 @@ string date_start, date_end, date_span;
 
 const string default_dbname = "default";
 
+bool set_content_type = false;
+
+bool suppress_http_headers = false;
+
 string dbname;
 string fmtname = "query";
 string filters;
@@ -347,13 +351,23 @@ try {
 
     parse_omegascript(); 
 } catch (const Xapian::Error &e) {
+    if (set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: " << html_escape(e.get_msg()) << endl;
 } catch (const std::exception &e) {
+    if (set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: std::exception " << html_escape(e.what()) << endl;
 } catch (const string &s) {
+    if (set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: " << html_escape(s) << endl;
 } catch (const char *s) {
+    if (set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: " << html_escape(s) << endl;
 } catch (...) {
+    if (set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Caught unknown exception" << endl;
 }

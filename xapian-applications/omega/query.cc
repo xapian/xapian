@@ -122,8 +122,6 @@ static string error_msg;
 
 static double secs = -1;
 
-static bool suppress_http_headers = false;
-
 static const char DEFAULT_LOG_ENTRY[] =
 	"$or{$env{REMOTE_HOST},$env{REMOTE_ADDR},-}\t"
 	"[$date{$now,%d/%b/%Y:%H:%M:%S} +0000]\t"
@@ -131,8 +129,6 @@ static const char DEFAULT_LOG_ENTRY[] =
 	"$dbname\t"
 	"$query\t"
 	"$msize$if{$env{HTTP_REFERER},\t$env{HTTP_REFERER}}";
-
-static bool set_content_type = false;
 
 class MyStopper : public Xapian::Stopper {
   public:

@@ -1,3 +1,9 @@
+Thu Nov 04 11:55:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omega.cc,omega.h,query.cc: If we catch an error early on, make sure
+	  that if it's appropriate, we write out a "Content-Type:" HTTP header
+	  and end the headers.
+
 Thu Nov 04 11:39:10 GMT 2010  Olly Betts <olly@survex.com>
 
 	* utf8converttest.cc: Add back in testcases for charset names with
