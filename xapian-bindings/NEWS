@@ -1,3 +1,90 @@
+ 15151    richard Thu Nov 04 12:44:51 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+backported to 1.0.22:
+
+ 15028       olly Wed Sep 29 05:35:03 GMT 2010  Olly Betts <olly@survex.com>
+	* java-swig/Makefile.am: Fix to delete libxapian_jni.la rather than
+	  xapian.la.
+
+ 15027       olly Wed Sep 29 05:33:43 GMT 2010  Olly Betts <olly@survex.com>
+	* csharp/Makefile.am,xapian-bindings.spec.in: Don't install or package
+	  _XapianSharp.la.
+
+ 15010       olly Mon Sep 27 13:00:33 GMT 2010  Olly Betts <olly@survex.com>
+	* php/Makefile.am: Fix $(PHP_MAJOR_VERSION) to literal 5 in two places.
+
+ 14901       olly Wed Aug 25 15:15:36 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Use sys.version_info tuple, rather than string splicing
+	  which assumes the Python "major.minor" is 3 characters (which would
+	  fail if Python 2.10 were ever released, for example).
+
+Xapian-bindings 1.2.4 (2010-11-06):
+
+Documentation:
+
+General:
+
+ 14970       olly Wed Sep 08 00:24:58 GMT 2010  Olly Betts <olly@survex.com>
+	* java-swig/Makefile.am: Remove commented out SUBDIRS line.
+ 14968       olly Tue Sep 07 11:54:58 GMT 2010  Olly Betts <olly@survex.com>
+	* ruby/Makefile.am,ruby/docs/generate-rdoc-stubs,
+	  ruby/generate-rdoc-stubs: Fix generation of rdocs to work when srcdir
+	  != buildir (broken by last but one commit).
+ 14967       olly Tue Sep 07 10:46:36 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am: Eliminate
+	  csharp/docs/Makefile.am similarly.
+ 14966       olly Tue Sep 07 10:28:25 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac,php/Makefile.am,php/docs/Makefile.am,python/Makefile.am,
+	  python/docs/Makefile.am,ruby/Makefile.am,ruby/docs/Makefile.am,
+	  tcl8/Makefile.am,tcl8/docs/Makefile.am: Eliminate separate
+	  Makefile.am in docs subdirectory of each language subdirectory and
+	  just inline any rules into the main sub-Makefile.am, which allows
+	  make to run more of the build in parallel.
+
+* Don't ship some files which are generated at build time.
+
+* Don't list files which automake implicitly ships.
+
+	* configure.ac: Need python in maintainer mode to run doxy2swig.py.
+
+Packaging:
+
+Portability:
+
+ 15151    richard Thu Nov 04 12:44:51 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* generic/generic.mk: For Mac OS X builds, set DYLD_LIBRARY_PATH to
+	  allow tests to find uninstalled xapian library.  See ticket #322.
+
+ 15079       olly Fri Oct 08 13:32:38 GMT 2010  Olly Betts <olly@survex.com>
+	* configure.ac: Fix typo in code to set PYTHON_LIBS under cygwin.
+	  (ticket#509)
+
+ 15051    richard Fri Oct 01 12:10:55 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* csharp/Makefile.am,python/generate-python-exceptions,
+	  python/pythontest2.py,xapian.i: Wrap the new Xapian::Compactor
+	  class as a Director class, and add a testcase for it in python.
+
+ 15026       olly Wed Sep 29 05:19:44 GMT 2010  Olly Betts <olly@survex.com>
+	* xapian-bindings.spec.in: Package the Perl bindings too (patch from
+	  Tim Brody).
+
+
+CSharp:
+
+Java:
+
+Perl:
+
+	* Merge Kosei's SWIG-based Perl bindings from GSoC 2009.
+
+PHP:
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.3 (2010-08-24):
 
 Packaging:

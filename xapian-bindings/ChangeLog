@@ -1,3 +1,7 @@
+Sat Nov 06 11:59:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Thu Nov 04 12:44:51 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* generic/generic.mk: For Mac OS X builds, set DYLD_LIBRARY_PATH to
