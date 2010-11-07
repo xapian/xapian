@@ -70,8 +70,8 @@ class MyCompactor : public Xapian::Compactor {
 
     string
     resolve_duplicate_metadata(const string & key,
-			       const string & tag1,
-			       const string & tag2);
+			       size_t n,
+			       const string tags[]);
 };
 
 void
@@ -87,13 +87,17 @@ MyCompactor::set_status(const string & table, const string & status)
 
 string
 MyCompactor::resolve_duplicate_metadata(const string & key,
-					const string & tag1,
-					const string & tag2)
+					size_t n,
+					const string tags[])
 {
     (void)key;
-    if (tag1 != tag2)
-	cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
-    return tag1;
+    while (--n) {
+	if (tags[0] != tags[n]) {
+	    cerr << "Warning: duplicate user metadata key with different tag value - picking value from first source database with a non-empty value" << endl;
+	    break;
+	}
+    }
+    return tags[0];
 }
 
 int

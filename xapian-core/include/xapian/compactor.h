@@ -58,10 +58,10 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
     virtual void
     set_status(const std::string & table, const std::string & status);
 
+// FIXME: for multipass this will currently get called during each pass
     virtual std::string
     resolve_duplicate_metadata(const std::string & key,
-			       const std::string & tag1,
-			       const std::string & tag2);
+			       size_t num_tags, const std::string tags[]);
 };
 
 }

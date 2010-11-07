@@ -171,12 +171,11 @@ Compactor::set_status(const string & table, const string & status)
 
 string
 Compactor::resolve_duplicate_metadata(const string & key,
-				      const string & tag1,
-				      const string & tag2)
+				      size_t num_tags, const std::string tags[])
 {
     (void)key;
-    (void)tag2;
-    return tag1;
+    (void)num_tags;
+    return tags[0];
 }
 
 }

@@ -278,22 +278,27 @@ merge_postlists(Xapian::Compactor & compactor,
     string last_key;
     {
 	// Merge user metadata.
-	string last_tag;
+	vector<string> tags;
 	while (!pq.empty()) {
 	    PostlistCursor * cur = pq.top();
 	    const string& key = cur->key;
 	    if (!is_user_metadata_key(key)) break;
 
-	    const string & tag = cur->tag;
-	    if (key == last_key) {
-		last_tag = compactor.resolve_duplicate_metadata(key,
-								last_tag, tag);
-	    } else {
-		if (!last_key.empty())
-		    out->add(last_key, last_tag);
+	    if (key != last_key) {
+		if (tags.size() > 1) {
+		    Assert(!last_key.empty());
+		    out->add(last_key,
+			     compactor.resolve_duplicate_metadata(last_key,
+								  tags.size(),
+								  &tags[0]));
+		} else if (tags.size() == 1) {
+		    Assert(!last_key.empty());
+		    out->add(last_key, tags[0]);
+		}
+		tags.resize(0);
 		last_key = key;
-		last_tag = tag;
 	    }
+	    tags.push_back(cur->tag);
 
 	    pq.pop();
 	    if (cur->next()) {
@@ -302,8 +307,16 @@ merge_postlists(Xapian::Compactor & compactor,
 		delete cur;
 	    }
 	}
-	if (!last_key.empty())
-	    out->add(last_key, last_tag);
+	if (tags.size() > 1) {
+	    Assert(!last_key.empty());
+	    out->add(last_key,
+		     compactor.resolve_duplicate_metadata(last_key,
+							  tags.size(),
+							  &tags[0]));
+	} else if (tags.size() == 1) {
+	    Assert(!last_key.empty());
+	    out->add(last_key, tags[0]);
+	}
     }
 
     {
