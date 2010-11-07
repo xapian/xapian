@@ -1472,8 +1472,8 @@ def test_compactor():
                 else:
                     self.log.append('%s: %s' % (table, status))
 
-            def resolve_duplicate_metadata(self, key, val1, val2):
-                return val1 + ',' + val2
+            def resolve_duplicate_metadata(self, key, vals):
+                return ','.join(vals)
 
         c = MyCompactor()
         c.add_source(db1path)

@@ -1,3 +1,8 @@
+Sun Nov 07 14:17:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/util.i: Wrap updated
+	  Compactor::resolve_duplicate_metadata() method signature.
+
 Sat Nov 06 11:59:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

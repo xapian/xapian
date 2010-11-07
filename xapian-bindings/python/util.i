@@ -528,4 +528,21 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     PyTuple_SetItem($result, 2, str);
 }
 
+%typemap(directorin) (size_t num_tags, const std::string tags[]) {
+    $input = PyList_New(0);
+    if ($input == 0) {
+	return NULL;
+    }
+
+    for (size_t i = 0; i != num_tags; ++i) {
+%#if PY_VERSION_HEX >= 0x03000000
+	PyObject * str = PyBytes_FromStringAndSize(tags[i].data(), tags[i].size());
+%#else
+	PyObject * str = PyString_FromStringAndSize(tags[i].data(), tags[i].size());
+%#endif
+	if (str == 0) return NULL;
+	if (PyList_Append($input, str) == -1) return NULL;
+    }
+}
+
 /* vim:set syntax=cpp:set noexpandtab: */
