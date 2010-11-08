@@ -1,7 +1,7 @@
 /* myhtmlparse.h: subclass of HtmlParser for extracting text
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ class MyHtmlParser : public HtmlParser {
 	bool pending_space;
 	bool indexing_allowed;
 	bool charset_from_meta;
-	string title, sample, keywords, dump;
+	string title, sample, keywords, dump, author;
 	void process_text(const string &text);
 	void opening_tag(const string &tag);
 	void closing_tag(const string &tag);
@@ -59,6 +59,7 @@ class MyHtmlParser : public HtmlParser {
 	    sample.resize(0);
 	    keywords.resize(0);
 	    dump.resize(0);
+	    author.resize(0);
 	}
 };
 

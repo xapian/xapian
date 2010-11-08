@@ -381,6 +381,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	title = p.title;
 	keywords = p.keywords;
 	sample = p.sample;
+	author = p.author;
 	md5_string(text, md5);
     } else if (mimetype == "text/plain") {
 	try {
@@ -710,6 +711,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	title = p.title;
 	keywords = p.keywords;
 	sample = p.sample;
+	author = p.author;
     } else if (mimetype == "image/svg+xml") {
 	SvgParser svgparser;
 	svgparser.parse_html(d.file_to_string());

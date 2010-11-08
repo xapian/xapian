@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -129,6 +129,11 @@ MyHtmlParser::opening_tag(const string &tag)
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
 			    keywords += content;
+			} else if (name == "author") {
+			    if (!author.empty()) author += ' ';
+			    convert_to_utf8(content, charset);
+			    decode_entities(content);
+			    author += content;
 			} else if (name == "robots") {
 			    decode_entities(content);
 			    lowercase_string(content);
