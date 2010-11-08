@@ -23,13 +23,13 @@
 #include "htmlparse.h"
 
 class MetaXmlParser : public HtmlParser {
-    enum { NONE, KEYWORDS, TITLE, SAMPLE } field;
+    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR } field;
   public:
     MetaXmlParser() : field(NONE) { }
     void process_text(const string &text);
     void opening_tag(const string &tag);
     void closing_tag(const string &tag);
-    string title, keywords, sample;
+    string title, keywords, sample, author;
 };
 
 #endif // OMEGA_INCLUDED_METAXMLPARSE_H

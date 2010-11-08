@@ -473,6 +473,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    title = metaxmlparser.title;
 	    keywords = metaxmlparser.keywords;
 	    sample = metaxmlparser.sample;
+	    author = metaxmlparser.author;
 	} catch (ReadError) {
 	    // It's probably best to index the document even if this fails.
 	}
