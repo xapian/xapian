@@ -449,7 +449,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     {
 	// Inspired by http://mjr.towers.org.uk/comp/sxw2text
 	string safefile = shell_protect(file);
-	string cmd = "unzip -p " + safefile + " content.xml";
+	string cmd = "unzip -p " + safefile + " content.xml styles.xml";
 	try {
 	    XmlParser xmlparser;
 	    xmlparser.parse_html(stdout_to_string(cmd));
@@ -498,7 +498,10 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	const char * args = NULL;
 	string tail(mimetype, 46);
 	if (startswith(tail, "wordprocessingml.")) {
-	    args = " word/document.xml";
+	    // unzip returns exit code 11 if a file to extract wasn't found
+	    // which we want to ignore, because there may be no headers or
+	    // no footers.
+	    args = " word/document.xml word/header\\*.xml word/footer\\*.xml 2>/dev/null||test $? = 11";
 	} else if (startswith(tail, "spreadsheetml.")) {
 	    args = " xl/sharedStrings.xml";
 	} else if (startswith(tail, "presentationml.")) {

@@ -1,3 +1,8 @@
+Mon Nov 08 00:28:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index text in headers and footers for .odt and .docx
+	  files.
+
 Thu Nov 04 11:55:58 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omega.cc,omega.h,query.cc: If we catch an error early on, make sure
