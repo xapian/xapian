@@ -533,6 +533,18 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
+
+	cmd = "unzip -p " + safefile + " docProps/core.xml";
+	try {
+	    MetaXmlParser metaxmlparser;
+	    metaxmlparser.parse_html(stdout_to_string(cmd));
+	    title = metaxmlparser.title;
+	    keywords = metaxmlparser.keywords;
+	    sample = metaxmlparser.sample;
+	    author = metaxmlparser.author;
+	} catch (ReadError) {
+	    // It's probably best to index the document even if this fails.
+	}
     } else if (mimetype == "application/vnd.wordperfect") {
 	// Looking at the source of wpd2html and wpd2text I think both output
 	// utf-8, but it's hard to be sure without sample Unicode .wpd files

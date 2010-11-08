@@ -1,3 +1,7 @@
+Mon Nov 08 10:40:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Extract metadata from Microsoft Office 2007 file formats.
+
 Mon Nov 08 10:21:13 GMT 2010  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Extract author from HTML
