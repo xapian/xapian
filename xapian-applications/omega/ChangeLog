@@ -1,3 +1,7 @@
+Mon Nov 08 10:58:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,svgparse.cc,svgparse.h: Extract author for SVG files.
+
 Mon Nov 08 10:40:09 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Extract metadata from Microsoft Office 2007 file formats.

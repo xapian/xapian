@@ -39,6 +39,9 @@ SvgParser::process_text(const string &text)
 	case KEYWORDS:
 	    target = &keywords;
 	    break;
+	case AUTHOR:
+	    target = &author;
+	    break;
 	case METADATA: case OTHER:
 	    // Ignore context in other places.
 	    return;
@@ -67,9 +70,11 @@ SvgParser::opening_tag(const string &tag)
 		    state = TITLE;
 		else if (tag == "dc:subject")
 		    state = KEYWORDS;
+		else if (tag == "dc:creator")
+		    state = AUTHOR;
 	    }
 	    return;
-	case KEYWORDS: case TEXT: case TITLE:
+	case KEYWORDS: case TEXT: case TITLE: case AUTHOR:
 	    // Avoid compiler warnings.
 	    break;
     }

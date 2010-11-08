@@ -730,6 +730,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	dump = svgparser.dump;
 	title = svgparser.title;
 	keywords = svgparser.keywords;
+	author = svgparser.author;
     } else if (mimetype == "application/x-debian-package") {
 	string cmd("dpkg-deb -f ");
 	cmd += shell_protect(file);
