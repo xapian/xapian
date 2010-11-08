@@ -206,24 +206,6 @@
     $1 = &v;
 }
 
-
-#if 0
-// We don't want to generate get_matching_terms this way for Ruby - instead
-// we define it in xapian.rb.
-/*
- * Convert a begin/end pair of TermIterators into Arrays of Terms.
- */
-#define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
-%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-    $result = rb_ary_new();
-
-    for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	VALUE str = rb_str_new((*i).data(), (*i).size());
-	rb_ary_push($result, str);
-    }
-}
-#endif
-
 // For MatchDecider::operator() and ExpandDecider::operator().
 %typemap(directorout) int = bool;
 

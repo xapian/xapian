@@ -1,3 +1,8 @@
+Mon Nov 08 12:33:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Remove unused, commented-out typemap for wrapping a pair
+	  of TermIterators.
+
 Sun Nov 07 14:17:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py,python/util.i: Wrap updated
