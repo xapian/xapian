@@ -1,3 +1,7 @@
+Mon Nov 08 03:15:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* metaxmlparse.h: Initialise field member variable.
+
 Mon Nov 08 00:28:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index text in headers and footers for .odt and .docx
