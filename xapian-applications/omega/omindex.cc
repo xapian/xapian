@@ -177,43 +177,50 @@ static bool ensure_tmpdir() {
 }
 
 static void
-get_pdf_metainfo(const string & safefile, string &title, string &keywords)
+parse_pdfinfo_field(const char * p, const char * end, string & out, const char * field, size_t len)
+{
+    if (size_t(end - p) > len && memcmp(p, field, len) == 0) {
+	p += len;
+	while (p != end && *p == ' ')
+	    ++p;
+	if (p != end && (end[-1] != '\r' || --end != p))
+	    out.assign(p, end - p);
+    }
+}
+
+#define PARSE_PDFINFO_FIELD(P, END, OUT, FIELD) \
+    parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
+
+static void
+get_pdf_metainfo(const string & safefile, string &author, string &title,
+		 string &keywords)
 {
     try {
 	string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
 
-	string::size_type idx;
-
-	if (strncmp(pdfinfo.c_str(), "Title:", 6) == 0) {
-	    idx = 0;
-	} else {
-	    idx = pdfinfo.find("\nTitle:");
-	}
-	if (idx != string::npos) {
-	    if (idx) ++idx;
-	    idx = pdfinfo.find_first_not_of(' ', idx + 6);
-	    string::size_type end = pdfinfo.find('\n', idx);
-	    if (end != string::npos) {
-		if (pdfinfo[end - 1] == '\r') --end;
-		end -= idx;
+	const char * p = pdfinfo.data();
+	const char * end = p + pdfinfo.size();
+	while (p != end) {
+	    const char * start = p;
+	    p = static_cast<const char *>(memchr(p, '\n', end - p));
+	    const char * eol;
+	    if (p) {
+		eol = p;
+		++p;
+	    } else {
+		p = eol = end;
 	    }
-	    title.assign(pdfinfo, idx, end);
-	}
-
-	if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
-	    idx = 0;
-	} else {
-	    idx = pdfinfo.find("\nKeywords:");
-	}
-	if (idx != string::npos) {
-	    if (idx) ++idx;
-	    idx = pdfinfo.find_first_not_of(' ', idx + 9);
-	    string::size_type end = pdfinfo.find('\n', idx);
-	    if (end != string::npos) {
-		if (pdfinfo[end - 1] == '\r') --end;
-		end -= idx;
+	    switch (*start) {
+		case 'A':
+		    PARSE_PDFINFO_FIELD(start, eol, author, "Author");
+		    break;
+		case 'K':
+		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
+		    break;
+		case 'T':
+		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
+		    break;
 	    }
-	    keywords.assign(pdfinfo, idx, end);
 	}
     } catch (ReadError) {
 	// It's probably best to index the document even if pdfinfo fails.
@@ -286,7 +293,7 @@ static void
 index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 {
     string file = root + url;
-    string title, sample, keywords, dump;
+    string author, title, sample, keywords, dump;
 
     if (verbose)
 	cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
@@ -408,7 +415,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
-	get_pdf_metainfo(safefile, title, keywords);
+	get_pdf_metainfo(safefile, author, title, keywords);
     } else if (mimetype == "application/postscript") {
 	// There simply doesn't seem to be a Unicode capable PostScript to
 	// text converter (e.g. pstotext always outputs ISO-8859-1).  The only
@@ -438,7 +445,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    throw;
 	}
 	try {
-	    get_pdf_metainfo(safetmp, title, keywords);
+	    get_pdf_metainfo(safetmp, author, title, keywords);
 	} catch (...) {
 	    unlink(tmpfile.c_str());
 	    throw;
@@ -754,6 +761,10 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     if (!title.empty()) {
 	record += "\ncaption=" + generate_sample(title, TITLE_SIZE);
     }
+    if (!author.empty()) {
+	record += "\nauthor=";
+	record += author;
+    }
     record += "\ntype=" + mimetype;
     if (last_mod != (time_t)-1) {
 	record += "\nmodtime=";
@@ -776,6 +787,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	indexer.increase_termpos(100);
 	indexer.index_text(keywords);
     }
+    // FIXME: index author too
 
     // mimeType:
     newdocument.add_boolean_term("T" + mimetype);

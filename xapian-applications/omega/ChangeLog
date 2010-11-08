@@ -1,3 +1,7 @@
+Mon Nov 08 03:18:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Extract author from PDF metadata.
+
 Mon Nov 08 03:15:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* metaxmlparse.h: Initialise field member variable.
