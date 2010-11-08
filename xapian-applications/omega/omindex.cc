@@ -516,7 +516,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    // unzip returns exit code 11 if a file to extract wasn't found
 	    // which we want to ignore, because there may be no notesSlides
 	    // or comments.
-	    args = " ppt/slides/slide*.xml ppt/notesSlides/notesSlide*.xml ppt/comments/comment*.xml 2>/dev/null||test $? = 11";
+	    args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
 	} else {
 	    // Don't know how to index this type.
 	    cout << "unknown Office 2007 MIME subtype - skipping" << endl;
@@ -638,7 +638,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	}
     } else if (mimetype == "application/vnd.ms-xpsdocument") {
 	string safefile = shell_protect(file);
-	string cmd = "unzip -p " + safefile + " Documents/1/Pages/*.fpage";
+	string cmd = "unzip -p " + safefile + " Documents/1/Pages/\\*.fpage";
 	try {
 	    XpsXmlParser xpsparser;
 	    dump = stdout_to_string(cmd);
