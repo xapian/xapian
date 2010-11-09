@@ -103,10 +103,9 @@ Debugging memory allocations
 The testsuite can make use of valgrind 3.3.0 or newer to check for memory
 leaks, reads from uninitialised memory, and some other bugs during tests.
 
-Valgrind only runs on a few platforms (currently x86, x86_64, ppc32, and ppc64
-Linux are supported, with other ports being investigated).  However Xapian
-contains very little platform specific code (and most of what there is is
-Windows specific) so even just testing with valgrind on one platform gives good
+Valgrind doesn't support every platform, but Xapian contains very little
+platform specific code (and most of what there is is Microsoft Windows
+specific) so even just testing with valgrind on one platform gives good
 coverage.
 
 If you have a new enough version of valgrind installed, it's automatically

@@ -1,3 +1,9 @@
+Tue Nov 09 03:23:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* HACKING: Drop list of platforms valgrind supports, as it takes
+	  effort to keep up to date.  People can check valgrind.org for an
+	  accurate list of currently supported platforms.
+
 Sun Nov 07 14:13:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,backends/brass/brass_compact.cc,
