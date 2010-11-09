@@ -1,3 +1,9 @@
+Tue Nov 09 23:18:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc,
+	  backends/flint/flint_compact.cc: Fix access to empty priority_queue
+	  while merging synonyms (found with _GLIBCXX_DEBUG).
+
 Tue Nov 09 03:23:49 GMT 2010  Olly Betts <olly@survex.com>
 
 	* HACKING: Drop list of platforms valgrind supports, as it takes
