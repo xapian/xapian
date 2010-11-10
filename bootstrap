@@ -412,14 +412,22 @@ for d in $modules ; do
       echo "Configuring \`$d'"
       # Extract any parameters which we know Makefile.PL understands from 
       # from those passed to us.
-      passthru_args=
+      unset cxx_arg
+      unset cxxflags_arg
+      unset cppflags_arg
       for arg
       do
 	case $arg in
-	  CXX=*|CXXFLAGS=*|CPPFLAGS=*) passthru_args="$passthru_args $arg" ;;
+	  CXX=*)
+	    cxx_arg=$arg ;;
+	  CXXFLAGS=*)
+	    cxxflags_arg=$arg ;;
+	  CPPFLAGS=*)
+	    cppflags_arg=$arg ;;
 	esac
       done
-      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG"$passthru_args
+      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxx_arg+"$cxx_arg"} \
+	  ${cxxflags_arg+"$cxxflags_arg"} ${cppflags_arg+"$cppflags_arg"}
       dirs="$dirs $d"
     fi
     cd "$here"
