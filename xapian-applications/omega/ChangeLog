@@ -1,3 +1,9 @@
+Thu Nov 11 12:25:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add new --filter option to allow the user to specify
+	  new filters without patching omindex.cc.
+	* docs/overview.rst: Document --filter.
+
 Thu Nov 11 02:51:55 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Factor out handling for external filter programs which

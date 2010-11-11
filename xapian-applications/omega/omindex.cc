@@ -978,6 +978,7 @@ main(int argc, char **argv)
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
+	{ "filter",	required_argument,	NULL, 'F' },
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ "stemmer",	required_argument,	NULL, 's' },
@@ -1134,7 +1135,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfSV",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSV",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1149,6 +1150,9 @@ main(int argc, char **argv)
 "  -U, --url                base url DIRECTORY represents (default: /)\n"
 "  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
 "                           (empty TYPE removes any MIME mapping for EXT)\n"
+"  -F, --filter=TYPE:CMD    process files with MIME Content-Type TYPE using\n"
+"                           command CMD, which should produce UTF-8 text on\n"
+"                           stdout e.g. -Fapplication/octet-stream:'strings -n8'\n"
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
 "  -S, --spelling           index data for spelling correction\n"
@@ -1197,6 +1201,20 @@ main(int argc, char **argv)
 		cerr << "Invalid MIME mapping '" << optarg << "'\n"
 			"Should be of the form ext:type, eg txt:text/plain\n"
 			"(or txt: to delete a default mapping)" << endl;
+		return 1;
+	    }
+	    break;
+	}
+	case 'F': {
+	    const char * s = strchr(optarg, ':');
+	    if (s != NULL || !s[1]) {
+		string command(s + 1);
+		command += ' ';
+		commands[string(optarg, s - optarg)] = command;
+	    } else {
+		cerr << "Invalid filter mapping '" << optarg << "'\n"
+			"Should be of the form TYPE:COMMAND, e.g. 'application/octet-stream:strings -n8'"
+		     << endl;
 		return 1;
 	    }
 	    break;

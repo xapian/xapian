@@ -174,14 +174,14 @@ products would no longer come up in a search of the products
 site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
-omindex has built-in support for indexing HTML, PHP, text files, and AbiWord
-documents.  It can also index a number of other formats using external
-programs.  Filter programs are run with CPU and memory limits to prevent a
-runaway filter from blocking indexing of other files.
+omindex has built-in support for indexing HTML, PHP, text files, CSV
+(Comma-Separated Values) files, and AbiWord documents.  It can also index a
+number of other formats using external programs.  Filter programs are run with
+CPU and memory limits to prevent a runaway filter from blocking indexing of
+other files.
 
-The following formats are currently supported (if you know of a reliable
-filter which can extract text from another useful file format, please let us
-know):
+The following formats are supported as standard (you can tell omindex to use
+other filters too - see below):
 
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
@@ -217,11 +217,11 @@ know):
 * Debian packages (.deb, .udeb) if dpkg-deb is available
 * RPM packages (.rpm) if rpm is available
 
-If you have additional extensions that represent one of these types, you need
-to add an additional MIME mapping using the ``--mime-type`` option.  For
+If you have additional extensions that represent one of these types, you can
+add an additional MIME mapping using the ``--mime-type`` option.  For
 instance::
 
-$ omindex --db /var/lib/omega/data/default --url /press /www/example/press  --mime-type doc:application/postscript
+$ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type doc:application/postscript
 
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
@@ -304,6 +304,19 @@ to lower case and the lookup is repeated, so you effectively get case
 insensitive lookup for mappings specified with a lower-case extension, but
 you can set different handling for differently cased variants if you need
 to.
+
+You can add support for additional MIME content types (or override existing
+ones) using the ``--filter`` option - for example, if you wanted to handle
+files of MIME type ``application/octet-stream`` by running them through
+``strings -n8``, you can pass the option
+``--filter=application/octet-stream:'strings -n8'``.  The filename of the
+file to be extracted will be appended to this command, separated by a space.
+The command needs to produce UTF-8 text output on stdout.
+
+You'll also need to tell omindex to map one or more extensions to
+``application/octet-stream`` with ``--mime-type``.  If you know of a reliable
+filter which can extract text from a file format which might be of interest to
+others, please let us know so we can consider including it as standard.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
