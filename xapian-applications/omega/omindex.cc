@@ -95,6 +95,10 @@ static string tmpdir;
 
 static time_t last_mod_max;
 
+// Commands which take a filename as the last argument, and output UTF-8
+// text are common, so we handle these with a std::map.
+static map<string, string> commands;
+
 inline static bool
 p_notalnum(unsigned int c)
 {
@@ -350,7 +354,18 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     if (verbose) cout << flush;
 
     string md5;
-    if (mimetype == "text/html") {
+    map<string, string>::const_iterator cmd_it = commands.find(mimetype);
+    if (cmd_it != commands.end()) {
+	// Easy "run a command and read UTF-8 text from stdout" cases.
+	string cmd = cmd_it->second;
+	cmd += shell_protect(file);
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    return;
+	}
+    } else if (mimetype == "text/html") {
 	string text;
 	try {
 	    text = d.file_to_string();
@@ -478,14 +493,6 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	} catch (ReadError) {
 	    // It's probably best to index the document even if this fails.
 	}
-    } else if (mimetype == "application/msword") {
-	string cmd = "antiword -mUTF-8.txt " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
-	    return;
-	}
     } else if (mimetype == "application/vnd.ms-excel") {
 	string cmd = "xls2csv -q1 -dutf-8 " + shell_protect(file);
 	try {
@@ -495,14 +502,6 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    return;
 	}
 	generate_sample_from_csv(dump, sample);
-    } else if (mimetype == "application/vnd.ms-powerpoint") {
-	string cmd = "catppt -dutf-8 " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
-	    return;
-	}
     } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
 	const char * args = NULL;
 	string tail(mimetype, 46);
@@ -544,26 +543,6 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    author = metaxmlparser.author;
 	} catch (ReadError) {
 	    // It's probably best to index the document even if this fails.
-	}
-    } else if (mimetype == "application/vnd.wordperfect") {
-	// Looking at the source of wpd2html and wpd2text I think both output
-	// utf-8, but it's hard to be sure without sample Unicode .wpd files
-	// as they don't seem to be at all well documented.
-	string cmd = "wpd2text " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
-	    return;
-	}
-    } else if (mimetype == "application/vnd.ms-works") {
-	// wps2text produces UTF-8 output from the sample files I've tested.
-	string cmd = "wps2text " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
-	    return;
 	}
     } else if (mimetype == "application/x-abiword") {
 	// FIXME: Implement support for metadata.
@@ -633,18 +612,6 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	try {
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
-	    return;
-	}
-    } else if (mimetype == "image/vnd.djvu") {
-	// Output is UTF-8 according to "man djvutxt".  Generally this seems to
-	// be true, though some examples from djvu.org generate isolated byte
-	// 0x95 in a context which suggests it might be intended to be a bullet
-	// (as it is in CP1250).
-	string cmd = "djvutxt " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
@@ -1150,6 +1117,20 @@ main(int argc, char **argv)
     mime_map["o"] = "ignore";
     mime_map["obj"] = "ignore";
     mime_map["so"] = "ignore";
+
+    commands["application/msword"] = "antiword -mUTF-8.txt ";
+    commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8 ";
+    // Looking at the source of wpd2html and wpd2text I think both output
+    // UTF-8, but it's hard to be sure without sample Unicode .wpd files
+    // as they don't seem to be at all well documented.
+    commands["application/vnd.wordperfect"] = "wpd2text ";
+    // wps2text produces UTF-8 output from the sample files I've tested.
+    commands["application/vnd.ms-works"] = "wps2text ";
+    // Output is UTF-8 according to "man djvutxt".  Generally this seems to
+    // be true, though some examples from djvu.org generate isolated byte
+    // 0x95 in a context which suggests it might be intended to be a bullet
+    // (as it is in CP1250).
+    commands["image/vnd.djvu"] = "djvutxt ";
 
     string dbpath;
     int getopt_ret;
