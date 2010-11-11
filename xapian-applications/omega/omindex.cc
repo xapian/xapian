@@ -903,46 +903,44 @@ index_directory(size_t depth_limit, const string &dir,
 		    }
 		    if (changed) mt = mime_map.find(ext);
 		}
-		if (mt != mime_map.end()) {
-		    const string & mimetype = mt->second;
-		    if (mimetype.empty()) {
-			if (verbose) {
-			    cout << "Skipping file, required filter not "
-				    "installed: \"" << file << "\""
-				 << endl;
-			}
-			continue;
-		    }
-		    if (mimetype == "ignore")
-			continue;
-
-		    // Only check the file size if we recognise the
-		    // extension to avoid a call to stat()/lstat() for
-		    // files we can't handle when readdir() tells us the
-		    // file type.
-		    off_t size = d.get_size();
-		    if (size == 0) {
-			if (verbose) {
-			    cout << "Skipping empty file: \"" << file << "\""
-				 << endl;
-			}
-			continue;
-		    }
-
-		    // It's in our MIME map so we know how to index it.
-		    try {
-			index_file(url, mimetype, d);
-		    } catch (NoSuchFilter) {
-			// FIXME: we ought to ignore by mime-type not
-			// extension.
-			cout << "Filter for \"" << mimetype << "\" "
-				"not installed - ignoring extension "
-				"\"" << ext << "\"" << endl;
-			mt->second = string();
-		    }
-		} else {
+		if (mt == mime_map.end()) {
 		    cout << "Unknown extension: \"" << file << "\" - "
 			    "skipping" << endl;
+		    continue;
+		}
+
+		const string & mimetype = mt->second;
+		if (mimetype.empty()) {
+		    if (verbose) {
+			cout << "Skipping file, required filter not "
+				"installed: \"" << file << "\""
+			     << endl;
+		    }
+		    continue;
+		}
+		if (mimetype == "ignore")
+		    continue;
+
+		// Only check the file size if we recognise the extension to
+		// avoid a call to stat()/lstat() for files we can't handle
+		// when readdir() tells us the file type.
+		off_t size = d.get_size();
+		if (size == 0) {
+		    if (verbose) {
+			cout << "Skipping empty file: \"" << file << "\""
+			     << endl;
+		    }
+		    continue;
+		}
+
+		// It's in our MIME map so we know how to index it.
+		try {
+		    index_file(url, mimetype, d);
+		} catch (NoSuchFilter) {
+		    // FIXME: we ought to ignore by mime-type not extension.
+		    cout << "Filter for \"" << mimetype << "\" not installed "
+			    "- ignoring extension \"" << ext << "\"" << endl;
+		    mt->second = string();
 		}
 		continue;
 	    }
