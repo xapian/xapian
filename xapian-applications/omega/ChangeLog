@@ -1,3 +1,7 @@
+Fri Nov 12 01:40:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Add missing class qualifier to method definition.
+
 Fri Nov 12 01:25:11 GMT 2010  Olly Betts <olly@survex.com>
 
 	* INSTALL: Mention libmagic in install instructions.

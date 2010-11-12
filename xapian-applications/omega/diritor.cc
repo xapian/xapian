@@ -98,7 +98,7 @@ DirectoryIterator::next_failed() const
 
 #ifdef HAVE_MAGIC_H
 string
-get_magic_mimetype() const
+DirectoryIterator::get_magic_mimetype() const
 {
     if (rare(magic_cookie == NULL)) {
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE);
