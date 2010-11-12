@@ -903,23 +903,34 @@ index_directory(size_t depth_limit, const string &dir,
 		    }
 		    if (changed) mt = mime_map.find(ext);
 		}
-		if (mt == mime_map.end()) {
-		    cout << "Unknown extension: \"" << file << "\" - "
-			    "skipping" << endl;
-		    continue;
+		if (mt != mime_map.end()) {
+		    if (mt->second.empty()) {
+			if (verbose) {
+			    cout << "Skipping file, required filter not "
+				    "installed: \"" << file << "\""
+				 << endl;
+			}
+			continue;
+		    }
+		    if (mt->second == "ignore")
+			continue;
 		}
 
-		const string & mimetype = mt->second;
-		if (mimetype.empty()) {
-		    if (verbose) {
-			cout << "Skipping file, required filter not "
-				"installed: \"" << file << "\""
-			     << endl;
+		string mimetype;
+		if (mt == mime_map.end()) {
+		    mimetype = d.get_magic_mimetype();
+		    if (mimetype.empty()) {
+			cout << "Unknown extension and unrecognised format: "
+				"\"" << file << "\" - skipping" << endl;
+			continue;
 		    }
-		    continue;
+		    cout << "magic told us content-type [" << mimetype << "]" << endl;
+//		    cout << "Unknown extension: \"" << file << "\" - "
+//			    "skipping" << endl;
+//		    continue;
+		} else {
+		    mimetype = mt->second;
 		}
-		if (mimetype == "ignore")
-		    continue;
 
 		// Only check the file size if we recognise the extension to
 		// avoid a call to stat()/lstat() for files we can't handle

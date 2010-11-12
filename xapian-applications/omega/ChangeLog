@@ -1,3 +1,10 @@
+Fri Nov 12 01:16:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,diritor.cc,diritor.h,omindex.cc: Optionally
+	  use libmagic to detect MIME types for files for which we have no
+	  extension mapping, which allows us to handle files with a misleading
+	  extension, and files with no extension.  (ticket#114)
+
 Thu Nov 11 23:23:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Refactor slightly to handle the unknown extension case

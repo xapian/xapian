@@ -31,6 +31,10 @@ using namespace std;
 
 uid_t DirectoryIterator::euid = geteuid();
 
+#ifdef HAVE_MAGIC_H
+magic_t DirectoryIterator::magic_cookie = NULL;
+#endif
+
 void
 DirectoryIterator::call_stat()
 {
@@ -91,3 +95,26 @@ DirectoryIterator::next_failed() const
     error += ')';
     throw error;
 }
+
+#ifdef HAVE_MAGIC_H
+string
+get_magic_mimetype() const
+{
+    if (rare(magic_cookie == NULL)) {
+	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE);
+	if (magic_cookie == NULL || magic_load(magic_cookie, NULL) == -1) {
+	    // FIXME: handle errors
+	    return string();
+	}
+    }
+
+    // FIXME: handle NOATIME here and share the fd with load_file().
+    build_path();
+    const char * res = magic_file(magic_cookie, path);
+    if (!res) {
+	// FIXME: handle errors
+	return string();
+    }
+    return res;
+}
+#endif

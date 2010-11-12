@@ -31,6 +31,10 @@
 #include <grp.h> // For getgrgid().
 #include <pwd.h> // For getpwuid().
 
+#ifdef HAVE_MAGIC_H
+#include <magic.h>
+#endif
+
 #include "common/noreturn.h"
 
 #include "loadfile.h"
@@ -38,6 +42,10 @@
 
 class DirectoryIterator {
     static uid_t euid;
+
+#ifdef HAVE_MAGIC_H
+    static magic_t magic_cookie;
+#endif
 
     std::string path;
     std::string::size_type path_len;
@@ -173,6 +181,12 @@ class DirectoryIterator {
 	return false;
 #endif
     }
+
+#ifdef HAVE_MAGIC_H
+    std::string get_magic_mimetype() const;
+#else
+    std::string get_magic_mimetype() const { return std::string(); }
+#endif
 
     std::string file_to_string() {
 	build_path();

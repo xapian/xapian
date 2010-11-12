@@ -68,6 +68,19 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])
 
+dnl libmagic used to detect MIME types for files we don't detect by extension.
+AC_CHECK_HEADERS([magic.h])
+if test $ac_cv_header_magic_h = yes ; then
+  save_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([magic_open], [magic])
+  MAGIC_LIBS=$LIBS
+  LIBS=$save_LIBS
+else
+  MAGIC_LIBS=
+fi
+AC_SUBST([MAGIC_LIBS])
+
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)
 AC_TYPE_MODE_T
