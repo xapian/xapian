@@ -3,6 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ debhelper (>= 7), autotools-dev, libpcre3-dev,
+    libmagic-dev,
     libxapian-dev (>= 1.2.0-2~)
 Standards-Version: 3.9.1
 Homepage: http://xapian.org/
