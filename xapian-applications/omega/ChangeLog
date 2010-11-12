@@ -1,3 +1,7 @@
+Fri Nov 12 01:25:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Mention libmagic in install instructions.
+
 Fri Nov 12 01:16:21 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,diritor.cc,diritor.h,omindex.cc: Optionally
