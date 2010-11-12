@@ -13,6 +13,15 @@ AC_CONFIG_MACRO_DIR([m4])
 LT_PREREQ([2.2.6])
 LT_INIT
 
+dnl -no-undefined can cause problems on some platforms, so only pass it
+dnl on platforms where it is required in order to link a shared library at
+dnl all (Windows is the main one).
+NO_UNDEFINED=
+if test unsupported = "$allow_undefined_flag" ; then
+  NO_UNDEFINED=-no-undefined
+fi
+AC_SUBST(NO_UNDEFINED)
+
 dnl Checks for programs.
 AC_PROG_CXX
 

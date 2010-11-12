@@ -1,3 +1,9 @@
+Fri Nov 12 09:11:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Add -no-undefined to AM_LDFLAGS on
+	  platforms which need it to dynamically link such as cygwin (need
+	  to do this taken from ticket#282).
+
 Fri Nov 12 03:35:56 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Report MIME type if it's unknown to us.  Remove debug
