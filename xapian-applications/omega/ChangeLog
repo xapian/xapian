@@ -1,3 +1,7 @@
+Fri Nov 12 02:58:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h: Fix to compile when libmagic is detected.
+
 Fri Nov 12 01:40:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.cc: Add missing class qualifier to method definition.

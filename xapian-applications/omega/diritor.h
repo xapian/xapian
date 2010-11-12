@@ -183,9 +183,9 @@ class DirectoryIterator {
     }
 
 #ifdef HAVE_MAGIC_H
-    std::string get_magic_mimetype() const;
+    std::string get_magic_mimetype();
 #else
-    std::string get_magic_mimetype() const { return std::string(); }
+    std::string get_magic_mimetype() { return std::string(); }
 #endif
 
     std::string file_to_string() {

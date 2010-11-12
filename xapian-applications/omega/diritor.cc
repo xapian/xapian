@@ -98,7 +98,7 @@ DirectoryIterator::next_failed() const
 
 #ifdef HAVE_MAGIC_H
 string
-DirectoryIterator::get_magic_mimetype() const
+DirectoryIterator::get_magic_mimetype()
 {
     if (rare(magic_cookie == NULL)) {
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE);
@@ -110,7 +110,7 @@ DirectoryIterator::get_magic_mimetype() const
 
     // FIXME: handle NOATIME here and share the fd with load_file().
     build_path();
-    const char * res = magic_file(magic_cookie, path);
+    const char * res = magic_file(magic_cookie, path.c_str());
     if (!res) {
 	// FIXME: handle errors
 	return string();
