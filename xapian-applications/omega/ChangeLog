@@ -1,3 +1,8 @@
+Fri Nov 12 03:35:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report MIME type if it's unknown to us.  Remove debug
+	  output line.  Update comments.
+
 Fri Nov 12 03:32:27 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.cc: Report errors from libmagic.

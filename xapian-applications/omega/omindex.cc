@@ -721,7 +721,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	}
     } else {
 	// Don't know how to index this type.
-	cout << "unknown MIME type - skipping" << endl;
+	cout << "unknown MIME type '" << mimetype << "' - skipping" << endl;
 	return;
     }
 
@@ -924,7 +924,6 @@ index_directory(size_t depth_limit, const string &dir,
 				"\"" << file << "\" - skipping" << endl;
 			continue;
 		    }
-		    cout << "magic told us content-type [" << mimetype << "]" << endl;
 //		    cout << "Unknown extension: \"" << file << "\" - "
 //			    "skipping" << endl;
 //		    continue;
@@ -933,8 +932,8 @@ index_directory(size_t depth_limit, const string &dir,
 		}
 
 		// Only check the file size if we recognise the extension to
-		// avoid a call to stat()/lstat() for files we can't handle
-		// when readdir() tells us the file type.
+		// avoid a call to stat()/lstat() for files we definitely can't
+		// handle when readdir() tells us the file type.
 		off_t size = d.get_size();
 		if (size == 0) {
 		    if (verbose) {
@@ -944,7 +943,6 @@ index_directory(size_t depth_limit, const string &dir,
 		    continue;
 		}
 
-		// It's in our MIME map so we know how to index it.
 		try {
 		    index_file(url, mimetype, d);
 		} catch (NoSuchFilter) {
