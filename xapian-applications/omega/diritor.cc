@@ -101,10 +101,20 @@ string
 DirectoryIterator::get_magic_mimetype()
 {
     if (rare(magic_cookie == NULL)) {
-	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE);
-	if (magic_cookie == NULL || magic_load(magic_cookie, NULL) == -1) {
-	    // FIXME: handle errors
-	    return string();
+	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
+	if (magic_cookie == NULL) {
+	    string m("Failed to initialise the file magic library: ");
+	    m += strerror(errno);
+	    throw m;
+	}
+	if (magic_load(magic_cookie, NULL) == -1) {
+	    string m("Failed to load the file magic database");
+	    const char * err = magic_error();
+	    if (err) {
+		m += ": ";
+		m += err;
+	    }
+	    throw m;
 	}
     }
 
@@ -112,7 +122,12 @@ DirectoryIterator::get_magic_mimetype()
     build_path();
     const char * res = magic_file(magic_cookie, path.c_str());
     if (!res) {
-	// FIXME: handle errors
+	const char * err = magic_error();
+	if (rare(err)) {
+	    string m("Failed to use magic on file: ");
+	    m += err;
+	    throw m;
+	}
 	return string();
     }
     return res;

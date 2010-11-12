@@ -1,3 +1,7 @@
+Fri Nov 12 03:32:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Report errors from libmagic.
+
 Fri Nov 12 02:58:20 GMT 2010  Olly Betts <olly@survex.com>
 
 	* diritor.cc,diritor.h: Fix to compile when libmagic is detected.
