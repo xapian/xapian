@@ -777,6 +777,16 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	indexer.increase_termpos(100);
 	indexer.index_text(keywords);
     }
+    // Index the leafname of the file.
+    {
+	indexer.increase_termpos(100);
+	string leaf = d.leafname();
+	string::size_type dot = leaf.find_last_of('.');
+	if (dot != string::npos)
+	    leaf.resize(dot);
+	indexer.index_text(leaf);
+    }
+
     // FIXME: index author too
 
     // mimeType:

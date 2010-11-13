@@ -1,3 +1,8 @@
+Sat Nov 13 11:50:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index the leafname of the file (without any extension) as
+	  if it contained additional keywords.
+
 Sat Nov 13 11:32:09 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If a filter command isn't installed, flag this in the
