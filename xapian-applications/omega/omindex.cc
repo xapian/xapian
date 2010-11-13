@@ -903,8 +903,9 @@ index_directory(size_t depth_limit, const string &dir,
 	    }
 	    case DirectoryIterator::REGULAR_FILE: {
 		string ext;
-		string::size_type dot = url.find_last_of('.');
-		if (dot != string::npos) ext = url.substr(dot + 1);
+		const char * dot = strrchr(d.leafname(), '.');
+		if (dot)
+		    ext.assign(dot + 1);
 
 		map<string,string>::iterator mt = mime_map.find(ext);
 		if (mt == mime_map.end()) {

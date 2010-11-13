@@ -1,3 +1,7 @@
+Sat Nov 13 12:00:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: A file extension can't contain a '/'.
+
 Sat Nov 13 11:50:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index the leafname of the file (without any extension) as
