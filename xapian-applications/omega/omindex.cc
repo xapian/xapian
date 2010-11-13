@@ -747,15 +747,21 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 
     // Put the data in the document
     Xapian::Document newdocument;
-    string record = "url=" + baseurl + url + "\nsample=" + sample;
+    string record = "url=";
+    record += baseurl;
+    record += url;
+    record += "\nsample=";
+    record += sample;
     if (!title.empty()) {
-	record += "\ncaption=" + generate_sample(title, TITLE_SIZE);
+	record += "\ncaption=";
+	record += generate_sample(title, TITLE_SIZE);
     }
     if (!author.empty()) {
 	record += "\nauthor=";
 	record += author;
     }
-    record += "\ntype=" + mimetype;
+    record += "\ntype=";
+    record += mimetype;
     if (last_mod != (time_t)-1) {
 	record += "\nmodtime=";
 	record += str(last_mod);
