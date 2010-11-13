@@ -1,3 +1,10 @@
+Sat Nov 13 11:32:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If a filter command isn't installed, flag this in the
+	  commands map so we don't try running this command again for any
+	  file with the same mimetype (previously we'd rerun it for a different
+	  extension which gave the same mimetype).
+
 Fri Nov 12 09:11:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Add -no-undefined to AM_LDFLAGS on

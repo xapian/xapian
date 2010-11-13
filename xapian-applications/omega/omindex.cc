@@ -358,6 +358,13 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     if (cmd_it != commands.end()) {
 	// Easy "run a command and read UTF-8 text from stdout" cases.
 	string cmd = cmd_it->second;
+	if (cmd.empty()) {
+	    if (verbose) {
+		cout << "Skipping file, required filter not installed: "
+			"\"" << file << "\"" << endl;
+	    }
+	    return;
+	}
 	cmd += shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
@@ -904,14 +911,6 @@ index_directory(size_t depth_limit, const string &dir,
 		    if (changed) mt = mime_map.find(ext);
 		}
 		if (mt != mime_map.end()) {
-		    if (mt->second.empty()) {
-			if (verbose) {
-			    cout << "Skipping file, required filter not "
-				    "installed: \"" << file << "\""
-				 << endl;
-			}
-			continue;
-		    }
 		    if (mt->second == "ignore")
 			continue;
 		}
@@ -946,10 +945,9 @@ index_directory(size_t depth_limit, const string &dir,
 		try {
 		    index_file(url, mimetype, d);
 		} catch (NoSuchFilter) {
-		    // FIXME: we ought to ignore by mime-type not extension.
 		    cout << "Filter for \"" << mimetype << "\" not installed "
-			    "- ignoring extension \"" << ext << "\"" << endl;
-		    mt->second = string();
+			    "- ignoring from now on" << endl;
+		    commands[mimetype] = string();
 		}
 		continue;
 	    }
