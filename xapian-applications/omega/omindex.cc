@@ -787,7 +787,10 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	indexer.index_text(leaf);
     }
 
-    // FIXME: index author too
+    if (!author.empty()) {
+	indexer.increase_termpos(100);
+	indexer.index_text(author, 1, "A");
+    }
 
     // mimeType:
     newdocument.add_boolean_term("T" + mimetype);
