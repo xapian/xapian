@@ -1,3 +1,7 @@
+Wed Nov 17 10:13:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Wrap Compactor::resolve_duplicate_metadata().
+
 Mon Nov 08 12:33:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* ruby/util.i: Remove unused, commented-out typemap for wrapping a pair

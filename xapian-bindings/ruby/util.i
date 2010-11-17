@@ -5,7 +5,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -204,6 +204,14 @@
     }       
 
     $1 = &v;
+}
+
+%typemap(directorin) (size_t num_tags, const std::string tags[]) {
+    $input = rb_ary_new();
+    for (size_t i = 0; i != num_tags; ++i) {
+	VALUE str = rb_str_new(tags[i].data(), tags[i].size());
+	rb_ary_push($input, str);
+    }
 }
 
 // For MatchDecider::operator() and ExpandDecider::operator().
