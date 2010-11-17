@@ -1,3 +1,8 @@
+Wed Nov 17 10:56:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Add command line options to allow prefixes to
+	  be specified for the QueryParser.
+
 Tue Nov 09 23:18:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc,
