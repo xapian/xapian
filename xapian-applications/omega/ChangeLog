@@ -1,3 +1,8 @@
+Wed Nov 17 03:46:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Add missing magic_cookie argument to calls to
+	  magic_error().
+
 Sat Nov 13 12:17:51 GMT 2010  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Build up document data with += for efficiency.

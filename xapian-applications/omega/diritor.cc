@@ -109,7 +109,7 @@ DirectoryIterator::get_magic_mimetype()
 	}
 	if (magic_load(magic_cookie, NULL) == -1) {
 	    string m("Failed to load the file magic database");
-	    const char * err = magic_error();
+	    const char * err = magic_error(magic_cookie);
 	    if (err) {
 		m += ": ";
 		m += err;
@@ -122,7 +122,7 @@ DirectoryIterator::get_magic_mimetype()
     build_path();
     const char * res = magic_file(magic_cookie, path.c_str());
     if (!res) {
-	const char * err = magic_error();
+	const char * err = magic_error(magic_cookie);
 	if (rare(err)) {
 	    string m("Failed to use magic on file: ");
 	    m += err;
