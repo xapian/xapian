@@ -287,6 +287,9 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (key != last_key) {
 		if (tags.size() > 1) {
 		    Assert(!last_key.empty());
+		    // FIXME: It would be better to merge all duplicates for a
+		    // key in one call, but currently we don't in multipass
+		    // mode.
 		    out->add(last_key,
 			     compactor.resolve_duplicate_metadata(last_key,
 								  tags.size(),
