@@ -47,18 +47,85 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
 
     virtual ~Compactor();
 
+    /** Set the block size to use for tables in the output database.
+     *
+     *  Valid block sizes are currently powers of two between 2048 and
+     *  65536, with the default being 8192, but the valid sizes and
+     *  default may change in the future.
+     */
     void set_block_size(size_t block_size);
+
+    /** Set whether to preserve existing document id values.
+     *
+     *  The default is true, which means that document ids will be renumbered -
+     *  currently by applying the same offset to all the document ids in a
+     *  particular source database.
+     *
+     *  If false, then the document ids must be unique over all source
+     *  databases.  Currently the ranges of document ids in each source must
+     *  not overlap either, though this restriction may be removed in the
+     *  future.
+     */
     void set_renumber(bool renumber);
+
+    /** Set whether to merge postlists in multiple passes.
+     *
+     *  Default is false.  If set to true and merging more than 3 databases,
+     *  merge the postlists in multiple passes, which is generally faster but
+     *  requires more disk space for temporary files.
+     */
     void set_multipass(bool multipass);
+
+    /** Set the compaction level.
+     *
+     *  Values are:
+     *  - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
+     *  - Xapian::Compactor::FULL     - Split items whenever it saves space
+     *    (the default).
+     *  - Xapian::Compactor::FULLER   - Allow oversize items to save more
+     *    space.
+     *
+     *  FULLER isn't recommended if you ever plan to update the compacted
+     *  database.
+     */
     void set_compaction_level(compaction_level compaction);
+
+    /** Set where to write the output.
+     *
+     *  This can be the same as an input if that input is a stub database (in
+     *  which case it will be updated atomically).
+     */
     void set_destdir(const std::string & destdir);
+
+    /** Add a source database. */
     void add_source(const std::string & srcdir);
+
+    /// Perform the actual compaction/merging operation.
     void compact();
 
+    /** Update progress.
+     *
+     *  Subclass this method if you want to get progress updates during
+     *  compaction.  This is called for each table first with empty status,
+     *  And then one or more times with non-empty status.
+     *
+     *  The default implementation does nothing.
+     */
     virtual void
     set_status(const std::string & table, const std::string & status);
 
-// FIXME: for multipass this will currently get called during each pass
+    /** Resolve multiple user metadata entries with the same key.
+     *
+     *  When merging, if the same user metadata key is set in more than one
+     *  input, then this method is called to allow this to be resolving in
+     *  an appropriate way.
+     *
+     *  The default implementation just returns tags[0].
+     *
+     *  For multipass this will currently get called multiple times for the
+     *  same key if there are duplicates to resolve in each pass, but this
+     *  may change in the future.
+     */
     virtual std::string
     resolve_duplicate_metadata(const std::string & key,
 			       size_t num_tags, const std::string tags[]);
