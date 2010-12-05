@@ -276,7 +276,7 @@ all the necessary tools and libraries::
 
 If you want to build Omega, you'll also need::
 
-    apt-get install libpcre3-dev
+    apt-get install libpcre3-dev libmagic-dev
 
 On Fedora, the uuid library can be installed by doing::
 
