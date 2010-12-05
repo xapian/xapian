@@ -1,3 +1,10 @@
+Sun Dec 05 12:35:32 GMT 2010  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc: Fix calculation order to avoid inconsistent
+	  weights due to rounding when BM25Weight is used with certain
+	  non-default parameter combinations.
+	* tests/api_backend.cc: Add regression test bm25weight2.
+
 Sun Dec 05 12:10:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_compact.cc: Add FIXME comment regarding
