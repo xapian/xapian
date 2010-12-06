@@ -92,6 +92,12 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 using Unicode::is_currency;
 
+inline bool
+is_positional(Xapian::Query::op op)
+{
+    return (op == Xapian::Query::OP_PHRASE || op == Xapian::Query::OP_NEAR);
+}
+
 /// A structure identifying a group of filter terms or a value range.
 struct filter_group_id {
     /** The prefix info for boolean filter terms.
@@ -1346,8 +1352,7 @@ reprocess:
 		}
 	    }
 	    Query q_original_terms;
-	    if (default_op == Query::OP_NEAR ||
-		default_op == Query::OP_PHRASE) {
+	    if (is_positional(default_op)) {
 		q_original_terms = Query(default_op,
 					 subqs2.begin(), subqs2.end(),
 					 subqs2.size() + 9);
@@ -1391,8 +1396,7 @@ reprocess:
 
     Query * q = NULL;
     if (!subqs.empty()) {
-	if (default_op == Query::OP_NEAR ||
-	    default_op == Query::OP_PHRASE) {
+	if (is_positional(default_op)) {
 	    q = new Query(default_op, subqs.begin(), subqs.end(),
 			     subqs.size() + 9);
 	} else {
@@ -1729,7 +1733,7 @@ prob(P) ::= stop_term(T) stop_term(U). {
     P->query = T;
     if (U) {
 	Query::op op = state->default_op();
-	if (P->query && (op == Query::OP_NEAR || op == Query::OP_NEAR)) {
+	if (P->query && is_positional(op)) {
 	    // If default_op is OP_NEAR or OP_PHRASE, set the window size to
 	    // 11 for the first pair of terms and it will automatically grow
 	    // by one for each subsequent term.

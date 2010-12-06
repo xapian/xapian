@@ -2241,6 +2241,7 @@ static const test test_phrase_queries[] = {
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(Zhard:(pos=1) PHRASE 11 Zspace:(pos=2))" },
+    { "(one AND two) three", "((Zone:(pos=1) PHRASE 11 Zthree:(pos=3)) AND (Ztwo:(pos=2) PHRASE 11 Zthree:(pos=3)))" },
     { NULL, NULL }
 };
 

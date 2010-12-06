@@ -1,3 +1,12 @@
+Mon Dec 06 01:39:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix typo so we test for OP_NEAR or
+	  OP_PHRASE, not twice for OP_NEAR, which fixes a bug with not setting
+	  the correct window size for default_op of OP_PHRASE in some cases.
+	  Factor out the "is_positional(op)" test into an inlined function to
+	  help avoid repeating this error.
+	* tests/queryparsertest.cc: Add regression test coverage.
+
 Mon Dec 06 01:01:03 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add coverage for OP_PHRASE as default_op.
