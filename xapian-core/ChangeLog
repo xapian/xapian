@@ -1,3 +1,7 @@
+Mon Dec 06 01:01:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add coverage for OP_PHRASE as default_op.
+
 Sun Dec 05 12:35:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* weight/bm25weight.cc: Fix calculation order to avoid inconsistent

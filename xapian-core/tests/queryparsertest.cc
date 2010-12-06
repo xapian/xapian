@@ -2212,6 +2212,78 @@ static bool test_qp_near1()
     return true;
 }
 
+static const test test_phrase_queries[] = {
+    { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
+    { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
+// FIXME: these give PHRASE 2
+//    { "foo -baz bar", "((Zfoo:(pos=1) PHRASE 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) PHRASE 11 Zthree:(pos=3)))" },
+    { "foo bar", "(Zfoo:(pos=1) PHRASE 11 Zbar:(pos=2))" },
+    { "foo bar baz", "(Zfoo:(pos=1) PHRASE 12 Zbar:(pos=2) PHRASE 12 Zbaz:(pos=3))" },
+    { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
+    { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
+    { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
+    { "author:orwell animal farm", "(ZAorwel:(pos=1) PHRASE 12 Zanim:(pos=2) PHRASE 12 Zfarm:(pos=3))" },
+    { "author:Orwell Animal Farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
+    { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
+    { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
+    { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
+    { "NOT windows", "Syntax: <expression> NOT <expression>" },
+    { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
+    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
+    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
+    { "OR foo", "Syntax: <expression> OR <expression>" },
+    { "XOR", "Syntax: <expression> XOR <expression>" },
+    { "hard\xa0space", "(Zhard:(pos=1) PHRASE 11 Zspace:(pos=2))" },
+    { NULL, NULL }
+};
+
+static bool test_qp_phrase1()
+{
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("writer", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_prefix("authortitle", "A");
+    queryparser.add_prefix("authortitle", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    queryparser.add_boolean_prefix("site2", "J");
+    queryparser.add_boolean_prefix("multisite", "H");
+    queryparser.add_boolean_prefix("multisite", "J");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
+    queryparser.set_default_op(Xapian::Query::OP_PHRASE);
+    for (const test *p = test_phrase_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = queryparser.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 static const test test_stopword_group_or_queries[] = {
     { "this is a test", "test:(pos=4)" },
     { "test*", "(test:(pos=1) SYNONYM testable:(pos=1) SYNONYM tester:(pos=1))" },
@@ -2353,6 +2425,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
+    TESTCASE(qp_phrase1),
     TESTCASE(qp_stopword_group1),
     TESTCASE(qp_default_op2),
     END_OF_TESTCASES
