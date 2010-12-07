@@ -1,3 +1,7 @@
+Tue Dec 07 04:10:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Add regression test for last fix.
+
 Tue Dec 07 03:10:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/util.i: Fix memory leaks in typemaps which return Python

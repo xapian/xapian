@@ -19,6 +19,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+import gc
 import os
 import random
 import shutil
@@ -1493,6 +1494,26 @@ def test_compactor():
 
     finally:
         shutil.rmtree(tmpdir)
+
+def test_leak_mset_items():
+    """Test that items property of MSet doesn't leak
+
+    """
+    db = xapian.inmemory_open()
+    doc = xapian.Document()
+    doc.add_term('drip')
+    db.add_document(doc)
+    enq = xapian.Enquire(db)
+    enq.set_query(xapian.Query('drip'))
+    mset = enq.get_mset(0, 10)
+
+    gc.collect()
+    object_count = len(gc.get_objects())
+    # Prior to 1.2.4 this next line leaked an object.
+    mset.items
+    gc.collect()
+
+    expect(object_count, len(gc.get_objects()))
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
