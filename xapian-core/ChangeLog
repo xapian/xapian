@@ -1,3 +1,10 @@
+Tue Dec 07 04:14:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omenquire.cc: If first is larger than get_doccount() then clamp
+	  it to avoid pointlessly trying to allocate far too much memory.
+	* tests/api_backend.cc: Regression test msetfirst2.
+
 Sun Oct 03 12:00:24 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.22.
