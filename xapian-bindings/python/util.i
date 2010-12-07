@@ -244,23 +244,6 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 }
 %}
 
-%typemap(memberout) PyObject *items {
-    $result = PyList_New(0);
-    if ($result == 0) {
-	return NULL;
-    }
-
-    for (Xapian::MSetIterator i = $1.begin(); i != $1.end(); ++i) {
-	PyObject *t = PyTuple_New(2);
-	if (!t) return NULL;
-
-	PyTuple_SetItem(t, MSET_DID, PyInt_FromLong(*i));
-	PyTuple_SetItem(t, MSET_WT, PyFloat_FromDouble(i->get_weight()));
-
-	if (PyList_Append($result, t) == -1) return NULL;
-    }
-%}
-
 namespace Xapian {
     %extend TermIterator {
 	bool __eq__(const TermIterator &other) {
