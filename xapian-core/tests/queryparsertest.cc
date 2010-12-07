@@ -2367,7 +2367,7 @@ static bool test_qp_stopword_group1()
 }
 
 /// Regression test for bug with default_op set such that we get an exception.
-// Fixed in 1.2.4.
+// Fixed in 1.0.23 and 1.2.4.
 static bool test_qp_default_op2()
 {
     Xapian::QueryParser qp;
