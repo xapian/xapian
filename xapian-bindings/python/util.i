@@ -195,21 +195,25 @@ namespace Xapian {
 /* The GIL must be held when this is called. */
 PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 {
-    PyObject *retval = PyList_New(0);
+    PyObject *retval = PyList_New(mset->size());
     if (retval == 0) {
 	return NULL;
     }
 
+    Py_ssize_t idx = 0;
     for (Xapian::MSetIterator i = mset->begin(); i != mset->end(); ++i) {
 	PyObject *t = PyTuple_New(4);
-	if (!t) return NULL;
+	if (!t) {
+	    Py_DECREF(retval);
+	    return NULL;
+	}
 
-	PyTuple_SetItem(t, MSET_DID, PyInt_FromLong(*i));
-	PyTuple_SetItem(t, MSET_WT, PyFloat_FromDouble(i.get_weight()));
-	PyTuple_SetItem(t, MSET_RANK, PyInt_FromLong(i.get_rank()));
-	PyTuple_SetItem(t, MSET_PERCENT, PyInt_FromLong(i.get_percent()));
+	PyList_SET_ITEM(retval, idx++, t);
 
-	if (PyList_Append(retval, t) == -1) return NULL;
+	PyTuple_SET_ITEM(t, MSET_DID, PyInt_FromLong(*i));
+	PyTuple_SET_ITEM(t, MSET_WT, PyFloat_FromDouble(i.get_weight()));
+	PyTuple_SET_ITEM(t, MSET_RANK, PyInt_FromLong(i.get_rank()));
+	PyTuple_SET_ITEM(t, MSET_PERCENT, PyInt_FromLong(i.get_percent()));
     }
     return retval;
 }
@@ -220,25 +224,33 @@ PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 /* The GIL must be held when this is called. */
 PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 {
-    PyObject *retval = PyList_New(0);
+    PyObject *retval = PyList_New(eset->size());
     if (retval == 0) {
 	return NULL;
     }
 
+    Py_ssize_t idx = 0;
     for (Xapian::ESetIterator i = eset->begin(); i != eset->end(); ++i) {
 	PyObject *t = PyTuple_New(2);
-	if (!t) return NULL;
+	if (!t) {
+	    Py_DECREF(retval);
+	    return NULL;
+	}
+
+	PyList_SET_ITEM(retval, idx++, t);
 
 #if PY_VERSION_HEX >= 0x03000000
 	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
 #else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
 #endif
-	if (str == 0) return NULL;
-	PyTuple_SetItem(t, ESET_TNAME, str);
-	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
+	if (str == 0) {
+	    Py_DECREF(retval);
+	    return NULL;
+	}
 
-	if (PyList_Append(retval, t) == -1) return NULL;
+	PyTuple_SET_ITEM(t, ESET_TNAME, str);
+	PyTuple_SET_ITEM(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
     }
     return retval;
 }
@@ -482,7 +494,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
         $result = NULL;
         SWIG_fail;
     }
-    PyTuple_SetItem(newresult, 0, $result);
+    PyTuple_SET_ITEM(newresult, 0, $result);
     $result = newresult;
 
 %#if PY_VERSION_HEX >= 0x03000000
@@ -495,7 +507,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
         $result = NULL;
         SWIG_fail;
     }
-    PyTuple_SetItem($result, 1, str);
+    PyTuple_SET_ITEM($result, 1, str);
 
 %#if PY_VERSION_HEX >= 0x03000000
     str = PyBytes_FromStringAndSize($2->data(), $2->size());
@@ -508,12 +520,12 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
         SWIG_fail;
     }
 
-    PyTuple_SetItem($result, 2, str);
+    PyTuple_SET_ITEM($result, 2, str);
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
-    $input = PyList_New(0);
-    if ($input == 0) {
+    PyObject * result = PyList_New(num_tags);
+    if (result == 0) {
 	return NULL;
     }
 
@@ -523,9 +535,14 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 %#else
 	PyObject * str = PyString_FromStringAndSize(tags[i].data(), tags[i].size());
 %#endif
-	if (str == 0) return NULL;
-	if (PyList_Append($input, str) == -1) return NULL;
+	if (str == 0) {
+	    Py_DECREF(result);
+	    return NULL;
+	}
+
+	PyList_SET_ITEM(result, i, str);
     }
+    $input = result;
 }
 
 /* vim:set syntax=cpp:set noexpandtab: */
