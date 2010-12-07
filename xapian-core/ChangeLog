@@ -1,3 +1,12 @@
+Tue Dec 07 09:05:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_backend.cc: Fix comment typo in previous commit.
+	* matcher/multimatch.cc: Empty query now return MSet with firstitem
+	  set correctly.
+	* tests/api_backend.cc: Extend msetfirst2 to be a regression test for
+	  this issue too.
+
 Tue Dec 07 04:14:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -303,7 +303,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     AssertRel(check_at_least,>=,maxitems);
 
     if (!query) {
-	mset = Xapian::MSet(); // FIXME: mset.get_firstitem() will return 0 not first
+	mset = Xapian::MSet(new Xapian::MSet::Internal());
+	mset.internal->firstitem = first;
 	return;
     }
 

@@ -623,5 +623,10 @@ DEFINE_TESTCASE(msetfirst2, backend) {
     // Check that the number of documents gets clamped too.
     mset = enquire.get_mset(1, 0xfffffff0);
     TEST_EQUAL(mset.get_firstitem(), 1);
+    // Another regression test - MatchNothing used to give an MSet with
+    // get_firstitem() returning 0.
+    enquire.set_query(Xapian::Query::MatchNothing);
+    mset = enquire.get_mset(1, 1);
+    TEST_EQUAL(mset.get_firstitem(), 1);
     return true;
 }
