@@ -575,7 +575,7 @@ merge_synonyms(FlintTable * out,
 	pq.pop();
 
 	string key = cur->current_key;
-	if (pq.top()->current_key > key) {
+	if (pq.empty() || pq.top()->current_key > key) {
 	    // No need to merge the tags, just copy the (possibly compressed)
 	    // tag value.
 	    bool compressed = cur->read_tag(true);
