@@ -22,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
 #define XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
 
+#include "multimatch.h"
 #include "postlist.h"
 #include <algorithm>
 
@@ -62,6 +63,7 @@ class MultiXorPostList : public PostList {
 	for (size_t j = i; j < n_kids; ++j) {
 	    plist[j] = plist[j + 1];
 	}
+	matcher->recalc_maxweight();
     }
 
   public:

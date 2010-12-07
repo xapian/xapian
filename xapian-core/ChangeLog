@@ -1,3 +1,12 @@
+Tue Dec 07 10:26:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multixorpostlist.h: Fix problem shown by soaktest where
+	  the matcher was not told to recalculate the maxweight after a
+	  MultiXorPostList child reached end, which was causing an
+	  assertion failure in debug builds.  (This could also have been
+	  causing some performance problems, but I have not measurements.)
+
 Tue Dec 07 10:07:40 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
