@@ -630,3 +630,17 @@ DEFINE_TESTCASE(msetfirst2, backend) {
     TEST_EQUAL(mset.get_firstitem(), 1);
     return true;
 }
+
+DEFINE_TESTCASE(bm25weight2, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("the"));
+    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 0, 0, 1));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+    TEST_REL(mset.size(),>=,2);
+    Xapian::weight weight0 = mset[0].get_weight();
+    for (size_t i = 1; i != mset.size(); ++i) {
+	TEST_EQUAL(weight0, mset[i].get_weight());
+    }
+    return true;
+}

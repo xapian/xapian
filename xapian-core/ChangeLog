@@ -1,3 +1,9 @@
+Tue Dec 07 11:07:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_backend.cc: Add regression test bm25weight2 (the bug itself
+	  is not present in 1.0.x, but it's still good to test that!)
+
 Tue Dec 07 10:32:05 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
