@@ -1,3 +1,11 @@
+Tue Dec 07 10:07:40 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Don't delete this in TermGroup, etc
+	  until after we have successfully constructed the Query object to
+	  return to avoid a double free in the Query construction throws an
+	  exception.  Fixes ticket#515.
+
 Tue Dec 07 09:05:06 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

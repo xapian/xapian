@@ -351,8 +351,9 @@ Term::as_wildcarded_query(State * state_) const
 	    ++t;
 	}
     }
+    Query * q = new Query(Query::OP_OR, subqs.begin(), subqs.end());
     delete this;
-    return new Query(Query::OP_OR, subqs.begin(), subqs.end());
+    return q;
 }
 
 Query *
@@ -372,8 +373,9 @@ Term::as_partial_query(State * state_) const
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs.push_back(Query(make_term(*piter), 1, pos));
     }
+    Query * q = new Query(Query::OP_OR, subqs.begin(), subqs.end());
     delete this;
-    return new Query(Query::OP_OR, subqs.begin(), subqs.end());
+    return q;
 }
 
 inline bool
@@ -1252,9 +1254,12 @@ TermGroup::as_group(State *state) const
 	    }
 	}
     }
+
+    Query * q = NULL;
+    if (!subqs.empty())
+	q = new Query(default_op, subqs.begin(), subqs.end());
     delete this;
-    if (subqs.empty()) return NULL;
-    return new Query(default_op, subqs.begin(), subqs.end());
+    return q;
 }
 
 /// Some terms which form a positional sub-query.
