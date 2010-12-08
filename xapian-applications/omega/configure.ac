@@ -480,6 +480,9 @@ AC_SUBST(QUIET)
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
+dnl Enable large file support if possible.
+AC_SYS_LARGEFILE
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
