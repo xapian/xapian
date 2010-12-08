@@ -98,7 +98,7 @@ noinst_HEADERS +=\
 	common/safewindows.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(ICONV_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\

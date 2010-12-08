@@ -1,3 +1,10 @@
+Wed Dec 08 10:26:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,configure.ac: Add -no-undefined to AM_LDFLAGS on
+	  platforms which need it to dynamically link such as cygwin (need
+	  to do this taken from ticket#282).
+
 Wed Dec 08 10:20:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -25,6 +25,15 @@ dnl Check for libxapian
 AC_PROG_LIBTOOL
 XO_LIB_XAPIAN
 
+dnl -no-undefined can cause problems on some platforms, so only pass it
+dnl on platforms where it is required in order to link a shared library at
+dnl all (Windows is the main one).
+NO_UNDEFINED=
+if test unsupported = "$allow_undefined_flag" ; then
+  NO_UNDEFINED=-no-undefined
+fi
+AC_SUBST(NO_UNDEFINED)
+
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
