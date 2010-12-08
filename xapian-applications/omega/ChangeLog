@@ -1,3 +1,11 @@
+Wed Dec 08 10:20:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Escape wildcard patterns being passed to unzip - in the
+	  unlikely event that one of these matched files in or under the
+	  current directory, we might fail to extract all the files we wanted
+	  to.
+
 Wed Dec 08 09:32:02 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
