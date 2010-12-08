@@ -1,3 +1,11 @@
+Wed Dec 08 11:10:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* python/util.i: Remove unused typemap.
+	* python/util.i: Fix memory leaks in typemaps which return Python
+	  lists (reported by AlexB on #xapian).
+	* python/pythontest2.py: Add regression test for last fix.
+
 Fri Oct 08 13:44:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
