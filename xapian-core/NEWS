@@ -1,8 +1,155 @@
- 15073       olly Wed Oct 06 12:39:36 GMT 2010  Olly Betts <olly@survex.com>
+ 15201       olly Tue Dec 07 10:16:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix typo so we test for OP_NEAR or
+	  OP_PHRASE, not twice for OP_NEAR, which fixes a bug with not setting
+	  the correct window size for default_op of OP_PHRASE in some cases.
+
+ 15188       olly Sun Dec 05 04:54:03 GMT 2010  Olly Betts <olly@survex.com>
+	* HACKING: Omega now wants libmagic-dev (though it's optional
+	  currently).
+
+ 15164       olly Tue Nov 09 03:23:49 GMT 2010  Olly Betts <olly@survex.com>
+	* HACKING: Drop list of platforms valgrind supports, as it takes
+	  effort to keep up to date.  People can check valgrind.org for an
+	  accurate list of currently supported platforms.
+
+
+ 15141    richard Mon Nov 01 10:34:30 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* tests/soaktest/soaktest_queries.cc: Fix compilation: call c_str()
+	  on argument to atoi, now that util.h no longer defines a string
+	  wrapper.
+
+ 15107    richard Thu Oct 21 09:38:44 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* tests/Makefile.am: Add zlib-vg.c to distribution tarballs.
+
+
+
+	  Compactor::resolve_duplicate_metadata() callback method is now passed
+	  an array of std::string plus the array length, which allows for more
+	  efficient merging that the series of pairwise merges which was
+	  required before.
+
+	* bin/xapian-compact.cc: Add --quiet/-q option to suppress progress
+	  output. (ticket#437)
+
+* Improve test coverage (particularly for Xapian::Utf8Iterator and
+  Xapian::Stem).
+
+ 15093       olly Mon Oct 11 11:46:30 GMT 2010  Olly Betts <olly@survex.com>
+	* Makefile.am: Remove xapian-config on "make distclean" rather than
+	  "make clean", since configure builds it.  Never remove man pages
+	  under "make clean".
+
+ 15092       olly Mon Oct 11 11:41:32 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/Makefile.am: Fix typo - CLEAN_FILES should be CLEANFILES.
+	  This means that where zlib-vg.so is used, it now gets cleaned up.
+
+	* Makefile.am: Add coverage-reconfigure-maintainer-mode target which
+	  is just like coverage-reconfigure except it also passes
+	  --enable-maintainer-mode.
+
+	* tests/api_anydb.cc: Clear tout before each iteration in scaleweight1.
 
 backport candidates:
 
 backported to 1.0.23:
+
+ 15191       olly Sun Dec 05 12:35:32 GMT 2010  Olly Betts <olly@survex.com>
+	* weight/bm25weight.cc: Fix calculation order to avoid inconsistent
+	  weights due to rounding when BM25Weight is used with certain
+	  non-default parameter combinations.
+	* tests/api_backend.cc: Add regression test bm25weight2.
+
+ 15166       olly Tue Nov 09 23:18:36 GMT 2010  Olly Betts <olly@survex.com>
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc,
+	  backends/flint/flint_compact.cc: Fix access to empty priority_queue
+	  while merging synonyms (found with _GLIBCXX_DEBUG).
+
+ 15142    richard Mon Nov 01 14:47:37 GMT 2010  Richard Boulton <richard@tartarus.org>
+	  matcher/multixorpostlist.h: Fix problem shown by soaktest where
+	  the matcher was not told to recalculate the maxweight after a
+	  MultiXorPostList child reached end, which was causing an
+	  assertion failure in debug builds.  (This could also have been
+	  causing some performance problems, but I have not measurements.)
+
+ 15140       olly Sun Oct 31 10:51:12 GMT 2010  Olly Betts <olly@survex.com>
+	* queryparser/queryparser.lemony: Don't delete this in TermGroup, etc
+	  until after we have successfully constructed the Query object to
+	  return to avoid a double free in the Query construction throws an
+	  exception.  Fixes ticket#515.
+
+ 15138       olly Fri Oct 29 12:46:15 GMT 2010  Olly Betts <olly@survex.com>
+	* tests/api_backend.cc: Fix comment typo in previous commit.
+ 15137       olly Fri Oct 29 12:32:47 GMT 2010  Olly Betts <olly@survex.com>
+	* matcher/multimatch.cc: Empty query now return MSet with firstitem
+	  set correctly.
+	* tests/api_backend.cc: Extend msetfirst2 to be a regression test for
+	  this issue too.
+
+ 15136       olly Fri Oct 29 12:13:51 GMT 2010  Olly Betts <olly@survex.com>
+	* api/omenquire.cc: If first is larger than get_doccount() then clamp
+	  it to avid pointlessly trying to allocate far too much memory.
+	* tests/api_backend.cc: Regression test msetfirst2.
+
+Xapian-core 1.2.5 (2010-10-06):
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+	* matcher/selectpostlist.cc,matcher/selectpostlist.h: Implement
+	  SelectPostList::check() so that check() on OP_NEAR and OP_PHRASE
+	  subqueries won't end up checking potentially huge numbers of
+	  documents.
+
+	* matcher/orpostlist.cc,matcher/orpostlist.h: Fix performance
+	  regression in some cases caused by the introduction of
+	  OrPostList::check().
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+	* examples/quest.cc: Add command line options to allow prefixes to
+	  be specified for the QueryParser.
+
+	* examples/delve.cc: Add '-z' option to count zero-length documents.
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
 
 Xapian-core 1.2.4 (2010-10-06):
 
