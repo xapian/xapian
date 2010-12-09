@@ -1,3 +1,8 @@
+Thu Dec 09 03:58:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Add FIXME note about using sendfile() or
+	  similar.
+
 Tue Dec 07 10:16:31 GMT 2010  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Note 1.0.x version #515 was fixed in.

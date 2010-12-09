@@ -337,6 +337,7 @@ RemoteConnection::send_file(char type, const string &file, double end_time)
 	    throw Xapian::NetworkError("Couldn't stat file: " + file, errno);
 	size = sb.st_size;
     }
+    // FIXME: Use sendfile() or similar if available?
 
     char buf[CHUNKSIZE];
     buf[0] = type;
