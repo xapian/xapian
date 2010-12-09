@@ -65,10 +65,6 @@ U
 	the Xapian term length limit (see omindex for how to do this).
 V
 	boolean filter term for "can't see" permission (mnemonic: grep -v)
-W	
-        "weak" (approximately 10 day intervals, taken as YYYYMMD from
-	the D term, and changing the last digit to a '2' if it's a '3')
-	(unused by Xapian since 0.9.7)
 X	
         longer prefix for user-defined use
 Y	
@@ -76,7 +72,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: BCEFJ
+Reserved but currently unallocated: BCEFJW
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.

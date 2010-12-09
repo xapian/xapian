@@ -25,11 +25,11 @@ character '"' in C and similar languages).  This can make complex OmegaScript
 slightly difficult to read at times.
 
 When a command takes no arguments, the braces must be omitted (i.e.
-$simplecommand rather than $simplecommand{} - the latter is a command with a
-single empty argument).  If you want to have the value of $simplecommand
-immediately followed by a letter, digit, or "_", you can use a comment to
+`$query` rather than `$query{}` - the latter is a command with a
+single empty argument).  If you want to have the value of `$query` immediately
+followed by a letter, digit, or "_", you can use an empty comment (`${}`) to
 prevent the parser treating the following character as part of a command name.
-E.g. $simplecommand${}k rather than $simplecommandk
+E.g. `_$query${}_` rather than `$query_`
 
 It is important to realise that all whitespace is significant in OmegaScript
 - e.g. if you put whitespace around a "," which separates two command arguments
