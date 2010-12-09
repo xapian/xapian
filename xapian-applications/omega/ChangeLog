@@ -2,6 +2,7 @@ Thu Dec 09 10:58:48 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Replace $simplecommand with $query - a concrete
 	  example is more useful.  Improve mark-up.
+	* docs/termprefixes.rst: Remove mention of pre-0.9.7 use of W prefix.
 
 Thu Nov 18 12:25:50 GMT 2010  Olly Betts <olly@survex.com>
 
