@@ -3,30 +3,37 @@ use strict;
 use Config;
 
 # Suppress warnings about parameters we allow the user to specify.
+$ExtUtils::MakeMaker::Recognized_Att_Keys{CPPFLAGS} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
+$ExtUtils::MakeMaker::Recognized_Att_Keys{CXXFLAGS} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 
 my $builddir;
 
 my $srcdir = $0;
-if ($srcdir =~ s!/[^/]*$!!) {
+if ($srcdir =~ s!/([^/]*)$!!) {
+    # Set $0 to be just the leafname.  If we don't, WriteMakefile() reruns this
+    # script for reasons unknown, leading to a seemingly infinite loop
+    # consuming increasing amounts of memory.  With setting $0, it still reruns
+    # this script, but only once.
+    $0 = $1;
     chomp($builddir = `pwd`);
     chdir $srcdir;
 }
 
 my $xapian_config;
 my $CC;
+my %var = ();
 
-open ARGS, '>', 'makefile-pl-args' or die $!;
 for (@ARGV) {
-    print ARGS $_, "\n";
     if (/^XAPIAN_CONFIG=(.*)/) {
 	$xapian_config = $1;
     } elsif (/^CXX=(.*)/) {
 	$CC = $1;
+    } elsif (/^(C(?:XX|PP)FLAGS)=(.*)/) {
+	$var{$1} = $2;
     }
 }
-close ARGS or die $!;
 
 if (!defined $xapian_config && exists $ENV{XAPIAN_CONFIG}) {
     $xapian_config = $ENV{XAPIAN_CONFIG};
@@ -54,7 +61,7 @@ if ($xver eq '') {
     print STDERR <<END;
 $xapian_config not found.
 
-You need Xapian installed before you can build Search::Xapian.  If you have
+You need Xapian installed before you can build SymbolTest.  If you have
 installed Xapian from a package, you will also need to install the correspoding
 -dev or -devel package.  If Xapian is installed but xapian-config isn't on your
 PATH you can tell Makefile.PL this by running it like so:
@@ -69,11 +76,12 @@ END
     exit(0);
 }
 chomp($xver);
-$xver =~ s/.*\s//; # "xapian 1.0.4" -> "1.0.4"
+$xver =~ s/.*\s//; # "xapian 1.2.0" -> "1.2.0"
 
 my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
 
+my @writemakefile_args = ();
 my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
@@ -92,8 +100,15 @@ if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     $libs = `$xapian_config --ltlibs`;
     chomp($libs);
     $libs = {'LDLOADLIBS' => $libs};
-    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module -no-install";
-    $CC = "$libtool --mode=compile $CC";
+    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module";
+    $LD .= " -rpath \$(PERL_ARCHLIB)/auto/\$(FULLEXT)";
+    $LD .= " -shrext .".$Config{'dlext'};
+    $CC = "$libtool --tag=CXX --mode=compile $CC";
+    push @writemakefile_args, (
+	'OBJ_EXT'	=> '.lo',
+	'DLEXT'		=> 'la',
+	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs"',
+    );
 }
 
 # Filter out some gcc options which g++ doesn't support.
@@ -105,108 +120,22 @@ $CCFLAGS =~ s/(?:^|\s+)-Wdeclaration-after-statement(?:\s+|$)/ /;
 # if Perl was built with -Wall.
 $CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
 
+$CCFLAGS .= ' ' . $var{CPPFLAGS} if exists $var{CPPFLAGS};
+$CCFLAGS .= ' ' . $var{CXXFLAGS} if exists $var{CXXFLAGS};
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-WriteMakefile(
-    'NAME'		=> 'Search::Xapian',
-    'VERSION_FROM'	=> 'Xapian.pm', # finds $VERSION
+push @writemakefile_args, (
+    'NAME'		=> 'SymbolTest',
+    'VERSION_FROM'	=> 'SymbolTest.pm', # finds $VERSION
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
-    ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM => 'Xapian.pm', # retrieve abstract from module
-       AUTHOR     => 'Alex Bowley <xapian-discuss@lists.xapian.org>') : ()),
-#       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'		=> $CC,
     'CCFLAGS'		=> $CCFLAGS,
     'LD'		=> $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
+    'OBJECT'		=> '$(BASEEXT)$(OBJ_EXT)',
     'XSOPT'		=> '-C++',
-    # 'typemap'		is implicitly added to this list.
-    'TYPEMAPS'		=> ['perlobject.map'],
-    # Add "make check" as alias for "make test".
-    # Make sure that we rebuild the Makefile if the version number changes.
-    'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
-
-my $VERSION = "unknown";
-open F, "Makefile" or die $!;
-while (<F>) {
-    if (/^VERSION\s*=\s*(\S*)/) {
-	$VERSION = $1;
-	last;
-    }
-}
-close F;
-
-my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
-if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    # There's no chance that we'll work with xapian-core 0.x.y.
-    my $no_chance = ($xver =~ /^0/);
-    my $msg;
-    if ($no_chance) {
-	$msg = "Xapian version $xver is incompatible with Search::Xapian $VERSION\n";
-    } else {
-	$msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
-    }
-
-    if ($ENV{AUTOMATED_TESTING}) {
-	# Don't let automated testers continue, as we don't want bogus failure
-	# reports due to builds with incompatible versions.
-	print $msg;
-	# Remove Makefile since "exit status 0 without generating Makefile"
-	# is taken to indicate "can't build because of missing dependencies"
-	# by CPAN test building scripts.
-	unlink "Makefile";
-	exit 0;
-    }
-    if ($no_chance) {
-	unlink "Makefile";
-	die $msg;
-    }
-    warn "Warning: $msg";
-}
-
-my @bad;
-for my $file (qw(Changes README)) {
-    open F, $file or next;
-    my $ok;
-    while (<F>) {
-	if (/\b\Q$VERSION\E\b/) {
-	    $ok = 1;
-	    last;
-	}
-    }
-    close F;
-    if (!$ok) {
-	push @bad, $file;
-    }
-}
-if (scalar @bad) {
-    unlink "Makefile";
-    die(join(",",@bad).": No mention of current version: $VERSION\n");
-}
-
-# If we're doing a fake VPATH build, add a stub Makefile which forwards all
-# invocations (.DEFAULT is a GNU-make-ism).
-if (defined $builddir) {
-    open M, '>', "$builddir/Makefile~" or die $!;
-    print M <<"EOF";
-all .DEFAULT:
-\t\$(MAKE) -C "$srcdir" \$\@
-
-.PHONY: all Search-Xapian-$VERSION.tar.gz
-
-dist tardist Search-Xapian-$VERSION.tar.gz:
-\t\$(MAKE) -C "$srcdir" \$\@
-\trm -f Search-Xapian-$VERSION.tar.gz
-\tcp "$srcdir"/Search-Xapian-$VERSION.tar.gz .
-EOF
-
-    close M or die $!;
-    rename "$builddir/Makefile~", "$builddir/Makefile" or die $!;
-}
-
-sub MY::postamble {
-  return "\$(XS_FILES): ".join(" ", <XS/*.xs>)."\n\ttouch \$(XS_FILES)";
-}
+WriteMakefile(@writemakefile_args);

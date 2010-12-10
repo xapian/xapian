@@ -17,3 +17,4 @@ Xapian\.lo
 Search-Xapian-[0-9.]+\.tar\.gz
 Search-Xapian-[0-9.]+
 html
+makefile-pl-args
