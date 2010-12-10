@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.4.0  Thu Nov  5 11:02:08 UTC 2010
+1.2.4.0  Thu Dec 11 11:18:08 UTC 2010
 	[Changes contributed by Olly Betts]
 	- Make sure all Perl files have 'use strict;' and 'use warnings;'.
 	- Remove superfluous 'use Carp;' from generated error classes.
@@ -9,6 +9,10 @@ Revision history for Perl extension Search::Xapian.
 	  command line, and adds tehm to CCFLAGS in the generated Makefile.
 	[Changes contributed by Tim Brody]
 	- New testcase t/10query.t.
+	[Changes contributed by David F. Skoll and Dave O'Neill]
+	- Tell DynaLoader to load the module with RTLD_GLOBAL so exceptions
+	  still work when multiple Perl modules which link to xapian-core are
+	  loaded.  (ticket#522)
 
 1.2.3.0  Tue Aug 24 06:03:12 UTC 2010
 	[Changes contributed by Tim Brody]
