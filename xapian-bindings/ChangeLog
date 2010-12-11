@@ -1,3 +1,9 @@
+Sat Dec 11 10:31:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions,xapian.i: Wrap MatchSpy as a
+	  director class so it can be subclassed in Python.
+	* python/pythontest2.py: Add test that subclassing MatchSpy works.
+
 Tue Dec 07 04:10:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: Add regression test for last fix.

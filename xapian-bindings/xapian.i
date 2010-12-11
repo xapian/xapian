@@ -484,6 +484,11 @@ class Enquire {
 %ignore Xapian::Weight::init_;
 %include <xapian/weight.h>
 
+%feature("director") Xapian::MatchSpy;
+%ignore Xapian::MatchSpy::clone;
+%ignore Xapian::MatchSpy::serialise;
+%ignore Xapian::MatchSpy::serialise_results;
+%ignore Xapian::MatchSpy::unserialise;
 %include <xapian/matchspy.h>
 
 namespace Xapian {

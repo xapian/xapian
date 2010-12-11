@@ -1515,7 +1515,29 @@ def test_leak_mset_items():
 
     expect(object_count, len(gc.get_objects()))
 
+def test_custom_matchspy():
+    class MSpy(xapian.MatchSpy):
+        def __init__(self):
+            xapian.MatchSpy.__init__(self)
+            self.count = 0
+
+        def __call__(self, doc, weight):
+            self.count += 1
+
+    mspy = MSpy()
+
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, "was", "it")
+
+    enquire = xapian.Enquire(db)
+    enquire.add_matchspy(mspy)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 1)
+    expect(len(mset), 1)
+    expect(mspy.count >= 1, True)
+
 # Run all tests (ie, callables with names starting "test_").
+    expect(db.get_doccount(), 5)
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)
 

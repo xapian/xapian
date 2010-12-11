@@ -24,7 +24,7 @@ my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
     MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter KeyMaker
-    StemImplementation Compactor
+    StemImplementation Compactor MatchSpy
 );
 
 my @posting_source_virtual_methods = qw(
@@ -42,6 +42,12 @@ my @posting_source_virtual_methods = qw(
     init
     name
     serialise
+);
+
+my @matchspy_virtual_methods = qw(
+    name
+    merge_results
+    get_description
 );
 
 open FD, ">except.i" or die $!;
@@ -177,6 +183,19 @@ for my $method (@posting_source_virtual_methods) {
     } catch (...) {
 	Xapian::SetPythonException();
 	SWIG_fail;
+    }
+}
+EOF
+}
+
+for my $method (@matchspy_virtual_methods) {
+    print FD <<"EOF";
+%exception Xapian::MatchSpy::${method} {
+    try {
+        \$action
+    } catch (...) {
+        Xapian::SetPythonException();
+        SWIG_fail;
     }
 }
 EOF
