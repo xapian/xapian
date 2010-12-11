@@ -1,3 +1,8 @@
+Sat Dec 11 23:20:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions: Remove PostingSource's serialise
+	  method from the list as we %ignore it in xapian.i.
+
 Sat Dec 11 10:31:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions,xapian.i: Wrap MatchSpy as a

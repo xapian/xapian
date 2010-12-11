@@ -41,7 +41,6 @@ my @posting_source_virtual_methods = qw(
     get_description
     init
     name
-    serialise
 );
 
 my @matchspy_virtual_methods = qw(
