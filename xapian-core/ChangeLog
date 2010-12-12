@@ -1,3 +1,9 @@
+Sun Dec 12 12:24:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* weight/tradweight.cc: Fix calculation order to avoid inconsistent
+	  weights due to rounding for TradWeight(0).
+	* tests/api_backend.cc: Add regression test tradweight2.
+
 Sat Dec 11 11:38:32 GMT 2010  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Update thanks list with bug reporters and patch submitters.
