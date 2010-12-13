@@ -233,9 +233,7 @@ RemoteServer::run()
 void
 RemoteServer::msg_allterms(const string &message)
 {
-    const char *p = message.data();
-    const char *p_end = p + message.size();
-    string prefix(p, p_end - p);
+    const string & prefix = message;
 
     const Xapian::TermIterator end = db->allterms_end(prefix);
     for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
@@ -289,9 +287,7 @@ RemoteServer::msg_positionlist(const string &message)
 void
 RemoteServer::msg_postlist(const string &message)
 {
-    const char *p = message.data();
-    const char *p_end = p + message.size();
-    string term(p, p_end - p);
+    const string & term = message;
 
     Xapian::doccount termfreq = db->get_termfreq(term);
     Xapian::termcount collfreq = db->get_collection_freq(term);
