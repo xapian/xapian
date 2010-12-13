@@ -83,7 +83,12 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 	    return DerefWrapper_<termpos>(tmp);
 	}
 
-	// extra method, not required for an input_iterator
+	/** Advance the iterator to the specified termpos.
+	 *
+	 *  If the specified termpos isn't in the list, position ourselves on the
+	 *  first termpos after it (or at_end() if no greater term positions are
+	 *  present).
+	 */
 	void skip_to(Xapian::termpos pos);
 
 	/// Return a string describing this object.

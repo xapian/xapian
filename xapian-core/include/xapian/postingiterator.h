@@ -78,8 +78,11 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 	    return DerefWrapper_<docid>(tmp);
 	}
 
-	/** Skip the iterator to document did, or the first document after did
-	 *  if did isn't in the list of documents being iterated.
+	/** Advance the iterator to the specified docid.
+	 *
+	 *  If the specified docid isn't in the list, position ourselves on the
+	 *  first document after it (or at_end() if no greater docids are
+	 *  present).
 	 */
 	void skip_to(Xapian::docid did);
 

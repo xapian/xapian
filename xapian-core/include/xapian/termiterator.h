@@ -75,8 +75,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	    return DerefWrapper_<std::string>(term);
 	}
 
-	/** Skip the iterator to term tname, or the first term after tname
-	 *  if tname isn't in the list of terms being iterated.
+	/** Advance the iterator to the specified term.
+	 *
+	 *  If the specified term isn't in the list, position ourselves on the
+	 *  first term after it (or at_end() if no greater terms are present).
 	 */
 	void skip_to(const std::string & tname);
 

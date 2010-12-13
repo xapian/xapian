@@ -154,7 +154,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     virtual void next(Xapian::weight min_wt) = 0;
 
-    /** Skip forward to the specified docid.
+    /** Advance to the specified docid.
      *
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
