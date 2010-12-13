@@ -134,4 +134,18 @@
     }
 }
 
+#if 0 // FIXME: only useful once we enable director support
+%typemap(directorin) (size_t num_tags, const std::string tags[]) {
+    if (array_init($input) == FAILURE) {
+	SWIG_PHP_Error(E_ERROR, "array_init failed");
+    }
+
+    for (size_t i = 0; i != num_tags; ++i) {
+	const string & term = tags[i];
+	char *p = const_cast<char*>(term.data());
+	add_next_index_stringl($input, p, term.length(), 1);
+    }
+}
+#endif
+
 /* vim:set syntax=cpp:set noexpandtab: */

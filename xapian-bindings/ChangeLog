@@ -1,3 +1,8 @@
+Mon Dec 13 06:04:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/util.i: Add commented out typemap for director support for
+	  Compactor::resolve_duplicate_metadata().
+
 Sat Dec 11 23:20:29 GMT 2010  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions: Remove PostingSource's serialise
