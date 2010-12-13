@@ -177,6 +177,13 @@ when reading values back from Xapian.
    MSetIterator and ESetIterator also support <code>prev()</code>.
 </p>
 
+<p>
+In C++, trying to dereference or advance an iterator which is at its end point
+is undefined behaviour and should be avoided, and currently the PHP wrappers
+around the Xapian iterator classes inherit these semantics.  The plan is to
+wrap these PHP iterators (see <a href="http://trac.xapian.org/ticket/520">ticket#520</a>).
+</p>
+
 <h2>Iterator dereferencing</h2>
 
 <p>
