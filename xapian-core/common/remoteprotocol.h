@@ -44,8 +44,9 @@
 // 33: 1.1.3 Support for passing matchspies over the remote connection.
 // 34: 1.1.4 Support for metadata over with remote databases.
 // 35: 1.1.5 Support for add_spelling() and remove_spelling().
+// 35.1: 1.2.4 Support for metadata_keys_begin().
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 35
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
 
 /** Message types (client -> server).
  *
@@ -81,6 +82,7 @@ enum message_type {
     MSG_REMOVESPELLING,		// Remove a spelling
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
+    MSG_METADATAKEYLIST,	// Iterator for metadata keys
     MSG_MAX
 };
 
@@ -107,6 +109,7 @@ enum reply_type {
     REPLY_ADDDOCUMENT,		// Add Document
     REPLY_RESULTS,		// Results (MSet)
     REPLY_METADATA,		// Metadata
+    REPLY_METADATAKEYLIST,	// Iterator for metadata keys
     REPLY_MAX
 };
 

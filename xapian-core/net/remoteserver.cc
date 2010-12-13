@@ -183,13 +183,14 @@ RemoteServer::run()
 		&RemoteServer::msg_setmetadata,
 		&RemoteServer::msg_addspelling,
 		&RemoteServer::msg_removespelling,
-		// MSG_GETMSET - used during a conversation.
-		// MSG_SHUTDOWN - handled by get_message().
+		0, // MSG_GETMSET - used during a conversation.
+		0, // MSG_SHUTDOWN - handled by get_message().
+		&RemoteServer::msg_openmetadatakeylist,
 	    };
 
 	    string message;
 	    size_t type = get_message(idle_timeout, message);
-	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
+	    if (type >= sizeof(dispatch)/sizeof(dispatch[0]) || !dispatch[type]) {
 		string errmsg("Unexpected message type ");
 		errmsg += str(type);
 		throw Xapian::InvalidArgumentError(errmsg);
@@ -661,6 +662,18 @@ void
 RemoteServer::msg_getmetadata(const string & message)
 {
     send_message(REPLY_METADATA, db->get_metadata(message));
+}
+
+void
+RemoteServer::msg_openmetadatakeylist(const string & message)
+{
+    const Xapian::TermIterator end = db->metadata_keys_end(message);
+    Xapian::TermIterator t = db->metadata_keys_begin(message);
+    for (; t != end; ++t) {
+	send_message(REPLY_METADATAKEYLIST, *t);
+    }
+
+    send_message(REPLY_DONE, string());
 }
 
 void

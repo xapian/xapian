@@ -133,6 +133,35 @@ RemoteDatabase::keep_alive()
 }
 
 TermList *
+RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
+{
+    // Ensure that total_length and doccount are up-to-date.
+    if (!cached_stats_valid) update_stats();
+
+    send_message(MSG_METADATAKEYLIST, prefix);
+
+    string message;
+    AutoPtr<NetworkTermList> tlist(
+	new NetworkTermList(0, doccount,
+			    Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
+			    0));
+    vector<NetworkTermListItem> & items = tlist->items;
+
+    char type;
+    while ((type = get_message(message)) == REPLY_METADATAKEYLIST) {
+	NetworkTermListItem item;
+	item.tname = message;
+	items.push_back(item);
+    }
+    if (type != REPLY_DONE) {
+	throw Xapian::NetworkError("Bad message received", context);
+    }
+
+    tlist->current_position = tlist->items.begin();
+    return tlist.release();
+}
+
+TermList *
 RemoteDatabase::open_term_list(Xapian::docid did) const
 {
     Assert(did);

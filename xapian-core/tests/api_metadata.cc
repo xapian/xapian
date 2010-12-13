@@ -137,8 +137,7 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
 }
 
 // Test metadata iterators.
-// !remote because the remote backend doesn't support metadata iteration.
-DEFINE_TESTCASE(metadata5, writable && !remote) {
+DEFINE_TESTCASE(metadata5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.
@@ -241,12 +240,17 @@ DEFINE_TESTCASE(metadata5, writable && !remote) {
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo1");
 
-    // Check that skip_to can move backwards.
-    iter.skip_to("");
+    // Check that skipping to the current key works.
+    iter.skip_to("foo1");
     TEST(iter != db.metadata_keys_end());
-    TEST_EQUAL(*iter, "a");
+    TEST_EQUAL(*iter, "foo1");
 
-    // Skip back to the foo1 key.
+    // Check that skip_to a key before the current one doesn't move forwards.
+    iter.skip_to("a");
+    TEST(iter != db.metadata_keys_end());
+    TEST_REL(*iter, <=, "foo1");
+
+    // Make sure we're back on foo1.
     iter.skip_to("foo1");
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo1");

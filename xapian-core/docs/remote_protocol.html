@@ -7,8 +7,9 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 35.0</em> of the protocol used by Xapian's
-remote backend.  The major protocol version increased to 35 in Xapian 1.1.5.
+This document describes <em>version 35.1</em> of the protocol used by Xapian's
+remote backend.  The major protocol version increased to 35 in Xapian 1.1.5,
+and the minor protocol version to 1 in Xapian 1.2.4.
 Clients and servers must support matching major protocol versions and the
 client's minor protocol version must be the same or lower.  This means that for
 a minor protocol version change, you can upgrade first servers and then clients
@@ -325,6 +326,15 @@ and they don't change if the database can't change).
 <ul>
 <li> <code>MSG_GETMETADATA &lt;key&gt;</code>
 <li> <code>REPLY_METADATA &lt;value&gt;</code>
+</ul>
+
+<h2>Metadata keys</h2>
+
+<ul>
+<li> <code>MSG_METADATAKEYLIST &lt;prefix&gt;</code>
+<li> <code>REPLY_METADATAKEYLIST &lt;key&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
 </ul>
 
 <h2>Add spelling</h2>

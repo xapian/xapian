@@ -173,6 +173,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void get_mset(Xapian::MSet &mset,
 		  const vector<Xapian::MatchSpy *> & matchspies);
 
+    /// Get remote metadata key list.
+    TermList * open_metadata_keylist(const std::string & prefix) const;
+
     /// Get remote termlist.
     TermList * open_term_list(Xapian::docid did) const;
 
