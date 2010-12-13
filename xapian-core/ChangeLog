@@ -1,3 +1,7 @@
+Mon Dec 13 14:18:18 GMT 2010  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: "network databases" -> "remote databases".
+
 Mon Dec 13 14:10:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: If the message parameter only contains a
