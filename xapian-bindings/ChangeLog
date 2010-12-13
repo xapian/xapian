@@ -1,3 +1,8 @@
+Mon Dec 13 12:04:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html: Document that iterators shouldn't be
+	  dereferenced or advanced when at their end points (ticket#520).
+
 Mon Dec 13 06:04:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* php/util.i: Add commented out typemap for director support for
