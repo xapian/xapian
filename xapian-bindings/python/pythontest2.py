@@ -206,25 +206,34 @@ def test_matchingterms_iter():
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
+    # Check for memory leaks: Prior to 1.2.4 Enquire.get_matching_terms()
+    # leaked references to its members.
+    gc.collect()
+    object_count = len(gc.get_objects())
+
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10)
+    msetiter = mset.begin()
+
     for item in mset:
-
         # Make a list of the term names
-        mterms = []
-        for term in enquire.matching_terms(item.docid):
-            mterms.append(term)
-
-        mterms2 = []
-        for term in enquire.matching_terms(item):
-            mterms2.append(term)
+        mterms = [term for term in enquire.matching_terms(item.docid)]
+        mterms2 = [term for term in enquire.matching_terms(item)]
         expect(mterms, mterms2)
 
-    mterms = []
-    for term in enquire.matching_terms(mset.get_hit(0)):
-        mterms.append(term)
+        expect(msetiter == mset.end(), False)
+        mterms3 = enquire.get_matching_terms(msetiter)
+        expect(mterms, mterms3)
+        msetiter.next()
+    expect(msetiter, mset.end())
+
+    mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
     expect(mterms, ['it', 'two', 'warm', 'was'])
+
+    del mterms, mterms2, mterms3, term, item, enquire, mset, msetiter
+    gc.collect()
+    expect(object_count, len(gc.get_objects()))
 
 def test_queryterms_iter():
     """Test Query term iterator.

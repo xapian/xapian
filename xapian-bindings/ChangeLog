@@ -1,3 +1,10 @@
+Mon Dec 13 20:22:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py,python/util.i: Fix memory leak in
+	  Enquire.get_matching_terms() method, and add coverage for this
+	  method.  Check gc.get_objects() is the same before and after the
+	  calls to get the matching terms; this failed before the fix.
+
 Mon Dec 13 12:04:28 GMT 2010  Olly Betts <olly@survex.com>
 
 	* php/docs/index.html: Document that iterators shouldn't be

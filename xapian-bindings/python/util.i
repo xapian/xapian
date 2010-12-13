@@ -173,7 +173,11 @@ namespace Xapian {
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
 %#endif
 	if (str == 0) return NULL;
-	if (PyList_Append($result, str) == -1) return NULL;
+	if (PyList_Append($result, str) == -1) {
+            Py_DECREF(str);
+            return NULL;
+        }
+        Py_DECREF(str);
     }
 }
 
