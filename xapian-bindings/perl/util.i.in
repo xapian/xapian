@@ -431,6 +431,11 @@ package Search::Xapian;
 
 our $VERSION = "@PERL_XAPIAN_VERSION@";
 
+# We need to use the RTLD_GLOBAL flag to dlopen() so that other C++
+# modules that link against libxapian.so get the *same* value for all the
+# weak symbols (eg, the exception classes)
+sub dl_load_flags { 0x01 }
+
 # Items to export into caller's namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.

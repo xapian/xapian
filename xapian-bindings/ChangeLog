@@ -1,3 +1,12 @@
+Tue Dec 14 03:01:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/symbol-test.t,perl/util.i.in: Merge fix and
+	  adapt testcase for it from XS Search::Xapian:
+	  [Changes contributed by David F. Skoll and Dave O'Neill]
+	  - Tell DynaLoader to load the module with RTLD_GLOBAL so exceptions
+	    still work when multiple Perl modules which link to xapian-core are
+	    loaded.  (ticket#522)
+
 Tue Dec 14 02:46:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: Whitespace tweaks.

@@ -2,7 +2,9 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = prove -I.libs -I. -I"$(srcdir)"
+TESTS_ENVIRONMENT = \
+	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
+	prove -I.libs -I. -I"$(srcdir)"
 
 ## Test programs to be run
 TESTS = \
@@ -19,6 +21,7 @@ TESTS = \
 	t/parser.t \
 	t/search.t \
 	t/sorter.t \
+	t/symbol-test.t \
 	t/termgenerator.t \
 	t/thread.t \
 	t/tied.t \
@@ -30,7 +33,11 @@ clean-local:
 
 BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc
 
-EXTRA_DIST = except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = except.i $(TESTS) $(BUILT_SOURCES) \
+	t/symbol-test/SymbolTest.pm \
+	t/symbol-test/typemap \
+	t/symbol-test/SymbolTest.xs \
+	t/symbol-test/Makefile.PL
 
 exampledatadir = $(docdir)/perl/examples
 dist_exampledata_DATA = \
