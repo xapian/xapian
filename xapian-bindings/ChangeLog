@@ -1,3 +1,7 @@
+Tue Dec 14 02:46:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Whitespace tweaks.
+
 Mon Dec 13 20:22:13 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/pythontest2.py,python/util.i: Fix memory leak in

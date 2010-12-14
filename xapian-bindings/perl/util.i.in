@@ -427,7 +427,7 @@ Xapian::WritableDatabase * new3_WritableDatabase() {
 
 /* Perl code */
 %perlcode %{
-package Search::Xapian;	
+package Search::Xapian;
 
 our $VERSION = "@PERL_XAPIAN_VERSION@";
 
@@ -891,7 +891,7 @@ Like OP_AND, but only weight using the left query.
 =item OP_NEAR
 
 Match if the words are near each other. The window should be specified, as
-a parameter to C<Search::Xapian::Query::Query>, but it defaults to the 
+a parameter to C<Search::Xapian::Query::Query>, but it defaults to the
 number of terms in the list.
 
 =item OP_PHRASE
