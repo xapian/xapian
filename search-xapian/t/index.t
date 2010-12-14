@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 77 };
+BEGIN { plan tests => 87 };
 use Search::Xapian qw(:standard);
 
 #########################
@@ -76,17 +76,22 @@ foreach my $backend ("inmemory", "auto") {
   my $alltermit = $database->allterms_begin();
   ok( $alltermit != $database->allterms_end() );
   ok( "$alltermit" eq 'one' );
+  ok( $alltermit->get_termname() eq 'one' );
   ok( ++$alltermit != $database->allterms_end() );
   ok( "$alltermit" eq 'test' );
+  ok( $alltermit->get_termname() eq 'test' );
   ok( ++$alltermit != $database->allterms_end() );
   ok( "$alltermit" eq 'two' );
+  ok( $alltermit->get_termname() eq 'two' );
   ok( ++$alltermit == $database->allterms_end() );
 
   $alltermit = $database->allterms_begin('t');
   ok( $alltermit != $database->allterms_end('t') );
   ok( "$alltermit" eq 'test' );
+  ok( $alltermit->get_termname() eq 'test' );
   ok( ++$alltermit != $database->allterms_end('t') );
   ok( "$alltermit" eq 'two' );
+  ok( $alltermit->get_termname() eq 'two' );
   ok( ++$alltermit == $database->allterms_end('t') );
 
   # Feature test for metadata support.

@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 117 };
+BEGIN { plan tests => 122 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -164,17 +164,22 @@ ok( $tradweight = Search::Xapian::TradWeight->new() );
 my $alltermit = $db->allterms_begin();
 ok( $alltermit != $db->allterms_end() );
 ok( "$alltermit" eq 'one' );
+ok( $alltermit->get_termname() eq 'one' );
 ok( ++$alltermit != $db->allterms_end() );
 ok( "$alltermit" eq 'test' );
+ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end() );
 ok( "$alltermit" eq 'two' );
+ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end() );
 
 $alltermit = $db->allterms_begin('t');
 ok( $alltermit != $db->allterms_end('t') );
 ok( "$alltermit" eq 'test' );
+ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end('t') );
 ok( "$alltermit" eq 'two' );
+ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
 
 # Check that non-string scalars get coerced.
