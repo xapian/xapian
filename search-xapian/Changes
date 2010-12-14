@@ -6,7 +6,7 @@ Revision history for Perl extension Search::Xapian.
 	- Remove superfluous 'use Carp;' from generated error classes.
 	- t/document.t,t/index.t,t/search.t: Test TermIterator::get_termname().
 	- Makefile.PL now looks for CXXFLAGS and CPPFLAGS passed on the
-	  command line, and adds tehm to CCFLAGS in the generated Makefile.
+	  command line, and adds them to CCFLAGS in the generated Makefile.
 	[Changes contributed by Tim Brody]
 	- New testcase t/10query.t.
 	[Changes contributed by David F. Skoll and Dave O'Neill]
