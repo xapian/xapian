@@ -185,6 +185,14 @@ which you might find useful:
     Any other value forces the use of colour.  Colour output is always disabled
     on Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
+  XAPIAN_TESTSUITE_LD_PRELOAD:
+    The runtest script will add this to LD_PRELOAD if it is set, allowing you
+    to easily load LD_PRELOAD libraries when running the testsuite.  The
+    intended use is to allow use of libeatmydata
+    (http://www.flamingspork.com/projects/libeatmydata/) which makes fsync
+    and related calls no-ops.  Since the testsuite does a lot of small
+    database operations, this can speed up running the testsuite substantially.
+
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
 
