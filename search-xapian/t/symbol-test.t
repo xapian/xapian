@@ -6,7 +6,8 @@
 use Test::More;
 BEGIN { plan tests => 3 };
 
-open ARGS, 'makefile-pl-args' or die $!;
+my ($srcdir) = ($0 =~ m!(.*/)!);
+open ARGS, "$srcdir../makefile-pl-args" or die $!;
 my @args = <ARGS>;
 close ARGS;
 chomp @args;
