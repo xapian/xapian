@@ -69,8 +69,8 @@ newN(int op_, ...)
 		}
 	    }
             RETVAL = new Query(op, queries.begin(), queries.end());
-        } catch (const Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
+	} catch (...) {
+	    handle_exception();
         }
     OUTPUT:
         RETVAL

@@ -262,8 +262,8 @@ Database::get_spelling_suggestion(word, max_edit_distance = 2)
     CODE:
 	try {
 	    RETVAL = THIS->get_spelling_suggestion(word, max_edit_distance);
-	} catch (const Error &error) {
-	    croak( "Exception: %s", error.get_msg().c_str() );
+	} catch (...) {
+	    handle_exception();
 	}
     OUTPUT:
 	RETVAL

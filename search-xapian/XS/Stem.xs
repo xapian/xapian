@@ -8,8 +8,8 @@ Stem::new(language)
     CODE:
 	try {
 	    RETVAL = new Stem(language);
-	} catch (const Error &error) {
-	    croak( "Exception: %s", error.get_msg().c_str() );
+	} catch (...) {
+	    handle_exception();
 	}
     OUTPUT:
         RETVAL

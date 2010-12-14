@@ -56,8 +56,8 @@ QueryParser::parse_query(q, flags = QueryParser::FLAG_DEFAULT)
     CODE:
 	try {
 	    RETVAL = new Query(THIS->parse_query(q,flags));
-	} catch (const Error &error) {
-	    croak( "Exception: %s", error.get_msg().c_str() );
+	} catch (...) {
+	    handle_exception();
 	}
     OUTPUT:
 	RETVAL
@@ -103,8 +103,8 @@ QueryParser::get_corrected_query_string()
     CODE:
     try {
 	RETVAL = THIS->get_corrected_query_string();
-    } catch (const Error &error) {
-	croak( "Exception: %s", error.get_msg().c_str() );
+    } catch (...) {
+	handle_exception();
     }
     OUTPUT:
 	RETVAL

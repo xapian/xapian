@@ -1,7 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.4.0  Thu Dec 11 11:18:08 UTC 2010
+1.2.4.0  Thu Dec 14 05:02:08 UTC 2010
 	[Changes contributed by Olly Betts]
+	- Xapian exceptions were still being thrown as strings in Perl in
+	  some cases.  Now all cases throw a subclass of Search::Xapian::Error
+	  and for compatibility with code which expects the previous behaviour
+	  these subclasses auto-stringify to the string which would have been
+	  thrown before.
 	- Make sure all Perl files have 'use strict;' and 'use warnings;'.
 	- Remove superfluous 'use Carp;' from generated error classes.
 	- t/document.t,t/index.t,t/search.t: Test TermIterator::get_termname().
