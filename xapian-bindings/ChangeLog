@@ -1,3 +1,9 @@
+Tue Dec 14 05:25:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/: Disable tests from the XS version which don't yet pass
+	  here with a $disable_fixme variable, so they are more clearly marked
+	  and can easily be reenabled for testing.
+
 Tue Dec 14 03:01:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,perl/t/symbol-test.t,perl/util.i.in: Merge fix and

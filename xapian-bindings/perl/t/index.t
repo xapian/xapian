@@ -6,8 +6,11 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 80 };
+BEGIN { plan tests => 91 };
 use Search::Xapian qw(:standard);
+
+# FIXME: these tests pass in the XS version.
+my $disable_fixme = 1;
 
 #########################
 
@@ -75,17 +78,22 @@ foreach my $backend ("inmemory", "auto") {
 
   my $alltermit = $database->allterms_begin();
   ok( $alltermit != $database->allterms_end() );
+  ok( $disable_fixme || "$alltermit" eq 'one' );
   ok( $alltermit->get_termname() eq 'one' );
   ok( ++$alltermit != $database->allterms_end() );
+  ok( $disable_fixme || "$alltermit" eq 'test' );
   ok( $alltermit->get_termname() eq 'test' );
   ok( ++$alltermit != $database->allterms_end() );
+  ok( $disable_fixme || "$alltermit" eq 'two' );
   ok( $alltermit->get_termname() eq 'two' );
   ok( ++$alltermit == $database->allterms_end() );
 
   $alltermit = $database->allterms_begin('t');
   ok( $alltermit != $database->allterms_end('t') );
+  ok( $disable_fixme || "$alltermit" eq 'test' );
   ok( $alltermit->get_termname() eq 'test' );
   ok( ++$alltermit != $database->allterms_end('t') );
+  ok( $disable_fixme || "$alltermit" eq 'two' );
   ok( $alltermit->get_termname() eq 'two' );
   ok( ++$alltermit == $database->allterms_end('t') );
 
@@ -106,5 +114,6 @@ ok($@);
 ok(ref($@), "Search::Xapian::InvalidArgumentError");
 ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
+ok( $disable_fixme || "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 
 1;
