@@ -7,12 +7,12 @@ use Test::More;
 BEGIN { plan tests => 3 };
 
 my ($srcdir) = ($0 =~ m!(.*/)!);
-open ARGS, "$srcdir../makefile-pl-args" or die $!;
+chdir("${srcdir}symbol-test") or die $!;
+
+open ARGS, "../../makefile-pl-args" or die $!;
 my @args = <ARGS>;
 close ARGS;
 chomp @args;
-
-chdir("t/symbol-test") or die $!;
 
 system($^X, "Makefile.PL", @args) == 0 or die $!;
 system("make 2>&1") == 0 or die $!;
