@@ -6,7 +6,8 @@
 use Test::More;
 BEGIN { plan tests => 3 };
 
-chdir("t/symbol-test") or die $!;
+my ($srcdir) = ($0 =~ m!(.*/)!);
+chdir("${srcdir}symbol-test") or die $!;
 
 system($^X, "Makefile.PL", @args) == 0 or die $!;
 system("make 2>&1") == 0 or die $!;
