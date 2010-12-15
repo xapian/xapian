@@ -1,3 +1,64 @@
+ 15242       olly Wed Dec 15 04:28:22 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.23 (2010-12-15):
+
+
+API:
+
+* QueryParser: Avoid a double free if Query construction throws an exception
+  in a particular case.  Fixes ticket#515.
+
+* Enquire::get_mset(): Avoid pointlessly trying to allocate lots of memory
+  if the first document requested is larger than the size of the database.
+
+* Enquire::get_mset(): An empty query now returns an MSet with firstitem set
+  correctly - previously firstitem was always 0 in this case.
+
+testsuite:
+
+
+matcher:
+
+* The matcher wasn't relculating the max possible weight after a subquery of
+  XOR reached its end.  This caused an assertion failure in debug builds, and
+  is a missed optimisation opportunity.
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+* xapian-compact: Fix access to empty priority_queue while merging synonyms.
+  This could have caused problems, though we've had no reports of any (the
+  bug was found with _GLIBCXX_DEBUG).
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.0.22 (2010-10-03):
 
 API:
