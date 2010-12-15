@@ -166,7 +166,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  to move to the start of the prefix, but is more convenient (because
 	 *  it detects the end of the prefixed terms), and may be more
 	 *  efficient than simply calling skip_to() after opening the iterator,
-	 *  particularly for network databases.
+	 *  particularly for remote databases.
 	 *
 	 *  @param prefix The prefix to restrict the returned terms to.
 	 */
