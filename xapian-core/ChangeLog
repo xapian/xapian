@@ -1,3 +1,10 @@
+Wed Dec 15 04:28:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/: Make it more explicitly clear that PostingIterator,
+	  PositionIterator, and TermIterator's skip_to methods advance (and
+	  hence shouldn't be expected to allow you to "rewind" the stream).
+
 Wed Dec 15 04:08:44 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
