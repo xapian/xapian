@@ -1,3 +1,8 @@
+Thu Dec 16 06:35:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: If fstat() fails, preserve the errno value rather than
+	  letting close() clobber it.
+
 Thu Dec 16 06:31:30 GMT 2010  Olly Betts <olly@survex.com>
 
 	* loadfile.cc: Fix file descriptor leak if load_file() is called on

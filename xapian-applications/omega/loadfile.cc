@@ -75,7 +75,9 @@ load_file(const string &file_name, size_t max_to_read, int flags,
 
     struct stat st;
     if (fstat(fd, &st) < 0) {
+	int errno_save = errno;
 	close(fd);
+	errno = errno_save;
 	return false;
     }
 
