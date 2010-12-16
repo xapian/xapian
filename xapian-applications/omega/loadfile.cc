@@ -80,6 +80,7 @@ load_file(const string &file_name, size_t max_to_read, int flags,
     }
 
     if (!S_ISREG(st.st_mode)) {
+	close(fd);
 	errno = EINVAL;
 	return false;
     }
