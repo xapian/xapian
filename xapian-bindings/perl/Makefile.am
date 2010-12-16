@@ -3,6 +3,9 @@
 include ../generic/generic.mk
 
 TESTS_ENVIRONMENT = \
+	CPPFLAGS="$(CPPFLAGS)" \
+	CXX="$(CXX)" \
+	CXXFLAGS="$(CXXFLAGS)" \
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	prove -I.libs -I. -I"$(srcdir)"
 

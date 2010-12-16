@@ -1,3 +1,7 @@
+Thu Dec 16 10:11:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Pass CPPFLAGS, CXX, CXXFLAGS to the testsuite.
+
 Tue Dec 14 14:23:07 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/t/symbol-test.t: Merge VPATH fixes from Search::Xapian.
