@@ -105,13 +105,13 @@ convert_to_utf8(string & text, const string & charset)
     bool utf16 = false;
     if (strncasecmp(p, "utf", 3) == 0) {
 	p += 3;
-	if (*p == '-' || *p == '_') ++p;
+	if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	if (*p != '1' || p[1] != '6') return;
 	p += 2;
 	utf16 = true;
     } else if (strncasecmp(p, "ucs", 3) == 0) {
 	p += 3;
-	if (*p == '-' || *p == '_') ++p;
+	if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	if (*p != '2') return;
 	++p;
 	utf16 = true;
@@ -183,11 +183,11 @@ convert_to_utf8(string & text, const string & charset)
     } else {
 	if (strncasecmp(p, "iso", 3) == 0) {
 	    p += 3;
-	    if (*p == '-' || *p == '_') ++p;
+	    if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	}
 	if (strncmp(p, "8859", 4) != 0) return;
 	p += 4;
-	if (*p == '-' || *p == '_') ++p;
+	if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	if (strcmp(p, "1") != 0) return;
 
 	// FIXME: pull this out as a standard "normalise utf-8" function?

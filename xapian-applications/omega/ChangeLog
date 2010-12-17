@@ -1,3 +1,9 @@
+Fri Dec 17 08:31:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc: Fix built in converter to handle space in charset
+	  names, which fixes failing utf8converttest when iconv isn't
+	  available.
+
 Fri Dec 17 05:36:36 GMT 2010  Olly Betts <olly@survex.com>
 
 	* utf8convert.cc: Rework the fixing up of charset names which iconv()
