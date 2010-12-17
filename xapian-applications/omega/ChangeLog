@@ -1,3 +1,11 @@
+Fri Dec 17 08:47:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* loadfile.cc: Fix file descriptor leak if load_file() is called on
+	  something which isn't a file (found by cppcheck run on the Debian
+	  archive).  This case probably couldn't occur in omindex, but could if
+	  you used the LOADFILE action in scriptindex.
+
 Wed Dec 08 10:26:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
