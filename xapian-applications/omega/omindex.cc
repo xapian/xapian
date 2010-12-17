@@ -995,7 +995,7 @@ main(int argc, char **argv)
 
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
-	{ "version",	no_argument,		NULL, 'v' },
+	{ "version",	no_argument,		NULL, 'V' },
 	{ "overwrite",	no_argument,		NULL, 'o' },
 	{ "duplicates",	required_argument,	NULL, 'd' },
 	{ "preserve-removed",	no_argument,	NULL, 'p' },
@@ -1008,7 +1008,7 @@ main(int argc, char **argv)
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ "stemmer",	required_argument,	NULL, 's' },
 	{ "spelling",	no_argument,		NULL, 'S' },
-	{ "verbose",	no_argument,		NULL, 'V' },
+	{ "verbose",	no_argument,		NULL, 'v' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1158,6 +1158,14 @@ main(int argc, char **argv)
     // (as it is in CP1250).
     commands["image/vnd.djvu"] = "djvutxt ";
 
+    if (argc == 2 && strcmp(argv[1], "-v") == 0) {
+	// -v was the short option for --version in 1.2.3 and earlier, but
+	// now it is short for --verbose (for consistency with scriptindex)
+	// so if "-v" is the only option, translate it to "--version" for
+	// backwards compatibility.
+	argv[1] = const_cast<char *>("--version");
+    }
+
     string dbpath;
     int getopt_ret;
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSV",
@@ -1181,14 +1189,14 @@ main(int argc, char **argv)
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
 "  -S, --spelling           index data for spelling correction\n"
-"  -V, --verbose            show more information about what is happening\n"
+"  -v, --verbose            show more information about what is happening\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
 	    print_stemmer_help("     ");
 	    print_help_and_version_help("     ");
 	    return 0;
 	}
-	case 'v':
+	case 'V':
 	    print_package_info(PROG_NAME);
 	    return 0;
 	case 'd': // how shall we handle duplicate documents?
@@ -1266,7 +1274,7 @@ main(int argc, char **argv)
 	case 'S':
 	    spelling = true;
 	    break;
-	case 'V':
+	case 'v':
 	    verbose = true;
 	    break;
 	case ':': // missing param

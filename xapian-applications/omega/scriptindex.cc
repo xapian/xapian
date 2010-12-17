@@ -778,7 +778,7 @@ try {
 "      --overwrite     create the database anew (the default is to update if\n"
 "                      the database already exists)\n";
 	print_stemmer_help("");
-	print_help_and_version_help("", 'V');
+	print_help_and_version_help("");
 	exit(show_help ? 0 : 1);
     }
 

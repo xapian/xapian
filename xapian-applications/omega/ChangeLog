@@ -1,3 +1,11 @@
+Fri Dec 17 12:45:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* commonhelp.cc,commonhelp.h,omindex.cc,scriptindex.cc: Swap the
+	  meanings of -v and -V in omindex for consistency with scriptindex
+	  and typical short options for --verbose and --version in other
+	  packages.  For backward compatibility, "omindex -v" is handled
+	  specially and still reports the version.
+
 Fri Dec 17 08:31:29 GMT 2010  Olly Betts <olly@survex.com>
 
 	* utf8convert.cc: Fix built in converter to handle space in charset
