@@ -1,3 +1,53 @@
+ 15252       olly Fri Dec 17 08:49:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: If fstat() fails, preserve the errno value rather than
+	  letting close() clobber it.
+
+	* loadfile.cc: Fix file descriptor leak if load_file() is called on
+	  something which isn't a file (found by cppcheck run on the Debian
+	  archive).  This case probably couldn't occur in omindex, but could if
+	  you used the LOADFILE action in scriptindex.
+
+	* Makefile.am,configure.ac: Add -no-undefined to AM_LDFLAGS on
+	  platforms which need it to dynamically link such as cygwin (need
+	  to do this taken from ticket#282).
+
+	* omindex.cc: Escape wildcard patterns being passed to unzip - in the
+	  unlikely event that one of these matched files in or under the
+	  current directory, we might fail to extract all the files we wanted
+	  to.
+
+	* metaxmlparse.h: Initialise field member variable.
+
+	* configure.ac: Probe for any options needed to enable large file
+	  support.  Handling files >= 2GB isn't especially useful, but more
+	  importantly this is needed to allow omindex to index files on filing
+	  systems with 64 bit inodes on some platforms (e.g. 32-bit Linux).
+
+Omega 1.0.? (2009-0?-??):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.0.22 (2010-10-03):
 
 portability:

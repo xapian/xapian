@@ -1,3 +1,9 @@
+Fri Dec 17 10:53:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* utils.cc: Fix misuse of BUFSIZE which should be sizeof(buf) (issue
+	  reported by compilation with CPPFLAGS=-D_GLIBCXX_DEBUG).
+
 Fri Dec 17 08:49:37 GMT 2010  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
