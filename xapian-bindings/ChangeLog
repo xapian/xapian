@@ -1,3 +1,7 @@
+Sat Dec 18 15:09:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: 1.2.4.
+
 Thu Dec 16 10:11:35 GMT 2010  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Pass CPPFLAGS, CXX, CXXFLAGS to the testsuite.
