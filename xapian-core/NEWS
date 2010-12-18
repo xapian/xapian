@@ -1,43 +1,42 @@
- 15238       olly Tue Dec 14 12:46:36 GMT 2010  Olly Betts <olly@survex.com>
-
-backport candidates:
-
-backported to 1.0.23:
-
-Xapian-core 1.2.4 (2010-12-15):
+Xapian-core 1.2.4 (2010-12-18):
 
 API:
 
-* QueryParser: Avoid a double free if Query construction throws an exception
-  in a particular case.  Fixes ticket#515.
+* QueryParser:
 
-* Enquire::get_mset(): Avoid pointlessly trying to allocate lots of memory
-  if the first document requested is larger than the size of the database.
+  + Avoid a double free if Query construction throws an exception in a
+    particular case.  Fixes ticket#515.
 
-* Enquire::get_mset(): An empty query now returns an MSet with firstitem set
-  correctly - previously firstitem was always 0 in this case.
+  + Allow phrase generators between a probabilistic prefix and the term itself
+    (e.g. path:/usr/local).
 
-* Xapian::Document: Initialise docid to 0 when creating a document from
+  + The correct window size wasn't being set in some cases when default_op was
+    set to OP_PHRASE.
+
+* Enquire::get_mset():
+
+  + Avoid pointlessly trying to allocate lots of memory if the first document
+    requested is larger than the size of the database.
+
+  + An empty query now returns an MSet with firstitem set correctly -
+    previously firstitem was always 0 in this case.
+
+* Document: Initialise docid to 0 when creating a document from
   scratch, as documented.
 
-* Xapian::QueryParser: Allow phrase generators between a probabilistic prefix
-  and the term itself (e.g. path:/usr/local).
+* Compactor:
 
-* Xapian::QueryParser: The correct window size wasn't being set in some cases
-  when default_op was set to OP_PHRASE.
+  + Move the database compaction and merging functionality into this new class,
+    and make xapian-compact a simple wrapper around this class.  (ticket#175)
 
-* Convert compaction code into a Xapian::Compactor class, and make
-  xapian-compact a simple wrapper around this new class.  (ticket#175)
+  + Inputs can now be stub database directories or files, in which case the
+    databases in the stub are used as inputs.
 
-* Xapian::Compactor: Inputs can now be stub database directories or files,
-  in which case the databases in the stub are used as inputs.
+  + Add support for compacting to a stub database, which can be one of the
+    inputs (for atomic update).
 
-* Xapian::Compactor: Add support for compacting to a stub database, which can
-  be one of the inputs (for atomic update).
-
-* Xapian::Compactor: If spellings and/or synonyms were only present in some
-  source databases, they weren't copied to the output database, but now they
-  are.
+  + If spellings and/or synonyms were only present in some source databases,
+    they weren't copied to the output database, but now they are.
 
 testsuite:
 
@@ -47,12 +46,11 @@ testsuite:
 * Add zlib-vg.c to distribution tarballs.
 
 * tests/runtest: Add XAPIAN_TESTSUITE_LD_PRELOAD hook to allow libeatmydata to
-  easily be used when running the testsuite.
+  easily be used to speed up testsuite runs.
 
 matcher:
 
-
-* The matcher wasn't relculating the max possible weight after a subquery of
+* The matcher wasn't recalculating the max possible weight after a subquery of
   XOR reached its end.  This caused an assertion failure in debug builds, and
   is a missed optimisation opportunity.
 
@@ -60,33 +58,17 @@ matcher:
   subqueries will just check a single document, not a potentially huge numbers
   of documents.
 
-* weight/bm25weight.cc: Fix calculation order to avoid inconsistent
-	  weights due to rounding when BM25Weight is used with certain
-	  non-default parameter combinations.
-	* weight/tradweight.cc: Fix calculation order to avoid inconsistent
-	  weights due to rounding for TradWeight(0).
-	* tests/api_backend.cc: Add regression test tradweight2.
+* BM25Weight: Fix calculation order to avoid inconsistent weights due to
+  rounding when certain non-default parameter combinations are used.
 
-FIXME: handled differently in 1.2.4
-* Fix performance
-	  regression in some cases caused by the introduction of
-	  OrPostList::check().
-* Back out the OP_OR efficiency improvement made in 1.0.21 since this changeV
-  slows down some other common cases.  We'll address this fully in 1.2.4, but
-  that fix is more invasive than we are comfortable with for 1.0.x at this
-  point.
+* TradWeight: Fix calculation order to avoid inconsistent weights due to
+  rounding with TradWeight(0).
 
-* In the query optimiser, use value range bounds to check for value ranges
-  which must be empty.
+* Fix regression in speed of OP_OR queries in certain cases due to optimisation
+  added in 1.0.21/1.2.1.
 
-brass backend:
-
-
-chert backend:
-
-
-flint backend:
-
+* In the query optimiser, use value range bounds to detect value ranges which
+  must be empty.
 
 remote backend:
 
@@ -94,9 +76,6 @@ remote backend:
   necessitated an increase in the minor version of the remote protocol.  If you
   are upgrading a live system which uses the remote backend, upgrade the
   servers before the clients.
-
-inmemory backend:
-
 
 build system:
 
@@ -135,8 +114,7 @@ documentation:
 * Document cases where QueryParser's FLAG_WILDCARD and FLAG_PARTIAL aren't
   currently supported.
 
-* HACKING,PLATFORMS: Move PLATFORMS information to the wiki and replace with a
-  pointer.
+* PLATFORMS: Move PLATFORMS information to the wiki and replace with a pointer.
 
 tools:
 
@@ -180,12 +158,6 @@ portability:
 * Fix compilation with Sun's C++ compiler.
 
 * Fix testsuite to build on Solaris < 10.
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.2.3 (2010-08-24):
 
