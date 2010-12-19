@@ -332,7 +332,7 @@ that doesn't correspond to a file seen on disk - in other words, it will clear
 out everything that doesn't exist any more.  However if you are building up
 an omega database with several runs of omindex, this is not
 appropriate (as each run would delete the data from the previous run),
-so you should use the ``--preserve-removed`` option.  Note that if you
+so you should use the ``--no-delete`` option.  Note that if you
 choose to work like this, it is impossible to prune old documents from
 the database using omindex. If this is a problem for you, an
 alternative is to index each subsite into a different database, and

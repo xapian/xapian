@@ -998,7 +998,7 @@ main(int argc, char **argv)
 	{ "version",	no_argument,		NULL, 'V' },
 	{ "overwrite",	no_argument,		NULL, 'o' },
 	{ "duplicates",	required_argument,	NULL, 'd' },
-	{ "preserve-removed",	no_argument,	NULL, 'p' },
+	{ "no-delete",	no_argument,		NULL, 'p' },
 	{ "preserve-nonduplicates",	no_argument,	NULL, 'p' },
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
@@ -1176,9 +1176,9 @@ main(int argc, char **argv)
 "Usage: "PROG_NAME" [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n\n"
 "Options:\n"
 "  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
-"  -p, --preserve-removed   keep documents in the database which seem to have\n"
-"                           been removed from disk\n"
-"      --preserve-nonduplicates  deprecated alias for -p\n"
+"  -p, --no-delete          skip the deletion of documents corresponding to\n"
+"                           deleted files (--preserve-nonduplicates is a\n"
+"                           deprecated alias for --no-delete)\n"
 "  -D, --db                 path to database to use\n"
 "  -U, --url                base url DIRECTORY represents (default: /)\n"
 "  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
