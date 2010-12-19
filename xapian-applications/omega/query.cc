@@ -406,7 +406,7 @@ run_query()
 
 	enquire->set_query(query);
 	// We could use the value of topdoc as first parameter, but we
-	// need to know the first few items on the mset to fake a
+	// need to know the first few items in the mset to fake a
 	// relevance set for topterms.
 	//
 	// If min_hits isn't set, check at least one extra result so we

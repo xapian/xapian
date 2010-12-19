@@ -1,3 +1,7 @@
+Sun Dec 19 02:32:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix comment typo.
+
 Fri Dec 17 12:45:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* commonhelp.cc,commonhelp.h,omindex.cc,scriptindex.cc: Swap the
