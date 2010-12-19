@@ -1,22 +1,35 @@
- 15011       olly Tue Sep 28 01:27:41 GMT 2010  Olly Betts <olly@survex.com>
-
-backported to 1.0.22:
-
- 14918       olly Sat Aug 28 11:46:22 GMT 2010  Olly Betts <olly@survex.com>
-	* cdb_find.cc,cdb_init.cc,cgiparam.cc,date.cc,md5.cc,query.cc,utils.cc,
-	  values.h: Fix to compile with Sun C++.
-
-Omega 1.2.4 (2010-09-28):
+Omega 1.2.4 (2010-12-19):
 
 general:
 
 documentation:
 
+* Minor documentation improvements.
+
 indexers:
+
+* Some iconv implementations (such as that on Mac OS X) don't handle many of
+  the commonly seen mis-punctuated charset names (e.g. UTF16, UTF_16).  We now
+  check for this if iconv fails, fix up the charset name, and retry.
+
+* The built-in character encoding converter now handles spaces in charset
+  names.
+
+* Use O_NOATIME if available and either the file is owned by the current euid,
+  or the current euid is 0 (i.e. we're running as root).  This avoids updating
+  the access time of files we index which saves time.  Fixes ticket#222.
+
+* Report get_description() for Xapian exceptions, which provides additional
+  information above get_msg().
+
+* Add boolean terms with add_boolean_term() so they get wdf of 0 and don't
+  contribute to document length.
 
 * omindex:
 
-  + Add support for indexing text and metadata from SVG files.
+  + Escape wildcard patterns being passed to unzip - in the unlikely event that
+    one of these matched files in or under the current directory, we might fail
+    to extract all the files we wanted to.
 
   + Add explicit support for indexing CSV files (better samples than from
     using '-Mcsv:text/plain').
@@ -26,19 +39,102 @@ indexers:
 
   + Improve --help for --mime-type option.
 
+  + Optionally use libmagic to detect MIME types for files for which we have no
+    extension mapping, which allows us to handle files with a misleading
+    extension, or no extension at all.  (ticket#114)
+
+  + Add new --filter option which allows the user to specify new filters
+    provided they return UTF-8 text on stdout.
+
+  + If a filter command isn't installed, previously we wouldn't try it again
+    for the same file extension - now we won't try it again for the same
+    mime-type.
+
+  + Index the leafname of the file (without any extension) as extra keywords.
+
+  + Extract author from HTML, OpenDocument, and PDF files.  Index it with an A
+    prefix, and add it as a field.
+
+  + Add support for indexing text and metadata from SVG files.
+
+  + Extract metadata from Microsoft Office 2007 file formats.
+
+  + Index text in headers and footers for .odt and .docx files.
+
+  + Use the CSV parser to generate a nicer sample for files of type
+    application/vnd.ms-excel.
+
+  + Add support for indexing Debian and RPM package files (ticket#493).
+
+  + Make the memory limit for filter processes the size of physical memory,
+    which is a little less arbitrary than 7/8 of this value (ticket#424).
+
+  + Under --duplicate=ignore, fix so that old documents which aren't seen get
+    deleted, which wasn't implemented before (to suppress this deletion, pass
+    -p as well).
+
+  + Rename the short option for --version from -v to -V for consistency with
+    scriptindex and many other packages, and to free up -v as the short option
+    for --verbose.  For backward compatibility, "omindex -v" is handled
+    specially and still reports the version.
+
+  + Add --verbose option, and disable the less interesting output unless it is
+    specified.
+
+  + Deprecate "--preserve-nonduplicates" in favour of new long option
+    "--no-delete" which does the same thing, but has a clearer name.
+
+  + The deletion of documents pass at the end of indexing is now more
+    efficient.  We track how many documents in the database we haven't seen so
+    we can stop once we've found them all (a particularly big improvement if
+    there are no documents to delete), and we now use a PostingIterator over
+    all documents which avoids needing to catch an exception for every gap in
+    the used document ids.
+
+  + Quietly ignore files with mimetype set to "ignore".  The initial list of
+    extensions set to ignore is: .a .dll .dylib .exe .lib .o .obj .so
+
+  + Index file owner and read permissions, to allow finding documents with a
+    particular owner, and so searches can be restricted to documents a user is
+    able to read.
+
+  + Add file size as a document value, so you can sort on it and filter by it.
+
 * scriptindex:
+
+ + Fix file descriptor leak if the LOADFILE action is used on something which
+   isn't a file.
 
 omega:
 
+* Make sure we write out HTTP headers when reporting an error early on.
+
+* Extend $field to take an optional DOCID argument, rather than always using
+  the context from $hitlist.
+
+* Add new $emptydocs command which returns a list of documents with doclength
+  zero.
+
+* Add support for size: range filtering.  Currently the end points of the range
+  have to be specified in bytes (e.g. size:102400..204800 for 100-200KB).
+
 templates:
 
-testsuite:
+* templates/emptydocs: New template which lists documents with doclength zero.
 
 build system:
 
+* configure: Probe for any options needed to enable large file support.
+  Handling files >= 2GB isn't especially useful, but more importantly this is
+  needed to allow omindex to index files on filing systems with 64 bit inodes
+  on some platforms (e.g. 32-bit Linux).
+
+* Use -no-undefined on platforms which need it to dynamically link such as
+  cygwin (need to do this taken from ticket#282).
+
 portability:
 
-packaging:
+* Fix to compile with Sun C++.
 
 Omega 1.2.3 (2010-08-24):
 
