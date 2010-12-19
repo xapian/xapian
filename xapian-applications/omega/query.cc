@@ -400,9 +400,14 @@ run_query()
     }
 
     if (!query.empty()) {
+#if 0
+	// FIXME: If we start doing permissions checks based on $REMOTE_USER
+	// we're going to break some existing setups if users upgrade.  We
+	// probably want a way to set this from OmegaScript.
 	const char * remote_user = getenv("REMOTE_USER");
 	if (remote_user)
 	    apply_unix_permissions(query, remote_user);
+#endif
 
 	enquire->set_query(query);
 	// We could use the value of topdoc as first parameter, but we

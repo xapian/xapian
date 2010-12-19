@@ -1,3 +1,10 @@
+Sun Dec 19 12:37:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* query.cc: Disable permission filtering based on $REMOTE_USER as that
+	  will break some existing installations if users upgrade, which we
+	  don't want.  Probably this should be specifiable from OmegaScript
+	  but it's not worth delaying 1.2.4 while we sort this out.
+
 Sun Dec 19 02:46:17 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Change the new name for
