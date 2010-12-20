@@ -1,3 +1,9 @@
+Mon Dec 20 09:53:56 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py: Remove test of
+	  Enquire.get_matching_terms(), and the associated contortions to
+	  get a corresponding msetiter to pass to it.
+
 Sun Dec 19 12:40:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS: Update release date.
