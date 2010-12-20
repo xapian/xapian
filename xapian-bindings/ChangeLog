@@ -1,3 +1,12 @@
+Mon Dec 20 09:54:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/util.i: Remove old and broken Enquire.get_matching_terms()
+	  method.  We deprecated Enquire.get_matching_terms() in 1.0.x, and
+	  removed it in 1.1.0, but accidentally left an older version of
+	  get_matching_terms() exposed.
+	* python/docs/index.html: Also, remove the old documentation for
+	  get_matching_terms().
+
 Mon Dec 20 09:53:56 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* python/pythontest2.py: Remove test of
