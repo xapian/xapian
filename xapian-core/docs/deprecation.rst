@@ -490,7 +490,11 @@ Removed Language Feature name                 Upgrade suggestion and comments
                                               To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
-                                              rest of Python API.
+                                              rest of Python API.  Note: an ``Enquire.get_matching_terms`` method existed in
+                                              releases up-to and including 1.2.4, but this was actually an old implementation
+                                              which only accepted a MSetIterator as a parameter, and would have failed with
+                                              code written expecting the version in 1.0.0.  It was fully removed after
+                                              release 1.2.4.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
         [#rswg]_
