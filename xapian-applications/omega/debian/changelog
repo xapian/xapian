@@ -6,8 +6,9 @@ xapian-omega (1.2.4-1) UNRELEASED; urgency=low
       libhtml-parser-perl for Outlook .msg parsing, and rpm for indexing RPM
       package files.
     + debian/xapian-omega.install: Package new script outlookmsg2html.
+    + debian/rules: dh_clean -k -> dh_prep (fixing lintian warning).
 
- -- Olly Betts <olly@survex.com>  Fri, 12 Nov 2010 01:29:10 +0000
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:46:40 +0000
 
 xapian-omega (1.2.3-1) unstable; urgency=low
 
