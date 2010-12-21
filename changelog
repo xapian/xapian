@@ -1,3 +1,9 @@
+xapian-bindings (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:48:14 +0000
+
 xapian-bindings (1.2.3-3) unstable; urgency=low
 
   * debian/libxapian-ruby1.9.1.doc-base: Correct paths to rdocs to say "1.9.1"
