@@ -26,8 +26,10 @@ Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 
 Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 	        by Olly Betts are available from CPAN (module Search::Xapian).
-		Replacement Perl bindings are being worked on as part of GSoC
-		2009.
+		SWIG-based Perl bindings were implemented by Kosei Moriyama in
+		GSoC 2009, and made their debut in the 1.2.4 release.  The
+		intention is that these will replace the XS bindings once we
+		are satisfied they are stable.
 
 PHP		Requires PHP 5 (PHP 4 is no longer supported by the PHP
 		developers, so it doesn't make sense for us to continue to
