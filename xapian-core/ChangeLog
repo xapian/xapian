@@ -1,3 +1,8 @@
+Tue Dec 21 07:40:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/index.html,docs/overview.html: Update links to wiki.xapian.org
+	  to point to trac.xapian.org/wiki instead.
+
 Mon Dec 20 10:02:06 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* docs/deprecation.rst: Add note about botched removal of python's
