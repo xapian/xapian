@@ -1,3 +1,9 @@
+xapian-core (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:32:14 +0000
+
 xapian-core (1.2.3-2) unstable; urgency=low
 
   * Only include debug symbols for the shared library in the debug package
