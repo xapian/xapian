@@ -1,3 +1,10 @@
+Tue Dec 21 10:28:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: If we can't bind to the specified port because it
+	  is a privileged one, exit with code 77 (EX_NOPERM) to make it easier
+	  to automatically handle failure when starting the server from a
+	  script.
+
 Tue Dec 21 07:43:52 GMT 2010  Olly Betts <olly@survex.com>
 
 	* docs/index.html: Add link to main website.
