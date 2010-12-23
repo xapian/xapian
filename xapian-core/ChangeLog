@@ -1,3 +1,7 @@
+Thu Dec 23 13:00:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Whitespace consistency tweak.
+
 Thu Dec 23 11:01:26 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Handle

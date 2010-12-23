@@ -1892,9 +1892,8 @@ compound_term(T) ::= QUOTE phrase(P) QUOTE.
 compound_term(T) ::= phrased_term(P).
 	{ T = P->as_phrase_query(); }
 
-compound_term(T) ::= group(P).  {
-    T = P->as_group(state);
-}
+compound_term(T) ::= group(P).
+	{ T = P->as_group(state); }
 
 compound_term(T) ::= near_expr(P).
 	{ T = P->as_near_query(); }
