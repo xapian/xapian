@@ -101,7 +101,14 @@ string
 DirectoryIterator::get_magic_mimetype()
 {
     if (rare(magic_cookie == NULL)) {
+#ifdef MAGIC_MIME_TYPE
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
+#else
+	// MAGIC_MIME_TYPE is relatively new - the changelog doesn't mention it
+	// being added, but 4.21 didn't have it and 4.26 did.  If we don't have
+	// it then use MAGIC_MIME instead and trim any encoding off below.
+	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME|MAGIC_ERROR);
+#endif
 	if (magic_cookie == NULL) {
 	    string m("Failed to initialise the file magic library: ");
 	    m += strerror(errno);
@@ -130,6 +137,14 @@ DirectoryIterator::get_magic_mimetype()
 	}
 	return string();
     }
+
+#ifndef MAGIC_MIME_TYPE
+    // Discard any encoding returned.
+    char * spc = strchr(res, ' ');
+    if (spc)
+	*spc = '\0';
+#endif
+
     return res;
 }
 #endif

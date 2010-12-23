@@ -1,3 +1,8 @@
+Thu Dec 23 01:53:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Fix to work with older libmagic which doesn't have
+	  MAGIC_MIME_TYPE (e.g. on Ubuntu hardy).
+
 Sun Dec 19 12:39:23 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: 1.2.4.
