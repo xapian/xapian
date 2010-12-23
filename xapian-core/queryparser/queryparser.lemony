@@ -999,10 +999,10 @@ phrased_term:
 			    Parse(pParser, ADJ, new Term(width), &state);
 			    goto just_had_operator;
 			}
+		    } else {
+			Parse(pParser, ADJ, NULL, &state);
+			goto just_had_operator;
 		    }
-
-		    Parse(pParser, ADJ, NULL, &state);
-		    goto just_had_operator;
 		}
 	    } else if (op.size() == 2) {
 		if (op == "OR") {
@@ -1022,10 +1022,10 @@ phrased_term:
 			    Parse(pParser, NEAR, new Term(width), &state);
 			    goto just_had_operator;
 			}
+		    } else {
+			Parse(pParser, NEAR, NULL, &state);
+			goto just_had_operator;
 		    }
-
-		    Parse(pParser, NEAR, NULL, &state);
-		    goto just_had_operator;
 		}
 	    }
 	}

@@ -1,3 +1,9 @@
+Thu Dec 23 11:01:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Handle
+	  NEAR/<offset> and ADJ/<offset> where offset isn't an integer the same
+	  way at the end of the query as in the middle.
+
 Tue Dec 21 10:28:08 GMT 2010  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: If we can't bind to the specified port because it

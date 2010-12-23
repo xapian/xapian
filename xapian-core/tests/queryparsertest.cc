@@ -173,6 +173,13 @@ static const test test_or_queries[] = {
     // before testing C_isdigit(), so this rather artificial example parsed
     // to: (a:(pos=1) NEAR 262 b:(pos=2))
     { "a NEAR/\xc4\xb5 b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    { "a ADJ/\xc4\xb5 b", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    // Regression test - the first two cases were parsed as if the '/' were a
+    // space, which was inconsistent with the second two.  Fixed in 1.2.5.
+    { "a NEAR/b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 b:(pos=3)))" },
+    { "a ADJ/b", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 b:(pos=3)))" },
+    { "a NEAR/b c", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 b:(pos=3)) OR Zc:(pos=4))" },
+    { "a ADJ/b c", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 b:(pos=3)) OR Zc:(pos=4))" },
     // Regression tests - + and - didn't work on bracketed subexpressions prior
     // to 1.0.2.
     { "+(one two) three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND_MAYBE Zthree:(pos=3))" },
