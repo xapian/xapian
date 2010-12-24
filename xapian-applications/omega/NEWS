@@ -1,3 +1,32 @@
+ 15281       olly Thu Dec 23 01:53:06 GMT 2010  Olly Betts <olly@survex.com>
+
+Omega 1.2.5 (2010-12-24):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Fix to compile with older versions of libmagic which don't have
+    MAGIC_MIME_TYPE (e.g.  on Ubuntu hardy).
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.2.4 (2010-12-19):
 
 general:
