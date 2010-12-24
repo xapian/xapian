@@ -24,7 +24,7 @@
 # Codename we're building packages for.  For backported packages, put the
 # codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
 # exist, the default is sid.
-# CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
+CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
@@ -67,6 +67,12 @@ endif
 BUILD_DEPS := \
 	libxapian-dev (>= $(XAPIAN_VERSION)), \
 	libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),
+
+ifeq ($(CODENAME),hardy)
+# We need -lz on hardy since adding the libmagic-dev B-D.  I suspect in hardy
+# the .la file for libmagic lists -lz, though I haven't verified this.
+BUILD_DEPS += zlib1g-dev,
+endif
 
 commonconfflags := \
 	$(confflags) \

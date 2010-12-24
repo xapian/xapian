@@ -1,3 +1,10 @@
+xapian-omega (1.2.4-2) UNRELEASED; urgency=low
+
+  * debian/rules: Add zlib1g-dev to B-D for hardy, which needs it, probably
+    because on the new libmagic-dev B-D.
+
+ -- Olly Betts <olly@survex.com>  Fri, 24 Dec 2010 10:29:42 +0000
+
 xapian-omega (1.2.4-1) unstable; urgency=low
 
   * New upstream release.
