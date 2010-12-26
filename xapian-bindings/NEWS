@@ -1,3 +1,36 @@
+ 15224       olly Mon Dec 13 12:12:19 GMT 2010  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.0.23 (2010-12-18):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+* configure: Fix typo in code to set PYTHON_LIBS under cygwin.  (ticket#509)
+
+CSharp:
+
+Guile:
+
+Java:
+
+PHP:
+
+* Document that iterators shouldn't be dereferenced or advanced when at their
+  end points (ticket#520).
+
+Python:
+
+* Fix memory leaks in typemaps which return Python lists.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.0.22 (2010-10-03):
 
 Packaging:
