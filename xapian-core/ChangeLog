@@ -1,3 +1,8 @@
+Sun Jan 09 23:14:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc: Use msvc_posix_rename() under __WIN32__ to
+	  atomically update stub file after compaction (ticket#525).
+
 Thu Dec 23 13:00:43 GMT 2010  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Whitespace consistency tweak.

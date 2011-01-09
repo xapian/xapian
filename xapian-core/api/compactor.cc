@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,9 @@
 #include "noreturn.h"
 #include "omassert.h"
 #include "fileutils.h"
+#ifdef __WIN32__
+# include "msvc_posix_wrapper.h"
+#endif
 #include "stringutils.h"
 #include "str.h"
 #include "utils.h"
@@ -511,7 +514,11 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #endif
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
+#ifndef __WIN32__
 	if (rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
+#else
+	if (msvc_posix_rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
+#endif
 	    // FIXME: try to clean up?
 	    string msg = "Cannot rename '";
 	    msg += new_stub_file;
