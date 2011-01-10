@@ -44,7 +44,9 @@
 #include "runfilter.h" // For class ReadError.
 
 class DirectoryIterator {
+#if defined O_NOATIME && O_NOATIME != 0
     static uid_t euid;
+#endif
 
 #ifdef HAVE_MAGIC_H
     static magic_t magic_cookie;

@@ -1,3 +1,8 @@
+Mon Jan 10 09:50:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h: Don't define or try to set euid member of
+	  DirectoryIterator on platforms where we aren't going to use it.
+
 Mon Jan 10 09:15:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* diritor.h: Stub out get_owner() and get_group() for __WIN32__.

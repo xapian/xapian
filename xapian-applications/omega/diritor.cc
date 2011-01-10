@@ -29,7 +29,9 @@
 
 using namespace std;
 
+#if defined O_NOATIME && O_NOATIME != 0
 uid_t DirectoryIterator::euid = geteuid();
+#endif
 
 #ifdef HAVE_MAGIC_H
 magic_t DirectoryIterator::magic_cookie = NULL;
