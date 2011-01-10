@@ -32,6 +32,7 @@
 #include <cstdio> // for rename()
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include "safesysstat.h"
 #include <sys/types.h>
 
