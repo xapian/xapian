@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  *
  * This program is free software; you can redistribute it and/or
@@ -670,7 +670,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-outlook") {
-	string cmd = get_pkglibdindir() + "/outlookmsg2html " + shell_protect(file);
+	string cmd = get_pkglibbindir() + "/outlookmsg2html " + shell_protect(file);
 	MyHtmlParser p;
 	try {
 	    dump = stdout_to_string(cmd);

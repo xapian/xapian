@@ -1,7 +1,7 @@
 /* @file pkglibbindir.cc
  * @brief Get the directory which helper programs live in.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -30,7 +30,7 @@
 using namespace std;
 
 const string &
-get_pkglibdindir()
+get_pkglibbindir()
 {
     static string result;
     if (result.empty())  {
