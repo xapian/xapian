@@ -28,8 +28,11 @@
 #include "safesysstat.h"
 
 #include <sys/types.h>
+
+#ifndef __WIN32__
 #include <grp.h> // For getgrgid().
 #include <pwd.h> // For getpwuid().
+#endif
 
 #ifdef HAVE_MAGIC_H
 #include <magic.h>
@@ -146,15 +149,23 @@ class DirectoryIterator {
     }
 
     const char * get_owner() {
+#ifndef __WIN32__
 	ensure_statbuf_valid();
 	struct passwd * pwentry = getpwuid(statbuf.st_uid);
 	return pwentry ? pwentry->pw_name : NULL;
+#else
+	return NULL;
+#endif
     }
 
     const char * get_group() {
+#ifndef __WIN32__
 	ensure_statbuf_valid();
 	struct group * grentry = getgrgid(statbuf.st_gid);
 	return grentry ? grentry->gr_name : NULL;
+#else
+	return NULL;
+#endif
     }
 
     bool is_owner_readable() {
