@@ -155,16 +155,6 @@ def _mset_getitem(self, index):
 MSet.__getitem__ = _mset_getitem
 MSet.get_hit = _mset_getitem
 
-def _mset_contains(self, index):
-    """Check if the Mset contains an item at the given index
-
-    The supplied index is relative to the start of the MSet, not the absolute
-    rank of the item.
-
-    """
-    return key >= 0 and key < len(self)
-MSet.__contains__ = _mset_contains
-
 
 ##################################
 # Support for iteration of ESets #
