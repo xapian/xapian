@@ -24,6 +24,7 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     BM25Weight.cs \
     BoolWeight.cs \
     Brass.cs \
+    Compactor.cs \
     Chert.cs \
     Database.cs \
     DateValueRangeProcessor.cs \
