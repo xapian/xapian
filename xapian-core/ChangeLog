@@ -1,3 +1,7 @@
+Tue Jan 11 08:41:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Note removal of if idx in mset.
+
 Tue Jan 11 08:30:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: PostingSource now offers a replacement for

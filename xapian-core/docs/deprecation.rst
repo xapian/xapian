@@ -501,6 +501,11 @@ Removed Language Feature name                 Upgrade suggestion and comments
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
         [#rsw2]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.2.5   Python   if idx in mset               This was nominally implemented, but never actually worked.  Since nobody seems
+                                              to have noticed in 3.5 years, we just removed it.  If you have uses (which were
+                                              presumably never called), you can replace them with:
+                                              ``if idx >= 0 and idx < len(mset)``
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
