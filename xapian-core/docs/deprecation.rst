@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
 
 ===========
 Deprecation
@@ -338,7 +338,7 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.0.0   Document::add_term_nopos()          Use ``Document::add_term()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   Enquire::set_bias()                 No replacement yet implemented.
+1.0.0   Enquire::set_bias()                 Use ``PostingSource`` instead (new in 1.2).
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.0.0   ExpandDecider::operator()           Return type is now ``bool`` not ``int``.
 ------- ----------------------------------- ----------------------------------------------------------------------------------

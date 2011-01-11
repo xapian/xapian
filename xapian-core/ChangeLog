@@ -1,3 +1,8 @@
+Tue Jan 11 08:30:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: PostingSource now offers a replacement for
+	  Enquire::set_bias().
+
 Mon Jan 10 09:40:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc: Add missing header <ctime> for time() (ticket#530).
