@@ -1,3 +1,8 @@
+Wed Jan 12 13:37:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* AUTHORS,bin/xapian-chert-update.cc: Fix to also rewrite docids in
+	  value chunk keys (reported by Luca Barbieri on xapian-discuss).
+
 Tue Jan 11 08:41:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Note removal of if idx in mset.
