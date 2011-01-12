@@ -1,3 +1,8 @@
+Wed Jan 12 02:21:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix double Content-Type header in some error reporting
+	  situations (regression introduced in 1.2.4).
+
 Mon Jan 10 10:00:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc,pkglibbindir.cc,pkglibbindir.h: Fix typo in function name

@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -2075,6 +2075,7 @@ parse_omegascript()
 	std::string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << std::endl;
+	    set_content_type = true;
 	}
 	cout << std::endl;
 	cout << output;
@@ -2083,6 +2084,7 @@ parse_omegascript()
 	// reported rather than giving a server error.
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << std::endl;
+	    set_content_type = true;
 	}
 	cout << std::endl;
 	throw;
