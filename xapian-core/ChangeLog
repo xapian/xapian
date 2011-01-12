@@ -1,3 +1,7 @@
+Wed Jan 12 23:49:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-chert-update.cc: Adjust keys for doclength chunks too.
+
 Wed Jan 12 13:37:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* AUTHORS,bin/xapian-chert-update.cc: Fix to also rewrite docids in

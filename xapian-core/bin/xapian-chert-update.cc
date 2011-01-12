@@ -218,10 +218,23 @@ copy_postlist(FlintTable &in, ChertTable *out)
 	if (!cur.next()) return;
     } while (cur.current_key < firstdoclenchunk);
 
-    // Copy doclen chunks.
+    // Copy doclen chunks, adjusting keys.
     do {
+	const string & key = cur.current_key;
+	const char * d = key.data();
+	const char * e = d + key.size();
+	newkey.assign(d, 2);
+	d += 2;
+	if (d != e) {
+	    Xapian::docid did;
+	    if (!F_unpack_uint_preserving_sort(&d, e, &did))
+		throw Xapian::DatabaseCorruptError("Bad doclen chunk key (no docid)");
+	    if (d != e)
+		throw Xapian::DatabaseCorruptError("Bad doclen chunk key (trailing junk)");
+	    pack_uint_preserving_sort(newkey, did);
+	}
 	bool compressed = cur.read_tag(true);
-	out->add(cur.current_key, cur.current_tag, compressed);
+	out->add(newkey, cur.current_tag, compressed);
 	if (!cur.next()) return;
     } while (cur.current_key < firstchunk);
 
