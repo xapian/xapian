@@ -1420,6 +1420,7 @@ def test_compactor():
 
     """
     tmpdir = tempfile.mkdtemp()
+    db1 = db2 = db3 = None
     try:
         db1path = os.path.join(tmpdir, 'db1')
         db2path = os.path.join(tmpdir, 'db2')
@@ -1495,6 +1496,13 @@ def test_compactor():
         expect(db3.get_metadata('key2'), '2')
 
     finally:
+        if db1 != None:
+            db1.close()
+        if db2 != None:
+            db2.close()
+        if db3 != None:
+            db3.close()
+
         shutil.rmtree(tmpdir)
 
 def test_leak_mset_items():

@@ -1,3 +1,9 @@
+Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: In test_compactor(), close any open databases
+	  before removing the directory as you can't delete an open database
+	  on Microsoft Windows.  (ticket#526)
+
 Mon Jan 10 12:53:51 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* python/extra.i: Remove broken implementation of
