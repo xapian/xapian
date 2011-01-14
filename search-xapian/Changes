@@ -1,10 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.23.0  Thu Dec 11 11:18:08 UTC 2010
+1.0.23.0  Fri Jan 14 04:18:24 UTC 2011
 	[Changes contributed by David F. Skoll and Dave O'Neill]
 	- Tell DynaLoader to load the module with RTLD_GLOBAL so exceptions
 	  still work when multiple Perl modules which link to xapian-core are
-	  loaded.  (ticket#522)
+	  loaded (ticket#522).
 
 1.0.22.0  Sun Oct  3 12:36:44 UTC 2010
 	[Changes contributed by Jess Robinson]
