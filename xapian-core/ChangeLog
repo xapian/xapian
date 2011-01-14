@@ -1,3 +1,7 @@
+Fri Jan 14 03:18:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: 1.0.23.
+
 Thu Jan 13 10:35:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
