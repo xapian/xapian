@@ -1,3 +1,7 @@
+Sat Jan 15 11:20:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog, 1.0.22 and 1.0.23.
+
 Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: In test_compactor(), close any open databases

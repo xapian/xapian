@@ -1,3 +1,50 @@
+ 15301       olly Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.5 (2011-01-13):
+
+Documentation:
+
+ 15280       olly Tue Dec 21 12:18:03 GMT 2010  Olly Betts <olly@survex.com>
+	* README: Update info on SWIG-based Perl bindings.
+
+General:
+
+Packaging:
+
+Portability:
+
+ 15301       olly Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
+	* python/pythontest2.py: In test_compactor(), close any open databases
+	  before removing the directory as you can't delete an open database
+	  on Microsoft Windows.  (ticket#526)
+
+CSharp:
+
+Java:
+
+PHP:
+
+Python:
+
+ 15266    richard Mon Dec 20 09:54:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+	* python/util.i: Remove old and broken Enquire.get_matching_terms()
+	  method.  We deprecated Enquire.get_matching_terms() in 1.0.x, and
+	  removed it in 1.1.0, but accidentally left an older version of
+	  get_matching_terms() exposed.
+	* python/docs/index.html: Also, remove the old documentation for
+	  get_matching_terms().
+
+ 15293    richard Mon Jan 10 12:53:51 GMT 2011  Richard Boulton <richard@tartarus.org>
+	* python/extra.i: Remove broken implementation of
+	  MSet.__contains__.  This appears never to have worked, and to
+	  have been broken for at least the past 3.5 years without anyone
+	  mentioning it, and is probably of little use anyway, so no need
+	  to deprecate.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.4 (2010-12-19):
 
 General:
@@ -284,6 +331,40 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.23 (2011-01-14):
+
+Portability:
+
+* configure: Fix typo in code to set PYTHON_LIBS under cygwin.  (ticket#509)
+
+PHP:
+
+* Document that iterators shouldn't be dereferenced or advanced when at their
+  end points (ticket#520).
+
+Python:
+
+* Fix memory leaks in typemaps which return Python lists.
+
+Xapian-bindings 1.0.22 (2010-10-03):
+
+Packaging:
+
+* RPM: Don't package _XapianSharp.la.
+
+CSharp:
+
+* Don't install _XapianSharp.la.
+
+Python:
+
+* configure: Use sys.version_info tuple, rather than string splicing which
+  assumes the Python "major.minor" is 3 characters (which would fail if Python
+  2.10 were ever released, for example).
+
+* Add test_xapian_star.py to distribution - fixes failure of "test_import_star"
+  testcase in pythontest.py.
 
 Xapian-bindings 1.0.21 (2010-06-18):
 
