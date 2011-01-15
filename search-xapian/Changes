@@ -86,6 +86,23 @@ Revision history for Perl extension Search::Xapian.
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
 
+1.0.23.0  Fri Jan 14 04:18:24 UTC 2011
+	[Changes contributed by David F. Skoll and Dave O'Neill]
+	- Tell DynaLoader to load the module with RTLD_GLOBAL so exceptions
+	  still work when multiple Perl modules which link to xapian-core are
+	  loaded (ticket#522).
+
+1.0.22.0  Sun Oct  3 12:36:44 UTC 2010
+	[Changes contributed by Jess Robinson]
+	- Fix bogus "can't find libtool" error when rerunning Makefile.PL and
+	  XAPIAN_CONFIG isn't explicitly specified.
+	[Changes contributed by Tim Brody]
+	- New testcase t/10query.t.
+
+1.0.21.0  Fri Jun 18 16:41:32 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.0.21.
+
 1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
 	[Changes contributed by Olly Betts]
 	- Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation
