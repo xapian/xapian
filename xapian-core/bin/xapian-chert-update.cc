@@ -275,6 +275,36 @@ copy_unchanged(FlintTable &in, ChertTable *out)
 }
 
 static void
+copy_termlist(FlintTable &in, ChertTable *out)
+{
+    in.open();
+    if (in.empty()) return;
+
+    FlintCursor cur(&in);
+    cur.find_entry("");
+
+    string newkey;
+    while (cur.next()) {
+	const string & key = cur.current_key;
+	const char * d = key.data();
+	const char * e = d + key.size();
+	Xapian::docid did;
+	if (!F_unpack_uint_preserving_sort(&d, e, &did))
+	    throw Xapian::DatabaseCorruptError("Bad termlist key");
+	newkey.resize(0);
+	pack_uint_preserving_sort(newkey, did);
+	if (d != e) {
+	    // slot keys have a single zero byte suffix.
+	    if (*d++ != '\0' || d != e)
+		throw Xapian::DatabaseCorruptError("Bad termlist key");
+	    newkey.append(1, '\0');
+	}
+	bool compressed = cur.read_tag(true);
+	out->add(newkey, cur.current_tag, compressed);
+    }
+}
+
+static void
 copy_docid_keyed(FlintTable &in, ChertTable *out)
 {
     in.open();
@@ -481,8 +511,11 @@ main(int argc, char **argv)
 		case SPELLING: case SYNONYM:
 		    copy_unchanged(in, &out);
 		    break;
+		case TERMLIST:
+		    copy_termlist(in, &out);
+		    break;
 		default:
-		    // Record, Termlist
+		    // Record
 		    copy_docid_keyed(in, &out);
 		    break;
 	    }

@@ -1,3 +1,8 @@
+Sat Jan 15 10:28:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-chert-update.cc: Fix to handle value slot entries in the
+	  termlist table.
+
 Wed Jan 12 23:49:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/xapian-chert-update.cc: Adjust keys for doclength chunks too.
