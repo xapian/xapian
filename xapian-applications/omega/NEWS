@@ -1,6 +1,6 @@
- 15281       olly Thu Dec 23 01:53:06 GMT 2010  Olly Betts <olly@survex.com>
+ 15298       olly Wed Jan 12 02:21:59 GMT 2011  Olly Betts <olly@survex.com>
 
-Omega 1.2.5 (2010-12-24):
+Omega 1.2.5 (2011-01-12):
 
 general:
 
@@ -17,6 +17,10 @@ indexers:
 
 omega:
 
+ 15298       olly Wed Jan 12 02:21:59 GMT 2011  Olly Betts <olly@survex.com>
+	* query.cc: Fix double Content-Type header in some error reporting
+	  situations (regression introduced in 1.2.4).
+
 templates:
 
 testsuite:
@@ -24,6 +28,8 @@ testsuite:
 build system:
 
 portability:
+
+* Fix to compile on Microsoft Windows (ticket#350).
 
 packaging:
 
@@ -299,6 +305,43 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.23 (2011-01-14):
+
+indexers:
+
+* omindex:
+
+  + Escape wildcard patterns being passed to unzip - in the unlikely event that
+    one of these matched files in or under the current directory, we might fail
+    to extract all the files we wanted to when indexing document formats like
+    OpenDocument which use a zip file container.
+
+  + The parser for OpenDocument metadata wasn't initialising its "state" field.
+    Often you'd be lucky and it would be initialised to zero, but this could
+    have caused misparsing of metadata in some cases.
+
+* scriptindex: Fix file descriptor leak if the LOADFILE action is used on
+  something that isn't a file.
+
+* If fstat() fails when trying to load a file, preserve the errno value from
+  the fstat call to report to the user.
+
+portability:
+
+* configure: Probe for any options needed to enable large file support.
+  Handling files >= 2GB isn't especially useful, but more importantly this is
+  needed to allow omindex to index files on filing systems with 64 bit inodes
+  on some platforms (e.g. 32-bit Linux).
+
+* Add -no-undefined to AM_LDFLAGS on platforms which need it to dynamically
+  link such as cygwin (need to do this taken from ticket#282).
+
+Omega 1.0.22 (2010-10-03):
+
+portability:
+
+* Fix to compile with Sun C++.
 
 Omega 1.0.21 (2010-05-18):
 
