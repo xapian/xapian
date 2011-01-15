@@ -1,3 +1,9 @@
+Sat Jan 15 11:32:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/AssemblyInfo.cs.in: Remove COMPAT_VERSION
+	  machinery - we've not used it since 0.9.10.1, and it seems unlikely
+	  we will again.  If we do, we can reverse this change.
+
 Sat Jan 15 11:20:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog, 1.0.22 and 1.0.23.
