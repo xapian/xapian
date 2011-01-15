@@ -35,6 +35,6 @@ using System.Reflection;
 
 // Informational attributes.
 [assembly: AssemblyCompany("The Xapian Project")]
-[assembly: AssemblyCopyright("Licensed under the GNU GPL")]
+[assembly: AssemblyCopyright("Licensed under the GNU GPL version 2 or later")]
 [assembly: AssemblyDescription("C# bindings for the Xapian Search Library")]
 [assembly: AssemblyTitle("Xapian C# bindings")]
