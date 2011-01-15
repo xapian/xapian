@@ -91,6 +91,12 @@ dnl CXXFLAGS for the duration of configure.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
+dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
+dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
+dnl COMPAT_VERSION also ignores any _svn6789 suffix which snapshots will have.
+COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
+AC_SUBST(COMPAT_VERSION)
+
 dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
 VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_svn[0-9]*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
@@ -972,7 +978,7 @@ else
   echo "*** Building bindings for languages:" $BINDINGS
 fi
 echo ""
-if test "$PACKAGE_VERSION" != "$XAPIAN_VERSION" ; then
+if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
   dnl 0.8.2 was the first version which set XAPIAN_VERSION
   AC_MSG_WARN([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION - we strongly recommend using matching versions.])
 fi

@@ -1,3 +1,10 @@
+Sat Jan 15 12:03:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/AssemblyInfo.cs.in: Revert COMPAT_VERSION
+	  change - we need to strip the _svnNNNNN suffix for snapshots, and
+	  it isn't any extra effort to handle an optional subrevision in the
+	  same sed regexp.
+
 Sat Jan 15 11:38:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix comment typo.

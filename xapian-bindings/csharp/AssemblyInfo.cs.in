@@ -21,7 +21,7 @@
 
 using System.Reflection;
 
-[assembly: AssemblyVersion("@PACKAGE_VERSION@")]
+[assembly: AssemblyVersion("@COMPAT_VERSION@")]
 
 // We have the private key, so don't need to delay signing.
 [assembly: AssemblyDelaySign(false)]
