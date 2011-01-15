@@ -139,7 +139,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl memory leaks for PHP4 and PHP5, some problems with ZTS-enabled PHP builds
   dnl (noted on Windows; Linux builds of PHP generally don't enable ZTS), and
   dnl several other issues.
-  dnl 1.3.40 fixes Python 3.0.1 support and removes superfulous GIL locking to
+  dnl 1.3.40 fixes Python 3.0.1 support and removes superfluous GIL locking to
   dnl workaround mod_python problems.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
