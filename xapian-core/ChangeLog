@@ -1,3 +1,10 @@
+Wed Jan 19 01:01:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Snapshots and releases are now bootstrapped with autoconf
+	  2.68 and libtool 2.4.  Prune information about reasons for needing
+	  really old autotools versions when there's a reason to need a newer
+	  version anyway.
+
 Sat Jan 15 11:10:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.0.23.

@@ -377,14 +377,9 @@ required documentation tools::
 Autotools versions
 ------------------
 
-* autoconf 2.67 is used to generate snapshots and releases.
+* autoconf 2.68 is used to generate snapshots and releases.
 
   autoconf 2.64 is a hard minimum requirement.
-
-  autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
-
-  autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
-  day as 2.58 to fix a problem.
 
   autoconf 2.60 is required for docdir support and AC_TYPE_SSIZE_T.
 
@@ -400,18 +395,13 @@ Autotools versions
 
   automake 1.10.2 is a hard minimum requirement.
 
-  automake 1.7 adds support for per-program and per-library _CPPFLAGS.
-
-  automake 1.9 is required for option "tar-ustar".  It also reduces Makefile.in
-  size.
-
   automake 1.10 requires autoconf 2.60 and Perl 5.6.
 
   automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/.
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.10 is used to generate snapshots and releases.
+* libtool 2.4 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 
@@ -419,8 +409,8 @@ Autotools versions
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
 
-Please tell us if you find that older or newer versions of any of these
-tools work or fail to work.
+Please tell us if you find that newer versions of any of these tools work or
+fail to work.
 
 There is a good GNU autotools tutorial at
 <http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
