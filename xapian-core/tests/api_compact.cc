@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -312,6 +312,7 @@ DEFINE_TESTCASE(compactstub1, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     string outdbpath = get_named_writable_database_path("compactstub1out");
     rm_rf(outdbpath);
@@ -338,6 +339,7 @@ DEFINE_TESTCASE(compactstub2, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     string outdbpath = get_named_writable_database_path("compactstub2out");
     rm_rf(outdbpath);
@@ -364,6 +366,7 @@ DEFINE_TESTCASE(compactstub3, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     Xapian::doccount in_docs;
     {
@@ -394,6 +397,7 @@ DEFINE_TESTCASE(compactstub4, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     Xapian::doccount in_docs;
     {
