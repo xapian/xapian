@@ -1,3 +1,10 @@
+Thu Jan 20 14:37:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
+	  backends/brass/brass_table.cc: Don't read the bitmaps from the base
+	  files when opening a database for reading (cross-port of equivalent
+	  change to chert).
+
 Thu Jan 20 14:21:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h,

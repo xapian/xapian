@@ -1,7 +1,7 @@
 /* brass_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -189,7 +189,8 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-BrassTable_base::read(const string & name, char ch, string &err_msg)
+BrassTable_base::read(const string & name, char ch, bool read_bitmap,
+		      string &err_msg)
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
@@ -256,6 +257,9 @@ BrassTable_base::read(const string & name, char ch, string &err_msg)
     bit_map0 = 0;
     delete [] bit_map;
     bit_map = 0;
+
+    if (!read_bitmap)
+	return true;
 
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];

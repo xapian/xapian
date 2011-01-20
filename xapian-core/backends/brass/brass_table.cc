@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1349,7 +1349,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 	bool valid_base = false;
 	{
 	    for (size_t i = 0; i < BTREE_BASES; ++i) {
-		bool ok = bases[i].read(name, basenames[i], err_msg);
+		bool ok = bases[i].read(name, basenames[i], writable, err_msg);
 		base_ok[i] = ok;
 		if (ok) {
 		    valid_base = true;
@@ -1996,7 +1996,7 @@ BrassTable::cancel()
     // This causes problems: if (!Btree_modified) return;
 
     string err_msg;
-    if (!base.read(name, base_letter, err_msg)) {
+    if (!base.read(name, base_letter, writable, err_msg)) {
 	throw Xapian::DatabaseCorruptError(string("Couldn't reread base ") + base_letter);
     }
 
