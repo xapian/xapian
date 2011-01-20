@@ -1,3 +1,9 @@
+Thu Jan 20 14:21:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h,
+	  backends/chert/chert_table.cc: Don't read the bitmaps from the base
+	  files when opening a database for reading.
+
 Thu Jan 20 01:57:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc: Optimise not to update doclength
