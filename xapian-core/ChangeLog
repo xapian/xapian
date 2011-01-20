@@ -1,3 +1,8 @@
+Thu Jan 20 01:36:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Optimise not to update doclength
+	  when it hasn't changed.
+
 Wed Jan 19 03:50:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Close ofstream objects used to write out stub

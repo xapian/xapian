@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -1329,10 +1329,12 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
-	    chert_doclen_t new_doclen = termlist.get_doclength();
+	    chert_doclen_t old_doclen = termlist.get_doclength();
+	    stats.delete_document(old_doclen);
+	    chert_doclen_t new_doclen = old_doclen;
+
 	    string old_tname, new_tname;
 
-	    stats.delete_document(new_doclen);
 	    termlist.next();
 	    while (!termlist.at_end() || term != document.termlist_end()) {
 		int cmp;
@@ -1409,7 +1411,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		termlist_table.set_termlist(did, document, new_doclen);
 
 	    // Set the new document length
-	    doclens[did] = new_doclen;
+	    if (new_doclen != old_doclen)
+		doclens[did] = new_doclen;
 	    stats.add_document(new_doclen);
 	}
 
