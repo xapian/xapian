@@ -1,7 +1,7 @@
 /* flint_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2011 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -170,7 +170,8 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-FlintTable_base::read(const string & name, char ch, string &err_msg)
+FlintTable_base::read(const string & name, char ch, bool read_bitmap,
+		      string &err_msg)
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
@@ -237,6 +238,9 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     bit_map0 = 0;
     delete [] bit_map;
     bit_map = 0;
+
+    if (!read_bitmap)
+	return true;
 
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];

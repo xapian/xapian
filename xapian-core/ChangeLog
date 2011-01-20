@@ -1,3 +1,10 @@
+Thu Jan 20 14:52:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_btreebase.h,
+	  backends/flint/flint_table.cc: Don't read the bitmaps from the base
+	  files when opening a database for reading (cross-port of equivalent
+	  change to chert).
+
 Thu Jan 20 14:37:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
