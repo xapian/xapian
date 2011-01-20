@@ -236,7 +236,76 @@ set_probabilistic(const string &oldp)
     }
 
     try {
-	unsigned f = qp.FLAG_DEFAULT;
+	unsigned f = 0;
+	map<string, string>::const_iterator i = option.lower_bound("flag_");
+	for (; i != option.end() && startswith(i->first, "flag_"); ++i) {
+	    if (i->second.empty()) continue;
+	    const string & s = i->first;
+	    switch (s[5]) {
+		case 'a':
+		    if (s == "flag_auto_multiword_synonyms") {
+			f |= Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+			break;
+		    }
+		    if (s == "flag_auto_synonyms") {
+			f |= Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
+			break;
+		    }
+		    break;
+		case 'b':
+		    if (s == "flag_boolean") {
+			f |= Xapian::QueryParser::FLAG_BOOLEAN;
+			break;
+		    }
+		    if (s == "flag_boolean_any_case") {
+			f |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
+			break;
+		    }
+		    break;
+		case 'd':
+		    if (s == "flag_default") {
+			f |= Xapian::QueryParser::FLAG_DEFAULT;
+			break;
+		    }
+		    break;
+		case 'l':
+		    if (s == "flag_lovehate") {
+			f |= Xapian::QueryParser::FLAG_LOVEHATE;
+			break;
+		    }
+		    break;
+		case 'p':
+		    if (s == "flag_partial") {
+			f |= Xapian::QueryParser::FLAG_PARTIAL;
+			break;
+		    }
+		    if (s == "flag_phrase") {
+			f |= Xapian::QueryParser::FLAG_PHRASE;
+			break;
+		    }
+		    if (s == "flag_pure_not") {
+			f |= Xapian::QueryParser::FLAG_PURE_NOT;
+			break;
+		    }
+		    break;
+		case 's':
+		    if (s == "flag_spelling_correction") {
+			f |= Xapian::QueryParser::FLAG_SPELLING_CORRECTION;
+			break;
+		    }
+		    if (s == "flag_synonym") {
+			f |= Xapian::QueryParser::FLAG_SYNONYM;
+			break;
+		    }
+		    break;
+		case 'w':
+		    if (s == "flag_wildcard") {
+			f |= Xapian::QueryParser::FLAG_WILDCARD;
+			break;
+		    }
+		    break;
+	    }
+	}
 	if (option["spelling"] == "true")
 	    f |= qp.FLAG_SPELLING_CORRECTION;
 	query = qp.parse_query(query_string, f);

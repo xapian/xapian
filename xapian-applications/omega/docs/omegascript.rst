@@ -355,7 +355,9 @@ $set{OPT,VALUE}
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
 	* spelling - if "true", then the query parser spelling correction
-	  feature is enabled and ``$suggestion`` can be used.
+	  feature is enabled and ``$suggestion`` can be used.  Deprecated -
+	  use flag_spelling_correction instead (which was added in version
+	  1.2.5).
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So
@@ -371,6 +373,24 @@ $set{OPT,VALUE}
           all separated by whitespace.  Any parameters not specified will use
           their default values.  Valid scheme names are ``bm25``, ``bool``, and
           ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
+
+	Omega 1.2.5 and later support the following options can be set to a
+	non-empty value to enable the corresponding ``QueryParser`` flag.
+	Omega sets ``flag_default`` to ``true`` by default - you can set it to
+	an empty value to turn it off (``$set{flag_default,}``):
+
+	* flag_auto_multiword_synonyms
+	* flag_auto_synonyms
+	* flag_boolean
+	* flag_boolean_any_case
+	* flag_default
+	* flag_lovehate
+	* flag_partial
+	* flag_phrase
+	* flag_pure_not
+	* flag_spelling_correction
+	* flag_synonym
+	* flag_wildcard
 
 $setrelevant{docids}
 	add documents into the RSet

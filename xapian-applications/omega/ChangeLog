@@ -1,3 +1,8 @@
+Thu Jan 20 11:07:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,omega.cc,query.cc,templates/query: Allow
+	  QueryParser flags to be set from OmegaScript (ticket#418).
+
 Sat Jan 15 11:14:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog, 1.0.22 and 1.0.23.

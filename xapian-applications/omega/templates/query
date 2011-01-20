@@ -1,6 +1,6 @@
 $httpheader{Content-Type,text/html; charset=utf-8}
 <html>
-$set{spelling,$ne{$cgi{SPELL},0}}
+$set{flag_spelling,$ne{$cgi{SPELL},0}}
 $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
 ${
 $def{PREV,
