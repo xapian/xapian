@@ -197,8 +197,8 @@ other filters too - see below):
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
 * MS Word documents (.doc, .dot) if antiword is available
-* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with
-  catdoc)
+* MS Excel documents (.xls, .xlb, .xlt, .xlr) if xls2csv is available (comes
+  with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
   catdoc)
 * MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,

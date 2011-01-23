@@ -1,3 +1,9 @@
+Sun Jan 23 13:27:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Later Microsoft Works version produce
+	  .xlr spreadsheet files, which are apparently XL files with a
+	  different extension, so handle them as XL files.
+
 Thu Jan 20 11:07:46 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,omega.cc,query.cc,templates/query: Allow

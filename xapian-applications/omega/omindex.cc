@@ -1108,6 +1108,7 @@ main(int argc, char **argv)
     mime_map["xls"] = "application/vnd.ms-excel";
     mime_map["xlb"] = "application/vnd.ms-excel";
     mime_map["xlt"] = "application/vnd.ms-excel"; // Excel template
+    mime_map["xlr"] = "application/vnd.ms-excel"; // Later Microsoft Works produced XL format but with a different extension.
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
     mime_map["msg"] = "application/vnd.ms-outlook"; // Outlook .msg email
