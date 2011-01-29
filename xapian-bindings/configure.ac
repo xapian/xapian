@@ -979,6 +979,13 @@ else
 fi
 echo ""
 if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
+  release_series=`echo "$COMPAT_VERSION"|sed 's/[0-9][0-9]*$//'`
+  case $XAPIAN_VERSION in
+  $release_series*) ;;
+  *)
+    AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} which is from a different release series to bindings $PACKAGE_VERSION, so they aren't compatible.])
+    ;;
+  esac
   dnl 0.8.2 was the first version which set XAPIAN_VERSION
   AC_MSG_WARN([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION - we strongly recommend using matching versions.])
 fi
