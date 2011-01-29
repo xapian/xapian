@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010 Olly Betts
+# Copyright (C) 2008,2009,2010,2011 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -98,6 +98,20 @@ def test_mset_iter():
     expect(items[2].collapse_key, '')
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
+
+    # Test coverage for mset.items
+    mset_items = mset.items
+    expect(len(mset), len(mset_items), "Expected number of items to be length of mset")
+
+    context("testing mset_items[2]")
+    expect(mset_items[2][xapian.MSET_DID], 4)
+    expect(mset_items[2][xapian.MSET_WT] > 0.0, True)
+    expect(mset_items[2][xapian.MSET_RANK], 2)
+    expect(mset_items[2][xapian.MSET_PERCENT], 86)
+    # MSET_DOCUMENT is documented but not implemented!  FIXME: resolve this -
+    # if it has never worked, we may just want to remove the documentation for
+    # it.
+    #expect(mset_items[2][xapian.MSET_DOCUMENT].get_data(), 'was it warm? three')
 
     # Check iterators for sub-msets against the whole mset.
     for start in range(0, 6):
