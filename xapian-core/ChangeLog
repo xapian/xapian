@@ -1,3 +1,9 @@
+Tue Feb 01 11:17:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: -Wstrict-null-sentinel was added in GCC 4.0.1 so
+	  doesn't work with GCC 4.0.0.  For simplicity, only enable it for
+	  GCC >= 4.1.
+
 Tue Feb  1 08:22:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Add $set{spelling,true}.

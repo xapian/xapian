@@ -1041,17 +1041,17 @@ if test yes = "$GXX"; then
 	;;
       3.*) ;;
       *) dnl GCC >= 4.0
-	dnl -Wstrict-null-sentinel was new 4.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
-
 	case $gxx_version in
 	4.0) ;;
 	4.1)
+	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
+	  dnl only enable it for GCC >= 4.1.
+	  dnl
 	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
 	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
 	  dnl in a static method is the same as a member variable, so only
 	  dnl enable it for GCC >= 4.1.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
@@ -1061,7 +1061,7 @@ if test yes = "$GXX"; then
 	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
 	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
 	  dnl See http://trac.xapian.org/ticket/449 for more details.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -1072,7 +1072,7 @@ if test yes = "$GXX"; then
 	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
 	  dnl anyway - we don't intend to use this idiom, so any instances are
 	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:
