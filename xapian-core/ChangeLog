@@ -1,3 +1,8 @@
+Wed Feb 09 14:24:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Up to darte for 1.2.5.  Minor wording
+	  improvements.  Mention copydatabase --no-renumber.
+
 Wed Feb 09 14:06:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* examples/copydatabase.cc: Add --no-renumber option.

@@ -1,6 +1,6 @@
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
 
 .. FIXME: Once brass settles down, update this for brass
 
@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.2.0.
+The document is up-to-date for Xapian version 1.2.5.
 
 Databases
 =========
@@ -40,7 +40,7 @@ of tables.  The following tables always exist:
 
 And the following optional tables exist only when there is data to store in
 them (in 1.0.1 and earlier, the position and value tables were always created
-even if empty; spelling and synonym tables are new in 1.0.2):
+even if empty; spelling and synonym tables were new in 1.0.2):
 
  - A position list table, which holds a list of all the word positions in each
    document which each term occurs at.
@@ -162,8 +162,8 @@ tool.
 Network file systems
 --------------------
 
-Xapian should work correctly over a network file system.  However, there are a
-large number of potential issues with such file systems, so we recommend
+Xapian should work correctly over a network file system.  However, there are
+various potential issues with such file systems, so we recommend
 extensive testing of your particular network file system before deployment.
 
 Be warned that Xapian is heavily I/O dependent, and therefore performance over
@@ -184,7 +184,7 @@ Support for the pre-1.0 quartz format (deprecated in 1.0) was removed in 1.1.0.
 See below for how to convert a quartz database to a flint one.
 
 The flint backend (the default for 1.0) is still supported by 1.2.x, but
-deprecated - only use it if you already have flint databases, and plan to
+deprecated - only use it if you already have flint databases; and plan to
 migrate away.
 
 There's also a development backend called brass.  The main distinguishing
@@ -383,6 +383,11 @@ creating the new database at "DESTINATION" as a chert database::
 
   copydatabase SOURCE DESTINATION
 
+By default copydatabase will renumber your documents starting with docid 1.
+If the docids are stored in or come from some external system, you should
+preserve them by using the --no-renumber option (new in Xapian 1.2.5)::
+
+  copydatabase --no-renumber SOURCE DESTINATION
 
 Converting a quartz database to a flint database
 ------------------------------------------------
