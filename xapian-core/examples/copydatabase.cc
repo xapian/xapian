@@ -1,7 +1,7 @@
 /** @file copydatabase.cc
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,12 @@ show_usage(int rc)
 {
     cout << "Usage: "PROG_NAME" SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
+"  --no-renumber    Preserve the numbering of document ids (useful if you have\n"
+"                   external references to them, or have set them to match\n"
+"                   unique ids from an external source).  If multiple source\n"
+"                   databases are specified and the same docid occurs in more\n"
+"                   one, the last occurrence will be the one which ends up in\n"
+"                   the destination database.\n"
 "  --help           display this help and exit\n"
 "  --version        output version information and exit" << endl;
     exit(rc);
@@ -47,6 +53,7 @@ show_usage(int rc)
 int
 main(int argc, char **argv)
 try {
+    bool renumber = true;
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -55,6 +62,12 @@ try {
 	if (strcmp(argv[1], "--version") == 0) {
 	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
 	    exit(0);
+	}
+	if (strcmp(argv[1], "--no-renumber") == 0) {
+	    renumber = false;
+	    argv[1] = argv[0];
+	    ++argv;
+	    --argc;
 	}
     }
 
@@ -97,7 +110,12 @@ try {
 	    Xapian::doccount c = 0;
 	    Xapian::PostingIterator it = db_in.postlist_begin(string());
 	    while (it != db_in.postlist_end(string())) {
-		db_out.add_document(db_in.get_document(*it));
+		Xapian::docid did = *it;
+		if (renumber) {
+		    db_out.add_document(db_in.get_document(did));
+		} else {
+		    db_out.replace_document(did, db_in.get_document(did));
+		}
 
 		// Update for the first 10, and then every 13th document
 		// counting back from the end (this means that all the

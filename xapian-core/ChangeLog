@@ -1,3 +1,7 @@
+Wed Feb 09 14:06:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Add --no-renumber option.
+
 Tue Feb 01 11:17:58 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: -Wstrict-null-sentinel was added in GCC 4.0.1 so
