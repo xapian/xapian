@@ -69,6 +69,26 @@ extern char * mkdtemp(char *);
 
 using namespace std;
 
+static string
+url_encode(const string &str)
+{
+    string res;
+    const char *p = str.c_str();
+    while (true) {
+	unsigned char ch = *p++;
+	if (ch == 0) return res;
+	// These characters are on the "should" list in RFC1738, but they are
+	// fine as-is for our purposes: "<>[\]^`{|}~
+	if (ch <= 32 || ch >= 127 || strchr("#%&/:;=?@", ch)) {
+	    res += '%';
+	    res += "0123456789abcdef"[ch >> 4];
+	    res += "0123456789abcdef"[ch & 0x0f];
+	} else {
+	    res += ch;
+	}
+    }
+}
+
 #define TITLE_SIZE 128
 #define SAMPLE_SIZE 512
 
@@ -81,7 +101,6 @@ static bool spelling = false;
 static bool verbose = false;
 
 static string root;
-static string baseurl;
 static string site_term, host_term;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
@@ -294,16 +313,15 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 }
 
 static void
-index_file(const string &url, const string &mimetype, DirectoryIterator & d)
+index_file(const string &file, const string &url, const string &mimetype, DirectoryIterator & d)
 {
-    string file = root + url;
     string author, title, sample, keywords, dump;
 
     if (verbose)
-	cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... ";
 
     string urlterm("U");
-    urlterm += baseurl;
     urlterm += url;
 
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
@@ -361,7 +379,7 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	if (cmd.empty()) {
 	    if (verbose) {
 		cout << "Skipping file, required filter not installed: "
-			"\"" << file << "\"" << endl;
+			"\"" << file.substr(root.size()) << "\"" << endl;
 	    }
 	    return;
 	}
@@ -377,7 +395,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	try {
 	    text = d.file_to_string();
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping" << endl;
+	    cout << "can't read \"" << file.substr(root.size()) << "\" "
+		    "- skipping" << endl;
 	    return;
 	}
 	MyHtmlParser p;
@@ -426,7 +445,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping" << endl;
+	    cout << "can't read \"" << file.substr(root.size()) << "\" "
+		    "- skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/pdf") {
@@ -560,7 +580,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping" << endl;
+	    cout << "can't read \"" << file.substr(root.size()) << "\" "
+		    "- skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-abiword-compressed") {
@@ -666,7 +687,8 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 
 	    generate_sample_from_csv(dump, sample);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping" << endl;
+	    cout << "can't read \"" << file.substr(root.size()) << "\" "
+		    "- skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-outlook") {
@@ -748,7 +770,6 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
     // Put the data in the document
     Xapian::Document newdocument;
     string record = "url=";
-    record += baseurl;
     record += url;
     record += "\nsample=";
     record += sample;
@@ -880,26 +901,27 @@ index_file(const string &url, const string &mimetype, DirectoryIterator & d)
 }
 
 static void
-index_directory(size_t depth_limit, const string &dir,
+index_directory(const string &path, const string &url_, size_t depth_limit,
 		map<string, string>& mime_map)
 {
-    string path = root + dir;
-
     if (verbose)
-	cout << "[Entering directory \"" << dir << "\"]" << endl;
+	cout << "[Entering directory \"" << path.substr(root.size()) << "\"]"
+	     << endl;
 
     DirectoryIterator d(follow_symlinks);
     try {
 	d.start(path);
     } catch (const std::string & error) {
-	cout << error << " - skipping directory \"" << dir << "\"" << endl;
+	cout << error << " - skipping directory "
+		"\"" << path.substr(root.size()) << "\"" << endl;
 	return;
     }
 
     while (d.next()) try {
-	string url = dir;
-	url += d.leafname();
-	string file = root + url;
+	string url = url_;
+	url += url_encode(d.leafname());
+	string file = path;
+	file += d.leafname();
 	switch (d.get_type()) {
 	    case DirectoryIterator::DIRECTORY: {
 		size_t new_limit = depth_limit;
@@ -907,7 +929,8 @@ index_directory(size_t depth_limit, const string &dir,
 		    if (--new_limit == 0) continue;
 		}
 		url += '/';
-		index_directory(new_limit, url, mime_map);
+		file += '/';
+		index_directory(file, url, new_limit, mime_map);
 		continue;
 	    }
 	    case DirectoryIterator::REGULAR_FILE: {
@@ -940,10 +963,12 @@ index_directory(size_t depth_limit, const string &dir,
 		    mimetype = d.get_magic_mimetype();
 		    if (mimetype.empty()) {
 			cout << "Unknown extension and unrecognised format: "
-				"\"" << file << "\" - skipping" << endl;
+				"\"" << file.substr(root.size()) << "\" "
+				"- skipping" << endl;
 			continue;
 		    }
-//		    cout << "Unknown extension: \"" << file << "\" - "
+//		    cout << "Unknown extension: "
+//			    "\"" << file.substr(root.size()) << "\" - "
 //			    "skipping" << endl;
 //		    continue;
 		} else {
@@ -956,14 +981,15 @@ index_directory(size_t depth_limit, const string &dir,
 		off_t size = d.get_size();
 		if (size == 0) {
 		    if (verbose) {
-			cout << "Skipping empty file: \"" << file << "\""
+			cout << "Skipping empty file: "
+				"\"" << file.substr(root.size()) << "\""
 			     << endl;
 		    }
 		    continue;
 		}
 
 		try {
-		    index_file(url, mimetype, d);
+		    index_file(file, url, mimetype, d);
 		} catch (NoSuchFilter) {
 		    cout << "Filter for \"" << mimetype << "\" not installed "
 			    "- ignoring from now on" << endl;
@@ -973,7 +999,8 @@ index_directory(size_t depth_limit, const string &dir,
 	    }
 	    default:
 		if (verbose) {
-		    cout << "Not a regular file \"" << file << "\" - "
+		    cout << "Not a regular file "
+			    "\"" << file.substr(root.size()) << "\" - "
 			    "skipping" << endl;
 		}
 	}
@@ -991,6 +1018,7 @@ main(int argc, char **argv)
     bool overwrite = false;
     // If delete_removed_documents is true, delete any documents we don't see.
     bool delete_removed_documents = true;
+    string baseurl;
     size_t depth_limit = 0;
 
     static const struct option longopts[] = {
@@ -1384,7 +1412,7 @@ main(int argc, char **argv)
 	}
 	indexer.set_stemmer(stemmer);
 
-	index_directory(depth_limit, start_url, mime_map);
+	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
