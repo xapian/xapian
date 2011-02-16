@@ -1,3 +1,9 @@
+Wed Feb 16 13:11:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Add doxygen markup so alternative
+	  overloaded forms of Enquire::get_mset() appear in the API
+	  documentation.
+
 Wed Feb 09 14:24:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Up to darte for 1.2.5.  Minor wording

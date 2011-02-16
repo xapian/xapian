@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -965,6 +965,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *
+	 *  @{
 	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
@@ -981,6 +983,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 		      const MatchDecider * mdecider = 0) const {
 	    return get_mset(first, maxitems, 0, omrset, mdecider);
 	}
+	/** @} */
 
 	static const int INCLUDE_QUERY_TERMS = 1;
 	static const int USE_EXACT_TERMFREQ = 2;
