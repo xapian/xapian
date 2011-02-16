@@ -59,6 +59,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "transform.h"
+#include "urlencode.h"
 #include "unixperm.h"
 #include "values.h"
 #include "weight.h"
@@ -489,24 +490,6 @@ run_query()
 	mset = enquire->get_mset(0, topdoc + hits_per_page,
 				 topdoc + max(hits_per_page + 1, min_hits),
 				 &rset, mdecider);
-    }
-}
-
-static string
-percent_encode(const string &str)
-{
-    string res;
-    const char *p = str.c_str();
-    while (true) {
-	unsigned char ch = *p++;
-	if (ch == 0) return res;
-	if (ch <= 32 || ch >= 127 || strchr("#%&+,/:;<=>?@[\\]^_{|}", ch)) {
-	    char buf[4];
-	    my_snprintf(buf, sizeof(buf), "%%%02x", ch);
-	    res.append(buf, 3);
-	} else {
-	    res += ch;
-	}
     }
 }
 
@@ -1999,7 +1982,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = Xapian::Unicode::toupper(args[0]);
 		break;
 	    case CMD_url:
-	        value = percent_encode(args[0]);
+		url_encode(value, args[0]);
 		break;
 	    case CMD_value: {
 		Xapian::docid id = q0;

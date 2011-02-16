@@ -1,3 +1,8 @@
+Wed Feb 16 03:19:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,query.cc,urlencode.cc,urlencode.h: Update
+	  URL encoding to follow RFC3986.
+
 Tue Feb 15 03:20:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Encode reserved characters in URLs - now links to

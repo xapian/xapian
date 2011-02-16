@@ -55,6 +55,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "svgparse.h"
+#include "urlencode.h"
 #include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
@@ -68,26 +69,6 @@ extern char * mkdtemp(char *);
 #endif
 
 using namespace std;
-
-static string
-url_encode(const string &str)
-{
-    string res;
-    const char *p = str.c_str();
-    while (true) {
-	unsigned char ch = *p++;
-	if (ch == 0) return res;
-	// These characters are on the "should" list in RFC1738, but they are
-	// fine as-is for our purposes: "<>[\]^`{|}~
-	if (ch <= 32 || ch >= 127 || strchr("#%&/:;=?@", ch)) {
-	    res += '%';
-	    res += "0123456789abcdef"[ch >> 4];
-	    res += "0123456789abcdef"[ch & 0x0f];
-	} else {
-	    res += ch;
-	}
-    }
-}
 
 #define TITLE_SIZE 128
 #define SAMPLE_SIZE 512
@@ -919,7 +900,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 
     while (d.next()) try {
 	string url = url_;
-	url += url_encode(d.leafname());
+	url_encode(url, d.leafname());
 	string file = path;
 	file += d.leafname();
 	switch (d.get_type()) {
