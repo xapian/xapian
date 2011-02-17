@@ -1,4 +1,4 @@
-Thu Feb 17 04:49:43 GMT 2011  Olly Betts <olly@survex.com>
+Thu Feb 17 05:19:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/xml: Add DBSize attribute to <result> element.
 
