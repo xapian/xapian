@@ -1,3 +1,8 @@
+Mon Feb 21 13:05:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add some test coverage for
+	  DatabaseModifiedError in get_mset().
+
 Mon Feb 21 12:03:35 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix typo in old entry.

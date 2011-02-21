@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -333,6 +333,14 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote) {
     db.add_document(doc);
     try {
 	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
+	return false;
+    } catch (const Xapian::DatabaseModifiedError &) {
+    }
+
+    try {
+	Xapian::Enquire enq(rodb);
+	enq.set_query(Xapian::Query("abc"));
+	Xapian::MSet mset = enq.get_mset(0, 10);
 	return false;
     } catch (const Xapian::DatabaseModifiedError &) {
     }
