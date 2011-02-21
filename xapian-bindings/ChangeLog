@@ -1,3 +1,9 @@
+Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: Document that MSet.items and ESet.items are
+	  deprecated, and what to use instead.  Note that MSET_DOCUMENT never
+	  worked on the tuple returned by MSet.items.
+
 Sat Jan 29 05:25:15 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: Add test coverage for mset.items.

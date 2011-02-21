@@ -209,17 +209,18 @@ them.
 
 <p>
 Additionally, the MSet has a property, <code>mset.items</code>, which returns a
-list of tuples representing the MSet; this may be more convenient than using
-an MSetIter. The members of the tuple are as follows.
+list of tuples representing the MSet.  This is now deprecated - please use the
+property API instead (it works in Xapian 1.0.x too).  The tuple members and the
+equivalent property names are as follows:
 </p>
 
 <table title="MSet.items member members">
-<thead><td>Index</td><td>Contents</td></thead>
-<tr><td><code>xapian.MSET_DID</code></td><td>Document id</td></tr>
-<tr><td><code>xapian.MSET_WT</code></td><td>Weight</td></tr>
-<tr><td><code>xapian.MSET_RANK</code></td><td>Rank</td></tr>
-<tr><td><code>xapian.MSET_PERCENT</code></td><td>Percentage weight</td></tr>
-<tr><td><code>xapian.MSET_DOCUMENT</code></td><td>Document object</td></tr>
+<thead><td>Index</td><td>Property name</td><td>Contents</td></thead>
+<tr><td><code>xapian.MSET_DID</code></td><td>docid</td><td>Document id</td></tr>
+<tr><td><code>xapian.MSET_WT</code></td><td>weight</td><td>Weight</td></tr>
+<tr><td><code>xapian.MSET_RANK</code></td><td>rank</td><td>Rank</td></tr>
+<tr><td><code>xapian.MSET_PERCENT</code></td><td>percent</td><td>Percentage weight</td></tr>
+<tr><td><code><i>xapian.MSET_DOCUMENT</i></code></td><td>document</td><td>Document object (Note: this member of the tuple was never actually set!)</td></tr>
 </table>
 
 <p>
@@ -232,14 +233,15 @@ same index in the second MSet, with the same weight.
 
 <p>
 The ESet has a property, <code>eset.items</code>, which returns a list of
-tuples representing the ESet; this may be more convenient than using the
-ESetIterator. The members of the tuple are as follows.
+tuples representing the ESet.  This is now deprecated - please use the
+property API instead (it works in Xapian 1.0.x too).  The tuple members and the
+equivalent property names are as follows:
 </p>
 
 <table title="ESet.items member members">
-<thead><td>Index</td><td>Contents</td></thead>
-<tr><td><code>xapian.ESET_TNAME</code></td><td>Term name</td></tr>
-<tr><td><code>xapian.ESET_WT</code></td><td>Weight</td></tr>
+<thead><td>Index</td><td>Property name</td><td>Contents</td></thead>
+<tr><td><code>xapian.ESET_TNAME</code></td><td>term</td><td>Term name</td></tr>
+<tr><td><code>xapian.ESET_WT</code></td><td>weight</td><td>Weight</td></tr>
 </table>
 
 <h2>Non-Class Functions</h2>
