@@ -3820,7 +3820,7 @@ remote backend:
 * The remote backend now checks when decoding serialised string that the
   length isn't more than the amount of data available (bug#117).
 
-* The remote term now handles the unique term variants of delete_document
+* The remote backend now handles the unique term variants of delete_document
   and replace_document on the server side.
 
 * The RSet serialisation now encodes deltas between docids (rather than the
