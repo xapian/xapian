@@ -1,3 +1,8 @@
+Mon Feb 21 11:36:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Report any spelling correction (requires the
+	  database contains spelling data of course).
+
 Wed Feb 16 13:11:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Add doxygen markup so alternative

@@ -99,8 +99,7 @@ try {
 		try {
 		    stemmer = Xapian::Stem(optarg);
 		} catch (const Xapian::InvalidArgumentError &) {
-		    cerr << "Unknown stemming language '" << optarg
-			 << "'.\n"
+		    cerr << "Unknown stemming language '" << optarg << "'.\n"
 			    "Available language names are: "
 			 << Xapian::Stem::get_available_languages() << endl;
 		    exit(1);
@@ -146,8 +145,14 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    Xapian::Query query = parser.parse_query(argv[optind]);
-    cout << "Query: " << query.get_description() << endl;
+    Xapian::Query query = parser.parse_query(argv[optind],
+					     parser.FLAG_DEFAULT|
+					     parser.FLAG_SPELLING_CORRECTION);
+    const string & correction = parser.get_corrected_query_string();
+    if (!correction.empty())
+	cout << "Did you mean: " << correction << "\n\n";
+
+    cout << "Parsed Query: " << query.get_description() << endl;
 
     if (!have_database) {
 	cout << "No database specified so not running the query." << endl;
