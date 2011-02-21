@@ -538,12 +538,16 @@ ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     filepath += '/';
     for (const char * p = filenames; *p; p += *p + 1) {
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
-        filepath.replace(db_dir.size() + 1, string::npos, leaf);
-	if (file_exists(filepath)) {
-	    // FIXME - there is a race condition here - the file might get
-	    // deleted between the file_exists() test and the access to send it.
+	filepath.replace(db_dir.size() + 1, string::npos, leaf);
+#ifdef __WIN32__
+	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY);
+#else
+	int fd = open(filepath.c_str(), O_RDONLY);
+#endif
+	if (fd > 0) {
+	    fdcloser closefd(fd);
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
-	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
+	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
     }
 }
@@ -640,7 +644,14 @@ ChertDatabase::write_changesets_to_fd(int fd,
 
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
-	    if (file_exists(changes_name)) {
+#ifdef __WIN32__
+	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY);
+#else
+	    int fd_changes = open(changes_name.c_str(), O_RDONLY);
+#endif
+	    if (fd_changes > 0) {
+		fdcloser closefd(fd_changes);
+
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
 		chert_revision_number_t changeset_start_rev_num;
@@ -654,10 +665,8 @@ ChertDatabase::write_changesets_to_fd(int fd,
 		if (changeset_start_rev_num >= changeset_end_rev_num) {
 		    throw Xapian::DatabaseError("Changeset start revision is not less than end revision");
 		}
-		// FIXME - there is a race condition here - the file might get
-		// deleted between the file_exists() test and the access to
-		// send it.
-		conn.send_file(REPL_REPLY_CHANGESET, changes_name, 0.0);
+
+		conn.send_file(REPL_REPLY_CHANGESET, fd_changes, 0.0);
 		start_rev_num = changeset_end_rev_num;
 		if (info != NULL) {
 		    ++(info->changeset_count);

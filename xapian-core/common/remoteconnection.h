@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -260,13 +260,13 @@ class RemoteConnection {
     /** Send the contents of a file as a message.
      *
      *  @param type		Message type code.
-     *  @param file		Path to file containing the Message data.
+     *  @param fd		File containing the message data.
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      */
-    void send_file(char type, const std::string &file, double end_time);
+    void send_file(char type, int fd, double end_time);
 
     /** Shutdown the connection.
      *
