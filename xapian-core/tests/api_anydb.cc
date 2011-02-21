@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1750,12 +1750,12 @@ DEFINE_TESTCASE(spaceterms1, backend) {
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
 
-    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
+    for (Xapian::valueno value_no = 0; value_no < 7; ++value_no) {
 	string value = mymset.begin().get_document().get_value(value_no);
 	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
 	    TEST(value.size() > 262);
-	    TEST_EQUAL(static_cast<unsigned char>(value[261]), 255);
+	    TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
 	}
     }
 

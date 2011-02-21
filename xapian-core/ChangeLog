@@ -1,3 +1,9 @@
+Mon Feb 21 13:30:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Fix spaceterms1 which was never running one part
+	  of the testcase (and had been that way for years).  Fix an
+	  off-by-one error in the enabled code.
+
 Mon Feb 21 13:05:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Add some test coverage for
