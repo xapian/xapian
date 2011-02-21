@@ -1,3 +1,7 @@
+Mon Feb 21 14:49:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Deprecate MSet.items and ESet.items.
+
 Mon Feb 21 14:06:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,

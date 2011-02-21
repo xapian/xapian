@@ -256,6 +256,10 @@ Deprecated Remove Language Feature name                 Upgrade suggestion and c
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.1.0      1.3.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
                                                         function)
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.2.5      1.5.0  Python   MSet.items                   Iterate the MSet object itself instead.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.2.5      1.5.0  Python   ESet.items                   Iterate the ESet object itself instead.
 ========== ====== ======== ============================ ======================================================================
 
 Omega
@@ -502,6 +506,10 @@ Removed Language Feature name                 Upgrade suggestion and comments
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
         [#rsw2]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.2.0   Python   mset[i][xapian.MSET_DID] etc This was inadvertently removed in 1.2.0, but not noticed until 1.2.5, by which
+                                              point it no longer seemed worthwhile to reinstate it.  Please use the property
+                                              API instead, e.g. ``mset[i].docid``, ``mset[i].weight``, etc.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.2.5   Python   if idx in mset               This was nominally implemented, but never actually worked.  Since nobody seems
                                               to have noticed in 3.5 years, we just removed it.  If you have uses (which were
