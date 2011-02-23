@@ -20,11 +20,12 @@ $map{$queryterms,<queryterm term="$html{$_}" show="$html{$prettyterm{$_}}" freq=
 <hits>
 $hitlist{
 <hit id="$id" relevance="$percentage%" modtime="$field{modtime}"
-url="$html{$field{url}}" title="$html{$field{title}}"
+url="$html{$field{url}}" title="$html{$field{caption},$field{title}}"
 $if{$field{language},language="$field{language}",}
 $if{$field{size},size="$html{$field{size}}",}
 $if{$field{sitename},sitename="$html{$field{sitename}}",}
 score="$html{$score}"
+type="$html{$field{type}}"
 sample="$html{$htmlstrip{$field{sample}}}"
 example="$html{$highlight{$htmlstrip{$field{sample}},$terms,<strong $cgi{HILITECLASS}>}}"
 $if{$ne{$collapsed,0}, collapsecount="$html{$collapsed}" collapsegroup="$html{$value{$cgi{COLLAPSE}}}"}

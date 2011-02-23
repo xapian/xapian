@@ -1,3 +1,10 @@
+Wed Feb 23 12:34:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Try $field{caption} (which is what omindex sets)
+	  before $field{title} when getting a value for the hit tag's title
+	  attribute - this is consistent with how the query template gets the
+	  title.  Add new type attribute which gives $field{type}.
+
 Thu Feb 17 05:19:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/xml: Add DBSize attribute to <result> element.
