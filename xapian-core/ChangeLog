@@ -1,3 +1,9 @@
+Wed Feb 23 15:22:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/collapsing.rst: Add missing document (for some reason this file
+	  was empty in SVN, but present in my tree under a different name, and
+	  not checked in).
+
 Mon Feb 21 14:49:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Deprecate MSet.items and ESet.items.
