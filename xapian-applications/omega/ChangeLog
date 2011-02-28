@@ -1,3 +1,9 @@
+Mon Feb 28 13:45:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Tell xls2csv not to quote fields and to put spaces
+	  not commas between them.  Fixes indexing of numeric fields, and
+	  means we don't need to use our CSV parser to get a sample.
+
 Mon Feb 28 12:10:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xmlparse.cc: Add whitespace between chunks of text extracted from

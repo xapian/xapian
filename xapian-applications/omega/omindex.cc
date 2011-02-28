@@ -502,14 +502,13 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    // It's probably best to index the document even if this fails.
 	}
     } else if (mimetype == "application/vnd.ms-excel") {
-	string cmd = "xls2csv -q1 -dutf-8 " + shell_protect(file);
+	string cmd = "xls2csv -c' ' -q0 -dutf-8 " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
-	generate_sample_from_csv(dump, sample);
     } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
 	const char * args = NULL;
 	string tail(mimetype, 46);
