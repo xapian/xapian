@@ -27,6 +27,7 @@
 
 #include "multimatch.h"
 
+#include "autoptr.h"
 #include "collapser.h"
 #include "debuglog.h"
 #include "submatch.h"
@@ -401,11 +402,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::Document doc(&vsdoc);
 
     // Get a single combined postlist
-    PostList *pl;
+    AutoPtr<PostList> pl;
     if (postlists.size() == 1) {
-	pl = postlists.front();
+	pl.reset(postlists.front());
     } else {
-	pl = new MergePostList(postlists, this, vsdoc, errorhandler);
+	pl.reset(new MergePostList(postlists, this, vsdoc, errorhandler));
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
@@ -459,7 +460,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
-	delete pl;
+	pl.reset(NULL);
 	Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
 	if (collapse_max) {
 	    // Lower bound must be set to no more than collapse_max, since it's
@@ -533,21 +534,24 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	if (rare(recalculate_w_max)) {
 	    if (min_weight > 0.0) {
-		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
+		if (rare(getorrecalc_maxweight(pl.get()) < min_weight)) {
 		    LOGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		    break;
 		}
 	    }
 	}
 
-	if (rare(next_handling_prune(pl, min_weight, this))) {
+	PostList * pl_copy = pl.get();
+	if (rare(next_handling_prune(pl_copy, min_weight, this))) {
+	    (void)pl.release();
+	    pl.reset(pl_copy);
 	    LOGLINE(MATCH, "*** REPLACING ROOT");
 
 	    if (min_weight > 0.0) {
 		// No need for a full recalc (unless we've got to do one
 		// because of a prune elsewhere) - we're just switching to a
 		// subtree.
-		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
+		if (rare(getorrecalc_maxweight(pl.get()) < min_weight)) {
 		    LOGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		    break;
 		}
@@ -655,7 +659,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Perform collapsing on key if requested.
 	if (collapser) {
 	    collapse_result res;
-	    res = collapser.process(new_item, pl, vsdoc, mcmp);
+	    res = collapser.process(new_item, pl.get(), vsdoc, mcmp);
 	    if (res == REJECTED) {
 		// If we're sorting by relevance primarily, then we throw away
 		// the lower weighted document anyway.
@@ -742,7 +746,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			}
 		    }
 		}
-		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
+		if (rare(getorrecalc_maxweight(pl.get()) < min_weight)) {
 		    LOGLINE(MATCH, "*** TERMINATING EARLY (3)");
 		    break;
 		}
@@ -813,7 +817,7 @@ new_greatest_weight:
     }
 
     // done with posting list tree
-    delete pl;
+    pl.reset(NULL);
 
     double percent_scale = 0;
     if (!items.empty() && greatest_wt > 0) {
