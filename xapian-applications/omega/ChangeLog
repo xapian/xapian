@@ -1,3 +1,8 @@
+Mon Feb 28 12:10:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xmlparse.cc: Add whitespace between chunks of text extracted from
+	  Microsoft Office 2007 formats.
+
 Wed Feb 23 12:34:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/xml: Try $field{caption} (which is what omindex sets)
