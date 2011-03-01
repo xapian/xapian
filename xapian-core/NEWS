@@ -1,12 +1,6 @@
- 15309       olly Sat Jan 15 10:28:10 GMT 2011  Olly Betts <olly@survex.com>
+ 15351       olly Mon Feb 28 12:40:24 GMT 2011  Olly Betts <olly@survex.com>
 
-backported:
-
-
-not for 1.0:
-
-Xapian-core 1.2.5 (2011-01-15):
-
+Xapian-core 1.2.5 (2011-02-28):
 
 API:
 
@@ -15,77 +9,98 @@ API:
 
 testsuite:
 
+* Compaction tests which generate stub files now close them before performing
+  the actual compaction, to avoid issues on Microsoft Windows (ticket#525).
+
+* Improve test coverage.
 
 matcher:
 
+* Fix memory leak if an exception is thrown during the match.
 
 brass backend:
 
+* Optimise not to read the bitmaps from the base files when opening a database
+  for reading (cross-port of equivalent change to chert).
+
+* Optimise not to update doclength when it hasn't changed (cross-port of
+  equivalent change to chert).
 
 chert backend:
 
- 15309       olly Sat Jan 15 10:28:10 GMT 2011  Olly Betts <olly@survex.com>
-	* bin/xapian-chert-update.cc: Fix to handle value slot entries in the
-	  termlist table.
- 15300       olly Wed Jan 12 23:49:21 GMT 2011  Olly Betts <olly@survex.com>
-	* bin/xapian-chert-update.cc: Adjust keys for doclength chunks too.
- 15299       olly Wed Jan 12 13:37:30 GMT 2011  Olly Betts <olly@survex.com>
-	* AUTHORS,bin/xapian-chert-update.cc: Fix to also rewrite docids in
-	  value chunk keys (reported by Luca Barbieri on xapian-discuss).
+* Optimise not to read the bitmaps from the base files when opening a database
+  for reading.
+
+* Optimise not to update doclength when it hasn't changed.
+
+* xapian-chert-update: Fix to handle larger databases, and databases which
+  have values set.
 
 flint backend:
 
+* Optimise not to read the bitmaps from the base files when opening a database
+  for reading (cross-port of equivalent change to chert).
+
+* Optimise not to update doclength when it hasn't changed (cross-port of
+  equivalent change to chert).
 
 remote backend:
 
- 15279       olly Tue Dec 21 10:28:08 GMT 2010  Olly Betts <olly@survex.com>
-	* net/tcpserver.cc: If we can't bind to the specified port because it
-	  is a privileged one, exit with code 77 (EX_NOPERM) to make it easier
-	  to automatically handle failure when starting the server from a
-	  script.
-
+* xapian-tcpsrv: If we can't bind to the specified port because it is a
+  privileged one, exit with code 77 (EX_NOPERM) to make it easier to
+  automatically handle failure when starting the server from a script.
 
 inmemory backend:
 
-
 build system:
 
+* Snapshots and releases are now bootstrapped with autoconf 2.68 and libtool
+  2.4.
+
+* configure: -Wstrict-null-sentinel was added in GCC 4.0.1 and so doesn't work
+  with GCC 4.0.0.  For simplicity, only enable it for GCC >= 4.1.
 
 documentation:
 
- 15271       olly Tue Dec 21 07:43:52 GMT 2010  Olly Betts <olly@survex.com>
-	* docs/index.html: Add link to main website.
- 15270       olly Tue Dec 21 07:40:57 GMT 2010  Olly Betts <olly@survex.com>
-	* docs/index.html,docs/overview.html: Update links to wiki.xapian.org
-	  to point to trac.xapian.org/wiki instead.
+* include/xapian/enquire.h: Fix doxygen markup so alternative overloaded forms
+  of Enquire::get_mset() appear in the API documentation.
 
- 15267    richard Mon Dec 20 10:02:06 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* docs/deprecation.rst: Add note about botched removal of python's
-	  Enquire.get_matching_terms (now fully removed).
+* docs/collapsing.html: Add missing document (written some time ago, but never
+  actually added to builds).
 
- 15297       olly Tue Jan 11 08:41:02 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst: Note removal of if idx in mset.
+* docs/deprecation.html:
 
- 15296       olly Tue Jan 11 08:30:29 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst: PostingSource now offers a replacement for
-	  Enquire::set_bias().
+  + PostingSource now offers a replacement for Enquire::set_bias().
 
+  + OmegaScript: $set{spelling,true} is now deprecated.
+
+  + Add note about botched removal of Enquire.get_matching_terms from Python
+    bindings (now fully removed).
+
+  + Note removal of "if idx in mset" from Python bindings.
+
+  + Deprecate MSet.items and ESet.items from Python bindings (ticket#531).
+
+* docs/admin_notes.html: Update for 1.2.5.
 
 tools:
 
+* xapian-replicate-server: Fix race condition between checking if a file
+  exists and opening it to replicate it.
 
 examples:
 
+* quest: Report any spelling correction (requires the database contains
+  spelling data of course).
+
+* copydatabase: Add --no-renumber option.
 
 portability:
 
- 15290       olly Mon Jan 10 09:40:24 GMT 2011  Olly Betts <olly@survex.com>
-	* api/compactor.cc: Add missing header <ctime> for time() (ticket#530).
+* api/compactor.cc: Add missing header <ctime> for time() (ticket#530).
 
- 15288       olly Sun Jan 09 23:14:02 GMT 2011  Olly Betts <olly@survex.com>
-	* api/compactor.cc: Use msvc_posix_rename() under __WIN32__ to
-	  atomically update stub file after compaction (ticket#525).
-
+* api/compactor.cc: Use msvc_posix_rename() under __WIN32__ to atomically
+  update stub file after compaction (ticket#525).
 
 packaging:
 
