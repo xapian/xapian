@@ -1,6 +1,6 @@
- 15301       olly Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
+ 15345       olly Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.5 (2011-01-13):
+Xapian-bindings 1.2.5 (2011-02-21):
 
 Documentation:
 
@@ -8,6 +8,10 @@ Documentation:
 	* README: Update info on SWIG-based Perl bindings.
 
 General:
+
+ 15328       olly Sat Jan 29 02:12:43 GMT 2011  Olly Betts <olly@survex.com>
+	* configure.ac: If xapian-core is a different release series, promote
+	  the mismatched versions warning to an error.
 
 Packaging:
 
@@ -19,6 +23,9 @@ Portability:
 	  on Microsoft Windows.  (ticket#526)
 
 CSharp:
+
+	* csharp/AssemblyInfo.cs.in: Clarify the licence is GPL "version 2 or
+	  later".
 
 Java:
 
@@ -40,6 +47,14 @@ Python:
 	  have been broken for at least the past 3.5 years without anyone
 	  mentioning it, and is probably of little use anyway, so no need
 	  to deprecate.
+
+ 15345       olly Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
+	* python/docs/index.html: Document that MSet.items and ESet.items are
+	  deprecated, and what to use instead.  Note that MSET_DOCUMENT never
+	  worked on the tuple returned by MSet.items.  (ticket#531)
+
+ 15329       olly Sat Jan 29 05:25:15 GMT 2011  Olly Betts <olly@survex.com>
+	* python/pythontest2.py: Add test coverage for mset.items.
 
 Ruby:
 

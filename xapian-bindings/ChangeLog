@@ -1,3 +1,7 @@
+Tue Mar 01 11:51:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/docs/index.html: Document that MSet.items and ESet.items are
