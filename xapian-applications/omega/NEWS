@@ -1,6 +1,6 @@
- 15298       olly Wed Jan 12 02:21:59 GMT 2011  Olly Betts <olly@survex.com>
+ 15355       olly Wed Mar 02 06:14:41 GMT 2011  Olly Betts <olly@survex.com>
 
-Omega 1.2.5 (2011-01-12):
+Omega 1.2.5 (2011-03-02):
 
 general:
 
@@ -11,17 +11,45 @@ indexers:
 * omindex:
 
   + Fix to compile with older versions of libmagic which don't have
-    MAGIC_MIME_TYPE (e.g.  on Ubuntu hardy).
+    MAGIC_MIME_TYPE (e.g. on Ubuntu hardy).
+
+  + Tell xls2csv to separate fields with spaces rather than commas, and not to
+    quote them.  Fixes indexing of numeric fields, and means we don't need to
+    use our CSV parser to get a sample.
+
+  + Add whitespace between chunks of text extracted from Microsoft Office 2007
+    formats to stop words in adjacent chunks from being run together,
+
+  + Encode reserved characters in URLs - links to files with names containing
+    '#' and '?' now work.
+
+  + Handle .xlr extension the same way as .xls (later Microsoft Works versions
+    apparently produce such files which are really the same format).
+
+  + Index filename extension with new standard prefix E.
 
 * scriptindex:
 
 omega:
 
- 15298       olly Wed Jan 12 02:21:59 GMT 2011  Olly Betts <olly@survex.com>
-	* query.cc: Fix double Content-Type header in some error reporting
-	  situations (regression introduced in 1.2.4).
+* Fix double Content-Type header in some error reporting situations (regression
+  introduced in 1.2.4).
+
+* Update $url's URL encoding to follow RFC3986.
+
+* Allow QueryParser flags to be set from OmegaScript (ticket#418).
 
 templates:
+
+* templates/xml:
+
+  + Try $field{caption} (which is what omindex sets) before $field{title} when
+    getting a value for the hit tag's title attribute - this is consistent with
+    how the query template gets the title.
+
+  + Add new 'type' attribute which gives $field{type}.
+
+  + Add 'DBSize' attribute to <result> element.
 
 testsuite:
 
@@ -34,8 +62,6 @@ portability:
 packaging:
 
 Omega 1.2.4 (2010-12-19):
-
-general:
 
 documentation:
 
@@ -137,8 +163,8 @@ indexers:
 
 * scriptindex:
 
- + Fix file descriptor leak if the LOADFILE action is used on something which
-   isn't a file.
+  + Fix file descriptor leak if the LOADFILE action is used on something which
+    isn't a file.
 
 omega:
 

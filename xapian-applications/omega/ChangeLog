@@ -1,3 +1,7 @@
+Wed Mar 02 11:17:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Wed Mar 02 06:14:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.rst: New standard prefix E for filename extension.
