@@ -1,3 +1,8 @@
+Wed Mar 02 06:14:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: New standard prefix E for filename extension.
+	* omindex.cc: Index file extension as E-prefixed term.
+
 Mon Feb 28 13:45:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Tell xls2csv not to quote fields and to put spaces

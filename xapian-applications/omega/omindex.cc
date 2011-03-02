@@ -847,6 +847,14 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    newdocument.add_boolean_term(string("I@") + owner);
     }
 
+    string ext_term("E");
+    const char * dot = strrchr(d.leafname(), '.');
+    if (dot) {
+	while (*++dot)
+	    ext_term += char(tolower((unsigned char)*dot));
+    }
+    newdocument.add_boolean_term(ext_term);
+
     if (!skip_duplicates) {
 	// If this document has already been indexed, update the existing
 	// entry.
