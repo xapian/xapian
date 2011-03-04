@@ -533,26 +533,27 @@ $weight
 Numeric Operators:
 ==================
 
-$add{A,B,...}
-	add arguments together
+$add{...}
+	add arguments together (if called with one argument, this will convert
+	it to a string and back, which ensures it is an integer).
 
 $div{A,B}
-	returns int(A / B) (or "divide by 0" if B is zero)
+	returns int(A / B) (or the text "divide by 0" if B is zero)
 
 $mod{A,B}
-	returns int(A % B) (or "divide by 0" if B is zero)
+	returns int(A % B) (or the text "divide by 0" if B is zero)
 
-$max{...}
+$max{A,...}
 	maximum of the arguments
 
-$min{...}
+$min{A,...}
 	minimum of the arguments
 
 $mul{A,B,...}
-	multiply arguments together
+multiply arguments together
 
 $muldiv{A,B,C}
-	returns int((A * B) / C) (or "divide by 0" if C is zero)
+	returns int((A * B) / C) (or the text "divide by 0" if C is zero)
 
 $sub{A,B}
 	returns (A - B)
