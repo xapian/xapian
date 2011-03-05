@@ -1,3 +1,7 @@
+Sat Mar 05 02:50:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Mention new defaulting of -m.
+
 Sat Mar 05 02:44:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc: If --master isn't specified, default to

@@ -1,5 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2008,2010 Olly Betts
+.. Copyright (C) 2008,2010,2011 Olly Betts
 
 =======================================
 Xapian Database Replication Users Guide
@@ -99,6 +99,12 @@ would produce a database "foo2" containing a replica of the database
 "/var/search/dbs/foo".  Note that the first time you run this, this command
 will create the foo2 directory and populate it with appropriate files; you
 should not create this directory yourself.
+
+As of 1.2.5, if you don't specify the master name, the same name is used
+remotely and locally, so this will replicate remote database "foo2" to
+local database "foo2"::
+
+  xapian-replicate -h 127.0.0.1 -p 7010 foo2
 
 Both the server and client can be run in "one-shot" mode, by passing `-o`.
 This may be particularly useful for the client, to allow a shell script to be
