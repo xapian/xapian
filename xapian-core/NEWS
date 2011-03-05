@@ -413,7 +413,7 @@ testsuite:
   in the output, so we use an LD_PRELOAD hack to get valgrind to check the
   input is initialised and then tell it that the output is initialised.
 
-* Don't pass NULL to closedir(), which fixes test harness failures on platorms
+* Don't pass NULL to closedir(), which fixes test harness failures on platforms
   without /proc/self/fd.
 
 * Use safesyswait.h, fixing build failure on "make check" on FreeBSD.
@@ -997,7 +997,7 @@ build system:
 documentation:
 
 * Update PostingSource documentation to describe how init() is called again if
-  a PostingSource is reused.  Gixes #352.
+  a PostingSource is reused.  Fixes #352.
 
 portability:
 
@@ -4305,7 +4305,7 @@ testsuite:
   under valgrind in verbose mode).  This had stopped working, probably due to
   changes in valgrind 3.
 
-* internaltest: Check that the the destructor on a temporary object gets called
+* internaltest: Check that the destructor on a temporary object gets called
   at the correct time (Sun C++ deliberately gets this wrong by default, and it
   would be good to catch any other compilers which do the same).
 
