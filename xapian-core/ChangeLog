@@ -1,3 +1,10 @@
+Sat Mar 05 00:14:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: Give an error if the host isn't set, rather
+	  than trying to connect to an empty hostname, which gives the error
+	  "Couldn't resolve host  (Unknown server error)", which might confuse
+	  if you fail to notice the double space and realise what it means.
+
 Fri Mar 04 17:20:13 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* docs/replication.rst: Update documentation to make it clear that

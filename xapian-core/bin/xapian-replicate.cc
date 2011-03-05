@@ -1,7 +1,7 @@
 /** @file xapian-replicate.cc
  * @brief Replicate a database from a master server to a local copy.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,6 +124,12 @@ main(int argc, char **argv)
     }
 
     if (argc - optind != 1) {
+	show_usage();
+	exit(1);
+    }
+
+    if (host.empty()) {
+	cout << "Host required - specify with --host=HOST\n\n";
 	show_usage();
 	exit(1);
     }
