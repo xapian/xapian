@@ -1,3 +1,7 @@
+Sat Mar 05 06:19:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo in old entry.
+
 Sat Mar 05 06:16:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/remoteconnection.h: Internal doc comment improvements: Fix

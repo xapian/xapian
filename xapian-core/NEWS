@@ -5819,7 +5819,7 @@ build system:
 
 * configure.in: Fix typo (STLPORT_CXXLAGS -> STLPORT_CXXFLAGS)
 
-* Removed trivial m4/Makefile.am and and autoconf/Makefile.am and do the work
+* Removed trivial m4/Makefile.am and autoconf/Makefile.am and do the work
   from the top level Makefile.am instead.  It's easier to see the structure
   this way, and it also removes a couple of recursive make invocations which
   will speed up builds a little.
