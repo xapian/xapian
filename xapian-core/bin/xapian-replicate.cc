@@ -50,7 +50,7 @@ static void show_usage() {
 "Options:\n"
 "  -h, --host=HOST     host to connect to\n"
 "  -p, --port=PORT     port to connect to\n"
-"  -m, --master=DB     replicate database DB from the master\n"
+"  -m, --master=DB     replicate database DB from the master (default: DATABASE)\n"
 "  -i, --interval=N    wait N seconds between each connection to the master\n"
 "                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
@@ -136,6 +136,9 @@ main(int argc, char **argv)
 
     // Path to the database to create/update.
     string dbpath(argv[optind]);
+
+    if (masterdb.empty())
+	masterdb = dbpath;
 
     while (true) {
 	try {

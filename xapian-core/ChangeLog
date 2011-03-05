@@ -1,3 +1,8 @@
+Sat Mar 05 02:44:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: If --master isn't specified, default to
+	  DATABASE.
+
 Sat Mar 05 00:14:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc: Give an error if the host isn't set, rather
