@@ -1,3 +1,8 @@
+Sat Mar 05 02:59:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: Make sure port number is specified.  Add
+	  "(required)" after --host and --port in help.
+
 Sat Mar 05 02:50:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/replication.rst: Mention new defaulting of -m.

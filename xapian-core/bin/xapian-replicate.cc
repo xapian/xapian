@@ -48,8 +48,8 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -h, --host=HOST     host to connect to\n"
-"  -p, --port=PORT     port to connect to\n"
+"  -h, --host=HOST     host to connect to (required)\n"
+"  -p, --port=PORT     port to connect to (required)\n"
 "  -m, --master=DB     replicate database DB from the master (default: DATABASE)\n"
 "  -i, --interval=N    wait N seconds between each connection to the master\n"
 "                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
@@ -130,6 +130,12 @@ main(int argc, char **argv)
 
     if (host.empty()) {
 	cout << "Host required - specify with --host=HOST\n\n";
+	show_usage();
+	exit(1);
+    }
+
+    if (port == 0) {
+	cout << "Port required - specify with --port=PORT\n\n";
 	show_usage();
 	exit(1);
     }
