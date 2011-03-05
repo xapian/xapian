@@ -167,7 +167,8 @@ class RemoteConnection {
     /** Check what the next message type is.
      *
      *  This must not be called after a call to get_message_chunked() until
-     *  get_message_chunk() has returned fales to indicate the message.
+     *  get_message_chunk() has returned false to indicate the whole message
+     *  has been received.
      *
      *  Other than that restriction, this may be called at any time to
      *  determine what the next message waiting to be processed is: it will not
@@ -216,19 +217,20 @@ class RemoteConnection {
      *
      *  You must call get_message_chunked() before calling this method.
      *
-     *  @param[inout] result	Message data.  This is appended to, so if you read
-     *				more than needed the previous time, leave the excess
-     *				in result.
-     *	@param at_least		Return at least this many bytes in result, unless
-     *				there isn't enough data left in the message (in
-     *				which case all remaining data is read and false is
-     *				returned).
+     *  @param[inout] result	Message data.  This is appended to, so if you
+     *				read more than needed the previous time, leave
+     *				the excess in result.
+     *	@param at_least		Return at least this many bytes in result,
+     *				unless there isn't enough data left in the
+     *				message (in which case all remaining data is
+     *				read and false is returned).
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			true if at least at_least bytes are now in result.
+     *  @return			true if at least at_least bytes are now in
+     *				result.
      */
     bool get_message_chunk(std::string &result, size_t at_least,
 			   double end_time);

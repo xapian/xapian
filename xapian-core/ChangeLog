@@ -1,3 +1,8 @@
+Sat Mar 05 06:16:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/remoteconnection.h: Internal doc comment improvements: Fix
+	  typo, finish truncated sentence, wrap lines to 80 columns.
+
 Sat Mar 05 02:59:35 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc: Make sure port number is specified.  Add
