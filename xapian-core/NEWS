@@ -1,6 +1,6 @@
- 15351       olly Mon Feb 28 12:40:24 GMT 2011  Olly Betts <olly@survex.com>
+ 15367       olly Sat Mar 05 12:49:16 GMT 2011  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.5 (2011-02-28):
+Xapian-core 1.2.5 (2011-03-05):
 
 API:
 
@@ -68,6 +68,15 @@ documentation:
 * docs/collapsing.html: Add missing document (written some time ago, but never
   actually added to builds).
 
+ 15360    richard Fri Mar 04 17:20:13 GMT 2011  Richard Boulton <richard@tartarus.org>
+	* docs/replication.rst: Update documentation to make it clear that
+	  users shouldn't try to create the destination directory for
+	  replication themselves.
+
+ 15357       olly Thu Mar 03 11:06:30 GMT 2011  Olly Betts <olly@survex.com>
+	* docs/intro_ir.html: Update link to a paper.  Update text about book
+	  "to be published in 2008".
+
 * docs/deprecation.html:
 
   + PostingSource now offers a replacement for Enquire::set_bias().
@@ -87,6 +96,12 @@ tools:
 
 * xapian-replicate-server: Fix race condition between checking if a file
   exists and opening it to replicate it.
+
+* xapian-replicate: Complain unless host name and port number are specified -
+  previously these defaulted to an empty string and 0, which resulted in
+  potentially confusing error messages.
+
+* xapian-replicate: If --master isn't specified, default to DATABASE.
 
 examples:
 
