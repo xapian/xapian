@@ -1,3 +1,11 @@
+Sun Mar 06 23:25:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/io_utils.cc,common/io_utils.h: Add io_unlink().
+	* backends/brass/brass_database.cc,backends/brass/brass_table.cc,
+	  backends/chert/chert_database.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_table.cc:
+	  Use io_unlink() instead of sys_unlink_if_exists().
+
 Sun Mar 06 22:26:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,

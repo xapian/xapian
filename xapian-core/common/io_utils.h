@@ -1,7 +1,7 @@
 /** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include "safefcntl.h"
 #include "safeunistd.h"
+#include <string>
 
 /** Ensure all data previously written to file descriptor fd has been written to
  *  disk.
@@ -72,5 +73,16 @@ size_t io_read(int fd, char * p, size_t n, size_t min);
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
 void io_write(int fd, const char * p, size_t n);
+
+/** Delete a file.
+ *
+ *  @param	filename	The file to delete.
+ *
+ *  @exception	Xapian::DatabaseError is thrown if @a filename existed but
+ *		couldn't be unlinked.
+ *  @return	true if @a filename was successfully removed; false if it
+ *		didn't exist.
+ */
+bool io_unlink(const std::string & filename);
 
 #endif // XAPIAN_INCLUDED_IO_UTILS_H

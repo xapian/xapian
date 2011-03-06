@@ -1,7 +1,7 @@
 /** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,10 +23,32 @@
 
 #include "io_utils.h"
 
+#ifdef __WIN32__
+# include "msvc_posix_wrapper.h"
+#endif
+
 #include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <string>
+
 #include <xapian/error.h>
+
+bool
+io_unlink(const std::string & filename)
+{
+#ifdef __WIN32__
+    if (msvc_posix_unlink(filename.c_str()) == 0) {
+#else
+    if (unlink(filename.c_str()) == 0) {
+#endif
+	return true;
+    }
+    if (errno != ENOENT) {
+	throw Xapian::DatabaseError(filename + ": delete failed", errno);
+    }
+    return false;
+}
 
 size_t
 io_read(int fd, char * p, size_t n, size_t min)

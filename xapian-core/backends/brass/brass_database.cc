@@ -86,23 +86,6 @@ using namespace Xapian;
 // byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
-/** Delete file, throwing an error if we can't delete it (but not if it
- *  doesn't exist).
- */
-static void
-sys_unlink_if_exists(const string & filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename + "'",
-				    errno);
-    }
-}
-
 /* This finds the tables, opens them at consistent revisions, manages
  * determining the current and next revision numbers, and stores handles
  * to the tables.
@@ -475,7 +458,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
     } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
-	    sys_unlink_if_exists(changes_name);
+	    (void)io_unlink(changes_name);
 	}
 
 	throw;

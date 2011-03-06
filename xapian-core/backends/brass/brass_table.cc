@@ -1693,32 +1693,15 @@ BrassTable::exists() const {
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
 
-/** Delete file, throwing an error if we can't delete it (but not if it
- *  doesn't exist).
- */
-static void
-sys_unlink_if_exists(const string & filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename +
-			      "': " + strerror(errno));
-    }
-}
-
 void
 BrassTable::erase()
 {
     LOGCALL_VOID(DB, "BrassTable::erase", NO_ARGS);
     close();
 
-    sys_unlink_if_exists(name + "baseA");
-    sys_unlink_if_exists(name + "baseB");
-    sys_unlink_if_exists(name + "DB");
+    (void)io_unlink(name + "baseA");
+    (void)io_unlink(name + "baseB");
+    (void)io_unlink(name + "DB");
 }
 
 void
@@ -1761,7 +1744,7 @@ BrassTable::create_and_open(unsigned int block_size_)
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */
-    sys_unlink_if_exists(name + "baseB");
+    (void)io_unlink(name + "baseB");
 
     // Any errors are thrown if revision_supplied is false.
     (void)do_open_to_write(false, 0, true);
