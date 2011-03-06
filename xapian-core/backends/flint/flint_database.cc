@@ -464,8 +464,11 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    buf += F_pack_uint(old_revision);
 	    buf += F_pack_uint(new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
-	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
+#ifndef DANGEROUS
+	    buf += '\x00'; // Changes can be applied to a live database.
+#else
+	    buf += '\x01';
+#endif
 
 	    io_write(changes_fd, buf.data(), buf.size());
 

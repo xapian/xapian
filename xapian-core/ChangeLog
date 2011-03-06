@@ -1,3 +1,11 @@
+Sun Mar 06 22:26:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc: If DANGEROUS mode is turned on,
+	  then actually set the flag for this in replication changes files
+	  (the reader will currently throw an exception, but that's better
+	  than quietly handling them incorrectly).
+
 Sat Mar 05 12:58:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

@@ -439,8 +439,11 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	    pack_uint(buf, old_revision);
 	    pack_uint(buf, new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
-	    pack_uint(buf, 0u); // Changes can be applied to a live database.
+#ifndef DANGEROUS
+	    buf += '\x00'; // Changes can be applied to a live database.
+#else
+	    buf += '\x01';
+#endif
 
 	    io_write(changes_fd, buf.data(), buf.size());
 
