@@ -50,6 +50,10 @@
  */
 #define CHERT_BTREE_MAX_KEY_LEN 252
 
+/** Even for items of at maximum size, it must be possible to get this number of
+ *  items in a block */
+#define BLOCK_CAPACITY 4
+
 // FIXME: This named constant probably isn't used everywhere it should be...
 #define BYTES_PER_BLOCK_NUMBER 4
 
@@ -594,7 +598,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *  The default is BLOCK_CAPACITY (which is currently 4).
 	 */
 	void set_max_item_size(size_t block_capacity) {
-	    if (block_capacity > 4) block_capacity = 4;
+	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
 	}

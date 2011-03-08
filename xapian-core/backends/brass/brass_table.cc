@@ -169,11 +169,6 @@ static inline byte *zeroed_new(size_t size)
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
 
-/** Even for items of at maximum size, it must be possible to get this number of
- *  items in a block */
-#define BLOCK_CAPACITY 4
-
-
 /* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
    if the nth block is free, otherwise 1. bit_map0 is the initial state of
    bitmap at the start of the current transaction.

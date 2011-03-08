@@ -1,3 +1,10 @@
+Tue Mar 08 06:58:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h,
+	  backends/chert/chert_table.cc,backends/chert/chert_table.h,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h: Use
+	  defined constant BLOCK_CAPACITY instead of hardcoded 4 (ticket#536).
+
 Tue Mar 08 05:56:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
