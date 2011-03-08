@@ -109,23 +109,6 @@ static void report_cursor(int N, Btree * B, Cursor_ * C)
 /*------to here--------*/
 #endif /* BTREE_DEBUG_FULL */
 
-/* Input/output is defined with calls to the basic Unix system interface: */
-
-static void sys_unlink(const string &filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	string message = "Failed to unlink ";
-	message += filename;
-	message += ": ";
-	message += strerror(errno);
-	throw Xapian::DatabaseCorruptError(message);
-    }
-}
-
 static inline byte *zeroed_new(size_t size)
 {
     byte *temp = new byte[size];
@@ -288,7 +271,13 @@ FlintTable::write_block(uint4 n, const byte * p) const
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
-	sys_unlink(name + "base" + other_base_letter());
+	//
+	// If the file is on NFS, then io_unlink() may return false even if
+	// the file was removed, so on balance throwing an exception in this
+	// case is unhelpful, since we wanted the file gone anyway!  The
+	// likely explanation is that somebody moved, deleted, or changed a
+	// symlink to the database directory.
+	(void)io_unlink(name + "base" + other_base_letter());
 	both_bases = false;
 	latest_revision_number = revision_number;
     }

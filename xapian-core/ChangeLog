@@ -1,3 +1,12 @@
+Tue Mar 08 05:56:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_table.cc: If we try to delete an old base file
+	  and it isn't there, just continue rather than throwing an exception.
+	  We wanted to get rid of it anyway, and it may be NFS issues telling
+	  us the wrong thing.  In particular, DatabaseCoruptError was rather
+	  a pessimistic assessment.
+
 Tue Mar 08 05:55:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/io_utils.h: Note that io_unlink() may return false when it
