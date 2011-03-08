@@ -1,3 +1,8 @@
+Tue Mar 08 05:55:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/io_utils.h: Note that io_unlink() may return false when it
+	  should have returned true on NFS.
+
 Sun Mar 06 23:25:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/io_utils.cc,common/io_utils.h: Add io_unlink().

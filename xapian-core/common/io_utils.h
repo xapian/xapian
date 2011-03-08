@@ -81,7 +81,10 @@ void io_write(int fd, const char * p, size_t n);
  *  @exception	Xapian::DatabaseError is thrown if @a filename existed but
  *		couldn't be unlinked.
  *  @return	true if @a filename was successfully removed; false if it
- *		didn't exist.
+ *		didn't exist.  If the file is on NFS, false may be returned
+ *		even if the file was removed (if the server fails after
+ *		removing the file but before telling the client, and the
+ *		client then retries).
  */
 bool io_unlink(const std::string & filename);
 
