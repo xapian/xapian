@@ -422,9 +422,6 @@ DEFINE_TESTCASE(expandweights2, backend) {
     return true;
 }
 
-// tests the returned weights are as expected (regression test for remote
-// backend which was using the average weight rather than the actual document
-// weight for computing weights - fixed in 1.0.0).
 DEFINE_TESTCASE(expandweights3, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
@@ -444,15 +441,14 @@ DEFINE_TESTCASE(expandweights3, backend) {
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
 	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
 	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-	TEST_EQUAL(eset[49].get_weight() < 0, false);
     } else {
 	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
 	// will result in different weights in some cases.
 	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
 	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
 	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-	TEST_EQUAL(eset[49].get_weight() < 0, false);
     }
+    TEST_REL(eset.back().get_weight(),>=,0);
 
     return true;
 }
@@ -463,7 +459,7 @@ DEFINE_TESTCASE(expandweights4, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("paragraph"));
 
-    Xapian::MSet mymset = enquire.get_mset(0, 20);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     Xapian::RSet myrset;
     Xapian::MSetIterator i = mymset.begin();
@@ -472,14 +468,10 @@ DEFINE_TESTCASE(expandweights4, backend) {
 
     Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 1.0, 0, -100);
     // Now include negative weights
-    // Multi backends need bigger sets
-    if (!startswith(get_dbtype(), "multi")) {
-	TEST_EQUAL(eset.size(), 37);
-	TEST_EQUAL(eset[36].get_weight() < 0, true);
-    } else {
-	TEST_EQUAL(eset.size(), 37);
-	TEST_EQUAL(eset[36].get_weight() < 0, true);
-    }
+    TEST_EQUAL(eset.size(), 37);
+    TEST_REL(eset[36].get_weight(),<,0);
+    TEST_REL(eset[36].get_weight(),>=,-100);
+
     return true;
 }
 
