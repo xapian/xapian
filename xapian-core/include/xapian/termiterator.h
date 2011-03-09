@@ -84,7 +84,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 
 	/** Return the wdf of the current term (if meaningful).
 	 *
-	 *  The wdf (within document frequency) is the number of occurences
+	 *  The wdf (within document frequency) is the number of occurrences
 	 *  of a term in a particular document.
 	 */
 	Xapian::termcount get_wdf() const;

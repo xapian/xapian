@@ -1,3 +1,7 @@
+Wed Mar 09 00:00:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/termiterator.h: Fix misspelling in doc comment.
+
 Tue Mar 08 06:58:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h,
