@@ -4,6 +4,7 @@
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
+ * Copyright 2011, Action Without Borders
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -690,9 +691,9 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
-		    const ExpandDecider * edecider) const
+		    const ExpandDecider * edecider, Xapian::weight min_wt) const
 {
-    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider);
+    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider | min_wt);
 
     if (maxitems == 0 || rset.empty()) {
 	// Either we were asked for no results, or wouldn't produce any
@@ -728,7 +729,7 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     ExpandWeight eweight(db, rset.size(), use_exact_termfreq, k);
 
     Xapian::ESet eset;
-    eset.internal->expand(maxitems, db, rset, edecider, eweight);
+    eset.internal->expand(maxitems, db, rset, edecider, eweight, min_wt);
     RETURN(eset);
 }
 
@@ -1043,7 +1044,21 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider);
 
     try {
-	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider));
+	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, 0));
+    } catch (Error & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
+}
+
+ESet
+Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
+		  double k, const ExpandDecider * edecider, Xapian::weight min_wt) const
+{
+    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider | min_wt);
+
+    try {
+	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, min_wt));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

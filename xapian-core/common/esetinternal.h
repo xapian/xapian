@@ -2,6 +2,7 @@
  * @brief Xapian::ESet::Internal class
  */
 /* Copyright (C) 2008,2010 Olly Betts
+ * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +102,8 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
 		const Xapian::Database & db,
 		const Xapian::RSet & rset,
 		const Xapian::ExpandDecider * edecider,
-		const Xapian::Internal::ExpandWeight & eweight);
+		const Xapian::Internal::ExpandWeight & eweight,
+		Xapian::weight min_wt);
 
     /// Return a string describing this object.
     std::string get_description() const;

@@ -1,3 +1,11 @@
+Wed Mar 09 14:11:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/esetinternal.h,common/omenquireinternal.h,
+	  expand/esetinternal.cc,expand/expandweight.cc,
+	  include/xapian/enquire.h,tests/api_anydb.cc: Enquire::get_eset() now
+	  accepts a min_wt argument to allow the minimum wanted weight to be
+	  specified.  Default is 0, which gives the previous behaviour.
+
 Wed Mar 09 00:00:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/termiterator.h: Fix misspelling in doc comment.
