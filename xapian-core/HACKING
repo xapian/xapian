@@ -1083,6 +1083,10 @@ to follow the style of the existing code.  In particular:
   The rationale for this is that it conserves vertical space (allowing more
   code to fit on screen) without reducing readability.
 
+* If you have an empty loop body, use `{ }` rather than `;` as the former
+  stands out more clearly to the reader (but also consider if the code might be
+  clearer written a different way).
+
 * Prefer "++i;" to "i++;", "i += 1;", or "i = i + 1".  For simple integer
   variables these should generate equivalent (if not identical) code, but if i
   is an iterator object then the pre-increment form can be more efficient in

@@ -1,3 +1,7 @@
+Fri Mar 11 01:12:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Document using '{ }' rather than ';' for empty loop bodies.
+
 Fri Mar 11 01:02:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Remove bogus ; after method definition in code example.
