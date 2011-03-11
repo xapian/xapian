@@ -86,6 +86,14 @@ using namespace Xapian;
 // byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
+/** Maximum number of times to try opening the tables to get them at a
+ *  consistent revision.
+ *
+ *  This is mostly just to avoid any chance of an infinite loop - normally
+ *  we'll either get then on the first or second try.
+ */
+const int MAX_OPEN_RETRIES = 100;
+
 /* This finds the tables, opens them at consistent revisions, manages
  * determining the current and next revision numbers, and stores handles
  * to the tables.
@@ -241,8 +249,7 @@ BrassDatabase::open_tables_consistent()
     value_manager.reset();
 
     bool fully_opened = false;
-    int tries = 100;
-    int tries_left = tries;
+    int tries_left = MAX_OPEN_RETRIES;
     while (!fully_opened && (tries_left--) > 0) {
 	if (spelling_table.open(revision) &&
 	    synonym_table.open(revision) &&

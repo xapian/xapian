@@ -1,3 +1,9 @@
+Fri Mar 11 00:07:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc: Factor out literal constant as
+	  MAX_OPEN_RETRIES.
+
 Wed Mar 09 14:54:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Improve the new testcases a bit.
