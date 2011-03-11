@@ -978,7 +978,7 @@ keyword like so::
 
     class XAPIAN_DEPRECATED() Foo {
       public:
-        Foo() { };
+        Foo() { }
 
         // ...
     };

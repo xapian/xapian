@@ -1,3 +1,7 @@
+Fri Mar 11 01:02:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Remove bogus ; after method definition in code example.
+
 Fri Mar 11 00:07:22 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
