@@ -1,3 +1,10 @@
+Mon Mar 14 02:44:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/debuglog.cc,common/debuglog.h: Use an integer counter for the
+	  indent rather than a std::string which we add/remove spaces to/from.
+	  This is cleaner, but also there seems to be an issue with having a
+	  std::string member in a global static object on OS X.
+
 Fri Mar 11 01:12:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Document using '{ }' rather than ';' for empty loop bodies.

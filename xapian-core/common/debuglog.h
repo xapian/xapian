@@ -1,7 +1,7 @@
 /** @file debuglog.h
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,8 +89,8 @@ class DebugLogger {
     /// File descriptor for debug logging.
     int fd;
 
-    /// The current indent, as a string of spaces.
-    std::string indent_string;
+    /// The current indent level.
+    int indent;
 
     /// Initialise categories_mask.
     void initialise_categories_mask();
@@ -98,8 +98,7 @@ class DebugLogger {
   public:
     /// Constructor.
     DebugLogger()
-	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1),
-	  indent_string(" ")
+	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent(0)
     { }
 
     /// Destructor.
@@ -119,12 +118,10 @@ class DebugLogger {
     /// Log message @msg of category @a category.
     void log_line(debuglog_categories category, const std::string & msg);
 
-    void indent() { indent_string += ' '; }
+    void indent() { ++indent; }
 
     void outdent() {
-	if (indent_string.size() > 1) {
-	    indent_string.resize(indent_string.size() - 1);
-	}
+	if (indent) --indent;
     }
 };
 

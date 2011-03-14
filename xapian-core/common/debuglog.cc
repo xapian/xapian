@@ -1,7 +1,7 @@
 /** @file debuglog.cc
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,11 +110,11 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
     if (fd < 0) return;
 
     string line;
-    line.reserve(8 + indent_string.size() + msg.size());
+    line.reserve(9 + indent + msg.size());
     line = char(category) + '@';
     line += ' ';
     line += str(getpid());
-    line += indent_string;
+    line.append(indent + 1, ' ');
     line += msg;
     line += '\n';
 
