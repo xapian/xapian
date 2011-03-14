@@ -90,7 +90,7 @@ class DebugLogger {
     int fd;
 
     /// The current indent level.
-    int indent;
+    int indent_level;
 
     /// Initialise categories_mask.
     void initialise_categories_mask();
@@ -98,7 +98,7 @@ class DebugLogger {
   public:
     /// Constructor.
     DebugLogger()
-	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent(0)
+	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent_level(0)
     { }
 
     /// Destructor.
@@ -118,10 +118,10 @@ class DebugLogger {
     /// Log message @msg of category @a category.
     void log_line(debuglog_categories category, const std::string & msg);
 
-    void indent() { ++indent; }
+    void indent() { ++indent_level; }
 
     void outdent() {
-	if (indent) --indent;
+	if (indent_level) --indent_level;
     }
 };
 

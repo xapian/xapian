@@ -110,11 +110,11 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
     if (fd < 0) return;
 
     string line;
-    line.reserve(9 + indent + msg.size());
+    line.reserve(9 + indent_level + msg.size());
     line = char(category) + '@';
     line += ' ';
     line += str(getpid());
-    line.append(indent + 1, ' ');
+    line.append(indent_level + 1, ' ');
     line += msg;
     line += '\n';
 

@@ -1,3 +1,8 @@
+Mon Mar 14 03:20:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/debuglog.cc,common/debuglog.h: Rename indent member to
+	  indent_level so it doesn't clash with indent() method.
+
 Mon Mar 14 02:44:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/debuglog.cc,common/debuglog.h: Use an integer counter for the
