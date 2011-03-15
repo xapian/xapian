@@ -1,3 +1,9 @@
+Tue Mar 15 12:20:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add --empty-docs option to allow documents we extract
+	  no body text from to be indexed (existing behaviour), skipped, or
+	  reported and then indexed.
+
 Fri Mar 04 14:13:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Minor improvements.

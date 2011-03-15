@@ -80,6 +80,9 @@ static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static bool spelling = false;
 static bool verbose = false;
+static enum {
+    EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
+} empty_body = EMPTY_BODY_WARN;
 
 static string root;
 static string site_term, host_term;
@@ -740,6 +743,21 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	return;
     }
 
+    if (dump.empty()) {
+	switch (empty_body) {
+	    case EMPTY_BODY_INDEX:
+		break;
+	    case EMPTY_BODY_WARN:
+		cout << "no text extracted from document body, "
+			"but indexing metadata anyway" << endl;
+		break;
+	    case EMPTY_BODY_SKIP:
+		cout << "no text extracted from document body - skipping"
+		     << endl;
+		return;
+	}
+    }
+
     // Produce a sample
     if (sample.empty()) {
 	sample = generate_sample(dump, SAMPLE_SIZE);
@@ -1025,6 +1043,7 @@ main(int argc, char **argv)
 	{ "stemmer",	required_argument,	NULL, 's' },
 	{ "spelling",	no_argument,		NULL, 'S' },
 	{ "verbose",	no_argument,		NULL, 'v' },
+	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1185,7 +1204,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSV",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1196,6 +1215,9 @@ main(int argc, char **argv)
 "  -p, --no-delete          skip the deletion of documents corresponding to\n"
 "                           deleted files (--preserve-nonduplicates is a\n"
 "                           deprecated alias for --no-delete)\n"
+"  -e, --empty-docs=ARG     how to handle documents we extract no text from:\n"
+"                           ARG can be index, warn (issue a diagnostic and\n"
+"                           index), or skip.  (default: warn)\n"
 "  -D, --db                 path to database to use\n"
 "  -U, --url                base url DIRECTORY represents (default: /)\n"
 "  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
@@ -1224,6 +1246,19 @@ main(int argc, char **argv)
 	    case 'r':
 		skip_duplicates = false;
 		break;
+	    }
+	    break;
+	case 'e':
+	    if (strcmp(optarg, "index") == 0) {
+		empty_body = EMPTY_BODY_INDEX;
+	    } else if (strcmp(optarg, "warn") == 0) {
+		empty_body = EMPTY_BODY_WARN;
+	    } else if (strcmp(optarg, "skip") == 0) {
+		empty_body = EMPTY_BODY_SKIP;
+	    } else {
+		cerr << "Invalid --empty-docs value '" << optarg << "'\n"
+			"Valid values are index, warn, and skip." << endl;
+		return 1;
 	    }
 	    break;
 	case 'p': // Keep documents even if the files have been removed.
