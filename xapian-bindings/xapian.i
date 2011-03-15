@@ -428,6 +428,12 @@ class Enquire {
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
+    ESet get_eset(termcount maxitems,
+	    const RSet & omrset,
+	    int flags,
+	    double k,
+	    const ExpandDecider *edecider,
+	    Xapian::weight min_wt) const;
     ESet get_eset(termcount maxitems, const RSet & omrset, const Xapian::ExpandDecider * edecider) const;
 #else
     ESet get_eset(termcount maxitems,

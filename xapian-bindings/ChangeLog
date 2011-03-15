@@ -1,3 +1,7 @@
+Tue Mar 15 23:09:04 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* xapian.i: Expose ESet.get_eset with min_wt parameter
+
 Tue Mar 01 11:51:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
