@@ -1,3 +1,8 @@
+Tue Mar 15 12:47:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/index.rst: Add index page which links to all
+	  the other documentation pages.
+
 Tue Mar 15 12:20:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Add --empty-docs option to allow documents we extract
