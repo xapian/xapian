@@ -1,3 +1,8 @@
+Wed Mar 16 05:29:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Add test coverage for min_wt argument of
+	  get_eset().
+
 Wed Mar 16 05:13:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/smoketest2.py: Fix comment typo.
