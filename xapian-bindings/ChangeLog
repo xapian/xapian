@@ -1,3 +1,9 @@
+Wed Mar 16 03:33:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Handle an empty response to $RUBY --version specially.
+	  This gives a less opaque error in cases where the user specified
+	  RUBY but the value given wasn't an executable file.
+
 Tue Mar 15 23:09:04 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* xapian.i: Expose ESet.get_eset with min_wt parameter

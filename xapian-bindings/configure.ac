@@ -723,6 +723,13 @@ if test no != "$with_ruby" ; then
     [ruby\ 1.[1-9][0-9]*]) ;; # Ruby 1.10+
     [ruby\ [2-9]*]) ;; # Ruby 2-Ruby 9
     [ruby\ 1[0-9]*]) ;; # Ruby 10+
+    "")
+      AC_MSG_RESULT([\$RUBY --version didn't work])
+      if test yes = "$with_ruby" ; then
+	AC_MSG_ERROR([Working Ruby interpreter not found])
+      fi
+      RUBY=
+      ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
