@@ -1,3 +1,7 @@
+Wed Mar 16 05:13:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Fix comment typo.
+
 Wed Mar 16 03:33:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Handle an empty response to $RUBY --version specially.
