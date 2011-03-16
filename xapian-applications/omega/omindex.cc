@@ -325,7 +325,7 @@ skip_meta_tag(const string & file)
 
 static void
 index_file(const string &file, const string &url, const string &mimetype, DirectoryIterator & d)
-{
+try {
     string author, title, sample, keywords, dump;
 
     if (verbose)
@@ -928,6 +928,9 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	if (verbose)
 	    cout << "added" << endl;
     }
+} catch (NoSuchFilter) {
+    skip(file, "Filter for \"" + mimetype + "\" not installed");
+    commands[mimetype] = string();
 }
 
 static void
@@ -1012,12 +1015,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		    continue;
 		}
 
-		try {
-		    index_file(file, url, mimetype, d);
-		} catch (NoSuchFilter) {
-		    skip(file, "Filter for \"" + mimetype + "\" not installed");
-		    commands[mimetype] = string();
-		}
+		index_file(file, url, mimetype, d);
 		continue;
 	    }
 	    default:
