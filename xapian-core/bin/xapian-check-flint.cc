@@ -232,7 +232,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    end = pos + key.size();
 
 	    string term;
-	    Xapian::docid did;
+	    Xapian::docid did = 0;
 	    if (!F_unpack_string_preserving_sort(&pos, end, term)) {
 		cout << "Error unpacking termname from key" << endl;
 		++errors;
@@ -470,7 +470,8 @@ check_flint_table(const char * tablename, string filename, int opts,
 
 	    bool bad = false;
 	    while (pos != end) {
-		Xapian::doccount current_wdf;
+		// Initialize to silence g++ with -O3
+		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
 		// If there was a previous term, how much to reuse.
 		if (!current_tname.empty()) {

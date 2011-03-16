@@ -1,3 +1,8 @@
+Wed Mar 16 05:56:58 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* bin/xapian-check-flint.cc: Initialize did and current_wdf to prevent
+	  uninitalized usage and compiler warnings.
+
 Mon Mar 14 03:20:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/debuglog.cc,common/debuglog.h: Rename indent member to
