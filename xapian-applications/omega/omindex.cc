@@ -297,6 +297,33 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 }
 
 static void
+skip(const string & file, const string & msg)
+{
+    if (!verbose)
+	cout << file.substr(root.size()) << ": ";
+
+    cout << "Skipping - " << msg << endl;
+}
+
+static void
+skip_cant_read(const string & file)
+{
+    skip(file, "can't read file");
+}
+
+static void
+skip_cmd_failed(const string & file, const string & cmd)
+{
+    skip(file, "\"" + cmd + "\" failed");
+}
+
+static void
+skip_meta_tag(const string & file)
+{
+    skip(file, "indexing disallowed by meta tag");
+}
+
+static void
 index_file(const string &file, const string &url, const string &mimetype, DirectoryIterator & d)
 {
     string author, title, sample, keywords, dump;
@@ -362,8 +389,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	string cmd = cmd_it->second;
 	if (cmd.empty()) {
 	    if (verbose) {
-		cout << "Skipping file, required filter not installed: "
-			"\"" << file.substr(root.size()) << "\"" << endl;
+		skip(file, "required filter not installed");
 	    }
 	    return;
 	}
@@ -371,7 +397,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
     } else if (mimetype == "text/html") {
@@ -379,8 +405,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	try {
 	    text = d.file_to_string();
 	} catch (ReadError) {
-	    cout << "can't read \"" << file.substr(root.size()) << "\" "
-		    "- skipping" << endl;
+	    skip_cant_read(file);
 	    return;
 	}
 	MyHtmlParser p;
@@ -399,7 +424,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping" << endl;
+	    skip_meta_tag(file);
 	    return;
 	}
 	dump = p.dump;
@@ -429,8 +454,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} catch (ReadError) {
-	    cout << "can't read \"" << file.substr(root.size()) << "\" "
-		    "- skipping" << endl;
+	    skip_cant_read(file);
 	    return;
 	}
     } else if (mimetype == "application/pdf") {
@@ -439,7 +463,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
 	get_pdf_metainfo(safefile, author, title, keywords);
@@ -453,7 +477,10 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	// files.
 	if (!ensure_tmpdir()) {
 	    // FIXME: should this be fatal?  Or disable indexing postscript?
-	    cout << "Couldn't create temporary directory (" << strerror(errno) << ") - skipping" << endl;
+	    string msg = "Couldn't create temporary directory (";
+	    msg += strerror(errno);
+	    msg += ")";
+	    skip(file, msg);
 	    return;
 	}
 	string tmpfile = tmpdir + "/tmp.pdf";
@@ -464,7 +491,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    cmd = "pdftotext -enc UTF-8 " + safetmp + " -";
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    unlink(tmpfile.c_str());
 	    return;
 	} catch (...) {
@@ -489,7 +516,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
 
@@ -509,7 +536,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
     } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -529,7 +556,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
 	} else {
 	    // Don't know how to index this type.
-	    cout << "unknown Office 2007 MIME subtype - skipping" << endl;
+	    skip(file, "unknown Office 2007 MIME subtype");
 	    return;
 	}
 	string safefile = shell_protect(file);
@@ -539,7 +566,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
 
@@ -563,8 +590,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file.substr(root.size()) << "\" "
-		    "- skipping" << endl;
+	    skip_cant_read(file);
 	    return;
 	}
     } else if (mimetype == "application/x-abiword-compressed") {
@@ -575,7 +601,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
     } else if (mimetype == "text/rtf") {
@@ -588,14 +614,14 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    // produce them.
 	    p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping" << endl;
+	    skip_meta_tag(file);
 	    return;
 	}
 	dump = p.dump;
@@ -610,7 +636,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
     } else if (mimetype == "application/x-dvi") {
@@ -624,7 +650,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-xpsdocument") {
@@ -644,7 +670,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    xpsparser.parse_html(dump);
 	    dump = xpsparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	}
     } else if (mimetype == "text/csv") {
@@ -670,8 +696,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 
 	    generate_sample_from_csv(dump, sample);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file.substr(root.size()) << "\" "
-		    "- skipping" << endl;
+	    skip_cant_read(file);
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-outlook") {
@@ -688,14 +713,14 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	    } catch (bool) {
 	    }
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    skip_cmd_failed(file, cmd);
 	    return;
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping" << endl;
+	    skip_meta_tag(file);
 	    return;
 	}
 	dump = p.dump;
@@ -733,13 +758,13 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 	}
     } else {
 	// Don't know how to index this type.
-	cout << "unknown MIME type '" << mimetype << "' - skipping" << endl;
+	skip(file, "unknown MIME type '" + mimetype + "'");
 	return;
     }
 
     // Compute the MD5 of the file if we haven't already.
     if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
-	cout << "failed to read file to calculate MD5 checksum - skipping" << endl;
+	skip(file, "failed to read file to calculate MD5 checksum");
 	return;
     }
 
@@ -752,8 +777,7 @@ index_file(const string &file, const string &url, const string &mimetype, Direct
 			"but indexing metadata anyway" << endl;
 		break;
 	    case EMPTY_BODY_SKIP:
-		cout << "no text extracted from document body - skipping"
-		     << endl;
+		skip(file, "no text extracted from document body");
 		return;
 	}
     }
@@ -968,14 +992,10 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		if (mt == mime_map.end()) {
 		    mimetype = d.get_magic_mimetype();
 		    if (mimetype.empty()) {
-			cout << "Unknown extension and unrecognised format: "
-				"\"" << file.substr(root.size()) << "\" "
-				"- skipping" << endl;
+			skip(file, "Unknown extension and unrecognised format");
 			continue;
 		    }
-//		    cout << "Unknown extension: "
-//			    "\"" << file.substr(root.size()) << "\" - "
-//			    "skipping" << endl;
+//		    skip(file, "Unknown extension");
 //		    continue;
 		} else {
 		    mimetype = mt->second;
@@ -987,9 +1007,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		off_t size = d.get_size();
 		if (size == 0) {
 		    if (verbose) {
-			cout << "Skipping empty file: "
-				"\"" << file.substr(root.size()) << "\""
-			     << endl;
+			skip(file, "Zero-sized file");
 		    }
 		    continue;
 		}
@@ -997,17 +1015,14 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		try {
 		    index_file(file, url, mimetype, d);
 		} catch (NoSuchFilter) {
-		    cout << "Filter for \"" << mimetype << "\" not installed "
-			    "- ignoring from now on" << endl;
+		    skip(file, "Filter for \"" + mimetype + "\" not installed");
 		    commands[mimetype] = string();
 		}
 		continue;
 	    }
 	    default:
 		if (verbose) {
-		    cout << "Not a regular file "
-			    "\"" << file.substr(root.size()) << "\" - "
-			    "skipping" << endl;
+		    skip(file, "Not a regular file");
 		}
 	}
     } catch (const std::string & error) {

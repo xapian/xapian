@@ -1,3 +1,8 @@
+Wed Mar 16 02:51:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Factor out handling for skipping files, and improve
+	  these messages by consistently reporting the filename.
+
 Tue Mar 15 12:47:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am,docs/index.rst: Add index page which links to all
