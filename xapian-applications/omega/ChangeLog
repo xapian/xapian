@@ -1,3 +1,8 @@
+Wed Mar 16 06:19:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Push all the code associated with indexing a file into
+	  index_file().
+
 Wed Mar 16 02:55:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Push try block around index_file() call into the

@@ -306,12 +306,6 @@ skip(const string & file, const string & msg)
 }
 
 static void
-skip_cant_read(const string & file)
-{
-    skip(file, "can't read file");
-}
-
-static void
 skip_cmd_failed(const string & file, const string & cmd)
 {
     skip(file, "\"" + cmd + "\" failed");
@@ -324,9 +318,55 @@ skip_meta_tag(const string & file)
 }
 
 static void
-index_file(const string &file, const string &url, const string &mimetype, DirectoryIterator & d)
-try {
-    string author, title, sample, keywords, dump;
+index_file(const string &file, const string &url, DirectoryIterator & d,
+	   map<string, string>& mime_map)
+{
+    string ext;
+    const char * dot_ptr = strrchr(d.leafname(), '.');
+    if (dot_ptr)
+	ext.assign(dot_ptr + 1);
+
+    map<string,string>::iterator mt = mime_map.find(ext);
+    if (mt == mime_map.end()) {
+	// If the extension isn't found, see if the lower-cased version (if
+	// different) is found.
+	bool changed = false;
+	string::iterator i;
+	for (i = ext.begin(); i != ext.end(); ++i) {
+	    if (*i >= 'A' && *i <= 'Z') {
+		*i = tolower(*i);
+		changed = true;
+	    }
+	}
+	if (changed) mt = mime_map.find(ext);
+    }
+    if (mt != mime_map.end()) {
+	if (mt->second == "ignore")
+	    return;
+    }
+
+    string mimetype;
+    if (mt == mime_map.end()) {
+	mimetype = d.get_magic_mimetype();
+	if (mimetype.empty()) {
+	    skip(file, "Unknown extension and unrecognised format");
+	    return;
+	}
+//	skip(file, "Unknown extension");
+//	return;
+    } else {
+	mimetype = mt->second;
+    }
+
+    // Only check the file size if we recognise the extension to avoid a call
+    // to stat()/lstat() for files we definitely can't handle when readdir()
+    // tells us the file type.
+    if (d.get_size() == 0) {
+	if (verbose) {
+	    skip(file, "Zero-sized file");
+	}
+	return;
+    }
 
     if (verbose)
 	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
@@ -382,59 +422,55 @@ try {
 
     if (verbose) cout << flush;
 
+    string author, title, sample, keywords, dump;
     string md5;
-    map<string, string>::const_iterator cmd_it = commands.find(mimetype);
-    if (cmd_it != commands.end()) {
-	// Easy "run a command and read UTF-8 text from stdout" cases.
-	string cmd = cmd_it->second;
-	if (cmd.empty()) {
-	    if (verbose) {
-		skip(file, "required filter not installed");
+
+    try {
+	map<string, string>::const_iterator cmd_it = commands.find(mimetype);
+	if (cmd_it != commands.end()) {
+	    // Easy "run a command and read UTF-8 text from stdout" cases.
+	    string cmd = cmd_it->second;
+	    if (cmd.empty()) {
+		if (verbose) {
+		    skip(file, "required filter not installed");
+		}
+		return;
 	    }
-	    return;
-	}
-	cmd += shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-    } else if (mimetype == "text/html") {
-	string text;
-	try {
-	    text = d.file_to_string();
-	} catch (ReadError) {
-	    skip_cant_read(file);
-	    return;
-	}
-	MyHtmlParser p;
-	try {
-	    // Default HTML character set is latin 1, though not specifying one
-	    // is deprecated these days.
-	    p.parse_html(text, "iso-8859-1", false);
-	} catch (const string & newcharset) {
+	    cmd += shell_protect(file);
 	    try {
-		p.reset();
-		p.parse_html(text, newcharset, true);
-	    } catch (bool) {
+		dump = stdout_to_string(cmd);
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
 	    }
-	} catch (bool) {
-	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
-	    // indexing is disallowed
-	}
-	if (!p.indexing_allowed) {
-	    skip_meta_tag(file);
-	    return;
-	}
-	dump = p.dump;
-	title = p.title;
-	keywords = p.keywords;
-	sample = p.sample;
-	author = p.author;
-	md5_string(text, md5);
-    } else if (mimetype == "text/plain") {
-	try {
+	} else if (mimetype == "text/html") {
+	    string text = d.file_to_string();
+	    MyHtmlParser p;
+	    try {
+		// Default HTML character set is latin 1, though not specifying
+		// one is deprecated these days.
+		p.parse_html(text, "iso-8859-1", false);
+	    } catch (const string & newcharset) {
+		try {
+		    p.reset();
+		    p.parse_html(text, newcharset, true);
+		} catch (bool) {
+		}
+	    } catch (bool) {
+		// MyHtmlParser throws a bool to abandon parsing at </body> or
+		// when indexing is disallowed
+	    }
+	    if (!p.indexing_allowed) {
+		skip_meta_tag(file);
+		return;
+	    }
+	    dump = p.dump;
+	    title = p.title;
+	    keywords = p.keywords;
+	    sample = p.sample;
+	    author = p.author;
+	    md5_string(text, md5);
+	} else if (mimetype == "text/plain") {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = d.file_to_string();
@@ -453,228 +489,219 @@ try {
 	    } else {
 		// FIXME: What charset is the file?  Look at contents?
 	    }
-	} catch (ReadError) {
-	    skip_cant_read(file);
-	    return;
-	}
-    } else if (mimetype == "application/pdf") {
-	string safefile = shell_protect(file);
-	string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-	get_pdf_metainfo(safefile, author, title, keywords);
-    } else if (mimetype == "application/postscript") {
-	// There simply doesn't seem to be a Unicode capable PostScript to
-	// text converter (e.g. pstotext always outputs ISO-8859-1).  The only
-	// solution seems to be to convert via PDF using ps2pdf and then
-	// pdftotext.  This gives plausible looking UTF-8 output for some
-	// Chinese PostScript files I found using Google.  It also has the
-	// benefit of allowing us to extract meta information from PostScript
-	// files.
-	if (!ensure_tmpdir()) {
-	    // FIXME: should this be fatal?  Or disable indexing postscript?
-	    string msg = "Couldn't create temporary directory (";
-	    msg += strerror(errno);
-	    msg += ")";
-	    skip(file, msg);
-	    return;
-	}
-	string tmpfile = tmpdir + "/tmp.pdf";
-	string safetmp = shell_protect(tmpfile);
-	string cmd = "ps2pdf " + shell_protect(file) + " " + safetmp;
-	try {
-	    (void)stdout_to_string(cmd);
-	    cmd = "pdftotext -enc UTF-8 " + safetmp + " -";
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
+	} else if (mimetype == "application/pdf") {
+	    string safefile = shell_protect(file);
+	    string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
+	    try {
+		dump = stdout_to_string(cmd);
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
+	    get_pdf_metainfo(safefile, author, title, keywords);
+	} else if (mimetype == "application/postscript") {
+	    // There simply doesn't seem to be a Unicode capable PostScript to
+	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
+	    // only solution seems to be to convert via PDF using ps2pdf and
+	    // then pdftotext.  This gives plausible looking UTF-8 output for
+	    // some Chinese PostScript files I found using Google.  It also has
+	    // the benefit of allowing us to extract meta information from
+	    // PostScript files.
+	    if (!ensure_tmpdir()) {
+		// FIXME: should this be fatal?  Or disable indexing postscript?
+		string msg = "Couldn't create temporary directory (";
+		msg += strerror(errno);
+		msg += ")";
+		skip(file, msg);
+		return;
+	    }
+	    string tmpfile = tmpdir + "/tmp.pdf";
+	    string safetmp = shell_protect(tmpfile);
+	    string cmd = "ps2pdf " + shell_protect(file) + " " + safetmp;
+	    try {
+		(void)stdout_to_string(cmd);
+		cmd = "pdftotext -enc UTF-8 " + safetmp + " -";
+		dump = stdout_to_string(cmd);
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		unlink(tmpfile.c_str());
+		return;
+	    } catch (...) {
+		unlink(tmpfile.c_str());
+		throw;
+	    }
+	    try {
+		get_pdf_metainfo(safetmp, author, title, keywords);
+	    } catch (...) {
+		unlink(tmpfile.c_str());
+		throw;
+	    }
 	    unlink(tmpfile.c_str());
-	    return;
-	} catch (...) {
-	    unlink(tmpfile.c_str());
-	    throw;
-	}
-	try {
-	    get_pdf_metainfo(safetmp, author, title, keywords);
-	} catch (...) {
-	    unlink(tmpfile.c_str());
-	    throw;
-	}
-	unlink(tmpfile.c_str());
-    } else if (startswith(mimetype, "application/vnd.sun.xml.") ||
-	       startswith(mimetype, "application/vnd.oasis.opendocument."))
-    {
-	// Inspired by http://mjr.towers.org.uk/comp/sxw2text
-	string safefile = shell_protect(file);
-	string cmd = "unzip -p " + safefile + " content.xml styles.xml";
-	try {
-	    XmlParser xmlparser;
-	    xmlparser.parse_html(stdout_to_string(cmd));
-	    dump = xmlparser.dump;
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
+	} else if (startswith(mimetype, "application/vnd.sun.xml.") ||
+		   startswith(mimetype, "application/vnd.oasis.opendocument."))
+	{
+	    // Inspired by http://mjr.towers.org.uk/comp/sxw2text
+	    string safefile = shell_protect(file);
+	    string cmd = "unzip -p " + safefile + " content.xml styles.xml";
+	    try {
+		XmlParser xmlparser;
+		xmlparser.parse_html(stdout_to_string(cmd));
+		dump = xmlparser.dump;
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
 
-	cmd = "unzip -p " + safefile + " meta.xml";
-	try {
-	    MetaXmlParser metaxmlparser;
-	    metaxmlparser.parse_html(stdout_to_string(cmd));
-	    title = metaxmlparser.title;
-	    keywords = metaxmlparser.keywords;
-	    sample = metaxmlparser.sample;
-	    author = metaxmlparser.author;
-	} catch (ReadError) {
-	    // It's probably best to index the document even if this fails.
-	}
-    } else if (mimetype == "application/vnd.ms-excel") {
-	string cmd = "xls2csv -c' ' -q0 -dutf-8 " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-    } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
-	const char * args = NULL;
-	string tail(mimetype, 46);
-	if (startswith(tail, "wordprocessingml.")) {
-	    // unzip returns exit code 11 if a file to extract wasn't found
-	    // which we want to ignore, because there may be no headers or
-	    // no footers.
-	    args = " word/document.xml word/header\\*.xml word/footer\\*.xml 2>/dev/null||test $? = 11";
-	} else if (startswith(tail, "spreadsheetml.")) {
-	    args = " xl/sharedStrings.xml";
-	} else if (startswith(tail, "presentationml.")) {
-	    // unzip returns exit code 11 if a file to extract wasn't found
-	    // which we want to ignore, because there may be no notesSlides
-	    // or comments.
-	    args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
-	} else {
-	    // Don't know how to index this type.
-	    skip(file, "unknown Office 2007 MIME subtype");
-	    return;
-	}
-	string safefile = shell_protect(file);
-	string cmd = "unzip -p " + safefile + args;
-	try {
-	    XmlParser xmlparser;
-	    xmlparser.parse_html(stdout_to_string(cmd));
-	    dump = xmlparser.dump;
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
+	    cmd = "unzip -p " + safefile + " meta.xml";
+	    try {
+		MetaXmlParser metaxmlparser;
+		metaxmlparser.parse_html(stdout_to_string(cmd));
+		title = metaxmlparser.title;
+		keywords = metaxmlparser.keywords;
+		sample = metaxmlparser.sample;
+		author = metaxmlparser.author;
+	    } catch (ReadError) {
+		// It's probably best to index the document even if this fails.
+	    }
+	} else if (mimetype == "application/vnd.ms-excel") {
+	    string cmd = "xls2csv -c' ' -q0 -dutf-8 " + shell_protect(file);
+	    try {
+		dump = stdout_to_string(cmd);
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
+	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
+	    const char * args = NULL;
+	    string tail(mimetype, 46);
+	    if (startswith(tail, "wordprocessingml.")) {
+		// unzip returns exit code 11 if a file to extract wasn't found
+		// which we want to ignore, because there may be no headers or
+		// no footers.
+		args = " word/document.xml word/header\\*.xml word/footer\\*.xml 2>/dev/null||test $? = 11";
+	    } else if (startswith(tail, "spreadsheetml.")) {
+		args = " xl/sharedStrings.xml";
+	    } else if (startswith(tail, "presentationml.")) {
+		// unzip returns exit code 11 if a file to extract wasn't found
+		// which we want to ignore, because there may be no notesSlides
+		// or comments.
+		args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
+	    } else {
+		// Don't know how to index this type.
+		skip(file, "unknown Office 2007 MIME subtype");
+		return;
+	    }
+	    string safefile = shell_protect(file);
+	    string cmd = "unzip -p " + safefile + args;
+	    try {
+		XmlParser xmlparser;
+		xmlparser.parse_html(stdout_to_string(cmd));
+		dump = xmlparser.dump;
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
 
-	cmd = "unzip -p " + safefile + " docProps/core.xml";
-	try {
-	    MetaXmlParser metaxmlparser;
-	    metaxmlparser.parse_html(stdout_to_string(cmd));
-	    title = metaxmlparser.title;
-	    keywords = metaxmlparser.keywords;
-	    sample = metaxmlparser.sample;
-	    author = metaxmlparser.author;
-	} catch (ReadError) {
-	    // It's probably best to index the document even if this fails.
-	}
-    } else if (mimetype == "application/x-abiword") {
-	// FIXME: Implement support for metadata.
-	try {
+	    cmd = "unzip -p " + safefile + " docProps/core.xml";
+	    try {
+		MetaXmlParser metaxmlparser;
+		metaxmlparser.parse_html(stdout_to_string(cmd));
+		title = metaxmlparser.title;
+		keywords = metaxmlparser.keywords;
+		sample = metaxmlparser.sample;
+		author = metaxmlparser.author;
+	    } catch (ReadError) {
+		// It's probably best to index the document even if this fails.
+	    }
+	} else if (mimetype == "application/x-abiword") {
+	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
 	    string text = d.file_to_string();
 	    xmlparser.parse_html(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
-	} catch (ReadError) {
-	    skip_cant_read(file);
-	    return;
-	}
-    } else if (mimetype == "application/x-abiword-compressed") {
-	// FIXME: Implement support for metadata.
-	string cmd = "gzip -dc " + shell_protect(file);
-	try {
-	    XmlParser xmlparser;
-	    xmlparser.parse_html(stdout_to_string(cmd));
-	    dump = xmlparser.dump;
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-    } else if (mimetype == "text/rtf") {
-	// The --text option unhelpfully converts all non-ASCII characters to
-	// "?" so we use --html instead, which produces HTML entities.
-	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
-	MyHtmlParser p;
-	try {
-	    // No point going looking for charset overrides as unrtf doesn't
-	    // produce them.
-	    p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	} catch (bool) {
-	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
-	    // indexing is disallowed
-	}
-	if (!p.indexing_allowed) {
-	    skip_meta_tag(file);
-	    return;
-	}
-	dump = p.dump;
-	title = p.title;
-	keywords = p.keywords;
-	sample = p.sample;
-    } else if (mimetype == "text/x-perl") {
-	// pod2text's output character set doesn't seem to be documented, but
-	// from inspecting the source it looks like it's probably iso-8859-1.
-	string cmd = "pod2text " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	    convert_to_utf8(dump, "ISO-8859-1");
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-    } else if (mimetype == "application/x-dvi") {
-	// FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
-	// appearing as single ligatures.  For European languages, it's
-	// actually better to use -e2 (ISO-8859-1) and then convert, so let's
-	// do that for now until we handle Unicode "compatibility
-	// decompositions".
-	string cmd = "catdvi -e2 -s " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	    convert_to_utf8(dump, "ISO-8859-1");
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-    } else if (mimetype == "application/vnd.ms-xpsdocument") {
-	string safefile = shell_protect(file);
-	string cmd = "unzip -p " + safefile + " Documents/1/Pages/\\*.fpage";
-	try {
-	    XpsXmlParser xpsparser;
-	    dump = stdout_to_string(cmd);
-	    // Look for Byte-Order Mark (BOM).
-	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
-		// UTF-16 in big-endian/little-endian order - we just convert
-		// it as "UTF-16" and let the conversion handle the BOM as that
-		// way we avoid the copying overhead of erasing 2 bytes from
-		// the start of dump.
-		convert_to_utf8(dump, "UTF-16");
+	} else if (mimetype == "application/x-abiword-compressed") {
+	    // FIXME: Implement support for metadata.
+	    string cmd = "gzip -dc " + shell_protect(file);
+	    try {
+		XmlParser xmlparser;
+		xmlparser.parse_html(stdout_to_string(cmd));
+		dump = xmlparser.dump;
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
 	    }
-	    xpsparser.parse_html(dump);
-	    dump = xpsparser.dump;
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	}
-    } else if (mimetype == "text/csv") {
-	try {
+	} else if (mimetype == "text/rtf") {
+	    // The --text option unhelpfully converts all non-ASCII characters
+	    // to "?" so we use --html instead, which produces HTML entities.
+	    string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
+	    MyHtmlParser p;
+	    try {
+		// No point going looking for charset overrides as unrtf doesn't
+		// produce them.
+		p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    } catch (bool) {
+		// MyHtmlParser throws a bool to abandon parsing at </body> or
+		// when indexing is disallowed
+	    }
+	    if (!p.indexing_allowed) {
+		skip_meta_tag(file);
+		return;
+	    }
+	    dump = p.dump;
+	    title = p.title;
+	    keywords = p.keywords;
+	    sample = p.sample;
+	} else if (mimetype == "text/x-perl") {
+	    // pod2text's output character set doesn't seem to be documented,
+	    // but from inspecting the source it looks like it's probably
+	    // iso-8859-1.
+	    string cmd = "pod2text " + shell_protect(file);
+	    try {
+		dump = stdout_to_string(cmd);
+		convert_to_utf8(dump, "ISO-8859-1");
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
+	} else if (mimetype == "application/x-dvi") {
+	    // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi",
+	    // etc appearing as single ligatures.  For European languages, it's
+	    // actually better to use -e2 (ISO-8859-1) and then convert, so
+	    // let's do that for now until we handle Unicode "compatibility
+	    // decompositions".
+	    string cmd = "catdvi -e2 -s " + shell_protect(file);
+	    try {
+		dump = stdout_to_string(cmd);
+		convert_to_utf8(dump, "ISO-8859-1");
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
+	} else if (mimetype == "application/vnd.ms-xpsdocument") {
+	    string safefile = shell_protect(file);
+	    string cmd = "unzip -p " + safefile + " Documents/1/Pages/\\*.fpage";
+	    try {
+		XpsXmlParser xpsparser;
+		dump = stdout_to_string(cmd);
+		// Look for Byte-Order Mark (BOM).
+		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		    // UTF-16 in big-endian/little-endian order - we just
+		    // convert it as "UTF-16" and let the conversion handle the
+		    // BOM as that way we avoid the copying overhead of erasing
+		    // 2 bytes from the start of dump.
+		    convert_to_utf8(dump, "UTF-16");
+		}
+		xpsparser.parse_html(dump);
+		dump = xpsparser.dump;
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
+		return;
+	    }
+	} else if (mimetype == "text/csv") {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = d.file_to_string();
@@ -695,242 +722,246 @@ try {
 	    }
 
 	    generate_sample_from_csv(dump, sample);
-	} catch (ReadError) {
-	    skip_cant_read(file);
-	    return;
-	}
-    } else if (mimetype == "application/vnd.ms-outlook") {
-	string cmd = get_pkglibbindir() + "/outlookmsg2html " + shell_protect(file);
-	MyHtmlParser p;
-	try {
-	    dump = stdout_to_string(cmd);
-	    // FIXME: what should the default charset be?
-	    p.parse_html(dump, "iso-8859-1", false);
-	} catch (const string & newcharset) {
+	} else if (mimetype == "application/vnd.ms-outlook") {
+	    string cmd = get_pkglibbindir() + "/outlookmsg2html " + shell_protect(file);
+	    MyHtmlParser p;
 	    try {
-		p.reset();
-		p.parse_html(dump, newcharset, true);
-	    } catch (bool) {
-	    }
-	} catch (ReadError) {
-	    skip_cmd_failed(file, cmd);
-	    return;
-	} catch (bool) {
-	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
-	    // indexing is disallowed
-	}
-	if (!p.indexing_allowed) {
-	    skip_meta_tag(file);
-	    return;
-	}
-	dump = p.dump;
-	title = p.title;
-	keywords = p.keywords;
-	sample = p.sample;
-	author = p.author;
-    } else if (mimetype == "image/svg+xml") {
-	SvgParser svgparser;
-	svgparser.parse_html(d.file_to_string());
-	dump = svgparser.dump;
-	title = svgparser.title;
-	keywords = svgparser.keywords;
-	author = svgparser.author;
-    } else if (mimetype == "application/x-debian-package") {
-	string cmd("dpkg-deb -f ");
-	cmd += shell_protect(file);
-	cmd += " Description";
-	const string & desc = stdout_to_string(cmd);
-	// First line is short description, which we use as the title.
-	string::size_type idx = desc.find('\n');
-	title.assign(desc, 0, idx);
-	if (idx != string::npos) {
-	    dump.assign(desc, idx + 1, string::npos);
-	}
-    } else if (mimetype == "application/x-redhat-package-manager") {
-	string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p ");
-	cmd += shell_protect(file);
-	const string & desc = stdout_to_string(cmd);
-	// First line is summary, which we use as the title.
-	string::size_type idx = desc.find('\n');
-	title.assign(desc, 0, idx);
-	if (idx != string::npos) {
-	    dump.assign(desc, idx + 1, string::npos);
-	}
-    } else {
-	// Don't know how to index this type.
-	skip(file, "unknown MIME type '" + mimetype + "'");
-	return;
-    }
-
-    // Compute the MD5 of the file if we haven't already.
-    if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
-	skip(file, "failed to read file to calculate MD5 checksum");
-	return;
-    }
-
-    if (dump.empty()) {
-	switch (empty_body) {
-	    case EMPTY_BODY_INDEX:
-		break;
-	    case EMPTY_BODY_WARN:
-		cout << "no text extracted from document body, "
-			"but indexing metadata anyway" << endl;
-		break;
-	    case EMPTY_BODY_SKIP:
-		skip(file, "no text extracted from document body");
+		dump = stdout_to_string(cmd);
+		// FIXME: what should the default charset be?
+		p.parse_html(dump, "iso-8859-1", false);
+	    } catch (const string & newcharset) {
+		try {
+		    p.reset();
+		    p.parse_html(dump, newcharset, true);
+		} catch (bool) {
+		}
+	    } catch (ReadError) {
+		skip_cmd_failed(file, cmd);
 		return;
-	}
-    }
-
-    // Produce a sample
-    if (sample.empty()) {
-	sample = generate_sample(dump, SAMPLE_SIZE);
-    } else {
-	sample = generate_sample(sample, SAMPLE_SIZE);
-    }
-
-    // Put the data in the document
-    Xapian::Document newdocument;
-    string record = "url=";
-    record += url;
-    record += "\nsample=";
-    record += sample;
-    if (!title.empty()) {
-	record += "\ncaption=";
-	record += generate_sample(title, TITLE_SIZE);
-    }
-    if (!author.empty()) {
-	record += "\nauthor=";
-	record += author;
-    }
-    record += "\ntype=";
-    record += mimetype;
-    if (last_mod != (time_t)-1) {
-	record += "\nmodtime=";
-	record += str(last_mod);
-    }
-    record += "\nsize=";
-    record += str(d.get_size());
-    newdocument.set_data(record);
-
-    // Index the title, document text, and keywords.
-    indexer.set_document(newdocument);
-    if (!title.empty()) {
-	indexer.index_text(title, 5);
-	indexer.increase_termpos(100);
-    }
-    if (!dump.empty()) {
-	indexer.index_text(dump);
-    }
-    if (!keywords.empty()) {
-	indexer.increase_termpos(100);
-	indexer.index_text(keywords);
-    }
-    // Index the leafname of the file.
-    {
-	indexer.increase_termpos(100);
-	string leaf = d.leafname();
-	string::size_type dot = leaf.find_last_of('.');
-	if (dot != string::npos)
-	    leaf.resize(dot);
-	indexer.index_text(leaf);
-    }
-
-    if (!author.empty()) {
-	indexer.increase_termpos(100);
-	indexer.index_text(author, 1, "A");
-    }
-
-    // mimeType:
-    newdocument.add_boolean_term("T" + mimetype);
-
-    newdocument.add_boolean_term(site_term);
-
-    if (!host_term.empty())
-	newdocument.add_boolean_term(host_term);
-
-    struct tm *tm = localtime(&last_mod);
-    string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-    newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
-    date_term.resize(7);
-    date_term[0] = 'M';
-    newdocument.add_boolean_term(date_term); // Month (YYYYMM)
-    date_term.resize(5);
-    date_term[0] = 'Y';
-    newdocument.add_boolean_term(date_term); // Year (YYYY)
-
-    newdocument.add_boolean_term(urlterm); // Url
-
-    // Add last_mod as a value to allow "sort by date".
-    newdocument.add_value(VALUE_LASTMOD,
-			  int_to_binary_string((uint32_t)last_mod));
-
-    // Add MD5 as a value to allow duplicate documents to be collapsed together.
-    newdocument.add_value(VALUE_MD5, md5);
-
-    // Add the file size as a value to allow "sort by size" and size ranges.
-    newdocument.add_value(VALUE_SIZE, Xapian::sortable_serialise(d.get_size()));
-
-    bool inc_tag_added = false;
-    if (d.is_other_readable()) {
-	inc_tag_added = true;
-	newdocument.add_boolean_term("I*");
-    } else if (d.is_group_readable()) {
-	const char * group = d.get_group();
-	if (group) {
-	    newdocument.add_boolean_term(string("I#") + group);
-	    inc_tag_added = true;
-	}
-    }
-    const char * owner = d.get_owner();
-    if (owner) {
-	newdocument.add_boolean_term(string("O") + owner);
-	if (!inc_tag_added && d.is_owner_readable())
-	    newdocument.add_boolean_term(string("I@") + owner);
-    }
-
-    string ext_term("E");
-    const char * dot = strrchr(d.leafname(), '.');
-    if (dot) {
-	while (*++dot)
-	    ext_term += char(tolower((unsigned char)*dot));
-    }
-    newdocument.add_boolean_term(ext_term);
-
-    if (!skip_duplicates) {
-	// If this document has already been indexed, update the existing
-	// entry.
-	if (did) {
-	    // We already found out the document id above.
-	    db.replace_document(did, newdocument);
-	} else if (last_mod <= last_mod_max) {
-	    // We checked for the UID term and didn't find it.
-	    did = db.add_document(newdocument);
+	    } catch (bool) {
+		// MyHtmlParser throws a bool to abandon parsing at </body> or
+		// when indexing is disallowed
+	    }
+	    if (!p.indexing_allowed) {
+		skip_meta_tag(file);
+		return;
+	    }
+	    dump = p.dump;
+	    title = p.title;
+	    keywords = p.keywords;
+	    sample = p.sample;
+	    author = p.author;
+	} else if (mimetype == "image/svg+xml") {
+	    SvgParser svgparser;
+	    svgparser.parse_html(d.file_to_string());
+	    dump = svgparser.dump;
+	    title = svgparser.title;
+	    keywords = svgparser.keywords;
+	    author = svgparser.author;
+	} else if (mimetype == "application/x-debian-package") {
+	    string cmd("dpkg-deb -f ");
+	    cmd += shell_protect(file);
+	    cmd += " Description";
+	    const string & desc = stdout_to_string(cmd);
+	    // First line is short description, which we use as the title.
+	    string::size_type idx = desc.find('\n');
+	    title.assign(desc, 0, idx);
+	    if (idx != string::npos) {
+		dump.assign(desc, idx + 1, string::npos);
+	    }
+	} else if (mimetype == "application/x-redhat-package-manager") {
+	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p ");
+	    cmd += shell_protect(file);
+	    const string & desc = stdout_to_string(cmd);
+	    // First line is summary, which we use as the title.
+	    string::size_type idx = desc.find('\n');
+	    title.assign(desc, 0, idx);
+	    if (idx != string::npos) {
+		dump.assign(desc, idx + 1, string::npos);
+	    }
 	} else {
-	    did = db.replace_document(urlterm, newdocument);
+	    // Don't know how to index this type.
+	    skip(file, "unknown MIME type '" + mimetype + "'");
+	    return;
 	}
-	if (did < updated.size()) {
-	    if (usual(!updated[did])) {
-		updated[did] = true;
-		--old_docs_not_seen;
+
+	// Compute the MD5 of the file if we haven't already.
+	if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
+	    skip(file, "failed to read file to calculate MD5 checksum");
+	    return;
+	}
+
+	if (dump.empty()) {
+	    switch (empty_body) {
+		case EMPTY_BODY_INDEX:
+		    break;
+		case EMPTY_BODY_WARN:
+		    cout << "no text extracted from document body, "
+			    "but indexing metadata anyway" << endl;
+		    break;
+		case EMPTY_BODY_SKIP:
+		    skip(file, "no text extracted from document body");
+		    return;
 	    }
 	}
-	if (verbose) {
-	    if (did < old_lastdocid) {
-		cout << "updated" << endl;
+
+	// Produce a sample
+	if (sample.empty()) {
+	    sample = generate_sample(dump, SAMPLE_SIZE);
+	} else {
+	    sample = generate_sample(sample, SAMPLE_SIZE);
+	}
+
+	// Put the data in the document
+	Xapian::Document newdocument;
+	string record = "url=";
+	record += url;
+	record += "\nsample=";
+	record += sample;
+	if (!title.empty()) {
+	    record += "\ncaption=";
+	    record += generate_sample(title, TITLE_SIZE);
+	}
+	if (!author.empty()) {
+	    record += "\nauthor=";
+	    record += author;
+	}
+	record += "\ntype=";
+	record += mimetype;
+	if (last_mod != (time_t)-1) {
+	    record += "\nmodtime=";
+	    record += str(last_mod);
+	}
+	record += "\nsize=";
+	record += str(d.get_size());
+	newdocument.set_data(record);
+
+	// Index the title, document text, and keywords.
+	indexer.set_document(newdocument);
+	if (!title.empty()) {
+	    indexer.index_text(title, 5);
+	    indexer.increase_termpos(100);
+	}
+	if (!dump.empty()) {
+	    indexer.index_text(dump);
+	}
+	if (!keywords.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(keywords);
+	}
+	// Index the leafname of the file.
+	{
+	    indexer.increase_termpos(100);
+	    string leaf = d.leafname();
+	    string::size_type dot = leaf.find_last_of('.');
+	    if (dot != string::npos)
+		leaf.resize(dot);
+	    indexer.index_text(leaf);
+	}
+
+	if (!author.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(author, 1, "A");
+	}
+
+	// mimeType:
+	newdocument.add_boolean_term("T" + mimetype);
+
+	newdocument.add_boolean_term(site_term);
+
+	if (!host_term.empty())
+	    newdocument.add_boolean_term(host_term);
+
+	struct tm *tm = localtime(&last_mod);
+	string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+	newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
+	date_term.resize(7);
+	date_term[0] = 'M';
+	newdocument.add_boolean_term(date_term); // Month (YYYYMM)
+	date_term.resize(5);
+	date_term[0] = 'Y';
+	newdocument.add_boolean_term(date_term); // Year (YYYY)
+
+	newdocument.add_boolean_term(urlterm); // Url
+
+	// Add last_mod as a value to allow "sort by date".
+	newdocument.add_value(VALUE_LASTMOD,
+			      int_to_binary_string((uint32_t)last_mod));
+
+	// Add MD5 as a value to allow duplicate documents to be collapsed
+	// together.
+	newdocument.add_value(VALUE_MD5, md5);
+
+	// Add the file size as a value to allow "sort by size" and size ranges.
+	newdocument.add_value(VALUE_SIZE,
+			      Xapian::sortable_serialise(d.get_size()));
+
+	bool inc_tag_added = false;
+	if (d.is_other_readable()) {
+	    inc_tag_added = true;
+	    newdocument.add_boolean_term("I*");
+	} else if (d.is_group_readable()) {
+	    const char * group = d.get_group();
+	    if (group) {
+		newdocument.add_boolean_term(string("I#") + group);
+		inc_tag_added = true;
+	    }
+	}
+	const char * owner = d.get_owner();
+	if (owner) {
+	    newdocument.add_boolean_term(string("O") + owner);
+	    if (!inc_tag_added && d.is_owner_readable())
+		newdocument.add_boolean_term(string("I@") + owner);
+	}
+
+	string ext_term("E");
+	for (string::iterator i = ext.begin(); i != ext.end(); ++i) {
+	    char ch = *i;
+	    if (ch >= 'A' && ch <= 'Z')
+		ch |= 32;
+	    ext_term += ch;
+	}
+	newdocument.add_boolean_term(ext_term);
+
+	if (!skip_duplicates) {
+	    // If this document has already been indexed, update the existing
+	    // entry.
+	    if (did) {
+		// We already found out the document id above.
+		db.replace_document(did, newdocument);
+	    } else if (last_mod <= last_mod_max) {
+		// We checked for the UID term and didn't find it.
+		did = db.add_document(newdocument);
 	    } else {
-		cout << "added" << endl;
+		did = db.replace_document(urlterm, newdocument);
 	    }
+	    if (did < updated.size()) {
+		if (usual(!updated[did])) {
+		    updated[did] = true;
+		    --old_docs_not_seen;
+		}
+	    }
+	    if (verbose) {
+		if (did < old_lastdocid) {
+		    cout << "updated" << endl;
+		} else {
+		    cout << "added" << endl;
+		}
+	    }
+	} else {
+	    // If this were a duplicate, we'd have skipped it above.
+	    db.add_document(newdocument);
+	    if (verbose)
+		cout << "added" << endl;
 	}
-    } else {
-	// If this were a duplicate, we'd have skipped it above.
-	db.add_document(newdocument);
-	if (verbose)
-	    cout << "added" << endl;
+    } catch (ReadError) {
+	skip(file, "can't read file");
+    } catch (NoSuchFilter) {
+	skip(file, "Filter for \"" + mimetype + "\" not installed");
+	commands[mimetype] = string();
+    } catch (const std::string & error) {
+	skip(file, error);
     }
-} catch (NoSuchFilter) {
-    skip(file, "Filter for \"" + mimetype + "\" not installed");
-    commands[mimetype] = string();
 }
 
 static void
@@ -950,7 +981,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 	return;
     }
 
-    while (d.next()) try {
+    while (d.next()) {
 	string url = url_;
 	url_encode(url, d.leafname());
 	string file = path;
@@ -967,55 +998,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		continue;
 	    }
 	    case DirectoryIterator::REGULAR_FILE: {
-		string ext;
-		const char * dot = strrchr(d.leafname(), '.');
-		if (dot)
-		    ext.assign(dot + 1);
-
-		map<string,string>::iterator mt = mime_map.find(ext);
-		if (mt == mime_map.end()) {
-		    // If the extension isn't found, see if the lower-cased
-		    // version (if different) is found.
-		    bool changed = false;
-		    string::iterator i;
-		    for (i = ext.begin(); i != ext.end(); ++i) {
-			if (*i >= 'A' && *i <= 'Z') {
-			    *i = tolower(*i);
-			    changed = true;
-			}
-		    }
-		    if (changed) mt = mime_map.find(ext);
-		}
-		if (mt != mime_map.end()) {
-		    if (mt->second == "ignore")
-			continue;
-		}
-
-		string mimetype;
-		if (mt == mime_map.end()) {
-		    mimetype = d.get_magic_mimetype();
-		    if (mimetype.empty()) {
-			skip(file, "Unknown extension and unrecognised format");
-			continue;
-		    }
-//		    skip(file, "Unknown extension");
-//		    continue;
-		} else {
-		    mimetype = mt->second;
-		}
-
-		// Only check the file size if we recognise the extension to
-		// avoid a call to stat()/lstat() for files we definitely can't
-		// handle when readdir() tells us the file type.
-		off_t size = d.get_size();
-		if (size == 0) {
-		    if (verbose) {
-			skip(file, "Zero-sized file");
-		    }
-		    continue;
-		}
-
-		index_file(file, url, mimetype, d);
+		index_file(file, url, d, mime_map);
 		continue;
 	    }
 	    default:
@@ -1023,9 +1006,6 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		    skip(file, "Not a regular file");
 		}
 	}
-    } catch (const std::string & error) {
-	cout << error << " - skipping" << endl;
-	continue;
     }
 }
 
