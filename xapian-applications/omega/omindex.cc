@@ -296,11 +296,15 @@ generate_sample_from_csv(const string & csv_data, string & sample)
     }
 }
 
+enum skip_flags { SKIP_VERBOSE_ONLY = 0x01, SKIP_SHOW_FILENAME = 0x02 };
+
 static void
-skip(const string & file, const string & msg)
+skip(const string & file, const string & msg, unsigned flags = 0)
 {
-    if (!verbose)
+    if (!verbose || (flags & SKIP_SHOW_FILENAME)) {
+	if (!verbose && (flags & SKIP_VERBOSE_ONLY)) return;
 	cout << file.substr(root.size()) << ": ";
+    }
 
     cout << "Skipping - " << msg << endl;
 }
@@ -349,28 +353,27 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     if (mt == mime_map.end()) {
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
-	    skip(file, "Unknown extension and unrecognised format");
+	    skip(file, "Unknown extension and unrecognised format",
+		 SKIP_SHOW_FILENAME);
 	    return;
 	}
-//	skip(file, "Unknown extension");
+//	skip(file, "Unknown extension", SKIP_SHOW_FILENAME);
 //	return;
     } else {
 	mimetype = mt->second;
     }
 
+    if (verbose)
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... ";
+
     // Only check the file size if we recognise the extension to avoid a call
     // to stat()/lstat() for files we definitely can't handle when readdir()
     // tells us the file type.
     if (d.get_size() == 0) {
-	if (verbose) {
-	    skip(file, "Zero-sized file");
-	}
+	skip(file, "Zero-sized file", SKIP_VERBOSE_ONLY);
 	return;
     }
-
-    if (verbose)
-	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
-	     << mimetype << " ... ";
 
     string urlterm("U");
     urlterm += url;
@@ -431,9 +434,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    // Easy "run a command and read UTF-8 text from stdout" cases.
 	    string cmd = cmd_it->second;
 	    if (cmd.empty()) {
-		if (verbose) {
-		    skip(file, "required filter not installed");
-		}
+		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
 		return;
 	    }
 	    cmd += shell_protect(file);
@@ -998,11 +999,11 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			index_file(file, url, d, mime_map);
 			break;
 		    default:
-			if (verbose)
-			    skip(file, "Not a regular file");
+			skip(file, "Not a regular file",
+			     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 		}
 	    } catch (const std::string & error) {
-		skip(file, error);
+		skip(file, error, SKIP_SHOW_FILENAME);
 	    }
 	}
     } catch (const std::string & error) {

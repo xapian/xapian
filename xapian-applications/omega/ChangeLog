@@ -1,3 +1,11 @@
+Thu Mar 17 23:34:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: For skip messages which are only to be shown in verbose
+	  mode, call skip with new SKIP_VERBOSE_ONLY flag.  Pass new
+	  SKIP_SHOW_FILENAME flag for skip messages shown before we say what
+	  file we are indexing so we know to show the filename even in verbose
+	  mode.
+
 Thu Mar 17 03:47:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Restore handling of exceptions from
