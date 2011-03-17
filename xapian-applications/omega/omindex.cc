@@ -975,37 +975,39 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
     DirectoryIterator d(follow_symlinks);
     try {
 	d.start(path);
+
+	while (d.next()) {
+	    string url = url_;
+	    url_encode(url, d.leafname());
+	    string file = path;
+	    file += d.leafname();
+
+	    try {
+		switch (d.get_type()) {
+		    case DirectoryIterator::DIRECTORY: {
+			size_t new_limit = depth_limit;
+			if (new_limit) {
+			    if (--new_limit == 0) continue;
+			}
+			url += '/';
+			file += '/';
+			index_directory(file, url, new_limit, mime_map);
+			break;
+		    }
+		    case DirectoryIterator::REGULAR_FILE:
+			index_file(file, url, d, mime_map);
+			break;
+		    default:
+			if (verbose)
+			    skip(file, "Not a regular file");
+		}
+	    } catch (const std::string & error) {
+		skip(file, error);
+	    }
+	}
     } catch (const std::string & error) {
 	cout << error << " - skipping directory "
 		"\"" << path.substr(root.size()) << "\"" << endl;
-	return;
-    }
-
-    while (d.next()) {
-	string url = url_;
-	url_encode(url, d.leafname());
-	string file = path;
-	file += d.leafname();
-	switch (d.get_type()) {
-	    case DirectoryIterator::DIRECTORY: {
-		size_t new_limit = depth_limit;
-		if (new_limit) {
-		    if (--new_limit == 0) continue;
-		}
-		url += '/';
-		file += '/';
-		index_directory(file, url, new_limit, mime_map);
-		continue;
-	    }
-	    case DirectoryIterator::REGULAR_FILE: {
-		index_file(file, url, d, mime_map);
-		continue;
-	    }
-	    default:
-		if (verbose) {
-		    skip(file, "Not a regular file");
-		}
-	}
     }
 }
 

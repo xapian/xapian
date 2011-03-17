@@ -1,3 +1,10 @@
+Thu Mar 17 03:47:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Restore handling of exceptions from
+	  DirectoryIterator::get_type(), and handle exceptions from
+	  DirectoryIterator::next() which ended up at the top level
+	  before (though they probably never happen, at least on Linux).
+
 Wed Mar 16 06:19:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Push all the code associated with indexing a file into
