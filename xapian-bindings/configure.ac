@@ -27,8 +27,12 @@ dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
 OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
 NEED_JNILIB_EXT=no
-case $host_os in
-darwin*)
+case $host in
+*86*-darwin8*|*-darwin[[91]]*)
+  dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
+  dnl OS version, so we don't need to override on these.
+  ;;
+*-darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
   "")
     OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;

@@ -1,3 +1,9 @@
+Fri Mar 18 13:46:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't override MACOSX_DEPLOYMENT_TARGET on 10.5 and
+	  later, or 10.4 on x86 as the default if unset on these platforms
+	  is the current OS version.
+
 Fri Mar 18 11:33:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Second part of ticket#516 fix.
