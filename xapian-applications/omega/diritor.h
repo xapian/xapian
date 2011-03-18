@@ -1,6 +1,6 @@
 /* diritor.h: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,17 +172,29 @@ class DirectoryIterator {
 
     bool is_owner_readable() {
 	ensure_statbuf_valid();
+#ifndef __WIN32__
 	return (statbuf.st_mode & S_IRUSR);
+#else
+	return (statbuf.st_mode & S_IREAD);
+#endif
     }
 
     bool is_group_readable() {
 	ensure_statbuf_valid();
+#ifndef __WIN32__
 	return (statbuf.st_mode & S_IRGRP);
+#else
+	return false;
+#endif
     }
 
     bool is_other_readable() {
 	ensure_statbuf_valid();
+#ifndef __WIN32__
 	return (statbuf.st_mode & S_IROTH);
+#else
+	return false;
+#endif
     }
 
     bool try_noatime() {
