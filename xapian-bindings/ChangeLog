@@ -1,3 +1,8 @@
+Fri Mar 18 05:29:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't pass extra flags to Microsoft's gacutil.
+	  (ticket#516)
+
 Wed Mar 16 05:29:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/smoketest2.py: Add test coverage for min_wt argument of

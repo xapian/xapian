@@ -498,13 +498,12 @@ if test no != "$with_csharp" ; then
 	dnl which is sufficient to distinguish Chicken's csc from Microsoft's
 	dnl csc.exe.
 	AC_MSG_CHECKING([whether $CSC is for CSharp])
-	csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
-	if test -z "$csc_tmp" ; then
-	  AC_MSG_RESULT(yes)
-	else
+	if $CSC -version 2>/dev/null|grep chicken > /dev/null ; then
 	  AC_MSG_RESULT(no)
 	  CSC=
 	  csc_note="$csc_note (found Chicken csc program)"
+	else
+	  AC_MSG_RESULT(yes)
 	fi
       fi
     fi
@@ -532,6 +531,7 @@ if test no != "$with_csharp" ; then
     if test -z "$GACUTIL" ; then
       AC_PATH_PROGS(GACUTIL, [ilgac], [])
     fi
+
     AC_PATH_PROGS(SN, ["${SN-sn}"], [])
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
@@ -573,6 +573,23 @@ if test no != "$with_csharp" ; then
 	  fi
 	fi
 	AC_SUBST(RUN_CSHARP)
+
+	AC_MSG_CHECKING([for extra flags for $GACUTIL])
+	GACUTIL_FLAGS='/package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)'
+	case $GACUTIL in
+	*ilgac*) ;;
+	*)
+	  dnl Microsoft's gacutil accepts fewer options than Mono's
+	  $GACUTIL /\?|grep '\<Mono\>' >/dev/null || GACUTIL_FLAGS=
+	  ;;
+	esac
+	AC_SUBST([GACUTIL_FLAGS])
+	if test -z "$GACUTIL_FLAGS" ; then
+	  AC_MSG_RESULT([no])
+	else
+	  AC_MSG_RESULT([$GACUTIL_FLAGS])
+	fi
+
 	BINDINGS="$BINDINGS csharp"
       else
 	AC_MSG_RESULT(no)
