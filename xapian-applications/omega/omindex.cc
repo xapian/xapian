@@ -1175,6 +1175,8 @@ main(int argc, char **argv)
     mime_map["o"] = "ignore";
     mime_map["obj"] = "ignore";
     mime_map["so"] = "ignore";
+    mime_map["css"] = "ignore";
+    mime_map["js"] = "ignore";
 
     commands["application/msword"] = "antiword -mUTF-8.txt ";
     commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8 ";

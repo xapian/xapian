@@ -287,9 +287,11 @@ of:
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
+   - css
    - dll
    - dylib
    - exe
+   - js
    - lib
    - o
    - obj

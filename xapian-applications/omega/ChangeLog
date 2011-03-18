@@ -1,3 +1,7 @@
+Fri Mar 18 03:00:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Ignore *.css and *.js by default too.
+
 Thu Mar 17 23:34:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: For skip messages which are only to be shown in verbose
