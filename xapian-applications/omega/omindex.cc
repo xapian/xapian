@@ -322,6 +322,12 @@ skip_meta_tag(const string & file)
 }
 
 static void
+skip_unknown_mimetype(const string & file, const string & mimetype)
+{
+    skip(file, "unknown MIME type '" + mimetype + "'");
+}
+
+static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
 	   map<string, string>& mime_map)
 {
@@ -589,7 +595,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
 	    } else {
 		// Don't know how to index this type.
-		skip(file, "unknown Office 2007 MIME subtype");
+		skip_unknown_mimetype(file, mimetype);
 		return;
 	    }
 	    string safefile = shell_protect(file);
@@ -782,7 +788,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    }
 	} else {
 	    // Don't know how to index this type.
-	    skip(file, "unknown MIME type '" + mimetype + "'");
+	    skip_unknown_mimetype(file, mimetype);
 	    return;
 	}
 

@@ -1,3 +1,8 @@
+Fri Mar 18 10:24:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Just report the mimetype as unknown instead of saying
+	  "unknown Office 2007 MIME subtype".
+
 Fri Mar 18 05:53:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* diritor.h: Avoid using S_IRUSR, etc under __WIN32__.
