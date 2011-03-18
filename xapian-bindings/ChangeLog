@@ -1,3 +1,7 @@
+Fri Mar 18 11:33:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Second part of ticket#516 fix.
+
 Fri Mar 18 05:29:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't pass extra flags to Microsoft's gacutil.

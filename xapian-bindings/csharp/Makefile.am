@@ -94,10 +94,10 @@ _XapianSharp_la_SOURCES = xapian_wrap.cc
 _XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
-	$(GACUTIL) /i $(ASSEMBLY).dll /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
 
 uninstall-local:
-	$(GACUTIL) /u $(ASSEMBLY) /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
 	$(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
