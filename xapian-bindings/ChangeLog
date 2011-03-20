@@ -1,3 +1,8 @@
+Sun Mar 20 10:53:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Remove two print statements left over from
+	  debugging.
+
 Fri Mar 18 13:46:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't override MACOSX_DEPLOYMENT_TARGET on 10.5 and

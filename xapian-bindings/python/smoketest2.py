@@ -232,8 +232,6 @@ def test_all():
 
     # Check min_wt argument to get_eset() works (new in 1.2.5).
     eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ)
-    print eset.items[-1][xapian.ESET_WT]
-    print len(eset.items)
     expect(eset.items[-1][xapian.ESET_WT] < 1.9, True, "test get_eset() without min_wt")
     eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, None, 1.9)
     expect(eset.items[-1][xapian.ESET_WT] >= 1.9, True, "test get_eset() min_wt")
