@@ -78,6 +78,7 @@ using namespace std;
 
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
+static bool ignore_exclusions = false;
 static bool spelling = false;
 static bool verbose = false;
 static enum {
@@ -453,6 +454,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	} else if (mimetype == "text/html") {
 	    string text = d.file_to_string();
 	    MyHtmlParser p;
+	    if (ignore_exclusions) p.ignore_metarobots();
 	    try {
 		// Default HTML character set is latin 1, though not specifying
 		// one is deprecated these days.
@@ -460,6 +462,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    } catch (const string & newcharset) {
 		try {
 		    p.reset();
+		    if (ignore_exclusions) p.ignore_metarobots();
 		    p.parse_html(text, newcharset, true);
 		} catch (bool) {
 		}
@@ -643,6 +646,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    // to "?" so we use --html instead, which produces HTML entities.
 	    string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
 	    MyHtmlParser p;
+	    p.ignore_metarobots();
 	    try {
 		// No point going looking for charset overrides as unrtf doesn't
 		// produce them.
@@ -651,12 +655,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		skip_cmd_failed(file, cmd);
 		return;
 	    } catch (bool) {
-		// MyHtmlParser throws a bool to abandon parsing at </body> or
-		// when indexing is disallowed
-	    }
-	    if (!p.indexing_allowed) {
-		skip_meta_tag(file);
-		return;
+		// MyHtmlParser throws a bool to abandon parsing at </body>.
 	    }
 	    dump = p.dump;
 	    title = p.title;
@@ -732,6 +731,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	} else if (mimetype == "application/vnd.ms-outlook") {
 	    string cmd = get_pkglibbindir() + "/outlookmsg2html " + shell_protect(file);
 	    MyHtmlParser p;
+	    p.ignore_metarobots();
 	    try {
 		dump = stdout_to_string(cmd);
 		// FIXME: what should the default charset be?
@@ -739,6 +739,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    } catch (const string & newcharset) {
 		try {
 		    p.reset();
+		    p.ignore_metarobots();
 		    p.parse_html(dump, newcharset, true);
 		} catch (bool) {
 		}
@@ -746,12 +747,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		skip_cmd_failed(file, cmd);
 		return;
 	    } catch (bool) {
-		// MyHtmlParser throws a bool to abandon parsing at </body> or
-		// when indexing is disallowed
-	    }
-	    if (!p.indexing_allowed) {
-		skip_meta_tag(file);
-		return;
+		// MyHtmlParser throws a bool to abandon parsing at </body>.
 	    }
 	    dump = p.dump;
 	    title = p.title;
@@ -1042,6 +1038,7 @@ main(int argc, char **argv)
 	{ "filter",	required_argument,	NULL, 'F' },
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
+	{ "ignore-exclusions",	no_argument,	NULL, 'i' },
 	{ "stemmer",	required_argument,	NULL, 's' },
 	{ "spelling",	no_argument,		NULL, 'S' },
 	{ "verbose",	no_argument,		NULL, 'v' },
@@ -1208,7 +1205,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:i",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1231,6 +1228,7 @@ main(int argc, char **argv)
 "                           stdout e.g. -Fapplication/octet-stream:'strings -n8'\n"
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
+"  -i, --ignore-exclusions  ignore meta robots tags and similar exclusions\n"
 "  -S, --spelling           index data for spelling correction\n"
 "  -v, --verbose            show more information about what is happening\n"
 "      --overwrite          create the database anew (the default is to update\n"
@@ -1316,6 +1314,9 @@ main(int argc, char **argv)
 	    break;
 	case 'o': // --overwrite
 	    overwrite = true;
+	    break;
+	case 'i':
+	    ignore_exclusions = true;
 	    break;
 	case 's':
 	    try {

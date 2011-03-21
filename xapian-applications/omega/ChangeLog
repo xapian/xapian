@@ -1,3 +1,10 @@
+Mon Mar 21 05:48:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Add --ignore-exclusions
+	  option, which will index HTML files despite meta robots tags, etc -
+	  omindex is often used in environments where such exclusions aren't
+	  relevant.
+
 Fri Mar 18 10:24:58 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Just report the mimetype as unknown instead of saying

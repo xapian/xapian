@@ -134,7 +134,7 @@ MyHtmlParser::opening_tag(const string &tag)
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
 			    author += content;
-			} else if (name == "robots") {
+			} else if (!ignoring_metarobots && name == "robots") {
 			    decode_entities(content);
 			    lowercase_string(content);
 			    if (content.find("none") != string::npos ||
