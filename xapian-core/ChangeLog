@@ -1,3 +1,7 @@
+Mon Mar 21 01:50:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/bm25.html: Add a link to the 1976 Robertson/Sparck Jones paper.
+
 Wed Mar 16 05:56:58 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* bin/xapian-check-flint.cc: Initialize did and current_wdf to prevent
