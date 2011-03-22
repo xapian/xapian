@@ -123,7 +123,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
     }
 
     if (action != Xapian::DB_OPEN && !database_exists()) {
-	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 
 	// Create the directory for the database, if it doesn't exist
 	// already.
@@ -152,7 +151,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 
     get_database_write_lock(false);
     // if we're overwriting, pretend the db doesn't exist
-    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
 	create_and_open_tables(block_size);
 	return;

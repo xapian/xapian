@@ -892,8 +892,6 @@ const int DB_CREATE = 2;
 const int DB_CREATE_OR_OVERWRITE = 3;
 /** Open for read/write; fail if no db exists. */
 const int DB_OPEN = 4;
-// Can't see any sensible use for this one
-// const int DB_OVERWRITE = XXX;
 
 }
 

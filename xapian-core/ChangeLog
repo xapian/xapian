@@ -1,3 +1,9 @@
+Tue Mar 22 03:18:19 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc,include/xapian/database.h:
+	  Remove FIXME and comments for DB_OVERWRITE.
+
 Tue Mar 22 01:18:38 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/,backends/chert/chert_database.cc,
