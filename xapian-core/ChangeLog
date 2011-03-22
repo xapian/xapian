@@ -1,3 +1,8 @@
+Tue Mar 22 15:36:25 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/brass_database.h:
+	  Remove left over copyright.
+
 Tue Mar 22 04:54:12 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/brass_btreebase.cc,backends/chert/chert_btreebase.cc,

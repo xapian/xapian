@@ -4,7 +4,6 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
