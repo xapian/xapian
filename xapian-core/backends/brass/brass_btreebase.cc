@@ -323,11 +323,11 @@ BrassTable_base::write_to_file(const string &filename,
     pack_uint(buf, static_cast<uint4>(last_block));
     pack_uint(buf, have_fakeroot);
     pack_uint(buf, sequential);
-    pack_uint(buf, revision);
+    pack_uint(buf, revision);  // REVISION2
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    pack_uint(buf, revision);  // REVISION2
+    pack_uint(buf, revision);  // REVISION3
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);

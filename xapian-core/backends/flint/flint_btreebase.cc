@@ -304,11 +304,11 @@ FlintTable_base::write_to_file(const string &filename,
     buf += F_pack_uint(static_cast<uint4>(last_block));
     buf += F_pack_uint(have_fakeroot);
     buf += F_pack_uint(sequential);
-    buf += F_pack_uint(revision);
+    buf += F_pack_uint(revision);  // REVISION2
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    buf += F_pack_uint(revision);  // REVISION2
+    buf += F_pack_uint(revision);  // REVISION3
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);

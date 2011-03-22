@@ -1,3 +1,9 @@
+Tue Mar 22 04:54:12 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/brass_btreebase.cc,backends/chert/chert_btreebase.cc,
+	  backends/flint/flint_btreebase.cc:
+	  Correct comments for which revision is packed when writing base files
+
 Tue Mar 22 03:18:19 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
