@@ -7,6 +7,7 @@
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
+ * Copyright 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -120,10 +121,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	open_tables_consistent();
 	return;
     }
-
-    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p)
-	max_changesets = atoi(p);
 
     if (action != Xapian::DB_OPEN && !database_exists()) {
 	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
@@ -434,6 +431,14 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     int changes_fd = -1;
     string changes_name;
 
+    // always check max_changesets for modification since last revision
+    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
+    if (p) {
+	max_changesets = atoi(p);
+    } else {
+	max_changesets = 0;
+    }
+ 
     if (max_changesets > 0) {
 	flint_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -496,6 +501,14 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	}
 
 	throw;
+    }
+
+    if (changes_fd >= 0 && max_changesets < new_revision) {
+	// while change sets less than N - max_changesets exist, delete them
+	// 1 must be subtracted so we don't delete the changset we just wrote
+	// when max_changesets = 1
+	unsigned rev = new_revision - max_changesets - 1;
+	while (io_unlink(db_dir + "/changes" + str(rev--)))  { }
     }
 }
 

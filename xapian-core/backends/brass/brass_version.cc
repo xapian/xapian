@@ -2,6 +2,7 @@
  * @brief BrassVersion class
  */
 /* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +44,8 @@
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define BRASS_VERSION 200912150
+#define BRASS_VERSION 201103110
+// 201103110 1.2.5? Bump for new max changesets dbstats
 // 200912150 1.1.4 Brass debuts.
 
 #define MAGIC_STRING "IAmBrass"

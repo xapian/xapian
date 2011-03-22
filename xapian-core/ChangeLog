@@ -1,3 +1,11 @@
+Tue Mar 22 01:18:38 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc,tests/api_replicate.cc:
+          Clean up changesets when replicating. Add test coverage for this
+	  feature. Allow XAPIAN_MAX_CHANGESETS to be altered without reopening
+	  the database. Closes Ticket #278.
+
 Mon Mar 21 01:50:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/bm25.html: Add a link to the 1976 Robertson/Sparck Jones paper.

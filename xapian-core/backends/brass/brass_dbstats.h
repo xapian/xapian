@@ -2,6 +2,7 @@
  * @brief Brass class for database statistics.
  */
 /* Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,10 +52,13 @@ class BrassDatabaseStats {
     /// An upper bound on the greatest wdf in this database.
     Xapian::termcount wdf_ubound;
 
+    /// Oldest changeset removed when max_changesets is set
+    brass_revision_number_t oldest_changeset;
+
   public:
     BrassDatabaseStats()
 	: total_doclen(0), last_docid(0), doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0) { }
+	  wdf_ubound(0), oldest_changeset(0) { }
 
     totlen_t get_total_doclen() const { return total_doclen; }
 
@@ -70,17 +74,22 @@ class BrassDatabaseStats {
 
     Xapian::termcount get_wdf_upper_bound() const { return wdf_ubound; }
 
+    brass_revision_number_t get_oldest_changeset() const { return oldest_changeset; }
+
     void zero() {
 	total_doclen = 0;
 	last_docid = 0;
 	doclen_lbound = 0;
 	doclen_ubound = 0;
 	wdf_ubound = 0;
+	oldest_changeset = 0;
     }
 
     void read(BrassPostListTable & postlist_table);
 
     void set_last_docid(Xapian::docid did) { last_docid = did; }
+
+    void set_oldest_changeset(brass_revision_number_t changeset) { oldest_changeset = changeset; }
 
     void add_document(Xapian::termcount doclen) {
 	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))

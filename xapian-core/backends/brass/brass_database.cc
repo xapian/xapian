@@ -7,6 +7,7 @@
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
+ * Copyright 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,10 +120,6 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	open_tables_consistent();
 	return;
     }
-
-    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p)
-	max_changesets = atoi(p);
 
     if (action != Xapian::DB_OPEN && !database_exists()) {
 	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
@@ -400,7 +397,15 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 
     int changes_fd = -1;
     string changes_name;
-
+    
+    // always check max_changesets for modification since last revision
+    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
+    if (p) {
+	max_changesets = atoi(p);
+    } else {
+	max_changesets = 0;
+    }
+ 
     if (max_changesets > 0) {
 	brass_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -469,6 +474,25 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	}
 
 	throw;
+    }
+    
+    // Only remove the oldest_changeset if we successfully write a new changeset and
+    // we have a revision number greater than max_changesets
+    if (changes_fd >= 0 && max_changesets < new_revision) {
+	// use the oldest changeset we know about to begin deleting to the stop_changeset
+	// if nothing went wrong only one file should be deleted, otherwise
+	// attempts will be made to clean up more
+	brass_revision_number_t oldest_changeset = stats.get_oldest_changeset();
+	brass_revision_number_t stop_changeset = new_revision - max_changesets;
+	while (oldest_changeset < stop_changeset) {
+	    if (io_unlink(db_dir + "/changes" + str(oldest_changeset))) {
+		LOGLINE(DB, "Removed changeset " << oldest_changeset);
+	    } else {
+		LOGLINE(DB, "Skipping changeset " << oldest_changeset << 
+			", likely removed before");
+	    }
+	    stats.set_oldest_changeset(oldest_changeset++);
+	}
     }
 }
 
