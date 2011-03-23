@@ -1,7 +1,7 @@
 /** @file svgparse.cc
  * @brief Extract text from an SVG file.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ SvgParser::process_text(const string &text)
     *target += text;
 }
 
-void
+bool
 SvgParser::opening_tag(const string &tag)
 {
     switch (state) {
@@ -60,7 +60,7 @@ SvgParser::opening_tag(const string &tag)
 		state = TEXT;
 	    else if (tag == "metadata")
 		state = METADATA;
-	    return;
+	    break;
 	case METADATA:
 	    // Ignore nested "dc:" tags - for example dc:title is also used to
 	    // specify the creator's name inside dc:creator.
@@ -73,14 +73,15 @@ SvgParser::opening_tag(const string &tag)
 		else if (tag == "dc:creator")
 		    state = AUTHOR;
 	    }
-	    return;
+	    break;
 	case KEYWORDS: case TEXT: case TITLE: case AUTHOR:
 	    // Avoid compiler warnings.
 	    break;
     }
+    return true;
 }
 
-void
+bool
 SvgParser::closing_tag(const string &tag)
 {
     if (tag == "text" || tag == "metadata") {
@@ -89,4 +90,5 @@ SvgParser::closing_tag(const string &tag)
 	dc_tag.resize(0);
 	state = METADATA;
     }
+    return true;
 }

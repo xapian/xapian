@@ -1,3 +1,12 @@
+Wed Mar 23 15:21:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,htmlparse.h,htmlparsetest.cc,metaxmlparse.cc,
+	  metaxmlparse.h,myhtmlparse.cc,myhtmlparse.h,omindex.cc,svgparse.cc,
+	  svgparse.h,xmlparse.cc,xmlparse.h,xpsxmlparse.cc,xpsxmlparse.h:
+	  Instead of throwing a bool to abandon parsing, change methods to
+	  return bool to signify if they want to continue parsing or not.
+	  This is a bit faster (~0.23% for indexing a lot of HTML files).
+
 Mon Mar 21 05:48:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Add --ignore-exclusions

@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,10 +67,10 @@ MyHtmlParser::process_text(const string &text)
     }
 }
 
-void
+bool
 MyHtmlParser::opening_tag(const string &tag)
 {
-    if (tag.empty()) return;
+    if (tag.empty()) return true;
     switch (tag[0]) {
 	case 'a':
 	    if (tag == "address") pending_space = true;
@@ -140,7 +140,7 @@ MyHtmlParser::opening_tag(const string &tag)
 			    if (content.find("none") != string::npos ||
 				content.find("noindex") != string::npos) {
 				indexing_allowed = false;
-				throw true;
+				return false;
 			    }
 			}
 			break;
@@ -230,19 +230,20 @@ MyHtmlParser::opening_tag(const string &tag)
 	    if (tag == "xmp") pending_space = true;
 	    break;
     }
+    return true;
 }
 
-void
+bool
 MyHtmlParser::closing_tag(const string &tag)
 {
-    if (tag.empty()) return;
+    if (tag.empty()) return true;
     switch (tag[0]) {
 	case 'a':
 	    if (tag == "address") pending_space = true;
 	    break;
 	case 'b':
 	    if (tag == "body") {
-		throw true;
+		return false;
 	    }
 	    if (tag == "blockquote" || tag == "br") pending_space = true;
 	    break;
@@ -306,4 +307,5 @@ MyHtmlParser::closing_tag(const string &tag)
 	    if (tag == "xmp") pending_space = true;
 	    break;
     }
+    return true;
 }

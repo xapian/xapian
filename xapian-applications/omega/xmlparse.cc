@@ -21,15 +21,17 @@
 
 #include "xmlparse.h"
 
-void
+bool
 XmlParser::opening_tag(const string &)
 {
+    return true;
 }
 
-void
+bool
 XmlParser::closing_tag(const string &tag)
 {
     // For OpenDocument, .docx, .xlsx, .pptx respectively.
     if (tag == "text:p" || tag == "w:t" || tag == "t" || tag == "a:t")
 	pending_space = true;
+    return true;
 }

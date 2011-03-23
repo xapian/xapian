@@ -460,15 +460,9 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		// one is deprecated these days.
 		p.parse_html(text, "iso-8859-1", false);
 	    } catch (const string & newcharset) {
-		try {
-		    p.reset();
-		    if (ignore_exclusions) p.ignore_metarobots();
-		    p.parse_html(text, newcharset, true);
-		} catch (bool) {
-		}
-	    } catch (bool) {
-		// MyHtmlParser throws a bool to abandon parsing at </body> or
-		// when indexing is disallowed
+		p.reset();
+		if (ignore_exclusions) p.ignore_metarobots();
+		p.parse_html(text, newcharset, true);
 	    }
 	    if (!p.indexing_allowed) {
 		skip_meta_tag(file);
@@ -654,8 +648,6 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
-	    } catch (bool) {
-		// MyHtmlParser throws a bool to abandon parsing at </body>.
 	    }
 	    dump = p.dump;
 	    title = p.title;
@@ -737,17 +729,12 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		// FIXME: what should the default charset be?
 		p.parse_html(dump, "iso-8859-1", false);
 	    } catch (const string & newcharset) {
-		try {
-		    p.reset();
-		    p.ignore_metarobots();
-		    p.parse_html(dump, newcharset, true);
-		} catch (bool) {
-		}
+		p.reset();
+		p.ignore_metarobots();
+		p.parse_html(dump, newcharset, true);
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
-	    } catch (bool) {
-		// MyHtmlParser throws a bool to abandon parsing at </body>.
 	    }
 	    dump = p.dump;
 	    title = p.title;
