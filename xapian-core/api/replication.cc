@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,7 +212,7 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 
     /// Read and apply the next changeset.
     bool apply_next_changeset(ReplicationInfo * info,
-			      int reader_close_time);
+			      double reader_close_time);
 
     /// Return a string describing this object.
     string get_description() const { return path; }
@@ -270,9 +270,9 @@ DatabaseReplica::set_read_fd(int fd)
 
 bool
 DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
-				      int reader_close_time)
+				      double reader_close_time)
 {
-    LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info | reader_close_time);
     if (info != NULL)
 	info->clear();
     if (internal.get() == NULL)
@@ -506,9 +506,9 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 
 bool
 DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
-						int reader_close_time)
+						double reader_close_time)
 {
-    LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info);
+    LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info | reader_close_time);
     if (live_db.internal.empty())
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)
