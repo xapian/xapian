@@ -9,59 +9,74 @@
 
 <P>This document is incomplete at present.  It lacks explanation of the min-heap
 used to keep the best N M-set items (Managing Gigabytes describes this
-technique well).
+technique well), the check() method isn't discussed, and probably some other
+things.
 
 <h2>The PostList Tree</h2>
 
-<P>The matcher builds a tree structure from the query.  This tree is a binary
-tree, and each node is a PostList sub-class object.  This is more efficient than
-a n-ary tree in terms of the number of comparisons which need to be performed:
-&lt;insert proof&gt; (but this proof may only be valid for equal sized posting
-lists
-without optimisations, in which case there may be a more efficient way to do
-this - investigate!)
-
-<P>To built the tree, a PostList object is
-created for each term, and pairs of PostLists are combined using
-2-way branching tree elements for AND, OR, etc - these are virtual
-PostLists whose class names reflect the operation (AndPostList,
+<P>The QueryOptimiser class builds a tree structure of PostList objects
+from the query.  At the leaf level, a PostList object is
+created for each term, and for other leaf-level subqueries, like PostingSource
+objects and value ranges.  Then pairs or groups of PostLists are combined using
+2-way or n-way branching tree elements for AND, OR, etc - these are virtual
+PostLists whose class names reflect the operation (MultiAndPostList,
 OrPostList, etc).  See below for a full list.
 
-<P>The tree is deliberately built in an uneven way, such that we minimise the
-likely number of
-times a posting has to be passed up a level.  For a group of OR operations,
-the PostLists with fewest entries are furthest down the group's subtree,
-minimising the amount of information needing to be passed up the tree.
-For a group of AND operations the PostLists with most entries are furthest down,
-so we look at the least frequent terms first, and skip the posting lists of
-the others.  This will generally minimise the number of posting list entries
-we read and maximises the size of each skip_to.  The OR tree is built up
-in a similar way to how an optimal huffman code is constructed.  This is
-provably optimal, but with the assumption that the tree structure is
-immutable once created.  If term distribution is uneven, rebalancing this
-tree during the match might be more efficient.
+<h3>OR</h3>
+
+<p>For a group of OR operations, each OrPostList has two children,
+job).  The OR tree is built up in a similar way to how an optimal huffman code
+is constructed, so the sub-PostLists with the fewest entries are furthest
+down the tree, and those with most nearest the top (this is
+more efficient than an n-ary tree in terms of the number of comparisons which
+need to be performed, ignoring various optimisations which the matcher can
+perform - it may actually be the case that a MultiOrPostList could do a better
+job in practice though).
+
+<p>OR is coded for maximum
+efficiency when the right branch has fewer postings in than the left branch.
+
+<P>
+When an OR gets "at end", it autoprunes, replacing itself with the
+branch that still has postings - see below for full details.
+
+<h3>AND</h3>
+
+<p>For a multi-way AND operation, we have MultiAndPostList, which tries the
+sub-postlists in order from least frequent to most frequent (two-way AND
+is handled the same way).  This will generally minimise the number of posting
+list entries we read and maximises the size of each skip_to.
+
+<P>
+When one of a sub-trees of AND operations runs out, the sub-query will signal
+"at end", and this causes the AND to signal "at end" too.
+
+<p>
+The OP_FILTER query operator is actually treated as AND in the postlist tree
+- the boolean-ness is pushed down to the leaf query, where it is handled
+by the Weight object.
+
+<h3>Other operations</h3>
+
+<p>The other operations also handle "at end" either like OR or AND
+(for asymmetric operations like AND_MAYBE, which happens may depend which
+branch has run out).
 
 <h2>running the match</h2>
 
 <P>
 Once the tree is built, the matcher repeatedly asks
 the root of the tree for the next matching document and compares it to
-those in the proto-mset it maintains.  If the next matching document scores
-more highly (either by weight, or in sort order if sorting is used) then it
-adds it and discards the lowest scoring document.
+those in the proto-mset it maintains.  Once the proto-mset is of the desired
+final size, the candidate needs to score more highly that the lowest scoring
+document in the proto-mset (either by weight, or in sort order if sorting is
+used) to be interesting.  If it is, the lowest scoring document is removed
+(which is easy as we store the proto-mset as a min heap) and the candidate
+is added.
 
 <P>
-When one of a sub-tree of AND operations runs out, it signals "end of list",
-and each AND signals this too.
-
-<P>
-When an OR gets end of list, it autoprunes, replacing itself with the
-branch that still has postings - see below for full details.  If the matcher
-itself gets "end of list", the match is complete.
-
-<P>
-The other operations also handle end of list in one of these two ways
-(for asymmetric operations, which happens may depend which branch has run out).
+When the matcher itself gets "at end" from the postlist tree, the match
+process ends.
 
 <P>
 The matcher also passes the lowest weight currently needed make the proto-mset
@@ -69,7 +84,7 @@ into the tree, and each node may adjust this weight and pass it on to its
 subtrees.  Each PostList can report a minimum weight it could contribute - so if
 the left branch of an AND will always return a weight of 2 or more,
 then if the whole AND needs to return at least 6, the right branch is
-told it need to return at least 4.
+told it needs to return at least 4.
 
 <P>
 For example, an OR knows that if its left branch can
@@ -89,12 +104,12 @@ The way phrase and near matching works is to perform an AND query for all the
 terms, with a filter node in front which only returns documents whose
 positional information fulfils the phrase requirements.
 
-<P>Unfortunately this creates a
-bad case is where a lot of documents have the words of the phrase in
-but few match the actual phrase - this filter does a lot of work, but
-the matcher can't stop early.  We should look at hoisting the filtering
-part higher up the tree, but note that this may not always be a win.
-Some heuristics are probably required.
+<P>Because checking the positional information can be quite costly compared
+to matching postlist trees, we hoist the position check higher up the tree
+in cases when the phrase operation is below an AND.  So A AND (B NEAR C)
+will actually filter the results of (A AND B AND C) through a check for
+B NEAR C, which means we never need to check positions for documents which
+don't match A.
 
 <h2>virtual postlist types</h2>
 
@@ -105,29 +120,25 @@ ignored or not.  The types are:
 <ul>
 <li> OrPostList: returns documents which match either branch
 
-<li> AndPostList: returns documents which match both branches
+<li> MultiAndPostList: returns documents which match all branches
 
-<li> XorPostList: returns documents which match one branch or the other but not both
+<li> MultiXorPostList: returns documents which match an odd number of branches
 
 <li> AndNotPostList: returns documents which match the left branch, but not the
  right (the weights of documents from the right branch are ignored).
 
 <li> AndMaybePostList: returns documents which match the left branch - weights from
  documents also in the right branch are added in for the probabilistic case
- ("X ANDMAYBE Y" can be expressed as "+X Y" in Altavista).
+ ("X ANDMAYBE Y" is what Altavista did for "+X Y").
 
-<li> FilterPostList: applies the right branch as a boolean filter to the left
- branch (which is typically a probabilistic query.  Note: same as
- AndPostList with the right branch weights ignored.
+<li> FIXME: this list is no longer complete...
+
 </ul>
 
 <p>[Note: You can use AndNotPostList to apply an inverted boolean filter to a
 probabilistic query]
 
-<p>All the symmetric operators (i.e. OR, AND, XOR) are coding for maximum
-efficiency when the right branch has fewer postings in than the left branch.
-
-<p>There are 2 main optimisations which the best match performs: autoprune and
+<p>There are two main optimisations which the best match performs: autoprune and
 operator decay.
 
 <h2>autoprune</h2>
