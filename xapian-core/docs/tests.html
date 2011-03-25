@@ -93,9 +93,11 @@ You are responsible for doing two things:
 Adding the test is simple. There's a test_desc array in each file that comprises a
 set of tests (I'll come to that in a minute), and you just add another
 entry. The entry is an array consisting of a name for the test and a
-pointer to the function that is the test. Easy.
+pointer to the function that is the test. Easy.  The procedure is even
+simpler for apitest tests - there you just use DEFINE_TESTCASE to define your
+new testcase, and a script picks it up and makes sure it is run.
 
-<P>Look at the bottom of <code>tests/btreetest.cc</code> for the test_desc array. Now look up about
+<P>Look at the bottom of <code>tests/stemtest.cc</code> for the test_desc array. Now look up about
 20 lines to where the test functions are defined.
 You need to write a function like these which will return true or false
 depending on whether it failed or not.

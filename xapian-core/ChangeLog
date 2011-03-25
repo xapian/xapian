@@ -1,3 +1,8 @@
+Fri Mar 25 05:36:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/tests.html: Slight tweak to improve up-to-date-ness, but more
+	  work would be useful.
+
 Fri Mar 25 05:30:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/matcherdesign.html: Update - quite a bit has changed in the
