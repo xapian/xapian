@@ -1,11 +1,25 @@
- 15367       olly Sat Mar 05 12:49:16 GMT 2011  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.5 (2011-03-05):
+Xapian-core 1.2.5 (2011-03-26):
 
 API:
 
+* Enquire::get_eset() now accepts a min_wt argument to allow the minimum wanted
+  weight to be specified.  Default is 0, which gives the previous behaviour.
+
 * QueryParser: Handle NEAR/<offset> and ADJ/<offset> where offset isn't an
   integer the same way at the end of the query as in the middle.
+
+* Replication:
+
+  + Only keep $XAPIAN_MAX_CHANGESETS changeset files when generating a new one
+    (previously this variable only controlled if we generated changesets or
+    not).  Closes ticket#278.
+
+  + $XAPIAN_MAX_CHANGESETS is reread each time, rather than only when the
+    database is opened.
+
+  + If you build Xapian with DANGEROUS mode enabled, changeset files now
+    actually have the appropriate flag set (the reader will currently throw an
+    exception, but that's better than quietly handling them incorrectly).
 
 testsuite:
 
@@ -26,6 +40,11 @@ brass backend:
 * Optimise not to update doclength when it hasn't changed (cross-port of
   equivalent change to chert).
 
+* If we try to delete an old base file and it isn't there, just continue rather
+  than throwing an exception.  We wanted to get rid of it anyway, and it may be
+  NFS issues telling us the wrong thing.  In particular, DatabaseCoruptError
+  was rather a pessimistic assessment.
+
 chert backend:
 
 * Optimise not to read the bitmaps from the base files when opening a database
@@ -36,6 +55,11 @@ chert backend:
 * xapian-chert-update: Fix to handle larger databases, and databases which
   have values set.
 
+* If we try to delete an old base file and it isn't there, just continue rather
+  than throwing an exception.  We wanted to get rid of it anyway, and it may be
+  NFS issues telling us the wrong thing.  In particular, DatabaseCoruptError
+  was rather a pessimistic assessment.
+
 flint backend:
 
 * Optimise not to read the bitmaps from the base files when opening a database
@@ -44,13 +68,16 @@ flint backend:
 * Optimise not to update doclength when it hasn't changed (cross-port of
   equivalent change to chert).
 
+* If we try to delete an old base file and it isn't there, just continue rather
+  than throwing an exception.  We wanted to get rid of it anyway, and it may be
+  NFS issues telling us the wrong thing.  In particular, DatabaseCoruptError
+  was rather a pessimistic assessment.
+
 remote backend:
 
 * xapian-tcpsrv: If we can't bind to the specified port because it is a
   privileged one, exit with code 77 (EX_NOPERM) to make it easier to
   automatically handle failure when starting the server from a script.
-
-inmemory backend:
 
 build system:
 
@@ -65,17 +92,14 @@ documentation:
 * include/xapian/enquire.h: Fix doxygen markup so alternative overloaded forms
   of Enquire::get_mset() appear in the API documentation.
 
-* docs/collapsing.html: Add missing document (written some time ago, but never
+* collapsing.html: Add missing document (written some time ago, but never
   actually added to builds).
 
- 15360    richard Fri Mar 04 17:20:13 GMT 2011  Richard Boulton <richard@tartarus.org>
-	* docs/replication.rst: Update documentation to make it clear that
-	  users shouldn't try to create the destination directory for
-	  replication themselves.
+* replication.html: Update documentation to make it clear that users shouldn't
+  create the destination directory for replication themselves.
 
- 15357       olly Thu Mar 03 11:06:30 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/intro_ir.html: Update link to a paper.  Update text about book
-	  "to be published in 2008".
+* docs/intro_ir.html: Update link to a paper.  Update text about book "to be
+  published in 2008".
 
 * docs/deprecation.html:
 
@@ -91,6 +115,8 @@ documentation:
   + Deprecate MSet.items and ESet.items from Python bindings (ticket#531).
 
 * docs/admin_notes.html: Update for 1.2.5.
+
+* Updates to documentation of internals.
 
 tools:
 
@@ -117,11 +143,12 @@ portability:
 * api/compactor.cc: Use msvc_posix_rename() under __WIN32__ to atomically
   update stub file after compaction (ticket#525).
 
-packaging:
+* Fix uninitialised variable warnings with gcc -O3.
 
+* Eliminate std::string member of global static object used when compiled with
+  --enable-log which was causes problems on Mac OS X.
 
-debug code:
-
+* Fix some issues highlighted by clang++ warnings.
 
 Xapian-core 1.2.4 (2010-12-19):
 
