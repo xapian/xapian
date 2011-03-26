@@ -1,3 +1,9 @@
+Sat Mar 26 14:51:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.
+	  Replace VPATH section with better equivalent from
+	  xapian-core/INSTALL.
+
 Wed Mar 23 15:21:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,htmlparse.h,htmlparsetest.cc,metaxmlparse.cc,

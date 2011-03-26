@@ -55,22 +55,29 @@ is an example:
 
      ./configure CXX=g++-3.4 CFLAGS=-O2 LIBS=-lposix
 
-Compiling For Multiple Architectures
-====================================
+Multi-Arch
+==========
 
-   You can compile the package for more than one kind of computer at the
-same time, by placing the object files for each architecture in their
-own directory.  To do this, you must use a version of `make' that
-supports the `VPATH' variable, such as GNU `make'.  `cd' to the
-directory where you want the object files and executables to go and run
-the `configure' script.  `configure' automatically checks for the
-source code in the directory that `configure' is in and in `..'.
+When using GCC on platforms which support multiple architecture, the simplest
+way to select a non-default architecture is to pass a CXX setting to configure
+which includes the appropriate -m option - e.g. to build for x86 on x86-64
+you would configure with:
 
-   If you have to use a `make' that does not support the `VPATH'
-variable, you have to compile the package for one architecture at a
-time in the source code directory.  After you have installed the
-package for one architecture, use `make distclean' before reconfiguring
-for another architecture.
+./configure CXX='g++ -m32'
+
+Building in a separate directory
+================================
+
+If you wish to perform your build in a separate directory from the source,
+create and change to the build directory, and run the configure script (in
+the source directory) from the build directory, like so:
+
+  mkdir BUILD
+  cd BUILD
+  ../configure
+
+IRIX make doesn't handle this correctly - either build in the source tree or
+use "smake -M" (or better still, just use GNU make if you have it installed!)
 
 Installation Names
 ==================
