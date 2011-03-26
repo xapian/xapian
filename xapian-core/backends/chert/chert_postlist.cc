@@ -1,7 +1,7 @@
 /* chert_postlist.cc: Postlists in a chert database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -95,7 +95,7 @@ const unsigned int CHUNKSIZE = 2000;
  *  replacing of entries, not for adding to the end, when it's
  *  not really needed.
  */
-class PostlistChunkWriter {
+class Chert::PostlistChunkWriter {
     public:
 	PostlistChunkWriter(const string &orig_key_,
 			    bool is_first_chunk_,
@@ -136,6 +136,8 @@ class PostlistChunkWriter {
 
 	string chunk;
 };
+
+using Chert::PostlistChunkWriter;
 
 // Static functions
 
@@ -253,7 +255,7 @@ read_start_of_chunk(const char ** posptr,
  *  around a postlist chunk.  It simply iterates through the
  *  entries in a postlist.
  */
-class PostlistChunkReader {
+class Chert::PostlistChunkReader {
     string data;
 
     const char *pos;
@@ -291,6 +293,8 @@ class PostlistChunkReader {
      */
     void next();
 };
+
+using Chert::PostlistChunkReader;
 
 void
 PostlistChunkReader::next()
