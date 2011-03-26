@@ -66,6 +66,16 @@ need to do the same when building your own applications.  We don't fully
 understand the issues here yet, but perhaps "-ptused" should be automatically
 set by xapian-config.  Feedback from developers on IRIX is invited.
 
+Multi-Arch
+==========
+
+When using GCC on platforms which support multiple architecture, the simplest
+way to select a non-default architecture is to pass a CXX setting to configure
+which incudes the appropriate -m option - e.g. to build for x86 on x86-64
+you would configure with:
+
+./configure CXX='g++ -m32'
+
 Building in a separate directory
 ================================
 

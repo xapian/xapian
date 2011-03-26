@@ -1,3 +1,8 @@
+Sat Mar 26 14:03:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note how to build for a non-default arch on a multi-arch
+	  platform.
+
 Sat Mar 26 13:22:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.5.
