@@ -187,7 +187,7 @@ Multi-Arch
 
 When using GCC on platforms which support multiple architecture, the simplest
 way to select a non-default architecture is to pass a CXX setting to configure
-which incudes the appropriate -m option - e.g. to build for x86 on x86-64
+which includes the appropriate -m option - e.g. to build for x86 on x86-64
 you would configure with:
 
 ./configure CXX='g++ -m32'

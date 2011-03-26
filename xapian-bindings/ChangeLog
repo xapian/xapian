@@ -1,3 +1,7 @@
+Sat Mar 26 14:50:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Fix typo in recent commit.
+
 Sat Mar 26 14:44:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix m4 quoting so that the release series check works.
