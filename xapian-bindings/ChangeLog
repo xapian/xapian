@@ -1,3 +1,9 @@
+Sat Mar 26 14:34:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.
+	  Replace VPATH section with better equivalent from
+	  xapian-core/INSTALL.
+
 Sat Mar 26 14:29:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/smoketest.rb: Test Xapian::Compactor.
