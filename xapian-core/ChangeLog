@@ -1,3 +1,7 @@
+Sat Mar 26 12:28:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Update.
+
 Sat Mar 26 10:33:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_postlist.cc,backends/brass/brass_postlist.h,
