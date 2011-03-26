@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009 Olly Betts
+# Copyright (C) 2008,2009,2010,2011 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 # USA
 
 require 'test/unit'
+require 'tmpdir'
 require 'xapian'
 
 class TestMatchDecider < Xapian::MatchDecider
@@ -238,6 +239,52 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(@db.valuestream(1).size(), 0)
     assert_equal(@db.valuestream(0).map{|i| "%d:%s"%[i.docid, i.value]}*",",
 		 "2:yes,3:yes,4:maybe,5:no")
+  end
+
+  def test_016_compactor
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        db1path = "#{tmpdir}db1"
+        db2path = "#{tmpdir}db2"
+        db3path = "#{tmpdir}db3"
+
+        # Set up a couple of sample input databases
+        db1 = Xapian::WritableDatabase.new(db1path, Xapian::DB_CREATE_OR_OVERWRITE)
+        doc1 = Xapian::Document.new()
+        doc1.add_term('Hello')
+        doc1.add_term('Hello1')
+        doc1.add_value(0, 'Val1')
+        db1.set_metadata('key', '1')
+        db1.set_metadata('key1', '1')
+        db1.add_document(doc1)
+        db1.flush()
+
+        db2 = Xapian::WritableDatabase.new(db2path, Xapian::DB_CREATE_OR_OVERWRITE)
+        doc2 = Xapian::Document.new()
+        doc2.add_term('Hello')
+        doc2.add_term('Hello2')
+        doc2.add_value(0, 'Val2')
+        db2.set_metadata('key', '2')
+        db2.set_metadata('key2', '2')
+        db2.add_document(doc2)
+        db2.flush()
+
+        # Compact with the default compactor
+        # Metadata conflicts are resolved by picking the first value
+        c = Xapian::Compactor.new()
+        c.add_source(db1path)
+        c.add_source(db2path)
+        c.set_destdir(db3path)
+        c.compact()
+
+        db3 = Xapian::Database.new(db3path)
+        #assert_equal([(item.term, item.termfreq) for item in db3.allterms()],
+        #       [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
+        assert_equal(db3.document(1).value(0), 'Val1')
+        assert_equal(db3.document(2).value(0), 'Val2')
+        assert_equal(db3.get_metadata('key'), '1')
+        assert_equal(db3.get_metadata('key1'), '1')
+        assert_equal(db3.get_metadata('key2'), '2')
+    }
   end
 
 end # class XapianSmoketest
