@@ -1007,7 +1007,7 @@ else
 fi
 echo ""
 if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
-  release_series=`echo "$COMPAT_VERSION"|sed 's/[0-9][0-9]*$//'`
+  release_series=[`echo "$COMPAT_VERSION"|sed 's/[0-9][0-9]*$//'`]
   case $XAPIAN_VERSION in
   $release_series*) ;;
   *)

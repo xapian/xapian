@@ -1,3 +1,7 @@
+Sat Mar 26 14:44:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix m4 quoting so that the release series check works.
+
 Sat Mar 26 14:34:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.
