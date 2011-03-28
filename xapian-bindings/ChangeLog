@@ -1,3 +1,7 @@
+Mon Mar 28 12:02:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: 1.2.5.
+
 Sat Mar 26 14:50:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL: Fix typo in recent commit.

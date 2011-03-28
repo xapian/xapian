@@ -1,64 +1,60 @@
- 15345       olly Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.5 (2011-02-21):
+Xapian-bindings 1.2.5 (2011-03-28):
 
 Documentation:
 
- 15280       olly Tue Dec 21 12:18:03 GMT 2010  Olly Betts <olly@survex.com>
-	* README: Update info on SWIG-based Perl bindings.
+* README: Update info on SWIG-based Perl bindings.
+
+* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.  Replace VPATH
+  section with better equivalent from xapian-core/INSTALL.
 
 General:
 
- 15328       olly Sat Jan 29 02:12:43 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac: If xapian-core is a different release series, promote
-	  the mismatched versions warning to an error.
+* Wrap ESet::get_eset() with min_wt parameter (new in C++ API in 1.2.5).
 
-Packaging:
+* configure: If xapian-core is a different release series, promote the
+  mismatched versions warning to an error.
 
 Portability:
 
- 15301       olly Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
-	* python/pythontest2.py: In test_compactor(), close any open databases
-	  before removing the directory as you can't delete an open database
-	  on Microsoft Windows.  (ticket#526)
+* Mac OS X: Don't override MACOSX_DEPLOYMENT_TARGET on 10.5 and later, or
+  10.4 on x86, as the default if unset on these versions is the current OS
+  version.  (ticket#541)
+
+* python/pythontest2.py: In test_compactor(), close any open databases before
+  removing the directory as you can't delete an open database on Microsoft
+  Windows.  (ticket#526)
 
 CSharp:
 
-	* csharp/AssemblyInfo.cs.in: Clarify the licence is GPL "version 2 or
-	  later".
+* Don't pass extra flags to Microsoft's gacutil.  (ticket#516)
 
-Java:
-
-PHP:
+* Clarify the licence is GPL "version 2 or later" in the meta information
+  we put in the module.
 
 Python:
 
- 15266    richard Mon Dec 20 09:54:52 GMT 2010  Richard Boulton <richard@tartarus.org>
-	* python/util.i: Remove old and broken Enquire.get_matching_terms()
-	  method.  We deprecated Enquire.get_matching_terms() in 1.0.x, and
-	  removed it in 1.1.0, but accidentally left an older version of
-	  get_matching_terms() exposed.
-	* python/docs/index.html: Also, remove the old documentation for
-	  get_matching_terms().
+* Remove old and broken Enquire.get_matching_terms() method.  We deprecated
+  Enquire.get_matching_terms() in 1.0.x, and removed it in 1.1.0, but
+  accidentally left an older version of get_matching_terms() exposed.
 
- 15293    richard Mon Jan 10 12:53:51 GMT 2011  Richard Boulton <richard@tartarus.org>
-	* python/extra.i: Remove broken implementation of
-	  MSet.__contains__.  This appears never to have worked, and to
-	  have been broken for at least the past 3.5 years without anyone
-	  mentioning it, and is probably of little use anyway, so no need
-	  to deprecate.
+* Remove broken implementation of MSet.__contains__.  This appears never to
+  have worked, and to have been broken for at least the past 3.5 years without
+  anyone mentioning it, and is probably of little use anyway, so no need to
+  deprecate.
 
- 15345       olly Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
-	* python/docs/index.html: Document that MSet.items and ESet.items are
-	  deprecated, and what to use instead.  Note that MSET_DOCUMENT never
-	  worked on the tuple returned by MSet.items.  (ticket#531)
+* python/docs/index.html: Document that MSet.items and ESet.items are
+  deprecated, and what to use instead.  Note that MSET_DOCUMENT never worked on
+  the tuple returned by MSet.items.  (ticket#531)
 
- 15329       olly Sat Jan 29 05:25:15 GMT 2011  Olly Betts <olly@survex.com>
-	* python/pythontest2.py: Add test coverage for mset.items.
+* Add test coverage for mset.items.
 
 Ruby:
 
-Tcl:
+* Add test coverage for Xapian::Compactor.
+
+* Handle an empty response to $RUBY --version specially.  This gives a less
+  opaque error in cases where the user specified RUBY but the value given
+  wasn't an executable file.
 
 Xapian-bindings 1.2.4 (2010-12-19):
 
