@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.5.0  Mon Mar 28 13:21:28 UTC 2011
+	[Changes contributed by Olly Betts]
+	- Add '1;' to the end of t/symbol-test/SymbolTest.pm.
+
 1.2.4.0  Thu Dec 19 12:41:49 UTC 2010
 	[Changes contributed by Olly Betts]
 	- Xapian exceptions were still being thrown as strings in Perl in

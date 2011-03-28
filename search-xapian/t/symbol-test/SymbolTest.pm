@@ -14,3 +14,5 @@ require DynaLoader;
 #### sub dl_load_flags { 0x01 }
 
 bootstrap SymbolTest $VERSION;
+
+1;
