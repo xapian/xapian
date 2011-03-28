@@ -264,7 +264,7 @@ flags to the default ones.
 
 =item FLAG_BOOLEAN
 
-Support AND, OR, etc and bracketted subexpressions.
+Support AND, OR, etc and bracketed subexpressions.
 
 =item FLAG_LOVEHATE
 
