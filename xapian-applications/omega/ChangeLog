@@ -1,3 +1,7 @@
+Sat Apr 02 14:07:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Remove double escaping.
+
 Sat Apr 02 13:58:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/query: More escaping fixes.

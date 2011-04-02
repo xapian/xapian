@@ -33,7 +33,7 @@ $if{$ne{$collapsed,0}, collapsecount="$html{$collapsed}" collapsegroup="$html{$v
 $map{$field{keywords},<keyword keyword="$html{$_}" />}
 </keywords>
 <terms>
-$map{$html{$terms},<term term="$html{$_}" show="$html{$prettyterm{$_}}" />}
+$map{$terms,<term term="$html{$_}" show="$html{$prettyterm{$_}}" />}
 </terms>
 </hit>
 }
