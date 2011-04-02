@@ -60,7 +60,7 @@ $if{$opt{topterms},
  </div>
 }
 <br>
-$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$html{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$cgi{COLLAPSE}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$html{$cgi{THRESHOLD}}"}$map{$cgilist{B},&B=$html{$_}}&SPELL=0">$html{$suggestion}</a><br>}
+$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$html{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$html{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$html{$cgi{THRESHOLD}}"}$map{$cgilist{B},&B=$html{$_}}&SPELL=0">$html{$suggestion}</a><br>}
 $or{$html{$error},
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,
