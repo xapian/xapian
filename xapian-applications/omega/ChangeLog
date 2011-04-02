@@ -1,3 +1,8 @@
+Sat Apr 02 13:55:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/emptydocs,templates/opensearch,templates/xml: More missing
+	  escaping.
+
 Sat Apr 02 12:34:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/query: Add missing escaping.
