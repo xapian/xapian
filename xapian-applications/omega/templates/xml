@@ -27,7 +27,7 @@ $if{$field{sitename},sitename="$html{$field{sitename}}",}
 score="$html{$score}"
 type="$html{$field{type}}"
 sample="$html{$htmlstrip{$field{sample}}}"
-example="$html{$highlight{$htmlstrip{$field{sample}},$terms,<strong $cgi{HILITECLASS}>}}"
+example="$html{$highlight{$htmlstrip{$field{sample}},$terms,<strong>}}"
 $if{$ne{$collapsed,0}, collapsecount="$html{$collapsed}" collapsegroup="$html{$value{$cgi{COLLAPSE}}}"}
 ><keywords>
 $map{$field{keywords},<keyword keyword="$html{$_}" />}
