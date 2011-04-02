@@ -84,7 +84,7 @@ ${<IMG SRC="/icons/omega/score-$div{$percentage,10}.png" ALT="$percentage%" HEIG
 </div></div>
 <div style='float:left;margin-top:2px;font-size:x-small;'>
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
-<script type="text/javascript">write_date($field{modtime});</script>
+<script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
 <span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
 Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>

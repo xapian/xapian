@@ -1,3 +1,7 @@
+Sat Apr 02 14:15:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: Use $add{$field{modtime}} to ensure it is numeric.
+
 Sat Apr 02 14:14:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/godmode: More missing escaping.
