@@ -2,7 +2,7 @@ $set{thousand,$.}$set{decimal,.}<html>
 <head>
 <title>Omega:
 $if{$cgi{ID},
-Document #$cgi{ID},
+Document #$html{$cgi{ID}},
 $if{$ne{$msize,0},
 Term "$html{$cgi{B}}",
 Choose what to Inspect}}
@@ -13,7 +13,7 @@ Choose what to Inspect}}
 
 $if{$cgi{ID},
 $setrelevant{$cgi{ID}}
-<H1>Document #$cgi{ID}</H1>
+<H1>Document #$html{$cgi{ID}}</H1>
     
 <H2>Terms indexing this document</H2>
 
