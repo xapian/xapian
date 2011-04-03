@@ -1,3 +1,7 @@
+Sun Apr 03 10:54:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.5.
+
 Sat Apr 02 14:15:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/query: Use $add{$field{modtime}} to ensure it is numeric.

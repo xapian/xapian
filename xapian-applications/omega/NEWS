@@ -1,14 +1,25 @@
- 15355       olly Wed Mar 02 06:14:41 GMT 2011  Olly Betts <olly@survex.com>
-
-Omega 1.2.5 (2011-03-02):
-
-general:
+Omega 1.2.5 (2011-04-03):
 
 documentation:
 
+* Add index page which links to all the other documentation pages.
+
+* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.  Replace VPATH
+  section with better equivalent from Xapian-core/INSTALL.
+
+* docs/omegascript.html: Minor improvements.
+
 indexers:
 
+* The HTML parser no longer uses an exception to signify it has finished in
+  the normal case as exceptions are typically costly to handle.  In tests,
+  this made omindex ~0.23% faster when indexing a lot of HTML files.
+
 * omindex:
+
+  + Add --ignore-exclusions option, which will index HTML files despite meta
+    robots tags, etc - omindex is often used in environments where such
+    exclusions aren't relevant.
 
   + Fix to compile with older versions of libmagic which don't have
     MAGIC_MIME_TYPE (e.g. on Ubuntu hardy).
@@ -28,7 +39,16 @@ indexers:
 
   + Index filename extension with new standard prefix E.
 
-* scriptindex:
+  + Just report the mimetype as unknown instead of saying "unknown Office 2007
+    MIME subtype".
+
+  + Ignore *.css and *.js by default too.
+
+  + Messages reporting skipping files are now more consistent and always report
+    the filename.
+
+  + New --empty-docs option to allow documents we extract no body text from to
+    be indexed (existing behaviour), skipped, or reported and then indexed.
 
 omega:
 
@@ -37,9 +57,17 @@ omega:
 
 * Update $url's URL encoding to follow RFC3986.
 
-* Allow QueryParser flags to be set from OmegaScript (ticket#418).
+* Allow QueryParser flags to be set from OmegaScript (ticket#418).  The
+  FLAG_SPELLING_CORRECTION flag can now be set using
+  $opt{flag_spelling_correction,1} - the old $opt{spelling,true} way to
+  enable this flag still works, but it now deprecated.
 
 templates:
+
+* templates/emptydocs,templates/godmode,templates/opensearch,templates/query,
+  templates/xml: Add missing escaping.  Some of these instances may allow
+  cross-site scripting, so upgrading your templates is recommended, especially
+  if you have any sensitive cookies set on the domain Omega is running on.
 
 * templates/xml:
 
@@ -51,15 +79,17 @@ templates:
 
   + Add 'DBSize' attribute to <result> element.
 
-testsuite:
+  + Fix double escaping of matching terms.  This is only likely to affect cases
+    where a matching term contains '&'.
 
-build system:
+  + Remove support for undocumented HILITECLASS CGI variable.  There's no
+    evidence I can find using Google code search or web search that this has
+    been used anywhere, and it's difficult to handle escaping it properly in
+    the face of all the ways it could reasonably be used.
 
 portability:
 
 * Fix to compile on Microsoft Windows (ticket#350).
-
-packaging:
 
 Omega 1.2.4 (2010-12-19):
 
