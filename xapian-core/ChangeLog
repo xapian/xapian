@@ -1,3 +1,7 @@
+Mon Apr 04 14:41:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Final update for 1.2.5.
+
 Mon Apr 04 14:06:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc: Remove ? from comment - the brass

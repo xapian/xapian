@@ -34,6 +34,9 @@ matcher:
 
 brass backend:
 
+* Bumped format version number (we now store the oldest revision for which we
+  might have a replication changeset).
+
 * Optimise not to read the bitmaps from the base files when opening a database
   for reading (cross-port of equivalent change to chert).
 
