@@ -1,4 +1,4 @@
-Xapian-core 1.2.5 (2011-03-26):
+Xapian-core 1.2.5 (2011-04-04):
 
 API:
 
@@ -88,6 +88,8 @@ build system:
   with GCC 4.0.0.  For simplicity, only enable it for GCC >= 4.1.
 
 documentation:
+
+* INSTALL: Note how to build for a non-default arch on a multi-arch platform.
 
 * include/xapian/enquire.h: Fix doxygen markup so alternative overloaded forms
   of Enquire::get_mset() appear in the API documentation.
