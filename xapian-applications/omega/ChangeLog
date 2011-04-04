@@ -1,3 +1,7 @@
+Mon Apr 04 13:53:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Fix syntax error from recent edit.
+
 Sun Apr 03 10:54:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.5.

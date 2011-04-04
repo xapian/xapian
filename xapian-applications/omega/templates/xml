@@ -20,7 +20,7 @@ $map{$queryterms,<queryterm term="$html{$_}" show="$html{$prettyterm{$_}}" freq=
 <hits>
 $hitlist{
 <hit id="$id" relevance="$percentage%" modtime="$html{$field{modtime}}"
-url="$html{$field{url}}" title="$html{$field{caption},$field{title}}"
+url="$html{$field{url}}" title="$html{$or{$field{caption},$field{title}}}"
 $if{$field{language},language="$field{language}",}
 $if{$field{size},size="$html{$field{size}}",}
 $if{$field{sitename},sitename="$html{$field{sitename}}",}
