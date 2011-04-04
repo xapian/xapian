@@ -1,3 +1,7 @@
+Mon Apr 04 13:58:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update release date.
+
 Mon Apr 04 13:53:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/xml: Fix syntax error from recent edit.
