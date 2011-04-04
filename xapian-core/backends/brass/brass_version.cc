@@ -45,7 +45,7 @@ using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define BRASS_VERSION 201103110
-// 201103110 1.2.5? Bump for new max changesets dbstats
+// 201103110 1.2.5 Bump for new max changesets dbstats
 // 200912150 1.1.4 Brass debuts.
 
 #define MAGIC_STRING "IAmBrass"
