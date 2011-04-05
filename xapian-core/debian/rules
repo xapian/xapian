@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -185,6 +185,10 @@ endif
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
 	cp examples/*.cc debian/tmp/usr/share/doc/xapian-examples/examples
 	ln -s ../../../../lib/xapian-examples/examples debian/tmp/usr/share/doc/xapian-examples/examples/built
+
+	# Fix up link to the internal sourcedocs to point to those on the
+	# Xapian website since we don't build and package them.
+	sed -i 's,sourcedoc/html/annotated.html,http://xapian.org/docs/&,' debian/tmp/usr/share/doc/xapian-doc/internals.html
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing

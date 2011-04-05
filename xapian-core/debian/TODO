@@ -4,7 +4,3 @@ manpage for example.)
 We could also produce debug variants of the libxapian package, built with
 --enable-assertions and/or --enable-log (the current -dbg package is just
 debug symbols for the libxapian package).
-
-xapian-doc: in index.html, there is one broken link (which occurs in two
-places, pointing to the "internal classes" documentation, since we don't
-generate this by default).  We could move this to point to the Xapian website.

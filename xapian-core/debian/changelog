@@ -1,3 +1,11 @@
+xapian-core (1.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fix up link to the internal sourcedocs in internals.html to point to those
+    on the Xapian website.
+
+ -- Olly Betts <olly@survex.com>  Tue, 05 Apr 2011 23:31:00 +1200
+
 xapian-core (1.2.4-1) unstable; urgency=low
 
   * New upstream release.
