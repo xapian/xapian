@@ -188,7 +188,7 @@ endif
 
 	# Fix up link to the internal sourcedocs to point to those on the
 	# Xapian website since we don't build and package them.
-	sed -i 's,sourcedoc/html/annotated.html,http://xapian.org/docs/&,' debian/tmp/usr/share/doc/xapian-doc/internals.html
+	sed -i 's,sourcedoc/html/annotated.html,http://xapian.org/docs/&,' debian/tmp/usr/share/doc/xapian-core/internals.html
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing
