@@ -1,3 +1,9 @@
+Wed Apr 06 10:27:41 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* docs/admin_notes.rst: Remove the word "also", which makes sense
+	  when read in context of the previous section, but is confusing if
+	  the paragraph is read standalone, and isn't necessary.
+
 Mon Apr 04 14:41:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.2.5.

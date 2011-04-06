@@ -339,9 +339,8 @@ Merging databases
 
 When building an index for a very large amount of data, it can be desirable to
 index the data in smaller chunks (perhaps on separate machines), and then
-merge the chunks together into a single database.  This can also be performed
-using the "xapian-compact" tool, simply by supplying
-several source database paths.
+merge the chunks together into a single database.  This can be performed using
+the "xapian-compact" tool, simply by supplying several source database paths.
 
 Normally, merging works by reading the source databases in parallel, and
 writing the contents in sorted order to the destination database.  This will
