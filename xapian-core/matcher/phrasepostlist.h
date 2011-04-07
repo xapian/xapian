@@ -29,7 +29,7 @@
 
 typedef Xapian::PositionIterator::Internal PositionList;
 
-/** A postlist comprising several postlists NEARed together.
+/** a postlist comprising several postlists NEARed together.
  *
  *  This postlist returns a posting if and only if it is in all of the
  *  sub-postlists and all the terms occur within a specified distance of
@@ -58,11 +58,11 @@ class NearPostList : public SelectPostList {
             const Xapian::Weight::Internal & stats) const;
 
         NearPostList(PostList *source_, Xapian::termpos window_,
-		     std::vector<PostList *> terms_)
-		: SelectPostList(source_)
+		     std::vector<PostList *>::const_iterator &terms_begin_,
+		     std::vector<PostList *>::const_iterator &terms_end_)
+	    : SelectPostList(source_), terms(terms_begin_, terms_end_)
         {
 	    window = window_;
-	    terms = terms_;
 	}
 };
 
@@ -95,10 +95,11 @@ class PhrasePostList : public SelectPostList {
             const Xapian::Weight::Internal & stats) const;
 
         PhrasePostList(PostList *source_, Xapian::termpos window_,
-		       std::vector<PostList *> terms_) : SelectPostList(source_)
+		       std::vector<PostList *>::const_iterator &terms_begin_,
+		       std::vector<PostList *>::const_iterator &terms_end_)
+	    : SelectPostList(source_), terms(terms_begin_, terms_end_)
         {
 	    window = window_;
-	    terms = terms_;
 	}
 };
 

@@ -197,20 +197,18 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor)
     for (i = pos_filters.begin(); i != pos_filters.end(); ++i) {
 	const PosFilter & filter = *i;
 
-	// FIXME: make NearPostList, etc ctors take a pair of itors so we don't
-	// need to create this temporary vector.
-	vector<PostList *> terms(plists.begin() + filter.begin,
-				 plists.begin() + filter.end);
+	vector<PostList *>::const_iterator terms_begin = plists.begin() + filter.begin;
+	vector<PostList *>::const_iterator terms_end = plists.begin() + filter.end;
 
 	Xapian::termcount window = filter.window;
 	if (filter.op == Xapian::Query::OP_NEAR) {
-	    pl = new NearPostList(pl, window, terms);
+	    pl = new NearPostList(pl, window, terms_begin, terms_end);
 	} else if (window == filter.end - filter.begin) {
 	    AssertEq(filter.op, Xapian::Query::OP_PHRASE);
-	    pl = new ExactPhrasePostList(pl, terms);
+	    pl = new ExactPhrasePostList(pl, terms_begin, terms_end);
 	} else {
 	    AssertEq(filter.op, Xapian::Query::OP_PHRASE);
-	    pl = new PhrasePostList(pl, window, terms);
+	    pl = new PhrasePostList(pl, window, terms_begin, terms_end);
 	}
     }
 

@@ -1,3 +1,10 @@
+Thu Apr 07 05:38:36 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc, 
+	  matcher/exactphrasepostlist.cc, matcher/exactphrasepostlist.h,
+	  matcher/phrasepostlist.h: Remove temporary vector in queryoptimiser
+	  and replace with iterators.
+
 Wed Apr 06 10:27:41 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* docs/admin_notes.rst: Remove the word "also", which makes sense
