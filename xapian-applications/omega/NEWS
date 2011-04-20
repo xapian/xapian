@@ -29,7 +29,7 @@ indexers:
     use our CSV parser to get a sample.
 
   + Add whitespace between chunks of text extracted from Microsoft Office 2007
-    formats to stop words in adjacent chunks from being run together,
+    formats to prevent words in adjacent chunks from being run together.
 
   + Encode reserved characters in URLs - links to files with names containing
     '#' and '?' now work.
