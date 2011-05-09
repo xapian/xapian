@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include <xapian.h>
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -80,6 +81,8 @@ show_db_stats(Database &db)
     cout << "document length upper bound = " << db.get_doclength_upper_bound()
 	 << endl;
     cout << "highest document id ever used = " << db.get_lastdocid() << endl;
+    cout << boolalpha;
+    cout << "has positional information = " << db.has_positions() << endl;
 
     if (count_zero_length_docs) {
 	Xapian::doccount empty_docs = 0;
