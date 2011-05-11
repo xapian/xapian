@@ -1,3 +1,8 @@
+Wed May 11 21:50:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/xapian.rb: Fix comments on "end" keywords to match function
+	  names.
+
 Wed May 11 03:50:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() -
