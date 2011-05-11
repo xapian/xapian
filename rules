@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -111,11 +111,7 @@ BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 #
 # lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
 # for the current preferred version.
-ifeq ($(CODENAME), experimental)
-BUILD_DEPS += tcl-dev (>= 8.5), tcl (>= 8.5),# NB Trailing ',' required here!
-else
 BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
-endif
 TCLSH=/usr/bin/tclsh-default
 
 # Build depends for Ruby.
