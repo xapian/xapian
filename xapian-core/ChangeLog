@@ -1,3 +1,7 @@
+Wed May 11 01:34:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Scott Zhang for mingw fixes.
+
 Wed May 11 01:30:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc,net/tcpserver.cc: Need <cstdio> for sprintf on
