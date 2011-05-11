@@ -242,6 +242,10 @@ class XapianSmoketest < Test::Unit::TestCase
   end
 
   def test_016_compactor
+    if ! Dir.respond_to?("mktmpdir")
+      # Older Ruby 1.8.x doesn't have Dir.mktmpdir() - just skip if so.
+      return
+    end
     Dir.mktmpdir("smokerb") {|tmpdir|
         db1path = "#{tmpdir}db1"
         db2path = "#{tmpdir}db2"

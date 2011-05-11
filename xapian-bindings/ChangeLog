@@ -1,3 +1,8 @@
+Wed May 11 03:50:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() -
+	  just skip the compaction tests for these versions.
+
 Mon May 09 01:36:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always
