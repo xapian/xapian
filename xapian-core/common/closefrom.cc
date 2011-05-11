@@ -1,7 +1,7 @@
 /** @file closefrom.cc
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@
 
 #include <config.h>
 
-#ifndef HAVE_CLOSEFROM
+// We don't currently need closefrom() on __WIN32__.
+#if !defined HAVE_CLOSEFROM && !defined __WIN32__
 
 #include "closefrom.h"
 

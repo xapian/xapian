@@ -1,3 +1,9 @@
+Wed May 11 01:19:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/closefrom.cc,common/closefrom.h: We don't need closefrom()
+	  under __WIN32__ currently, so disable it there as it doesn't
+	  compile under mingw.
+
 Mon May 09 20:13:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Report has_positions().
