@@ -1,3 +1,8 @@
+Wed May 11 01:30:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc,net/tcpserver.cc: Need <cstdio> for sprintf on
+	  __WIN32__ and cygwin.
+
 Wed May 11 01:22:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Define __MSVCRT_VERSION__ to 0x0601 under mingw so
