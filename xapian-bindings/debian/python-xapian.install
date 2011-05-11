@@ -1,3 +1,4 @@
+usr/share/pyshared
 usr/lib/python2.*/*-packages/xapian/*.so
 usr/lib/python2.*/*-packages/xapian/*.py
 usr/share/doc/xapian-bindings/python/index.html usr/share/doc/python-xapian

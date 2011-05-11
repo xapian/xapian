@@ -36,10 +36,7 @@ XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1".
 # `--exclude=.EXT' arguments to pass dh_install
 DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
-# The python versions to build for:
-PYTHON_VERSIONS := $(shell pyversions -r debian/control)
-
-BUILD_DEPS := debhelper (>= 7), python, python-central (>= 0.4.10), python-all-dev,
+BUILD_DEPS := debhelper (>= 7),
 
 # Disabled due to incompatibility of GPL and PHP licence.  Uncomment to build
 # your own binary packages (just don't distribute them!)
@@ -51,9 +48,23 @@ else
 RUBY_VERSIONS := 1.8
 endif
 
+# The python versions to build for:
+PYTHON_VERSIONS := $(shell pyversions -r debian/control)
+
+ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.karmic.lucid.maverick.), )
+USING_PYCENTRAL := 0
+BUILD_DEPS += python, python-all-dev (>= 2.6.6-3~),
+XB_PYTHON_VERSION := X-Dummy: Remove me once python-central support is dropped
+X_PYTHON_VERSION := X-Python-Version: >= 2.3
+else
+USING_PYCENTRAL := 1
+BUILD_DEPS += python, python-central (>= 0.4.10), python-all-dev,
+XB_PYTHON_VERSION := XB-Python-Version: $${python:Versions}
+X_PYTHON_VERSION := XS-Python-Version: all
 # We'll need this if we ever generate different .py modules for different
 # supported python versions.
 #export DH_PYCENTRAL=nomove
+endif
 
 export DH_OPTIONS
 
@@ -137,6 +148,8 @@ maintclean: clean
 debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
 	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
+	    -e "s/@X_PYTHON_VERSION@/$(X_PYTHON_VERSION)/g" \
+	    -e "s/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g" \
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
@@ -274,7 +287,11 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
+ifeq ($(USING_PYCENTRAL), 1)
 	DH_PYCENTRAL=include-links dh_pycentral
+else
+	dh_python2
+endif
 	dh_installdeb
 
 	dh_shlibdeps
