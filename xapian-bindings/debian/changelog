@@ -2,8 +2,10 @@ xapian-bindings (1.2.5-2) UNRELEASED; urgency=low
 
   * Use dh_python2 instead of pycentral for Debian >= squeeze and Ubuntu >=
     natty.  (Closes: #617149)
+  * debian/rules: Don't force building against tcl 8.5 in experimental - that
+    was just for the transition to tcl 8.5 being the default.
 
- -- Olly Betts <olly@survex.com>  Wed, 11 May 2011 22:24:13 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 11 May 2011 22:26:36 +0000
 
 xapian-bindings (1.2.5-1) unstable; urgency=low
 
