@@ -413,6 +413,14 @@ AC_TRY_COMPILE([#include <typeinfo>],
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl For _ftime64() on mingw we need to tell it we're happy to require
+dnl MSVCRT 0x0601, which isn't too onerous a requirement it seems.
+case $host_os in
+  *mingw*)
+    AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    ;;
+esac
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])

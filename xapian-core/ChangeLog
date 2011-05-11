@@ -1,3 +1,8 @@
+Wed May 11 01:22:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define __MSVCRT_VERSION__ to 0x0601 under mingw so
+	  we get _ftime64().
+
 Wed May 11 01:19:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/closefrom.cc,common/closefrom.h: We don't need closefrom()
