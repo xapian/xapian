@@ -4,8 +4,9 @@ xapian-bindings (1.2.5-2) UNRELEASED; urgency=low
     natty.  (Closes: #617149)
   * debian/rules: Don't force building against tcl 8.5 in experimental - that
     was just for the transition to tcl 8.5 being the default.
+  * debian/control.in: Standards-Version: 3.9.2 (no changes required).
 
- -- Olly Betts <olly@survex.com>  Wed, 11 May 2011 22:26:36 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 12 May 2011 02:58:31 +0000
 
 xapian-bindings (1.2.5-1) unstable; urgency=low
 

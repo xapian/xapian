@@ -2,7 +2,7 @@ Source: xapian-bindings
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Build-Depends: @BUILD_DEPS@ autotools-dev, libxapian-dev (>= 1.2.0-2~)
 @X_PYTHON_VERSION@
 Homepage: http://xapian.org/
