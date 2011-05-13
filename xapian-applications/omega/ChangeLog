@@ -1,3 +1,8 @@
+Fri May 13 05:50:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Add using unoconv as more complex example of
+	  using --filter (ticket#324).
+
 Wed Apr 20 07:00:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix typo; clarify wording.

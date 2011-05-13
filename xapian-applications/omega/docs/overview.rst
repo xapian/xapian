@@ -313,12 +313,23 @@ files of MIME type ``application/octet-stream`` by running them through
 ``strings -n8``, you can pass the option
 ``--filter=application/octet-stream:'strings -n8'``.  The filename of the
 file to be extracted will be appended to this command, separated by a space.
-The command needs to produce UTF-8 text output on stdout.
+Commands run via ``--filter`` need to produce UTF-8 text output on stdout.
 
-You'll also need to tell omindex to map one or more extensions to
-``application/octet-stream`` with ``--mime-type``.  If you know of a reliable
-filter which can extract text from a file format which might be of interest to
-others, please let us know so we can consider including it as standard.
+A more complex example of the use of ``--filter`` makes use of OpenOffice,
+via the unoconv script, to extract text from various formats.  First you
+need to start a listening instance (if you don't, unoconv will start up
+OpenOffice for every file, which is rather inefficient) - the ``&`` just
+tell the shell to run it in the background::
+
+  unoconv --listener &
+
+Then run omindex with options such as
+``--filter=application/msword:'unoconv --stdout -f text'`` (you'll want one
+for each format which you want to extract text from with OpenOffice).
+
+If you know of a reliable filter which can extract text from a file format
+which might be of interest to others, please let us know so we can consider
+including it as a standard filter.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
