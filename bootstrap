@@ -411,7 +411,7 @@ for d in $modules ; do
     cd "$d"
     if [ -f "$makefilepl" ] ; then
       echo "Configuring \`$d'"
-      # Extract any parameters which we know Makefile.PL understands from 
+      # Extract any parameters which we know Makefile.PL understands from
       # from those passed to us.
       unset cxx_arg
       unset cxxflags_arg
@@ -481,7 +481,7 @@ recheck:
 
 Makefile: $srcdir/configure
 	$cmd
-	
+
 $srcdir/configure: $srcdir/bootstrap
 	$srcdir/bootstrap
 
