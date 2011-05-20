@@ -1,3 +1,7 @@
+Fri May 20 04:13:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* examples/simpleindex.cc: Add short description to usage message.
+
 Tue May 17 21:44:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Bring up-to-date.

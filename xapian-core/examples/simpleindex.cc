@@ -42,7 +42,8 @@ try {
 		rc = 0;
 	    }
 	}
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE" << endl;
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE\n"
+		"Index each paragraph of a text file as a Xapian document." << endl;
 	exit(rc);
     }
 
