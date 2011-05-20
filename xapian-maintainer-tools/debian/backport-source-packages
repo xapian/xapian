@@ -161,9 +161,11 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # For Ubuntu we add ".99$CODENAME" since it should sort
 # before any other modification (and since dapper, Ubuntu codenames are
 # allocated alphabetically).  For Debian releases, we use
-# backports.org-compatible package versions - e.g. we append "~bpo40+1" for
-# Debian 4.0 (etch) (and a suffix starting "~" sorts as less than no suffix).
+# backports.org-compatible package versions - e.g. we append "~bpo60+1" for
+# Debian 6.0 (squeeze) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+squeeze)
+  BACKPORT_SUFFIX='~bpo60+1' ;;
 lenny)
   BACKPORT_SUFFIX='~bpo50+1' ;;
 etch)
