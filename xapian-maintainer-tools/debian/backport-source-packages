@@ -28,7 +28,7 @@ set -e
 MIRROR=http://ftp.nz.debian.org/debian/
 
 DEBIAN_CODENAMES='squeeze lenny'
-UBUNTU_CODENAMES='natty maverick lucid karmic hardy'
+UBUNTU_CODENAMES='natty maverick lucid"
 
 V_OPT=
 case $1 in
@@ -95,7 +95,7 @@ build_it() {
   # The default -si only looks for *exactly* -0 or -1.
   # FIXME: We don't really want to upload the orig tarball for all Ubuntu
   # backports, only if it isn't already in the archive.  So for now, just
-  # upload it for hardy as that gets uploaded first in alphabetical order.
+  # upload it for lucid as that gets uploaded first in alphabetical order.
   include_src_opt=-sa
   case $PKG in
     libsearch-xapian-perl|survex) ;;
@@ -107,19 +107,9 @@ build_it() {
       ;;
   esac
 
-  # '3.0 (quilt)' not supported by jaunty or earlier.
-  if [ -f debian/source/format ] ; then
-    case $CODENAME in
-      hardy|jaunty)
-        rm debian/source/format
-	rmdir debian/source || true
-	;;
-    esac
-  fi
-
   if [ 1 = "$ubuntu" ] ; then
     # Ubuntu
-    [ hardy = "$CODENAME" ] || include_src_opt=-sd
+    [ lucid = "$CODENAME" ] || include_src_opt=-sd
     debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
   else
     # Debian
@@ -168,11 +158,11 @@ squeeze)
   BACKPORT_SUFFIX='~bpo60+1' ;;
 lenny)
   BACKPORT_SUFFIX='~bpo50+1' ;;
-etch)
-  BACKPORT_SUFFIX='~bpo40+1' ;;
-sarge)
-  BACKPORT_SUFFIX='~bpo31+1' ;;
 *)
+  if [ x"$ubuntu" = x0 ] ; then
+    echo "Debian codename '$CODENAME' not mapped to a ~bpoNN+1 suffix"
+    exit 1
+  fi
   BACKPORT_SUFFIX=".99$CODENAME" ;;
 esac
 
