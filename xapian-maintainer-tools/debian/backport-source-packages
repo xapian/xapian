@@ -1,0 +1,202 @@
+#!/bin/sh
+# Backport Debian source packages for Xapian.
+#
+# Copyright (C) 2004 Richard Boulton
+# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+# Dependencies:
+# dch from package devscripts.
+
+set -e
+
+#MIRROR=http://ftp.de.debian.org/debian/
+MIRROR=http://ftp.nz.debian.org/debian/
+
+DEBIAN_CODENAMES='squeeze lenny'
+UBUNTU_CODENAMES='natty maverick lucid karmic hardy'
+
+V_OPT=
+case $1 in
+-v)
+  V_OPT="$1 $2"
+  shift
+  shift
+  ;;
+-v*)
+  V_OPT=$1
+  shift
+  ;;
+esac
+
+if [ x"$1" = x--help -o $# -lt 2 ] ; then
+  echo "Usage: $0 [-v <last uploaded version>] SOURCE_PKG VERSION [CODENAME...]"
+  echo
+  echo "e.g.: $0 xapian-core 1.2.5-1 lucid"
+  echo 'If no codenames are specified, the default is to backport for all of them.'
+  echo
+  echo "Currently, the recognised values are:"
+  echo "    $DEBIAN_CODENAMES"
+  echo "    $UBUNTU_CODENAMES"
+  echo "And the magic values which expand to the above lists:"
+  echo "    debian ubuntu"
+  exit 0
+fi
+
+PKG=$1
+VERSION=$2
+shift
+shift
+
+SUFFIX=`echo "$VERSION"|sed 's/.*-/-/'`
+VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
+
+# Debian/Ubuntu codename or codenames to build for.
+# This will be overridden by the command line arguments, if any were passed.
+CODENAMES="$DEBIAN_CODENAMES $UBUNTU_CODENAMES"
+
+# Options to pass to dpkg-buildpackage when building source packages
+BUILDPACKAGE_SRC_OPTS="-us -uc -d -S $V_OPT"
+
+# Add entry to changelog if we're backporting.
+adjust_changelog() {
+  if [ sid != "$CODENAME" ] ; then
+    base_version=`dpkg-parsechangelog|sed 's/^Version: //p;d'`
+    backport_version=$base_version$BACKPORT_SUFFIX
+    # --force-bad-version needed for backporting, since the "new" version may
+    # be less than the "old".  Direct stdin from /dev/null to prevent dch
+    # stopping to confirm the bad version is OK.
+    if [ 1 = "$ubuntu" ] ; then
+      distribution=$CODENAME
+    else
+      distribution=$CODENAME-backports
+    fi
+    dch --force-bad-version -v "$backport_version" -D "$distribution" \
+	"Rebuild for $CODENAME backports." < /dev/null
+  fi
+}
+
+build_it() {
+  adjust_changelog
+  # The default -si only looks for *exactly* -0 or -1.
+  # FIXME: We don't really want to upload the orig tarball for all Ubuntu
+  # backports, only if it isn't already in the archive.  So for now, just
+  # upload it for hardy as that gets uploaded first in alphabetical order.
+  include_src_opt=-sa
+  case $PKG in
+    libsearch-xapian-perl|survex) ;;
+    *)
+      echo "$CODENAME" > debian/codename
+      # Generates control from control.in (and maybe other files).
+      fakeroot debian/rules maintclean CODENAME="$CODENAME"
+      fakeroot debian/rules maint CODENAME="$CODENAME"
+      ;;
+  esac
+
+  # '3.0 (quilt)' not supported by jaunty or earlier.
+  if [ -f debian/source/format ] ; then
+    case $CODENAME in
+      hardy|jaunty)
+        rm debian/source/format
+	rmdir debian/source || true
+	;;
+    esac
+  fi
+
+  if [ 1 = "$ubuntu" ] ; then
+    # Ubuntu
+    [ hardy = "$CODENAME" ] || include_src_opt=-sd
+    debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
+  else
+    # Debian
+    DIST="$CODENAME" pdebuild --debbuildopts "$V_OPT $include_src_opt" --buildresult .. -- --override-config --configfile "`pwd`/../../pbuilderrc"
+    if [ x"$PKG" = xxapian-core ] ; then
+      DIST="$CODENAME" pbuilder update --override-config --configfile "`pwd`/../../pbuilderrc"
+    fi
+  fi
+}
+
+# Get the codename(s) specified by the user.
+if [ -n "$*" ] ; then
+  CODENAMES=`echo "$*"|sed 's/\<debian\>/'"$DEBIAN_CODENAMES"'/;s/\<ubuntu\>/'"$UBUNTU_CODENAMES"'/'`
+fi
+
+ubuntu=0
+for CODENAME in $CODENAMES ; do
+  # Check that the codename is known.
+  DEBIAN_CODENAMES_RE='\('`echo "$DEBIAN_CODENAMES"|sed 's/ /\\\|/g'`'\)$'
+  UBUNTU_CODENAMES_RE='\('`echo "$UBUNTU_CODENAMES"|sed 's/ /\\\|/g'`'\)$'
+  if expr "$CODENAME" : "$DEBIAN_CODENAMES_RE" >/dev/null ; then
+    echo "Making source packages for $CODENAME"
+  elif expr "$CODENAME" : "$UBUNTU_CODENAMES_RE" >/dev/null ; then
+    echo "Making source packages for $CODENAME"
+    ubuntu=1
+  else
+    echo "Codename \"$CODENAME\" not known."
+    echo "Known codenames are: $DEBIAN_CODENAMES $UBUNTU_CODENAMES"
+    exit 1
+  fi
+
+trap "echo \"backport-source-packages failed\"" EXIT
+
+# $BACKPORT_SUFFIX holds a suffix to be added to the debian version number for
+# the backport.
+
+# We need to add a suffix to the debian version number for the backported
+# package to avoid conflicts with the package in unstable.
+# For Ubuntu we add ".99$CODENAME" since it should sort
+# before any other modification (and since dapper, Ubuntu codenames are
+# allocated alphabetically).  For Debian releases, we use
+# backports.org-compatible package versions - e.g. we append "~bpo40+1" for
+# Debian 4.0 (etch) (and a suffix starting "~" sorts as less than no suffix).
+case $CODENAME in
+lenny)
+  BACKPORT_SUFFIX='~bpo50+1' ;;
+etch)
+  BACKPORT_SUFFIX='~bpo40+1' ;;
+sarge)
+  BACKPORT_SUFFIX='~bpo31+1' ;;
+*)
+  BACKPORT_SUFFIX=".99$CODENAME" ;;
+esac
+
+# Unpack distribution tarballs, and put the debian control files into place,
+# and build source packages
+mkdir -p build
+cd build
+  case $PKG in
+  lib*) DIR=`echo $PKG|cut -c1,2,3,4` ;;
+  *) DIR=`echo $PKG|cut -c1` ;;
+  esac
+  DSC=${PKG}_$VERSION$SUFFIX.dsc
+  if [ -f "$DSC" ] ; then
+    [ -d backup ] || mkdir backup
+    mv "$DSC" backup
+    dget -b "file://`pwd`/backup/$DSC"
+  else
+    dget "${MIRROR}pool/main/$DIR/$PKG/$DSC"
+  fi
+  cd ${PKG}-${VERSION}
+    build_it
+  cd ..
+  rm -rf ${PKG}-${VERSION}
+cd ..
+
+echo "Backported ${PKG} ${VERSION} for $CODENAME successfully"
+done
+
+trap - EXIT
