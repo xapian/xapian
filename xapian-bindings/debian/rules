@@ -143,15 +143,15 @@ maintclean: clean
 
 debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
-	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
-	    -e "s/@X_PYTHON_VERSION@/$(X_PYTHON_VERSION)/g" \
-	    -e "s/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g" \
+	sed -e 's/@BUILD_DEPS@/$(BUILD_DEPS)/g' \
+	    -e 's/@X_PYTHON_VERSION@/$(X_PYTHON_VERSION)/g' \
+	    -e 's/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g' \
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
-	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
+	    sed 's/@PHP_VERSION@/$$v/g' debian/control-php.in ;\
 	done >> debian/control.tmp
 	for v in $(RUBY_VERSIONS); do \
-	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
+	    sed 's/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
 	done >> debian/control.tmp
 	mv debian/control.tmp debian/control
 
