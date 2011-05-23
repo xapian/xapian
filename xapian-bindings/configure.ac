@@ -738,14 +738,14 @@ if test no != "$with_ruby" ; then
     dnl Brief testing with Ruby 1.6.8 show the bindings probably work there,
     dnl but smoketest.rb doesn't because the test/unit module isn't available.
     AC_MSG_CHECKING([$RUBY version])
-    version=`$RUBY --version 2>/dev/null`
+    [version=`$RUBY -rrbconfig -e 'print Config::CONFIG["ruby_version"]' 2>/dev/null`]
     case $version in
-    [ruby\ 1.[89]*]) ;; # Ruby 1.8, 1.9
-    [ruby\ 1.[1-9][0-9]*]) ;; # Ruby 1.10+
-    [ruby\ [2-9]*]) ;; # Ruby 2-Ruby 9
-    [ruby\ 1[0-9]*]) ;; # Ruby 10+
+    [1.[89]*]) ;; # Ruby 1.8, 1.9
+    [1.[1-9][0-9]*]) ;; # Ruby 1.10+
+    [[2-9]*]) ;; # Ruby 2-Ruby 9
+    [1[0-9]*]) ;; # Ruby 10+
     "")
-      AC_MSG_RESULT([\$RUBY --version didn't work])
+      AC_MSG_RESULT([\$RUBY -rrbconfig -e 'print Config::CONFIG["ruby_version"]' didn't work])
       if test yes = "$with_ruby" ; then
 	AC_MSG_ERROR([Working Ruby interpreter not found])
       fi

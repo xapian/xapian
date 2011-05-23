@@ -1,3 +1,8 @@
+Mon May 23 07:47:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Get the Ruby version from the rbconfig module, rather
+	  than parsing the potentially more variable output of ruby --version.
+
 Wed May 11 21:50:11 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/xapian.rb: Fix comments on "end" keywords to match function
