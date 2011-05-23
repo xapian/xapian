@@ -1,3 +1,7 @@
+Mon May 23 13:58:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README: say that Perl bindings probably need Perl 5.8 or later.
+
 Mon May 23 07:47:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Get the Ruby version from the rbconfig module, rather
