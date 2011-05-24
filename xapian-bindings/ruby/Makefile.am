@@ -35,19 +35,9 @@ xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
 xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(multitarget_begin)
-	-rm -f xapian_wrap.ccT xapian_wrap.ccU
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
-	    -o xapian_wrap.ccT -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	## In Ruby 1.9, there's a memoisation optimisation wrapper for
-	## rb_intern under GCC which breaks SWIG's usage so disable this so
-	## the code compiles.
-	awk '{print} /#include <ruby\.h>/{print "#undef rb_intern\n"}' xapian_wrap.ccT > xapian_wrap.ccU
-	rm xapian_wrap.ccT
-	mv xapian_wrap.ccU xapian_wrap.cc
-	$(PERL) -pe 's!xapian_wrap.ccT:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
-	mv xapian_wrap_d2.tmp xapian_wrap.d
-	rm xapian_wrap_d.tmp
+	    -o xapian_wrap.cc -MD -MF xapian_wrap.d $(SWIG_mainsource)
 	$(multitarget_end)
 
 -include xapian_wrap.d

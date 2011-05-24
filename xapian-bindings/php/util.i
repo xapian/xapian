@@ -1,7 +1,7 @@
 %{
 /* php/util.i: custom PHP typemaps for xapian-bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,9 @@
 
 #include "../xapian-version.h"
 %}
+
+// Use SWIG directors for PHP wrappers.
+#define XAPIAN_SWIG_DIRECTORS
 
 /* Add a section to the output from phpinfo(). */
 %pragma(php) phpinfo="

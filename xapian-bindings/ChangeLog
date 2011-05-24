@@ -1,3 +1,10 @@
+Tue May 24 15:08:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php,php/util.i,python/generate-python-exceptions,
+	  ruby/Makefile.am: Update to newer SWIG (ticket#538).  Fixes C#
+	  binding issues with strings with newer C# versions.  Directors
+	  now work for PHP (ticket#488).
+
 Mon May 23 13:58:43 GMT 2011  Olly Betts <olly@survex.com>
 
 	* README: say that Perl bindings probably need Perl 5.8 or later.

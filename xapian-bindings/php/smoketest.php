@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -143,6 +143,36 @@ $terms = join(" ", $enq->get_matching_terms($mset->get_hit(0)));
 if ($terms != "is there") {
     print "Unexpected matching terms: $terms\n";
     exit(1);
+}
+
+# Feature test for MatchDecider
+$doc = new XapianDocument();
+$doc->set_data("Two");
+$doc->add_posting($stem->apply("out"), 1);
+$doc->add_posting($stem->apply("outside"), 1);
+$doc->add_posting($stem->apply("source"), 2);
+$doc->add_value(0, "yes");
+$db->add_document($doc);
+
+class testmatchdecider extends XapianMatchDecider {
+    function apply($doc) {
+	# FIXME: workaround missing object wrapping in generated wrappers.
+	if (is_resource($doc)) $doc = new XapianDocument($doc);
+	return ($doc->get_value(0) == "yes");
+    }
+}
+
+$query = new XapianQuery($stem->apply("out"));
+$enquire = new XapianEnquire($db);
+$enquire->set_query($query);
+$mdecider = new testmatchdecider();
+$mset = $enquire->get_mset(0, 10, null, $mdecider);
+if ($mset->size() != 1) {
+    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+    exit(1);
+}
+if ($mset->get_docid(0) != 2) {
+    print "MatchDecider mset has wrong docid in\n";
 }
 
 if (XapianQuery::OP_ELITE_SET != 10) {

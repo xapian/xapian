@@ -152,7 +152,6 @@ print FD <<'EOF';
     try {
 	$action
     } catch (...) {
-	SWIG_PYTHON_THREAD_END_ALLOW;
 	Xapian::SetPythonException();
 	SWIG_fail;
     }
