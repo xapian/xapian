@@ -597,13 +597,8 @@ class WritableDatabase : public Database {
 %constant int DB_OPEN = Xapian::DB_OPEN;
 
 // Database factory functions:
-
 #if !defined SWIGCSHARP && !defined SWIGJAVA
 namespace Auto {
-#ifdef SWIGPHP
-    /* PHP lacks namespaces so fake them. */
-    %rename(auto_open_stub) open_stub;
-#endif
     Database open_stub(const string & file);
 }
 
@@ -740,9 +735,6 @@ class Remote {
 
 // xapian/query.h:
 
-#ifdef SWIGPHP
-%apply int { Xapian::Query::op };
-#endif
 #ifndef SWIGTCL
 // FIXME: wrap MatchAll and MatchNothing for other languages(except for Python,
 // which wraps them in a different way).

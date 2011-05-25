@@ -39,6 +39,13 @@
 %rename("is_empty") empty() const;
 %rename("clone_object") clone() const;
 
+/* Fake a namespace on open_stub() (PHP5.3 added real namespaces, but we want
+ * to support older versions still. */
+%rename(auto_open_stub) Xapian::Auto::open_stub;
+
+/* Handle op as an int rather than an enum. */
+%apply int { Xapian::Query::op };
+
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
     void *ptr;
     $1 = (SWIG_ConvertPtr(*$input, (void **)&ptr, $1_descriptor, 0) == 0);

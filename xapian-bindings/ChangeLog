@@ -1,3 +1,8 @@
+Wed May 25 13:58:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/util.i,xapian.i: Move PHP special cases to php/util.i (generated
+	  code is identical before and after this change).
+
 Wed May 25 13:20:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simplematchdecider.php5,php/docs/index.html: Add
