@@ -45,6 +45,15 @@ In the query <code>one OR two AND three</code> the AND takes precedence,
 so this is the same as <code>one OR (two AND three)</code>.  You can override
 the precedence using <code>(one OR two) AND three</code>.
 
+<p>The default precedence from highest to lowest is:
+
+<ul>
+<li> +, - (equal)
+<li> AND, NOT (equal)
+<li> XOR
+<li> OR
+</ul>
+
 <H3>+ and -</H3>
 
 <P>A group of terms with some marked with + and - will match documents

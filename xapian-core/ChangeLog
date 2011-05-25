@@ -1,3 +1,7 @@
+Wed May 25 14:58:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Document the precedence order of operators.
+
 Fri May 20 04:13:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* examples/simpleindex.cc: Add short description to usage message.
