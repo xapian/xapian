@@ -27,6 +27,11 @@ to a floating point number.
 </p>
 
 <p>
+With version 1.2.6 and later, you can subclass Xapian classes in PHP and
+virtual methods defined in PHP are called from C++ in the way you'd expect.
+</p>
+
+<p>
 PHP has a lot of reserved words of various sorts, which sadly clash with common
 method names.  Because of this <code>empty()</code> methods of various
 container-like classes are wrapped as <code>is_empty()</code> for PHP
@@ -39,7 +44,8 @@ The <code>examples</code> subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/simpleindex.php5">simpleindex.php5</a>,
 <a href="examples/simplesearch.php5">simplesearch.php5</a>,
-<a href="examples/simpleexpand.php5">simpleexpand.php5</a>.
+<a href="examples/simpleexpand.php5">simpleexpand.php5</a>,
+<a href="examples/simplematchdecider.php5">simplematchdecider.php5</a>.
 </p>
 
 Note that these examples are written to work with the command line (CLI)

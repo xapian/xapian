@@ -1,3 +1,8 @@
+Wed May 25 13:20:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplematchdecider.php5,php/docs/index.html: Add
+	  simplematchdecider.php example.
+
 Wed May 25 12:17:11 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/util.i: Now we have directors enabled, stop ignoring Xapian::Sorter
