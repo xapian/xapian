@@ -1,3 +1,9 @@
+Wed May 25 12:17:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/util.i: Now we have directors enabled, stop ignoring Xapian::Sorter
+	  and uncomment directorin typemap for passing a count and array of
+	  std::string.
+
 Tue May 24 15:08:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php,php/util.i,python/generate-python-exceptions,

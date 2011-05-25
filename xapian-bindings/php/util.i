@@ -36,10 +36,6 @@
     php_info_print_table_end();
 "
 
-// No point wrapping this abstract base class until SWIG supports directors
-// for PHP.
-%ignore Xapian::Sorter;
-
 %rename("is_empty") empty() const;
 %rename("clone_object") clone() const;
 
@@ -137,7 +133,6 @@
     }
 }
 
-#if 0 // FIXME: only useful once we enable director support
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
     if (array_init($input) == FAILURE) {
 	SWIG_PHP_Error(E_ERROR, "array_init failed");
@@ -149,6 +144,5 @@
 	add_next_index_stringl($input, p, term.length(), 1);
     }
 }
-#endif
 
 /* vim:set syntax=cpp:set noexpandtab: */
