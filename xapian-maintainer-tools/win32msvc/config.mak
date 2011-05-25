@@ -24,7 +24,7 @@ NULL=nul
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\..\xapian-omega
+XAPIAN_APPLICATIONS=..\..\xapian-applications\omega
 XAPIAN_BINDINGS=..\..\xapian-bindings
 
 #  ------------- Perl settings-------------
@@ -104,7 +104,7 @@ PYTHON_INCLUDE_2_27=$(PYTHON_DIR_27)\PC
 PYTHON_LIB_DIR_27=$(PYTHON_DIR_27)\libs
 
 # Python folder for 3.0
-PYTHON_DIR_30=c:\Program Files\Python30
+PYTHON_DIR_30=c:\Python30
 # Python executable
 !if "$(DEBUG)"=="1"
 PYTHON_EXE_30=$(PYTHON_DIR_30)\python_d.exe 
@@ -125,6 +125,7 @@ PYTHON_LIB_DIR_30=$(PYTHON_DIR_30)\libs
 
 # -------------end Python settings-------------
 
+
 # -------------PHP settings-------------
 # PHP source folder
 PHP52_SRC_DIR=C:\work\php-5.2.1
@@ -136,17 +137,17 @@ PHP52_INCLUDE_CPPFLAGS= \
 # PHP_EXE_DIR: Set this to the folder where the PHP executable is
 # PHP_LIB : Set this to the path to the PHP library 
 !if "$(DEBUG)"=="1"
-PHP52_EXE_DIR="$(PHP52_SRC_DIR)\Debug_TS"
-PHP52_LIB="$(PHP52_EXE_DIR)\php5ts_debug.lib"
+PHP52_EXE_DIR=C:\php-5.2.1\Debug_TS
+PHP52_LIB=$(PHP52_EXE_DIR)\php5ts_debug.lib
 PHP52_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
 !else
-PHP52_EXE_DIR="$(PHP52_SRC_DIR)\Release_TS"
-PHP52_LIB="$(PHP52_EXE_DIR)\php5ts.lib"
+PHP52_EXE_DIR=C:\work\php-5.2.1-win32
+PHP52_LIB=$(PHP52_EXE_DIR)\dev\php5ts.lib
 PHP52_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 !endif
 
 #    PHP executable
-PHP52_EXE="$(PHP52_EXE_DIR)\PHP.exe"
+PHP52_EXE=$(PHP52_EXE_DIR)\PHP.exe
 
 # PHP 5.3.0 only -----------------
 # We need to build separate bindings for PHP 5.3.0 as the module API has changed
@@ -162,12 +163,12 @@ PHP53_INCLUDE_CPPFLAGS= \
 # PHP_EXE_DIR: Set this to the folder where the PHP executable is
 # PHP_LIB : Set this to the path to the PHP library 
 !if "$(DEBUG)"=="1"
-PHP53_EXE_DIR="$(PHP53_SRC_DIR)\Debug_TS"
-PHP53_LIB="$(PHP53_EXE_DIR)\php5ts_debug.lib"
+PHP53_EXE_DIR=$(PHP53_SRC_DIR)\Debug_TS
+PHP53_LIB=$(PHP53_EXE_DIR)\php5ts_debug.lib
 PHP53_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
 !else
-PHP53_EXE_DIR="$(PHP53_SRC_DIR)\Release_TS"
-PHP53_LIB="$(PHP53_EXE_DIR)\php5ts.lib"
+PHP53_EXE_DIR=$(PHP53_SRC_DIR)\Release_TS
+PHP53_LIB=$(PHP53_EXE_DIR)\php5ts.lib
 PHP53_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 !endif
 

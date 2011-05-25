@@ -48,11 +48,6 @@ CLEAN :
 	-@erase $(LIB_XAPIAN_OBJS)
 	-@erase "$(OUTDIR)\xapian.php"
 	-@erase "$(OUTROOT)\smoketest.php"
-    -@erase "$(OUTDIR)\*.pdb
-    -@erase "$(OUTDIR)\*.ilk
-    -@erase "$(OUTDIR)\*.manifest
-    -@erase "$(OUTDIR)\dist\*.php
-    -@erase "$(OUTDIR)\dist\*.dll
 	
 CLEANSWIG :	
 	-@erase /Q /s php5
@@ -110,7 +105,6 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests
 	$(MANIFEST) "$(OUTDIR)\php_xapian.dll.manifest" -outputresource:"$(OUTDIR)\php_xapian.dll;2"
 	-@erase "$(OUTDIR)\php_xapian.dll.manifest"
-    
 "$(OUTROOT)\smoketest.php" : ".\smoketest.php"
 	-copy $** "$(OUTROOT)\smoketest.php"
 #
@@ -159,6 +153,4 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
-
-
 
