@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006, Olly Betts
+ Copyright (c) 2006,2011, Olly Betts
  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted 
@@ -33,18 +33,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <typeinfo>
 
-#if defined __GNUC__ && __GNUC__ >= 3
-#include <ext/hash_map>
-using __gnu_cxx::hash_map;
-using __gnu_cxx::hash;
-#elif defined _MSC_VER && _MSC_VER >= 1310
-// 1310 is MSVC 2003, aka MSVC7.1.
-#include <hash_map>
-using stdext::hash_map;
-using stdext::hash;
-#else
-#include <hash_map.h>
-#endif
+#include "unordered_map.h"
 
 using namespace std;
 
@@ -58,7 +47,7 @@ struct eq {
 template <class T> class XapianObjectHolder {
     private:
         pthread_mutex_t _lock;
-        hash_map<long, T, hash<long>, eq> _holder;
+        unordered_map<long, T, hash<long>, eq> _holder;
         long _idcntr;
         
     public:

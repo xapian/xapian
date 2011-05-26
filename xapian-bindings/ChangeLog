@@ -1,3 +1,10 @@
+Thu May 26 11:30:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/unordered_map.h: Portability wrapper around various ways
+	  to get unordered_map with different compilers.
+	* java/native/XapianObjectHolder.h: Use new unordered_map.h which fixes
+	  warnings about using deprecated headers with recent GCC versions.
+
 Wed May 25 13:58:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/util.i,xapian.i: Move PHP special cases to php/util.i (generated
