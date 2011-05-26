@@ -568,7 +568,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
 			    bool exclusive);
 
-    /* FIXME:1.1.3: Merge two versions into one with optional parameter
+    /* FIXME:1.3: Merge two versions into one with optional parameter
      * "exclusive", default true. */
     void add_boolean_prefix(const std::string &field, const std::string &prefix);
 
