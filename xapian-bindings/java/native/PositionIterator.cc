@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -60,5 +61,5 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_positioniterator_1get_1descr
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_positioniterator_1finalize (JNIEnv *env, jclass clazz, jlong positioniteratorid) {
     PositionIterator *itr = _positioniterator->remove(positioniteratorid);
-    if (itr) delete itr;
+    delete itr;
 }

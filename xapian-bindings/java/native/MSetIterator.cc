@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -103,5 +104,5 @@ JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_msetiterator_1equals (JNIEn
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_msetiterator_1finalize (JNIEnv *env, jclass clazz, jlong msetiteratorid) {
     MSetIterator *itr = _msetiterator->remove(msetiteratorid);
-    if (itr) delete itr;
+    delete itr;
 }

@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2008, Olly Betts
+ Copyright (c) 2008,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -164,6 +164,6 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_mset_1get_1description (JNIE
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_mset_1finalize (JNIEnv *env, jclass clazz, jlong msetid) {
     MSet *mset = _mset->remove(msetid);
-    if (mset) delete mset;
+    delete mset;
 }
 

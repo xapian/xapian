@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006,2008, Olly Betts
+ Copyright (c) 2006,2008,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -168,5 +168,5 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1get_1length (JNIEnv *en
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1finalize (JNIEnv *env, jclass clazz, jlong qid) {
     Query *q = _query->remove(qid);
-    if (q) delete q;
+    delete q;
 }

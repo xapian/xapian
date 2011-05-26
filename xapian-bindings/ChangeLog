@@ -1,3 +1,8 @@
+Thu May 26 13:06:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/: C++'s delete operator will ignore a NULL pointer, so
+	  remove checks that the pointer is non-NULL before calling it.
+
 Thu May 26 11:30:22 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/unordered_map.h: Portability wrapper around various ways

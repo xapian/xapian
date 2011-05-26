@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2008, Olly Betts
+ Copyright (c) 2008,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -103,5 +103,5 @@ JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_termiterator_1equals (JNIEn
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_termiterator_1finalize (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TermIterator *itr = _termiterator->remove(termiteratorid);
-    if (itr) delete itr;
+    delete itr;
 }

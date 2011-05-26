@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2008, Olly Betts
+ Copyright (c) 2008,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -218,5 +218,5 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1get_1document (JNIEn
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_database_1finalize (JNIEnv *env, jclass clazz, jlong dbid) {
     Database *db = (Database *) _database->remove(dbid);
-    if (db) delete db;
+    delete db;
 }
