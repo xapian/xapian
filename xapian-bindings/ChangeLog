@@ -1,3 +1,7 @@
+Fri May 27 05:28:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri May 27 05:09:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/utils.cc: Remove another unused <typeinfo>.

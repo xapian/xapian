@@ -1,3 +1,66 @@
+ 15502       olly Fri May 27 05:09:42 GMT 2011  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.6 (2011-05-27):
+
+Documentation:
+
+General:
+
+* SWIG-based bindings are now generated with a newer version of SWIG (ticket#538).
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+* Upgrading to newer SWIG fixes issues with strings with newer C# versions.
+
+Java:
+
+ 15501       olly Fri May 27 05:01:47 GMT 2011  Olly Betts <olly@survex.com>
+	* java/native/: Factor out Java jstring -> C++ std::string conversion
+	  into cpp_string() function, which also fixes memory leaks upon
+	  exceptions.
+
+ 15498       olly Fri May 27 04:02:01 GMT 2011  Olly Betts <olly@survex.com>
+	* java/native/,java/org/xapian/: Instead of using an unordered_map to
+	  track id -> pointer mappings, just use reinterpret_cast - jlong is
+	  64 bits, which will hold a pointer on current platforms.
+	* java/README: This avoids needing thread locks, so remove pthread
+	  linking issues from TODO list.
+	* java/native/XapianObjectHolder.h: Use new unordered_map.h which fixes
+	  warnings about using deprecated headers with recent GCC versions.
+
+ 15496       olly Thu May 26 13:06:13 GMT 2011  Olly Betts <olly@survex.com>
+	* java/native/: C++'s delete operator will ignore a NULL pointer, so
+	  remove checks that the pointer is non-NULL before calling it.
+
+Perl:
+
+* README: say that Perl bindings probably need Perl 5.8 or later.
+
+PHP:
+
+* Directors now work for PHP (ticket#488).  New simplematchdecider.php example.
+
+Python:
+
+	* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always
+	  collect all the garbage, so repeat until no further objects are
+	  freed.  (http://bugs.debian.org/625679 and
+	  https://bugs.gentoo.org/349484).
+
+Ruby:
+
+	* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() -
+	  just skip the compaction tests for these versions.
+
+	* configure.ac: Get the Ruby version from the rbconfig module, rather
+	  than parsing the potentially more variable output of ruby --version.
+
+Tcl:
+
 Xapian-bindings 1.2.5 (2011-04-04):
 
 Documentation:
