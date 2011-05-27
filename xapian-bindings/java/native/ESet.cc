@@ -33,48 +33,48 @@ using namespace Xapian;
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_eset_1new (JNIEnv *env, jclass clazz) {
     TRY
         ESet *eset = new ESet();
-        return _eset->put(eset);
+        return id_from_obj(eset);
     CATCH(-1)
 }
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_eset_1get_1ebound (JNIEnv *env, jclass clazz, jlong esetid) {
     TRY    
-        ESet *eset = _eset->get(esetid);
+        ESet *eset = obj_from_id<ESet *>(esetid);
         return eset->get_ebound();
     CATCH(-1)
 }
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_eset_1size (JNIEnv *env, jclass clazz, jlong esetid) {
     TRY
-        ESet *eset = _eset->get(esetid);
+        ESet *eset = obj_from_id<ESet *>(esetid);
         return eset->size();
     CATCH(-1)
 }
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_eset_1empty (JNIEnv *env, jclass clazz, jlong esetid) {
     TRY    
-        ESet *eset = _eset->get(esetid);
+        ESet *eset = obj_from_id<ESet *>(esetid);
         return eset->empty();
     CATCH(false)
 }
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_eset_1begin (JNIEnv *env, jclass clazz, jlong esetid) {
     TRY
-        ESet *eset = _eset->get(esetid);
+        ESet *eset = obj_from_id<ESet *>(esetid);
         ESetIterator *itr = new ESetIterator(eset->begin());
-        return _esetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_eset_1end (JNIEnv *env, jclass clazz, jlong esetid) {
     TRY
-        ESet *eset = _eset->get(esetid);
+        ESet *eset = obj_from_id<ESet *>(esetid);
         ESetIterator *itr = new ESetIterator(eset->end());
-        return _esetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_eset_1get_1description (JNIEnv *env, jclass clazz, jlong esetid) {
     TRY
-        ESet *eset = _eset->get(esetid);
+        ESet *eset = obj_from_id<ESet *>(esetid);
         return env->NewStringUTF(eset->get_description().c_str());
     CATCH(NULL)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_eset_1finalize (JNIEnv *env, jclass clazz, jlong esetid) {
-    ESet *eset = _eset->remove(esetid);
+    ESet *eset = obj_from_id<ESet *>(esetid);
     delete eset;
 }

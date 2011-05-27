@@ -58,7 +58,7 @@ on_error:
         TRY
             jmethodID ctorid;
             jobject document;
-            long docid = _document->put(new Document(doc));
+            long docid = id_from_obj(new Document(doc));
 
             jclass documentclass = env->FindClass("org/xapian/Document");
             if (!documentclass) goto on_error;
@@ -110,24 +110,24 @@ on_error:
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new (JNIEnv *env, jclass clazz, jlong dbid) {
     TRY
-        Database *db = (Database *) _database->get(dbid);
+        Database *db = obj_from_id<Database *>(dbid);
         Enquire *e = new Enquire(*db);
-        return _enquire->put(e);
+        return id_from_obj(e);
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid) {
     TRY
-        Enquire *e = _enquire->get(eid);
-        Query *q = _query->get(qid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
+        Query *q = obj_from_id<Query *>(qid);
         e->set_query(*q);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid, jint qlen) {
     TRY
-        Enquire *e = _enquire->get(eid);
-        Query *q = _query->get(qid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
+        Query *q = obj_from_id<Query *>(qid);
         e->set_query(*q, qlen);
     CATCH(;)
 }
@@ -137,7 +137,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *en
 #if 0
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1query (JNIEnv *env, jclass clazz, jlong eid) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         Query q = e->get_query();
 	// Insert magic here!
         return q.getMyID();
@@ -147,28 +147,28 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1query (JNIEnv *e
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1collapse_1key (JNIEnv *env, jclass clazz, jlong eid, jlong collapse_key) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         e->set_collapse_key(collapse_key);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1sort_1forward (JNIEnv *env, jclass clazz, jlong eid, jboolean forward) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         e->set_docid_order(forward ? Xapian::Enquire::ASCENDING : Xapian::Enquire::DESCENDING);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1cutoff (JNIEnv *env, jclass clazz, jlong eid, jint percent_cutoff, jdouble cutoff) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         e->set_cutoff(percent_cutoff, cutoff);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1sorting (JNIEnv *env, jclass clazz, jlong eid, jlong sortkey, jint bands) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         if (bands) {
             e->set_sort_by_value(sortkey);
         } else {
@@ -179,12 +179,12 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1sorting (JNIEnv *
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1mset (JNIEnv *env, jclass clazz, jlong eid, jlong first, jlong maxitems, jlong rsetid, jobject md) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         RSet *rset;
 	MatchDecider *mdecider;
         MSet *mset;
 
-	rset = rsetid > -1 ?_rset->get(rsetid) : NULL;
+	rset = rsetid ? obj_from_id<RSet *>(rsetid) : NULL;
 
 	if (md) {
 	    JavaMatchDecider mdecider(env, clazz, md);
@@ -193,70 +193,69 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1mset (JNIEnv *en
 	    mset = new MSet (e->get_mset(first, maxitems, rset));
 	}
 
-        return _mset->put(mset);
+        return id_from_obj(mset);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJIDLorg_xapian_ExpandDecider_2 (JNIEnv *env, jclass clazz, jlong eid, jlong maxitems, jlong rsetid, jint flags, jdouble k, jobject ed) {
     TRY
-        Enquire *e = _enquire->get(eid);
-        RSet *rset = _rset->get(rsetid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
+        RSet *rset = obj_from_id<RSet *>(rsetid);
         ESet *eset = new ESet (e->get_eset(maxitems, *rset, flags, k, ed ? new JavaExpandDecider(env, clazz, ed) : NULL));
-        return _eset->put(eset);
+        return id_from_obj(eset);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJLorg_xapian_ExpandDecider_2 (JNIEnv *env, jclass clazz, jlong eid, jlong maxitems, jlong rsetid, jobject ed) {
     TRY
-        Enquire *e = _enquire->get(eid);
-        RSet *rset = _rset->get(rsetid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
+        RSet *rset = obj_from_id<RSet *>(rsetid);
         ESet *eset = new ESet(e->get_eset(maxitems, *rset, ed ? new JavaExpandDecider(env, clazz, ed) : NULL));
-        return _eset->put(eset);
+        return id_from_obj(eset);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_1begin (JNIEnv *env, jclass clazz, jlong eid, jlong dbdocid) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         TermIterator *itr = new TermIterator (e->get_matching_terms_begin(dbdocid));
-        return _termiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_1end (JNIEnv *env, jclass clazz, jlong eid, jlong dbdocid) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         TermIterator *itr = new TermIterator (e->get_matching_terms_end(dbdocid));
-        return _termiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_1begin_1by_1msetiterator (JNIEnv *env, jclass clazz, jlong eid, jlong msetiteratorid) {
     TRY
-        Enquire *e = _enquire->get(eid);
-        MSetIterator *msetitr = _msetiterator->get(msetiteratorid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
+        MSetIterator *msetitr = obj_from_id<MSetIterator *>(msetiteratorid);
         TermIterator *itr = new TermIterator (e->get_matching_terms_begin(*msetitr));
-        return _termiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_1end_1by_1msetiterator (JNIEnv *env, jclass clazz, jlong eid, jlong msetiteratorid) {
     TRY
-        Enquire *e = _enquire->get(eid);
-        MSetIterator *msetitr = _msetiterator->get(msetiteratorid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
+        MSetIterator *msetitr = obj_from_id<MSetIterator *>(msetiteratorid);
         TermIterator *itr = new TermIterator (e->get_matching_terms_end(*msetitr));
-        return _termiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_enquire_1get_1description (JNIEnv *env, jclass clazz, jlong eid) {
     TRY
-        Enquire *e = _enquire->get(eid);
+        Enquire *e = obj_from_id<Enquire *>(eid);
         return env->NewStringUTF(e->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1finalize (JNIEnv *env, jclass clazz, jlong eid) {
-    Enquire *e = _enquire->remove(eid);
-    delete e;
+    delete obj_from_id<Enquire *>(eid);
 }

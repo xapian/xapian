@@ -32,22 +32,22 @@ using namespace Xapian;
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1convert_1to_1percent__JJ(JNIEnv *env, jclass clazz, jlong msetid, jlong msetiteratorid) {
     TRY
-        MSet *this_mset = _mset->get(msetid);
-        MSetIterator *itr = _msetiterator->get(msetiteratorid);
+        MSet *this_mset = obj_from_id<MSet *>(msetid);
+        MSetIterator *itr = obj_from_id<MSetIterator *>(msetiteratorid);
         return this_mset->convert_to_percent(*itr);
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1convert_1to_1percent__JD(JNIEnv *env, jclass clazz, jlong msetid, jdouble weight) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->convert_to_percent(weight);
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1termfreq(JNIEnv *env, jclass clazz, jlong msetid, jstring term) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         int freq = mset->get_termfreq(cpp_term);
@@ -58,7 +58,7 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1termfreq(JNIEnv *env
 
 JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_mset_1get_1termweight(JNIEnv *env, jclass clazz, jlong msetid, jstring term) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         double weight = mset->get_termweight(cpp_term);
@@ -69,101 +69,101 @@ JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_mset_1get_1termweight(JNIEnv
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1firstitem(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->get_firstitem();
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1matches_1lower_1bound(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->get_matches_lower_bound();
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1matches_1estimated(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->get_matches_estimated();
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1matches_1upper_1bound(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->get_matches_upper_bound();
     CATCH(-1)
 }
 
 JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_mset_1get_1max_1possible(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->get_max_possible();
     CATCH(-1)
 }
 
 JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_mset_1get_1max_1attained(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->get_max_attained();
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1size(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->size();
     CATCH(-1)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_mset_1empty(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return mset->empty();
     CATCH(0)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_mset_1begin(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         MSetIterator *itr = new MSetIterator(mset->begin());
-        return _msetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_mset_1end(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         MSetIterator *itr = new MSetIterator(mset->end());
-        return _msetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_mset_1back(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         MSetIterator *itr = new MSetIterator(mset->back());
-        return _msetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_mset_1element (JNIEnv *env, jclass clazz, jlong msetid, jlong index) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         MSetIterator *itr = new MSetIterator((*mset)[index]);
-        return _msetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_mset_1get_1description (JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
-        MSet *mset = _mset->get(msetid);
+        MSet *mset = obj_from_id<MSet *>(msetid);
         return env->NewStringUTF(mset->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_mset_1finalize (JNIEnv *env, jclass clazz, jlong msetid) {
-    MSet *mset = _mset->remove(msetid);
+    MSet *mset = obj_from_id<MSet *>(msetid);
     delete mset;
 }
 

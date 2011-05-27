@@ -37,7 +37,7 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1get_1available_1langua
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_stem_1new__ (JNIEnv *env, jclass clazz) {
     TRY
         Stem *stem = new Stem();
-        return _stem->put(stem);
+        return id_from_obj(stem);
     CATCH(-1)
 }
 
@@ -46,13 +46,13 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_stem_1new__Ljava_lang_String_2
         const char *c_language = env->GetStringUTFChars(language, 0);
         Stem *stem = new Stem (c_language);
         env->ReleaseStringUTFChars(language, c_language);
-        return _stem->put(stem);
+        return id_from_obj(stem);
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1stem_1word (JNIEnv *env, jclass clazz, jlong stemid, jstring term) {
     TRY
-        Stem *stem = _stem->get(stemid);
+        Stem *stem = obj_from_id<Stem *>(stemid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         string stemmed = (*stem)(cpp_term);
@@ -63,13 +63,13 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1stem_1word (JNIEnv *en
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1get_1description (JNIEnv *env, jclass clazz, jlong stemid) {
     TRY
-        Stem *stem = _stem->get(stemid);
+        Stem *stem = obj_from_id<Stem *>(stemid);
         return env->NewStringUTF(stem->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_stem_1finalize (JNIEnv *env, jclass clazz, jlong stemid) {
-    Stem *stem = _stem->remove(stemid);
+    Stem *stem = obj_from_id<Stem *>(stemid);
     delete stem;
 }
 

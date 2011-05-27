@@ -34,7 +34,7 @@ import java.util.List;
 public class Database {
     private Database _createdfrom = null;
 
-    long id = -1;
+    long id = 0;
 
     private List _children;
 
@@ -138,10 +138,10 @@ public class Database {
      */
     public void finalize() throws Throwable {
         if (_children != null) _children.clear();
-        if (id > -1) {
+        if (id != 0) {
             XapianJNI.database_finalize(id);
+            id = 0;
         }
-        id = -1;
         super.finalize();
     }
 }

@@ -33,14 +33,14 @@ using namespace Xapian;
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1new__ (JNIEnv *env, jclass clazz) {
     TRY
         WritableDatabase *db = new WritableDatabase();
-        return _database->put(db);
+        return id_from_obj(db);
     CATCH(-1)
 }
 
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_inmemory_1open (JNIEnv *, jclass) {
     WritableDatabase *db = new WritableDatabase(InMemory::open());
-    return _database->put(db);
+    return id_from_obj(db);
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1new__Ljava_lang_String_2I(JNIEnv *env, jclass clazz, jstring path, jint mode) {
@@ -49,42 +49,42 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1new__Ljava_l
 	string cpp_path(c_path, env->GetStringUTFLength(path));
         WritableDatabase *db = new WritableDatabase(cpp_path, mode);
         env->ReleaseStringUTFChars(path, c_path);
-        return _database->put(db);
+        return id_from_obj(db);
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1flush (JNIEnv *env, jclass clazz, jlong dbid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
         db->flush();
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1begin_1transaction (JNIEnv *env, jclass clazz, jlong dbid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
         db->begin_transaction();
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1commit_1transaction (JNIEnv *env, jclass clazz, jlong dbid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
         db->commit_transaction();
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1cancel_1transaction (JNIEnv *env, jclass clazz, jlong dbid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
         db->cancel_transaction();
     CATCH(;)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1add_1document (JNIEnv *env, jclass clazz, jlong dbid, jlong docid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
-        Document *doc = _document->get(docid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
+        Document *doc = obj_from_id<Document *>(docid);
         long id = db->add_document(*doc);
         return id;
     CATCH(-1)
@@ -92,27 +92,27 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1add_1documen
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1delete_1document (JNIEnv *env, jclass clazz, jlong dbid, jlong assigned_docid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
         db->delete_document(assigned_docid);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1replace_1document (JNIEnv *env, jclass clazz, jlong dbid, jlong assigned_docid, jlong docid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
-        Document *doc = _document->get(docid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
+        Document *doc = obj_from_id<Document *>(docid);
         db->replace_document(assigned_docid, *doc);
     CATCH(;)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_writabledatabase_1get_1description (JNIEnv *env, jclass clazz, jlong dbid) {
     TRY
-        WritableDatabase *db = (WritableDatabase *) _database->get(dbid);
+        WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
         return env->NewStringUTF(db->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1finalize (JNIEnv *env, jclass clazz, jlong dbid) {
-    WritableDatabase *db = (WritableDatabase *) _database->remove(dbid);
+    WritableDatabase *db = (WritableDatabase *) obj_from_id<Database *>(dbid);
     delete db;
 }

@@ -31,7 +31,7 @@ import org.xapian.errors.XapianRuntimeError;
 
 public class MSet {
 
-    long id = -1;
+    long id = 0;
 
     MSet(long id) {
         this.id = id;

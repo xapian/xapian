@@ -33,51 +33,51 @@ using namespace Xapian;
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_esetiterator_1new (JNIEnv *env, jclass clazz) {
     TRY
         ESetIterator *itr = new ESetIterator();
-        return _esetiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_esetiterator_1next (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
     TRY
-        ESetIterator *itr = _esetiterator->get(esetiteratorid);
+        ESetIterator *itr = obj_from_id<ESetIterator *>(esetiteratorid);
         ++(*itr);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_esetiterator_1prev (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
     TRY
-        ESetIterator *itr = _esetiterator->get(esetiteratorid);
+        ESetIterator *itr = obj_from_id<ESetIterator *>(esetiteratorid);
         --(*itr);
     CATCH(;)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_esetiterator_1equals (JNIEnv *env, jclass clazz, jlong aid, jlong bid) {
     TRY
-        ESetIterator *a = _esetiterator->get(aid);
-        ESetIterator *b = _esetiterator->get(bid);
+        ESetIterator *a = obj_from_id<ESetIterator *>(aid);
+        ESetIterator *b = obj_from_id<ESetIterator *>(bid);
     
         return (*a) == (*b);
     CATCH(false)
 }
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_esetiterator_1get (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
     TRY
-        ESetIterator *itr = _esetiterator->get(esetiteratorid);
+        ESetIterator *itr = obj_from_id<ESetIterator *>(esetiteratorid);
         return env->NewStringUTF((*(*itr)).c_str());
     CATCH(NULL)
 }
 JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_esetiterator_1get_1weight (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
     TRY
-        ESetIterator *itr = _esetiterator->get(esetiteratorid);
+        ESetIterator *itr = obj_from_id<ESetIterator *>(esetiteratorid);
         return itr->get_weight();
     CATCH(-1.0)
 }
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_esetiterator_1get_1description (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
     TRY
-        ESetIterator *itr = _esetiterator->get(esetiteratorid);
+        ESetIterator *itr = obj_from_id<ESetIterator *>(esetiteratorid);
         return env->NewStringUTF(itr->get_description().c_str());
     CATCH(NULL)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_esetiterator_1finalize (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
-    ESetIterator *itr = _esetiterator->remove(esetiteratorid);
+    ESetIterator *itr = obj_from_id<ESetIterator *>(esetiteratorid);
     delete itr;
 }

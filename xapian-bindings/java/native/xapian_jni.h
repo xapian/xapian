@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006, Olly Betts
+ Copyright (c) 2006,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -36,7 +36,6 @@
 #include <xapian.h>
 
 #include "org_xapian_XapianJNI.h"
-#include "XapianObjectHolder.h"
 
 using namespace std;
 using namespace Xapian;
@@ -81,24 +80,6 @@ struct streq {
 };
 
 //
-// variable declarations
-//
-
-/** holder objects for each Xapian type.  */
-extern XapianObjectHolder<void *> *_database;    // for Xapian::Database *and* Xapian::WritableDatabase
-extern XapianObjectHolder<Document *> *_document;
-extern XapianObjectHolder<Enquire *> *_enquire;
-extern XapianObjectHolder<ESet *> *_eset;
-extern XapianObjectHolder<ESetIterator *> *_esetiterator;
-extern XapianObjectHolder<MSet *> *_mset;
-extern XapianObjectHolder<MSetIterator *> *_msetiterator;
-extern XapianObjectHolder<PositionIterator *> *_positioniterator;
-extern XapianObjectHolder<Query *> *_query;
-extern XapianObjectHolder<RSet *> *_rset;
-extern XapianObjectHolder<Stem *> *_stem;
-extern XapianObjectHolder<TermIterator *> *_termiterator;
-
-//
 // function declarations
 //
 
@@ -112,5 +93,26 @@ extern bool check_for_java_exception(JNIEnv *env);
  * takes a java object array (of Strings), and converts it into a C++ string array
  */
 extern string *toArray(JNIEnv *env, jobjectArray j_array, int len);
+
+#define CompileTimeAssert(COND)\
+    do {\
+        typedef int xapian_compile_time_check_[(COND) ? 1 : -1];\
+    } while (0)
+
+template <class T> jlong id_from_obj(T obj) {
+    // jlong needs to be at least as last as the pointer T to hold its value
+    // without losing information.
+    CompileTimeAssert(sizeof(T) <= sizeof(jlong));
+    // Make sure that NULL casts to 0, since we use 0 on the Java side to
+    // represent "no pointer set".  If this is an issue on any platform, we
+    // could subtract reinterpret_cast of NULL, but we need to have an unsigned
+    // version of jlong in case this subtraction overflows.
+    CompileTimeAssert(reinterpret_cast<jlong>(T(0)) == 0);
+    return reinterpret_cast<jlong>(obj);
+}
+
+template <class T> T obj_from_id(jlong id) {
+    return reinterpret_cast<T>(id);
+}
 
 #endif

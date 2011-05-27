@@ -46,7 +46,7 @@ static Xapian::Query::op op_table[] = {
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ (JNIEnv *env, jclass clazz) {
     TRY
         Query *q = new Query();
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
@@ -55,7 +55,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
         const char *c_term = env->GetStringUTFChars(term, 0);
         Query *q = new Query(string(c_term, env->GetStringUTFLength(term)));
         env->ReleaseStringUTFChars(term, c_term);
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
@@ -65,7 +65,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
         Query *q;
 	q = new Query(string(c_term, env->GetStringUTFLength(term)), wqf);
         env->ReleaseStringUTFChars(term, c_term);
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
@@ -75,16 +75,16 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
         Query *q;
 	q = new Query(string(c_term, env->GetStringUTFLength(term)), wqf, pos);
         env->ReleaseStringUTFChars(term, c_term);
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJJ (JNIEnv *env, jclass clazz, jint op, jlong leftid, jlong rightid) {
     TRY
-        Query *left = _query->get(leftid);
-        Query *right = _query->get(rightid);
+        Query *left = obj_from_id<Query *>(leftid);
+        Query *right = obj_from_id<Query *>(rightid);
         Query *q = new Query(op_table[op-1], *left, *right);
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
@@ -97,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ILjava_lang_String
 	    string(c_right, env->GetStringUTFLength(strright)));
         env->ReleaseStringUTFChars(strleft, c_left);
         env->ReleaseStringUTFChars(strright, c_right);
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
@@ -107,7 +107,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3Ljava_lang_Stri
         string *array = toArray(env, terms, size);
         Query *q = new Query(op_table[op-1], array, array+size);
 	delete[] array;
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
@@ -117,7 +117,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J (JNIEnv *env,
 	Query **queries = new Query*[len];
 	jlong *qid_ptr = env->GetLongArrayElements(qids, NULL);
 	for (int x=0; x<len; x++) {
-	    queries[x] = _query->get(qid_ptr[x]);
+	    queries[x] = obj_from_id<Query *>(qid_ptr[x]);
 	}
         Query *q = new Query(op_table[op-1], queries, queries+len);
 	/* We don't change the array so use JNI_ABORT to avoid any work
@@ -125,48 +125,48 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J (JNIEnv *env,
 	 * of the array data. */
 	env->ReleaseLongArrayElements(qids, qid_ptr, JNI_ABORT);
 	delete[] queries;
-        return _query->put(q);
+        return id_from_obj(q);
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_query_1get_1description (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query->get(qid);
+        Query *q = obj_from_id<Query *>(qid);
         return env->NewStringUTF(q->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_query_1empty (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query->get(qid);
+        Query *q = obj_from_id<Query *>(qid);
         return q->empty();
     CATCH(false)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1terms_1begin (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query->get(qid);
+        Query *q = obj_from_id<Query *>(qid);
         TermIterator *itr = new TermIterator(q->get_terms_begin());
-        return _termiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1terms_1end (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query->get(qid);
+        Query *q = obj_from_id<Query *>(qid);
         TermIterator *itr = new TermIterator(q->get_terms_end());
-        return _termiterator->put(itr);
+        return id_from_obj(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1get_1length (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query->get(qid);
+        Query *q = obj_from_id<Query *>(qid);
         return q->get_length();
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1finalize (JNIEnv *env, jclass clazz, jlong qid) {
-    Query *q = _query->remove(qid);
+    Query *q = obj_from_id<Query *>(qid);
     delete q;
 }

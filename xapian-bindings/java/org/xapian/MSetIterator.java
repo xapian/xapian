@@ -34,7 +34,7 @@ import java.util.Iterator;
 public class MSetIterator implements Iterator {
     private MSet _createdfrom = null;
 
-    long id = -1;
+    long id = 0;
     private int _size = 0;
     private int _pos = 0;
 

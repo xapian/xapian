@@ -82,9 +82,9 @@ public class WritableDatabase extends Database {
      * explicitly close this WritableDatabase right now
      */
     public void finalize() throws Throwable {
-        if (id > -1) {
+        if (id != 0) {
             XapianJNI.writabledatabase_finalize(id);
-            id = -1;
+            id = 0;
         }
 
         super.finalize();

@@ -32,7 +32,7 @@ import org.xapian.errors.XapianRuntimeError;
  *
  */
 public class ESet {
-    long id = -1;
+    long id = 0;
 
     ESet(long id) {
         this.id = id;

@@ -31,40 +31,10 @@
 using namespace Xapian;
 using namespace std;
 
-//
-// define the things that were declared as 'extern'al
-//
-
-XapianObjectHolder<void *> *_database;    // for Xapian::Database *and* Xapian::WritableDatabase
-XapianObjectHolder<Document *> *_document;
-XapianObjectHolder<Enquire *> *_enquire;
-XapianObjectHolder<ESet *> *_eset;
-XapianObjectHolder<ESetIterator *> *_esetiterator;
-XapianObjectHolder<MSet *> *_mset;
-XapianObjectHolder<MSetIterator *> *_msetiterator;
-XapianObjectHolder<PositionIterator *> *_positioniterator;
-XapianObjectHolder<Query *> *_query;
-XapianObjectHolder<RSet *> *_rset;
-XapianObjectHolder<Stem *> *_stem;
-XapianObjectHolder<TermIterator *> *_termiterator;
-
 /**
  * Optional JNI function that java calls when it loads this library.
  */
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-    _database = new XapianObjectHolder <void *> ();    // for Xapian::Database *and* Xapian::WritableDatabase
-    _document = new XapianObjectHolder <Document *> ();
-    _enquire = new XapianObjectHolder <Enquire *> ();
-    _eset = new XapianObjectHolder <ESet *> ();
-    _esetiterator = new XapianObjectHolder <ESetIterator *> ();
-    _mset = new XapianObjectHolder <MSet *> ();
-    _msetiterator = new XapianObjectHolder <MSetIterator *> ();
-    _positioniterator = new XapianObjectHolder <PositionIterator *> ();
-    _query = new XapianObjectHolder <Query *> ();
-    _rset = new XapianObjectHolder <RSet *> ();
-    _stem = new XapianObjectHolder <Stem *> ();
-    _termiterator = new XapianObjectHolder <TermIterator *> ();
-
     return JNI_VERSION_1_2;
 }
 

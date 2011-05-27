@@ -1,3 +1,11 @@
+Fri May 27 04:02:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/,java/org/xapian/: Instead of using an unordered_map to
+	  track id -> pointer mappings, just use reinterpret_cast - jlong is
+	  64 bits, which will hold a pointer on current platforms.
+	* java/README: This avoids needing thread locks, so remove pthread
+	  linking issues from TODO list.
+
 Thu May 26 13:06:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/: C++'s delete operator will ignore a NULL pointer, so

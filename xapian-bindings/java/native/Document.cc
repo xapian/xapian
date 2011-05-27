@@ -32,23 +32,21 @@ using namespace Xapian;
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_document_1new__ (JNIEnv *env, jclass clazz) {
     TRY
-        Document *doc = new Document();
-        return _document->put(doc);
+        return id_from_obj(new Document());
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_document_1new__J (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *existing = _document->get(docid);
-        Document *new_doc = new Document(*existing);
-        return _document->put(new_doc);
+        Document *existing = obj_from_id<Document *>(docid);
+        return id_from_obj(new Document(*existing));
     CATCH(-1)
 }
 
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_docment_1get_1value (JNIEnv *env, jclass clazz, jlong docid, jint value_index) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         string value = doc->get_value(value_index);
         if (value.c_str()) {
             return env->NewStringUTF(value.c_str());
@@ -60,7 +58,7 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_docment_1get_1value (JNIEnv 
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1value (JNIEnv *env, jclass clazz, jlong docid, jint value_index, jstring value) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         const char *c_value = env->GetStringUTFChars(value, 0);
 	string cpp_value(c_value, env->GetStringUTFLength(value));
         doc->add_value(value_index, cpp_value);
@@ -70,28 +68,28 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1value (JNIEnv *e
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1value (JNIEnv *env, jclass clazz, jlong docid, jint value_index) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         doc->remove_value(value_index);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1clear_1values (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         doc->clear_values();
     CATCH(;)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_document_1get_1data (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         return env->NewStringUTF(doc->get_data().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1set_1data (JNIEnv *env, jclass clazz, jlong docid, jstring data) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         const char *c_data = env->GetStringUTFChars(data, 0);
 	string cpp_data(c_data, env->GetStringUTFLength(data));
         doc->set_data(cpp_data);
@@ -101,7 +99,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1set_1data (JNIEnv *en
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1posting (JNIEnv *env, jclass clazz, jlong docid, jstring term, jint position) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         doc->add_posting(cpp_term, position);
@@ -111,7 +109,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1posting (JNIEnv 
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term (JNIEnv *env, jclass clazz, jlong docid, jstring term) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         doc->add_term(cpp_term);
@@ -121,7 +119,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term (JNIEnv *en
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1posting (JNIEnv *env, jclass clazz, jlong docid, jstring term, jint position) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         doc->remove_posting(cpp_term, position);
@@ -131,7 +129,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1posting (JNIE
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1term (JNIEnv *env, jclass clazz, jlong docid, jstring term) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
 	string cpp_term(c_term, env->GetStringUTFLength(term));
         doc->remove_term(cpp_term);
@@ -141,33 +139,33 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1term (JNIEnv 
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1clear_1terms (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         doc->clear_terms();
     CATCH(;)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_document_1termlist_1count (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         return doc->termlist_count();
     CATCH(-1)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_document_1values_1count (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         return doc->values_count();
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_document_1get_1description (JNIEnv *env, jclass clazz, jlong docid) {
     TRY
-        Document *doc = _document->get(docid);
+        Document *doc = obj_from_id<Document *>(docid);
         return env->NewStringUTF(doc->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1finalize (JNIEnv *env, jclass clazz, jlong docid) {
-    Document *doc = _document->remove(docid);
+    Document *doc = obj_from_id<Document *>(docid);
     delete doc;
 }
