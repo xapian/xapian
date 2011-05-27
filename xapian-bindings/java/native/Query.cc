@@ -52,30 +52,19 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ (JNIEnv *env, jcl
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jstring term) {
     TRY
-        const char *c_term = env->GetStringUTFChars(term, 0);
-        Query *q = new Query(string(c_term, env->GetStringUTFLength(term)));
-        env->ReleaseStringUTFChars(term, c_term);
-        return id_from_obj(q);
+        return id_from_obj(new Query(cpp_string(env, term)));
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2I (JNIEnv *env, jclass clazz, jstring term, jint wqf) {
     TRY
-        const char *c_term = env->GetStringUTFChars(term, 0);
-        Query *q;
-	q = new Query(string(c_term, env->GetStringUTFLength(term)), wqf);
-        env->ReleaseStringUTFChars(term, c_term);
-        return id_from_obj(q);
+        return id_from_obj(new Query(cpp_string(env, term), wqf));
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2II (JNIEnv *env, jclass clazz, jstring term, jint wqf, jint pos) {
     TRY
-        const char *c_term = env->GetStringUTFChars(term, 0);
-        Query *q;
-	q = new Query(string(c_term, env->GetStringUTFLength(term)), wqf, pos);
-        env->ReleaseStringUTFChars(term, c_term);
-        return id_from_obj(q);
+        return id_from_obj(new Query(cpp_string(env, term), wqf, pos));
     CATCH(-1)
 }
 
@@ -83,20 +72,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJJ (JNIEnv *env, 
     TRY
         Query *left = obj_from_id<Query *>(leftid);
         Query *right = obj_from_id<Query *>(rightid);
-        Query *q = new Query(op_table[op-1], *left, *right);
-        return id_from_obj(q);
+        return id_from_obj(new Query(op_table[op-1], *left, *right));
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ILjava_lang_String_2Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jint op, jstring strleft, jstring strright) {
     TRY
-        const char *c_left = env->GetStringUTFChars(strleft, 0);
-        const char *c_right = env->GetStringUTFChars(strright, 0);
         Query *q = new Query(op_table[op-1],
-	    string(c_left, env->GetStringUTFLength(strleft)),
-	    string(c_right, env->GetStringUTFLength(strright)));
-        env->ReleaseStringUTFChars(strleft, c_left);
-        env->ReleaseStringUTFChars(strright, c_right);
+	                     cpp_string(env, strleft), cpp_string(env, strright));
         return id_from_obj(q);
     CATCH(-1)
 }

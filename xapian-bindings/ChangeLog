@@ -1,3 +1,9 @@
+Fri May 27 05:01:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/: Factor out Java jstring -> C++ std::string conversion
+	  into cpp_string() function, which also fixes memory leaks upon
+	  exceptions.
+
 Fri May 27 04:29:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/xapian_jni.h: Remove unused <typeinfo>.

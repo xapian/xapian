@@ -79,10 +79,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_termiterator_1get_1wdf (JNIEnv
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_termiterator_1skip_1to (JNIEnv *env, jclass clazz, jlong termiteratorid, jstring term) {
     TRY
         TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        itr->skip_to(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
+        itr->skip_to(cpp_string(env, term));
     CATCH(;)
 }
 

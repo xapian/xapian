@@ -48,22 +48,14 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1convert_1to_1percent__JD(
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1get_1termfreq(JNIEnv *env, jclass clazz, jlong msetid, jstring term) {
     TRY
         MSet *mset = obj_from_id<MSet *>(msetid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        int freq = mset->get_termfreq(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
-        return freq;
+        return mset->get_termfreq(cpp_string(env, term));
     CATCH(-1)
 }
 
 JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_mset_1get_1termweight(JNIEnv *env, jclass clazz, jlong msetid, jstring term) {
     TRY
         MSet *mset = obj_from_id<MSet *>(msetid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        double weight = mset->get_termweight(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
-        return weight;
+        return mset->get_termweight(cpp_string(env, term));
     CATCH(-1)
 }
 

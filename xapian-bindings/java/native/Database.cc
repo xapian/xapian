@@ -38,10 +38,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1new__ (JNIEnv *env, 
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1new__Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jstring path) {
     TRY
-        const char *c_path = env->GetStringUTFChars(path, 0);
-	string cpp_path(c_path, env->GetStringUTFLength(path));
-        Database *db = new Database(cpp_path);
-        env->ReleaseStringUTFChars(path, c_path);
+        Database *db = new Database(cpp_string(env, path));
         return id_from_obj(db);
     CATCH(-1)
 }
@@ -103,11 +100,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1termlist_1end (JNIEn
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1positionlist_1begin (JNIEnv *env, jclass clazz, jlong dbid, jlong dbdocid, jstring term) {
     TRY
         Database *db = obj_from_id<Database *>(dbid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
         PositionIterator *itr;
-        itr = new PositionIterator(db->positionlist_begin(dbdocid, cpp_term));
-        env->ReleaseStringUTFChars(term, c_term);
+        itr = new PositionIterator(db->positionlist_begin(dbdocid, cpp_string(env, term)));
         return id_from_obj(itr);
     CATCH(-1)
 }
@@ -115,10 +109,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1positionlist_1begin 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1positionlist_1end (JNIEnv *env, jclass clazz, jlong dbid, jlong dbdocid, jstring term) {
     TRY
         Database *db = obj_from_id<Database *>(dbid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        PositionIterator *itr = new PositionIterator (db->positionlist_end(dbdocid, cpp_term));
-        env->ReleaseStringUTFChars(term, c_term);
+        PositionIterator *itr;
+	itr = new PositionIterator(db->positionlist_end(dbdocid, cpp_string(env, term)));
         return id_from_obj(itr);
     CATCH(-1)
 }
@@ -161,33 +153,21 @@ JNIEXPORT jdouble JNICALL Java_org_xapian_XapianJNI_database_1get_1avlength (JNI
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_database_1get_1termfreq (JNIEnv *env, jclass clazz, jlong dbid, jstring term) {
     TRY
         Database *db = obj_from_id<Database *>(dbid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        int freq = db->get_termfreq(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
-        return freq;
+        return db->get_termfreq(cpp_string(env, term));
     CATCH(-1)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_database_1term_1exists (JNIEnv *env, jclass clazz, jlong dbid, jstring term) {
     TRY
         Database *db = obj_from_id<Database *>(dbid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        bool exists = db->term_exists(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
-        return exists;
+        return db->term_exists(cpp_string(env, term));
     CATCH(0)
 }
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_database_1get_1collection_1freq (JNIEnv *env, jclass clazz, jlong dbid, jstring term) {
     TRY
         Database *db = obj_from_id<Database *>(dbid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        int freq = db->get_collection_freq(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
-        return freq;
+        return db->get_collection_freq(cpp_string(env, term));
     CATCH(-1)
 }
 

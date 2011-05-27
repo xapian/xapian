@@ -43,20 +43,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_stem_1new__ (JNIEnv *env, jcla
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_stem_1new__Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jstring language) {
     TRY    
-        const char *c_language = env->GetStringUTFChars(language, 0);
-        Stem *stem = new Stem (c_language);
-        env->ReleaseStringUTFChars(language, c_language);
-        return id_from_obj(stem);
+        return id_from_obj(new Stem(cpp_string(env, language)));
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1stem_1word (JNIEnv *env, jclass clazz, jlong stemid, jstring term) {
     TRY
         Stem *stem = obj_from_id<Stem *>(stemid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        string stemmed = (*stem)(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
+        const string & stemmed = (*stem)(cpp_string(env, term));
         return env->NewStringUTF(stemmed.c_str());
     CATCH(NULL)
 }

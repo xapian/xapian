@@ -103,4 +103,11 @@ template <class T> T obj_from_id(jlong id) {
     return reinterpret_cast<T>(id);
 }
 
+inline string cpp_string(JNIEnv *env, jstring s) {
+    const char *c_string = env->GetStringUTFChars(s, 0);
+    string result(c_string, env->GetStringUTFLength(s));
+    env->ReleaseStringUTFChars(s, c_string);
+    return result;
+}
+
 #endif
