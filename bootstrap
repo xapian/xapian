@@ -172,15 +172,15 @@ END
   fi
 
   # FIXME: Currently requires manual update...
-  #svn:external revision for SWIG
-  rev=11397
+  #svn:externals revision for SWIG
+  rev=12712
   if [ ! -d swig ] ; then
     git svn init svn://svn.tartarus.org/swig/trunk/ swig/
   fi
   (cd swig && git svn fetch -r"$rev")
 
   # FIXME: Currently requires manual update...
-  #svn:external revision for xapian-applications/omega/common
+  #svn:externals revision for xapian-applications/omega/common
   # Note: this needs to be the exact revision of the previous change!
   rev=14916
   if [ ! -d xapian-applications/omega/common ] ; then
