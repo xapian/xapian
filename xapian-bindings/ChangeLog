@@ -1,3 +1,7 @@
+Fri May 27 05:09:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/utils.cc: Remove another unused <typeinfo>.
+
 Fri May 27 05:01:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/: Factor out Java jstring -> C++ std::string conversion
