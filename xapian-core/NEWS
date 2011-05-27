@@ -1,3 +1,65 @@
+ 15494       olly Thu May 26 02:44:07 GMT 2011  Olly Betts <olly@survex.com>
+
+
+Xapian-core 1.2.6 (2011-05-27):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+* Eliminate temporary vector in queryoptimiser
+	  when handling phrase subqueries and replace with iterators.
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* docs/queryparser.html: Document the precedence order of operators.
+
+* docs/scalability.html: Bring up-to-date.
+
+* docs/admin_notes.rst: Clarify wording.
+
+tools:
+
+
+examples:
+
+* examples/delve: Report has_positions().
+
+* examples/simpleindex: Add short description to usage message.
+
+portability:
+
+* Fix to build for mingw.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.5 (2011-04-04):
 
 API:
