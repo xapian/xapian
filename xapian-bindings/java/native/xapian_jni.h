@@ -29,7 +29,6 @@
 #define __XAPIAN_JNI_H__
 
 #include <jni.h>
-#include <cstring>
 #include <typeinfo>
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
@@ -67,17 +66,6 @@ using namespace Xapian;
                     env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Unknown error occurred"); \
                 } \
                 return _rc_;
-
-//
-// struct definitions
-//
-
-/** equality function for strings, used by our map of error class names */
-struct streq {
-    bool operator()(const char *a, const char *b) const {
-        return strcmp(a, b) == 0;
-    }
-};
 
 //
 // function declarations

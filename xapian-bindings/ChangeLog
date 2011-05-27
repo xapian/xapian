@@ -1,3 +1,7 @@
+Fri May 27 04:25:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/xapian_jni.h: Remove unused struct streq.
+
 Fri May 27 04:02:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/,java/org/xapian/: Instead of using an unordered_map to
