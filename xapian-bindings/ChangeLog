@@ -1,3 +1,7 @@
+Fri May 27 04:29:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/xapian_jni.h: Remove unused <typeinfo>.
+
 Fri May 27 04:25:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/xapian_jni.h: Remove unused struct streq.
