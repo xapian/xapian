@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -335,6 +335,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *		could not be found in the database.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  did was 0, which is not
+	 *		a valid document id.
 	 */
 	Xapian::Document get_document(Xapian::docid did) const;
 

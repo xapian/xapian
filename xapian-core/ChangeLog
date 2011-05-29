@@ -1,3 +1,8 @@
+Sun May 29 05:19:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Add @exception InvalidArgumentError for
+	  Database::get_document() (ticket#542).
+
 Fri May 27 05:36:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
