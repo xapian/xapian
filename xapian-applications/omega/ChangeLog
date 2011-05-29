@@ -1,3 +1,8 @@
+Sun May 29 12:24:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: Autofocus the search query input (using HTML
+	  autofocus attribute with Javascript fallback for older browsers).
+
 Wed May 25 14:33:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Correct the documentation of the colours used by
