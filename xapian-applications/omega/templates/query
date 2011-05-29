@@ -48,7 +48,7 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
 <FORM NAME=P METHOD=GET 
 ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <center>
-<INPUT id="omega-autofocus" NAME=P VALUE="$html{$query}" SIZE=65 autofocus>
+<INPUT id="omega-autofocus" type=search NAME=P VALUE="$html{$query}" SIZE=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
