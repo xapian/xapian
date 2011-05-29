@@ -1,3 +1,8 @@
+Sun May 29 13:27:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/Makefile.am: XapianObjectHolder.h was removed so stop
+	  trying to ship it.
+
 Fri May 27 05:28:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
