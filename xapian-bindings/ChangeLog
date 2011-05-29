@@ -5,17 +5,6 @@ Sun May 29 14:36:55 GMT 2011  James Aylett <james@tartarus.org>
 	  compiling Java classfiles to avoid race condition during
 	  parallel builds
 
- Sun May 29 13:27:10 GMT 2011  Olly Betts <olly@survex.com>
- 
- 	* java/native/Makefile.am: XapianObjectHolder.h was removed so stop
-
-Sun May 29 14:32:43 GMT 2011  James Aylett <james@tartarus.org>
-
-	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am,
-	  java/org/xapian/examples/Makefile.am: use .NOTPARALLEL when
-	  compiling Java classfiles to avoid race condition during
-	  parallel builds
-
 Sun May 29 13:27:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/native/Makefile.am: XapianObjectHolder.h was removed so stop
