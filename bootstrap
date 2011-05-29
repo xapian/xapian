@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -177,7 +177,7 @@ END
   if [ ! -d swig ] ; then
     git svn init svn://svn.tartarus.org/swig/trunk/ swig/
   fi
-  (cd swig && git svn fetch -r"$rev")
+  (cd swig && git svn fetch -r"$rev" && git svn rebase)
 
   # FIXME: Currently requires manual update...
   #svn:externals revision for xapian-applications/omega/common
@@ -186,7 +186,7 @@ END
   if [ ! -d xapian-applications/omega/common ] ; then
     git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
   fi
-  (cd xapian-applications/omega/common && git svn fetch -r"$rev")
+  (cd xapian-applications/omega/common && git svn fetch -r"$rev" && git svn rebase)
 fi
 
 if [ "$1" = "--without-autotools" ] ; then
