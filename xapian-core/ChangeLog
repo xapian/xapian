@@ -1,3 +1,7 @@
+Sun May 29 07:04:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Add PostingSource example.  (ticket#503)
+
 Sun May 29 05:19:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Add @exception InvalidArgumentError for
