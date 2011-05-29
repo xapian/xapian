@@ -1,3 +1,7 @@
+Sun May 29 14:41:13 GMT 2011  James Aylett <james@tartarus.org>
+
+	* configure.ac: set NEED_JNILIB_EXT for all Mac OS versions
+
 Sun May 29 14:36:55 GMT 2011  James Aylett <james@tartarus.org>
 
 	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am,

@@ -31,6 +31,7 @@ case $host in
 *86*-darwin8*|*-darwin[[91]]*)
   dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
   dnl OS version, so we don't need to override on these.
+  NEED_JNILIB_EXT=yes
   ;;
 *-darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
