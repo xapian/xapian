@@ -40,8 +40,6 @@ class MyMatchDecider extends XapianMatchDecider {
     }
 
     function apply($doc) {
-	# FIXME: workaround missing object wrapping in generated wrappers.
-	if (is_resource($doc)) $doc = new XapianDocument($doc);
 	return ($doc->get_value(0) !== $avoid_value);
     }
 }

@@ -1,3 +1,9 @@
+Mon May 30 07:04:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplematchdecider.php5,php/smoketest.php: Objects
+	  passed to virtual methods overridden in PHP are now wrapped properly.
+	  (ticket#488)
+
 Sun May 29 14:41:13 GMT 2011  James Aylett <james@tartarus.org>
 
 	* configure.ac: set NEED_JNILIB_EXT for all Mac OS versions
