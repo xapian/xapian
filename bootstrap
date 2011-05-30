@@ -173,7 +173,7 @@ END
 
   # FIXME: Currently requires manual update...
   #svn:externals revision for SWIG
-  rev=12723
+  rev=12724
   if [ ! -d swig ] ; then
     git svn init svn://svn.tartarus.org/swig/trunk/ swig/
   fi
