@@ -1,3 +1,7 @@
+Mon May 30 07:06:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/index.html: Fix <i> to </i> (reported by Xiaona Han).
+
 Mon May 30 07:04:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simplematchdecider.php5,php/smoketest.php: Objects
