@@ -1,16 +1,20 @@
- 15502       olly Fri May 27 05:09:42 GMT 2011  Olly Betts <olly@survex.com>
+ 15519       olly Mon May 30 07:06:00 GMT 2011  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.6 (2011-05-27):
+Xapian-bindings 1.2.6 (2011-05-30):
 
 Documentation:
 
 General:
 
-* SWIG-based bindings are now generated with a newer version of SWIG (ticket#538).
+* SWIG-based bindings are now generated with a newer version of SWIG
+  (ticket#538).
 
 Packaging:
 
 Portability:
+
+* On Mac OS X 10.5 or later, and 10.4 on x86, build Java JNI library with a
+  .jnilib extension as we do for older versions.
 
 CSharp:
 
@@ -18,12 +22,10 @@ CSharp:
 
 Java:
 
- 15501       olly Fri May 27 05:01:47 GMT 2011  Olly Betts <olly@survex.com>
 	* java/native/: Factor out Java jstring -> C++ std::string conversion
 	  into cpp_string() function, which also fixes memory leaks upon
 	  exceptions.
 
- 15498       olly Fri May 27 04:02:01 GMT 2011  Olly Betts <olly@survex.com>
 	* java/native/,java/org/xapian/: Instead of using an unordered_map to
 	  track id -> pointer mappings, just use reinterpret_cast - jlong is
 	  64 bits, which will hold a pointer on current platforms.
@@ -32,9 +34,12 @@ Java:
 	* java/native/XapianObjectHolder.h: Use new unordered_map.h which fixes
 	  warnings about using deprecated headers with recent GCC versions.
 
- 15496       olly Thu May 26 13:06:13 GMT 2011  Olly Betts <olly@survex.com>
 	* java/native/: C++'s delete operator will ignore a NULL pointer, so
 	  remove checks that the pointer is non-NULL before calling it.
+
+	  java/org/xapian/examples/Makefile.am: use .NOTPARALLEL when
+	  compiling Java classfiles to avoid race condition during
+	  parallel builds
 
 Perl:
 
