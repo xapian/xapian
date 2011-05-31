@@ -8,6 +8,7 @@ Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, and Turkish.
 There are also implementations of Lovins' English stemmer, Porter's
 original English stemmer, the Kraaij-Pohlmann Dutch stemmer, and a
 variation of the German stemmer which normalises umlauts.
+
 We'd like to add stemmers for more languages - see the Snowball site for
 information on how to contribute.
 
@@ -30,11 +31,11 @@ etymology or grammar. In fact from an etymological or grammatical
 viewpoint, a stemming algorithm is liable to make many mistakes. In
 addition, stemming algorithms - at least the ones presented here - are
 applicable to the written, not the spoken, form of the language.
+
 For some of the world's languages, Chinese for example, the concept of
 stemming is not applicable, but it is certainly meaningful for the many
 languages of the Indo-European group. In these languages words tend to
-be constant at the front, and to vary at the end:
-::
+be constant at the front, and to vary at the end::
 
                        -ion
                        -ions
@@ -64,6 +65,7 @@ can be thought of as \`confirm' with a chain of endings,
 
 -atif can also be thought of as -ate plus -if. Note that the addition of
 endings can cause respellings, so -e changes preceding \`f' to \`v'.
+
 Endings fall into two classes, grammatical and morphological. The
 addition of -s in English to make a plural is an example of a
 grammatical ending. The word remains of the same type. There is usually
@@ -90,6 +92,7 @@ Vocabularies
 Each stemmer is issued with a vocabulary in data/voc.txt, and its
 stemmed form in data/voc.st. You can use these for testing and
 evaluation purposes.
+
 Raw materials
 -------------
 
@@ -106,6 +109,7 @@ some sense 'contemporary', but it is an error to exclude anything
 slightly old. The algorithm itself may well get applied to older texts
 once it has been written. For English, the works of Shakespeare in the
 customary modern spelling make a good test vocabulary.
+
 From the source text derive a control vocabulary of words in sorted
 order. Sample vocabularies in this style are part of our Open Source
 release. If you make a small change to the stemming algorithm you should
@@ -130,8 +134,7 @@ form, and the only further endings to consider are morphological endings
 that create verbs from other word types. At this level the system of
 endings gives rise to a small state table, which can be followed in
 devising the algorithm. In Latin derived languages, there is a state
-table of morphological endings that roughly looks like this:
-::
+table of morphological endings that roughly looks like this::
 
        -IC (adj) -+->  -ATION (noun)
                   +->  -ITY (noun)
@@ -164,6 +167,7 @@ then one can recognise,
 
 Trios, -IC-AT-IV etc., also occur, but sequences of length four,
 -IC-AT-IV-ITY and -IC-AT-IV-MENT, are absent (or occur very rarely).
+
 Sometimes the validity of an ending depends on the immediately preceding
 group of letters. In Italian, for example, certain pronouns and pronoun
 groups attach to present participle and infinitive forms of verbs, for
@@ -296,6 +300,7 @@ modern approach is to index everything, which greatly assists searching
 for phrases for example. Stopwords can then still be eliminated from the
 query as an optional style of retrieval. In either case, a list of
 stopwords for a language is useful.
+
 Getting a list of stopwords can be done by sorting a vocabulary of a
 text corpus for a language by frequency, and going down the list picking
 off words to be discarded.

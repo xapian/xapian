@@ -89,6 +89,7 @@ test and a pointer to the function that is the test. Easy. The procedure
 is even simpler for apitest tests - there you just use DEFINE\_TESTCASE
 to define your new testcase, and a script picks it up and makes sure it
 is run.
+
 Look at the bottom of ``tests/stemtest.cc`` for the test\_desc array.
 Now look up about 20 lines to where the test functions are defined. You
 need to write a function like these which will return true or false

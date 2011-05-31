@@ -1,3 +1,8 @@
+Tue May 31 03:56:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/install.rst,docs/stemming.rst,docs/tests.rst: Fix up some .rst
+	  conversion issues.
+
 Tue May 31 03:36:49 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* docs/remote_protocol.rst docs/quickstart.rst docs/remote.rst
@@ -9,7 +14,6 @@ Tue May 31 03:36:49 GMT 2011  Dan Colish <dcolish@gmail.com>
 	docs/code_structure.rst docs/Makefile.am docs/tests.rst
 	docs/overview.rst: Bulk port all remaining documentation to RST.
 	
-
 Sun May 29 07:04:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Add PostingSource example.  (ticket#503)

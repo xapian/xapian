@@ -43,9 +43,11 @@ Unpacking
 ~~~~~~~~~
 
 Use the usual tools to unpack the archives. For example, on a Linux
-system:
+system::
 
-    `` tar zxvf xapian-core-<versionnumber>.tar.gz tar zxvf xapian-omega-<versionnumber>.tar.gz tar zxvf xapian-bindings-<versionnumber>.tar.gz``
+     tar zxvf xapian-core-<versionnumber>.tar.gz
+     tar zxvf xapian-omega-<versionnumber>.tar.gz
+     tar zxvf xapian-bindings-<versionnumber>.tar.gz
 
 These commands should unpack the archives into separate subdirectories
 (``xapian-core-<versionnumber>``, ``xapian-omega-<versionnumber>`` and
@@ -69,14 +71,17 @@ run ``make`` to build the software, and ``make install`` to actually
 install it. By default, the software installs under ``/usr/local``, but
 you can change this by passing ``--prefix=/path/to/install`` to
 ``configure``. So for example, you might use the following series of
-commands to build and install xapian-core under ``/opt``:
+commands to build and install xapian-core under ``/opt``::
 
-    `` cd xapian-core-<version> ./configure --prefix=/opt make sudo make install``
+     cd xapian-core-<version>
+     ./configure --prefix=/opt
+     make
+     sudo make install
 
 If you don't have root access to install Xapian, you can specify a
-prefix in your home directory, for example:
+prefix in your home directory, for example::
 
-    `` ./configure --prefix=/home/jenny/xapian-install``
+     ./configure --prefix=/home/jenny/xapian-install
 
 Configuring and building Omega
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,9 +93,12 @@ by looking for the ``xapian-config`` script, which is installed as
 on your ``PATH``, or you have multiple installations of Xapian (perhaps
 a debug and non-debug build, or two different versions), you can specify
 a ``xapian-config`` to use by passing ``XAPIAN_CONFIG`` on the configure
-command line, as shown below:
+command line, as shown below::
 
-    `` cd xapian-omega-<version> ./configure --prefix=/opt XAPIAN_CONFIG=/opt/bin/xapian-config make sudo make install``
+     cd xapian-omega-<version>
+     ./configure --prefix=/opt XAPIAN_CONFIG=/opt/bin/xapian-config
+     make
+     sudo make install
 
 Note that we use GNU libtool, which will set the runtime library search
 path if your Xapian installation isn't in the dynamic linker search
