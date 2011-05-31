@@ -1,3 +1,15 @@
+Tue May 31 03:36:49 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* docs/remote_protocol.rst docs/quickstart.rst docs/remote.rst
+	docs/internals.rst docs/scalability.rst
+	docs/quickstartsearch.cc.rst
+	docs/bm25.rst docs/install.rst docs/quickstartindex.cc.rst
+	docs/index.rst docs/matcherdesign.rst docs/quickstartexpand.cc.rst
+	docs/queryparser.rst docs/stemming.rst docs/intro_ir.rst
+	docs/code_structure.rst docs/Makefile.am docs/tests.rst
+	docs/overview.rst: Bulk port all remaining documentation to RST.
+	
+
 Sun May 29 07:04:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Add PostingSource example.  (ticket#503)

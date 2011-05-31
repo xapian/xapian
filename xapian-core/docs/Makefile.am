@@ -11,16 +11,14 @@ endif
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
- stemming.html quickstart.html remote.html remote_protocol.html \
- matcherdesign.html tests.html scalability.html \
- bm25.html code_structure.html queryparser.html \
- quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
-
-RSTDOCS = admin_notes.rst collapsing.rst deprecation.rst facets.rst \
- glossary.rst postingsource.rst replication.rst replication_protocol.rst \
- sorting.rst serialisation.rst spelling.rst synonyms.rst \
- termgenerator.rst valueranges.rst
+RSTDOCS = admin_notes.rst bm25.rst code_structure.rst collapsing.rst \
+ deprecation.rst facets.rst index.rst internals.rst install.rst intro_ir.rst \
+ glossary.rst overview.rst postingsource.rst quickstartindex.cc.rst \
+ quickstartsearch.cc.rst stemming.rst quickstart.rst matcherdesign.rst \
+ queryparser.rst quickstartexpand.cc.rst remote.rst remote_protocol.rst \
+ replication.rst replication_protocol.rst sorting.rst serialisation.rst \
+ spelling.rst scalability.rst synonyms.rst termgenerator.rst tests.rst \
+ valueranges.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake
@@ -56,7 +54,7 @@ if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
 all-local: doxygen_api_docs
 
-dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
+dist_doc_DATA = $(RSTHTML) apidoc.pdf
 
 install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
