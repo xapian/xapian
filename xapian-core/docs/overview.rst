@@ -178,43 +178,43 @@ Database types
 
 The current types understood by Xapian are:
 
-**auto**
-This isn't an actual database format, but rather auto-detection of one
-of the disk based backends ("flint" or "stub") from a single specified
-file or directory path.
+auto
+    This isn't an actual database format, but rather auto-detection of one of
+    the disk based backends ("flint" or "stub") from a single specified file or
+    directory path.
 
-**brass**
-Brass is the current development backend, and it is intended to be the
-default backend in Xapian 1.4.x.
+brass
+    Brass is the current development backend, and it is intended to be the
+    default backend in Xapian 1.4.x.
 
-**chert**
-Chert is the default backend in Xapian 1.2.x. It supports incremental
-modifications, concurrent single-writer and multiple-reader access to a
-database. It's very efficient and highly scalable.
+chert
+    Chert is the default backend in Xapian 1.2.x. It supports incremental
+    modifications, concurrent single-writer and multiple-reader access to a
+    database. It's very efficient and highly scalable.
 
-**flint**
-Flint was the default backend in Xapian 1.0.x. It supports incremental
-modifications, concurrent single-writer and multiple-reader access to a
-database. It's very efficient and highly scalable. Flint takes lessons
-learned from studying Quartz in action, and is appreciably faster (both
-when indexing and searching), more compact, and features an improved
-locking mechanism which automatically releases the lock if a writing
-process dies.
+flint
+    Flint was the default backend in Xapian 1.0.x. It supports incremental
+    modifications, concurrent single-writer and multiple-reader access to a
+    database. It's very efficient and highly scalable. Flint takes lessons
+    learned from studying Quartz in action, and is appreciably faster (both
+    when indexing and searching), more compact, and features an improved
+    locking mechanism which automatically releases the lock if a writing
+    process dies.
 
-For more information, see the `Xapian
-Wiki <http://trac.xapian.org/wiki/FlintBackend>`_.
+    For more information, see the `Xapian Wiki
+    <http://trac.xapian.org/wiki/FlintBackend>`_.
 
-**quartz**
-Quartz was the default backend prior to Xapian 1.0, and has been removed
-as of Xapian 1.1.0. If you want to migrate an existing Quartz database
-to Flint, `see the 'Admin
-Notes' <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
-for a way to do this.
+quartz
+    Quartz was the default backend prior to Xapian 1.0, and has been removed as
+    of Xapian 1.1.0. If you want to migrate an existing Quartz database to
+    Flint, `see the 'Admin Notes'
+    <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
+    for a way to do this.
 
-**inmemory**
-This type is a database held entirely in memory. It was originally
-written for testing purposes only, but may prove useful for building up
-temporary small databases.
+inmemory
+    This type is a database held entirely in memory. It was originally written
+    for testing purposes only, but may prove useful for building up temporary
+    small databases.
 
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
@@ -325,9 +325,7 @@ Compound queries
 Compound queries can be built up from single term queries by combining
 them a connecting operator. Most operators can operate on either a
 single term query or a compound query. You can combine pair-wise using
-the following constructor:
-
-::
+the following constructor::
 
     Xapian::Query(Xapian::Query::op op_,
             const Xapian::Query & left,
@@ -636,19 +634,20 @@ document.
 An ``Xapian::MSet`` also contains various information about the search
 result:
 
-``firstitem``
-The index of the first item in the result which was put into the MSet.
-(Corresponding to ``first`` in ``Xapian::Enquire::get_mset()``)
-``max_attained``
-The greatest weight which is attained in the full results of the search.
-``max_possible``
-The maximum possible weight in the MSet.
-``docs_considered``
-The number of documents matching the query considered for the MSet. This
-provides a lower bound on the number of documents in the database which
-have a weight greater than zero. Note that this value may change if the
-search is recalculated with different values for ``first`` or
-``max_items.``
+firstitem
+    The index of the first item in the result which was put into the MSet.
+    (Corresponding to ``first`` in ``Xapian::Enquire::get_mset()``)
+max_attained
+    The greatest weight which is attained in the full results of the search.
+max_possible``
+    The maximum possible weight in the MSet.
+docs_considered``
+    The number of documents matching the query considered for the MSet. This
+    provides a lower bound on the number of documents in the database which
+    have a weight greater than zero. Note that this value may change if the
+    search is recalculated with different values for ``first`` or
+    ``max_items.``
+
 See the `automatically extracted
 documentation <apidoc/html/classXapian_1_1MSet.html>`_ for more details
 of these fields.
@@ -731,13 +730,27 @@ performing the query. These are specified by calling `various methods of
 the Xapian::Enquire object <apidoc/html/classXapian_1_1Enquire.html>`_.
 The options are as follows.
 
-+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **collapse key**        | Each document in a database may have a set of numbered keys. The contents of each key is a string of arbitrary length. The ``set_collapse_key(Xapian::valueno collapse_key)`` method specifies a key number upon which to remove duplicates. Only the most recently set duplicate removal key is active at any time, and the default is to perform no duplicate removal.                                                                                                                                               |
-+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **percentage cutoff**   | It may occasionally be desirable to exclude any documents which have a weight less than a given percentage value. This may be done using ``set_cutoff(Xapian::percent percent_cutoff)``.                                                                                                                                                                                                                                                                                                                               |
-+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **sort direction**      | Some weighting functions may frequently result in several documents being returned with the same weight. In this case, by default, the documents will be returned in ascending document id order. This can be changed by using ``set_docid_order()`` to set the sort direction. ``set_sort_forward(Xapian::Enquire::DESCENDING)`` may be useful, for example, when it would be best to return the newest documents, and new documents are being added to the end of the database (which is what happens by default).   |
-+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+collapse key
+    Each document in a database may have a set of numbered keys. The contents
+    of each key is a string of arbitrary length. The
+    ``set_collapse_key(Xapian::valueno collapse_key)`` method specifies a key
+    number upon which to remove duplicates. Only the most recently set
+    duplicate removal key is active at any time, and the default is to perform
+    no duplicate removal.
+percentage cutoff
+    It may occasionally be desirable to exclude any documents which have a
+    weight less than a given percentage value. This may be done using
+    ``set_cutoff(Xapian::percent percent_cutoff)``.
+sort direction
+    Some weighting functions may frequently result in several documents being
+    returned with the same weight. In this case, by default, the documents will
+    be returned in ascending document id order. This can be changed by using
+    ``set_docid_order()`` to set the sort direction.
+
+    ``set_sort_forward(Xapian::Enquire::DESCENDING)`` may be useful, for
+    example, when it would be best to return the newest documents, and new
+    documents are being added to the end of the database (which is what happens
+    by default).
 
 Match decision functors
 ~~~~~~~~~~~~~~~~~~~~~~~

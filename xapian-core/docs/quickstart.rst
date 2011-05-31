@@ -253,7 +253,7 @@ An example searcher
 -------------------
 
 Now we show the code for a simple searcher, which will search the
-database built by the indexer above. Again, you can read `an "HTML"
+database built by the indexer above. Again, you can read `an HTML
 formatted version <quickstartsearch.cc.html>`_.
 
 The "searcher" presented here is, like the "indexer", simply a small
@@ -470,17 +470,20 @@ assist you in finding the installed Xapian library, and in generating
 the flags to pass to the compiler and linker to compile.
 
 After a successful compilation, this utility should be in your path, so
-you can simply run::
+you can simply run
+::
 
-    ``xapian-config --cxxflags``
+    xapian-config --cxxflags
 
-to determine the flags to pass to the compiler, and::
+to determine the flags to pass to the compiler, and
+::
 
-    ``xapian-config --libs``
+    xapian-config --libs
 
 to determine the flags to pass to the linker. These flags are returned
 on the utility's standard output (so you could use backtick notation to
 include them on your command line).
+
 If your project uses the GNU autoconf tool, you may also use the
 ``XO_LIB_XAPIAN`` macro, which is included as part of Xapian, and will
 check for an installation of Xapian and set (and ``AC_SUBST``) the

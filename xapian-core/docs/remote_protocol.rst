@@ -50,8 +50,8 @@ The protocol major and minor versions are passed as a single byte each
 (e.g. ``'\x1e\x01'`` for version 30.1). The server and client must
 understand the same protocol major version, and the server protocol
 minor version must be greater than or equal to that of the client (this
-means that the server understands newer MSG\_*XXX*, but will only send
-newer REPLY\_*YYY* in response to an appropriate client message.
+means that the server understands newer MSG\_\ *XXX*, but will only send
+newer REPLY\_\ *YYY* in response to an appropriate client message.
 
 Exception
 ---------
@@ -144,7 +144,7 @@ Query
 -  ``MSG_QUERY L<serialised Xapian::Query object> I<query length> I<collapse max> [I<collapse key number> (if collapse_max non-zero)] <docid order> I<sort key number> <sort by> B<sort value forward> <percent cutoff> F<weight cutoff> <serialised Xapian::Weight object> <serialised Xapian::RSet object> [L<serialised Xapian::MatchSpy object>...]``
 -  ``REPLY_STATS <serialised Stats object>``
 -  ``MSG_GETMSET I<first> I<max items> I<check at least> <serialised global Stats object>``
--  ``REPLY_RESULTS  L<the result of calling serialise_results() on each Xapian::MatchSpy> <serialised Xapian::MSet object>``
+-  ``REPLY_RESULTS L<the result of calling serialise_results() on each Xapian::MatchSpy> <serialised Xapian::MSet object>``
 
 docid order is ``'0'``, ``'1'`` or ``'2'``.
 
