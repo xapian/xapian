@@ -1,3 +1,7 @@
+Tue May 31 15:21:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/spelling.rst: Add link to Omega documentation.
+
 Tue May 31 07:52:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,docs/quickstart.rst,docs/remote_protocol.rst: More
