@@ -25,7 +25,7 @@ API. For such documentation, you should refer to the automatically
 extracted documentation, which is generated from detailed comments in
 the source code, and should thus remain up-to-date and accurate. This
 documentation is generated using the
-*`Doxygen <http://www.doxygen.org/>`_* application. To save you having
+`Doxygen <http://www.doxygen.org/>`_ application. To save you having
 to generate this documentation yourself, we include the `built
 version <apidoc/html/index.html>`_ in our distributions, and also keep
 the `latest version <http://xapian.org/docs/apidoc/html/index.html>`_ on
@@ -58,17 +58,17 @@ through them, and distributed enquiry systems.
 
 Errors in Xapian are all reported by means of exceptions. All exceptions
 thrown by Xapian will be subclasses of
-```Xapian::Error`` <apidoc/html/classXapian_1_1Error.html>`_. Note that
+`Xapian::Error <apidoc/html/classXapian_1_1Error.html>`_. Note that
 ``Xapian::Error`` is an abstract class; thus you must catch exceptions
 by reference rather than by value.
 
 There are two flavours of error, derived from ``Xapian::Error``:
 
--  ```Xapian::LogicError`` <apidoc/html/classXapian_1_1LogicError.html>`_
+-  `Xapian::LogicError <apidoc/html/classXapian_1_1LogicError.html>`_
    - for error conditions due to programming errors, such as a misuse of
    the API. A finished application should not receive these errors
    (though it would still be sensible to catch them).
--  ```Xapian::RuntimeError`` <apidoc/html/classXapian_1_1RuntimeError.html>`_
+-  `Xapian::RuntimeError <apidoc/html/classXapian_1_1RuntimeError.html>`_
    - for error conditions due to run time problems, such as failure to
    open a database. You must always be ready to cope with such errors.
 
@@ -76,7 +76,7 @@ Each of these flavours is further subdivided, such that any particular
 error condition can be trapped by catching the appropriate exception. If
 desired, a human readable explanation of the error can be retrieved by
 calling
-```Xapian::Error::get_msg()`` <apidoc/html/classXapian_1_1Error.html>`_.
+`Xapian::Error::get_msg() <apidoc/html/classXapian_1_1Error.html>`_.
 
 In addition, standard system errors may occur: these will be reported by
 throwing appropriate exceptions. Most notably, if the system runs out of
@@ -122,7 +122,7 @@ and when required.
 The Xapian::Enquire class
 -------------------------
 
-The ```Xapian::Enquire`` <apidoc/html/classXapian_1_1Enquire.html>`_
+The `Xapian::Enquire <apidoc/html/classXapian_1_1Enquire.html>`_
 class is central to all searching operations. It provides an interface
 for
 
@@ -152,7 +152,7 @@ Specifying a database
 ---------------------
 
 When creating a Xapian::Enquire object, a database to search must be
-specified. Databases are specified by creating a ```Xapian::Database``
+specified. Databases are specified by creating a `Xapian::Database
 object <apidoc/html/classXapian_1_1Database.html>`_. Generally, you can
 just construct the object, passing the pathname to the database. Xapian
 looks at the path and autodetects the database type.
@@ -170,12 +170,14 @@ it's treated as a stub database file) or you can open them explicitly
 using Xapian::Auto::open\_stub(). The stub database format specifies one
 database per line. For example::
 
-    `` remote localhost:23876 flint /var/spool/xapian/webindex``
+     remote localhost:23876
+     flint /var/spool/xapian/webindex
 
 Database types
 ~~~~~~~~~~~~~~
 
 The current types understood by Xapian are:
+
 **auto**
 This isn't an actual database format, but rather auto-detection of one
 of the disk based backends ("flint" or "stub") from a single specified
@@ -213,12 +215,13 @@ for a way to do this.
 This type is a database held entirely in memory. It was originally
 written for testing purposes only, but may prove useful for building up
 temporary small databases.
+
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
 
 Xapian can search across several databases as easily as searching across
 a single one. Simply call
-```Xapian::Database::add_database()`` <apidoc/html/classXapian_1_1Database.html>`_
+`Xapian::Database::add_database() <apidoc/html/classXapian_1_1Database.html>`_
 for each database that you wish to search through.
 
 You can also set up "pre-canned" listed of databases to search over
@@ -243,6 +246,7 @@ determined by the document subset which is obtained by running the
 boolean query. In the second, the collection statistics for the
 probabilistic query are determined by the whole document collection.
 These differences can affect the final result.
+
 Suppose for example the boolean query is being used to retrieve
 documents in English in a database containing English and French
 documents. A word like "*grand*", exists in both languages (with similar
@@ -268,7 +272,7 @@ A query for a single term
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A search query is represented by a
-```Xapian::Query`` <apidoc/html/classXapian_1_1Query.html>`_ object. The
+`Xapian::Query <apidoc/html/classXapian_1_1Query.html>`_ object. The
 simplest useful query is one which searches for a single term (and
 several of these can be combined to form more complex queries). A single
 term query can be created as follows (where ``term`` is a
@@ -289,7 +293,7 @@ query::
             Xapian::termcount wqf_ = 1,
             Xapian::termpos term_pos_ = 0)
 
-The ``wqf`` `(**W**ithin **Q**uery **F**requency)` is a measure of how
+The ``wqf`` (Within Query Frequency) is a measure of how
 common a term is in the query. This isn't useful for a single term query
 unless it is going to be combined to form a more complex query. In that
 case, it's particularly useful when generating a query from an existing
@@ -505,9 +509,9 @@ Xapian::Query::OP\_OR operators. For example,
 
 This creates a probabilistic query with terms \`regulation', \`import',
 \`export', \`canned' and \`fish'.
+
 In fact this style of creation is so common that there is the shortcut
-construction:
-::
+construction::
 
         vector <string> terms;
         terms.push_back("regulation");
@@ -548,6 +552,7 @@ probabilistic query with a Boolean filter,
 If you want to run a pure boolean query, then set BoolWeight as the
 weighting scheme (by calling Enquire::set\_weighting\_scheme() with
 argument BoolWeight()).
+
 Plus and minus terms
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -596,9 +601,7 @@ Retrieving the results of a query
 The Xapian::Enquire class does not require that a method be called in
 order to perform the query. Rather, you simply ask for the results of a
 query, and it will perform whatever calculations are necessary to
-provide the answer:
-
-::
+provide the answer::
 
     Xapian::MSet Xapian::Enquire::get_mset(Xapian::doccount first,
                                Xapian::doccount maxitems,
@@ -622,9 +625,9 @@ The Xapian::MSet
 ~~~~~~~~~~~~~~~~
 
 Query results are returned in an
-```Xapian::MSet`` <apidoc/html/classXapian_1_1MSet.html>`_ object. The
+`Xapian::MSet <apidoc/html/classXapian_1_1MSet.html>`_ object. The
 results can be accessed using a
-```Xapian::MSetIterator`` <apidoc/html/classXapian_1_1MSetIterator.html>`_
+`Xapian::MSetIterator <apidoc/html/classXapian_1_1MSetIterator.html>`_
 which returns the matches in descending sorted order of relevance (so
 the most relevant document is first in the list). Each ``Xapian::MSet``
 entry comprises a document id, and the weight calculated for that
@@ -653,22 +656,22 @@ of these fields.
 The ``Xapian::MSet`` also provides methods for converting the score
 calculated for a given document into a percentage value, suitable for
 displaying to a user. This may be done using the
-```convert_to_percent()`` <apidoc/html/classXapian_1_1MSet.html>`_
-methods:
-::
+`convert_to_percent() <apidoc/html/classXapian_1_1MSet.html>`_
+methods::
 
          int Xapian::MSet::convert_to_percent(const Xapian::MSetIterator & item) const
          int Xapian::MSet::convert_to_percent(Xapian::weight wt) const
 
 These methods return a value in the range 0 to 100, which will be 0 if
 and only if the item did not match the query at all.
+
 Accessing a document
 ~~~~~~~~~~~~~~~~~~~~
 
 A document in the database is accessed via a
-```Xapian::Document`` <apidoc/html/classXapian_1_1Document.html>`_
+`Xapian::Document <apidoc/html/classXapian_1_1Document.html>`_
 object. This can be obtained by calling
-```Xapian::Database::get_document()`` <apidoc/html/classXapian_1_1Database.html>`_.
+`Xapian::Database::get_document() <apidoc/html/classXapian_1_1Database.html>`_.
 The returned ``Xapian::Document`` is a reference counted handle so
 copying is cheap.
 
@@ -676,7 +679,7 @@ Each document can have the following types of information associated
 with it:
 
 -  document data - this is an arbitrary block of data accessed using
-   ```Xapian::Document::get_data()`` <apidoc/html/classXapian_1_1Document.html>`_.
+   `Xapian::Document::get_data() <apidoc/html/classXapian_1_1Document.html>`_.
    The contents of the document data can be whatever you want and in
    whatever format. Often it contains fields such as a URL or other
    external UID, a document title, and an excerpt from the document
@@ -716,7 +719,7 @@ user to mark documents as being relevant to the search, and using this
 information to modify the search. This is supported by means of
 relevance sets, which are simply sets of document ids which are marked
 as relevant. These are held in
-```Xapian::RSet`` <apidoc/html/classXapian_1_1RSet.html>`_ objects, one
+`Xapian::RSet <apidoc/html/classXapian_1_1RSet.html>`_ objects, one
 of which may optionally be supplied to Xapian in the ``omrset``
 parameter when calling ``Xapian::Enquire::get_mset()``.
 
@@ -725,9 +728,8 @@ Match options
 
 There are various additional options which may be specified when
 performing the query. These are specified by calling `various methods of
-the ``Xapian::Enquire``
-object <apidoc/html/classXapian_1_1Enquire.html>`_. The options are as
-follows.
+the Xapian::Enquire object <apidoc/html/classXapian_1_1Enquire.html>`_.
+The options are as follows.
 
 +-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | **collapse key**        | Each document in a database may have a set of numbered keys. The contents of each key is a string of arbitrary length. The ``set_collapse_key(Xapian::valueno collapse_key)`` method specifies a key number upon which to remove duplicates. Only the most recently set duplicate removal key is active at any time, and the default is to perform no duplicate removal.                                                                                                                                               |
@@ -775,7 +777,7 @@ As for ``get_mset``, up to ``maxitems`` expand terms will be returned,
 with fewer being returned if and only if no more terms could be found.
 
 The expand terms are returned in sorted weight order in an
-```Xapian::ESet`` <apidoc/html/classXapian_1_1ESet.html>`_ item.
+`Xapian::ESet <apidoc/html/classXapian_1_1ESet.html>`_ item.
 
 exclude\_query\_terms
 ~~~~~~~~~~~~~~~~~~~~~
