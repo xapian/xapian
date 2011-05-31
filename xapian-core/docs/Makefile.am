@@ -11,7 +11,9 @@ endif
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-RSTDOCS = admin_notes.rst bm25.rst code_structure.rst collapsing.rst \
+HTMLDOCS = code_structure.html
+
+RSTDOCS = admin_notes.rst bm25.rst collapsing.rst \
  deprecation.rst facets.rst index.rst internals.rst install.rst intro_ir.rst \
  glossary.rst overview.rst postingsource.rst quickstartindex.cc.rst \
  quickstartsearch.cc.rst stemming.rst quickstart.rst matcherdesign.rst \
@@ -54,7 +56,7 @@ if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
 all-local: doxygen_api_docs
 
-dist_doc_DATA = $(RSTHTML) apidoc.pdf
+dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
 
 install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
