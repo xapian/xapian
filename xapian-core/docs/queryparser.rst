@@ -54,7 +54,6 @@ The default precedence from highest to lowest is:
 * OR
 
 
-
 '+' and '-'
 ~~~~~~~~~~~
 
@@ -84,8 +83,8 @@ Phrase searches
 
 A phrase surrounded with double quotes ("") matches documents containing
 that exact phrase. Hyphenated words are also treated as phrases, as are
-cases such as filenames and email addresses (e.g. /etc/passwd or
-president@whitehouse.gov).
+cases such as filenames and email addresses (e.g. ``/etc/passwd`` or
+``president@whitehouse.gov``).
 
 Searching within a probabilistic field
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

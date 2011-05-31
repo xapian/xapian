@@ -13,6 +13,7 @@ Documentation
 -------------
 
 A number of pieces of documentation are available.
+
 We suggest you start by reading the `Installation
 Guide <install.html>`_, which covers downloading the code, and
 unpacking, configuring, building and installing it.

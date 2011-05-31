@@ -3,6 +3,7 @@ protocol <remote_protocol.html>`_ \| `replication
 protocol <replication_protocol.html>`_ \| `tests <tests.html>`_ \|
 `internal classes <sourcedoc/html/annotated.html>`_ \| `source code
 directory structure <code_structure.html>`_
+
 Xapian Internals
 ================
 

@@ -1,3 +1,7 @@
+Tue May 31 04:32:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/: More .rst fixes.
+
 Tue May 31 04:11:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am,docs/code_structure.rst: Revert code_structure.html

@@ -56,6 +56,7 @@ example:
 
 The host is the server's hostname, the port is the tcp port on the
 server to use.
+
 The server is xapian-tcpsrv, which is installed by xapian-core's
 "``make install``". This should be started and left running in the
 background before searches are performed.
@@ -78,6 +79,7 @@ The arguments xapian-tcpsrv currently knows are::
 
 One or more databases need to be specified by listing their directories
 - they are opened using the "auto" pseudo-backend.
+
 Once started, the server will run and listen for connections on the
 configured port. Each connection is handled by a forked child process
 (or a new thread under Windows), so concurrent read access is supported.

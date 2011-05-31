@@ -16,6 +16,7 @@ describe the document, and which may indeed occur one or more times in
 the document. So a document might be about dental care, and could be
 described by corresponding terms \`tooth', \`teeth', \`toothbrush',
 \`decay', \`cavity', \`plaque', \`diet' and so on.
+
 More generally a document can be anything we want to retrieve, and a
 term any feature that helps describe the documents. So the documents
 could be a collection of fossils held in a big museum collection, and
@@ -34,10 +35,11 @@ D\ :sub:`2`\ , D\ :sub:`3`\  ..., a set of terms t\ :sub:`1`\ ,
 t\ :sub:`2`\ , t\ :sub:`3`\  ..., and set of relationships,
 ::
 
-                ti -> Dj
+                t\ :sub:`i`\ -> D\ :sub:`j`\
 
 i.e. instances of terms indexing documents. A single instance of a
 particular term indexing a particular document is called a *posting*.
+
 For a document, D, there is a list of terms which index it. This is
 called the *term list* of D.
 
@@ -86,6 +88,7 @@ Rijsbergen <http://en.wikipedia.org/wiki/C._J._van_Rijsbergen>`_ has led
 a group that has developed underlying logical models of IR, but
 interesting as this new work is, it has not as yet led to results that
 offer improvements for the IR system builder.
+
 Xapian was built as a system for efficiently implementing the
 probabilistic IR model (though this doesn't mean it is limited to only
 implementing this model - other models can be implemented providing they
@@ -108,6 +111,7 @@ The model has two striking advantages:
 In simple cases the model reduces to simple formulae in general use, so
 don't be alarmed by the apparent complexity of the equations below. We
 need them for a full understanding of the general case.
+
 Boolean retrieval
 -----------------
 
@@ -129,6 +133,7 @@ then
 The posting list of a term is a set of documents. IR becomes a matter of
 constructing other sets by doing unions, intersections and differences
 on posting lists.
+
 For example, in an IR system of works of literature, a Boolean query
 ::
 
@@ -136,6 +141,7 @@ For example, in an IR system of works of literature, a Boolean query
 
 might be used to retrieve all English, French or German novels or plays
 of the 19th century.
+
 Boolean retrieval is often useful, but is rather inadequate on its own
 as a general IR tool. Results aren't ordered by any measure of how
 "good" they might be, and users require training to make effective use
@@ -158,6 +164,7 @@ academic papers have been devoted to discussing the nature of relevance
 but essentially a document is relevant if it was what the user really
 wanted! Retrieval is rarely perfect, so among documents retrieved there
 will be non-relevant ones; among those not retrieved, relevant ones.
+
 Relevance is modelled as a black or white attribute. There are no
 degrees of relevance, a document either is, or is not, relevant. In the
 probabilistic model there is however a probability of relevance, and
@@ -216,6 +223,7 @@ Recall is the proportion of relevant documents retrieved. In most IR
 systems K is a parameter that can be varied, and what you find is that
 when K is low you get high precision at the expense of low recall, and
 when K is high you get high recall at the expense of low precision.
+
 The ideal value of K will depend on the use of the system. For example,
 if a user wants the answer to a simple question and the system contains
 many documents which would answer it, a low value of K will be best to
@@ -252,6 +260,7 @@ In this section we will try to present some of the thinking behind the
 formulae. This is really to give a feel for where the probabilistic
 model comes from. You may want to skim through this section if you're
 not too interested.
+
 Suppose we have an IR system with a total of N documents. And suppose
 *Q* is a query in this IR system, made up of terms t\ :sub:`1`\ ,
 t\ :sub:`2`\  ... t\ :sub:`Q`\ . There is a set, *R*, of documents
@@ -285,7 +294,8 @@ p is the probability that t indexes a relevant document, and q the
 probability that t indexes a non-relevant document. And of course, 1 - p
 is the probability that t does not index a relevant document, and 1 - q
 the probability that t does not index a non-relevant document. More
-mathematically,::
+mathematically,
+::
 
         p = P(t -> D | D in R)
         q = P(t -> D | D not in R)
@@ -296,12 +306,14 @@ mathematically,::
 Suppose that t indexes n of the N documents in the IR system. As before,
 we suppose also that there are R documents in *R*, and that there are r
 documents in *R* which are indexed by t.
+
 p is easily estimated by r/R, the ratio of the number of relevant
 documents indexed by t to the total number of relevant documents.
 
 The total number of non-relevant documents is N - R, and the number of
 those indexed by t is n - r, so we can estimate q as (n - r)/(N - R).
-This gives us the estimates,::
+This gives us the estimates,
+::
 
     ``    p = ``
     ````
@@ -320,7 +332,7 @@ This gives us the estimates,::
     n - r
     N - R
 
-and so substituting in the formula for w(t) we get the estimate, :
+and so substituting in the formula for w(t) we get the estimate,
 
 .. raw:: html
 
@@ -356,6 +368,7 @@ modified form::
 with the reassurance that this has "some theoretical justification".
 This is the form of the term weighting formula used in Xapian's
 BM25Weight.
+
 Note that n is dependent on the term, t, and R on the query, *Q*, while
 r depends both on t and *Q*. N is constant, at least until the IR system
 changes.
@@ -375,7 +388,8 @@ relevant documents, which indeed can rarely be discovered, but a small
 set of documents which have been judged as relevant.
 
 Suppose we have no documents marked as relevant. Then R = r = 0, and
-w(t) becomes,::
+w(t) becomes,
+::
 
     ``log ``
     (
@@ -390,6 +404,7 @@ has been used in IR for many decades, quite independently of the
 probabilistic theory which underpins it. Weights of this form are in
 fact the starting point in Xapian when no relevance information is
 present.
+
 The number n incidentally is often called the *frequency* of a term. We
 prefer the phrase *term frequency*, to better distinguish it from wdf
 and wqf introduced below.
@@ -402,6 +417,7 @@ wdp, wdf, ndl and wqf
 
 Before we see how the weights are used there are a few more ideas to
 introduce.
+
 As mentioned before, a term t is said to index a document D, or t -> D.
 We have emphasised that D may not be a piece of text in machine-readable
 form, and that, even when it is, t may not actually occur in the text of
@@ -414,6 +430,7 @@ of words,
 and that many, if not all, of the terms which index D derive from these
 words (for example, the terms are often lower-cased and stemmed forms of
 these words).
+
 If a term derives from words w\ :sub:`9`\ , w\ :sub:`38`\ ,
 w\ :sub:`97`\  and w\ :sub:`221`\  in the indexing process, we can say
 that the term \`occurs' in D at positions 9, 38, 97 and 221, and so for
@@ -466,6 +483,7 @@ can assign a weight to any document, d, as follows,::
 The sum extends over the terms of *Q* which index d. f\ :sub:`t`\  is
 the wdf of t in d, L\ :sub:`d`\  is the ndl of d, and k is some suitably
 chosen constant.
+
 The factor k+1 is actually redundant, but helps with the interpretation
 of the equation. In Xapian, this weighting scheme is implemented by the
 `Xapian::TradWeight class <apidoc/html/classXapian_1_1TradWeight.html>`_
@@ -497,6 +515,7 @@ decreasing W(d) value, we get a ranked list called the *match set*, or
                       item K:   DK  W(DK)
 
 where W(D\ :sub:`j`\ ) >= W(D\ :sub:`i`\ ) if j > i.
+
 And according to the probabilistic model, the documents D\ :sub:`0`\ ,
 D\ :sub:`1`\ , D\ :sub:`2`\  ... are ranked by decreasing order of
 probability of relevance. So D\ :sub:`0`\  has highest probability of
@@ -537,6 +556,7 @@ modification to the basic term weights, w(t). Like k and k\ :sub:`3`\ ,
 we will need to make an inspired guess for L'. In fact the choices for
 k\ :sub:`3`\  and L' will depend on the broader context of the use of
 this formula, and more advice will be given as occasion arises.
+
 Xapian's default weighting scheme is a generalised form of this
 weighting scheme modification, known as `BM25 <bm25.html>`_. In BM25, L'
 is always set to 1.
@@ -552,13 +572,17 @@ Terms from this list can therefore be used to expand the size of the
 query, after which the query can be re-run to get a better MSet. Because
 this list of terms is mainly used for query expansion, it is called the
 *expand set* or *ESet*.
-The term expansion weighting formula is as follows,::
+
+The term expansion weighting formula is as follows,
+::
 
         W(t) = r w(t)
 
 in other words we multiply the term weight by the number of relevant
 documents that have been indexed by the term.
-The ESet then has this form,::
+
+The ESet then has this form,
+::
 
          ESet:        item 0:   t0  W(t0)
                       item 1:   t1  W(t1)
@@ -591,6 +615,7 @@ information. One can if fact try to generalise it to::
 k is again a constant, but it does not need to have the same value as
 the k used in the probabilistic term weights above. In Xapian, k
 defaults to 1.0 for ESet generation.
+
 This reduces to W(t) = r w(t) when k = 0. Certainly this form can be
 recommended in the very common case where r = 1, that is, we have a
 single document marked relevant.
@@ -624,8 +649,8 @@ least, the best answer the IR system can give you.
 Further Reading
 ---------------
 
-If you want to find out more, then `*"Simple, proven approaches to text
-retrieval"* <http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.53.8337>`_
+If you want to find out more, then `"Simple, proven approaches to text
+retrieval" <http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.53.8337>`_
 is a worthwhile read. It's a good introduction to Probabilistic
 Information retrieval, which is basically what Xapian provides.
 

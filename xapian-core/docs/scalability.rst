@@ -93,6 +93,7 @@ The current limits are:
    2GB limit used to be common for older operating systems). The
    xapian-core configure script will attempt to detect and automatically
    enable support for "LARGE FILES" where possible.
+
    So what is the limit for a modern OS? Taking Linux 2.6 as an example,
    ext4 allows files up to 16TB and filesystems up to 1EB, while btrfs
    allows files and filesystems up to 16EB (`figures from
