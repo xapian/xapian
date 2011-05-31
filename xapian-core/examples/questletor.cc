@@ -67,7 +67,7 @@ static void show_usage() {
 }
 
 static map<string,long int>
-termfrequency(const Xapian::Document doc,const Xapian::Query & query)
+termfrequency(const Xapian::Document doc,const Xapian::Query & query)		//method to store the termfrequency of querywords in the document
 {
 	Xapian::TermIterator qt,qt_end,docterms,docterms_end;
 	map<string,long int> tf;
@@ -95,7 +95,7 @@ return tf;
 }
 
 static map<string,double>
-inversedocfreq(const Xapian::Database & db,const Xapian::Query & query)
+inversedocfreq(const Xapian::Database & db,const Xapian::Query & query)		//method to store inverse document frequency of querywords
 {
 	Xapian::TermIterator qt,qt_end;
 	map<string,double> idf;
@@ -119,7 +119,7 @@ inversedocfreq(const Xapian::Database & db,const Xapian::Query & query)
 }
 
 static map<string, long int>
-doc_length(const Xapian::Database & db, const Xapian::Document & doc)
+doc_length(const Xapian::Database & db, const Xapian::Document & doc)		// method to store length of document like length of title, body and whole
 {
 	map<string, long int> len;
 
@@ -146,7 +146,7 @@ doc_length(const Xapian::Database & db, const Xapian::Document & doc)
 }
 
 static map<string,long int>
-collection_length(const Xapian::Database & db)
+collection_length(const Xapian::Database & db)		//method to store length of collection for title only, body only etc.
 {
 	map<string,long int> len;
 
@@ -172,7 +172,7 @@ collection_length(const Xapian::Database & db)
 }
 
 static map<string,long int>
-collection_termfreq(const Xapian::Database & db, const Xapian::Query & query)
+collection_termfreq(const Xapian::Database & db, const Xapian::Query & query)	// method to store termfrequency of query terms in collection
 {
 	map<string,long int> tf;
 
@@ -193,7 +193,7 @@ collection_termfreq(const Xapian::Database & db, const Xapian::Query & query)
 
 
 double
-feature1(const Xapian::Query & query, map<string,long int> & tf,char ch)
+feature1(const Xapian::Query & query, map<string,long int> & tf,char ch)	// method to calculate the feature 1 shown on wiki page
 {
 	double value=0;
 	Xapian::TermIterator qt,qt_end;
