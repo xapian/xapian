@@ -1,3 +1,9 @@
+Wed Jun 01 12:12:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstartexpand.cc.html,docs/quickstartindex.cc.html,
+	  docs/quickstartsearch.cc.html: Reinstate the old HTML versions
+	  of these files.
+
 Wed Jun 01 12:09:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.rst,docs/remote_protocol.rst: Fix literal hard
