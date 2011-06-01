@@ -1,3 +1,9 @@
+Wed Jun 01 14:11:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Kill the child process which holds the lock
+	  with SIGKILL as that can't be ignored, whereas SIGHUP can be in some
+	  cases it seems.
+
 Wed Jun 01 12:12:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/quickstartexpand.cc.html,docs/quickstartindex.cc.html,
