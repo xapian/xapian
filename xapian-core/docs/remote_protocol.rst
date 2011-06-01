@@ -168,7 +168,7 @@ Positionlist
 -  ``REPLY_DONE``
 
 Since positions must be strictly monotonically increasing, we encode
-``(pos - lastpos - 1)`` so that small differences between large position
+``(pos - lastpos - 1)`` so that small differences between large position
 values can still be encoded compactly. The first position is encoded as
 its true value.
 
@@ -182,7 +182,7 @@ Postlist
 -  ``REPLY_DONE``
 
 Since document IDs in postlists must be strictly monotonically
-increasing, we encode ``(docid - lastdocid - 1)`` so that small
+increasing, we encode ``(docid - lastdocid - 1)`` so that small
 differences between large document IDs can still be encoded compactly.
 The first document ID is encoded as its true value - 1 (since document
 IDs are always > 0).

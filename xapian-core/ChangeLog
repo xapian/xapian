@@ -1,3 +1,8 @@
+Wed Jun 01 12:09:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.rst,docs/remote_protocol.rst: Fix literal hard
+	  spaces in input to just be spaces.
+
 Wed Jun 01 12:06:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.rst: Fix sub-heading run in to previous paragraph.
