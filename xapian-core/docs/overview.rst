@@ -603,7 +603,7 @@ provide the answer::
 
     Xapian::MSet Xapian::Enquire::get_mset(Xapian::doccount first,
                                Xapian::doccount maxitems,
-                               const Xapian::RSet * omrset = 0,
+                               const Xapian::RSet * rset = 0,
                                const Xapian::MatchDecider * mdecider = 0) const
 
 When asking for the results, you must specify (in ``first``) the first
@@ -639,14 +639,14 @@ firstitem
     (Corresponding to ``first`` in ``Xapian::Enquire::get_mset()``)
 max_attained
     The greatest weight which is attained in the full results of the search.
-max_possible``
+max_possible
     The maximum possible weight in the MSet.
-docs_considered``
+docs_considered
     The number of documents matching the query considered for the MSet. This
     provides a lower bound on the number of documents in the database which
     have a weight greater than zero. Note that this value may change if the
     search is recalculated with different values for ``first`` or
-    ``max_items.``
+    ``max_items``.
 
 See the `automatically extracted
 documentation <apidoc/html/classXapian_1_1MSet.html>`_ for more details
@@ -719,7 +719,7 @@ information to modify the search. This is supported by means of
 relevance sets, which are simply sets of document ids which are marked
 as relevant. These are held in
 `Xapian::RSet <apidoc/html/classXapian_1_1RSet.html>`_ objects, one
-of which may optionally be supplied to Xapian in the ``omrset``
+of which may optionally be supplied to Xapian in the ``rset``
 parameter when calling ``Xapian::Enquire::get_mset()``.
 
 Match options
@@ -777,13 +777,13 @@ with their weights, may be returned by:
 ::
 
     Xapian::ESet Xapian::Enquire::get_eset(Xapian::termcount maxitems,
-                               const Xapian::RSet & omrset,
+                               const Xapian::RSet & rset,
                    bool exclude_query_terms = true,
                    bool use_exact_termfreq = false,
                    double k = 1.0,
                    const Xapian::ExpandDecider * edecider = 0) const;
     Xapian::ESet Xapian::Enquire::get_eset(Xapian::termcount maxitems,
-                               const Xapian::RSet & omrset,
+                               const Xapian::RSet & rset,
                                const Xapian::ExpandDecider * edecider) const
 
 As for ``get_mset``, up to ``maxitems`` expand terms will be returned,

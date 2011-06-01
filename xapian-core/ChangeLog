@@ -1,3 +1,8 @@
+Wed Jun 01 11:54:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Change omrset to rset.  Remove some bogus `` left
+	  over from fixing definition list formatting.
+
 Wed Jun 01 11:38:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/stemming.rst: Comment out bogus claim that there are stopword
