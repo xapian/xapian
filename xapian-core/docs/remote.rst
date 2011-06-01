@@ -58,30 +58,18 @@ The host is the server's hostname, the port is the tcp port on the
 server to use.
 
 The server is xapian-tcpsrv, which is installed by xapian-core's
-"``make install``". This should be started and left running in the
+"``make install``". This should be started and left running in the
 background before searches are performed.
 
-The arguments xapian-tcpsrv currently knows are::
+One or more databases need to be specified by listing their paths.
 
-  --port PORTNUM
-  (required) the port to listen on.
-  --one-shot
-  Handle one connection, and then exit. If --one-shot is not used, then
-  the server runs until it is killed manually.
-  --idle-timeout MSECS
-  Set the timeout on a idle connection.
-  --active-timeout MSECS
-  Set the timeout waiting for responses when the connection is active.
-  --timeout MSECS
-  Set the idle and active timeouts to the same value.
-  --quiet
-  Minimal output.
-
-One or more databases need to be specified by listing their directories
-- they are opened using the "auto" pseudo-backend.
+There's also one required command line option for xapian-tcpsrv: ``--port
+PORTNUM``, which specifies the port to listen on.  For the full list of
+accepted command line options, run ``xapian-tcpsrv --help`` or see the
+xapian-tcpsrv man page.
 
 Once started, the server will run and listen for connections on the
-configured port. Each connection is handled by a forked child process
+specified port. Each connection is handled by a forked child process
 (or a new thread under Windows), so concurrent read access is supported.
 
 Notes
@@ -96,4 +84,4 @@ end.
 
 The remote backend now support writable databases. Just start
 ``xapian-progsrv`` or ``xapian-tcpsrv`` with the option ``--writable``.
-Only one database may be specified.
+Only one database may be specified when ``--writable`` is used.

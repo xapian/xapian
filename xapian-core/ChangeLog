@@ -1,3 +1,9 @@
+Wed Jun 01 12:04:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/remote.rst: Replace out-dated list of xapian-tcpsrv's command
+	  line options with a reference to --help and the man page.  Tweak
+	  wording in a few places.
+
 Wed Jun 01 11:54:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Change omrset to rset.  Remove some bogus `` left
