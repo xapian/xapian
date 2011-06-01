@@ -1,3 +1,7 @@
+Wed Jun 01 11:18:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/intro_ir.rst: Use Unicode right arrow.
+
 Wed Jun 01 10:38:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/: Revert quickstart*.cc.html to being HTML rather than .rst as

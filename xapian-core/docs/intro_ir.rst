@@ -1,3 +1,4 @@
+.. |->| unicode:: U+2192 .. right arrow
 .. |ft| replace:: ``f``\ :sub:`t`
 .. |qt| replace:: ``q``\ :sub:`t`
 .. |Ld| replace:: ``L``\ :sub:`d`
@@ -56,12 +57,12 @@ that occur in the tunes.
 If, in an IR system, a document, D, is described by a term, t, t is said
 to *index* D, and we can write,
 
-    ``t`` -> ``D``
+    ``t`` |->| ``D``
 
 In fact an IR system consists of a set of documents, |D1|, |D2|, |D3| ...,
 a set of terms |t1|, |t2|, |t3| ..., and set of relationships,
 
-    |ti| -> |Dj|
+    |ti| |->| |Dj|
 
 i.e. instances of terms indexing documents. A single instance of a
 particular term indexing a particular document is called a *posting*.
@@ -319,13 +320,12 @@ probability that t indexes a non-relevant document. And of course, 1 - p
 is the probability that t does not index a relevant document, and 1 - q
 the probability that t does not index a non-relevant document. More
 mathematically,
-::
 
-        p = P(t -> D | D in R)
-        q = P(t -> D | D not in R)
+        p = P(t |->| D | D in R)
+        q = P(t |->| D | D not in R)
 
-        1 - p = P(t not -> D | D in R)
-        1 - q = P(t not -> D | D not in R)
+        1 - p = P(t not |->| D | D in R)
+        1 - q = P(t not |->| D | D not in R)
 
 Suppose that t indexes n of the N documents in the IR system. As before,
 we suppose also that there are R documents in *R*, and that there are r
@@ -476,7 +476,7 @@ wdp, wdf, ndl and wqf
 Before we see how the weights are used there are a few more ideas to
 introduce.
 
-As mentioned before, a term t is said to index a document D, or t -> D.
+As mentioned before, a term t is said to index a document D, or t |->| D.
 We have emphasised that D may not be a piece of text in machine-readable
 form, and that, even when it is, t may not actually occur in the text of
 D. Nevertheless, it will often be the case that D is made up of a list
@@ -535,7 +535,7 @@ can assign a weight to any document, d, as follows,
     <td><tt>W(d) =&nbsp;</tt></td>
     <td>
     <tt><center>
-    <font size="+4">&Sigma;</font><br><small>t -&gt; d, t in <i>Q</i></small></tt>
+    <font size="+4">&Sigma;</font><br><small>t &rarr; d, t in <i>Q</i></small></tt>
     </td>
     <td><tt><center>
     <u>(k + 1) f</u><sub>t</sub><br>k.L<sub>d</sub> + f<sub>t</sub>
@@ -605,7 +605,7 @@ account the query itself:
     <td><tt>W(d) =&nbsp;</tt></td>
     <td>
     <tt><center>
-    <font size="+4">&Sigma;</font><br><small>t -&gt; d, t in <i>Q</i></small></center></tt>
+    <font size="+4">&Sigma;</font><br><small>t &rarr; d, t in <i>Q</i></small></center></tt>
     </td>
     <td><tt><center>
     <u>(k<sub>3</sub> + 1) q</u><sub>t</sub><br>k<sub>3</sub>L' + q<sub>t</sub>
@@ -679,7 +679,7 @@ information. One can if fact try to generalise it to:
     <td><tt>W(t) =&nbsp;</tt></td>
     <td>
     <tt><center>
-    <font size="+4">&Sigma;</font><br><small>t -&gt; d, d in <i>R</i></small></tt>
+    <font size="+4">&Sigma;</font><br><small>t &rarr; d, d in <i>R</i></small></tt>
     </td>
     <td><tt><center>
     <u>(k + 1) f</u><sub>t</sub><br>kL + f<sub>t</sub>
