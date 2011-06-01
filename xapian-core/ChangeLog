@@ -1,3 +1,7 @@
+Wed Jun 01 03:23:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/bm25.rst: Sort out inline equations.
+
 Tue May 31 15:21:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/spelling.rst: Add link to Omega documentation.

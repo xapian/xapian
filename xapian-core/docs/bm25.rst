@@ -1,3 +1,7 @@
+.. |k1| replace:: ``k``\ :sub:`1`
+.. |k2| replace:: ``k``\ :sub:`2`
+.. |k3| replace:: ``k``\ :sub:`3`
+.. |nq| replace:: ``n``\ :sub:`q`
 
 The BM25 Weighting Scheme
 =========================
@@ -43,18 +47,18 @@ function is:
 
 where
 
-* k1, k3 are constants.
-* q is the wqf, the within query frequency,
-* f is the wdf, the within document frequency,
-* n is the number of documents in the collection indexed by this term,
-* N is the total number of documents in the collection,
-* r is the number of relevant documents indexed by this term,
-* R is the total number of relevant documents,
-* L is the normalised document length (i.e. the length of this document
-      divided by the average length of documents in the collection).
+  * |k1|, |k3| are constants,
+  * q is the wqf, the within query frequency,
+  * f is the wdf, the within document frequency,
+  * n is the number of documents in the collection indexed by this term,
+  * N is the total number of documents in the collection,
+  * r is the number of relevant documents indexed by this term,
+  * R is the total number of relevant documents,
+  * L is the normalised document length (i.e. the length of this document
+    divided by the average length of documents in the collection).
 
-The factors ``(k3 + 1)`` and ``(k1 + 1)`` are unnecessary here, but help
-scale the weights, so the first component is 1 when ``q = 1`` etc. But
+The factors (|k3|\ ``+1``) and (|k1|\ ``+1``) are unnecessary here, but help
+scale the weights, so the first component is 1 when ``q=1`` etc. But
 they are critical below when we add an extra item to the sum of term
 weights.
 
@@ -74,15 +78,15 @@ document score:
 
 where:
 
-- nq is the number of terms in the query (the query length),
-- k2 is yet another constant.
+- |nq| is the number of terms in the query (the query length),
+- |k2| is yet another constant.
 
-Note that this extra item is zero when ``L = 1``.
+Note that this extra item is zero when ``L=1``.
 
 BM15
 ----
 
-BM15 is BM11 with the ``k1+f`` in place of ``k1L+f`` in ``(1)``.
+BM15 is BM11 with the |k1|\ ``+f`` in place of |k1|\ ``L+f`` in ``(1)``.
 
 BM25
 ----
@@ -102,7 +106,7 @@ into BM11 as it moves from 0 to 1:
 
 where:
 
-``K = k1(bL + (1-b))``
+``K=``\ |k1|\ ``(bL+(1-b))``
 
 BM25 originally introduced another constant, as a power to which f and K
 are raised. However, Stephen remarks that powers other than 1 were *'not
@@ -113,19 +117,19 @@ BM25 ignores this.
 recent success.
 
 This does all seem somewhat ad-hoc, with so many unknown constants in
-the formula. But note that with ``k2 = 0`` and ``b = 1`` we get the
+the formula. But note that with |k2|\ ``=0`` and ``b=1`` we get the
 traditional formula anyway.
 
-The default parameter values Xapian uses are ``k1 = 1``, ``k2 = 0``,
-``k3 = 1``, and ``b = 0.5``. These are reasonable defaults, but the
+The default parameter values Xapian uses are |k1|\ ``=1``, |k2|\ ``=0``,
+|k3|\ ``=1``, and ``b=0.5``. These are reasonable defaults, but the
 optimum values will vary with both the documents being searched and the
 type of queries, so you may be able to improve the effectiveness of your
 search system by tuning the values of these parameters.
 
 In Xapian, we also apply a floor to L (0.5 by default) which helps stop
 tiny documents get ridiculously high weights. And the matcher wants the
-extra item in the sum to be positive, so we add ``k2nq`` (constant for a
-given query) to (2) to give:
+extra item in the sum to be positive, so we add |k2|\ |nq| (constant for a
+given query) to ``(2)`` to give:
 
 .. raw:: html
 
