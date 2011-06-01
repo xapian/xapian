@@ -1,3 +1,25 @@
+.. |ft| replace:: ``f``\ :sub:`t`
+.. |Ld| replace:: ``L``\ :sub:`d`
+.. |D1| replace:: ``D``\ :sub:`1`
+.. |D2| replace:: ``D``\ :sub:`2`
+.. |D3| replace:: ``D``\ :sub:`3`
+.. |Di| replace:: ``D``\ :sub:`i`
+.. |Dj| replace:: ``D``\ :sub:`j`
+.. |t1| replace:: ``t``\ :sub:`1`
+.. |t2| replace:: ``t``\ :sub:`2`
+.. |t3| replace:: ``t``\ :sub:`3`
+.. |ti| replace:: ``t``\ :sub:`i`
+.. |tQ| replace:: ``t``\ :sub:`Q`
+.. |Ri| replace:: ``R``\ :sub:`i`
+.. |w1| replace:: ``w``\ :sub:`1`
+.. |w2| replace:: ``w``\ :sub:`2`
+.. |w3| replace:: ``w``\ :sub:`3`
+.. |w9| replace:: ``w``\ :sub:`9`
+.. |w38| replace:: ``w``\ :sub:`38`
+.. |w97| replace:: ``w``\ :sub:`97`
+.. |w221| replace:: ``w``\ :sub:`221`
+.. |wm| replace:: ``w``\ :sub:`m`
+
 Theoretical Background
 ======================
 
@@ -26,16 +48,13 @@ that occur in the tunes.
 
 If, in an IR system, a document, D, is described by a term, t, t is said
 to *index* D, and we can write,
-::
 
-                t -> D
+    ``t`` -> ``D``
 
-In fact an IR system consists of a set of documents, D\ :sub:`1`\ ,
-D\ :sub:`2`\ , D\ :sub:`3`\  ..., a set of terms t\ :sub:`1`\ ,
-t\ :sub:`2`\ , t\ :sub:`3`\  ..., and set of relationships,
-::
+In fact an IR system consists of a set of documents, |D1|, |D2|, |D3| ...,
+a set of terms |t1|, |t2|, |t3| ..., and set of relationships,
 
-                t\ :sub:`i`\ -> D\ :sub:`j`\
+    |ti| -> |Dj|
 
 i.e. instances of terms indexing documents. A single instance of a
 particular term indexing a particular document is called a *posting*.
@@ -117,18 +136,16 @@ Boolean retrieval
 
 A Boolean construct of terms retrieves a corresponding set of documents.
 So, if:
-::
 
-         t1  indexes documents  1 2 3 5 8
-         t2  indexes documents  2 3 6
+    |    |t1| indexes documents  1 2 3 5 8
+    |    |t2| indexes documents  2 3 6
 
 then
-::
 
-         t1 AND t2      retrieves  2 3
-         t1 OR t2       retrieves  1 2 3 5 6 8
-         t1 AND_NOT t2  retrieves  1 5 8
-         t2 AND_NOT t1  retrieves  6
+    |    |t1| ``AND`` |t2|      retrieves  2 3
+    |    |t1| ``OR`` |t2|       retrieves  1 2 3 5 6 8
+    |    |t1| ``AND_NOT`` |t2|  retrieves  1 5 8
+    |    |t2| ``AND_NOT`` |t1|  retrieves  6
 
 The posting list of a term is a set of documents. IR becomes a matter of
 constructing other sets by doing unions, intersections and differences
@@ -242,7 +259,7 @@ queries, and for each query, a complete set of relevance assessments, is
 called a *test collection*. With a test collection you can test out
 different IR ideas, and see how well one performs against another. The
 controversial part of establishing any test collection is the procedure
-employed for determining the sets *R*\ :sub:`i`\ , of relevance
+employed for determining the sets |Ri|, of relevance
 assessments. Subjectivity of judgement comes in here, and people will
 differ about whether a particular document is relevant to a particular
 query. Even so, the averaging across queries reduces the errors that may
@@ -262,8 +279,8 @@ model comes from. You may want to skim through this section if you're
 not too interested.
 
 Suppose we have an IR system with a total of N documents. And suppose
-*Q* is a query in this IR system, made up of terms t\ :sub:`1`\ ,
-t\ :sub:`2`\  ... t\ :sub:`Q`\ . There is a set, *R*, of documents
+*Q* is a query in this IR system, made up of terms |t1|,
+|t2| ... |tQ|. There is a set, *R*, of documents
 relevant to the query.
 
 In 1976, Stephen Robertson derived a formula which gives an ideal
@@ -423,19 +440,18 @@ We have emphasised that D may not be a piece of text in machine-readable
 form, and that, even when it is, t may not actually occur in the text of
 D. Nevertheless, it will often be the case that D is made up of a list
 of words,
-::
 
-            D = w1, w2, w3 ... wm
+            ``D =`` |w1|, |w2|, |w3| ... |wm|
 
 and that many, if not all, of the terms which index D derive from these
 words (for example, the terms are often lower-cased and stemmed forms of
 these words).
 
-If a term derives from words w\ :sub:`9`\ , w\ :sub:`38`\ ,
-w\ :sub:`97`\  and w\ :sub:`221`\  in the indexing process, we can say
-that the term \`occurs' in D at positions 9, 38, 97 and 221, and so for
-each term a document may have a vector of positional information. These
-are the *within-document positions* of t, or the *wdp* information of t.
+If a term derives from words |w9|, |w38|, |w97| and |w221| in the indexing
+process, we can say that the term \`occurs' in D at positions 9, 38, 97 and
+221, and so for each term a document may have a vector of positional
+information. These are the *within-document positions* of t, or the *wdp*
+information of t.
 
 The *within-document frequency*, or *wdf*, of a term t in D is the
 number of times it is pulled out of D in the indexing process. Usually
@@ -447,7 +463,7 @@ document text.
 
 There are various ways in which we might measure the length of a
 document, but the easiest is to suppose it is made up of m words,
-w\ :sub:`1`\  to w\ :sub:`m`\ , and to define its length as m.
+|w1| to |wm|, and to define its length as m.
 
 The *normalised document length*, or *ndl*, is then m divided by the
 average length of the documents in the IR system. So the average length
@@ -469,42 +485,49 @@ Using the weights. The *MSet*
 -----------------------------
 
 Now to pull everything together. From the probabilistic term weights we
-can assign a weight to any document, d, as follows,::
+can assign a weight to any document, d, as follows,
 
-    ``W(d) = ``
-    ````
-    Σ
-    t -> d, t in *Q*
-    ````
-    (k + 1) f\ :sub:`t`\
-    k.L\ :sub:`d`\  + f\ :sub:`t`\
-    `` w(t)``
+.. raw:: html
 
-The sum extends over the terms of *Q* which index d. f\ :sub:`t`\  is
-the wdf of t in d, L\ :sub:`d`\  is the ndl of d, and k is some suitably
+    <blockquote>
+    <table border=0><tr valign=center>
+    <td><tt>W(d) =&nbsp;</tt></td>
+    <td>
+    <tt><center>
+    <font size="+4">&Sigma;</font><br><small>t -&gt; d, t in <i>Q</i></small></tt>
+    </td>
+    <td><tt><center>
+    <u>(k + 1) f</u><sub>t</sub><br>k.L<sub>d</sub> + f<sub>t</sub>
+    </center></tt></td>
+    <td><tt>&nbsp;w(t)</tt></td>
+    </tr></table>
+    </blockquote>
+
+The sum extends over the terms of *Q* which index d. |ft| is
+the wdf of t in d, |Ld| is the ndl of d, and k is some suitably
 chosen constant.
 
-The factor k+1 is actually redundant, but helps with the interpretation
+The factor ``k+1`` is actually redundant, but helps with the interpretation
 of the equation. In Xapian, this weighting scheme is implemented by the
 `Xapian::TradWeight class <apidoc/html/classXapian_1_1TradWeight.html>`_
-and the factor (k+1) is ignored.
+and the factor ``(k+1)`` is ignored.
 
-If k is set to zero the factor before w(t) is 1, and the wdfs are
-ignored. As k tends to infinity, the factor becomes
-f\ :sub:`t`\ /L\ :sub:`d`\ , and the wdfs take on their greatest
+If ``k`` is set to zero the factor before ``w(t)`` is 1, and the wdfs are
+ignored. As ``k`` tends to infinity, the factor becomes
+|ft| ``/`` |Ld|, and the wdfs take on their greatest
 importance. Intermediate values scale the wdf contribution between these
-extremes. The best k actually depends on the characteristics of the IR
+extremes. The best ``k`` actually depends on the characteristics of the IR
 system as a whole, and unfortunately no rule can be given for choosing
-it. By default, Xapian sets k to 1 which should give reasonable results
-for most systems. W(d) is merely tweaked a bit by the wdf values, and
-users observe a simple pattern of retrieval. It is possible to tune k to
+it. By default, Xapian sets ``k`` to 1 which should give reasonable results
+for most systems. ``W(d)`` is merely tweaked a bit by the wdf values, and
+users observe a simple pattern of retrieval. It is possible to tune ``k`` to
 provide optimal results for a specific system.
 
-Any d in the IR system has a value W(d), but, if no term of the query
-indexes d, W(d) will be zero. In practice only documents for which W(d)
-> 0 will be of interest, and these are the documents indexed by at least
+Any ``d`` in the IR system has a value ``W(d)``, but, if no term of the query
+indexes ``d``, ``W(d)`` will be zero. In practice only documents for which
+``W(d)>0`` will be of interest, and these are the documents indexed by at least
 one term of *Q*. If we now take these documents and arrange them by
-decreasing W(d) value, we get a ranked list called the *match set*, or
+decreasing ``W(d)`` value, we get a ranked list called the *match set*, or
 *MSet*, of document and weight pairs:
 ::
 
@@ -514,7 +537,7 @@ decreasing W(d) value, we get a ranked list called the *match set*, or
                             ....
                       item K:   DK  W(DK)
 
-where W(D\ :sub:`j`\ ) >= W(D\ :sub:`i`\ ) if j > i.
+where W(|Dj|) >= W(|Di|) if j > i.
 
 And according to the probabilistic model, the documents D\ :sub:`0`\ ,
 D\ :sub:`1`\ , D\ :sub:`2`\  ... are ranked by decreasing order of
