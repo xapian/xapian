@@ -1,3 +1,7 @@
+Wed Jun 01 12:06:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Fix sub-heading run in to previous paragraph.
+
 Wed Jun 01 12:04:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/remote.rst: Replace out-dated list of xapian-tcpsrv's command

@@ -462,6 +462,7 @@ Compiling
 ---------
 
 Now that we have the code written, all we need to do is compile it!
+
 Finding the Xapian library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
