@@ -1,3 +1,9 @@
+Wed Jun 01 11:38:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/stemming.rst: Comment out bogus claim that there are stopword
+	  lists in xapian-data (the lack of stopword lists is already
+	  ticket#269).
+
 Wed Jun 01 11:29:58 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/matcherdesign.rst,docs/stemming.rst: Convert more arrows to
