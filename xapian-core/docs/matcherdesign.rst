@@ -1,3 +1,5 @@
+.. |->| unicode:: U+2192 .. right arrow
+
 Matcher Design Notes
 ====================
 
@@ -155,10 +157,10 @@ operator from next or skip\_to.
 
 Possible decays:
 
--  OR -> AND
--  OR -> ANDMAYBE
--  ANDMAYBE -> AND
--  XOR -> ANDNOT
+-  OR |->| AND
+-  OR |->| ANDMAYBE
+-  ANDMAYBE |->| AND
+-  XOR |->| ANDNOT
 
 A related optimisation is that the Match object may terminate early if
 maxweight for the whole tree is less than the smallest weight in the

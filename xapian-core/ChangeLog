@@ -1,3 +1,9 @@
+Wed Jun 01 11:29:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/matcherdesign.rst,docs/stemming.rst: Convert more arrows to
+	  Unicode.
+	* docs/stemming.rst: Fix some missing paragraph breaks.
+
 Wed Jun 01 11:18:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.rst: Use Unicode right arrow.

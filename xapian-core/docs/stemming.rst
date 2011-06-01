@@ -1,3 +1,5 @@
+.. |<->| unicode:: U+2194 .. left right arrow
+
 Stemming Algorithms
 ===================
 
@@ -171,7 +173,8 @@ Trios, -IC-AT-IV etc., also occur, but sequences of length four,
 Sometimes the validity of an ending depends on the immediately preceding
 group of letters. In Italian, for example, certain pronouns and pronoun
 groups attach to present participle and infinitive forms of verbs, for
-example,::
+example,
+::
 
     scrivendole = scrivendo (writing) + le (to her)
     mandarglielo = mandare (to give) + glielo (it to him)
@@ -180,6 +183,7 @@ If E is the ending, the possible forms are -andoE, -endoE, -arE, -erE,
 -irE, so E is removed in the context -Xndo or Yr, where X is a or e, and
 Y is a or e or i. See the ``attached_pronoun`` procedure in the Italian
 stemmer.
+
 The most useful criterion for removing an ending, however, is to base
 the decision on the syllable length of the stem that will remain. This
 idea was first used in the English stemming algorithm, and has been
@@ -209,6 +213,7 @@ Build the algorithm up bit by bit, trying out a small number of ending
 removals at a time. For each new ending plus rule added, decide whether,
 on average, the stemming process is improved or degraded. If it is
 degraded the rule is unhelpful and can be discarded.
+
 This sounds like common sense, but it is actually very easy to fall into
 the trap of endlessly elaborating the rules without looking at their
 true effect. What you find eventually is that you can be improving
@@ -228,8 +233,9 @@ form, but to a much smaller number of forms (three), among which the
 form given by the true stem of the verb is by far the commonest.
 
 If we define errors A and B by,
-    error A: removing an ending when it is not an ending
-     error B: not removing an ending when it is an ending
+
+- error A: removing an ending when it is not an ending
+- error B: not removing an ending when it is an ending
 
 Then removing -ent leads to error A; not removing -ent leads to error B.
 We must adopt the rule that minimises the number of errors - not the
@@ -254,6 +260,7 @@ to \`reception', \`decide' to \`decision' etc., which correspond,
 ultimately, to irregularities in the Latin verbs from which these words
 derive. But again working IR systems are rarely upset by lack of
 resolution of these forms.
+
 An irregularity of English which does cause a problem is the word
 \`news'. It is now a singular noun, and is never regarded as the plural
 of \`new'. This, and a few more howlers, are placed in a table,
@@ -280,11 +287,12 @@ not have a problem with this. In fact all the Xapian stemming algorithms
 are built on the assumption that it leave stemmed forms which it would
 not be embarrassing to show to real users, and we suggest that new
 stemming algorithms are designed with this criterion in mind.
+
 A superior approach is to keep each word, *W*, and its stemmed form,
 *s(W)*, as a two-way relation in the IR system. *W* is held in the index
 with its own posting list. *s(W)* could have its separate posting list,
 but this would be derivable from the class of words that stem to *s(W)*.
-The important thing is to have the *W* <-> *s(W)* relation. From *W* we
+The important thing is to have the *W* |<->| *s(W)* relation. From *W* we
 can derive *s(W)*, the stemmed form. From a stemmed form *s(W)* we can
 derive *W* plus the other words in the IR system which stem to *s(W)*.
 Any word can then be searched on either stemmed or unstemmed. If the
@@ -321,6 +329,7 @@ like this,
 
 so that the words \`am', \`is' etc. map to the null string (or some
 other easily recognised value).
+
 Alternatively, stopwords could be removed before the stemming algorithm
 is applied, or after the stemming algorithm is applied. In this latter
 case, the words to be removed must themselves have gone through the
