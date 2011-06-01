@@ -1,3 +1,8 @@
+Wed Jun 01 10:38:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/: Revert quickstart*.cc.html to being HTML rather than .rst as
+	  the .rst version lose the syntax highlighting.  Update svn:ignore.
+
 Wed Jun 01 10:27:11 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.rst: Sort out the remaining formatting issues.
