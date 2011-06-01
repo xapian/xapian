@@ -1,3 +1,8 @@
+Wed Jun 01 06:16:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/index.rst,docs/internals.rst: Centre links at top; Sort out
+	  <hr> to be full width.
+
 Wed Jun 01 03:23:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/bm25.rst: Sort out inline equations.

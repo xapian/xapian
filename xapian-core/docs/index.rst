@@ -1,10 +1,17 @@
+.. raw:: html
+
+    <div align="center">
+
 `website <http://xapian.org/>`_ \| `install <install.html>`_ \|
 `quickstart <quickstart.html>`_ \| `overview <overview.html>`_ \|
 `sysadmins <admin_notes.html>`_ \| `scalability <scalability.html>`_ \|
 `API <apidoc/html/annotated.html>`_ \| `deprecated <deprecation.html>`_
 \| `IR <intro_ir.html>`_ \| `wiki <http://trac.xapian.org/wiki>`_
 
---------------
+.. raw:: html
+
+    </div>
+    <hr>
 
 Xapian - the open source search engine
 ======================================
