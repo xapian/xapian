@@ -1,11 +1,9 @@
 Tests
 =====
 
-Contents
---------
+.. contents::
 
-#. `A Brief Guide to Running Tests <#running>`_
-#. `A Brief Guide to Writing Tests <#writing>`_
+.. _running:
 
 A Brief Guide to Running Tests
 ------------------------------
@@ -15,6 +13,8 @@ After a successful "``make``", try "``make check``".
 It's possible to run test cases individually, and get verbose output
 when one fails, etc. For more information, see the "Running test
 programs" section of HACKING.
+
+.. _writing:
 
 A Brief Guide to Writing Tests
 ------------------------------
