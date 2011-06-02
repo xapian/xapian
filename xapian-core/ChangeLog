@@ -1,3 +1,12 @@
+Thu Jun 02 02:58:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_spelling.cc,backends/brass/brass_spelling.h,
+	  backends/chert/chert_spelling.cc,backends/chert/chert_spelling.h,
+	  backends/flint/flint_spelling.cc,backends/flint/flint_spelling.h:
+	  Fix bug Nikita Smetanin spotted with adding a word which has the
+	  same trigram in an even number of times.
+	* tests/api_spelling.cc: Add regression test spell8.
+
 Wed Jun 01 14:11:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Kill the child process which holds the lock

@@ -1,7 +1,7 @@
 /** @file flint_spelling.cc
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -151,48 +151,15 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	wordfreq_changes[word] = freqinc;
     }
 
-    // New word - need to create trigrams for it.
-
-    F_fragment buf;
-    // Head:
-    buf[0] = 'H';
-    buf[1] = word[0];
-    buf[2] = word[1];
-    buf[3] = '\0';
-    toggle_fragment(buf, word);
-
-    // Tail:
-    buf[0] = 'T';
-    buf[1] = word[word.size() - 2];
-    buf[2] = word[word.size() - 1];
-    buf[3] = '\0';
-    toggle_fragment(buf, word);
-
-    if (word.size() <= 4) {
-	// We also generate 'bookends' for two, three, and four character
-	// terms so we can handle transposition of the middle two characters
-	// of a four character word, substitution or deletion of the middle
-	// character of a three character word, or insertion in the middle of a
-	// two character word.
-	// 'Bookends':
-	buf[0] = 'B';
-	buf[1] = word[0];
-	buf[3] = '\0';
-	toggle_fragment(buf, word);
-    }
-    if (word.size() > 2) {
-	// Middles:
-	buf[0] = 'M';
-	for (size_t start = 0; start <= word.size() - 3; ++start) {
-	    memcpy(buf.data + 1, word.data() + start, 3);
-	    toggle_fragment(buf, word);
-	}
-    }
+    // Add trigrams for word.
+    toggle_word(word);
 }
 
 void
 FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 {
+    if (word.size() <= 1) return;
+
     map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	if (i->second == 0) {
@@ -228,8 +195,13 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	wordfreq_changes[word] = 0;
     }
 
-    // Remove fragment entries for word.
+    // Remove trigrams for word.
+    toggle_word(word);
+}
 
+void
+FlintSpellingTable::toggle_word(const string & word)
+{
     F_fragment buf;
     // Head:
     buf[0] = 'H';
@@ -246,6 +218,11 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
     toggle_fragment(buf, word);
 
     if (word.size() <= 4) {
+	// We also generate 'bookends' for two, three, and four character
+	// terms so we can handle transposition of the middle two characters
+	// of a four character word, substitution or deletion of the middle
+	// character of a three character word, or insertion in the middle of a
+	// two character word.
 	// 'Bookends':
 	buf[0] = 'B';
 	buf[1] = word[0];
@@ -253,11 +230,15 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	toggle_fragment(buf, word);
     }
     if (word.size() > 2) {
+	set<F_fragment> done;
 	// Middles:
 	buf[0] = 'M';
 	for (size_t start = 0; start <= word.size() - 3; ++start) {
 	    memcpy(buf.data + 1, word.data() + start, 3);
-	    toggle_fragment(buf, word);
+	    // Don't toggle the same F_fragment twice or it will cancel out.
+	    // Bug fixed in 1.2.6.
+	    if (done.insert(buf).second)
+		toggle_fragment(buf, word);
 	}
     }
 }
