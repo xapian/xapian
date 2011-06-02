@@ -1,4 +1,4 @@
-<?
+<?php
 /* Simple command-line match decider example
  *
  * Copyright (C) 2007,2011 Olly Betts

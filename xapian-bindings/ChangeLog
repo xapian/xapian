@@ -1,3 +1,8 @@
+Thu Jun 02 03:07:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplematchdecider.php5: Change start tag from <?
+	  to <?php - issue pointed out by Daniel Menard in ticket#488.
+
 Mon May 30 10:34:16 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
