@@ -1,3 +1,11 @@
+Thu Jun 02 11:03:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: If default_op is OP_NEAR or
+	  OP_PHRASE then disable stemming of the terms, since we don't index
+	  positional information for stemmed terms by default.
+	* tests/queryparsertest.cc: Adjust near1 and phrase1 to act as
+	  regression tests for this fix.
+
 Thu Jun 02 02:58:58 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_spelling.cc,backends/brass/brass_spelling.h,

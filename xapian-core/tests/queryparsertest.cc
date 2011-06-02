@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -2151,14 +2151,14 @@ static const test test_near_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give NEAR 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) NEAR 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) NEAR 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) NEAR 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) NEAR 12 Zbar:(pos=2) NEAR 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) NEAR 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) NEAR 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) NEAR 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) NEAR 12 bar:(pos=2) NEAR 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) NEAR 12 Zanim:(pos=2) NEAR 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2175,7 +2175,7 @@ static const test test_near_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) NEAR 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) NEAR 11 space:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -2223,14 +2223,14 @@ static const test test_phrase_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give PHRASE 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) PHRASE 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) PHRASE 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) PHRASE 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) PHRASE 12 Zbar:(pos=2) PHRASE 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) PHRASE 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) PHRASE 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) PHRASE 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) PHRASE 12 bar:(pos=2) PHRASE 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) PHRASE 12 Zanim:(pos=2) PHRASE 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2247,7 +2247,9 @@ static const test test_phrase_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) PHRASE 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) PHRASE 11 space:(pos=2))" },
+    // FIXME: this isn't what we want, but fixing phrase to work with
+    // subqueries first might be the best approach.
     { "(one AND two) three", "((Zone:(pos=1) PHRASE 11 Zthree:(pos=3)) AND (Ztwo:(pos=2) PHRASE 11 Zthree:(pos=3)))" },
     { NULL, NULL }
 };

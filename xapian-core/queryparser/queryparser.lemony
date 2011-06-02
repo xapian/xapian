@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1290,6 +1290,7 @@ TermGroup::as_group(State *state) const
 {
     const Xapian::Stopper * stopper = state->get_stopper();
     size_t stoplist_size = state->stoplist_size();
+    bool default_op_is_positional = is_positional(state->default_op());
 reprocess:
     Query::op default_op = state->default_op();
     vector<Query> subqs;
@@ -1309,6 +1310,8 @@ reprocess:
 		if (stopper && (*stopper)((*i)->name)) {
 		    state->add_to_stoplist(*i);
 		} else {
+		    if (default_op_is_positional)
+			(*i)->need_positions();
 		    subqs.push_back((*i)->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
@@ -1336,6 +1339,8 @@ reprocess:
 		if (stopper && (*stopper)((*i)->name)) {
 		    state->add_to_stoplist(*i);
 		} else {
+		    if (default_op_is_positional)
+			(*i)->need_positions();
 		    subqs.push_back((*i)->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
@@ -1348,11 +1353,13 @@ reprocess:
 		if (stopper && (*stopper)((*j)->name)) {
 		    state->add_to_stoplist(*j);
 		} else {
+		    if (default_op_is_positional)
+			(*i)->need_positions();
 		    subqs2.push_back((*j)->get_query());
 		}
 	    }
 	    Query q_original_terms;
-	    if (is_positional(default_op)) {
+	    if (default_op_is_positional) {
 		q_original_terms = Query(default_op,
 					 subqs2.begin(), subqs2.end(),
 					 subqs2.size() + 9);
@@ -1380,6 +1387,8 @@ reprocess:
 	    if (stopper && (*stopper)((*i)->name)) {
 		state->add_to_stoplist(*i);
 	    } else {
+		if (default_op_is_positional)
+		    (*i)->need_positions();
 		subqs.push_back((*i)->get_query_with_auto_synonyms());
 	    }
 	}
@@ -1396,7 +1405,7 @@ reprocess:
 
     Query * q = NULL;
     if (!subqs.empty()) {
-	if (is_positional(default_op)) {
+	if (default_op_is_positional) {
 	    q = new Query(default_op, subqs.begin(), subqs.end(),
 			     subqs.size() + 9);
 	} else {
