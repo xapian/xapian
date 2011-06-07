@@ -1,3 +1,9 @@
+Tue Jun 07 23:16:33 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/brass_changesetapplier.h,
+	  backends/chert/chert_changesetapplier.h,
+	  backends/flint/flint_changesetapplier.h: Remove dead code
+
 Thu Jun 02 13:21:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add recent bug reporters.
