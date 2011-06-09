@@ -1,3 +1,10 @@
+Thu Jun 09 15:23:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING,docs/deprecation.rst,include/xapian/deprecated.h,
+	  include/xapian/keymaker.h: Add XAPIAN_DEPRECATED_CLASS macro
+	  for marking a class as deprecated, so we don't have to call
+	  XAPIAN_DEPRECATED() with no parameters.
+
 Thu Jun 09 14:03:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Clarify wording about PATH.

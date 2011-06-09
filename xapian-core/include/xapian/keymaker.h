@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 };
 
 /** Virtual base class for sorter functor. */
-class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED() Sorter : public KeyMaker { };
+class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS Sorter : public KeyMaker { };
 
 /** Sorter subclass which sorts by a several values.
  *
@@ -106,7 +106,7 @@ class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED() Sorter : public KeyMaker { }
  *    // Secondary ordering is reverse on value 5.
  *    sorter.add_value(5, true);
  */
-class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED() MultiValueSorter : public Sorter {
+class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS MultiValueSorter : public Sorter {
     std::vector<std::pair<Xapian::valueno, bool> > valnos;
 
   public:

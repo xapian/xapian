@@ -940,15 +940,17 @@ Marking Features as Deprecated
 ==============================
 
 In the API headers, a feature (a class, method, function, enum, typedef, etc)
-can be marked as deprecated by using the XAPIAN_DEPRECATED() macro.  Note that
-you can't deprecate a preprocessor macro.
+can be marked as deprecated by using the XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
+macro.
 
 For compilers with a suitable mechanism (currently GCC 3.1 or later, and
 MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
 any use of the deprecated feature.  For compilers without support, the macro
 just expands to its argument.
 
-You must add this line to any API header which uses XAPIAN_DEPRECATED():
+You must add this line to any API header which uses XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS::
 
     #include <xapian/deprecated.h>
 
@@ -973,10 +975,10 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
-Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
-keyword like so::
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED_CLASS`` after the
+class keyword like so::
 
-    class XAPIAN_DEPRECATED() Foo {
+    class XAPIAN_DEPRECATED_CLASS Foo {
       public:
         Foo() { }
 
@@ -985,7 +987,7 @@ keyword like so::
 
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
-XAPIAN_DEPRECATED (this works with recent GCC versions though)::
+``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
     
     class Foo {
       public:
