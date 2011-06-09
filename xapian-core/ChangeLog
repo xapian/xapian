@@ -1,3 +1,7 @@
+Thu Jun 09 22:21:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document "remote" in stub databases.
+
 Thu Jun 09 15:23:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING,docs/deprecation.rst,include/xapian/deprecated.h,

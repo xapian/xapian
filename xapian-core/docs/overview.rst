@@ -163,7 +163,7 @@ backend type has one or more. The parameters the function takes depend
 on the backend type, and whether we are creating a read-only or a
 writable database.
 
-You can also create a "stub database" file which list one or more
+You can also create a "stub database" file which lists one or more
 databases. These files are recognised by the autodetection in the
 Database constructor (if the pathname is file rather than a directory,
 it's treated as a stub database file) or you can open them explicitly
@@ -180,8 +180,8 @@ The current types understood by Xapian are:
 
 auto
     This isn't an actual database format, but rather auto-detection of one of
-    the disk based backends ("flint" or "stub") from a single specified file or
-    directory path.
+    the disk based backends (e.g. "flint" or "chert") from a single specified
+    path (which can be to a file or directory).
 
 brass
     Brass is the current development backend, and it is intended to be the
@@ -204,6 +204,11 @@ flint
     For more information, see the `Xapian Wiki
     <http://trac.xapian.org/wiki/FlintBackend>`_.
 
+inmemory
+    This type is a database held entirely in memory. It was originally written
+    for testing purposes only, but may prove useful for building up temporary
+    small databases.
+
 quartz
     Quartz was the default backend prior to Xapian 1.0, and has been removed as
     of Xapian 1.1.0. If you want to migrate an existing Quartz database to
@@ -211,10 +216,18 @@ quartz
     <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
     for a way to do this.
 
-inmemory
-    This type is a database held entirely in memory. It was originally written
-    for testing purposes only, but may prove useful for building up temporary
-    small databases.
+remote
+    This can specify either a "program" or TCP remote backend, for example::
+
+        remote ssh xapian-prog.example.com xapian-progsrv
+
+    or::
+
+        remote xapian-tcp.example.com:12345
+
+    Currently the two are distinguished by checking for a colon (``:``)
+    anywhere in the line, so for the "program" backend, your command can't
+    contain a colon.
 
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
