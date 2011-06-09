@@ -49,6 +49,9 @@ QueryParser::set_database(database)
     CODE:
 	THIS->set_database(*database);
 
+void
+QueryParser::set_max_wildcard_expansion(termcount limit)
+
 Query *
 QueryParser::parse_query(q, flags = QueryParser::FLAG_DEFAULT)
     string q
