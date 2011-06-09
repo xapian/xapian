@@ -1,3 +1,8 @@
+Thu Jun 09 23:26:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Define
+	  XAPIAN_DEPRECATED_CLASS to empty for doxygen.
+
 Thu Jun 09 22:21:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document "remote" in stub databases.
