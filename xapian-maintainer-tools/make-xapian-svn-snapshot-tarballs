@@ -230,6 +230,13 @@ foreach my $tag (@ARGV) {
     mkpath("$tag/build", 0, 0755) or die $!;
     chdir "$tag/build" or die $!;
 
+    {
+	# Touch a file so we can find sources which weren't used during the
+	# build.
+	open TOUCH, '>>', 'prebuild-timestamp' or die $!;
+	close TOUCH;
+    }
+
     $log = `../xapian/bootstrap 2>&1`;
     print LOG $log;
     if ($?) {
@@ -259,6 +266,8 @@ foreach my $tag (@ARGV) {
 	next;
     }
     $log = undef;
+
+    system('find', '../xapian', '!', '-anewer', 'prebuild-timestamp');
 
     my $lib = (<xapian-core/.libs/libxapian*.so>)[0];
     my $unstripped_so = -s $lib;
