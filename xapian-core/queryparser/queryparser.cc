@@ -2,6 +2,7 @@
  * class.
  *
  * Copyright (C) 2005,2006,2007,2008,2010 Olly Betts
+ * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,6 +102,12 @@ QueryParser::get_default_op() const
 void
 QueryParser::set_database(const Database &db) {
     internal->db = db;
+}
+
+void
+QueryParser::set_max_wildcard_expansion(Xapian::termcount max)
+{
+    internal->max_wildcard_expansion = max;
 }
 
 Query

@@ -945,6 +945,69 @@ static bool test_qp_flag_wildcard2()
 #endif
 }
 
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+static void
+test_qp_flag_wildcard1_helper(const Xapian::Database &db,
+			      Xapian::termcount max_expansion,
+			      const string & query_string)
+{
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    qp.set_max_wildcard_expansion(max_expansion);
+    Xapian::Enquire e(db);
+    e.set_query(qp.parse_query(query_string, Xapian::QueryParser::FLAG_WILDCARD));
+    // The exception for expanding too much may happen at parse time or later
+    // so we need to calculate the MSet too.
+    e.get_mset(0, 10);
+}
+#endif
+
+// Test right truncation with a limit on expansion.
+static bool test_qp_flag_wildcard3()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("muscat");
+    doc.add_term("muscle");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    db.add_document(doc);
+
+    // Test that a max of 0 doesn't set a limit.
+    test_qp_flag_wildcard1_helper(db, 0, "z*");
+    test_qp_flag_wildcard1_helper(db, 0, "m*");
+
+    // These cases should expand to the limit given.
+    test_qp_flag_wildcard1_helper(db, 1, "z*");
+    test_qp_flag_wildcard1_helper(db, 1, "ab*");
+    test_qp_flag_wildcard1_helper(db, 2, "muscle*");
+    test_qp_flag_wildcard1_helper(db, 4, "musc*");
+    test_qp_flag_wildcard1_helper(db, 4, "mus*");
+    test_qp_flag_wildcard1_helper(db, 5, "mu*");
+    test_qp_flag_wildcard1_helper(db, 6, "m*");
+
+    // These cases should expand to one more than the limit.
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 1, "muscle*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "musc*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "mus*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 4, "mu*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 5, "m*"));
+
+    return true;
+#endif
+}
+
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
@@ -2408,6 +2471,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_odd_chars1),
     TESTCASE(qp_flag_wildcard1),
     TESTCASE(qp_flag_wildcard2),
+    TESTCASE(qp_flag_wildcard3),
     TESTCASE(qp_flag_partial1),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),

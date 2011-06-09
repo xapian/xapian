@@ -1,3 +1,12 @@
+Thu Jun 09 13:04:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.rst,include/xapian/queryparser.h,
+	  queryparser/queryparser.cc,queryparser/queryparser.lemony,
+	  queryparser/queryparser_internal.h,tests/queryparsertest.cc: Add
+	  QueryParser::set_max_wildcard_expansion() method to allow limiting
+	  the number of terms a wildcard can expand to.  Implementation mostly
+	  from a patch by Adam Sjøgren in ticket#350.
+
 Tue Jun 07 23:16:33 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/brass_changesetapplier.h,
