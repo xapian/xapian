@@ -284,7 +284,7 @@ foreach my $tag (@ARGV) {
 	return unless -f $_ and (stat _)[8] >= $timestamp;
 	return if $_ eq '.svnignore';
 	++$unused_files{$File::Find::name};
-	print "Unused during make: $Find::Find::name\n";
+	print "Unused during make: $File::Find::name\n";
     }
     find(\&check_unused_files_from_build, '../xapian');
 
