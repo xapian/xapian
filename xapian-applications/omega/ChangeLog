@@ -1,3 +1,8 @@
+Thu Jun 09 14:20:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* weight.cc: Fix a compiler warning (I failed to note the compiler
+	  unfortunately).
+
 Sun May 29 13:00:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/query: Make search query input type=search.
