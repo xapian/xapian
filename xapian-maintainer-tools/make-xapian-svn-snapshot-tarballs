@@ -290,6 +290,9 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
+    print 'after distcheck';
+    system('find', '../xapian', '!', '-anewer', 'prebuild-timestamp');
+
     # Snapshots of MSVC build files.
     my $win32dir = "win32msvc_svn$revision";
     unlink $win32dir;

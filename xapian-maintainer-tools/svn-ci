@@ -69,8 +69,14 @@ if (scalar @ARGV && $ARGV[0] eq '--revert') {
 my $backport = 0;
 if (scalar @ARGV && $ARGV[0] eq '--backport') {
     shift @ARGV;
-    if (! -f 'ChangeLog.rej') {
-	die "--backport specified, but no ChangeLog.rej\n";
+    my $left = (<ChangeLog.merge-left.r?*>)[0];
+    my $right = (<ChangeLog.merge-right.r?*>)[0];
+    if (defined $left && defined $right) {
+	system "diff -c \Q$left\E \Q$right\E > ChangeLog.rej";
+	system("svn", "revert", "ChangeLog");
+	system("svn", "up");
+    } elsif (! -f 'ChangeLog.rej') {
+	die "--backport specified, but no svn merge telltales and no ChangeLog.rej\n";
     }
     $backport = 1;
 }
@@ -263,6 +269,9 @@ if ($edit_cl) {
     }
     system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
     ($? >> 8 == 0) || die "$?\n";
+    if ($backport) {
+	unlink "ChangeLog.rej";
+    }
 }
 
 my $msg = '';
