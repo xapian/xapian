@@ -232,7 +232,9 @@ foreach my $tag (@ARGV) {
     chdir "$tag/build" or die $!;
 
     # Note the current time so we can find sources which weren't used during
-    # the build.
+    # the build.  Sleep for a couple of seconds first to avoid needing to
+    # worry about timestamps equal to $timestamp.
+    sleep 2;
     my $timestamp = time;
 
     $log = `../xapian/bootstrap 2>&1`;
@@ -267,24 +269,25 @@ foreach my $tag (@ARGV) {
 
     my %unused_files = ();
     sub check_unused_files_from_build {
+	my $f = substr($File::Find::name, length('../xapian/'));
 	if ($_ eq '.svn' ||
 	    # $_ eq 'autom4te.cache' ||
 	    $_ eq 'debian' ||
-	    $File::Find::name eq '../xapian/swig' ||
-	    $File::Find::name eq '../xapian/xapian-applications/omega/common' ||
-	    $File::Find::name eq '../xapian/xapian-maintainer-tools' ||
-	    $File::Find::name eq '../xapian/BUILD' ||
-	    $File::Find::name eq '../xapian/INST') {
+	    $f eq 'swig' ||
+	    $f eq 'xapian-applications/omega/common' ||
+	    $f eq 'xapian-maintainer-tools' ||
+	    $f eq 'BUILD' ||
+	    $f eq 'INST') {
 	    if (-d $_) {
 		# Don't descend into these subdirectories.
 		$File::Find::prune = 1;
 		return;
 	    }
 	}
-	return unless -f $_ and (stat _)[8] >= $timestamp;
+	return unless -f $_ and (stat _)[8] < $timestamp;
 	return if $_ eq '.svnignore';
-	++$unused_files{$File::Find::name};
-	print "Unused during make: $File::Find::name\n";
+	++$unused_files{$f};
+	print "Unused during make: $f\n";
     }
     find(\&check_unused_files_from_build, '../xapian');
 
