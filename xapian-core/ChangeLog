@@ -1,3 +1,7 @@
+Fri Jun 10 05:19:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Actually include soaktest/Makefile.mk.
+
 Thu Jun 09 23:26:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Define

@@ -283,8 +283,9 @@ clean-local: remove-cached-databases
 # bugs in database creation when we reuse databases from a previous test run.
 check-local: remove-cached-databases
 
-include perftest/Makefile.mk
 include harness/Makefile.mk
+include perftest/Makefile.mk
+include soaktest/Makefile.mk
 
 EXTRA_DIST += zlib-vg.c
 if USE_ZLIB_VG
