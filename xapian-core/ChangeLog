@@ -1,3 +1,8 @@
+Fri Jun 10 09:05:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* examples/NEWS,examples/TODO: Remove files which are unused since the
+	  examples were merged into xapian-core.
+
 Fri Jun 10 09:03:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Ship ChangeLog.0 in the tarball.
