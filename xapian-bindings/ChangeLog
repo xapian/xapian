@@ -1,3 +1,7 @@
+Fri Jun 10 06:40:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.ini: Remove file which is no longer used.
+
 Fri Jun 10 01:21:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-head.i,xapian.i: Update for addition of
