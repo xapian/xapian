@@ -1,3 +1,8 @@
+Fri Jun 10 03:21:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,omindex-config.cc,omindex-config.html: Strip out partly
+	  written and long untouched omindex-config utility.
+
 Thu Jun 09 14:20:46 GMT 2011  Olly Betts <olly@survex.com>
 
 	* weight.cc: Fix a compiler warning (I failed to note the compiler
