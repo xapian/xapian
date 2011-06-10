@@ -1,7 +1,11 @@
 Fri Jun 10 09:11:02 GMT 2011  Olly Betts <olly@survex.com>
 
-	* java/LICENSE: Remove, since it is explicitly included in each source 
+	* java/LICENSE: Remove, since it is explicitly included in each source
 	  file it applies to.
+
+Fri Jun 10 06:43:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Add simplematchdecider.php5 example to tarball.
 
 Fri Jun 10 06:40:46 GMT 2011  Olly Betts <olly@survex.com>
 
