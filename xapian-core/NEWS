@@ -1,28 +1,44 @@
- 15494       olly Thu May 26 02:44:07 GMT 2011  Olly Betts <olly@survex.com>
+ 15570       olly Fri Jun 10 09:05:38 GMT 2011  Olly Betts <olly@survex.com>
 
-
-Xapian-core 1.2.6 (2011-05-27):
+Xapian-core 1.2.6 (2011-06-10):
 
 
 API:
 
+* QueryParser:
+
+  + Add new set_max_wildcard_expansion() method to allow limiting the number of
+    terms a wildcard can expand to.  (ticket#350)
+
+  + If default_op is OP_NEAR or OP_PHRASE then disable stemming of the terms,
+    since we don't index positional information for stemmed terms by default.
+
+* Spelling correction was failing to correctly handle words which had the same
+  trigram in an even number of times.
 
 testsuite:
 
+* We now actually include the soaktest code in the release tarballs.
 
 matcher:
 
-* Eliminate temporary vector in queryoptimiser
-	  when handling phrase subqueries and replace with iterators.
+* Eliminate some vector copies when handling phrase subqueries in the query
+  optimiser.
 
 brass backend:
 
+* Kill the child process which holds the lock with SIGKILL as that can't be
+  ignored, whereas SIGHUP can be in some cases.
 
 chert backend:
 
+* Kill the child process which holds the lock with SIGKILL as that can't be
+  ignored, whereas SIGHUP can be in some cases.
 
 flint backend:
 
+* Kill the child process which holds the lock with SIGKILL as that can't be
+  ignored, whereas SIGHUP can be in some cases.
 
 remote backend:
 
@@ -35,11 +51,22 @@ build system:
 
 documentation:
 
+* The HTML documentation is now maintained in reStructured Text format.
+
 * docs/queryparser.html: Document the precedence order of operators.
 
 * docs/scalability.html: Bring up-to-date.
 
-* docs/admin_notes.rst: Clarify wording.
+* docs/overview.html: Document "remote" in stub databases.
+
+* docs/postingsource.html: Add PostingSource example.  (ticket#503)
+
+* include/xapian/database.h: Add @exception InvalidArgumentError for
+  Database::get_document() (ticket#542).
+
+* Ship ChangeLog.0 in the tarball.
+
+* Assorted minor improvements.
 
 tools:
 

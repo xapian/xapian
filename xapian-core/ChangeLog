@@ -1,3 +1,7 @@
+Fri Jun 10 11:55:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update in preparation for 1.2.6.
+
 Fri Jun 10 09:05:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* examples/NEWS,examples/TODO: Remove files which are unused since the
