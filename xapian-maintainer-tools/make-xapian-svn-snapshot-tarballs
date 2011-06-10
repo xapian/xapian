@@ -136,7 +136,7 @@ foreach my $tag (@ARGV) {
 	    $log .= $_;
 	    $lastlog = $_;
 	    if (!$changed) {
-		if ($_ ne "\n" && !/^(?:Fetching|Updated) /) {
+		if ($_ ne "\n" && !/^(?:Fetching|Updated|External|At) /) {
 		    $changed = 1;
 		}
 	    }
@@ -269,27 +269,36 @@ foreach my $tag (@ARGV) {
 
     my %unused_files = ();
     sub check_unused_files_from_build {
+	return if $File::Find::name eq '../xapian';
 	my $f = substr($File::Find::name, length('../xapian/'));
 	if ($_ eq '.svn' ||
-	    # $_ eq 'autom4te.cache' ||
+	    $_ eq 'autom4te.cache' ||
 	    $_ eq 'debian' ||
+	    $f eq 'search-xapian/blib' ||
 	    $f eq 'swig' ||
 	    $f eq 'xapian-applications/omega/common' ||
+	    $f eq 'xapian-data' || # FIXME: make check should use this
 	    $f eq 'xapian-maintainer-tools' ||
 	    $f eq 'BUILD' ||
-	    $f eq 'INST') {
-	    if (-d $_) {
+	    $f eq 'INST' ||
+	    /^Search-Xapian-\d+\.\d+\.\d+\.\d+$/) {
+	    if (-d $File::Find::name) {
 		# Don't descend into these subdirectories.
 		$File::Find::prune = 1;
 		return;
 	    }
 	}
-	return unless -f $_ and (stat _)[8] < $timestamp;
+	return unless -f $File::Find::name and (stat _)[8] < $timestamp;
 	return if $_ eq '.svnignore';
+	return if $_ eq 'config.h.in~';
+	return if $_ eq 'NEWS.SKELETON';
+	return if $f eq 'README';
+	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\.gz$/;
 	++$unused_files{$f};
 	print "Unused during make: $f\n";
     }
-    find(\&check_unused_files_from_build, '../xapian');
+    # FIXME: reenable this but fixed
+    # find(\&check_unused_files_from_build, '../xapian');
 
     my $lib = (<xapian-core/.libs/libxapian*.so>)[0];
     my $unstripped_so = -s $lib;
@@ -312,9 +321,8 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    # FIXME:
-    # print 'after distcheck';
-    # system('find', '../xapian', '!', '-anewer', 'prebuild-timestamp');
+    # This finds files we don't ship or use to get to what we ship:
+    find(\&check_unused_files_from_build, '../xapian');
 
     # Snapshots of MSVC build files.
     my $win32dir = "win32msvc_svn$revision";
