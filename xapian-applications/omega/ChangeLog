@@ -1,3 +1,8 @@
+Fri Jun 10 03:28:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/inc/anyallexactradio: Remove unused duplicate of
+	  anyallradio.
+
 Fri Jun 10 03:21:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac,omindex-config.cc,omindex-config.html: Strip out partly
