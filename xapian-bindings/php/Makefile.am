@@ -73,7 +73,8 @@ exampledatadir = $(docdir)/php/examples
 dist_exampledata_DATA =\
 	docs/examples/simplesearch.php5\
 	docs/examples/simpleindex.php5\
-	docs/examples/simpleexpand.php5
+	docs/examples/simpleexpand.php5\
+	docs/examples/simplematchdecider.php5
 
 docdatadir = $(docdir)/php
 dist_docdata_DATA = docs/index.html
