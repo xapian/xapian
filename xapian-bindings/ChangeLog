@@ -1,3 +1,8 @@
+Fri Jun 10 01:21:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian.i: Update for addition of
+	  XAPIAN_DEPRECATED_CLASS.
+
 Thu Jun 02 03:07:35 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simplematchdecider.php5: Change start tag from <?

@@ -41,9 +41,6 @@ using namespace std;
 // other Xapian headers.
 %include <xapian/visibility.h>
 
-// Kill the macro magic for deprecation warnings.
-#define XAPIAN_DEPRECATED()
-
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
 %include "util.i"
