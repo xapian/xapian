@@ -1,3 +1,7 @@
+Fri Jun 10 12:08:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update in preparation for 1.2.6.
+
 Fri Jun 10 09:11:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/LICENSE: Remove, since it is explicitly included in each source
