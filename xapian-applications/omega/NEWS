@@ -1,3 +1,44 @@
+ 15565       olly Fri Jun 10 03:28:33 GMT 2011  Olly Betts <olly@survex.com>
+
+Omega 1.2.6 (2011-06-10):
+
+general:
+
+documentation:
+
+* docs/omegascript.html: Correct the documentation of the colours used by
+  $highlight{}.
+
+* docs/overview.html: Add using unoconv as more complex example of using
+  --filter (ticket#324).
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+* templates/query:
+
+  + Make search query input type=search.
+
+  + Autofocus the search query input (using HTML autofocus attribute with
+    Javascript fallback for older browsers).  (ticket#544)
+
+testsuite:
+
+build system:
+
+portability:
+
+* Fix a compiler warning.
+
+packaging:
+
 Omega 1.2.5 (2011-04-04):
 
 documentation:
