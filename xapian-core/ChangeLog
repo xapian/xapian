@@ -1,3 +1,7 @@
+Fri Jun 10 09:03:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Ship ChangeLog.0 in the tarball.
+
 Fri Jun 10 05:19:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Actually include soaktest/Makefile.mk.
