@@ -1,3 +1,8 @@
+Sat Jun 11 10:11:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc: Update LOGCALL(MATCH, ...) to LOGCALL(DB, ...).
+	  Convert LOGLINE() at start of method to LOGCALL().
+
 Sat Jun 11 09:57:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Remove self-assignment check from
