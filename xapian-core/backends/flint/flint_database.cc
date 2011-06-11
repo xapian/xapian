@@ -613,7 +613,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	need_whole_db = true;
     }
 
-    RemoteConnection conn(-1, fd, "");
+    RemoteConnection conn(-1, fd);
 
     // While the starting revision number is less than the latest revision
     // number, look for a changeset, and write it.

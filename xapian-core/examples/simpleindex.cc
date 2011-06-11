@@ -75,7 +75,7 @@ try {
 		// Add the document to the database.
 		db.add_document(doc);
 
-		para = "";
+		para.resize(0);
 	    }
 	} else {
 	    if (!para.empty()) para += ' ';

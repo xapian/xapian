@@ -197,7 +197,7 @@ Database::termlist_begin(Xapian::docid did) const
 TermIterator
 Database::allterms_begin() const
 {
-    return allterms_begin("");
+    return allterms_begin(string());
 }
 
 TermIterator

@@ -111,7 +111,7 @@ FlintValueTable::get_value(string & value,
 	    if (this_value_no > slot) break;
 	}
     }
-    value = "";
+    value = string();
 }
 
 void

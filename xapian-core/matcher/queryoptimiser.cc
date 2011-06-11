@@ -146,7 +146,7 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    if (range_end < db.get_value_lower_bound(slot)) {
 		RETURN(new EmptyPostList);
 	    }
-	    RETURN(new ValueRangePostList(&db, slot, "", range_end));
+	    RETURN(new ValueRangePostList(&db, slot, string(), range_end));
 	}
 
 	case Xapian::Query::OP_SCALE_WEIGHT: {

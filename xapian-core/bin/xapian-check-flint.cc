@@ -64,7 +64,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 
     size_t errors = 0;
 
-    cursor->find_entry("");
+    cursor->find_entry(string());
     cursor->next(); // Skip the empty entry.
 
     if (strcmp(tablename, "postlist") == 0) {

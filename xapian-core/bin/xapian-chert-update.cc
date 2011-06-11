@@ -157,7 +157,7 @@ copy_position(FlintTable &in, ChertTable *out)
     if (in.empty()) return;
 
     FlintCursor cur(&in);
-    cur.find_entry("");
+    cur.find_entry(string());
 
     string newkey;
     while (cur.next()) {
@@ -187,7 +187,7 @@ copy_postlist(FlintTable &in, ChertTable *out)
 
     // Copy metainfo item and valuestats.
     FlintCursor cur(&in);
-    cur.find_entry("");
+    cur.find_entry(string());
     while (true) {
 	if (!cur.next()) return;
 	if (cur.current_key >= firstvaluechunk) break;
@@ -267,7 +267,7 @@ copy_unchanged(FlintTable &in, ChertTable *out)
     if (in.empty()) return;
 
     FlintCursor cur(&in);
-    cur.find_entry("");
+    cur.find_entry(string());
     while (cur.next()) {
 	bool compressed = cur.read_tag(true);
 	out->add(cur.current_key, cur.current_tag, compressed);
@@ -281,7 +281,7 @@ copy_termlist(FlintTable &in, ChertTable *out)
     if (in.empty()) return;
 
     FlintCursor cur(&in);
-    cur.find_entry("");
+    cur.find_entry(string());
 
     string newkey;
     while (cur.next()) {
@@ -311,7 +311,7 @@ copy_docid_keyed(FlintTable &in, ChertTable *out)
     if (in.empty()) return;
 
     FlintCursor cur(&in);
-    cur.find_entry("");
+    cur.find_entry(string());
 
     string newkey;
     while (cur.next()) {

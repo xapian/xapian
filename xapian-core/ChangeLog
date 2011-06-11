@@ -1,3 +1,22 @@
+Sat Jun 11 08:48:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/brass/brass_cursor.h,
+	  backends/chert/chert_cursor.h,backends/flint/flint_cursor.h,
+	  backends/flint/flint_table.cc,backends/flint/flint_values.cc,
+	  backends/inmemory/inmemory_database.cc,bin/xapian-check-brass.cc,
+	  bin/xapian-check-chert.cc,bin/xapian-chert-update.cc,
+	  matcher/queryoptimiser.cc,matcher/valuegepostlist.h: Use string() or
+	  std::string() rather than "".
+	* common/remoteconnection.h,net/tcpserver.cc: Use 2 parameter form of
+	  Error subclass ctors when the context is "".
+	* api/replication.cc,backends/flint/flint_database.cc,
+	  common/remoteconnection.h,net/replicatetcpclient.cc,
+	  net/replicatetcpserver.cc: Make context parameter of
+	  RemoteConnection ctor optional.
+	* common/leafpostlist.h: Say 'empty' rather than '""' in a
+	  documentation comment.
+	* examples/simpleindex.cc: Use '.resize(0)' rather than '= ""'.
+
 Sat Jun 11 07:01:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/,backends/chert/,backends/flint/,

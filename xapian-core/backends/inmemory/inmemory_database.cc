@@ -676,7 +676,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 				 string(" not found"));
     }
     termlists[did-1].is_valid = false;
-    doclists[did-1] = "";
+    doclists[did-1] = string();
     map<Xapian::valueno, string>::const_iterator j;
     for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
 	map<Xapian::valueno, ValueStats>::iterator i;

@@ -71,7 +71,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     try {
 	db = Database(path);
     } catch (const Xapian::DatabaseError & e) {
-	RemoteConnection conn(-1, fd, "");
+	RemoteConnection conn(-1, fd);
 	conn.send_message(REPL_REPLY_FAIL,
 			  "Can't open database: " + e.get_msg(),
 			  0.0);
@@ -501,7 +501,7 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 {
     delete conn;
     conn = NULL;
-    conn = new RemoteConnection(fd, -1, "");
+    conn = new RemoteConnection(fd, -1);
 }
 
 bool
