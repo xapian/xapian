@@ -86,11 +86,6 @@ void
 Database::operator=(const Database &other)
 {
     LOGCALL_VOID(API, "Database::operator=", other);
-    if (this == &other) {
-	LOGLINE(API, "Database assigned to itself");
-	return;
-    }
-
     internal = other.internal;
 }
 

@@ -1,3 +1,10 @@
+Sat Jun 11 09:57:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Remove self-assignment check from
+	  Database::operator= since this is an uncommon code path and
+	  RefCntPtr ensures that self-assignment of the internals is
+	  safe.
+
 Sat Jun 11 08:48:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/brass/brass_cursor.h,
