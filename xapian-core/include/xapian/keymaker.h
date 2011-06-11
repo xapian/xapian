@@ -61,7 +61,7 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
  *  Other than this, it isn't useful to set @a reverse for collapsing.
  */
 class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
-    std::vector<std::pair<Xapian::valueno, bool> > valnos;
+    std::vector<std::pair<Xapian::valueno, bool> > slots;
 
   public:
     MultiValueKeyMaker() { }
@@ -73,8 +73,8 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 
     virtual std::string operator()(const Xapian::Document & doc) const;
 
-    void add_value(Xapian::valueno valno, bool reverse = false) {
-	valnos.push_back(std::make_pair(valno, reverse));
+    void add_value(Xapian::valueno slot, bool reverse = false) {
+	slots.push_back(std::make_pair(slot, reverse));
     }
 };
 
@@ -107,7 +107,7 @@ class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS Sorter : public KeyMaker
  *    sorter.add_value(5, true);
  */
 class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS MultiValueSorter : public Sorter {
-    std::vector<std::pair<Xapian::valueno, bool> > valnos;
+    std::vector<std::pair<Xapian::valueno, bool> > slots;
 
   public:
     MultiValueSorter() { }
@@ -119,8 +119,8 @@ class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS MultiValueSorter : publi
 
     virtual std::string operator()(const Xapian::Document & doc) const;
 
-    void add(Xapian::valueno valno, bool forward = true) {
-	valnos.push_back(std::make_pair(valno, forward));
+    void add(Xapian::valueno slot, bool forward = true) {
+	slots.push_back(std::make_pair(slot, forward));
     }
 };
 

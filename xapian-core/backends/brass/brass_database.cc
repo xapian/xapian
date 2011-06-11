@@ -831,24 +831,24 @@ BrassDatabase::get_collection_freq(const string & term) const
 }
 
 Xapian::doccount
-BrassDatabase::get_value_freq(Xapian::valueno valno) const
+BrassDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_value_freq", valno);
-    RETURN(value_manager.get_value_freq(valno));
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_value_freq", slot);
+    RETURN(value_manager.get_value_freq(slot));
 }
 
 std::string
-BrassDatabase::get_value_lower_bound(Xapian::valueno valno) const
+BrassDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassDatabase::get_value_lower_bound", valno);
-    RETURN(value_manager.get_value_lower_bound(valno));
+    LOGCALL(DB, std::string, "BrassDatabase::get_value_lower_bound", slot);
+    RETURN(value_manager.get_value_lower_bound(slot));
 }
 
 std::string
-BrassDatabase::get_value_upper_bound(Xapian::valueno valno) const
+BrassDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassDatabase::get_value_upper_bound", valno);
-    RETURN(value_manager.get_value_upper_bound(valno));
+    LOGCALL(DB, std::string, "BrassDatabase::get_value_upper_bound", slot);
+    RETURN(value_manager.get_value_upper_bound(slot));
 }
 
 Xapian::termcount
@@ -1431,33 +1431,33 @@ BrassWritableDatabase::get_collection_freq(const string & term) const
 }
 
 Xapian::doccount
-BrassWritableDatabase::get_value_freq(Xapian::valueno valno) const
+BrassWritableDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_value_freq", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.freq);
-    RETURN(BrassDatabase::get_value_freq(valno));
+    RETURN(BrassDatabase::get_value_freq(slot));
 }
 
 std::string
-BrassWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
+BrassWritableDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_lower_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.lower_bound);
-    RETURN(BrassDatabase::get_value_lower_bound(valno));
+    RETURN(BrassDatabase::get_value_lower_bound(slot));
 }
 
 std::string
-BrassWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
+BrassWritableDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_upper_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.upper_bound);
-    RETURN(BrassDatabase::get_value_upper_bound(valno));
+    RETURN(BrassDatabase::get_value_upper_bound(slot));
 }
 
 bool

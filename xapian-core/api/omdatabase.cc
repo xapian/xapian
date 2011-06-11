@@ -319,44 +319,44 @@ Database::get_collection_freq(const string & tname) const
 }
 
 Xapian::doccount
-Database::get_value_freq(Xapian::valueno valno) const
+Database::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(API, Xapian::doccount, "Database::get_value_freq", valno);
+    LOGCALL(API, Xapian::doccount, "Database::get_value_freq", slot);
 
     Xapian::doccount vf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
-	vf += (*i)->get_value_freq(valno);
+	vf += (*i)->get_value_freq(slot);
     }
     RETURN(vf);
 }
 
 string
-Database::get_value_lower_bound(Xapian::valueno valno) const
+Database::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(API, string, "Database::get_value_lower_bound", valno);
+    LOGCALL(API, string, "Database::get_value_lower_bound", slot);
 
     if (rare(internal.empty())) RETURN(string());
 
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     i = internal.begin();
-    string full_lb = (*i)->get_value_lower_bound(valno);
+    string full_lb = (*i)->get_value_lower_bound(slot);
     while (++i != internal.end()) {
-	string lb = (*i)->get_value_lower_bound(valno);
+	string lb = (*i)->get_value_lower_bound(slot);
 	if (lb < full_lb) full_lb = lb;
     }
     RETURN(full_lb);
 }
 
 std::string
-Database::get_value_upper_bound(Xapian::valueno valno) const
+Database::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(API, std::string, "Database::get_value_upper_bound", valno);
+    LOGCALL(API, std::string, "Database::get_value_upper_bound", slot);
 
     std::string full_ub;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
-	std::string ub = (*i)->get_value_upper_bound(valno);
+	std::string ub = (*i)->get_value_upper_bound(slot);
 	if (ub > full_ub)
 	    full_ub = ub;
     }

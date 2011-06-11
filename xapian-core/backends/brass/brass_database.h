@@ -256,9 +256,9 @@ class BrassDatabase : public Xapian::Database::Internal {
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+	std::string get_value_lower_bound(Xapian::valueno slot) const;
+	std::string get_value_upper_bound(Xapian::valueno slot) const;
 	Xapian::termcount get_doclength_lower_bound() const;
 	Xapian::termcount get_doclength_upper_bound() const;
 	Xapian::termcount get_wdf_upper_bound(const string & term) const;
@@ -377,9 +377,9 @@ class BrassWritableDatabase : public BrassDatabase {
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+	std::string get_value_lower_bound(Xapian::valueno slot) const;
+	std::string get_value_upper_bound(Xapian::valueno slot) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * open_post_list(const string & tname) const;

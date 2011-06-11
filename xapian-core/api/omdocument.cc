@@ -53,10 +53,10 @@ Document::Document() : internal(new Xapian::Document::Internal)
 }
 
 string
-Document::get_value(Xapian::valueno value) const
+Document::get_value(Xapian::valueno slot) const
 {
-    LOGCALL(API, string, "Document::get_value", value);
-    RETURN(internal->get_value(value));
+    LOGCALL(API, string, "Document::get_value", slot);
+    RETURN(internal->get_value(slot));
 }
 
 string
@@ -96,17 +96,17 @@ Document::get_description() const
 }
 
 void
-Document::add_value(Xapian::valueno valueno, const string &value)
+Document::add_value(Xapian::valueno slot, const string &value)
 {
-    LOGCALL_VOID(API, "Document::add_value", valueno | value);
-    internal->add_value(valueno, value);
+    LOGCALL_VOID(API, "Document::add_value", slot | value);
+    internal->add_value(slot, value);
 }
 
 void
-Document::remove_value(Xapian::valueno valueno)
+Document::remove_value(Xapian::valueno slot)
 {
-    LOGCALL_VOID(API, "Document::remove_value", valueno);
-    internal->remove_value(valueno);
+    LOGCALL_VOID(API, "Document::remove_value", slot);
+    internal->remove_value(slot);
 }
 
 void
@@ -270,16 +270,16 @@ OmDocumentTerm::get_description() const
 }
 
 string
-Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
+Xapian::Document::Internal::get_value(Xapian::valueno slot) const
 {
     if (values_here) {
 	map<Xapian::valueno, string>::const_iterator i;
-	i = values.find(valueid);
+	i = values.find(slot);
 	if (i == values.end()) return string();
 	return i->second;
     }
     if (!database.get()) return string();
-    return do_get_value(valueid);
+    return do_get_value(slot);
 }
 	
 string
@@ -309,25 +309,25 @@ Xapian::Document::Internal::open_term_list() const
 }
 
 void
-Xapian::Document::Internal::add_value(Xapian::valueno valueno, const string &value)
+Xapian::Document::Internal::add_value(Xapian::valueno slot, const string &value)
 {
     need_values();
     if (!value.empty()) {
-	values[valueno] = value;
+	values[slot] = value;
     } else {
 	// Empty values aren't stored, but replace any existing value by
 	// removing it.
-	values.erase(valueno);
+	values.erase(slot);
     }
 }
 
 void
-Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
+Xapian::Document::Internal::remove_value(Xapian::valueno slot)
 {
     need_values();
-    map<Xapian::valueno, string>::iterator i = values.find(valueno);
+    map<Xapian::valueno, string>::iterator i = values.find(slot);
     if (i == values.end()) {
-	throw Xapian::InvalidArgumentError("Value #" + str(valueno) +
+	throw Xapian::InvalidArgumentError("Value #" + str(slot) +
 		" is not present in document, in "
 		"Xapian::Document::Internal::remove_value()");
     }

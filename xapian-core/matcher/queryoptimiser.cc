@@ -113,40 +113,40 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	case Xapian::Query::OP_VALUE_RANGE: {
 	    if (factor != 0.0)
 		++total_subqs;
-	    Xapian::valueno valno(query->parameter);
+	    Xapian::valueno slot(query->parameter);
 	    const string & range_begin = query->tname;
 	    const string & range_end = query->str_parameter;
-	    const string & lb = db.get_value_lower_bound(valno);
+	    const string & lb = db.get_value_lower_bound(slot);
 	    if (!lb.empty() &&
 		(range_end < lb ||
-		 range_begin > db.get_value_upper_bound(valno))) {
+		 range_begin > db.get_value_upper_bound(slot))) {
 		RETURN(new EmptyPostList);
 	    }
-	    RETURN(new ValueRangePostList(&db, valno, range_begin, range_end));
+	    RETURN(new ValueRangePostList(&db, slot, range_begin, range_end));
 	}
 
 	case Xapian::Query::OP_VALUE_GE: {
 	    if (factor != 0.0)
 		++total_subqs;
-	    Xapian::valueno valno(query->parameter);
+	    Xapian::valueno slot(query->parameter);
 	    const string & range_begin = query->tname;
-	    const string & lb = db.get_value_lower_bound(valno);
+	    const string & lb = db.get_value_lower_bound(slot);
 	    if (!lb.empty() &&
-		range_begin > db.get_value_upper_bound(valno)) {
+		range_begin > db.get_value_upper_bound(slot)) {
 		RETURN(new EmptyPostList);
 	    }
-	    RETURN(new ValueGePostList(&db, valno, range_begin));
+	    RETURN(new ValueGePostList(&db, slot, range_begin));
 	}
 
 	case Xapian::Query::OP_VALUE_LE: {
 	    if (factor != 0.0)
 		++total_subqs;
-	    Xapian::valueno valno(query->parameter);
+	    Xapian::valueno slot(query->parameter);
 	    const string & range_end = query->tname;
-	    if (range_end < db.get_value_lower_bound(valno)) {
+	    if (range_end < db.get_value_lower_bound(slot)) {
 		RETURN(new EmptyPostList);
 	    }
-	    RETURN(new ValueRangePostList(&db, valno, "", range_end));
+	    RETURN(new ValueRangePostList(&db, slot, "", range_end));
 	}
 
 	case Xapian::Query::OP_SCALE_WEIGHT: {

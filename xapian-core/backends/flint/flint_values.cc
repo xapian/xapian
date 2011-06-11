@@ -84,9 +84,9 @@ FlintValueTable::set_encoded_values(Xapian::docid did, const string & enc)
 void
 FlintValueTable::get_value(string & value,
 			      Xapian::docid did,
-			      Xapian::valueno valueno) const
+			      Xapian::valueno slot) const
 {
-    LOGCALL_VOID(DB, "FlintValueTable::get_value", value | did | valueno);
+    LOGCALL_VOID(DB, "FlintValueTable::get_value", value | did | slot);
     string key;
     make_key(key, did);
     string tag;
@@ -102,13 +102,13 @@ FlintValueTable::get_value(string & value,
 
 	    unpack_entry(&pos, end, &this_value_no, this_value);
 
-	    if (this_value_no == valueno) {
+	    if (this_value_no == slot) {
 		value = this_value;
 		return;
 	    }
 
 	    // Values are stored in sorted order.
-	    if (this_value_no > valueno) break;
+	    if (this_value_no > slot) break;
 	}
     }
     value = "";

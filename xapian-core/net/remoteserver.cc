@@ -543,13 +543,13 @@ RemoteServer::msg_valuestats(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     while (p != p_end) {
-	Xapian::valueno valno = decode_length(&p, p_end, false);
+	Xapian::valueno slot = decode_length(&p, p_end, false);
 	string message_out;
-	message_out += encode_length(db->get_value_freq(valno));
-	string bound = db->get_value_lower_bound(valno);
+	message_out += encode_length(db->get_value_freq(slot));
+	string bound = db->get_value_lower_bound(slot);
 	message_out += encode_length(bound.size());
 	message_out += bound;
-	bound = db->get_value_upper_bound(valno);
+	bound = db->get_value_upper_bound(slot);
 	message_out += encode_length(bound.size());
 	message_out += bound;
 

@@ -48,14 +48,14 @@ FlintDocument::FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database:
 
 /** Retrieve a value from the database
  *
- *  @param valueid	The value number to retrieve.
+ *  @param slot	The value number to retrieve.
  */
 string
-FlintDocument::do_get_value(Xapian::valueno valueid) const
+FlintDocument::do_get_value(Xapian::valueno slot) const
 {
-    LOGCALL(DB, string, "FlintDocument::do_get_value", valueid);
+    LOGCALL(DB, string, "FlintDocument::do_get_value", slot);
     string retval;
-    value_table->get_value(retval, did, valueid);
+    value_table->get_value(retval, did, slot);
     RETURN(retval);
 }
 

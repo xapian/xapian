@@ -90,19 +90,19 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  Values are quickly accessible fields, for use during the match
 	 *  operation.  Each document may have a set of values, each of which
-	 *  having a different valueid.  Duplicate values with the same valueid
-	 *  are not supported in a single document.
+	 *  having a different value number.  Duplicate values with the same
+	 *  value number are not supported in a single document.
 	 *
 	 *  Value numbers are any integer >= 0, but particular database
 	 *  backends may impose a more restrictive range than that.
 	 *
-	 *  @param valueid  The value number requested.
+	 *  @param slot  The value number requested.
 	 *
 	 *  @return       A string containing the specified value.  If
 	 *  the value is not present in this document, the value's value will
 	 *  be a zero length string
 	 */
-	string get_value(Xapian::valueno valueid) const;
+	string get_value(Xapian::valueno slot) const;
 
 	/** Set all the values.
 	 *

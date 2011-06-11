@@ -198,31 +198,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Construct a value range query on a document value.
 	 *
 	 *  A value range query matches those documents which have a value
-	 *  stored in the slot given by @a valno which is in the range
+	 *  stored in the slot given by @a slot which is in the range
 	 *  specified by @a begin and @a end (in lexicographical
 	 *  order), including the endpoints.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
 	 *               be OP_VALUE_RANGE.
-	 *  @param valno The slot number to get the value from.
+	 *  @param slot  The slot number to get the value from.
 	 *  @param begin The start of the range.
 	 *  @param end   The end of the range.
 	 */
-	Query(Query::op op_, Xapian::valueno valno,
+	Query(Query::op op_, Xapian::valueno slot,
 	      const std::string &begin, const std::string &end);
 
 	/** Construct a value comparison query on a document value.
 	 *
 	 *  This query matches those documents which have a value stored in the
-	 *  slot given by @a valno which compares, as specified by the
+	 *  slot given by @a slot which compares, as specified by the
 	 *  operator, to @a value.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
 	 *               be OP_VALUE_GE or OP_VALUE_LE.
-	 *  @param valno The slot number to get the value from.
+	 *  @param slot  The slot number to get the value from.
 	 *  @param value The value to compare.
 	 */
-	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
+	Query(Query::op op_, Xapian::valueno slot, const std::string &value);
 
 	/** Construct an external source query.
 	 *
@@ -445,12 +445,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	Internal(op_t op_, Xapian::termcount parameter);
 
 	/** Construct a range query on a document value. */
-	Internal(op_t op_, Xapian::valueno valno,
+	Internal(op_t op_, Xapian::valueno slot,
 		 const std::string &begin, const std::string &end);
 
 	/** Construct a value greater-than-or-equal query on a document value.
 	 */
-	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
+	Internal(op_t op_, Xapian::valueno slot, const std::string &value);
 
 	/// Construct an external source query.
 	explicit Internal(Xapian::PostingSource * external_source_, bool owned);

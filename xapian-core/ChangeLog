@@ -1,3 +1,13 @@
+Sat Jun 11 07:01:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,backends/flint/,
+	  backends/remote/remote-database.cc,common/,include/xapian/,matcher/,
+	  net/remoteserver.cc,net/serialise.cc: Consistently use "slot" in
+	  variable names for value slots, rather than valueno, valno, valueid
+	  or value.  The only exception remaining is a protected member of
+	  Xapian::StringValueRangeProcessor since that's really part of the
+	  public API.
+
 Fri Jun 10 11:55:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update in preparation for 1.2.6.

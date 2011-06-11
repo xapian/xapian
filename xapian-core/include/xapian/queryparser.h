@@ -111,22 +111,22 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
   public:
     /** Constructor.
      *
-     *  @param valno_	The value number to return from operator().
+     *  @param slot_	The value number to return from operator().
      */
-    StringValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_), str() { }
+    StringValueRangeProcessor(Xapian::valueno slot_)
+	: valno(slot_), str() { }
 
     /** Constructor.
      *
-     *  @param valno_	The value number to return from operator().
+     *  @param slot_	The value number to return from operator().
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this range.
      *  @param prefix_	Flag specifying whether to check for str_ as a prefix
      *			or a suffix.
      */
-    StringValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+    StringValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
 			      bool prefix_ = true)
-	: valno(valno_), prefix(prefix_), str(str_) { }
+	: valno(slot_), prefix(prefix_), str(str_) { }
 
     /** Check for a valid range of this type.
      *
@@ -150,7 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
   public:
     /** Constructor.
      *
-     *  @param valno_	    The value number to return from operator().
+     *  @param slot_	    The value number to return from operator().
      *  @param prefer_mdy_  Should ambiguous dates be interpreted as
      *			    month/day/year rather than day/month/year?
      *			    (default: false)
@@ -158,14 +158,14 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
      *			    years (default: 1970, so 1/1/69 is 2069 while
      *			    1/1/70 is 1970).
      */
-    DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
+    DateValueRangeProcessor(Xapian::valueno slot_, bool prefer_mdy_ = false,
 			    int epoch_year_ = 1970)
-	: StringValueRangeProcessor(valno_),
+	: StringValueRangeProcessor(slot_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
     /** Constructor.
      *
-     *  @param valno_	    The value number to return from operator().
+     *  @param slot_	    The value number to return from operator().
      *
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this date range.
@@ -200,10 +200,10 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
      *  processor has been added to the queryparser, the queryparser will
      *  accept "created:1/1/2000..31/12/2001".
      */
-    DateValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+    DateValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
 			    bool prefix_ = true,
 			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
-	: StringValueRangeProcessor(valno_, str_, prefix_),
+	: StringValueRangeProcessor(slot_, str_, prefix_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
     /** Check for a valid range of this type.
@@ -226,14 +226,14 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
   public:
     /** Constructor.
      *
-     *  @param valno_   The value number to return from operator().
+     *  @param slot_   The value number to return from operator().
      */
-    NumberValueRangeProcessor(Xapian::valueno valno_)
-	: StringValueRangeProcessor(valno_) { }
+    NumberValueRangeProcessor(Xapian::valueno slot_)
+	: StringValueRangeProcessor(slot_) { }
 
     /** Constructor.
      *
-     *  @param valno_   The value number to return from operator().
+     *  @param slot_    The value number to return from operator().
      *
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this numeric range.
@@ -263,9 +263,9 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
      *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
      *  valid ranges.
      */
-    NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+    NumberValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
 			      bool prefix_ = true)
-	: StringValueRangeProcessor(valno_, str_, prefix_) { }
+	: StringValueRangeProcessor(slot_, str_, prefix_) { }
 
     /** Check for a valid range of this type.
      *

@@ -349,9 +349,9 @@ unserialise_document(const string &s)
 
     size_t n_values = decode_length(&p, p_end, false);
     while (n_values--) {
-	Xapian::valueno valno = decode_length(&p, p_end, false);
+	Xapian::valueno slot = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
-	doc.add_value(valno, string(p, len));
+	doc.add_value(slot, string(p, len));
 	p += len;
     }
 
