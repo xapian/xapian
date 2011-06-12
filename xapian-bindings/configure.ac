@@ -899,84 +899,85 @@ fi
 
 if test no != "$with_lua" ; then
   AC_PATH_PROGS(LUA, ["${LUA-lua}"], [])
-   AC_ARG_VAR(LUA, [lua interpreter])
-   if test -n "$LUA" ; then
-     dnl We need Lua 5.1 or later.
-     AC_MSG_CHECKING([$LUA version])
-     [lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`]
-    
-     case $lua_version in
-      [01234].*|5.0)
-       AC_MSG_RESULT([$lua_version < 5.1 (too old)])
-       if test yes = "$with_lua" ; then
-      	  AC_MSG_ERROR([$LUA too old (Lua 5.1 or newer required)])
-       fi
-       LUA=
-        ;;
-		  "")
-       AC_MSG_RESULT([\$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' didn't work])
-			  
-       if test yes = "$with_lua" ; then
-         AC_MSG_ERROR([Working Lua interpreter not found])
-       fi
-       LUA=
-		    ;;
-     esac
-     
-     if test -n "$LUA" ; then
-       AC_MSG_RESULT([$lua_version])
-       AC_ARG_VAR(LUA_LIB, [Directory to install xapian.so into])
-       AC_MSG_CHECKING(for Lua library to install xapian.so)
-       LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
-				LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
-       if test -z "$LUA_LIB"; then
-          AC_MSG_RESULT(not found)
-       else
-          AC_MSG_RESULT($LUA_LIB)
-       fi 
-       AC_SUBST(LUA_LIB)
+  AC_ARG_VAR(LUA, [lua interpreter])
+  if test -n "$LUA" ; then
+    dnl We need Lua 5.1 or later.
+    AC_MSG_CHECKING([$LUA version])
+    [lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`]
 
-       AC_MSG_CHECKING(for Lua header files)   
-       AC_ARG_VAR(LUA_INC, [Directory to include for lua headers])
-       if test -z "$LUA_INC" ; then
-          dirs="/usr/local/include /usr/local/include/lua* /usr/include/lua* /usr/include"
-          for i in $dirs ; do
-            if test -r $i/lua.h; then
-	       LUA_INC="$i"
-              break
-            fi
-          done
-       fi
+    case $lua_version in
+    [01234].*|5.0)
+      AC_MSG_RESULT([$lua_version < 5.1 (too old)])
+      if test yes = "$with_lua" ; then
+        AC_MSG_ERROR([$LUA too old (Lua 5.1 or newer required)])
+      fi
+      LUA=
+      ;;
+    "")
+      AC_MSG_RESULT([\$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' didn't work])
 
-       if test -z "$LUA_INC" ; then
-          AC_MSG_RESULT(not found)
-       else
-          AC_MSG_RESULT($LUA_INC)
-          BINDINGS="$BINDINGS lua"
-          LUA_CPPFLAGS="-I$LUA_INC"
-       fi
-       AC_SUBST(LUA_INC)
+      if test yes = "$with_lua" ; then
+        AC_MSG_ERROR([Working Lua interpreter not found])
+      fi
+      LUA=
+      ;;
+    esac
 
-       dnl Cygwin needs to link with -llua or similar.
-       LUA_LIBS=
-       case $host_os in
-       cygwin*)
+    if test -n "$LUA" ; then
+      AC_MSG_RESULT([$lua_version])
+      AC_ARG_VAR(LUA_LIB, [Directory to install xapian.so into])
+      AC_MSG_CHECKING(for Lua library to install xapian.so)
+      LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
+      LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
+      if test -z "$LUA_LIB"; then
+        AC_MSG_RESULT(not found)
+      else
+        AC_MSG_RESULT($LUA_LIB)
+      fi
+      AC_SUBST(LUA_LIB)
+
+      AC_MSG_CHECKING(for Lua header files)
+      AC_ARG_VAR(LUA_INC, [Directory to include for lua headers])
+      if test -z "$LUA_INC" ; then
+        dirs="/usr/local/include /usr/local/include/lua* /usr/include/lua* /usr/include"
+        for i in $dirs ; do
+          if test -r $i/lua.h; then
+            LUA_INC="$i"
+            break
+          fi
+        done
+      fi
+
+      if test -z "$LUA_INC" ; then
+        AC_MSG_RESULT(not found)
+      else
+        AC_MSG_RESULT($LUA_INC)
+        BINDINGS="$BINDINGS lua"
+        LUA_CPPFLAGS="-I$LUA_INC"
+      fi
+      AC_SUBST(LUA_INC)
+
+      dnl Cygwin needs to link with -llua or similar.
+      LUA_LIBS=
+      case $host_os in
+      cygwin*)
 	AC_CHECK_LIB([lua$lua_version], [Lua_Init],
 		     [LUA_LIBS="-llua$lua_version"],
 		     [AC_MSG_ERROR([liblua$lua_version not found])])
 	;;
-       *)
+      *)
 	LUA_CPPFLAGS="$LUA_CPPFLAGS -DUSE_LUA_STUBS" ;;
-       esac
-       AC_SUBST(LUA_CPPFLAGS)
-       AC_SUBST(LUA_LIBS)
-     fi
-   else
+      esac
+      AC_SUBST(LUA_CPPFLAGS)
+      AC_SUBST(LUA_LIBS)
+    fi
+  else
     if test yes = "$with_lua" ; then
       AC_MSG_ERROR([lua not found])
     fi
   fi
 fi
+
 AC_SUBST(BINDINGS)
 
 dnl Set flags to control warnings (enable more, or disable annoying ones)

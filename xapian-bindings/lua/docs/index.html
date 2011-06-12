@@ -24,11 +24,11 @@ Lua bindings based on the simple examples from <code>xapian-examples</code>:
 
 <p>
 In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
-Xapian::TermGenerator classes all assume text is in UTF-8.  A Lua string 
+Xapian::TermGenerator classes all assume text is in UTF-8.  A Lua string
 is an aribitrary sequence of values which have at least 8 bits (octets);
-they map directly into the char type of the C compiler. Lua does not 
+they map directly into the char type of the C compiler. Lua does not
 reserve any value, including NUL. That means that Lua can store a UTF-8
-string without problems. 
+string without problems.
 </p>
 
 <h2>Exceptions</h2>
@@ -89,7 +89,7 @@ end
    Other methods, such as <code>MSetIterator:get_document</code>, are
    available under the same names.
 </p>
-   
+
 <h2>MSet</h2>
 
 <p>

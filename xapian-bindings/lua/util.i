@@ -38,7 +38,7 @@
 		numitems = lua_objlen(L, $input);
 		if (numitems == 0) {
 			luaL_argerror(L, $input, "table appears to be empty");
-			$1 = 0;		
+			$1 = 0;
 		}
 	}
 }
@@ -52,7 +52,7 @@
 		luaL_typerror(L, $input, "table");
 		return 0;
 	}
-	
+
 	numitems = lua_objlen(L, $input);
 	if (numitems == 0) {
 		luaL_argerror(L, $input, "table appears to be empty");
@@ -62,7 +62,7 @@
 	for (int i = 0; i < numitems; ++i) {
 		lua_rawgeti(L, $input, i+1);
 		if (lua_isstring(L, -1)) {
-			size_t len = 0;				
+			size_t len = 0;
 			const char *p = lua_tolstring(L, -1, &len);
 			v.push_back(Xapian::Query(string(p, len)));
 		}
@@ -78,7 +78,7 @@
 			}
 			v.push_back(*subq);
 		}
-		lua_pop(L,1);	
+		lua_pop(L,1);
 	}
    $1 = &v;
 }
@@ -92,6 +92,6 @@
 		lua_pushlstring(L, (*iter).data(), (*iter).length());
 		lua_rawseti(L, -2, i++);
 	}
-	
+
 	SWIG_arg++;
 }

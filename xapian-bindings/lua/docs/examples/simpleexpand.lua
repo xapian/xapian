@@ -67,7 +67,7 @@ end
 reldocs = xapian.RSet()
 
 --for index in range(index, #arg) do
-for i = index, #arg do	
+for i = index, #arg do
 	reldocs:add_document(tonumber(arg[index]))
 	index = index + 1
 end

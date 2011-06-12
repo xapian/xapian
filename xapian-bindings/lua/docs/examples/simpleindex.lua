@@ -47,7 +47,7 @@ for line in io.lines() do
 	if line == nil then
 		break
 	end
-	
+
 	line = trim(line)
 	if line == '' then
 		if para ~= '' then
@@ -55,10 +55,10 @@ for line in io.lines() do
 			-- We've reached the end of a paragraph, so index it.
 			doc = xapian.Document()
 			doc:set_data(para)
-			
+
 			indexer:set_document(doc)
 			indexer:index_text(para)
-			
+
 			-- Add the document to the database.
 			database:add_document(doc)
 			para = ''

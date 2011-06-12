@@ -1,3 +1,9 @@
+Sun Jun 12 07:19:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,lua/docs/examples/simpleexpand.lua,
+	  lua/docs/examples/simpleindex.lua,lua/docs/index.html,lua/util.i:
+	  Fix whitespace issues.
+
 Sun Jun 12 07:07:18 GMT 2011  Xiaona Han <xiaonahappy@gmail.com>
 
 	* Makefile.am,configure.ac,lua/Makefile.am,
