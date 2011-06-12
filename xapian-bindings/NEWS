@@ -1,17 +1,9 @@
- 15571       olly Fri Jun 10 09:11:02 GMT 2011  Olly Betts <olly@survex.com>
-
- 15571       olly Fri Jun 10 09:11:02 GMT 2011  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.6 (2011-06-10):
-
-Documentation:
+Xapian-bindings 1.2.6 (2011-06-12):
 
 General:
 
 * SWIG-based bindings are now generated with a newer version of SWIG
   (ticket#538).
-
-Packaging:
 
 Portability:
 
@@ -24,24 +16,24 @@ CSharp:
 
 Java:
 
-	* java/native/: Factor out Java jstring -> C++ std::string conversion
-	  into cpp_string() function, which also fixes memory leaks upon
-	  exceptions.
+* Fix memory leaks when functions taking string parameters throw exceptions.
 
-	* java/native/,java/org/xapian/: Instead of using an unordered_map to
-	  track id -> pointer mappings, just use reinterpret_cast - jlong is
-	  64 bits, which will hold a pointer on current platforms.
-	* java/README: This avoids needing thread locks, so remove pthread
-	  linking issues from TODO list.
-	* java/native/XapianObjectHolder.h: Use new unordered_map.h which fixes
-	  warnings about using deprecated headers with recent GCC versions.
+* Previously a hash table was used to map Java objects to C++ ones, but we
+  now just cast the address of the C++ object to a jlong (which is 64 bits
+  so will hold a pointer on current platforms).  This is more efficient and
+  avoids the need for thread locks around accesses to the hash table.
 
-	* java/native/: C++'s delete operator will ignore a NULL pointer, so
-	  remove checks that the pointer is non-NULL before calling it.
+* Remove explicit checks for NULL around calls to delete.
 
-	  java/org/xapian/examples/Makefile.am: use .NOTPARALLEL when
-	  compiling Java classfiles to avoid race condition during
-	  parallel builds
+* Mark makefiles which build Java code as .NOTPARALLEL to avoid race conditions
+  during parallel builds.
+
+Lua:
+
+* Add support for Lua, which is being developed by Xiaona Han during GSoC this
+  year.  The current support should be regarded as experimental - it passes
+  its automated tests, but the details of the Lua API are likely to evolve as
+  the project progresses.
 
 Perl:
 
@@ -53,20 +45,14 @@ PHP:
 
 Python:
 
-	* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always
-	  collect all the garbage, so repeat until no further objects are
-	  freed.  (http://bugs.debian.org/625679 and
-	  https://bugs.gentoo.org/349484).
+* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always collect
+  all the garbage, so repeat until no further objects are freed.
+  (http://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
 
 Ruby:
 
-	* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() -
-	  just skip the compaction tests for these versions.
-
-	* configure.ac: Get the Ruby version from the rbconfig module, rather
-	  than parsing the potentially more variable output of ruby --version.
-
-Tcl:
+* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() - just skip
+  the compaction tests for these versions.
 
 Xapian-bindings 1.2.5 (2011-04-04):
 
