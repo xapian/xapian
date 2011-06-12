@@ -1,3 +1,7 @@
+Sun Jun 12 07:47:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add Lua and Perl headings.
+
 Sun Jun 12 07:29:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* README: Move C# first so the languages are all in alphabetical
