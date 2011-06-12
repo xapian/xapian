@@ -906,7 +906,7 @@ if test no != "$with_lua" ; then
     [lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`]
 
     case $lua_version in
-    [01234].*|5.0)
+    [[01234]].*|5.0)
       AC_MSG_RESULT([$lua_version < 5.1 (too old)])
       if test yes = "$with_lua" ; then
         AC_MSG_ERROR([$LUA too old (Lua 5.1 or newer required)])
