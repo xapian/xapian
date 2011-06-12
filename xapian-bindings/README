@@ -24,8 +24,13 @@ for real world use:
 Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 		See java/README for Java binding specific information.
 
+Lua		Requires Lua 5.1 or later.  Currently Lua support is
+		experimental - the Lua API provided is likely to change to
+		provide a more natural wrapping for iterators and some other
+		things.
+
 Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
-	        by Olly Betts are available from CPAN (module Search::Xapian).
+		by Olly Betts are available from CPAN (module Search::Xapian).
 		SWIG-based Perl bindings were implemented by Kosei Moriyama in
 		GSoC 2009, and made their debut in the 1.2.4 release.  The
 		intention is that these will replace the XS bindings once we
