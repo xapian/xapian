@@ -1,0 +1,22 @@
+This is a test document used with the API test.  This paragraph must be at
+least three lines (including the blank line) to be counted as a "paragraph".
+
+This file will be indexed by paragraph, and the simple query will search
+for the word "word".  We'll expect the mset to contain two documents, including
+this paragraph and the fourth, below.  Since this paragraph uses the word
+"word" so much, this should be the first one in the match set.  I'll just say
+the word a few more times (word!) to make sure of that.  If this doesn't word
+(typo, I meant work), then there may be four-letter words spoken.
+
+This paragraph only has a load of absolute rubbish, and nothing of any use
+whatsoever.
+
+This is the other paragraph with the word in the simple query in it.  For
+simplicity, all paragraphs are at least two lines, due to how the hacked up
+indexer works.
+
+This is another paragraph which won't be returned.  Well, not with the
+simple query, anyway.
+
+And yet another.  This one does mention banana splits, though, so can't be
+that bad.

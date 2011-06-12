@@ -1,0 +1,61 @@
+Xapian-core 0.9.5 (2006-04-13):
+
+ * First version of build tools for Xapian core. See README for more details.
+ 
+Xapian-core 0.9.6 (2006-05-15)
+
+ * Omega etc. now report correct versions
+ 
+ Xapian-core 0.9.9 (2006-11-09)
+ 
+ * Note: versions 0.9.7 and 0.9.8 were swiftly superseded by 0.9.9, so build tools for these were not created
+ 
+ Xapian-core version 0.9.10 (2007-3-09)
+ 
+ * Removed putmakfiles and put everything into win32.mak. 
+ * Readme now suggests Visual C++ 2005 Express Edition 
+ * New make files for Snowball compiler, note allsnowballheaders.h has to be hand created for Win32
+ * error.h and errordispatch.h also has to be hand created
+ * Debug and release builds can now be produced
+ 
+ Xapian-core version 1.0.0 (2007-6-04)
+ 
+ * Moved a lot of general settings into config.mak for consistency
+ * win32.mak now has COPYMAKFILES and TESTFORTOOLS targets
+ * PHP bindings can now be compiled 
+ * Remote backend now works
+ * renamed *win32.mak to Makefile to simplify building
+ * added CHECK target for all top-level makefiles
+
+ Xapian-core version 1.0.1 (2007-6-15)
+ 
+ * added header files dependencies and use inference rules where possible
+ 
+ Xapian-core version 1.0.2 (2007-7-05)
+ 
+ * use new Makedepend tool to calculate header dependencies automatically
+ 
+ Xapian-core version 1.0.5 (2008-12-2)
+ 
+ * add version information to bindings DLLs
+ * add xapian-check compilation
+ 
+ Xapian-core version 1.0.6 (2008-03-19)
+ 
+ * add makedepend to make files so no need for separate compilation
+ * make sure tests do MAKE CLEAN properly
+ 
+ Xapian-core version 1.0.6 updated (2008-04-07)
+ 
+ * add make files for Java Swig bindings
+ 
+ Xapian-core HEAD (2008-04-18)
+ 
+ * added version information and Zlib dll to Java-Swig bindings
+ * removed Quartz and Btreecheck
+ * added Alexandre Gauthier's method for packaging Python bindings
+ * added new Chert backend
+ * tweaked some paths in config.mak to fit better the default installation paths
+ * added details of compatible compilers to README and a quick way to create a Xapian build command prompt
+ * prevented some spurious warnings from makedepend by adding some flags defined by the compiler itself
+ * fixed Java-Swig makefiles to build from scratch using SWIG

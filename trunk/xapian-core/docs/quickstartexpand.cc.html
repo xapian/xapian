@@ -1,0 +1,127 @@
+<HTML>
+<HEAD>
+<TITLE>quickstartexpand.cc.html</TITLE>
+</HEAD>
+<BODY BGcolor=#ffffff TEXT=#000000>
+<PRE>
+<FONT color=#0000ff>/* quickstartexpand.cc: Simplest possible query expansion
+ *
+ * Copyright 2003,2004 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */</FONT>
+
+<FONT color=#a020f0>#include </FONT><FONT color=#ff00ff>&lt;xapian.h&gt;</FONT>
+<FONT color=#a020f0>#include </FONT><FONT color=#ff00ff>&lt;iostream&gt;</FONT>
+<B><FONT color=#a52a2a>using namespace </FONT></B>std;
+
+<B><FONT color=#2e8b57>int</FONT></B> main(<B><FONT color=#2e8b57>int</FONT></B> argc, <B><FONT color=#2e8b57>char</FONT></B> **argv)
+{
+    <FONT color=#0000ff>// Simplest possible options parsing: we just require two or more
+    // parameters.</FONT>
+    <B><FONT color=#a52a2a>if</FONT></B> (argc &lt; <FONT color=#ff00ff>3</FONT>) {
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;usage: &quot;</FONT> &lt;&lt; argv[<FONT color=#ff00ff>0</FONT>] &lt;&lt;
+                <FONT color=#ff00ff>&quot; &lt;path to database&gt; &lt;search terms&gt; -- &lt;relevant docids&gt;&quot;</FONT> &lt;&lt;
+                endl;
+        exit(<FONT color=#ff00ff>1</FONT>);
+    }
+
+    <FONT color=#0000ff>// Catch any Xapian::Error exceptions thrown</FONT>
+    <B><FONT color=#a52a2a>try</FONT></B> {
+        <FONT color=#0000ff>// Open the database</FONT>
+        Xapian::Database database(argv[<FONT color=#ff00ff>1</FONT>]);
+
+        <FONT color=#0000ff>// Start an enquire session</FONT>
+        Xapian::Enquire enquire(database);
+
+        <FONT color=#0000ff>// Prepare the query terms</FONT>
+        vector&lt;string&gt; queryterms;
+        <B><FONT color=#2e8b57>int</FONT></B> optpos;
+        <B><FONT color=#a52a2a>for</FONT></B> (optpos = <FONT color=#ff00ff>2</FONT>; optpos &lt; argc; optpos++) {
+            <B><FONT color=#a52a2a>if</FONT></B>(string(argv[optpos]) == <FONT color=#ff00ff>&quot;--&quot;</FONT>) {
+                optpos++;
+                <B><FONT color=#a52a2a>break</FONT></B>;
+            }
+            queryterms.push_back(argv[optpos]);
+        }
+
+        <FONT color=#0000ff>// Prepare the relevant document list</FONT>
+        Xapian::RSet reldocs;
+        <B><FONT color=#a52a2a>for</FONT></B> (; optpos &lt; argc; optpos++) {
+            Xapian::docid rdid = atoi(argv[optpos]);
+            <B><FONT color=#a52a2a>if</FONT></B> (rdid != <FONT color=#ff00ff>0</FONT>) {
+                reldocs.add_document(rdid);
+            }
+        }
+
+        <FONT color=#0000ff>// Build the query object</FONT>
+        Xapian::Query query(Xapian::Query::OP_OR, queryterms.begin(), queryterms.end());
+
+        Xapian::MSet matches;
+        <B><FONT color=#a52a2a>if</FONT></B> (query.is_defined()) {
+            cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query `&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt;
+                    <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
+
+            <FONT color=#0000ff>// Give the query object to the enquire session</FONT>
+            enquire.set_query(query);
+
+            <FONT color=#0000ff>// Get the top 10 results of the query</FONT>
+            matches = enquire.get_mset(<FONT color=#ff00ff>0</FONT>, <FONT color=#ff00ff>10</FONT>);
+
+            <FONT color=#0000ff>// Display the results</FONT>
+            cout &lt;&lt; matches.items.size() &lt;&lt; <FONT color=#ff00ff>&quot; results found&quot;</FONT> &lt;&lt; endl;
+
+            <B><FONT color=#a52a2a>for</FONT></B> (Xapian::MSetIterator i = matches.begin();
+                 i != matches.end();
+                 ++i) {
+                Xapian::Document doc = i.get_document();
+                cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; *i &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
+                        i.get_percent() &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
+                        doc.get_data() &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
+            }
+        }
+
+        <FONT color=#0000ff>// Put the top 5 into the rset if rset is empty</FONT>
+        <B><FONT color=#a52a2a>if</FONT></B> (reldocs.empty()) {
+            Xapian::MSetIterator i;
+            <B><FONT color=#2e8b57>int</FONT></B> j;
+            <B><FONT color=#a52a2a>for</FONT></B> (i = matches.begin(),
+                 j = <FONT color=#ff00ff>0</FONT>;
+                 (i != matches.end()) &amp;&amp; (j &lt; <FONT color=#ff00ff>5</FONT>);
+                 ++i, ++j) {
+                reldocs.add_document(*i);
+            }
+        }
+        
+        <FONT color=#0000ff>// Get the suggested expand terms</FONT>
+        Xapian::ESet eterms = enquire.get_eset(<FONT color=#ff00ff>10</FONT>, reldocs);
+
+        <FONT color=#0000ff>// Display the expand terms</FONT>
+        cout &lt;&lt; eterms.size() &lt;&lt; <FONT color=#ff00ff>&quot; suggested additional terms&quot;</FONT> &lt;&lt; endl;
+
+        <B><FONT color=#a52a2a>for</FONT></B> (Xapian::ESetIterator k = eterms.begin();
+             k != eterms.end();
+             ++k) {
+            cout &lt;&lt; <FONT color=#ff00ff>&quot;Term `&quot;</FONT> &lt;&lt; *k &lt;&lt; <FONT color=#ff00ff>&quot;'</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff> &quot;</FONT> &lt;&lt;
+                    <FONT color=#ff00ff>&quot;(weight &quot;</FONT> &lt;&lt; k.get_weight() &lt;&lt; <FONT color=#ff00ff>&quot;)&quot;</FONT> &lt;&lt; endl;
+        }
+    } <B><FONT color=#a52a2a>catch</FONT></B>(const Xapian::Error &amp;error) {
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;Exception: &quot;</FONT>  &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+}
+</PRE>
+</BODY>
+</HTML>

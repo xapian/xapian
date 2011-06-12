@@ -1,0 +1,10 @@
+<Directory>backends/remote</Directory>
+
+<Description>
+The remote backend, which enables
+searches to be performed across databases on remote machines.  Opening
+this database involves opening a communications channel with a remote
+database.
+
+RemoteDatabase objects are used with RemoteSubMatch objects.
+</Description>

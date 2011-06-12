@@ -1,0 +1,71 @@
+#!@PERL@
+# @configure_input@
+# @file outlookmsg2html
+# @brief Extract text from an outlook .msg file.
+#
+# Copyright (C) 2010 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+use strict;
+eval {
+    require Email::Outlook::Message;
+    require HTML::Entities;
+};
+if ($@) {
+    print STDERR $@;
+    # Exit with code 127 which omindex interprets as "filter not installed"
+    # and won't try further .msg files.
+    exit 127;
+}
+
+handle_mimepart(new Email::Outlook::Message($ARGV[0])->to_email_mime);
+
+sub handle_mimepart {
+    my $e = shift;
+    my ($type, $sub) = ((lc $e->content_type) =~ m,^(.*?)/(.*?)(?:;.*)?$,);
+    if ($type eq 'multipart') {
+	if ($sub eq 'alternative') {
+	    # Take the first mime part which we get text from.
+	    for my $s ($e->subparts) {
+		my $res = handle_mimepart($s);
+		return $res if $res;
+	    }
+	} else {
+	    my $res = 0;
+	    for my $s ($e->subparts) {
+		$res += handle_mimepart($s);
+	    }
+	    return $res;
+	}
+    } elsif ($type eq 'text') {
+	if ($sub eq 'plain') {
+	    print "<pre>", HTML::Entities::encode_entities($e->body), "</pre>\n";
+	    return 1;
+	} elsif ($sub eq 'html') {
+	    my $m = $e->body;
+	    $m =~ s!</?body[^>]*>!\n!gi;
+	    print $m, "\n";
+	    return 1;
+	}
+    } elsif ($type eq 'message' && $sub eq 'rfc822') {
+	return handle_mimepart(($e->subparts)[0]);
+    }
+    return 0;
+}

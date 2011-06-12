@@ -1,0 +1,2575 @@
+Xapian-bindings 1.2.6 (2011-06-12):
+
+General:
+
+* SWIG-based bindings are now generated with a newer version of SWIG
+  (ticket#538).
+
+Portability:
+
+* On Mac OS X 10.5 or later, and 10.4 on x86, build Java JNI library with a
+  .jnilib extension as we do for older versions.
+
+CSharp:
+
+* Upgrading to newer SWIG fixes issues with strings with newer C# versions.
+
+Java:
+
+* Fix memory leaks when functions taking string parameters throw exceptions.
+
+* Previously a hash table was used to map Java objects to C++ ones, but we
+  now just cast the address of the C++ object to a jlong (which is 64 bits
+  so will hold a pointer on current platforms).  This is more efficient and
+  avoids the need for thread locks around accesses to the hash table.
+
+* Remove explicit checks for NULL around calls to delete.
+
+* Mark makefiles which build Java code as .NOTPARALLEL to avoid race conditions
+  during parallel builds.
+
+Lua:
+
+* Add support for Lua, which is being developed by Xiaona Han during GSoC this
+  year.  The current support should be regarded as experimental - it passes
+  its automated tests, but the details of the Lua API are likely to evolve as
+  the project progresses.
+
+Perl:
+
+* README: say that Perl bindings probably need Perl 5.8 or later.
+
+PHP:
+
+* Directors now work for PHP (ticket#488).  New simplematchdecider.php example.
+
+Python:
+
+* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always collect
+  all the garbage, so repeat until no further objects are freed.
+  (http://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
+
+Ruby:
+
+* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() - just skip
+  the compaction tests for these versions.
+
+Xapian-bindings 1.2.5 (2011-04-04):
+
+Documentation:
+
+* README: Update info on SWIG-based Perl bindings.
+
+* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.  Replace VPATH
+  section with better equivalent from xapian-core/INSTALL.
+
+General:
+
+* Wrap ESet::get_eset() with min_wt parameter (new in C++ API in 1.2.5).
+
+* configure: If xapian-core is a different release series, promote the
+  mismatched versions warning to an error.
+
+Portability:
+
+* Mac OS X: Don't override MACOSX_DEPLOYMENT_TARGET on 10.5 and later, or
+  10.4 on x86, as the default if unset on these versions is the current OS
+  version.  (ticket#541)
+
+* python/pythontest2.py: In test_compactor(), close any open databases before
+  removing the directory as you can't delete an open database on Microsoft
+  Windows.  (ticket#526)
+
+CSharp:
+
+* Don't pass extra flags to Microsoft's gacutil.  (ticket#516)
+
+* Clarify the licence is GPL "version 2 or later" in the meta information
+  we put in the module.
+
+Python:
+
+* Remove old and broken Enquire.get_matching_terms() method.  We deprecated
+  Enquire.get_matching_terms() in 1.0.x, and removed it in 1.1.0, but
+  accidentally left an older version of get_matching_terms() exposed.
+
+* Remove broken implementation of MSet.__contains__.  This appears never to
+  have worked, and to have been broken for at least the past 3.5 years without
+  anyone mentioning it, and is probably of little use anyway, so no need to
+  deprecate.
+
+* python/docs/index.html: Document that MSet.items and ESet.items are
+  deprecated, and what to use instead.  Note that MSET_DOCUMENT never worked on
+  the tuple returned by MSet.items.  (ticket#531)
+
+* Add test coverage for mset.items.
+
+Ruby:
+
+* Add test coverage for Xapian::Compactor.
+
+* Handle an empty response to $RUBY --version specially.  This gives a less
+  opaque error in cases where the user specified RUBY but the value given
+  wasn't an executable file.
+
+Xapian-bindings 1.2.4 (2010-12-19):
+
+General:
+
+* Wrap the new Xapian::Compactor class.  The resolve_duplicate_metadata()
+  virtual method is wrapped for subclassing for Python and Ruby currently.
+
+* Eliminate separate Makefile.am in the docs subdirectory of each language
+  subdirectory and just inline any rules into the main sub-Makefile.am, which
+  allows more of the build to run in parallel.
+
+* Don't ship some files which are generated at build time.
+
+* configure: Need python in maintainer mode to run doxy2swig.py.
+
+Packaging:
+
+* RPM: Package the Perl bindings.
+
+* RPM: Don't package _XapianSharp.la.
+
+Portability:
+
+* For Mac OS X builds, set DYLD_LIBRARY_PATH to allow tests to find an
+  uninstalled Xapian library.  See ticket #322.
+
+* configure: Fix typo in code to set PYTHON_LIBS under cygwin.  (ticket#509)
+
+CSharp:
+
+* Don't install _XapianSharp.la.
+
+Perl:
+
+* Merge SWIG-based Perl bindings originally developed by Kosei Moriyama during
+  GSoC 2009.  These are close to being a compatible replacement for the
+  hand-coded XS bindings in Search::Xapian but also offer a more complete
+  wrapping of the C++ API.  We're planning to replace the XS bindings with the
+  SWIG ones for easier maintenance.  We encourage you to try them and let us
+  know how you get on - particularly if you find cases where code which works
+  with the XS bindings doesn't work with the SWIG ones.
+
+PHP:
+
+* Document that iterators shouldn't be dereferenced or advanced when at their
+  end points (ticket#520).
+
+Python:
+
+* Fix memory leaks in typemaps which return Python lists.
+
+* MatchSpy can now be subclassed in Python.  Remote use isn't currently
+  supported.
+
+* configure: Use sys.version_info tuple, rather than string splicing which
+  assumes the Python "major.minor" is 3 characters (which would fail if Python
+  2.10 were ever released, for example).
+
+Xapian-bindings 1.2.3 (2010-08-24):
+
+Packaging:
+
+* xapian-bindings.spec: Don't run autoreconf - it's no longer required.
+
+Xapian-bindings 1.2.2 (2010-06-27):
+
+* No user-visible change except for bumping the version to indicate
+  compatibility with Xapian-core 1.2.2.
+
+Xapian-bindings 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+General:
+
+* Wrap Xapian::StemImplementation.  Currently this has only been tested for
+  Python.  (ticket#448)
+
+Guile:
+
+* Remove non-functional disabled guile bindings left over from Open Muscat
+  days - if someone wanted to add guile bindings, it would be easier to start
+  from scratch.
+
+Java-SWIG:
+
+* Update list of generated java sources in the SWIG-based Java bindings.
+
+PHP:
+
+* zend_throw_exception() returns, so return control to PHP directly after
+  calling it to avoid needless extra work and possible issues.
+
+Python:
+
+* Fix "from xapian import *".  (ticket#477)
+
+* Fix testcase weight_normalise - a change in xapian-core means that
+  get_max_possible() can now return zero for a non-existent term, so don't
+  blindly calculate the reciprocal of it.
+
+* python/replicationtest2.py: Extend to check that changesets get applied
+  correctly.
+
+* python/smoketest2.py: Check len(mset) works (improving test coverage of
+  Python-specific wrapping).
+
+Xapian-bindings 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+Portability:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Xapian-bindings 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Tcl:
+
+* tcl8/docs/index.html: Document WritableDatabase::close() as a way to
+  sidestep the whole destructor issue.  (ticket#62)
+
+Xapian-bindings 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+General:
+
+* Update for the new Brass backend and other C++ API changes.
+
+* Wrap Database::get_doclength_lower_bound(),
+  Database::get_doclength_upper_bound(), Database::get_wdf_upper_bound(),
+  Database::valuestream_begin() and Database::valuestream_end() for all
+  languages. (ticket#431)
+
+* Wrap ValueIterator::skip_to() and ValueIterator::check() for all languages.
+
+Python:
+
+* Wrap valuestreams as Database.valuestream(), returning a ValueStreamIter
+  object which dereferences to a ValueStreamItem object,
+
+* Fix Enquire.clear_matchspies() wrapper which crashed in 1.1.3.
+
+Ruby:
+
+* Add safe wrapper for the valuestream iterator.
+
+Xapian-bindings 1.1.3 (2009-11-18):
+
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
+
+General:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+* Wrap the new MatchSpy class, and associated features.
+
+* Don't wrap PostingSource::serialise(), Weight::serialise() and
+  Weight::unserialise() as they aren't useful from the bindings.
+
+* Update for the Sorter to KeyMaker changes.
+
+PHP:
+
+* Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
+  as it standardly is on Microsoft Windows.  Fixes #411.
+
+* Merged the PHP "smoketest" back together now we don't need to support
+  PHP4 now.
+
+Python:
+
+* Fix a memory leak on error (in theory - we've not got a way to generate this
+  error, so haven't been able to reproduce the leak or test the fix).
+
+Xapian-bindings 1.1.2 (2009-07-23):
+
+This release includes all changes from 1.0.14 which are relevant to trunk.
+
+Python:
+
+* Several changes towards fully supporting Python 3, but more work is required.
+  (ticket#246)
+
+Xapian-bindings 1.1.1 (2009-06-09):
+
+This release includes all changes from 1.0.13 which are relevant to trunk.
+
+General:
+
+* Wrap the recently added extra parameter to Enquire::set_collapse_key().
+
+CSharp:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  C# yet, and to use Query("") and Query() instead.
+
+* configure: If we don't find a C# compiler, don't test an empty command name
+  further which saves a fork and avoids an odd looking message.
+
+PHP:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  PHP yet, and to use Query("") and Query() instead.
+
+Python:
+
+* Wrap Query::MatchAll and Query::MatchNothing for Python and document how they
+  are wrapped (ticket#158).
+
+* python/smoketest2.py,python/smoketest3.py: Update tests with FLAG_PARTIAL to
+  expect SYNONYM in generated query.
+
+Ruby:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  Ruby yet, and to use Query("") and Query() instead.
+
+Tcl:
+
+* Wrap Query::MatchAll and Query::MatchNothing for Tcl and document how they
+  are wrapped (ticket#158).
+
+Xapian-bindings 1.1.0 (2009-04-22):
+
+Documentation:
+
+* INSTALL: Python 2.6 and later look in ~/.local for Python modules so update
+  the instructions to suggest users use this standard location for installing
+  without root access.
+
+General:
+
+* All deprecated features slated for removal in 1.1.0 have been removed.
+
+* All new C++ API features have been wrapped.  Also, since we now supply some
+  standard MatchDecider subclasses, we now wrap Enquire::get_mset() so that
+  these can be passed in even for languages for which SWIG doesn't support
+  subclassing.
+  
+Packaging:
+
+* xapian-bindings.spec: Updated to reflect the new Python packaging.
+
+Portability:
+
+* configure: Use XAPIAN_CXXFLAGS for test compiles since it may include options
+  to put the compiler into ISO C++ mode).
+
+PHP:
+
+* PHP4 support has been removed, since PHP4 is no longer supported upstream
+  as of 2008-08-08.
+
+Python:
+
+* Python 2.3 or later is now required.  2.2 is essentially unsupported
+  upstream.
+
+* The import method used has been changed (by using a newer SWIG version)
+  and no longer gives a warning with Python 2.6.
+
+* Initial support for Python 3.0 has been added.  This currently doesn't
+  work correctly and should be treated as experimental. (ticket#346)
+
+* The newer SWIG version handles exceptions in director methods correctly
+  so we no longer need our workaround for ticket #289.
+
+* Database::metadata_keys_begin() and Database::metadata_keys_end() are
+  wrapped for Python as Database.metadata_keys().
+
+* The Python bindings are now installed as a python package, with the
+  files in a xapian subdirectory, hiding the internal _xapian module
+  better.
+
+* Python now flags deprecation warnings for the single argument form and old
+  parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
+  friends.
+
+Xapian-bindings 1.0.23 (2011-01-14):
+
+Portability:
+
+* configure: Fix typo in code to set PYTHON_LIBS under cygwin.  (ticket#509)
+
+PHP:
+
+* Document that iterators shouldn't be dereferenced or advanced when at their
+  end points (ticket#520).
+
+Python:
+
+* Fix memory leaks in typemaps which return Python lists.
+
+Xapian-bindings 1.0.22 (2010-10-03):
+
+Packaging:
+
+* RPM: Don't package _XapianSharp.la.
+
+CSharp:
+
+* Don't install _XapianSharp.la.
+
+Python:
+
+* configure: Use sys.version_info tuple, rather than string splicing which
+  assumes the Python "major.minor" is 3 characters (which would fail if Python
+  2.10 were ever released, for example).
+
+* Add test_xapian_star.py to distribution - fixes failure of "test_import_star"
+  testcase in pythontest.py.
+
+Xapian-bindings 1.0.21 (2010-06-18):
+
+Python:
+
+* xapian.BAD_VALUENO is now wrapped as a constant rather than variable which
+  can't be written to. (ticket#297)
+
+* Fix cleaning of test directories to use "rm -rf" rather than "rm -f".
+
+* Add test to check that "from xapian import *" works.
+
+Xapian-bindings 1.0.20 (2010-04-27):
+
+Python:
+
+* Set PYTHONDONTWRITEBYTECODE=1 in the environment to prevent Python from
+  generating .pyc files in srcdir for Python >= 2.6, and use a Bourne shell
+  trap to delete them after running tests for older versions of Python.
+  (ticket#315)
+
+Ruby:
+
+* configure: Fix typo so path to ruby is reported if Ruby < 1.8 is found.
+
+Xapian-bindings 1.0.19 (2010-04-15):
+
+Tcl:
+
+* tcl8/docs/index.html: Improve wording in a few places.
+
+Xapian-bindings 1.0.18 (2010-02-14):
+
+General:
+
+* Wrap new C++ API method Document::add_boolean_term().
+
+Ruby:
+
+* Generate entries in the Ruby rdocs for all classes which aren't documented
+  because of Ruby-specific methods.  Fixes ticket#417.
+
+* Avoid absolute paths in the generated rdocs.
+
+Xapian-bindings 1.0.17 (2009-11-18):
+
+Packaging:
+
+* Improve RPM package summaries - the files are needed to *use* scripts as well
+  as to develop them.  Use "Tcl" instead of "TCL" as the former is more
+  conventional.
+
+Portability:
+
+* python/Makefile.am: Restore the "./" path to the sourced file
+  libtoolconfig.tmp as ksh requires it.
+
+Java:
+
+* Fix memory leak when passing a MatchDecider to Enquire::get_mset().
+
+Xapian-bindings 1.0.16 (2009-09-10):
+
+Python:
+
+* Improved docstrings for QueryParser::set_default_op() and
+  QueryParser::get_default_op() (automatically generated from changes in
+  xapian-core).
+
+Xapian-bindings 1.0.15 (2009-08-26):
+
+Python:
+
+* Don't break long words when wrapping text in the generated API documentation
+  comments as this was causing identifiers to be broken in two.
+
+Xapian-bindings 1.0.14 (2009-07-21):
+
+General:
+
+* configure: If $CSC is empty, don't try to run it.  This was a cosmetic bug
+  and the only side-effect was an odd looking message.
+
+Python:
+
+* Rename methods at build-time using SWIG rather than a run-time in Python, as
+  the latter approach adds a small time overhead when the module is being
+  loaded.
+
+Ruby:
+
+* Fix to accept an integer value > MAXINT for a double parameter.
+
+Xapian-bindings 1.0.13 (2009-05-23):
+
+Packaging:
+
+* xapian-bindings.spec: Update C# packaging for rename of XapianSharp.so to
+  _XapianSharp.so in 1.0.11.
+  
+* xapian-bindings.spec: Update Tcl8 packaging for where we now install the
+  bindings since 1.0.6.
+
+PHP:
+
+* Backport fix from SWIG SVN for misuse of formatted error function in
+  SWIG-generated code.
+
+Python:
+
+* Change the SWIG-generated wrapper code so it doesn't attempt to acquire
+  Python's Global Interpreter Lock (GIL) in situations where we know that it
+  will already be locked.  This avoids some dead-locks with mod_python (due to
+  mod_python bugs which are apparently unlikely to ever be fixed), and results
+  in smaller wrappers which run a little faster (in tests with Xapian on x86-64
+  Ubuntu 9.04, the stripped wrapper library was 11% smaller and ran 2.7%
+  faster). (ticket#185)
+
+* README,python/docs/index.html: Update documentation of the above mod_python
+  issue and also document the related mod_wsgi issue.  The status is now that
+  everything seems to work if you stick to the main interpreter (ticket#364).
+
+* Backport fix from SWIG SVN for misuse of formatted error function in
+  SWIG-generated code.
+
+* python/docs/examples/simplematchdecider.py: Read "avoid_value" from the
+  second parameter, not the third.
+
+* python/docs/examples/simplematchdecider.py,
+  python/docs/examples/simplesearch.py: Make use of str.join() for simpler,
+  clearer code.
+
+Ruby:
+
+* README: Note that the testsuite fails due to a bug in the test/unit module in
+  Ruby 1.9.0, but applications using the bindings should work, and that the
+  testsuite works with Ruby 1.9.1.  Drop all mention of Ruby 1.6.x as that
+  appears to be completely dead both upstream and in the wild.
+
+Xapian-bindings 1.0.12 (2009-04-19):
+
+Documentation:
+
+* INSTALL: Add a note about being able to pass variables to configure to pick
+  which of several parallel installations of a language to build for.
+
+Python:
+
+* python/pythontest.py: Round the weights returned for the OP_SCALE_WEIGHT
+  test to avoid failing due to rounding differences.
+
+* python/testsuite.py: Remove bare except: handlers from testsuite, so Ctrl-C
+  stop the whole testsuite, not just the currently running testcase.
+
+Xapian-bindings 1.0.11 (2009-03-15):
+
+Documentation:
+
+* README: Note that 1.0.x doesn't (and isn't currently planned to) support
+  Python 3, and possible current issues with Ruby 1.9.
+
+Portability:
+
+* Merge fixes from Cygwin Ports, so bindings should build out of the box on
+  Cygwin.
+
+Python:
+
+* python/docs/examples/: Use str(obj) rather than obj.get_description() (the
+  latter is deprecated, and support was removed in 1.0.0).
+
+* Add support for using the new name ("reverse") for the second argument of
+  set_sort_by_key() and set_sort_by_value() and friends as a named parameter.
+  The old name ("ascending") is still supported, but will be deprecated in
+  1.1.0.
+
+* Keep Python references to Sorter, Stopper, and ValueRangeProcessor objects
+  which get set on other objects to avoid segmentation faults if they go out
+  of scope before the object they are set on does.  (ticket#341)
+
+Ruby:
+
+* Fixes for Ruby 1.9 compatibility (ticket#323).  The test harness currently
+  fails so "make check" doesn't pass, but code using the bindings should work.
+
+Xapian-bindings 1.0.10 (2008-12-23):
+
+Python:
+
+* Need to clean testsuite.pyc from srcdir since that's where it gets generated
+  as things stand (upstream fix for Debian bug 506090).
+
+Xapian-bindings 1.0.9 (2008-10-31):
+
+General:
+
+* configure: Add support for "--enable-quiet" like xapian-core and omega have.
+
+* Wrap new Database::metadata_keys_begin() and Database::metadata_keys_end()
+  methods.
+
+Xapian-bindings 1.0.8 (2008-09-04):
+
+General:
+
+* configure: Report bug report URL in --help output.
+
+Python:
+
+* Fix mangling of exceptions thrown from Python subclasses of Xapian classes.
+  (bug#289)
+
+* Fix memory leaks in the xapian.Query constructor.  (bug#294)
+
+Xapian-bindings 1.0.7 (2008-07-14):
+
+Documentation:
+
+* Document how all the database factory functions and library version functions
+  are wrapped for all languages.
+
+General:
+
+* Fix to build against a xapian-core which has quartz and/or flint disabled.
+
+* The "program" version of Remote::open() has been wrapped for some time, so
+  update the documentation which said it wasn't.
+
+Packaging:
+
+* xapian-bindings.spec: Remove "www." from xapian.org and oligarchy.co.uk URLs.
+
+Portability:
+
+* For Java, Python, and Ruby, use the libtool -shrext option to specify a
+  different module extension rather than our own ugly bodge.
+
+Java:
+
+* Make passing string from Java to C++ zero-byte safe.  It doesn't appear to be
+  simple to make C++ to Java work though.
+
+PHP:
+
+* Add test that OP_VALUE_GE works for PHP.
+
+Python:
+
+* Several corrections to the Python documentation.
+
+* configure: Fix problem with building under mingw.
+
+Ruby:
+
+* Include simplematchdecider.rb example.
+
+* smoketest.rb: Test the version reporting functions.
+
+Tcl:
+
+* Include simpleexpand.tcl example.
+
+* Fix where the Tcl module gets installed.
+
+* README: Note that Tcl 8.3 and earlier are no longer supported by upstream.
+
+Xapian-bindings 1.0.6 (2008-03-17):
+
+General:
+
+* Wrap OP_VALUE_GE and OP_VALUE_LE and the new Query constructor which they are
+  used with.
+
+* configure: Correct the required SWIG version given in an error message.
+
+PHP:
+
+* php/smoketest.php: Add note that this script should be run using 'make check'
+  in the build tree (rather than trying to copy it to a webserver as someone
+  recently tried to).
+
+* php/smoketest.php: Fix to work under PHP4.
+
+Python:
+
+* The Python module now always has the extension which Python expects, which
+  fixes a failure on Mac OS X.
+
+Ruby:
+
+* Automatically install/uninstall the Ruby rdoc-generated documentation along
+  with the ruby bindings.
+
+Tcl:
+
+* configure: Sort out the default value of TCL_LIB, which could end up being
+  under /usr/share in xapian-bindings 1.0.4 and 1.0.5.
+
+Xapian-bindings 1.0.5 (2007-12-21):
+
+General:
+
+* Wrap Xapian::Sorter and subclasses.
+
+* Wrap Enquire::set_sort_by_key(), Enquire::set_sort_by_key_then_relevance(),
+  and Enquire::set_sort_by_relevance_then_key().
+
+* Factor out the code to protect multitarget rules against parallel make, and
+  fix it to handle the source being changed while the rule is executing, and to
+  correctly return an error code if we fail while trying to recover from the
+  removal of a target of a multi-target rule.
+
+* configure: Improve the clarity of the error given when none of the tools
+  needed for any supported language are found.
+
+* configure: SWIG 1.3.32 has now been released, so require at least this
+  released version for maintainer builds.
+
+Java:
+
+* Add explicit '#include <cstring>' to fix build with the latest snapshots of
+  GCC 4.3.
+
+* configure: Log the output of trying to compile conftest.java in config.log;
+  if the test fails, report whether the failure was compiling or running the
+  test program.
+
+* Check for directory existence rather than calling mkdir unconditionally as
+  despite the "(ignored)", the error message seems to confuse some people.
+
+PHP:
+
+* Add feature test for XapianMultiValueSorter.
+
+* php/smoketest5.php: Fix use of Database_get_document to new style OO
+  interface.  Fix the error reported when the PHP5 exception test fails.
+
+* php/smoketest.php: Add feature test to confirm that optional arguments to
+  XapianQuery's "term" constructor are wrapped.
+
+Python:
+
+* Don't drop the GIL when calling Xapian.MSet.items and Xapian.ESet.items -
+  these properties build a python list, so dropping the GIL isn't safe and
+  may cause undefined behaviour in multithreaded environments.
+
+* configure: Update error message to reflect requirement for at least python
+  2.2.
+
+* configure: Change "print foo" to "print(foo)" in python version checks, for
+  compatibility with python 3.0.
+
+Ruby:
+
+* The Ruby bindings now work on Mac OS X (the Ruby module's extension was
+  previously incorrect).
+
+* Run "rdoc" to generate HTML for the Ruby-specific API documentation which
+  ruby/docs/index.html previously had a dead link to.
+
+Tcl:
+
+* configure: Overhaul code to find tcl.h since the old version no longer worked
+  with Debian unstable.
+
+* tcl8/docs/index.html: Update documentation to cover flint and mention that
+  quartz is now deprecated.
+
+* Remove code to handle `const char *' exceptions - as of 1.0.0 the QueryParser
+  throws QueryParserError instead.
+
+Xapian-bindings 1.0.4 (2007-10-30):
+
+General:
+
+* Wrap new OP_SCALE_WEIGHT query operator, and corresponding Query constructor.
+  Add feature tests for all languages.
+
+* The "bindings.html" file documenting each of the bindings has been renamed to
+  "index.html".
+
+Packaging:
+
+* Fix the PHP Makefile.am to work with autoconf < 2.60 to fix RPM builds for
+  older distros.
+
+Portability:
+
+* Fix warnings when compiling with GCC 4.2.
+
+PHP:
+
+* Update to newer SWIG SVN snapshot to fix memory leaks in wrapped constructors 
+  and methods/functions which return a wrapped class.
+
+* For PHP4, wrap Xapian::sortable_serialise() as xapian_sortable_serialise()
+  and Xapian::sortable_unserialise() as xapian_sortable_unserialise().
+
+* Document how non-class functions are wrapped.
+
+* Fix wrapping of NumberValueRangeProcessor for PHP4.
+
+* smoketest.php: Split the regression test for bug#193 into separate
+  versions for PHP4 and PHP5 as the previous version only worked for PHP5.
+
+Python:
+
+* python/docs/index.html: Promote the Pythonic iterators, and deprecate the
+  non-pythonic iterators.  Make it clearer that the "sequence API" is
+  deprecated.
+
+* Add test of a custom ValueRangeProcessor (ie, one written in python).
+
+* Update the examples to use the new-style attributes to access MSet item
+  values rather than the old-style MSET_* constants.
+  
+* Document MSET_DOCUMENT.
+
+Ruby:
+
+* smoketest.rb: Rename test of metadata access methods which had been named the
+  same as the matchdecider test due to a copy-and-paste error.
+
+Xapian-bindings 1.0.3 (2007-09-28):
+
+General:
+
+* Wrap new methods Database::get_metadata() and
+  WritableDatabase::set_metadata().
+
+* "make uninstall" now removes the loadable module we install for each of
+  the bindings.
+
+* "make distcheck" now works.
+
+* Distribution tarballs are now in the POSIX "ustar" format since it saves
+  about 40KB and we need to use it for xapian-core anyway.
+
+Packaging:
+
+* RPMs: Package xapian.php.
+
+CSharp:
+
+* Remove wrapper for ValueRangeProcessor::operator(), since it can't be
+  usefully used currently.
+
+Java:
+
+* Remove wrappers for the Muscat36 backend, which has now been dropped from the
+  C++ library.
+
+* "make clean" now removes the class files generated for inner classes.
+
+PHP:
+
+* Add feature test for DateValueRangeProcessor when used with QueryParser.
+
+* ValueRangeProcessor::apply() can now be called from PHP (bug#193).  This
+  isn't actually very useful, since you can't subclass it in PHP currently.
+
+* Fixed wrapping of Enquire::set_cutoff() - previously this would only work
+  if the third parameter was specified and a floating point number (e.g. 0.0).
+
+* php/docs/bindings.html: Fix errors in example code.
+
+Python:
+
+* ValueRangeProcessor::operator() is now wrapped as a __call__ method in
+  Python which takes two strings and returns a 3-tuple (value_number,
+  modified_begin, modified_end).  Previously this always failed with a
+  type error, so this doesn't break existing code.
+
+* python/pythontest.py: Interpret any commandline arguments as a list of
+  tests to be run (the default is to run all tests).
+
+* README,python/docs/bindings.html: Add a note about the problems with
+  mod-python (as described in bug #185).
+
+* python/pythontest.py: Delete the database handles before deleting a database
+  to fix problems running the Python tests on MS Windows (bug#179).
+
+* "make clean" now removes testsuite.pyc.
+
+Ruby:
+
+* Check for RUBY_INC, RUBY_LIB, and RUBY_LIB_ARCH in the environment or on
+  the configure command-line.  The defaults for RUBY_LIB and RUBY_LIB_ARCH are
+  now the site-specific directories, which is more correct when building
+  from source.  Debian packages, etc can override this by setting RUBY_LIB and
+  RUBY_LIB_ARCH.
+
+Tcl:
+
+* Check for TCL_LIB in the environment or on the configure command-line to
+  allow installing without root access more cleanly.
+
+Xapian-bindings 1.0.2 (2007-07-05):
+
+Documentation:
+
+* Document use of PYTHON_LIB and PHP_EXTENSION_DIR instead of pylibdir and
+  phpextdir.
+
+* Remove documentation of removed "--with-swig" configure option.
+
+General:
+
+* Add methods of NumberValueRangeProcessor for serialising and
+  unserialising doubles.
+
+* Add methods and constants supporting spelling correction and synonyms.
+
+* Value of XAPIAN_CONFIG supplied to configure is now passed to distcheck,
+  to ensure that it works with uninstalled copies of Xapian.
+
+* Value of PYTHON_LIB supplied to configure is now respected - previously
+  it was documented, but ignored.
+
+* Add support for supplying PHP_EXTENSION_DIR to configure.
+
+* Change to using "%include", rather than reproducing contents of header
+  files, for "queryparser.h", "document.h" and "postingiterator.h".
+
+* Add new form of get_mset() which allows a matchspy matchdecider to be
+  set.
+
+* RPMs: Don't mention %makeinstall in a .spec file comment as that makes RPM
+  explode.  Add in a missing "mv" in the command for installing tcl8
+  documentation.
+
+CSharp:
+
+* Fix rule handling parallel make to include xapian_wrap.h
+
+PHP:
+
+* Install xapian.php as <PREFIX>/share/php<PHPMAJOR>/xapian.php.  There
+  doesn't seem to be a standard location, but this works for Debian at
+  least, and it seems better to at least try to install it.
+
+* Rename ValueRangeProcessor and subclasses and TermGenerator to have a Xapian
+  prefix for PHP4.
+
+Python:
+
+* Fix a threading problem: the GIL was not being acquired in the exception
+  handling code before setting the Python exception state, leading to
+  various memory corruption symptoms in threaded programs.
+
+* Add special iterators to Database for synonyms, synonym_keys and
+  spellings.
+
+* Add test cases for OP_VALUE_RANGE queries, getting spelling corrections,
+  synonym iterators and spelling iterators.
+
+* In the test suite, expect_query() now adds "Xapian::Query(" and ")" around
+  the expected description to make the tests more readable.
+
+Xapian-bindings 1.0.1 (2007-06-11):
+
+Documentation:
+
+* NEWS: Fix the recent headings which said "Xapian-core" to say
+  "Xapian-bindings".
+
+General:
+
+* Wrap Xapian::Query constructor for creating ValueRange queries.
+
+* Wrap new forms of Xapian::Database::allterms_begin() and allterms_end()
+  which take a prefix.
+
+Packaging:
+
+* RPMs: Use "make install" instead of %makeinstall to avoid doubled
+  %{buildroot} prefix on most files which we then have to work around.
+
+CSharp:
+
+* SimpleIndex now uses Xapian.TermGenerator.
+
+* SimpleSearch now uses Xapian.QueryParser.
+
+* New SimpleExpand example.
+
+* Document explicitly how STEM_SOME constants are currently wrapped.
+
+* Update GetTermName() reference in documentation to GetTerm().
+
+* SmokeTest.cs: Update comment about Portable.NET bug - the bug is fixed in
+  their CVS repo, and the fix should be in their 0.8.2 release.
+
+Java:
+
+* `configure --help' documented that environmental variable JNI_INCLUDE_DIR was
+  looked at, but in fact its value was read but ignored.  We now use it as the
+  first place to look for jni.h.
+
+* configure will now automatically add an extra "-I" for the
+  linux/solaris/win32 subdirectory which Sun's JDK requires.
+
+* Document JAVA_HOME and JDK_HOME in ./configure --help and mark them as
+  "precious" so their values are preserved for when configure is automatically
+  rerun.
+
+PHP:
+
+* Enquire::get_mset(first, maxitems, omrset) now works for PHP5.
+
+* The PHP examples have been rewritten to be clearer and to make use of the
+  new XapianTermGenerator class.
+
+Python:
+
+* Python examples now use xapian.QueryParser and xapian.TermGenerator.
+
+* Add support for prefix-restricted pythonic allterms iterators.
+
+* Update documentation in a couple of places to refer to updated replacements
+  for MSetIterator.
+
+* Change testsuite output to be more vim-friendly (vim should be able to jump
+  to the right lines now).
+
+* __str__ on Xapian::Error now includes extra information in some cases (the
+  error_string and context, if they are set).
+
+* python/smoketest.py: Eliminate uses of the legacy sequence API.
+
+* python/pythontest.py: The legacy sequence API is only supported for Python
+  2.3 and later, so don't run tests for it when running under Python 2.2.
+
+* We now generate and install xapian.pyo as well as xapian.pyc.
+
+Ruby:
+
+* The Ruby examples now use the Xapian::QueryParser and Xapian::TermGenerator
+  classes.
+
+* Add missing rename for the C++ TermGenerator::set_document() method so it can
+  be used as "tg.document = doc" in Ruby.
+
+* Fixed compilation on Mac OS X and warning from GCC on 32-bit Linux platforms.
+
+Tcl:
+
+* tcl8/docs/examples/simpleexpand.tcl: New example to demonstrate relevance
+  feedback, based on C++ simpleexpand.cc.
+
+* tcl8/docs/example/simpleindex.tcl: New simpler example making use of the
+  TermGenerator class.
+
+* tcl8/docs/example/simplesearch.tcl: New simpler example making use of the
+  QueryParser class.
+
+* tcl8/docs/bindings.html: Document how constants are wrapped.
+
+* Update smoketest and examples to require version 1.0.0 - previously this
+  required 0.9.6, which failed since TCL doesn't accept differing major
+  version numbers.
+
+* pkgIndex.tcl is now generated by configure.
+
+Packaging:
+
+* The required automake version has been lowered to 1.8.3, so RPMs can now be
+  built on RHEL 4 and SLES 9.
+
+Xapian-bindings 1.0.0 (2007-05-17):
+
+Documentation:
+
+* Document Unicode support for each language.
+
+* Assorted minor improvements and typo fixes.
+
+General:
+
+* Add wrappers for ExpandDecider, and Enquire::get_eset() variants which use
+  it, for languages where SWIG supports directors.
+
+* Wrap new features: TermGenerator, ValueRangeProcessor hierarchy, the
+  OP_VALUE_RANGE query operator, the new overloaded form of parse_query, which
+  allows the "default_prefix" argument to be supplied, QueryParser flags
+  FLAG_PURE_NOT and FLAG_PARTIAL.
+
+* Deprecated Xapian::Stem's stem_word() method in favour of apply().
+
+* Remove wrappers for deprecated features removed from the C++ API (see
+  docs/deprecation.html in xapian-core for full details and upgrade
+  information).
+
+* Deprecate ESetIterator::get_termname() in favour of ESetIterator::get_term().
+
+* QueryParserError is now a real error, so remove special handling for "const
+  char *" exceptions.
+
+* Use a stamp file in "make" rules with multiple targets so that parallel
+  make works.
+
+* configure: Now quotes $PYTHON, etc so that you can specify a program with
+  arguments.
+
+* configure: If the user specifies a program which doesn't exist (e.g.
+  PYTHON=/opt/bin/ptyhon) don't autoprobe after failing to find it.
+
+* configure: Disable probes for f77, gcj, and rc completely by preventing
+  the probe code from even appearing in configure - this reduces the size of
+  configure by 28% and should speed it up significantly.
+
+* configure: If the version check against the xapian-core version detects a
+  mismatch, we now issue a warning rather than a hard error since if you're
+  careful this can work.  The warning is issued late on in configure, so it's
+  harder for the user to miss.
+
+* configure: The --with-swig option has been removed.  It no longer has a
+  purpose as we now ship the files which are generated by SWIG.
+
+Portability:
+
+* The PHP bindings can now be built with MSVC for Microsoft Windows.
+
+CSharp:
+
+* When using Mono 1.2, we must build with gmcs (the C# 2.0 compiler) rather
+  than mcs to avoid segmentation faults at runtime due to unimplemented
+  features in mcs.  Document this, and update configure to prefer gmcs.
+
+* The return type of MatchDecider::operator() is now `bool' rather than `int'
+  (in line with the same change in the C++ API).
+
+* Xapian.Stem.StemWord() deprecated in favour of Xapian.Stem.Apply().
+
+Java:
+
+* The Java bindings have been updated to use C++ replacements for deprecated
+  methods, so they still build.  The Java wrappers still provide the old
+  deprecated names for now though.  The longer term plan is to replace the
+  hand-written JNI with SWIG generated wrappers (work has now begun on this)
+  which is likely to require some API changes, and it seems more sensible to
+  make any changes to align with C++ API changes at the same time.
+
+* Enquire.getQuery() is implemented entirely in Java, so strip out the unused
+  MyQuery mechanism, and so fix a memory link which it caused (bug#105).
+
+PHP:
+
+* Fix undefined behaviour in get_matching_terms().
+
+* Document the (existing) renaming of methods which are PHP reserved words
+  (empty() to is_empty() and clone() to clone_object()).
+
+* Deprecated Xapian::Stem's stem_word() method in favour of apply().
+
+Python:
+
+* The Python bindings now throw exceptions as classes with a hierarchy which
+  mirrors that of the C++ Xapian::Error and its subclasses.  The xapian.Error
+  base class inherits from the standard Python Exception class.
+
+* All Python methods which accept strings can now be passed either a unicode
+  object or a simple string.  Strings are returned as simple strings: unicode
+  input will be returned as utf-8 encoded output.  The documentation now
+  contains a "Unicode" section.
+
+* The Python bindings should now be usable more efficiently from threaded
+  Python applications since we now use SWIG's -threads option when generating
+  them, so that the GIL is released during long-running Xapian operations
+  (bug#137).
+
+* Most classes, methods, functions, etc now have docstrings which are either
+  automatically extracted from the C++ documentation comments, or overridden by
+  more appropriate versions.
+
+* Most of the Pythonic iterators now return an object instead of a sequence,
+  which means they now lazily fetch the information which previously had to be
+  fetched to put it in the sequence.  The old sequence API is supported for
+  compatibility, but is scheduled for removal in Xapian 1.1.0.
+
+* Those Python iterators which have skip_to() methods now return the item
+  skipped to, and next() will return the following item.  Previously, they
+  returned None, and next() returned the item skipped to.  Several bugs in the
+  skip_to() wrappers were fixed.
+
+* Because of the lazy access, some objects returned by iterators will raise
+  an error if the lazy evaluation happens after the iterator has moved on
+  (since the underlying Xapian API doesn't allow efficient access to the
+  information in this situation).  The exact semantics are defined in the
+  docstrings for each iterator.
+
+* Those Pythonic iterators which return only a list of terms now return
+  simple strings, instead of a sequence or an object containing the term.  This
+  is an incompatible change with earlier releases.  The affected iterators are
+  Enquire.matching_terms, Query.__iter__, QueryParser.stoplist and
+  QueryParser.unstemlist.
+
+* The contents of an MSet can now be iterated in the standard Python way.
+  The iteration will return MSetItem objects.  The __contains__ and __getitem__
+  methods are also implemented, allowing the "in" and [] operators to work.
+  MSet.__getitem__ is a synonym for MSet.get_hit.
+
+* MSet.get_hit() now returns an MSetItem object instead of an MSetIterator,
+  so that lazy access to its attributes is supported.  MSetItem has some
+  deprecated methods which mimic the MSetIterator interface to allow old code
+  to work without modification until release 1.1.0.
+
+* MSetItem provides access to the collapse_key and collapse_count, which
+  weren't accessible from the sequence returned by the iterators before this
+  release.
+
+* Out-of-range access to MSets will now raise an IndexError - it used to
+  cause undefined behaviour (usually a crash).
+
+* The Python testsuite is now much more extensive, and supports colour output
+  and verbosity levels, much like the C++ testsuite.  Tests of deprecated
+  features are separated out, so that they can easily be removed when the
+  features are removed.  The Python tests currently focus mainly on Python
+  specific iterators and related functionality - general Xapian behaviour is
+  tested by the C++ testsuite.
+
+* The pure Python code in the bindings now uses new-style classes, since we
+  have required Python >= 2.2 since Xapian release 0.9.9.
+
+* Enquire.get_matching_terms is now deprecated - use Enquire.matching_terms
+  instead.
+
+* The get_description() method which many classes support has been deprecated
+  in favour of new more pythonic __str__ methods, so that the str() builtin can
+  be used.  get_description() is deprecated and scheduled for removal in 1.1.0.
+
+Ruby:
+
+* We no longer regard the Ruby bindings as "beta quality", so remove the
+  warning from their documentation.
+
+* Document that that C++ operator() becomes the method "call" in Ruby.
+
+* Don't read termfreq in safe wrapper for Document::termlist_begin().  Don't
+  read wdf in safe wrapper for Database::allterms_begin() (bug#133).
+
+Tcl:
+
+* Deprecated Xapian::Stem's stem_word() method in favour of apply().
+
+Xapian-bindings 0.9.10.1 (2007-04-04):
+
+PHP:
+
+* Fix PHP5 class wrapper generation in a few cases for overloaded methods with
+  default parameters.  The most notable case was a missing Query constructor
+  which meant that QueryParser was unusable.
+
+* Fix compilation of the PHP4 bindings with ZTS-enabled versions of PHP
+  (which mostly seems to mean the MS Windows version).
+
+* Fix PHP5 crash on exit with ZTS-enabled versions of PHP (which mostly
+  seems to mean the MS Windows version).
+
+* Add note to the documentation that PHP examples are written for CLI version
+  of PHP, but that the bindings work with any version.
+
+* Add check to all PHP examples that they are being run under a CLI version of
+  PHP.
+
+Python:
+
+* simpleexpand.py: Print each term's expand weight as a floating point value,
+  not an integer.
+
+Ruby:
+
+* INSTALL: document how to install Xapian's Ruby bindings in your home
+  directory.
+
+Xapian-bindings 0.9.10 (2007-03-04):
+
+Java:
+
+* Under Mac OS X, automatically look in the standard location for jni.h,
+  and automatically rename the JNI library we build to ".jnilib", as is
+  required by the OS X JVM.
+
+* java/README: Note success with Sun's JDK 1.5.0_06-b05, plus the requirement
+  to add the linux header directory to the include path when using this JDK.
+
+* Add missing default constructor for RSet class - it's not much use without
+  this!
+
+* Fix Enquire.getESet() to actually work.
+
+* Fix bug in ESetIterator.hasNext().
+
+* Fix MatchDecider and ExpandDecider so subclassing in Java actually works.
+
+* Fix memory leak with some JVMs in the "Query from array" constructor.
+
+* Fix memory leak in Enquire.setQuery().
+
+* SmokeTest.java: Add regression tests for RSet default constructor,
+  Enquire.getESet(), ESetIterator.hasNext(), MatchDecider, ExpandDecider.
+  Add feature tests for Enquire.getQuery(), and to make sure we get passed
+  the right document in a java subclass of MatchDecider.
+
+* configure: Look for jni.h in $JAVA_HOME/include and $JDK_HOME/include if the
+  respective variables are set.
+
+PHP:
+
+* Update the documentation to fix out-of-date information and document the
+  differences between the PHP4 and PHP5 wrappers.
+
+* Update the examples to use the new Object Oriented API, and provide versions
+  for both PHP4 and PHP5.
+
+* Add a "simpleexpand" example.
+
+* For PHP4, Xapian::DB_CREATE_OR_OPEN should be wrapped as
+  Xapian_DB_CREATE_OR_OPEN not DB_CREATE_OR_OPEN, so wrap it with the
+  new name, but keep the old name for now for backward compatibility.
+
+* configure: Try `$(PHP_CONFIG) --php-binary` when looking for a PHP
+  interpreter - this works with PHP5.
+
+* configure: Remove the sanity check for PHP_EXTENSION_DIR added in Xapian
+  0.9.8 - if Xapian is the first PHP extension to be installed, the extension
+  directory may not exist and "make install" will create it.
+
+* configure: If zend.h isn't found and configure was run with "--with-php",
+  exit with an error rather than automatically disabling PHP support.
+
+Python:
+
+* Fix a problem which preventing building for Python 2.5 on 64 bit platforms.
+
+Packaging:
+
+* RPMs: Add support for passing "--without python" to rpmbuild.  Document the
+  various "--without" options in a comment at the start of the .spec file.
+
+* RPMs: Remove "." from the end of the Summary.
+
+Xapian-bindings 0.9.9 (2006-11-09):
+
+Documentation:
+
+* Ship our custom INSTALL file rather than the generic one from autoconf which
+  we've accidentally been shipping instead since 0.9.5.
+
+General:
+
+* Wrap Flint::open() and Flint::open_writable().
+
+* configure: Require SWIG 1.3.30 (1.3.30 isn't out yet, but 1.3.30rc1 is
+  suitable).
+
+Python:
+
+* Generate the bindings using SWIG 1.3.30rc1 which fixes a build error on 64
+  bit platforms with Python 2.5.
+
+Packaging:
+
+* RPMs: Prevent binaries getting an rpath for /usr/lib64 on FC6.
+
+* RPMs: The Python bindings now require Python >= 2.2.
+
+Portability:
+
+* configure: Remove unnecessary backticks from tclsh version test.
+
+Xapian-bindings 0.9.8 (2006-11-02):
+
+General:
+
+* Wrap the "prog" form of Remote::open() (which is suitable for general purpose
+  use as of 0.9.7) and the Remote::open_writable() methods (new in 0.9.7).
+
+* The C++ method QueryParser::parse_query() current throws "std:string"
+  exceptions if there's a parse error.  Previously the bindings didn't catch
+  these.  Now we catch them and handle them as if they were exceptions of
+  type Xapian::QueryParserError (in anticipation of this changing in
+  xapian-core).  Added testcases for this for PHP, Python, and C#.
+
+* configure: Note that SWIG is only useful for Xapian developers in --help
+  output.
+
+* configure: If we failed to find any languages to build for, give a more
+  helpful message.
+
+CSharp:
+
+* SmokeTest.cs: Fix warning about unused variable in OP_ELITE_SET check.
+
+Java:
+
+* configure: Fix check for jni.h in /usr/lib/jvm/java-gcj/include to actually
+  work rather than using the cached failure of the first jni.h check.
+
+* SmokeTest.java: Fix check for value of Query.OP_ELITE_SET.
+
+* SmokeTest.java: Avoid gcj "set but not used" warning.
+
+PHP:
+
+* configure: Sanity check PHP_EXTENSION_DIR and PHP_INC.
+
+* smoketest4.php,smoketest5.php: Check the exception message given by the
+  DocNotFoundError testcase.
+
+Python:
+
+* Drop support for Python 2.1.
+
+Xapian-bindings 0.9.7 (2006-10-10):
+
+Documentation:
+
+* NEWS: Fix the recent headings which said "Xapian-core" to say
+  "Xapian-bindings".
+
+General:
+
+* Specify required automake version in the call to AM_INIT_AUTOMAKE in
+  configure.ac.
+
+* If we're building with GCC 4.0 or higher, pass -fvisibility=hidden when
+  compiling SWIG generated code which makes the compiled modules a few percent
+  smaller and perhaps a little faster.
+
+* Wrap the newly implemented transaction API.
+
+* configure: Use "-fno-strict-aliasing" when compiling all the SWIG bindings
+  (this option was supposed to be used to compile the Python bindings from
+  0.9.3 onwards, but this wasn't actually working correctly).
+
+* Use CVS snapshot of SWIG to generate files (fixes bugs #83, #85).
+
+* In maintainer-mode, "make clean" now removes the SWIG generated files
+  which would otherwise only be removed on "make maintainer-clean".
+
+CSharp:
+
+* Xapian::MatchDecider can now be subclassed in C#.
+
+* The value of OP_ELITE_SET was wrong in C# which caused an error if you tried
+  to use it.  This has been fixed and a regression test added.
+
+* SmokeTest.cs: Added exception handling test.
+
+Java:
+
+* Correct two misuses of delete to delete[].  Fixes bug#78.
+
+* configure: We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
+  Debian and Ubuntu boxes at least.
+
+PHP:
+
+* We now generate class wrappers for PHP5.
+
+* We now generate proxy classes for PHP4, which is an incompatible change
+  from previous versions of xapian-bindings.  A perl script to upgrade
+  your scripts is included.
+
+* smoketest.php:
+
+  + Now that we're throwing PHP exceptions with PHP5 we need separate versions
+    of the exception handling test for PHP4 and PHP5.  Fixes bug#76.
+
+  + Rely on xapian.php to load the extension module for us.
+
+  + Fix error messages to show PHP code, not Python code.
+
+* When running smoketest.php, pass the "-q" option to php, which suppresses
+  HTTP header output for PHP < 4.3 and is ignored for compatibility by more
+  recent versions of PHP.
+
+* configure: Fix typo - PHP_tried should be PHP_found.  This might have caused
+  the PHP interpreter not to be found in some cases when it was actually
+  available, but it's only used to run the smoketest not for building the
+  bindings.
+
+Python:
+
+* configure: Fixed check for PYTHON_PATHSEP to use $PYTHON rather than python,
+  and also report the check and its result to the user.
+
+* python/Makefile.am: xapian.pyc can't be generated until _xapian.la has been
+  built, so add an explicit dependency so that this works reliably in parallel
+  builds.  Fixes bug#77.
+
+* In examples and documentation, don't call the MatchDecider class/object
+  "matcher", since we use the term "matcher" to mean something else in
+  the library documentation.
+
+* smoketest.py:
+
+  + Add test of exception handling.
+
+  + Add test that MatchDecider can be subclassed successfully.
+
+* Wrap TermIterator::skip_to() so that it can be used from the TermIter
+  pythonic iterator class.
+
+Ruby:
+
+* Xapian::MatchDecider can now be subclassed in Ruby.
+
+* configure: Look for ruby interpreter as "ruby1.8" since it's called that
+  (with no "ruby" alias) on Ubuntu dapper at least.
+
+* simplesearch.rb: Lowercase terms before stemming.  "First ten" is inaccurate
+  since we may have less than 10 matches, so say "1-<N>" instead.
+
+* simplematchdecider.rb: Implemented.
+
+Tcl:
+
+* Implement saner exception handling for Tcl and document it.
+
+* smoketest.tcl:
+
+  + Add check that xapian::Query_OP_ELITE_SET has the right value.
+
+  + Rework how the smoketest gets run to eliminate special code for using
+    uninstalled bindings from smoketest.tcl itself.  This allows the smoketest
+    to be run using installed bindings, and also makes it a better example
+    program.
+
+  + Add test for exception handling.
+
+  + Send error messages to stderr.
+
+  + Add comment about Tcl storing zero bytes as \xc0\x80.
+
+* simpleindex.tcl,simplesearch.tcl: Print $errorCode in the exception handler.
+
+* For SVN snapshots, remove any _svn6789 suffix from the Xapian version number
+  used for the Tcl bindings.
+
+Xapian-bindings 0.9.6 (2006-05-15):
+
+Documentation:
+
+* INSTALL: Add section describing how to install without root access.
+
+General:
+
+* Updated to reflect the renaming of Xapian::xapian_version_string and
+  companions to Xapian::version_string.
+
+* Wrap optional length parameter to Enquire::set_query().
+
+* In PHP, Python, and Tcl bindings, rename get_document_id to get_docid for
+  consistency.  Keep get_document_id as an alias for now for backward
+  compatibility.
+
+* Fixed ESet::empty() to return bool instead of Xapian::termcount (this was
+  probably a largely harmless error).
+
+* Stop SWIG from adding exception handling wrappers to the calls which return
+  version strings, since they can't throw exceptions.
+
+* xapian.i: Removed superfluous "const" from return type "docid" which is just
+  a typedef for an unsigned integer type.
+
+* configure: Add some missing "checking ..." messages so the user has more idea
+  what is going on.
+
+* Language specific util.i files can now define
+  XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP and
+  XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP to indicate which optional typemaps
+  are provided for each language.  This avoids needing to keep this
+  information in two different places.
+
+* xapian.i: Uncomment commented-out parameter names and fix duplicate
+  parameter names (for the benefit of bindings which use the parameter names,
+  like the OO PHP5 patch for SWIG I'm working on...)
+
+Portability:
+
+* configure: Fix warning flags passed for Intel C++ compiler.
+
+CSharp:
+
+* We now support building with Portable.NET.
+
+* Note that the passing of strings from C# into Xapian and back isn't currently
+  zero byte safe.  If you try to handle string containing zero bytes, you'll
+  find they get truncated at the zero byte.
+
+* C# bindings now build and pass tests when srcdir != builddir.
+
+* In configure.ac, the "#" in "C#" seems to sometimes confuse autoconf so
+  always say "CSharp" instead.
+
+* Not all machines are set up to run compiled C# programs when invoked
+  directly, so get configure to check if we can, and otherwise see if using
+  mono or ilrun works.  If not, just skip the C# tests.
+
+* configure: If "mcs" isn't found, we now look for a CSharp compiler as "gmcs"
+  (alternative name for "mcs"), "cscc" (Portable.NET), and then "csc"
+  (Microsoft, but we check it isn't the unrelated Chicken csc program.)
+
+* Move the C# specific %rename list to csharp/util.i.
+
+* Store the strong name key in the key container so we reuse it for later
+  builds.
+
+* Wrap the version functions as more sensible names and document them (and
+  continue to provide the older undocumented names for now just in case anyone
+  was using them.)
+
+* Set the version of XapianSharp.dll correctly when building a snapshot from
+  SVN and set informational attributes (which e.g. MS Windows Explorer shows.)
+
+* SmokeTest.cs: Add test of version functions.
+
+Guile:
+
+* The Guile bindings don't work and aren't being actively worked on, so we're
+  no longer including them in the distributed tarball to avoid disappointing
+  users who notice a "guile" subdirectory.  It also makes the download smaller.
+
+Java:
+
+* Simplify (and improve portability of) run-java-test by using "libtool
+  --mode=execute"'s -dlopen option.
+
+* Need to make sure "built" subdirectory exists or building from clean fails.
+
+* Fix "make check" to work when srcdir != builddir.
+
+PHP:
+
+* Using "php -c myphp.ini" still loads the system php.ini (at least for PHP
+  4.3.10), so use "php -n" and then set the options we specifically want using
+  "-d".
+
+* Fix the smoketest invocation to work better when srcdir != builddir.
+
+* Look for PHP interpreter first in prefix given by "php-config --prefix".
+
+* Fix SWIG_RuntimeError to be handled as an exception in PHP5.
+
+* simplesearch.php: MAX_PROB_TERM_LENGTH isn't used here so remove it.
+
+* smoketest.php:
+
+  + Add test for version reporting functions
+
+  + If a test fails, say which one to aid debugging.
+
+  + Added simple test that zero-bytes are handled correctly when passing
+    strings to and from Xapian.
+
+Python:
+
+* README: Note that Python bindings have been built with MSVC.
+
+* Install xapian.py and xapian.pyc as _DATA not _SCRIPTS because we don't want
+  to make them executable (they don't have a #! line).
+
+* simplematchdecider.py: Rename confusingly-named "mymatcher" to
+  "mymatchdecider".  Add description of what this example does.
+
+* simpleexpand.py: Don't define MAX_PROB_TERM_LENGTH as it isn't used.
+
+* smoketest.py: Added simple test that zero-bytes are handled when passing
+  strings to and from Xapian.
+
+Ruby:
+
+* Added new Ruby bindings from Paul Legato.
+
+Tcl:
+
+* smoketest.tcl:
+
+  + Add test for version reporting functions
+
+  + If a test fails, say which one to aid debugging.
+
+  + Added simple test that zero-bytes are handled correctly when passing
+    strings to and from Xapian.
+
+Xapian-bindings 0.9.5 (2006-04-08):
+
+Documentation:
+
+* HACKING,README: Split off HACKING to contain information which is only
+  relevant to those wishing to modify the bindings.
+
+General:
+
+* SWIG-based bindings are now built with SWIG 1.3.29.
+
+* configure: Report which languages we're building bindings for just before
+  configure finishes.
+
+* xapian.i: Make the stub definitions for disabled backends static.
+
+* configure: Don't quote $PHP in AC_PATH_PROGS to avoid "checking for ... no"
+  message.
+
+* xapian.i: Wrap new method Enquire::set_sort_by_relevance_then_value().
+
+Packaging:
+
+* RPMs: xapian-bindings.spec.in: Use "%{_libdir}" instead of "/usr/lib" for
+  Python bindings to support 64 bit systems.
+
+* RPMs: Package the C# bindings.
+
+Portability:
+
+* java/run-java-test: Fix to work on platforms where LD_LIBRARY_PATH has a
+  different name.
+
+* configure: Detect Intel's C++ compiler and set suitable warning flags to
+  avoid noise from compiling generated code.
+
+CSharp:
+
+* Rename Database::GetDoccount() to Database::GetDocCount() for consistency.
+
+Guile:
+
+* configure: Disable --with-guile since Guile support doesn't currently work.
+
+Java:
+
+* Override deprecation warnings for Xapian methods/functions/etc.
+
+* SmokeTest.java: Write a helpful diagnostic to stderr if a check fails so we
+  have some idea what went wrong!
+
+* Rework how we include headers to get hash_map to avoid compiler warnings
+  since it's usually not in the std namespace nowadays.
+
+* Previously the "all" target also ran the "install" target, but this has
+  proved very problematic, so change "make check" to use the uninstalled JNI
+  glue library, and update the instructions to say that "make install" is now
+  required.
+
+* Use JAVA_PATHSEP when specifying the classpath for compiling .java files to
+  .class files.
+
+* README: Note that some platforms need "-pthread" or similar flags.
+
+* Add a new Query constructor wrapper which take an OP_xxx and an array of
+  Query objects.
+
+* Compiling a .java file to a .class file now deletes the .jar file to ensure
+  it gets updated.
+
+PHP:
+
+* php -n avoids reading any php.ini, but the compiled in default may be to
+  enable the dubiously named "safe_mode" which prevents dl() being used so
+  "make check" fails.  So instead provide a very simple php.ini which turns off
+  safe_mode and makes sure enable_dl is on.
+
+* Fix handling of bool parameters when resolving overloaded methods and/or
+  default arguments.  This fixes Enquire_sort_by_value() to work when the
+  second argument is specified.  Added regression test for this case.
+
+* simpleindex.php: Lowercase terms before stemming.  Fixes bug#73.
+
+* Fix segmentation fault when PHP "Null" is passed where C++ wants an object
+  passed by reference.  Fixes bug#74.
+
+* simpleindex.php: Flushing after every call to WritableDatabase_add_document
+  isn't required and will kill performance, so stop doing it.  Fixes bug#75.
+
+Python:
+
+* Use the fairly new "swig -O" option for the "modern" python bindings as
+  it generates a smaller glue library and runs faster.  Some of the features
+  enabled also work on python 2.1, so enable these for the "olde" bindings.
+
+* configure: Catch the case where the user has python installed but not the
+  module "distutils.sysconfig" and explain that they probably need to install a
+  python-dev or python-devel package.
+
+* "make check" now works in VPATH builds.
+
+* smoketest.py: If a check fails, write a diagnostic message to stderr so we
+  know which check it was!
+
+* smoketest.py: catch Exception objects and print them.
+
+* smoketest.py: Add feature tests for the various pythonic iterator
+  wrappers
+
+* python/docs/bindings.html: Document the Pythonic iterators.
+
+* Fix TermIter not to try to read termfreqs or positions if they aren't
+  meaningful for the current TermIter.
+
+Xapian-bindings 0.9.4 (2006-02-21):
+
+Documentation:
+
+* COPYING: Updated FSF address.
+
+General:
+
+* Wrap Stopper::get_description().
+
+* Wrap xapian_version_string() and related functions.
+
+Portability:
+
+* If we're overriding MACOSX_DEPLOYMENT_TARGET then override it for commands
+  run from "make" too.
+
+PHP:
+
+* Fix so that generated code compiles with ZTS-enabled PHP (which is the
+  default on Windows).
+
+Python:
+
+* smoketest.py: Test wrapping of xapian_version_string() and related functions.
+
+Xapian-bindings 0.9.3 (2006-02-16):
+
+Documentation:
+
+* README: Updated and expanded (now covers supported platforms, and lists
+  criteria which bindings for an additional language need to fulfil before
+  we're likely to accept them).
+
+* INSTALL: Updated and improved.
+
+* TODO: Move C#-specific TODO to top level so we can track to-do items for
+  all languages.
+
+General:
+
+* configure: Change how the user selects which bindings to build.  If no
+  --with* arguments are passed, then we default to building bindings we detect
+  the required tools for (as before).  But instead of requiring the user to
+  deselect all bindings they don't actually want, we now let them select the
+  bindings they do want.  So "./configure --with-python" will only build the
+  python bindings (and will fail if the required tools aren't installed).
+
+* Every wrapped method contains exception handling code.  The bulk of this
+  is now factored out into a single helper function, which cuts the compile
+  time by around a factor of 3 and halves the size of the stripped library
+  (figures are for Tcl on x86_64).
+
+* configure: Rework how XAPIAN_CXXFLAGS is passed through so that the user can
+  override CXXFLAGS in the make invocation like so: make CXXFLAGS=-g
+
+* configure: Bump required SWIG version to 1.3.28 and drop the special
+  requirement for 1.3.22 for PHP (hurrah!)  Note that you don't need
+  SWIG to install the bindings - SWIG is run by the Xapian developers
+  so these updated requirements are only relevant if you want to modify
+  the bindings.
+
+* Eliminate separate Makefile in each examples subdirectory, which makes the
+  build system simpler, smaller, and a little faster.
+
+* xapian.i: Include default constructors for all classes so that SWIG knows it
+  doesn't have to use SwigValueWrapper for them, which makes the bindings code
+  a bit smaller and faster.  Also stop SWIG using SwigValueWrapper for
+  std::pair<...>.
+
+* configure: Document special environmental variables which configure
+  recognises.  Enhance handling of environmental variables so you can
+  e.g. './configure PYTHON=python23' (previously you had to give a full
+  path in such environmental variables or they would be ignored.
+
+Packaging:
+
+* RPM spec file:
+
+  + Automatically detect the python version.
+
+  + Rename "php4" references to "php".
+
+  + Automatically detect the PHP extension directory.
+
+  + Relax Tcl requirement to >= 8.1, since that's what we actually require.
+
+  + Add support for "--without php" and --without tcl8" options to rpmbuild.
+
+Portability:
+
+* configure: On Mac OS X, ensure MACOSX_DEPLOYMENT_TARGET is set to at least
+  10.3.  This is required to link the bindings, and it doesn't seem to be
+  possible to link them on 10.1 or 10.2 anyway.
+
+* configure: Add -lstdc++ to XAPIAN_LIBS if we're using GCC.  OpenBSD needs it
+  to be explicitly specified and libtool correctly handles platforms where it
+  would have been implicitly linked with anyway.
+
+* Try to enable PHP bindings to build out of the box on cygwin (needs testing).
+
+* configure: Add missing ";;" on the last alternative in some case statements.
+
+* Only pass -no-undefined on platforms where it is required in order to link a
+  shared library at all (it causes problems on Mac OS X in some cases).
+
+CSharp:
+
+* This release includes a lot of improvements for the C# bindings.  They're
+  now pretty much on a par with the other language bindings.
+
+* Added documentation and examples.
+
+* Method and function names are now renamed to match C# conventions
+  (e.g. from get_description() to GetDescription()).  This is obviously an
+  incompatible change, but the C# bindings haven't been suitable for real world
+  use prior to this release.
+
+* Optional parameters are now wrapped so no longer need be specified
+  explicitly.
+
+* Overload ++ and -- for iterators.
+
+* Overload == and != for iterators.  Now comparisons with the end iterator
+  work as expected, and SmokeTest passes.
+
+* SmokeTest now reports exceptions verbosely.
+
+* Xapian::InMemory::open() is now wrapped as Xapian.InMemory.Open(), and
+  similarly for other database factory functions.
+
+* Heed compatibility warnings from mcs and use different forms for
+  command-line switches to the C# compiler (presumably for compatibility with
+  Microsoft's compiler, though the warnings don't actually say that
+  explicitly).
+
+Guile:
+
+* Rewrote guile/util.i.  The old version caused SWIG warnings and wasn't
+  zero-byte safe.  The guile bindings are still a long way from actually
+  working though.
+
+Java:
+
+* Wrap optional second parameter (query length) to Enquire::set_query().
+
+* configure now probes for the Java path separator, which we then use to
+  separate entries in the java -classpath command line option so we can
+  build on platforms where it isn't ":".
+
+* SmokeTest.java: Expand to test more features.
+
+* java/README:
+
+  + Note that the bindings work with the Eclipse javac and GIJ 4.0.1.
+
+  + Add note about how wrapped methods are named.
+
+* Query.java: OP_* code 9 no longer exists, so add it to those rejected by the
+  validity check.
+
+* Query.java: Comment out unused code.
+
+* Fixed memory leak in Query-from-array-of-strings constructor.
+
+* Eliminate the "_errormap" hashmap - we don't need to use RTTI here, since
+  Xapian::Error subclasses can tell you their typename directly (using
+  get_type()).
+
+PHP:
+
+* Some problems with overloaded methods in PHP have been fixed by a major
+  overhaul of SWIG's PHP support.  So we no longer rename such methods
+  for PHP.  This is an incompatible change, but it's easy to update your
+  PHP scripts (just change new_Query_from_term_pair -> new_Query, etc).
+
+* Previously the documentation and simpleindex.php suggested that you
+  should call delete_CLASS().  This was incorrect and resulted in a
+  double-free() in some cases, so we've fixed the documentation and
+  examples and eliminated the delete_CLASS() wrappers.  This is another
+  incompatible change, but again easy to update for.
+
+* We now support PHP5 as well as PHP4, so the configure test now looks
+  for either and all references to "PHP4" or "php4" have been adjusted.
+
+* PHP5 supports exceptions, so throw exceptions under PHP5.  For PHP4
+  we now handle DocNotFoundError and FeatureUnavailableError by issuing a
+  warning and making the method return "Null".  This isn't ideal, but it's
+  the best we can easily do without proper exceptions.
+
+* For the smoketest, instead of using "$(PHP) -c $(srcdir)" and having an
+  empty php.ini in srcdir (which we were failing to distribute anyway), use
+  "$(PHP) -n" which tells PHP not to use any php.ini file.
+
+* Update PHP documentation to include new features.
+
+* Redo Xapian section in phpinfo() to look more like most other modules.
+
+* You can now construct a Query object from an array of strings or Query
+  objects (or even a mixture).
+
+* PHP examples now give a more useful error message if a database can't be
+  opened.
+
+* smoketest.php: Expanded the tests performed, including feature tests for
+  the new Query-from-list constuctor.
+
+* simplesearch.php: Use newly wrapped Query-from-list constructor.
+
+* Use std::string::data() instead of c_str() as it may be more efficient for
+  some STL implementations.
+
+* Enquire::get_matching_terms() now generates the PHP list directly from the
+  TermIterator rather than constructing a temporary C++ std::list, which is
+  faster and requires less temporary memory.
+
+Python:
+
+* The Python constructor xapian.Query(OP, LIST_OF_STRINGS [, PARAM]) works
+  once again (it has been broken since 0.9.0).  Added a regression test to
+  help keep this working.
+
+* Enhance the above constructor to accept any Python sequence (e.g. a tuple
+  instead of a list).  Also the sequence can contain xapian.Query objects or
+  strings or a mixture.  Documented these enhancements.
+
+* smoketest.py: Expanded the tests performed.
+
+* Convert C++ strings to python ones in a zero-byte clean way.
+
+* Added more error checking of the results of calls into the python
+  interpreter.
+
+* If using GCC, compile the python bindings with -fno-strict-aliasing (python
+  itself is compiled with this option to avoid problems and it appears we ought
+  to use it too to avoid the risk of hitting the same problems, although I'm
+  not aware of anyone actually encountering such problems).
+
+* When making xapian.pyc, "import _xapian;" before we "import xapian;" to
+  avoid creating a broken xapian.pyc is the shared library can't be loaded for
+  some reason.
+
+* Enquire::get_matching_terms() now generates the Python list directly from the
+  TermIterator rather than constructing a temporary C++ std::list, which is
+  faster and requires less temporary memory.
+
+Tcl:
+
+* Terms with a leading underscore now work (thanks to changes in SWIG).
+
+* Implement custom typemaps for Tcl, so that you can now construct a Query from
+  a list of Query objects and/or strings, and Enquire::get_matching_terms is
+  now wrapped.
+
+* simplesearch.tcl: Use the new Query from list constructor.
+
+* simplesearch.tcl: Fix to lowercase and stem query terms.
+
+* simpleindex.tcl: Tweak regex to not tokenise "foo--bar" as "foo-" and "bar".
+
+* simpleindex.tcl,simplesearch.tcl: Need explicit "xapian::" on constants.
+
+Xapian-bindings 0.9.2 (2005-07-15):
+
+General:
+
+* Added wrappers for new optional flags argument to QueryParser::parse_query().
+
+CSharp:
+
+* Enhance configure to check that "mcs" is actually GNU Mono mcs and not
+  another tool with the same name.
+
+Java:
+
+* Include SmokeTest.java in the distribution so "make check" works.
+
+* Added success report for Sun java 1.4.1_01a.
+
+Python:
+
+* When converting a python list to vector<string> we know the number of elements
+  so reserve that number in the vector.
+
+Xapian-bindings 0.9.1 (2005-06-06):
+
+General:
+
+* Releases are now created using libtool 1.5.18 and automake 1.9.5.
+
+Tcl:
+
+* Updated documentation to include information from Michael Schlenker about how
+  to delete a database object such that the destructor gets called.
+
+Xapian-bindings 0.9.0 (2005-05-13):
+
+General:
+
+* Updated SWIG-based bindings to latest Xapian API
+
+* Improve support for building the bindings on MS Windows:
+
+  + Provide stub versions of any backend functions which are disabled in the
+    library we're wrapping to avoid a link failure on MS Windows (where the
+    remote backend is automatically disabled).  These stubs just throw
+    Xapian::FeatureUnavailableError.
+
+  + Add -no-undefined to *_la_LDFLAGS.
+
+  + Use $(PATH_SEPARATOR) or Python's os.pathsep instead of ':' where
+    appropriate.
+
+  + For python, paths for finding headers and installing libraries are now
+    handled so they work on MS Windows; an extra static library needs to be
+    linked in too.
+
+* Wrap the Muscat36 Database factory functions (easy to do now we have stubs
+  for disabled backends).
+
+* Don't wrap MSet::max_size() as it's there for STL compatibility rather than
+  being useful functionality.
+
+* configure: Fix all SWIG warnings and pass -Werror to SWIG so any which get
+  introduced in future get fixed.
+
+* configure: Fix version test to allow for _svn6789 suffix which SVN snapshots
+  have.
+
+* Generate SWIG bindings with SWIG 1.3.24 (except for PHP which we still use
+  1.3.22 for as more recent versions don't work with methods with optional
+  arguments - the arguments become non-optional!)
+
+Guile:
+
+* configure: Disable guile by default, as it needs more work.
+
+Java:
+
+* Updated to compile against 0.9.0 API.
+
+* Added missing make rule to build SmokeTestWrap.class to "make check" works.
+
+* Wrap optional parameters to Query(term) constructor.
+
+PHP4:
+
+* For PHP4, rename default Database constructor to Database_empty
+  instead of suppressing the much more useful Database(const string &path)
+  constructor.
+
+* Use a blank config file when running PHP4 tests to avoid problems
+  when the bindings are already installed as an extension which is
+  loaded automatically in the default config.
+
+* configure.ac: If configure can't find the PHP interpreter (as php4 or php),
+  it probably just means it's not in PATH.  We only need it for running tests,
+  so substitute a trivial shell script which just exits with code 77 so PHP
+  tests are skipped (previously we substituted "missing" which caused the tests
+  to fail).
+
+Python:
+
+* Added Python-style iterators ESetIter, TermIter, PostingIter, PositionIter,
+  and ValueIter.
+
+* configure: If python is found, also check that Python.h exists (it may not be
+  if the python-dev package (or similar) isn't installed).
+
+Xapian-bindings 0.8.5.1 (2005-02-23):
+
+General:
+
+* configure: Run compiler feature tests using the C++ compiler, not the C
+  compiler.
+
+* Allow bindings version to have an extra "patchlevel", yet still match with
+  corresponding xapian-core version (e.g. 0.8.5.1 and 0.8.5);
+
+Java:
+
+* Added a missing .java source file and removed several unused ones.
+
+* Fixed several glitches in the java bindings automake build system.
+
+* Use "-Wno-unused" when compiling JNI C++ code to ignore harmless
+  warnings in generated code (we were carefully passing "-Wunused"
+  which is the opposite of what is needed!)
+
+* Fixed a couple of warnings from GCJ.
+
+* Wrapped a few missing methods added since Eric created the bindings.  There
+  are still some missing methods - there's now a (probably incomplete) list in
+  java/README.
+
+* Added various useful bits of information to java/README.
+
+* Tweaked SimpleSearch.java to be more like the C++ version.
+
+PHP4:
+
+* 0.8.5 was generated with SWIG 1.3.24, but PHP support is broken there so
+  we now generate the PHP bindings with SWIG 1.3.22 and everything else with
+  a more recent version.
+
+* configure: Check for "php" as a program name as well as "php4", and
+  fall-back to missing so the error message from "make check" is better.
+
+Xapian-bindings 0.8.5 (2004-12-23):
+
+General:
+
+* INSTALL: Added non-generic installation instructions.
+
+Python:
+
+* Fixed bytecode compilation of xapian.py.  xapian.pyc was being generated in
+  the same directory as xapian.py, but Makefile.am was looking in current
+  directory when installing it.  Additionally, VPATH builds were broken.
+  These problems were introduced by changes in 0.8.4.
+
+Xapian-bindings 0.8.4 (2004-12-08):
+
+General:
+
+* README: Now clearly says which languages we currently support, which people
+  are working on, etc.
+
+* Instead of requiring the user to have a really recent SWIG installed, ship
+  the files SWIG generates.  Disable all the SWIG rules unless configure is run
+  with --enable-maintainer-mode to make sure they aren't triggered accidentally
+  (e.g. by make with dodgy VPATH).
+
+* configure: Require SWIG 1.3.22 or higher (but note that SWIG is no longer
+  needed if you just want to install the bindings).
+
+* Wrap the new Database and WritableDatabase constructors which replace
+  Auto::open().
+
+* It turns out that we do need to wrap MSet::MSet() (wrapping removed in 0.8.2)
+  (for example, simpleexpand.py needs it).
+
+* In the Query constructor which takes a vector of terms, only call set_window
+  if window is non-zero.  Otherwise things go wrong if we're passed an empty
+  vector.
+
+* Second argument to Document::add_posting() isn't optional, but xapian.i
+  indicated that it was.
+
+* xapian.i: Added wrappers for Xapian::Weight and standard subclasses.
+  Deriving your own weight class in the scripting language isn't currently
+  supported.
+
+* xapian.i: %name is deprecated, so use %rename instead.  This also works
+  around a bug in SWIG 1.3.23.
+
+* configure: Removed pointless probe for a C compiler - everything we compile
+  is C++.
+
+* configure: Reinstated the check that the bindings version matches the version
+  of the xapian library.  It was added in 0.8.2, but accidentally removed in
+  0.8.3.
+
+* Use newly added option `xapian-config --swigflags` which (a) avoids always
+  passing -I/usr/include which could cause problems if we're using a Xapian
+  install not in /usr and there's another one in /usr and (b) avoids problems
+  if `xapian-config --cxxflags` contains flags other than -I<something>.
+
+CSharp:
+
+* Richard Boulton has put together bindings for C#.  These build successfully
+  with the Mono tools, but the smoketest currently fails.  Unclear if the
+  problem is the bindings or the smoketest code.
+
+Guile:
+
+* The guile bindings now build successfully, so we've enabled the guile
+  detection machinery in configure.  They're untested though (we don't
+  know guile!) so success or failure reports are encouraged!
+
+PHP4:
+
+* Mention the example scripts near the start of the documentation, not right at
+  the end.
+
+* Remove documentation explicitly saying how we wrap Xapian::QueryParser and
+  Xapian::Stem since we wrap them exactly as we wrap everything else we don't
+  mention!
+
+Python:
+
+* Make overloaded Query(Query::op, vector<string>*, termpos) constructor
+  work in Python.
+
+* Changed examples to use the newly wrapped Query from list of terms ctor.
+
+* Mention the example scripts near the start of the documentation, not right at
+  the end.
+
+* python/Makefile.am: Added xapian_wrap.h as a target for the rule which runs
+  SWIG.
+
+* Remove documentation explicitly saying how we wrap Xapian::QueryParser and
+  Xapian::Stem since we wrap them exactly as we wrap everything else we don't
+  mention!
+
+* Mention simpleexpand example in documentation.
+
+* Examples now report messages for Xapian exceptions.
+
+* Removed MAX_PROB_TERM_LENGTH from example scripts which don't use it.
+
+* Make the example MatchDecider exclude documents matching a value, rather than
+  a term.  The latter is a very inefficient way to do what AND_NOT does, and we
+  don't want examples to mislead like that.
+
+* python/docs/bindings.html: Note that you can construct a query
+  from a list of terms, even if you can't from a list of queries.
+  Add HTML links to the examples.
+
+* simpleindex.py: Trim spaces from the start as well as from the end of each
+  line.  Simplify the loop slightly.
+
+Tcl:
+
+* Wrap in a tcl8 namespace "Xapian".
+
+* Added a smoketest.
+
+* Translated simpleindex and simplesearch into Tcl.
+
+* Set the Tcl package version.
+
+* Create pkgIndex.tcl so the package can be loaded in the usual Tcl way.
+
+* Install in "xapian<VERSION>" directory in the conventional Tcl way.
+
+* Added documentation for tcl8 bindings.
+
+* Use the TCL_STUBS mechanism so that compiled extensions are portable between
+  different versions of Tcl.  This needs Tcl 8.1, so bump the required Tcl
+  version (was 8.0).
+
+* configure.ac: Noted that the bindings can easily be compiled for use with
+  Tcl 8.0, in case anybody needs that for some reason.
+
+* Don't wrap the factory functions which return a quartz WritableDatabase as
+  the destructor never gets called so changes aren't flushed and the lock file
+  isn't removed.
+
+Xapian-bindings 0.8.3 (2004-09-20):
+
+General:
+
+* Fixed mismatching versions of libtool used to produce configure and
+  ltmain.sh.  The obvious symptom was ".so" missing from the shared object
+  names.
+
+* RPM spec file contributed by Fabrice Colin.  Currently this packages Python,
+  PHP4, and Tcl bindings.
+
+Java:
+
+* Pass -classpath to javac to fix build problems.
+
+* Make sure errors subdirectory is built before we try to build the jar file.
+
+* Fixed "make install" to not give libtool error.
+
+PHP4:
+
+* Include PHP4 documentation and exmples in the tarball.
+
+* Reverted "Use special SWIG PHP ldflags when linking the PHP glue library."
+  change from 0.8.2 - it turns out we only need to pass these flags if we use
+  swig's -noruntime option (which we don't do).
+
+Python:
+
+* Use swig's -modern switch for Python 2.2 and up - it gives cleaner, leaner,
+  faster Python wrapper code.
+
+Tcl:
+
+* Don't install xapian.la.
+
+* Improved configure check for tcl.h to work with Fedora Core 2.
+
+Xapian-bindings 0.8.2 (2004-09-13):
+
+General:
+
+* Added wrappers for recently added methods: ESet::back() and
+  Database::get_lastdocid(), and wrap the new optional third parameter
+  to Enquire::set_sorting().
+
+* No longer wrap MSet::MSet() - it's not of use in scripting languages.
+
+* Wrap operator-- as prev() for MSetIterator and ESetIterator.
+
+* Wrap Quartz, InMemory, and Remote database factory functions as
+  quartz_open(), inmemory_open(), and remote_open().
+
+* Added missing wrappers for static Stem::get_available_languages() and
+  Stem::get_description().
+
+* Wrap renamed method Query::empty() (was Query::is_empty()).
+
+* Remove renaming of other empty() methods to is_empty() (but keep is_empty()
+  as an alias for now).
+
+* Require autoconf 2.59 and automake 1.8.5.
+
+* configure: Added check that the bindings version matches the version of
+  the xapian library.
+
+* configure: Check if we're using GCC and only pass GCC specific warning
+  control options if we are.
+
+* configure: When running with GCC, also pass -Wno-uninitialized so the
+  SWIG glue builds without warnings.
+
+* README: Updated list of languages which SWIG supports.
+
+PHP4:
+
+* Document that the 2 argument form of Xapian::Auto::open() for opening a
+  writable database is wrapped as open_writable() (bug #32).
+
+* Include Xapian version in output from phpinfo().
+
+* Build the SWIG glue library like we build the others rather than using
+  SWIG's -phpfull option.  This avoids problems with newer automake versions
+  and means we can build against an uninstalled xapian library.
+
+* Corrected documentation to refer to Xapian::DB_* not Xapian::Auto::DB_*.
+  Fixed documentation of how Xapian::Query::OP_* are wrapped.
+
+* Use special SWIG PHP ldflags when linking the PHP glue library.
+
+* simplesearch.py now works with multi-term queries.
+
+* Added documentation on how to install the PHP4 bindings.
+
+* Added a simple testcase to at least ensure the PHP4 bindings can be
+  initialised and some simple operations work.
+
+Python:
+
+* configure: Now checks for Python >= 2.1 which we need for __cmp__ and __eq__.
+
+* Don't install _xapian.la and _xapian.a.
+
+* Byte compile xapian.py to xapian.pyc and install it.
+
+* Suppress SWIG warning about MatchDecider::operator() director discarding
+  const.
+
+* "make clean" no longer leaves "xapian_wrap.h" behind.
+
+* Added a simple testcase to at least ensure the python bindings can be
+  initialised and some simple operations work.
+
+Tcl8:
+
+* configure: Disable building tcl8 bindings if the headers are missing
+  (probably because the tcl8.X-dev package isn't installed).
+
+Xapian-bindings 0.8.1 (2004-06-30):
+
+General:
+
+* configure: Require SWIG 1.3.20 or higher (previously was 1.3.14).
+
+* Add "-I/usr/include" to the swig line.  This is needed when xapian is
+  installed with a prefix of /usr, since "xapian-config --cxxflags" carefully
+  doesn't emit -I/usr/include in this situation (because it causes problems
+  with some GCC versions).
+
+* Fixed the %exception handler to cover all the exceptions Xapian can throw,
+  not just a subset.
+
+Java:
+
+* Removed wrappers for unused error classes which have been pruned from C++.
+
+* Make finalize() methods of Database and WritableDatabase public so they can
+  be called from by the user.
+
+* Document Document.add_term_nopos() as deprecated.
+
+PHP4:
+
+* Make sure that PHP bindings build a module which exports get_module() so PHP
+  is able to load it.
+
+* Configure now checks that phpize can actually be run, rather than just that
+  it's executable (test -x isn't portable anyhow).
+
+* Added basic documentation and examples to PHP4 bindings.
+
+* Rename overloaded methods and constructors.
+
+* Add simple access to the prefixes map in QueryParser.
+
+* Correct simpleindex ports to never generate empty termnames.
+
+Python:
+
+* configure: Use $PYTHON instead of python when running python to determine
+  library and include paths and version number.
+
+* Actually ship python examples and documentation.
+
+Xapian-bindings 0.8.0 (2004-04-20):
+
+* README: Started collecting information on supporting Xapian from even
+  more languages.
+
+* Added configure tests to enable bindings only where the necessary tools
+  are installed and have a supported version.  ./configure --without-LANGUAGE
+  allows particular languages to be forcibly disabled.
+
+* Added Xapian::Document::add_term() - the new name for add_term_nopos().
+
+* A couple of Xapian::Query constructors weren't being wrapped - fixed.
+
+* Added Eric B. Ridge's JNI bindings for Java.  The JNI bindings themselves
+  have been well tested, but integration with the xapian-bindings configure
+  system hasn't been tested at all - please alert us to any problems.
+
+* Xapian can now be used from TCL.
+
+* Python: MSet now provides a Python iterator.
+
+* Python: OMMSET_* and OMESET_* renamed to MSET_* and ESET_*.
+
+* Python: enable directors for MatchDecider, to allow subclassing in Python.
+
+* Python: Added basic documentation, and some examples.

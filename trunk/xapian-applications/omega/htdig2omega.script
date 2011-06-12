@@ -1,0 +1,6 @@
+url : field=url hash boolean=Q unique=Q
+caption : weight=3 index truncate=80 field=caption
+lastmod : field=lastmod
+size : field=size
+text : index truncate=200 field=sample
+metadesc : index
