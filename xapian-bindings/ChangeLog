@@ -1,3 +1,8 @@
+Sun Jun 12 23:34:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: The SWIG upgrade means we now have xapian_wrap.h as
+	  well as xapian_wrap.cc.  Really the final update for 1.2.6.
+
 Sun Jun 12 13:06:16 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Lua's _VERSION reports "Lua 5.0.3" for Lua 5.0.3, so

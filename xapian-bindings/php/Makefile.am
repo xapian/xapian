@@ -13,7 +13,11 @@ TESTS_ENVIRONMENT = $(PHP) -n -d safe_mode=off -d enable_dl=on -d extension_dir=
 ## Test programs to be run
 TESTS = smoketest.php
 
-BUILT_SOURCES = php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php
+BUILT_SOURCES =\
+	php5/xapian_wrap.cc\
+	php5/xapian_wrap.h\
+	php5/php_xapian.h\
+	php5/xapian.php
 
 EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES)
 
@@ -42,7 +46,7 @@ uninstall-local:
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-xapian_la_SOURCES = php5/xapian_wrap.cc
+xapian_la_SOURCES = php5/xapian_wrap.cc php5/xapian_wrap.h
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
 if MAINTAINER_MODE
@@ -50,7 +54,7 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
+php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
 php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	-test -d php5 || mkdir php5
