@@ -1,7 +1,4 @@
- 15570       olly Fri Jun 10 09:05:38 GMT 2011  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.6 (2011-06-10):
-
+Xapian-core 1.2.6 (2011-06-12):
 
 API:
 
@@ -40,15 +37,6 @@ flint backend:
 * Kill the child process which holds the lock with SIGKILL as that can't be
   ignored, whereas SIGHUP can be in some cases.
 
-remote backend:
-
-
-inmemory backend:
-
-
-build system:
-
-
 documentation:
 
 * The HTML documentation is now maintained in reStructured Text format.
@@ -68,9 +56,6 @@ documentation:
 
 * Assorted minor improvements.
 
-tools:
-
-
 examples:
 
 * examples/delve: Report has_positions().
@@ -80,12 +65,6 @@ examples:
 portability:
 
 * Fix to build for mingw.
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.2.5 (2011-04-04):
 
