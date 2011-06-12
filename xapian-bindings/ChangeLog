@@ -1,3 +1,8 @@
+Sun Jun 12 13:06:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Lua's _VERSION reports "Lua 5.0.3" for Lua 5.0.3, so
+	  add '|5.0.*' to the pattern since '5.0' won't match.
+
 Sun Jun 12 11:47:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.2.6.
