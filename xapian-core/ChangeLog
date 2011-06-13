@@ -1,3 +1,11 @@
+Mon Jun 13 05:46:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,tests/Makefile.am: Just use a GNU-make-specific pattern
+	  rules to forward check-* targets from the top level to the tests
+	  subdirectory.  It's clear we aren't keeping the explicit list of
+	  target forwarding rules up to date, and this is just a convenience
+	  so not worth a lot of maintenance effort.
+
 Mon Jun 13 05:01:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update version to 1.3.0 and add -1.3 suffix for

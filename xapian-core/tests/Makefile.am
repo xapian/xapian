@@ -22,11 +22,12 @@ libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-        check-multi check-multi-brass check-multi-chert check-multi-flint \
-        check-remote check-remoteprog check-remotetcp \
+	check-brass check-chert check-flint \
+	check-multi check-multi-brass check-multi-chert check-multi-flint \
+	check-remote check-remoteprog check-remotetcp \
 	check-remoteprog-brass check-remoteprog-chert check-remoteprog-flint\
 	check-remotetcp-brass check-remotetcp-chert check-remotetcp-flint\
-	check-brass check-chert check-flint up remove-cached-databases
+	up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)

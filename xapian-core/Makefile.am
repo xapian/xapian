@@ -32,57 +32,24 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
-.PHONY: check-none check-inmemory check-multi \
-        check-remote check-remoteprog check-remotetcp \
-        check-chert check-flint check-perftest \
+.PHONY: check-none check-inmemory \
+	check-brass check-chert check-flint \
+	check-multi check-multi-brass check-multi-chert check-multi-flint \
+	check-remote check-remoteprog check-remotetcp \
+	check-remoteprog-brass check-remoteprog-chert check-remoteprog-flint\
+	check-remotetcp-brass check-remotetcp-chert check-remotetcp-flint\
+	check-perf check-soak \
 	coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 
-check-none:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
-
-check-inmemory:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-inmemory
-
-check-multi:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi
-
-if BUILD_BACKEND_REMOTE
-check-remote:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remote
-check-remoteprog:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
-check-remotetcp:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
-if BUILD_BACKEND_CHERT
-check-remoteprog-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-chert
-check-remotetcp-chert: apitest$(EXEEXT)
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-chert
-endif
-if BUILD_BACKEND_FLINT
-check-remoteprog-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-flint
-check-remotetcp-flint: apitest$(EXEEXT)
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-flint
-endif
-endif
-
-if BUILD_BACKEND_CHERT
-check-multi-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-chert
-check-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
-endif
-
-if BUILD_BACKEND_FLINT
-check-multi-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-flint
-check-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
-endif
-
-check-perf:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
+# This relies on GNU make (for the pattern rule) but it's just a convenience
+# as you can run these check-* targets with any make using:
+#
+#   cd tests ; make check-FOO
+#
+# So the pain of maintaining a huge list of target forwarding rules here isn't
+# worth it.
+check-%:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-%
 
 ## --disable-shared as shared builds fail for me on x86-64 Debian etch.
 ## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
