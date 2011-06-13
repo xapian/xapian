@@ -1,3 +1,7 @@
+Mon Jun 13 12:30:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Avoid unnecessary temporary string object.
+
 Mon Jun 13 12:24:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Remove error warning that index=nopos was replaced
