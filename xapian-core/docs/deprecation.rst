@@ -239,9 +239,6 @@ Deprecated Remove Language Feature name                 Upgrade suggestion and c
 ========== ====== ======== ============================ ======================================================================
 1.0.4      1.3.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.1.0      1.3.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
-                                                        function)
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.2.5      1.5.0  Python   MSet.items                   Iterate the MSet object itself instead.
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.2.5      1.5.0  Python   ESet.items                   Iterate the ESet object itself instead.
@@ -525,6 +522,8 @@ Removed Language Feature name                 Upgrade suggestion and comments
                                               to have noticed in 3.5 years, we just removed it.  If you have uses (which were
                                               presumably never called), you can replace them with:
                                               ``if idx >= 0 and idx < len(mset)``
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.3.0   Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of function)
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
