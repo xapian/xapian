@@ -23,7 +23,8 @@ use exception_data;
 my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter
+    MatchDecider ExpandDecider Stopper ValueRangeProcessor KeyMaker
+    StemImplementation Compactor MatchSpy
 );
 
 my @posting_source_virtual_methods = qw(

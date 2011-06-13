@@ -39,7 +39,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	MSet.java\
 	MSetIterator.java\
 	MultiValueKeyMaker.java\
-	MultiValueSorter.java\
 	NumberValueRangeProcessor.java\
 	PositionIterator.java\
 	PostingIterator.java\
@@ -50,7 +49,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Remote.java\
 	RSet.java\
 	SimpleStopper.java\
-	Sorter.java\
 	Stem.java\
 	StemImplementation.java\
 	Stopper.java\

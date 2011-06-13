@@ -30,7 +30,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	MSet.cs \
 	MSetIterator.cs \
 	MultiValueKeyMaker.cs \
-	MultiValueSorter.cs \
 	NumberValueRangeProcessor.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
@@ -44,7 +43,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
 	Registry.cs \
 	SimpleStopper.cs \
-	Sorter.cs \
 	Stem.cs \
 	StemImplementation.cs \
 	Stopper.cs \
