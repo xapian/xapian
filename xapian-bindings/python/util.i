@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -42,8 +42,42 @@
 %rename(__str__) get_description;
 
 /* Hide "unsafe" C++ iterator methods. */
+%rename(_allterms_begin) Xapian::Database::allterms_begin;
+%rename(_allterms_end) Xapian::Database::allterms_end;
 %rename(_metadata_keys_begin) Xapian::Database::metadata_keys_begin;
 %rename(_metadata_keys_end) Xapian::Database::metadata_keys_end;
+%rename(_synonym_keys_begin) Xapian::Database::synonym_keys_begin;
+%rename(_synonym_keys_end) Xapian::Database::synonym_keys_end;
+%rename(_synonyms_begin) Xapian::Database::synonyms_begin;
+%rename(_synonyms_end) Xapian::Database::synonyms_end;
+%rename(_spellings_begin) Xapian::Database::spellings_begin;
+%rename(_spellings_end) Xapian::Database::spellings_end;
+%rename(_positionlist_begin) Xapian::Database::positionlist_begin;
+%rename(_positionlist_end) Xapian::Database::positionlist_end;
+%rename(_postlist_begin) Xapian::Database::postlist_begin;
+%rename(_postlist_end) Xapian::Database::postlist_end;
+%rename(_termlist_begin) Xapian::Database::termlist_begin;
+%rename(_termlist_end) Xapian::Database::termlist_end;
+%rename(_termlist_begin) Xapian::Document::termlist_begin;
+%rename(_termlist_end) Xapian::Document::termlist_end;
+%rename(_values_begin) Xapian::Document::values_begin;
+%rename(_values_end) Xapian::Document::values_end;
+%rename(_get_matching_terms_begin) Xapian::Enquire::get_matching_terms_begin;
+%rename(_get_matching_terms_end) Xapian::Enquire::get_matching_terms_end;
+%rename(_begin) Xapian::ESet::begin;
+%rename(_end) Xapian::ESet::end;
+%rename(_begin) Xapian::MSet::begin;
+%rename(_end) Xapian::MSet::end;
+%rename(_positionlist_begin) Xapian::PostingIterator::positionlist_begin;
+%rename(_positionlist_end) Xapian::PostingIterator::positionlist_end;
+%rename(_get_terms_begin) Xapian::Query::get_terms_begin;
+%rename(_get_terms_end) Xapian::Query::get_terms_end;
+%rename(_stoplist_begin) Xapian::QueryParser::stoplist_begin;
+%rename(_stoplist_end) Xapian::QueryParser::stoplist_end;
+%rename(_unstem_begin) Xapian::QueryParser::unstem_begin;
+%rename(_unstem_end) Xapian::QueryParser::unstem_end;
+%rename(_positionlist_begin) Xapian::TermIterator::positionlist_begin;
+%rename(_positionlist_end) Xapian::TermIterator::positionlist_end;
 
 /* We replace the get_hit() method with one which returns an MSetitem. */
 %rename(_get_hit_internal) Xapian::MSet::get_hit;
@@ -247,6 +281,7 @@ namespace Xapian {
 	    return (*self)!=other;
 	}
     }
+    %rename(_TermIterator) TermIterator;
 
     %extend PositionIterator {
 	bool __eq__(const PositionIterator &other) {
@@ -256,6 +291,7 @@ namespace Xapian {
 	    return (*self)!=other;
 	}
     }
+    %rename(_PositionIterator) PositionIterator;
 
     %extend PostingIterator {
 	bool __eq__(const PostingIterator &other) {
@@ -265,6 +301,7 @@ namespace Xapian {
 	    return (*self)!=other;
 	}
     }
+    %rename(_PostingIterator) PostingIterator;
 
     %extend ValueIterator {
 	bool __eq__(const ValueIterator &other) {
@@ -274,6 +311,7 @@ namespace Xapian {
 	    return (*self)!=other;
 	}
     }
+    %rename(_ValueIterator) ValueIterator;
 
     %extend MSetIterator {
 	bool __eq__(const MSetIterator &other) {
@@ -283,6 +321,7 @@ namespace Xapian {
 	    return (*self)!=other;
 	}
     }
+    %rename(_MSetIterator) MSetIterator;
 
     %extend ESetIterator {
 	bool __eq__(const ESetIterator &other) {
@@ -292,6 +331,7 @@ namespace Xapian {
 	    return (*self)!=other;
 	}
     }
+    %rename(_ESetIterator) ESetIterator;
 
     %extend MSet {
 	%immutable;

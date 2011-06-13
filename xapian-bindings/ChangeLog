@@ -1,3 +1,12 @@
+Mon Jun 13 11:43:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Hide away the deprecated non-pythonic
+	  iterators - we still need them to implement the pythonic iterators,
+	  so we can't entirely remove them.
+	* python/pythontest2.py: Check that the deprecated methods are no
+	  longer accessible (not all methods are checked).
+	* docs/index.html: Update documentation to say they've been removed.
+
 Mon Jun 13 10:35:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Remove deprecated Stem_get_available_languages().

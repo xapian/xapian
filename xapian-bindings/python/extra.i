@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -97,8 +97,8 @@ class MSetIter(object):
     """
     __slots__ = ('_iter', '_end', '_mset')
     def __init__(self, mset):
-        self._iter = mset.begin()
-        self._end = mset.end()
+        self._iter = mset._begin()
+        self._end = mset._end()
         self._mset = mset
 
     def __iter__(self):
@@ -183,8 +183,8 @@ class ESetIter(object):
     """
     __slots__ = ('_iter', '_end')
     def __init__(self, eset):
-        self._iter = eset.begin()
-        self._end = eset.end()
+        self._iter = eset._begin()
+        self._end = eset._end()
 
     def __iter__(self):
         return self
@@ -329,8 +329,8 @@ class TermListItem(object):
         # _has_positions.
         if self.term is not self._iter._lastterm:
             raise InvalidOperationError("Iterator has moved, and does not support random access")
-        return PositionIter(self._iter._iter.positionlist_begin(),
-                            self._iter._iter.positionlist_end())
+        return PositionIter(self._iter._iter._positionlist_begin(),
+                            self._iter._iter._positionlist_end())
     positer = property(_get_positer, doc=
     """A position iterator for the current term (if meaningful).
 
@@ -458,8 +458,8 @@ def _enquire_gen_iter(self, which):
     """
     if isinstance(which, MSetItem):
         which = which.docid
-    return TermIter(self.get_matching_terms_begin(which),
-                    self.get_matching_terms_end(which),
+    return TermIter(self._get_matching_terms_begin(which),
+                    self._get_matching_terms_end(which),
                     return_strings=True)
 Enquire.matching_terms = _enquire_gen_iter
 
@@ -470,8 +470,8 @@ def _query_gen_iter(self):
     The iterator will return string objects.
 
     """
-    return TermIter(self.get_terms_begin(),
-                    self.get_terms_end(),
+    return TermIter(self._get_terms_begin(),
+                    self._get_terms_end(),
                     return_strings=True)
 Query.__iter__ = _query_gen_iter
 
@@ -490,10 +490,10 @@ def _database_gen_allterms_iter(self, prefix=None):
 
     """
     if prefix is None:
-        return TermIter(self.allterms_begin(), self.allterms_end(),
+        return TermIter(self._allterms_begin(), self._allterms_end(),
                         has_termfreq=TermIter.LAZY)
     else:
-        return TermIter(self.allterms_begin(prefix), self.allterms_end(prefix),
+        return TermIter(self._allterms_begin(prefix), self._allterms_end(prefix),
                         has_termfreq=TermIter.LAZY)
 Database.__iter__ = _database_gen_allterms_iter
 Database.allterms = _database_gen_allterms_iter
@@ -512,7 +512,7 @@ def _database_gen_termlist_iter(self, docid):
     # frequencies in the termlist (because this would require updating many termlist
     # entries for every document update), so access to the term frequency requires a
     # separate lookup.
-    return TermIter(self.termlist_begin(docid), self.termlist_end(docid),
+    return TermIter(self._termlist_begin(docid), self._termlist_end(docid),
                     has_termfreq=TermIter.LAZY,
                     has_wdf=TermIter.EAGER,
                     has_positions=TermIter.LAZY)
@@ -526,7 +526,7 @@ def _database_gen_spellings_iter(self):
     available; wdf and positions are not meaningful.
 
     """
-    return TermIter(self.spellings_begin(), self.spellings_end(),
+    return TermIter(self._spellings_begin(), self._spellings_end(),
                     has_termfreq=TermIter.EAGER,
                     has_wdf=TermIter.INVALID,
                     has_positions=TermIter.INVALID)
@@ -541,8 +541,8 @@ def _database_gen_synonyms_iter(self, term):
     The iterator will return string objects.
 
     """
-    return TermIter(self.synonyms_begin(term),
-                    self.synonyms_end(term),
+    return TermIter(self._synonyms_begin(term),
+                    self._synonyms_end(term),
                     return_strings=True)
 Database.synonyms = _database_gen_synonyms_iter
 
@@ -555,8 +555,8 @@ def _database_gen_synonym_keys_iter(self, prefix=""):
     If `prefix` is non-empty, only terms with this prefix are returned.
 
     """
-    return TermIter(self.synonym_keys_begin(prefix),
-                    self.synonym_keys_end(prefix),
+    return TermIter(self._synonym_keys_begin(prefix),
+                    self._synonym_keys_end(prefix),
                     return_strings=True)
 Database.synonym_keys = _database_gen_synonym_keys_iter
 
@@ -596,7 +596,7 @@ def _document_gen_termlist_iter(self):
     # are stored in a database, rather than freshly created).  We choose the
     # most conservative settings, to avoid doing eager access when lazy access
     # would be more appropriate.
-    return TermIter(self.termlist_begin(), self.termlist_end(),
+    return TermIter(self._termlist_begin(), self._termlist_end(),
                     has_termfreq=TermIter.LAZY,
                     has_wdf=TermIter.EAGER,
                     has_positions=TermIter.LAZY)
@@ -615,7 +615,7 @@ def _queryparser_gen_stoplist_iter(self):
     The iterator will return string objects.
 
     """
-    return TermIter(self.stoplist_begin(), self.stoplist_end(),
+    return TermIter(self._stoplist_begin(), self._stoplist_end(),
                     return_strings=True)
 QueryParser.stoplist = _queryparser_gen_stoplist_iter
 
@@ -632,7 +632,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     The iterator will return string objects.
 
     """
-    return TermIter(self.unstem_begin(tname), self.unstem_end(tname),
+    return TermIter(self._unstem_begin(tname), self._unstem_end(tname),
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
@@ -895,8 +895,8 @@ class PostingItem(object):
         if self._iter._iter == self._iter._end or \
            self.docid != self._iter._iter.get_docid():
             raise InvalidOperationError("Iterator has moved, and does not support random access")
-        return PositionIter(self._iter._iter.positionlist_begin(),
-                            self._iter._iter.positionlist_end())
+        return PositionIter(self._iter._iter._positionlist_begin(),
+                            self._iter._iter._positionlist_end())
     positer = property(_get_positer, doc=
     """A position iterator for the current posting (if meaningful).
 
@@ -988,10 +988,10 @@ def _database_gen_postlist_iter(self, tname):
 
     """
     if len(tname) != 0:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname),
+        return PostingIter(self._postlist_begin(tname), self._postlist_end(tname),
                            has_positions=True)
     else:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
+        return PostingIter(self._postlist_begin(tname), self._postlist_end(tname))
 Database.postlist = _database_gen_postlist_iter
 
 
@@ -1037,7 +1037,7 @@ def _database_gen_positionlist_iter(self, docid, tname):
     The iterator will return integers, in ascending order.
 
     """
-    return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
+    return PositionIter(self._positionlist_begin(docid, tname), self._positionlist_end(docid, tname))
 Database.positionlist = _database_gen_positionlist_iter
 
 ########################################
@@ -1098,7 +1098,7 @@ def _document_gen_values_iter(self):
     The iterator will return ValueItem objects, in ascending order of value number.
 
     """
-    return ValueIter(self.values_begin(), self.values_end())
+    return ValueIter(self._values_begin(), self._values_end())
 Document.values = _document_gen_values_iter
 
 
@@ -1240,15 +1240,6 @@ del Stem_get_available_languages
 # Add wrappers for Query::MatchAll and Query::MatchNothing
 Query.MatchAll = Query("")
 Query.MatchNothing = Query()
-
-# Require to support the non-pythonic iterators for Python 3 - these can be
-# removed once support for the non-pythonic iterators is dropped in 1.3.0.
-ESetIterator.__next__ = lambda self: ESetIterator.next(self)
-MSetIterator.__next__ = lambda self: MSetIterator.next(self)
-PostingIterator.__next__ = lambda self: PostingIterator.next(self)
-PositionIterator.__next__ = lambda self: PositionIterator.next(self)
-TermIterator.__next__ = lambda self: TermIterator.next(self)
-ValueIterator.__next__ = lambda self: ValueIterator.next(self)
 
 
 # Set the list of names which should be public.

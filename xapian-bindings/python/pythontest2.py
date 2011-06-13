@@ -1570,10 +1570,76 @@ def test_custom_matchspy():
 
 def test_removed_features():
     ok = True
+    db = xapian.Database()
+
     try:
         xapian.Stem_get_available_languages()
         ok = False
-    except Exception:
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.allterms_begin()
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.metadata_keys_begin()
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.synonym_keys_begin()
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.synonyms_begin()
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.spellings_begin()
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.positionlist_begin(1, "foo")
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.postlist_begin("foo")
+        ok = False
+    except AttributeError:
+        pass
+    if not ok:
+        expect(True, False)
+
+    try:
+        db.termlist_begin()
+        ok = False
+    except AttributeError:
         pass
     if not ok:
         expect(True, False)
