@@ -407,8 +407,7 @@ class Enquire {
 		  doccount maxitems,
 		  doccount checkatleast = 0,
 		  const RSet * omrset = 0,
-		  const MatchDecider * mdecider = 0,
-		  const MatchDecider * matchspy =0) const;
+		  const MatchDecider * mdecider = 0) const;
     MSet get_mset(doccount first,
 		  doccount maxitems,
 		  const RSet *omrset,

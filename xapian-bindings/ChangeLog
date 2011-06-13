@@ -1,3 +1,8 @@
+Mon Jun 13 16:43:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/sorter.t,php/smoketest.php,python/pythontest2.py,xapian.i:
+	  Update in line with the removed deprecations from xapian-core.
+
 Mon Jun 13 13:37:48 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* python/extra.i: Change function names defined inside wrapper()

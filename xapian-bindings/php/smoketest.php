@@ -216,7 +216,7 @@ if ($query4->get_description() != "Xapian::Query(5 * foo)") {
     exit(1);
 }
 
-# Test MultiValueSorter.
+# Test MultiValueKeyMaker.
 
 $doc = new XapianDocument();
 $doc->add_term("foo");
@@ -235,53 +235,53 @@ $enquire = new XapianEnquire($db2);
 $enquire->set_query(new XapianQuery("foo"));
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0, false);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0, true);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0);
-    $sorter->add(1);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0);
+    $sorter->add_value(1);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0, false);
-    $sorter->add(1);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0, true);
+    $sorter->add_value(1);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0);
-    $sorter->add(1, false);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0);
+    $sorter->add_value(1, true);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0, false);
-    $sorter->add(1, false);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0, true);
+    $sorter->add_value(1, true);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }

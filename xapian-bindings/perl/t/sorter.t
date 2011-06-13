@@ -47,54 +47,54 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
 
 {
     {
-	my $sorter = Search::Xapian::MultiValueSorter->new();
-	$sorter->add(0);
-	$enquire->set_sort_by_key($sorter);
+	my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+	$sorter->add_value(0);
+	$enquire->set_sort_by_key($sorter, 1);
     }
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueSorter->new();
-    $sorter->add(0, 0);
-    $enquire->set_sort_by_key($sorter);
+    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    $sorter->add_value(0, 1);
+    $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueSorter->new();
-    $sorter->add(0);
-    $sorter->add(1);
-    $enquire->set_sort_by_key($sorter);
+    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    $sorter->add_value(0);
+    $sorter->add_value(1);
+    $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueSorter->new();
-    $sorter->add(0, 0);
-    $sorter->add(1);
-    $enquire->set_sort_by_key($sorter);
+    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    $sorter->add_value(0, 1);
+    $sorter->add_value(1);
+    $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueSorter->new();
-    $sorter->add(0);
-    $sorter->add(1, 0);
-    $enquire->set_sort_by_key($sorter);
+    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    $sorter->add_value(0);
+    $sorter->add_value(1, 1);
+    $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueSorter->new();
-    $sorter->add(0, 0);
-    $sorter->add(1, 0);
-    $enquire->set_sort_by_key($sorter);
+    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    $sorter->add_value(0, 1);
+    $sorter->add_value(1, 1);
+    $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
