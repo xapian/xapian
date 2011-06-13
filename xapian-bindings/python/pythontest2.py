@@ -1572,77 +1572,18 @@ def test_removed_features():
     ok = True
     db = xapian.Database()
 
-    try:
-        xapian.Stem_get_available_languages()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
+    def check_missing(obj, attr):
+        expect_exception(AttributeError, None, getattr, obj, attr)
 
-    try:
-        db.allterms_begin()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.metadata_keys_begin()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.synonym_keys_begin()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.synonyms_begin()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.spellings_begin()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.positionlist_begin(1, "foo")
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.postlist_begin("foo")
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
-
-    try:
-        db.termlist_begin()
-        ok = False
-    except AttributeError:
-        pass
-    if not ok:
-        expect(True, False)
+    check_missing(xapian, 'Stem_get_available_languages')
+    check_missing(db, 'allterms_begin')
+    check_missing(db, 'metadata_keys_begin')
+    check_missing(db, 'synonym_keys_begin')
+    check_missing(db, 'synonyms_begin')
+    check_missing(db, 'spellings_begin')
+    check_missing(db, 'positionlist_begin')
+    check_missing(db, 'postlist_begin')
+    check_missing(db, 'termlist_begin')
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

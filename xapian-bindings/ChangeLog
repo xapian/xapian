@@ -1,3 +1,8 @@
+Mon Jun 13 12:50:39 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py: Change checks for removed attributes to
+	  use a neater approach.
+
 Mon Jun 13 12:48:00 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* python/testsuite2.py: Add support to expect_exception for passing
