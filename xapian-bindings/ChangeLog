@@ -1,3 +1,9 @@
+Mon Jun 13 12:48:00 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/testsuite2.py: Add support to expect_exception for passing
+	  None as the message, to skip checking the message for the raised
+	  exception.  Add documentation comment describing the parameters.
+
 Mon Jun 13 12:37:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian.i: Remove deprecated Enquire::set_sort_by_* methods.

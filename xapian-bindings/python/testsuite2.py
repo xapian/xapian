@@ -106,6 +106,15 @@ class TestRunner(object):
             self._out.flush()
 
     def expect_exception(self, expectedclass, expectedmsg, callable, *args):
+        """Check that an exception is raised.
+
+         - expectedclass is the class of the exception to check for.
+         - expectedmsg is the message to check for, or None to skip checking
+           the message.
+         - callable is the thing to call.
+         - args are the arguments to pass to it.
+
+        """
         if self._verbose > 2:
             self._out.start_line()
             self._out.write("Checking for exception: %s(%r) ... " % (str(expectedclass), expectedmsg))
@@ -117,7 +126,7 @@ class TestRunner(object):
                 self._out.flush()
             raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
         except expectedclass, e:
-            if str(e) != expectedmsg:
+            if expectedmsg is not None and str(e) != expectedmsg:
                 if self._verbose > 2:
                     self._out.write_colour(" #red#failed##")
                     self._out.write(": exception string not as expected: got '%s'\n" % str(e))
