@@ -218,21 +218,12 @@ DEFINE_TESTCASE(matchdecider4, remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
 
-    MyMatchDecider mdecider, mspyold;
+    MyMatchDecider mdecider;
     Xapian::MSet mset;
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, NULL, &mdecider));
     TEST(!mdecider.called);
-
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-	mset = enquire.get_mset(0, 10, 0, NULL, NULL, &mspyold));
-    TEST(!mspyold.called);
-
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-	mset = enquire.get_mset(0, 10, 0, NULL, &mdecider, &mspyold));
-    TEST(!mdecider.called);
-    TEST(!mspyold.called);
 
     return true;
 }

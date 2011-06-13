@@ -201,8 +201,6 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.1.3      1.3.0  ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method
-                  ``Enquire::get_mset()``             instead.
 ========== ====== =================================== ========================================================================
 
 Bindings
@@ -419,6 +417,9 @@ Removed Feature name                        Upgrade suggestion and comments
                                                 sorter.add_value(4);
                                                 // Secondary ordering is reverse on value 5.
                                                 sorter.add_value(5, true);
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method instead.
+        ``Enquire::get_mset()``
 ======= =================================== ==================================================================================
 
 

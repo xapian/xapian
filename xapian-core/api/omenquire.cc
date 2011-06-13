@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -639,10 +639,9 @@ Enquire::Internal::get_query()
 MSet
 Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least, const RSet *rset,
-			    const MatchDecider *mdecider,
-			    const MatchDecider *matchspy_legacy) const
+			    const MatchDecider *mdecider) const
 {
-    LOGCALL(MATCH, MSet, "Enquire::Internal::get_mset", first | maxitems | check_at_least | rset | mdecider | matchspy_legacy);
+    LOGCALL(MATCH, MSet, "Enquire::Internal::get_mset", first | maxitems | check_at_least | rset | mdecider);
 
     if (percent_cutoff && (sort_by == VAL || sort_by == VAL_REL)) {
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while sorting primary by value isn't currently supported");
@@ -668,11 +667,11 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       order, sort_key, sort_by, sort_value_forward,
 		       errorhandler, stats, weight, spies,
 		       (sorter != NULL),
-		       (mdecider != NULL || matchspy_legacy != NULL));
+		       (mdecider != NULL));
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   stats, mdecider, matchspy_legacy, sorter);
+		   stats, mdecider, sorter);
     if (first_orig != first && retval.internal.get()) {
 	retval.internal->firstitem = first_orig;
     }
@@ -1007,30 +1006,13 @@ Enquire::set_sort_by_relevance_then_key(KeyMaker * sorter, bool ascending)
 MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
-		  const MatchDecider *mdecider,
-		  const MatchDecider *matchspy) const
-{
-    LOGCALL(API, Xapian::MSet, "Xapian::Enquire::get_mset", first | maxitems | check_at_least | rset | mdecider | matchspy);
-
-    try {
-	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  mdecider, matchspy));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
-}
-
-MSet
-Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider) const
 {
     LOGCALL(API, Xapian::MSet, "Xapian::Enquire::get_mset", first | maxitems | check_at_least | rset | mdecider);
 
     try {
 	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  mdecider, NULL));
+				  mdecider));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
