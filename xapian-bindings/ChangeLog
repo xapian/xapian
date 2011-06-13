@@ -1,3 +1,10 @@
+Mon Jun 13 13:37:48 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Change function names defined inside wrapper()
+	  closures to match the name which the result of the closure will
+	  be assigned to, so that help text for the functions displays the
+	  correct function name.
+
 Mon Jun 13 13:15:00 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* python/pythontest2.py: Extend coverage of tests of removed features.

@@ -642,7 +642,7 @@ def wrapper():
     del ValueCountMatchSpy.values_begin
     end = ValueCountMatchSpy.values_end
     del ValueCountMatchSpy.values_end
-    def values_iter(self):
+    def values(self):
         """Get an iterator over all the values in the slot.
 
         Values will be returned in ascending alphabetical order.
@@ -653,7 +653,7 @@ def wrapper():
 
         """
         return TermIter(begin(self), end(self), has_termfreq=TermIter.EAGER)
-    return values_iter
+    return values
 ValueCountMatchSpy.values = wrapper()
 del wrapper
 
@@ -663,7 +663,7 @@ def wrapper():
     del ValueCountMatchSpy.top_values_begin
     end = ValueCountMatchSpy.top_values_end
     del ValueCountMatchSpy.top_values_end
-    def top_values_iter(self, maxvalues):
+    def top_values(self, maxvalues):
         """Get an iterator over the most frequent values for the slot.
 
         Values will be returned in descending order of frequency.  Values with
@@ -676,7 +676,7 @@ def wrapper():
         """
         return TermIter(begin(self, maxvalues), end(self, maxvalues),
                         has_termfreq=TermIter.EAGER)
-    return top_values_iter
+    return top_values
 ValueCountMatchSpy.top_values = wrapper()
 del wrapper
 
@@ -1129,8 +1129,10 @@ class ValueStreamIter(object):
 # valuestream_begin() and valuestream_end() methods.
 def wrapper():
     vs_begin = Database.valuestream_begin
+    del Database.valuestream_begin
     vs_end = Database.valuestream_end
-    def _database_gen_valuestream_iter(self, slot):
+    del Database.valuestream_end
+    def valuestream(self, slot):
         """Get an iterator over all the values stored in a slot in the database.
 
         The iterator will return ValueStreamItem objects, in ascending order of
@@ -1138,11 +1140,9 @@ def wrapper():
 
         """
         return ValueStreamIter(vs_begin(self, slot), vs_end(self, slot))
-    return _database_gen_valuestream_iter
+    return valuestream
 Database.valuestream = wrapper()
 del wrapper
-del Database.valuestream_begin
-del Database.valuestream_end
 
 # Fix up Enquire so that it keeps a python reference to the deciders supplied
 # to it so that they won't be deleted before the Enquire object.  This hack can
