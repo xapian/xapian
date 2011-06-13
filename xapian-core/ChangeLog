@@ -1,3 +1,9 @@
+Mon Jun 13 04:56:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* unicode/tclUniData.cc: Upgrade to Unicode 6.0.0 (ticket#497).
+	* tests/api_unicode.cc: Extend testcases to check for assorted changes
+	  and additions in Unicode 6.0.0.
+
 Sun Jun 12 11:54:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.2.6.
