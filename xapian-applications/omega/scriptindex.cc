@@ -302,18 +302,6 @@ parse_index_script(const string &filename)
 		}
 		switch (code) {
 		    case Action::INDEX:
-			if (val == "nopos") {
-			    // INDEX used to take an optional argument which
-			    // could be "nopos" to mean the same that
-			    // INDEXNOPOS now does.  FIXME:1.3.0 remove this
-			    // error eventually
-			    cerr << filename << ':' << line_no
-				 << ": Support for 'index=nopos' has been "
-				    "removed - use 'indexnopos' instead"
-				 << endl;
-			    exit(1);
-			}
-			/* FALLTHRU */
 		    case Action::INDEXNOPOS:
 			actions.push_back(Action(code, val, weight));
 			useless_weight_pos = string::npos;
