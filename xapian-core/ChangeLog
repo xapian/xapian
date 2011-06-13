@@ -1,3 +1,9 @@
+Mon Jun 13 13:07:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc: Fold the
+	  two forms of QueryParser::add_boolean_prefix() into one method
+	  with a default parameter now that changing the ABI isn't a worry.
+
 Mon Jun 13 12:00:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Non-pythonic iterators have been removed.
