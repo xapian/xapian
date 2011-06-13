@@ -170,7 +170,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1sorting (JNIEnv *
     TRY
         Enquire *e = obj_from_id<Enquire *>(eid);
         if (bands) {
-            e->set_sort_by_value(sortkey);
+            e->set_sort_by_value(sortkey, true);
         } else {
             e->set_sort_by_relevance();
         }
