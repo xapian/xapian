@@ -1,3 +1,8 @@
+Mon Jun 13 06:09:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk: Remove lingering reference to quartz (rules to
+	  generate man pages for quartzdump, etc).
+
 Mon Jun 13 05:46:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Makefile.am,tests/Makefile.am: Just use a GNU-make-specific pattern

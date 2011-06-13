@@ -88,15 +88,6 @@ bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if DOCUMENTATION_RULES
-bin/quartzcheck.1: bin/quartzcheck$(EXEEXT) makemanpage
-	./makemanpage bin/quartzcheck $(srcdir)/bin/quartzcheck.cc bin/quartzcheck.1
-
-bin/quartzcompact.1: bin/quartzcompact$(EXEEXT) makemanpage
-	./makemanpage bin/quartzcompact $(srcdir)/bin/quartzcompact.cc bin/quartzcompact.1
-
-bin/quartzdump.1: bin/quartzdump$(EXEEXT) makemanpage
-	./makemanpage bin/quartzdump $(srcdir)/bin/quartzdump.cc bin/quartzdump.1
-
 bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-check $(srcdir)/bin/xapian-check.cc bin/xapian-check.1
 
