@@ -1,3 +1,7 @@
+Mon Jun 13 17:00:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Simplify.
+
 Mon Jun 13 16:49:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java-swig/Makefile.am,
