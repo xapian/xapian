@@ -763,87 +763,31 @@ _termgenerator_set_stopper.__doc__ = __termgenerator_set_stopper_orig.__doc__
 TermGenerator.set_stopper = _termgenerator_set_stopper
 del _termgenerator_set_stopper
 
-def _enquire_check_deprec_args(reverse, kwargs, methodname):
-    """Check the keyword arguments to one of the enquire set_sort_* methods.
-    
-    """
-    if reverse is not None:
-        if 'ascending' in kwargs:
-            raise TypeError('Only one of "reverse" and "ascending" may be specified')
-        if len(kwargs) != 0:
-            raise TypeError('Only keyword arguments allowed are "reverse" and "ascending"')
-    else:
-        import warnings
-        if 'ascending' in kwargs:
-            reverse = kwargs.get('ascending')
-            del kwargs['ascending']
-            warnings.warn("'ascending' as a parameter name to Enquire::" +
-                          methodname + "() is deprecated and will be removed "
-                          "in Xapian 1.3.0", DeprecationWarning)
-        else:
-            warnings.warn("Single argument form of Enquire::" +
-                          methodname + "() is deprecated and will be removed "
-                          "in Xapian 1.3.0", DeprecationWarning)
-            reverse = True
-        if len(kwargs) != 0:
-            raise TypeError('Only keyword arguments allowed are "reverse" and "ascending"')
-    return reverse
-
 # When we set a Sorter on enquire, keep a python reference so it won't be
 # deleted.  This hack can probably be removed once xapian bug #186 is fixed.
 __enquire_set_sort_by_key_orig = Enquire.set_sort_by_key
-def _enquire_set_sort_by_key(self, sorter, reverse=None, **kwargs):
+def _enquire_set_sort_by_key(self, sorter, reverse):
     self._sorter = sorter
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_key")
     return __enquire_set_sort_by_key_orig(self, sorter, reverse)
 _enquire_set_sort_by_key.__doc__ = __enquire_set_sort_by_key_orig.__doc__
 Enquire.set_sort_by_key = _enquire_set_sort_by_key
 del _enquire_set_sort_by_key
 
 __enquire_set_sort_by_key_then_relevance_orig = Enquire.set_sort_by_key_then_relevance
-def _enquire_set_sort_by_key_then_relevance(self, sorter, reverse=None, **kwargs):
+def _enquire_set_sort_by_key_then_relevance(self, sorter, reverse):
     self._sorter = sorter
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_key_then_relevance")
     return __enquire_set_sort_by_key_then_relevance_orig(self, sorter, reverse)
 _enquire_set_sort_by_key_then_relevance.__doc__ = __enquire_set_sort_by_key_then_relevance_orig.__doc__
 Enquire.set_sort_by_key_then_relevance = _enquire_set_sort_by_key_then_relevance
 del _enquire_set_sort_by_key_then_relevance
 
 __enquire_set_sort_by_relevance_then_key_orig = Enquire.set_sort_by_relevance_then_key
-def _enquire_set_sort_by_relevance_then_key(self, sorter, reverse=None, **kwargs):
+def _enquire_set_sort_by_relevance_then_key(self, sorter, reverse):
     self._sorter = sorter
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_relevance_then_key")
     return __enquire_set_sort_by_relevance_then_key_orig(self, sorter, reverse)
 _enquire_set_sort_by_relevance_then_key.__doc__ = __enquire_set_sort_by_relevance_then_key_orig.__doc__
 Enquire.set_sort_by_relevance_then_key = _enquire_set_sort_by_relevance_then_key
 del _enquire_set_sort_by_relevance_then_key
-
-# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
-__enquire_set_sort_by_value_orig = Enquire.set_sort_by_value
-def _enquire_set_sort_by_value(self, sort_key, reverse=None, **kwargs):
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_value")
-    return __enquire_set_sort_by_value_orig(self, sort_key, reverse)
-_enquire_set_sort_by_value.__doc__ = __enquire_set_sort_by_value_orig.__doc__
-Enquire.set_sort_by_value = _enquire_set_sort_by_value
-del _enquire_set_sort_by_value
-
-# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
-__enquire_set_sort_by_relevance_then_value_orig = Enquire.set_sort_by_relevance_then_value
-def _enquire_set_sort_by_relevance_then_value(self, sort_key, reverse=None, **kwargs):
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_relevance_then_value")
-    return __enquire_set_sort_by_relevance_then_value_orig(self, sort_key, reverse)
-_enquire_set_sort_by_relevance_then_value.__doc__ = __enquire_set_sort_by_relevance_then_value_orig.__doc__
-Enquire.set_sort_by_relevance_then_value = _enquire_set_sort_by_relevance_then_value
-del _enquire_set_sort_by_relevance_then_value
-
-# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
-__enquire_set_sort_by_value_then_relevance_orig = Enquire.set_sort_by_value_then_relevance
-def _enquire_set_sort_by_value_then_relevance(self, sort_key, reverse=None, **kwargs):
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_value_then_relevance")
-    return __enquire_set_sort_by_value_then_relevance_orig(self, sort_key, reverse)
-_enquire_set_sort_by_value_then_relevance.__doc__ = __enquire_set_sort_by_value_then_relevance_orig.__doc__
-Enquire.set_sort_by_value_then_relevance = _enquire_set_sort_by_value_then_relevance
-del _enquire_set_sort_by_value_then_relevance
 
 
 ##########################################

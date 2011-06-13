@@ -1,3 +1,8 @@
+Mon Jun 13 12:10:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Remove checks for deprecated forms of Enquire
+	  set_sort_* methods, which have now been removed from the C++ API.
+
 Mon Jun 13 11:43:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/extra.i,python/util.i: Hide away the deprecated non-pythonic
