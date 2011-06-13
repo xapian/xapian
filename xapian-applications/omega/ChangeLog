@@ -1,3 +1,8 @@
+Mon Jun 13 08:00:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Expand to document mapping a user prefix to
+	  multiple term prefixes.
+
 Mon Jun 13 03:23:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Improve documentation of htdig_noindex.
