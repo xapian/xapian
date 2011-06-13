@@ -1,3 +1,8 @@
+Mon Jun 13 13:49:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: We're ABI compatible within a release series
+	  so make dependency on xapian-core-libs >= rather than =.
+
 Mon Jun 13 12:30:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Avoid unnecessary temporary string object.
