@@ -1,3 +1,14 @@
+Mon Jun 13 15:47:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/keymaker.cc,docs/deprecation.rst,include/xapian/keymaker.h,
+	  tests/Makefile.am,tests/api_sortingold.cc: Remove deprecated Sorter
+	  class and MultiValueSorter subclass.
+	* tests/Makefile.mk,tests/perftest/Makefile.mk,
+	  tests/soaktest/Makefile.mk: Make the generated "*_all.h" depend on
+	  the Makefile.am or Makefile.mk which contains the list of files it
+	  is generated from so that it gets regenerated when a file is
+	  removed from that list.
+
 Mon Jun 13 13:18:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/omenquireinternal.h: Remove a FIXME - caching the Document

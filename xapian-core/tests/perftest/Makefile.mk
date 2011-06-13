@@ -47,7 +47,7 @@ perftest/perftest_all.h perftest/perftest_collated.h $(collated_perftest_sources
 	    test -f perftest/perftest_collated.stamp; exit $$?; \
 	  fi; \
 	fi
-perftest/perftest_collated.stamp: $(collated_perftest_sources) collate-test
+perftest/perftest_collated.stamp: $(collated_perftest_sources) collate-test perftest/Makefile.mk
 	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" perftest/perftest_collated.h perftest/perftest_all.h $(collated_perftest_sources)
 	touch $@
 endif

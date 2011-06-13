@@ -1,7 +1,7 @@
 /** @file keymaker.h
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 
-#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -75,52 +74,6 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 
     void add_value(Xapian::valueno slot, bool reverse = false) {
 	slots.push_back(std::make_pair(slot, reverse));
-    }
-};
-
-/** Virtual base class for sorter functor. */
-class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS Sorter : public KeyMaker { };
-
-/** Sorter subclass which sorts by a several values.
- *
- *  Results are ordered by the first value.  In the event of a tie, the
- *  second is used.  If this is the same for both, the third is used, and
- *  so on.
- *
- *  @deprecated This class is deprecated - you should migrate to using
- *  MultiValueKeyMaker instead.  Note that MultiValueSorter::add() becomes
- *  MultiValueKeyMaker::add_value(), but the sense of the direction flag
- *  is reversed (to be consistent with Enquire::set_sort_by_value()), so:
- *
- *    MultiValueSorter sorter;
- *    // Primary ordering is forwards on value 4.
- *    sorter.add(4);
- *    // Secondary ordering is reverse on value 5.
- *    sorter.add(5, false);
- *
- *  becomes:
- *
- *    MultiValueKeyMaker sorter;
- *    // Primary ordering is forwards on value 4.
- *    sorter.add_value(4);
- *    // Secondary ordering is reverse on value 5.
- *    sorter.add_value(5, true);
- */
-class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS MultiValueSorter : public Sorter {
-    std::vector<std::pair<Xapian::valueno, bool> > slots;
-
-  public:
-    MultiValueSorter() { }
-
-    template <class Iterator>
-    MultiValueSorter(Iterator begin, Iterator end) {
-	while (begin != end) add(*begin++);
-    }
-
-    virtual std::string operator()(const Xapian::Document & doc) const;
-
-    void add(Xapian::valueno slot, bool forward = true) {
-	slots.push_back(std::make_pair(slot, forward));
     }
 };
 
