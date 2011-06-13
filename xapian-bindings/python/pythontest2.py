@@ -1566,8 +1566,9 @@ def test_custom_matchspy():
     expect(len(mset), 1)
     expect(mspy.count >= 1, True)
 
-# Run all tests (ie, callables with names starting "test_").
     expect(db.get_doccount(), 5)
+
+# Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)
 

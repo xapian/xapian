@@ -1,3 +1,9 @@
+Mon Jun 13 10:10:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix odd ordering of line and comment (which
+	  has been that way since I committed the change which added the
+	  code around the comment.
+
 Mon Jun 13 09:54:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/docs/index.html,java-swig/Makefile.am,
