@@ -370,11 +370,12 @@ which are marked as ``noindex`` or ``none``, for example any of the following::
     <meta name="robots" content="noindex">
     <meta name="robots" content="none">
 
-The parser also understand ht://dig comments to mark sections of the document
-to not index (for example, you can use this to avoid indexing navigation links
-or standard headers/footers) - for example::
+Sometimes it is useful to be able to exclude just part of a page from being
+indexed (for example you may not want to index navigation links, or a footer
+which appears on every page).  To allow this, the parser also understands
+ht://dig-style comments to mark sections of the document to not index::
 
-    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex>
+    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
 
 Boolean terms
 =============
