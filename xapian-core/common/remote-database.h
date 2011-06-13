@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -184,7 +184,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     bool has_positions() const;
 
-    void reopen();
+    bool reopen();
 
     void close();
 

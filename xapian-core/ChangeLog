@@ -1,3 +1,14 @@
+Mon Jun 13 09:30:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/brass/brass_database.cc,
+	  backends/brass/brass_database.h,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,
+	  include/xapian/database.h: Database::reopen() now returns true if
+	  the database may have been reopened.  (ticket#548)
+
 Mon Jun 13 09:01:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Add note about xapian-chert-update.

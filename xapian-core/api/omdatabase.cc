@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -94,14 +94,17 @@ Database::~Database()
     LOGCALL_DTOR(API, "Database");
 }
 
-void
+bool
 Database::reopen()
 {
-    LOGCALL_VOID(API, "Database::reopen", NO_ARGS);
+    LOGCALL(API, bool, "Database::reopen", NO_ARGS);
+    bool maybe_changed = false;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	(*i)->reopen();
+	if ((*i)->reopen())
+	    maybe_changed = true;
     }
+    return maybe_changed;
 }
 
 void

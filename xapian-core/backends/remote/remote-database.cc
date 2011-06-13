@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -294,11 +294,14 @@ RemoteDatabase::has_positions() const
     return has_positional_info;
 }
 
-void
+bool
 RemoteDatabase::reopen()
 {
     update_stats(MSG_REOPEN);
     mru_slot = Xapian::BAD_VALUENO;
+    // FIXME: we could extend MSG_REOPEN to allow a "no change" reply, but for
+    // now just say "might have changed".
+    return true;
 }
 
 void

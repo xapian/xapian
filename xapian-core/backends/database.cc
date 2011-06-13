@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -318,11 +318,13 @@ Database::Internal::set_metadata(const string &, const string &)
     throw Xapian::UnimplementedError("This backend doesn't implement metadata");
 }
 
-void
+bool
 Database::Internal::reopen()
 {
     // Database backends which don't support simultaneous update and reading
-    // probably don't need to do anything here.
+    // probably don't need to do anything here.  And since we didn't do
+    // anything we should return false to indicate that nothing has changed.
+    return false;
 }
 
 void

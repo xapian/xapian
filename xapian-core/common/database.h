@@ -393,7 +393,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  Database backends which don't support simultaneous update and
 	 *  reading probably don't need to do anything here.
 	 */
-	virtual void reopen();
+	virtual bool reopen();
 
 	/** Close the database
 	 */

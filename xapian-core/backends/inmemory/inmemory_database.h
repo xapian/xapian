@@ -308,7 +308,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     ~InMemoryDatabase();
 
-    void reopen();
+    bool reopen();
     void close();
     bool is_closed() const { return closed; }
 

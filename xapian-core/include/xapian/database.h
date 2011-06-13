@@ -123,8 +123,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  Calling reopen() on a database which has been closed (with @a
 	 *  close()) will always raise a Xapian::DatabaseError.
+	 *
+	 *  @return	true if the database might have been reopened (if false
+	 *		is returned, the database definitely hasn't been
+	 *		reopened, which applications may find useful when
+	 *		caching results, etc).  In Xapian < 1.3.0, this method
+	 *		did not return a value.
 	 */
-	void reopen();
+	bool reopen();
 
 	/** Close the database.
 	 *

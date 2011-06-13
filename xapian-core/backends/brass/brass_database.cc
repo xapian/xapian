@@ -208,10 +208,10 @@ BrassDatabase::create_and_open_tables(unsigned int block_size)
     stats.zero();
 }
 
-void
+bool
 BrassDatabase::open_tables_consistent()
 {
-    LOGCALL_VOID(DB, "BrassDatabase::open_tables_consistent", NO_ARGS);
+    LOGCALL(DB, bool, "BrassDatabase::open_tables_consistent", NO_ARGS);
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -231,7 +231,7 @@ BrassDatabase::open_tables_consistent()
     if (cur_rev && cur_rev == revision) {
 	// We're reopening a database and the revision hasn't changed so we
 	// don't need to do anything.
-	return;
+	RETURN(false);
     }
 
     // Set the block_size for optional tables as they may not currently exist.
@@ -282,6 +282,7 @@ BrassDatabase::open_tables_consistent()
     }
 
     stats.read(postlist_table);
+    return true;
 }
 
 void
@@ -494,11 +495,12 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
     }
 }
 
-void
+bool
 BrassDatabase::reopen()
 {
-    LOGCALL_VOID(DB, "BrassDatabase::reopen", NO_ARGS);
-    if (readonly) open_tables_consistent();
+    LOGCALL(DB, bool, "BrassDatabase::reopen", NO_ARGS);
+    if (!readonly) return false;
+    return open_tables_consistent();
 }
 
 void
