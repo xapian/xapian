@@ -1,3 +1,7 @@
+Mon Jun 13 12:37:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove deprecated Enquire::set_sort_by_* methods.
+
 Mon Jun 13 12:10:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Remove checks for deprecated forms of Enquire

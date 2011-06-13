@@ -390,21 +390,15 @@ class Enquire {
 
     void set_sort_by_relevance();
     void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
-    void set_sort_by_value(Xapian::valueno sort_key);
     void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					  bool reverse);
-    void set_sort_by_value_then_relevance(Xapian::valueno sort_key);
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool reverse);
-    void set_sort_by_relevance_then_value(Xapian::valueno sort_key);
     void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
-    void set_sort_by_key(Xapian::Sorter * sorter);
     void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
                                         bool reverse);
-    void set_sort_by_key_then_relevance(Xapian::Sorter * sorter);
     void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
                                         bool reverse);
-    void set_sort_by_relevance_then_key(Xapian::Sorter * sorter);
 
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
