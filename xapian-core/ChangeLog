@@ -1,3 +1,8 @@
+Mon Jun 13 12:00:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Non-pythonic iterators have been removed.
+	  (ticket#255)
+
 Mon Jun 13 10:40:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Python Stem_get_available_languages() has now
