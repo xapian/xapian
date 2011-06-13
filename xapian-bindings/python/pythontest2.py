@@ -1568,6 +1568,16 @@ def test_custom_matchspy():
 
     expect(db.get_doccount(), 5)
 
+def test_removed_features():
+    ok = True
+    try:
+        xapian.Stem_get_available_languages()
+        ok = False
+    except Exception:
+        pass
+    if not ok:
+        expect(True, False)
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)

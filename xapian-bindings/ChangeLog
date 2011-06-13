@@ -1,3 +1,8 @@
+Mon Jun 13 10:35:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Remove deprecated Stem_get_available_languages().
+	* python/pythontest2.py: Add test to make sure it stays removed!
+
 Mon Jun 13 10:10:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: Fix odd ordering of line and comment (which
