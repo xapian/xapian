@@ -32,7 +32,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	ESetIterator.java\
 	ExpandDecider.java\
 	FixedWeightPostingSource.java\
-	Flint.java\
 	InMemory.java\
 	KeyMaker.java\
 	MatchDecider.java\

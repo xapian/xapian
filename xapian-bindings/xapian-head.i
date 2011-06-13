@@ -56,17 +56,6 @@ namespace Xapian {
     }
 #endif
 
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    namespace Flint {
-	static Database open(const string &) {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-    }
-#endif
-
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
 	static WritableDatabase open() {
