@@ -101,7 +101,6 @@ class MSetItem {
 	Xapian::doccount collapse_count;
 
 	/** Used when sorting by value. */
-	/* FIXME: why not just cache the Xapian::Document here!?! */
 	string sort_key;
 
 	/// Return a string describing this object.

@@ -1,3 +1,9 @@
+Mon Jun 13 13:18:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/omenquireinternal.h: Remove a FIXME - caching the Document
+	  object in MSetItem isn't a replacement for storing the sort_key
+	  now that sort_keys can be computed.
+
 Mon Jun 13 13:07:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.cc: Fold the
