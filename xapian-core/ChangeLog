@@ -1,3 +1,7 @@
+Mon Jun 13 09:01:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Add note about xapian-chert-update.
+
 Mon Jun 13 08:47:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check-flint.cc,bin/xapian-check-flint.h: Remove two
