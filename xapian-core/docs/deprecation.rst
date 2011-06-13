@@ -201,21 +201,6 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.1.0      1.3.0  Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
-                  ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and
-                                                      probably think of as ascending) while ascending=true gave the reverse
-                                                      (descending) order.  For sanity, we renamed the parameter to ``reverse``
-                                                      and deprecated the default value.  In the more distant future, we'll
-                                                      probably add a default again, but of ``false`` instead.
-                                                      
-                                                      The methods affected are:
-                                                      ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
-                                                      ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
-                                                      ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
-                                                      ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
-                                                      ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
-                                                      ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.1.3       1.3.0 ``Sorter`` abstract base class.     Use ``KeyMaker`` class instead, which has the same semantics, but has
                                                       been renamed to indicate that the keys produced may be used for purposes
                                                       other than sorting (we plan to allow collapsing on generated keys in the
@@ -422,6 +407,24 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   xapian-chert-update                 Install Xapian 1.2.x (where x >= 5) to update chert databases from 1.1.3 and
                                             earlier.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
+	``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and probably
+					    think of as ascending) while ascending=true gave the reverse (descending) order.
+					    For sanity, we renamed the parameter to ``reverse`` and deprecated the default
+					    value.  In the more distant future, we'll probably add a default again, but of
+					    ``false`` instead.
+
+					    The methods affected are:
+					    ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
+					    ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
+					    ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
+					    ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
+					    ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
+					    ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
+
+					    To update them, just add a second parameter with value ``true`` to each of the
+					    above calls.
 ======= =================================== ==================================================================================
 
 

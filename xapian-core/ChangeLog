@@ -1,3 +1,9 @@
+Mon Jun 13 10:38:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,include/xapian/enquire.h: Remove deprecated
+	  default value for second parameter to Enquire::set_sort_by_value()
+	  and friends.
+
 Mon Jun 13 09:30:15 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/brass/brass_database.cc,
