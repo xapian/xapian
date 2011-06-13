@@ -1,7 +1,7 @@
 /* hashterm.cc: generate a URL term, truncating and hashing very long URLs.
  *
  * Copyright (C) 2003 Lemur Consulting Ltd.
- * Copyright (C) 2003,2004,2006 Olly Betts
+ * Copyright (C) 2003,2004,2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ hash_string(const string &s)
     // zeros become char(33) below.  Not a problem, but perhaps change ' ' to
     // char(33) if we need to break backwards compatibility for some other
     // reason.
-    string result = string(HASH_LEN, ' ');
+    string result(HASH_LEN, ' ');
     size_t j = 0;
     while (h != 0) {
 	char ch = char((h & 63) + 33);

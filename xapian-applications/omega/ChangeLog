@@ -1,3 +1,7 @@
+Mon Jun 13 14:25:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* hashterm.cc: Avoid unnecessary temporary string object.
+
 Mon Jun 13 14:01:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* hashterm.cc: Fix comment typo.
