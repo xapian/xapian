@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.6], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -44,11 +44,12 @@ LIBRARY_VERSION_SUFFIX=
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
 dnl Disabled for stable release series.
-dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
-dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
+dnl Default to "-1.3"; for no suffix, specify: --program-suffix=
+test x"$program_suffix" != xNONE || program_suffix=-1.3
 
-dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
-incdir=$includedir
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
+dnl incdir=$includedir
+incdir=$includedir/xapian-1.3
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
