@@ -1,3 +1,7 @@
+Mon Jun 13 14:01:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* hashterm.cc: Fix comment typo.
+
 Mon Jun 13 13:49:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-omega.spec.in: We're ABI compatible within a release series

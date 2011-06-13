@@ -45,7 +45,7 @@ hash_string(const string &s)
     h &= 0xffffffff; // In case sizeof(unsigned long) > 4
     // FIXME: It's quirky that we make leading zeros ' ' here, but "embedded"
     // zeros become char(33) below.  Not a problem, but perhaps change ' ' to
-    // char(33) if we need to break backwards compatiblity for some other
+    // char(33) if we need to break backwards compatibility for some other
     // reason.
     string result = string(HASH_LEN, ' ');
     size_t j = 0;
