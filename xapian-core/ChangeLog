@@ -1,3 +1,16 @@
+Mon Jun 13 08:42:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,Makefile.am,api/compactor.cc,api/replication.cc,
+	  backends/Makefile.mk,backends/brass/brass_compact.cc,
+	  backends/chert/chert_compact.cc,backends/databasereplicator.cc,
+	  backends/dbfactory.cc,backends/dir_contents,backends/flint/,
+	  backends/slowvaluelist.h,bin/,common/database.h,common/pretty.h,
+	  common/unaligned.h,configure.ac,docs/,include/xapian/dbfactory.h,
+	  include/xapian/valueiterator.h,include/xapian/version_h.cc,tests/,
+	  tests/harness/,tests/queryparsertest.cc,tests/termgentest.cc,
+	  tests/testdata/flint-0.9.9/,tests/testdata/flint-1.0.1/,
+	  tests/testdata/flint-1.0.2/: Remove flint backend.
+
 Mon Jun 13 06:09:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk: Remove lingering reference to quartz (rules to

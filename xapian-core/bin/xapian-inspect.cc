@@ -1,7 +1,7 @@
 /** @file xapian-inspect.cc
- * @brief Inspect the contents of a flint table for development or debugging.
+ * @brief Inspect the contents of a chert table for development or debugging.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 #include <string>
 #include <cstdio> // For sprintf().
 
-#include "flint_table.h"
-#include "flint_cursor.h"
+#include "chert_table.h"
+#include "chert_cursor.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -37,7 +37,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-inspect"
-#define PROG_DESC "Inspect the contents of a flint table for development or debugging"
+#define PROG_DESC "Inspect the contents of a chert table for development or debugging"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -87,7 +87,7 @@ show_help()
 }
 
 static void
-do_until(FlintCursor & cursor, const string & target)
+do_until(ChertCursor & cursor, const string & target)
 {
     if (cursor.after_end()) {
 	cout << "At end already." << endl;
@@ -176,14 +176,14 @@ main(int argc, char **argv)
 
 open_different_table:
     try {
-	FlintTable table("", table_name, true);
+	ChertTable table("", table_name, true);
 	table.open();
 	if (table.empty()) {
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
 
-	FlintCursor cursor(&table);
+	ChertCursor cursor(&table);
 	cursor.find_entry(string());
 	cursor.next();
 

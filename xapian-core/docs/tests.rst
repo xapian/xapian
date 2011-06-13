@@ -61,7 +61,7 @@ existing one.
 
 You'll notice in ``apitest.cc`` that it runs all appropriate test groups
 against each backend that is being built. The backends are inmemory,
-multi, brass, chert, flint, remoteprog and remotetcp. If you need to
+multi, brass, chert, remoteprog and remotetcp. If you need to
 create a new test group with different requirements to any current ones,
 put it in the appropriate api\_ file (or create a new one, and add it
 into Makefile.am) and remember to add the group to all pertinent

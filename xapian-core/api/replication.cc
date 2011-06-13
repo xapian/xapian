@@ -331,8 +331,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  last_live_changeset_time(), conn(NULL)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
-#if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
-    throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
+#if ! defined XAPIAN_HAS_CHERT_BACKEND
+    throw FeatureUnavailableError("Replication requires the Chert backend to be enabled");
 #else
     if (mkdir(path, 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a

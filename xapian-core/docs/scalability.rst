@@ -105,9 +105,9 @@ The current limits are:
    compacted copy of the database with the new blocksize, and that will
    take a while for such a large database. The maximum blocksize
    currently allowed is 64K, which limits you to 256TB tables.
--  Flint stores the total length (i.e. number of terms) of all the
+-  Xapian stores the total length (i.e. number of terms) of all the
    documents in a database so it can calculate the average document
-   length. This is currently stored as an unsigned 64-bit quantity so
+   length. This is currently handled as an unsigned 64-bit quantity so
    it's not likely to be a limit you'll hit. It's listed here for
    completeness.
 

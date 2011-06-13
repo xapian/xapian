@@ -1,7 +1,7 @@
 /** @file api_opvalue.cc
  * @brief Tests of the OP_VALUE_* query operators.
  */
-/* Copyright 2007,2008,2009,2010,2010 Olly Betts
+/* Copyright 2007,2008,2009,2010,2010,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -101,14 +101,11 @@ make_valuerange5(Xapian::WritableDatabase &db, const string &)
 // Check that lower and upper bounds are used.
 DEFINE_TESTCASE(valuerange5, generated) {
     Xapian::Database db = get_database("valuerange5", make_valuerange5);
-    if (db.get_value_lower_bound(0).empty()) {
-	// This backend (i.e. flint) doesn't support value bounds, or else
-	// there are no instances of this value.  In the former case,
-	// get_value_upper_bound() should throw an exception.
-	TEST_EXCEPTION(Xapian::UnimplementedError,
-		db.get_value_upper_bound(0));
-	return true;
-    }
+
+    // If the lower bound is empty, either ther the specified value slot is
+    // never used in the database, or the backend doesn't track value bounds.
+    // Neither should be true here.
+    TEST(!db.get_value_lower_bound(0).empty());
 
     Xapian::Enquire enq(db);
 

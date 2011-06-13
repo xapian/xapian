@@ -100,7 +100,6 @@ Options to give to configure
 
 --enable-backend-brass
 --enable-backend-chert
---enable-backend-flint
 --enable-backend-inmemory
 --enable-backend-remote
 	These options enable (or disable if --disable-backend-XXX is specified)

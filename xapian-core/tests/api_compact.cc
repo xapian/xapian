@@ -123,11 +123,6 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
     check_sparse_uid_terms(out);
 
     {
-	if (get_dbtype() == "flint") {
-	    // Flint creates its uuid file if it doesn't already exist, so we
-	    // need a white box test to ensure xapian-compact created it.
-	    TEST(file_exists(out + "/uuid"));
-	}
 	TEST(!dir_exists(out + "/donor"));
 	Xapian::Database db(out);
 	// xapian-compact should change the UUID of the database, but didn't
@@ -245,7 +240,7 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
 }
 
 // Test use of compact to merge two databases.
-DEFINE_TESTCASE(compactmerge1, brass || chert || flint) {
+DEFINE_TESTCASE(compactmerge1, brass || chert) {
     string indbpath = get_database_path("apitest_simpledata");
     string outdbpath = get_named_writable_database_path("compactmerge1out");
     rm_rf(outdbpath);
@@ -303,7 +298,7 @@ DEFINE_TESTCASE(compactmultichunks1, generated) {
 }
 
 // Test compacting from a stub database directory.
-DEFINE_TESTCASE(compactstub1, brass || chert || flint) {
+DEFINE_TESTCASE(compactstub1, brass || chert) {
     const char * stubpath = ".stub/compactstub1";
     const char * stubpathfile = ".stub/compactstub1/XAPIANDB";
     mkdir(".stub", 0755);
@@ -332,7 +327,7 @@ DEFINE_TESTCASE(compactstub1, brass || chert || flint) {
 }
 
 // Test compacting from a stub database file.
-DEFINE_TESTCASE(compactstub2, brass || chert || flint) {
+DEFINE_TESTCASE(compactstub2, brass || chert) {
     const char * stubpath = ".stub/compactstub2";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -359,7 +354,7 @@ DEFINE_TESTCASE(compactstub2, brass || chert || flint) {
 }
 
 // Test compacting a stub database file to itself.
-DEFINE_TESTCASE(compactstub3, brass || chert || flint) {
+DEFINE_TESTCASE(compactstub3, brass || chert) {
     const char * stubpath = ".stub/compactstub3";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -388,7 +383,7 @@ DEFINE_TESTCASE(compactstub3, brass || chert || flint) {
 }
 
 // Test compacting a stub database directory to itself.
-DEFINE_TESTCASE(compactstub4, brass || chert || flint) {
+DEFINE_TESTCASE(compactstub4, brass || chert) {
     const char * stubpath = ".stub/compactstub4";
     const char * stubpathfile = ".stub/compactstub4/XAPIANDB";
     mkdir(".stub", 0755);

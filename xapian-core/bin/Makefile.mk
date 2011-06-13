@@ -2,7 +2,7 @@ EXTRA_DIST +=\
 	bin/dir_contents\
 	bin/Makefile
 
-if BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT
+if BUILD_BACKEND_BRASS_OR_CHERT
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\
@@ -20,19 +20,6 @@ dist_man_MANS +=\
 endif
 endif
 
-if BUILD_BACKEND_CHERT
-if BUILD_BACKEND_FLINT
-## xapian-chert-update.cc uses FlintTable to read the old format chert db.
-bin_PROGRAMS +=\
-	bin/xapian-chert-update
-
-if !MAINTAINER_NO_DOCS
-dist_man_MANS +=\
-	bin/xapian-chert-update.1
-endif
-endif
-endif
-
 if BUILD_BACKEND_REMOTE
 bin_PROGRAMS +=\
 	bin/xapian-progsrv\
@@ -47,8 +34,7 @@ endif
 
 bin_xapian_check_CPPFLAGS =\
 	-I$(top_srcdir)/backends/brass\
-	-I$(top_srcdir)/backends/chert\
-	-I$(top_srcdir)/backends/flint
+	-I$(top_srcdir)/backends/chert
 bin_xapian_check_SOURCES = bin/xapian-check.cc
 bin_xapian_check_LDADD = $(ldflags) $(libxapian_la)
 if BUILD_BACKEND_BRASS
@@ -59,19 +45,11 @@ if BUILD_BACKEND_CHERT
 bin_xapian_check_SOURCES += bin/xapian-check-chert.cc bin/xapian-check-chert.h
 bin_xapian_check_LDADD += libchertcheck.la
 endif
-if BUILD_BACKEND_FLINT
-bin_xapian_check_SOURCES += bin/xapian-check-flint.cc bin/xapian-check-flint.h
-bin_xapian_check_LDADD += libflintcheck.la
-endif
-
-bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
-bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
-bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/chert
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
@@ -90,9 +68,6 @@ bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 if DOCUMENTATION_RULES
 bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-check $(srcdir)/bin/xapian-check.cc bin/xapian-check.1
-
-bin/xapian-chert-update.1: bin/xapian-chert-update$(EXEEXT) makemanpage
-	./makemanpage bin/xapian-chert-update $(srcdir)/bin/xapian-chert-update.cc bin/xapian-chert-update.1
 
 bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1

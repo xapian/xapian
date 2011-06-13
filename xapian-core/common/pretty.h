@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -320,15 +320,6 @@ template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const ChertCursor *) {
     ps.os << "ChertCursor*";
-    return ps;
-}
-
-class FlintCursor;
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const FlintCursor *) {
-    ps.os << "FlintCursor*";
     return ps;
 }
 

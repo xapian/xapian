@@ -661,7 +661,6 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(brass)
 XAPIAN_BACKEND_ENABLE(chert)
-XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
 
@@ -681,18 +680,10 @@ if test yes = "$enable_backend_chert" ; then
   esac
 fi
 
-if test yes = "$enable_backend_flint" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build flint there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_flint=no ;;
-  esac
-fi
-
 use_win32_uuid_api=0
-case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
+case $enable_backend_chert$enable_backend_brass in
 *yes*)
-  dnl We use zlib for compressing tags in brass/chert/flint.  We could
+  dnl We use zlib for compressing tags in brass/chert.  We could
   dnl automatically disable support if zlib isn't found, but overall that
   dnl probably does more harm than good - it's most likely that someone just
   dnl forgot to install the -dev package for zlib.
@@ -701,7 +692,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for bras and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -709,7 +700,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -731,7 +722,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	SAVE_LIBS=$LIBS
 	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
 	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -744,7 +735,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
-	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	], [ ])
       ], [ ])
       ;;
@@ -855,11 +846,10 @@ dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_BRASS, test yes = "$enable_backend_brass")
 AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
-AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
-AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT,
-  [test nonono != "$enable_backend_brass$enable_backend_chert$enable_backend_flint"])
+AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT,
+  [test nono != "$enable_backend_brass$enable_backend_chert"])
 
 dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
@@ -1274,7 +1264,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in BRASS CHERT FLINT INMEMORY REMOTE ; do
+for backend in BRASS CHERT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

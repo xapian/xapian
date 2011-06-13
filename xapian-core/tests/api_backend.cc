@@ -39,7 +39,7 @@
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
-DEFINE_TESTCASE(lockfileumask1, brass || chert || flint) {
+DEFINE_TESTCASE(lockfileumask1, brass || chert) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
@@ -159,7 +159,7 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lockfilefd0or1, brass || chert || flint) {
+DEFINE_TESTCASE(lockfilefd0or1, brass || chert) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     int old_stdin = dup(0);
     int old_stdout = dup(1);
@@ -650,7 +650,7 @@ DEFINE_TESTCASE(orcheck1, generated) {
  *
  *  We failed to mark the Btree as unmodified after cancel().
  */
-DEFINE_TESTCASE(failedreplace1, brass || chert || flint) {
+DEFINE_TESTCASE(failedreplace1, brass || chert) {
     Xapian::WritableDatabase db(get_writable_database());
     Xapian::Document doc;
     doc.add_term("foo");
@@ -666,7 +666,7 @@ DEFINE_TESTCASE(failedreplace1, brass || chert || flint) {
     return true;
 }
 
-DEFINE_TESTCASE(failedreplace2, brass || chert || flint) {
+DEFINE_TESTCASE(failedreplace2, brass || chert) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
     db.commit();
     Xapian::doccount db_size = db.get_doccount();

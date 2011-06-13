@@ -158,7 +158,7 @@ just construct the object, passing the pathname to the database. Xapian
 looks at the path and autodetects the database type.
 
 In some cases (with the Remote backend, or if you want more control) you
-need to use a factory function such as ``Xapian::Flint::open()`` - each
+need to use a factory function such as ``Xapian::Chert::open()`` - each
 backend type has one or more. The parameters the function takes depend
 on the backend type, and whether we are creating a read-only or a
 writable database.
@@ -171,7 +171,7 @@ using Xapian::Auto::open\_stub(). The stub database format specifies one
 database per line. For example::
 
      remote localhost:23876
-     flint /var/spool/xapian/webindex
+     chert /var/spool/xapian/webindex
 
 Database types
 ~~~~~~~~~~~~~~
@@ -180,7 +180,7 @@ The current types understood by Xapian are:
 
 auto
     This isn't an actual database format, but rather auto-detection of one of
-    the disk based backends (e.g. "flint" or "chert") from a single specified
+    the disk based backends (e.g. "brass" or "chert") from a single specified
     path (which can be to a file or directory).
 
 brass
@@ -193,16 +193,11 @@ chert
     database. It's very efficient and highly scalable.
 
 flint
-    Flint was the default backend in Xapian 1.0.x. It supports incremental
-    modifications, concurrent single-writer and multiple-reader access to a
-    database. It's very efficient and highly scalable. Flint takes lessons
-    learned from studying Quartz in action, and is appreciably faster (both
-    when indexing and searching), more compact, and features an improved
-    locking mechanism which automatically releases the lock if a writing
-    process dies.
-
-    For more information, see the `Xapian Wiki
-    <http://trac.xapian.org/wiki/FlintBackend>`_.
+    Flint was the default backend in Xapian 1.0.x, and was deprecated in
+    1.2.x and removed in 1.3.0.  If you want to migrate an existing Flint
+    database to Chert, `see the 'Admin Notes'
+    <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
+    for a way to do this.
 
 inmemory
     This type is a database held entirely in memory. It was originally written
@@ -212,7 +207,7 @@ inmemory
 quartz
     Quartz was the default backend prior to Xapian 1.0, and has been removed as
     of Xapian 1.1.0. If you want to migrate an existing Quartz database to
-    Flint, `see the 'Admin Notes'
+    Flint, see `Admin Notes
     <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
     for a way to do this.
 

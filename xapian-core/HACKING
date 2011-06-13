@@ -129,9 +129,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, brass, chert, or flint backends using ``make check-inmemory``,
+multi-database, brass, or chert backends using ``make check-inmemory``,
 ``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-``make check-brass``, ``make check-chert``, or ``make check-flint``
+``make check-brass``, or ``make check-chert``
 respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
@@ -163,7 +163,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 ./runtest valgrind ./apitest -v deldoc1
 
 Some test programs take special arguments - for example, you can restrict
-apitest to the flint backend using ``-bflint``.
+apitest to the chert backend using ``-bchert``.
 
 There are a few environmental variables which the testsuite harness checks for
 which you might find useful:

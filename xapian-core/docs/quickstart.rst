@@ -314,8 +314,8 @@ Specifying the databases
 Xapian has the ability to search over many databases simultaneously,
 possibly even with the databases distributed across a network of
 machines. Each database can be in its own format, so, for example, we
-might have a system searching across two remote databases and a flint
-database.
+might have a system searching across two remote databases and a local
+chert database.
 
 To open a single database, we create a Xapian::Database object, passing
 the path to the database we want to open:

@@ -1779,8 +1779,8 @@ static const test test_mispelled_queries[] = {
 // Test spelling correction in the QueryParser.
 static bool test_qp_spell1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     Xapian::Document doc;
@@ -1815,15 +1815,15 @@ static bool test_qp_spell1()
 // Test spelling correction in the QueryParser with multiple databases.
 static bool test_qp_spell2()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell2";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spell2";
     Xapian::WritableDatabase db1(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db1.add_spelling("document");
     db1.add_spelling("search");
     db1.commit();
 
-    dbdir = ".flint/qp_spell2b";
+    dbdir = ".chert/qp_spell2b";
     Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db2.add_spelling("document");
@@ -1862,8 +1862,8 @@ static const test test_mispelled_wildcard_queries[] = {
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellwild1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spellwild1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spellwild1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -1911,8 +1911,8 @@ static const test test_mispelled_partial_queries[] = {
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellpartial1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spellpartial1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spellpartial1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -1955,8 +1955,8 @@ static const test test_synonym_queries[] = {
 // Test single term synonyms in the QueryParser.
 static bool test_qp_synonym1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("Zsearch", "Zfind");
@@ -1997,8 +1997,8 @@ static const test test_multi_synonym_queries[] = {
 // Test multi term synonyms in the QueryParser.
 static bool test_qp_synonym2()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym2";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym2";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("sun tan cream", "lotion");
@@ -2048,8 +2048,8 @@ static const test test_synonym_op_queries[] = {
 // Test the synonym operator in the QueryParser.
 static bool test_qp_synonym3()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym3";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym3";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("Zsearch", "Zfind");
@@ -2169,8 +2169,8 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 // size of the query.
 static bool test_qp_scale1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_scale1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_scale1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("foo", "bar");

@@ -33,11 +33,11 @@ bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
 .PHONY: check-none check-inmemory \
-	check-brass check-chert check-flint \
-	check-multi check-multi-brass check-multi-chert check-multi-flint \
+	check-brass check-chert \
+	check-multi check-multi-brass check-multi-chert \
 	check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-brass check-remoteprog-chert check-remoteprog-flint\
-	check-remotetcp-brass check-remotetcp-chert check-remotetcp-flint\
+	check-remoteprog-brass check-remoteprog-chert \
+	check-remotetcp-brass check-remotetcp-chert \
 	check-perf check-soak \
 	coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 

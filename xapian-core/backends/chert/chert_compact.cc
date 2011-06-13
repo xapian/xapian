@@ -1,7 +1,7 @@
 /** @file chert_compact.cc
  * @brief Compact a chert database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@
 using namespace std;
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
-// the same name in xapian-compact-flint.cc.
+// the same name in other flint-derived backends.
 namespace ChertCompact {
 
 static inline bool

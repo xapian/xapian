@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007,2008,2009,2010 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
 
 ==========================
 Xapian Spelling Correction
@@ -162,7 +162,7 @@ search would be prohibitively expensive for many uses.
 Backend Support
 ---------------
 
-Currently spelling correction is supported for chert, flint, and brass
+Currently spelling correction is supported for chert, and brass
 databases.  It works with a single database or multiple databases (use
 Database::add_database() as usual).  We've no plans to support it for the
 InMemory backend, but we do intend to support it for

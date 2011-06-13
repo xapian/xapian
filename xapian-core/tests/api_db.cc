@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1463,213 +1463,86 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(flintdatabaseopeningerror1, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    mkdir(".flint", 0755);
+DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+    mkdir(".chert", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Flint::open(".flint/nosuchdirectory"));
+		   Xapian::Chert::open(".chert/nosuchdirectory"));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Flint::open(".flint/nosuchdirectory", Xapian::DB_OPEN));
+		   Xapian::Chert::open(".chert/nosuchdirectory", Xapian::DB_OPEN));
 
-    mkdir(".flint/emptydirectory", 0700);
+    mkdir(".chert/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Flint::open(".flint/emptydirectory"));
+		   Xapian::Chert::open(".chert/emptydirectory"));
 
-    touch(".flint/somefile");
+    touch(".chert/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Flint::open(".flint/somefile"));
+		   Xapian::Chert::open(".chert/somefile"));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Flint::open(".flint/somefile", Xapian::DB_OPEN));
+		   Xapian::Chert::open(".chert/somefile", Xapian::DB_OPEN));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE));
+		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OPEN));
+		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE_OR_OPEN));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
 #endif
 
     return true;
 }
 
-/// Tests that appropriate error is thrown for database format change.
-DEFINE_TESTCASE(flintdatabaseformaterror1, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    string dbdir = test_driver::get_srcdir();
-    dbdir += "/testdata/flint-0.9.9";
-
-    // We should get a version error when we try and open the database for
-    // reading now.
-    TEST_EXCEPTION(Xapian::DatabaseVersionError,
-		   Xapian::Database db(dbdir));
-
-    // Also test when explicitly opening as a flint database.
-    TEST_EXCEPTION(Xapian::DatabaseVersionError,
-		   (void)Xapian::Flint::open(dbdir));
-
-    // Clean up the "flintlock" file that we will have created while trying
-    // to open the database.
-    unlink((dbdir + "/flintlock").c_str());
-#endif
-
-    return true;
-}
-
-/// Test that an old database can be successfully overwritten when using
-// Xapian::DB_CREATE_OR_OVERWRITE.
-DEFINE_TESTCASE(flintdatabaseformaterror2, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    string flint099 = test_driver::get_srcdir();
-    flint099 += "/testdata/flint-0.9.9";
-
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/test_flintdatabaseformaterror2";
-
-    rm_rf(dbdir);
-    cp_R(flint099, dbdir);
-
-    (void)Xapian::WritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-
-    rm_rf(dbdir);
-    cp_R(flint099, dbdir);
-
-    // Also test when explicitly opening as a flint database.
-    (void)Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-#endif
-
-    return true;
-}
-
-// regression test for not releasing lock on error.
-DEFINE_TESTCASE(flintdatabaseformaterror3, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    string flint099 = test_driver::get_srcdir();
-    flint099 += "/testdata/flint-0.9.9";
-
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/test_flintdatabaseformaterror3";
-
-    rm_rf(dbdir);
-    cp_R(flint099, dbdir);
-
-    TEST_EXCEPTION(Xapian::DatabaseVersionError,
-		   Xapian::WritableDatabase(dbdir, Xapian::DB_CREATE_OR_OPEN));
-
-    // This used to throw a DatabaseLockError: "Unable to acquire database
-    // write lock on .flint/formatdb: already locked"
-    Xapian::WritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-#endif
-
-    return true;
-}
-
-// Test that 1.0.2 and later can open 1.0.1 databases.
-DEFINE_TESTCASE(flintbackwardcompat1, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    string flint101 = test_driver::get_srcdir();
-    flint101 += "/testdata/flint-1.0.1";
-
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/test_flintbackwardcompat1";
-
-    rm_rf(dbdir);
-    cp_R(flint101, dbdir);
-
-    // Check we can open the older format for reading.
-    {
-	Xapian::Database db(dbdir);
-	TEST_EQUAL(db.get_doccount(), 0);
-    }
-
-    // Check we can open the older format for update.
-    {
-	Xapian::WritableDatabase db(dbdir, Xapian::DB_OPEN);
-	TEST_EQUAL(db.get_doccount(), 0);
-    }
-#endif
-
-    return true;
-}
-
-// Test that 1.0.3 and later can open 1.0.2 databases.
-DEFINE_TESTCASE(flintbackwardcompat2, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    string flint102 = test_driver::get_srcdir();
-    flint102 += "/testdata/flint-1.0.2";
-
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/test_flintbackwardcompat2";
-
-    rm_rf(dbdir);
-    cp_R(flint102, dbdir);
-
-    // Check we can open the older format for reading.
-    {
-	Xapian::Database db(dbdir);
-	TEST_EQUAL(db.get_doccount(), 0);
-    }
-
-    // Check we can open the older format for update.
-    {
-	Xapian::WritableDatabase db(dbdir, Xapian::DB_OPEN);
-	TEST_EQUAL(db.get_doccount(), 0);
-    }
-#endif
-
-    return true;
-}
-
-/// Test opening of a flint database
-DEFINE_TESTCASE(flintdatabaseopen1, flint) {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    const string dbdir = ".flint/test_flintdatabaseopen1";
-    mkdir(".flint", 0755);
+/// Test opening of a chert database
+DEFINE_TESTCASE(chertdatabaseopen1, chert) {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+    const string dbdir = ".chert/test_chertdatabaseopen1";
+    mkdir(".chert", 0755);
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb =
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Flint::open(dbdir, Xapian::DB_OPEN));
-	Xapian::Flint::open(dbdir);
+	    Xapian::Chert::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Chert::open(dbdir);
     }
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb =
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
-	Xapian::Flint::open(dbdir);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
+	Xapian::Chert::open(dbdir);
     }
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb =
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
-	Xapian::Flint::open(dbdir);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
+	Xapian::Chert::open(dbdir);
     }
 
     {
 	TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE));
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE));
 	Xapian::WritableDatabase wdb =
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	Xapian::Flint::open(dbdir);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::Chert::open(dbdir);
     }
 
     {
 	Xapian::WritableDatabase wdb =
-	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
-	Xapian::Flint::open(dbdir);
+	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::Chert::open(dbdir);
     }
 
     {
 	Xapian::WritableDatabase wdb =
-	    Xapian::Flint::open(dbdir, Xapian::DB_OPEN);
-	Xapian::Flint::open(dbdir);
+	    Xapian::Chert::open(dbdir, Xapian::DB_OPEN);
+	Xapian::Chert::open(dbdir);
     }
 #endif
 

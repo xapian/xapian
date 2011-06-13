@@ -1,3 +1,4 @@
+
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
@@ -70,7 +71,6 @@ Within a stable release series, we strive to maintain API and ABI forwards
 compatibility.  This means that an application written and compiled against
 version `X.Y.a` of Xapian should work, without any source changes or need to
 recompile, with a later version `X.Y.b`, for all `b` >= `a`.
-
 Stable releases which increase the minor or major version number will usually
 change the ABI incompatibly (so that code will need to be recompiled against
 the newer release series.  They may also make incompatible API changes,
@@ -383,9 +383,9 @@ Removed Feature name                        Upgrade suggestion and comments
 1.1.0   Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
                                             ``Query::op``.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   The Quartz backend                  Use the Flint backend instead.
+1.1.0   The Quartz backend                  Use the Chert backend instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Quartz::open()                      Use ``Flint::open()`` instead.
+1.1.0   Quartz::open()                      Use ``Chert::open()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.0   quartzcheck                         Use ``xapian-check`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
@@ -415,6 +415,13 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.5   delve -k                            Accepted as an undocumented alias for -V since 0.9.10 for compatibility with 0.9.9
                                             and earlier.  Just use -V instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   The Flint backend                   Use the Chert backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   Flint::open()                       Use ``Chert::open()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   xapian-chert-update                 Install Xapian 1.2.x (where x >= 5) to update chert databases from 1.1.3 and
+                                            earlier.
 ======= =================================== ==================================================================================
 
 
