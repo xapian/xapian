@@ -1,3 +1,9 @@
+Tue Jun 14 01:18:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Reset LIBRARY_VERSION_INFO to 0:0:0 for the
+	  development series, since the library name is different (it has a
+	  -1.3 suffix).
+
 Mon Jun 13 16:24:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,

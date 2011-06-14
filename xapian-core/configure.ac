@@ -37,7 +37,10 @@ dnl 23:2:1 1.2.3 No API changes
 dnl 24:0:2 1.2.4 Compactor
 dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
 dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
-LIBRARY_VERSION_INFO=26:0:4
+dnl
+dnl LIBRARY_VERSION_INFO for libxapian-1.3:
+dnl 0:0:0 1.3.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
