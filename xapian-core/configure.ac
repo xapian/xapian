@@ -759,11 +759,11 @@ AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
-  AC_PREPROC_IFELSE([
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #ifdef __WIN32__
 #error WIN32
 #endif
-  ], [win32=no], [win32=yes])
+  ]])], [win32=no], [win32=yes])
 
   case $host_os-$win32 in
     *-yes )

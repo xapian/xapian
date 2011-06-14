@@ -1,3 +1,8 @@
+Tue Jun 14 01:42:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add unnecessary AC_LANG_SOURCE wrapper to shut up
+	  autoconf warning.
+
 Tue Jun 14 01:18:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Reset LIBRARY_VERSION_INFO to 0:0:0 for the
