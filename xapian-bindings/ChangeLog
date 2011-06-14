@@ -1,3 +1,8 @@
+Tue Jun 14 03:50:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test/SymbolTest.pm: Sync update from XS Search::Xapian
+	  - add "1;" to end of test module.
+
 Tue Jun 14 03:48:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/docs/examples/: Sync updates from XS Search::Xapian: Require
