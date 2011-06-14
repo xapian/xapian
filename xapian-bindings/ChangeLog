@@ -1,3 +1,10 @@
+Tue Jun 14 03:48:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/docs/examples/: Sync updates from XS Search::Xapian: Require
+	  Perl >= 5.6 so we can "use warnings;"; loop over file using while()
+	  (which reads a line per iteration) not foreach() (which reads the
+	  whole file up front).
+
 Mon Jun 13 17:00:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/generate-perl-exceptions: Simplify.
