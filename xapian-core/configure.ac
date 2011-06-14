@@ -1220,6 +1220,12 @@ module=no
 eval "SHLIBEXT=$shrext_cmds"
 AC_SUBST(SHLIBEXT)
 
+dnl We want to be able to use GNU make % pattern rules in maintainer targets
+dnl but automake warns these aren't portable, so we substitute the % to avoid
+dnl this warning.
+PERCENT='%'
+AC_SUBST(PERCENT)
+
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]

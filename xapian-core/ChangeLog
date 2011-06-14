@@ -1,3 +1,8 @@
+Tue Jun 14 02:01:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Avoid portability warning from automake
+	  about GNU make %-style pattern rules.
+
 Tue Jun 14 01:42:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add unnecessary AC_LANG_SOURCE wrapper to shut up

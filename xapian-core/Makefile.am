@@ -48,7 +48,10 @@ EXTRA_PROGRAMS =
 #
 # So the pain of maintaining a huge list of target forwarding rules here isn't
 # worth it.
-check-%:
+#
+# Note: We use @PERCENT@ here instead of a literal % to suppress an automake
+# portability warning.
+check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-%
 
 ## --disable-shared as shared builds fail for me on x86-64 Debian etch.
