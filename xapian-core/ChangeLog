@@ -1,8 +1,8 @@
-Wed Jun 15 12:13:47 GMT 2011  Olly Betts <olly@survex.com>
+Wed Jun 15 12:24:07 GMT 2011  Olly Betts <olly@survex.com>
 
-	* xapian-core/backends/remote/remote-database.cc: Remove special check
-	  which gives a more helpful error message when a modern client is used
-	  against a remote server running Xapian <= 0.9.6.
+	* backends/remote/remote-database.cc: Remove special check which gives
+	  a more helpful error message when a modern client is used against a
+	  remote server running Xapian <= 0.9.6.
 
 Wed Jun 15 11:07:19 GMT 2011  Olly Betts <olly@survex.com>
 

@@ -78,12 +78,6 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
     char type = get_message(message);
 
     if (reply_type(type) != REPLY_GREETING || message.size() < 3) {
-	if (type == 'O' && message.size() == size_t('M') && message[0] == ' ') {
-	    // The server reply used to start "OM ", which will now be
-	    // interpreted as a type 'O' message of length size_t('M')
-	    // with first character ' '.
-	    throw Xapian::NetworkError("Server protocol version too old", context);
-	}
 	throw Xapian::NetworkError("Handshake failed - is this a Xapian server?", context);
     }
 
