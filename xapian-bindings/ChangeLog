@@ -1,3 +1,8 @@
+Wed Jun 15 14:13:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,python/docs/index.html: Update required Python
+	  version to 2.4.
+
 Wed Jun 15 07:46:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-bindings/lua/docs/examples/simpleexpand.lua: Don't try to add

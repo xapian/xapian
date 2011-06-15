@@ -49,12 +49,15 @@ PHP		Requires PHP 5 (PHP 4 is no longer supported by the PHP
 		developers, so it doesn't make sense for us to continue to
 		support it).
 
-Python		Requires Python 2.3 or later.  If you still need support for
-		Python 2.2, use Xapian 1.0.x.  Note that you need to configure
-		Apache's mod_python or mod_wsgi correctly to avoid deadlocks
-		when using Xapian's Python bindings - be sure to read the
-		"Apache and mod_python/mod_wsgi" section of the Python bindings
-		documentation.
+Python		Requires Python 2.4 or later.  If you still need support for
+		Python 2.3, use Xapian 1.2.x.  Python 3 support is under
+		development, but not yet fully functional - see ticket#346
+		for details: http://trac.xapian.org/ticket/346
+
+		Note that you need to configure Apache's mod_python or mod_wsgi
+		correctly to avoid deadlocks when using Xapian's Python
+		bindings - be sure to read the "Apache and mod_python/mod_wsgi"
+		section of the Python bindings documentation.
 
 Ruby		Requires Ruby 1.8 or later.  With Ruby 1.9.0, the testsuite
 		fails due to a bug in the test/unit module, but applications
