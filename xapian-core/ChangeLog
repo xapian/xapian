@@ -1,3 +1,13 @@
+Wed Jun 15 13:03:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,docs/remote_protocol.rst,net/remoteserver.cc:
+	  Unify REPLY_GREETING and REPLY_UPDATE; send (last_docid - doccount)
+	  instead of last_docid; send (doclen_ubound - doclen_lbound) instead
+	  of doclen_ubound.  This requires a remote protocol major version
+	  bump.  Fix out of date documentation for what's in a REPLY_UPDATE
+	  message.
+
 Wed Jun 15 12:24:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Remove special check which gives

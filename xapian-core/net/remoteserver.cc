@@ -89,21 +89,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 #endif
 
     // Send greeting message.
-    string message;
-    message += char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION);
-    message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
-    message += encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
-    message += encode_length(db->get_doclength_lower_bound());
-    message += encode_length(db->get_doclength_upper_bound());
-    message += (db->has_positions() ? '1' : '0');
-    // FIXME: clumsy to reverse calculate total_len like this:
-    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
-    message += encode_length(total_len);
-    //message += encode_length(db->get_total_length());
-    string uuid = db->get_uuid();
-    message += uuid;
-    send_message(REPLY_GREETING, message);
+    msg_update(string());
 }
 
 RemoteServer::~RemoteServer()
@@ -331,10 +317,17 @@ RemoteServer::msg_reopen(const string & msg)
 void
 RemoteServer::msg_update(const string &)
 {
-    string message = encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
-    message += encode_length(db->get_doclength_lower_bound());
-    message += encode_length(db->get_doclength_upper_bound());
+    static const char protocol[2] = {
+	char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION),
+	char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)
+    };
+    string message(protocol, 2);
+    Xapian::doccount num_docs = db->get_doccount();
+    message += encode_length(num_docs);
+    message += encode_length(db->get_lastdocid() - num_docs);
+    Xapian::termcount doclen_lb = db->get_doclength_lower_bound();
+    message += encode_length(doclen_lb);
+    message += encode_length(db->get_doclength_upper_bound() - doclen_lb);
     message += (db->has_positions() ? '1' : '0');
     // FIXME: clumsy to reverse calculate total_len like this:
     totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);

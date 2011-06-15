@@ -74,31 +74,7 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 	transaction_state = TRANSACTION_UNIMPLEMENTED;
     }
 
-    string message;
-    char type = get_message(message);
-
-    if (reply_type(type) != REPLY_GREETING || message.size() < 3) {
-	throw Xapian::NetworkError("Handshake failed - is this a Xapian server?", context);
-    }
-
-    const char *p = message.c_str();
-    const char *p_end = p + message.size();
-
-    // The protocol major versions must match.  The protocol minor version of
-    // the server must be >= that of the client.
-    int protocol_major = static_cast<unsigned char>(*p++);
-    int protocol_minor = static_cast<unsigned char>(*p++);
-    if (protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
-	protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
-	string errmsg("Unknown protocol version ");
-	errmsg += str(protocol_major);
-	errmsg += '.';
-	errmsg += str(protocol_minor);
-	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
-	throw Xapian::NetworkError(errmsg, context);
-    }
-
-    apply_stats_update(p, p_end);
+    update_stats(MSG_MAX);
 
     if (writable) update_stats(MSG_WRITEACCESS);
 }
@@ -330,21 +306,36 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 void
 RemoteDatabase::update_stats(message_type msg_code) const
 {
-    send_message(msg_code, string());
-    string message;
-    get_message(message, REPLY_UPDATE);
-    const char * p = message.c_str();
-    const char * p_end = p + message.size();
-    apply_stats_update(p, p_end);
-}
+    // MSG_MAX signals that we're handling the opening greeting, which isn't in
+    // response to an explicit message.
+    if (msg_code != MSG_MAX)
+	send_message(msg_code, string());
 
-void
-RemoteDatabase::apply_stats_update(const char * p, const char * p_end) const
-{
+    string message;
+    if (get_message(message) != REPLY_UPDATE || message.size() < 3)
+	throw Xapian::NetworkError("Handshake failed - is this a Xapian server?", context);
+
+    const char *p = message.c_str();
+    const char *p_end = p + message.size();
+
+    // The protocol major versions must match.  The protocol minor version of
+    // the server must be >= that of the client.
+    int protocol_major = static_cast<unsigned char>(*p++);
+    int protocol_minor = static_cast<unsigned char>(*p++);
+    if (protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
+	protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
+	string errmsg("Unknown protocol version ");
+	errmsg += str(protocol_major);
+	errmsg += '.';
+	errmsg += str(protocol_minor);
+	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
+	throw Xapian::NetworkError(errmsg, context);
+    }
+
     doccount = decode_length(&p, p_end, false);
-    lastdocid = decode_length(&p, p_end, false);
+    lastdocid = decode_length(&p, p_end, false) + doccount;
     doclen_lbound = decode_length(&p, p_end, false);
-    doclen_ubound = decode_length(&p, p_end, false);
+    doclen_ubound = decode_length(&p, p_end, false) + doclen_lbound;
     if (p == p_end) {
 	throw Xapian::NetworkError("Bad stats update message received", context);
     }
