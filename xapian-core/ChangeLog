@@ -1,3 +1,8 @@
+Wed Jun 15 08:57:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-core/Makefile.am: Remove check-* from .PHONY as that doesn't
+	  work with a pattern rule.  Fix check-% pattern rule to actually work.
+
 Tue Jun 14 15:11:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/remote_protocol.rst: Fixed typo which reversed the intended

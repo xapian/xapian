@@ -32,14 +32,7 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
-.PHONY: check-none check-inmemory \
-	check-brass check-chert \
-	check-multi check-multi-brass check-multi-chert \
-	check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-brass check-remoteprog-chert \
-	check-remotetcp-brass check-remotetcp-chert \
-	check-perf check-soak \
-	coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
+.PHONY: coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 
 # This relies on GNU make (for the pattern rule) but it's just a convenience
 # as you can run these check-* targets with any make using:
@@ -52,7 +45,7 @@ EXTRA_PROGRAMS =
 # Note: We use @PERCENT@ here instead of a literal % to suppress an automake
 # portability warning.
 check-@PERCENT@:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-%
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
 ## --disable-shared as shared builds fail for me on x86-64 Debian etch.
 ## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
