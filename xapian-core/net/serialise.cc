@@ -1,7 +1,7 @@
 /** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,9 +68,8 @@ decode_length(const char ** p, const char *end, bool check_remaining)
 string
 serialise_error(const Xapian::Error &e)
 {
-    string result;
-    result += encode_length(strlen(e.get_type()));
-    result += e.get_type();
+    // The byte before the type name is the type code.
+    string result(1, (e.get_type())[-1]);
     result += encode_length(e.get_context().length());
     result += e.get_context();
     result += encode_length(e.get_msg().length());
@@ -88,38 +87,34 @@ unserialise_error(const string &serialised_error, const string &prefix,
     // Use c_str() so last string is nul-terminated.
     const char * p = serialised_error.c_str();
     const char * end = p + serialised_error.size();
-    size_t len;
-    len = decode_length(&p, end, true);
-    if (len == 7 && memcmp(p, "UNKNOWN", 7) == 0) {
-	throw Xapian::InternalError("UNKNOWN");
+    if (p != end) {
+	char type = *p++;
+
+	size_t len = decode_length(&p, end, true);
+	string context(p, len);
+	p += len;
+
+	len = decode_length(&p, end, true);
+	string msg(prefix);
+	msg.append(p, len);
+	p += len;
+
+	const char * error_string = (p == end) ? NULL : p;
+
+	if (!new_context.empty()) {
+	    if (!context.empty()) {
+		msg += "; context was: ";
+		msg += context;
+	    }
+	    context = new_context;
+	}
+
+	switch (type) {
+#include "xapian/errordispatch.h"
+	}
     }
-    string type(p, len);
-    p += len;
 
-    len = decode_length(&p, end, true);
-    string context(p, len);
-    p += len;
-
-    len = decode_length(&p, end, true);
-    string msg(prefix);
-    msg.append(p, len);
-    p += len;
-
-    const char * error_string = (p == end) ? NULL : p;
-
-    if (!context.empty() && !new_context.empty()) {
-	msg += "; context was: ";
-	msg += context;
-	context = new_context;
-    }
-
-#include <xapian/errordispatch.h>
-
-    string newmsg = "Unknown remote exception type ";
-    newmsg += type;
-    newmsg += ": ";
-    newmsg += msg;
-    throw Xapian::InternalError(newmsg, context);
+    throw Xapian::InternalError("Unknown remote exception type", new_context);
 }
 
 string
