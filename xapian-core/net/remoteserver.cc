@@ -331,10 +331,6 @@ RemoteServer::msg_reopen(const string & msg)
 void
 RemoteServer::msg_update(const string &)
 {
-    // reopen() doesn't do anything for a WritableDatabase, so there's
-    // no harm in calling it unconditionally.
-    db->reopen();
-
     string message = encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
     message += encode_length(db->get_doclength_lower_bound());
