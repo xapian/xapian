@@ -100,11 +100,11 @@ if not query:empty() then
 	if reldocs:empty() then
 		local i = matches:begin()
 		for j = 1, 5 do
-			reldocs:add_document(i:get_docid())
-			i:next()
 			if i:equals(matches:_end()) then
 				break
 			end
+			reldocs:add_document(i:get_docid())
+			i:next()
 		end
 	end
 
