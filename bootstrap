@@ -177,7 +177,7 @@ END
   if [ ! -d swig ] ; then
     git svn init svn://svn.tartarus.org/swig/trunk/ swig/
   fi
-  (cd swig && git svn fetch -r"$rev" && git svn rebase)
+  (cd swig && git svn fetch -r"$rev" && git reset --hard `git svn log -r"$rev" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 
   # FIXME: Currently requires manual update...
   #svn:externals revision for xapian-applications/omega/common
@@ -186,7 +186,7 @@ END
   if [ ! -d xapian-applications/omega/common ] ; then
     git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
   fi
-  (cd xapian-applications/omega/common && git svn fetch -r"$rev" && git svn rebase)
+  (cd xapian-applications/omega/common && git svn fetch -r"$rev" && git reset --hard `git svn log -r"$rev" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 fi
 
 if [ "$1" = "--without-autotools" ] ; then
