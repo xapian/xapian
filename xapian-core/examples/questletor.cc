@@ -67,7 +67,7 @@ static void show_usage() {
 }
 
 static map<string,long int>
-termfrequency(const Xapian::Document doc,const Xapian::Query & query)		//method to store the termfrequency of querywords in the document
+termfrequency(const Xapian::Document doc,const Xapian::Query & query)
 {
 	Xapian::TermIterator qt,qt_end,docterms,docterms_end;
 	map<string,long int> tf;
@@ -95,7 +95,7 @@ return tf;
 }
 
 static map<string,double>
-inversedocfreq(const Xapian::Database & db,const Xapian::Query & query)		//method to store inverse document frequency of querywords
+inversedocfreq(const Xapian::Database & db,const Xapian::Query & query)
 {
 	Xapian::TermIterator qt,qt_end;
 	map<string,double> idf;
@@ -119,7 +119,7 @@ inversedocfreq(const Xapian::Database & db,const Xapian::Query & query)		//metho
 }
 
 static map<string, long int>
-doc_length(const Xapian::Database & db, const Xapian::Document & doc)		// method to store length of document like length of title, body and whole
+doc_length(const Xapian::Database & db, const Xapian::Document & doc)
 {
 	map<string, long int> len;
 
@@ -146,7 +146,7 @@ doc_length(const Xapian::Database & db, const Xapian::Document & doc)		// method
 }
 
 static map<string,long int>
-collection_length(const Xapian::Database & db)		//method to store length of collection for title only, body only etc.
+collection_length(const Xapian::Database & db)
 {
 	map<string,long int> len;
 
@@ -172,7 +172,7 @@ collection_length(const Xapian::Database & db)		//method to store length of coll
 }
 
 static map<string,long int>
-collection_termfreq(const Xapian::Database & db, const Xapian::Query & query)	// method to store termfrequency of query terms in collection
+collection_termfreq(const Xapian::Database & db, const Xapian::Query & query)
 {
 	map<string,long int> tf;
 
@@ -193,7 +193,7 @@ collection_termfreq(const Xapian::Database & db, const Xapian::Query & query)	//
 
 
 double
-feature1(const Xapian::Query & query, map<string,long int> & tf,char ch)	// method to calculate the feature 1 shown on wiki page
+feature1(const Xapian::Query & query, map<string,long int> & tf,char ch)
 {
 	double value=0;
 	Xapian::TermIterator qt,qt_end;
@@ -469,7 +469,7 @@ try {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
-    int msize = 10;
+    int msize = 50;
 
     bool have_database = false;
 
@@ -547,11 +547,6 @@ try {
 */
 
 
-
-/*This adds the keywords as title also
- * Example: Original Query = "parth"
- * then Final Query = "Zparth ZSparth"
- */
 string qq=argv[optind];
 istringstream iss(argv[optind]);
 string title="title:";
@@ -593,26 +588,42 @@ cout<<"Final Query "<<qq<<"\n";
 	Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
 	Xapian::PostingIterator p,pend;
 
-	map<string,long int> coll_len;			//	a map for collection length like size of titles, bodies and whole doc in collection
-        coll_len=collection_length(db);
+	Xapian::Letor ltr;
 
-	map<string,long int> coll_tf;			//	a mao for total frequencies of a term in the collection
-	coll_tf=collection_termfreq(db,query);
+	map<string,long int> coll_len;
+        coll_len=ltr.collection_length(db);
+
+	map<string,long int> coll_tf;
+	coll_tf=ltr.collection_termfreq(db,query);
 
 
-	map<string,double> idf;				//	a map for inverse document frequencies of a term
-        idf=inversedocfreq(db,query);
+	map<string,double> idf;
+//        idf=inversedocfreq(db,query);
+      idf=ltr.inverse_doc_freq(db,query);
+//
+
+
 
 
 //org    cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	Xapian::Document doc = i.get_document();
-	map<string,long int> tf;			//	a map for term frequencies for query words in this particular document
-	tf=termfrequency(doc,query);
 
-	map<string, long int> doclen;			//	a map for document length for title, body and whole document
-	doclen=doc_length(db,doc);
 
+	map<string,long int> tf;			//defininf a map for term frequencies for query words in this particular document
+//	tf=termfrequency(doc,query);
+	tf=ltr.termfreq(doc,query);
+
+//	map<string,double> idf;
+//	idf=inversedocfreq(db,query);
+//	idf=ltr.inverse_doc_freq(db,query);
+
+	map<string, long int> doclen;
+//	doclen=doc_length(db,doc);
+	doclen=ltr.doc_length(db,doc);
+//
+//	map<string,long int> coll_len;
+//	coll_len=collection_length(db);
 
 	qt=query.get_terms_begin();
 	qt_end=query.get_terms_end();
@@ -623,16 +634,16 @@ cout<<"Final Query "<<qq<<"\n";
 	i=doclen.begin();
 	for(;i!=doclen.end();++i)
 	{
-		cout<<"Document Length of "<<(*i).first<<"\t"<<(*i).second<<"\n";
+//		cout<<"Document Length of "<<(*i).first<<"\t"<<(*i).second<<"\n";
 	}
 
 	i=coll_len.begin();
 	for(;i!=coll_len.end();++i)
 	{
-		cout<<"Collection Length of "<<(*i).first<<"\t"<<(*i).second<<"\n";
+//		cout<<"Collection Length of "<<(*i).first<<"\t"<<(*i).second<<"\n";
 	}
 
-	for(;qt!=qt_end;++qt)
+/*	for(;qt!=qt_end;++qt)
 	{
 	cout<<"Term: "<<*qt<<"\tTF: ";
 	i=tf.find(*qt);
@@ -656,30 +667,50 @@ cout<<"Final Query "<<qq<<"\n";
 
 	cout<<"\n";
 	}
+*/
 
-	double f1=feature1(query,tf,'t');	//title only
-	double f2=feature1(query,tf,'b');	//body only
-	double f3=feature1(query,tf,'w');	//whole document
 
-	double f4=calculate_f2(query,tf,doclen,'t');
-	double f5=calculate_f2(query,tf,doclen,'b');
-	double f6=calculate_f2(query,tf,doclen,'w');
+/*	i=tf.begin();
+	for(;i!=tf.end();++i)
+	{
+		cout<<"Frequency of "<<(*i).first<<" =\t"<<(*i).second<<"\n";
+	}
 
-	double f7=calculate_f3(query,idf,'t');
-	double f8=calculate_f3(query,idf,'b');
-	double f9=calculate_f3(query,idf,'w');
+	j=idf.begin();
+        for(;j!=idf.end();++j)
+        {
+                cout<<"IDF of "<<(*j).first<<" =\t"<<(*j).second<<"\n";
+        }
+*/
 
-	double f10=calculate_f4(query,coll_tf,coll_len,'t');
-	double f11=calculate_f4(query,coll_tf,coll_len,'b');
-	double f12=calculate_f4(query,coll_tf,coll_len,'w');
 
-	double f13=calculate_f5(query,tf,idf,doclen,'t');
-        double f14=calculate_f5(query,tf,idf,doclen,'b');
-        double f15=calculate_f5(query,tf,idf,doclen,'w');
+//	double f1=feature1(query,tf,'t');	//title only
+//	double f2=feature1(query,tf,'b');	//body only
+//	double f3=feature1(query,tf,'w');	//whole document
 	
-	double f16=calculate_f6(query,tf,doclen,coll_tf,coll_len,'t');
-        double f17=calculate_f6(query,tf,doclen,coll_tf,coll_len,'b');
-        double f18=calculate_f6(query,tf,doclen,coll_tf,coll_len,'w');
+	double f1=ltr.calculate_f1(query,tf,'t');
+	double f2=ltr.calculate_f1(query,tf,'b');
+	double f3=ltr.calculate_f1(query,tf,'w');
+
+	double f4=ltr.calculate_f2(query,tf,doclen,'t');
+	double f5=ltr.calculate_f2(query,tf,doclen,'b');
+	double f6=ltr.calculate_f2(query,tf,doclen,'w');
+
+	double f7=ltr.calculate_f3(query,idf,'t');
+	double f8=ltr.calculate_f3(query,idf,'b');
+	double f9=ltr.calculate_f3(query,idf,'w');
+
+	double f10=ltr.calculate_f4(query,coll_tf,coll_len,'t');
+	double f11=ltr.calculate_f4(query,coll_tf,coll_len,'b');
+	double f12=ltr.calculate_f4(query,coll_tf,coll_len,'w');
+
+	double f13=ltr.calculate_f5(query,tf,idf,doclen,'t');
+        double f14=ltr.calculate_f5(query,tf,idf,doclen,'b');
+        double f15=ltr.calculate_f5(query,tf,idf,doclen,'w');
+	
+	double f16=ltr.calculate_f6(query,tf,doclen,coll_tf,coll_len,'t');
+        double f17=ltr.calculate_f6(query,tf,doclen,coll_tf,coll_len,'b');
+        double f18=ltr.calculate_f6(query,tf,doclen,coll_tf,coll_len,'w');
 	
 
 	cout<<"Feature 1 Values t: "<<f1<<"\tb: "<<f2<<"\tw: "<<f3<<"\n";
@@ -690,9 +721,10 @@ cout<<"Final Query "<<qq<<"\n";
         cout<<"Feature 6 Values t: "<<f16<<"\tb: "<<f17<<"\tw: "<<f18<<"\n";
 
 
-	string data = doc.get_data();   //org
-	string id=data.substr(data.find("url=/",0)+5,(data.find(".txt",0)+4-data.find("url=/")-5));
-	cout<<argv[optind]<<"\t"<<id<<"\n";
+
+//	string data = doc.get_data();   //org
+//	string id=data.substr(data.find("url=/",0)+5,(data.find(".txt",0)+4-data.find("url=/")-5));
+//	cout<<argv[optind]<<"\t"<<id<<"\n";
 //done parth
 
 //org	cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
