@@ -104,16 +104,7 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 	throw Xapian::NetworkError(errmsg, context);
     }
 
-    doccount = decode_length(&p, p_end, false);
-    lastdocid = decode_length(&p, p_end, false);
-    doclen_lbound = decode_length(&p, p_end, false);
-    doclen_ubound = decode_length(&p, p_end, false);
-    if (p == p_end) {
-	throw Xapian::NetworkError("Bad greeting message received", context);
-    }
-    has_positional_info = (*p++ == '1');
-    total_length = decode_length(&p, p_end, false);
-    uuid.assign(p, p_end);
+    apply_stats_update(p, p_end);
 
     if (writable) update_stats(MSG_WRITEACCESS);
 }
@@ -350,12 +341,18 @@ RemoteDatabase::update_stats(message_type msg_code) const
     get_message(message, REPLY_UPDATE);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
+    apply_stats_update(p, p_end);
+}
+
+void
+RemoteDatabase::apply_stats_update(const char * p, const char * p_end) const
+{
     doccount = decode_length(&p, p_end, false);
     lastdocid = decode_length(&p, p_end, false);
     doclen_lbound = decode_length(&p, p_end, false);
     doclen_ubound = decode_length(&p, p_end, false);
     if (p == p_end) {
-	throw Xapian::NetworkError("Bad REPLY_UPDATE message received", context);
+	throw Xapian::NetworkError("Bad stats update message received", context);
     }
     has_positional_info = (*p++ == '1');
     total_length = decode_length(&p, p_end, false);
