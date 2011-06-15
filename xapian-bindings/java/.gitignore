@@ -1,0 +1,7 @@
+/.*.sw?
+/Makefile.in
+/Makefile
+/SmokeTest.class
+/MyMatchDecider.class
+/MyExpandDecider.class
+/built
