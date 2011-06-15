@@ -45,7 +45,7 @@
 // 34: 1.1.4 Support for metadata over with remote databases.
 // 35: 1.1.5 Support for add_spelling() and remove_spelling().
 // 35.1: 1.2.4 Support for metadata_keys_begin().
-// 36: 1.3.0 REPLY_UPDATE and REPLY_GREETING merged.
+// 36: 1.3.0 REPLY_UPDATE and REPLY_GREETING merged, and more...
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 36
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 

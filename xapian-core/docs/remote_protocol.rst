@@ -140,10 +140,12 @@ Reopen
 ------
 
 -  ``MSG_REOPEN``
--  ``REPLY_UPDATE [...]``
+-  ``REPLY_DONE`` or ``REPLY_UPDATE [...]``
 
-The reply message is the same format as the server's opening greeting given
-above.
+If the database was already at the latest version, ``REPLY_DONE`` is returned.
+
+If it was reopened, then the reply message is the same format as the server's
+opening greeting given above.
 
 Query
 -----

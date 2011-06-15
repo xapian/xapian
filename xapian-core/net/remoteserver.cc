@@ -310,7 +310,10 @@ RemoteServer::msg_writeaccess(const string & msg)
 void
 RemoteServer::msg_reopen(const string & msg)
 {
-    db->reopen();
+    if (!db->reopen()) {
+	send_message(REPLY_DONE, string());
+	return;
+    }
     msg_update(msg);
 }
 

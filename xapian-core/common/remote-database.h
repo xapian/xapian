@@ -86,7 +86,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      */
     mutable Xapian::valueno mru_slot;
 
-    void update_stats(message_type msg_code = MSG_UPDATE) const;
+    bool update_stats(message_type msg_code = MSG_UPDATE) const;
 
   protected:
     /** Constructor.  The constructor is protected so that raw instances

@@ -1,3 +1,10 @@
+Wed Jun 15 14:03:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,docs/remote_protocol.rst,net/remoteserver.cc:
+	  Propagate the return value of Database::reopen() across the link.
+	  (ticket#548)
+
 Wed Jun 15 13:03:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remote-database.h,

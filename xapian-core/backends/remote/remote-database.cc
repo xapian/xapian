@@ -258,11 +258,8 @@ RemoteDatabase::has_positions() const
 bool
 RemoteDatabase::reopen()
 {
-    update_stats(MSG_REOPEN);
     mru_slot = Xapian::BAD_VALUENO;
-    // FIXME: we could extend MSG_REOPEN to allow a "no change" reply, but for
-    // now just say "might have changed".
-    return true;
+    return update_stats(MSG_REOPEN);
 }
 
 void
@@ -303,7 +300,7 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
     return new RemoteDocument(this, did, doc_data, values);
 }
 
-void
+bool
 RemoteDatabase::update_stats(message_type msg_code) const
 {
     // MSG_MAX signals that we're handling the opening greeting, which isn't in
@@ -312,8 +309,14 @@ RemoteDatabase::update_stats(message_type msg_code) const
 	send_message(msg_code, string());
 
     string message;
-    if (get_message(message) != REPLY_UPDATE || message.size() < 3)
+    reply_type type = get_message(message);
+    if (type != REPLY_UPDATE || message.size() < 3) {
+	if (type == REPLY_DONE) {
+	    // The database was already open at the latest revision.
+	    return false;
+	}
 	throw Xapian::NetworkError("Handshake failed - is this a Xapian server?", context);
+    }
 
     const char *p = message.c_str();
     const char *p_end = p + message.size();
@@ -343,6 +346,7 @@ RemoteDatabase::update_stats(message_type msg_code) const
     total_length = decode_length(&p, p_end, false);
     uuid.assign(p, p_end);
     cached_stats_valid = true;
+    return true;
 }
 
 Xapian::doccount
