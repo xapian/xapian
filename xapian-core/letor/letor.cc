@@ -65,6 +65,18 @@ Letor::doc_length(const Xapian::Database & db, const Xapian::Document & doc)
 	return len;
 }
 
+map<string,long int>
+Letor::collection_length(const Xapian::Database & db) {
+    map<string,long int> coll_len=internal->collection_length(db);
+    return coll_len;
+}
+
+map<string,long int>
+Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query) {
+    map<string,long int> coll_tf = internal->collection_termfreq(db,query);
+    return coll_tf;
+}
+
 void
 Letor::make_feature_vector()
 {

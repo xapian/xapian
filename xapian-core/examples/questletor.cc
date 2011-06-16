@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include <xapian.h>
+#include <xapian/letor.h>
 
 #include <cstdlib>
 #include <cstring>

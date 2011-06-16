@@ -155,6 +155,7 @@ include net/Makefile.mk
 include queryparser/Makefile.mk
 include unicode/Makefile.mk
 include weight/Makefile.mk
+include letor/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
 
