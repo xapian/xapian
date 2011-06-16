@@ -1,3 +1,10 @@
+Thu Jun 16 15:38:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Improve $version output from "Xapian - xapian-omega 1.2.6"
+	  to "xapian-omega 1.2.6".
+	* docs/omegascript.rst: Update example to match (and use less ancient
+	  version!)
+
 Thu Jun 16 15:36:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* dbi2omega: Remove uninteresting reference to 0.9.4.

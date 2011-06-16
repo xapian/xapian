@@ -525,7 +525,7 @@ $value{VALUENO[,DOCID]}
         ``$hitlist``).
 
 $version
-	omega version string - e.g. "Xapian - omega 0.9.2"
+	omega version string - e.g. "xapian-omega 1.2.6"
 
 $weight
 	raw document weight of the current hit, as a floating point value
