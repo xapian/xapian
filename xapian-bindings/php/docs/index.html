@@ -109,11 +109,11 @@ which are thrown into the PHP script.
 <h2>Object orientation</h2>
 
 <p>
-As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.
+These PHP bindings use a PHP object oriented style.
 </p>
 
 <p>
-In order to construct an object, use
+To construct an object, use
 <code>$object = new XapianClassName(...);</code>.  Objects are destroyed
 when they go out of scope - to explicitly destroy an object you can use
 <code>unset($object);</code> or <code>$object = Null;</code>
@@ -126,7 +126,7 @@ You invoke a method on an object using <code>$object-&gt;method_name()</code>.
 <h2>Unicode Support</h2>
 
 <p>
-In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+The Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
 to index strings in a different encoding, use the PHP
 <a href="http://php.net/iconv"><code>iconv

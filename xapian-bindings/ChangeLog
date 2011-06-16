@@ -1,3 +1,7 @@
+Thu Jun 16 06:10:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html: Drop references to Xapian versions before 1.0.0.
+
 Thu Jun 16 06:05:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* README,configure.ac,php/docs/index.html: Raise the minimum required
