@@ -9,11 +9,11 @@ TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
 
-# FIXME: replicationtest.py attempts to test the concurrent performance of
-# performing replication whilst modifications are in progress.  However, it
-# sometimes fails due to a race condition in it.  It also contains hard-coded
-# paths to the replication scripts, which assume the file layout in an SVN
-# checkout.  Therefore, we don't run it by default currently.
+# FIXME: replicationtest.py attempts to test performing replication whilst
+# modifications are in progress.  However, it sometimes fails due to a race
+# condition in it.  It also contains hard-coded paths to the replication
+# server and client, which assume the file layout in a repo checkout.
+# Therefore, we don't run it by default currently.
 # replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py

@@ -1,3 +1,7 @@
+Thu Jun 16 07:48:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Improve comment about replicationtest.py.
+
 Thu Jun 16 06:34:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove unnecessary nested single quotes.  Remove
