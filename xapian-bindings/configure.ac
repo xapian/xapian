@@ -838,25 +838,25 @@ if test no != "$with_perl" ; then
   if test -n "$PERL" ; then
     AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
     if test -z "$PERL_INC" ; then
-      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
+      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi
     AC_SUBST(PERL_INC)
 
     AC_ARG_VAR(PERL_ARCH, [Directory to install architecture-dependent perl files into])
     if test -z "$PERL_ARCH" ; then
-      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch};'`
+      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch}'`
     fi
     AC_SUBST(PERL_ARCH)
 
     AC_ARG_VAR(PERL_LIB, [Directory to install architecture-independent perl files into])
     if test -z "$PERL_LIB" ; then
-      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib};'`
+      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib}'`
     fi
     AC_SUBST(PERL_LIB)
 
     AC_ARG_VAR(PERL_SO, [for perl module extension])
     if test -z "$PERL_SO" ; then
-      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`
+      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{dlext}'`
     fi
     AC_SUBST(PERL_SO)
 

@@ -1,3 +1,8 @@
+Thu Jun 16 06:34:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unnecessary nested single quotes.  Remove
+	  superfluous trailing ; from Perl one-liners.
+
 Thu Jun 16 06:10:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/docs/index.html: Drop references to Xapian versions before 1.0.0.
