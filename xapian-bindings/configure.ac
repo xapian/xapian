@@ -354,45 +354,27 @@ if test no != "$with_php" ; then
     fi
 
     if test no != "$with_php" ; then
-      PHP_found=no
-      case $PHP in
-	"")
-	  dnl PHP5's php-config has --php-binary which gives the path to the
-	  dnl PHP interpreter.  Otherwise, try "$prefix/bin/php$N" then
-	  dnl "$prefix/bin/php".
-	  php_prefix=`$PHP_CONFIG --prefix 2>/dev/null`
-	  php_bin=$php_prefix/bin/php
-	  php_binary=
-	  if $PHP_CONFIG --php_binary > /dev/null 2>&1 ; then
-	    php_binary=`$PHP_CONFIG --php-binary 2>/dev/null`
-	  fi
-	  for php in $php_binary $php_bin$PHP_MAJOR_VERSION $php_bin ; do
-	    AC_MSG_CHECKING([for $php])
-	    for ac_exec_ext in '' $ac_executable_extensions; do
-	      if $as_executable_p "$php$ac_exec_ext"; then
-		PHP=$php$ac_exec_ext
-		AC_MSG_RESULT([$PHP])
-		PHP_found=yes
-		break 2
-	      fi
-	    done
-	    AC_MSG_RESULT([no])
-	  done
-	  ;;
-	[[\\/]* | ?:[\\/]*]) ;;
-	*)
-	  dnl Handle PHP passed in without a path - e.g. PHP=php5
-	  AC_PATH_PROGS(PHP, ["$PHP"], [])
-	  test -n "$PHP" && PHP_found=yes
-	  ;;
-      esac
-      if test yes != "$PHP_found" ; then
-	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
-	dnl PHP bindings tests.
-	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [\$(top_srcdir)/skiptest])
+      if test x"$PHP" = x ; then
+	AC_MSG_CHECKING([for PHP interpreter])
+	dnl PHP5's php-config supports --php-binary, so just use that.
+	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
+	if test x"$PHP" != x ; then
+	  if $PHP -r 'exit(0);' 2> /dev/null ; then
+	    AC_MSG_RESULT([$PHP])
+	  else
+	    AC_MSG_RESULT([no ($PHP does not work)])
+	    PHP=
+          fi
+	else
+	  AC_MSG_RESULT([not found])
+	fi
+      else
+	AC_PATH_PROGS(PHP, ["$PHP"], [])
       fi
-      if test -z "$PHP" ; then
+      if test x"$PHP" = x ; then
 	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
+	dnl The skiptest script just returns exit code 77.
+	PHP='$(top_srcdir)/skiptest'
       fi
 
       case $host_os in

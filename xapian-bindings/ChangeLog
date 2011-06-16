@@ -1,3 +1,8 @@
+Thu Jun 16 05:56:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Simplify probe for PHP CLI - we dropped PHP4 support in
+	  1.1.0 so we can rely on having php-config --php-binary available.
+
 Wed Jun 15 14:13:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* README,configure.ac,python/docs/index.html: Update required Python
