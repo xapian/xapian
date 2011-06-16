@@ -263,7 +263,7 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     TEST_EQUAL(rodb.get_doccount(), 1);
 
     db.flush();
-    rodb.reopen();
+    TEST(rodb.reopen());
 
     TEST_EQUAL(rodb.get_doccount(), 2);
     return true;

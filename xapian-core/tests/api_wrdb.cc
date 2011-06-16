@@ -603,7 +603,8 @@ DEFINE_TESTCASE(deldoc2, writable) {
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     db.delete_document(1);
     db.delete_document(2);
@@ -611,7 +612,8 @@ DEFINE_TESTCASE(deldoc2, writable) {
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
     TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
@@ -664,13 +666,15 @@ DEFINE_TESTCASE(deldoc3, writable) {
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     db.delete_document(1);
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
@@ -730,11 +734,13 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	bool is_power_of_two = ((i & (i - 1)) == 0);
 	if (is_power_of_two) {
 	    db.commit();
-	    db.reopen();
+	    // reopen() on a writable database shouldn't do anything.
+	    TEST(!db.reopen());
 	}
     }
     db.commit();
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     /* delete the documents in a peculiar order */
     for (Xapian::docid i = 0; i < maxdoc / 3; ++i) {
@@ -744,8 +750,8 @@ DEFINE_TESTCASE(deldoc4, writable) {
     }
 
     db.commit();
-
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
     TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
@@ -1506,14 +1512,14 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 
 	db.add_document(doc);
 	db.commit();
-	dbr.reopen();
+	TEST(dbr.reopen());
 	TEST_EQUAL(dbr.get_doccount(), 1);
 
 	// Xapian::Database has full set of baseB, old baseA
 
 	db.add_document(doc);
 	db.commit();
-	dbr.reopen();
+	TEST(dbr.reopen());
 	TEST_EQUAL(dbr.get_doccount(), 2);
 
 	// Xapian::Database has full set of baseA, old baseB
@@ -1523,7 +1529,7 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	unlink(path + "/record" + base_ext);
 	unlink(path + "/termlist" + base_ext);
 
-	dbr.reopen();
+	TEST(!dbr.reopen());
 	TEST_EQUAL(dbr.get_doccount(), 2);
     }
 
@@ -1533,14 +1539,14 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 
     db.add_document(doc);
     db.commit();
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_doccount(), 3);
 
     // Xapian::Database has full set of baseB, old baseA
 
     db.add_document(doc);
     db.commit();
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_doccount(), 4);
 
     return true;

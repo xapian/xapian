@@ -1,3 +1,9 @@
+Thu Jun 16 14:40:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/: Add TEST( ) or TEST(! ) around existing reopen() calls to
+	  check that we get true or false returned as we would expect.
+	  (ticket#548)
+
 Thu Jun 16 05:15:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* README: Note licence is GPL *2+*.  Say "SVN/git".  Use trac URL for
