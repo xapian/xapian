@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -106,7 +106,7 @@ Xapian::Error::get_error_string() const
 string
 Xapian::Error::get_description() const
 {
-    string desc(type);
+    string desc(get_type());
     desc += ": ";
     desc += msg;
     if (!context.empty()) {
