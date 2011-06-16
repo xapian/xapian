@@ -1,3 +1,8 @@
+Thu Jun 16 05:15:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-core/README: Note licence is GPL *2+*.  Say "SVN/git".  Use
+	  trac URL for wiki.
+
 Wed Jun 15 23:31:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-core/api/error.cc: Don't include the magic code byte at the
