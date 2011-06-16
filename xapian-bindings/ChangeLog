@@ -1,3 +1,7 @@
+Thu Jun 16 09:24:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Fix "make check".
+
 Thu Jun 16 07:48:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Improve comment about replicationtest.py.
