@@ -201,7 +201,7 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.1.0      ?	  Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
+1.1.0      ?      Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
 ========== ====== =================================== ========================================================================
 
 .. flush() is just a simple inlined alias, so perhaps not worth causing pain by
@@ -384,21 +384,21 @@ Removed Feature name                        Upgrade suggestion and comments
                                             earlier.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
-	``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and probably
-					    think of as ascending) while ascending=true gave the reverse (descending) order.
-					    For sanity, we renamed the parameter to ``reverse`` and deprecated the default
-					    value.  In the more distant future, we'll probably add a default again, but of
-					    ``false`` instead.
+        ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and probably
+                                            think of as ascending) while ascending=true gave the reverse (descending) order.
+                                            For sanity, we renamed the parameter to ``reverse`` and deprecated the default
+                                            value.  In the more distant future, we'll probably add a default again, but of
+                                            ``false`` instead.
 
-					    The methods affected are:
-					    ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
-					    ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
-					    ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
-					    ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
-					    ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
-					    ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
+                                            The methods affected are:
+                                            ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
+                                            ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
+                                            ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
+                                            ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
+                                            ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
+                                            ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
 
-					    To update them, just add a second parameter with value ``true`` to each of the
+                                            To update them, just add a second parameter with value ``true`` to each of the
                                             above calls.  For the methods which take a ``Xapian::Sorter`` object, you'll also
                                             need to migrate to ``Xapian::KeyMaker`` (see below).
 ------- ----------------------------------- ----------------------------------------------------------------------------------
