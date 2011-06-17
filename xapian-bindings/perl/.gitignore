@@ -11,6 +11,7 @@
 /xapian_wrap.d
 /Xapian.la
 /*.stamp
+/auto
 /testdb
 /testdb-exception
 /testdb-exception-modified

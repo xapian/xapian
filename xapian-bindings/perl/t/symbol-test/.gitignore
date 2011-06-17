@@ -2,5 +2,6 @@
 /SymbolTest.c
 /blib
 /SymbolTest.bs
+/SymbolTest.lo
 /Makefile
 /Makefile.old
