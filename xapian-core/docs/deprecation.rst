@@ -201,7 +201,13 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.1.0      ?	  Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
 ========== ====== =================================== ========================================================================
+
+.. flush() is just a simple inlined alias, so perhaps not worth causing pain by
+.. removing it in a hurry, though it would be nice to be able to reuse the
+.. method name to actually implement a flush() which writes out data but
+.. doesn't commit.
 
 Bindings
 --------

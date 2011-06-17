@@ -1,3 +1,7 @@
+Fri Jun 17 07:38:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Add flush() -> commit().
+
 Thu Jun 16 14:40:35 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/: Add TEST( ) or TEST(! ) around existing reopen() calls to
