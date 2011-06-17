@@ -1,3 +1,7 @@
+Fri Jun 17 07:43:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Update.
+
 Thu Jun 16 09:24:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Fix "make check".
