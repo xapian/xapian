@@ -79,3 +79,42 @@ http://www.swig.org/compare.html for a list of supported languages.
 It may be possible to support a language which isn't listed above, but it's
 likely to be harder unless you're already familiar with the tools available
 for wrapping a C++ library for use with that language.
+
+Implementing Deprecation Warnings for the Bindings
+=================================================
+
+Currently we don't have an equivalent of the C++ ``XAPIAN_DEPRECATED()`` macro
+for the bindings, but it would be good to have.  Here are some notes on how
+this could be achieved for various languages we support:
+
+  * PHP 5.3 added an E_USER_DEPRECATED error level, and for < 5.3 we can
+    use E_USER_NOTICE, by putting this near the start of xapian.php::
+
+      define('XAPIAN_DEPRECATED',defined(E_USER_DEPRECATED)?E_USER_DEPRECATED:E_USER_NOTICE);
+
+    And then in a deprecated method we do:
+
+      trigger_error('World::hi() is deprecated, use World::hello() instead', XAPIAN_DEPRECATED);
+
+  * Python has DeprecationWarning, which we were using in 1.2.x a bit::
+
+      warnings.warn('World::hi() is deprecated, use World::hello() instead', DeprecationWarning)
+
+  * Ruby - there are external libraries to handle deprecation warnings, but the
+    simplest option without external dependencies seems to be::
+
+      warn '[DEPRECATION] 'World::hi() is deprecated, use World::hello() instead')
+
+  * Perl::
+
+     use warnings;
+     warnings::warnif('deprecated', 'World::hi() is deprecated, use World::hello() instead');
+
+  * Java has @Deprecated, but I think that's a documentation thing only.
+
+It would be great (but probably hard) to reuse the XAPIAN_DEPRECATION()
+markers.  Perhaps parsing the doxygen XML for @deprecated markers would be
+simpler?
+
+Also, it would be good if the warnings could be turned off easily, as runtime
+deprecation warnings can be annoying for end users.

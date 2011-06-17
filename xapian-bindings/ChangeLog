@@ -1,3 +1,7 @@
+Fri Jun 17 08:11:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Start section on deprecation warnings for the bindings.
+
 Fri Jun 17 07:43:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Update.
