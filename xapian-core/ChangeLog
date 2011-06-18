@@ -1,3 +1,9 @@
+Sat Jun 18 06:27:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,expand/ortermlist.cc,include/xapian/: Use TermIterator() instead
+	  of TermIterator(NULL), and similarly for other Xapian iterator
+	  classes.
+
 Sat Jun 18 05:16:23 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/zlib-vg.so: Remove file committed accidentally.

@@ -211,7 +211,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to values_begin() */
     TermIterator values_end() const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /** Get an iterator over the most frequent values seen in the slot.
@@ -228,7 +228,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to top_values_begin() */
     TermIterator top_values_end(size_t) const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /** Implementation of virtual operator().

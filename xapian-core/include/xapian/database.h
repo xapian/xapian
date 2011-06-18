@@ -177,7 +177,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to postlist_begin().
 	 */
 	PostingIterator postlist_end(const std::string &) const {
-	    return PostingIterator(NULL);
+	    return PostingIterator();
 	}
 
 	/** An iterator pointing to the start of the termlist
@@ -188,7 +188,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to termlist_begin().
 	 */
 	TermIterator termlist_end(Xapian::docid) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Does this database have any positional information? */
@@ -202,7 +202,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to positionlist_begin().
 	 */
 	PositionIterator positionlist_end(Xapian::docid, const std::string &) const {
-	    return PositionIterator(NULL);
+	    return PositionIterator();
 	}
 
 	/** An iterator which runs across all terms in the database.
@@ -212,7 +212,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to allterms_begin().
 	 */
 	TermIterator allterms_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** An iterator which runs across all terms with a given prefix.
@@ -231,7 +231,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to allterms_begin(prefix).
 	 */
 	TermIterator allterms_end(const std::string &) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Get the number of documents in the database.
@@ -369,7 +369,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to spellings_begin().
 	Xapian::TermIterator spellings_end() const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** An iterator which returns all the synonyms for a given term.
@@ -380,7 +380,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to synonyms_begin(term).
 	Xapian::TermIterator synonyms_end(const std::string &) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** An iterator which returns all terms which have synonyms.
@@ -392,7 +392,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
 	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** Get the user-specified metadata associated with a given key.
@@ -443,7 +443,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to metadata_keys_begin().
 	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** Get a UUID for the database.

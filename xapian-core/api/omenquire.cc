@@ -754,7 +754,7 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
 {
     if (query.empty())
 	throw Xapian::InvalidArgumentError("get_matching_terms with empty query");
-	//return TermIterator(NULL);
+	//return TermIterator();
 
     // The ordered list of terms in the query.
     TermIterator qt = query.get_terms_begin();

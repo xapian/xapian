@@ -1069,7 +1069,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** End iterator corresponding to get_matching_terms_begin() */
 	TermIterator get_matching_terms_end(Xapian::docid /*did*/) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Get terms which match a given document, by match set item.
@@ -1098,7 +1098,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** End iterator corresponding to get_matching_terms_begin() */
 	TermIterator get_matching_terms_end(const MSetIterator &/*it*/) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Return a string describing this object.

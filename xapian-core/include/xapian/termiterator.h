@@ -108,7 +108,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	 *  current term.
 	 */
 	PositionIterator positionlist_end() const {
-	    return PositionIterator(NULL);
+	    return PositionIterator();
 	}
 
 	/// Return a string describing this object.
