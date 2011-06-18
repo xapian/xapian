@@ -71,7 +71,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const PositionIterator &o);
+	PositionIterator & operator=(const PositionIterator &o);
 
 	Xapian::termpos operator *() const;
 

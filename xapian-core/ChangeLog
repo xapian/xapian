@@ -1,3 +1,10 @@
+Sat Jun 18 05:07:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,include/xapian/positioniterator.h,
+	  include/xapian/termiterator.h: Reimplementations of PositionIterator
+	  and TermIterator from the end-iterator-proxies branch.  Assignment
+	  operators for these classes now return *this rather than void.
+
 Sat Jun 18 01:49:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/perftest/Makefile.mk: Make sure that perftest isn't run with

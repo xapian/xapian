@@ -62,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const TermIterator &other);
+	TermIterator & operator=(const TermIterator &other);
 
 	/// Return the current term.
 	std::string operator *() const;
