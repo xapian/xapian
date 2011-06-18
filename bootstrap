@@ -282,14 +282,6 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
   fi
 done
 
-# Search::Xapian doesn't use autotools.
-if [ -f "$srcdir/search-xapian/Makefile.PL" ] ; then
-  cd "$srcdir/search-xapian"
-  perl generate-perl-exceptions
-  cd "$curdir"
-  modules="$modules search-xapian"
-fi
-
 # Generate the top-level configure script.
 rm -f configure.tmp
 cat <<'TOP_OF_CONFIGURE' > configure.tmp
@@ -401,37 +393,6 @@ for d in $modules ; do
     esac
     cd "$here"
     dirs="$dirs $d"
-  elif [ search-xapian = "$d" ] ; then
-    if [ "$here" = "$srcdir" ] ; then
-      makefilepl=Makefile.PL
-    else
-      [ -d "$d" ] || mkdir "$d"
-      makefilepl=$srcdir/$d/Makefile.PL
-    fi
-    cd "$d"
-    if [ -f "$makefilepl" ] ; then
-      echo "Configuring \`$d'"
-      # Extract any parameters which we know Makefile.PL understands from
-      # from those passed to us.
-      unset cxx_arg
-      unset cxxflags_arg
-      unset cppflags_arg
-      for arg
-      do
-	case $arg in
-	  CXX=*)
-	    cxx_arg=$arg ;;
-	  CXXFLAGS=*)
-	    cxxflags_arg=$arg ;;
-	  CPPFLAGS=*)
-	    cppflags_arg=$arg ;;
-	esac
-      done
-      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxx_arg+"$cxx_arg"} \
-	  ${cxxflags_arg+"$cxxflags_arg"} ${cppflags_arg+"$cppflags_arg"}
-      dirs="$dirs $d"
-    fi
-    cd "$here"
   fi
 done
 
@@ -452,16 +413,8 @@ for target in $targets ; do
     swig,dist|swig,check|swig,distcheck|swig,all)
       # Need to ensure swig is built before "make dist", "make check", etc.
       echo "	cd $d && \$(MAKE)" ;;
-    swig,mostlyclean|search-xapian,mostlyclean)
+    swig,mostlyclean)
       echo "	cd $d && \$(MAKE) clean" ;;
-    search-xapian,install-strip)
-      echo "	cd $d && \$(MAKE) install" ;;
-    search-xapian,maintainer-clean)
-      echo "	cd $d && \$(MAKE) realclean" ;;
-    search-xapian,dist)
-      echo "	cd $d && \$(MAKE) dist GZIP=-f" ;;
-    search-xapian,distcheck)
-      echo "	cd $d && \$(MAKE) disttest && \$(MAKE) dist GZIP=-f" ;;
     xapian-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.
