@@ -1,3 +1,8 @@
+Sun Jun 19 12:23:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/error.cc,generate-exceptions: Rearrange members of Xapian::Error
+	  to reduce its size (from 48 to 40 bytes on x86-64 Linux).
+
 Sun Jun 19 12:22:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Fix comment typo.
