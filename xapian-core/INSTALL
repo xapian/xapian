@@ -39,17 +39,18 @@ or a reasonable approximation to it.
 If you're using MS Visual C++, see the Xapian download page for a link to
 a set of suitable makefiles: http://xapian.org/download
 
-If you're using GCC, we currently recommend GCC 4.1 or newer (this is the
+If you're using GCC, we currently recommend GCC 4.3 or newer (this is the
 oldest version we regularly test with).
 
-The minimum required GCC version is 3.1 (2.95.2 and earlier don't have
-the <sstream> header; 3.0 adds support for the <limits> header and has
-<streambuf> as well as <streambuf.h>, but widespread adoption of GCC3
-didn't happen until after 3.0, and 3.1 was released on 2002-05-15 so
-we now require this as it eliminates some preprocessor conditionals which we
-aren't able to test regularly as we don't have easy access to such old GCC
-versions).  If you really still need to use an older version of GCC, Xapian
-1.0.x should build with GCC 2.95.3 or GCC 3.0.x.
+The oldest version we've tested with at all recently was GCC 3.3, but the
+hard minimum requirement is GCC 3.1 (we rely on the <limits> and <streambuf>
+headers, which were added in GCC 3.0, but requiring GCC 3.1 allows us to
+eliminate some preprocessor conditionals which we are no longer easily able
+to test.  We also doubt GCC 3.0 is still in use since GCC 3.1 was released on
+2002-05-15, and widespread adoption of GCC3 didn't happen until after 3.0).
+
+If you really still need to use an older version of GCC, Xapian 1.0.x should
+build with GCC 2.95.3 or GCC 3.0.x.
 
 When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
 xapian-core's configure automatically detects and passes.  This means your code

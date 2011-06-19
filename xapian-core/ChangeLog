@@ -1,3 +1,9 @@
+Sun Jun 19 04:45:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Update GCC details - we now recommend 4.3 or newer (was 4.1)
+	  and note that while 3.1 is the hard minimum requirement, the oldest
+	  we've tested with at all recently was 3.3.
+
 Sat Jun 18 14:27:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,
