@@ -93,7 +93,7 @@ operator<<(PrettyOStream<S> &ps, const T ** t)
     return ps;
 }
 
-// FIXME: We probably don't want to inline this, but need to arragne to
+// FIXME: We probably don't want to inline this, but need to arrange to
 // put it somewhere sane out-of-line.
 inline void write_ch(std::ostream & os, unsigned char ch)
 {

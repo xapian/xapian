@@ -1,3 +1,7 @@
+Sun Jun 19 12:22:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Fix comment typo.
+
 Sun Jun 19 04:45:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL: Update GCC details - we now recommend 4.3 or newer (was 4.1)
