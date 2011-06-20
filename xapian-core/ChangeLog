@@ -1,3 +1,9 @@
+Mon Jun 20 12:46:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/databasereplicator.h,languages/steminternal.h,tests/harness/:
+	  Remove inclusions of xapian/base.h from files which don't use
+	  RefCntPtr or RefCntBase.
+
 Mon Jun 20 11:33:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/base.h: Remove unnecessary check for self-assignment
