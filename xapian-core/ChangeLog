@@ -1,3 +1,9 @@
+Mon Jun 20 11:33:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/base.h: Remove unnecessary check for self-assignment
+	  as it isn't a common case and the current code copes gracefully with
+	  it anyway.
+
 Mon Jun 20 05:25:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_postlist.cc,backends/brass/brass_postlist.h,
