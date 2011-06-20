@@ -130,18 +130,21 @@ class ChertPostList : public LeafPostList {
 	 */
 	Xapian::Internal::RefCntPtr<const ChertDatabase> this_db;
 
-	/// Whether we've started reading the list yet.
-	bool have_started;
-
 	/// The position list object for this posting list.
 	ChertPositionList positionlist;
 
-    private:
-	/// Cursor pointing to current chunk of postlist.
-	AutoPtr<ChertCursor> cursor;
+	/// Whether we've started reading the list yet.
+	bool have_started;
 
+    private:
 	/// True if this is the last chunk.
 	bool is_last_chunk;
+
+	/// Whether we've run off the end of the list yet.
+	bool is_at_end;
+
+	/// Cursor pointing to current chunk of postlist.
+	AutoPtr<ChertCursor> cursor;
 
 	/// The first document id in this chunk.
 	Xapian::docid first_did_in_chunk;
@@ -160,9 +163,6 @@ class ChertPostList : public LeafPostList {
 
 	/// The wdf of the current document.
 	Xapian::termcount wdf;
-
-	/// Whether we've run off the end of the list yet.
-	bool is_at_end;
 
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;

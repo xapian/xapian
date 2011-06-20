@@ -677,8 +677,8 @@ ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> th
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
-	  cursor(this_db_->postlist_table.cursor_get()),
-	  is_at_end(false)
+	  is_at_end(false),
+	  cursor(this_db_->postlist_table.cursor_get())
 {
     LOGCALL_VOID(DB, "ChertPostList::ChertPostList", this_db_.get() | term_ | keep_reference);
     string key = ChertPostListTable::make_key(term);

@@ -1,3 +1,10 @@
+Mon Jun 20 05:25:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_postlist.cc,backends/brass/brass_postlist.h,
+	  backends/chert/chert_postlist.cc,backends/chert/chert_postlist.h:
+	  Reduce size of BrassPostList/ChertPostList objects by moving bool
+	  members together (168->160 bytes for ChertPostList on x86-64 Linux).
+
 Sun Jun 19 13:44:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Fix typo in comment and verbose output.
