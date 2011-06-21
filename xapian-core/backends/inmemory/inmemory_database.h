@@ -145,9 +145,9 @@ class InMemoryPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
-	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+	InMemoryPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
 			 const InMemoryTerm & imterm, const std::string & term_);
     public:
 	Xapian::doccount get_termfreq() const;
@@ -175,9 +175,9 @@ class InMemoryAllDocsPostList : public LeafPostList {
     private:
 	Xapian::docid did;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
-	InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db);
+	InMemoryAllDocsPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db);
     public:
 	Xapian::doccount get_termfreq() const;
 
@@ -206,11 +206,11 @@ class InMemoryTermList : public TermList {
 	Xapian::termcount terms;
 	bool started;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 	Xapian::docid did;
 	Xapian::termcount document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+	InMemoryTermList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
 			 Xapian::docid did,
 			 const InMemoryDoc & doc,
 			 Xapian::termcount len);

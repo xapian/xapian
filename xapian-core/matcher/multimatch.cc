@@ -66,6 +66,7 @@
 #include <set>
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 const Xapian::Enquire::Internal::sort_setting REL =
 	Xapian::Enquire::Internal::REL;
@@ -137,7 +138,7 @@ split_rset_by_db(const Xapian::RSet * rset,
  *  statistics arrive, we can move on to the next step.
  */
 static void
-prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
+prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
 		    Xapian::Weight::Internal & stats)
 {
@@ -240,7 +241,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     for (size_t i = 0; i != number_of_subdbs; ++i) {
 	Xapian::Database::Internal *subdb = db.internal[i].get();
 	Assert(subdb);
-	Xapian::Internal::RefCntPtr<SubMatch> smatch;
+	intrusive_ptr<SubMatch> smatch;
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -335,7 +336,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Start matchers.
     {
-	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
+	vector<intrusive_ptr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    if (!(*leaf).get()) continue;
 	    try {
@@ -397,7 +398,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Assert(!postlists.empty());
 
     ValueStreamDocument vsdoc(db);
-    ++vsdoc.ref_count;
+    ++vsdoc._refs;
     Xapian::Document doc(&vsdoc);
 
     // Get a single combined postlist

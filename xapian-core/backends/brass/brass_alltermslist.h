@@ -35,7 +35,7 @@ class BrassAllTermsList : public AllTermsList {
     void operator=(const BrassAllTermsList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const BrassDatabase> database;
+    Xapian::Internal::intrusive_ptr<const BrassDatabase> database;
 
     /** A cursor which runs through the postlist table reading termnames from
      *  the keys.
@@ -63,7 +63,7 @@ class BrassAllTermsList : public AllTermsList {
     void read_termfreq_and_collfreq() const;
 
   public:
-    BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase> database_,
+    BrassAllTermsList(Xapian::Internal::intrusive_ptr<const BrassDatabase> database_,
 		      const std::string & prefix_)
 	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 

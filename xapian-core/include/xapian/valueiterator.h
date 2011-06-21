@@ -25,7 +25,7 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -41,7 +41,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Class representing the ValueIterator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// @private @internal Construct given internals.
     explicit ValueIterator(Internal *internal_);

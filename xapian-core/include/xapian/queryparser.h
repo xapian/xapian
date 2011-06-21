@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -285,7 +285,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Class representing the queryparser internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// Enum of feature flags.
     typedef enum {

@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
@@ -32,7 +32,7 @@
 #include "weightinternal.h"
 
 /// Abstract base class for postlists.
-class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
+class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
     void operator=(const Internal &);
 

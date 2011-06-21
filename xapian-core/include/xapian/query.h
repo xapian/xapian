@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -55,7 +55,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/// Class holding details of the query
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Enum of possible query operations
         typedef enum {
@@ -333,7 +333,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 #ifndef SWIG // SWIG has no interest in the internal class, so hide it completely.
 
 /// @private @internal Internal class, implementing most of Xapian::Query.
-class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
+class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::intrusive_base {
     friend class ::LocalSubMatch;
     friend class ::MultiMatch;
     friend class ::QueryOptimiser;

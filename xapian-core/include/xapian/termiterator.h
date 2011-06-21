@@ -27,7 +27,7 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
@@ -43,7 +43,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// @internal Reference counted internals.
 	explicit TermIterator(Internal *internal_);

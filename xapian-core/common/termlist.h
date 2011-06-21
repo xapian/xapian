@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 
@@ -35,7 +35,7 @@ namespace Xapian {
 }
 
 /// Abstract base class for termlists.
-class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase {
+class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
     void operator=(const Internal &);
 

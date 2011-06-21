@@ -83,15 +83,15 @@ static bool test_exception1()
 // # Tests of the reference counted pointers #
 // ###########################################
 
-class test_refcnt : public Xapian::Internal::RefCntBase {
+class test_refcnt : public Xapian::Internal::intrusive_base {
     private:
 	bool &deleted;
     public:
 	test_refcnt(bool &deleted_) : deleted(deleted_) {
 	    tout << "constructor\n";
 	}
-	Xapian::Internal::RefCntPtr<const test_refcnt> test() {
-	    return Xapian::Internal::RefCntPtr<const test_refcnt>(this);
+	Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
+	    return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
 	}
 	~test_refcnt() {
 	    deleted = true;
@@ -105,22 +105,22 @@ static bool test_refcnt1()
 
     test_refcnt *p = new test_refcnt(deleted);
 
-    TEST_EQUAL(p->ref_count, 0);
+    TEST_EQUAL(p->_refs, 0);
 
     {
-	Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
+	Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
-	TEST_EQUAL(rcp->ref_count, 1);
+	TEST_EQUAL(rcp->_refs, 1);
 
 	{
-	    Xapian::Internal::RefCntPtr<test_refcnt> rcp2;
+	    Xapian::Internal::intrusive_ptr<test_refcnt> rcp2;
 	    rcp2 = rcp;
-	    TEST_EQUAL(rcp->ref_count, 2);
+	    TEST_EQUAL(rcp->_refs, 2);
 	    // rcp2 goes out of scope here
 	}
 
 	TEST_AND_EXPLAIN(!deleted, "Object prematurely deleted!");
-	TEST_EQUAL(rcp->ref_count, 1);
+	TEST_EQUAL(rcp->_refs, 1);
 	// rcp goes out of scope here
     }
 
@@ -137,7 +137,7 @@ static bool test_refcnt2()
 
     test_refcnt *p = new test_refcnt(deleted);
 
-    Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
+    Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
     rcp = rcp;
 

@@ -34,7 +34,7 @@ class MultiMatch
 {
     private:
 	/// Vector of the items.
-	std::vector<Xapian::Internal::RefCntPtr<SubMatch> > leaves;
+	std::vector<Xapian::Internal::intrusive_ptr<SubMatch> > leaves;
 
 	const Xapian::Database db;
 

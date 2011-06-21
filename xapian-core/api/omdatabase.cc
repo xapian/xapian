@@ -49,6 +49,7 @@
 #include <vector>
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 XAPIAN_NORETURN(static void docid_zero_invalid());
 static void docid_zero_invalid()
@@ -72,7 +73,7 @@ Database::Database()
 Database::Database(Database::Internal *internal_)
 {
     LOGCALL_CTOR(API, "Database", internal_);
-    Xapian::Internal::RefCntPtr<Database::Internal> newi(internal_);
+    intrusive_ptr<Database::Internal> newi(internal_);
     internal.push_back(newi);
 }
 
@@ -99,7 +100,7 @@ Database::reopen()
 {
     LOGCALL(API, bool, "Database::reopen", NO_ARGS);
     bool maybe_changed = false;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
+    vector<intrusive_ptr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	if ((*i)->reopen())
 	    maybe_changed = true;
@@ -111,7 +112,7 @@ void
 Database::close()
 {
     LOGCALL_VOID(API, "Database::close", NO_ARGS);
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
+    vector<intrusive_ptr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->close();
     }
@@ -125,7 +126,7 @@ Database::add_database(const Database & database)
 	LOGLINE(API, "Database added to itself");
 	throw Xapian::InvalidArgumentError("Can't add a Database to itself");
     }
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = database.internal.begin(); i != database.internal.end(); ++i) {
 	internal.push_back(*i);
     }
@@ -149,7 +150,7 @@ Database::postlist_begin(const string &tname) const
 
     vector<LeafPostList *> pls;
     try {
-	vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+	vector<intrusive_ptr<Database::Internal> >::const_iterator i;
 	for (i = internal.begin(); i != internal.end(); ++i) {
 	    pls.push_back((*i)->open_post_list(tname));
 	    pls.back()->next();
@@ -218,7 +219,7 @@ Database::has_positions() const
 {
     LOGCALL(API, bool, "Database::has_positions", NO_ARGS);
     // If any sub-database has positions, the combined database does.
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	if ((*i)->has_positions()) RETURN(true);
     }
@@ -247,7 +248,7 @@ Database::get_doccount() const
 {
     LOGCALL(API, Xapian::doccount, "Database::get_doccount", NO_ARGS);
     Xapian::doccount docs = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	docs += (*i)->get_doccount();
     }
@@ -275,7 +276,7 @@ Database::get_avlength() const
     Xapian::doccount docs = 0;
     Xapian::doclength totlen = 0;
 
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	Xapian::doccount db_doccount = (*i)->get_doccount();
 	docs += db_doccount;
@@ -295,7 +296,7 @@ Database::get_termfreq(const string & tname) const
     if (tname.empty()) RETURN(get_doccount());
 
     Xapian::doccount tf = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	tf += (*i)->get_termfreq(tname);
     }
@@ -309,7 +310,7 @@ Database::get_collection_freq(const string & tname) const
     if (tname.empty()) RETURN(get_doccount());
 
     Xapian::termcount cf = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	cf += (*i)->get_collection_freq(tname);
     }
@@ -322,7 +323,7 @@ Database::get_value_freq(Xapian::valueno slot) const
     LOGCALL(API, Xapian::doccount, "Database::get_value_freq", slot);
 
     Xapian::doccount vf = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	vf += (*i)->get_value_freq(slot);
     }
@@ -336,7 +337,7 @@ Database::get_value_lower_bound(Xapian::valueno slot) const
 
     if (rare(internal.empty())) RETURN(string());
 
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     i = internal.begin();
     string full_lb = (*i)->get_value_lower_bound(slot);
     while (++i != internal.end()) {
@@ -352,7 +353,7 @@ Database::get_value_upper_bound(Xapian::valueno slot) const
     LOGCALL(API, std::string, "Database::get_value_upper_bound", slot);
 
     std::string full_ub;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	std::string ub = (*i)->get_value_upper_bound(slot);
 	if (ub > full_ub)
@@ -368,7 +369,7 @@ Database::get_doclength_lower_bound() const
 
     if (rare(internal.empty())) RETURN(0);
 
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     i = internal.begin();
     Xapian::termcount full_lb = (*i)->get_doclength_lower_bound();
     while (++i != internal.end()) {
@@ -384,7 +385,7 @@ Database::get_doclength_upper_bound() const
     LOGCALL(API, Xapian::termcount, "Database::get_doclength_upper_bound", NO_ARGS);
 
     Xapian::termcount full_ub = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	Xapian::termcount ub = (*i)->get_doclength_upper_bound();
 	if (ub > full_ub) full_ub = ub;
@@ -398,7 +399,7 @@ Database::get_wdf_upper_bound(const string & term) const
     LOGCALL(API, Xapian::termcount, "Database::get_wdf_upper_bound", term);
 
     Xapian::termcount full_ub = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	Xapian::termcount ub = (*i)->get_wdf_upper_bound(term);
 	if (ub > full_ub) full_ub = ub;
@@ -471,7 +472,7 @@ Database::term_exists(const string & tname) const
     if (tname.empty()) {
 	RETURN(get_doccount() != 0);
     }
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	if ((*i)->term_exists(tname)) RETURN(true);
     }
@@ -482,7 +483,7 @@ void
 Database::keep_alive()
 {
     LOGCALL_VOID(API, "Database::keep_alive", NO_ARGS);
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->keep_alive();
     }

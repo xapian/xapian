@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/positioniterator.h>
 #include <xapian/types.h>
 
@@ -46,7 +46,7 @@ class BrassTermList : public TermList {
     BrassTermList(const BrassTermList &);
 
     /// The database we're reading data from.
-    Xapian::Internal::RefCntPtr<const BrassDatabase> db;
+    Xapian::Internal::intrusive_ptr<const BrassDatabase> db;
 
     /// The document id that this TermList is for.
     Xapian::docid did;
@@ -84,7 +84,7 @@ class BrassTermList : public TermList {
 
   public:
     /// Create a new BrassTermList object for document @a did_ in DB @a db_
-    BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db_,
+    BrassTermList(Xapian::Internal::intrusive_ptr<const BrassDatabase> db_,
 		  Xapian::docid did_);
 
     /** Return the length of this document.

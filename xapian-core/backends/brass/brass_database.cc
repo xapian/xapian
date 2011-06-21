@@ -72,6 +72,7 @@
 
 using namespace std;
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
 // The maximum safe term length is determined by the postlist.  There we
 // store the term using pack_string_preserving_sort() which takes the
@@ -812,7 +813,7 @@ BrassDatabase::get_doclength(Xapian::docid did) const
 {
     LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_doclength", did);
     Assert(did != 0);
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
@@ -889,7 +890,7 @@ LeafPostList *
 BrassDatabase::open_post_list(const string& term) const
 {
     LOGCALL(DB, LeafPostList *, "BrassDatabase::open_post_list", term);
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
@@ -906,7 +907,7 @@ ValueList *
 BrassDatabase::open_value_list(Xapian::valueno slot) const
 {
     LOGCALL(DB, ValueList *, "BrassDatabase::open_value_list", slot);
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(new BrassValueList(slot, ptrtothis));
 }
 
@@ -918,7 +919,7 @@ BrassDatabase::open_term_list(Xapian::docid did) const
     if (!termlist_table.is_open())
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(new BrassTermList(ptrtothis, did));
 }
 
@@ -932,7 +933,7 @@ BrassDatabase::open_document(Xapian::docid did, bool lazy) const
 	(void)get_doclength(did);
     }
 
-    Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
+    intrusive_ptr<const Database::Internal> ptrtothis(this);
     RETURN(new BrassDocument(ptrtothis, did, &value_manager, &record_table));
 }
 
@@ -955,7 +956,7 @@ TermList *
 BrassDatabase::open_allterms(const string & prefix) const
 {
     LOGCALL(DB, TermList *, "BrassDatabase::open_allterms", NO_ARGS);
-    RETURN(new BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    RETURN(new BrassAllTermsList(intrusive_ptr<const BrassDatabase>(this),
 				 prefix));
 }
 
@@ -970,7 +971,7 @@ BrassDatabase::open_spelling_wordlist() const
 {
     BrassCursor * cursor = spelling_table.cursor_get();
     if (!cursor) return NULL;
-    return new BrassSpellingWordsList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    return new BrassSpellingWordsList(intrusive_ptr<const BrassDatabase>(this),
 				      cursor);
 }
 
@@ -991,7 +992,7 @@ BrassDatabase::open_synonym_keylist(const string & prefix) const
 {
     BrassCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
-    return new BrassSynonymTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    return new BrassSynonymTermList(intrusive_ptr<const BrassDatabase>(this),
 				    cursor, prefix);
 }
 
@@ -1012,7 +1013,7 @@ BrassDatabase::open_metadata_keylist(const std::string &prefix) const
     LOGCALL(DB, string, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
-    return new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    return new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
 				     cursor, prefix);
 }
 
@@ -1196,7 +1197,7 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	value_manager.delete_document(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
+	intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 	BrassTermList termlist(ptrtothis, did);
 
 	stats.delete_document(termlist.get_doclength());
@@ -1250,7 +1251,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 
 	if (!termlist_table.is_open()) {
 	    // We can replace an *unused* docid <= last_docid too.
-	    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+	    intrusive_ptr<const BrassDatabase> ptrtothis(this);
 	    if (!postlist_table.document_exists(did, ptrtothis)) {
 		(void)add_document_(did, document);
 		return;
@@ -1283,7 +1284,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
+	    intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
 	    brass_doclen_t old_doclen = termlist.get_doclength();
@@ -1473,7 +1474,7 @@ LeafPostList *
 BrassWritableDatabase::open_post_list(const string& tname) const
 {
     LOGCALL(DB, LeafPostList *, "BrassWritableDatabase::open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();

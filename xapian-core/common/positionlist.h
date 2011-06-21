@@ -30,7 +30,7 @@
 using namespace std;
 
 /** Abstract base class for position lists. */
-class Xapian::PositionIterator::Internal : public Xapian::Internal::RefCntBase
+class Xapian::PositionIterator::Internal : public Xapian::Internal::intrusive_base
 {
     private:
 	/// Copying is not allowed.

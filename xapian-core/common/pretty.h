@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
 namespace Xapian {
@@ -325,7 +325,7 @@ operator<<(PrettyOStream<S> &ps, const ChertCursor *) {
 
 template<class S, class T>
 inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, Xapian::Internal::RefCntPtr<const T> t) {
+operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
     ps.os << "RefCntPtr->";
     return ps << t;
 }

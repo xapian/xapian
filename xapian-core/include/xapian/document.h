@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** @private @internal Constructor is only used by internal classes.
 	 *

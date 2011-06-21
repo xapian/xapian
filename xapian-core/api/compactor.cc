@@ -80,7 +80,7 @@ enum { STUB_NO, STUB_FILE, STUB_DIR };
 
 namespace Xapian {
 
-class Compactor::Internal : public Xapian::Internal::RefCntBase {
+class Compactor::Internal : public Xapian::Internal::intrusive_base {
     friend class Compactor;
 
     string destdir;

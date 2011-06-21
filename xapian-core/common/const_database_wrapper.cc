@@ -26,6 +26,8 @@
 
 #include "xapian/error.h"
 
+using Xapian::Internal::intrusive_ptr;
+
 void
 ConstDatabaseWrapper::nonconst_access() const
 {
@@ -34,7 +36,7 @@ ConstDatabaseWrapper::nonconst_access() const
 }
 
 ConstDatabaseWrapper::ConstDatabaseWrapper(
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb_)
+	intrusive_ptr<const Xapian::Database::Internal> realdb_)
 	: realdb(realdb_)
 {
 }

@@ -31,6 +31,8 @@
 #include "pack.h"
 #include "str.h"
 
+using Xapian::Internal::intrusive_ptr;
+
 Xapian::doccount
 BrassPostListTable::get_termfreq(const string & term) const
 {
@@ -59,7 +61,7 @@ BrassPostListTable::get_collection_freq(const string & term) const
 
 Xapian::termcount
 BrassPostListTable::get_doclength(Xapian::docid did,
-				  Xapian::Internal::RefCntPtr<const BrassDatabase> db) const {
+				  intrusive_ptr<const BrassDatabase> db) const {
     if (!doclen_pl.get()) {
 	// Don't keep a reference back to the database, since this
 	// would make a reference loop.
@@ -72,7 +74,7 @@ BrassPostListTable::get_doclength(Xapian::docid did,
 
 bool
 BrassPostListTable::document_exists(Xapian::docid did,
-				    Xapian::Internal::RefCntPtr<const BrassDatabase> db) const
+				    intrusive_ptr<const BrassDatabase> db) const
 {
     if (!doclen_pl.get()) {
 	// Don't keep a reference back to the database, since this
@@ -671,7 +673,7 @@ void BrassPostList::read_number_of_entries(const char ** posptr,
  *  frequency, then the docid of the first document, then has the header of a
  *  standard chunk.
  */
-BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> this_db_,
+BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 			     const string & term_,
 			     bool keep_reference)
 	: LeafPostList(term_),

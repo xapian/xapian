@@ -75,6 +75,7 @@
 
 using namespace std;
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
 // The maximum safe term length is determined by the postlist.  There we
 // store the term using pack_string_preserving_sort() which takes the
@@ -795,7 +796,7 @@ ChertDatabase::get_doclength(Xapian::docid did) const
 {
     LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_doclength", did);
     Assert(did != 0);
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
@@ -872,7 +873,7 @@ LeafPostList *
 ChertDatabase::open_post_list(const string& term) const
 {
     LOGCALL(DB, LeafPostList *, "ChertDatabase::open_post_list", term);
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
@@ -889,7 +890,7 @@ ValueList *
 ChertDatabase::open_value_list(Xapian::valueno slot) const
 {
     LOGCALL(DB, ValueList *, "ChertDatabase::open_value_list", slot);
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertValueList(slot, ptrtothis));
 }
 
@@ -901,7 +902,7 @@ ChertDatabase::open_term_list(Xapian::docid did) const
     if (!termlist_table.is_open())
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertTermList(ptrtothis, did));
 }
 
@@ -915,7 +916,7 @@ ChertDatabase::open_document(Xapian::docid did, bool lazy) const
 	(void)get_doclength(did);
     }
 
-    Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
+    intrusive_ptr<const Database::Internal> ptrtothis(this);
     RETURN(new ChertDocument(ptrtothis, did, &value_manager, &record_table));
 }
 
@@ -938,7 +939,7 @@ TermList *
 ChertDatabase::open_allterms(const string & prefix) const
 {
     LOGCALL(DB, TermList *, "ChertDatabase::open_allterms", NO_ARGS);
-    RETURN(new ChertAllTermsList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    RETURN(new ChertAllTermsList(intrusive_ptr<const ChertDatabase>(this),
 				 prefix));
 }
 
@@ -953,7 +954,7 @@ ChertDatabase::open_spelling_wordlist() const
 {
     ChertCursor * cursor = spelling_table.cursor_get();
     if (!cursor) return NULL;
-    return new ChertSpellingWordsList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    return new ChertSpellingWordsList(intrusive_ptr<const ChertDatabase>(this),
 				      cursor);
 }
 
@@ -974,7 +975,7 @@ ChertDatabase::open_synonym_keylist(const string & prefix) const
 {
     ChertCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
-    return new ChertSynonymTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    return new ChertSynonymTermList(intrusive_ptr<const ChertDatabase>(this),
 				    cursor, prefix);
 }
 
@@ -995,7 +996,7 @@ ChertDatabase::open_metadata_keylist(const std::string &prefix) const
     LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
-    return new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    return new ChertMetadataTermList(intrusive_ptr<const ChertDatabase>(this),
 				     cursor, prefix);
 }
 
@@ -1251,7 +1252,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	value_manager.delete_document(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+	intrusive_ptr<const ChertWritableDatabase> ptrtothis(this);
 	ChertTermList termlist(ptrtothis, did);
 
 	stats.delete_document(termlist.get_doclength());
@@ -1307,7 +1308,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 
 	if (!termlist_table.is_open()) {
 	    // We can replace an *unused* docid <= last_docid too.
-	    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+	    intrusive_ptr<const ChertDatabase> ptrtothis(this);
 	    if (!postlist_table.document_exists(did, ptrtothis)) {
 		(void)add_document_(did, document);
 		return;
@@ -1340,7 +1341,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+	    intrusive_ptr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
 	    chert_doclen_t old_doclen = termlist.get_doclength();
@@ -1548,7 +1549,7 @@ LeafPostList *
 ChertWritableDatabase::open_post_list(const string& tname) const
 {
     LOGCALL(DB, LeafPostList *, "ChertWritableDatabase::open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();

@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_STEM_H
 #define XAPIAN_INCLUDED_STEM_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -31,7 +31,7 @@ namespace Xapian {
 
 /// Class representing a stemming algorithm implementation.
 struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
-    : public Xapian::Internal::RefCntBase
+    : public Xapian::Internal::intrusive_base
 {
     /// Virtual destructor.
     virtual ~StemImplementation();
@@ -47,7 +47,7 @@ struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
 class XAPIAN_VISIBILITY_DEFAULT Stem {
   public:
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<StemImplementation> internal;
+    Xapian::Internal::intrusive_ptr<StemImplementation> internal;
 
     /// Copy constructor.
     Stem(const Stem & o);

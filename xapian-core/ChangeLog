@@ -1,3 +1,17 @@
+Tue Jun 21 02:01:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,backends/database.cc,
+	  backends/inmemory/inmemory_alltermslist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_alltermslist.cc,
+	  backends/multi/multi_valuelist.cc,backends/remote/,common/,
+	  docs/doxygen_api.conf.in,include/Makefile.mk,include/xapian/,
+	  matcher/msetpostlist.h,matcher/multimatch.cc,
+	  queryparser/queryparser_internal.h,
+	  queryparser/termgenerator_internal.h,tests/internaltest.cc: Convert
+	  to use xapian/intrusive_ptr.h instead of xapian/base.h.
+
 Mon Jun 20 23:55:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/intrusive_ptr.h: Unmodified version of

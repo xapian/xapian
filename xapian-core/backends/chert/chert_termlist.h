@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/positioniterator.h>
 #include <xapian/types.h>
 
@@ -46,7 +46,7 @@ class ChertTermList : public TermList {
     ChertTermList(const ChertTermList &);
 
     /// The database we're reading data from.
-    Xapian::Internal::RefCntPtr<const ChertDatabase> db;
+    Xapian::Internal::intrusive_ptr<const ChertDatabase> db;
 
     /// The document id that this TermList is for.
     Xapian::docid did;
@@ -84,7 +84,7 @@ class ChertTermList : public TermList {
 
   public:
     /// Create a new ChertTermList object for document @a did_ in DB @a db_
-    ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+    ChertTermList(Xapian::Internal::intrusive_ptr<const ChertDatabase> db_,
 		  Xapian::docid did_);
 
     /** Return the length of this document.

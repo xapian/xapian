@@ -28,7 +28,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/keymaker.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -52,7 +52,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// @internal Constructor for internal use.
 	explicit MSet(MSet::Internal * internal_);
@@ -420,7 +420,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Construct an empty ESet
 	ESet();
@@ -566,7 +566,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	class Internal;
 
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Copy constructor
 	RSet(const RSet &rset);
@@ -643,7 +643,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** Create a Xapian::Enquire object.
 	 *

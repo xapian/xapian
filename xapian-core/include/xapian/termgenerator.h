@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_TERMGENERATOR_H
 #define XAPIAN_INCLUDED_TERMGENERATOR_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/unicode.h>
 #include <xapian/visibility.h>
@@ -46,7 +46,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// @private @internal Class representing the TermGenerator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// Copy constructor.
     TermGenerator(const TermGenerator & o);

@@ -27,8 +27,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(intrusive_ptr<const ChertDatabase> db_,
 							   Xapian::doccount doccount_,
 							   const map<Xapian::docid, Xapian::termcount> & doclens_)
 	: ChertAllDocsPostList(db_, doccount_),

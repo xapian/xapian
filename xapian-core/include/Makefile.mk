@@ -10,7 +10,6 @@ inc_HEADERS =\
 	include/xapian.h
 
 xapianinclude_HEADERS =\
-	include/xapian/base.h\
 	include/xapian/compactor.h\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
@@ -20,6 +19,7 @@ xapianinclude_HEADERS =\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
 	include/xapian/expanddecider.h\
+	include/xapian/intrusive_ptr.h\
 	include/xapian/keymaker.h\
 	include/xapian/matchspy.h\
 	include/xapian/positioniterator.h\

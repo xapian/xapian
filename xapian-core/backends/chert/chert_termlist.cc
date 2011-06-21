@@ -33,8 +33,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-ChertTermList::ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+ChertTermList::ChertTermList(intrusive_ptr<const ChertDatabase> db_,
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {

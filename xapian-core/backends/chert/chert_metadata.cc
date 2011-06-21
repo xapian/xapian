@@ -28,9 +28,10 @@
 #include "stringutils.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 ChertMetadataTermList::ChertMetadataTermList(
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+	intrusive_ptr<const Xapian::Database::Internal> database_,
 	ChertCursor * cursor_,
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)

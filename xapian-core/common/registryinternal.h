@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_REGISTRYINTERNAL_H
 #define XAPIAN_INCLUDED_REGISTRYINTERNAL_H
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/registry.h"
 
 #include <map>
@@ -34,7 +34,7 @@ namespace Xapian {
     class MatchSpy;
 }
 
-class Xapian::Registry::Internal : public Xapian::Internal::RefCntBase {
+class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     friend class Xapian::Registry;
 
     /// Registered weighting schemes.

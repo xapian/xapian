@@ -33,8 +33,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-BrassTermList::BrassTermList(Xapian::Internal::RefCntPtr<const BrassDatabase> db_,
+BrassTermList::BrassTermList(intrusive_ptr<const BrassDatabase> db_,
 			     Xapian::docid did_)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {

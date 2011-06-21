@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
 #define XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/database.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
@@ -57,7 +57,7 @@ namespace Xapian {
 
 class Utf8Iterator;
 
-class QueryParser::Internal : public Xapian::Internal::RefCntBase {
+class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     friend class QueryParser;
     friend class ::State;
     Stem stemmer;

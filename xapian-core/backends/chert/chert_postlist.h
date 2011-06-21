@@ -113,11 +113,11 @@ class ChertPostListTable : public ChertTable {
 
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,
-					Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+					Xapian::Internal::intrusive_ptr<const ChertDatabase> db) const;
 
 	/** Check if document @a did exists. */
 	bool document_exists(Xapian::docid did,
-			     Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+			     Xapian::Internal::intrusive_ptr<const ChertDatabase> db) const;
 };
 
 /** A postlist in a chert database.
@@ -128,7 +128,7 @@ class ChertPostList : public LeafPostList {
 	 *  database doesn't get deleted before us, and also to give us access
 	 *  to the position_table.
 	 */
-	Xapian::Internal::RefCntPtr<const ChertDatabase> this_db;
+	Xapian::Internal::intrusive_ptr<const ChertDatabase> this_db;
 
 	/// The position list object for this posting list.
 	ChertPositionList positionlist;
@@ -220,7 +220,7 @@ class ChertPostList : public LeafPostList {
 
     public:
 	/// Default constructor.
-	ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
+	ChertPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> this_db_,
 		      const string & term,
 		      bool keep_reference);
 

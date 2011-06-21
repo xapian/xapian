@@ -47,6 +47,7 @@
 #include "xapian/matchspy.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 			       const string & context_, bool writable)
@@ -104,7 +105,7 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
     string message;
     AutoPtr<NetworkTermList> tlist(
 	new NetworkTermList(0, doccount,
-			    Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
+			    intrusive_ptr<const RemoteDatabase>(this),
 			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
@@ -143,7 +144,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 
     AutoPtr<NetworkTermList> tlist(
 	new NetworkTermList(doclen, doccount,
-			    Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
+			    intrusive_ptr<const RemoteDatabase>(this),
 			    did));
     vector<NetworkTermListItem> & items = tlist->items;
 
@@ -174,7 +175,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 
     AutoPtr<NetworkTermList> tlist(
 	new NetworkTermList(0, doccount,
-			    Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
+			    intrusive_ptr<const RemoteDatabase>(this),
 			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
@@ -199,7 +200,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 LeafPostList *
 RemoteDatabase::open_post_list(const string &term) const
 {
-    return new NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase>(this), term);
+    return new NetworkPostList(intrusive_ptr<const RemoteDatabase>(this), term);
 }
 
 Xapian::doccount

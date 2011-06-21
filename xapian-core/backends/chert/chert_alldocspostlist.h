@@ -37,7 +37,7 @@ class ChertAllDocsPostList : public ChertPostList {
     Xapian::doccount doccount;
 
   public:
-    ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+    ChertAllDocsPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> db_,
 			 Xapian::doccount doccount_);
 
     Xapian::doccount get_termfreq() const;

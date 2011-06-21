@@ -41,14 +41,14 @@ class BrassValueList : public Xapian::ValueIterator::Internal {
 
     Xapian::valueno slot;
 
-    Xapian::Internal::RefCntPtr<const BrassDatabase> db;
+    Xapian::Internal::intrusive_ptr<const BrassDatabase> db;
 
     /// Update @a reader to use the chunk currently pointed to by @a cursor.
     bool update_reader();
 
   public:
     BrassValueList(Xapian::valueno slot_,
-		   Xapian::Internal::RefCntPtr<const BrassDatabase> db_)
+		   Xapian::Internal::intrusive_ptr<const BrassDatabase> db_)
 	: cursor(NULL), slot(slot_), db(db_) { }
 
     ~BrassValueList();

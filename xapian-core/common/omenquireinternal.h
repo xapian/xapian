@@ -113,7 +113,7 @@ class MSetItem {
  *  This allows the implementation of Xapian::Enquire to be hidden and reference
  *  counted.
  */
-class Enquire::Internal : public Xapian::Internal::RefCntBase {
+class Enquire::Internal : public Xapian::Internal::intrusive_base {
     private:
 	/// The database which this enquire object uses.
 	const Xapian::Database db;
@@ -193,7 +193,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	string get_description() const;
 };
 
-class MSet::Internal : public Xapian::Internal::RefCntBase {
+class MSet::Internal : public Xapian::Internal::intrusive_base {
     public:
 	/// Factor to multiply weights by to convert them to percentages.
 	double percent_factor;
@@ -217,7 +217,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 
     public:
 	/// Xapian::Enquire reference, for getting documents.
-	Xapian::Internal::RefCntPtr<const Enquire::Internal> enquire;
+	Xapian::Internal::intrusive_ptr<const Enquire::Internal> enquire;
 
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
@@ -314,7 +314,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
 };
 
-class RSet::Internal : public Xapian::Internal::RefCntBase {
+class RSet::Internal : public Xapian::Internal::intrusive_base {
     friend class Xapian::RSet;
 
     private:

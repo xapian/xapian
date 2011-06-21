@@ -41,14 +41,14 @@ class ChertValueList : public Xapian::ValueIterator::Internal {
 
     Xapian::valueno slot;
 
-    Xapian::Internal::RefCntPtr<const ChertDatabase> db;
+    Xapian::Internal::intrusive_ptr<const ChertDatabase> db;
 
     /// Update @a reader to use the chunk currently pointed to by @a cursor.
     bool update_reader();
 
   public:
     ChertValueList(Xapian::valueno slot_,
-		   Xapian::Internal::RefCntPtr<const ChertDatabase> db_)
+		   Xapian::Internal::intrusive_ptr<const ChertDatabase> db_)
 	: cursor(NULL), slot(slot_), db(db_) { }
 
     ~ChertValueList();

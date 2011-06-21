@@ -30,8 +30,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-BrassAllDocsPostList::BrassAllDocsPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> db_,
+BrassAllDocsPostList::BrassAllDocsPostList(intrusive_ptr<const BrassDatabase> db_,
 					   Xapian::doccount doccount_)
 	: BrassPostList(db_, string(), true),
 	  doccount(doccount_)

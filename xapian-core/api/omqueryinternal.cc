@@ -642,7 +642,7 @@ Xapian::Query::Internal::unserialise(const string &, const Xapian::Registry &)
 #endif
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
-	: Xapian::Internal::RefCntBase(),
+	: Xapian::Internal::intrusive_base(),
 	  op(copyme.op),
 	  subqs(),
 	  parameter(copyme.parameter),

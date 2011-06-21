@@ -36,7 +36,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
     ContiguousAllDocsPostList(const ContiguousAllDocsPostList &);
 
     /// The database we're iterating over.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db;
 
     /// The current document id.
     Xapian::docid did;
@@ -46,7 +46,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
 
   public:
     /// Constructor.
-    ContiguousAllDocsPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db_,
+    ContiguousAllDocsPostList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db_,
 			      Xapian::doccount doccount_)
 	: LeafPostList(std::string()),
 	  db(db_), did(0), doccount(doccount_) { }

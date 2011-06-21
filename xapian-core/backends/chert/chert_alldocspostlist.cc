@@ -30,8 +30,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-ChertAllDocsPostList::ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+ChertAllDocsPostList::ChertAllDocsPostList(intrusive_ptr<const ChertDatabase> db_,
 					   Xapian::doccount doccount_)
 	: ChertPostList(db_, string(), true),
 	  doccount(doccount_)

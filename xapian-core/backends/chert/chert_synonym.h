@@ -118,7 +118,7 @@ class ChertSynonymTermList : public AllTermsList {
     void operator=(const ChertSynonymTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the synonym table reading termnames from
      *  the keys.
@@ -129,7 +129,7 @@ class ChertSynonymTermList : public AllTermsList {
     string prefix;
 
   public:
-    ChertSynonymTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+    ChertSynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 		      ChertCursor * cursor_,
 		      const string & prefix_)
 	    : database(database_), cursor(cursor_), prefix(prefix_)

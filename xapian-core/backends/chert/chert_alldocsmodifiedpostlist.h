@@ -43,7 +43,7 @@ class ChertAllDocsModifiedPostList : public ChertAllDocsPostList {
     void skip_deletes(Xapian::weight w_min);
 
   public:
-    ChertAllDocsModifiedPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+    ChertAllDocsModifiedPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> db_,
 				 Xapian::doccount doccount_,
 				 const map<Xapian::docid, Xapian::termcount> & doclens_);
 

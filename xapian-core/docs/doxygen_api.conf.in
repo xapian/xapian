@@ -612,7 +612,7 @@ EXCLUDE_SYMLINKS       = YES
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */.* \
-			 */base.h \
+			 */intrusive_ptr.h \
 			 */deprecated.h \
 			 */derefwrapper.h \
 			 */errordispatch.h \

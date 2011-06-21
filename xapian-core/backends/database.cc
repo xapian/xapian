@@ -35,6 +35,7 @@
 #include <string>
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 namespace Xapian {
 
@@ -186,7 +187,7 @@ void
 Database::Internal::delete_document(const string & unique_term)
 {
     // Default implementation - overridden for remote databases
-    Xapian::Internal::RefCntPtr<LeafPostList> pl(open_post_list(unique_term));
+    intrusive_ptr<LeafPostList> pl(open_post_list(unique_term));
     while (pl->next(), !pl->at_end()) {
 	delete_document(pl->get_docid());
     }
@@ -204,7 +205,7 @@ Database::Internal::replace_document(const string & unique_term,
 				     const Xapian::Document & document)
 {
     // Default implementation - overridden for remote databases
-    Xapian::Internal::RefCntPtr<LeafPostList> pl(open_post_list(unique_term));
+    intrusive_ptr<LeafPostList> pl(open_post_list(unique_term));
     pl->next();
     if (pl->at_end()) {
 	return add_document(document);

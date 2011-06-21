@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_CONST_DATABASE_WRAPPER_H
 #define XAPIAN_INCLUDED_CONST_DATABASE_WRAPPER_H
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "database.h"
 #include "noreturn.h"
 
@@ -39,13 +39,13 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     void operator=(const ConstDatabaseWrapper &);
 
     /// The const database which this wrapper wraps.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> realdb;
 
     /// Raise an exception complaining about access to a non-const method.
     XAPIAN_NORETURN(void nonconst_access() const);
 
   public:
-    ConstDatabaseWrapper(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb_);
+    ConstDatabaseWrapper(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> realdb_);
 
     // Const methods: these are proxied to realdb.
     Xapian::doccount get_doccount() const;

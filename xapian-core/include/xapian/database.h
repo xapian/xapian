@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/document.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
+	std::vector<Xapian::Internal::intrusive_ptr<Internal> > internal;
 
 	/** @private @internal Get a document from the database, but doesn't
 	 *  need to check if it exists.

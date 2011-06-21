@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/visibility.h"
 
 #include <string>
@@ -116,7 +116,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
     /// Class holding details of the replica.
     class Internal;
     /// Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
     /// Copying is allowed (and is cheap).

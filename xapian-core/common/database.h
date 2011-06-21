@@ -28,7 +28,7 @@
 
 #include "internaltypes.h"
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 #include <xapian/database.h>
 #include <xapian/document.h>
@@ -54,7 +54,7 @@ struct ReplicationInfo;
 
 /** Base class for databases.
  */
-class Database::Internal : public Xapian::Internal::RefCntBase {
+class Database::Internal : public Xapian::Internal::intrusive_base {
     private:
 	/// Copies are not allowed.
 	Internal(const Internal &);

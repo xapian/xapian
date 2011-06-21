@@ -23,7 +23,7 @@
 
 #include "replication.h"
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/dbfactory.h"
 #include "xapian/error.h"
 #include "xapian/version.h"
@@ -109,7 +109,7 @@ DatabaseMaster::get_description() const
 }
 
 /// Internal implementation of DatabaseReplica
-class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
+class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
     void operator=(const Internal &);
 
