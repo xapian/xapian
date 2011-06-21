@@ -1,3 +1,8 @@
+Tue Jun 21 13:52:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Combine the two uninstall-local targets so the
+	  commands from both actually get run.
+
 Tue Jun 21 11:09:59 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Wrap sources used by AC_COMPILE_IFELSE in

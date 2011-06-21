@@ -84,6 +84,7 @@ install-data-hook:
 uninstall-local:
 	eval `grep '^dlname=' $(lib_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(libdir)/"$$dlname"
+	$(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 _XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
@@ -92,9 +93,6 @@ _XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
 	$(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
-
-uninstall-local:
-	$(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
 	$(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
