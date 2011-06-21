@@ -1,7 +1,7 @@
 /** @file autoptr.h
  * @brief Wrapper around standard <autoptr> header.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,9 +20,13 @@
 
 // We used to provide an implementation of auto_ptr called AutoPtr to work
 // around deficiencies in the implementation with some compiler, possibly
-// GCC 2.95 (it was added when that was the current GCC release).  To allow
-// us to test the water and ensure this is no longer required, we aren't
-// renaming all occurrences just yet...
+// GCC 2.95 (it was added when that was the current GCC release).
+//
+// We no longer support building Xapian with such old versions of GCC, but
+// we're probably going to want to switch to unique_ptr (new in C++0x) in
+// the future, so it's probably best not to switch to using auto_ptr directly
+// as we'll want a transitional period where unique_ptr is used where
+// available, falling back to auto_ptr.
 #ifndef AutoPtr
 # include <memory>
 # define AutoPtr std::auto_ptr

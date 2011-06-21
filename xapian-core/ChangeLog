@@ -1,3 +1,10 @@
+Tue Jun 21 04:08:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/autoptr.h: Update comment about why we have this file.  It's
+	  no longer a concern that we might need our own AutoPtr implementation
+	  but we are likely to want to be able to migrate to unique_ptr easily
+	  as C++0x features become more widely available.
+
 Tue Jun 21 02:26:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING,common/pretty.h,configure.ac,tests/internaltest.cc: Fix a
