@@ -1,3 +1,9 @@
+Tue Jun 21 06:49:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/10query.t,perl/util.i.in: Wrap MatchAll and MatchNothing for
+	  Perl (as Search::Xapian::Query::MatchAll and
+	  Search::Xapian::Query::MatchNothing).  (ticket#158)
+
 Tue Jun 21 06:00:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/docs/index.html,ruby/extra.i,ruby/smoketest.rb,xapian.i: Wrap

@@ -4,6 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
+ * Copyright (C) 2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -758,6 +759,8 @@ sub CLONE_SKIP { 1 }
 package Search::Xapian::WritableDatabase;
 sub CLONE_SKIP { 1 }
 package Search::Xapian::Query;
+sub MatchAll { Search::Xapianc::new_Query('') }
+sub MatchNothing { Search::Xapianc::new_Query() }
 sub CLONE_SKIP { 1 }
 package Search::Xapian::Stopper;
 sub CLONE_SKIP { 1 }
@@ -1100,8 +1103,7 @@ The following Xapian classes are not yet wrapped:
 Error (and subclasses), ErrorHandler, ExpandDecider (and subclasses),
 user-defined weight classes.
 
-We don't yet wrap Xapian::Query::MatchAll, Xapian::Query::MatchNothing,
-or Xapian::BAD_VALUENO.
+We don't yet wrap Xapian::BAD_VALUENO.
 
 =item Unwrapped methods
 
