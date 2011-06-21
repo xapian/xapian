@@ -1,3 +1,8 @@
+Tue Jun 21 05:01:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.html,lua/smoketest.lua,xapian.i: Merge latest Lua
+	  changes from Xiaona Han.
+
 Tue Jun 21 04:16:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/t/termgenerator.t: Test TermIterator::index_text() with two
