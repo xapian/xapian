@@ -26,30 +26,6 @@
  */
 %}
 
-%include xapian-head.i
-
-using namespace std;
-
-%include stl.i
-
-%template() std::pair<Xapian::TermIterator, Xapian::TermIterator>;
-
-%include typemaps.i
-%include exception.i
-
-// Parse the visibility support header, so we don't get errors when we %include
-// other Xapian headers.
-%include <xapian/visibility.h>
-
-// This includes a language specific util.i, thanks to judicious setting of
-// the include path.
-%include "util.i"
-
-// This includes language specific exception handling if available, or language
-// independent exception handling otherwise, thanks to judicious setting of the
-// include path.
-%include "except.i"
-
 // In C#, we wrap ++ and -- as ++ and --.
 #ifdef SWIGCSHARP
 #define NEXT(RET, CLASS) CLASS & next() { return ++(*self); }
@@ -357,6 +333,14 @@ class ExpandDecider {
     virtual ~ExpandDecider();
 };
 #endif
+
+}
+
+#ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
+%template() std::pair<Xapian::TermIterator, Xapian::TermIterator>;
+#endif
+
+namespace Xapian {
 
 class Database;
 class MatchSpy;
@@ -770,13 +754,3 @@ class Remote {
 
 %feature("director") Xapian::Compactor;
 %include <xapian/compactor.h>
-
-namespace Xapian {
-
-#if defined SWIGPYTHON || defined SWIGRUBY
-%include extra.i
-#endif
-
-}
-
-/* vim:set syntax=cpp:set noexpandtab: */

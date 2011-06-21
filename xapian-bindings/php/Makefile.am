@@ -19,7 +19,7 @@ BUILT_SOURCES =\
 	php5/php_xapian.h\
 	php5/xapian.php
 
-EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = php.i except.i $(TESTS) $(BUILT_SOURCES)
 
 phpextdir = $(PHP_EXTENSION_DIR)
 
@@ -56,15 +56,14 @@ if MAINTAINER_MODE
 
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
-php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
+php5/xapian_wrap.stamp:
 	-test -d php5 || mkdir php5
 	$(multitarget_begin)
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
-	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
-	mv xapian_wrap_d2.tmp xapian_wrap.d
-	rm xapian_wrap_d.tmp
+	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp php.i
+	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
+	mv xapian_wrap_d.tmp xapian_wrap.d
 	$(multitarget_end)
 
 -include xapian_wrap.d

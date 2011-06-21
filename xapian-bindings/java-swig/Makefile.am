@@ -120,17 +120,16 @@ EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)						       
-xapian_wrap.stamp: $(SWIG_sources) util.i
+xapian_wrap.stamp:
 	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_JAVA_SRCS)
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
-	mv xapian_wrap_d2.tmp xapian_wrap.d
-	rm xapian_wrap_d.tmp
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp java.i
+	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
+	mv xapian_wrap_d.tmp xapian_wrap.d
 	: # -package org.xapian
 	: # Insert code to automatically load the JNI library.
 	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' XapianJNI.java

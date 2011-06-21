@@ -39,15 +39,3 @@ fi
 
 multitarget_begin = @rm -f $@-t; touch $@-t
 multitarget_end = @mv -f $@-t $@
-
-SWIG_mainsource = \
-	$(srcdir)/../xapian.i
-
-SWIG_sources = \
-	$(SWIG_mainsource) \
-	$(srcdir)/../generic/except.i
-
-SWIG_includes = \
-	-I$(srcdir) \
-	-I$(srcdir)/../generic
-

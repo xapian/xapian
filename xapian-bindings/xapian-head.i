@@ -86,12 +86,21 @@ namespace Xapian {
 }
 %}
 
+using namespace std;
+
+%include exception.i
+%include stl.i
+
 // Define these away for SWIG's parser.
 #define XAPIAN_DEPRECATED(D) D
 #define XAPIAN_DEPRECATED_CLASS
+#define XAPIAN_VISIBILITY_DEFAULT
 
 // ValueIteratorEnd_ is just a proxy for an end ValueIterator, so we just
 // wrap it as if it were a ValueIterator.
 #define ValueIteratorEnd_ ValueIterator
 
-/* vim:set syntax=cpp:set noexpandtab: */
+// Ignore these which SWIG seems to add pointless type entries for due them
+// being used in the SWIG typemap for std::pair.
+%ignore first_type;
+%ignore second_type;

@@ -1,5 +1,6 @@
+%module(directors="1") xapian
 %{
-/* php/util.i: custom PHP typemaps for xapian-bindings
+/* php.i: SWIG interface file for the PHP bindings
  *
  * Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
  *
@@ -24,6 +25,8 @@
 
 // Use SWIG directors for PHP wrappers.
 #define XAPIAN_SWIG_DIRECTORS
+
+%include ../xapian-head.i
 
 /* Add a section to the output from phpinfo(). */
 %pragma(php) phpinfo="
@@ -152,4 +155,6 @@
     }
 }
 
-/* vim:set syntax=cpp:set noexpandtab: */
+%include except.i
+
+%include ../xapian.i

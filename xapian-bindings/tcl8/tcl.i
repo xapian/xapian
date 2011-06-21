@@ -1,6 +1,8 @@
-/* tcl8/util.i: custom tcl8 typemaps for xapian-bindings
+%module xapian
+%{
+/* tcl.i: SWIG interface file for the Tcl bindings
  *
- * Copyright (c) 2006 Olly Betts
+ * Copyright (c) 2006,2007,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,6 +19,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+%}
+
+%include ../xapian-head.i
 
 %{
 namespace Xapian {
@@ -69,8 +74,37 @@ namespace Xapian {
 	if (Tcl_ListObjAppendElement(interp, list, str) != TCL_OK)
 	    return TCL_ERROR;
     }
-
     Tcl_SetObjResult(interp, list);
 }
 
-/* vim:set syntax=cpp:set noexpandtab: */
+// Custom Tcl exception handling:
+
+%{
+static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
+    Tcl_ResetResult(interp);
+    Tcl_SetErrorCode(interp, "XAPIAN", e.get_type(), NULL);
+    Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
+    return TCL_ERROR;
+}
+
+static int XapianTclHandleError(Tcl_Interp * interp) {
+    Tcl_ResetResult(interp);
+    Tcl_SetErrorCode(interp, "XAPIAN ?", NULL);
+    Tcl_AppendResult(interp, "Unknown Error", NULL);
+    return TCL_ERROR;
+}
+%}
+
+%exception {
+    try {
+	$function
+    } catch (const Xapian::Error &e) {
+	return XapianTclHandleError(interp, e);
+    } catch (...) {
+	return XapianTclHandleError(interp);
+    }
+}
+
+%include ../xapian.i
+
+/* vim:set syntax=cpp: */

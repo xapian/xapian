@@ -7,7 +7,7 @@ TESTS_ENVIRONMENT = LUA_CPATH=".libs/?.so" $(LUA)
 ## Test programs to be run
 TESTS = smoketest.lua
 
-EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = lua.i util.i $(TESTS) $(BUILT_SOURCES)
 
 lualibdir = @LUA_LIB@
 
@@ -34,10 +34,10 @@ xapian_la_LIBADD = $(XAPIAN_LIBS) $(LUA_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
-xapian_wrap.cc: $(SWIG_sources) util.i
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+xapian_wrap.cc:
+	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp lua.i
 	mv xapian_wrap_d.tmp xapian_wrap.d
 
 -include xapian_wrap.d

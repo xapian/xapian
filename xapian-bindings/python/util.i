@@ -32,9 +32,6 @@
 /* Include overrides for the documentation comments. */
 %include "extracomments.i"
 
-// Use SWIG directors for Python wrappers.
-#define XAPIAN_SWIG_DIRECTORS
-
 %include typemaps.i
 %include stl.i
 

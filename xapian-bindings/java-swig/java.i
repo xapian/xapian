@@ -1,7 +1,8 @@
+%module(directors="1") xapian
 %{
-/* java-swig/util.i: custom Java typemaps for xapian-bindings
+/* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009 Olly Betts
+ * Copyright (c) 2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,8 @@
 
 // Use SWIG directors for Java wrappers.
 #define XAPIAN_SWIG_DIRECTORS
+
+%include ../xapian-head.i
 
 // Rename function and method names to match Java conventions (e.g. from
 // get_description() to getDescription()).
@@ -199,26 +202,13 @@ namespace Xapian {
 #if 0
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-    if (array_init($result) == FAILURE) {
-	SWIG_PHP_Error(E_ERROR, "array_init failed");
-    }
-
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	/* We have to cast away const here because the PHP API is rather
-	 * poorly thought out - really there should be two API methods
-	 * one of which takes a const char * and copies the string and
-	 * the other which takes char * and takes ownership of the string.
-	 *
-	 * Passing 1 as the last parameter of add_next_index_stringl() tells
-	 * PHP to copy the string pointed to by p, so it won't be modified.
-	 */
-	string term = *i;
-	char *p = const_cast<char*>(term.data());
-	add_next_index_stringl($result, p, term.length(), 1);
+	/* FIXME: implement this bit! */
     }
 }
 #endif
 
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
 
-/* vim:set syntax=cpp:set noexpandtab: */
+%include ../generic/except.i
+%include ../xapian.i

@@ -1,3 +1,17 @@
+Tue Jun 21 14:55:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/csharp.i,csharp/util.i,generic/except.i,
+	  generic/generic.mk,java-swig/Makefile.am,java-swig/java.i,
+	  java-swig/util.i,lua/Makefile.am,lua/lua.i,perl/Makefile.am,
+	  perl/perl.i,php/Makefile.am,php/php.i,php/util.i,python/Makefile.am,
+	  python/python.i,python/util.i,ruby/Makefile.am,ruby/ruby.i,
+	  ruby/util.i,tcl8/Makefile.am,tcl8/tcl.i,tcl8/util.i,xapian-head.i,
+	  xapian.i: Change how the inclusion of SWIG interface files works -
+	  instead of carefully setting up include paths so that files get
+	  pulled in from language-specific directories, with fallbacks to
+	  generic files in some cases, we now have a master interface file for
+	  each language which explicitly includes all the other files we want.
+
 Tue Jun 21 14:34:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* generic/generic.mk: 'macosx' -> 'Mac OS X'.

@@ -1,11 +1,12 @@
+%module(directors="1") xapian
 %{
-/* ruby/util.i: custom Ruby typemaps for xapian-bindings
+/* ruby.i: SWIG interface file for the Ruby bindings
  *
  * Original version by Paul Legato (plegato@nks.net), 4/17/06.
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +23,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- *
  */
 
 %}
@@ -33,6 +33,8 @@
 // We don't use the Iterator and ConstIterator wrappers which SWIG now offers,
 // so disable them to reduce the generated C++ wrapper code.
 #define SWIG_NO_EXPORT_ITERATOR_METHODS
+
+%include ../xapian-head.i
 
 /////////////////////////////////////
 // Rename function and method names to match Ruby conventions
@@ -198,10 +200,10 @@
         if (!subq) {
           SWIG_exception(SWIG_ValueError, "elements of Arrays passed to Query must be either Strings or other Queries");
         }
-        v.push_back(*subq);            
+        v.push_back(*subq);
       }
 
-    }       
+    }
 
     $1 = &v;
 }
@@ -217,4 +219,8 @@
 // For MatchDecider::operator() and ExpandDecider::operator().
 %typemap(directorout) int = bool;
 
-/* vim:set syntax=cpp:set noexpandtab: */
+%include ../generic/except.i
+
+%include ../xapian.i
+
+%include extra.i

@@ -1,7 +1,8 @@
+%module(directors="1") xapian
 %{
-/* csharp/util.i: custom C# typemaps for xapian-bindings
+/* csharp.i: SWIG interface file for the C# bindings
  *
- * Copyright (c) 2005,2006,2008,2009 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,8 @@
 
 // Use SWIG directors for C# wrappers.
 #define XAPIAN_SWIG_DIRECTORS
+
+%include ../xapian-head.i
 
 // Rename function and method names to match C# conventions (e.g. from
 // get_description() to GetDescription()).
@@ -228,4 +231,5 @@ namespace Xapian {
 
 }
 
-/* vim:set syntax=cpp:set noexpandtab: */
+%include ../generic/except.i
+%include ../xapian.i
