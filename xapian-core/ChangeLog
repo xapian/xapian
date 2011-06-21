@@ -1,3 +1,9 @@
+Mon Jun 20 23:55:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/intrusive_ptr.h: Unmodified version of
+	  boost/smart_ptr/intrusive_ptr.hpp as of Boost 1.42 (committed to aid
+	  merging changes in the future).
+
 Mon Jun 20 12:46:47 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/databasereplicator.h,languages/steminternal.h,tests/harness/:
