@@ -1,3 +1,7 @@
+Tue Jun 21 14:34:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* generic/generic.mk: 'macosx' -> 'Mac OS X'.
+
 Tue Jun 21 14:16:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* README: Note a recent version of Mono which we've tested the C#
