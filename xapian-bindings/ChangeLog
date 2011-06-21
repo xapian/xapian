@@ -1,3 +1,8 @@
+Tue Jun 21 04:16:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/termgenerator.t: Test TermIterator::index_text() with two
+	  arguments.
+
 Fri Jun 17 08:11:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Start section on deprecation warnings for the bindings.
