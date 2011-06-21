@@ -1,3 +1,8 @@
+Tue Jun 21 06:00:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/docs/index.html,ruby/extra.i,ruby/smoketest.rb,xapian.i: Wrap
+	  MatchAll and MatchNothing for Ruby.  (ticket#158)
+
 Tue Jun 21 05:09:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/smoketest.lua: Fix whitespace inconsistencies.

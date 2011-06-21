@@ -773,7 +773,7 @@ class Remote {
 
 namespace Xapian {
 
-#if defined SWIGPYTHON
+#if defined SWIGPYTHON || defined SWIGRUBY
 %include extra.i
 #endif
 
