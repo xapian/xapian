@@ -1,3 +1,8 @@
+Tue Jun 21 16:12:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Pass -I. to SWIG so it finds generated
+	  doccomments.i in a VPATH build.
+
 Tue Jun 21 14:55:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/csharp.i,csharp/util.i,generic/except.i,

@@ -112,7 +112,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d
 modern/xapian_wrap.stamp:
 	-test -d modern || mkdir modern
 	$(multitarget_begin)
-	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
+	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp python.i
 	$(PERL) -pi -e 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp
