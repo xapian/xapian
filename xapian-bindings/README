@@ -21,13 +21,13 @@ Supported Languages
 Bindings for the following languages should be fully functional and ready
 for real world use:
 
-C#		Tested with Mono C# 1.0.8 and 1.1.8 and Portable.NET 0.6.12.
-		Also tested with Mono C# 1.2.3.1 - note that for Mono
-		runtimes from 1.2 onwards, you need to compile with gmcs
-		(instead of mcs) or you'll get segmentation faults at runtime.
-		The configure script prefers to use gmcs if it is present, but
-		you can run `./configure CSC=mcs' to force use of mcs even
-		if gmcs is also installed.
+C#		Tested with Mono C# 2.6.7 recently.  Much older versions
+		worked with Mono C# 1.0.8, 1.1.8, 1.2.3.1 and Portable.NET
+		0.6.12.  For Mono runtimes from 1.2 onwards, you need to
+		compile with gmcs (instead of mcs) or you'll get segmentation
+		faults at runtime.  The configure script prefers to use gmcs if
+		Jit is present, but you can run `./configure CSC=mcs' to force
+		use of mcs even if gmcs is also installed.
 
 Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 		See java/README for Java binding specific information.
