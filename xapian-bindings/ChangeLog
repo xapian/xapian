@@ -1,3 +1,8 @@
+Tue Jun 21 11:09:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Wrap sources used by AC_COMPILE_IFELSE in
+	  AC_LANG_SOURCE to fix warning from autoconf.
+
 Tue Jun 21 06:54:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian.i: Update comment about MatchAll/MatchNothing.
