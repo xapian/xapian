@@ -326,7 +326,7 @@ operator<<(PrettyOStream<S> &ps, const ChertCursor *) {
 template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
-    ps.os << "RefCntPtr->";
+    ps.os << "intrusive_ptr->";
     return ps << t;
 }
 

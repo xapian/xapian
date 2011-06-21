@@ -1,3 +1,8 @@
+Tue Jun 21 02:26:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING,common/pretty.h,configure.ac,tests/internaltest.cc: Fix a
+	  few lingering references to RefCntPtr and RefCntBase.
+
 Tue Jun 21 02:01:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/,backends/chert/,backends/database.cc,

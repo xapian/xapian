@@ -1335,9 +1335,9 @@ API Structure Notes
 ===================
 
 We use reference counted pointers for most API classes.  These are implemented
-using Xapian::Internal::RefCntPtr, the implementation of which is exposed for
-efficiency, and because it's unlikely we'll need to change it frequently, if at
-all.
+using Xapian::Internal::intrusive_ptr, the implementation of which is exposed
+for efficiency, and because it's unlikely we'll need to change it frequently,
+if at all.
 
 For the reference counted classes, the API class (e.g. Xapian::Enquire) is
 really just a wrapper around a reference counted pointer.  This points to an

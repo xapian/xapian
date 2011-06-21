@@ -293,8 +293,8 @@ else
       dnl 2340 (remark) "value copied to temporary, reference to temporary
       dnl	use", in: throw Xapian::UnimplementedError("...");
       dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
-      dnl	virtual destructor for RefCntBase, since we never delete its
-      dnl	subclasses by a RefCntBase *).
+      dnl	virtual destructor for intrusive_base, since we never delete
+      dnl       its subclasses by a intrusive_base *).
       dnl 3348 "declaration hides constant ..." which seems to misfire!
       dnl 4255 (remark) "padding size of struct "..." with ... bytes to
       dnl	alignment boundary".
