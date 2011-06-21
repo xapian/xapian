@@ -79,7 +79,7 @@ mset = enq:get_mset(0, 10)
 assert(mset:size() == 1)
 assert(table.concat(enq:get_matching_terms(mset:get_hit(0)), " ") == "is there")
 
--- Check value of OP_ELITE_SET 
+-- Check value of OP_ELITE_SET
 assert(xapian.Query_OP_ELITE_SET == 10)
 
 -- Regression test - overload resolution involving boolean types failed.
@@ -110,10 +110,10 @@ assert(query4:get_description() == "Xapian::Query(5 * foo)")
 -- Function to test the order of mset docid
 function mset_expect_order(mset, a)
   if mset:size() ~= #a then
-	  print(string.format("MSet has %i entries, expected %i\n",  mset:size(), #a))
-	  os.exit(-1)
+    print(string.format("MSet has %i entries, expected %i\n",  mset:size(), #a))
+    os.exit(-1)
   end
-  
+
   for j = 0, #a -1 do
     hit = mset:get_hit(j)
     if hit:get_docid() ~= a[j + 1] then
@@ -186,14 +186,14 @@ md:add_value("ABC")
 doc = xapian.Document()
 doc:add_value(0, "ABCD")
 if md(doc) then
-	print "Unexpected result from ValueSetMatchDecider() expected false\n"
+  print "Unexpected result from ValueSetMatchDecider() expected false\n"
   os.exit(-1)
 end
 
 doc = xapian.Document()
 doc:add_value(0, "ABC")
 if not md(doc) then
-	print "Unexpected result from ValueSetMatchDecider() expected true\n"
+  print "Unexpected result from ValueSetMatchDecider() expected true\n"
   os.exit(-1)
 end
 
@@ -208,16 +208,16 @@ mset_expect_order(mset, {1, 3, 4, 5})
 -- Feature tests for Query "term" constructor optional arguments:
 query_wqf = xapian.Query('wqf', 3)
 if query_wqf:get_description() ~= 'Xapian::Query(wqf:(wqf=3))' then
-    print "Unexpected \query_wqf->get_description():\n"
-    print(query_wqf:get_description() .."\n")
-    os.exit(-1)
+  print "Unexpected \query_wqf->get_description():\n"
+  print(query_wqf:get_description() .."\n")
+  os.exit(-1)
 end
 
 query = xapian.Query(xapian.Query_OP_VALUE_GE, 0, "100")
 if query:get_description() ~= 'Xapian::Query(VALUE_GE 0 100)' then
-    print "Unexpected \query->get_description():\n"
-    print(query:get_description() .. "\n")
-    os.exit(-1)
+  print "Unexpected \query->get_description():\n"
+  print(query:get_description() .. "\n")
+  os.exit(-1)
 end
 
 -- Test access to matchspy values:

@@ -1,3 +1,7 @@
+Tue Jun 21 05:09:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Fix whitespace inconsistencies.
+
 Tue Jun 21 05:07:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/smoketest.lua: Restore semicolons to licence text.
