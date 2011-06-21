@@ -1,3 +1,7 @@
+Tue Jun 21 05:07:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Restore semicolons to licence text.
+
 Tue Jun 21 05:01:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/docs/index.html,lua/smoketest.lua,xapian.i: Merge latest Lua
