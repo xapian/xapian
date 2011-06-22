@@ -695,7 +695,7 @@ case $enable_backend_chert$enable_backend_brass in
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for bras and chert (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.

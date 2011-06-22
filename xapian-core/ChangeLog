@@ -1,3 +1,8 @@
+Wed Jun 22 23:51:15 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* configure.ac: Correct tiny typo in error message when zlib isn't
+	  found.
+
 Tue Jun 21 04:08:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/autoptr.h: Update comment about why we have this file.  It's
