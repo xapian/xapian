@@ -1,3 +1,7 @@
+Wed Jun 22 03:26:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/SmokeTest.java: Add more FIXME notes.
+
 Wed Jun 22 02:55:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Clean up MyMatchDecider.class and
