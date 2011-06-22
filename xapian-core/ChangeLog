@@ -1,3 +1,10 @@
+Wed Jun 22 11:42:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-core/backends/remote/remote-database.cc,
+	  xapian-core/common/remote-database.h: Factor out the code to decode
+	  the returned stats into a new apply_stats_update() method.
+
 Wed Jun 22 11:09:22 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

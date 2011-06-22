@@ -88,6 +88,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void update_stats(message_type msg_code = MSG_UPDATE) const;
 
+    void apply_stats_update(const char * p, const char * p_end) const;
+
   protected:
     /** Constructor.  The constructor is protected so that raw instances
      *  can't be created - a derived class must be instantiated which
