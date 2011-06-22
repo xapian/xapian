@@ -1,3 +1,8 @@
+Wed Jun 22 01:23:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Use the same trick as in java-swig/ to check that
+	  SWIG generated all the sources we expected it to.
+
 Wed Jun 22 01:21:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java-swig/Makefile.am,lua/Makefile.am,
