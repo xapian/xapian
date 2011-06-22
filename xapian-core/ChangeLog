@@ -1,3 +1,9 @@
+Wed Jun 22 14:17:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony,
+	  queryparser/termgenerator_internal.cc: Fix warning from GCC 3.3.
+
 Wed Jun 22 13:34:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
