@@ -1,3 +1,11 @@
+Wed Jun 22 14:59:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_postlist.cc,backends/brass/brass_postlist.h,
+	  backends/chert/chert_postlist.cc,backends/chert/chert_postlist.h:
+	  Reduce size of BrassPostList/ChertPostList objects by moving bool
+	  members together (168->160 bytes for ChertPostList on x86-64 Linux).
+
 Wed Jun 22 14:20:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

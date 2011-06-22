@@ -677,8 +677,8 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
-	  cursor(this_db_->postlist_table.cursor_get()),
-	  is_at_end(false)
+	  is_at_end(false),
+	  cursor(this_db_->postlist_table.cursor_get())
 {
     LOGCALL_VOID(DB, "BrassPostList::BrassPostList", this_db_.get() | term_ | keep_reference);
     string key = BrassPostListTable::make_key(term);
