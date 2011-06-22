@@ -1,3 +1,9 @@
+Wed Jun 22 15:01:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Pull in a few updates from the latest version of the
+	  automake document which this file was originally based on.
+	  Add in the missing copyright and licensing information.
+
 Wed Jun 22 14:35:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL,README: It's not really noteworthy that Mac OS X 10.1 and
