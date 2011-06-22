@@ -80,7 +80,7 @@ If the client wants to be able to write, it needs to request this
 explicitly. We do this so that the same server can support multiple
 read-only clients and one writing client at once, without the protocol
 for read-only clients requiring an extra message. The overhead of an
-extra message exchange for a writer is likely to matter as indexing is
+extra message exchange for a writer is unlikely to matter as indexing is
 rarely so real-time critical as searching.
 
 All Terms

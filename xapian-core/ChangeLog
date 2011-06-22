@@ -1,3 +1,9 @@
+Wed Jun 22 11:09:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/remote_protocol.rst: Fixed typo which reversed the intended
+	  sense.
+
 Wed Jun 22 11:05:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
