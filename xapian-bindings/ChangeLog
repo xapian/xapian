@@ -1,3 +1,8 @@
+Wed Jun 22 02:55:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Clean up MyMatchDecider.class and
+	  MyExpandDecider.class.  Include Query$1.class in the jar file.
+
 Wed Jun 22 01:47:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Update for Xapian::Compactor.

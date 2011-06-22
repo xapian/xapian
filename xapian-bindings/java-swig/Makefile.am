@@ -8,9 +8,9 @@ TESTS_ENVIRONMENT = \
 ## Test programs to be run
 TESTS = SmokeTest.class
 
-CLEANFILES = SmokeTest.class built/xapian_jni.jar\
-	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)\
-	Query*1.class
+CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
+	built/xapian_jni.jar\
+	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
 SmokeTest: SmokeTest.class
 
@@ -82,6 +82,7 @@ XAPIAN_SWIG_JAVA_CLASS = $(XAPIAN_SWIG_JAVA_SRCS:.java=.class)
 XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	Compactor*compaction_level.class\
 	Enquire*docid_order.class\
+	Query*1.class\
 	Query*op.class\
 	QueryParser*feature_flag.class\
 	QueryParser*stem_strategy.class\
