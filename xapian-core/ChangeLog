@@ -1,3 +1,10 @@
+Wed Jun 22 16:41:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/databasereplicator.h,languages/steminternal.h,tests/harness/:
+	  Remove inclusions of xapian/base.h from files which don't use
+	  RefCntPtr or RefCntBase.
+
 Wed Jun 22 15:38:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
