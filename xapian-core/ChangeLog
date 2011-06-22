@@ -1,3 +1,9 @@
+Wed Jun 22 10:14:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/Makefile.mk: Remove lingering reference to quartz (rules to
+	  generate man pages for quartzdump, etc).
+
 Sun Jun 12 11:54:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.2.6.
