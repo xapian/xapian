@@ -127,7 +127,7 @@ xapian_wrap.stamp:
 	-rm -f $(XAPIAN_SWIG_JAVA_SRCS)
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp java.i
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'java.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	: # -package org.xapian

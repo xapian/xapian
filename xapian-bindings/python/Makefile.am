@@ -114,7 +114,7 @@ modern/xapian_wrap.stamp:
 	$(multitarget_begin)
 	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir modern \
-	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp python.i
+	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp '$(srcdir)/'python.i
 	$(PERL) -pi -e 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp
 	mv modern/xapian_wrap_d.tmp modern/xapian_wrap.d
 	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.py

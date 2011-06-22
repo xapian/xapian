@@ -37,7 +37,7 @@ if MAINTAINER_MODE
 xapian_wrap.cc:
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp lua.i
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'lua.i
 	mv xapian_wrap_d.tmp xapian_wrap.d
 
 -include xapian_wrap.d

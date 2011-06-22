@@ -61,7 +61,7 @@ php5/xapian_wrap.stamp:
 	$(multitarget_begin)
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
-	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp php.i
+	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'php.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	$(multitarget_end)

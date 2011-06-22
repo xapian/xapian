@@ -111,7 +111,7 @@ xapian_wrap.stamp:
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp csharp.i
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'csharp.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	$(multitarget_end)

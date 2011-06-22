@@ -39,7 +39,7 @@ if MAINTAINER_MODE
 xapian_wrap.cc:
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion '@VERSION_NO_SNAPSHOT@' \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp tcl.i
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'tcl.i
 	mv xapian_wrap_d.tmp xapian_wrap.d
 
 -include xapian_wrap.d

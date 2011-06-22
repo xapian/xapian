@@ -1,3 +1,10 @@
+Wed Jun 22 01:21:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am,lua/Makefile.am,
+	  perl/Makefile.am,php/Makefile.am,python/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Include explicit '$(srcdir)/' path on the main SWIG
+	  interface file to work better in a VPATH build.
+
 Tue Jun 21 16:12:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Pass -I. to SWIG so it finds generated
