@@ -244,7 +244,7 @@ termcount Query::get_length() const
 TermIterator Query::get_terms_begin() const
 {
     LOGCALL(API, Xapian::TermIterator, "Xapian::Query::get_terms_begin", NO_ARGS);
-    if (!internal.get()) RETURN(TermIterator(NULL));
+    if (!internal.get()) RETURN(TermIterator());
     RETURN(internal->get_terms());
 }
 

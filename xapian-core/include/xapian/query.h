@@ -259,7 +259,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  query.
 	 */
 	TermIterator get_terms_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Test if the query is empty (i.e. was constructed using

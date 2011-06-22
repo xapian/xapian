@@ -142,7 +142,7 @@ Database::postlist_begin(const string &tname) const
 	RETURN(PostingIterator(internal[0]->open_post_list(tname)));
 
     if (rare(internal.size() == 0))
-	RETURN(PostingIterator(NULL));
+	RETURN(PostingIterator());
 
     vector<LeafPostList *> pls;
     try {
@@ -715,7 +715,7 @@ Xapian::TermIterator
 Database::metadata_keys_begin(const std::string &prefix) const
 {
     LOGCALL(API, Xapian::TermIterator, "Database::metadata_keys_begin", NO_ARGS);
-    if (internal.empty()) RETURN(TermIterator(NULL));
+    if (internal.empty()) RETURN(TermIterator());
     RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 

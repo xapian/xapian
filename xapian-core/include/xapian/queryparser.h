@@ -585,13 +585,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
     TermIterator stoplist_end() const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /// Iterate over unstemmed forms of the given (stemmed) term used in the query.
     TermIterator unstem_begin(const std::string &term) const;
     TermIterator unstem_end(const std::string &) const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /// Register a ValueRangeProcessor.

@@ -140,7 +140,7 @@ class ValueCountTermList : public TermList {
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator(NULL);
+	return Xapian::PositionIterator();
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
@@ -238,7 +238,7 @@ class StringAndFreqTermList : public TermList {
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator(NULL);
+	return Xapian::PositionIterator();
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };

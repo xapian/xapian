@@ -114,7 +114,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 	 *  current document.
 	 */
 	PositionIterator positionlist_end() const {
-	    return PositionIterator(NULL);
+	    return PositionIterator();
 	}
 
 	// Don't expose these methods here.  A container iterator doesn't
