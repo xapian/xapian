@@ -1,3 +1,8 @@
+Wed Jun 22 12:35:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/deprecation.rst: Add flush() -> commit().
+
 Wed Jun 22 12:27:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
