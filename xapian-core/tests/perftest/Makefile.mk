@@ -3,7 +3,7 @@
 .PHONY: check-perf
 
 check-perf: perftest/perftest$(EXEEXT) perftest/get_machine_info
-	VALGRIND= $(TESTS_ENVIRONMENT) ./perftest/perftest$(EXEEXT)
+	VALGRIND= XAPIAN_TESTSUITE_LD_PRELOAD= $(TESTS_ENVIRONMENT) ./perftest/perftest$(EXEEXT)
 
 ## Programs to build
 check_PROGRAMS += perftest/perftest

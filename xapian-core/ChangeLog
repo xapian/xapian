@@ -1,3 +1,9 @@
+Wed Jun 22 12:49:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/perftest/Makefile.mk: Make sure that perftest isn't run with
+	  libeatmydata preloaded.
+
 Wed Jun 22 12:45:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Remove duplicate entry added in most recent
