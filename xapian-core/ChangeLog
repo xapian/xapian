@@ -1,3 +1,8 @@
+Wed Jun 22 14:18:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/pretty.h: Fix comment typo.
+
 Wed Jun 22 14:17:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
