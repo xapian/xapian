@@ -1,3 +1,10 @@
+Wed Jun 22 14:35:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: It's not really noteworthy that Mac OS X 10.1 and
+	  10.2 aren't supported as Apple ditched them long ago, so drop this
+	  as a "Known Issue" in INSTALL and instead just say "Mac OS X >= 10.3"
+	  in the discussion of supported platforms in the README.
+
 Wed Jun 22 08:50:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am: Need to build except.i before we run swig.
