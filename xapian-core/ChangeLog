@@ -1,3 +1,8 @@
+Wed Jun 22 14:20:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/internaltest.cc: Fix typo in comment and verbose output.
+
 Wed Jun 22 14:18:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
