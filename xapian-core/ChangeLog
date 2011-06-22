@@ -1,3 +1,10 @@
+Wed Jun 22 12:22:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/remoteserver.cc: Remove unnecessary call to reopen() - either we
+	  just called it or we're a writable database and it doesn't do
+	  anything.
+
 Wed Jun 22 11:42:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
