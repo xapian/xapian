@@ -1,3 +1,7 @@
+Wed Jun 22 01:47:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Update for Xapian::Compactor.
+
 Wed Jun 22 01:23:23 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Use the same trick as in java-swig/ to check that

@@ -23,6 +23,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	BoolWeight.java\
 	Brass.java\
 	Chert.java\
+	Compactor.java\
 	Database.java\
 	DateValueRangeProcessor.java\
 	DecreasingValueWeightPostingSource.java\
@@ -79,6 +80,7 @@ XAPIAN_SWIG_JAVA_CLASS = $(XAPIAN_SWIG_JAVA_SRCS:.java=.class)
 # these classes are always generated along with the containing class which
 # is listed in the dependencies.
 XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
+	Compactor*compaction_level.class\
 	Enquire*docid_order.class\
 	Query*op.class\
 	QueryParser*feature_flag.class\
