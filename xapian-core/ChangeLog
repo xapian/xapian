@@ -1,3 +1,9 @@
+Wed Jun 22 11:05:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Add unnecessary AC_LANG_SOURCE wrapper to shut up
+	  autoconf warning.
+
 Wed Jun 22 10:57:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
