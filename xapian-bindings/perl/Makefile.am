@@ -147,7 +147,7 @@ docs/index.html: Search/Xapian.pm
 
 xapian_wrap.cc Search/Xapian.pm: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp:
+xapian_wrap.stamp: except.i
 	$(multitarget_begin)
 	test -d Search || mkdir Search
 	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \

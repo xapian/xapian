@@ -1,3 +1,7 @@
+Wed Jun 22 08:50:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Need to build except.i before we run swig.
+
 Wed Jun 22 08:46:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Need to build except.i and doccomments.i before
