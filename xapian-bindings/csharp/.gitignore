@@ -10,6 +10,6 @@
 /xapian_wrap.h
 /xapian_wrap.d
 /XapianSharp.dll
-/XapianSharp.la
+/_XapianSharp.la
 /XapianSharp.snk
 /*.stamp
