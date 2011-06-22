@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -292,7 +292,7 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
-		string val = string(j, i);
+		string val(j, i);
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
 			cout << filename << ':' << line_no

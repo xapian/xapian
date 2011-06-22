@@ -1,3 +1,8 @@
+Wed Jun 22 16:55:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* scriptindex.cc: Avoid unnecessary temporary string object.
+
 Mon Jun 13 08:00:16 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
