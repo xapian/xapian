@@ -45,13 +45,14 @@ The simplest way to compile this package is:
      exactly which bindings you want to build by passing one or more of the
      following options to configure:
 
-       --with-python	    enable Python bindings
+       --with-csharp	    enable CSharp bindings
+       --with-java	    enable Java bindings
+       --with-lua	    enable Lua bindings
+       --with-perl	    enable Perl bindings
        --with-php	    enable PHP bindings
+       --with-python	    enable Python bindings
        --with-ruby	    enable Ruby bindings
        --with-tcl	    enable Tcl bindings
-       --with-java	    enable Java bindings
-       --with-csharp	    enable CSharp bindings
-       --with-perl	    enable Perl bindings
 
      If you've requested particular bindings using these options, then
      configure will fail with an error if it is missing the prerequisite

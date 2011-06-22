@@ -1,3 +1,7 @@
+Wed Jun 22 15:08:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add --with-lua and sort the list of --with-* options.
+
 Wed Jun 22 15:01:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL: Pull in a few updates from the latest version of the
