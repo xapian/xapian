@@ -1,3 +1,9 @@
+Wed Jun 22 12:27:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* README: Note licence is GPL *2+*.  Say "SVN/git".  Use trac URL for
+	  wiki.
+
 Wed Jun 22 12:22:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
