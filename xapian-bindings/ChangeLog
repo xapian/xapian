@@ -1,3 +1,8 @@
+Wed Jun 22 04:41:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,java-swig/SmokeTest.java: Put the
+	  SWIG-generated Java bindings in package org.xapian.
+
 Wed Jun 22 03:26:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/SmokeTest.java: Add more FIXME notes.
