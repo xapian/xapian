@@ -208,7 +208,7 @@ api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 	    test -f api_collated.stamp; exit $$?; \
 	  fi; \
 	fi
-api_collated.stamp: $(collated_apitest_sources) collate-test
+api_collated.stamp: $(collated_apitest_sources) collate-test Makefile.am
 	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" api_collated.h api_all.h $(collated_apitest_sources)
 	touch $@
 

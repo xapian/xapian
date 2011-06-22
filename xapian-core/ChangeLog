@@ -1,3 +1,12 @@
+Wed Jun 22 10:57:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am,tests/perftest/Makefile.mk,
+	  tests/soaktest/Makefile.mk: Make the generated "*_all.h" depend on
+	  the Makefile.am or Makefile.mk which contains the list of files it
+	  is generated from so that it gets regenerated when a file is
+	  removed from that list.
+
 Wed Jun 22 10:27:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
