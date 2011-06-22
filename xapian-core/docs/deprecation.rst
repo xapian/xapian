@@ -201,7 +201,7 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.1.0      ?	  Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
+1.1.0      ?      Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.1.0      1.3.0  Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
                   ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and
@@ -244,8 +244,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.1.3      1.3.0  ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method
                   ``Enquire::get_mset()``             instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.1.0      ?	  Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
 ========== ====== =================================== ========================================================================
 
 .. flush() is just a simple inlined alias, so perhaps not worth causing pain by

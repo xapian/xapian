@@ -1,3 +1,8 @@
+Wed Jun 22 12:45:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Remove duplicate entry added in most recent
+	  backport and fix tab to spaces.
+
 Wed Jun 22 12:35:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
