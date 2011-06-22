@@ -1,3 +1,9 @@
+Wed Jun 22 16:59:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-omega.spec.in: We're ABI compatible within a release series
+	  so make dependency on xapian-core-libs >= rather than =.
+
 Wed Jun 22 16:55:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

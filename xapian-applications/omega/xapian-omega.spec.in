@@ -11,8 +11,7 @@ License: GPL
 Vendor: xapian.org
 Group: Applications/Internet
 URL: http://xapian.org/
-# FIXME: once we reach 1.0 "=" should become ">="
-Requires: xapian-core-libs = %{version}, webserver
+Requires: xapian-core-libs >= %{version}, webserver
 BuildRequires: xapian-core-devel = %{version}
 BuildRequires: autoconf automake libtool
 Source0: http://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
