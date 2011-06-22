@@ -367,6 +367,21 @@ of database "foo"::
   xapian-check foo/termlist.DB
 
 
+Converting a pre-1.1.4 chert database to a chert database
+---------------------------------------------------------
+
+The chert format changed in 1.1.4 - at that point the format hadn't been
+finalised, but a number of users had already deployed it, and it wasn't hard
+to write an updater, so we provided one called xapian-chert-update which makes
+a copy with the updated format::
+
+  xapian-chert-update SOURCE DESTINATION
+
+It works much like xapian-compact so should take a similar amount of time (and
+results in a compact database).  The initial version had a few bugs, so use
+xapian-chert-update from Xapian 1.2.5 or later.
+
+
 Converting a flint database to a chert database
 ------------------------------------------------
 
