@@ -1,3 +1,10 @@
+Wed Jun 22 15:38:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/base.h: Remove unnecessary check for self-assignment
+	  as it isn't a common case and the current code copes gracefully with
+	  it anyway.
+
 Wed Jun 22 14:59:22 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

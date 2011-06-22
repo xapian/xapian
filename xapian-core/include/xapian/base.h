@@ -115,14 +115,18 @@ inline void RefCntPtr<T>::operator=(const RefCntPtr &other) {
 
 template <class T>
 inline void RefCntPtr<T>::operator=(T *dest_) {
-    // check if we're assigning a pointer to itself
-    if (dest == dest_) return;
-
     // copy the new dest in before we delete the old to avoid a small
     // window in which dest points to a deleted object
     // FIXME: if pointer assignment isn't atomic, we ought to use locking...
     T *old_dest = dest;
     dest = dest_;
+    // Increment the new before we decrement the old so that if dest == dest_
+    // we don't delete the pointer.
+    //
+    // Note that if dest == dest_, either both are NULL (in which case we
+    // aren't reference counting), or we're already reference counting the
+    // object, in which case ref_count is non-zero at this point.  So we
+    // won't accidentally delete an untracked object by doing this.
     if (dest) ++dest->ref_count;
     if (old_dest && --old_dest->ref_count == 0) delete old_dest;
 }
