@@ -109,7 +109,7 @@ doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-cor
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
 	@stamp=modern/xapian_wrap.stamp; $(make_many_locked)
-modern/xapian_wrap.stamp:
+modern/xapian_wrap.stamp: except.i $(DOCCOMMENTS_I)
 	-test -d modern || mkdir modern
 	$(multitarget_begin)
 	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
