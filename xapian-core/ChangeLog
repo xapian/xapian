@@ -1,3 +1,10 @@
+Wed Jun 22 10:27:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omenquireinternal.h: Remove a FIXME - caching the Document
+	  object in MSetItem isn't a replacement for storing the sort_key
+	  now that sort_keys can be computed.
+
 Wed Jun 22 10:20:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
