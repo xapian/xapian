@@ -1,3 +1,9 @@
+Thu Jun 23 03:59:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Update.
+	* HACKING: Start section on deprecation warnings for the bindings.
+
 Thu Jun 23 03:41:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
