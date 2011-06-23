@@ -1,3 +1,8 @@
+Thu Jun 23 00:29:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* hashterm.cc: Avoid unnecessary temporary string object.
+
 Thu Jun 23 00:26:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
