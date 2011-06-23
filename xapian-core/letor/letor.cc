@@ -78,71 +78,57 @@ Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & qu
 }
 
 void
-Letor::make_feature_vector()
-{
-	internal->make_feature_vector();
+Letor::make_feature_vector() {
+    internal->make_feature_vector();
 }
 
 double
-Letor::calculate_f1(const Xapian::Query & query, map<string,long int> & tf,char ch)
-{
-	double value = internal->calculate_f1(query,tf,ch);
-	return value;
+Letor::calculate_f1(const Xapian::Query & query, map<string,long int> & tf,char ch) {
+    double value = internal->calculate_f1(query,tf,ch);
+    return value;
 }
 
 double
-Letor::calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length, char ch)
-{
-        double value=internal->calculate_f2(query,tf,doc_length,ch);
-	return value;
+Letor::calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length, char ch) {
+    double value=internal->calculate_f2(query,tf,doc_length,ch);
+    return value;
 }
 
 double
-Letor::calculate_f3(const Xapian::Query & query, map<string,double> & idf, char ch)
-{
-	double value=internal->calculate_f3(query,idf,ch);
-        return value;
-
+Letor::calculate_f3(const Xapian::Query & query, map<string,double> & idf, char ch) {
+    double value=internal->calculate_f3(query,idf,ch);
+    return value;
 }
 
 double
-Letor::calculate_f4(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & coll_len, char ch)
-{
-	double value=internal->calculate_f4(query,tf,coll_len,ch);
-        return value;
-
+Letor::calculate_f4(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & coll_len, char ch) {
+    double value=internal->calculate_f4(query,tf,coll_len,ch);
+    return value;
 }
 
 double
-Letor::calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_length,char ch)
-{
-	double value=internal->calculate_f5(query,tf,idf,doc_length,ch);
-        return value;
-
+Letor::calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_length,char ch) {
+    double value=internal->calculate_f5(query,tf,idf,doc_length,ch);
+    return value;
 }
 
 double
-Letor::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch)
-{
-	double value=internal->calculate_f6(query,tf,doc_length,coll_tf,coll_length,ch);
-        return value;
-
+Letor::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch) {
+    double value=internal->calculate_f6(query,tf,doc_length,coll_tf,coll_length,ch);
+    return value;
 }
 
 void
-Letor::letor_score()
-{
-	internal->letor_score();
+Letor::letor_score() {
+    internal->letor_score();
 }
 
 void
-Letor::letor_learn_model()
-{
-	internal->letor_learn_model();
+Letor::letor_learn_model() {
+    internal->letor_learn_model();
 }
 
 void
-Letor::prepare_training_file(const Xapian::Database & db, std::string query_file, std::string qrel_file)
-{
-	internal->prepare_training_file(db,query_file,qrel_file);
+Letor::prepare_training_file(const Xapian::Database & db, std::string query_file, std::string qrel_file) {
+    internal->prepare_training_file(db,query_file,qrel_file);
 }

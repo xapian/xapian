@@ -32,7 +32,7 @@ class Letor::Internal : public Xapian::Internal::RefCntBase {
     friend class Letor;
  
   public:
-    
+      
 	void make_feature_vector();
 	
 	map<string,long int> termfreq(const Xapian::Document & doc,const Xapian::Query & query);
