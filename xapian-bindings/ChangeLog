@@ -1,3 +1,9 @@
+Thu Jun 23 01:59:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-bindings/lua/docs/examples/simpleexpand.lua: Don't try to add
+	  anything to the RSet if there are no matches.
+
 Thu Jun 23 01:57:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
