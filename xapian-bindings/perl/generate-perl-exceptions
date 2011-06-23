@@ -1,6 +1,6 @@
 # generate-perl-exceptions: generate error handling code for Perl bindings
 #
-# Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2011 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -22,27 +22,6 @@ use exception_data;
 
 my @allclasses = (@baseclasses, @classes);
 
-my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter
-);
-
-my @posting_source_virtual_methods = qw(
-    get_termfreq_min 
-    get_termfreq_est
-    get_termfreq_max
-    get_maxweight
-    get_weight
-    next
-    skip_to
-    check
-    at_end
-    get_docid
-    get_description
-    init
-    name
-    serialise
-);
-
 open FD, ">except.i" or die $!;
 
 print FD <<"EOF";
@@ -51,7 +30,7 @@ print FD <<"EOF";
  * - do not modify directly!
  *
  * Copyright 2007 Lemur Consulting Ltd
- * Copyright 2007 Olly Betts
+ * Copyright 2007,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -112,30 +91,6 @@ print FD <<'EOF';
 %}
 
 %exception {
-    try {
-	$action
-    } catch (...) {
-	Xapian::handle_exception();
-	SWIG_fail;
-    }
-}
-EOF
-
-for my $method (@posting_source_virtual_methods) {
-    print FD <<"EOF";
-%exception Xapian::PostingSource::${method} {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::handle_exception();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-print FD <<'EOF';
-%exception Xapian::Stopper::get_description {
     try {
 	$action
     } catch (...) {
