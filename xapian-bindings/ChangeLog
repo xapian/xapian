@@ -1,3 +1,8 @@
+Thu Jun 23 03:41:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/Makefile.am: Fix "make check".
+
 Thu Jun 23 02:57:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -7,7 +7,7 @@ TESTS_ENVIRONMENT = \
 	CXX="$(CXX)" \
 	CXXFLAGS="$(CXXFLAGS)" \
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	prove -I.libs -I. -I"$(srcdir)"
+	prove -I. -I"$(srcdir)"
 
 ## Test programs to be run
 TESTS = \
@@ -32,11 +32,20 @@ TESTS = \
 	t/writabledatabase.t
 
 clean-local:
-	rm -rf testdb*
+	rm -rf testdb* auto
 
-BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc
+BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc \
+	auto/Search/Xapian/Xapian$(PERL_SO)
 
-EXTRA_DIST = except.i $(TESTS) $(BUILT_SOURCES) \
+auto/Search/Xapian/Xapian$(PERL_SO): Xapian.la
+	@$(MKDIR_P) auto/Search/Xapian
+	$(LIBTOOL) --config > libtoolconfig.tmp
+## ksh requires a path on the sourced file.
+	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Search/Xapian
+	rm -f libtoolconfig.tmp
+
+EXTRA_DIST = except.i $(TESTS) \
+	Search/Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
 	t/symbol-test/SymbolTest.xs \
