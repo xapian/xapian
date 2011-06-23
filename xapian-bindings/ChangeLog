@@ -1,3 +1,9 @@
+Thu Jun 23 02:44:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Remove unnecessary nested single quotes.  Remove
+	  superfluous trailing ; from Perl one-liners.
+
 Thu Jun 23 01:59:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
