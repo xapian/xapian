@@ -1,3 +1,8 @@
+Thu Jun 23 02:57:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/Makefile.am: Improve comment about replicationtest.py.
+
 Thu Jun 23 02:44:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
