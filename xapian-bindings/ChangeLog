@@ -1,3 +1,10 @@
+Thu Jun 23 05:58:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/10query.t,perl/util.i.in: Wrap MatchAll and MatchNothing for
+	  Perl (as Search::Xapian::Query::MatchAll and
+	  Search::Xapian::Query::MatchNothing).  (ticket#158)
+
 Thu Jun 23 05:55:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
