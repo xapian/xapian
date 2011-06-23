@@ -17,10 +17,13 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
+// FIXME: need to put bindings in a package
 //import org.xapian.*;
+
+// FIXME: need to sort out throwing wrapped Xapian::Error subclasses
 //import org.xapian.errors.*;
 
-// FIXME "implements" not "extends" in JNI Java API
+// FIXME: "implements" not "extends" in JNI Java API
 class MyMatchDecider extends MatchDecider {
     public boolean accept(Document d) {
 	// NB It's not normally appropriate to call getData() in a MatchDecider
@@ -35,7 +38,7 @@ class MyMatchDecider extends MatchDecider {
     }
 }
 
-// FIXME "implements" not "extends" in JNI Java API
+// FIXME: "implements" not "extends" in JNI Java API
 class MyExpandDecider extends ExpandDecider {
     public boolean accept(String s) { return s.substring(0, 1) != "a"; }
 }

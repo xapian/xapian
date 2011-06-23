@@ -1,3 +1,8 @@
+Thu Jun 23 07:20:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/SmokeTest.java: Add more FIXME notes.
+
 Thu Jun 23 06:06:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
