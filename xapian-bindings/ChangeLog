@@ -1,3 +1,11 @@
+Thu Jun 23 05:18:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* lua/docs/index.html,lua/smoketest.lua,xapian.i: Merge latest Lua
+	  changes from Xiaona Han.
+	* lua/smoketest.lua: Restore semicolons to licence text.
+	* lua/smoketest.lua: Fix whitespace inconsistencies.
+
 Thu Jun 23 05:13:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

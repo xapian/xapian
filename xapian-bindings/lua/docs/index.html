@@ -157,9 +157,11 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for Lua, but you can use <code>XapianQuery("")</code>
-instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
+These are wrapped for Lua as
+<code>xapian.Query_MatchAll</code> and
+<code>xapian.Query_MatchNothing</code>.
 </p>
+
 
 <h2>Enquire</h2>
 
