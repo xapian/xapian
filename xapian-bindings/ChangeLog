@@ -1,3 +1,10 @@
+Thu Jun 23 01:17:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/pythontest2.py: Fix odd ordering of line and comment (which
+	  has been that way since I committed the change which added the
+	  code around the comment.
+
 Sun Jun 12 23:34:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: The SWIG upgrade means we now have xapian_wrap.h as
