@@ -1,3 +1,9 @@
+Thu Jun 23 06:06:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/Makefile.am: Clean up MyMatchDecider.class and
+	  MyExpandDecider.class.
+
 Thu Jun 23 05:58:35 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

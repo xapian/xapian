@@ -8,7 +8,8 @@ TESTS_ENVIRONMENT = \
 ## Test programs to be run
 TESTS = SmokeTest.class
 
-CLEANFILES = SmokeTest.class built/xapian_jni.jar\
+CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
+	built/xapian_jni.jar\
 	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)\
 	Query*1.class
 
