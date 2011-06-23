@@ -1,3 +1,9 @@
+Thu Jun 23 05:13:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/termgenerator.t: Test TermIterator::index_text() with two
+	  arguments.
+
 Thu Jun 23 03:59:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
