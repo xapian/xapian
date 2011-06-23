@@ -1,3 +1,8 @@
+Thu Jun 23 00:38:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* dbi2omega: Remove uninteresting reference to 0.9.4.
+
 Thu Jun 23 00:29:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
