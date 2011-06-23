@@ -1992,7 +1992,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_version:
-		value = "Xapian - "PACKAGE" "VERSION;
+		value = PACKAGE_STRING;
 		break;
 	    case CMD_weight:
 		value = double_to_string(weight);

@@ -1,3 +1,11 @@
+Thu Jun 23 01:01:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* query.cc: Improve $version output from "Xapian - xapian-omega 1.2.6"
+	  to "xapian-omega 1.2.6".
+	* docs/omegascript.rst: Update example to match (and use less ancient
+	  version!)
+
 Thu Jun 23 00:38:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
