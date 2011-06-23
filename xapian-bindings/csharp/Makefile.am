@@ -118,6 +118,8 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
 	mv xapian_wrap_d2.tmp xapian_wrap.d
 	rm xapian_wrap_d.tmp
+	: # Check that all the sources we expected were generated.
+	ls $(XAPIAN_SWIG_CS_SRCS) > /dev/null
 	$(multitarget_end)
 
 -include xapian_wrap.d
