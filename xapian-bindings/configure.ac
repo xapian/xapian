@@ -656,7 +656,7 @@ if test no != "$with_java" ; then
 	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
 	AC_MSG_CHECKING([for jni.h in $jnidir])
 	if test -f "$jnidir/jni.h" ; then
-	  AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
 	  if test yes = $java_ok ; then
 	    AC_MSG_RESULT([yes])
 	    JAVA_CPPFLAGS=-I$jnidir
@@ -677,7 +677,7 @@ if test no != "$with_java" ; then
 	  esac
 	  if test -n "$jni_host_os" ; then
 	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
-	    AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
 	    if test yes = $java_ok ; then
 	      AC_MSG_RESULT([yes, requires additional -I$jnidir/$jni_host_os])
 	      JAVA_CPPFLAGS="-I$jnidir -I$jnidir/$jni_host_os"
