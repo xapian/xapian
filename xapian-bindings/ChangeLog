@@ -1,3 +1,9 @@
+Thu Jun 23 08:47:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/Makefile.am,java-swig/SmokeTest.java: Put the
+	  SWIG-generated Java bindings in package org.xapian.
+
 Thu Jun 23 07:20:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -17,8 +17,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
-// FIXME: need to put bindings in a package
-//import org.xapian.*;
+import org.xapian.*;
 
 // FIXME: need to sort out throwing wrapped Xapian::Error subclasses
 //import org.xapian.errors.*;
