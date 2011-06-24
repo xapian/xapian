@@ -685,7 +685,7 @@ if test no != "$with_java" ; then
 	AC_SUBST(JAVA_PATHSEP)
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
-	  BINDINGS="$BINDINGS java"
+	  BINDINGS="$BINDINGS java-swig"
 	else
 	  AC_MSG_RESULT([failed to run test program])
 	  java_ok=no
