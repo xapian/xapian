@@ -82,9 +82,6 @@
 /* %include <xapian/errorhandler.h> */
 
 /* Currently wrapped via declarations in xapian.i: */
-/* %include <xapian/database.h> */
-
-/* Currently wrapped via declarations in xapian.i: */
 /* %include <xapian/dbfactory.h> */
 
 INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
@@ -171,3 +168,18 @@ SUBCLASSABLE(Xapian, PostingSource)
 SUBCLASSABLE(Xapian, MatchSpy)
 %ignore Xapian::MatchSpy::serialise_results;
 %include <xapian/matchspy.h>
+
+STANDARD_IGNORES(Xapian, Database)
+STANDARD_IGNORES(Xapian, WritableDatabase)
+%ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
+%ignore Xapian::Database::get_document_lazily_;
+%ignore Xapian::DB_CREATE;
+%ignore Xapian::DB_CREATE_OR_OPEN;
+%ignore Xapian::DB_CREATE_OR_OVERWRITE;
+%ignore Xapian::DB_OPEN;
+%include <xapian/database.h>
+
+%constant int DB_CREATE = Xapian::DB_CREATE;
+%constant int DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
+%constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
+%constant int DB_OPEN = Xapian::DB_OPEN;

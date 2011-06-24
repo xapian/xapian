@@ -1,3 +1,11 @@
+Fri Jun 24 17:16:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap Database and WritableDatabase by
+	  using %include <xapian/database.h>.  Adds missing wrappers for
+	  Database::has_positions(), wrapping of Database::reopen()'s new
+	  bool return type, and corrects the return type of
+	  Database::get_doclength() from double to Xapian::termcount.
+
 Fri Jun 24 15:47:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Wrap MatchSpy and PostingSource with

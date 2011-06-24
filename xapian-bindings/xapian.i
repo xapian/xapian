@@ -49,9 +49,7 @@
 namespace Xapian {
 
 class Weight;
-class Database;
 class Query;
-class KeyMaker;
 
 }
 
@@ -336,102 +334,7 @@ class Enquire {
 
 namespace Xapian {
 
-// xapian/database.h
-
-class Database {
-    public:
-	void add_database(const Database & database);
-	Database();
-	Database(const string &path);
-	virtual ~Database();
-	Database(const Database & other);
-	void reopen();
-	void close();
-
-	string get_description() const;
-	PostingIterator postlist_begin(const std::string& tname) const;
-	PostingIterator postlist_end(const std::string& tname) const;
-	TermIterator termlist_begin(docid did) const;
-	TermIterator termlist_end(docid did) const;
-	PositionIterator positionlist_begin(docid did, const std::string& tname) const;
-	PositionIterator positionlist_end(docid did, const std::string& tname) const;
-	TermIterator allterms_begin() const;
-	TermIterator allterms_end() const;
-	TermIterator allterms_begin(const std::string &prefix) const;
-	TermIterator allterms_end(const std::string &prefix) const;
-
-	doccount get_doccount() const;
-	docid get_lastdocid() const;
-	doclength get_avlength() const;
-	doccount get_termfreq(const std::string &tname) const;
-	bool term_exists(const std::string &tname) const;
-	termcount get_collection_freq(const std::string &tname) const;
-	doccount get_value_freq(Xapian::valueno valno) const;
-	string get_value_lower_bound(Xapian::valueno valno) const;
-	string get_value_upper_bound(Xapian::valueno valno) const;
-	Xapian::termcount get_doclength_lower_bound() const;
-	Xapian::termcount get_doclength_upper_bound() const;
-	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
-	ValueIterator valuestream_begin(Xapian::valueno slot) const;
-	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const;
-	doclength get_doclength(docid docid) const;
-	void keep_alive();
-	Document get_document(docid did);
-	std::string get_spelling_suggestion(const std::string &word,
-					    unsigned max_edit_distance = 2) const;
-	TermIterator spellings_begin() const;
-	TermIterator spellings_end() const;
-	TermIterator synonyms_begin(const std::string &term) const;
-	TermIterator synonyms_end(const std::string &) const;
-	TermIterator synonym_keys_begin(const std::string &prefix = "") const;
-	TermIterator synonym_keys_end(const std::string &prefix = "") const;
-	std::string get_metadata(const std::string & key) const;
-	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
-	Xapian::TermIterator metadata_keys_end(const std::string &prefix = "") const;
-	std::string get_uuid() const;
-
-};
-
-class WritableDatabase : public Database {
-    public:
-	virtual ~WritableDatabase();
-	WritableDatabase();
-	WritableDatabase(const string &path, int action);
-	WritableDatabase(const WritableDatabase & other);
-
-	void commit();
-	void flush();
-
-	void begin_transaction(bool flushed = true);
-	void commit_transaction();
-	void cancel_transaction();
-
-	docid add_document(const Document & document);
-	void delete_document(docid did);
-	void replace_document(docid did, const Document & document);
-	void delete_document(const std::string & unique_term);
-	Xapian::docid replace_document(const std::string & unique_term,
-				       const Xapian::Document & document);
-
-	void add_spelling(const std::string & word,
-			  Xapian::termcount freqinc = 1) const;
-	void remove_spelling(const std::string & word,
-			     Xapian::termcount freqdec = 1) const;
-
-	void add_synonym(const std::string & term,
-			 const std::string & synonym) const;
-	void remove_synonym(const std::string & term,
-			    const std::string & synonym) const;
-	void clear_synonyms(const std::string & term) const;
-	void set_metadata(const std::string & key, const std::string & value);
-
-	string get_description() const;
-};
-
-%constant int DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int DB_CREATE = Xapian::DB_CREATE;
-%constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int DB_OPEN = Xapian::DB_OPEN;
+// xapian/dbfactory.h
 
 // Database factory functions:
 #if !defined SWIGCSHARP && !defined SWIGJAVA
