@@ -46,11 +46,17 @@
 #endif
 #endif
 
-%include xapian-headers.i
-
 namespace Xapian {
+
 class Weight;
+class Database;
+class MatchSpy;
+class Query;
+class KeyMaker;
+
 }
+
+%include xapian-headers.i
 
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::PostingSource;
@@ -224,11 +230,6 @@ class ExpandDecider {
 
 namespace Xapian {
 
-class Database;
-class MatchSpy;
-class Query;
-class KeyMaker;
-
 class Enquire {
   public:
     Enquire(const Database &databases);
@@ -317,9 +318,6 @@ class Enquire {
 };
 
 }
-
-%ignore Xapian::Registry::operator=;
-%include <xapian/registry.h>
 
 /* Generated code won't compile if directors are enabled.  Disable for now
  * while we investigate.
@@ -598,13 +596,6 @@ class Remote {
 }
 %include <xapian/query.h>
 
-%feature("director") Xapian::Stopper;
-%feature("director") Xapian::ValueRangeProcessor;
-%ignore Xapian::QueryParser::internal;
-%ignore Xapian::QueryParser::operator=;
-%ignore Xapian::QueryParser::QueryParser(const QueryParser &);
-%include <xapian/queryparser.h>
-
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::StemImplementation;
@@ -618,21 +609,4 @@ class Remote {
 %ignore Xapian::Stem::Stem(const Stem &);
 %include <xapian/stem.h>
 
-%ignore Xapian::TermGenerator::internal;
-%ignore Xapian::TermGenerator::operator=;
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &);
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount);
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
-%ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
-%include <xapian/termgenerator.h>
-
-%feature("director") Xapian::KeyMaker;
-%include <xapian/keymaker.h>
-
 %include <xapian/valuesetmatchdecider.h>
-
-%feature("director") Xapian::Compactor;
-%include <xapian/compactor.h>

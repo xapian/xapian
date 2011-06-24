@@ -1,3 +1,9 @@
+Fri Jun 24 15:30:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Add SUBCLASSABLE macro to indicate a class
+	  which is subclassable in the target language (assuming SWIG supports
+	  directors for that language).
+
 Fri Jun 24 12:44:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Factor out ignoring of internal stuff and

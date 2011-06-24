@@ -20,6 +20,15 @@
  */
 %}
 
+%define SUBCLASSABLE(NS, CLASS)
+    %ignore NS::CLASS::clone;
+    %ignore NS::CLASS::serialise;
+    %ignore NS::CLASS::unserialise;
+    %#ifdef XAPIAN_SWIG_DIRECTORS
+    %feature(director) NS::CLASS;
+    %#endif
+%enddef
+
 %define STANDARD_IGNORES(NS, CLASS)
     %ignore NS::CLASS::internal;
     %ignore NS::CLASS::CLASS(Internal*);
@@ -106,8 +115,17 @@ INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/termgenerator.h> */
+STANDARD_IGNORES(Xapian, TermGenerator)
+%ignore Xapian::TermGenerator::operator=;
+/* Ignore forms which use Utf8Iterator, as we don't wrap that class. */
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
+%ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
+%include <xapian/termgenerator.h>
 
 /* Currently wrapped via declarations in xapian.i: */
 /* %include <xapian/enquire.h> */
@@ -115,20 +133,29 @@ STANDARD_IGNORES(Xapian, Document)
 /* Currently wrapped via declarations in xapian.i: */
 /* %include <xapian/expanddecider.h> */
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/keymaker.h> */
+SUBCLASSABLE(Xapian, KeyMaker)
+%include <xapian/keymaker.h>
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/matchspy.h> */
+/*
+SUBCLASSABLE(Xapian, MatchSpy)
+%ignore Xapian::MatchSpy::serialise_results;
+%include <xapian/matchspy.h>
+*/
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/postingsource.h> */
+/*
+SUBCLASSABLE(Xapian, PostingSource)
+%ignore Xapian::PostingSource::register_matcher_;
+%include <xapian/postingsource.h>
+*/
 
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/query.h> */
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/queryparser.h> */
+SUBCLASSABLE(Xapian, Stopper)
+SUBCLASSABLE(Xapian, ValueRangeProcessor)
+STANDARD_IGNORES(Xapian, QueryParser)
+%ignore Xapian::QueryParser::QueryParser(const QueryParser &);
+%include <xapian/queryparser.h>
 
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/valuesetmatchdecider.h> */
@@ -139,12 +166,12 @@ STANDARD_IGNORES(Xapian, Document)
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/stem.h> */
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/registry.h> */
+STANDARD_IGNORES(Xapian, Registry)
+%include <xapian/registry.h>
 
 /* We don't wrap Xapian's Unicode support as other languages usually already
  * have their own Unicode support. */
 /* %include <xapian/unicode.h> */
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/compactor.h> */
+SUBCLASSABLE(Xapian, Compactor)
+%include <xapian/compactor.h>
