@@ -1,3 +1,10 @@
+Fri Jun 24 05:39:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,xapian-headers.i,xapian.i: Start a new interface file
+	  to contain wrapping of xapian-core API headers by getting SWIG to
+	  parse them directly rather than duplicated declarations in the
+	  interface file.
+
 Fri Jun 24 04:33:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update JNI comments.

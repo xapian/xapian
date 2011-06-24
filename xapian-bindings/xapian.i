@@ -46,20 +46,9 @@
 #endif
 #endif
 
-%include <xapian/types.h>
+%include xapian-headers.i
 
 namespace Xapian {
-
-// from xapian/version.h
-
-%exception version_string "$action"
-%exception major_version "$action"
-%exception minor_version "$action"
-%exception revision "$action"
-const char * version_string();
-int major_version();
-int minor_version();
-int revision();
 
 class Weight;
 class Stopper;
@@ -86,6 +75,8 @@ class PositionIterator {
 
 }
 
+/* Copyright 2007 Olly Betts */
+
 %ignore Xapian::DocIDWrapper;
 %ignore Xapian::PostingIterator::operator++;
 %ignore Xapian::PostingIterator::operator*;
@@ -96,6 +87,7 @@ class PositionIterator {
 %ignore difference_type;
 %ignore iterator_category;
 %ignore value_type;
+/*****************************/
 %extend Xapian::PostingIterator {
     Xapian::docid get_docid() const {
 	return *(*self);
