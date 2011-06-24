@@ -49,57 +49,7 @@
 %include xapian-headers.i
 
 namespace Xapian {
-
 class Weight;
-class Stopper;
-
-// from xapian/positioniterator.h
-
-class PositionIterator {
-  public:
-    PositionIterator();
-    PositionIterator(const PositionIterator &other);
-    ~PositionIterator();
-    %extend {
-	Xapian::termpos get_termpos() const {
-	    return *(*self);
-	}
-	NEXT(Xapian::termpos, PositionIterator)
-	bool equals(const PositionIterator &other) const {
-	    return (*self) == other;
-	}
-    }
-    void skip_to(Xapian::termpos pos);
-    std::string get_description() const;
-};
-
-}
-
-/* Copyright 2007 Olly Betts */
-
-%ignore Xapian::DocIDWrapper;
-%ignore Xapian::PostingIterator::operator++;
-%ignore Xapian::PostingIterator::operator*;
-%ignore Xapian::PostingIterator::internal;
-%ignore Xapian::PostingIterator::operator=;
-%ignore operator==(const PostingIterator &, const PostingIterator &);
-%ignore operator!=(const PostingIterator &, const PostingIterator &);
-%ignore difference_type;
-%ignore iterator_category;
-%ignore value_type;
-/*****************************/
-%extend Xapian::PostingIterator {
-    Xapian::docid get_docid() const {
-	return *(*self);
-    }
-    NEXT(Xapian::docid, PostingIterator)
-    bool equals(const PostingIterator &other) const {
-	return (*self) == other;
-    }
-}
-%include <xapian/postingiterator.h>
-
-namespace Xapian {
 
 // from xapian/termiterator.h
 

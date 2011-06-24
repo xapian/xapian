@@ -20,6 +20,30 @@
  */
 %}
 
+/* We use %ignore and %extend rather than %rename on operator* so that any
+ * pattern rename used to match local naming conventions applies to
+ * DEREF_METHOD.
+ */
+%define INPUT_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
+    %ignore NS::CLASS::operator++;
+    %ignore NS::CLASS::internal;
+    %ignore NS::CLASS::CLASS(Internal*);
+    %ignore NS::CLASS::operator=;
+    %ignore NS::CLASS::operator*;
+    %extend NS::CLASS {
+        bool equals(const NS::CLASS & o) const { return *self == o; }
+        RET_TYPE DEREF_METHOD() const { return **self; }
+        NEXT(RET_TYPE, NS::CLASS)
+    }
+%enddef
+
+/* Ignore these for all classes: */
+%ignore operator==;
+%ignore operator!=;
+%ignore difference_type;
+%ignore iterator_category;
+%ignore value_type;
+
 /* These methods won't throw exceptions. */
 %exception Xapian::major_version "$action"
 %exception Xapian::minor_version "$action"
@@ -53,11 +77,12 @@
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/document.h> */
 
-/* Currently wrapped via declarations in xapian.i: */
-/* %include <xapian/positioniterator.h> */
+INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
+%include <xapian/positioniterator.h>
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/postingiterator.h> */
+%ignore Xapian::DocIDWrapper;
+INPUT_ITERATOR_METHODS(Xapian, PostingIterator, Xapian::docid, get_docid)
+%include <xapian/postingiterator.h>
 
 /* Currently wrapped via declarations in xapian.i: */
 /* %include <xapian/termiterator.h> */

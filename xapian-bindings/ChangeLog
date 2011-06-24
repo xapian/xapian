@@ -1,3 +1,10 @@
+Fri Jun 24 09:15:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Do setup for %include <postingiterator.h>
+	  using a parameterised macro INPUT_ITERATOR_METHODS().  Use this new
+	  macro to wrap %include <xapian/positioniterator.h> instead of having
+	  its declarations repeated in xapian.i.
+
 Fri Jun 24 05:39:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Makefile.am,xapian-headers.i,xapian.i: Start a new interface file
