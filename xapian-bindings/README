@@ -29,8 +29,11 @@ C#		Tested with Mono C# 2.6.7 recently.  Much older versions
 		Jit is present, but you can run `./configure CSC=mcs' to force
 		use of mcs even if gmcs is also installed.
 
-Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
-		See java/README for Java binding specific information.
+Java		Java bindings are generated with SWIG, as of Xapian 1.3.0.
+		Recently tested with OpenJDK 1.6.0_18.  The minimum supported
+		version isn't clear - the bindings use JNI, which was added in
+		Java 2 (i.e. JDK 1.2), but we haven't recently tested with such
+		old versions.
 
 Lua		Requires Lua 5.1 or later.  Currently Lua support is
 		experimental - the Lua API provided is likely to change to

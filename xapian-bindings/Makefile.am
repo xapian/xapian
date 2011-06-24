@@ -17,7 +17,7 @@ EXTRA_DIST = xapian.i xapian-head.i generic/except.i \
     HACKING
 
 SUBDIRS = @BINDINGS@
-DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp perl lua
+DIST_SUBDIRS = python php java-swig ruby tcl8 csharp perl lua
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON_LIB="`pwd`/../_inst/tmp_pylib" \

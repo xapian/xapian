@@ -1,3 +1,10 @@
+Fri Jun 24 04:06:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am,README,configure.ac,java-swig/SmokeTest.java,
+	  java/,java/native/,java/org/xapian/,java/org/xapian/errors/,
+	  java/org/xapian/examples/,java/run-java-test: Remove the hand-coded
+	  JNI bindings.
+
 Fri Jun 24 03:37:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am,java-swig/docs/: Copy java examples

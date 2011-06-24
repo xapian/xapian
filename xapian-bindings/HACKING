@@ -53,12 +53,6 @@ directors, so doesn't give us an easy mechanism for callbacks (e.g. for
 Xapian::MatchDecider) but perhaps we can do these by hand as they are in the XS
 bindings.
 
-We also currently have hand written JNI bindings for Java.  The plan is to
-move these over to using SWIG to reduce the maintenance cost (the SWIG
-generated bindings are also somewhat smaller, and allow us to support
-GCJ's CNI alternative to JNI).  Some work has been done and can be found
-in the ``java-swig`` subdirectory.
-
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
 

@@ -53,6 +53,7 @@ public class SmokeTest {
 	    Document doc = new Document();
 	    doc.setData("is there anybody out there?");
 	    doc.addTerm("XYzzy");
+// apply was stemWord() in the JNI bindings
 	    doc.addPosting(stem.apply("is"), 1);
 	    doc.addPosting(stem.apply("there"), 2);
 	    doc.addPosting(stem.apply("anybody"), 3);
@@ -126,6 +127,7 @@ public class SmokeTest {
 	    RSet rset = new RSet();
 	    rset.addDocument(1);
 	    ESet eset = enq.getESet(10, rset, new MyExpandDecider());
+	    // FIXME: temporary simple check
 	    if (0 == eset.size()) {
 		System.err.println("ESet.size() was 0");
 		System.exit(1);

@@ -1051,8 +1051,6 @@ AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile
  php/Makefile
- java/Makefile java/native/Makefile java/org/xapian/Makefile
- java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  java-swig/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs
