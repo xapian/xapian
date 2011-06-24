@@ -84,8 +84,8 @@ INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
 INPUT_ITERATOR_METHODS(Xapian, PostingIterator, Xapian::docid, get_docid)
 %include <xapian/postingiterator.h>
 
-/* Currently wrapped via declarations in xapian.i: */
-/* %include <xapian/termiterator.h> */
+INPUT_ITERATOR_METHODS(Xapian, TermIterator, std::string, get_term)
+%include <xapian/termiterator.h>
 
 /* Currently wrapped via declarations in xapian.i: */
 /* %include <xapian/valueiterator.h> */

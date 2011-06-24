@@ -51,36 +51,6 @@
 namespace Xapian {
 class Weight;
 
-// from xapian/termiterator.h
-
-class TermIterator {
-  public:
-    TermIterator();
-    TermIterator(const TermIterator &other);
-    ~TermIterator();
-    %extend {
-	string get_term() const {
-	    return *(*self);
-	}
-	NEXT(string, TermIterator)
-	bool equals(const TermIterator& other) const {
-	    return (*self) == other;
-	}
-    }
-
-    // extra method, not required for an input_iterator
-    void skip_to(const std::string & tname);
-
-    Xapian::termcount get_wdf() const;
-    Xapian::doccount get_termfreq() const;
-
-    // allow iteration of positionlist for current document
-    PositionIterator positionlist_begin();
-    PositionIterator positionlist_end();
-
-    std::string get_description() const;
-};
-
 // from xapian/valueiterator.h
 
 class ValueIterator {
