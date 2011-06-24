@@ -1,3 +1,9 @@
+Fri Jun 24 03:37:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,java-swig/docs/: Copy java examples
+	  from the JNI ones, and create an HTML documentation page
+	  based on java/README.
+
 Fri Jun 24 03:13:15 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Switch java bindings to java-swig.
