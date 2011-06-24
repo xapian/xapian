@@ -1,3 +1,9 @@
+Wed Jun 22 15:32:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Pull in a few updates from the latest version of the
+	  automake document which this file was originally based on.
+	  Add in the missing copyright and licensing information.
+
 Thu Jun 16 15:42:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* query.cc: Drop legacy support for handling '.' separated terms in
