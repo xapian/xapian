@@ -625,13 +625,13 @@ if test no != "$with_java" ; then
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
     dnl
     dnl So checking for jni.h presumably implicitly checks we have "Java 2".
-    dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems).
-    dnl So we could check for that if we want to check for a particular
+    dnl Note: jni.h #defines JNI_VERSION_1_[1246] (but not 3 or 5 it seems).
+    dnl So we could check for one of these if we want to check for a particular
     dnl JDK version...
     java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, we jni.h lives
+      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
       for jnidir in $JNI_INCLUDE_DIR ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do

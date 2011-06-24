@@ -1,3 +1,7 @@
+Fri Jun 24 04:33:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update JNI comments.
+
 Fri Jun 24 04:06:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,README,configure.ac,java-swig/SmokeTest.java,
