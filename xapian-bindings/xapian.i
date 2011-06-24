@@ -50,37 +50,7 @@
 
 namespace Xapian {
 class Weight;
-
-// from xapian/valueiterator.h
-
-class ValueIterator {
-  public:
-    ValueIterator();
-    ValueIterator(const ValueIterator& other);
-    ~ValueIterator();
-    %extend {
-	string get_value() const {
-	    return *(*self);
-	}
-	NEXT(string, ValueIterator)
-	bool equals(const ValueIterator &other) const {
-	    return (*self) == other;
-	}
-    }
-
-    Xapian::docid get_docid() const;
-    Xapian::valueno get_valueno() const;
-    void skip_to(Xapian::docid docid_or_slot);
-    bool check(Xapian::docid docid);
-    std::string get_description() const;
-};
-
 }
-
-%ignore Xapian::Document::internal;
-%ignore Xapian::Document::Document(Internal *);
-%ignore Xapian::Document::operator=;
-%include <xapian/document.h>
 
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::PostingSource;

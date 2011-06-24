@@ -1,3 +1,10 @@
+Fri Jun 24 12:44:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Factor out ignoring of internal stuff and
+	  operator= from INPUT_ITERATOR_METHODS into new STANDARD_IGNORES
+	  macro.  Use STANDARD_IGNORES to wrap Xapian::Document.  Wrap
+	  ValueIterator via %include <xapian/valueiterator.h>.
+
 Fri Jun 24 09:29:46 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Wrap TermIterator via %include

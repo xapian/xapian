@@ -1,5 +1,5 @@
 %{
-/* xapian-headers.i: Getting SWIG to parse xapian's C++ headers.
+/* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
  * Copyright 2006,2011 Olly Betts
  *
@@ -20,15 +20,19 @@
  */
 %}
 
+%define STANDARD_IGNORES(NS, CLASS)
+    %ignore NS::CLASS::internal;
+    %ignore NS::CLASS::CLASS(Internal*);
+    %ignore NS::CLASS::operator=;
+%enddef
+
 /* We use %ignore and %extend rather than %rename on operator* so that any
  * pattern rename used to match local naming conventions applies to
  * DEREF_METHOD.
  */
 %define INPUT_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
+    STANDARD_IGNORES(NS, CLASS)
     %ignore NS::CLASS::operator++;
-    %ignore NS::CLASS::internal;
-    %ignore NS::CLASS::CLASS(Internal*);
-    %ignore NS::CLASS::operator=;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
         bool equals(const NS::CLASS & o) const { return *self == o; }
@@ -74,9 +78,6 @@
 /* Currently wrapped via declarations in xapian.i: */
 /* %include <xapian/dbfactory.h> */
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/document.h> */
-
 INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
 %include <xapian/positioniterator.h>
 
@@ -87,8 +88,23 @@ INPUT_ITERATOR_METHODS(Xapian, PostingIterator, Xapian::docid, get_docid)
 INPUT_ITERATOR_METHODS(Xapian, TermIterator, std::string, get_term)
 %include <xapian/termiterator.h>
 
-/* Currently wrapped via declarations in xapian.i: */
-/* %include <xapian/valueiterator.h> */
+/* FIXME: Not all languages fully ignore ValueIteratorEnd_ */
+#undef ValueIteratorEnd_
+%ignore ValueIterator(const ValueIteratorEnd_ &);
+%ignore operator=(const ValueIteratorEnd_ &);
+%ignore operator==(const ValueIterator &, const ValueIteratorEnd_ &);
+%ignore operator==(const ValueIteratorEnd_ &, const ValueIterator &);
+%ignore operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &);
+%ignore operator!=(const ValueIterator &, const ValueIteratorEnd_ &);
+%ignore operator!=(const ValueIteratorEnd_ &, const ValueIterator &);
+%ignore operator!=(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &);
+%ignore Xapian::ValueIteratorEnd_;
+INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
+%include <xapian/valueiterator.h>
+#define ValueIteratorEnd_ ValueIterator
+
+STANDARD_IGNORES(Xapian, Document)
+%include <xapian/document.h>
 
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/termgenerator.h> */
