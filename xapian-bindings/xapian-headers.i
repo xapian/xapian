@@ -136,18 +136,6 @@ STANDARD_IGNORES(Xapian, TermGenerator)
 SUBCLASSABLE(Xapian, KeyMaker)
 %include <xapian/keymaker.h>
 
-/*
-SUBCLASSABLE(Xapian, MatchSpy)
-%ignore Xapian::MatchSpy::serialise_results;
-%include <xapian/matchspy.h>
-*/
-
-/*
-SUBCLASSABLE(Xapian, PostingSource)
-%ignore Xapian::PostingSource::register_matcher_;
-%include <xapian/postingsource.h>
-*/
-
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/query.h> */
 
@@ -175,3 +163,11 @@ STANDARD_IGNORES(Xapian, Registry)
 
 SUBCLASSABLE(Xapian, Compactor)
 %include <xapian/compactor.h>
+
+SUBCLASSABLE(Xapian, PostingSource)
+%ignore Xapian::PostingSource::register_matcher_;
+%include <xapian/postingsource.h>
+
+SUBCLASSABLE(Xapian, MatchSpy)
+%ignore Xapian::MatchSpy::serialise_results;
+%include <xapian/matchspy.h>

@@ -50,22 +50,12 @@ namespace Xapian {
 
 class Weight;
 class Database;
-class MatchSpy;
 class Query;
 class KeyMaker;
 
 }
 
 %include xapian-headers.i
-
-#ifdef XAPIAN_SWIG_DIRECTORS
-%feature("director") Xapian::PostingSource;
-#endif
-%ignore Xapian::PostingSource::clone;
-%ignore Xapian::PostingSource::serialise;
-%ignore Xapian::PostingSource::unserialise;
-%ignore Xapian::PostingSource::register_matcher_;
-%include <xapian/postingsource.h>
 
 namespace Xapian {
 
@@ -343,13 +333,6 @@ class Enquire {
 %ignore Xapian::Weight::clone_;
 %ignore Xapian::Weight::init_;
 %include <xapian/weight.h>
-
-%feature("director") Xapian::MatchSpy;
-%ignore Xapian::MatchSpy::clone;
-%ignore Xapian::MatchSpy::serialise;
-%ignore Xapian::MatchSpy::serialise_results;
-%ignore Xapian::MatchSpy::unserialise;
-%include <xapian/matchspy.h>
 
 namespace Xapian {
 

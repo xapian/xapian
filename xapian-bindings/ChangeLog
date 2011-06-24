@@ -1,3 +1,8 @@
+Fri Jun 24 15:47:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap MatchSpy and PostingSource with
+	  SUBCLASSABLE macro.
+
 Fri Jun 24 15:30:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Add SUBCLASSABLE macro to indicate a class
