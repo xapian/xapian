@@ -74,7 +74,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @return      Pointer to Document::Internal object.
 	 */
-	Document::Internal * get_document_lazily(Xapian::docid did) const;
+	Document::Internal * get_document_lazily_(Xapian::docid did) const;
 
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.

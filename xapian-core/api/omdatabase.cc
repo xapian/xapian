@@ -451,9 +451,9 @@ Database::get_document(Xapian::docid did) const
 }
 
 Document::Internal *
-Database::get_document_lazily(Xapian::docid did) const
+Database::get_document_lazily_(Xapian::docid did) const
 {
-    LOGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
+    LOGCALL(DB, Document::Internal *, "Database::get_document_lazily_", did);
     if (did == 0)
 	docid_zero_invalid();
 

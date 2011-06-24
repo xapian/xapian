@@ -1,3 +1,11 @@
+Fri Jun 24 16:15:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/slowvaluelist.cc,
+	  include/xapian/database.h,matcher/valuestreamdocument.cc: Rename
+	  Database::get_document_lazily() to get_document_lazily_() to conform
+	  to our convention for naming methods for internal use which have
+	  "public" visibility.
+
 Wed Jun 22 23:51:15 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* configure.ac: Correct tiny typo in error message when zlib isn't
