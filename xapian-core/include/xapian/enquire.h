@@ -55,7 +55,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// @internal Constructor for internal use.
-	explicit MSet(MSet::Internal * internal_);
+	explicit MSet(Internal * internal_);
 
 	/// Create an empty Xapian::MSet.
 	MSet();
