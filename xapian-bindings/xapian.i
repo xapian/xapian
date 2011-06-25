@@ -46,39 +46,7 @@
 #endif
 #endif
 
-namespace Xapian {
-
-class Weight;
-class Query;
-
-}
-
 %include xapian-headers.i
-
-/* Generated code won't compile if directors are enabled.  Disable for now
- * while we investigate.
- *
- * The problem comes from having a private pure virtual clone() function in
- * the Weight class. Directors work by multiple inheritance from both
- * SWIG_Director and the class they're directing; constructors in the target
- * language are then redirected to the director class. However the director
- * mechanism doesn't generate a wrapper for the clone() function (presumably
- * because it's private). This is wrong, because the director is then
- * abstract, which the SWIG generated code can't cope with.
- *
- * Also having a factory method might be a problem?
- */
-
-//%feature("director") Weight;
-%ignore Xapian::Weight::Internal;
-%ignore Xapian::Weight::operator=;
-%ignore Xapian::Weight::Weight(const Weight &);
-%ignore Xapian::Weight::clone;
-%ignore Xapian::Weight::serialise;
-%ignore Xapian::Weight::unserialise;
-%ignore Xapian::Weight::clone_;
-%ignore Xapian::Weight::init_;
-%include <xapian/weight.h>
 
 namespace Xapian {
 

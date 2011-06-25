@@ -248,8 +248,22 @@ STANDARD_IGNORES(Xapian, QueryParser)
 
 %include <xapian/valuesetmatchdecider.h>
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/weight.h> */
+/* Xapian::Weight isn't usefully subclassable via the bindings, as clone()
+ * needs to be implemented for it to be usable for weighting a search.  But
+ * there are several supplied weighting schemes implemented in C++ which can
+ * usefully be used via the bindings so we wrap those.
+ */
+STANDARD_IGNORES(Xapian, Weight)
+/* The copy constructor isn't implemented, but is protected rather than
+ * private to work around a compiler bug, so we ignore it explicitly.
+ */
+%ignore Xapian::Weight::Weight(const Weight &);
+%ignore Xapian::Weight::clone;
+%ignore Xapian::Weight::clone_;
+%ignore Xapian::Weight::init_;
+%ignore Xapian::Weight::serialise;
+%ignore Xapian::Weight::unserialise;
+%include <xapian/weight.h>
 
 STANDARD_IGNORES(Xapian, Registry)
 %include <xapian/registry.h>
