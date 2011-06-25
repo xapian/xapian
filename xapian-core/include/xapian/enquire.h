@@ -667,7 +667,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	   should be 0.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
-	 *  initialised Database object is supplied.
+	 *  empty Database object is supplied.
 	 */
 	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
 
