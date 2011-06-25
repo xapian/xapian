@@ -145,6 +145,16 @@ INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>
 
+// Suppress warning that Xapian::Internal::intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
+SUBCLASSABLE_ONLY(Xapian, StemImplementation)
+#ifndef XAPIAN_SWIG_DIRECTORS
+%ignore Xapian::Stem::Stem(Xapian::StemImplementation *);
+#endif
+STANDARD_IGNORES(Xapian, Stem)
+%ignore Xapian::Stem::Stem();
+%include <xapian/stem.h>
+
 STANDARD_IGNORES(Xapian, TermGenerator)
 %ignore Xapian::TermGenerator::operator=;
 /* Ignore forms which use Utf8Iterator, as we don't wrap that class. */
@@ -241,9 +251,6 @@ STANDARD_IGNORES(Xapian, QueryParser)
 
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/weight.h> */
-
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/stem.h> */
 
 STANDARD_IGNORES(Xapian, Registry)
 %include <xapian/registry.h>

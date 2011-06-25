@@ -230,17 +230,4 @@ class Remote {
 }
 %include <xapian/query.h>
 
-%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
-#ifdef XAPIAN_SWIG_DIRECTORS
-%feature("director") Xapian::StemImplementation;
-#else
-%ignore Xapian::StemImplementation;
-%ignore Xapian::Stem::Stem(Xapian::StemImplementation *);
-#endif
-%ignore Xapian::Stem::internal;
-%ignore Xapian::Stem::operator=;
-%ignore Xapian::Stem::Stem();
-%ignore Xapian::Stem::Stem(const Stem &);
-%include <xapian/stem.h>
-
 %include <xapian/valuesetmatchdecider.h>

@@ -1,3 +1,7 @@
+Sat Jun 25 15:32:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap Xapian::Stem using the new macros.
+
 Sat Jun 25 15:15:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java-swig/Makefile.am: Upon "make
