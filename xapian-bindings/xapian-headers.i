@@ -246,8 +246,7 @@ STANDARD_IGNORES(Xapian, QueryParser)
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
 %include <xapian/queryparser.h>
 
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/valuesetmatchdecider.h> */
+%include <xapian/valuesetmatchdecider.h>
 
 /* Currently wrapped by inclusion in xapian.i: */
 /* %include <xapian/weight.h> */

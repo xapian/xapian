@@ -229,5 +229,3 @@ class Remote {
 	    }
 }
 %include <xapian/query.h>
-
-%include <xapian/valuesetmatchdecider.h>

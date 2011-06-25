@@ -1,3 +1,8 @@
+Sat Jun 25 15:38:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap <xapian/valuesetmatchdecider.h> in
+	  xapian-headers.i.
+
 Sat Jun 25 15:32:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Wrap Xapian::Stem using the new macros.
