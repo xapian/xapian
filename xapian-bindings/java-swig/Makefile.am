@@ -150,6 +150,9 @@ CLEANFILES += xapian_wrap.stamp
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
+maintainer-clean-local:
+	rm -rf built org
+
 exampledatadir = $(docdir)/java/examples
 dist_exampledata_DATA =\
 	docs/examples/SimpleSearch.java\

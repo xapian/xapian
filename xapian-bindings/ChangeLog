@@ -1,3 +1,10 @@
+Sat Jun 25 15:15:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am: Upon "make
+	  maintainer-clean", delete the directories which we get SWIG to
+	  generate the source files into, and also the 'built' subdirectory for
+	  java-swig.
+
 Sat Jun 25 15:10:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Port over from csharp/Makefile.am the smarter

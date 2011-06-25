@@ -134,6 +134,9 @@ CLEANFILES += xapian_wrap.stamp
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
+maintainer-clean-local:
+	rm -rf generated-csharp
+
 exampledatadir = $(docdir)/csharp/examples
 dist_exampledata_DATA =\
 	docs/examples/SimpleSearch.cs\
