@@ -1,3 +1,8 @@
+Sat Jun 25 15:08:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Delete all files in generated-csharp before
+	  running swig, not just those in $(XAPIAN_SWIG_CS_SRCS).
+
 Sat Jun 25 15:01:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,xapian-headers.i,xapian.i: Wrap enquire.h and
