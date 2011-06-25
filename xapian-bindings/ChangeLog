@@ -1,3 +1,11 @@
+Sat Jun 25 07:50:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Put the generated C# sources into a subdirectory
+	  to make it easier to manage them.  Check that exactly the sources in
+	  XAPIAN_SWIG_CS_SRCS are generated previously we checked that the
+	  sources in that list were generated, but not if extra ones were).
+	  Add six missing sources to XAPIAN_SWIG_CS_SRCS.
+
 Fri Jun 24 17:16:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Wrap Database and WritableDatabase by
