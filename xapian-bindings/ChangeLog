@@ -1,3 +1,11 @@
+Sat Jun 25 11:13:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/util.i: Rename SWIG_anystring_as_ptr to
+	  XapianSWIG_anystring_as_ptr as it's not a part of SWIG itself.
+	  Handle generating XapianSWIG_anystring_as_ptr in the right place
+	  in the file by specifying it with %fragment, and specify its
+	  dependency on the fragment SWIG_AsPtr_std_string.
+
 Sat Jun 25 07:50:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Put the generated C# sources into a subdirectory
