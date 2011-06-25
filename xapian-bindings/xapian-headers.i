@@ -20,6 +20,7 @@
  */
 %}
 
+/* A class which can usefully be subclassed in the target language. */
 %define SUBCLASSABLE(NS, CLASS)
     %ignore NS::CLASS::clone;
     %ignore NS::CLASS::serialise;
@@ -29,11 +30,30 @@
     %#endif
 %enddef
 
+/* A class which is only useful to wrap if the target language allows
+ * subclassing of wrapped classes (what SWIG calls "director support".
+ */
+#ifdef XAPIAN_SWIG_DIRECTORS
+#define SUBCLASSABLE_ONLY(NS, CLASS) SUBCLASSABLE(NS, CLASS)
+#else
+#define SUBCLASSABLE_ONLY(NS, CLASS) %ignore NS::CLASS;
+#endif
+
+#ifdef SWIGTCL
+/* Tcl needs copy constructors it seems. */
 %define STANDARD_IGNORES(NS, CLASS)
     %ignore NS::CLASS::internal;
     %ignore NS::CLASS::CLASS(Internal*);
     %ignore NS::CLASS::operator=;
 %enddef
+#else
+%define STANDARD_IGNORES(NS, CLASS)
+    %ignore NS::CLASS::internal;
+    %ignore NS::CLASS::CLASS(Internal*);
+    %ignore NS::CLASS::operator=;
+    %ignore NS::CLASS::CLASS(const CLASS &);
+%enddef
+#endif
 
 /* We use %ignore and %extend rather than %rename on operator* so that any
  * pattern rename used to match local naming conventions applies to
@@ -44,9 +64,17 @@
     %ignore NS::CLASS::operator++;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
-        bool equals(const NS::CLASS & o) const { return *self == o; }
-        RET_TYPE DEREF_METHOD() const { return **self; }
-        NEXT(RET_TYPE, NS::CLASS)
+	bool equals(const NS::CLASS & o) const { return *self == o; }
+	RET_TYPE DEREF_METHOD() const { return **self; }
+	NEXT(RET_TYPE, NS::CLASS)
+    }
+%enddef
+
+%define BIDIRECTIONAL_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
+    INPUT_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
+    %ignore NS::CLASS::operator--;
+    %extend NS::CLASS {
+	PREV(RET_TYPE, NS::CLASS)
     }
 %enddef
 
@@ -56,6 +84,11 @@
 %ignore difference_type;
 %ignore iterator_category;
 %ignore value_type;
+%ignore max_size;
+%ignore swap;
+%ignore iterator;
+%ignore const_iterator;
+%ignore size_type;
 
 /* These methods won't throw exceptions. */
 %exception Xapian::major_version "$action"
@@ -124,11 +157,72 @@ STANDARD_IGNORES(Xapian, TermGenerator)
 %ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
 %include <xapian/termgenerator.h>
 
-/* Currently wrapped via declarations in xapian.i: */
-/* %include <xapian/enquire.h> */
+STANDARD_IGNORES(Xapian, MSet)
+#ifdef SWIGJAVA
+// For compatibility with the original JNI wrappers.
+%rename("getElement") Xapian::MSet::operator[];
+#else
+%ignore Xapian::MSet::operator[];
+#endif
+%extend Xapian::MSet {
+    Xapian::docid get_docid(Xapian::doccount i) const {
+	return *(*self)[i];
+    }
 
-/* Currently wrapped via declarations in xapian.i: */
-/* %include <xapian/expanddecider.h> */
+    Xapian::Document get_document(Xapian::doccount i) const {
+	return (*self)[i].get_document();
+    }
+
+    Xapian::MSetIterator get_hit(Xapian::doccount i) const {
+	return (*self)[i];
+    }
+
+    Xapian::percent get_document_percentage(Xapian::doccount i) const {
+	return self->convert_to_percent((*self)[i]);
+    }
+}
+STANDARD_IGNORES(Xapian, ESet)
+%ignore Xapian::ESet::operator[];
+STANDARD_IGNORES(Xapian, RSet)
+
+STANDARD_IGNORES(Xapian, Enquire)
+
+BIDIRECTIONAL_ITERATOR_METHODS(Xapian, MSetIterator, Xapian::docid, get_docid)
+BIDIRECTIONAL_ITERATOR_METHODS(Xapian, ESetIterator, std::string, get_term)
+
+SUBCLASSABLE(Xapian, MatchDecider)
+
+#ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
+/* Instantiating the template we're going to use avoids SWIG wrapping uses
+ * of it in SwigValueWrapper.
+ */
+%template() std::pair<Xapian::TermIterator, Xapian::TermIterator>;
+
+%extend Xapian::Enquire {
+    /* This returns start and end iterators, then a typemap iterates between
+     * those and returns an array of strings in the target language.
+     */
+    std::pair<Xapian::TermIterator, Xapian::TermIterator>
+    get_matching_terms(const Xapian::MSetIterator & item) const {
+	return std::make_pair($self->get_matching_terms_begin(item),
+			      $self->get_matching_terms_end(item));
+    }
+}
+#endif
+
+/* We don't wrap ErrorHandler, so ignore the optional ErrorHandler parameter.
+ */
+%ignore Enquire(const Database &, ErrorHandler *);
+
+%include <xapian/enquire.h>
+
+SUBCLASSABLE(Xapian, ExpandDecider)
+%ignore Xapian::ExpandDeciderAnd::ExpandDeciderAnd(const ExpandDecider *, const ExpandDecider *);
+/* FIXME: %extend ExpandDeciderFilterTerms so it can be constructed from an
+ * array of strings (or whatever the equivalent is in the target language).
+ */
+%ignore Xapian::ExpandDeciderFilterTerms;
+%include <xapian/expanddecider.h>
 
 SUBCLASSABLE(Xapian, KeyMaker)
 %include <xapian/keymaker.h>

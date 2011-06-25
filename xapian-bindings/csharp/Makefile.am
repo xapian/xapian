@@ -24,6 +24,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/ESetIterator.cs \
 	generated-csharp/Enquire.cs \
 	generated-csharp/ExpandDecider.cs \
+	generated-csharp/ExpandDeciderAnd.cs \
 	generated-csharp/FixedWeightPostingSource.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \

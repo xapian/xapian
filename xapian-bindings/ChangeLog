@@ -1,3 +1,13 @@
+Sat Jun 25 15:01:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,xapian-headers.i,xapian.i: Wrap enquire.h and
+	  expanddecider.h by parsing the headers directly.  Wrap ExpandDecider
+	  even if we don't have director support - there's a
+	  ExpandDeciderFilterTerms subclass which is useful in itself, though
+	  it still needs some typemap work to actually get it usefully wrapped.
+	  Ignore copy ctors for all classes (rather than just some) for all
+	  languages except Tcl where we now consistently ignore none of them.
+
 Sat Jun 25 11:13:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/util.i: Rename SWIG_anystring_as_ptr to
