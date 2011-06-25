@@ -1,3 +1,9 @@
+Sat Jun 25 15:10:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Port over from csharp/Makefile.am the smarter
+	  check that we got exactly the sources generated which we wanted.
+	  Add missing new source ExpandDeciderAnd.java.
+
 Sat Jun 25 15:08:59 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Delete all files in generated-csharp before
