@@ -1,3 +1,9 @@
+Sun Jun 26 03:35:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html,php/smoketest.php,xapian.i: Wrap MatchAll and
+	  MatchNothing for PHP as XapianQuery::MatchAll() and
+	  XapianQuery::MatchNothing(). (ticket#158)
+
 Sat Jun 25 15:58:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Wrap <xapian/weight.h> using the new
