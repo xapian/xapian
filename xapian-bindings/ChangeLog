@@ -1,3 +1,8 @@
+Sun Jun 26 14:09:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html,java-swig/docs/index.html: Document wrapping
+	  of MatchAll and MatchNothing.
+
 Sun Jun 26 10:24:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs,csharp/csharp.i,java-swig/SmokeTest.java,
