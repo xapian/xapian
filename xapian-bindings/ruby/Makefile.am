@@ -37,7 +37,9 @@ xapian_wrap.stamp:
 	$(multitarget_begin)
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap.d '$(srcdir)/'ruby.i
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'ruby.i
+	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
+	mv xapian_wrap_d.tmp xapian_wrap.d
 	$(multitarget_end)
 
 -include xapian_wrap.d
