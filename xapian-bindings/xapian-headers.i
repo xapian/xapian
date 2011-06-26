@@ -145,6 +145,16 @@ INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>
 
+STANDARD_IGNORES(Xapian, Query)
+#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGPERL || \
+    defined SWIGPYTHON || defined SWIGRUBY
+// C#, Java, Perl, Python and Ruby wrap these "by hand" to give a nicer API
+// than SWIG gives by default.
+%ignore Xapian::Query::MatchAll;
+%ignore Xapian::Query::MatchNothing;
+#endif
+%include <xapian/query.h>
+
 // Suppress warning that Xapian::Internal::intrusive_base is unknown.
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::StemImplementation;
 SUBCLASSABLE_ONLY(Xapian, StemImplementation)
@@ -236,9 +246,6 @@ SUBCLASSABLE(Xapian, ExpandDecider)
 
 SUBCLASSABLE(Xapian, KeyMaker)
 %include <xapian/keymaker.h>
-
-/* Currently wrapped by inclusion in xapian.i: */
-/* %include <xapian/query.h> */
 
 SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)

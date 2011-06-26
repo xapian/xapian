@@ -1,3 +1,9 @@
+Sun Jun 26 15:32:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap <xapian/query.h> in xapian-headers.i,
+	  except for the current %extend part which I'm looking to reimplement
+	  in a slicker way.
+
 Sun Jun 26 14:54:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/ruby.i: Fix to work with direct wrapping on xapian/enquire.h

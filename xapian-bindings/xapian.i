@@ -46,6 +46,27 @@
 #endif
 #endif
 
+// xapian/query.h:
+
+%extend Xapian::Query {
+#ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
+	    /* For some languages we handle strings in the vector<Query>
+	     * case, so we don't need to wrap this ctor. */
+
+	    /** Constructs a query from a vector of terms merged with the
+	     *  specified operator. */
+	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
+		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
+	    }
+#endif
+
+	    /** Constructs a query from a vector of subqueries merged with the
+	     *  specified operator. */
+	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
+		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
+	    }
+}
+
 %include xapian-headers.i
 
 namespace Xapian {
@@ -166,34 +187,3 @@ class Remote {
 #endif
 
 }
-
-// xapian/query.h:
-
-#if !defined SWIGTCL && !defined SWIGLUA && !defined SWIGPHP
-// FIXME: wrap MatchAll and MatchNothing for other languages (except for
-// Python, Ruby, and Perl which wrap them in a different way)
-%ignore Xapian::Query::MatchAll;
-%ignore Xapian::Query::MatchNothing;
-#endif
-
-%ignore Xapian::Query::internal;
-%ignore Xapian::Query::operator=;
-%extend Xapian::Query {
-#ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
-	    /* For some languages we handle strings in the vector<Query>
-	     * case, so we don't need to wrap this ctor. */
-
-	    /** Constructs a query from a vector of terms merged with the
-	     *  specified operator. */
-	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
-		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
-	    }
-#endif
-
-	    /** Constructs a query from a vector of subqueries merged with the
-	     *  specified operator. */
-	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
-		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
-	    }
-}
-%include <xapian/query.h>
