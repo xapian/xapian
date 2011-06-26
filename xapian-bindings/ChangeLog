@@ -1,3 +1,11 @@
+Sun Jun 26 14:54:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/ruby.i: Fix to work with direct wrapping on xapian/enquire.h
+	  - the signature in that file has Xapian:: qualifiers on the
+	  arguments types for set_query() so it wasn't getting renamed.
+	  Missed this because of incorrect dependencies, as fixed in the
+	  last commit.
+
 Sun Jun 26 14:47:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am: Fix automatic dependency generation for files
