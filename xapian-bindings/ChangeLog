@@ -1,3 +1,9 @@
+Sun Jun 26 10:24:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,csharp/csharp.i,java-swig/SmokeTest.java,
+	  java-swig/java.i: Wrap Query::MatchAll and Query::MatchNothing for C#
+	  and Java. (ticket#158)
+
 Sun Jun 26 03:35:43 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/docs/index.html,php/smoketest.php,xapian.i: Wrap MatchAll and

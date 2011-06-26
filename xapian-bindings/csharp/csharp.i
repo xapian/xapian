@@ -229,6 +229,11 @@ namespace Xapian {
     public override int GetHashCode() { return 0; }
 %}
 
+%typemap(cscode) class Query %{
+  public static Query MatchAll = new Query("");
+  public static Query MatchNothing = new Query();
+%}
+
 }
 
 %include ../generic/except.i
