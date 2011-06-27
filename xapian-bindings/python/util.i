@@ -24,14 +24,6 @@
  */
 %}
 
-/* Include the documentation comments extracted from doxygen output. */
-#ifdef DOCCOMMENTS_I_SOURCES
-%include "doccomments.i"
-#endif
-
-/* Include overrides for the documentation comments. */
-%include "extracomments.i"
-
 %include typemaps.i
 %include stl.i
 

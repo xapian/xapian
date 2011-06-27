@@ -18,11 +18,6 @@ TESTS = smoketest.py pythontest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-if !MAINTAINER_NO_DOCS
-DOCCOMMENTS_I = doccomments.i
-DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
-endif
-
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \
@@ -100,19 +95,24 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-BUILT_SOURCES += except.i $(DOCCOMMENTS_I)
+BUILT_SOURCES += except.i doccomments.i
 except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
 
+if MAINTAINER_NO_DOCS
+doccomments.i:
+	: > doccomments.i
+else
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
 	$(PYTHON) $(srcdir)/doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
+endif
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
 	@stamp=modern/xapian_wrap.stamp; $(make_many_locked)
-modern/xapian_wrap.stamp: except.i $(DOCCOMMENTS_I)
+modern/xapian_wrap.stamp: except.i doccomments.i
 	-test -d modern || mkdir modern
 	$(multitarget_begin)
-	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
+	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp '$(srcdir)/'python.i
 	$(PERL) -pi -e 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp

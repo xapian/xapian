@@ -25,6 +25,14 @@
 #define XAPIAN_SWIG_DIRECTORS
 
 %include ../xapian-head.i
+
+// Doccomments from Doxgyen-generated XML from C++ API docs.
+%include doccomments.i
+
+// Manually added exceptions for cases where the automatic comments aren't
+// helpful, or are missing.
+%include extracomments.i
+
 %include util.i
 %include except.i
 %include ../xapian.i

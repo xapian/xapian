@@ -1,3 +1,9 @@
+Mon Jun 27 15:22:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python/python.i,python/util.i: If
+	  MAINTAINER_NO_DOCS is true, then just create an empty doccomments.i
+	  rather then carefully arranging not to include it.
+
 Mon Jun 27 15:04:59 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Clarify that extra.i is for extra *Python* code.
