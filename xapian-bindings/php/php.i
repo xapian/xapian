@@ -29,14 +29,14 @@
 %include ../xapian-head.i
 
 /* Add a section to the output from phpinfo(). */
-%pragma(php) phpinfo="
-    const char * linked_version = Xapian::version_string();
-    php_info_print_table_start();
-    php_info_print_table_row(2, \"Xapian Support\", \"enabled\");
-    php_info_print_table_row(2, \"Xapian Compiled Version\",
-			     XAPIAN_BINDINGS_VERSION);
-    php_info_print_table_row(2, \"Xapian Linked Version\", linked_version);
-    php_info_print_table_end();
+%pragma(php) phpinfo="\
+    php_info_print_table_start();\n\
+    php_info_print_table_row(2, \"Xapian Support\", \"enabled\");\n\
+    php_info_print_table_row(2, \"Xapian Compiled Version\",\n\
+			     XAPIAN_BINDINGS_VERSION);\n\
+    php_info_print_table_row(2, \"Xapian Linked Version\",\n\
+			     Xapian::version_string());\n\
+    php_info_print_table_end();\
 "
 
 %rename("is_empty") empty() const;
