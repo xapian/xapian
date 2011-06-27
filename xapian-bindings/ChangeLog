@@ -1,3 +1,10 @@
+Mon Jun 27 08:18:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.i,xapian.i: Wrap the XapianQuery ctor which takes a mixed
+	  array of XapianQuery objects and strings by defining an iterator so
+	  subqueries get added directly rather than creating an intermediate
+	  std::vector.
+
 Mon Jun 27 03:08:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/php.i: Tweak the phpinfo() generation code.

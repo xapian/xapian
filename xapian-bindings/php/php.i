@@ -74,51 +74,101 @@
     $1 = (Z_TYPE_PP($input) == IS_BOOL || Z_TYPE_PP($input) == IS_LONG);
 }
 
-#define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
-%typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
-    $1 = (Z_TYPE_PP($input) == IS_ARRAY);
-    /* FIXME: if we add more array typemaps, we'll need to check the elements
-     * of the array here to disambiguate. */
-}
-
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-    if (Z_TYPE_PP($input) != IS_ARRAY) {
-	SWIG_PHP_Error(E_ERROR, "expected array of queries");
-    }
-    int numitems = zend_hash_num_elements(Z_ARRVAL_PP($input));
-    v.reserve(numitems);
-    zval **item;
-    HashTable *ht = Z_ARRVAL_PP($input);
-    HashPosition i;
-    zend_hash_internal_pointer_reset_ex(ht, &i);
-    while (zend_hash_get_current_data_ex(ht, (void **)&item, &i) == SUCCESS) {
-	if ((*item)->type == IS_STRING) {
-	    int len = Z_STRLEN_PP(item);
-	    const char *p = Z_STRVAL_PP(item);
-	    v.push_back(Xapian::Query(string(p, len)));
-	} else {
-	    Xapian::Query *subq = 0;
-	    if (SWIG_ConvertPtr(*item, (void **)&subq,
-				SWIGTYPE_p_Xapian__Query, 0) < 0) {
-		subq = 0;
-	    }
-	    if (!subq) {
-		SWIG_PHP_Error(E_ERROR, "expected string or query object");
-	    }
-	    v.push_back(*subq);
-	}
-	zend_hash_move_forward_ex(ht, &i);
-    }
-    zend_hash_internal_pointer_end_ex(ht, &i);
-    $1 = &v;
-}
-
 /* SWIG's default typemap accepts "Null" when an object is passed by
    reference, and the C++ wrapper code then dereferences a NULL pointer
    which causes a SEGV. */
 %typemap(in) SWIGTYPE & {
     if (SWIG_ConvertPtr(*$input, (void**)&$1, $1_descriptor, 0) < 0 || $1 == NULL) {
 	SWIG_PHP_Error(E_ERROR, "Type error in argument $argnum of $symname. Expected $1_descriptor");
+    }
+}
+
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+%typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    $1 = (Z_TYPE_PP($input) == IS_ARRAY);
+    /* FIXME: if we add more array typemaps, we'll need to check the elements
+     * of the array here to disambiguate. */
+}
+
+%{
+class XapianSWIGQueryItor {
+    HashTable *ht;
+
+    HashPosition i;
+
+    zval ** item;
+
+#ifdef ZTS
+    void *** swig_zts_ctx;
+#endif
+
+    void get_current_data() {
+	if (zend_hash_get_current_data_ex(ht, (void **)&item, &i) != SUCCESS) {
+	    zend_hash_internal_pointer_end_ex(ht, &i);
+	    ht = NULL;
+	}
+    }
+
+  public:
+    XapianSWIGQueryItor()
+	: ht(NULL) { }
+
+    XapianSWIGQueryItor(zval ** input TSRMLS_DC) : ht(Z_ARRVAL_PP(input)) {
+	TSRMLS_SET_CTX(swig_zts_ctx);
+	zend_hash_internal_pointer_reset_ex(ht, &i);
+	get_current_data();
+    }
+
+    XapianSWIGQueryItor & operator++() {
+	zend_hash_move_forward_ex(ht, &i);
+	get_current_data();
+	return *this;
+    }
+
+    Xapian::Query operator*() const {
+	if ((*item)->type == IS_STRING) {
+	    size_t len = Z_STRLEN_PP(item);
+	    const char *p = Z_STRVAL_PP(item);
+	    return Xapian::Query(string(p, len));
+	}
+
+	Xapian::Query *subq = 0;
+	if (SWIG_ConvertPtr(*item, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) < 0) {
+	    subq = 0;
+	}
+	if (!subq) {
+	    TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
+	    SWIG_PHP_Error(E_ERROR, "Expected XapianQuery object or string");
+fail: // Label which SWIG_PHP_Error needs.
+	    return Xapian::Query();
+	}
+	return *subq;
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return ht == o.ht;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+
+%}
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    // $1 and $2 are default initialised where SWIG declares them.
+    if (Z_TYPE_PP($input) == IS_ARRAY) {
+	// The typecheck typemap should have ensured this is an array.
+	$1 = XapianSWIGQueryItor($input TSRMLS_CC);
     }
 }
 

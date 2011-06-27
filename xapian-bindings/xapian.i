@@ -48,6 +48,10 @@
 
 // xapian/query.h:
 
+#ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+%ignore Query(Query::op op_,
+              XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+              termcount parameter = 0);
 %extend Xapian::Query {
 #ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 	    /* For some languages we handle strings in the vector<Query>
@@ -66,6 +70,7 @@
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
 }
+#endif
 
 %include xapian-headers.i
 
