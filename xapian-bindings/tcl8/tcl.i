@@ -36,33 +36,72 @@ namespace Xapian {
 }
 %}
 
-#define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
-%typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+%typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     int dummy;
     $1 = (Tcl_ListObjLength(interp, $input, &dummy) == TCL_OK);
     /* FIXME: if we add more array typemaps, we'll need to check the elements
      * of the array here to disambiguate. */
 }
 
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-    int numitems;
+%{
+class XapianSWIGQueryItor {
+    Tcl_Interp *interp;
+
     Tcl_Obj ** items;
+
+    int n;
+
+  public:
+    XapianSWIGQueryItor()
+	: n(0) { }
+
+    XapianSWIGQueryItor(Tcl_Interp * interp_, Tcl_Obj **items_, int n_)
+	: interp(interp_), items(items_), n(n_) { }
+
+    XapianSWIGQueryItor & operator++() {
+	++items;
+	--n;
+	return *this;
+    }
+
+    Xapian::Query operator*() const {
+	Tcl_Obj * item = *items;
+	Xapian::Query * subq = Xapian::get_tcl8_query(interp, item);
+	if (subq)
+	    return *subq;
+
+	int len;
+	const char *p = Tcl_GetStringFromObj(item, &len);
+	return Xapian::Query(string(p, len));
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return n == o.n;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+
+%}
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    Tcl_Obj ** items;
+    int numitems;
     if (Tcl_ListObjGetElements(interp, $input, &numitems, &items) != TCL_OK) {
 	return TCL_ERROR;
     }
-    v.reserve(numitems);
-    while (numitems--) {
-	Tcl_Obj * item = *items++;
-	Xapian::Query * subq = Xapian::get_tcl8_query(interp, item);
-	if (subq == NULL) {
-	    int len;
-	    const char *p = Tcl_GetStringFromObj(item, &len);
-	    v.push_back(Xapian::Query(string(p, len)));
-	} else {
-	    v.push_back(*subq);
-	}
-    }
-    $1 = &v;
+    $1 = XapianSWIGQueryItor(interp, items, numitems);
+    // $2 is default initialised where SWIG declares it.
 }
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP

@@ -1,3 +1,8 @@
+Mon Jun 27 11:21:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tcl8/tcl.i: Use the iterator approach for wrapping the mixed array
+	  Query ctor in Tcl.
+
 Mon Jun 27 11:05:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/ruby.i: Use the iterator approach for wrapping the mixed array
