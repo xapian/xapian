@@ -1,3 +1,7 @@
+Mon Jun 27 15:04:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Clarify that extra.i is for extra *Python* code.
+
 Mon Jun 27 14:39:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* TODO: Wrapping Xapian::Weight isn't possible. (ticket#401)
