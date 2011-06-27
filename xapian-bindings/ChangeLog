@@ -1,3 +1,8 @@
+Mon Jun 27 14:34:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/perl.i,perl/util.i.in: Move the SWIG typemaps into perl.i,
+	  leaving just the %perlcode in util.i.in.
+
 Mon Jun 27 14:23:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian.i: Remove %module line which is no longer used.
