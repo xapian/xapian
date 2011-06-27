@@ -1,3 +1,8 @@
+Mon Jun 27 08:16:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Add a fake specialised form of the templated
+	  ctor for SWIG.
+
 Sat Jun 25 11:27:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fix doc comment typo which reversed the
