@@ -1,5 +1,3 @@
-%module(directors="1") xapian
-
 %{
 /* xapian.i: the Xapian scripting interface.
  *

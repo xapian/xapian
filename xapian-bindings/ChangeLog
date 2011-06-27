@@ -1,3 +1,7 @@
+Mon Jun 27 14:23:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove %module line which is no longer used.
+
 Mon Jun 27 14:10:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: WritableDatabase::delete_document() was broken by
