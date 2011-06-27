@@ -1,3 +1,8 @@
+Mon Jun 27 11:05:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/ruby.i: Use the iterator approach for wrapping the mixed array
+	  Query ctor in Ruby.
+
 Mon Jun 27 08:18:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/php.i,xapian.i: Wrap the XapianQuery ctor which takes a mixed

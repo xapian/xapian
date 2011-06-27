@@ -153,59 +153,89 @@
 // Booleans
 %predicate empty;
 
-#define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
-/*
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+/* FIXME:
  * Check to see what is equivalent to a C++ Vector for the purposes of a Query
  * instantiation.
  * At the moment, we take Ruby Arrays.
  */
-%typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
+%typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     $1 = (TYPE($input) == T_ARRAY);
-
-    /* Says Olly:
-     * Currently, the only wrapped method which takes a Ruby array is the
+    /* Currently, the only wrapped method which takes a Ruby array is the
      * "extra" constructor Query(OP, ARRAY), where ARRAY can contain any mix of
      * strings and Query objects.
      *
      * If we ever had a method (or function) which had two overloaded forms
      * only differentiated by what type of array can be passed we'd need to
-     * look at the type of the array element in the typecheck typemaps.
+     * look at the type of the array elements in the typecheck typemaps.
      */
 }
 
-/*
- * Convert Ruby Arrays to C++ Vectors for Query instantiation.
- */
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-    if (TYPE($input) != T_ARRAY) {
-	SWIG_exception(SWIG_ValueError, "expected array of queries");
+%{
+class XapianSWIGQueryItor {
+    VALUE array;
+
+    int i;
+
+  public:
+    XapianSWIGQueryItor() { }
+
+    // Second dummy parameter avoids ambiguity if VALUE is a typedef for int.
+    XapianSWIGQueryItor(int n, bool)
+	: i(n) { }
+
+    XapianSWIGQueryItor(VALUE array_)
+	: array(array_), i(0) { }
+
+    XapianSWIGQueryItor & operator++() {
+	++i;
+	return *this;
     }
 
-    int numitems = RARRAY_LEN($input);
-    v.reserve(numitems);
-    for (int i = 0; i < numitems; ++i) {
-      VALUE arrayEntry = rb_ary_entry($input, i);
-      if (TYPE(arrayEntry) == T_STRING) {
-        v.push_back(Xapian::Query(string(RSTRING_PTR(arrayEntry),
-					 RSTRING_LEN(arrayEntry))));
-      }
-      else {
-        // array element may be a Xapian::Query object. Add it if it is,
-        // otherwise error out.
-        Xapian::Query *subq = 0;
-        if (SWIG_ConvertPtr(arrayEntry, (void **)&subq,
-                            SWIGTYPE_p_Xapian__Query, 0) < 0) {
-          subq = 0;
-        }
-        if (!subq) {
-          SWIG_exception(SWIG_ValueError, "elements of Arrays passed to Query must be either Strings or other Queries");
-        }
-        v.push_back(*subq);
-      }
+    Xapian::Query operator*() const {
+	VALUE entry = rb_ary_entry(array, i);
+	if (TYPE(entry) == T_STRING) {
+	    return Xapian::Query(string(RSTRING_PTR(entry),
+					RSTRING_LEN(entry)));
+	}
 
+	// array element may be a Xapian::Query object. Add it if it is,
+	// otherwise error out.
+	Xapian::Query *subq = 0;
+	if (SWIG_ConvertPtr(entry, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) < 0 || !subq) {
+	    SWIG_exception(SWIG_ValueError, "Elements of Arrays passed to Query must be either Strings or other Query objects");
+	    return Xapian::Query();
+	}
+	return *subq;
     }
 
-    $1 = &v;
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return i == o.i;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+
+%}
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    if (TYPE($input) == T_ARRAY) {
+	// The typecheck typemap should have ensured this is an array.
+	$1 = XapianSWIGQueryItor($input);
+	$2 = XapianSWIGQueryItor(RARRAY_LEN($input), true);
+    } else {
+	$1 = $2 = XapianSWIGQueryItor(0);
+    }
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
