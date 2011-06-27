@@ -1,8 +1,10 @@
 /.*.sw?
+/*.lo
 /Makefile.in
 /Makefile
 /.deps
 /.libs
+/libxapian_jni.la
 /SmokeTest.class
 /MyMatchDecider.class
 /MyExpandDecider.class

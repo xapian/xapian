@@ -4,7 +4,6 @@
 /Makefile
 /.deps
 /.libs
-/*.cs
 /SmokeTest.exe
 /xapian_wrap.cc
 /xapian_wrap.h
@@ -13,3 +12,4 @@
 /_XapianSharp.la
 /XapianSharp.snk
 /*.stamp
+/generated-csharp
