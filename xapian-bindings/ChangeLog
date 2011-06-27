@@ -1,3 +1,10 @@
+Mon Jun 27 14:10:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: WritableDatabase::delete_document() was broken by
+	  the migration to wrapping <xapian/database.h> directly - now fixed
+	  and cleaned up how we wrap delete_document_by_term(),
+	  replace_document() and replace_document_by_term().
+
 Mon Jun 27 11:21:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tcl8/tcl.i: Use the iterator approach for wrapping the mixed array

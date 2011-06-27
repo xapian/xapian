@@ -360,8 +360,11 @@ bool nequal(Xapian::ValueIterator * that) {
 }
 
 /* Xapian::WritableDatabase */
-%ignore Xapian::WritableDatabase::replace_document(Xapian::docid, Xapian::Document * document);
-%ignore Xapian::WritableDatabase::delete_document(Xapian::docid did);
+%rename(replace_document_by_term) \
+	Xapian::WritableDatabase::replace_document(const std::string &,
+						   const Xapian::Document &);
+%rename(delete_document_by_term) \
+	Xapian::WritableDatabase::delete_document(const std::string &);
 
 %feature("shadow") Xapian::WritableDatabase::WritableDatabase
 %{
@@ -376,44 +379,6 @@ sub new {
   bless $self, $pkg if defined($self);
 }
 %}
-
-%extend Xapian::WritableDatabase {
-void replace_document(Xapian::docid, Xapian::Document * document) {
-        try {
-	    self->replace_document(did, *document);
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-}
-
-void replace_document_by_term(std::string unique_term, Xapian::Document * document) {
-        try {
-	    self->replace_document(unique_term, *document);
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-}
-
-void delete_document(Xapian::docid did) {
-        try {
-	    self->delete_document(did);
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-}
-
-void delete_document_by_term(std::string unique_term) {
-        try {
-	    self->delete_document(unique_term);
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-}
-}
 
 %inline %{
 Xapian::WritableDatabase * new3_WritableDatabase() {
