@@ -108,6 +108,9 @@ class XapianSmoketest < Test::Unit::TestCase
                   Xapian::Term.new("tuple", 1)], xorQuery.terms())
 
     assert_equal(Xapian::Query::OP_ELITE_SET, 10)
+
+    assert_equal("Xapian::Query(<alldocuments>)", Xapian::Query::MatchAll.description())
+    assert_equal("Xapian::Query()", Xapian::Query::MatchNothing.description())
   end # test_queries
 
   def test_003_enquire
