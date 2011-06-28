@@ -35,6 +35,13 @@ db2 = xapian.inmemory_open()
 db:add_document(doc)
 enq = xapian.Enquire(db)
 
+it = db:positionlist_begin(1, "is")
+_end = db:positionlist_end(1, "is")
+while not it:equals(_end) do
+  assert(it:get_termpos(), 1)
+  it:next()
+end
+
 -- Test the version number reporting functions give plausible results.
 v = xapian.major_version() .. "." .. xapian.minor_version() .. "." .. xapian.revision()
 v2 = xapian.version_string()
