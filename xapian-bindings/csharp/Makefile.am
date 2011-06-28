@@ -10,57 +10,63 @@ TESTS = SmokeTest.exe
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
-	Auto.cs \
-	BM25Weight.cs \
-	BoolWeight.cs \
-	Brass.cs \
-	Chert.cs \
-	Compactor.cs \
-	Database.cs \
-	DateValueRangeProcessor.cs \
-	Document.cs \
-	ESet.cs \
-	ESetIterator.cs \
-	Enquire.cs \
-	ExpandDecider.cs \
-	Flint.cs \
-	InMemory.cs \
-	KeyMaker.cs \
-	MatchDecider.cs \
-	MatchSpy.cs \
-	MSet.cs \
-	MSetIterator.cs \
-	MultiValueKeyMaker.cs \
-	MultiValueSorter.cs \
-	NumberValueRangeProcessor.cs \
-	PositionIterator.cs \
-	PostingIterator.cs \
-	PostingSource.cs \
-	Query.cs \
-	QueryParser.cs \
-	Remote.cs \
-	RSet.cs \
-	SWIGTYPE_p_std__string.cs \
-	SWIGTYPE_p_std__vectorT_std__string_t.cs \
-	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
-	Registry.cs \
-	SimpleStopper.cs \
-	Sorter.cs \
-	Stem.cs \
-	StemImplementation.cs \
-	Stopper.cs \
-	StringValueRangeProcessor.cs \
-	TermGenerator.cs \
-	TermIterator.cs \
-	TradWeight.cs \
-	ValueCountMatchSpy.cs \
-	ValueIterator.cs \
-	ValueRangeProcessor.cs \
-	Version.cs \
-	Weight.cs \
-	WritableDatabase.cs \
-	Xapian.cs \
-	XapianPINVOKE.cs
+	generated-csharp/Auto.cs \
+	generated-csharp/BM25Weight.cs \
+	generated-csharp/BoolWeight.cs \
+	generated-csharp/Brass.cs \
+	generated-csharp/Chert.cs \
+	generated-csharp/Compactor.cs \
+	generated-csharp/Database.cs \
+	generated-csharp/DateValueRangeProcessor.cs \
+	generated-csharp/DecreasingValueWeightPostingSource.cs \
+	generated-csharp/Document.cs \
+	generated-csharp/ESet.cs \
+	generated-csharp/ESetIterator.cs \
+	generated-csharp/Enquire.cs \
+	generated-csharp/ExpandDecider.cs \
+	generated-csharp/FixedWeightPostingSource.cs \
+	generated-csharp/Flint.cs \
+	generated-csharp/InMemory.cs \
+	generated-csharp/KeyMaker.cs \
+	generated-csharp/MatchDecider.cs \
+	generated-csharp/MatchSpy.cs \
+	generated-csharp/MSet.cs \
+	generated-csharp/MSetIterator.cs \
+	generated-csharp/MultiValueKeyMaker.cs \
+	generated-csharp/MultiValueSorter.cs \
+	generated-csharp/NumberValueRangeProcessor.cs \
+	generated-csharp/PositionIterator.cs \
+	generated-csharp/PostingIterator.cs \
+	generated-csharp/PostingSource.cs \
+	generated-csharp/Query.cs \
+	generated-csharp/QueryParser.cs \
+	generated-csharp/Remote.cs \
+	generated-csharp/RSet.cs \
+	generated-csharp/SWIGTYPE_p_std__string.cs \
+	generated-csharp/SWIGTYPE_p_std__vectorT_std__string_t.cs \
+	generated-csharp/SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
+	generated-csharp/Registry.cs \
+	generated-csharp/SimpleStopper.cs \
+	generated-csharp/Sorter.cs \
+	generated-csharp/Stem.cs \
+	generated-csharp/StemImplementation.cs \
+	generated-csharp/Stopper.cs \
+	generated-csharp/StringValueRangeProcessor.cs \
+	generated-csharp/TermGenerator.cs \
+	generated-csharp/TermIterator.cs \
+	generated-csharp/TradWeight.cs \
+	generated-csharp/ValueCountMatchSpy.cs \
+	generated-csharp/ValueIterator.cs \
+	generated-csharp/ValueMapPostingSource.cs \
+	generated-csharp/ValuePostingSource.cs \
+	generated-csharp/ValueRangeProcessor.cs \
+	generated-csharp/ValueSetMatchDecider.cs \
+	generated-csharp/ValueWeightPostingSource.cs \
+	generated-csharp/Version.cs \
+	generated-csharp/Weight.cs \
+	generated-csharp/WritableDatabase.cs \
+	generated-csharp/Xapian.cs \
+	generated-csharp/XapianPINVOKE.cs
 
 XapianSharp.snk:
 	$(SN) -k $@
@@ -112,14 +118,16 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
+	$(MKDIR_P) generated-csharp
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
-	mv xapian_wrap_d2.tmp xapian_wrap.d
-	rm xapian_wrap_d.tmp
-	: # Check that all the sources we expected were generated.
-	ls $(XAPIAN_SWIG_CS_SRCS) > /dev/null
+	    -o xapian_wrap.cc -outdir generated-csharp \
+	    -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
+	mv xapian_wrap_d.tmp xapian_wrap.d
+	: # Check that exactly the sources we expected were generated.
+	LANG=C ls -1 generated-csharp/*.cs > generated-csharp/list
+	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_CS_SRCS)|diff - generated-csharp/list
 	$(multitarget_end)
 
 -include xapian_wrap.d
