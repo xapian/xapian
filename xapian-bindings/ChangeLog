@@ -1,3 +1,11 @@
+Tue Jun 28 04:43:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* INSTALL: Add --with-lua and sort the list of --with-* options.
+	* INSTALL: Pull in a few updates from the latest version of the
+	  automake document which this file was originally based on.
+	  Add in the missing copyright and licensing information.
+
 Tue Jun 28 04:42:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
