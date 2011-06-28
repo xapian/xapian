@@ -1,3 +1,8 @@
+Tue Jun 28 04:47:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Update JNI comments.
+
 Tue Jun 28 04:46:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
