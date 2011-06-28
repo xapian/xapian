@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2011 Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -39,7 +40,7 @@ public class SimpleIndex {
             System.exit(0);
         }
 
-        // create or *overwrite an existing* Xapian (quartz) database
+        // create or *overwrite an existing* Xapian database
         String dbpath = args[0];
         WritableDatabase db = new WritableDatabase(dbpath, Xapian.DB_CREATE_OR_OVERWRITE);
 
@@ -55,8 +56,8 @@ public class SimpleIndex {
             db.addDocument(doc);
         }
 
-        // make sure to flush the database so the documents get written to disk
-        db.flush();
+        // make sure to commit the database so the documents get written to disk
+        db.commit();
     }
 
 
