@@ -1,3 +1,8 @@
+Tue Jun 28 04:39:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian.i: Update comment about MatchAll/MatchNothing.
+
 Tue Jun 28 04:36:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

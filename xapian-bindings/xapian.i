@@ -733,8 +733,8 @@ class Remote {
 // xapian/query.h:
 
 #if !defined SWIGTCL && !defined SWIGLUA
-// FIXME: wrap MatchAll and MatchNothing for other languages(except for Python,
-// which wraps them in a different way).
+// FIXME: wrap MatchAll and MatchNothing for other languages (except for Python, Ruby, and Perl
+// which wrap them in a different way)
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
 #endif
