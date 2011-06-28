@@ -1,3 +1,10 @@
+Tue Jun 28 04:46:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/Makefile.am,java-swig/docs/: Copy java examples
+	  from the JNI ones, and create an HTML documentation page
+	  based on java/README.
+
 Tue Jun 28 04:43:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

@@ -149,3 +149,11 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 CLEANFILES += xapian_wrap.stamp
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+
+exampledatadir = $(docdir)/java/examples
+dist_exampledata_DATA =\
+	docs/examples/SimpleSearch.java\
+	docs/examples/SimpleIndex.java
+
+docdatadir = $(docdir)/java
+dist_docdata_DATA = docs/index.html
