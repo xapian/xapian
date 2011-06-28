@@ -1,3 +1,10 @@
+Tue Jun 28 06:54:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian.i: Add missing wrapper for Database::has_positions() and
+	  correct the return type of Database::get_doclength() from double to
+	  Xapian::termcount.
+
 Tue Jun 28 06:37:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

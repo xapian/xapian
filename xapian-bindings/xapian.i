@@ -536,7 +536,7 @@ class Database {
 	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
 	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const;
-	doclength get_doclength(docid docid) const;
+	Xapian::termcount get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);
 	std::string get_spelling_suggestion(const std::string &word,
@@ -552,6 +552,7 @@ class Database {
 	Xapian::TermIterator metadata_keys_end(const std::string &prefix = "") const;
 	std::string get_uuid() const;
 
+	bool has_positions() const;
 };
 
 class WritableDatabase : public Database {
