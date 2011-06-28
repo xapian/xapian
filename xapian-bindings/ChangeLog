@@ -1,3 +1,11 @@
+Tue Jun 28 11:57:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/util.i.in: WritableDatabase::delete_document() was broken by
+	  the migration to wrapping <xapian/database.h> directly - now fixed
+	  and cleaned up how we wrap delete_document_by_term(),
+	  replace_document() and replace_document_by_term().
+
 Tue Jun 28 11:39:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
