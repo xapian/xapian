@@ -1,3 +1,7 @@
+Tue Jun 28 12:14:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Mon Jun 27 15:22:22 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python/python.i,python/util.i: If
