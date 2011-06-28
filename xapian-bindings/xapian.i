@@ -156,6 +156,8 @@ class TermIterator {
     Xapian::termcount get_wdf() const;
     Xapian::doccount get_termfreq() const;
 
+    Xapian::termcount positionlist_count() const;
+
     // allow iteration of positionlist for current document
     PositionIterator positionlist_begin();
     PositionIterator positionlist_end();

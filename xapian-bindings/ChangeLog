@@ -1,3 +1,8 @@
+Tue Jun 28 06:37:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian.i: TermIterator::positionlist_count() is now wrapped.
+
 Tue Jun 28 06:30:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
