@@ -238,8 +238,14 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for PHP, but you can use <code>XapianQuery("")</code>
-instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as static methods
+<code>XapianQuery::MatchAll()</code> and <code>XapianQuery::MatchNothing()</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new XapianQuery('')</code> for MatchAll and
+<code>new XapianQuery()</code> for MatchNothing.
 </p>
 
 <h2>Enquire</h2>

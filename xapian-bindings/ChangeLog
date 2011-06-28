@@ -1,3 +1,15 @@
+Tue Jun 28 05:42:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* php/docs/index.html,php/smoketest.php,xapian.i: Wrap MatchAll and
+	  MatchNothing for PHP as XapianQuery::MatchAll() and
+	  XapianQuery::MatchNothing(). (ticket#158)
+	* csharp/SmokeTest.cs,csharp/csharp.i,java-swig/SmokeTest.java,
+	  java-swig/java.i: Wrap Query::MatchAll and Query::MatchNothing for C#
+	  and Java. (ticket#158)
+	* csharp/docs/index.html,java-swig/docs/index.html: Document wrapping
+	  of MatchAll and MatchNothing.
+
 Tue Jun 28 05:28:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

@@ -343,6 +343,20 @@ if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
     exit(1);
 }
 
+$query = XapianQuery::MatchAll();
+if ($query->get_description() != 'Xapian::Query(<alldocuments>)') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
+$query = XapianQuery::MatchNothing();
+if ($query->get_description() != 'Xapian::Query()') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
 # Test access to matchspy values:
 {
     $matchspy = new XapianValueCountMatchSpy(0);

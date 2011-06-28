@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+// Copyright (C) 2004,2005,2006,2007,2008,2011 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -118,6 +118,16 @@ class SmokeTest {
 		    System.Environment.Exit(1);
 		}
 	    }
+
+            if (Xapian.Query.MatchAll.GetDescription() != "Xapian::Query(<alldocuments>)") {
+		System.Console.WriteLine("Unexpected Query.MatchAll.toString()");
+		System.Environment.Exit(1);
+            }
+
+            if (Xapian.Query.MatchNothing.GetDescription() != "Xapian::Query()") {
+		System.Console.WriteLine("Unexpected Query.MatchNothing.toString()");
+		System.Environment.Exit(1);
+            }
 
 	    // Check that OP_ELITE_SET works (in 0.9.6 and earlier it had the
 	    // wrong value in C#).

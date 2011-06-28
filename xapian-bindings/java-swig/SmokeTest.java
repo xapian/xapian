@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -65,6 +65,16 @@ public class SmokeTest {
 		System.err.println("Unexpected db.getDocCount()");
 		System.exit(1);
 	    }
+
+            if (!Query.MatchAll.toString().equals("Xapian::Query(<alldocuments>)")) {
+		System.err.println("Unexpected Query.MatchAll.toString()");
+		System.exit(1);
+            }
+
+            if (!Query.MatchNothing.toString().equals("Xapian::Query()")) {
+		System.err.println("Unexpected Query.MatchNothing.toString()");
+		System.exit(1);
+            }
 
 	    String[] terms = { "smoke", "test", "terms" };
 	    Query query = new Query(Query.OP_OR, terms);

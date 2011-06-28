@@ -179,8 +179,15 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for C#, but you can use <code>xapian.Query("")</code>
-instead of MatchAll and <code>xapian.Query()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as static constants
+<code>xapian.Query.MatchAll</code> and <code>xapian.Query.MatchNothing</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new xapian.Query("")</code> instead of <code>xapian.Query.MatchAll</code>
+and <code>new xapian.Query()</code> instead of
+<code>xapian.Query.MatchNothing</code>.
 </p>
 
 <!-- FIXME: Need to define the custom output typemap to handle this if it
