@@ -1,7 +1,7 @@
 %{
 /* java-swig/util.i: custom Java typemaps for xapian-bindings
  *
- * Copyright (c) 2007,2009 Olly Betts
+ * Copyright (c) 2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

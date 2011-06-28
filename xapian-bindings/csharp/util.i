@@ -1,7 +1,7 @@
 %{
 /* csharp/util.i: custom C# typemaps for xapian-bindings
  *
- * Copyright (c) 2005,2006,2008,2009 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -224,6 +224,11 @@ namespace Xapian {
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
     public override int GetHashCode() { return 0; }
+%}
+
+%typemap(cscode) class Query %{
+  public static Query MatchAll = new Query("");
+  public static Query MatchNothing = new Query();
 %}
 
 }

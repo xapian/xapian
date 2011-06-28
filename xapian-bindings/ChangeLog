@@ -1,3 +1,8 @@
+Tue Jun 28 06:03:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,java-swig/util.i: Fix botched backport of MatchAll
+	  and MatchNothing implementation.
+
 Tue Jun 28 05:54:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
@@ -10,9 +15,8 @@ Tue Jun 28 05:42:56 GMT 2011  Olly Betts <olly@survex.com>
 	* php/docs/index.html,php/smoketest.php,xapian.i: Wrap MatchAll and
 	  MatchNothing for PHP as XapianQuery::MatchAll() and
 	  XapianQuery::MatchNothing(). (ticket#158)
-	* csharp/SmokeTest.cs,csharp/csharp.i,java-swig/SmokeTest.java,
-	  java-swig/java.i: Wrap Query::MatchAll and Query::MatchNothing for C#
-	  and Java. (ticket#158)
+	* csharp/SmokeTest.cs,java-swig/SmokeTest.java,java-swig/util.i: Wrap
+	  Query::MatchAll and Query::MatchNothing for C# and Java. (ticket#158)
 	* csharp/docs/index.html,java-swig/docs/index.html: Document wrapping
 	  of MatchAll and MatchNothing.
 
