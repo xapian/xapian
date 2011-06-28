@@ -1,3 +1,11 @@
+Tue Jun 28 04:42:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* INSTALL,README: It's not really noteworthy that Mac OS X 10.1 and
+	  10.2 aren't supported as Apple ditched them long ago, so drop this
+	  as a "Known Issue" in INSTALL and instead just say "Mac OS X >= 10.3"
+	  in the discussion of supported platforms in the README.
+
 Tue Jun 28 04:39:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
