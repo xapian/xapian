@@ -1,5 +1,5 @@
 %{
-/* python/extra.i: Xapian scripting python interface additional code.
+/* python/extra.i: Xapian scripting python interface additional python code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
  * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
