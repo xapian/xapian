@@ -1,3 +1,12 @@
+Tue Jun 28 11:39:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/util.i: Rename SWIG_anystring_as_ptr to
+	  XapianSWIG_anystring_as_ptr as it's not a part of SWIG itself.
+	  Handle generating XapianSWIG_anystring_as_ptr in the right place
+	  in the file by specifying it with %fragment, and specify its
+	  dependency on the fragment SWIG_AsPtr_std_string.
+
 Tue Jun 28 06:54:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
