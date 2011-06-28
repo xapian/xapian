@@ -5,8 +5,10 @@ xapian-bindings (1.2.6-1) UNRELEASED; urgency=low
       for these.
   * debian/rules: Use single quotes for substituting into debian/control.in to
     stop the shell from attempting to expand ${python:Versions}.
+  * debian/rules: Remove debian/build-stamp and debian/configure-stamp in the
+    clean target.
 
- -- Olly Betts <olly@survex.com>  Tue, 28 Jun 2011 12:20:49 +0000
+ -- Olly Betts <olly@survex.com>  Tue, 28 Jun 2011 12:37:00 +0000
 
 xapian-bindings (1.2.5-2) unstable; urgency=low
 
