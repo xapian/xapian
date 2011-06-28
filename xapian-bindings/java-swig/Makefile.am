@@ -140,8 +140,10 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	: # Insert code to automatically load the JNI library.
 	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' org/xapian/XapianJNI.java
-	: # Check that all the sources we expected were generated.
+	: # Check that exactly the sources we expected were generated.
 	ls $(XAPIAN_SWIG_JAVA_SRCS) > /dev/null
+	LANG=C ls -1 org/xapian/*.java > org/xapian/list
+	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_JAVA_SRCS)|diff - org/xapian/list
 	$(multitarget_end)
 
 -include xapian_wrap.d
@@ -149,6 +151,9 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 CLEANFILES += xapian_wrap.stamp
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+
+maintainer-clean-local:
+	rm -rf built org
 
 exampledatadir = $(docdir)/java/examples
 dist_exampledata_DATA =\

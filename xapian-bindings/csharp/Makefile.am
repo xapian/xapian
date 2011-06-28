@@ -117,7 +117,7 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
-	-rm -f $(XAPIAN_SWIG_CS_SRCS)
+	-rm -f generated-csharp/*
 	$(MKDIR_P) generated-csharp
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
@@ -135,6 +135,9 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 CLEANFILES += xapian_wrap.stamp
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+
+maintainer-clean-local:
+	rm -rf generated-csharp
 
 exampledatadir = $(docdir)/csharp/examples
 dist_exampledata_DATA =\
