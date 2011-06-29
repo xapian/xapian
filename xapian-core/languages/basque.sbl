@@ -20,6 +20,8 @@ stringescapes {}
 
 /* special characters (in ISO Latin I) */
 
+stringdef n~ hex 'f1'
+
 define v 'aeiou'
 
 define mark_regions as (
@@ -92,14 +94,14 @@ backwardmode (
             'aldi' 'aldia' 'te' 'tea' 'zaro' 'zaroa' 'taro' 'taroa' 'oro' 'oroa'
             'aro' 'aroa' 'ero' 'eroa' 'eroz' 'eroza' 'ka' 'kan' 'kana' 'tako' 'etako' 'takoa'
             'kote' 'kotea' 'tzar' 'tzarra' 'handi' 'handia' 'kondo' 'kondoa' 'skila'
-            'no' 'noa' 'ño' 'ñoa' 'ska' 'xka' 'zka' 'tila' 'to' 'toa' 'tto' 'ttoa'
+            'no' 'noa' '{n~}o' '{n~}oa' 'ska' 'xka' 'zka' 'tila' 'to' 'toa' 'tto' 'ttoa'
             'txo' 'txoa' 'txu' 'txua' 'anda' 'anga' 'urren' 'urrena' 'gai' 'gaia'
             'gei' 'geia' 'eme' 'emea' 'kume' 'kumea' 'sa' 'ko' 'eko' 'koa' 'ena'
             'enea' 'ne' 'nea' 'kor' 'korra' 'ez' 'eza' 'eta' 'etan'
             'ki' 'kia' 'kin' 'kina' 'tu' 'tua' 'du' 'dua' 'ek'
             'tarik' 'tariko' 'tan' 'ordu' 'ordua' 'oste' 'ostea' 'tzara'
             'ra' 'antza' 'behar' 'ro' 'giro' 'ak' 'zp' 'ket'
-            'kail' 'kaila' 'ail' 'kirri' 'kirria' 'ngo' 'ngoa' 'ñi' 'sko'
+            'kail' 'kaila' 'ail' 'kirri' 'kirria' 'ngo' 'ngoa' '{n~}i' 'sko'
             'sta' 'koitz' 'koitza' 'na' 'garren' 'garrena' 'kera'
             'gerren' 'gerrena' 'garna' 'kide' 'tz' 'tuko'
             ( RV delete )

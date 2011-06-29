@@ -1,3 +1,8 @@
+Wed Jun 29 07:47:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* languages/basque.sbl: Use stringdef instead of literal accented
+	  characters in the code.
+
 Wed Jun 29 07:13:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/stemming.rst,include/xapian/stem.h,languages/: Add stemmers
