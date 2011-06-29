@@ -53,6 +53,7 @@ struct m_pair {
 
 };
 
+/* struct input must be a prefix of struct tokeniser. */
 struct input {
 
     struct input * next;
@@ -69,6 +70,7 @@ struct include {
 
 };
 
+/* struct input must be a prefix of struct tokeniser. */
 struct tokeniser {
 
     struct input * next;
