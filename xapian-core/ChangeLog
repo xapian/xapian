@@ -1,3 +1,8 @@
+Wed Jun 29 12:16:59 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* languages/compiler/tokeniser.c: Fix memory leak (of file name) in
+	  snowball compiler introduced by last commit.
+
 Wed Jun 29 07:49:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* languages/compiler/: Report "FILE:LINE:" before each error so tools

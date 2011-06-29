@@ -465,6 +465,6 @@ extern void close_tokeniser(struct tokeniser * t) {
             q = q_next;
         }
     }
+    free(t->file);
     FREE(t);
 }
-
