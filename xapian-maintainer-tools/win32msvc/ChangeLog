@@ -1,3 +1,7 @@
+Wed Jun 29 00:47:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* win32msvc/: Update for rename of java-swig to java.
+
 Wed May 25 03:32:42 GMT 2011  Charlie Hull <charlie@flax.co.uk>
 
 	* README: add details of patch to api/compactor.cc and diritor.h
