@@ -1,3 +1,9 @@
+Wed Jun 29 07:49:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* languages/compiler/: Report "FILE:LINE:" before each error so tools
+	  like vim's quickfix mode can parse this and bring up the line with
+	  the error automatically.
+
 Wed Jun 29 07:49:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* languages/compiler/header.h: Add comments to note that struct input

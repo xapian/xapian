@@ -79,9 +79,7 @@ static void count_error(struct analyser * a) {
 static void error2(struct analyser * a, int n, int x) {
     struct tokeniser * t = a->tokeniser;
     count_error(a);
-    fprintf(stderr, "Line %d", t->line_number);
-    if (t->get_depth > 0) fprintf(stderr, " (of included file)");
-    fprintf(stderr, ": ");
+    fprintf(stderr, "%s:%d: ", t->file, t->line_number);
     if (n >= 30) report_b(stderr, t->b);
     switch (n) {
         case 0:

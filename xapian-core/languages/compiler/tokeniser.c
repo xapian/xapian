@@ -18,13 +18,13 @@ struct system_word {
 
 static int smaller(int a, int b) { return a < b ? a : b; }
 
-extern symbol * get_input(symbol * p) {
+extern symbol * get_input(symbol * p, char ** p_file) {
 
     char * s = b_to_s(p);
     {
         FILE * input = fopen(s, "r");
-        free(s);
-        if (input == 0) return 0;
+        if (input == 0) { free(s); return 0; }
+        *p_file = s;
         {
             symbol * u = create_b(STARTSIZE);
             int size = 0;
@@ -42,9 +42,7 @@ extern symbol * get_input(symbol * p) {
 
 static void error(struct tokeniser * t, char * s1, int n, symbol * p, char * s2) {
     if (t->error_count == 20) { fprintf(stderr, "... etc\n"); exit(1); }
-    fprintf(stderr, "Line %d", t->line_number);
-    if (t->get_depth > 0) fprintf(stderr, " (of included file)");
-    fprintf(stderr, ": ");
+    fprintf(stderr, "%s:%d: ", t->file, t->line_number);
     unless (s1 == 0) fprintf(stderr, "%s", s1);
     unless (p == 0) {
         int i;
@@ -361,14 +359,15 @@ extern int read_token(struct tokeniser * t) {
                    exit(1);
                }
                {
+                   char * file;
                    NEW(input, q);
-                   symbol * u = get_input(t->b);
+                   symbol * u = get_input(t->b, &file);
                    if (u == 0) {
                        struct include * r = t->includes;
                        until (r == 0) {
                            symbol * b = copy_b(r->b);
                            b = add_to_b(b, SIZE(t->b), t->b);
-                           u = get_input(b);
+                           u = get_input(b, &file);
                            lose_b(b);
                            unless (u == 0) break;
                            r = r->next;
@@ -382,6 +381,7 @@ extern int read_token(struct tokeniser * t) {
                    t->next = q;
                    t->p = u;
                    t->c = 0;
+                   t->file = file;
                    t->line_number = 1;
                }
                p = t->p;
@@ -425,11 +425,12 @@ extern byte * name_of_token(int code) {
     }
 }
 
-extern struct tokeniser * create_tokeniser(symbol * p) {
+extern struct tokeniser * create_tokeniser(symbol * p, char * file) {
     NEW(tokeniser, t);
     t->next = 0;
     t->p = p;
     t->c = 0;
+    t->file = file;
     t->line_number = 1;
     t->b = create_b(0);
     t->b2 = create_b(0);
