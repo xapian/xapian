@@ -1,3 +1,7 @@
+Wed Jun 29 00:00:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Rename java-swig subdirectory to java.
+
 Tue Jun 28 23:52:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/smoketest.lua: Add simple test for

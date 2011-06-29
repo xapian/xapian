@@ -685,7 +685,7 @@ if test no != "$with_java" ; then
 	AC_SUBST(JAVA_PATHSEP)
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
-	  BINDINGS="$BINDINGS java-swig"
+	  BINDINGS="$BINDINGS java"
 	else
 	  AC_MSG_RESULT([failed to run test program])
 	  java_ok=no
@@ -1051,7 +1051,7 @@ AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile
  php/Makefile
- java-swig/Makefile
+ java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
