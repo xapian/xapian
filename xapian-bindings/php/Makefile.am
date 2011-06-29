@@ -8,7 +8,8 @@ abs_builddir = @abs_builddir@
 # using dl() which would make our test fail).  It would be nicer to use "-c"
 # and provide an alternative php.ini but with "-c" it seems PHP still loads the
 # system.ini first (at least with PHP 4.3.10).
-TESTS_ENVIRONMENT = $(PHP) -n -d safe_mode=off -d enable_dl=on -d extension_dir=$(abs_builddir)/.libs
+TESTS_ENVIRONMENT = $(PHP) -n -d safe_mode=off -d enable_dl=on \
+	-d extension_dir='$(abs_builddir)/.libs' -d include_path=php5
 
 ## Test programs to be run
 TESTS = smoketest.php

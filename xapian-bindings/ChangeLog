@@ -1,3 +1,11 @@
+Wed Jun 29 22:38:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/docs/examples/,php/smoketest.php: Change
+	  'include "php5/xapian.php"' to 'include "xapian.php"' in
+	  smoketest.php and the examples, and set include_path=php5 in
+	  TESTS_ENVIRONMENT so smoketest.php finds the uninstalled
+	  xapian.php.
+
 Wed Jun 29 01:04:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Add test coverage for QueryParser.ParseQuery()

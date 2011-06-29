@@ -23,7 +23,7 @@
  * USA
  */
 
-include "php5/xapian.php";
+include "xapian.php";
 
 # Test the version number reporting functions give plausible results.
 $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
