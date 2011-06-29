@@ -70,6 +70,9 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  name):
      *
      *  - none - don't stem terms
+     *  - armenian (hy)
+     *  - basque (eu)
+     *  - catalan (ca)
      *  - danish (da)
      *  - dutch (nl)
      *  - english (en) - Martin Porter's 2002 revision of his stemmer

@@ -1,3 +1,8 @@
+Wed Jun 29 07:13:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/stemming.rst,include/xapian/stem.h,languages/: Add stemmers
+	  for Armenian (hy), Basque (eu), and Catalan (ca).
+
 Mon Jun 27 08:16:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Add a fake specialised form of the templated

@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -48,6 +48,24 @@ Stem::Stem() : internal(0) { }
 Stem::Stem(const std::string &language) : internal(0) {
     if (language.empty()) return;
     switch (language[0]) {
+	case 'a':
+	    if (language == "armenian") {
+		internal = new InternalStemArmenian;
+		return;
+	    }
+	    break;
+	case 'b':
+	    if (language == "basque") {
+		internal = new InternalStemBasque;
+		return;
+	    }
+	    break;
+	case 'c':
+	    if (language == "ca" || language == "catalan") {
+		internal = new InternalStemCatalan;
+		return;
+	    }
+	    break;
 	case 'd':
 	    if (language == "da" || language == "danish") {
 		internal = new InternalStemDanish;
@@ -69,6 +87,10 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    }
 	    if (language == "es") {
 		internal = new InternalStemSpanish;
+		return;
+	    }
+	    if (language == "eu") {
+		internal = new InternalStemBasque;
 		return;
 	    }
 	    break;
@@ -95,6 +117,10 @@ Stem::Stem(const std::string &language) : internal(0) {
 	case 'h':
 	    if (language == "hu" || language == "hungarian") {
 		internal = new InternalStemHungarian;
+		return;
+	    }
+	    if (language == "hy") {
+		internal = new InternalStemArmenian;
 		return;
 	    }
 	    break;

@@ -5,8 +5,10 @@ Stemming Algorithms
 
 Xapian uses the `Snowball Stemming
 Algorithms <http://snowball.tartarus.org/>`_. At present, these support
-Danish, Dutch, English, Finnish, French, German, Hungarian, Italian,
-Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, and Turkish.
+Armenian, Basque, Catalan, Danish, Dutch, English, Finnish, French, German,
+Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish,
+and Turkish.
+
 There are also implementations of Lovins' English stemmer, Porter's
 original English stemmer, the Kraaij-Pohlmann Dutch stemmer, and a
 variation of the German stemmer which normalises umlauts.
