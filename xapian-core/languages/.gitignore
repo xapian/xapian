@@ -6,6 +6,12 @@
 /.dirstamp
 /snowball
 /allsnowballheaders.h
+/armenian.cc
+/armenian.h
+/basque.cc
+/basque.h
+/catalan.cc
+/catalan.h
 /danish.cc
 /danish.h
 /dutch.cc

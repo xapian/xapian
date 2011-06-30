@@ -5,6 +5,7 @@
 /.deps
 /.libs
 /SmokeTest.exe
+/AssemblyInfo.cs
 /xapian_wrap.cc
 /xapian_wrap.h
 /xapian_wrap.d
