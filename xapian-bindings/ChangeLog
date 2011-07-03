@@ -1,3 +1,7 @@
+Sun Jul 03 10:36:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/: Actually remove the old hand-coded JNI Java bindings.
+
 Wed Jun 29 22:38:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am,php/docs/examples/,php/smoketest.php: Change
