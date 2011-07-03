@@ -1,3 +1,10 @@
+Fri Jul 01 04:55:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/unordered_map.h: Add my <unordered_map> portability wrapper
+	  which was used by the JNI java bindings.  It's not currently used
+	  here, but is likely to be useful (two of the GSoC projects are
+	  using unordered_map).
+
 Wed Jun 29 12:16:59 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* languages/compiler/tokeniser.c: Fix memory leak (of file name) in
