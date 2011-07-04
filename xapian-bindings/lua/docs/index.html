@@ -171,6 +171,23 @@ These are wrapped for Lua as
    more convenient than using the TermIterator directly.
 </p>
 
+<h2>MatchDecider</h2>
+
+<p>
+Custom MatchDeciders can be created in Lua in the form of lua function; simply 
+function ensures you create a subclass of xapian.MatchDecider, which calls 
+the super-constructor, and overloads the operator method to callback the lua function
+that will do the work. The simplest example (which does nothing
+useful) would be as follows:
+</p>
+
+<pre>
+function mymatchdecider(doc)
+	return 1
+end
+</pre>
+
+
 <address>
 Last updated $Date$
 </address>

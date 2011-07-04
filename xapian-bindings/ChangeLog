@@ -1,3 +1,8 @@
+Mon Jul 04 14:58:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.html,lua/smoketest.lua,lua/util.i: Merge latest Lua
+	  changes from Xiaona Han.
+
 Mon Jul 04 01:35:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: Use the same NEED_JNILIB_EXT machinery which the

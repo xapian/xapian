@@ -89,6 +89,26 @@ assert(table.concat(enq:get_matching_terms(mset:get_hit(0)), " ") == "is there")
 -- Check value of OP_ELITE_SET
 assert(xapian.Query_OP_ELITE_SET == 10)
 
+-- Test for MatchDecider
+doc = xapian.Document()
+doc:set_data("Two")
+doc:add_posting(stem("out"), 1)
+doc:add_posting(stem("outside"), 1)
+doc:add_posting(stem("source"), 2)
+doc:add_value(0, "yes");
+db:add_document(doc)
+
+function testmatchdecider(doc)
+	return doc:get_value(0) == "yes"
+end
+
+query = xapian.Query("out")
+enq = xapian.Enquire(db)
+enq:set_query(query)
+mset = enq:get_mset(0, 10, None, testmatchdecider)
+assert(mset:size() == 1)
+assert(mset:get_docid(0) == 2)
+
 -- Regression test - overload resolution involving boolean types failed.
 enq:set_sort_by_value(1, true)
 
