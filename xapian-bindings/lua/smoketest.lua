@@ -99,7 +99,7 @@ doc:add_value(0, "yes");
 db:add_document(doc)
 
 function testmatchdecider(doc)
-	return doc:get_value(0) == "yes"
+  return doc:get_value(0) == "yes"
 end
 
 query = xapian.Query("out")

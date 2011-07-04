@@ -24,37 +24,37 @@
 class luaMatchDecider : public Xapian::MatchDecider {
 	int r;
 	lua_State* L;
-	
+
 	public:
 		luaMatchDecider(lua_State* S) {
 			L = S;
 			if (!lua_isfunction(L, -1)) {
-				luaL_typerror(L, -1, "function");	
+				luaL_typerror(L, -1, "function");
 			}
 			r = luaL_ref(L, LUA_REGISTRYINDEX);
-    }
+		}
 
 		~luaMatchDecider() {
 			luaL_unref(L, LUA_REGISTRYINDEX, r);
-    }
+		}
 
 		bool operator()(const Xapian::Document &doc) const {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 			if (!lua_isfunction(L, -1)) {
-				luaL_typerror(L, -1, "function");	
+				luaL_typerror(L, -1, "function");
 			}
 
 			SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
 			if (lua_pcall(L, 1, 1, 0) != 0){
-				luaL_error(L, "error running function: %s", lua_tostring(L, -1));			
+				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 			}
 			if (!lua_isboolean(L, -1)) {
-				luaL_error(L, "function must return a boolean");			
+				luaL_error(L, "function must return a boolean");
 			}
 			bool result = lua_toboolean(L, -1);
 			lua_pop(L, 1);
 			return result;
-    }
+		}
 };
 %}
 %typemap(typecheck, precedence=100) Xapian::MatchDecider * {
@@ -65,7 +65,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	else {
 		$1 = 0;
 	}
-} 
+}
 %typemap(in) Xapian::MatchDecider * {
 	if (lua_isfunction(L, $input)) {
 		$1 = new luaMatchDecider(L);
@@ -73,9 +73,9 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	else {
 		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__MatchDecider, 0))){
 			SWIG_fail_ptr("Enquire_get_mset", $input, SWIGTYPE_p_Xapian__MatchDecider);
-  	}
+		}
 	}
-  
+
 }
 #define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 /*
@@ -136,7 +136,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
 		}
 		lua_pop(L,1);
 	}
-   $1 = &v;
+	$1 = &v;
 }
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
