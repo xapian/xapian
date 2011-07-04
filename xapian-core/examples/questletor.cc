@@ -596,6 +596,9 @@ try {
 
     Xapian::Letor ltr;
 
+    ltr.set_database(db);
+    ltr.set_query(query);
+
     map<string,long int> coll_len;      // A map to calculate the length of the collection in terms of size of title only, body only and whole collection
     coll_len=ltr.collection_length(db);
 

@@ -427,8 +427,154 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
 	}
 }
 
+/* This method will calculate the score assigned by the Letor function.
+ * It will take MSet as input then convert the documents in feature vectors
+ * then normalize them according to QueryLevelNorm 
+ * and after that use the machine learned model file 
+ * to assign a score to the document
+ */
 void
-Letor::Internal::letor_score() {
+Letor::Internal::letor_score(const Xapian::MSet & mset) {
+
+cout<<"in the letor Score\n";
+    cout<<query.get_description()<<"\n";
+    Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
+    Xapian::PostingIterator p,pend;
+
+    map<string,long int> coll_len;
+    coll_len=collection_length(db);
+
+    map<string,long int> coll_tf;
+    coll_tf=collection_termfreq(db,query);
+
+    map<string,double> idf;
+    idf=inverse_doc_freq(db,query);
+
+    int first=1;                //used as a flag in QueryLevelNorm and module
+
+    	typedef list<double> List1;     //the values of a particular feature for MSet documents will be stored in the list
+        typedef map<int,List1> Map3;    //the above list will be mapped to an integer with its feature id.
+
+        /* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
+         *
+         * 1  -> 32.12 - 23.12 - 43.23 - 12.12 - 65.23
+         * 2  -> 31.23 - 21.43 - 33.99 - 65.23 - 22.22
+         * 3  -> 1.21 - 3.12 - 2.23 - 6.32 - 4.23
+         *
+         * And after that we divide the whole list by the maximum value for that feature in all the 5 documents
+         * So we divide the values of Feature 1 in above case by 65.23 and hence all the values of that features for that query
+         * will belongs to [0,1] and is known as Query level Norm
+         */
+
+        Map3 norm;
+
+        map< int, list<double> >::iterator norm_outer;
+        list<double>::iterator norm_inner;
+
+        typedef list<string> List2;
+        List2 doc_ids;
+
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+            Xapian::Document doc = i.get_document();
+            
+            map<string,long int> tf;
+            tf=termfreq(doc,query);
+
+            map<string, long int> doclen;
+            doclen=doc_length(db,doc);
+
+            qt=query.get_terms_begin();
+            qt_end=query.get_terms_end();
+
+            double f[20];
+
+            f[1]=calculate_f1(query,tf,'t');
+            f[2]=calculate_f1(query,tf,'b');
+            f[3]=calculate_f1(query,tf,'w');
+
+            f[4]=calculate_f2(query,tf,doclen,'t');
+            f[5]=calculate_f2(query,tf,doclen,'b');
+            f[6]=calculate_f2(query,tf,doclen,'w');
+
+            f[7]=calculate_f3(query,idf,'t');
+            f[8]=calculate_f3(query,idf,'b');
+            f[9]=calculate_f3(query,idf,'w');
+
+            f[10]=calculate_f4(query,coll_tf,coll_len,'t');
+            f[11]=calculate_f4(query,coll_tf,coll_len,'b');
+            f[12]=calculate_f4(query,coll_tf,coll_len,'w');
+
+            f[13]=calculate_f5(query,tf,idf,doclen,'t');
+            f[14]=calculate_f5(query,tf,idf,doclen,'b');
+            f[15]=calculate_f5(query,tf,idf,doclen,'w');
+
+            f[16]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'t');
+            f[17]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'b');
+            f[18]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'w');
+
+            f[19]=i.get_weight();
+            
+            
+
+                    /* This module will make the data structure to store the whole features values for 
+                     * all the documents for a particular query along with its relevance judgements
+                    */
+
+                    if(first==1) {
+                        for(int j=1;j<20;j++) {
+                            List1 l;
+                            l.push_back(f[j]);
+                            norm.insert(pair <int , list<double> > (j,l));   
+                        }
+                        first=0;   
+                    }
+                    else {
+                        norm_outer=norm.begin();
+                        int k=1;
+                        for(;norm_outer!=norm.end();norm_outer++) {
+                            norm_outer->second.push_back(f[k]);
+                            k++;   
+                        }   
+                    }
+        }//for closed
+
+
+
+        /* this is the place where we have to normalize the norm and after that store it in the file. */
+        
+
+        if((int)norm.size()!=0) {
+            norm_outer=norm.begin();
+            norm_outer++;
+            int k=0;
+            for(;norm_outer!=norm.end();++norm_outer) {
+                k=0;
+                double max= norm_outer->second.front();
+                for(norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
+                    if(*norm_inner > max)
+                        max = *norm_inner;       
+                }
+                for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
+                    *norm_inner /= max;
+                    k++;   
+                }   
+            }
+
+            int i=0,j=0;
+            while(i<k) {
+                j=0;
+                norm_outer=norm.begin();
+                j++;
+                for(;norm_outer!=norm.end();++norm_outer) {
+                    cout <<j<<":"<<norm_outer->second.front()<<" ";
+                    norm_outer->second.pop_front();
+                    j++;   
+                }
+                cout<<"\n";
+                i++;   
+            }//while closed
+        }//if closed
+
     
 }
 

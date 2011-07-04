@@ -51,6 +51,10 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Destructor.
     ~Letor();
 
+    void set_database(const Xapian::Database & db);
+
+    void set_query(const Xapian::Query & query);
+
 	std::map<std::string,long int> termfreq( const Xapian::Document & doc , const Xapian::Query & query);
 
 	std::map<std::string,double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
@@ -75,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
 	double calculate_f6(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length,std::map<std::string,long int> & coll_tf, std::map<std::string,long int> & coll_length, char ch);
 
-	void letor_score();
+	void letor_score(const Xapian::MSet & mset);
 
 	void letor_learn_model();
 

@@ -30,6 +30,8 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::RefCntBase {
     friend class Letor;
+    Database db;
+    Query query;
  
   public:
       
@@ -57,7 +59,7 @@ class Letor::Internal : public Xapian::Internal::RefCntBase {
 
 	double calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch);
 
-	void letor_score();
+	void letor_score(const Xapian::MSet & mset);
 
 	void letor_learn_model();
 

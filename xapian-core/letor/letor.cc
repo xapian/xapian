@@ -44,6 +44,16 @@ Letor::Letor() : internal(new Letor::Internal) { }
 
 Letor::~Letor() { }
 
+void
+Letor::set_database(const Xapian::Database & db) {
+    internal->db = db;
+}
+
+void
+Letor::set_query(const Xapian::Query & query) {
+    internal->query = query;
+}
+
 map<string,long int>
 Letor::termfreq(const Xapian::Document & doc,const Xapian::Query & query)
 {
@@ -119,8 +129,8 @@ Letor::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<
 }
 
 void
-Letor::letor_score() {
-    internal->letor_score();
+Letor::letor_score(const Xapian::MSet & mset) {
+    internal->letor_score(mset);
 }
 
 void
