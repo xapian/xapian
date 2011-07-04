@@ -109,12 +109,21 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
+if NEED_JNILIB_EXT
+	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.jnilib
+else
 	eval `grep '^dlname=' $(jni_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(jnidir)/"$$dlname"
+endif
 
+if NEED_JNILIB_EXT
+SHREXT=-shrext .jnilib
+else
+SHREXT=
+endif
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 AM_CPPFLAGS = $(JAVA_CPPFLAGS)
-libxapian_jni_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+libxapian_jni_la_LDFLAGS = -avoid-version -module $(SHREXT) $(NO_UNDEFINED)
 libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_jni_la_SOURCES = xapian_wrap.cc
 

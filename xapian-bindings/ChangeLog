@@ -1,3 +1,9 @@
+Mon Jul 04 01:35:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Use the same NEED_JNILIB_EXT machinery which the
+	  hand-coded JNI bindings had, so that on Mac OS X the JNI library
+	  has a .jnilib extension.
+
 Sun Jul 03 11:01:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/: Actually rename to java/.
