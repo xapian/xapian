@@ -1,3 +1,8 @@
+Mon Jul 04 06:08:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omega.cc: If P had trailing spaces, we would remove all but one -
+	  fixed to remove all of them!
+
 Wed Jun 22 15:32:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL: Pull in a few updates from the latest version of the

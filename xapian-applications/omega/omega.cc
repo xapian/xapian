@@ -245,7 +245,7 @@ try {
 	assert(len != string::npos);
 	if (first_nonspace > 0 || len <= query_string.length() - 1) {
 	    len = len + 1 - first_nonspace;
-	    query_string = query_string.substr(first_nonspace, len + 1);
+	    query_string = query_string.substr(first_nonspace, len);
 	}
     }
 
