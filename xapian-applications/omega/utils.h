@@ -1,6 +1,6 @@
 /* utils.h: string conversion utility functions for omega
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,5 +30,8 @@ std::string double_to_string(double value);
 
 /** Converts a string to an int. */
 int string_to_int(const std::string & s);
+
+/** Remove any leading and/or trailing whitespace from @a s. */
+void trim(std::string & s);
 
 #endif

@@ -1,3 +1,7 @@
+Mon Jul 04 06:20:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omega.cc,utils.cc,utils.h: Factor out trim() function.
+
 Mon Jul 04 06:14:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omega.cc: Avoid creating a temporary string object just to trim
