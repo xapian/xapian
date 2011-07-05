@@ -1,3 +1,7 @@
+Tue Jul 05 01:20:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Add QUERY category for debug logging.
+
 Fri Jul 01 04:55:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/unordered_map.h: Add my <unordered_map> portability wrapper
