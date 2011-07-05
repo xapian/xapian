@@ -1,3 +1,12 @@
+Tue Jul 05 02:10:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i: By default, SWIG's thread locking code for Python
+	  always initialises threads, which just adds overhead for single
+	  threaded Python code.  So instead we now replace SWIG's thread
+	  locking with a version which does nothing unless threads are already
+	  initialised.  This seems to be about 5-10% faster for pythontest2.py
+	  modified to repeat the tests 100 times.
+
 Tue Jul 05 01:32:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/docs/examples/simplematchdecider.lua: Wrap comment to <80
