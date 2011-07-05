@@ -41,9 +41,9 @@ database = xapian.Database(arg[1])
 -- Start an enquire session.
 enquire = xapian.Enquire(database)
 
--- Save the second command line argument into the variable and combine the rest 
--- of the command line arguments with spaces between them, so that simple queries 
--- don't have to be quoted at the shell level.
+-- Save the second command line argument into the variable and combine the rest
+-- of the command line arguments with spaces between them, so that simple
+-- queries don't have to be quoted at the shell level.
 avoid_id = tonumber(arg[2])
 query_string = table.concat(arg, " ", 3, #arg)
 

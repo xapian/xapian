@@ -1,3 +1,8 @@
+Tue Jul 05 01:32:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/examples/simplematchdecider.lua: Wrap comment to <80
+	  characters.
+
 Tue Jul 05 01:25:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/docs/examples/simplematchdecider.lua: New example from Xiaona
