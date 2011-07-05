@@ -54,24 +54,7 @@ matches = enquire:get_mset(0, 10)
 print(string.format("%u results found.", matches:get_matches_estimated()))
 print(string.format("Results 1-%i:", matches:size()))
 
--- Iterator the results and return their rank, percent, id, and data
-function msetIter(mset)
-	local m = mset:begin()
-	return function()
-		if m:equals(mset:_end()) then
-			return nil
-		else
-			local rank = m:get_rank()
-			local percent = m:get_percent()
-			local id = m:get_docid()
-			local data = m:get_document():get_data()
-			m:next()
-			return rank, percent, id, data
-		end
-	end
-end
-
 -- Display the results
-for rank, percent, id, data in msetIter(matches) do
+for rank, percent, id, data in xapian.msetIter(matches) do
 	print(rank + 1, percent .. "%", id, data)
 end

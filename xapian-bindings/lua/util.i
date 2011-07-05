@@ -57,6 +57,38 @@ class luaMatchDecider : public Xapian::MatchDecider {
 		}
 };
 %}
+
+%luacode {
+function xapian.msetIter(mset)
+	local m = mset:begin()
+	return function()
+		if m:equals(mset:_end()) then
+			return nil
+		else
+			local rank = m:get_rank()
+			local percent = m:get_percent()
+			local id = m:get_docid()
+			local data = m:get_document():get_data()
+			m:next()
+			return rank, percent, id, data
+		end
+	end
+end
+function xapian.esetIter(eset)
+	local m = eset:begin()
+	return function()
+		if m:equals(eset:_end()) then
+			return nil
+		else
+			local name = m:get_term()
+			local weight = m:get_weight()
+			m:next()
+			return name, weight
+		end
+	end
+end
+}
+
 %typemap(typecheck, precedence=100) Xapian::MatchDecider * {
 	void *ptr;
 	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__MatchDecider, 0))) {
