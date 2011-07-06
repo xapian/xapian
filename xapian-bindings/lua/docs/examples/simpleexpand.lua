@@ -75,8 +75,8 @@ if not query:empty() then
 	print(string.format("Results 1-%i:", matches:size()))
 
 	-- Display the results
-	for rank, percent, id, data in xapian.msetIter(matches) do
-		print(rank + 1, percent .. "%", id, data)
+	for rank, percent, id, doc in xapian.msetIter(matches) do
+		print(rank + 1, percent .. "%", id, doc:get_data())
 	end
 
 	-- Put the top 5 (at most) docs into the rset if rset is empty

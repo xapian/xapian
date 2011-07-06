@@ -65,6 +65,6 @@ print(string.format("%u results found.", matches:get_matches_estimated()))
 print(string.format("Results 1-%i:", matches:size()))
 
 -- Display the results
-for rank, percent, id, data in xapian.msetIter(matches) do
-	print(rank + 1, percent .. "%", id, data)
+for rank, percent, id, doc in xapian.msetIter(matches) do
+	print(rank + 1, percent .. "%", id, doc:get_data())
 end

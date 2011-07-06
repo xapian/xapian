@@ -68,9 +68,9 @@ function xapian.msetIter(mset)
 			local rank = m:get_rank()
 			local percent = m:get_percent()
 			local id = m:get_docid()
-			local data = m:get_document():get_data()
+			local doc = m:get_document()
 			m:next()
-			return rank, percent, id, data
+			return rank, percent, id, doc
 		end
 	end
 end
