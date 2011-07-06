@@ -38,7 +38,6 @@ using namespace std;
 #include "testutils.h"
 
 #include "omassert.h"
-#include "omqueryinternal.h"
 #include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -422,48 +421,6 @@ static bool test_serialisedoc1()
     return true;
 }
 
-static void
-serialisequery1_helper(const Xapian::Query & query)
-{
-    string before = query.internal->serialise();
-    Xapian::Registry reg;
-    Xapian::Query::Internal * qint;
-    qint = Xapian::Query::Internal::unserialise(before, reg);
-    string after = qint->serialise();
-    delete qint;
-    TEST(before == after);
-}
-
-// Check serialisation of queries.
-static bool test_serialisequery1()
-{
-    string s;
-
-    serialisequery1_helper(Xapian::Query("foo"));
-
-    // Regression test for bug in 0.9.10 and earlier.
-    serialisequery1_helper(Xapian::Query("foo", 1, 1));
-
-    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR,
-					 Xapian::Query("foo", 1, 1),
-					 Xapian::Query("bar", 1, 1)));
-
-    static const char * words[] = { "paragraph", "word" };
-    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
-
-    static const char * words2[] = { "milk", "on", "fridge" };
-    serialisequery1_helper(
-	    Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-			  Xapian::Query(Xapian::Query::OP_OR,
-					Xapian::Query("leave"),
-					Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
-					),
-			  2.5)
-	    );
-
-    return true;
-}
-
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
 {
@@ -622,7 +579,6 @@ static const test_desc tests[] = {
     {"serialiselength1",	test_serialiselength1},
     {"serialiselength2",	test_serialiselength2},
     {"serialisedoc1",		test_serialisedoc1},
-    {"serialisequery1",		test_serialisequery1},
     {"serialiseerror1",		test_serialiseerror1},
 #endif
     {"static_assert1",		test_static_assert1},

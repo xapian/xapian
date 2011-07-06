@@ -1,3 +1,9 @@
+Wed Jul 06 05:50:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Remove testcase serialisequery1.
+	* tests/api_serialise.cc: Extend serialise_query1 to cover equivalent
+	  cases via the API.
+
 Tue Jul 05 01:20:59 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Add QUERY category for debug logging.

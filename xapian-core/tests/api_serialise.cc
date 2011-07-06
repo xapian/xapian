@@ -2,7 +2,7 @@
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,10 +179,30 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Xapian::Query(hello)");
 
-    q = Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("hello"), Xapian::Query("world"));
+    q = Xapian::Query("hello", 1, 1);
+    q2 = Xapian::Query::unserialise(q.serialise());
+    // Regression test for fix in Xapian 1.0.0.
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(hello:(pos=1))");
+
+    q = Xapian::Query(q.OP_OR, Xapian::Query("hello"), Xapian::Query("world"));
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Xapian::Query((hello OR world))");
+
+    q = Xapian::Query(q.OP_OR,
+		      Xapian::Query("hello", 1, 1),
+		      Xapian::Query("world", 1, 1));
+    q2 = Xapian::Query::unserialise(q.serialise());
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query((hello:(pos=1) OR world:(pos=1)))");
+
+    static const char * phrase[] = { "shaken", "not", "stirred" };
+    q = Xapian::Query(q.OP_PHRASE, phrase, phrase + 3);
+    q = Xapian::Query(q.OP_OR, Xapian::Query("007"), q);
+    q = Xapian::Query(q.OP_SCALE_WEIGHT, q, 3.14);
+    q2 = Xapian::Query::unserialise(q.serialise());
+    TEST_EQUAL(q.get_description(), q2.get_description());
 
     return true;
 }
