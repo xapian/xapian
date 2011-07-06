@@ -59,74 +59,23 @@ class luaMatchDecider : public Xapian::MatchDecider {
 %}
 
 %luacode {
-function xapian.msetIter(mset)
-	local m = mset:begin()
+function xapian.Iterator(set)
+	local iter = set:begin()
+	local isFirst = 1 
 	return function()
-		if m:equals(mset:_end()) then
+		if iter:equals(set:_end()) then
 			return nil
 		else
-			local rank = m:get_rank()
-			local percent = m:get_percent()
-			local id = m:get_docid()
-			local doc = m:get_document()
-			m:next()
-			return rank, percent, id, doc
-		end
-	end
-end
-function xapian.esetIter(eset)
-	local m = eset:begin()
-	return function()
-		if m:equals(eset:_end()) then
-			return nil
-		else
-			local name = m:get_term()
-			local weight = m:get_weight()
-			m:next()
-			return name, weight
-		end
-	end
-end
-function xapian.termIter(terms)
-	local m = terms:begin()
-	return function()
-		if m:equals(terms:_end()) then
-			return nil
-		else
-			local name = m:get_term()
-			local weight = m:get_wdf()
-			local freq = m:get_termfreq()
-			local pos = m:positionlist_count()
-			m:next()
-			return name, weight, freq, pos
-		end
-	end
-end
-function xapian.valueIter(values)
-	local m = values:begin()
-	return function()
-		if m:equals(values:_end()) then
-			return nil
-		else
-			local value = m:get_value()
-			local docid = m:get_docid()
-			local valueno = m:get_valueno()
-			m:next()
-			return value, docid, valueno
-		end
-	end
-end
-function xapian.postingIter(postlist)
-	local m = postlist:begin()
-	return function()
-		if m:equals(postlist:_end()) then
-			return nil
-		else
-			local docid = m:get_docid()
-			local wdf = m:get_wdf()
-			local len	= m:get_doclength()
-			m:next()
-			return docid, wdf, len
+			if isFirst == 1 then
+				isFirst = 0;
+			return iter
+			else
+				iter:next()
+				if iter:equals(set:_end()) then
+					return nil
+				end
+			return iter
+			end
 		end
 	end
 end
