@@ -87,6 +87,49 @@ function xapian.esetIter(eset)
 		end
 	end
 end
+function xapian.termIter(terms)
+	local m = terms:begin()
+	return function()
+		if m:equals(terms:_end()) then
+			return nil
+		else
+			local name = m:get_term()
+			local weight = m:get_wdf()
+			local freq = m:get_termfreq()
+			local pos = m:positionlist_count()
+			m:next()
+			return name, weight, freq, pos
+		end
+	end
+end
+function xapian.valueIter(values)
+	local m = values:begin()
+	return function()
+		if m:equals(values:_end()) then
+			return nil
+		else
+			local value = m:get_value()
+			local docid = m:get_docid()
+			local valueno = m:get_valueno()
+			m:next()
+			return value, docid, valueno
+		end
+	end
+end
+function xapian.postingIter(postlist)
+	local m = postlist:begin()
+	return function()
+		if m:equals(postlist:_end()) then
+			return nil
+		else
+			local docid = m:get_docid()
+			local wdf = m:get_wdf()
+			local len	= m:get_doclength()
+			m:next()
+			return docid, wdf, len
+		end
+	end
+end
 }
 
 %typemap(typecheck, precedence=100) Xapian::MatchDecider * {
