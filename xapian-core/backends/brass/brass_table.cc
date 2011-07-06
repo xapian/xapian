@@ -112,9 +112,6 @@ static void report_cursor(int N, Btree * B, Brass::Cursor * C)
 static inline byte *zeroed_new(size_t size)
 {
     byte *temp = new byte[size];
-    // No need to check if temp is NULL, new throws std::bad_alloc if
-    // allocation fails.
-    Assert(temp);
     memset(temp, 0, size);
     return temp;
 }
@@ -1527,14 +1524,8 @@ BrassTable::do_open_to_write(bool revision_supplied,
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].p = new byte[block_size];
-	if (C[j].p == 0) {
-	    throw std::bad_alloc();
-	}
     }
     split_p = new byte[block_size];
-    if (split_p == 0) {
-	throw std::bad_alloc();
-    }
     read_root();
 
     buffer = zeroed_new(block_size);
@@ -2030,9 +2021,6 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].p = new byte[block_size];
-	if (C[j].p == 0) {
-	    throw std::bad_alloc();
-	}
     }
 
     read_root();
