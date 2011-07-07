@@ -1,3 +1,8 @@
+Thu Jul 07 23:28:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Restore ruby to DIST_SUBDIRS (accidentally removed when
+	  java-swig was renamed to java).
+
 Wed Jul 06 12:26:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/Makefile.am: Include new example in tarball.
