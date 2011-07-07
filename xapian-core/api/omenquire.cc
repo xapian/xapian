@@ -544,12 +544,16 @@ ESet::get_description() const
 const string &
 ESetIterator::operator *() const
 {
+    Assert(eset.internal.get());
+    AssertRel(index,<,eset.internal->items.size());
     return eset.internal->items[index].term;
 }
 
 Xapian::weight
 ESetIterator::get_weight() const
 {
+    Assert(eset.internal.get());
+    AssertRel(index,<,eset.internal->items.size());
     return eset.internal->items[index].wt;
 }
 
@@ -564,30 +568,40 @@ ESetIterator::get_description() const
 Xapian::docid
 MSetIterator::operator *() const
 {
+    Assert(mset.internal.get());
+    AssertRel(index,<,mset.internal->items.size());
     return mset.internal->items[index].did;
 }
 
 Document
 MSetIterator::get_document() const
 {
+    Assert(mset.internal.get());
+    AssertRel(index,<,mset.internal->items.size());
     return mset.internal->get_doc_by_index(index);
 }
 
 Xapian::weight
 MSetIterator::get_weight() const
 {
+    Assert(mset.internal.get());
+    AssertRel(index,<,mset.internal->items.size());
     return mset.internal->items[index].wt;
 }
 
 std::string
 MSetIterator::get_collapse_key() const
 {
+    Assert(mset.internal.get());
+    AssertRel(index,<,mset.internal->items.size());
     return mset.internal->items[index].collapse_key;
 }
 
 Xapian::doccount
 MSetIterator::get_collapse_count() const
 {
+    Assert(mset.internal.get());
+    AssertRel(index,<,mset.internal->items.size());
     return mset.internal->items[index].collapse_count;
 }
 
