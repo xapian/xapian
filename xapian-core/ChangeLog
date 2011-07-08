@@ -1,3 +1,7 @@
+Fri Jul 08 14:28:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/output.h,common/pretty.h: Fix invalid templates in pretty.h.
+
 Fri Jul 08 12:55:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Fix template for pretty printing a std::list.

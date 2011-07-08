@@ -77,7 +77,7 @@ operator<<(PrettyOStream<S> &ps, const Literal & t)
     return ps;
 }
 
-template<class S, class T *>
+template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T * t)
 {
@@ -85,11 +85,19 @@ operator<<(PrettyOStream<S> &ps, const T * t)
     return ps << *t;
 }
 
-template<class S, class T **>
+template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T ** t)
 {
     ps.os << (void*)t;
+    return ps;
+}
+
+template<class S>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const void * t)
+{
+    ps.os << "(void*)" << t;
     return ps;
 }
 
@@ -253,6 +261,8 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
 }
 
 namespace Xapian {
+    class ExpandDecider;
+    class MatchDecider;
     class Registry;
     class Weight;
     namespace Internal {
@@ -261,19 +271,31 @@ namespace Xapian {
     }
 }
 
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Registry &) {
-    ps.os << "Xapian:Registry";
-    return ps;
+class BrassCursor;
+class BrassDatabase;
+class BrassTable;
+class ChertCursor;
+class ChertDatabase;
+class ChertTable;
+
+#define XAPIAN_PRETTY_AS_CLASSNAME(C)\
+template<class S>\
+inline PrettyOStream<S> &\
+operator<<(PrettyOStream<S> &ps, const C &) {\
+    ps.os << #C;\
+    return ps;\
 }
 
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Weight &) {
-    ps.os << "Xapian:Weight";
-    return ps;
-}
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
+XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
+XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
+XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase);
+XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
 
 template<class S>
 inline PrettyOStream<S> &
@@ -305,21 +327,12 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-class BrassCursor;
+#include "common/database.h"
 
 template<class S>
 inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const BrassCursor *) {
-    ps.os << "BrassCursor*";
-    return ps;
-}
-
-class ChertCursor;
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const ChertCursor *) {
-    ps.os << "ChertCursor*";
+operator<<(PrettyOStream<S> &ps, const Xapian::Database::Internal *p) {
+    ps.os << "(Database::Internal*)" << (void*)p;
     return ps;
 }
 
