@@ -1,3 +1,7 @@
+Fri Jul 08 12:55:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Fix template for pretty printing a std::list.
+
 Thu Jul 07 10:40:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Add assertions that the index is in range when

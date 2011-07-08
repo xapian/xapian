@@ -207,7 +207,7 @@ operator<<(PrettyOStream<S> &ps, Xapian::termcount * p)
     return ps;
 }
 
-template<class S, typename K, typename V>
+template<class S, typename T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, std::list<T> &) {
     ps.os << "std::list&";
