@@ -81,6 +81,10 @@ template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T * t)
 {
+    if (!t) {
+	ps.os << "NULL";
+	return ps;
+    }
     ps.os << '&';
     return ps << *t;
 }
