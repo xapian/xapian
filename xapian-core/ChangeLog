@@ -1,3 +1,8 @@
+Sat Jul 09 07:08:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* languages/compiler/analyser.c: Change reporting of line number for
+	  repeated string in among to use "FILE:LINE:" prefix.
+
 Sat Jul 09 01:04:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Don't dereference a NULL pointer.

@@ -142,7 +142,7 @@ static void error(struct analyser * a, int n) { error2(a, n, 0); }
 
 static void error3(struct analyser * a, struct node * p, symbol * b) {
     count_error(a);
-    fprintf(stderr, "among(...) on line %d has repeated string '", p->line_number);
+    fprintf(stderr, "%s:%d: among(...) has repeated string '", a->tokeniser->file, p->line_number);
     report_b(stderr, b);
     fprintf(stderr, "'\n");
 }
