@@ -1,7 +1,7 @@
 /** \file  stem.h
  *  \brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
     Stem(const Stem & o);
 
     /// Assignment.
-    void operator=(const Stem & o);
+    Stem & operator=(const Stem & o);
 
     /** Construct a Xapian::Stem object which doesn't change terms.
      *

@@ -37,10 +37,11 @@ namespace Xapian {
 
 Stem::Stem(const Stem & o) : internal(o.internal) { }
 
-void
+Stem &
 Stem::operator=(const Stem & o)
 {
     internal = o.internal;
+    return *this;
 }
 
 Stem::Stem() : internal(0) { }
