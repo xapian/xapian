@@ -99,8 +99,8 @@ Letor::calculate_f1(const Xapian::Query & query, map<string,long int> & tf,char 
 }
 
 double
-Letor::calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length, char ch) {
-    double value=internal->calculate_f2(query,tf,doc_length,ch);
+Letor::calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_len, char ch) {
+    double value=internal->calculate_f2(query,tf,doc_len,ch);
     return value;
 }
 
@@ -117,14 +117,14 @@ Letor::calculate_f4(const Xapian::Query & query, map<string,long int> & tf, map<
 }
 
 double
-Letor::calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_length,char ch) {
-    double value=internal->calculate_f5(query,tf,idf,doc_length,ch);
+Letor::calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_len,char ch) {
+    double value=internal->calculate_f5(query,tf,idf,doc_len,ch);
     return value;
 }
 
 double
-Letor::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch) {
-    double value=internal->calculate_f6(query,tf,doc_length,coll_tf,coll_length,ch);
+Letor::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_len,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch) {
+    double value=internal->calculate_f6(query,tf,doc_len,coll_tf,coll_length,ch);
     return value;
 }
 

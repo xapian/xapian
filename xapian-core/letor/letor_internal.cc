@@ -235,7 +235,7 @@ Letor::Internal::calculate_f1(const Xapian::Query & query, map<string,long int> 
 
 
 double
-Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length, char ch)
+Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_len, char ch)
 {
 	double value=0;
         Xapian::TermIterator qt,qt_end;
@@ -251,7 +251,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
                         {
 					
 //				cout<<"in Feature 2 "<<*qt<<"\tTF=\t"<<tf[*qt]<<"\tdoc len=\t"<<doc_length["title"]<<"\n";
-				value+=log10(1+((double)tf[*qt]/(double)doc_length["title"]));        //always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
+				value+=log10(1+((double)tf[*qt]/(double)doc_len["title"]));        //always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
 //				cout<<"Value for "<<*qt<<" is "<<value;
 			}
 		}
@@ -265,7 +265,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
 			if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S")
 			{
 //				cout<<"in Feature 1 "<<*qt<<"and"<<tf[*qt]<<"\t"<<doc_length["body"]<<"\n";
-				value+=log10(1+((double)tf[*qt]/(double)doc_length["body"]));
+				value+=log10(1+((double)tf[*qt]/(double)doc_len["body"]));
 			}
 		}
 		return value;
@@ -275,7 +275,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
 		for(;qt!=qt_end;++qt)
 		{
 //			cout<<"in Feature 1 "<<*qt<<"and"<<tf[*qt]<<"\t"<<doc_length["whole"]<<"\n";
-			value+=log10(1+((double)tf[*qt]/(double)doc_length["whole"]));
+			value+=log10(1+((double)tf[*qt]/(double)doc_len["whole"]));
 		}
 		return value;
 	}
@@ -366,7 +366,7 @@ Letor::Internal::calculate_f4(const Xapian::Query & query, map<string,long int> 
 
 
 double
-Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_length,char ch)
+Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_len,char ch)
 {
 	double value=0;
         Xapian::TermIterator qt,qt_end;
@@ -380,7 +380,7 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
                 {
                         if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S")
                         {
-                                value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_length["title"]));
+                                value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_len["title"]));
                         }
 
                 }
@@ -392,7 +392,7 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
                 {
                         if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S")
                         {
-                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_length["body"]));
+                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_len["body"]));
                         }
                  }
                 return value;
@@ -401,7 +401,7 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
         {
                 for(;qt!=qt_end;++qt)
                 {
-                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_length["whole"]));
+                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_len["whole"]));
                 }
                 return value;
         }
