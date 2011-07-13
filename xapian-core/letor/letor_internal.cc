@@ -33,9 +33,32 @@
 #include <map>
 #include <math.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <errno.h>
+#include "svm.h"
+#define Malloc(type,n) (type *)malloc((n)*sizeof(type))
+
 using namespace std;
 
 using namespace Xapian;
+
+struct svm_parameter param;		// set by parse_command_line
+struct svm_problem prob;		// set by read_problem
+struct svm_model *model;
+struct svm_node *x_space;
+int cross_validation;
+int nr_fold;
+
+struct svm_node *x;
+int max_nr_attr = 64;
+
+int predict_probability=0;
+
+static char *line = NULL;
+static int max_line_len;
 
 //Stop-words
 static const char * sw[] = {
@@ -427,6 +450,14 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
 	}
 }
 
+
+static void exit_input_error(int line_num)
+{
+//	printf(stderr,"Wrong input format at line %d\n", line_num);
+        printf("Error Somewhere!");
+	exit(1);
+}
+
 /* This method will calculate the score assigned by the Letor function.
  * It will take MSet as input then convert the documents in feature vectors
  * then normalize them according to QueryLevelNorm 
@@ -575,12 +606,375 @@ cout<<"in the letor Score\n";
             }//while closed
         }//if closed
 
+        model = svm_load_model("mymodel.txt");
+
+		x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));
+      
+      	int correct = 0;
+	int total = 0;
+	double error = 0;
+	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
+
+	int svm_type=svm_get_svm_type(model);
+	int nr_class=svm_get_nr_class(model);
+	double *prob_estimates=NULL;
+	int j;
+
+	if(predict_probability)
+	{
+		if (svm_type==NU_SVR || svm_type==EPSILON_SVR)
+			printf("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n",svm_get_svr_probability(model));
+		else
+		{
+			int *labels=(int *) malloc(nr_class*sizeof(int));
+			svm_get_labels(model,labels);
+			prob_estimates = (double *) malloc(nr_class*sizeof(double));
+//			fprintf(output,"labels");		
+			for(j=0;j<nr_class;j++)
+//				fprintf(output," %d",labels[j]);
+//			fprintf(output,"\n");
+			free(labels);
+		}
+	}
+
+	max_line_len = 1024;
+	line = (char *)malloc(max_line_len*sizeof(char));
+	
+//        char str[] = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
+//
+          char str[] = "0  1:0.5 2:0.48899 3:0.490207 4:0.5 5:0.59154 6:0.616206 7:1 8:1 9:1 10:1 11:1 12:1 13:0.525171 14:0.645693 15:0.692602 16:0.539406 17:0.734753 18:0.75317 19:0.810033";
+
+        line = str;
+
+	
+//        line = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
+		int i = 0;
+		double target_label, predict_label;
+		char *idx, *val, *label, *endptr;
+		int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
+
+		label = strtok(line," \t\n");
+		if(label == NULL) // empty line
+			exit_input_error(total+1);
+
+		target_label = strtod(label,&endptr);
+		if(endptr == label || *endptr != '\0')
+			exit_input_error(total+1);
+
+		while(1)
+		{
+			if(i>=max_nr_attr-1)	// need one more for index = -1
+			{
+				max_nr_attr *= 2;
+				x = (struct svm_node *) realloc(x,max_nr_attr*sizeof(struct svm_node));
+			}
+
+			idx = strtok(NULL,":");
+			val = strtok(NULL," \t");
+
+			if(val == NULL)
+				break;
+			errno = 0;
+			x[i].index = (int) strtol(idx,&endptr,10);
+			if(endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
+				exit_input_error(total+1);
+			else
+				inst_max_index = x[i].index;
+
+			errno = 0;
+			x[i].value = strtod(val,&endptr);
+			if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
+				exit_input_error(total+1);
+
+			++i;
+		}
+		x[i].index = -1;
+
+		predict_label = svm_predict(model,x);
+                printf("%g\n",predict_label);
+//		printf(output,"%g\n",predict_label);
+
     
 }
 
 
+static char* readline(FILE *input)
+{
+	int len;
+	
+	if(fgets(line,max_line_len,input) == NULL)
+		return NULL;
+
+	while(strrchr(line,'\n') == NULL)
+	{
+		max_line_len *= 2;
+		line = (char *) realloc(line,max_line_len);
+		len = (int) strlen(line);
+		if(fgets(line+len,max_line_len-len,input) == NULL)
+			break;
+	}
+	return line;
+}
+
+static void exit_with_help() {
+    printf("Error in passing or parsing the parameter of SVM\n");
+}
+
+
+static void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name)
+{
+	int i;
+	void (*print_func)(const char*) = NULL;	// default printing to stdout
+
+	// default values
+	param.svm_type = 4;
+	param.kernel_type = 0;
+	param.degree = 3;
+	param.gamma = 0;	// 1/num_features
+	param.coef0 = 0;
+	param.nu = 0.5;
+	param.cache_size = 100;
+	param.C = 1;
+	param.eps = 1e-3;
+	param.p = 0.1;
+	param.shrinking = 1;
+	param.probability = 0;
+	param.nr_weight = 0;
+	param.weight_label = NULL;
+	param.weight = NULL;
+	cross_validation = 0;
+
+	// parse options
+	for(i=1;i<argc;i++)
+	{
+		if(argv[i][0] != '-') break;
+		if(++i>=argc)
+			exit_with_help();
+		switch(argv[i-1][1])
+		{
+			case 's':
+				param.svm_type = atoi(argv[i]);
+				break;
+			case 't':
+				param.kernel_type = atoi(argv[i]);
+				break;
+			case 'd':
+				param.degree = atoi(argv[i]);
+				break;
+			case 'g':
+				param.gamma = atof(argv[i]);
+				break;
+			case 'r':
+				param.coef0 = atof(argv[i]);
+				break;
+			case 'n':
+				param.nu = atof(argv[i]);
+				break;
+			case 'm':
+				param.cache_size = atof(argv[i]);
+				break;
+			case 'c':
+				param.C = atof(argv[i]);
+				break;
+			case 'e':
+				param.eps = atof(argv[i]);
+				break;
+			case 'p':
+				param.p = atof(argv[i]);
+				break;
+			case 'h':
+				param.shrinking = atoi(argv[i]);
+				break;
+			case 'b':
+				param.probability = atoi(argv[i]);
+				break;
+/*			case 'q':
+				print_func = &print_null;
+				i--;
+				break;
+			case 'v':
+				cross_validation = 1;
+				nr_fold = atoi(argv[i]);
+				if(nr_fold < 2)
+				{
+					fprintf(stderr,"n-fold cross validation: n must >= 2\n");
+					exit_with_help();
+				}
+				break;
+*/			case 'w':
+				++param.nr_weight;
+				param.weight_label = (int *)realloc(param.weight_label,sizeof(int)*param.nr_weight);
+				param.weight = (double *)realloc(param.weight,sizeof(double)*param.nr_weight);
+				param.weight_label[param.nr_weight-1] = atoi(&argv[i-1][2]);
+				param.weight[param.nr_weight-1] = atof(argv[i]);
+				break;
+			default:
+				fprintf(stderr,"Unknown option: -%c\n", argv[i-1][1]);
+				exit_with_help();
+		}
+	}
+
+//	svm_set_print_string_function(print_func);
+
+	// determine filenames
+
+	if(i>=argc)
+		exit_with_help();
+
+	strcpy(input_file_name, argv[i]);
+
+	if(i<argc-1)
+		strcpy(model_file_name,argv[i+1]);
+	else
+	{
+		char *p = strrchr(argv[i],'/');
+		if(p==NULL)
+			p = argv[i];
+		else
+			++p;
+		sprintf(model_file_name,"%s.model",p);
+	}
+}
+
+
+static void read_problem(const char *filename)
+{
+	int elements, max_index, inst_max_index, i, j;
+	FILE *fp = fopen(filename,"r");
+	char *endptr;
+	char *idx, *val, *label;
+
+	if(fp == NULL)
+	{
+		fprintf(stderr,"can't open input file %s\n",filename);
+		exit(1);
+	}
+
+	prob.l = 0;
+	elements = 0;
+
+	max_line_len = 1024;
+	line = Malloc(char,max_line_len);
+	while(readline(fp)!=NULL)
+	{
+		char *p = strtok(line," \t"); // label
+
+		// features
+		while(1)
+		{
+			p = strtok(NULL," \t");
+			if(p == NULL || *p == '\n') // check '\n' as ' ' may be after the last feature
+				break;
+			++elements;
+		}
+		++elements;
+		++prob.l;
+	}
+	rewind(fp);
+
+	prob.y = Malloc(double,prob.l);
+	prob.x = Malloc(struct svm_node *,prob.l);
+	x_space = Malloc(struct svm_node,elements);
+
+	max_index = 0;
+	j=0;
+	for(i=0;i<prob.l;i++)
+	{
+		inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
+		readline(fp);
+		prob.x[i] = &x_space[j];
+		label = strtok(line," \t\n");
+		if(label == NULL) // empty line
+			exit_input_error(i+1);
+
+		prob.y[i] = strtod(label,&endptr);
+		if(endptr == label || *endptr != '\0')
+			exit_input_error(i+1);
+
+		while(1)
+		{
+			idx = strtok(NULL,":");
+			val = strtok(NULL," \t");
+
+			if(val == NULL)
+				break;
+
+			errno = 0;
+			x_space[j].index = (int) strtol(idx,&endptr,10);
+			if(endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
+				exit_input_error(i+1);
+			else
+				inst_max_index = x_space[j].index;
+
+			errno = 0;
+			x_space[j].value = strtod(val,&endptr);
+			if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
+				exit_input_error(i+1);
+
+			++j;
+		}
+
+		if(inst_max_index > max_index)
+			max_index = inst_max_index;
+		x_space[j++].index = -1;
+	}
+
+	if(param.gamma == 0 && max_index > 0)
+		param.gamma = 1.0/max_index;
+
+	if(param.kernel_type == PRECOMPUTED)
+		for(i=0;i<prob.l;i++)
+		{
+			if (prob.x[i][0].index != 0)
+			{
+				fprintf(stderr,"Wrong input format: first column must be 0:sample_serial_number\n");
+				exit(1);
+			}
+			if ((int)prob.x[i][0].value <= 0 || (int)prob.x[i][0].value > max_index)
+			{
+				fprintf(stderr,"Wrong input format: sample_serial_number out of range\n");
+				exit(1);
+			}
+		}
+
+	fclose(fp);
+}
+
 void
 Letor::Internal::letor_learn_model() {
+	char input_file_name[1024] = "train.txt";
+	char model_file_name[1024] = "model.txt";
+	const char *error_msg;
+
+	int argc = 2;
+
+	//input_file_name = "train.txt".c_str();
+	//model_file_name = "model.txt".c_str();
+        //
+
+        std::string para = "-s 4 -t 0";
+
+	char **parameters = (char**)para.c_str();
+
+
+	parse_command_line(argc, parameters, input_file_name, model_file_name);
+	read_problem(input_file_name);
+	error_msg = svm_check_parameter(&prob,&param);
+
+	model = svm_train(&prob,&param);
+		if(svm_save_model(model_file_name,model))
+		{
+			fprintf(stderr, "can't save model to file %s\n", model_file_name);
+			exit(1);
+		}
+		svm_free_and_destroy_model(&model);
+
+		svm_destroy_param(&param);
+	free(prob.y);
+	free(prob.x);
+	free(x_space);
+	free(line);
+
 
 }
 

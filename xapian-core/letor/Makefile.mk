@@ -4,6 +4,10 @@ if VPATH_BUILD
 INCLUDES += -I$(top_srcdir)/letor
 endif
 
+INCLUDES += -I/usr/include/libsvm-2.0/libsvm
+
+libxapian_la_LIBADD += -lsvm
+
 noinst_HEADERS +=\
 	letor/letor_internal.h
 
