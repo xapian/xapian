@@ -30,8 +30,8 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::RefCntBase {
     friend class Letor;
-    Database db;
-    Query query;
+    Database letor_db;
+    Query letor_query;
  
   public:
       
@@ -63,7 +63,7 @@ class Letor::Internal : public Xapian::Internal::RefCntBase {
 
 	void letor_learn_model();
 
-	void prepare_training_file(const Xapian::Database & db, std::string query_file, std::string qrel_file);
+	void prepare_training_file(std::string query_file, std::string qrel_file);
     
 };
 

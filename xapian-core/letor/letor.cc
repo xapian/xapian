@@ -46,12 +46,12 @@ Letor::~Letor() { }
 
 void
 Letor::set_database(const Xapian::Database & db) {
-    internal->db = db;
+    internal->letor_db = db;
 }
 
 void
 Letor::set_query(const Xapian::Query & query) {
-    internal->query = query;
+    internal->letor_query = query;
 }
 
 map<string,long int>
@@ -82,8 +82,8 @@ Letor::collection_length(const Xapian::Database & db) {
 }
 
 map<string,long int>
-Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query) {
-    map<string,long int> coll_tf = internal->collection_termfreq(db,query);
+Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query_) {
+    map<string,long int> coll_tf = internal->collection_termfreq(db,query_);
     return coll_tf;
 }
 
@@ -139,6 +139,6 @@ Letor::letor_learn_model() {
 }
 
 void
-Letor::prepare_training_file(const Xapian::Database & db, std::string query_file, std::string qrel_file) {
-    internal->prepare_training_file(db,query_file,qrel_file);
+Letor::prepare_training_file(std::string query_file, std::string qrel_file) {
+    internal->prepare_training_file(query_file,qrel_file);
 }

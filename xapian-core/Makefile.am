@@ -32,6 +32,8 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
+libxapian_la_LIBADD =
+
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
         check-chert check-flint check-perftest \

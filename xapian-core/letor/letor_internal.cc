@@ -408,7 +408,7 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
 }
 
 double
-Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch)
+Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_len,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch)
 {
  double value=0;
         Xapian::TermIterator qt,qt_end;
@@ -422,7 +422,7 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
                 {
                         if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S")
                         {
-                                 value+=log10(1+(((double)tf[*qt] * (double)coll_length["title"])/(double)(1+((double)doc_length["title"] * (double)coll_tf[*qt]))));
+                                 value+=log10(1+(((double)tf[*qt] * (double)coll_length["title"])/(double)(1+((double)doc_len["title"] * (double)coll_tf[*qt]))));
                         }
 
                 }
@@ -434,7 +434,7 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
                 {
                         if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S")
                         {
-                                 value+=log10(1+(((double)tf[*qt] * (double)coll_length["body"])/(double)(1+((double)doc_length["body"] * (double)coll_tf[*qt]))));
+                                 value+=log10(1+(((double)tf[*qt] * (double)coll_length["body"])/(double)(1+((double)doc_len["body"] * (double)coll_tf[*qt]))));
 
                         }
                  }
@@ -444,7 +444,7 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
         {
                 for(;qt!=qt_end;++qt)
                 {
-                                 value+=log10(1+(((double)tf[*qt] * (double)coll_length["whole"])/(double)(1+((double)doc_length["whole"] * (double)coll_tf[*qt]))));
+                                 value+=log10(1+(((double)tf[*qt] * (double)coll_length["whole"])/(double)(1+((double)doc_len["whole"] * (double)coll_tf[*qt]))));
                 }
                 return value;
 	}
@@ -454,7 +454,7 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
 static void exit_input_error(int line_num)
 {
 //	printf(stderr,"Wrong input format at line %d\n", line_num);
-        printf("Error Somewhere!");
+        printf("Error at Line : %d",line_num);
 	exit(1);
 }
 
@@ -467,24 +467,24 @@ static void exit_input_error(int line_num)
 void
 Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
-cout<<"in the letor Score\n";
-    cout<<query.get_description()<<"\n";
+    cout<<"in the letor Score\n";
+    cout<<letor_query.get_description()<<"\n";
     Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
     Xapian::PostingIterator p,pend;
 
     map<string,long int> coll_len;
-    coll_len=collection_length(db);
+    coll_len=collection_length(letor_db);
 
     map<string,long int> coll_tf;
-    coll_tf=collection_termfreq(db,query);
+    coll_tf=collection_termfreq(letor_db,letor_query);
 
     map<string,double> idf;
-    idf=inverse_doc_freq(db,query);
+    idf=inverse_doc_freq(letor_db,letor_query);
 
     int first=1;                //used as a flag in QueryLevelNorm and module
 
-    	typedef list<double> List1;     //the values of a particular feature for MSet documents will be stored in the list
-        typedef map<int,List1> Map3;    //the above list will be mapped to an integer with its feature id.
+    typedef list<double> List1;     //the values of a particular feature for MSet documents will be stored in the list
+    typedef map<int,List1> Map3;    //the above list will be mapped to an integer with its feature id.
 
         /* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
          *
@@ -497,51 +497,51 @@ cout<<"in the letor Score\n";
          * will belongs to [0,1] and is known as Query level Norm
          */
 
-        Map3 norm;
+    Map3 norm;
 
-        map< int, list<double> >::iterator norm_outer;
-        list<double>::iterator norm_inner;
+    map< int, list<double> >::iterator norm_outer;
+    list<double>::iterator norm_inner;
 
-        typedef list<string> List2;
-        List2 doc_ids;
+    typedef list<string> List2;
+    List2 doc_ids;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
             Xapian::Document doc = i.get_document();
             
             map<string,long int> tf;
-            tf=termfreq(doc,query);
+            tf=termfreq(doc,letor_query);
 
             map<string, long int> doclen;
-            doclen=doc_length(db,doc);
+            doclen=doc_length(letor_db,doc);
 
-            qt=query.get_terms_begin();
-            qt_end=query.get_terms_end();
+            qt=letor_query.get_terms_begin();
+            qt_end=letor_query.get_terms_end();
 
             double f[20];
 
-            f[1]=calculate_f1(query,tf,'t');
-            f[2]=calculate_f1(query,tf,'b');
-            f[3]=calculate_f1(query,tf,'w');
+            f[1]=calculate_f1(letor_query,tf,'t');
+            f[2]=calculate_f1(letor_query,tf,'b');
+            f[3]=calculate_f1(letor_query,tf,'w');
 
-            f[4]=calculate_f2(query,tf,doclen,'t');
-            f[5]=calculate_f2(query,tf,doclen,'b');
-            f[6]=calculate_f2(query,tf,doclen,'w');
+            f[4]=calculate_f2(letor_query,tf,doclen,'t');
+            f[5]=calculate_f2(letor_query,tf,doclen,'b');
+            f[6]=calculate_f2(letor_query,tf,doclen,'w');
 
-            f[7]=calculate_f3(query,idf,'t');
-            f[8]=calculate_f3(query,idf,'b');
-            f[9]=calculate_f3(query,idf,'w');
+            f[7]=calculate_f3(letor_query,idf,'t');
+            f[8]=calculate_f3(letor_query,idf,'b');
+            f[9]=calculate_f3(letor_query,idf,'w');
 
-            f[10]=calculate_f4(query,coll_tf,coll_len,'t');
-            f[11]=calculate_f4(query,coll_tf,coll_len,'b');
-            f[12]=calculate_f4(query,coll_tf,coll_len,'w');
+            f[10]=calculate_f4(letor_query,coll_tf,coll_len,'t');
+            f[11]=calculate_f4(letor_query,coll_tf,coll_len,'b');
+            f[12]=calculate_f4(letor_query,coll_tf,coll_len,'w');
 
-            f[13]=calculate_f5(query,tf,idf,doclen,'t');
-            f[14]=calculate_f5(query,tf,idf,doclen,'b');
-            f[15]=calculate_f5(query,tf,idf,doclen,'w');
+            f[13]=calculate_f5(letor_query,tf,idf,doclen,'t');
+            f[14]=calculate_f5(letor_query,tf,idf,doclen,'b');
+            f[15]=calculate_f5(letor_query,tf,idf,doclen,'w');
 
-            f[16]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'t');
-            f[17]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'b');
-            f[18]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'w');
+            f[16]=calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'t');
+            f[17]=calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'b');
+            f[18]=calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'w');
 
             f[19]=i.get_weight();
             
@@ -607,92 +607,83 @@ cout<<"in the letor Score\n";
         }//if closed
 
         model = svm_load_model("mymodel.txt");
-
-		x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));
+        x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));
       
-      	int correct = 0;
+//      	int correct = 0;
 	int total = 0;
-	double error = 0;
-	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
+//	double error = 0;
+//	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
 
 	int svm_type=svm_get_svm_type(model);
 	int nr_class=svm_get_nr_class(model);
 	double *prob_estimates=NULL;
-	int j;
+//	int j;
 
-	if(predict_probability)
-	{
-		if (svm_type==NU_SVR || svm_type==EPSILON_SVR)
-			printf("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n",svm_get_svr_probability(model));
-		else
-		{
-			int *labels=(int *) malloc(nr_class*sizeof(int));
-			svm_get_labels(model,labels);
-			prob_estimates = (double *) malloc(nr_class*sizeof(double));
-//			fprintf(output,"labels");		
-			for(j=0;j<nr_class;j++)
-//				fprintf(output," %d",labels[j]);
-//			fprintf(output,"\n");
-			free(labels);
-		}
-	}
+	if(predict_probability)	{
+            if (svm_type==NU_SVR || svm_type==EPSILON_SVR)
+                printf("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n",svm_get_svr_probability(model));
+            else {
+                int *labels=(int *) malloc(nr_class*sizeof(int));
+		svm_get_labels(model,labels);
+		prob_estimates = (double *) malloc(nr_class*sizeof(double));
+//		fprintf(output,"labels");		
+		free(labels);
+            }
+        }
 
 	max_line_len = 1024;
 	line = (char *)malloc(max_line_len*sizeof(char));
 	
 //        char str[] = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
 //
-          char str[] = "0  1:0.5 2:0.48899 3:0.490207 4:0.5 5:0.59154 6:0.616206 7:1 8:1 9:1 10:1 11:1 12:1 13:0.525171 14:0.645693 15:0.692602 16:0.539406 17:0.734753 18:0.75317 19:0.810033";
+        char str[] = "0  1:0.5 2:0.48899 3:0.490207 4:0.5 5:0.59154 6:0.616206 7:1 8:1 9:1 10:1 11:1 12:1 13:0.525171 14:0.645693 15:0.692602 16:0.539406 17:0.734753 18:0.75317 19:0.810033";
 
         line = str;
 
 	
 //        line = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
-		int i = 0;
-		double target_label, predict_label;
-		char *idx, *val, *label, *endptr;
-		int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
+	int i = 0;
+	double target_label, predict_label;
+	char *idx, *val, *label, *endptr;
+	int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
 
-		label = strtok(line," \t\n");
-		if(label == NULL) // empty line
-			exit_input_error(total+1);
+	label = strtok(line," \t\n");
+	if(label == NULL) // empty line
+            exit_input_error(total+1);
 
-		target_label = strtod(label,&endptr);
-		if(endptr == label || *endptr != '\0')
-			exit_input_error(total+1);
+	target_label = strtod(label,&endptr);
+	if(endptr == label || *endptr != '\0')
+            exit_input_error(total+1);
 
-		while(1)
-		{
-			if(i>=max_nr_attr-1)	// need one more for index = -1
-			{
-				max_nr_attr *= 2;
-				x = (struct svm_node *) realloc(x,max_nr_attr*sizeof(struct svm_node));
-			}
+	while(1) {
+            if(i>=max_nr_attr-1) {	// need one more for index = -1
+                max_nr_attr *= 2;
+		x = (struct svm_node *) realloc(x,max_nr_attr*sizeof(struct svm_node));
+            }
+            idx = strtok(NULL,":");
+            val = strtok(NULL," \t");
 
-			idx = strtok(NULL,":");
-			val = strtok(NULL," \t");
+            if(val == NULL)
+                break;
+            errno = 0;
+            x[i].index = (int) strtol(idx,&endptr,10);
 
-			if(val == NULL)
-				break;
-			errno = 0;
-			x[i].index = (int) strtol(idx,&endptr,10);
-			if(endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
-				exit_input_error(total+1);
-			else
-				inst_max_index = x[i].index;
+            if(endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
+                exit_input_error(total+1);
+            else
+                inst_max_index = x[i].index;
 
-			errno = 0;
-			x[i].value = strtod(val,&endptr);
-			if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
-				exit_input_error(total+1);
+            errno = 0;
+            x[i].value = strtod(val,&endptr);
+            if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
+                exit_input_error(total+1);
+            ++i;
+        }
+	
+        x[i].index = -1;
 
-			++i;
-		}
-		x[i].index = -1;
-
-		predict_label = svm_predict(model,x);
-                printf("%g\n",predict_label);
-//		printf(output,"%g\n",predict_label);
+        predict_label = svm_predict(model,x);
+        printf("%g\n",predict_label);
 
     
 }
@@ -724,7 +715,7 @@ static void exit_with_help() {
 static void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name)
 {
 	int i;
-	void (*print_func)(const char*) = NULL;	// default printing to stdout
+//	void (*print_func)(const char*) = NULL;	// default printing to stdout
 
 	// default values
 	param.svm_type = 4;
@@ -988,7 +979,7 @@ Letor::Internal::letor_learn_model() {
  */
 
 void
-Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string query_file, std::string qrel_file) {
+Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_file) {
 
     ofstream train_file;
     train_file.open("train.txt");
@@ -1002,7 +993,7 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
     parser.add_prefix("title","S");
     parser.add_prefix("subject","S");
 
-    parser.set_database(db);
+    parser.set_database(letor_db);
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -1014,16 +1005,16 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
     typedef map<string, Map1> Map2;		// qid and map1
     Map2 qrel;
 
-    string line;
+    string inLine;
     ifstream myfile(qrel_file.c_str(),ifstream::in);
     string token[4];
     if (myfile.is_open()) {
         while ( myfile.good()) {
-            getline (myfile,line);		//read a file line by line
+            getline (myfile,inLine);		//read a file line by line
             char * str;
-            char *x;
-            x = const_cast<char*>(line.c_str());
-            str = strtok (x," ,.-");
+            char *x1;
+            x1 = const_cast<char*>(inLine.c_str());
+            str = strtok (x1," ,.-");
             int i=0;
             while (str != NULL)	{
                 token[i]=str;		//store tokens in a string array
@@ -1043,23 +1034,23 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
     outerit=qrel.find("2010003");
     innerit = outerit->second.find("19243417");
 
-    int q=innerit->second;
+//    int q=innerit->second;
 
     //reading qrel in a map over.
 
     map<string,long int> coll_len;
-    coll_len=collection_length(db);
+    coll_len=collection_length(letor_db);
 
     string str1;
     ifstream myfile1;
-    myfile1.open(query_file.c_str(),ios::in);
-    int flag=0;
+    myfile1.open(queryfile.c_str(),ios::in);
+//    int flag=0;
     while ( !myfile1.eof()) {           //reading all the queries line by line from the query file
 
-        typedef list<double> List1;		//the values of a particular feature for MSet documents will be stored in the list
-        typedef map<int,List1> Map3;	//the above list will be mapped to an integer with its feature id.
+    typedef list<double> List1;		//the values of a particular feature for MSet documents will be stored in the list
+    typedef map<int,List1> Map3;	//the above list will be mapped to an integer with its feature id.
 
-		/* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
+	/* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
          *
          * 1  -> 32.12 - 23.12 - 43.23 - 12.12 - 65.23
          * 2  -> 31.23 - 21.43 - 33.99 - 65.23 - 22.22
@@ -1085,10 +1076,10 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
         }
 
         string qid= str1.substr(0,(int)str1.find(" "));
-        string query_str = str1.substr((int)str1.find("'")+1,(str1.length() - ((int)str1.find("'")+2)));
+        string querystr = str1.substr((int)str1.find("'")+1,(str1.length() - ((int)str1.find("'")+2)));
 
-        string qq=query_str;			//change argv[optind] to string query.
-        istringstream iss(query_str);
+        string qq=querystr;			//change argv[optind] to string query.
+        istringstream iss(querystr);
         string title="title:";
         while(iss) {
             string t;
@@ -1110,7 +1101,7 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
                                              parser.FLAG_DEFAULT|
                                              parser.FLAG_SPELLING_CORRECTION);
 
-	Xapian::Enquire enquire(db);
+	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
 
 	Xapian::MSet mset = enquire.get_mset(0, msize);
@@ -1121,10 +1112,10 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
         Xapian::Letor ltr;
 
         map<string,long int> coll_tf;
-        coll_tf=collection_termfreq(db,query);
+        coll_tf=collection_termfreq(letor_db,query);
 
         map<string,double> idf;
-        idf=inverse_doc_freq(db,query);
+        idf=inverse_doc_freq(letor_db,query);
 
         int first=1;    //used as a flag in QueryLevelNorm and module
 
@@ -1135,7 +1126,7 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
             tf=termfreq(doc,query);
 
             map<string, long int> doclen;
-            doclen=doc_length(db,doc);
+            doclen=doc_length(letor_db,doc);
 
             qt=query.get_terms_begin();
             qt_end=query.get_terms_end();
@@ -1179,8 +1170,8 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
             if(outerit!=qrel.end()) {
                 innerit = outerit->second.find(id);
                 if(innerit!=outerit->second.end()) {
-                    int q=innerit->second;
-                    cout<<q<<" Qid:"<<qid<<" #docid:"<<id<<"\n";
+                    int q1=innerit->second;
+                    cout<<q1<<" Qid:"<<qid<<" #docid:"<<id<<"\n";
 
                     /* This module will make the data structure to store the whole features values for 
                      * all the documents for a particular query along with its relevance judgements
@@ -1188,11 +1179,11 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
 
                     if(first==1) {
                         List1 l;
-                        l.push_back((double)q);
+                        l.push_back((double)q1);
                         norm.insert(pair<int , list<double> > (0,l));
                         doc_ids.push_back(id);
                         for(int j=1;j<20;j++) {
-                            List1 l;
+//                            List1 l;
                             l.push_back(f[j]);
                             norm.insert(pair <int , list<double> > (j,l));   
                         }
@@ -1200,7 +1191,7 @@ Letor::Internal::prepare_training_file(const Xapian::Database & db,std::string q
                     }
                     else {
                         norm_outer=norm.begin();
-                        norm_outer->second.push_back(q);
+                        norm_outer->second.push_back(q1);
                         norm_outer++;
                         doc_ids.push_back(id);
                         int k=1;
