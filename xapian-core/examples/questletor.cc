@@ -21,7 +21,6 @@
 #include <config.h>
 
 #include <xapian.h>
-#include <xapian/letor.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -67,6 +66,7 @@ static void show_usage() {
 "  -v, --version       output version information and exit\n";
 }
 
+/*
 static map<string,long int>
 termfrequency(const Xapian::Document doc,const Xapian::Query & query)
 {
@@ -452,6 +452,7 @@ calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,
                 return value;
 	}
 }
+*/
 
 int
 main(int argc, char **argv)
@@ -572,15 +573,17 @@ try {
     cout<<"Final Query "<<qq<<"\n";
 
 
+
     Xapian::Query query = parser.parse_query(qq,
 					     parser.FLAG_DEFAULT|
 					     parser.FLAG_SPELLING_CORRECTION);
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
-//org	cout << "Did you mean: " << correction << "\n\n";
+        cout << "Did you mean: " << correction << "\n\n";
 
-//org    cout << "Parsed Query: " << query.get_description() << endl;
+    cout << "Parsed Query: " << query.get_description() << endl;
 
+        
     if (!have_database) {
 	cout << "No database specified so not running the query." << endl;
 	exit(0);
@@ -608,6 +611,9 @@ try {
     map<string,double> idf;
     idf=ltr.inverse_doc_freq(db,query);
 
+    printf("here.");
+    ltr.letor_learn_model();
+
 //org    cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	Xapian::Document doc = i.get_document();
@@ -622,8 +628,8 @@ try {
 	qt=query.get_terms_begin();
 	qt_end=query.get_terms_end();
 	
-	map<string,long int>::iterator i;
-	map<string,double>::iterator j;
+	map<string,long int>::iterator i1;
+	map<string,double>::iterator j1;
 	
 
 /* Traversing the created Maps like

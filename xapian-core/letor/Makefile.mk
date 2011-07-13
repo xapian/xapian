@@ -4,7 +4,7 @@ if VPATH_BUILD
 INCLUDES += -I$(top_srcdir)/letor
 endif
 
-INCLUDES += -I/usr/include/libsvm-2.0/libsvm
+INCLUDES += -I/usr/include/libsvm
 
 libxapian_la_LIBADD += -lsvm
 

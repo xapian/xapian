@@ -707,14 +707,16 @@ static char* readline(FILE *input)
 	return line;
 }
 
+/*
 static void exit_with_help() {
     printf("Error in passing or parsing the parameter of SVM\n");
 }
 
 
+
 static void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name)
 {
-	int i;
+//	int i;
 //	void (*print_func)(const char*) = NULL;	// default printing to stdout
 
 	// default values
@@ -735,10 +737,11 @@ static void parse_command_line(int argc, char **argv, char *input_file_name, cha
 	param.weight = NULL;
 	cross_validation = 0;
 
+
 	// parse options
 	for(i=1;i<argc;i++)
 	{
-		if(argv[i][0] != '-') break;
+//		if(argv[i][0] != '-') break;
 		if(++i>=argc)
 			exit_with_help();
 		switch(argv[i-1][1])
@@ -779,8 +782,7 @@ static void parse_command_line(int argc, char **argv, char *input_file_name, cha
 			case 'b':
 				param.probability = atoi(argv[i]);
 				break;
-/*			case 'q':
-				print_func = &print_null;
+			case 'q':				print_func = &print_null;
 				i--;
 				break;
 			case 'v':
@@ -792,7 +794,7 @@ static void parse_command_line(int argc, char **argv, char *input_file_name, cha
 					exit_with_help();
 				}
 				break;
-*/			case 'w':
+			case 'w':
 				++param.nr_weight;
 				param.weight_label = (int *)realloc(param.weight_label,sizeof(int)*param.nr_weight);
 				param.weight = (double *)realloc(param.weight,sizeof(double)*param.nr_weight);
@@ -825,8 +827,9 @@ static void parse_command_line(int argc, char **argv, char *input_file_name, cha
 			++p;
 		sprintf(model_file_name,"%s.model",p);
 	}
-}
 
+}
+*/
 
 static void read_problem(const char *filename)
 {
@@ -933,22 +936,46 @@ static void read_problem(const char *filename)
 
 void
 Letor::Internal::letor_learn_model() {
-	char input_file_name[1024] = "train.txt";
-	char model_file_name[1024] = "model.txt";
+
+
+	// default values
+	param.svm_type = 4;
+	param.kernel_type = 0;
+	param.degree = 3;
+	param.gamma = 0;	// 1/num_features
+	param.coef0 = 0;
+	param.nu = 0.5;
+	param.cache_size = 100;
+	param.C = 1;
+	param.eps = 1e-3;
+	param.p = 0.1;
+	param.shrinking = 1;
+	param.probability = 0;
+	param.nr_weight = 0;
+	param.weight_label = NULL;
+	param.weight = NULL;
+	cross_validation = 0;
+                                                                                                        
+
+
+    printf("Learning the model");
+	char input_file_name[1024] = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/train.txt";
+	char model_file_name[1024] = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/model.txt";
 	const char *error_msg;
 
-	int argc = 2;
+//	int argc = 2;
 
 	//input_file_name = "train.txt".c_str();
 	//model_file_name = "model.txt".c_str();
         //
 
-        std::string para = "-s 4 -t 0";
-
-	char **parameters = (char**)para.c_str();
 
 
-	parse_command_line(argc, parameters, input_file_name, model_file_name);
+//	char **parameters = (char**)para.c_str();
+
+
+//	parse_command_line(argc, parameters, input_file_name, model_file_name);
+
 	read_problem(input_file_name);
 	error_msg = svm_check_parameter(&prob,&param);
 
@@ -958,14 +985,14 @@ Letor::Internal::letor_learn_model() {
 			fprintf(stderr, "can't save model to file %s\n", model_file_name);
 			exit(1);
 		}
-		svm_free_and_destroy_model(&model);
+/*		svm_free_and_destroy_model(&model);
 
 		svm_destroy_param(&param);
 	free(prob.y);
 	free(prob.x);
 	free(x_space);
 	free(line);
-
+*/
 
 }
 
