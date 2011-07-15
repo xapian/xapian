@@ -602,6 +602,7 @@ try {
     ltr.set_database(db);
     ltr.set_query(query);
 
+  /*
     map<string,long int> coll_len;      // A map to calculate the length of the collection in terms of size of title only, body only and whole collection
     coll_len=ltr.collection_length(db);
 
@@ -610,15 +611,17 @@ try {
 
     map<string,double> idf;
     idf=ltr.inverse_doc_freq(db,query);
+*/
 
-    printf("here.");
-    ltr.letor_learn_model();
+//    ltr.letor_learn_model();
+//
+    ltr.letor_score(mset);
 
 //org    cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	Xapian::Document doc = i.get_document();
 
-
+/*
 	map<string,long int> tf;			//defining a map for term frequencies for query words in this particular document
 	tf=ltr.termfreq(doc,query);
 
@@ -630,7 +633,7 @@ try {
 	
 	map<string,long int>::iterator i1;
 	map<string,double>::iterator j1;
-	
+*/	
 
 /* Traversing the created Maps like
  * TF(Term Freq) , IDF, DL(Doc Length), CL(Collection Length), and CTF(Collection Term Frequency)
@@ -670,7 +673,7 @@ try {
 	}
 */
 	
-	double f1=ltr.calculate_f1(query,tf,'t');       // 't' = title only 
+/*	double f1=ltr.calculate_f1(query,tf,'t');       // 't' = title only 
 	double f2=ltr.calculate_f1(query,tf,'b');       // 'b' = body only
 	double f3=ltr.calculate_f1(query,tf,'w');       // 'w' = whole document
 
@@ -702,7 +705,7 @@ try {
         cout<<"Feature 5 Values t: "<<f13<<"\tb: "<<f14<<"\tw: "<<f15<<"\n";
         cout<<"Feature 6 Values t: "<<f16<<"\tb: "<<f17<<"\tw: "<<f18<<"\n";
 
-
+*/
 
 //	string data = doc.get_data();   //org
 //	string id=data.substr(data.find("url=/",0)+5,(data.find(".txt",0)+4-data.find("url=/")-5));

@@ -458,6 +458,19 @@ static void exit_input_error(int line_num)
 	exit(1);
 }
 
+static string convertDouble(double value) {
+    std::ostringstream o;
+    if (!(o << value))
+        return "";
+    return o.str();
+}
+
+static string convertInt(int number) {
+    stringstream ss;//create a stringstream
+    ss << number;//add number to the stream
+    return ss.str();//return a string with the contents of the stream
+}
+
 /* This method will calculate the score assigned by the Letor function.
  * It will take MSet as input then convert the documents in feature vectors
  * then normalize them according to QueryLevelNorm 
@@ -591,22 +604,30 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
                 }   
             }
 
-            int i=0,j=0;
-            while(i<k) {
+//            string test_case = "0 ";
+            int xx=0,j=0;
+            while(xx<k) {
+                string test_case = "0 ";
                 j=0;
                 norm_outer=norm.begin();
                 j++;
                 for(;norm_outer!=norm.end();++norm_outer) {
-                    cout <<j<<":"<<norm_outer->second.front()<<" ";
+
+                    test_case.append(convertInt(j));
+                    test_case.append(":");
+                    test_case.append(convertDouble(norm_outer->second.front()));
+                    test_case.append(" ");
+//                    cout <<j<<":"<<norm_outer->second.front()<<" ";
                     norm_outer->second.pop_front();
                     j++;   
                 }
-                cout<<"\n";
-                i++;   
-            }//while closed
-        }//if closed
+//                cout<<"\n";
+                cout<<test_case<<"\n";
+                xx++;   
+//            }//while closed
+//        }//if closed
 
-        model = svm_load_model("mymodel.txt");
+        model = svm_load_model("/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/model.txt");
         x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));
       
 //      	int correct = 0;
@@ -636,9 +657,9 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	
 //        char str[] = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
 //
-        char str[] = "0  1:0.5 2:0.48899 3:0.490207 4:0.5 5:0.59154 6:0.616206 7:1 8:1 9:1 10:1 11:1 12:1 13:0.525171 14:0.645693 15:0.692602 16:0.539406 17:0.734753 18:0.75317 19:0.810033";
+//        char str[] = "0  1:0.5 2:0.48899 3:0.490207 4:0.5 5:0.59154 6:0.616206 7:1 8:1 9:1 10:1 11:1 12:1 13:0.525171 14:0.645693 15:0.692602 16:0.539406 17:0.734753 18:0.75317 19:0.810033";
 
-        line = str;
+        line = const_cast<char *>(test_case.c_str());
 
 	
 //        line = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
@@ -685,7 +706,10 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
         predict_label = svm_predict(model,x);
         printf("%g\n",predict_label);
 
-    
+
+     }//while closed
+  }//if closed
+
 }
 
 
