@@ -241,7 +241,7 @@ class MyErrorHandler : public Xapian::ErrorHandler {
 };
 
 // tests error handler in multimatch().
-//DEFINE_TESTCASE(multierrhandler1, backend) {
+DEFINE_TESTCASE(multierrhandler1, backend) {
     MyErrorHandler myhandler;
 
     Xapian::Database mydb2(get_database("apitest_simpledata"));

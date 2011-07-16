@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 # collate-test: Collate testcases from several source files.
 #
-# Copyright (C) 2007,2008 Olly Betts
+# Copyright (C) 2007,2008,2011 Olly Betts
 # Copyright (C) 2008 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -43,12 +43,26 @@ for my $cc_source (@ARGV) {
     open HDR, ">$generated_h.tmp" or die $!;
     print HDR $generated_warning;
     open SRC, "<$cc_source" or die $!;
+    my $ignore = 0;
+    my @if_stack;
     while (<SRC>) {
-	if (/^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
+	if (!$ignore && /^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
 	    my ($test_func, $cond) = ($1, $2);
 	    $cond =~ s/\s+//g;
 	    push @{$by_cond{$cond}}, $test_func;
 	    print HDR "extern bool test_$test_func();\n";
+	}
+        if (s/^#\s*//) {
+	    s!/\*.*?\*/! !g;
+	    s!//.*!!;
+	    if (/^if\s*0\s*$/) {
+		push @if_stack, $ignore;
+	        $ignore = 1;
+	    } elsif (/^if/) {
+		push @if_stack, $ignore;
+	    } elsif (/^endif/) {
+		$ignore = pop @if_stack;
+	    }
 	}
     }
     close SRC;
