@@ -615,6 +615,7 @@ try {
 
 //    ltr.letor_learn_model();
 //
+    ltr.letor_learn_model();
     ltr.letor_score(mset);
 
 //org    cout << "MSet:" << endl;

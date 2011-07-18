@@ -60,6 +60,8 @@ int predict_probability=0;
 static char *line = NULL;
 static int max_line_len;
 
+int MAXPATHLEN=200;
+
 //Stop-words
 static const char * sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
@@ -471,6 +473,12 @@ static string convertInt(int number) {
     return ss.str();//return a string with the contents of the stream
 }
 
+static string get_cwd() {
+    char temp[MAXPATHLEN];
+    return ( getcwd(temp, MAXPATHLEN) ? std::string( temp ) : std::string("") );
+}
+
+
 /* This method will calculate the score assigned by the Letor function.
  * It will take MSet as input then convert the documents in feature vectors
  * then normalize them according to QueryLevelNorm 
@@ -480,8 +488,8 @@ static string convertInt(int number) {
 void
 Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
-    cout<<"in the letor Score\n";
-    cout<<letor_query.get_description()<<"\n";
+//    cout<<"in the letor Score\n";
+//    cout<<letor_query.get_description()<<"\n";
     Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
     Xapian::PostingIterator p,pend;
 
@@ -622,12 +630,16 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
                     j++;   
                 }
 //                cout<<"\n";
-                cout<<test_case<<"\n";
+//                cout<<test_case<<"\n";
                 xx++;   
 //            }//while closed
 //        }//if closed
 
-        model = svm_load_model("/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/model.txt");
+        string model_file;
+        model_file = get_cwd();
+        model_file = model_file.append("/model.txt");
+
+        model = svm_load_model(model_file.c_str());
         x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));
       
 //      	int correct = 0;
@@ -983,14 +995,14 @@ Letor::Internal::letor_learn_model() {
 
 
     printf("Learning the model");
-	char input_file_name[1024] = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/train.txt";
-	char model_file_name[1024] = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/model.txt";
+	string input_file_name; // = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/train.txt";
+	string model_file_name; // = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/model.txt";
 	const char *error_msg;
 
 //	int argc = 2;
 
-	//input_file_name = "train.txt".c_str();
-	//model_file_name = "model.txt".c_str();
+	input_file_name = get_cwd().append("/train.txt");
+	model_file_name = get_cwd().append("/model.txt");
         //
 
 
@@ -1000,13 +1012,13 @@ Letor::Internal::letor_learn_model() {
 
 //	parse_command_line(argc, parameters, input_file_name, model_file_name);
 
-	read_problem(input_file_name);
+	read_problem(input_file_name.c_str());
 	error_msg = svm_check_parameter(&prob,&param);
 
 	model = svm_train(&prob,&param);
-		if(svm_save_model(model_file_name,model))
+		if(svm_save_model(model_file_name.c_str(),model))
 		{
-			fprintf(stderr, "can't save model to file %s\n", model_file_name);
+			fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
 			exit(1);
 		}
 /*		svm_free_and_destroy_model(&model);
