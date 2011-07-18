@@ -59,11 +59,11 @@ class luaMatchDecider : public Xapian::MatchDecider {
 %}
 
 %luacode {
-function xapian.Iterator(set)
-	local iter = set:begin()
+function xapian.Iterator(begin, _end)
+	local iter = begin;
 	local isFirst = 1 
 	return function()
-		if iter:equals(set:_end()) then
+		if iter:equals(_end) then
 			return nil
 		else
 			if isFirst == 1 then
@@ -71,7 +71,7 @@ function xapian.Iterator(set)
 			return iter
 			else
 				iter:next()
-				if iter:equals(set:_end()) then
+				if iter:equals(_end) then
 					return nil
 				end
 			return iter
@@ -163,15 +163,41 @@ end
 	$1 = &v;
 }
 
-#define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
-%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-	lua_newtable(L);
-	int i = 1;
+%define OUTPUT_ITERATOR_METHODS(NS, CLASS, CLASS_ITERATOR, DEREF_METHOD)
 
-	for (Xapian::TermIterator iter = $1.first; iter != $1.second; ++iter) {
-		lua_pushlstring(L, (*iter).data(), (*iter).length());
-		lua_rawseti(L, -2, i++);
+%extend NS::CLASS {
+	std::pair<NS::CLASS_ITERATOR , NS::CLASS_ITERATOR> DEREF_METHOD() {
+		return std::make_pair($self->begin(), $self->end());
+	}
+}
+
+%typemap(out) std::pair<NS::CLASS_ITERATOR, NS::CLASS_ITERATOR> {
+	lua_getglobal(L, "xapian");
+	lua_pushstring(L, "Iterator");
+	lua_gettable(L, -2);
+	lua_remove(L, -2);
+
+	if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+	}
+
+	NS::CLASS_ITERATOR * begin = new NS::CLASS_ITERATOR((const NS::CLASS_ITERATOR &)$1.first);
+	SWIG_NewPointerObj(L, (void *) begin, SWIGTYPE_p_##NS##__##CLASS_ITERATOR, 1);
+	
+	NS::CLASS_ITERATOR * end = new NS::CLASS_ITERATOR((const NS::CLASS_ITERATOR &)$1.second);
+	SWIG_NewPointerObj(L, (void *) end, SWIGTYPE_p_##NS##__##CLASS_ITERATOR, 1);
+
+	if (lua_pcall(L, 2, 1, 0) != 0) {
+		luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 
 	SWIG_arg++;
 }
+
+%enddef
+
+OUTPUT_ITERATOR_METHODS(Xapian, ESet, ESetIterator, allterms)
+OUTPUT_ITERATOR_METHODS(Xapian, MSet, MSetIterator, alldocs)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, PostingIterator, alldocs)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, ValueIterator, allvalues)
+
