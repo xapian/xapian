@@ -1,3 +1,8 @@
+Tue Jul 19 17:52:25 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* docs/facets.rst: Fix example calls to add_matchspy() to be passed
+	  pointers, and example call to get_termfreq().
+
 Sat Jul 16 10:54:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/collate-test: Now understand use of "#if 0" to disable

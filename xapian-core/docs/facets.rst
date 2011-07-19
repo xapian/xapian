@@ -45,9 +45,9 @@ object, like so::
     Xapian::ValueCountMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
-    enq.add_matchspy(spy0);
-    enq.add_matchspy(spy1);
-    enq.add_matchspy(spy3);
+    enq.add_matchspy(&spy0);
+    enq.add_matchspy(&spy1);
+    enq.add_matchspy(&spy3);
 
     enq.set_query(query);
 
@@ -67,7 +67,7 @@ from, say, ``spy0`` like this::
 
     Xapian::TermIterator i;
     for (i = spy0.values_begin(); i != spy0.values_end(); ++i) {
-        cout << *i << ": " << i->get_termfreq() << endl;
+        cout << *i << ": " << i.get_termfreq() << endl;
     }
 
 Restricting by Facet Values
