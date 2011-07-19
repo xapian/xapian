@@ -485,8 +485,10 @@ static string get_cwd() {
  * and after that use the machine learned model file 
  * to assign a score to the document
  */
-void
+map<Xapian::docid,double>
 Letor::Internal::letor_score(const Xapian::MSet & mset) {
+
+    map<Xapian::docid,double> letor_mset;
 
 //    cout<<"in the letor Score\n";
 //    cout<<letor_query.get_description()<<"\n";
@@ -614,7 +616,13 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
 //            string test_case = "0 ";
             int xx=0,j=0;
+            Xapian::MSetIterator mset_iter = mset.begin();
+            Xapian::Document doc;
             while(xx<k) {
+
+                doc = mset_iter.get_document();
+
+
                 string test_case = "0 ";
                 j=0;
                 norm_outer=norm.begin();
@@ -716,11 +724,19 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
         x[i].index = -1;
 
         predict_label = svm_predict(model,x);
-        printf("%g\n",predict_label);
+       
+//        cout<<doc.get_docid()<<"\t";
+//        printf("%g\n",predict_label);
+
+        letor_mset[doc.get_docid()] = predict_label;
+
+        mset_iter++;
 
 
      }//while closed
   }//if closed
+
+  return letor_mset;
 
 }
 

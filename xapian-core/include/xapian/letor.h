@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
 	double calculate_f6(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length,std::map<std::string,long int> & coll_tf, std::map<std::string,long int> & coll_length, char ch);
 
-	void letor_score(const Xapian::MSet & mset);
+	std::map<Xapian::docid,double> letor_score(const Xapian::MSet & mset);
 
 	void letor_learn_model();
 

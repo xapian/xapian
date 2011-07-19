@@ -128,9 +128,10 @@ Letor::calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<
     return value;
 }
 
-void
+map<Xapian::docid,double>
 Letor::letor_score(const Xapian::MSet & mset) {
-    internal->letor_score(mset);
+    map<Xapian::docid,double> letor_mset = internal->letor_score(mset);
+    return letor_mset;
 }
 
 void
