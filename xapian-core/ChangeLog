@@ -1,3 +1,8 @@
+Tue Jul 19 18:29:51 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* docs/facets.rst: Expand descriptions for indexing and finding
+	  facets to hopefully be more helpful to newcomers.
+
 Tue Jul 19 17:52:25 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* docs/facets.rst: Fix example calls to add_matchspy() to be passed
