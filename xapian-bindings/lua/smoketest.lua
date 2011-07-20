@@ -90,9 +90,9 @@ query = xapian.Query(xapian.Query_OP_OR, {"there", "is"})
 enq:set_query(query)
 mset = enq:get_mset(0, 10)
 assert(mset:size() == 1)
---assert(table.concat(enq:get_matching_terms(mset:get_hit(0)), " ") == "is there")
+
 terms = {}
-for term in enq:get_matching_terms(1) do
+for term in enq:get_matching_terms(mset:get_hit(0)) do
 	table.insert(terms, term:get_term())
 end
 assert(table.concat(terms, " ") == "is there")
@@ -276,4 +276,4 @@ assert(#values == #expected)
 for i, v in ipairs(values) do
   assert(values[i] == expected[i])
 end
-
+mset:get_hit(0)
