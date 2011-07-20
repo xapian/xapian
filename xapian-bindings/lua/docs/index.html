@@ -53,7 +53,7 @@ which are thrown into the Lua script.
 </p>
 
 <pre>
-for m in mset:alldocs() do
+for m in mset:hits() do
 	print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
 end
 </pre>

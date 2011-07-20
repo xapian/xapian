@@ -55,6 +55,6 @@ print(string.format("%u results found.", matches:get_matches_estimated()))
 print(string.format("Results 1-%i:", matches:size()))
 
 -- Display the results
-for m in matches:alldocs() do
+for m in matches:hits() do
 	print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
 end

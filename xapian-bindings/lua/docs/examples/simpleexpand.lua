@@ -75,7 +75,7 @@ if not query:empty() then
 	print(string.format("Results 1-%i:", matches:size()))
 
 	-- Display the results
-	for m in matches:alldocs() do
+	for m in matches:hits() do
 		print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
 	end
 
@@ -94,7 +94,7 @@ if not query:empty() then
 	-- Get the suggested expand terms
 	eterms = enquire:get_eset(10, reldocs)
 	print (string.format("%i suggested additional terms", eterms:size()))
-	for m in eterms:allterms() do
+	for m in eterms:terms() do
 		print(string.format("%s: %f", m:get_term(), m:get_weight()))
 	end
 
