@@ -222,7 +222,7 @@ OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, synonym_keys_begin, syno
 OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, metadata_keys_begin, metadata_keys_end, metadata_keys, const std::string &prefix, prefix)
 
 %extend Xapian::Database {
-	std::pair<Xapian::PositionIterator , Xapian::PositionIterator> positionlis(Xapian::docid did, const std::string &tname) {
+	std::pair<Xapian::PositionIterator , Xapian::PositionIterator> positionlist(Xapian::docid did, const std::string &tname) {
 		return std::make_pair($self->positionlist_begin(did, tname), $self->positionlist_end(did, tname));
 	}
 }
