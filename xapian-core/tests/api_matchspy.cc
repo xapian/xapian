@@ -114,10 +114,6 @@ static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
 
 DEFINE_TESTCASE(matchspy2, writable)
 {
-    if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
-	SKIP_TEST("Test not supported for remote backend");
-    }
-
     Xapian::WritableDatabase db = get_writable_database();
     for (int c = 1; c <= 25; ++c) {
 	Xapian::Document doc;
@@ -174,10 +170,6 @@ DEFINE_TESTCASE(matchspy2, writable)
 
 DEFINE_TESTCASE(matchspy4, writable)
 {
-    if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
-	SKIP_TEST("Test not supported for remote backend");
-    }
-
     Xapian::WritableDatabase db = get_writable_database();
     for (int c = 1; c <= 25; ++c) {
 	Xapian::Document doc;

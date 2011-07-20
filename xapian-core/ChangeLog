@@ -1,3 +1,10 @@
+Wed Jul 20 07:00:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_matchspy.cc: Remove checks for remote dbtype in matchspy2
+	  and matchspy4 testcases - these were checking for values which would
+	  never match, and the testcases should and do work with remote
+	  backends.
+
 Wed Jul 20 01:19:46 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/facets.rst: Minor clarification.
