@@ -1,3 +1,8 @@
+Wed Jul 20 00:22:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Document in --help that checking a whole
+	  database performs additional cross-checks between the tables.
+
 Tue Jul 19 18:29:51 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* docs/facets.rst: Expand descriptions for indexing and finding
