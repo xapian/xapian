@@ -1,3 +1,7 @@
+Wed Jul 20 01:19:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/facets.rst: Minor clarification.
+
 Wed Jul 20 00:22:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Document in --help that checking a whole
