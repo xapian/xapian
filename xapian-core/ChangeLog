@@ -1,3 +1,9 @@
+Thu Jul 21 02:12:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_postlist.cc,backends/chert/chert_postlist.cc,
+	  common/documentterm.h,net/progclient.cc: Fix uses of LOGCALL_VOID
+	  which should be LOGCALL_CTOR.
+
 Wed Jul 20 07:00:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_matchspy.cc: Remove checks for remote dbtype in matchspy2

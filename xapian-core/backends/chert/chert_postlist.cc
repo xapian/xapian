@@ -318,7 +318,7 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    LOGCALL_VOID(DB, "PostlistChunkWriter::PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
+    LOGCALL_CTOR(DB, "PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
 }
 
 void
@@ -682,7 +682,7 @@ ChertPostList::ChertPostList(intrusive_ptr<const ChertDatabase> this_db_,
 	  is_at_end(false),
 	  cursor(this_db_->postlist_table.cursor_get())
 {
-    LOGCALL_VOID(DB, "ChertPostList::ChertPostList", this_db_.get() | term_ | keep_reference);
+    LOGCALL_CTOR(DB, "ChertPostList", this_db_.get() | term_ | keep_reference);
     string key = ChertPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
