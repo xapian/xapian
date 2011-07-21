@@ -36,7 +36,7 @@
 
 MergePostList::~MergePostList()
 {
-    LOGCALL_VOID(MATCH, "MergePostList::~MergePostList", NO_ARGS);
+    LOGCALL_DTOR(MATCH, "MergePostList");
     std::vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	delete *i;

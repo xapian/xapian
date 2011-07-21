@@ -1,3 +1,7 @@
+Thu Jul 21 03:37:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* matcher/mergepostlist.cc: Another debug logging fix.
+
 Thu Jul 21 03:16:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/ompostlistiterator.cc,
