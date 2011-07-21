@@ -175,7 +175,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 
 ChertDatabase::~ChertDatabase()
 {
-    LOGCALL_DTOR(DB, "~ChertDatabase");
+    LOGCALL_DTOR(DB, "ChertDatabase");
 }
 
 bool
@@ -1040,7 +1040,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 
 ChertWritableDatabase::~ChertWritableDatabase()
 {
-    LOGCALL_DTOR(DB, "~ChertWritableDatabase");
+    LOGCALL_DTOR(DB, "ChertWritableDatabase");
     dtor_called();
 }
 

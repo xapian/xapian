@@ -709,7 +709,7 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 
 BrassPostList::~BrassPostList()
 {
-    LOGCALL_VOID(DB, "BrassPostList::~BrassPostList", NO_ARGS);
+    LOGCALL_DTOR(DB, "BrassPostList");
 }
 
 Xapian::termcount

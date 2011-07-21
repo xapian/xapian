@@ -40,17 +40,17 @@ Xapian::PostingIterator::PostingIterator(Internal *internal_)
 }
 
 Xapian::PostingIterator::PostingIterator() : internal(0) {
-    LOGCALL_VOID(API, "Xapian::PostingIterator::PostingIterator", NO_ARGS);
+    LOGCALL_CTOR(API, "PostingIterator", NO_ARGS);
 }
 
 Xapian::PostingIterator::~PostingIterator() {
-    LOGCALL_VOID(API, "Xapian::PostingIterator::~PostingIterator", NO_ARGS);
+    LOGCALL_DTOR(API, "PostingIterator");
 }
 
 Xapian::PostingIterator::PostingIterator(const Xapian::PostingIterator &other)
     : internal(other.internal)
 {
-    LOGCALL_VOID(API, "Xapian::PostingIterator::Xapian::PostingIterator", other);
+    LOGCALL_CTOR(API, "PostingIterator", other);
 }
 
 void
@@ -61,7 +61,7 @@ Xapian::PostingIterator::operator=(const Xapian::PostingIterator &other)
 }
 
 Xapian::docid
-Xapian::PostingIterator::operator *() const
+Xapian::PostingIterator::operator*() const
 {
     LOGCALL(API, Xapian::docid, "Xapian::PostingIterator::operator*", NO_ARGS);
     Assert(internal.get());
@@ -72,7 +72,7 @@ Xapian::PostingIterator::operator *() const
 Xapian::PostingIterator &
 Xapian::PostingIterator::operator++()
 {
-    LOGCALL_VOID(API, "Xapian::PostingIterator::operator++", NO_ARGS);
+    LOGCALL(API, Xapian::PostingIterator &, "Xapian::PostingIterator::operator++", NO_ARGS);
     Assert(internal.get());
     Assert(!internal->at_end());
     Internal *p = internal->next();

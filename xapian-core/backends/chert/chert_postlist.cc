@@ -709,7 +709,7 @@ ChertPostList::ChertPostList(intrusive_ptr<const ChertDatabase> this_db_,
 
 ChertPostList::~ChertPostList()
 {
-    LOGCALL_VOID(DB, "ChertPostList::~ChertPostList", NO_ARGS);
+    LOGCALL_DTOR(DB, "ChertPostList");
 }
 
 Xapian::termcount

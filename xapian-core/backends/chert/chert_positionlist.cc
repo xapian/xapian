@@ -40,7 +40,7 @@ ChertPositionListTable::set_positionlist(Xapian::docid did,
 					 const Xapian::PositionIterator &pos_end,
 					 bool check_for_update)
 {
-    LOGCALL_VOID(DB, "ChertPositionList::set_positionlist", did | tname | pos | pos_end | check_for_update);
+    LOGCALL_VOID(DB, "ChertPositionListTable::set_positionlist", did | tname | pos | pos_end | check_for_update);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
@@ -71,12 +71,11 @@ Xapian::termcount
 ChertPositionListTable::positionlist_count(Xapian::docid did,
 					   const string & term) const
 {
-    LOGCALL_VOID(DB, "ChertPositionListTable::positionlist_count", did | term);
+    LOGCALL(DB, Xapian::termcount, "ChertPositionListTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(make_key(did, term), data)) {
-	// There's no positional information for this term.
-	return 0;
+	RETURN(0);
     }
 
     const char * pos = data.data();
@@ -87,14 +86,14 @@ ChertPositionListTable::positionlist_count(Xapian::docid did,
     }
     if (pos == end) {
 	// Special case for single entry position list.
-	return 1;
+	RETURN(1);
     }
 
     // Skip the header we just read.
     BitReader rd(data, pos - data.data());
     Xapian::termpos pos_first = rd.decode(pos_last);
     Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    return pos_size;
+    RETURN(pos_size);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -103,7 +102,7 @@ bool
 ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
 			     const string & tname)
 {
-    LOGCALL_VOID(DB, "ChertPositionList::read_data", table | did | tname);
+    LOGCALL(DB, bool, "ChertPositionList::read_data", table | did | tname);
 
     have_started = false;
     positions.clear();
@@ -112,7 +111,7 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
     if (!table->get_exact_entry(ChertPositionListTable::make_key(did, tname), data)) {
 	// There's no positional information for this term.
 	current_pos = positions.begin();
-	return false;
+	RETURN(false);
     }
 
     const char * pos = data.data();
@@ -125,7 +124,7 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
 	// Special case for single entry position list.
 	positions.push_back(pos_last);
 	current_pos = positions.begin();
-	return true;
+	RETURN(true);
     }
     // Skip the header we just read.
     BitReader rd(data, pos - data.data());
@@ -137,7 +136,7 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
     rd.decode_interpolative(positions, 0, pos_size - 1);
 
     current_pos = positions.begin();
-    return true;
+    RETURN(true);
 }
 
 Xapian::termcount

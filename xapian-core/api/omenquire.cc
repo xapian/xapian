@@ -865,7 +865,7 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 
 Enquire::Enquire(const Enquire & other) : internal(other.internal)
 {
-    LOGCALL_VOID(API, "Xapian::Enquire::Enquire", other);
+    LOGCALL_CTOR(API, "Enquire", other);
 }
 
 void
@@ -878,12 +878,12 @@ Enquire::operator=(const Enquire & other)
 Enquire::Enquire(const Database &databases, ErrorHandler * errorhandler)
     : internal(new Internal(databases, errorhandler))
 {
-    LOGCALL_VOID(API, "Xapian::Enquire::Enquire", databases);
+    LOGCALL_CTOR(API, "Enquire", databases);
 }
 
 Enquire::~Enquire()
 {
-    LOGCALL_VOID(API, "Xapian::Enquire::~Enquire", NO_ARGS);
+    LOGCALL_DTOR(API, "Enquire");
 }
 
 void

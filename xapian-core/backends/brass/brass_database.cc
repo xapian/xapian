@@ -172,7 +172,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 
 BrassDatabase::~BrassDatabase()
 {
-    LOGCALL_DTOR(DB, "~BrassDatabase");
+    LOGCALL_DTOR(DB, "BrassDatabase");
 }
 
 bool
@@ -1054,7 +1054,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 
 BrassWritableDatabase::~BrassWritableDatabase()
 {
-    LOGCALL_DTOR(DB, "~BrassWritableDatabase");
+    LOGCALL_DTOR(DB, "BrassWritableDatabase");
     dtor_called();
 }
 
