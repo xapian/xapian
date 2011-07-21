@@ -993,7 +993,7 @@ ChertDatabase::get_metadata(const string & key) const
 TermList *
 ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList *, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
     return new ChertMetadataTermList(intrusive_ptr<const ChertDatabase>(this),
@@ -1658,7 +1658,7 @@ ChertWritableDatabase::clear_synonyms(const string & term) const
 void
 ChertWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    LOGCALL(DB, string, "ChertWritableDatabase::set_metadata", key | value);
+    LOGCALL_VOID(DB, "ChertWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

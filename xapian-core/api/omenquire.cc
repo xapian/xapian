@@ -913,7 +913,7 @@ Enquire::add_matchspy(MatchSpy * spy) {
 
 void
 Enquire::clear_matchspies() {
-    LOGCALL(API, const Xapian::Query &, "Xapian::Enquire::clear_matchspies", NO_ARGS);
+    LOGCALL_VOID(API, "Xapian::Enquire::clear_matchspies", NO_ARGS);
     internal->spies.clear();
 }
 
@@ -1058,7 +1058,7 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 TermIterator
 Enquire::get_matching_terms_begin(const MSetIterator &it) const
 {
-    LOGCALL(API, Xapian::TermIterator, "Xapian::Enquire::get_matching_terms", it);
+    LOGCALL(API, Xapian::TermIterator, "Xapian::Enquire::get_matching_terms_begin", it);
     try {
 	RETURN(internal->get_matching_terms(it));
     } catch (Error & e) {
@@ -1070,7 +1070,7 @@ Enquire::get_matching_terms_begin(const MSetIterator &it) const
 TermIterator
 Enquire::get_matching_terms_begin(Xapian::docid did) const
 {
-    LOGCALL(API, Xapian::TermIterator, "Xapian::Enquire::get_matching_terms", did);
+    LOGCALL(API, Xapian::TermIterator, "Xapian::Enquire::get_matching_terms_begin", did);
     try {
 	RETURN(internal->get_matching_terms(did));
     } catch (Error & e) {

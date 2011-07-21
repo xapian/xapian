@@ -66,14 +66,14 @@ BrassAllDocsPostList::get_wdf() const
 PositionList *
 BrassAllDocsPostList::read_position_list()
 {
-    LOGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::read_position_list", NO_ARGS);
+    LOGCALL(DB, PositionList *, "BrassAllDocsPostList::read_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("BrassAllDocsPostList::read_position_list() not meaningful");
 }
 
 PositionList *
 BrassAllDocsPostList::open_position_list() const
 {
-    LOGCALL(DB, Xapian::termcount, "BrassAllDocsPostList::open_position_list", NO_ARGS);
+    LOGCALL(DB, PositionList *, "BrassAllDocsPostList::open_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("BrassAllDocsPostList::open_position_list() not meaningful");
 }
 

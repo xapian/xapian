@@ -1,3 +1,12 @@
+Thu Jul 21 02:55:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/omenquire.cc,api/replication.cc,
+	  backends/brass/brass_alldocspostlist.cc,
+	  backends/brass/brass_database.cc,
+	  backends/brass/brass_spellingwordslist.cc,backends/chert/,
+	  matcher/mergepostlist.cc,matcher/msetpostlist.cc,
+	  matcher/synonympostlist.cc: Fix various incorrect LOGCALL lines.
+
 Thu Jul 21 02:12:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_postlist.cc,backends/chert/chert_postlist.cc,

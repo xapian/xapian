@@ -690,7 +690,7 @@ Database::synonyms_begin(const std::string &term) const
 TermIterator
 Database::synonym_keys_begin(const std::string &prefix) const
 {
-    LOGCALL(API, TermIterator, "Database::synonyms_keys_begin", prefix);
+    LOGCALL(API, TermIterator, "Database::synonym_keys_begin", prefix);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_synonym_keylist(prefix);

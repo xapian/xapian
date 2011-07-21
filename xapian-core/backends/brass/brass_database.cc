@@ -1010,7 +1010,7 @@ BrassDatabase::get_metadata(const string & key) const
 TermList *
 BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "BrassDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList *, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
     return new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
@@ -1583,7 +1583,7 @@ BrassWritableDatabase::clear_synonyms(const string & term) const
 void
 BrassWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    LOGCALL(DB, string, "BrassWritableDatabase::set_metadata", key | value);
+    LOGCALL_VOID(DB, "BrassWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

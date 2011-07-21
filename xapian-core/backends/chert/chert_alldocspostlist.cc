@@ -66,14 +66,14 @@ ChertAllDocsPostList::get_wdf() const
 PositionList *
 ChertAllDocsPostList::read_position_list()
 {
-    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::read_position_list", NO_ARGS);
+    LOGCALL(DB, PositionList *, "ChertAllDocsPostList::read_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("ChertAllDocsPostList::read_position_list() not meaningful");
 }
 
 PositionList *
 ChertAllDocsPostList::open_position_list() const
 {
-    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::open_position_list", NO_ARGS);
+    LOGCALL(DB, PositionList *, "ChertAllDocsPostList::open_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("ChertAllDocsPostList::open_position_list() not meaningful");
 }
 

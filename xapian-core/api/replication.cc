@@ -283,7 +283,7 @@ DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
 void
 DatabaseReplica::close()
 {
-    LOGCALL(REPLICA, bool, "DatabaseReplica::close", NO_ARGS);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::close", NO_ARGS);
     internal = NULL;
 }
 
