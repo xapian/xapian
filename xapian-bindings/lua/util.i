@@ -200,7 +200,7 @@ OUTPUT_ITERATOR_METHODS(Xapian, Query, TermIterator, get_terms_begin, get_terms_
 
 OUTPUT_ITERATOR_METHODS(Xapian, ESet, ESetIterator, begin, end, terms, void, )
 
-OUTPUT_ITERATOR_METHODS(Xapian, MSet, MSetIterator, begin, end, hits, void, )
+OUTPUT_ITERATOR_METHODS(Xapian, MSet, MSetIterator, begin, end, terms, void, )
 
 OUTPUT_ITERATOR_METHODS(Xapian, Document, TermIterator, termlist_begin, termlist_end, termlist, void, )
 OUTPUT_ITERATOR_METHODS(Xapian, Document, ValueIterator, values_begin, values_end, values, void, )
