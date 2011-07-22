@@ -1,3 +1,10 @@
+Fri Jul 22 15:37:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Reword documentation of
+	  add_boolean_prefix()'s exclusive parameter to talk about terms and
+	  prefixes rather than values and fields (which was confusing since
+	  "document value" has a particular meaning in Xapian).
+
 Thu Jul 21 03:37:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* matcher/mergepostlist.cc: Another debug logging fix.
