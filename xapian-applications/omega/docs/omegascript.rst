@@ -176,10 +176,11 @@ $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
         If ``OPEN`` is specified, but close is omitted, ``CLOSE`` defaults to
         the appropriate closing tag for ``OPEN`` (i.e. with a "/" in front and
         any parameters removed).  If both are omitted, then ``OPEN`` is set to:
-	``<b style="color:black;background-color:#XXXXXX">`` (where ``XXXXXX``
-        cycles through ``ffff66`` ``66ffff`` ``ff66ff`` ``6666ff`` ``ff6666``
-        ``66ff66`` ``ffaa33`` ``33ffaa`` ``aa33ff`` ``33aaff``) and ``CLOSE``
-        is ``</b>``.
+	``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
+        cycles through ``ffff66`` ``99ff99`` ``99ffff`` ``ff66ff`` ``ff9999``
+        ``990000`` ``009900`` ``996600`` ``006699`` ``990099`` and ``XXXXX``
+        is ``black`` is ``YYYYYY`` contains an ``f``, and otherwise ``white``)
+        and ``CLOSE`` is ``</b>``.
 
 $hit
 	MSet index of current doc (first document in MSet is 0, so if
@@ -524,7 +525,7 @@ $value{VALUENO[,DOCID]}
         ``$hitlist``).
 
 $version
-	omega version string - e.g. "Xapian - omega 0.9.2"
+	omega version string - e.g. "xapian-omega 1.2.6"
 
 $weight
 	raw document weight of the current hit, as a floating point value

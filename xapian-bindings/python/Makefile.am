@@ -9,21 +9,16 @@ TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
 
-# FIXME: replicationtest.py attempts to test the concurrent performance of
-# performing replication whilst modifications are in progress.  However, it
-# sometimes fails due to a race condition in it.  It also contains hard-coded
-# paths to the replication scripts, which assume the file layout in an SVN
-# checkout.  Therefore, we don't run it by default currently.
+# FIXME: replicationtest.py attempts to test performing replication whilst
+# modifications are in progress.  However, it sometimes fails due to a race
+# condition in it.  It also contains hard-coded paths to the replication
+# server and client, which assume the file layout in a repo checkout.
+# Therefore, we don't run it by default currently.
 # replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-if !MAINTAINER_NO_DOCS
-DOCCOMMENTS_I = doccomments.i
-DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
-endif
-
-EXTRA_DIST = util.i extra.i extracomments.i except.i \
+EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \
 	smoketest2.py smoketest3.py \
@@ -100,26 +95,29 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-BUILT_SOURCES += except.i $(DOCCOMMENTS_I)
+BUILT_SOURCES += except.i doccomments.i
 except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
 
+if MAINTAINER_NO_DOCS
+doccomments.i:
+	: > doccomments.i
+else
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
 	$(PYTHON) $(srcdir)/doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
+endif
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
 	@stamp=modern/xapian_wrap.stamp; $(make_many_locked)
-modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i $(DOCCOMMENTS_I) extra.i extracomments.i
+modern/xapian_wrap.stamp: except.i doccomments.i
 	-test -d modern || mkdir modern
 	$(multitarget_begin)
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
+	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir modern \
-	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp $(SWIG_mainsource)
-	$(PERL) -pe 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp > modern/xapian_wrap_d2.tmp
-	mv modern/xapian_wrap_d2.tmp modern/xapian_wrap.d
-	rm modern/xapian_wrap_d.tmp
-	$(PERL) -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp
-	mv modern/xapian_py.tmp modern/xapian.py
+	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp '$(srcdir)/'python.i
+	$(PERL) -pi -e 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp
+	mv modern/xapian_wrap_d.tmp modern/xapian_wrap.d
+	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.py
 	$(multitarget_end)
 
 -include modern/xapian_wrap.d

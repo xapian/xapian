@@ -1,3 +1,8 @@
+Wed Jun 29 11:06:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* stemming/basque/output.txt,stemming/basque/voc.txt: Add basque
+	  wordlist and expected output.
+
 Wed Dec 16 00:42:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* stemming/german/output.txt,stemming/german2/output.txt: Update

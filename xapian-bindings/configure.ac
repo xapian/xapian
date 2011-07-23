@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.2.5], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.3.0], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -31,6 +31,7 @@ case $host in
 *86*-darwin8*|*-darwin[[91]]*)
   dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
   dnl OS version, so we don't need to override on these.
+  NEED_JNILIB_EXT=yes
   ;;
 *-darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
@@ -209,7 +210,12 @@ AC_ARG_WITH(perl,
   [],
   [with_perl=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl in
+AC_ARG_WITH(lua,
+  AC_HELP_STRING([--with-lua], [enable Lua bindings]),
+  [],
+  [with_lua=])
+
+case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -219,6 +225,7 @@ case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl in
   test -z "$with_java" && with_java=no
   test -z "$with_ruby" && with_ruby=no
   test -z "$with_perl" && with_perl=no
+  test -z "$with_lua" && with_lua=no
   ;;
 esac
 
@@ -229,17 +236,17 @@ if test no != "$with_python" ; then
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
-    dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
-    dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
+    dnl Require Python 2.4 or newer.  Older versions are essentially
+    dnl unsupported upstream.
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
+    [2.[4-9]*|2.[12][0-9][0-9]*|[3-9].*])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.3 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only Python 2.4 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
@@ -309,16 +316,16 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
-    5.*)
-      AC_MSG_RESULT([$version])
-      PHP_MAJOR_VERSION=5
-      ;;
-    *)
-      AC_MSG_RESULT([$version (not supported)])
+    [[01234].*|5.[012]])
+      AC_MSG_RESULT([$version (not supported, need PHP >= 5.2)])
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP5 is supported ($PHP_CONFIG reports version $version)])
+	AC_MSG_ERROR([Only PHP >= 5.2 is supported ($PHP_CONFIG reports version $version)])
       fi
       with_php=no
+      ;;
+    *)
+      AC_MSG_RESULT([$version])
+      PHP_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
       ;;
     esac
     AC_SUBST(PHP_MAJOR_VERSION)
@@ -347,45 +354,27 @@ if test no != "$with_php" ; then
     fi
 
     if test no != "$with_php" ; then
-      PHP_found=no
-      case $PHP in
-	"")
-	  dnl PHP5's php-config has --php-binary which gives the path to the
-	  dnl PHP interpreter.  Otherwise, try "$prefix/bin/php$N" then
-	  dnl "$prefix/bin/php".
-	  php_prefix=`$PHP_CONFIG --prefix 2>/dev/null`
-	  php_bin=$php_prefix/bin/php
-	  php_binary=
-	  if $PHP_CONFIG --php_binary > /dev/null 2>&1 ; then
-	    php_binary=`$PHP_CONFIG --php-binary 2>/dev/null`
-	  fi
-	  for php in $php_binary $php_bin$PHP_MAJOR_VERSION $php_bin ; do
-	    AC_MSG_CHECKING([for $php])
-	    for ac_exec_ext in '' $ac_executable_extensions; do
-	      if $as_executable_p "$php$ac_exec_ext"; then
-		PHP=$php$ac_exec_ext
-		AC_MSG_RESULT([$PHP])
-		PHP_found=yes
-		break 2
-	      fi
-	    done
-	    AC_MSG_RESULT([no])
-	  done
-	  ;;
-	[[\\/]* | ?:[\\/]*]) ;;
-	*)
-	  dnl Handle PHP passed in without a path - e.g. PHP=php5
-	  AC_PATH_PROGS(PHP, ["$PHP"], [])
-	  test -n "$PHP" && PHP_found=yes
-	  ;;
-      esac
-      if test yes != "$PHP_found" ; then
-	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
-	dnl PHP bindings tests.
-	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [\$(top_srcdir)/skiptest])
+      if test x"$PHP" = x ; then
+	AC_MSG_CHECKING([for PHP interpreter])
+	dnl PHP5's php-config supports --php-binary, so just use that.
+	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
+	if test x"$PHP" != x ; then
+	  if $PHP -r 'exit(0);' 2> /dev/null ; then
+	    AC_MSG_RESULT([$PHP])
+	  else
+	    AC_MSG_RESULT([no ($PHP does not work)])
+	    PHP=
+          fi
+	else
+	  AC_MSG_RESULT([not found])
+	fi
+      else
+	AC_PATH_PROGS(PHP, ["$PHP"], [])
       fi
-      if test -z "$PHP" ; then
+      if test x"$PHP" = x ; then
 	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
+	dnl The skiptest script just returns exit code 77.
+	PHP='$(top_srcdir)/skiptest'
       fi
 
       case $host_os in
@@ -636,20 +625,20 @@ if test no != "$with_java" ; then
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
     dnl
     dnl So checking for jni.h presumably implicitly checks we have "Java 2".
-    dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems).
-    dnl So we could check for that if we want to check for a particular
+    dnl Note: jni.h #defines JNI_VERSION_1_[1246] (but not 3 or 5 it seems).
+    dnl So we could check for one of these if we want to check for a particular
     dnl JDK version...
     java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, we jni.h lives
+      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
       for jnidir in $JNI_INCLUDE_DIR ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
 	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
 	AC_MSG_CHECKING([for jni.h in $jnidir])
 	if test -f "$jnidir/jni.h" ; then
-	  AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
 	  if test yes = $java_ok ; then
 	    AC_MSG_RESULT([yes])
 	    JAVA_CPPFLAGS=-I$jnidir
@@ -670,7 +659,7 @@ if test no != "$with_java" ; then
 	  esac
 	  if test -n "$jni_host_os" ; then
 	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
-	    AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
 	    if test yes = $java_ok ; then
 	      AC_MSG_RESULT([yes, requires additional -I$jnidir/$jni_host_os])
 	      JAVA_CPPFLAGS="-I$jnidir -I$jnidir/$jni_host_os"
@@ -849,25 +838,25 @@ if test no != "$with_perl" ; then
   if test -n "$PERL" ; then
     AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
     if test -z "$PERL_INC" ; then
-      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
+      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi
     AC_SUBST(PERL_INC)
 
     AC_ARG_VAR(PERL_ARCH, [Directory to install architecture-dependent perl files into])
     if test -z "$PERL_ARCH" ; then
-      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch};'`
+      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch}'`
     fi
     AC_SUBST(PERL_ARCH)
 
     AC_ARG_VAR(PERL_LIB, [Directory to install architecture-independent perl files into])
     if test -z "$PERL_LIB" ; then
-      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib};'`
+      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib}'`
     fi
     AC_SUBST(PERL_LIB)
 
     AC_ARG_VAR(PERL_SO, [for perl module extension])
     if test -z "$PERL_SO" ; then
-      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`
+      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{dlext}'`
     fi
     AC_SUBST(PERL_SO)
 
@@ -886,6 +875,87 @@ if test no != "$with_perl" ; then
   else
     if test yes = "$with_perl" ; then
       AC_MSG_ERROR([perl not found])
+    fi
+  fi
+fi
+
+if test no != "$with_lua" ; then
+  AC_PATH_PROGS(LUA, ["${LUA-lua}"], [])
+  AC_ARG_VAR(LUA, [lua interpreter])
+  if test -n "$LUA" ; then
+    dnl We need Lua 5.1 or later.
+    AC_MSG_CHECKING([$LUA version])
+    [lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`]
+
+    case $lua_version in
+    [[01234]].*|5.0|5.0.*)
+      AC_MSG_RESULT([$lua_version < 5.1 (too old)])
+      if test yes = "$with_lua" ; then
+        AC_MSG_ERROR([$LUA too old (Lua 5.1 or newer required)])
+      fi
+      LUA=
+      ;;
+    "")
+      AC_MSG_RESULT([\$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' didn't work])
+
+      if test yes = "$with_lua" ; then
+        AC_MSG_ERROR([Working Lua interpreter not found])
+      fi
+      LUA=
+      ;;
+    esac
+
+    if test -n "$LUA" ; then
+      AC_MSG_RESULT([$lua_version])
+      AC_ARG_VAR(LUA_LIB, [Directory to install xapian.so into])
+      AC_MSG_CHECKING(for Lua library to install xapian.so)
+      LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
+      LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
+      if test -z "$LUA_LIB"; then
+        AC_MSG_RESULT(not found)
+      else
+        AC_MSG_RESULT($LUA_LIB)
+      fi
+      AC_SUBST(LUA_LIB)
+
+      AC_MSG_CHECKING(for Lua header files)
+      AC_ARG_VAR(LUA_INC, [Directory to include for lua headers])
+      if test -z "$LUA_INC" ; then
+        dirs="/usr/local/include /usr/local/include/lua* /usr/include/lua* /usr/include"
+        for i in $dirs ; do
+          if test -r $i/lua.h; then
+            LUA_INC="$i"
+            break
+          fi
+        done
+      fi
+
+      if test -z "$LUA_INC" ; then
+        AC_MSG_RESULT(not found)
+      else
+        AC_MSG_RESULT($LUA_INC)
+        BINDINGS="$BINDINGS lua"
+        LUA_CPPFLAGS="-I$LUA_INC"
+      fi
+      AC_SUBST(LUA_INC)
+
+      dnl Cygwin needs to link with -llua or similar.
+      LUA_LIBS=
+      case $host_os in
+      cygwin*)
+	AC_CHECK_LIB([lua$lua_version], [Lua_Init],
+		     [LUA_LIBS="-llua$lua_version"],
+		     [AC_MSG_ERROR([liblua$lua_version not found])])
+	;;
+      *)
+	LUA_CPPFLAGS="$LUA_CPPFLAGS -DUSE_LUA_STUBS" ;;
+      esac
+      AC_SUBST(LUA_CPPFLAGS)
+      AC_SUBST(LUA_LIBS)
+    fi
+  else
+    if test yes = "$with_lua" ; then
+      AC_MSG_ERROR([lua not found])
     fi
   fi
 fi
@@ -981,13 +1051,12 @@ AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile
  php/Makefile
- java/Makefile java/native/Makefile java/org/xapian/Makefile
- java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
- java-swig/Makefile
+ java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
  perl/Makefile perl/util.i
+ lua/Makefile
  xapian-bindings.spec
  ])
 AC_OUTPUT

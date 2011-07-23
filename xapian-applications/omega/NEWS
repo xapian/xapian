@@ -1,3 +1,26 @@
+Omega 1.2.6 (2011-06-12):
+
+documentation:
+
+* docs/omegascript.html: Correct the documentation of the colours used by
+  $highlight{}.
+
+* docs/overview.html: Add using unoconv as more complex example of using
+  --filter (ticket#324).
+
+templates:
+
+* templates/query:
+
+  + Make search query input type=search.
+
+  + Autofocus the search query input (using HTML autofocus attribute with
+    Javascript fallback for older browsers).  (ticket#544)
+
+portability:
+
+* Fix a compiler warning.
+
 Omega 1.2.5 (2011-04-04):
 
 documentation:

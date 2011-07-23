@@ -7,8 +7,8 @@ Supported Platforms
 
 Most development work has been done on Linux with GCC, but the bindings should
 work on other Unix-like platforms and with other compilers (we've heard success
-stories for at least Mac OS X and OpenBSD, and the tinderbox builds pass "make
-check" on FreeBSD and NetBSD).
+stories for at least Mac OS X >= 10.3 and OpenBSD, and the tinderbox builds
+pass "make check" on FreeBSD and NetBSD).
 
 The Python bindings have been successfully built on Microsoft Windows using
 Mingw and MSVC: the PHP bindings have been successfully build on Microsoft
@@ -21,27 +21,45 @@ Supported Languages
 Bindings for the following languages should be fully functional and ready
 for real world use:
 
-Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
-		See java/README for Java binding specific information.
+C#		Tested with Mono C# 2.6.7 recently.  Much older versions
+		worked with Mono C# 1.0.8, 1.1.8, 1.2.3.1 and Portable.NET
+		0.6.12.  For Mono runtimes from 1.2 onwards, you need to
+		compile with gmcs (instead of mcs) or you'll get segmentation
+		faults at runtime.  The configure script prefers to use gmcs if
+		Jit is present, but you can run `./configure CSC=mcs' to force
+		use of mcs even if gmcs is also installed.
+
+Java		Java bindings are generated with SWIG, as of Xapian 1.3.0.
+		Recently tested with OpenJDK 1.6.0_18.  The minimum supported
+		version isn't clear - the bindings use JNI, which was added in
+		Java 2 (i.e. JDK 1.2), but we haven't recently tested with such
+		old versions.
+
+Lua		Requires Lua 5.1 or later.  Currently Lua support is
+		experimental - the Lua API provided is likely to change to
+		provide a more natural wrapping for iterators and some other
+		things.
 
 Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
-	        by Olly Betts are available from CPAN (module Search::Xapian).
+		by Olly Betts are available from CPAN (module Search::Xapian).
 		SWIG-based Perl bindings were implemented by Kosei Moriyama in
 		GSoC 2009, and made their debut in the 1.2.4 release.  The
 		intention is that these will replace the XS bindings once we
 		are satisfied they are stable.  The bindings here probably need
 		Perl 5.8 or later.
 
-PHP		Requires PHP 5 (PHP 4 is no longer supported by the PHP
-		developers, so it doesn't make sense for us to continue to
-		support it).
+PHP		Requires PHP >= 5.2 (older versions are no longer supported by
+		the PHP developers).
 
-Python		Requires Python 2.3 or later.  If you still need support for
-		Python 2.2, use Xapian 1.0.x.  Note that you need to configure
-		Apache's mod_python or mod_wsgi correctly to avoid deadlocks
-		when using Xapian's Python bindings - be sure to read the
-		"Apache and mod_python/mod_wsgi" section of the Python bindings
-		documentation.
+Python		Requires Python 2.4 or later.  If you still need support for
+		Python 2.3, use Xapian 1.2.x.  Python 3 support is under
+		development, but not yet fully functional - see ticket#346
+		for details: http://trac.xapian.org/ticket/346
+
+		Note that you need to configure Apache's mod_python or mod_wsgi
+		correctly to avoid deadlocks when using Xapian's Python
+		bindings - be sure to read the "Apache and mod_python/mod_wsgi"
+		section of the Python bindings documentation.
 
 Ruby		Requires Ruby 1.8 or later.  With Ruby 1.9.0, the testsuite
 		fails due to a bug in the test/unit module, but applications
@@ -52,14 +70,6 @@ Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
 		without too much work, but versions 8.3 and earlier are no
 		longer supported by the Tcl developers, so it doesn't make
 		sense for us to expend effort to support them).
-
-C#		Tested with Mono C# 1.0.8 and 1.1.8 and Portable.NET 0.6.12.
-		Also tested with Mono C# 1.2.3.1 - note that for Mono
-		runtimes from 1.2 onwards, you need to compile with gmcs
-		(instead of mcs) or you'll get segmentation faults at runtime.
-		The configure script prefers to use gmcs if it is present, but
-		you can run `./configure CSC=mcs' to force use of mcs even
-		if gmcs is also installed.
 
 
 If you're interest in getting other languages supported, see the "Adding

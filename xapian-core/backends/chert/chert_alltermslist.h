@@ -35,7 +35,7 @@ class ChertAllTermsList : public AllTermsList {
     void operator=(const ChertAllTermsList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const ChertDatabase> database;
+    Xapian::Internal::intrusive_ptr<const ChertDatabase> database;
 
     /** A cursor which runs through the postlist table reading termnames from
      *  the keys.
@@ -63,7 +63,7 @@ class ChertAllTermsList : public AllTermsList {
     void read_termfreq_and_collfreq() const;
 
   public:
-    ChertAllTermsList(Xapian::Internal::RefCntPtr<const ChertDatabase> database_,
+    ChertAllTermsList(Xapian::Internal::intrusive_ptr<const ChertDatabase> database_,
 		      const std::string & prefix_)
 	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 

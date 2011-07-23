@@ -23,7 +23,6 @@
 
 #include <config.h>
 
-#include <cassert>
 #include <cstdio>
 #include <ctime>
 
@@ -236,18 +235,7 @@ try {
     } 
 
     // strip leading and trailing whitespace from query_string
-    string::size_type first_nonspace;
-    first_nonspace = query_string.find_first_not_of(" \t\r\n\v");
-    if (first_nonspace == string::npos) {
-	query_string.resize(0);
-    } else {
-	string::size_type len = query_string.find_last_not_of(" \t\r\n\v");
-	assert(len != string::npos);
-	if (first_nonspace > 0 || len <= query_string.length() - 1) {
-	    len = len + 1 - first_nonspace;
-	    query_string = query_string.substr(first_nonspace, len + 1);
-	}
-    }
+    trim(query_string);
 
     // set any boolean filters
     g = cgi_params.equal_range("B");

@@ -1,7 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010 Olly Betts
+ * Copyright 2009,2010,2011 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -606,7 +606,6 @@ DEFINE_TESTCASE(replicate4, replicas) {
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate5, replicas) {
     SKIP_TEST_FOR_BACKEND("chert");
-    SKIP_TEST_FOR_BACKEND("flint");
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");

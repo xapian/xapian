@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_TERMGENERATOR_INTERNAL_H
 #define XAPIAN_INCLUDED_TERMGENERATOR_INTERNAL_H
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/database.h>
 #include <xapian/document.h>
 #include <xapian/termgenerator.h>
@@ -31,7 +31,7 @@ namespace Xapian {
 
 class Stopper;
 
-class TermGenerator::Internal : public Xapian::Internal::RefCntBase {
+class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class TermGenerator;
     Stem stemmer;
     const Stopper * stopper;

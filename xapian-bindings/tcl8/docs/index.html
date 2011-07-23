@@ -42,12 +42,10 @@ between Tcl and Xapian.
    correctly.  This only matters for the Xapian::WritableDatabase class, and we
    avoid wrapping the problematic factory functions to avoid setting a
    trap for the unwary - these are the WritableDatabase versions of
-   <code>Xapian::Brass::open</code>,
-   <code>Xapian::Chert::open</code>, and <code>Xapian::Flint::open</code>.
+   <code>Xapian::Brass::open</code> and <code>Xapian::Chert::open</code>.
    You can just use a <code>Xapian::WritableDatabase</code> constructor
    instead (and set <code>XAPIAN_PREFER_BRASS</code> in the environment to
-   select brass rather than chert).  You can't create a flint database this
-   way, but flint is now deprecated.
+   select brass rather than chert).
 </p>
 
 <p>
@@ -163,8 +161,6 @@ wrapped like so for Tcl:
 <li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian::brass_open</code> (but note that the WritableDatabase version isn't wrapped - see
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
-<li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see
-the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
@@ -179,7 +175,7 @@ decide which to call).
 
 <p>
    For Tcl, constants are wrapped as <code>$xapian::<i>CONSTANT_NAME</i></code>
-   or <code>$xapian::<i>ClassName<i>_<i>CONSTANT_NAME</i></code>.
+   or <code>$xapian::<i>ClassName</i>_<i>CONSTANT_NAME</i></code>.
    So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
    <code>$xapian::DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
    available as <code>$xapian::Query_OP_OR</code>, and so on.

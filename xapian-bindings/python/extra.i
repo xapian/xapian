@@ -1,8 +1,8 @@
 %{
-/* python/extra.i: Xapian scripting python interface additional code.
+/* python/extra.i: Xapian scripting python interface additional python code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -97,8 +97,8 @@ class MSetIter(object):
     """
     __slots__ = ('_iter', '_end', '_mset')
     def __init__(self, mset):
-        self._iter = mset.begin()
-        self._end = mset.end()
+        self._iter = mset._begin()
+        self._end = mset._end()
         self._mset = mset
 
     def __iter__(self):
@@ -183,8 +183,8 @@ class ESetIter(object):
     """
     __slots__ = ('_iter', '_end')
     def __init__(self, eset):
-        self._iter = eset.begin()
-        self._end = eset.end()
+        self._iter = eset._begin()
+        self._end = eset._end()
 
     def __iter__(self):
         return self
@@ -329,8 +329,8 @@ class TermListItem(object):
         # _has_positions.
         if self.term is not self._iter._lastterm:
             raise InvalidOperationError("Iterator has moved, and does not support random access")
-        return PositionIter(self._iter._iter.positionlist_begin(),
-                            self._iter._iter.positionlist_end())
+        return PositionIter(self._iter._iter._positionlist_begin(),
+                            self._iter._iter._positionlist_end())
     positer = property(_get_positer, doc=
     """A position iterator for the current term (if meaningful).
 
@@ -458,8 +458,8 @@ def _enquire_gen_iter(self, which):
     """
     if isinstance(which, MSetItem):
         which = which.docid
-    return TermIter(self.get_matching_terms_begin(which),
-                    self.get_matching_terms_end(which),
+    return TermIter(self._get_matching_terms_begin(which),
+                    self._get_matching_terms_end(which),
                     return_strings=True)
 Enquire.matching_terms = _enquire_gen_iter
 
@@ -470,8 +470,8 @@ def _query_gen_iter(self):
     The iterator will return string objects.
 
     """
-    return TermIter(self.get_terms_begin(),
-                    self.get_terms_end(),
+    return TermIter(self._get_terms_begin(),
+                    self._get_terms_end(),
                     return_strings=True)
 Query.__iter__ = _query_gen_iter
 
@@ -490,10 +490,10 @@ def _database_gen_allterms_iter(self, prefix=None):
 
     """
     if prefix is None:
-        return TermIter(self.allterms_begin(), self.allterms_end(),
+        return TermIter(self._allterms_begin(), self._allterms_end(),
                         has_termfreq=TermIter.LAZY)
     else:
-        return TermIter(self.allterms_begin(prefix), self.allterms_end(prefix),
+        return TermIter(self._allterms_begin(prefix), self._allterms_end(prefix),
                         has_termfreq=TermIter.LAZY)
 Database.__iter__ = _database_gen_allterms_iter
 Database.allterms = _database_gen_allterms_iter
@@ -512,7 +512,7 @@ def _database_gen_termlist_iter(self, docid):
     # frequencies in the termlist (because this would require updating many termlist
     # entries for every document update), so access to the term frequency requires a
     # separate lookup.
-    return TermIter(self.termlist_begin(docid), self.termlist_end(docid),
+    return TermIter(self._termlist_begin(docid), self._termlist_end(docid),
                     has_termfreq=TermIter.LAZY,
                     has_wdf=TermIter.EAGER,
                     has_positions=TermIter.LAZY)
@@ -526,7 +526,7 @@ def _database_gen_spellings_iter(self):
     available; wdf and positions are not meaningful.
 
     """
-    return TermIter(self.spellings_begin(), self.spellings_end(),
+    return TermIter(self._spellings_begin(), self._spellings_end(),
                     has_termfreq=TermIter.EAGER,
                     has_wdf=TermIter.INVALID,
                     has_positions=TermIter.INVALID)
@@ -541,8 +541,8 @@ def _database_gen_synonyms_iter(self, term):
     The iterator will return string objects.
 
     """
-    return TermIter(self.synonyms_begin(term),
-                    self.synonyms_end(term),
+    return TermIter(self._synonyms_begin(term),
+                    self._synonyms_end(term),
                     return_strings=True)
 Database.synonyms = _database_gen_synonyms_iter
 
@@ -555,8 +555,8 @@ def _database_gen_synonym_keys_iter(self, prefix=""):
     If `prefix` is non-empty, only terms with this prefix are returned.
 
     """
-    return TermIter(self.synonym_keys_begin(prefix),
-                    self.synonym_keys_end(prefix),
+    return TermIter(self._synonym_keys_begin(prefix),
+                    self._synonym_keys_end(prefix),
                     return_strings=True)
 Database.synonym_keys = _database_gen_synonym_keys_iter
 
@@ -596,7 +596,7 @@ def _document_gen_termlist_iter(self):
     # are stored in a database, rather than freshly created).  We choose the
     # most conservative settings, to avoid doing eager access when lazy access
     # would be more appropriate.
-    return TermIter(self.termlist_begin(), self.termlist_end(),
+    return TermIter(self._termlist_begin(), self._termlist_end(),
                     has_termfreq=TermIter.LAZY,
                     has_wdf=TermIter.EAGER,
                     has_positions=TermIter.LAZY)
@@ -615,7 +615,7 @@ def _queryparser_gen_stoplist_iter(self):
     The iterator will return string objects.
 
     """
-    return TermIter(self.stoplist_begin(), self.stoplist_end(),
+    return TermIter(self._stoplist_begin(), self._stoplist_end(),
                     return_strings=True)
 QueryParser.stoplist = _queryparser_gen_stoplist_iter
 
@@ -632,7 +632,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     The iterator will return string objects.
 
     """
-    return TermIter(self.unstem_begin(tname), self.unstem_end(tname),
+    return TermIter(self._unstem_begin(tname), self._unstem_end(tname),
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
@@ -642,7 +642,7 @@ def wrapper():
     del ValueCountMatchSpy.values_begin
     end = ValueCountMatchSpy.values_end
     del ValueCountMatchSpy.values_end
-    def values_iter(self):
+    def values(self):
         """Get an iterator over all the values in the slot.
 
         Values will be returned in ascending alphabetical order.
@@ -653,7 +653,7 @@ def wrapper():
 
         """
         return TermIter(begin(self), end(self), has_termfreq=TermIter.EAGER)
-    return values_iter
+    return values
 ValueCountMatchSpy.values = wrapper()
 del wrapper
 
@@ -663,7 +663,7 @@ def wrapper():
     del ValueCountMatchSpy.top_values_begin
     end = ValueCountMatchSpy.top_values_end
     del ValueCountMatchSpy.top_values_end
-    def top_values_iter(self, maxvalues):
+    def top_values(self, maxvalues):
         """Get an iterator over the most frequent values for the slot.
 
         Values will be returned in descending order of frequency.  Values with
@@ -676,7 +676,7 @@ def wrapper():
         """
         return TermIter(begin(self, maxvalues), end(self, maxvalues),
                         has_termfreq=TermIter.EAGER)
-    return top_values_iter
+    return top_values
 ValueCountMatchSpy.top_values = wrapper()
 del wrapper
 
@@ -763,87 +763,31 @@ _termgenerator_set_stopper.__doc__ = __termgenerator_set_stopper_orig.__doc__
 TermGenerator.set_stopper = _termgenerator_set_stopper
 del _termgenerator_set_stopper
 
-def _enquire_check_deprec_args(reverse, kwargs, methodname):
-    """Check the keyword arguments to one of the enquire set_sort_* methods.
-    
-    """
-    if reverse is not None:
-        if 'ascending' in kwargs:
-            raise TypeError('Only one of "reverse" and "ascending" may be specified')
-        if len(kwargs) != 0:
-            raise TypeError('Only keyword arguments allowed are "reverse" and "ascending"')
-    else:
-        import warnings
-        if 'ascending' in kwargs:
-            reverse = kwargs.get('ascending')
-            del kwargs['ascending']
-            warnings.warn("'ascending' as a parameter name to Enquire::" +
-                          methodname + "() is deprecated and will be removed "
-                          "in Xapian 1.3.0", DeprecationWarning)
-        else:
-            warnings.warn("Single argument form of Enquire::" +
-                          methodname + "() is deprecated and will be removed "
-                          "in Xapian 1.3.0", DeprecationWarning)
-            reverse = True
-        if len(kwargs) != 0:
-            raise TypeError('Only keyword arguments allowed are "reverse" and "ascending"')
-    return reverse
-
 # When we set a Sorter on enquire, keep a python reference so it won't be
 # deleted.  This hack can probably be removed once xapian bug #186 is fixed.
 __enquire_set_sort_by_key_orig = Enquire.set_sort_by_key
-def _enquire_set_sort_by_key(self, sorter, reverse=None, **kwargs):
+def _enquire_set_sort_by_key(self, sorter, reverse):
     self._sorter = sorter
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_key")
     return __enquire_set_sort_by_key_orig(self, sorter, reverse)
 _enquire_set_sort_by_key.__doc__ = __enquire_set_sort_by_key_orig.__doc__
 Enquire.set_sort_by_key = _enquire_set_sort_by_key
 del _enquire_set_sort_by_key
 
 __enquire_set_sort_by_key_then_relevance_orig = Enquire.set_sort_by_key_then_relevance
-def _enquire_set_sort_by_key_then_relevance(self, sorter, reverse=None, **kwargs):
+def _enquire_set_sort_by_key_then_relevance(self, sorter, reverse):
     self._sorter = sorter
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_key_then_relevance")
     return __enquire_set_sort_by_key_then_relevance_orig(self, sorter, reverse)
 _enquire_set_sort_by_key_then_relevance.__doc__ = __enquire_set_sort_by_key_then_relevance_orig.__doc__
 Enquire.set_sort_by_key_then_relevance = _enquire_set_sort_by_key_then_relevance
 del _enquire_set_sort_by_key_then_relevance
 
 __enquire_set_sort_by_relevance_then_key_orig = Enquire.set_sort_by_relevance_then_key
-def _enquire_set_sort_by_relevance_then_key(self, sorter, reverse=None, **kwargs):
+def _enquire_set_sort_by_relevance_then_key(self, sorter, reverse):
     self._sorter = sorter
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_relevance_then_key")
     return __enquire_set_sort_by_relevance_then_key_orig(self, sorter, reverse)
 _enquire_set_sort_by_relevance_then_key.__doc__ = __enquire_set_sort_by_relevance_then_key_orig.__doc__
 Enquire.set_sort_by_relevance_then_key = _enquire_set_sort_by_relevance_then_key
 del _enquire_set_sort_by_relevance_then_key
-
-# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
-__enquire_set_sort_by_value_orig = Enquire.set_sort_by_value
-def _enquire_set_sort_by_value(self, sort_key, reverse=None, **kwargs):
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_value")
-    return __enquire_set_sort_by_value_orig(self, sort_key, reverse)
-_enquire_set_sort_by_value.__doc__ = __enquire_set_sort_by_value_orig.__doc__
-Enquire.set_sort_by_value = _enquire_set_sort_by_value
-del _enquire_set_sort_by_value
-
-# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
-__enquire_set_sort_by_relevance_then_value_orig = Enquire.set_sort_by_relevance_then_value
-def _enquire_set_sort_by_relevance_then_value(self, sort_key, reverse=None, **kwargs):
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_relevance_then_value")
-    return __enquire_set_sort_by_relevance_then_value_orig(self, sort_key, reverse)
-_enquire_set_sort_by_relevance_then_value.__doc__ = __enquire_set_sort_by_relevance_then_value_orig.__doc__
-Enquire.set_sort_by_relevance_then_value = _enquire_set_sort_by_relevance_then_value
-del _enquire_set_sort_by_relevance_then_value
-
-# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
-__enquire_set_sort_by_value_then_relevance_orig = Enquire.set_sort_by_value_then_relevance
-def _enquire_set_sort_by_value_then_relevance(self, sort_key, reverse=None, **kwargs):
-    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_value_then_relevance")
-    return __enquire_set_sort_by_value_then_relevance_orig(self, sort_key, reverse)
-_enquire_set_sort_by_value_then_relevance.__doc__ = __enquire_set_sort_by_value_then_relevance_orig.__doc__
-Enquire.set_sort_by_value_then_relevance = _enquire_set_sort_by_value_then_relevance
-del _enquire_set_sort_by_value_then_relevance
 
 
 ##########################################
@@ -895,8 +839,8 @@ class PostingItem(object):
         if self._iter._iter == self._iter._end or \
            self.docid != self._iter._iter.get_docid():
             raise InvalidOperationError("Iterator has moved, and does not support random access")
-        return PositionIter(self._iter._iter.positionlist_begin(),
-                            self._iter._iter.positionlist_end())
+        return PositionIter(self._iter._iter._positionlist_begin(),
+                            self._iter._iter._positionlist_end())
     positer = property(_get_positer, doc=
     """A position iterator for the current posting (if meaningful).
 
@@ -988,10 +932,10 @@ def _database_gen_postlist_iter(self, tname):
 
     """
     if len(tname) != 0:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname),
+        return PostingIter(self._postlist_begin(tname), self._postlist_end(tname),
                            has_positions=True)
     else:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
+        return PostingIter(self._postlist_begin(tname), self._postlist_end(tname))
 Database.postlist = _database_gen_postlist_iter
 
 
@@ -1037,7 +981,7 @@ def _database_gen_positionlist_iter(self, docid, tname):
     The iterator will return integers, in ascending order.
 
     """
-    return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
+    return PositionIter(self._positionlist_begin(docid, tname), self._positionlist_end(docid, tname))
 Database.positionlist = _database_gen_positionlist_iter
 
 ########################################
@@ -1098,7 +1042,7 @@ def _document_gen_values_iter(self):
     The iterator will return ValueItem objects, in ascending order of value number.
 
     """
-    return ValueIter(self.values_begin(), self.values_end())
+    return ValueIter(self._values_begin(), self._values_end())
 Document.values = _document_gen_values_iter
 
 
@@ -1185,8 +1129,10 @@ class ValueStreamIter(object):
 # valuestream_begin() and valuestream_end() methods.
 def wrapper():
     vs_begin = Database.valuestream_begin
+    del Database.valuestream_begin
     vs_end = Database.valuestream_end
-    def _database_gen_valuestream_iter(self, slot):
+    del Database.valuestream_end
+    def valuestream(self, slot):
         """Get an iterator over all the values stored in a slot in the database.
 
         The iterator will return ValueStreamItem objects, in ascending order of
@@ -1194,11 +1140,9 @@ def wrapper():
 
         """
         return ValueStreamIter(vs_begin(self, slot), vs_end(self, slot))
-    return _database_gen_valuestream_iter
+    return valuestream
 Database.valuestream = wrapper()
 del wrapper
-del Database.valuestream_begin
-del Database.valuestream_end
 
 # Fix up Enquire so that it keeps a python reference to the deciders supplied
 # to it so that they won't be deleted before the Enquire object.  This hack can
@@ -1235,19 +1179,11 @@ Stem.__init__ = _stem_init
 # Remove static methods which shouldn't be in the API.
 del Document_unserialise
 del Query_unserialise
+del Stem_get_available_languages
 
 # Add wrappers for Query::MatchAll and Query::MatchNothing
 Query.MatchAll = Query("")
 Query.MatchNothing = Query()
-
-# Require to support the non-pythonic iterators for Python 3 - these can be
-# removed once support for the non-pythonic iterators is dropped in 1.3.0.
-ESetIterator.__next__ = lambda self: ESetIterator.next(self)
-MSetIterator.__next__ = lambda self: MSetIterator.next(self)
-PostingIterator.__next__ = lambda self: PostingIterator.next(self)
-PositionIterator.__next__ = lambda self: PositionIterator.next(self)
-TermIterator.__next__ = lambda self: TermIterator.next(self)
-ValueIterator.__next__ = lambda self: ValueIterator.next(self)
 
 
 # Set the list of names which should be public.

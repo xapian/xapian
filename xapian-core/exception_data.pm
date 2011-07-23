@@ -1,6 +1,6 @@
 # exception_data.pm: details of the exception hierarchy used by Xapian.
 #
-# Copyright (C) 2003,2004,2006,2007,2008,2009 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2009,2011 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -20,10 +20,13 @@
 package exception_data;
 use Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw($copyright $generated_warning @baseclasses @classes %subclasses);
+@EXPORT = qw(
+    $copyright $generated_warning @baseclasses @classes %subclasses %classcode
+);
 
 $copyright = <<'EOF';
-/* Copyright (C) 2003,2004,2006,2007,2009 Olly Betts
+/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +50,7 @@ $generated_warning =
 @baseclasses = ();
 @classes = ();
 %subclasses = ();
+%classcode = ();
 
 sub errorbaseclass {
     push @baseclasses, join("\t", @_);
@@ -54,8 +58,11 @@ sub errorbaseclass {
 }
 
 sub errorclass {
+    my $typecode = shift;
+    my ($class, $parent) = @_;
     push @classes, join("\t", @_);
-    push @{$subclasses{$_[1]}}, $_[0];
+    push @{$subclasses{$parent}}, $class;
+    $classcode{$class} = $typecode;
 }
 
 errorbaseclass('LogicError', 'Error', <<'DOC');
@@ -66,7 +73,7 @@ errorbaseclass('LogicError', 'Error', <<'DOC');
  */
 DOC
 
-errorclass('AssertionError', 'LogicError', <<'DOC');
+errorclass(0, 'AssertionError', 'LogicError', <<'DOC');
 /** AssertionError is thrown if a logical assertion inside Xapian fails.
  *
  *  In a debug build of Xapian, a failed assertion in the core library code
@@ -77,17 +84,17 @@ errorclass('AssertionError', 'LogicError', <<'DOC');
  */
 DOC
 
-errorclass('InvalidArgumentError', 'LogicError', <<'DOC');
+errorclass(1, 'InvalidArgumentError', 'LogicError', <<'DOC');
 /** InvalidArgumentError indicates an invalid parameter value was passed to the API.
 */
 DOC
 
-errorclass('InvalidOperationError', 'LogicError', <<'DOC');
+errorclass(2, 'InvalidOperationError', 'LogicError', <<'DOC');
 /** InvalidOperationError indicates the API was used in an invalid way.
  */
 DOC
 
-errorclass('UnimplementedError', 'LogicError', <<'DOC');
+errorclass(3, 'UnimplementedError', 'LogicError', <<'DOC');
 /** UnimplementedError indicates an attempt to use an unimplemented feature. */
 DOC
 
@@ -103,23 +110,23 @@ errorbaseclass('RuntimeError', 'Error', <<'DOC');
  */
 DOC
 
-errorclass('DatabaseError', 'RuntimeError', <<'DOC');
+errorclass(4, 'DatabaseError', 'RuntimeError', <<'DOC');
 /** DatabaseError indicates some sort of database related error. */
 DOC
 
-errorclass('DatabaseCorruptError', 'DatabaseError', <<'DOC');
+errorclass(5, 'DatabaseCorruptError', 'DatabaseError', <<'DOC');
 /** DatabaseCorruptError indicates database corruption was detected. */
 DOC
 
-errorclass('DatabaseCreateError', 'DatabaseError', <<'DOC');
+errorclass(6, 'DatabaseCreateError', 'DatabaseError', <<'DOC');
 /** DatabaseCreateError indicates a failure to create a database. */
 DOC
 
-errorclass('DatabaseLockError', 'DatabaseError', <<'DOC');
+errorclass(7, 'DatabaseLockError', 'DatabaseError', <<'DOC');
 /** DatabaseLockError indicates failure to lock a database. */
 DOC
 
-errorclass('DatabaseModifiedError', 'DatabaseError', <<'DOC');
+errorclass(8, 'DatabaseModifiedError', 'DatabaseError', <<'DOC');
 /** DatabaseModifiedError indicates a database was modified.
  *
  *  To recover after catching this error, you need to call
@@ -128,11 +135,11 @@ errorclass('DatabaseModifiedError', 'DatabaseError', <<'DOC');
  */
 DOC
 
-errorclass('DatabaseOpeningError', 'DatabaseError', <<'DOC');
+errorclass(9, 'DatabaseOpeningError', 'DatabaseError', <<'DOC');
 /** DatabaseOpeningError indicates failure to open a database. */
 DOC
 
-errorclass('DatabaseVersionError', 'DatabaseOpeningError', <<'DOC');
+errorclass(10, 'DatabaseVersionError', 'DatabaseOpeningError', <<'DOC');
 /** DatabaseVersionError indicates that a database is in an unsupported format.
  *
  *  From time to time, new versions of Xapian will require the database format
@@ -146,11 +153,11 @@ errorclass('DatabaseVersionError', 'DatabaseOpeningError', <<'DOC');
  */
 DOC
 
-errorclass('DocNotFoundError', 'RuntimeError', <<'DOC');
+errorclass(11, 'DocNotFoundError', 'RuntimeError', <<'DOC');
 /** Indicates an attempt to access a document not present in the database. */
 DOC
 
-errorclass('FeatureUnavailableError', 'RuntimeError', <<'DOC');
+errorclass(12, 'FeatureUnavailableError', 'RuntimeError', <<'DOC');
 /** Indicates an attempt to use a feature which is unavailable.
  *
  *  Typically a feature is unavailable because it wasn't compiled in, or
@@ -158,27 +165,27 @@ errorclass('FeatureUnavailableError', 'RuntimeError', <<'DOC');
  */
 DOC
 
-errorclass('InternalError', 'RuntimeError', <<'DOC');
+errorclass(13, 'InternalError', 'RuntimeError', <<'DOC');
 /** InternalError indicates a runtime problem of some sort. */
 DOC
 
-errorclass('NetworkError', 'RuntimeError', <<'DOC');
+errorclass(14, 'NetworkError', 'RuntimeError', <<'DOC');
 /** Indicates a problem communicating with a remote database. */
 DOC
 
-errorclass('NetworkTimeoutError', 'NetworkError', <<'DOC');
+errorclass(15, 'NetworkTimeoutError', 'NetworkError', <<'DOC');
 /** Indicates a timeout expired while communicating with a remote database. */
 DOC
 
-errorclass('QueryParserError', 'RuntimeError', <<'DOC');
+errorclass(16, 'QueryParserError', 'RuntimeError', <<'DOC');
 /** Indicates a query string can't be parsed. */
 DOC
 
-errorclass('SerialisationError', 'RuntimeError', <<'DOC');
+errorclass(17, 'SerialisationError', 'RuntimeError', <<'DOC');
 /** Indicates an error in the std::string serialisation of an object. */
 DOC
 
-errorclass('RangeError', 'RuntimeError', <<'DOC');
+errorclass(18, 'RangeError', 'RuntimeError', <<'DOC');
 /** RangeError indicates an attempt to access outside the bounds of a container.
  */
 DOC

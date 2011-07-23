@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -945,6 +945,69 @@ static bool test_qp_flag_wildcard2()
 #endif
 }
 
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+static void
+test_qp_flag_wildcard1_helper(const Xapian::Database &db,
+			      Xapian::termcount max_expansion,
+			      const string & query_string)
+{
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    qp.set_max_wildcard_expansion(max_expansion);
+    Xapian::Enquire e(db);
+    e.set_query(qp.parse_query(query_string, Xapian::QueryParser::FLAG_WILDCARD));
+    // The exception for expanding too much may happen at parse time or later
+    // so we need to calculate the MSet too.
+    e.get_mset(0, 10);
+}
+#endif
+
+// Test right truncation with a limit on expansion.
+static bool test_qp_flag_wildcard3()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("muscat");
+    doc.add_term("muscle");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    db.add_document(doc);
+
+    // Test that a max of 0 doesn't set a limit.
+    test_qp_flag_wildcard1_helper(db, 0, "z*");
+    test_qp_flag_wildcard1_helper(db, 0, "m*");
+
+    // These cases should expand to the limit given.
+    test_qp_flag_wildcard1_helper(db, 1, "z*");
+    test_qp_flag_wildcard1_helper(db, 1, "ab*");
+    test_qp_flag_wildcard1_helper(db, 2, "muscle*");
+    test_qp_flag_wildcard1_helper(db, 4, "musc*");
+    test_qp_flag_wildcard1_helper(db, 4, "mus*");
+    test_qp_flag_wildcard1_helper(db, 5, "mu*");
+    test_qp_flag_wildcard1_helper(db, 6, "m*");
+
+    // These cases should expand to one more than the limit.
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 1, "muscle*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "musc*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "mus*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 4, "mu*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 5, "m*"));
+
+    return true;
+#endif
+}
+
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
@@ -1716,8 +1779,8 @@ static const test test_mispelled_queries[] = {
 // Test spelling correction in the QueryParser.
 static bool test_qp_spell1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     Xapian::Document doc;
@@ -1752,15 +1815,15 @@ static bool test_qp_spell1()
 // Test spelling correction in the QueryParser with multiple databases.
 static bool test_qp_spell2()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell2";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spell2";
     Xapian::WritableDatabase db1(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db1.add_spelling("document");
     db1.add_spelling("search");
     db1.commit();
 
-    dbdir = ".flint/qp_spell2b";
+    dbdir = ".chert/qp_spell2b";
     Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db2.add_spelling("document");
@@ -1799,8 +1862,8 @@ static const test test_mispelled_wildcard_queries[] = {
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellwild1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spellwild1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spellwild1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -1848,8 +1911,8 @@ static const test test_mispelled_partial_queries[] = {
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellpartial1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spellpartial1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spellpartial1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -1892,8 +1955,8 @@ static const test test_synonym_queries[] = {
 // Test single term synonyms in the QueryParser.
 static bool test_qp_synonym1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("Zsearch", "Zfind");
@@ -1934,8 +1997,8 @@ static const test test_multi_synonym_queries[] = {
 // Test multi term synonyms in the QueryParser.
 static bool test_qp_synonym2()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym2";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym2";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("sun tan cream", "lotion");
@@ -1985,8 +2048,8 @@ static const test test_synonym_op_queries[] = {
 // Test the synonym operator in the QueryParser.
 static bool test_qp_synonym3()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym3";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym3";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("Zsearch", "Zfind");
@@ -2106,8 +2169,8 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 // size of the query.
 static bool test_qp_scale1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_scale1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_scale1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("foo", "bar");
@@ -2151,14 +2214,14 @@ static const test test_near_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give NEAR 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) NEAR 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) NEAR 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) NEAR 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) NEAR 12 Zbar:(pos=2) NEAR 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) NEAR 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) NEAR 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) NEAR 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) NEAR 12 bar:(pos=2) NEAR 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) NEAR 12 Zanim:(pos=2) NEAR 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2175,7 +2238,7 @@ static const test test_near_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) NEAR 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) NEAR 11 space:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -2223,14 +2286,14 @@ static const test test_phrase_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give PHRASE 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) PHRASE 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) PHRASE 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) PHRASE 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) PHRASE 12 Zbar:(pos=2) PHRASE 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) PHRASE 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) PHRASE 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) PHRASE 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) PHRASE 12 bar:(pos=2) PHRASE 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) PHRASE 12 Zanim:(pos=2) PHRASE 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2247,7 +2310,9 @@ static const test test_phrase_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) PHRASE 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) PHRASE 11 space:(pos=2))" },
+    // FIXME: this isn't what we want, but fixing phrase to work with
+    // subqueries first might be the best approach.
     { "(one AND two) three", "((Zone:(pos=1) PHRASE 11 Zthree:(pos=3)) AND (Ztwo:(pos=2) PHRASE 11 Zthree:(pos=3)))" },
     { NULL, NULL }
 };
@@ -2406,6 +2471,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_odd_chars1),
     TESTCASE(qp_flag_wildcard1),
     TESTCASE(qp_flag_wildcard2),
+    TESTCASE(qp_flag_wildcard3),
     TESTCASE(qp_flag_partial1),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),

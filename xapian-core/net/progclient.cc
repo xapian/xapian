@@ -72,7 +72,7 @@ ProgClient::ProgClient(const string &progname, const string &args,
         ),
 			 timeout_, get_progcontext(progname, args), writable)
 {
-    LOGCALL_VOID(DB, "ProgClient::ProgClient", progname | args | timeout_ | writable);
+    LOGCALL_CTOR(DB, "ProgClient", progname | args | timeout_ | writable);
 }
 
 string

@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 
 #include "xapian-check-brass.h"
 #include "xapian-check-chert.h"
-#include "xapian-check-flint.h"
 
 #include "chert_check.h" // For OPT_SHORT_TREE, etc.
 #include "stringutils.h"
@@ -46,6 +45,8 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
+"If a whole database is checked, then additional cross-checks between\n"
+"the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
@@ -124,49 +125,7 @@ main(int argc, char **argv)
 	size_t errors = 0;
 	struct stat sb;
 	string dir(argv[1]);
-	if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-	    throw "Flint database support isn't enabled";
-#else
-	    // Check a whole flint database directory.
-	    try {
-		Xapian::Database db = Xapian::Flint::open(dir);
-		Xapian::docid db_last_docid = db.get_lastdocid();
-		reserve_doclens(doclens, db_last_docid);
-	    } catch (const Xapian::Error & e) {
-		// Ignore so we can check a database too broken to open.
-		cout << "Database couldn't be opened for reading: "
-		     << e.get_description()
-		     << "\nContinuing check anyway" << endl;
-		++errors;
-	    }
-	    // This is a flint directory so try to check all the btrees.
-	    // Note: it's important to check termlist before postlist so
-	    // that we can cross-check the document lengths.
-	    const char * tables[] = {
-		"record", "termlist", "postlist", "position", "value",
-		"spelling", "synonym"
-	    };
-	    for (const char **t = tables;
-		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-		string table(dir);
-		table += '/';
-		table += *t;
-		cout << *t << ":\n";
-		if (strcmp(*t, "position") == 0 ||
-		    strcmp(*t, "value") == 0 ||
-		    strcmp(*t, "spelling") == 0 ||
-		    strcmp(*t, "synonym") == 0) {
-		    // These are created lazily, so may not exist.
-		    if (!file_exists(table + ".DB")) {
-			cout << "Lazily created, and not yet used.\n" << endl;
-			continue;
-		    }
-		}
-		errors += check_flint_table(*t, table, opts, doclens);
-	    }
-#endif
-	} else if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
+	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
 	    throw "Chert database support isn't enabled";
 #else
@@ -263,6 +222,12 @@ main(int argc, char **argv)
 	    }
 #endif
 	} else {
+	    if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
+		// Flint is no longer supported as of Xapian 1.3.0.
+		cerr << argv[0] << ": '" << dir << "' is a flint database.\n"
+			"Support for flint was dropped in Xapian 1.3.0" << endl;
+		exit(1);
+	    }
 	    if (stat((dir + "/record_DB").c_str(), &sb) == 0) {
 		// Quartz is no longer supported as of Xapian 1.1.0.
 		cerr << argv[0] << ": '" << dir << "' is a quartz database.\n"
@@ -294,14 +259,7 @@ main(int argc, char **argv)
 
 	    // If we're passed a "naked" table (with no accompanying files)
 	    // assume it is chert.
-	    if (file_exists(path + "iamflint")) {
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-		throw "Flint database support isn't enabled";
-#else
-		errors = check_flint_table(tablename.c_str(), filename, opts,
-					   doclens);
-#endif
-	    } else if (file_exists(path + "iambrass")) {
+	    if (file_exists(path + "iambrass")) {
 #ifndef XAPIAN_HAS_BRASS_BACKEND
 		throw "Brass database support isn't enabled";
 #else
@@ -310,6 +268,11 @@ main(int argc, char **argv)
 		errors = check_brass_table(tablename.c_str(), filename, opts,
 					   doclens, db_last_docid);
 #endif
+	    } else if (file_exists(path + "iamflint")) {
+		// Flint is no longer supported as of Xapian 1.3.0.
+		cerr << argv[0] << ": '" << dir << "' is a flint database.\n"
+			"Support for flint was dropped in Xapian 1.3.0" << endl;
+		exit(1);
 	    } else {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
 		throw "Chert database support isn't enabled";

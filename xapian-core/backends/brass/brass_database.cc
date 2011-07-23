@@ -72,6 +72,7 @@
 
 using namespace std;
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
 // The maximum safe term length is determined by the postlist.  There we
 // store the term using pack_string_preserving_sort() which takes the
@@ -171,7 +172,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 
 BrassDatabase::~BrassDatabase()
 {
-    LOGCALL_DTOR(DB, "~BrassDatabase");
+    LOGCALL_DTOR(DB, "BrassDatabase");
 }
 
 bool
@@ -208,10 +209,10 @@ BrassDatabase::create_and_open_tables(unsigned int block_size)
     stats.zero();
 }
 
-void
+bool
 BrassDatabase::open_tables_consistent()
 {
-    LOGCALL_VOID(DB, "BrassDatabase::open_tables_consistent", NO_ARGS);
+    LOGCALL(DB, bool, "BrassDatabase::open_tables_consistent", NO_ARGS);
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -231,7 +232,7 @@ BrassDatabase::open_tables_consistent()
     if (cur_rev && cur_rev == revision) {
 	// We're reopening a database and the revision hasn't changed so we
 	// don't need to do anything.
-	return;
+	RETURN(false);
     }
 
     // Set the block_size for optional tables as they may not currently exist.
@@ -282,6 +283,7 @@ BrassDatabase::open_tables_consistent()
     }
 
     stats.read(postlist_table);
+    return true;
 }
 
 void
@@ -494,11 +496,12 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
     }
 }
 
-void
+bool
 BrassDatabase::reopen()
 {
-    LOGCALL_VOID(DB, "BrassDatabase::reopen", NO_ARGS);
-    if (readonly) open_tables_consistent();
+    LOGCALL(DB, bool, "BrassDatabase::reopen", NO_ARGS);
+    if (!readonly) return false;
+    return open_tables_consistent();
 }
 
 void
@@ -810,7 +813,7 @@ BrassDatabase::get_doclength(Xapian::docid did) const
 {
     LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_doclength", did);
     Assert(did != 0);
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
@@ -831,24 +834,24 @@ BrassDatabase::get_collection_freq(const string & term) const
 }
 
 Xapian::doccount
-BrassDatabase::get_value_freq(Xapian::valueno valno) const
+BrassDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_value_freq", valno);
-    RETURN(value_manager.get_value_freq(valno));
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_value_freq", slot);
+    RETURN(value_manager.get_value_freq(slot));
 }
 
 std::string
-BrassDatabase::get_value_lower_bound(Xapian::valueno valno) const
+BrassDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassDatabase::get_value_lower_bound", valno);
-    RETURN(value_manager.get_value_lower_bound(valno));
+    LOGCALL(DB, std::string, "BrassDatabase::get_value_lower_bound", slot);
+    RETURN(value_manager.get_value_lower_bound(slot));
 }
 
 std::string
-BrassDatabase::get_value_upper_bound(Xapian::valueno valno) const
+BrassDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassDatabase::get_value_upper_bound", valno);
-    RETURN(value_manager.get_value_upper_bound(valno));
+    LOGCALL(DB, std::string, "BrassDatabase::get_value_upper_bound", slot);
+    RETURN(value_manager.get_value_upper_bound(slot));
 }
 
 Xapian::termcount
@@ -887,7 +890,7 @@ LeafPostList *
 BrassDatabase::open_post_list(const string& term) const
 {
     LOGCALL(DB, LeafPostList *, "BrassDatabase::open_post_list", term);
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
@@ -904,7 +907,7 @@ ValueList *
 BrassDatabase::open_value_list(Xapian::valueno slot) const
 {
     LOGCALL(DB, ValueList *, "BrassDatabase::open_value_list", slot);
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(new BrassValueList(slot, ptrtothis));
 }
 
@@ -916,7 +919,7 @@ BrassDatabase::open_term_list(Xapian::docid did) const
     if (!termlist_table.is_open())
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
-    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(new BrassTermList(ptrtothis, did));
 }
 
@@ -930,7 +933,7 @@ BrassDatabase::open_document(Xapian::docid did, bool lazy) const
 	(void)get_doclength(did);
     }
 
-    Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
+    intrusive_ptr<const Database::Internal> ptrtothis(this);
     RETURN(new BrassDocument(ptrtothis, did, &value_manager, &record_table));
 }
 
@@ -953,7 +956,7 @@ TermList *
 BrassDatabase::open_allterms(const string & prefix) const
 {
     LOGCALL(DB, TermList *, "BrassDatabase::open_allterms", NO_ARGS);
-    RETURN(new BrassAllTermsList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    RETURN(new BrassAllTermsList(intrusive_ptr<const BrassDatabase>(this),
 				 prefix));
 }
 
@@ -968,7 +971,7 @@ BrassDatabase::open_spelling_wordlist() const
 {
     BrassCursor * cursor = spelling_table.cursor_get();
     if (!cursor) return NULL;
-    return new BrassSpellingWordsList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    return new BrassSpellingWordsList(intrusive_ptr<const BrassDatabase>(this),
 				      cursor);
 }
 
@@ -989,7 +992,7 @@ BrassDatabase::open_synonym_keylist(const string & prefix) const
 {
     BrassCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
-    return new BrassSynonymTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    return new BrassSynonymTermList(intrusive_ptr<const BrassDatabase>(this),
 				    cursor, prefix);
 }
 
@@ -1007,10 +1010,10 @@ BrassDatabase::get_metadata(const string & key) const
 TermList *
 BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "BrassDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList *, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
-    return new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+    return new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
 				     cursor, prefix);
 }
 
@@ -1051,7 +1054,7 @@ BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
 
 BrassWritableDatabase::~BrassWritableDatabase()
 {
-    LOGCALL_DTOR(DB, "~BrassWritableDatabase");
+    LOGCALL_DTOR(DB, "BrassWritableDatabase");
     dtor_called();
 }
 
@@ -1194,7 +1197,7 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	value_manager.delete_document(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
+	intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 	BrassTermList termlist(ptrtothis, did);
 
 	stats.delete_document(termlist.get_doclength());
@@ -1248,7 +1251,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 
 	if (!termlist_table.is_open()) {
 	    // We can replace an *unused* docid <= last_docid too.
-	    Xapian::Internal::RefCntPtr<const BrassDatabase> ptrtothis(this);
+	    intrusive_ptr<const BrassDatabase> ptrtothis(this);
 	    if (!postlist_table.document_exists(did, ptrtothis)) {
 		(void)add_document_(did, document);
 		return;
@@ -1281,7 +1284,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
+	    intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
 	    brass_doclen_t old_doclen = termlist.get_doclength();
@@ -1431,33 +1434,33 @@ BrassWritableDatabase::get_collection_freq(const string & term) const
 }
 
 Xapian::doccount
-BrassWritableDatabase::get_value_freq(Xapian::valueno valno) const
+BrassWritableDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_value_freq", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.freq);
-    RETURN(BrassDatabase::get_value_freq(valno));
+    RETURN(BrassDatabase::get_value_freq(slot));
 }
 
 std::string
-BrassWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
+BrassWritableDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_lower_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.lower_bound);
-    RETURN(BrassDatabase::get_value_lower_bound(valno));
+    RETURN(BrassDatabase::get_value_lower_bound(slot));
 }
 
 std::string
-BrassWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
+BrassWritableDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "BrassWritableDatabase::get_value_upper_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.upper_bound);
-    RETURN(BrassDatabase::get_value_upper_bound(valno));
+    RETURN(BrassDatabase::get_value_upper_bound(slot));
 }
 
 bool
@@ -1471,7 +1474,7 @@ LeafPostList *
 BrassWritableDatabase::open_post_list(const string& tname) const
 {
     LOGCALL(DB, LeafPostList *, "BrassWritableDatabase::open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
+    intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();
@@ -1580,7 +1583,7 @@ BrassWritableDatabase::clear_synonyms(const string & term) const
 void
 BrassWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    LOGCALL(DB, string, "BrassWritableDatabase::set_metadata", key | value);
+    LOGCALL_VOID(DB, "BrassWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

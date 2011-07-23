@@ -329,30 +329,16 @@ set_probabilistic(const string &oldp)
     // Check new query against the previous one
     if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
 
-    // Long, long ago we used "word1#word2#" (with trailing #) but some broken
-    // old browsers (versions of MSIE) don't quote # in form GET submissions
-    // and everything after the # gets interpreted as an anchor.  We now allow
-    // terms like `c#' so we want to avoid '#' anyway.
-    //
-    // So we switched to using "word1.word2." but that doesn't work if
-    // the terms contain "." themselves (e.g. Tapplication/vnd.ms-excel)
-    // so now we use "word1\tword2" instead (with no trailing separator).
-    //
-    // However for compatibility with templates which haven't been updated and
-    // bookmarked queries from Omega 0.9.6 and earlier we still support ".".
-    char separator = '\t';
-    unsigned int n_old_terms = count(oldp.begin(), oldp.end(), '\t') + 1;
-    if (n_old_terms == 1 && oldp[oldp.size() - 1] == '.') {
-	separator = '.';
-	n_old_terms = count(oldp.begin(), oldp.end(), '.');
-    }
+    // The terms in OLDP are separated by tabs.
+    const char oldp_separator = '\t';
+    size_t n_old_terms = count(oldp.begin(), oldp.end(), oldp_separator) + 1;
 
     // short-cut: if the new query has fewer terms, it must be a new one
     if (n_new_terms < n_old_terms) return NEW_QUERY;
 
     const char *term = oldp.c_str();
     const char *pend;
-    while ((pend = strchr(term, separator)) != NULL) {
+    while ((pend = strchr(term, oldp_separator)) != NULL) {
 	if (termset.find(string(term, pend - term)) == termset.end())
 	    return NEW_QUERY;
 	term = pend + 1;
@@ -1992,7 +1978,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_version:
-		value = "Xapian - "PACKAGE" "VERSION;
+		value = PACKAGE_STRING;
 		break;
 	    case CMD_weight:
 		value = double_to_string(weight);

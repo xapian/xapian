@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** @private @internal Constructor is only used by internal classes.
 	 *
@@ -86,9 +86,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  Returns an empty string if no value with the given number is present
 	 *  in the document.
 	 *
-	 *  @param valueno The number of the value.
+	 *  @param slot The number of the value.
 	 */
-	std::string get_value(Xapian::valueno valueno) const;
+	std::string get_value(Xapian::valueno slot) const;
 
 	/** Add a new value.
 	 *
@@ -96,10 +96,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  (or if the new value is empty, it will remove any existing value
 	 *  with the same number).
 	 */
-	void add_value(Xapian::valueno valueno, const std::string &value);
+	void add_value(Xapian::valueno slot, const std::string &value);
 
 	/// Remove any value with the given number.
-	void remove_value(Xapian::valueno valueno);
+	void remove_value(Xapian::valueno slot);
 
 	/// Remove all values associated with the document.
 	void clear_values();
@@ -206,7 +206,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/// Equivalent end iterator for termlist_begin().
 	TermIterator termlist_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Count the values in this document.

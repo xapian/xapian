@@ -21,14 +21,14 @@
 #ifndef XAPIAN_INCLUDED_SUBMATCH_H
 #define XAPIAN_INCLUDED_SUBMATCH_H
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 
 #include "omenquireinternal.h"
 #include "postlist.h"
 #include "xapian/weight.h"
 
-class SubMatch : public Xapian::Internal::RefCntBase {
+class SubMatch : public Xapian::Internal::intrusive_base {
   public:
     /** Virtual destructor.
      *

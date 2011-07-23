@@ -179,7 +179,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 
 	if (hostent == 0) {
 	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-		"",
 #ifdef __WIN32__
 		socket_errno()
 #else

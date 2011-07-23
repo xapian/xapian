@@ -8,6 +8,9 @@ noinst_HEADERS +=\
 	languages/steminternal.h
 
 snowball_algorithms =\
+	languages/armenian.sbl\
+	languages/basque.sbl\
+	languages/catalan.sbl\
 	languages/danish.sbl\
 	languages/dutch.sbl\
 	languages/english.sbl\

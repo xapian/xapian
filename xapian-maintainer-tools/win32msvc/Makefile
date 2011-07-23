@@ -139,9 +139,9 @@ COPYMAKFILES:
    if exist $(XAPIAN_BINDINGS) copy setup.py $(XAPIAN_BINDINGS)\python
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\Makefile
    if exist $(XAPIAN_BINDINGS) copy version.rc.php $(XAPIAN_BINDINGS)\php\version.rc
-   if exist $(XAPIAN_BINDINGS) copy win32_bindings_java-swig.mak $(XAPIAN_BINDINGS)\java-swig\Makefile
-   if exist $(XAPIAN_BINDINGS) copy version.rc.java-swig $(XAPIAN_BINDINGS)\java-swig\version.rc
-   if exist $(XAPIAN_BINDINGS) copy WriteJavaVersion.java $(XAPIAN_BINDINGS)\java-swig\WriteJavaVersion.java
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_java.mak $(XAPIAN_BINDINGS)\java\Makefile
+   if exist $(XAPIAN_BINDINGS) copy version.rc.java $(XAPIAN_BINDINGS)\java\version.rc
+   if exist $(XAPIAN_BINDINGS) copy WriteJavaVersion.java $(XAPIAN_BINDINGS)\java\WriteJavaVersion.java
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_ruby.mak $(XAPIAN_BINDINGS)\ruby\Makefile
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_csharp.mak $(XAPIAN_BINDINGS)\csharp\Makefile
    if exist $(XAPIAN_BINDINGS) copy version.rc.csharp $(XAPIAN_BINDINGS)\csharp\version.rc
@@ -178,8 +178,9 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    nmake PHP_VER=53 CLEAN
    nmake PHP_VER=53 DIST
    
-# Java-Swig bindings do not work in this release, see http://trac.xapian.org/ticket/474
-#   cd $(XAPIAN_BINDINGS)\java-swig
+# Java bindings didn't work, see http://trac.xapian.org/ticket/474
+# That issue is fixed, needs testing again
+#   cd $(XAPIAN_BINDINGS)\java
 #   nmake CLEAN
 #   nmake DIST
    cd $(XAPIAN_BINDINGS)\csharp

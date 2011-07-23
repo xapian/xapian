@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@
 #include <xapian/valueiterator.h>
 
 using std::make_pair;
+using Xapian::Internal::intrusive_ptr;
 
 inline void
 InMemoryTerm::add_posting(const InMemoryPosting & post)
@@ -76,7 +77,7 @@ InMemoryDoc::add_posting(const InMemoryTermEntry & post)
 // Postlist //
 //////////////
 
-InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
+InMemoryPostList::InMemoryPostList(intrusive_ptr<const InMemoryDatabase> db_,
 				   const InMemoryTerm & imterm,
 				   const std::string & term_)
 	: LeafPostList(term_),
@@ -182,7 +183,7 @@ InMemoryPostList::get_wdf() const
 // Termlist //
 //////////////
 
-InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
+InMemoryTermList::InMemoryTermList(intrusive_ptr<const InMemoryDatabase> db_,
 				   Xapian::docid did_,
 				   const InMemoryDoc & doc,
 				   Xapian::termcount len)
@@ -292,7 +293,7 @@ InMemoryTermList::positionlist_begin() const
 // InMemoryAllDocsPostList //
 /////////////////////////////
 
-InMemoryAllDocsPostList::InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_)
+InMemoryAllDocsPostList::InMemoryAllDocsPostList(intrusive_ptr<const InMemoryDatabase> db_)
 	: LeafPostList(std::string()), did(0), db(db_)
 {
 }
@@ -397,10 +398,11 @@ InMemoryDatabase::~InMemoryDatabase()
     dtor_called();
 }
 
-void
+bool
 InMemoryDatabase::reopen()
 {
     if (closed) InMemoryDatabase::throw_database_closed();
+    return false;
 }
 
 void
@@ -422,7 +424,7 @@ InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (tname.empty()) {
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
+	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
@@ -431,7 +433,7 @@ InMemoryDatabase::open_post_list(const string & tname) const
 	// Check that our dummy entry for string() is present.
 	Assert(i->first.empty());
     }
-    Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
+    intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
     return new InMemoryPostList(ptrtothis, i->second, tname);
 }
 
@@ -536,7 +538,7 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
-    return new InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this), did,
+    return new InMemoryTermList(intrusive_ptr<const InMemoryDatabase>(this), did,
 				termlists[did - 1], doclengths[did - 1]);
 }
 
@@ -676,7 +678,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 				 string(" not found"));
     }
     termlists[did-1].is_valid = false;
-    doclists[did-1] = "";
+    doclists[did-1] = string();
     map<Xapian::valueno, string>::const_iterator j;
     for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
 	map<Xapian::valueno, ValueStats>::iterator i;
@@ -905,7 +907,7 @@ InMemoryDatabase::open_allterms(const string & prefix) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     return new InMemoryAllTermsList(&postlists,
-				    Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
+				    intrusive_ptr<const InMemoryDatabase>(this),
 				    prefix);
 }
 

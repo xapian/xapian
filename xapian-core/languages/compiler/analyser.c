@@ -79,9 +79,7 @@ static void count_error(struct analyser * a) {
 static void error2(struct analyser * a, int n, int x) {
     struct tokeniser * t = a->tokeniser;
     count_error(a);
-    fprintf(stderr, "Line %d", t->line_number);
-    if (t->get_depth > 0) fprintf(stderr, " (of included file)");
-    fprintf(stderr, ": ");
+    fprintf(stderr, "%s:%d: ", t->file, t->line_number);
     if (n >= 30) report_b(stderr, t->b);
     switch (n) {
         case 0:
@@ -144,7 +142,7 @@ static void error(struct analyser * a, int n) { error2(a, n, 0); }
 
 static void error3(struct analyser * a, struct node * p, symbol * b) {
     count_error(a);
-    fprintf(stderr, "among(...) on line %d has repeated string '", p->line_number);
+    fprintf(stderr, "%s:%d: among(...) has repeated string '", a->tokeniser->file, p->line_number);
     report_b(stderr, b);
     fprintf(stderr, "'\n");
 }

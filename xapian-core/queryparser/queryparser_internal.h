@@ -2,6 +2,7 @@
  * class.
  *
  * Copyright (C) 2005,2006,2007,2010 Olly Betts
+ * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
 #define XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/database.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
@@ -56,7 +57,7 @@ namespace Xapian {
 
 class Utf8Iterator;
 
-class QueryParser::Internal : public Xapian::Internal::RefCntBase {
+class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     friend class QueryParser;
     friend class ::State;
     Stem stemmer;
@@ -76,6 +77,8 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
     string corrected_query;
 
+    Xapian::termcount max_wildcard_expansion;
+
     void add_prefix(const string &field, const string &prefix,
 		    filter_type type);
 
@@ -84,7 +87,7 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
   public:
     Internal() : stem_action(STEM_NONE), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL) { }
+	default_op(Query::OP_OR), errmsg(NULL), max_wildcard_expansion(0) { }
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };
 

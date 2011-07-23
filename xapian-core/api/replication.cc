@@ -23,7 +23,7 @@
 
 #include "replication.h"
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/dbfactory.h"
 #include "xapian/error.h"
 #include "xapian/version.h"
@@ -71,7 +71,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     try {
 	db = Database(path);
     } catch (const Xapian::DatabaseError & e) {
-	RemoteConnection conn(-1, fd, "");
+	RemoteConnection conn(-1, fd);
 	conn.send_message(REPL_REPLY_FAIL,
 			  "Can't open database: " + e.get_msg(),
 			  0.0);
@@ -109,7 +109,7 @@ DatabaseMaster::get_description() const
 }
 
 /// Internal implementation of DatabaseReplica
-class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
+class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
     void operator=(const Internal &);
 
@@ -283,7 +283,7 @@ DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
 void
 DatabaseReplica::close()
 {
-    LOGCALL(REPLICA, bool, "DatabaseReplica::close", NO_ARGS);
+    LOGCALL_VOID(REPLICA, "DatabaseReplica::close", NO_ARGS);
     internal = NULL;
 }
 
@@ -331,8 +331,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  last_live_changeset_time(), conn(NULL)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
-#if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
-    throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
+#if ! defined XAPIAN_HAS_CHERT_BACKEND
+    throw FeatureUnavailableError("Replication requires the Chert backend to be enabled");
 #else
     if (mkdir(path, 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
@@ -501,7 +501,7 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 {
     delete conn;
     conn = NULL;
-    conn = new RemoteConnection(fd, -1, "");
+    conn = new RemoteConnection(fd, -1);
 }
 
 bool

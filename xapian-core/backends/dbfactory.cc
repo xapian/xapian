@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,9 +41,6 @@
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_database.h"
 #endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-# include "flint/flint_database.h"
-#endif
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 # include "inmemory/inmemory_database.h"
 #endif
@@ -80,20 +77,6 @@ WritableDatabase
 Chert::open(const string &dir, int action, int block_size) {
     LOGCALL_STATIC(API, WritableDatabase, "Chert::open", dir | action | block_size);
     return WritableDatabase(new ChertWritableDatabase(dir, action, block_size));
-}
-#endif
-
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-Database
-Flint::open(const string &dir) {
-    LOGCALL_STATIC(API, Database, "Flint::open", dir);
-    return Database(new FlintDatabase(dir));
-}
-
-WritableDatabase
-Flint::open(const string &dir, int action, int block_size) {
-    LOGCALL_STATIC(API, WritableDatabase, "Flint::open", dir | action | block_size);
-    return WritableDatabase(new FlintWritableDatabase(dir, action, block_size));
 }
 #endif
 
@@ -142,14 +125,6 @@ open_stub(Database &db, const string &file)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	if (type == "flint") {
-	    resolve_relative_path(line, file);
-	    db.add_database(Flint::open(line));
-	    continue;
-	}
-#endif
-
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	if (type == "brass") {
 	    resolve_relative_path(line, file);
@@ -191,6 +166,10 @@ open_stub(Database &db, const string &file)
 	    continue;
 	}
 #endif
+
+	if (type == "flint") {
+	    throw FeatureUnavailableError("Flint backend no longer supported");
+	}
 
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
@@ -253,14 +232,6 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	if (type == "flint") {
-	    resolve_relative_path(line, file);
-	    db.add_database(Flint::open(line, action));
-	    continue;
-	}
-#endif
-
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	if (type == "brass") {
 	    resolve_relative_path(line, file);
@@ -302,6 +273,10 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	    continue;
 	}
 #endif
+
+	if (type == "flint") {
+	    throw FeatureUnavailableError("Flint backend no longer supported");
+	}
 
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
@@ -360,13 +335,6 @@ Database::Database(const string &path)
     }
 #endif
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (file_exists(path + "/iamflint")) {
-	internal.push_back(new FlintDatabase(path));
-	return;
-    }
-#endif
-
 #ifdef XAPIAN_HAS_BRASS_BACKEND
     if (file_exists(path + "/iambrass")) {
 	internal.push_back(new BrassDatabase(path));
@@ -378,14 +346,17 @@ Database::Database(const string &path)
     string stub_file = path;
     stub_file += "/XAPIANDB";
     if (rare(!file_exists(stub_file))) {
+	if (file_exists(path + "/iamflint")) {
+	    throw FeatureUnavailableError("Flint backend no longer supported");
+	}
+
 	throw DatabaseOpeningError("Couldn't detect type of database");
     }
 
     open_stub(*this, stub_file);
 }
 
-#if defined XAPIAN_HAS_FLINT_BACKEND || \
-    defined XAPIAN_HAS_CHERT_BACKEND || \
+#if defined XAPIAN_HAS_CHERT_BACKEND || \
     defined XAPIAN_HAS_BRASS_BACKEND
 #define HAVE_DISK_BACKEND
 #endif
@@ -398,9 +369,6 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
     enum {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	CHERT,
-#endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	FLINT,
 #endif
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	BRASS,
@@ -433,13 +401,6 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #else
 	    throw FeatureUnavailableError("Chert backend disabled");
 #endif
-	} else if (file_exists(path + "/iamflint")) {
-	    // Existing flint DB.
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	    type = FLINT;
-#else
-	    throw FeatureUnavailableError("Flint backend disabled");
-#endif
 	} else if (file_exists(path + "/iambrass")) {
 	    // Existing brass DB.
 #ifdef XAPIAN_HAS_BRASS_BACKEND
@@ -447,6 +408,9 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #else
 	    throw FeatureUnavailableError("Brass backend disabled");
 #endif
+	} else if (file_exists(path + "/iamflint")) {
+	    // Existing flint DB.
+	    throw FeatureUnavailableError("Flint backend no longer supported");
 	} else {
 	    // Check for "stub directories".
 	    string stub_file = path;
@@ -464,7 +428,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	    // If only brass is enabled, there's no point checking the
 	    // environmental variable.
-# if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
+# if defined XAPIAN_HAS_CHERT_BACKEND
 	    // If $XAPIAN_PREFER_BRASS is set to a non-empty value, prefer brass
 	    // if there's no existing database.
 	    const char *p = getenv("XAPIAN_PREFER_BRASS");
@@ -478,11 +442,6 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	case CHERT:
 	    internal.push_back(new ChertWritableDatabase(path, action, 8192));
-	    break;
-#endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	case FLINT:
-	    internal.push_back(new FlintWritableDatabase(path, action, 8192));
 	    break;
 #endif
 #ifdef XAPIAN_HAS_BRASS_BACKEND

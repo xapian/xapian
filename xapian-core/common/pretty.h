@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
 namespace Xapian {
@@ -77,15 +77,19 @@ operator<<(PrettyOStream<S> &ps, const Literal & t)
     return ps;
 }
 
-template<class S, class T *>
+template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T * t)
 {
+    if (!t) {
+	ps.os << "NULL";
+	return ps;
+    }
     ps.os << '&';
     return ps << *t;
 }
 
-template<class S, class T **>
+template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T ** t)
 {
@@ -93,7 +97,15 @@ operator<<(PrettyOStream<S> &ps, const T ** t)
     return ps;
 }
 
-// FIXME: We probably don't want to inline this, but need to arragne to
+template<class S>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const void * t)
+{
+    ps.os << "(void*)" << t;
+    return ps;
+}
+
+// FIXME: We probably don't want to inline this, but need to arrange to
 // put it somewhere sane out-of-line.
 inline void write_ch(std::ostream & os, unsigned char ch)
 {
@@ -207,7 +219,7 @@ operator<<(PrettyOStream<S> &ps, Xapian::termcount * p)
     return ps;
 }
 
-template<class S, typename K, typename V>
+template<class S, typename T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, std::list<T> &) {
     ps.os << "std::list&";
@@ -253,6 +265,8 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
 }
 
 namespace Xapian {
+    class ExpandDecider;
+    class MatchDecider;
     class Registry;
     class Weight;
     namespace Internal {
@@ -261,19 +275,31 @@ namespace Xapian {
     }
 }
 
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Registry &) {
-    ps.os << "Xapian:Registry";
-    return ps;
+class BrassCursor;
+class BrassDatabase;
+class BrassTable;
+class ChertCursor;
+class ChertDatabase;
+class ChertTable;
+
+#define XAPIAN_PRETTY_AS_CLASSNAME(C)\
+template<class S>\
+inline PrettyOStream<S> &\
+operator<<(PrettyOStream<S> &ps, const C &) {\
+    ps.os << #C;\
+    return ps;\
 }
 
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Weight &) {
-    ps.os << "Xapian:Weight";
-    return ps;
-}
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
+XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
+XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
+XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase);
+XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
 
 template<class S>
 inline PrettyOStream<S> &
@@ -305,37 +331,19 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-class BrassCursor;
+#include "common/database.h"
 
 template<class S>
 inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const BrassCursor *) {
-    ps.os << "BrassCursor*";
-    return ps;
-}
-
-class ChertCursor;
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const ChertCursor *) {
-    ps.os << "ChertCursor*";
-    return ps;
-}
-
-class FlintCursor;
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const FlintCursor *) {
-    ps.os << "FlintCursor*";
+operator<<(PrettyOStream<S> &ps, const Xapian::Database::Internal *p) {
+    ps.os << "(Database::Internal*)" << (void*)p;
     return ps;
 }
 
 template<class S, class T>
 inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, Xapian::Internal::RefCntPtr<const T> t) {
-    ps.os << "RefCntPtr->";
+operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
+    ps.os << "intrusive_ptr->";
     return ps << t;
 }
 

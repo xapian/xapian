@@ -4,7 +4,7 @@ Term Prefixes
 
 Xapian itself doesn't put any restrictions on the contents of a term, other
 than that terms can't be empty, and there's an upper limit on the length
-(which is backend dependent - flint and chert allow 245 bytes, except that
+(which is backend dependent - chert and brass allow 245 bytes, except that
 zero bytes count double in this length).
 
 However, Omega and ``Xapian::QueryParser`` impose some rules to aid
@@ -166,4 +166,13 @@ the decoupling of "UI prefix" and "term prefix" means you can easily translate
 the "UI prefixes" if you have frontends in different languages.
 
 Note that if you want words from the subject to be found without a prefix, you
-need to generate unprefixed terms as well as the prefixed ones.
+either need to generate unprefixed terms as well as the prefixed ones, or map
+the empty prefix to both "" and "S" like so::
+
+    Xapian::QueryParser qp;
+    // Search both subject and body if no field is specified:
+    qp.add_prefix("", "");
+    qp.add_prefix("", "S");
+    // Search just the subject if 'subject:' is specified:
+    qp.add_prefix("subject", "S");
+    Xapian::Query query = qp.parse_query(user_query_string);

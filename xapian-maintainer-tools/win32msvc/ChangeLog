@@ -1,3 +1,19 @@
+Wed Jun 29 00:47:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* win32msvc/: Update for rename of java-swig to java.
+
+Wed May 25 03:32:42 GMT 2011  Charlie Hull <charlie@flax.co.uk>
+
+	* README: add details of patch to api/compactor.cc and diritor.h
+	* win32_backends_brass.mak, win32_backends_flint.mak,
+	  win32_backends_chert.mak: add brass_compact.cc etc.
+	* win32_api.mak: add compactor.cc
+	* win32_bin.mak: remove separate compactors and add
+	  xapian_chert_update.exe
+	* win32_bindings_csharp.mak: add Compactor.cs
+	* config.h.omega.win32: add PKGLIBBINDIR definitions
+	* win32_applications_omega.mak: add svgparse.cc, pkglibbindir.cc
+
 Fri Sep 03 13:35:00 GMT 2010  Charlie Hull <charlie@flax.co.uk>
 
 	* README: remove details of some patches that are no longer necessary

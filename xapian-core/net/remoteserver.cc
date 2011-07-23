@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -89,21 +89,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 #endif
 
     // Send greeting message.
-    string message;
-    message += char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION);
-    message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
-    message += encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
-    message += encode_length(db->get_doclength_lower_bound());
-    message += encode_length(db->get_doclength_upper_bound());
-    message += (db->has_positions() ? '1' : '0');
-    // FIXME: clumsy to reverse calculate total_len like this:
-    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
-    message += encode_length(total_len);
-    //message += encode_length(db->get_total_length());
-    string uuid = db->get_uuid();
-    message += uuid;
-    send_message(REPLY_GREETING, message);
+    msg_update(string());
 }
 
 RemoteServer::~RemoteServer()
@@ -324,21 +310,27 @@ RemoteServer::msg_writeaccess(const string & msg)
 void
 RemoteServer::msg_reopen(const string & msg)
 {
-    db->reopen();
+    if (!db->reopen()) {
+	send_message(REPLY_DONE, string());
+	return;
+    }
     msg_update(msg);
 }
 
 void
 RemoteServer::msg_update(const string &)
 {
-    // reopen() doesn't do anything for a WritableDatabase, so there's
-    // no harm in calling it unconditionally.
-    db->reopen();
-
-    string message = encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
-    message += encode_length(db->get_doclength_lower_bound());
-    message += encode_length(db->get_doclength_upper_bound());
+    static const char protocol[2] = {
+	char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION),
+	char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)
+    };
+    string message(protocol, 2);
+    Xapian::doccount num_docs = db->get_doccount();
+    message += encode_length(num_docs);
+    message += encode_length(db->get_lastdocid() - num_docs);
+    Xapian::termcount doclen_lb = db->get_doclength_lower_bound();
+    message += encode_length(doclen_lb);
+    message += encode_length(db->get_doclength_upper_bound() - doclen_lb);
     message += (db->has_positions() ? '1' : '0');
     // FIXME: clumsy to reverse calculate total_len like this:
     totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
@@ -478,7 +470,7 @@ RemoteServer::msg_query(const string &message_in)
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
     message.resize(0);
     vector<Xapian::MatchSpy *>::const_iterator i;
@@ -543,13 +535,13 @@ RemoteServer::msg_valuestats(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     while (p != p_end) {
-	Xapian::valueno valno = decode_length(&p, p_end, false);
+	Xapian::valueno slot = decode_length(&p, p_end, false);
 	string message_out;
-	message_out += encode_length(db->get_value_freq(valno));
-	string bound = db->get_value_lower_bound(valno);
+	message_out += encode_length(db->get_value_freq(slot));
+	string bound = db->get_value_lower_bound(slot);
 	message_out += encode_length(bound.size());
 	message_out += bound;
-	bound = db->get_value_upper_bound(valno);
+	bound = db->get_value_upper_bound(slot);
 	message_out += encode_length(bound.size());
 	message_out += bound;
 

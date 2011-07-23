@@ -27,8 +27,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(intrusive_ptr<const ChertDatabase> db_,
 							   Xapian::doccount doccount_,
 							   const map<Xapian::docid, Xapian::termcount> & doclens_)
 	: ChertAllDocsPostList(db_, doccount_),
@@ -57,7 +58,7 @@ ChertAllDocsModifiedPostList::skip_deletes(Xapian::weight w_min)
 Xapian::docid
 ChertAllDocsModifiedPostList::get_docid() const
 {
-    LOGCALL(DB, Xapian::docid, "ChertAllDocsModifiedPostList::get_docid()", NO_ARGS);
+    LOGCALL(DB, Xapian::docid, "ChertAllDocsModifiedPostList::get_docid", NO_ARGS);
     if (doclens_it == doclens.end()) RETURN(ChertAllDocsPostList::get_docid());
     if (ChertAllDocsPostList::at_end()) RETURN(doclens_it->first);
     RETURN(min(doclens_it->first, ChertAllDocsPostList::get_docid()));
@@ -121,7 +122,7 @@ ChertAllDocsModifiedPostList::skip_to(Xapian::docid desired_did,
 bool
 ChertAllDocsModifiedPostList::at_end() const
 {
-    LOGCALL(DB, bool, "ChertAllDocsModifiedPostList::end", NO_ARGS);
+    LOGCALL(DB, bool, "ChertAllDocsModifiedPostList::at_end", NO_ARGS);
     RETURN(doclens_it == doclens.end() && ChertAllDocsPostList::at_end());
 }
 

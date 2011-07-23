@@ -2,7 +2,7 @@
  * @brief Support class for database replication.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010 Olly Betts
+ * Copyright 2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,9 +36,6 @@
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_databasereplicator.h"
 #endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-# include "flint/flint_databasereplicator.h"
-#endif
 
 using namespace std;
 
@@ -59,17 +56,15 @@ DatabaseReplicator::open(const string & path)
     }
 #endif
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (file_exists(path + "/iamflint")) {
-	return new FlintDatabaseReplicator(path);
-    }
-#endif
-
 #ifdef XAPIAN_HAS_BRASS_BACKEND
     if (file_exists(path + "/iambrass")) {
 	return new BrassDatabaseReplicator(path);
     }
 #endif
+
+    if (file_exists(path + "/iamflint")) {
+	throw FeatureUnavailableError("Flint backend no longer supported");
+    }
 
     throw DatabaseOpeningError("Couldn't detect type of database: " + path);
 }

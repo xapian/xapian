@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -41,7 +41,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Class representing the ValueIterator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// @private @internal Construct given internals.
     explicit ValueIterator(Internal *internal_);
@@ -132,7 +132,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  position after document @a did, and skip_to() will act as it would if
      *  the position was the first matching position after document @a did.
      *
-     *  Currently the inmemory, flint, and remote backends behave in the
+     *  Currently the inmemory and remote backends behave in the
      *  latter way because they don't support streamed values and so skip_to()
      *  must check each document it skips over which is significantly slower.
      */

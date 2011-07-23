@@ -149,7 +149,6 @@ wrapped like so for Ruby:
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian::open_stub()</code>
 <li> <code>Xapian::Brass::open()</code> is wrapped as <code>Xapian::brass_open()</code>
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian::chert_open()</code>
-<li> <code>Xapian::Flint::open()</code> is wrapped as <code>Xapian::flint_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian::remote_open()</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
@@ -177,8 +176,14 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for Ruby, but you can use <code>Xapian.Query.new("")</code>
-instead of MatchAll and <code>Xapian.Query.new()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as class constants
+<code>Xapian::Query::MatchAll</code> and <code>Xapian::Query::MatchNothing</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>Xapian::Query.new("")</code> for MatchAll and
+<code>Xapian::Query.new()</code> for MatchNothing.
 </p>
 
 <h2>MatchDecider</h2>

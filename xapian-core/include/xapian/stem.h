@@ -1,7 +1,7 @@
 /** \file  stem.h
  *  \brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_STEM_H
 #define XAPIAN_INCLUDED_STEM_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -31,7 +31,7 @@ namespace Xapian {
 
 /// Class representing a stemming algorithm implementation.
 struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
-    : public Xapian::Internal::RefCntBase
+    : public Xapian::Internal::intrusive_base
 {
     /// Virtual destructor.
     virtual ~StemImplementation();
@@ -47,13 +47,13 @@ struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
 class XAPIAN_VISIBILITY_DEFAULT Stem {
   public:
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<StemImplementation> internal;
+    Xapian::Internal::intrusive_ptr<StemImplementation> internal;
 
     /// Copy constructor.
     Stem(const Stem & o);
 
     /// Assignment.
-    void operator=(const Stem & o);
+    Stem & operator=(const Stem & o);
 
     /** Construct a Xapian::Stem object which doesn't change terms.
      *
@@ -70,6 +70,9 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  name):
      *
      *  - none - don't stem terms
+     *  - armenian (hy)
+     *  - basque (eu)
+     *  - catalan (ca)
      *  - danish (da)
      *  - dutch (nl)
      *  - english (en) - Martin Porter's 2002 revision of his stemmer

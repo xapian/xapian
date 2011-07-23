@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_DOCUMENT_H
 #define OM_HGUARD_DOCUMENT_H
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 #include "termlist.h"
 #include "database.h"
@@ -37,7 +37,7 @@ class DocumentValueList;
 class ValueStreamDocument;
 
 /// A document in the database, possibly plus modifications.
-class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
+class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
     friend class ::DocumentValueList;
     friend class ::ValueStreamDocument;
     public:
@@ -49,7 +49,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
     protected:
 	/// The database this document is in.
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+	Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     private:
         // Prevent copying
@@ -90,19 +90,19 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  Values are quickly accessible fields, for use during the match
 	 *  operation.  Each document may have a set of values, each of which
-	 *  having a different valueid.  Duplicate values with the same valueid
-	 *  are not supported in a single document.
+	 *  having a different value number.  Duplicate values with the same
+	 *  value number are not supported in a single document.
 	 *
 	 *  Value numbers are any integer >= 0, but particular database
 	 *  backends may impose a more restrictive range than that.
 	 *
-	 *  @param valueid  The value number requested.
+	 *  @param slot  The value number requested.
 	 *
 	 *  @return       A string containing the specified value.  If
 	 *  the value is not present in this document, the value's value will
 	 *  be a zero length string
 	 */
-	string get_value(Xapian::valueno valueid) const;
+	string get_value(Xapian::valueno slot) const;
 
 	/** Set all the values.
 	 *
@@ -198,7 +198,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  In derived classes, this will typically be a private method, and
 	 *  only be called by database objects of the corresponding type.
 	 */
-	Internal(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+	Internal(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 		 Xapian::docid did_)
 	    : database(database_), data_here(false), values_here(false),
 	      terms_here(false), did(did_) { }

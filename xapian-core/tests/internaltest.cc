@@ -38,7 +38,6 @@ using namespace std;
 #include "testutils.h"
 
 #include "omassert.h"
-#include "omqueryinternal.h"
 #include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -83,15 +82,15 @@ static bool test_exception1()
 // # Tests of the reference counted pointers #
 // ###########################################
 
-class test_refcnt : public Xapian::Internal::RefCntBase {
+class test_refcnt : public Xapian::Internal::intrusive_base {
     private:
 	bool &deleted;
     public:
 	test_refcnt(bool &deleted_) : deleted(deleted_) {
 	    tout << "constructor\n";
 	}
-	Xapian::Internal::RefCntPtr<const test_refcnt> test() {
-	    return Xapian::Internal::RefCntPtr<const test_refcnt>(this);
+	Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
+	    return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
 	}
 	~test_refcnt() {
 	    deleted = true;
@@ -105,22 +104,22 @@ static bool test_refcnt1()
 
     test_refcnt *p = new test_refcnt(deleted);
 
-    TEST_EQUAL(p->ref_count, 0);
+    TEST_EQUAL(p->_refs, 0);
 
     {
-	Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
+	Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
-	TEST_EQUAL(rcp->ref_count, 1);
+	TEST_EQUAL(rcp->_refs, 1);
 
 	{
-	    Xapian::Internal::RefCntPtr<test_refcnt> rcp2;
+	    Xapian::Internal::intrusive_ptr<test_refcnt> rcp2;
 	    rcp2 = rcp;
-	    TEST_EQUAL(rcp->ref_count, 2);
+	    TEST_EQUAL(rcp->_refs, 2);
 	    // rcp2 goes out of scope here
 	}
 
 	TEST_AND_EXPLAIN(!deleted, "Object prematurely deleted!");
-	TEST_EQUAL(rcp->ref_count, 1);
+	TEST_EQUAL(rcp->_refs, 1);
 	// rcp goes out of scope here
     }
 
@@ -129,15 +128,16 @@ static bool test_refcnt1()
     return true;
 }
 
-// This is a regression test - a RefCntPtr used to delete the object pointed
-// to if you assigned it to itself and the reference count was 1.
+// This is a regression test - our home-made equivalent of intrusive_ptr
+// (which was called RefCntPtr) used to delete the object pointed to if you
+// assigned it to itself and the reference count was 1.
 static bool test_refcnt2()
 {
     bool deleted = false;
 
     test_refcnt *p = new test_refcnt(deleted);
 
-    Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
+    Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
     rcp = rcp;
 
@@ -184,7 +184,7 @@ static bool test_autoptr1()
     return true;
 }
 
-// test string comparisions
+// test string comparisons
 static bool test_stringcomp1()
 {
     bool success = true;
@@ -204,7 +204,7 @@ static bool test_stringcomp1()
 
     if ((s1 == s2) || (s1 < s2)) {
 	success = false;
-	tout << "String comparisions don't cope with extra nulls" << endl;
+	tout << "String comparisons don't cope with extra nulls" << endl;
     }
 
     s2 += '\0';
@@ -421,48 +421,6 @@ static bool test_serialisedoc1()
     return true;
 }
 
-static void
-serialisequery1_helper(const Xapian::Query & query)
-{
-    string before = query.internal->serialise();
-    Xapian::Registry reg;
-    Xapian::Query::Internal * qint;
-    qint = Xapian::Query::Internal::unserialise(before, reg);
-    string after = qint->serialise();
-    delete qint;
-    TEST(before == after);
-}
-
-// Check serialisation of queries.
-static bool test_serialisequery1()
-{
-    string s;
-
-    serialisequery1_helper(Xapian::Query("foo"));
-
-    // Regression test for bug in 0.9.10 and earlier.
-    serialisequery1_helper(Xapian::Query("foo", 1, 1));
-
-    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR,
-					 Xapian::Query("foo", 1, 1),
-					 Xapian::Query("bar", 1, 1)));
-
-    static const char * words[] = { "paragraph", "word" };
-    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
-
-    static const char * words2[] = { "milk", "on", "fridge" };
-    serialisequery1_helper(
-	    Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-			  Xapian::Query(Xapian::Query::OP_OR,
-					Xapian::Query("leave"),
-					Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
-					),
-			  2.5)
-	    );
-
-    return true;
-}
-
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
 {
@@ -621,7 +579,6 @@ static const test_desc tests[] = {
     {"serialiselength1",	test_serialiselength1},
     {"serialiselength2",	test_serialiselength2},
     {"serialisedoc1",		test_serialisedoc1},
-    {"serialisequery1",		test_serialisequery1},
     {"serialiseerror1",		test_serialiseerror1},
 #endif
     {"static_assert1",		test_static_assert1},

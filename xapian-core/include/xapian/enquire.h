@@ -28,8 +28,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
-#include <xapian/deprecated.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/keymaker.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -53,10 +52,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// @internal Constructor for internal use.
-	explicit MSet(MSet::Internal * internal_);
+	explicit MSet(Internal * internal_);
 
 	/// Create an empty Xapian::MSet.
 	MSet();
@@ -421,7 +420,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Construct an empty ESet
 	ESet();
@@ -567,7 +566,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	class Internal;
 
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Copy constructor
 	RSet(const RSet &rset);
@@ -644,7 +643,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	class Internal;
 	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** Create a Xapian::Enquire object.
 	 *
@@ -668,7 +667,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	   should be 0.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
-	 *  initialised Database object is supplied.
+	 *  empty Database object is supplied.
 	 */
 	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
 
@@ -832,8 +831,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
          */
 	void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_value(Xapian::valueno sort_key));
-
 	/** Set the sorting to be by key generated from values only.
 	 *
 	 * @param sorter    The functor to use for generating keys.
@@ -841,8 +838,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 * @param reverse   If true, reverses the sort order.
          */
 	void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
-
-	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::KeyMaker * sorter));
 
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
@@ -861,8 +856,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					      bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_value_then_relevance(Xapian::valueno sort_key));
-
 	/** Set the sorting to be by keys generated from values, then by
 	 *  relevance for documents with identical keys.
 	 *
@@ -872,8 +865,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
 					    bool reverse);
-
-	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter));
 
 	/** Set the sorting to be by relevance then value.
 	 *
@@ -898,8 +889,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					      bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_value(Xapian::valueno sort_key));
-
 	/** Set the sorting to be by relevance, then by keys generated from
 	 *  values.
 	 *
@@ -916,8 +905,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
-
-	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter));
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -949,18 +936,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @param omrset    the relevance set to use when performing the query.
 	 *  @param mdecider  a decision functor to use to decide whether a
 	 *		     given document should be put in the MSet.
-	 *  @param matchspy  a decision functor to use to decide whether a
-	 *		     given document should be put in the MSet.  The
-	 *		     matchspy is applied to every document which is
-	 *		     a potential candidate for the MSet, so if there are
-	 *		     checkatleast or more such documents, the matchspy
-	 *		     will see at least checkatleast.  The mdecider is
-	 *		     assumed to be a relatively expensive test so may
-	 *		     be applied in a lazier fashion.
-	 *
-	 *		     @deprecated this parameter is deprecated - use the
-	 *		     newer MatchSpy class and add_matchspy() method
-	 *		     instead.
 	 *
 	 *  @return	     A Xapian::MSet object containing the results of the
 	 *		     query.
@@ -973,12 +948,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
 		      const MatchDecider * mdecider = 0) const;
-	XAPIAN_DEPRECATED(
-	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		      Xapian::doccount checkatleast,
-		      const RSet * omrset,
-		      const MatchDecider * mdecider,
-		      const MatchDecider * matchspy) const);
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
@@ -1100,7 +1069,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** End iterator corresponding to get_matching_terms_begin() */
 	TermIterator get_matching_terms_end(Xapian::docid /*did*/) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Get terms which match a given document, by match set item.
@@ -1129,50 +1098,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** End iterator corresponding to get_matching_terms_begin() */
 	TermIterator get_matching_terms_end(const MSetIterator &/*it*/) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Return a string describing this object.
 	std::string get_description() const;
 };
-
-// Deprecated forms:
-
-inline void
-Enquire::set_sort_by_value(Xapian::valueno sort_key)
-{
-    return set_sort_by_value(sort_key, true);
-}
-
-inline void
-Enquire::set_sort_by_key(Xapian::KeyMaker * sorter)
-{
-    return set_sort_by_key(sorter, true);
-}
-
-inline void
-Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)
-{
-    return set_sort_by_value_then_relevance(sort_key, true);
-}
-
-inline void
-Enquire::set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter)
-{
-    return set_sort_by_key_then_relevance(sorter, true);
-}
-
-inline void
-Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)
-{
-    return set_sort_by_relevance_then_value(sort_key, true);
-}
-
-inline void
-Enquire::set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter)
-{
-    return set_sort_by_relevance_then_key(sorter, true);
-}
 
 }
 

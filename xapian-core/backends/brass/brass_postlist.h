@@ -114,11 +114,11 @@ class BrassPostListTable : public BrassTable {
 
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,
-					Xapian::Internal::RefCntPtr<const BrassDatabase> db) const;
+					Xapian::Internal::intrusive_ptr<const BrassDatabase> db) const;
 
 	/** Check if document @a did exists. */
 	bool document_exists(Xapian::docid did,
-			     Xapian::Internal::RefCntPtr<const BrassDatabase> db) const;
+			     Xapian::Internal::intrusive_ptr<const BrassDatabase> db) const;
 };
 
 /** A postlist in a brass database.
@@ -129,20 +129,23 @@ class BrassPostList : public LeafPostList {
 	 *  database doesn't get deleted before us, and also to give us access
 	 *  to the position_table.
 	 */
-	Xapian::Internal::RefCntPtr<const BrassDatabase> this_db;
-
-	/// Whether we've started reading the list yet.
-	bool have_started;
+	Xapian::Internal::intrusive_ptr<const BrassDatabase> this_db;
 
 	/// The position list object for this posting list.
 	BrassPositionList positionlist;
 
-    private:
-	/// Cursor pointing to current chunk of postlist.
-	AutoPtr<BrassCursor> cursor;
+	/// Whether we've started reading the list yet.
+	bool have_started;
 
+    private:
 	/// True if this is the last chunk.
 	bool is_last_chunk;
+
+	/// Whether we've run off the end of the list yet.
+	bool is_at_end;
+
+	/// Cursor pointing to current chunk of postlist.
+	AutoPtr<BrassCursor> cursor;
 
 	/// The first document id in this chunk.
 	Xapian::docid first_did_in_chunk;
@@ -161,9 +164,6 @@ class BrassPostList : public LeafPostList {
 
 	/// The wdf of the current document.
 	Xapian::termcount wdf;
-
-	/// Whether we've run off the end of the list yet.
-	bool is_at_end;
 
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
@@ -221,7 +221,7 @@ class BrassPostList : public LeafPostList {
 
     public:
 	/// Default constructor.
-	BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> this_db_,
+	BrassPostList(Xapian::Internal::intrusive_ptr<const BrassDatabase> this_db_,
 		      const string & term,
 		      bool keep_reference);
 

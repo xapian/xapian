@@ -28,7 +28,7 @@ set -e
 MIRROR=http://ftp.nz.debian.org/debian/
 
 DEBIAN_CODENAMES='squeeze lenny'
-UBUNTU_CODENAMES='natty maverick lucid"
+UBUNTU_CODENAMES='natty maverick lucid'
 
 V_OPT=
 case $1 in

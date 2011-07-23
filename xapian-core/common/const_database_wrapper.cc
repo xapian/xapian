@@ -2,7 +2,7 @@
  * @brief Wrapper which exposes only the const methods of database internals.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,8 @@
 
 #include "xapian/error.h"
 
+using Xapian::Internal::intrusive_ptr;
+
 void
 ConstDatabaseWrapper::nonconst_access() const
 {
@@ -34,7 +36,7 @@ ConstDatabaseWrapper::nonconst_access() const
 }
 
 ConstDatabaseWrapper::ConstDatabaseWrapper(
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb_)
+	intrusive_ptr<const Xapian::Database::Internal> realdb_)
 	: realdb(realdb_)
 {
 }
@@ -82,21 +84,21 @@ ConstDatabaseWrapper::get_collection_freq(const string & tname) const
 }
 
 Xapian::doccount
-ConstDatabaseWrapper::get_value_freq(Xapian::valueno valno) const
+ConstDatabaseWrapper::get_value_freq(Xapian::valueno slot) const
 {
-    return realdb->get_value_freq(valno);
+    return realdb->get_value_freq(slot);
 }
 
 std::string
-ConstDatabaseWrapper::get_value_lower_bound(Xapian::valueno valno) const
+ConstDatabaseWrapper::get_value_lower_bound(Xapian::valueno slot) const
 {
-    return realdb->get_value_lower_bound(valno);
+    return realdb->get_value_lower_bound(slot);
 }
 
 std::string
-ConstDatabaseWrapper::get_value_upper_bound(Xapian::valueno valno) const
+ConstDatabaseWrapper::get_value_upper_bound(Xapian::valueno slot) const
 {
-    return realdb->get_value_upper_bound(valno);
+    return realdb->get_value_upper_bound(slot);
 }
 
 bool
@@ -257,10 +259,11 @@ ConstDatabaseWrapper::set_metadata(const string &, const string &)
     nonconst_access();
 }
 
-void
+bool
 ConstDatabaseWrapper::reopen()
 {
     nonconst_access();
+    return false;
 }
 
 void

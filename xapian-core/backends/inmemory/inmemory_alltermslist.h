@@ -39,14 +39,14 @@ class InMemoryAllTermsList : public AllTermsList
 
 	std::map<string, InMemoryTerm>::const_iterator it;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> database;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database;
 
 	string prefix;
 
     public:
 	/// Constructor.
 	InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
-			     Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
+			     Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
 			     const string & prefix_)
 	    : tmap(tmap_), it(tmap->begin()), database(database_),
 	      prefix(prefix_)

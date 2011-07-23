@@ -1,7 +1,7 @@
 /* backendmanager.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,19 +119,6 @@ class BackendManager {
 
     /// Get the path of a writable chert database instance.
     std::string getwritedb_chert_path(const std::string & name);
-#endif
-
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-  protected:
-    std::string createdb_flint(const std::vector<std::string> &files);
-
-  public:
-    /// Get a writable flint database instance.
-    Xapian::WritableDatabase getwritedb_flint(const std::string & name,
-					      const std::vector<std::string> &files);
-
-    /// Get the path of a writable flint database instance.
-    std::string getwritedb_flint_path(const std::string & name);
 #endif
 
   public:

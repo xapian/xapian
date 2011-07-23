@@ -612,7 +612,7 @@ EXCLUDE_SYMLINKS       = YES
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */.* \
-			 */base.h \
+			 */intrusive_ptr.h \
 			 */deprecated.h \
 			 */derefwrapper.h \
 			 */errordispatch.h \
@@ -1262,6 +1262,7 @@ INCLUDE_FILE_PATTERNS  =
 
 PREDEFINED             = DOXYGEN \
 			 XAPIAN_VISIBILITY_DEFAULT= \
+			 XAPIAN_DEPRECATED_CLASS= \
 			 XAPIAN_DEPRECATED(D)=D
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then

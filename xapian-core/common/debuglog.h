@@ -69,6 +69,9 @@ enum debuglog_categories {
     /// Weight calculations.
     DEBUGLOG_CATEGORY_WTCALC = ('W' - '@'),
 
+    /// Query stuff.
+    DEBUGLOG_CATEGORY_QUERY = ('Y' - '@'),
+
     /// Messages which are always logged.
     DEBUGLOG_CATEGORY_ALWAYS = 31
 };

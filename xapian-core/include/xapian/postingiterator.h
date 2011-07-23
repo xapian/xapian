@@ -27,7 +27,7 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
@@ -43,7 +43,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
     private:
 	friend class Database; // So Database can construct us
@@ -114,7 +114,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 	 *  current document.
 	 */
 	PositionIterator positionlist_end() const {
-	    return PositionIterator(NULL);
+	    return PositionIterator();
 	}
 
 	// Don't expose these methods here.  A container iterator doesn't

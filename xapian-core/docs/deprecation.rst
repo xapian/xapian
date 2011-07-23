@@ -1,3 +1,4 @@
+
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
@@ -38,10 +39,10 @@ Deprecation markers
 -------------------
 
 At any particular point, some parts of the C++ API will be marked as
-"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED`` macro, which
-will cause compilers with appropriate support (such as GCC 3.1 or later, and
-MSVC 7.0 or later) to emit warning messages about the use of deprecated
-features at compile time.
+"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED()`` or
+``XAPIAN_DEPRECATED_CLASS`` macros, which will cause compilers with appropriate
+support (such as GCC 3.1 or later, and MSVC 7.0 or later) to emit warning
+messages about the use of deprecated features at compile time.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
@@ -70,7 +71,6 @@ Within a stable release series, we strive to maintain API and ABI forwards
 compatibility.  This means that an application written and compiled against
 version `X.Y.a` of Xapian should work, without any source changes or need to
 recompile, with a later version `X.Y.b`, for all `b` >= `a`.
-
 Stable releases which increase the minor or major version number will usually
 change the ABI incompatibly (so that code will need to be recompiled against
 the newer release series.  They may also make incompatible API changes,
@@ -201,48 +201,13 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.1.0      1.3.0  Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
-                  ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and
-                                                      probably think of as ascending) while ascending=true gave the reverse
-                                                      (descending) order.  For sanity, we renamed the parameter to ``reverse``
-                                                      and deprecated the default value.  In the more distant future, we'll
-                                                      probably add a default again, but of ``false`` instead.
-                                                      
-                                                      The methods affected are:
-                                                      ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
-                                                      ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
-                                                      ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
-                                                      ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
-                                                      ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
-                                                      ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.1.3       1.3.0 ``Sorter`` abstract base class.     Use ``KeyMaker`` class instead, which has the same semantics, but has
-                                                      been renamed to indicate that the keys produced may be used for purposes
-                                                      other than sorting (we plan to allow collapsing on generated keys in the
-                                                      future).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.1.3       1.3.0 ``MultiValueSorter`` class.         Use ``MultiValueKeyMaker`` class instead.  Note that
-                                                      ``MultiValueSorter::add()`` becomes ``MultiValueKeyMaker::add_value()``,
-                                                      but the sense of the direction flag is reversed (to be consistent with
-                                                      ``Enquire::set_sort_by_value()``), so::
- 
-                                                        MultiValueSorter sorter;
-                                                        // Primary ordering is forwards on value 4.
-                                                        sorter.add(4);
-                                                        // Secondary ordering is reverse on value 5.
-                                                        sorter.add(5, false);
-                                                     
-                                                      becomes::
- 
-                                                        MultiValueKeyMaker sorter;
-                                                        // Primary ordering is forwards on value 4.
-                                                        sorter.add_value(4);
-                                                        // Secondary ordering is reverse on value 5.
-                                                        sorter.add_value(5, true);
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.1.3      1.3.0  ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method
-                  ``Enquire::get_mset()``             instead.
+1.1.0      ?      Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
 ========== ====== =================================== ========================================================================
+
+.. flush() is just a simple inlined alias, so perhaps not worth causing pain by
+.. removing it in a hurry, though it would be nice to be able to reuse the
+.. method name to actually implement a flush() which writes out data but
+.. doesn't commit.
 
 Bindings
 --------
@@ -252,11 +217,6 @@ Bindings
 ========== ====== ======== ============================ ======================================================================
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
-1.0.4      1.3.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.1.0      1.3.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
-                                                        function)
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.2.5      1.5.0  Python   MSet.items                   Iterate the MSet object itself instead.
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.2.5      1.5.0  Python   ESet.items                   Iterate the ESet object itself instead.
@@ -383,9 +343,9 @@ Removed Feature name                        Upgrade suggestion and comments
 1.1.0   Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
                                             ``Query::op``.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   The Quartz backend                  Use the Flint backend instead.
+1.1.0   The Quartz backend                  Use the Chert backend instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Quartz::open()                      Use ``Flint::open()`` instead.
+1.1.0   Quartz::open()                      Use ``Chert::open()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.0   quartzcheck                         Use ``xapian-check`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
@@ -415,6 +375,57 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.5   delve -k                            Accepted as an undocumented alias for -V since 0.9.10 for compatibility with 0.9.9
                                             and earlier.  Just use -V instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   The Flint backend                   Use the Chert backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   Flint::open()                       Use ``Chert::open()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   xapian-chert-update                 Install Xapian 1.2.x (where x >= 5) to update chert databases from 1.1.3 and
+                                            earlier.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
+        ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and probably
+                                            think of as ascending) while ascending=true gave the reverse (descending) order.
+                                            For sanity, we renamed the parameter to ``reverse`` and deprecated the default
+                                            value.  In the more distant future, we'll probably add a default again, but of
+                                            ``false`` instead.
+
+                                            The methods affected are:
+                                            ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
+                                            ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
+                                            ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
+                                            ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
+                                            ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
+                                            ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
+
+                                            To update them, just add a second parameter with value ``true`` to each of the
+                                            above calls.  For the methods which take a ``Xapian::Sorter`` object, you'll also
+                                            need to migrate to ``Xapian::KeyMaker`` (see below).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Sorter`` abstract base class.     Use ``KeyMaker`` class instead, which has the same semantics, but has been renamed
+                                            to indicate that the keys produced may be used for purposes other than sorting (we
+                                            plan to allow collapsing on generated keys in the future).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``MultiValueSorter`` class.         Use ``MultiValueKeyMaker`` class instead.  Note that ``MultiValueSorter::add()``
+                                            becomes ``MultiValueKeyMaker::add_value()``, but the sense of the direction flag
+                                            is reversed (to be consistent with ``Enquire::set_sort_by_value()``), so::
+
+                                                MultiValueSorter sorter;
+                                                // Primary ordering is forwards on value 4.
+                                                sorter.add(4);
+                                                // Secondary ordering is reverse on value 5.
+                                                sorter.add(5, false);
+
+                                            becomes::
+
+                                                MultiValueKeyMaker sorter;
+                                                // Primary ordering is forwards on value 4.
+                                                sorter.add_value(4);
+                                                // Secondary ordering is reverse on value 5.
+                                                sorter.add_value(5, true);
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method instead.
+        ``Enquire::get_mset()``
 ======= =================================== ==================================================================================
 
 
@@ -515,6 +526,10 @@ Removed Language Feature name                 Upgrade suggestion and comments
                                               to have noticed in 3.5 years, we just removed it.  If you have uses (which were
                                               presumably never called), you can replace them with:
                                               ``if idx >= 0 and idx < len(mset)``
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.3.0   Python   Non-pythonic iterators       Use the pythonic iterators instead.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.3.0   Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of function)
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)

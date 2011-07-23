@@ -7,7 +7,7 @@ TESTS_ENVIRONMENT = \
 	CXX="$(CXX)" \
 	CXXFLAGS="$(CXXFLAGS)" \
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	prove -I.libs -I. -I"$(srcdir)"
+	prove -I. -I"$(srcdir)"
 
 ## Test programs to be run
 TESTS = \
@@ -32,11 +32,20 @@ TESTS = \
 	t/writabledatabase.t
 
 clean-local:
-	rm -rf testdb*
+	rm -rf testdb* auto
 
-BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc
+BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc \
+	auto/Search/Xapian/Xapian$(PERL_SO)
 
-EXTRA_DIST = except.i $(TESTS) $(BUILT_SOURCES) \
+auto/Search/Xapian/Xapian$(PERL_SO): Xapian.la
+	@$(MKDIR_P) auto/Search/Xapian
+	$(LIBTOOL) --config > libtoolconfig.tmp
+## ksh requires a path on the sourced file.
+	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Search/Xapian
+	rm -f libtoolconfig.tmp
+
+EXTRA_DIST = perl.i except.i $(TESTS) \
+	Search/Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
 	t/symbol-test/SymbolTest.xs \
@@ -138,14 +147,15 @@ docs/index.html: Search/Xapian.pm
 
 xapian_wrap.cc Search/Xapian.pm: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp: $(SWIG_sources) util.i except.i
+xapian_wrap.stamp: except.i
 	$(multitarget_begin)
 	test -d Search || mkdir Search
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -perl -module Search::Xapian -proxy -const \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	mv Xapian.pm Search/Xapian.pm
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'perl.i
+	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
+	mv Xapian.pm Search/Xapian.pm
 	$(multitarget_end)
 
 -include xapian_wrap.d

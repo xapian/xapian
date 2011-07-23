@@ -52,7 +52,7 @@ struct WinsockInitializer {
 	// that we have a version of winsock which is recent enough for us?
 
 	if (wsaerror != 0) {
-	    throw Xapian::NetworkError("Failed to initialize winsock", "", wsaerror);
+	    throw Xapian::NetworkError("Failed to initialize winsock", wsaerror);
 	}
     }
 
@@ -154,7 +154,9 @@ class RemoteConnection {
 
   public:
     /// Constructor.
-    RemoteConnection(int fdin_, int fdout_, const std::string & context_);
+    RemoteConnection(int fdin_, int fdout_,
+		     const std::string & context_ = std::string());
+
     /// Destructor
     ~RemoteConnection();
 

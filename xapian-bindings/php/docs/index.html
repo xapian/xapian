@@ -9,8 +9,9 @@ API.  This document lists the differences and additions.
 </p>
 
 <p>
-As of Xapian version 1.1.0, these bindings require PHP5 (PHP4 is no longer
-supported).
+As of Xapian version 1.3.0, these bindings require at least PHP 5.2.
+(if you really need support for PHP 5.0.x or PHP 5.1.x, Xapian 1.2.x supports
+these).
 </p>
 
 <p>
@@ -27,6 +28,11 @@ to a floating point number.
 </p>
 
 <p>
+With version 1.2.6 and later, you can subclass Xapian classes in PHP and
+virtual methods defined in PHP are called from C++ in the way you'd expect.
+</p>
+
+<p>
 PHP has a lot of reserved words of various sorts, which sadly clash with common
 method names.  Because of this <code>empty()</code> methods of various
 container-like classes are wrapped as <code>is_empty()</code> for PHP
@@ -39,7 +45,8 @@ The <code>examples</code> subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/simpleindex.php5">simpleindex.php5</a>,
 <a href="examples/simplesearch.php5">simplesearch.php5</a>,
-<a href="examples/simpleexpand.php5">simpleexpand.php5</a>.
+<a href="examples/simpleexpand.php5">simpleexpand.php5</a>,
+<a href="examples/simplematchdecider.php5">simplematchdecider.php5</a>.
 </p>
 
 Note that these examples are written to work with the command line (CLI)
@@ -102,11 +109,11 @@ which are thrown into the PHP script.
 <h2>Object orientation</h2>
 
 <p>
-As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.
+These PHP bindings use a PHP object oriented style.
 </p>
 
 <p>
-In order to construct an object, use
+To construct an object, use
 <code>$object = new XapianClassName(...);</code>.  Objects are destroyed
 when they go out of scope - to explicitly destroy an object you can use
 <code>unset($object);</code> or <code>$object = Null;</code>
@@ -119,7 +126,7 @@ You invoke a method on an object using <code>$object-&gt;method_name()</code>.
 <h2>Unicode Support</h2>
 
 <p>
-In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+The Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
 to index strings in a different encoding, use the PHP
 <a href="http://php.net/iconv"><code>iconv
@@ -187,7 +194,6 @@ wrap these PHP iterators (see <a href="http://trac.xapian.org/ticket/520">ticket
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
 <li> <code>Xapian::Brass::open()</code> is wrapped as <code>Xapian::brass_open()</code>
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian::chert_open()</code>
-<li> <code>Xapian::Flint::open()</code> is wrapped as <code>Xapian::flint_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
 <li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
@@ -232,8 +238,14 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for PHP, but you can use <code>XapianQuery("")</code>
-instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as static methods
+<code>XapianQuery::MatchAll()</code> and <code>XapianQuery::MatchNothing()</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new XapianQuery('')</code> for MatchAll and
+<code>new XapianQuery()</code> for MatchNothing.
 </p>
 
 <h2>Enquire</h2>

@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_ESETINTERNAL_H
 #define XAPIAN_INCLUDED_ESETINTERNAL_H
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/enquire.h"
 #include "xapian/types.h"
 
@@ -73,7 +73,7 @@ class ExpandTerm {
 }
 
 /// Class which actually implements Xapian::ESet.
-class ESet::Internal : public Xapian::Internal::RefCntBase {
+class ESet::Internal : public Xapian::Internal::intrusive_base {
     friend class ESet;
     friend class ESetIterator;
 

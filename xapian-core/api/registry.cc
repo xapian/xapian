@@ -156,7 +156,7 @@ Registry::get_match_spy(const string & name) const
 
 
 Registry::Internal::Internal()
-	: Xapian::Internal::RefCntBase(),
+	: Xapian::Internal::intrusive_base(),
           wtschemes(),
 	  postingsources()
 {

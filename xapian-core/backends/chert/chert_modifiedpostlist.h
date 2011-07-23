@@ -44,7 +44,7 @@ class ChertModifiedPostList : public ChertPostList {
 
   public:
     /// Constructor.
-    ChertModifiedPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
+    ChertModifiedPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> this_db_,
 			  const string & term_,
 			  const map<Xapian::docid, pair<char, Xapian::termcount> > & mods_)
 	: ChertPostList(this_db_, term_, true),

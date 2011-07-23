@@ -22,16 +22,16 @@ lib_src +=\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\
-	api/ompositionlistiterator.cc\
 	api/ompostlistiterator.cc\
 	api/omquery.cc\
 	api/omqueryinternal.cc\
-	api/omtermlistiterator.cc\
+	api/positioniterator.cc\
 	api/postingsource.cc\
 	api/postlist.cc\
 	api/registry.cc\
 	api/replication.cc\
 	api/sortable-serialise.cc\
+	api/termiterator.cc\
 	api/termlist.cc\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\

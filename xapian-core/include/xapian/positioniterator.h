@@ -27,7 +27,7 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -50,7 +50,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
         friend bool operator==(const PositionIterator &a, const PositionIterator &b);
 
@@ -71,7 +71,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const PositionIterator &o);
+	PositionIterator & operator=(const PositionIterator &o);
 
 	Xapian::termpos operator *() const;
 

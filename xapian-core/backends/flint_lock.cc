@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -262,11 +262,17 @@ FlintLock::release() {
     if (fd < 0) return;
     close(fd);
     fd = -1;
-    // The only likely error from kill is ESRCH.  The other possibilities
-    // (according to the Linux man page) are EINVAL (invalid signal) and EPERM
-    // (don't have permission to SIGHUP the process) but in none of the cases
-    // does calling waitpid do us any good!
-    if (kill(pid, SIGHUP) == 0) {
+    // Kill the child process which is holding the lock.  Use SIGKILL since
+    // that can't be caught or ignored (we used to use SIGHUP, but if the
+    // application has set that to SIG_IGN, the child process inherits that
+    // setting, which can sometimes results in the child process not exiting
+    // - noted on Linux).
+    //
+    // The only likely error from kill is ESRCH (pid doesn't exist).  The other
+    // possibilities (according to the Linux man page) are EINVAL (invalid
+    // signal) and EPERM (don't have permission to SIGKILL the process) but in
+    // none of the cases does calling waitpid do us any good!
+    if (kill(pid, SIGKILL) == 0) {
 	int status;
 	while (waitpid(pid, &status, 0) < 0) {
 	    if (errno != EINTR) break;

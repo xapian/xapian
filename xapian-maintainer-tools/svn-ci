@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Wrap "svn ci" and help generate ChangeLog entries.
+# Wrap "svn ci"/"git commit" and help generate ChangeLog entries.
 #
 # This script takes an optional list of files and/or directories, just like
 # "svn ci".
@@ -40,14 +40,22 @@ END
     exit 0;
 }
 
+my $vcs;
+if (-d '.svn') {
+    $vcs = 'svn';
+} else {
+    # Assume git for now.
+    $vcs = 'git';
+}
+
 # Set default values if the user hasn't set their own above...
 my @passwd = getpwuid(getuid());
 unless ($email) {
     $email = $passwd[0];
     if ($email eq 'olly') {
-	$email = 'olly@survex.com';
+	$email .= '@survex.com';
     } elsif ($email eq 'richard') {
-	$email = 'richard@tartarus.org';
+	$email .= '@tartarus.org';
     } elsif ($email eq 'kosei') {
 	$email = 'cou929@gmail.com';
     } else {
@@ -68,9 +76,20 @@ if (scalar @ARGV && $ARGV[0] eq '--revert') {
 # Backport?
 my $backport = 0;
 if (scalar @ARGV && $ARGV[0] eq '--backport') {
-    shift @ARGV;
-    if (! -f 'ChangeLog.rej') {
-	die "--backport specified, but no ChangeLog.rej\n";
+    if ($vcs eq 'svn') {
+	shift @ARGV;
+	my $left = (<ChangeLog.merge-left.r?*>)[0];
+	my $right = (<ChangeLog.merge-right.r?*>)[0];
+	if (defined $left && defined $right) {
+	    system "diff -c \Q$left\E \Q$right\E > ChangeLog.rej";
+	    system("svn", "revert", "ChangeLog");
+	    system("svn", "up");
+	} elsif (! -f 'ChangeLog.rej') {
+	    die "--backport specified, but no svn merge telltales and no ChangeLog.rej\n";
+	}
+    } else {
+	# FIXME: implement for git...
+	die "$vcs support for this operation hasn't been implemented yet";
     }
     $backport = 1;
 }
@@ -110,7 +129,14 @@ if (! -f "ChangeLog") {
     die "No ChangeLog found in this directory or a parent directory!\n";
 }
 if ($revert_changelog) {
-    system("svn revert ChangeLog");
+    if ($vcs eq 'svn') {
+	system('svn', 'revert', 'ChangeLog');
+    } elsif ($vcs eq 'git') {
+	system('git', 'reset', 'ChangeLog');
+	system('git', 'checkout', 'ChangeLog');
+    } else {
+	die "$vcs support for this operation hasn't been implemented yet";
+    }
 }
 
 open I, "<ChangeLog" or die $!;
@@ -124,31 +150,50 @@ while (<I>) {
 }
 close I;
 
-# See if the ChangeLog is in conflict, and automatically resolve it if it is.
-if (`svn status ChangeLog` =~ /^C/) {
-    print "Automatically merging conflicts in 'ChangeLog'\n";
-    system("svn resolved ChangeLog");
-    open I, "<ChangeLog" or die $!;
-    open O, ">ChangeLog.$$.tmp" or die $!;
-    while (<I>) {
-        # Strip out the conflict markers.
-	next if /^[<=>]{7}/;
-	print O $_;
+if ($vcs eq 'svn') {
+    # See if the ChangeLog is in conflict, and automatically resolve it if so.
+    if (`svn status ChangeLog` =~ /^C/) {
+	print "Automatically merging conflicts in 'ChangeLog'\n";
+	system("svn resolved ChangeLog");
+	open I, "<ChangeLog" or die $!;
+	open O, ">ChangeLog.$$.tmp" or die $!;
+	while (<I>) {
+	    # Strip out the conflict markers.
+	    next if /^[<=>]{7}/;
+	    print O $_;
+	}
+	close I;
+	close O or die $!;
+	rename "ChangeLog.$$.tmp", "ChangeLog" or die $!;
+	$edit_cl = 1;
     }
-    close I;
-    close O or die $!;
-    rename "ChangeLog.$$.tmp", "ChangeLog" or die $!;
-    $edit_cl = 1;
+} elsif ($vcs eq 'git') {
+    # FIXME: anything to do here?
+} else {
+    die "$vcs support for this operation hasn't been implemented yet";
 }
 
 if (!$edit_cl) {
-    system("svn diff ChangeLog");
-    my $exit = ($? >> 8);
-    if ($exit != 0 && $exit != 1) {
-	die "svn diff failed ($?)\n";
-    }
-    if ($exit == 0) {
-	$edit_cl = 1;
+    if ($vcs eq 'svn') {
+	system('svn', 'diff', 'ChangeLog');
+	my $exit = ($? >> 8);
+	if ($exit != 0 && $exit != 1) {
+	    die "svn diff failed ($?)\n";
+	}
+	if ($exit == 0) {
+	    $edit_cl = 1;
+	}
+    } elsif ($vcs eq 'git') {
+	system('git', 'diff', '--exit-code', '--cached', '--', 'ChangeLog');
+	my $exit = ($? >> 8);
+	if ($exit != 0 && $exit != 1) {
+	    die "git diff failed ($?)\n";
+	}
+	if ($exit == 0) {
+	    $edit_cl = 1;
+	}
+    } else {
+	die "$vcs support for this operation hasn't been implemented yet";
     }
     if (!$edit_cl) {
 	# FIXME: ChangeLog changed - check if they want to edit it ?
@@ -181,7 +226,14 @@ if ($edit_cl) {
 	add_new_changelog_entry($entry);
     } elsif ($add_diff) {
 	# ChangeLog unchanged - add diff to top
-	open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
+	if ($vcs eq 'svn') {
+	    open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
+	} elsif ($vcs eq 'git') {
+	    system('git', 'add', '--', @ARGV) if scalar @ARGV;
+	    open CI, "git diff --cached|";
+	} else {
+	    die "$vcs support for this operation hasn't been implemented yet";
+	}
 	my @files;
 	my $diff = '';
 	my $whitespace = '';
@@ -190,7 +242,7 @@ if ($edit_cl) {
 	my $want_tabs = -1;
 	while (<CI>) {
 	    $diff .= $_;
-	    if (/^Index: (.*)/) {
+	    if (/^Index: (.*)/ || m!^diff --git a/xapian-(?:applications/omega|\w+)/(\S+)!) {
 		$fnm = $1;
 		push @files, $fnm;
 		if ($fnm =~ /\.(?:cc|[ch])$/) {
@@ -263,6 +315,9 @@ if ($edit_cl) {
     }
     system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
     ($? >> 8 == 0) || die "$?\n";
+    if ($backport) {
+	unlink "ChangeLog.rej";
+    }
 }
 
 my $msg = '';
@@ -299,7 +354,14 @@ print M $msg;
 close M;
 # Use a temporary file and -F rather than -m to avoid any risk of overflowing
 # limits on command line length.
-system("svn", "ci", "-F", $newclentry, @ARGV);
+if ($vcs eq 'svn') {
+    system('svn', 'ci', '-F', $newclentry, @ARGV);
+} elsif ($vcs eq 'git') {
+    system('git', 'add', '--', 'ChangeLog');
+    system('git', 'commit', '-F', $newclentry);
+} else {
+    die "$vcs support for this operation hasn't been implemented yet";
+}
 unlink $newclentry;
 
 sub add_new_changelog_entry {

@@ -29,6 +29,7 @@
 #include <algorithm>
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 /// Comparison functor which orders TermList* by ascending term name.
 struct CompareTermListsByTerm {
@@ -42,14 +43,14 @@ template<class CLASS> struct delete_ptr {
     void operator()(CLASS *p) { delete p; }
 };
 
-MultiAllTermsList::MultiAllTermsList(const vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> > & dbs,
+MultiAllTermsList::MultiAllTermsList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,
 				     const string & prefix)
 {
     // The 0 and 1 cases should be handled by our caller.
     AssertRel(dbs.size(), >=, 2);
     termlists.reserve(dbs.size());
     try {
-	vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
+	vector<intrusive_ptr<Xapian::Database::Internal> >::const_iterator i;
 	for (i = dbs.begin(); i != dbs.end(); ++i) {
 	    termlists.push_back((*i)->open_allterms(prefix));
 	}

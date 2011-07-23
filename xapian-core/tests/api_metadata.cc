@@ -1,7 +1,7 @@
 /** @file api_metadata.cc
  * @brief Test the user metadata functionality.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -81,7 +81,7 @@ DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     TEST_EQUAL(dbr.get_metadata("foo"), "");
     db.commit();
     TEST_EQUAL(dbr.get_metadata("foo"), "");
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(db.get_metadata("foo"), "bar");
     TEST_EQUAL(dbr.get_metadata("foo"), "bar");
     TEST_EQUAL(dbr.get_doccount(), 0);
@@ -93,14 +93,14 @@ DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     db.commit();
 
     TEST_EQUAL(dbr.get_metadata("foo"), "bar");
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_metadata("foo"), "baz");
 
     db.set_metadata("foo", "");
     TEST_EQUAL(db.get_metadata("foo"), "");
     db.commit();
     TEST_EQUAL(dbr.get_metadata("foo"), "baz");
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_metadata("foo"), "");
 
     TEST_EQUAL(db.get_doccount(), 1);

@@ -10,7 +10,7 @@
 
 # Where the core is, relative to the Omega application
 # Change this to match your environment
-XAPIAN_CORE_REL_OMEGA=..\xapian-core
+XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -74,9 +74,10 @@ OMINDEX_OBJS= \
 	"$(OUTDIR)\freemem.obj" \
 	"$(OUTDIR)\msvc_dirent.obj" \
 	"$(OUTDIR)\xpsxmlparse.obj" \
-	"$(OUTDIR)\str.obj"
-	
-	
+	"$(OUTDIR)\str.obj" \
+	"$(OUTDIR)\svgparse.obj" \
+	"$(OUTDIR)\pkglibbindir.obj"
+
 SCRIPTINDEX_OBJS= \
 	"$(OUTDIR)\scriptindex.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
@@ -89,23 +90,23 @@ SCRIPTINDEX_OBJS= \
 	"$(OUTDIR)\safe.obj" \
 	"$(OUTDIR)\stringutils.obj" \
 	"$(OUTDIR)\utf8convert.obj" \
-	"$(OUTDIR)\utf8truncate.obj" 
-	
-	
+	"$(OUTDIR)\utf8truncate.obj"
+
+
 HTMLPARSETEST_OBJS= \
  	"$(OUTDIR)\htmlparsetest.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
  	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\utf8convert.obj" 
+	"$(OUTDIR)\utf8convert.obj"
 
 MD5TEST_OBJS= \
  	"$(OUTDIR)\md5.obj" \
  	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\md5test.obj" 
+ 	"$(OUTDIR)\md5test.obj"
 
 UTF8CONVERTTEST_OBJS= \
  	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8converttest.obj" 
+ 	"$(OUTDIR)\utf8converttest.obj"
 
 SRCS= \
 	"$(INTDIR)\omega.cc" \
@@ -158,9 +159,10 @@ SRCS= \
 	"$(OUTDIR)\common\stringutils.cc" \
 	"$(OUTDIR)\common\str.cc" \
 	"$(OUTDIR)\common\safe.cc" \
-	"$(OUTDIR)\transform.cc"
-    
-	
+	"$(OUTDIR)\transform.cc" \
+	"$(OUTDIR)\svgparse.cc" \
+	"$(OUTDIR)\pkglibbindir.cc"
+
 CLEAN :
 	-@erase $(PROGRAMS)
 	-@erase $(OMEGA_OBJS)

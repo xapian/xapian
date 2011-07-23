@@ -60,11 +60,11 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		double k3 = 1;
 		double b = 0.5;
 		double min_normlen = 0.5;
-		double_param(&p, &k1) &&
+		(void)(double_param(&p, &k1) &&
 		    double_param(&p, &k2) &&
 		    double_param(&p, &k3) &&
 		    double_param(&p, &b) &&
-		    double_param(&p, &min_normlen);
+		    double_param(&p, &min_normlen));
 		Xapian::BM25Weight wt(k1, k2, k3, b, min_normlen);
 		enq.set_weighting_scheme(wt);
 		return;

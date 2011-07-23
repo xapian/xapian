@@ -23,7 +23,7 @@ use exception_data;
 my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter KeyMaker
+    MatchDecider ExpandDecider Stopper ValueRangeProcessor KeyMaker
     StemImplementation Compactor MatchSpy
 );
 
@@ -152,7 +152,6 @@ print FD <<'EOF';
     try {
 	$action
     } catch (...) {
-	SWIG_PYTHON_THREAD_END_ALLOW;
 	Xapian::SetPythonException();
 	SWIG_fail;
     }

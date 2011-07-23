@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@
 
 #include "internaltypes.h"
 
-#include <xapian/base.h>
+#include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 #include <xapian/database.h>
 #include <xapian/document.h>
@@ -45,7 +45,7 @@ typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
 typedef Xapian::ValueIterator::Internal ValueList;
 
-// Used by flint and chert.
+// Used by brass and chert.
 const int XAPIAN_DB_READONLY = 0;
 
 namespace Xapian {
@@ -54,7 +54,7 @@ struct ReplicationInfo;
 
 /** Base class for databases.
  */
-class Database::Internal : public Xapian::Internal::RefCntBase {
+class Database::Internal : public Xapian::Internal::intrusive_base {
     private:
 	/// Copies are not allowed.
 	Internal(const Internal &);
@@ -165,30 +165,30 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  This is the number of documents which have a (non-empty) value
 	 *  stored in the slot.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 *
 	 *  @exception UnimplementedError The frequency of the value isn't
 	 *  available for this database type.
 	 */
-	virtual Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+	virtual Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 
 	/** Get a lower bound on the values stored in the given value slot.
 	 *
 	 *  If the lower bound isn't available for the given database type,
 	 *  this will return the lowest possible bound - the empty string.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 */
-	virtual std::string get_value_lower_bound(Xapian::valueno valno) const;
+	virtual std::string get_value_lower_bound(Xapian::valueno slot) const;
 
 	/** Get an upper bound on the values stored in the given value slot.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 *
 	 *  @exception UnimplementedError The upper bound of the values isn't
 	 *  available for this database type.
 	 */
-	virtual std::string get_value_upper_bound(Xapian::valueno valno) const;
+	virtual std::string get_value_upper_bound(Xapian::valueno slot) const;
 
 	/// Get a lower bound on the length of a document in this DB.
 	virtual Xapian::termcount get_doclength_lower_bound() const;
@@ -393,7 +393,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  Database backends which don't support simultaneous update and
 	 *  reading probably don't need to do anything here.
 	 */
-	virtual void reopen();
+	virtual bool reopen();
 
 	/** Close the database
 	 */

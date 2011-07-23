@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -53,10 +53,10 @@ Document::Document() : internal(new Xapian::Document::Internal)
 }
 
 string
-Document::get_value(Xapian::valueno value) const
+Document::get_value(Xapian::valueno slot) const
 {
-    LOGCALL(API, string, "Document::get_value", value);
-    RETURN(internal->get_value(value));
+    LOGCALL(API, string, "Document::get_value", slot);
+    RETURN(internal->get_value(slot));
 }
 
 string
@@ -96,17 +96,17 @@ Document::get_description() const
 }
 
 void
-Document::add_value(Xapian::valueno valueno, const string &value)
+Document::add_value(Xapian::valueno slot, const string &value)
 {
-    LOGCALL_VOID(API, "Document::add_value", valueno | value);
-    internal->add_value(valueno, value);
+    LOGCALL_VOID(API, "Document::add_value", slot | value);
+    internal->add_value(slot, value);
 }
 
 void
-Document::remove_value(Xapian::valueno valueno)
+Document::remove_value(Xapian::valueno slot)
 {
-    LOGCALL_VOID(API, "Document::remove_value", valueno);
-    internal->remove_value(valueno);
+    LOGCALL_VOID(API, "Document::remove_value", slot);
+    internal->remove_value(slot);
 }
 
 void
@@ -270,16 +270,16 @@ OmDocumentTerm::get_description() const
 }
 
 string
-Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
+Xapian::Document::Internal::get_value(Xapian::valueno slot) const
 {
     if (values_here) {
 	map<Xapian::valueno, string>::const_iterator i;
-	i = values.find(valueid);
+	i = values.find(slot);
 	if (i == values.end()) return string();
 	return i->second;
     }
     if (!database.get()) return string();
-    return do_get_value(valueid);
+    return do_get_value(slot);
 }
 	
 string
@@ -300,7 +300,7 @@ Xapian::Document::Internal::set_data(const string &data_)
 TermList *
 Xapian::Document::Internal::open_term_list() const
 {
-    LOGCALL(MATCH, TermList *, "Document::Internal::open_term_list", NO_ARGS);
+    LOGCALL(DB, TermList *, "Document::Internal::open_term_list", NO_ARGS);
     if (terms_here) {
 	RETURN(new MapTermList(terms.begin(), terms.end()));
     }
@@ -309,25 +309,25 @@ Xapian::Document::Internal::open_term_list() const
 }
 
 void
-Xapian::Document::Internal::add_value(Xapian::valueno valueno, const string &value)
+Xapian::Document::Internal::add_value(Xapian::valueno slot, const string &value)
 {
     need_values();
     if (!value.empty()) {
-	values[valueno] = value;
+	values[slot] = value;
     } else {
 	// Empty values aren't stored, but replace any existing value by
 	// removing it.
-	values.erase(valueno);
+	values.erase(slot);
     }
 }
 
 void
-Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
+Xapian::Document::Internal::remove_value(Xapian::valueno slot)
 {
     need_values();
-    map<Xapian::valueno, string>::iterator i = values.find(valueno);
+    map<Xapian::valueno, string>::iterator i = values.find(slot);
     if (i == values.end()) {
-	throw Xapian::InvalidArgumentError("Value #" + str(valueno) +
+	throw Xapian::InvalidArgumentError("Value #" + str(slot) +
 		" is not present in document, in "
 		"Xapian::Document::Internal::remove_value()");
     }
@@ -448,10 +448,10 @@ Xapian::Document::Internal::need_terms() const
 Xapian::valueno
 Xapian::Document::Internal::values_count() const
 {
-    LOGLINE(DB, "Xapian::Document::Internal::values_count() called");
+    LOGCALL(DB, Xapian::valueno, "Document::Internal::values_count", NO_ARGS);
     need_values();
     Assert(values_here);
-    return values.size();
+    RETURN(values.size());
 }
 
 string

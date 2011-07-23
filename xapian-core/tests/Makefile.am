@@ -22,11 +22,12 @@ libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-        check-multi check-multi-brass check-multi-chert check-multi-flint \
-        check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-brass check-remoteprog-chert check-remoteprog-flint\
-	check-remotetcp-brass check-remotetcp-chert check-remotetcp-flint\
-	check-brass check-chert check-flint up remove-cached-databases
+	check-brass check-chert \
+	check-multi check-multi-brass check-multi-chert \
+	check-remote check-remoteprog check-remotetcp \
+	check-remoteprog-brass check-remoteprog-chert \
+	check-remotetcp-brass check-remotetcp-chert \
+	up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)
@@ -54,7 +55,7 @@ if BUILD_BACKEND_REMOTE
 check-remote: check-remoteprog check-remotetcp
 
 check-remoteprog: apitest$(EXEEXT)
-## If both chert and flint are enabled, just run remoteprog_chert.
+## If both chert and brass are enabled, just run remoteprog_chert.
 if BUILD_BACKEND_CHERT
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
 else
@@ -62,12 +63,9 @@ else
 endif
 
 check-remotetcp: apitest$(EXEEXT)
+## If both chert and brass are enabled, just run remotetcp_brass.
 if BUILD_BACKEND_BRASS
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
-endif
-## If both chert and flint are enabled, just run remotetcp_flint.
-if BUILD_BACKEND_FLINT
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
 else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
 endif
@@ -85,13 +83,6 @@ check-remoteprog-chert: apitest$(EXEEXT)
 check-remotetcp-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
 endif
-
-if BUILD_BACKEND_FLINT
-check-remoteprog-flint: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_flint
-check-remotetcp-flint: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
-endif
 endif
 
 if BUILD_BACKEND_BRASS
@@ -106,13 +97,6 @@ check-multi-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_chert
 check-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
-endif
-
-if BUILD_BACKEND_FLINT
-check-multi-flint: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_flint
-check-flint: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
 
 ## Test programs to be run
@@ -154,7 +138,6 @@ collated_apitest_sources = \
  api_scalability.cc \
  api_serialise.cc \
  api_sorting.cc \
- api_sortingold.cc \
  api_spelling.cc \
  api_stem.cc \
  api_transdb.cc \
@@ -208,7 +191,7 @@ api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 	    test -f api_collated.stamp; exit $$?; \
 	  fi; \
 	fi
-api_collated.stamp: $(collated_apitest_sources) collate-test
+api_collated.stamp: $(collated_apitest_sources) collate-test Makefile.am
 	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" api_collated.h api_all.h $(collated_apitest_sources)
 	touch $@
 
@@ -240,42 +223,10 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
-	testdata/etext.txt \
-	testdata/flint-0.9.9/flicklock \
-	testdata/flint-0.9.9/iamflint \
-	testdata/flint-0.9.9/position.baseA \
-	testdata/flint-0.9.9/position.DB \
-	testdata/flint-0.9.9/postlist.baseA\
-	testdata/flint-0.9.9/postlist.DB \
-	testdata/flint-0.9.9/record.baseA \
-	testdata/flint-0.9.9/record.DB \
-	testdata/flint-0.9.9/termlist.baseA \
-	testdata/flint-0.9.9/termlist.DB \
-	testdata/flint-0.9.9/value.baseA \
-	testdata/flint-0.9.9/value.DB \
-	testdata/flint-1.0.1/flintlock \
-	testdata/flint-1.0.1/iamflint \
-	testdata/flint-1.0.1/position.baseA \
-	testdata/flint-1.0.1/position.DB \
-	testdata/flint-1.0.1/postlist.baseA \
-	testdata/flint-1.0.1/postlist.DB \
-	testdata/flint-1.0.1/record.baseA \
-	testdata/flint-1.0.1/record.DB \
-	testdata/flint-1.0.1/termlist.baseA \
-	testdata/flint-1.0.1/termlist.DB \
-	testdata/flint-1.0.1/value.baseA \
-	testdata/flint-1.0.1/value.DB \
-	testdata/flint-1.0.2/flintlock \
-	testdata/flint-1.0.2/iamflint \
-	testdata/flint-1.0.2/postlist.baseA \
-	testdata/flint-1.0.2/postlist.DB \
-	testdata/flint-1.0.2/record.baseA \
-	testdata/flint-1.0.2/record.DB \
-	testdata/flint-1.0.2/termlist.baseA \
-	testdata/flint-1.0.2/termlist.DB
+	testdata/etext.txt
 
 remove-cached-databases:
-	rm -rf .brass .chert .flint .multibrass .multichert .multiflint .stub
+	rm -rf .brass .chert .multibrass .multichert .stub
 
 clean-local: remove-cached-databases
 
@@ -283,8 +234,9 @@ clean-local: remove-cached-databases
 # bugs in database creation when we reuse databases from a previous test run.
 check-local: remove-cached-databases
 
-include perftest/Makefile.mk
 include harness/Makefile.mk
+include perftest/Makefile.mk
+include soaktest/Makefile.mk
 
 EXTRA_DIST += zlib-vg.c
 if USE_ZLIB_VG

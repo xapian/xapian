@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,8 +45,9 @@
 // 34: 1.1.4 Support for metadata over with remote databases.
 // 35: 1.1.5 Support for add_spelling() and remove_spelling().
 // 35.1: 1.2.4 Support for metadata_keys_begin().
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 35
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
+// 36: 1.3.0 REPLY_UPDATE and REPLY_GREETING merged, and more...
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 36
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
  *
@@ -88,7 +89,7 @@ enum message_type {
 
 /// Reply types (server -> client).
 enum reply_type {
-    REPLY_GREETING,		// Greeting
+    REPLY_UPDATE,		// Updated database stats
     REPLY_EXCEPTION,		// Exception
     REPLY_DONE,			// Done sending list
     REPLY_ALLTERMS,		// All Terms
@@ -104,7 +105,6 @@ enum reply_type {
     REPLY_POSITIONLIST,		// Get PositionList
     REPLY_POSTLISTSTART,	// Start of a postlist
     REPLY_POSTLISTITEM,		// Item in body of a postlist
-    REPLY_UPDATE,		// Get Updated DocCount and AvLength
     REPLY_VALUE,		// Document Value
     REPLY_ADDDOCUMENT,		// Add Document
     REPLY_RESULTS,		// Results (MSet)

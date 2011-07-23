@@ -34,7 +34,7 @@ class DocumentValueList : public ValueList {
     DocumentValueList(const DocumentValueList &);
 
     /// Document internals we're iterating over.
-    Xapian::Internal::RefCntPtr<const Xapian::Document::Internal> doc;
+    Xapian::Internal::intrusive_ptr<const Xapian::Document::Internal> doc;
 
     /** Iterator over the map inside @a doc.
      *
@@ -43,7 +43,7 @@ class DocumentValueList : public ValueList {
     Xapian::Document::Internal::document_values::const_iterator it;
 
   public:
-    DocumentValueList(const Xapian::Internal::RefCntPtr<Xapian::Document::Internal> & doc_)
+    DocumentValueList(const Xapian::Internal::intrusive_ptr<Xapian::Document::Internal> & doc_)
 	: doc(doc_), it(doc->values.end()) { }
 
     Xapian::docid get_docid() const;

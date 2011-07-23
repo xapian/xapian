@@ -44,7 +44,7 @@ class ChertDocument : public Xapian::Document::Internal {
     friend class ChertDatabase;
 
     /// Private constructor - only called by ChertDatabase::open_document().
-    ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db,
+    ChertDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
 		  const ChertValueManager *value_manager_,
 		  const ChertRecordTable *record_table_)

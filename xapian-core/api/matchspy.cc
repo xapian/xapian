@@ -45,6 +45,7 @@
 
 using namespace std;
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
 MatchSpy::~MatchSpy() {}
 
@@ -93,7 +94,7 @@ class ValueCountTermList : public TermList {
   private:
     map<string, Xapian::doccount>::const_iterator it;
     bool started;
-    Xapian::Internal::RefCntPtr<Xapian::ValueCountMatchSpy::Internal> spy;
+    intrusive_ptr<Xapian::ValueCountMatchSpy::Internal> spy;
   public:
 
     ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_) {
@@ -140,7 +141,7 @@ class ValueCountTermList : public TermList {
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator(NULL);
+	return Xapian::PositionIterator();
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
@@ -238,7 +239,7 @@ class StringAndFreqTermList : public TermList {
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator(NULL);
+	return Xapian::PositionIterator();
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };

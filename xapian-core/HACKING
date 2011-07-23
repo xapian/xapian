@@ -129,9 +129,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, brass, chert, or flint backends using ``make check-inmemory``,
+multi-database, brass, or chert backends using ``make check-inmemory``,
 ``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-``make check-brass``, ``make check-chert``, or ``make check-flint``
+``make check-brass``, or ``make check-chert``
 respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
@@ -163,7 +163,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 ./runtest valgrind ./apitest -v deldoc1
 
 Some test programs take special arguments - for example, you can restrict
-apitest to the flint backend using ``-bflint``.
+apitest to the chert backend using ``-bchert``.
 
 There are a few environmental variables which the testsuite harness checks for
 which you might find useful:
@@ -365,9 +365,9 @@ The documentation tools are:
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
 
-Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
-system path (as specified by the environmental variable PATH), since doxygen
-will look for them there.
+Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
+path (as specified by the environmental variable PATH), since doxygen will look
+for them there.
 
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
@@ -940,15 +940,17 @@ Marking Features as Deprecated
 ==============================
 
 In the API headers, a feature (a class, method, function, enum, typedef, etc)
-can be marked as deprecated by using the XAPIAN_DEPRECATED() macro.  Note that
-you can't deprecate a preprocessor macro.
+can be marked as deprecated by using the XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
+macro.
 
 For compilers with a suitable mechanism (currently GCC 3.1 or later, and
 MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
 any use of the deprecated feature.  For compilers without support, the macro
 just expands to its argument.
 
-You must add this line to any API header which uses XAPIAN_DEPRECATED():
+You must add this line to any API header which uses XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS::
 
     #include <xapian/deprecated.h>
 
@@ -973,10 +975,10 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
-Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
-keyword like so::
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED_CLASS`` after the
+class keyword like so::
 
-    class XAPIAN_DEPRECATED() Foo {
+    class XAPIAN_DEPRECATED_CLASS Foo {
       public:
         Foo() { }
 
@@ -985,7 +987,7 @@ keyword like so::
 
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
-XAPIAN_DEPRECATED (this works with recent GCC versions though)::
+``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
     
     class Foo {
       public:
@@ -1333,9 +1335,9 @@ API Structure Notes
 ===================
 
 We use reference counted pointers for most API classes.  These are implemented
-using Xapian::Internal::RefCntPtr, the implementation of which is exposed for
-efficiency, and because it's unlikely we'll need to change it frequently, if at
-all.
+using Xapian::Internal::intrusive_ptr, the implementation of which is exposed
+for efficiency, and because it's unlikely we'll need to change it frequently,
+if at all.
 
 For the reference counted classes, the API class (e.g. Xapian::Enquire) is
 really just a wrapper around a reference counted pointer.  This points to an

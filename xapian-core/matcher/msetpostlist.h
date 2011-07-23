@@ -43,7 +43,7 @@ class MSetPostList : public PostList {
     int cursor;
 
     /// The MSet::Internal object which we're returning entries from.
-    Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> mset_internal;
+    Xapian::Internal::intrusive_ptr<Xapian::MSet::Internal> mset_internal;
 
     /** Is the sort order such the relevance decreases down the MSet?
      *

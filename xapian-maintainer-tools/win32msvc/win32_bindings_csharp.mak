@@ -86,7 +86,7 @@ CLEAN :
     -@erase "$(OUTDIR)\$(BINDING).dll"
     -@erase "$(BINDING).dll.manifest"
     -@erase "$(ASSEMBLY).dll" 
-    -@erase "$(OUTDIR)\$(ASSEMBLY).dll
+    -@erase "$(OUTDIR)\$(ASSEMBLY).dll"
     -@erase "$(ASSEMBLY).dll.manifest" 
     -@erase "SmokeTest.exe"
     -@erase "$(OUTDIR)\SmokeTest.exe"

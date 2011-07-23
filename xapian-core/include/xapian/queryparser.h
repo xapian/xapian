@@ -1,7 +1,8 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -110,22 +111,22 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
   public:
     /** Constructor.
      *
-     *  @param valno_	The value number to return from operator().
+     *  @param slot_	The value number to return from operator().
      */
-    StringValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_), str() { }
+    StringValueRangeProcessor(Xapian::valueno slot_)
+	: valno(slot_), str() { }
 
     /** Constructor.
      *
-     *  @param valno_	The value number to return from operator().
+     *  @param slot_	The value number to return from operator().
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this range.
      *  @param prefix_	Flag specifying whether to check for str_ as a prefix
      *			or a suffix.
      */
-    StringValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+    StringValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
 			      bool prefix_ = true)
-	: valno(valno_), prefix(prefix_), str(str_) { }
+	: valno(slot_), prefix(prefix_), str(str_) { }
 
     /** Check for a valid range of this type.
      *
@@ -149,7 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
   public:
     /** Constructor.
      *
-     *  @param valno_	    The value number to return from operator().
+     *  @param slot_	    The value number to return from operator().
      *  @param prefer_mdy_  Should ambiguous dates be interpreted as
      *			    month/day/year rather than day/month/year?
      *			    (default: false)
@@ -157,14 +158,14 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
      *			    years (default: 1970, so 1/1/69 is 2069 while
      *			    1/1/70 is 1970).
      */
-    DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
+    DateValueRangeProcessor(Xapian::valueno slot_, bool prefer_mdy_ = false,
 			    int epoch_year_ = 1970)
-	: StringValueRangeProcessor(valno_),
+	: StringValueRangeProcessor(slot_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
     /** Constructor.
      *
-     *  @param valno_	    The value number to return from operator().
+     *  @param slot_	    The value number to return from operator().
      *
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this date range.
@@ -199,10 +200,10 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
      *  processor has been added to the queryparser, the queryparser will
      *  accept "created:1/1/2000..31/12/2001".
      */
-    DateValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+    DateValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
 			    bool prefix_ = true,
 			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
-	: StringValueRangeProcessor(valno_, str_, prefix_),
+	: StringValueRangeProcessor(slot_, str_, prefix_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
     /** Check for a valid range of this type.
@@ -225,14 +226,14 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
   public:
     /** Constructor.
      *
-     *  @param valno_   The value number to return from operator().
+     *  @param slot_   The value number to return from operator().
      */
-    NumberValueRangeProcessor(Xapian::valueno valno_)
-	: StringValueRangeProcessor(valno_) { }
+    NumberValueRangeProcessor(Xapian::valueno slot_)
+	: StringValueRangeProcessor(slot_) { }
 
     /** Constructor.
      *
-     *  @param valno_   The value number to return from operator().
+     *  @param slot_    The value number to return from operator().
      *
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this numeric range.
@@ -262,9 +263,9 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
      *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
      *  valid ranges.
      */
-    NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+    NumberValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
 			      bool prefix_ = true)
-	: StringValueRangeProcessor(valno_, str_, prefix_) { }
+	: StringValueRangeProcessor(slot_, str_, prefix_) { }
 
     /** Check for a valid range of this type.
      *
@@ -284,7 +285,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Class representing the queryparser internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// Enum of feature flags.
     typedef enum {
@@ -446,6 +447,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void set_database(const Database &db);
 
+    /** Specify the maximum expansion of a wildcard term.
+     *
+     *  Note: you must also set FLAG_WILDCARD for wildcard expansion to happen.
+     *
+     *  @param limit	The maximum number of terms each wildcard in the query
+     *			can expand to, or 0 for no limit (which is the default).
+     */
+    void set_max_wildcard_expansion(Xapian::termcount limit);
+
     /** Parse a query.
      *
      *  @param query_string  A free-text query as entered by a user
@@ -558,30 +568,27 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
-     *  @param exclusive If true, each document can have at most one value of
-     *			 the field, so Xapian should combine multiple values
-     *			 with OP_OR.  If false, each document can have multiple
-     *			 values of the field, so Xapian combine them with
-     *			 OP_AND, as we would with filters with different
-     *			 prefixes. [default: true]
+     *  @param exclusive If true, each document can have at most one term with
+     *			 this prefix, so multiple filters with this prefix
+     *			 should be combined with OP_OR.  If false, each
+     *			 document can have multiple terms with this prefix, so
+     *			 multiple filters should be combined with OP_AND, like
+     *			 happens with filters with different prefixes.
+     *			 [default: true]
      */
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
-			    bool exclusive);
-
-    /* FIXME:1.1.3: Merge two versions into one with optional parameter
-     * "exclusive", default true. */
-    void add_boolean_prefix(const std::string &field, const std::string &prefix);
+			    bool exclusive = true);
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
     TermIterator stoplist_end() const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /// Iterate over unstemmed forms of the given (stemmed) term used in the query.
     TermIterator unstem_begin(const std::string &term) const;
     TermIterator unstem_end(const std::string &) const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /// Register a ValueRangeProcessor.

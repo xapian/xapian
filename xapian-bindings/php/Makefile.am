@@ -8,14 +8,19 @@ abs_builddir = @abs_builddir@
 # using dl() which would make our test fail).  It would be nicer to use "-c"
 # and provide an alternative php.ini but with "-c" it seems PHP still loads the
 # system.ini first (at least with PHP 4.3.10).
-TESTS_ENVIRONMENT = $(PHP) -n -d safe_mode=off -d enable_dl=on -d extension_dir=$(abs_builddir)/.libs
+TESTS_ENVIRONMENT = $(PHP) -n -d safe_mode=off -d enable_dl=on \
+	-d extension_dir='$(abs_builddir)/.libs' -d include_path=php5
 
 ## Test programs to be run
 TESTS = smoketest.php
 
-BUILT_SOURCES = php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php
+BUILT_SOURCES =\
+	php5/xapian_wrap.cc\
+	php5/xapian_wrap.h\
+	php5/php_xapian.h\
+	php5/xapian.php
 
-EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = php.i except.i $(TESTS) $(BUILT_SOURCES)
 
 phpextdir = $(PHP_EXTENSION_DIR)
 
@@ -42,7 +47,7 @@ uninstall-local:
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-xapian_la_SOURCES = php5/xapian_wrap.cc
+xapian_la_SOURCES = php5/xapian_wrap.cc php5/xapian_wrap.h
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
 if MAINTAINER_MODE
@@ -50,17 +55,16 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
+php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
-php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
+php5/xapian_wrap.stamp:
 	-test -d php5 || mkdir php5
 	$(multitarget_begin)
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
-	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
-	mv xapian_wrap_d2.tmp xapian_wrap.d
-	rm xapian_wrap_d.tmp
+	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'php.i
+	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
+	mv xapian_wrap_d.tmp xapian_wrap.d
 	$(multitarget_end)
 
 -include xapian_wrap.d
@@ -73,7 +77,8 @@ exampledatadir = $(docdir)/php/examples
 dist_exampledata_DATA =\
 	docs/examples/simplesearch.php5\
 	docs/examples/simpleindex.php5\
-	docs/examples/simpleexpand.php5
+	docs/examples/simpleexpand.php5\
+	docs/examples/simplematchdecider.php5
 
 docdatadir = $(docdir)/php
 dist_docdata_DATA = docs/index.html

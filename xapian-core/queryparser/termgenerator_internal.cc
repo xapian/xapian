@@ -28,6 +28,7 @@
 
 #include "stringutils.h"
 
+#include <limits>
 #include <string>
 
 using namespace std;
@@ -67,7 +68,7 @@ should_stem(const std::string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-const unsigned UNICODE_IGNORE(-1);
+const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
 
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {

@@ -1,7 +1,7 @@
 /** @file backendmanager_remote.cc
  * @brief BackendManager subclass for remote databases.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,9 +35,6 @@ BackendManagerRemote::BackendManagerRemote(const std::string & remote_type_)
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	  || remote_type == "chert"
 #endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	  || remote_type == "flint"
-#endif
 	 )) {
 	throw ("Unknown backend type \"" + remote_type + "\" specified for remote database");
     }
@@ -65,12 +62,6 @@ BackendManagerRemote::get_writable_database_args(const std::string & name,
 	args += ".chert/";
     }
 #endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (remote_type == "flint") {
-	(void)getwritedb_flint(name, std::vector<std::string>(1, file));
-	args += ".flint/";
-    }
-#endif
     args += name;
 
     return args;
@@ -93,11 +84,6 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 	args += createdb_chert(files);
     }
 #endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (remote_type == "flint") {
-	args += createdb_flint(files);
-    }
-#endif
 
     return args;
 }
@@ -114,11 +100,6 @@ BackendManagerRemote::get_writable_database_as_database_args()
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     if (remote_type == "chert") {
 	args += ".chert/";
-    }
-#endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (remote_type == "flint") {
-	args += ".flint/";
     }
 #endif
     args += last_wdb_name;
@@ -138,11 +119,6 @@ BackendManagerRemote::get_writable_database_again_args()
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     if (remote_type == "chert") {
 	args += ".chert/";
-    }
-#endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (remote_type == "flint") {
-	args += ".flint/";
     }
 #endif
     args += last_wdb_name;

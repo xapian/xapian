@@ -129,7 +129,6 @@ member functions of abstract classes like so:
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.OpenStub()</code>
 <li> <code>Xapian::Brass::open()</code> is wrapped as <code>Xapian.Brass.Open()</code>
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian.Chert.Open()</code>
-<li> <code>Xapian::Flint::open()</code> is wrapped as <code>Xapian.Flint.Open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.Open()</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.Open()</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
@@ -179,8 +178,15 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for C#, but you can use <code>xapian.Query("")</code>
-instead of MatchAll and <code>xapian.Query()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as static constants
+<code>xapian.Query.MatchAll</code> and <code>xapian.Query.MatchNothing</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new xapian.Query("")</code> instead of <code>xapian.Query.MatchAll</code>
+and <code>new xapian.Query()</code> instead of
+<code>xapian.Query.MatchNothing</code>.
 </p>
 
 <!-- FIXME: Need to define the custom output typemap to handle this if it

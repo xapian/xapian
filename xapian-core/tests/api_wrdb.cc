@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -286,9 +286,10 @@ DEFINE_TESTCASE(adddoc3, writable) {
     return true;
 }
 
-// We want to test that a termlist starting with a 48 character long term works
-// OK since this value currently requires special handling in flint for
-// historical reasons!)  Also test all other term lengths while we're at it.
+// We originally wanted to test that a termlist starting with a 48 character
+// long term worked since that required special handling in flint for
+// historical reasons.  That's no longer relevant, but it seems useful to
+// continue to test term lists starting with various term lengths work.
 DEFINE_TESTCASE(adddoc4, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -602,7 +603,8 @@ DEFINE_TESTCASE(deldoc2, writable) {
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     db.delete_document(1);
     db.delete_document(2);
@@ -610,7 +612,8 @@ DEFINE_TESTCASE(deldoc2, writable) {
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
     TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
@@ -663,13 +666,15 @@ DEFINE_TESTCASE(deldoc3, writable) {
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     db.delete_document(1);
 
     db.commit();
 
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
@@ -729,11 +734,13 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	bool is_power_of_two = ((i & (i - 1)) == 0);
 	if (is_power_of_two) {
 	    db.commit();
-	    db.reopen();
+	    // reopen() on a writable database shouldn't do anything.
+	    TEST(!db.reopen());
 	}
     }
     db.commit();
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     /* delete the documents in a peculiar order */
     for (Xapian::docid i = 0; i < maxdoc / 3; ++i) {
@@ -743,8 +750,8 @@ DEFINE_TESTCASE(deldoc4, writable) {
     }
 
     db.commit();
-
-    db.reopen();
+    // reopen() on a writable database shouldn't do anything.
+    TEST(!db.reopen());
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
     TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
@@ -1092,7 +1099,7 @@ DEFINE_TESTCASE(replacedoc4, writable) {
 
 // Test replacing a document with itself without modifying postings.
 // Regression test for bug in 0.9.9 and earlier - there flint and quartz
-// lose all positional information for the document when you do this.
+// lost all positional information for the document when you did this.
 DEFINE_TESTCASE(replacedoc5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -1119,9 +1126,9 @@ DEFINE_TESTCASE(replacedoc5, writable) {
 	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     }
 
-    // Brass, chert and flint now spot simple cases of replacing the same
-    // document and don't do needless work.  Force them to actually do the
-    // replacement to make sure that case works.
+    // The backends now spot simple cases of replacing the same document and
+    // don't do needless work.  Force them to actually do the replacement to
+    // make sure that case works.
 
     {
 	Xapian::Document doc;
@@ -1488,7 +1495,7 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
+DEFINE_TESTCASE(crashrecovery1, brass || chert) {
     const string & dbtype = get_dbtype();
     string path = ".";
     path += dbtype;
@@ -1505,14 +1512,14 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
 
 	db.add_document(doc);
 	db.commit();
-	dbr.reopen();
+	TEST(dbr.reopen());
 	TEST_EQUAL(dbr.get_doccount(), 1);
 
 	// Xapian::Database has full set of baseB, old baseA
 
 	db.add_document(doc);
 	db.commit();
-	dbr.reopen();
+	TEST(dbr.reopen());
 	TEST_EQUAL(dbr.get_doccount(), 2);
 
 	// Xapian::Database has full set of baseA, old baseB
@@ -1522,7 +1529,7 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
 	unlink(path + "/record" + base_ext);
 	unlink(path + "/termlist" + base_ext);
 
-	dbr.reopen();
+	TEST(!dbr.reopen());
 	TEST_EQUAL(dbr.get_doccount(), 2);
     }
 
@@ -1532,14 +1539,14 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert || flint) {
 
     db.add_document(doc);
     db.commit();
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_doccount(), 3);
 
     // Xapian::Database has full set of baseB, old baseA
 
     db.add_document(doc);
     db.commit();
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_doccount(), 4);
 
     return true;
@@ -1716,9 +1723,8 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     db.commit();
 
     {
-	// Currently brass, flint and chert escape zero bytes from terms in
-	// keys for some tables, so a term with 127 zero bytes won't work
-	// either.
+	// Currently brass and chert escape zero bytes from terms in keys for
+	// some tables, so a term with 127 zero bytes won't work either.
 	Xapian::Document doc;
 	doc.add_term(string(127, '\0'));
 	db.add_document(doc);
@@ -1780,7 +1786,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, brass || chert || flint) {
+DEFINE_TESTCASE(lazytablebug1, brass || chert) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 
@@ -1812,7 +1818,7 @@ DEFINE_TESTCASE(lazytablebug1, brass || chert || flint) {
  *  Chert also has the same duff code but this testcase doesn't actually 
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, brass || chert || flint) {
+DEFINE_TESTCASE(cursordelbug1, brass || chert) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 

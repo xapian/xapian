@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -55,7 +55,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/// Class holding details of the query
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Enum of possible query operations
         typedef enum {
@@ -190,6 +190,14 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	Query(Query::op op_, Iterator qbegin, Iterator qend,
 	      Xapian::termcount parameter = 0);
 
+#ifdef SWIG
+	// SWIG's %template doesn't seem to handle a templated ctor so we
+	// provide this fake specialised form of the above prototype.
+	Query::Query(Query::op op_,
+		     XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+		     termcount parameter = 0);
+#endif
+
 	/** Apply the specified operator to a single Xapian::Query object, with
 	 *  a double parameter.
 	 */
@@ -198,31 +206,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Construct a value range query on a document value.
 	 *
 	 *  A value range query matches those documents which have a value
-	 *  stored in the slot given by @a valno which is in the range
+	 *  stored in the slot given by @a slot which is in the range
 	 *  specified by @a begin and @a end (in lexicographical
 	 *  order), including the endpoints.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
 	 *               be OP_VALUE_RANGE.
-	 *  @param valno The slot number to get the value from.
+	 *  @param slot  The slot number to get the value from.
 	 *  @param begin The start of the range.
 	 *  @param end   The end of the range.
 	 */
-	Query(Query::op op_, Xapian::valueno valno,
+	Query(Query::op op_, Xapian::valueno slot,
 	      const std::string &begin, const std::string &end);
 
 	/** Construct a value comparison query on a document value.
 	 *
 	 *  This query matches those documents which have a value stored in the
-	 *  slot given by @a valno which compares, as specified by the
+	 *  slot given by @a slot which compares, as specified by the
 	 *  operator, to @a value.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
 	 *               be OP_VALUE_GE or OP_VALUE_LE.
-	 *  @param valno The slot number to get the value from.
+	 *  @param slot  The slot number to get the value from.
 	 *  @param value The value to compare.
 	 */
-	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
+	Query(Query::op op_, Xapian::valueno slot, const std::string &value);
 
 	/** Construct an external source query.
 	 *
@@ -259,7 +267,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  query.
 	 */
 	TermIterator get_terms_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Test if the query is empty (i.e. was constructed using
@@ -333,7 +341,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 #ifndef SWIG // SWIG has no interest in the internal class, so hide it completely.
 
 /// @private @internal Internal class, implementing most of Xapian::Query.
-class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
+class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::intrusive_base {
     friend class ::LocalSubMatch;
     friend class ::MultiMatch;
     friend class ::QueryOptimiser;
@@ -445,12 +453,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	Internal(op_t op_, Xapian::termcount parameter);
 
 	/** Construct a range query on a document value. */
-	Internal(op_t op_, Xapian::valueno valno,
+	Internal(op_t op_, Xapian::valueno slot,
 		 const std::string &begin, const std::string &end);
 
 	/** Construct a value greater-than-or-equal query on a document value.
 	 */
-	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
+	Internal(op_t op_, Xapian::valueno slot, const std::string &value);
 
 	/// Construct an external source query.
 	explicit Internal(Xapian::PostingSource * external_source_, bool owned);

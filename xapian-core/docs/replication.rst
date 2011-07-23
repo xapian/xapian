@@ -50,7 +50,7 @@ the separate `Replication Protocol <replication_protocol.html>`_ document.
 Backend Support
 ===============
 
-Replication is supported by the chert, flint, and brass database backends,
+Replication is supported by the chert, and brass database backends,
 and can cleanly handle the
 master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.

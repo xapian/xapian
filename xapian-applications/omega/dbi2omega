@@ -31,8 +31,7 @@ my $table = shift @ARGV;
 my $fields = join ",", @ARGV;
 my $username = $ENV{'DBUSER'} || $ENV{USER} || $ENV{LOGNAME} || '';
 my $password = $ENV{'DBPASSWORD'} || '';
-# 0.9.4 and earlier were hardwired to use mysql here.  DBI defaults
-# to DBIDRIVER if you specify a datasource of "DBI::$database", so
+# DBI defaults to DBIDRIVER if you specify a datasource of "DBI::$database", so
 # it's an appropriate environment variable to check.
 my $driver = $ENV{'DBIDRIVER'} || 'mysql';
 

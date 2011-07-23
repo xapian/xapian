@@ -1,7 +1,8 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007,2008,2010 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -103,6 +104,12 @@ QueryParser::set_database(const Database &db) {
     internal->db = db;
 }
 
+void
+QueryParser::set_max_wildcard_expansion(Xapian::termcount max)
+{
+    internal->max_wildcard_expansion = max;
+}
+
 Query
 QueryParser::parse_query(const string &query_string, unsigned flags,
 			 const string &default_prefix)
@@ -140,12 +147,6 @@ QueryParser::add_boolean_prefix(const string &field, const string &prefix,
 	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
     filter_type type = (exclusive ? BOOLEAN_EXCLUSIVE : BOOLEAN);
     internal->add_prefix(field, prefix, type);
-}
-
-void
-QueryParser::add_boolean_prefix(const string &field, const string &prefix)
-{
-    add_boolean_prefix(field, prefix, true);
 }
 
 TermIterator

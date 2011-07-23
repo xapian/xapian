@@ -36,7 +36,7 @@
 
 MergePostList::~MergePostList()
 {
-    LOGCALL_VOID(MATCH, "MergePostList::~MergePostList", NO_ARGS);
+    LOGCALL_DTOR(MATCH, "MergePostList");
     std::vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	delete *i;
@@ -153,7 +153,7 @@ MergePostList::get_weight() const
 const string *
 MergePostList::get_collapse_key() const
 {
-    LOGCALL(MATCH, string *, "MergePostList::get_collapse_key", NO_ARGS);
+    LOGCALL(MATCH, const string *, "MergePostList::get_collapse_key", NO_ARGS);
     Assert(current != -1);
     return plists[current]->get_collapse_key();
 }

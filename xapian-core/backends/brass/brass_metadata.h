@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_METADATA_H
 #define XAPIAN_INCLUDED_BRASS_METADATA_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/database.h>
 #include <xapian/types.h>
 
@@ -42,7 +42,7 @@ class BrassMetadataTermList : public AllTermsList {
     void operator=(const BrassMetadataTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the postlist table reading metadata keys.
      */
@@ -53,7 +53,7 @@ class BrassMetadataTermList : public AllTermsList {
     std::string prefix;
 
   public:
-    BrassMetadataTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+    BrassMetadataTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 			  BrassCursor * cursor_, const std::string &prefix_);
 
     ~BrassMetadataTermList();

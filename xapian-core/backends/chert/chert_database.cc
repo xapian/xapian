@@ -75,6 +75,7 @@
 
 using namespace std;
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
 // The maximum safe term length is determined by the postlist.  There we
 // store the term using pack_string_preserving_sort() which takes the
@@ -174,7 +175,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 
 ChertDatabase::~ChertDatabase()
 {
-    LOGCALL_DTOR(DB, "~ChertDatabase");
+    LOGCALL_DTOR(DB, "ChertDatabase");
 }
 
 bool
@@ -211,10 +212,10 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
     stats.zero();
 }
 
-void
+bool
 ChertDatabase::open_tables_consistent()
 {
-    LOGCALL_VOID(DB, "ChertDatabase::open_tables_consistent", NO_ARGS);
+    LOGCALL(DB, bool, "ChertDatabase::open_tables_consistent", NO_ARGS);
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -234,7 +235,7 @@ ChertDatabase::open_tables_consistent()
     if (cur_rev && cur_rev == revision) {
 	// We're reopening a database and the revision hasn't changed so we
 	// don't need to do anything.
-	return;
+	RETURN(false);
     }
 
     // Set the block_size for optional tables as they may not currently exist.
@@ -285,6 +286,7 @@ ChertDatabase::open_tables_consistent()
     }
 
     stats.read(postlist_table);
+    return true;
 }
 
 void
@@ -477,11 +479,12 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     }
 }
 
-void
+bool
 ChertDatabase::reopen()
 {
-    LOGCALL_VOID(DB, "ChertDatabase::reopen", NO_ARGS);
-    if (readonly) open_tables_consistent();
+    LOGCALL(DB, bool, "ChertDatabase::reopen", NO_ARGS);
+    if (!readonly) return false;
+    return open_tables_consistent();
 }
 
 void
@@ -793,7 +796,7 @@ ChertDatabase::get_doclength(Xapian::docid did) const
 {
     LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_doclength", did);
     Assert(did != 0);
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
@@ -814,24 +817,24 @@ ChertDatabase::get_collection_freq(const string & term) const
 }
 
 Xapian::doccount
-ChertDatabase::get_value_freq(Xapian::valueno valno) const
+ChertDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
-    RETURN(value_manager.get_value_freq(valno));
+    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", slot);
+    RETURN(value_manager.get_value_freq(slot));
 }
 
 std::string
-ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
+ChertDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
-    RETURN(value_manager.get_value_lower_bound(valno));
+    LOGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", slot);
+    RETURN(value_manager.get_value_lower_bound(slot));
 }
 
 std::string
-ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
+ChertDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
-    RETURN(value_manager.get_value_upper_bound(valno));
+    LOGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", slot);
+    RETURN(value_manager.get_value_upper_bound(slot));
 }
 
 Xapian::termcount
@@ -870,7 +873,7 @@ LeafPostList *
 ChertDatabase::open_post_list(const string& term) const
 {
     LOGCALL(DB, LeafPostList *, "ChertDatabase::open_post_list", term);
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
@@ -887,7 +890,7 @@ ValueList *
 ChertDatabase::open_value_list(Xapian::valueno slot) const
 {
     LOGCALL(DB, ValueList *, "ChertDatabase::open_value_list", slot);
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertValueList(slot, ptrtothis));
 }
 
@@ -899,7 +902,7 @@ ChertDatabase::open_term_list(Xapian::docid did) const
     if (!termlist_table.is_open())
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertTermList(ptrtothis, did));
 }
 
@@ -913,7 +916,7 @@ ChertDatabase::open_document(Xapian::docid did, bool lazy) const
 	(void)get_doclength(did);
     }
 
-    Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
+    intrusive_ptr<const Database::Internal> ptrtothis(this);
     RETURN(new ChertDocument(ptrtothis, did, &value_manager, &record_table));
 }
 
@@ -936,7 +939,7 @@ TermList *
 ChertDatabase::open_allterms(const string & prefix) const
 {
     LOGCALL(DB, TermList *, "ChertDatabase::open_allterms", NO_ARGS);
-    RETURN(new ChertAllTermsList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    RETURN(new ChertAllTermsList(intrusive_ptr<const ChertDatabase>(this),
 				 prefix));
 }
 
@@ -951,7 +954,7 @@ ChertDatabase::open_spelling_wordlist() const
 {
     ChertCursor * cursor = spelling_table.cursor_get();
     if (!cursor) return NULL;
-    return new ChertSpellingWordsList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    return new ChertSpellingWordsList(intrusive_ptr<const ChertDatabase>(this),
 				      cursor);
 }
 
@@ -972,7 +975,7 @@ ChertDatabase::open_synonym_keylist(const string & prefix) const
 {
     ChertCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
-    return new ChertSynonymTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    return new ChertSynonymTermList(intrusive_ptr<const ChertDatabase>(this),
 				    cursor, prefix);
 }
 
@@ -990,10 +993,10 @@ ChertDatabase::get_metadata(const string & key) const
 TermList *
 ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList *, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
     if (!cursor) return NULL;
-    return new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+    return new ChertMetadataTermList(intrusive_ptr<const ChertDatabase>(this),
 				     cursor, prefix);
 }
 
@@ -1037,7 +1040,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 
 ChertWritableDatabase::~ChertWritableDatabase()
 {
-    LOGCALL_DTOR(DB, "~ChertWritableDatabase");
+    LOGCALL_DTOR(DB, "ChertWritableDatabase");
     dtor_called();
 }
 
@@ -1249,7 +1252,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	value_manager.delete_document(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+	intrusive_ptr<const ChertWritableDatabase> ptrtothis(this);
 	ChertTermList termlist(ptrtothis, did);
 
 	stats.delete_document(termlist.get_doclength());
@@ -1305,7 +1308,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 
 	if (!termlist_table.is_open()) {
 	    // We can replace an *unused* docid <= last_docid too.
-	    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+	    intrusive_ptr<const ChertDatabase> ptrtothis(this);
 	    if (!postlist_table.document_exists(did, ptrtothis)) {
 		(void)add_document_(did, document);
 		return;
@@ -1338,7 +1341,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
-	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+	    intrusive_ptr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
 	    chert_doclen_t old_doclen = termlist.get_doclength();
@@ -1506,33 +1509,33 @@ ChertWritableDatabase::get_collection_freq(const string & tname) const
 }
 
 Xapian::doccount
-ChertWritableDatabase::get_value_freq(Xapian::valueno valno) const
+ChertWritableDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.freq);
-    RETURN(ChertDatabase::get_value_freq(valno));
+    RETURN(ChertDatabase::get_value_freq(slot));
 }
 
 std::string
-ChertWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
+ChertWritableDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.lower_bound);
-    RETURN(ChertDatabase::get_value_lower_bound(valno));
+    RETURN(ChertDatabase::get_value_lower_bound(slot));
 }
 
 std::string
-ChertWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
+ChertWritableDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.upper_bound);
-    RETURN(ChertDatabase::get_value_upper_bound(valno));
+    RETURN(ChertDatabase::get_value_upper_bound(slot));
 }
 
 bool
@@ -1546,7 +1549,7 @@ LeafPostList *
 ChertWritableDatabase::open_post_list(const string& tname) const
 {
     LOGCALL(DB, LeafPostList *, "ChertWritableDatabase::open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+    intrusive_ptr<const ChertWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();
@@ -1655,7 +1658,7 @@ ChertWritableDatabase::clear_synonyms(const string & term) const
 void
 ChertWritableDatabase::set_metadata(const string & key, const string & value)
 {
-    LOGCALL(DB, string, "ChertWritableDatabase::set_metadata", key | value);
+    LOGCALL_VOID(DB, "ChertWritableDatabase::set_metadata", key | value);
     string btree_key("\x00\xc0", 2);
     btree_key += key;
     if (value.empty()) {

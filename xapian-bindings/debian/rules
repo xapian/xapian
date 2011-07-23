@@ -155,8 +155,8 @@ debian/control: debian/rules debian/control.in
 	done >> debian/control.tmp
 	mv debian/control.tmp debian/control
 
-configure: debian/configure-stamp
-debian/configure-stamp:
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
 
 	# Use the latest config.sub and config.guess from the autotools-dev
@@ -204,8 +204,8 @@ debian/configure-stamp:
 
 	touch $@
 
-build: debian/build-stamp
-debian/build-stamp: configure
+build: build-stamp
+build-stamp: configure
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \

@@ -76,8 +76,8 @@ What doesn't work - Xapian bindings
 - The ruby bindings fail one of the tests, see http://trac.xapian.org/ticket/478 for
 more details. We have opted to package them anyway (see win32_bindings_ruby.mak for how)
 
-- Any other bindings. Java-Swig bindings do not work for SVN HEAD and the 
-  1.2.0 series (note that the Java-Swig bindings are still rather alpha, 
+- Any other bindings. Java bindings do not work for SVN HEAD and the
+  1.2.0 series (note that the Java bindings are still rather alpha,
   and may be subject to significant API change). See http://trac.xapian.org/ticket/474
       
 TODOS
@@ -198,7 +198,7 @@ Note that the build system supports Python 2.4, 2.5, 2.6  and 2.7 currently, you
   a. follow the instructions at http://wiki.php.net/internals/windows/stepbystepbuild
   b. to edit config.mak to use the correct paths to PHP 5.3 and to select the right version of PHP to build.
 
-- To compile the Java-swig bindings you need the Java SE Development Kit from http://java.sun.com/javase/downloads/index.jsp (we have used the 1.6.0_05 release). Make sure the paths to this are set correctly in config.mak (JAVA_DIR)
+- To compile the Java bindings you need the Java SE Development Kit from http://java.sun.com/javase/downloads/index.jsp (we have used the 1.6.0_05 release). Make sure the paths to this are set correctly in config.mak (JAVA_DIR)
 
 - To compile the Ruby bindings you will need the one-click installer for Ruby 1.8.6 from http://www.ruby-lang.org/en/downloads/ - config.mak has settings that will work if this is installed at the default location of c:\ruby. Note that you will have to change the "!=" in the first line of c:\ruby\lib\ruby\1.8\i386-mswin32\config.h
 to "<=" if using a Visual C++ older than 5.0.
@@ -263,7 +263,7 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
   win32_bindings_python.mak
   win32_bindings_php.mak
   win32_bindings_ruby.mak 
-  win32_bindings_java-swig.mak
+  win32_bindings_java.mak
   win32_bindings_csharp.mak
     to suit your environment (XAPIAN_CORE_REL_PYTHON or similar)
 8) nmake COPYMAKFILES

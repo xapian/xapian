@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.5], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -36,18 +36,23 @@ dnl 23:1:1 1.2.2 No API changes
 dnl 23:2:1 1.2.3 No API changes
 dnl 24:0:2 1.2.4 Compactor
 dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
-LIBRARY_VERSION_INFO=25:0:3
+dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
+dnl
+dnl LIBRARY_VERSION_INFO for libxapian-1.3:
+dnl 0:0:0 1.3.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
 dnl Disabled for stable release series.
-dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
-dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
+dnl Default to "-1.3"; for no suffix, specify: --program-suffix=
+test x"$program_suffix" != xNONE || program_suffix=-1.3
 
-dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
-incdir=$includedir
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
+dnl incdir=$includedir
+incdir=$includedir/xapian-1.3
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -288,8 +293,8 @@ else
       dnl 2340 (remark) "value copied to temporary, reference to temporary
       dnl	use", in: throw Xapian::UnimplementedError("...");
       dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
-      dnl	virtual destructor for RefCntBase, since we never delete its
-      dnl	subclasses by a RefCntBase *).
+      dnl	virtual destructor for intrusive_base, since we never delete
+      dnl       its subclasses by a intrusive_base *).
       dnl 3348 "declaration hides constant ..." which seems to misfire!
       dnl 4255 (remark) "padding size of struct "..." with ... bytes to
       dnl	alignment boundary".
@@ -659,7 +664,6 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(brass)
 XAPIAN_BACKEND_ENABLE(chert)
-XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
 
@@ -679,18 +683,10 @@ if test yes = "$enable_backend_chert" ; then
   esac
 fi
 
-if test yes = "$enable_backend_flint" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build flint there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_flint=no ;;
-  esac
-fi
-
 use_win32_uuid_api=0
-case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
+case $enable_backend_chert$enable_backend_brass in
 *yes*)
-  dnl We use zlib for compressing tags in brass/chert/flint.  We could
+  dnl We use zlib for compressing tags in brass/chert.  We could
   dnl automatically disable support if zlib isn't found, but overall that
   dnl probably does more harm than good - it's most likely that someone just
   dnl forgot to install the -dev package for zlib.
@@ -699,7 +695,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -707,7 +703,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -729,7 +725,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	SAVE_LIBS=$LIBS
 	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
 	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -742,7 +738,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
-	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	], [ ])
       ], [ ])
       ;;
@@ -763,11 +759,11 @@ AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
-  AC_PREPROC_IFELSE([
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #ifdef __WIN32__
 #error WIN32
 #endif
-  ], [win32=no], [win32=yes])
+  ]])], [win32=no], [win32=yes])
 
   case $host_os-$win32 in
     *-yes )
@@ -853,11 +849,10 @@ dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_BRASS, test yes = "$enable_backend_brass")
 AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
-AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
-AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT,
-  [test nonono != "$enable_backend_brass$enable_backend_chert$enable_backend_flint"])
+AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT,
+  [test nono != "$enable_backend_brass$enable_backend_chert"])
 
 dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
@@ -1225,6 +1220,12 @@ module=no
 eval "SHLIBEXT=$shrext_cmds"
 AC_SUBST(SHLIBEXT)
 
+dnl We want to be able to use GNU make % pattern rules in maintainer targets
+dnl but automake warns these aren't portable, so we substitute the % to avoid
+dnl this warning.
+PERCENT='%'
+AC_SUBST(PERCENT)
+
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
@@ -1272,7 +1273,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in BRASS CHERT FLINT INMEMORY REMOTE ; do
+for backend in BRASS CHERT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

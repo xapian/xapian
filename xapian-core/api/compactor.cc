@@ -53,8 +53,6 @@
 #include "backends/brass/brass_version.h"
 #include "backends/chert/chert_compact.h"
 #include "backends/chert/chert_version.h"
-#include "backends/flint/flint_compact.h"
-#include "backends/flint/flint_version.h"
 
 #include <xapian.h>
 
@@ -76,14 +74,13 @@ static const char * backend_names[] = {
     NULL,
     "brass",
     "chert",
-    "flint"
 };
 
 enum { STUB_NO, STUB_FILE, STUB_DIR };
 
 namespace Xapian {
 
-class Compactor::Internal : public Xapian::Internal::RefCntBase {
+class Compactor::Internal : public Xapian::Internal::intrusive_base {
     friend class Compactor;
 
     string destdir;
@@ -96,7 +93,7 @@ class Compactor::Internal : public Xapian::Internal::RefCntBase {
     Xapian::docid tot_off;
     Xapian::docid last_docid;
 
-    enum { UNKNOWN, BRASS, CHERT, FLINT } backend;
+    enum { UNKNOWN, BRASS, CHERT } backend;
 
     struct stat sb;
 
@@ -256,8 +253,7 @@ Compactor::Internal::add_source(const string & srcdir)
 		string type(line, 0, space);
 		line.erase(0, space + 1);
 
-		if (type == "auto" || type == "chert" || type == "flint" ||
-		    type == "brass") {
+		if (type == "auto" || type == "chert" || type == "brass") {
 		    resolve_relative_path(line, file);
 		    add_source(line);
 		    continue;
@@ -270,19 +266,16 @@ Compactor::Internal::add_source(const string & srcdir)
 		    throw Xapian::InvalidOperationError(msg);
 		}
 
+		if (type == "flint") {
+		    throw Xapian::DatabaseError("Flint backend no longer supported");
+		}
 		throw Xapian::DatabaseError("Bad line in stub file");
 	    }
 	    return;
 	}
     }
 
-    if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
-	if (backend == UNKNOWN) {
-	    backend = FLINT;
-	} else if (backend != FLINT) {
-	    backend_mismatch(first_source, backend, srcdir, FLINT);
-	}
-    } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
+    if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
 	if (backend == UNKNOWN) {
 	    backend = CHERT;
 	} else if (backend != CHERT) {
@@ -294,9 +287,11 @@ Compactor::Internal::add_source(const string & srcdir)
 	} else if (backend != BRASS) {
 	    backend_mismatch(first_source, backend, srcdir, BRASS);
 	}
+    } else if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
+	throw Xapian::DatabaseError("Flint backend no longer supported");
     } else {
 	string msg = srcdir;
-	msg += ": not a flint, chert or brass database";
+	msg += ": not a chert or brass database";
 	throw Xapian::InvalidArgumentError(msg);
     }
 
@@ -467,13 +462,6 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #else
 	throw Xapian::FeatureUnavailableError("Brass backend disabled at build time");
 #endif
-    } else {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	compact_flint(compactor, destdir.c_str(), sources, offset, block_size,
-		      compaction, multipass, last_docid);
-#else
-	throw Xapian::FeatureUnavailableError("Flint backend disabled at build time");
-#endif
     }
 
     // Create the version file ("iamchert", etc).
@@ -490,13 +478,6 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
     } else if (backend == BRASS) {
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	BrassVersion(destdir).create();
-#else
-	// Handled above.
-	exit(1);
-#endif
-    } else {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	FlintVersion(destdir).create();
 #else
 	// Handled above.
 	exit(1);

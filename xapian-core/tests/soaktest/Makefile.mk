@@ -41,7 +41,7 @@ soaktest/soaktest_all.h soaktest/soaktest_collated.h $(collated_soaktest_sources
 	    test -f soaktest/soaktest_collated.stamp; exit $$?; \
 	  fi; \
 	fi
-soaktest/soaktest_collated.stamp: $(collated_soaktest_sources) collate-test
+soaktest/soaktest_collated.stamp: $(collated_soaktest_sources) collate-test soaktest/Makefile.mk
 	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" soaktest/soaktest_collated.h soaktest/soaktest_all.h $(collated_soaktest_sources)
 	touch $@
 endif

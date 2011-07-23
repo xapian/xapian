@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/enquire.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -168,7 +168,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
 #ifndef SWIG // SWIG doesn't need to know about the internal class
     struct XAPIAN_VISIBILITY_DEFAULT Internal
-	    : public Xapian::Internal::RefCntBase
+	    : public Xapian::Internal::intrusive_base
     {
 	/// The slot to count.
 	Xapian::valueno slot;
@@ -185,7 +185,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 #endif
 
   protected:
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
     /// Construct an empty ValueCountMatchSpy.
@@ -211,7 +211,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to values_begin() */
     TermIterator values_end() const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /** Get an iterator over the most frequent values seen in the slot.
@@ -228,7 +228,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to top_values_begin() */
     TermIterator top_values_end(size_t) const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /** Implementation of virtual operator().
