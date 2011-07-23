@@ -1,6 +1,7 @@
-/* quest.cc - Command line search tool using Xapian::QueryParser.
+/* questletor.cc - Command line search tool using Xapian::QueryParser and Xapian::Letor 
  *
  * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2011 Parth Gupta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
