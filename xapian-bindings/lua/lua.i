@@ -23,5 +23,6 @@
 
 %include ../xapian-head.i
 %include util.i
-%include ../generic/except.i
+%include except.i
 %include ../xapian.i
+

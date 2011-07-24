@@ -7,7 +7,7 @@ TESTS_ENVIRONMENT = LUA_CPATH=".libs/?.so" $(LUA)
 ## Test programs to be run
 TESTS = smoketest.lua
 
-EXTRA_DIST = lua.i util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = lua.i util.i except.i $(TESTS) $(BUILT_SOURCES)
 
 lualibdir = @LUA_LIB@
 
@@ -31,14 +31,19 @@ xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(LUA_LIBS)
 
-BUILT_SOURCES = xapian_wrap.cc
-
 if MAINTAINER_MODE
+BUILT_SOURCES = except.i
+except.i: $(srcdir)/generate-lua-exceptions ../../xapian-core/exception_data.pm
+	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-lua-exceptions
+
+BUILT_SOURCES += xapian_wrap.cc
+
 xapian_wrap.cc:
 	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'lua.i
 	mv xapian_wrap_d.tmp xapian_wrap.d
+
 
 -include xapian_wrap.d
 endif
