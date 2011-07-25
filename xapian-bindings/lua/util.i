@@ -58,6 +58,44 @@ class luaMatchDecider : public Xapian::MatchDecider {
 };
 %}
 
+%{
+class luaExpandDecider : public Xapian::ExpandDecider {
+	int r;
+	lua_State* L;
+
+	public:
+		luaExpandDecider(lua_State* S) {
+			L = S;
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+			r = luaL_ref(L, LUA_REGISTRYINDEX);
+		}
+
+		~luaExpandDecider() {
+			luaL_unref(L, LUA_REGISTRYINDEX, r);
+		}
+
+		bool operator()(const std::string &term) const {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+
+			SWIG_NewPointerObj(L, &term, SWIGTYPE_p_std__string, 0);
+			if (lua_pcall(L, 1, 1, 0) != 0){
+				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+			}
+			if (!lua_isboolean(L, -1)) {
+				luaL_error(L, "function must return a boolean");
+			}
+			bool result = lua_toboolean(L, -1);
+			lua_pop(L, 1);
+			return result;
+		}
+};
+%}
+
 %luacode {
 function xapian.Iterator(begin, _end)
 	local iter = begin;
@@ -101,6 +139,27 @@ end
 	}
 
 }
+
+%typemap(typecheck, precedence=100) Xapian::ExpandDecider * {
+	void *ptr;
+	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__ExpandDecider, 0))) {
+		$1 = 1;
+	}
+	else {
+		$1 = 0;
+	}
+}
+%typemap(in) Xapian::ExpandDecider * {
+	if (lua_isfunction(L, $input)) {
+		$1 = new luaExpandDecider(L);
+	}
+	else {
+		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__ExpandDecider, 0))){
+			SWIG_fail_ptr("Enquire_get_mset", $input, SWIGTYPE_p_Xapian__ExpandDecider);
+		}
+	}
+}
+
 #define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 /*
  * Check to see what is equivalent to a C++ Vector for the purposes of a Query
