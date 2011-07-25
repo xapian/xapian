@@ -168,6 +168,16 @@ class SmokeTest {
 		System.Environment.Exit(1);
 	    }
 
+	    mset = enquire.GetMSet(0, 10);
+	    for (Xapian.MSetIterator m = mset.Begin(); m != mset.End(); m++) {
+		// In Xapian 1.2.6 and earlier, the iterator would become
+		// eligible for garbage collection after being advanced.
+		// It didn't actually get garbage collected often, but when
+		// it did, it caused a crash.  Here we force a GC run to make
+		// this issue manifest if it is present.
+		System.GC.Collect();
+		System.GC.WaitForPendingFinalizers();
+	    }
 
             // Test setting and getting metadata
             if (db.GetMetadata("Foo") !=  "") {

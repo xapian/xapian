@@ -1,3 +1,10 @@
+Mon Jul 25 05:52:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Don't return iterator from C# Next() and Prev() methods by
+	  reference as that results in it being eligible for garbage collection
+	  while we're still using it.
+	* csharp/SmokeTest.cs: Add regression test.
+
 Sat Jul 23 15:27:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/util.i: Whitespace tweaks.
