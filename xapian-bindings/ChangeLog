@@ -1,3 +1,7 @@
+Sat Jul 23 15:27:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Whitespace tweaks.
+
 Sat Jul 23 15:18:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/docs/examples/simpleexpand.lua,

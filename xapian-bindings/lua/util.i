@@ -61,20 +61,20 @@ class luaMatchDecider : public Xapian::MatchDecider {
 %luacode {
 function xapian.Iterator(begin, _end)
 	local iter = begin;
-	local isFirst = 1 
+	local isFirst = 1
 	return function()
 		if iter:equals(_end) then
 			return nil
 		else
 			if isFirst == 1 then
 				isFirst = 0;
-			return iter
+				return iter
 			else
 				iter:next()
 				if iter:equals(_end) then
 					return nil
 				end
-			return iter
+				return iter
 			end
 		end
 	end
@@ -183,7 +183,7 @@ end
 
 	NS::ITERATOR_CLASS * begin = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.first);
 	SWIG_NewPointerObj(L, (void *) begin, SWIGTYPE_p_##NS##__##ITERATOR_CLASS, 1);
-	
+
 	NS::ITERATOR_CLASS * end = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.second);
 	SWIG_NewPointerObj(L, (void *) end, SWIGTYPE_p_##NS##__##ITERATOR_CLASS, 1);
 
@@ -234,12 +234,12 @@ OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, metadata_keys_begin, met
 	lua_remove(L, -2);
 
 	if (!lua_isfunction(L, -1)) {
-				luaL_typerror(L, -1, "function");
+		luaL_typerror(L, -1, "function");
 	}
 
 	Xapian::PositionIterator * begin = new Xapian::PositionIterator((const Xapian::PositionIterator &)$1.first);
 	SWIG_NewPointerObj(L, (void *) begin, SWIGTYPE_p_Xapian__PositionIterator, 1);
-	
+
 	Xapian::PositionIterator * end = new Xapian::PositionIterator((const Xapian::PositionIterator &)$1.second);
 	SWIG_NewPointerObj(L, (void *) end, SWIGTYPE_p_Xapian__PositionIterator, 1);
 
@@ -249,5 +249,3 @@ OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, metadata_keys_begin, met
 
 	SWIG_arg++;
 }
-
-
