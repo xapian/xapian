@@ -51,6 +51,16 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 	    Document doc = new Document();
+	    doc.setData("a\000b");
+	    String s = doc.getData();
+	    if (s.equals("a")) {
+		System.err.println("getData+setData truncates at a zero byte");
+		System.exit(1);
+	    }
+	    if (!s.equals("a\000b")) {
+		System.err.println("getData+setData doesn't transparently handle a zero byte");
+		System.exit(1);
+	    }
 	    doc.setData("is there anybody out there?");
 	    doc.addTerm("XYzzy");
 // apply was stemWord() in the JNI bindings

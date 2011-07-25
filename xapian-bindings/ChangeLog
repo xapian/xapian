@@ -1,3 +1,7 @@
+Mon Jul 25 07:36:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Add test that string passing is zero byte safe.
+
 Mon Jul 25 06:42:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java: Fix MyExpandDecider.accept to really check the
