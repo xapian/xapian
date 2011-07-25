@@ -1,3 +1,8 @@
+Mon Jul 25 06:42:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix MyExpandDecider.accept to really check the
+	  passed parameter.
+
 Mon Jul 25 05:52:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian.i: Don't return iterator from C# Next() and Prev() methods by
