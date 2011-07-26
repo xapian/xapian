@@ -1,3 +1,8 @@
+Tue Jul 26 05:54:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Rearrange logic for discarding the RSet and forcing the
+	  first page.
+
 Tue Jul 26 05:27:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* query.cc: Remove support for OLDP CGI parameter which was superseded

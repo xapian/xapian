@@ -2139,21 +2139,22 @@ ensure_query_parsed()
     pair<MCI, MCI> g;
 
     // Should we discard the existing R-set recorded in R CGI parameters?
-    bool discard_rset = true;
+    bool discard_rset = false;
 
     // Should we force the first page of hits (and ignore [ > < # and TOPDOC
     // CGI parameters)?
-    bool force_first_page = true;
+    bool force_first_page = false;
 
     string v;
     // get list of terms from previous iteration of query
     val = cgi_params.find("xP");
     if (val != cgi_params.end()) {
 	v = val->second;
-    } else {
-	// if xP not given, default to keeping the rset and don't force page 1
-	discard_rset = false;
-	force_first_page = false;
+	// If xP given, default to discarding any RSet and forcing the first
+	// page of results.  If the query is the same, or an extension of
+	// the previous query, we adjust these again below.
+	discard_rset = true;
+	force_first_page = true;
     }
     querytype result = set_probabilistic(v);
     switch (result) {
