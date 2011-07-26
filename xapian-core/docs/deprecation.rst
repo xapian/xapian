@@ -555,4 +555,7 @@ Removed Feature name                        Upgrade suggestion and comments
 1.0.0   scriptindex -q                      ``-q`` was ignored for compatibility with 0.6.1 and earlier, so just remove it.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.0   scriptindex index=nopos             Use ``indexnopos`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``OLDP`` CGI parameter              Use ``xP`` CGI parameter instead (direct replacement), which has been supported
+                                            since at least 0.5.0.
 ======= =================================== ==================================================================================

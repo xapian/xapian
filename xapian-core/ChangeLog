@@ -1,3 +1,7 @@
+Tue Jul 26 05:36:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Add Omega's OLDP CGI parameter.
+
 Fri Jul 22 15:37:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Reword documentation of
