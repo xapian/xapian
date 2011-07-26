@@ -173,17 +173,19 @@ END
 
   # Pull in each svn:externals as a separate little git repo:
   git svn show-externals | while read path revopt url ; do
-    case $path in
-    /*)
-      # For example:
-      # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
-      path=`echo "$path"|sed 's,^/,,'`
-      if [ ! -d "$path" ] ; then
-	git svn init "$url" "$path"/
-      fi
-      (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
-      ;;
-    esac
+    # For example:
+    # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
+    if [ -n "$url" ] ; then
+      case $path in
+      /*)
+	path=`echo "$path"|sed 's,^/,,'`
+	if [ ! -d "$path" ] ; then
+	  git svn init "$url" "$path"/
+	fi
+	(cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
+	;;
+      esac
+    fi
   done
 fi
 
