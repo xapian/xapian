@@ -1,3 +1,8 @@
+Tue Jul 26 05:27:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Remove support for OLDP CGI parameter which was superseded
+	  by xP approximately a decade ago, and isn't even documented.
+
 Mon Jul 04 06:20:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omega.cc,utils.cc,utils.h: Factor out trim() function.

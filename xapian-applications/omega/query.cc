@@ -329,7 +329,7 @@ set_probabilistic(const string &oldp)
     // Check new query against the previous one
     if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
 
-    // The terms in OLDP are separated by tabs.
+    // The terms in oldp are separated by tabs.
     const char oldp_separator = '\t';
     size_t n_old_terms = count(oldp.begin(), oldp.end(), oldp_separator) + 1;
 
@@ -2148,7 +2148,6 @@ ensure_query_parsed()
     string v;
     // get list of terms from previous iteration of query
     val = cgi_params.find("xP");
-    if (val == cgi_params.end()) val = cgi_params.find("OLDP");
     if (val != cgi_params.end()) {
 	v = val->second;
     } else {
