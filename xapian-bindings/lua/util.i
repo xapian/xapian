@@ -141,6 +141,44 @@ class luaStemImplementation : public Xapian::StemImplementation {
 };
 %}
 
+%{
+class luaKeyMaker : public Xapian::KeyMaker {
+	int r;
+	lua_State* L;
+
+	public:
+		luaKeyMaker(lua_State* S) {
+			L = S;
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+			r = luaL_ref(L, LUA_REGISTRYINDEX);
+		}
+
+		~luaKeyMaker() {
+			luaL_unref(L, LUA_REGISTRYINDEX, r);
+		}
+
+		std::string operator()(const Xapian::Document &doc) const {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+
+			SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
+			if (lua_pcall(L, 1, 1, 0) != 0){
+				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+			}
+			if (!lua_isstring(L, -1)) {
+				luaL_error(L, "function must return a string");
+			}
+			std::string result(lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return result;
+		}
+};
+%}
+
 %luacode {
 function xapian.Iterator(begin, _end)
 	local iter = begin;
@@ -179,6 +217,26 @@ end
 	}
 	else {
 		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__Stem, 0))){
+			SWIG_fail;
+		}
+	}
+}
+
+%typemap(typecheck, precedence=100) Xapian::KeyMaker * {
+	void *ptr;
+	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__KeyMaker, 0))) {
+		$1 = 1;
+	}
+	else {
+		$1 = 0;
+	}
+}
+%typemap(in) Xapian::KeyMaker * {
+	if (lua_isfunction(L, $input)) {
+		$1 = new luaKeyMaker(L);
+	}
+	else {
+		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__KeyMaker, 0))){
 			SWIG_fail;
 		}
 	}
