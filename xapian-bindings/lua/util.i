@@ -219,6 +219,40 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 };
 %}
 
+%{
+class luaMatchSpy : public Xapian::MatchSpy {
+	int r;
+	lua_State* L;
+
+	public:
+		luaMatchSpy(lua_State* S) {
+			L = S;
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+			r = luaL_ref(L, LUA_REGISTRYINDEX);
+		}
+
+		~luaMatchSpy() {
+			luaL_unref(L, LUA_REGISTRYINDEX, r);
+		}
+
+		void operator()(const Xapian::Document &doc, Xapian::weight wt) {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+
+			SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
+			SWIG_NewPointerObj(L, &wt, SWIGTYPE_p_Xapian__Weight, 0);
+			if (lua_pcall(L, 2, 1, 0) != 0){
+				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+			}
+			return;
+		}
+};
+%}
+
 %luacode {
 function xapian.Iterator(begin, _end)
 	local iter = begin;
