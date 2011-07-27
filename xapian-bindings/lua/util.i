@@ -20,13 +20,15 @@
 
 // "end" is a keyword in Lua, so we rename it to "_end"
 %rename("_end") end;
+
+%define SUB_CLASS(NS, CLASS, DEREF_CLASS, PARAMETER_NAME, PARAMETER_VALUE, PARAMETER_POINTER)
 %{
-class luaMatchDecider : public Xapian::MatchDecider {
+class DEREF_CLASS : public NS::CLASS {
 	int r;
 	lua_State* L;
 
 	public:
-		luaMatchDecider(lua_State* S) {
+		DEREF_CLASS(lua_State* S) {
 			L = S;
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
@@ -34,17 +36,17 @@ class luaMatchDecider : public Xapian::MatchDecider {
 			r = luaL_ref(L, LUA_REGISTRYINDEX);
 		}
 
-		~luaMatchDecider() {
+		~DEREF_CLASS() {
 			luaL_unref(L, LUA_REGISTRYINDEX, r);
 		}
 
-		bool operator()(const Xapian::Document &doc) const {
+		bool operator()(PARAMETER_NAME) const {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
 			}
 
-			SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
+			SWIG_NewPointerObj(L, PARAMETER_VALUE, PARAMETER_POINTER, 0);
 			if (lua_pcall(L, 1, 1, 0) != 0){
 				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 			}
@@ -58,13 +60,39 @@ class luaMatchDecider : public Xapian::MatchDecider {
 };
 %}
 
+%typemap(typecheck, precedence=100) NS::CLASS * {
+	void *ptr;
+	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_##NS##__##CLASS, 0))) {
+		$1 = 1;
+	}
+	else {
+		$1 = 0;
+	}
+}
+%typemap(in) NS::CLASS * {
+	if (lua_isfunction(L, $input)) {
+		$1 = new DEREF_CLASS(L);
+	}
+	else {
+		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_##NS##__##CLASS, 0))){
+			SWIG_fail;
+		}
+	}
+}
+
+%enddef
+
+SUB_CLASS(Xapian, MatchDecider, luaMatchDecider, const Xapian::Document &doc, &doc, SWIGTYPE_p_Xapian__Document)
+SUB_CLASS(Xapian, ExpandDecider, luaExpandDecider, const std::string &term, &term,  SWIGTYPE_p_std__string)
+SUB_CLASS(Xapian, Stopper, luaStopper, const std::string &term, &term,  SWIGTYPE_p_std__string)
+
 %{
-class luaExpandDecider : public Xapian::ExpandDecider {
+class luaStemImplementation : public Xapian::StemImplementation {
 	int r;
 	lua_State* L;
 
 	public:
-		luaExpandDecider(lua_State* S) {
+		luaStemImplementation(lua_State* S) {
 			L = S;
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
@@ -72,24 +100,41 @@ class luaExpandDecider : public Xapian::ExpandDecider {
 			r = luaL_ref(L, LUA_REGISTRYINDEX);
 		}
 
-		~luaExpandDecider() {
+		~luaStemImplementation() {
 			luaL_unref(L, LUA_REGISTRYINDEX, r);
 		}
 
-		bool operator()(const std::string &term) const {
+		std::string operator()(const std::string &word) {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
 			}
 
-			SWIG_NewPointerObj(L, &term, SWIGTYPE_p_std__string, 0);
+			SWIG_NewPointerObj(L, &word, SWIGTYPE_p_std__string, 0);
 			if (lua_pcall(L, 1, 1, 0) != 0){
 				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 			}
-			if (!lua_isboolean(L, -1)) {
-				luaL_error(L, "function must return a boolean");
+			if (!lua_isstring(L, -1)) {
+				luaL_error(L, "function must return a string");
 			}
-			bool result = lua_toboolean(L, -1);
+			std::string result(lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return result;
+		}
+		std::string get_description() const {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+
+			if (lua_pcall(L, 0, 1, 0) != 0){
+				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+			}
+			if (!lua_isstring(L, -1)) {
+				luaL_error(L, "function must return a string");
+			}
+			
+			std::string result(lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return result;
 		}
@@ -119,43 +164,22 @@ function xapian.Iterator(begin, _end)
 end
 }
 
-%typemap(typecheck, precedence=100) Xapian::MatchDecider * {
+%typemap(typecheck, precedence=100) Xapian::StemImplementation * {
 	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__MatchDecider, 0))) {
+	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__Stem, 0))) {
 		$1 = 1;
 	}
 	else {
 		$1 = 0;
 	}
 }
-%typemap(in) Xapian::MatchDecider * {
+%typemap(in) Xapian::StemImplementation * {
 	if (lua_isfunction(L, $input)) {
-		$1 = new luaMatchDecider(L);
+		$1 = new luaStemImplementation(L);
 	}
 	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__MatchDecider, 0))){
-			SWIG_fail_ptr("Enquire_get_mset", $input, SWIGTYPE_p_Xapian__MatchDecider);
-		}
-	}
-
-}
-
-%typemap(typecheck, precedence=100) Xapian::ExpandDecider * {
-	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__ExpandDecider, 0))) {
-		$1 = 1;
-	}
-	else {
-		$1 = 0;
-	}
-}
-%typemap(in) Xapian::ExpandDecider * {
-	if (lua_isfunction(L, $input)) {
-		$1 = new luaExpandDecider(L);
-	}
-	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__ExpandDecider, 0))){
-			SWIG_fail_ptr("Enquire_get_mset", $input, SWIGTYPE_p_Xapian__ExpandDecider);
+		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__Stem, 0))){
+			SWIG_fail;
 		}
 	}
 }
