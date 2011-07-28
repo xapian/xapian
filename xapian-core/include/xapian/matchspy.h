@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -24,15 +24,11 @@
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
 #include <xapian/intrusive_ptr.h>
-#include <xapian/enquire.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
 #include <string>
 #include <map>
-#include <set>
-#include <string>
-#include <vector>
 
 namespace Xapian {
 
