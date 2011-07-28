@@ -1,3 +1,8 @@
+Thu Jul 28 13:23:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,omega.cc,omega.h,query.cc,query.h: Add support
+	  for search inputs for multiple probabilistic prefixes.
+
 Wed Jul 27 02:35:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Add link to

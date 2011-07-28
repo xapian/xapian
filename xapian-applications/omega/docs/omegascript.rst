@@ -25,11 +25,11 @@ character '"' in C and similar languages).  This can make complex OmegaScript
 slightly difficult to read at times.
 
 When a command takes no arguments, the braces must be omitted (i.e.
-`$query` rather than `$query{}` - the latter is a command with a
-single empty argument).  If you want to have the value of `$query` immediately
+`$msize` rather than `$msize{}` - the latter is a command with a single empty
+argument).  If you want to have the value of `$msize` immediately
 followed by a letter, digit, or "_", you can use an empty comment (`${}`) to
 prevent the parser treating the following character as part of a command name.
-E.g. `_$query${}_` rather than `$query_`
+E.g. `_$msize${}_` rather than `_$msize_`
 
 It is important to realise that all whitespace is significant in OmegaScript
 - e.g. if you put whitespace around a "," which separates two command arguments
@@ -312,9 +312,13 @@ $prettyterm{TERM}
 	Otherwise term prefixes are converted back to user forms as specified
 	by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
 
-$query
-	query string (built from CGI ``P`` variable(s) plus possible added
-	terms from ``ADD`` and ``X``).
+$query[{PREFIX}]
+	query string for prefix PREFIX.
+
+	If PREFIX is omitted or empty, this is built from CGI ``P`` variable(s)
+	plus possible added terms from ``ADD`` and ``X``.
+
+	If PREFIX is non-empty, this is built from CGI ``P.PREFIX`` variables.
 
 $querydescription
         a human readable description of the ``Xapian::Query`` object which
@@ -392,6 +396,17 @@ $set{OPT,VALUE}
 	* flag_spelling_correction
 	* flag_synonym
 	* flag_wildcard
+
+	Omega 1.2.7 added support for search fields with a probabilistic
+	prefix, and you can set different QueryParser flags for each prefix -
+	for example, for the ``XFOO`` prefix use ``XFOO:flag_pure_not``, etc.
+	The unprefixed constants provide a default value for these.  If a flag
+	is set in the default, the prefix specific flag can unset it if it
+	is set to the empty value (e.g.
+	``$set{flag_pure_not,1}$set{XFOO:flag_pure_not,}``).
+
+	You can use ``:flag_partial``, etc to set or unset a flag just for
+	unprefixed fields.
 
 $setrelevant{docids}
 	add documents into the RSet
