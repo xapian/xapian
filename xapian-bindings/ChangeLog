@@ -1,3 +1,9 @@
+Fri Jul 29 13:49:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add regression test for recently fixed SWIG bug
+	  which caused "return $r;" to be generated in some cases when $r
+	  wasn't set.
+
 Fri Jul 29 03:41:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Install an error handler so the test fails if
