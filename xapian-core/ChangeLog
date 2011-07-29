@@ -1,3 +1,8 @@
+Fri Jul 29 01:33:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Just forward declare "class KeyMaker"
+	  rather than including <xapian/keymaker.h>.
+
 Fri Jul 29 01:28:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/slowvaluelist.cc,

@@ -29,7 +29,6 @@
 #include <string>
 
 #include <xapian/intrusive_ptr.h>
-#include <xapian/keymaker.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -40,6 +39,7 @@ class Database;
 class Document;
 class ErrorHandler;
 class ExpandDecider;
+class KeyMaker;
 class MatchSpy;
 class MSetIterator;
 class Query;
