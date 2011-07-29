@@ -408,6 +408,9 @@ $set{OPT,VALUE}
 	You can use ``:flag_partial``, etc to set or unset a flag just for
 	unprefixed fields.
 
+	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
+	``XFOO``, with ``stemmer`` providing a default.
+
 $setrelevant{docids}
 	add documents into the RSet
 

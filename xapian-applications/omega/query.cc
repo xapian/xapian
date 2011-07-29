@@ -304,7 +304,6 @@ static querytype
 set_probabilistic(const string &oldp)
 {
     // Parse the query string.
-    qp.set_stemmer(Xapian::Stem(option["stemmer"]));
     qp.set_stemming_strategy(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
@@ -342,8 +341,17 @@ set_probabilistic(const string &oldp)
 	     j != probabilistic_query.end();
 	     ++j) {
 	    const string & prefix = j->first;
-	    const string & query_string = j->second;
+
+	    // Choose the stemmer to use for this input.
+	    string stemlang = option[prefix + ":stemmer"];
+	    if (stemlang.empty())
+		stemlang = option["stemmer"];
+	    qp.set_stemmer(Xapian::Stem(stemlang));
+
+	    // Work out the flags to use for this input.
 	    unsigned f = read_qp_flags(prefix + ":flag_", default_flags);
+
+	    const string & query_string = j->second;
 	    queries.push_back(qp.parse_query(query_string, f, prefix));
 	}
 	query = Xapian::Query(query.OP_AND, queries.begin(), queries.end());

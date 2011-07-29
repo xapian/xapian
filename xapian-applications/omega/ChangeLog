@@ -1,3 +1,7 @@
+Fri Jul 29 01:47:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add support for per-prefix stemmers.
+
 Thu Jul 28 13:23:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,omega.cc,omega.h,query.cc,query.h: Add support
