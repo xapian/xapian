@@ -450,10 +450,10 @@ Database::get_document(Xapian::docid did) const
     RETURN(Document(internal[n]->open_document(m, false)));
 }
 
-Document::Internal *
+void *
 Database::get_document_lazily_(Xapian::docid did) const
 {
-    LOGCALL(DB, Document::Internal *, "Database::get_document_lazily_", did);
+    LOGCALL(DB, void *, "Database::get_document_lazily_", did);
     if (did == 0)
 	docid_zero_invalid();
 
@@ -462,7 +462,7 @@ Database::get_document_lazily_(Xapian::docid did) const
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-    RETURN(internal[n]->open_document(m, true));
+    RETURN(static_cast<void*>(internal[n]->open_document(m, true)));
 }
 
 bool

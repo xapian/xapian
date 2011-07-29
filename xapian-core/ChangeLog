@@ -1,3 +1,13 @@
+Fri Jul 29 01:28:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/slowvaluelist.cc,
+	  include/xapian/database.h,matcher/valuestreamdocument.cc: Change
+	  Database::get_document_lazily_() to return void* so we don't need
+	  to include xapian/document.h from xapian/database.h just to get
+	  Document::Internal declared.  This doesn't affect user code, but
+	  reduces the number of files which need to be rebuilt in the library
+	  when xapian/document.h changes.
+
 Wed Jul 27 05:59:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h: Remove unnecessary header includes.

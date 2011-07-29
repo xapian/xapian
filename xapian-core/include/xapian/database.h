@@ -29,7 +29,6 @@
 #include <vector>
 
 #include <xapian/intrusive_ptr.h>
-#include <xapian/document.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -38,6 +37,8 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
+
+class Document;
 
 /** This class is used to access a database, or a group of databases.
  *
@@ -70,11 +71,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  The caller should delete the returned object when it has finished
 	 *  with it.
 	 *
+	 *  The returned value is cast to void* to avoid needing to include
+	 *  xapian/document.h from here.
+	 *
 	 *  @param did   The document id of the document to retrieve.
 	 *
-	 *  @return      Pointer to Document::Internal object.
+	 *  @return      Pointer to Document::Internal object cast to void*.
 	 */
-	Document::Internal * get_document_lazily_(Xapian::docid did) const;
+	void * get_document_lazily_(Xapian::docid did) const;
 
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
