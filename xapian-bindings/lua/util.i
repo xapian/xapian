@@ -336,66 +336,76 @@ end
 	}
 }
 
-#define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
-/*
- * Check to see what is equivalent to a C++ Vector for the purposes of a Query
- * instantiation.
- * In Lua, we use tables.
- */
-%typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
-	if (!lua_istable(L, $input)) {
-		luaL_typerror(L, $input, "table");
-		$1 = 0;
-	}
-	else {
-		$1 = 1;
-		int numitems = 0;
-		numitems = lua_objlen(L, $input);
-		if (numitems == 0) {
-			luaL_argerror(L, $input, "table appears to be empty");
-			$1 = 0;
-		}
-	}
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+%typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    $1 = lua_istable(L, $input);
+    /* FIXME: if we add more array typemaps, we'll need to check the elements
+     * of the array here to disambiguate. */
 }
 
-/*
- * Convert Lua tables to C++ Vectors for Query instantiation.
- */
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-	int numitems = 0;
-	if (!lua_istable(L, $input)) {
-		luaL_typerror(L, $input, "table");
-		return 0;
-	}
+%{
+class XapianSWIGQueryItor {
+	lua_State* L;
+	int index;
+	int i;
 
-	numitems = lua_objlen(L, $input);
-	if (numitems == 0) {
-		luaL_argerror(L, $input, "table appears to be empty");
-		return 0;
-	}
-	v.reserve(numitems);
-	for (int i = 0; i < numitems; ++i) {
-		lua_rawgeti(L, $input, i+1);
-		if (lua_isstring(L, -1)) {
-			size_t len = 0;
-			const char *p = lua_tolstring(L, -1, &len);
-			v.push_back(Xapian::Query(string(p, len)));
-		}
-		else {
-			Xapian::Query *subq = 0;
-			if(!lua_isuserdata(L, -1) || SWIG_ConvertPtr(L, -1, (void **)&subq, SWIGTYPE_p_Xapian__Query, 0) == -1){
+  public:
+    XapianSWIGQueryItor() { }
+
+    XapianSWIGQueryItor(lua_State * S, int index_, int n)
+	: L(S), index(index_), i(n) { }
+
+    XapianSWIGQueryItor & operator++() {
+			++i;
+			return *this;
+    }
+
+    Xapian::Query operator*() const {
+			lua_rawgeti(L, index, i+1);
+			if (lua_isstring(L, -1)) {
+				size_t len = 0;
+				const char *p = lua_tolstring(L, -1, &len);
+				lua_pop(L,1);
+				return Xapian::Query(string(p, len));
+			}
+			else {
+				Xapian::Query *subq = 0;
+				if(!lua_isuserdata(L, -1) || SWIG_ConvertPtr(L, -1, (void **)&subq, SWIGTYPE_p_Xapian__Query, 0) == -1){
+					lua_pop(L, 1);
+					luaL_argerror(L, index, "elements of Tables passed to Query must be either Strings or other Queries");
+				}
+	
 				lua_pop(L, 1);
-				luaL_argerror(L, $input, "elements of Tables passed to Query must be either Strings or other Queries");
+				return *subq;
 			}
-			if (!subq) {
-				SWIG_exception(SWIG_ValueError, "elements of Tables passed to Query must be either Strings or other Queries");
-				SWIG_fail;
-			}
-			v.push_back(*subq);
-		}
-		lua_pop(L,1);
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+			return i == o.i;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+				return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+
+%}
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+	if (lua_istable(L, $input)) {
+		$1 = XapianSWIGQueryItor(L, $input, 0);
+		$2 = XapianSWIGQueryItor(L, $input, lua_objlen(L, $input));
 	}
-	$1 = &v;
+	else {
+		$1 = $2 = XapianSWIGQueryItor(L, $input, 0);
+  }
 }
 
 %define OUTPUT_ITERATOR_METHODS(NS, CLASS, ITERATOR_CLASS, ITERATOR_BEGIN, ITERATOR_END, DEREF_METHOD, PARAMETER_NAME, PARAMETER_VALUE)
