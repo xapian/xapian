@@ -199,7 +199,7 @@ END
 
     # FIXME: Currently rev here requires manual update...
     #svn:externals revision for SWIG
-    handle_svn_external swig -r12762 svn://svn.tartarus.org/swig/trunk/
+    handle_svn_external swig -r12767 svn://svn.tartarus.org/swig/trunk/
   
     # FIXME: Currently rev here requires manual update...
     #svn:externals revision for xapian-applications/omega/common
