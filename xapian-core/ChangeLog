@@ -1,3 +1,8 @@
+Sat Jul 30 12:07:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in: Don't generate XML from doxygen for the
+	  bindings - the bindings now do this for themselves.  (ticket#262)
+
 Fri Jul 29 01:33:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Just forward declare "class KeyMaker"
