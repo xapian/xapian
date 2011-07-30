@@ -166,10 +166,32 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS=`$XAPIAN_CONFIG --swigflags`
   AC_SUBST(SWIG_FLAGS)
+  XAPIAN_HEADER_DIRS=
+  XAPIAN_HEADERS=
+  for a in $SWIG_FLAGS ; do
+    case $a in
+    -I*)
+      d=`echo "x$a"|sed 's/^x-I//'`
+      dnl Quote each entry in XAPIAN_HEADER_DIRS with "".
+      XAPIAN_HEADER_DIRS=$XAPIAN_HEADER_DIRS' "'$d'"'
+      for f in "$d/"*.h "$d/xapian/*.h" ; do
+	if test -f "$f" ; then
+	  XAPIAN_HEADERS="$XAPIAN_HEADERS $f"
+	fi
+      done
+      ;;
+    esac
+  done
+  AC_SUBST([XAPIAN_HEADER_DIRS])
+  AC_SUBST([XAPIAN_HEADERS])
 
   dnl Need perl in maintainer mode to generate the except.i file for python.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+  dnl Need doxygen in maintainer mode to convert C++ doxygen comments to Python
+  dnl docstrings.
+  AC_PATH_PROG(DOXYGEN, doxygen, [])
+  test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
   dnl Need python in maintainer mode to run doxy2swig.py.
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
@@ -1048,6 +1070,7 @@ dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 AC_SUBST([AUTOM4TE])
 
 AC_CONFIG_FILES([Makefile
+ doxygen_xml.conf
  xapian-version.h
  python/Makefile
  php/Makefile

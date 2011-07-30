@@ -1,3 +1,10 @@
+Sat Jul 30 12:05:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,doxygen_xml.conf.in,python/Makefile.am,
+	  ruby/Makefile.am,ruby/generate-rdoc-stubs: Run doxygen to generate
+	  XML for the bindings in the bindings build system, not as a
+	  side-effect in xapian-core's.  (ticket#262)
+
 Sat Jul 30 06:22:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am,generic/generic.mk,java/Makefile.am,

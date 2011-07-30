@@ -16,8 +16,17 @@ EXTRA_DIST = xapian.i xapian-head.i xapian-headers.i generic/except.i \
     xapian-bindings.spec skiptest \
     HACKING
 
-SUBDIRS = @BINDINGS@
+SUBDIRS = . @BINDINGS@
 DIST_SUBDIRS = python php java ruby tcl8 csharp perl lua
+
+if MAINTAINER_MODE
+if !MAINTAINER_NO_DOCS
+BUILT_SOURCES = doxygen-xml/index.xml
+
+doxygen-xml/index.xml: $(XAPIAN_HEADERS)
+	$(DOXYGEN) doxygen_xml.conf
+endif
+endif
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON_LIB="`pwd`/../_inst/tmp_pylib" \

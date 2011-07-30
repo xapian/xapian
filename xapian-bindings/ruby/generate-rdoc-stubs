@@ -2,7 +2,7 @@
 use strict;
 
 my ($srcdir) = ($0 =~ m!^(.*?)[^/]*$!);
-my $dir = '../../xapian-core/docs/apidoc/xml';
+my $dir = '../doxygen-xml';
 
 my %documented = ();
 

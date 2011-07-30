@@ -88,7 +88,7 @@ BUILT_SOURCES += docs/rdocs/index.html
 
 docs/rdocs: docs/rdocs/index.html
 
-docs/xapian.rb: generate-rdoc-stubs xapian.rb ../../xapian-core/docs/apidoc/xml/index.xml
+docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
 	$(PERL) $(srcdir)/generate-rdoc-stubs
 
 docs/rdocs/index.html: docs/xapian.rb
