@@ -164,7 +164,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 	AC_MSG_ERROR([$msg])
       fi ;;
   esac
-  SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
+  SWIG_FLAGS=`$XAPIAN_CONFIG --swigflags`
   AC_SUBST(SWIG_FLAGS)
 
   dnl Need perl in maintainer mode to generate the except.i file for python.

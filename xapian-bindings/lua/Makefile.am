@@ -35,7 +35,7 @@ BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
 xapian_wrap.cc:
-	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'lua.i
 	mv xapian_wrap_d.tmp xapian_wrap.d

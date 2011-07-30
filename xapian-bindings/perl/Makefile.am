@@ -150,7 +150,7 @@ xapian_wrap.cc Search/Xapian.pm: xapian_wrap.stamp
 xapian_wrap.stamp: except.i
 	$(multitarget_begin)
 	test -d Search || mkdir Search
-	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -perl -module Search::Xapian -proxy -const \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'perl.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp

@@ -117,7 +117,7 @@ xapian_wrap.stamp:
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f generated-csharp/*
 	$(MKDIR_P) generated-csharp
-	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
 	    -o xapian_wrap.cc -outdir generated-csharp \
 	    -MD -MF xapian_wrap_d.tmp '$(srcdir)/'csharp.i

@@ -140,7 +140,7 @@ xapian_wrap.stamp:
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f org/xapian/*
 	$(MKDIR_P) org/xapian
-	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian -package org.xapian -outdir org/xapian \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'java.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp

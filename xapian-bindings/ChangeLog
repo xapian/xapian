@@ -1,3 +1,12 @@
+Sat Jul 30 06:22:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
+	  lua/Makefile.am,perl/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Don't put -Werror in SWIG_FLAGS
+	  - instead put it in a new SWIG_WERROR variable, so that it's easy
+	  to override it if you're getting a new warning from SWIG but want
+	  to just ignore it for the time being.
+
 Fri Jul 29 13:49:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Add regression test for recently fixed SWIG bug
