@@ -1,3 +1,10 @@
+Sun Jul 31 14:45:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,tests/api_anydb.cc: Previously,
+	  Enquire::get_matching_terms_begin() threw InvalidArgumentError if
+	  the query was empty.  Now we just return an end iterator, which is
+	  more consistent with how empty queries behave elsewhere.
+
 Sun Jul 31 13:44:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/valueiterator.cc,include/xapian/valueiterator.h: Rename private
