@@ -1,3 +1,9 @@
+Sun Jul 31 13:44:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/valueiterator.cc,include/xapian/valueiterator.h: Rename private
+	  ValueIterator::deref() method to decref() (since dereference has
+	  another meaning to the intended "remove a reference").
+
 Sun Jul 31 11:27:33 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/valueiterator.cc,include/xapian/database.h,

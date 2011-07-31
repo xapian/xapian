@@ -34,7 +34,7 @@ namespace Xapian {
 
 /// Class for iterating over document values.
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
-    void deref();
+    void decref();
 
   public:
     /// Class representing the ValueIterator internals.
@@ -60,7 +60,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 
     /// Destructor.
     ~ValueIterator() {
-	if (internal) deref();
+	if (internal) decref();
     }
 
     /// Return the value at the current position.

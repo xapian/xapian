@@ -31,7 +31,7 @@ using namespace std;
 namespace Xapian {
 
 void
-ValueIterator::deref()
+ValueIterator::decref()
 {
     Assert(internal);
     if (--internal->_refs == 0)
@@ -44,7 +44,7 @@ ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
     ++internal->_refs;
     internal->next();
     if (internal->at_end()) {
-	deref();
+	decref();
 	internal = NULL;
     }
 }
@@ -62,7 +62,7 @@ ValueIterator::operator=(const ValueIterator & o)
     if (o.internal)
 	++o.internal->_refs;
     if (internal)
-	deref();
+	decref();
     internal = o.internal;
     return *this;
 }
@@ -82,7 +82,7 @@ ValueIterator::operator++()
     Assert(internal);
     internal->next();
     if (internal->at_end()) {
-	deref();
+	decref();
 	internal = NULL;
     }
     RETURN(*this);
@@ -111,7 +111,7 @@ ValueIterator::skip_to(Xapian::docid docid_or_slot)
     Assert(internal);
     internal->skip_to(docid_or_slot);
     if (internal->at_end()) {
-	deref();
+	decref();
 	internal = NULL;
     }
 }
@@ -123,7 +123,7 @@ ValueIterator::check(Xapian::docid docid)
     Assert(internal);
     if (!internal->check(docid)) return false;
     if (internal->at_end()) {
-	deref();
+	decref();
 	internal = NULL;
     }
     return true;
