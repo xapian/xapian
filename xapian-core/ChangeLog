@@ -1,3 +1,16 @@
+Sun Jul 31 11:27:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/valueiterator.cc,include/xapian/database.h,
+	  include/xapian/document.h,include/xapian/valueiterator.h: Don't use
+	  intrusive_ptr to reference count ValueIterator internals, but
+	  instead update the reference count in hand-written code.  This is
+	  less good in itself, but it means we can inline ValueIterator's
+	  default constructor and its destructor in the case where the
+	  internal is NULL, which should mean a comparison with the end
+	  iterator optimises to a NULL pointer check but without needing
+	  the ValueIteratorEnd_ class, which doesn't work as ValueIterator()
+	  would in templates or some cases of overload resolution.
+
 Sat Jul 30 12:07:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api.conf.in: Don't generate XML from doxygen for the

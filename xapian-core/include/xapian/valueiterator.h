@@ -32,16 +32,15 @@
 
 namespace Xapian {
 
-/// @private @internal A proxy class for an end ValueIterator.
-class ValueIteratorEnd_ { };
-
 /// Class for iterating over document values.
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
+    void deref();
+
   public:
     /// Class representing the ValueIterator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Internal * internal;
 
     /// @private @internal Construct given internals.
     explicit ValueIterator(Internal *internal_);
@@ -49,24 +48,20 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Copy constructor.
     ValueIterator(const ValueIterator & o);
 
-    /// @internal Copy from an end iterator proxy.
-    ValueIterator(const ValueIteratorEnd_ &);
-
     /// Assignment.
     ValueIterator & operator=(const ValueIterator & o);
-
-    /// @internal Assignment of an end iterator proxy.
-    ValueIterator & operator=(const ValueIteratorEnd_ &);
 
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    ValueIterator();
+    ValueIterator() : internal(0) { }
 
     /// Destructor.
-    ~ValueIterator();
+    ~ValueIterator() {
+	if (internal) deref();
+    }
 
     /// Return the value at the current position.
     std::string operator*() const;
@@ -171,54 +166,12 @@ operator==(const ValueIterator &a, const ValueIterator &b)
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
-    return a.internal.get() == b.internal.get();
-}
-
-/// @internal Equality test for ValueIterator object and end iterator.
-inline bool
-operator==(const ValueIterator &a, const ValueIteratorEnd_ &)
-{
-    return a.internal.get() == NULL;
-}
-
-/// @internal Equality test for ValueIterator object and end iterator.
-inline bool
-operator==(const ValueIteratorEnd_ &a, const ValueIterator &b)
-{
-    return b == a;
-}
-
-/// @internal Equality test for end iterators.
-inline bool
-operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &)
-{
-    return true;
+    return a.internal == b.internal;
 }
 
 /// Inequality test for ValueIterator objects.
 inline bool
 operator!=(const ValueIterator &a, const ValueIterator &b)
-{
-    return !(a == b);
-}
-
-/// @internal Inequality test for ValueIterator object and end iterator.
-inline bool
-operator!=(const ValueIterator &a, const ValueIteratorEnd_ &b)
-{
-    return !(a == b);
-}
-
-/// @internal Inequality test for ValueIterator object and end iterator.
-inline bool
-operator!=(const ValueIteratorEnd_ &a, const ValueIterator &b)
-{
-    return !(a == b);
-}
-
-/// @internal Inequality test for end iterators.
-inline bool
-operator!=(const ValueIteratorEnd_ &a, const ValueIteratorEnd_ &b)
 {
     return !(a == b);
 }
