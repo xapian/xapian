@@ -140,7 +140,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  input_iterator.
      *
      *  The following typedefs allow std::iterator_traits<> to work so that
-     *  this iterator can be used with with STL.
+     *  this iterator can be used with the STL.
      *
      *  These are deliberately hidden from the Doxygen-generated docs, as the
      *  machinery here isn't interesting to API users.  They just need to know
