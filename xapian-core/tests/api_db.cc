@@ -1263,19 +1263,19 @@ DEFINE_TESTCASE(postlist2, backend) {
     p = db.postlist_begin("this");
     Xapian::PostingIterator pend = db.postlist_end("this");
 
-    TEST(p.get_description() != "Xapian::PostingIterator(pos=END)");
+    TEST(p.get_description() != "PostingIterator()");
 
     // test operator= creates a copy which compares equal
     Xapian::PostingIterator p_copy = p;
     TEST_EQUAL(p, p_copy);
 
-    TEST(p_copy.get_description() != "Xapian::PostingIterator(pos=END)");
+    TEST(p_copy.get_description() != "PostingIterator()");
 
     // test copy constructor creates a copy which compares equal
     Xapian::PostingIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
 
-    TEST(p_clone.get_description() != "Xapian::PostingIterator(pos=END)");
+    TEST(p_clone.get_description() != "PostingIterator()");
 
     vector<Xapian::docid> v(p, pend);
 
@@ -1289,10 +1289,8 @@ DEFINE_TESTCASE(postlist2, backend) {
     }
     TEST_EQUAL(p, pend);
 
-    TEST_STRINGS_EQUAL(p.get_description(),
-		       "Xapian::PostingIterator(pos=END)");
-    TEST_STRINGS_EQUAL(pend.get_description(),
-		       "Xapian::PostingIterator(pos=END)");
+    TEST_STRINGS_EQUAL(p.get_description(), "PostingIterator()");
+    TEST_STRINGS_EQUAL(pend.get_description(), "PostingIterator()");
 
     return true;
 }

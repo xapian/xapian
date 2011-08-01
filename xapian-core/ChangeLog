@@ -1,3 +1,10 @@
+Mon Aug 01 15:15:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/ompostlistiterator.cc,api/postingiterator.cc,
+	  include/xapian/postingiterator.h,tests/api_db.cc: Redo
+	  PostingIterator based on TermIterator with efficient end iterator
+	  checks.
+
 Mon Aug 01 13:34:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/brass_database.cc,
