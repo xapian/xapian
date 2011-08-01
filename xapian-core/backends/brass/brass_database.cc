@@ -1121,8 +1121,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 	brass_doclen_t new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
-	    Xapian::TermIterator term_end = document.termlist_end();
-	    for ( ; term != term_end; ++term) {
+	    for ( ; term != document.termlist_end(); ++term) {
 		termcount wdf = term.get_wdf();
 		// Calculate the new document length
 		new_doclen += wdf;

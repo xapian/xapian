@@ -1,3 +1,14 @@
+Mon Aug 01 13:34:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,
+	  backends/inmemory/inmemory_database.cc,common/positionlist.h,
+	  examples/delve.cc,include/xapian/positioniterator.h,
+	  include/xapian/termiterator.h,include/xapian/valueiterator.h: Take
+	  the old SVN end-iterator-proxies branch and rework the TermIterator
+	  and PositionIterator reimplementations there to use the same
+	  approach as ValueIterator now uses.
+
 Sun Jul 31 15:24:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/valueiterator.h: Fix comment typo.

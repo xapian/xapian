@@ -106,8 +106,7 @@ show_db_stats(Database &db)
 	// was specified.
 	termcount terms = 0;
 	TermIterator t = db.allterms_begin();
-	const TermIterator end = db.allterms_end();
-	while (t != end) {
+	while (t != db.allterms_end()) {
 	    ++terms;
 	    ++t;
 	}
@@ -396,8 +395,7 @@ main(int argc, char **argv) try {
 			<< "', record #" << *j << ':';
 		    try {
 			PositionIterator pos = p.positionlist_begin();
-			PositionIterator posend = p.positionlist_end();
-			while (pos != posend) {
+			while (pos != p.positionlist_end()) {
 			    cout << separator << *pos;
 			    ++pos;
 			}

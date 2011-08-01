@@ -434,9 +434,8 @@ Xapian::Document::Internal::need_terms() const
 	Xapian::TermIterator tend(NULL);
 	for ( ; t != tend; ++t) {
 	    Xapian::PositionIterator p = t.positionlist_begin();
-	    Xapian::PositionIterator pend = t.positionlist_end();
 	    OmDocumentTerm term(*t, t.get_wdf());
-	    for ( ; p != pend; ++p) {
+	    for ( ; p != t.positionlist_end(); ++p) {
 		term.add_position(*p);
 	    }
 	    terms.insert(make_pair(*t, term));

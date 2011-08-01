@@ -40,9 +40,17 @@ ValueIterator::decref()
 
 ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
 {
+    LOGCALL_CTOR(API, "ValueIterator", internal_);
     Assert(internal);
     ++internal->_refs;
-    internal->next();
+    try {
+	internal->next();
+    } catch (...) {
+	// The destructor only runs if the constructor completes, so we have to
+	// take care of cleaning up for ourselves here.
+	decref();
+	throw;
+    }
     if (internal->at_end()) {
 	decref();
 	internal = NULL;
@@ -52,6 +60,7 @@ ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
 ValueIterator::ValueIterator(const ValueIterator & o)
     : internal(o.internal)
 {
+    LOGCALL_CTOR(API, "ValueIterator", o);
     if (internal)
 	++internal->_refs;
 }
@@ -59,12 +68,13 @@ ValueIterator::ValueIterator(const ValueIterator & o)
 ValueIterator &
 ValueIterator::operator=(const ValueIterator & o)
 {
+    LOGCALL(API, ValueIterator &, "ValueIterator::operator=", o);
     if (o.internal)
 	++o.internal->_refs;
     if (internal)
 	decref();
     internal = o.internal;
-    return *this;
+    RETURN(*this);
 }
 
 string

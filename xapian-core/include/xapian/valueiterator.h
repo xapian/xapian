@@ -25,7 +25,6 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>

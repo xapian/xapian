@@ -1,7 +1,7 @@
 /** @file positioniterator.cc
  *  @brief Class for iterating over term positions.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,32 +30,58 @@ using namespace std;
 
 namespace Xapian {
 
-PositionIterator::PositionIterator() : internal(NULL) { }
-
-PositionIterator::~PositionIterator() { }
+void
+PositionIterator::decref()
+{
+    Assert(internal);
+    if (--internal->_refs == 0)
+	delete internal;
+}
 
 PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
 {
-    Assert(internal_);
-    internal->next();
-    if (internal->at_end()) internal = NULL;
+    LOGCALL_CTOR(API, "PositionIterator", internal_);
+    Assert(internal);
+    ++internal->_refs;
+    try {
+	internal->next();
+    } catch (...) {
+	// The destructor only runs if the constructor completes, so we have to
+	// take care of cleaning up for ourselves here.
+	decref();
+	throw;
+    }
+    if (internal->at_end()) {
+	decref();
+	internal = NULL;
+    }
 }
 
 PositionIterator::PositionIterator(const PositionIterator & o)
-    : internal(o.internal) { }
+    : internal(o.internal)
+{
+    LOGCALL_CTOR(API, "PositionIterator", o);
+    if (internal)
+	++internal->_refs;
+}
 
 PositionIterator &
 PositionIterator::operator=(const PositionIterator & o)
 {
+    LOGCALL(API, PositionIterator &, "PositionIterator::operator=", o);
+    if (o.internal)
+	++o.internal->_refs;
+    if (internal)
+	decref();
     internal = o.internal;
-    return *this;
+    RETURN(*this);
 }
 
 Xapian::termpos
 PositionIterator::operator*() const
 {
     LOGCALL(API, Xapian::termpos, "PositionIterator::operator*", NO_ARGS);
-    Assert(internal.get());
+    Assert(internal);
     RETURN(internal->get_position());
 }
 
@@ -63,9 +89,12 @@ PositionIterator &
 PositionIterator::operator++()
 {
     LOGCALL(API, PositionIterator &, "PositionIterator::operator++", NO_ARGS);
-    Assert(internal.get());
+    Assert(internal);
     internal->next();
-    if (internal->at_end()) internal = NULL;
+    if (internal->at_end()) {
+	decref();
+	internal = NULL;
+    }
     RETURN(*this);
 }
 
@@ -73,9 +102,12 @@ void
 PositionIterator::skip_to(Xapian::termpos termpos)
 {
     LOGCALL_VOID(API, "PositionIterator::skip_to", termpos);
-    Assert(internal.get());
+    Assert(internal);
     internal->skip_to(termpos);
-    if (internal->at_end()) internal = NULL;
+    if (internal->at_end()) {
+	decref();
+	internal = NULL;
+    }
 }
 
 std::string
@@ -83,7 +115,8 @@ PositionIterator::get_description() const
 {
 #if 0 // FIXME: Add PositionIterator::Internal::get_description() method.
     string desc = "PositionIterator(";
-    if (internal.get()) desc += internal->get_description();
+    if (internal)
+	desc += internal->get_description();
     desc += ')';
     return desc;
 #else
