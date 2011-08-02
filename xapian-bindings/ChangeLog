@@ -1,7 +1,7 @@
 Tue Aug 02 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/t/symbol-test.t: Fix to work when built against an installed
-	  xapian-core.
+	  xapian-core.  (ticket#558)
 
 Sat Jul 30 12:05:02 GMT 2011  Olly Betts <olly@survex.com>
 
