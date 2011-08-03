@@ -60,26 +60,6 @@ class DEREF_CLASS : public NS::CLASS {
 };
 %}
 
-%typemap(typecheck, precedence=100) NS::CLASS * {
-	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_##NS##__##CLASS, 0))) {
-		$1 = 1;
-	}
-	else {
-		$1 = 0;
-	}
-}
-%typemap(in) NS::CLASS * {
-	if (lua_isfunction(L, $input)) {
-		$1 = new DEREF_CLASS(L);
-	}
-	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_##NS##__##CLASS, 0))){
-			SWIG_fail;
-		}
-	}
-}
-
 %enddef
 
 SUB_CLASS(Xapian, MatchDecider, luaMatchDecider, const Xapian::Document &doc, &doc, SWIGTYPE_p_Xapian__Document)
@@ -253,6 +233,36 @@ class luaMatchSpy : public Xapian::MatchSpy {
 };
 %}
 
+%define SUB_CLASS_TYPEMAPS(NS, CLASS, POINTER)
+
+%typemap(typecheck, precedence=100) NS::CLASS * {
+	void *ptr;
+	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_##NS##__##POINTER, 0))) {
+		$1 = 1;
+	}
+	else {
+		$1 = 0;
+	}
+}
+%typemap(in) NS::CLASS * {
+	if (lua_isfunction(L, $input)) {
+		$1 = new lua##CLASS(L);
+	}
+	else {
+		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_##NS##__##POINTER, 0))){
+			SWIG_fail;
+		}
+	}
+}
+
+%enddef
+SUB_CLASS_TYPEMAPS(Xapian, MatchDecider, MatchDecider)
+SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider, ExpandDecider)
+SUB_CLASS_TYPEMAPS(Xapian, Stopper, Stopper)
+SUB_CLASS_TYPEMAPS(Xapian, StemImplementation, Stem)
+SUB_CLASS_TYPEMAPS(Xapian, KeyMaker, KeyMaker)
+SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor, ValueRangeProcessor)
+
 %luacode {
 function xapian.Iterator(begin, _end)
 	local iter = begin;
@@ -274,66 +284,6 @@ function xapian.Iterator(begin, _end)
 		end
 	end
 end
-}
-
-%typemap(typecheck, precedence=100) Xapian::StemImplementation * {
-	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__Stem, 0))) {
-		$1 = 1;
-	}
-	else {
-		$1 = 0;
-	}
-}
-%typemap(in) Xapian::StemImplementation * {
-	if (lua_isfunction(L, $input)) {
-		$1 = new luaStemImplementation(L);
-	}
-	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__Stem, 0))){
-			SWIG_fail;
-		}
-	}
-}
-
-%typemap(typecheck, precedence=100) Xapian::KeyMaker * {
-	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__KeyMaker, 0))) {
-		$1 = 1;
-	}
-	else {
-		$1 = 0;
-	}
-}
-%typemap(in) Xapian::KeyMaker * {
-	if (lua_isfunction(L, $input)) {
-		$1 = new luaKeyMaker(L);
-	}
-	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__KeyMaker, 0))){
-			SWIG_fail;
-		}
-	}
-}
-
-%typemap(typecheck, precedence=100) Xapian::ValueRangeProcessor * {
-	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__ValueRangeProcessor, 0))) {
-		$1 = 1;
-	}
-	else {
-		$1 = 0;
-	}
-}
-%typemap(in) Xapian::ValueRangeProcessor * {
-	if (lua_isfunction(L, $input)) {
-		$1 = new luaValueRangeProcessor(L);
-	}
-	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_Xapian__ValueRangeProcessor, 0))){
-			SWIG_fail;
-		}
-	}
 }
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
