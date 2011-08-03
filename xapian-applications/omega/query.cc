@@ -313,13 +313,21 @@ set_probabilistic(const string &oldp)
 	size_vrp = new Xapian::NumberValueRangeProcessor(VALUE_SIZE, "size:",
 							 true);
     qp.add_valuerangeprocessor(size_vrp);
-    // std::map::insert() won't overwrite an existing entry, so we'll prefer
-    // the first user_prefix for which a particular term prefix is specified.
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && startswith(pfx->first, "prefix,"); ++pfx) {
-	string user_prefix = pfx->first.substr(7);
-	qp.add_prefix(user_prefix, pfx->second);
-	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
+	string user_prefix(pfx->first, 7);
+	const string & term_pfx_list = pfx->second;
+	string::size_type i = 0;
+	do {
+	    string::size_type i0 = i;
+	    i = term_pfx_list.find('\t', i);
+	    const string & term_pfx = term_pfx_list.substr(i0, i - i0);
+	    qp.add_prefix(user_prefix, term_pfx);
+	    // std::map::insert() won't overwrite an existing entry, so we'll
+	    // prefer the first user_prefix for which a particular term prefix
+	    // is specified.
+	    termprefix_to_userprefix.insert(make_pair(term_pfx, user_prefix));
+	} while (++i);
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {

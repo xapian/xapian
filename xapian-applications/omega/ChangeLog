@@ -1,3 +1,9 @@
+Wed Aug 03 06:11:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Allow mapping a query string prefix to
+	  more than one term prefix (which xapian-core has supported since
+	  1.0.4).
+
 Fri Jul 29 01:47:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc: Add support for per-prefix stemmers.

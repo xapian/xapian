@@ -425,6 +425,16 @@ $setmap{MAP,NAME1,VALUE1,...}
 
 	 $setmap{prefix,author,A,title,S}
 
+	In Omega 1.3.0 and later, you can map a prefix in the query string to
+	more than one term prefix by specifying an OmegaScript list, for
+	example to search unprefixed and S prefix by default use this
+	(this also shows how you can map from an empty query string prefix, and
+	also that you can map to an empty term prefix - these don't require
+	Omega 1.3.0, but become much more useful in combination with this new
+	feature)::
+
+	 $setmap{prefix,,$split{ S}}
+
 	Similarly, if you want to be able to restrict a search with a
 	boolean filter from the text query (e.g. "group:" to "G") you
 	would use::
