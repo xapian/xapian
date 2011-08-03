@@ -1,3 +1,9 @@
+Wed Aug 03 06:27:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index title with an 'S' prefix rather than no prefix.
+	* templates/query: Set up prefixes for 'author', 'title', and map
+	  no prefix so that terms from the title are still matched by default.
+
 Wed Aug 03 06:11:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc: Allow mapping a query string prefix to

@@ -829,7 +829,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	// Index the title, document text, and keywords.
 	indexer.set_document(newdocument);
 	if (!title.empty()) {
-	    indexer.index_text(title, 5);
+	    indexer.index_text(title, 5, "S");
 	    indexer.increase_termpos(100);
 	}
 	if (!dump.empty()) {
