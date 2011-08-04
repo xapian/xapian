@@ -368,12 +368,13 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
-      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
-      dnl All the other options were supported by g++ 2.95 and there's little
-      dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow"
+      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
+      dnl we can rely on it.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
+      dnl
+      dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -387,15 +388,21 @@ if test yes = "$GXX"; then
 	;;
       3.*) ;;
       *) dnl GCC >= 4.0
-	dnl -Wstrict-null-sentinel was new 4.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
-
 	case $gxx_version in
-	4.[[01]]) ;;
+	4.0) ;;
+	4.1)
+	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
+	  dnl only enable it for GCC >= 4.1.
+	  dnl
+	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
+	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
+	  dnl in a static method is the same as a member variable, so only
+	  dnl enable it for GCC >= 4.1.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -406,7 +413,7 @@ if test yes = "$GXX"; then
 	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
 	  dnl anyway - we don't intend to use this idiom, so any instances are
 	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:
@@ -419,18 +426,30 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	if test no != "$enable_visibility"; then
+	  dnl GCC doesn't support symbol visibility on all platforms (notably
+	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	    AC_MSG_RESULT([yes])
+	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
 	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
 	dnl and some GCC 3.x compilers issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+	  case $gxx_version in
+	  4.0)
+	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
+	    ;;
+	  *)
+	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	  esac
 	fi
 	;;
       esac
@@ -461,7 +480,7 @@ AH_BOTTOM(
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__ && __GNUC__ >= 3
+#if defined __GNUC__
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.

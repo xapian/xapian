@@ -1,3 +1,11 @@
+Wed Aug 03 23:25:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync changes from xapian-core: Don't pass -Wshadow for
+	  GCC < 4.1; don't pass -Wstrict-null-sentinel for GCC 4.0.x; only
+	  enable symbol visibility on platforms where it is supported; remove
+	  now superfluous check for GCC >= 3.  Also, add FIXME for enabling
+	  -Woverloaded-virtual.
+
 Wed Aug 03 06:27:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index title with an 'S' prefix rather than no prefix.
