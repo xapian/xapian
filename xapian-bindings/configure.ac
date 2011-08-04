@@ -994,7 +994,6 @@ AC_SUBST(BINDINGS)
 dnl Set flags to control warnings (enable more, or disable annoying ones)
 dnl and other compiler specific flags.
 SWIG_CXXFLAGS=
-JAVA_CXXFLAGS=
 if test yes = "$GXX" ; then
   dnl Python itself is compiled with -fno-strict-aliasing, and it appears
   dnl it's safest to follow this lead when compiling the SWIG generated
@@ -1031,8 +1030,6 @@ if test yes = "$GXX" ; then
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
       SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl The Java JNI wrappers have a few unused variables.
-      JAVA_CXXFLAGS="-Wall -w1 -wd177,1572"
     ],
     [
       dnl GCC:
@@ -1065,13 +1062,9 @@ if test yes = "$GXX" ; then
 		     AC_MSG_RESULT(no))
 	CXXFLAGS=$SAVE_CXXFLAGS
       fi
-
-      dnl The Java JNI wrappers have a few unused variables.
-      JAVA_CXXFLAGS="-Wall -W -Wno-unused"
     ])
 fi
 AC_SUBST(SWIG_CXXFLAGS)
-AC_SUBST(JAVA_CXXFLAGS)
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
