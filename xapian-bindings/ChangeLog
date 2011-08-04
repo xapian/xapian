@@ -1,3 +1,9 @@
+Thu Aug 04 07:34:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap iterator operator++ and operator--
+	  methods with a new INC_OR_DEC macro, replacing the old NEXT and
+	  PREV macros.
+
 Thu Aug 04 07:21:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-head.i,xapian-headers.i: We no longer need special handling

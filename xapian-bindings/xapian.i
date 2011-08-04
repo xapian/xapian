@@ -24,18 +24,6 @@
  */
 %}
 
-// In C#, we wrap ++ and -- as ++ and --.
-#ifdef SWIGCSHARP
-#define NEXT(RET, CLASS) CLASS next() { return ++(*self); }
-#define PREV(RET, CLASS) CLASS prev() { return --(*self); }
-#elif defined SWIGJAVA
-#define NEXT(RET, CLASS) RET next() { return *(++(*self)); }
-#define PREV(RET, CLASS) RET prev() { return *(--(*self)); }
-#else
-#define NEXT(RET, CLASS) void next() { ++(*self); }
-#define PREV(RET, CLASS) void prev() { --(*self); }
-#endif
-
 #ifndef SWIGPYTHON
 #ifdef SWIGCSHARP
 %rename(Apply) operator();
