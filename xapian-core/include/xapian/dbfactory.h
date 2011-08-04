@@ -22,6 +22,10 @@
 #ifndef XAPIAN_INCLUDED_DBFACTORY_H
 #define XAPIAN_INCLUDED_DBFACTORY_H
 
+#ifndef _MSC_VER
+# include <sys/types.h>
+#endif
+
 #include <string>
 
 #include <xapian/types.h>
@@ -29,6 +33,10 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
+
+#ifdef _MSC_VER
+typedef unsigned useconds_t;
+#endif
 
 class Database;
 class WritableDatabase;
@@ -169,7 +177,7 @@ namespace Remote {
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 10000);
+Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000, useconds_t connect_timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a TCP connection.
@@ -190,7 +198,7 @@ Database open(const std::string &host, unsigned int port, Xapian::timeout timeou
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 0, Xapian::timeout connect_timeout = 10000);
+WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 0, useconds_t connect_timeout = 10000);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -207,7 +215,7 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, Xapia
  *			is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a program.
@@ -223,7 +231,7 @@ Database open(const std::string &program, const std::string &args, Xapian::timeo
  *			is 0, which means don't timeout).
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 0);
+WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 0);
 
 }
 #endif

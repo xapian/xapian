@@ -1,3 +1,9 @@
+Thu Aug 04 07:57:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory_remote.cc,docs/deprecation.rst,
+	  include/xapian/dbfactory.h,include/xapian/types.h: Deprecate
+	  Xapian::timeout in favour of POSIX type useconds_t.
+
 Thu Aug 04 04:04:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/termgenerator.h,

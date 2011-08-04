@@ -426,6 +426,9 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method instead.
         ``Enquire::get_mset()``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::timeout`` typedef         Use POSIX ``useconds_t`` (from ``<sys/types.h>``) instead, which should also work
+					    with older Xapian releases.
 ======= =================================== ==================================================================================
 
 
