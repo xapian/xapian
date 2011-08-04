@@ -1,3 +1,7 @@
+Thu Aug 04 00:04:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add -fshow-column for GCC.
+
 Tue Aug 02 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/t/symbol-test.t: Fix to work when built against an installed
