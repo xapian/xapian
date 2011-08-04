@@ -1,3 +1,9 @@
+Wed Aug 03 22:53:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable -fshow-column for GCC - things like vim's
+	  quickfix mode will then jump to the appropriate column for a
+	  compiler error or warning, not just the appropriate line.
+
 Wed Aug 03 22:13:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,backends/brass/brass_database.cc,
