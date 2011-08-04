@@ -96,10 +96,6 @@ using namespace std;
 #define XAPIAN_DEPRECATED_CLASS
 #define XAPIAN_VISIBILITY_DEFAULT
 
-// ValueIteratorEnd_ is just a proxy for an end ValueIterator, so we just
-// wrap it as if it were a ValueIterator.
-#define ValueIteratorEnd_ ValueIterator
-
 // Ignore these which SWIG seems to add pointless type entries for due them
 // being used in the SWIG typemap for std::pair.
 %ignore first_type;

@@ -127,20 +127,8 @@ INPUT_ITERATOR_METHODS(Xapian, PostingIterator, Xapian::docid, get_docid)
 INPUT_ITERATOR_METHODS(Xapian, TermIterator, std::string, get_term)
 %include <xapian/termiterator.h>
 
-/* FIXME: Not all languages fully ignore ValueIteratorEnd_ */
-#undef ValueIteratorEnd_
-%ignore ValueIterator(const ValueIteratorEnd_ &);
-%ignore operator=(const ValueIteratorEnd_ &);
-%ignore operator==(const ValueIterator &, const ValueIteratorEnd_ &);
-%ignore operator==(const ValueIteratorEnd_ &, const ValueIterator &);
-%ignore operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &);
-%ignore operator!=(const ValueIterator &, const ValueIteratorEnd_ &);
-%ignore operator!=(const ValueIteratorEnd_ &, const ValueIterator &);
-%ignore operator!=(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &);
-%ignore Xapian::ValueIteratorEnd_;
 INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 %include <xapian/valueiterator.h>
-#define ValueIteratorEnd_ ValueIterator
 
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>

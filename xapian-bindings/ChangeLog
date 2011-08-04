@@ -1,3 +1,9 @@
+Thu Aug 04 07:21:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian-headers.i: We no longer need special handling
+	  for ValueIteratorEnd_ in the bindings, as that hack is gone from the
+	  C++ API headers.
+
 Thu Aug 04 07:15:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-head.i,xapian.i: Update for the Xapian::timeout -> useconds_t
