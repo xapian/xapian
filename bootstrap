@@ -138,6 +138,9 @@ lazy_build() {
 }
 
 handle_svn_external() {
+  path=$1
+  revopt=$2
+  url=$3
   if [ ! -d "$path" ] ; then
     git svn init "$url" "$path"/
   fi
