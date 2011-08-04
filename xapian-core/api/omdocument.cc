@@ -346,6 +346,7 @@ Xapian::Document::Internal::add_posting(const string & tname, Xapian::termpos tp
 			      Xapian::termcount wdfinc)
 {
     need_terms();
+    positions_modified = true;
 
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
@@ -390,6 +391,7 @@ Xapian::Document::Internal::remove_posting(const string & tname,
     }
     i->second.remove_position(tpos);
     if (wdfdec) i->second.dec_wdf(wdfdec);
+    positions_modified = true;
 }
 
 void
@@ -403,6 +405,7 @@ Xapian::Document::Internal::remove_term(const string & tname)
 		"' is not present in document, in "
 		"Xapian::Document::Internal::remove_term()");
     }
+    positions_modified = !i->second.positions.empty();
     terms.erase(i);
 }
 	
@@ -411,6 +414,9 @@ Xapian::Document::Internal::clear_terms()
 {
     terms.clear();
     terms_here = true;
+    // Assume there was a term with positions for now.
+    // FIXME: may be worth checking...
+    positions_modified = true;
 }
 
 Xapian::termcount

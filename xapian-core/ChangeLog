@@ -1,3 +1,12 @@
+Wed Aug 03 22:13:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,common/document.h: Document objects
+	  now track if term positions might have been modified, so we can avoid
+	  having to consider them at all if you take a document and add or
+	  remove a boolean filter term.  This gives an 18% speedup for adding
+	  tags in notmuch.
+
 Mon Aug 01 15:15:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk,api/ompostlistiterator.cc,api/postingiterator.cc,
