@@ -118,6 +118,13 @@ AC_ARG_ENABLE(quiet,
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
   esac])
 
+AC_ARG_ENABLE(visibility,
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
+  esac])
+
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
 AM_MAINTAINER_MODE
@@ -1034,17 +1041,18 @@ if test yes = "$GXX" ; then
       dnl They're non-harmful, so suppress them.
       SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fshow-column -Wall -Wno-unused -Wno-uninitialized"
 
-      AC_MSG_CHECKING([whether to use -fvisibility=hidden])
-      dnl To be robust, we check both that -fvisibility=hidden is recognised
-      dnl and that SWIG will have added the visibility attributes.
-      dnl The GCC wiki says it's supported from GCC 4.0 onwards.  GCC 3.4
-      dnl also supports -fvisibility, but doesn't allow visibility to be
-      dnl specified for classes, which probably breaks throwing exception
-      dnl classes from the library.  We want that to work, so only switch
-      dnl this on for GCC 4.0 onwards.
-      SAVE_CXXFLAGS=$CXXFLAGS
-      CXXFLAGS="-fvisibility=hidden"
-      AC_TRY_COMPILE([], [
+      if test no != "$enable_visibility"; then
+	AC_MSG_CHECKING([whether to use -fvisibility=hidden])
+	dnl To be robust, we check both that -fvisibility=hidden is recognised
+	dnl and that SWIG will have added the visibility attributes.
+	dnl The GCC wiki says it's supported from GCC 4.0 onwards.  GCC 3.4
+	dnl also supports -fvisibility, but doesn't allow visibility to be
+	dnl specified for classes, which probably breaks throwing exception
+	dnl classes from the library.  We want that to work, so only switch
+	dnl this on for GCC 4.0 onwards.
+	SAVE_CXXFLAGS=$CXXFLAGS
+	CXXFLAGS="-Werror -fvisibility=hidden"
+	AC_TRY_COMPILE([], [
 #if __GNUC__ >= 4
   /* GCC supports -fvisibility and allows specifying visibility for classes. */
 #else
@@ -1055,7 +1063,9 @@ if test yes = "$GXX" ; then
 		     SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fvisibility=hidden"
 		     ,
 		     AC_MSG_RESULT(no))
-      CXXFLAGS=$SAVE_CXXFLAGS
+	CXXFLAGS=$SAVE_CXXFLAGS
+      fi
+
       dnl The Java JNI wrappers have a few unused variables.
       JAVA_CXXFLAGS="-Wall -W -Wno-unused"
     ])
