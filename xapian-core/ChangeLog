@@ -1,3 +1,10 @@
+Thu Aug 04 04:04:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/termgenerator.h,
+	  queryparser/termgenerator_internal.cc: Rename weight parameter to
+	  wdf_inc, which much better describes what it does, and avoids a
+	  -Wshadow warning with GCC 4.6.
+
 Thu Aug 04 04:03:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/registry.cc: Rename weight variable to weighting_scheme to avoid

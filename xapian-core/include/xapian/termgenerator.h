@@ -101,22 +101,22 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Index some text.
      *
-     * @param weight	The wdf increment (default 1).
+     * @param wdf_inc	The wdf increment (default 1).
      * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text(const Xapian::Utf8Iterator & itor,
-		    Xapian::termcount weight = 1,
+		    Xapian::termcount wdf_inc = 1,
 		    const std::string & prefix = std::string());
 
     /** Index some text in a std::string.
      *
-     * @param weight	The wdf increment (default 1).
+     * @param wdf_inc	The wdf increment (default 1).
      * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text(const std::string & text,
-		    Xapian::termcount weight = 1,
+		    Xapian::termcount wdf_inc = 1,
 		    const std::string & prefix = std::string()) {
-	return index_text(Utf8Iterator(text), weight, prefix);
+	return index_text(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Index some text without positional information.
@@ -126,7 +126,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * searching and NEAR won't be supported.
      */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
-				      Xapian::termcount weight = 1,
+				      Xapian::termcount wdf_inc = 1,
 				      const std::string & prefix = std::string());
 
     /** Index some text in a std::string without positional information.
@@ -136,9 +136,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * searching and NEAR won't be supported.
      */
     void index_text_without_positions(const std::string & text,
-				      Xapian::termcount weight = 1,
+				      Xapian::termcount wdf_inc = 1,
 				      const std::string & prefix = std::string()) {
-	return index_text_without_positions(Utf8Iterator(text), weight, prefix);
+	return index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Increase the termpos used by index_text by @a delta.
