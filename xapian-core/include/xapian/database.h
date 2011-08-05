@@ -131,27 +131,29 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This closes the database and releases all file handles held by the
 	 *  database.
 	 *
-	 *  This is a permanent close of the database: calling reopen() after
-	 *  closing a database will not reopen it, and will raise an exception.
+	 *  This cannot be undone - in particular, calling reopen() after
+	 *  closing a database will not reopen it, but will instead throw a
+	 *  Xapian::DatabaseError exception.
 	 *
-	 *  Calling close() on a database which is already closed has no effect
-	 *  (and doesn't raise an exception).
+	 *  Calling close() again on a database which has already been closed
+	 *  has no effect (and doesn't raise an exception).
 	 *
-	 *  After this call, calls made to methods of the database (other than
-	 *  close() or the destructor), or to objects associated with the
-	 *  database will behave in one of the following ways (but which
-	 *  behaviour happens may vary between releases, and between database
-	 *  backends):
-	 *
-	 *   - raise a Xapian::DatabaseError indicating that the database is
-	 *   closed.
+	 *  After close() has been called, calls to other methods of the
+	 *  database, and to methods of other objects associated with the
+	 *  database, will either:
 	 *
 	 *   - behave exactly as they would have done if the database had not
-	 *   been closed (by using cached data).
+	 *     been closed (this can only happen if all the required data is
+	 *     cached)
 	 *
-	 *  To summarise - you should not rely on the exception being raised,
-	 *  or the normal result being available, but if you do get a result,
-	 *  it will be correct.
+	 *   - raise a Xapian::DatabaseError exception indicating that the
+	 *     database is closed.
+	 *
+	 *  The reason for this behaviour is that otherwise we'd have to check
+	 *  that the database is still open on every method call on every
+	 *  object associated with a Database, when in many cases they are
+	 *  working on data which has already been loaded and so they are able
+	 *  to just behave correctly.
 	 */
 	virtual void close();
 

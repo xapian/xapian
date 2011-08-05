@@ -1,3 +1,9 @@
+Fri Aug 05 15:21:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/database.h: Improve the documentation comment for
+	  Database::close().  (ticket#504)
+
 Fri Aug 05 11:49:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
