@@ -1313,13 +1313,16 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
                 norm_outer->second.pop_front();
                 norm_outer++;
                 j++;
-                train_file <<" qid:"<<qid;
+//Uncomment the line below if you want 'Qid' in the training file
+//              train_file <<" qid:"<<qid;
                 for(;norm_outer!=norm.end();++norm_outer) {
                     train_file << " "<<j<<":"<<norm_outer->second.front();
                     norm_outer->second.pop_front();
                     j++;   
                 }
-                train_file<<" #docid:"<<doc_ids.front()<<"\n";
+//Uncomment the line below if you want 'DocID' in the training file
+//              train_file<<" #docid:"<<doc_ids.front();
+                train_file<<"\n";
                 doc_ids.pop_front();
                 i++;   
             }

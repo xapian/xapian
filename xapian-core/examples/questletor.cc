@@ -31,6 +31,7 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <set>
 #include <math.h>
 
 #include "gnu_getopt.h"
@@ -39,6 +40,16 @@ using namespace std;
 
 #define PROG_NAME "letor"
 #define PROG_DESC "Xapian command line search tool with Lerning to Rank Facility"
+
+typedef std::pair<Xapian::docid, double> MyPair;
+
+
+struct MyTestCompare {
+    bool operator()(const MyPair& firstPair, const MyPair& secondPair) const {
+        return firstPair.second < secondPair.second;
+    }
+};
+
 
 // Stopwords:
 static const char * sw[] = {
@@ -220,19 +231,38 @@ try {
     ltr.letor_learn_model();
     map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
 
-    map<Xapian::docid,double>::iterator n;
-    int rank=1;
+    set<MyPair,MyTestCompare> s;
+    map<Xapian::docid, double>::iterator iter = letor_mset.begin();
+    map<Xapian::docid, double>::iterator endIter = letor_mset.end();
+    for(; iter != endIter; ++iter) {
+        s.insert(*iter);
+    }
 
-    for(n = letor_mset.begin();n!=letor_mset.end();n++) {
+
+    set<MyPair,MyTestCompare>::iterator it;
+
+    int rank=1;
+    for ( it=s.begin() ; it != s.end(); it++ ) {
+        cout<<"Item: "<<rank<<"\t"<<(*it).second<<"\n";
+
+        Xapian::Document doc = db.get_document((*it).first);
+        cout<<doc.get_data()<<"\n";
+        rank++;
+    }
+
+
+//    map<Xapian::docid,double>::iterator n;
+
+/*    for(n = letor_mset.begin();n!=letor_mset.end();n++) {
 
         cout<<"Item: "<<rank<<"\n";
 
         Xapian::Document doc = db.get_document((*n).first);
-        cout<<doc.get_data()<<"\n\n";
+        cout<<doc.get_data()<<"\n";
         rank++;
-//        cout<<(*n).first<<"\t"<<(*n).second<<"\n";
+        cout<<(*n).first<<"\t"<<(*n).second<<"\n\n\n";
     }
-
+*/
 //org    cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	Xapian::Document doc = i.get_document();
