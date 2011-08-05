@@ -281,6 +281,11 @@ class BrassTable;
 class ChertCursor;
 class ChertDatabase;
 class ChertTable;
+class FlintCursor;
+class FlintDatabase;
+class FlintTable;
+class FlintValueTable;
+class FlintRecordTable;
 
 #define XAPIAN_PRETTY_AS_CLASSNAME(C)\
 template<class S>\
@@ -300,6 +305,11 @@ XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
+XAPIAN_PRETTY_AS_CLASSNAME(FlintCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(FlintDatabase);
+XAPIAN_PRETTY_AS_CLASSNAME(FlintTable);
+XAPIAN_PRETTY_AS_CLASSNAME(FlintValueTable);
+XAPIAN_PRETTY_AS_CLASSNAME(FlintRecordTable);
 
 template<class S>
 inline PrettyOStream<S> &
