@@ -21,14 +21,14 @@
 // "end" is a keyword in Lua, so we rename it to "_end"
 %rename("_end") end;
 
-%define SUB_CLASS(NS, CLASS, DEREF_CLASS, PARAMETER_NAME, PARAMETER_VALUE, PARAMETER_POINTER)
+%define SUB_CLASS(NS, CLASS, PARAMETER_NAME, PARAMETER_VALUE, PARAMETER_POINTER)
 %{
-class DEREF_CLASS : public NS::CLASS {
+class lua##CLASS : public NS::CLASS {
 	int r;
 	lua_State* L;
 
 	public:
-		DEREF_CLASS(lua_State* S) {
+		lua##CLASS(lua_State* S) {
 			L = S;
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
@@ -36,7 +36,7 @@ class DEREF_CLASS : public NS::CLASS {
 			r = luaL_ref(L, LUA_REGISTRYINDEX);
 		}
 
-		~DEREF_CLASS() {
+		~lua##CLASS() {
 			luaL_unref(L, LUA_REGISTRYINDEX, r);
 		}
 
@@ -62,9 +62,9 @@ class DEREF_CLASS : public NS::CLASS {
 
 %enddef
 
-SUB_CLASS(Xapian, MatchDecider, luaMatchDecider, const Xapian::Document &doc, &doc, SWIGTYPE_p_Xapian__Document)
-SUB_CLASS(Xapian, ExpandDecider, luaExpandDecider, const std::string &term, &term,  SWIGTYPE_p_std__string)
-SUB_CLASS(Xapian, Stopper, luaStopper, const std::string &term, &term,  SWIGTYPE_p_std__string)
+SUB_CLASS(Xapian, MatchDecider, const Xapian::Document &doc, &doc, SWIGTYPE_p_Xapian__Document)
+SUB_CLASS(Xapian, ExpandDecider, const std::string &term, &term,  SWIGTYPE_p_std__string)
+SUB_CLASS(Xapian, Stopper, const std::string &term, &term,  SWIGTYPE_p_std__string)
 
 %{
 class luaStemImplementation : public Xapian::StemImplementation {
