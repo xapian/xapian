@@ -1,3 +1,10 @@
+Fri Aug 05 11:49:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* common/pretty.h: Don't dereference a NULL pointer.
+	* common/output.h,common/pretty.h: Fix invalid templates in pretty.h.
+	* common/pretty.h: Fix template for pretty printing a std::list.
+
 Fri Aug 05 11:36:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
