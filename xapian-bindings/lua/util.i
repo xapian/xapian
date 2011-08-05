@@ -21,7 +21,7 @@
 // "end" is a keyword in Lua, so we rename it to "_end"
 %rename("_end") end;
 
-%define SUB_CLASS(NS, CLASS, PARAMETER_NAME, PARAMETER_VALUE, PARAMETER_POINTER)
+%define SUB_CLASS(NS, CLASS)
 %{
 class lua##CLASS : public NS::CLASS {
 	int r;
@@ -40,13 +40,13 @@ class lua##CLASS : public NS::CLASS {
 			luaL_unref(L, LUA_REGISTRYINDEX, r);
 		}
 
-		bool operator()(PARAMETER_NAME) const {
+		bool operator()(const std::string &term) const {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
 			}
 
-			SWIG_NewPointerObj(L, PARAMETER_VALUE, PARAMETER_POINTER, 0);
+			lua_pushstring(L, (char *)term.c_str());
 			if (lua_pcall(L, 1, 1, 0) != 0){
 				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 			}
@@ -62,9 +62,46 @@ class lua##CLASS : public NS::CLASS {
 
 %enddef
 
-SUB_CLASS(Xapian, MatchDecider, const Xapian::Document &doc, &doc, SWIGTYPE_p_Xapian__Document)
-SUB_CLASS(Xapian, ExpandDecider, const std::string &term, &term,  SWIGTYPE_p_std__string)
-SUB_CLASS(Xapian, Stopper, const std::string &term, &term,  SWIGTYPE_p_std__string)
+SUB_CLASS(Xapian, ExpandDecider)
+SUB_CLASS(Xapian, Stopper)
+
+%{
+class luaMatchDecider : public Xapian::MatchDecider {
+	int r;
+	lua_State* L;
+
+	public:
+		luaMatchDecider(lua_State* S) {
+			L = S;
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+			r = luaL_ref(L, LUA_REGISTRYINDEX);
+		}
+
+		~luaMatchDecider() {
+			luaL_unref(L, LUA_REGISTRYINDEX, r);
+		}
+
+		bool operator()(const Xapian::Document &doc) const {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+			if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+			}
+
+			SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
+			if (lua_pcall(L, 1, 1, 0) != 0){
+				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+			}
+			if (!lua_isboolean(L, -1)) {
+				luaL_error(L, "function must return a boolean");
+			}
+			bool result = lua_toboolean(L, -1);
+			lua_pop(L, 1);
+			return result;
+		}
+};
+%}
 
 %{
 class luaStemImplementation : public Xapian::StemImplementation {
