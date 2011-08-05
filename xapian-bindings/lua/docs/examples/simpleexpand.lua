@@ -81,13 +81,8 @@ if not query:empty() then
 
 	-- Put the top 5 (at most) docs into the rset if rset is empty
 	if reldocs:empty() then
-		local i = matches:begin()
-		for j = 1, 5 do
-			if i:equals(matches:_end()) then
-				break
-			end
-			reldocs:add_document(i:get_docid())
-			i:next()
+		for m in matches:items() do
+			reldocs:add_document(m:get_docid())
 		end
 	end
 
