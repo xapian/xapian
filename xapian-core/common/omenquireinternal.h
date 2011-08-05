@@ -188,9 +188,6 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	Xapian::doccount get_termfreq(const string &tname) const;
 
-	void register_match_decider(const string &name,
-				    const MatchDecider *mdecider);
-
 	string get_description() const;
 };
 

@@ -848,12 +848,6 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
     }
 }
 
-void
-Enquire::Internal::register_match_decider(const string &,
-	const MatchDecider *)
-{
-}
-
 // Methods of Xapian::Enquire
 
 Enquire::Enquire(const Enquire & other) : internal(other.internal)

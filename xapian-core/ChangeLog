@@ -1,3 +1,9 @@
+Fri Aug 05 11:30:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omenquire.cc,common/omenquireinternal.h: Remove unused method
+	  Enquire::Internal::register_match_decider().
+
 Wed Jun 22 16:41:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
