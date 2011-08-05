@@ -120,6 +120,30 @@ mset = enq:get_mset(0, 10, None, testmatchdecider)
 assert(mset:size() == 1)
 assert(mset:get_docid(0) == 2)
 
+rset = xapian.RSet()
+rset:add_document(1)
+eset = enq:get_eset(10, rset)
+assert (eset:size() == 4)
+
+eterms={}
+for term in eset:terms() do
+	table.insert(eterms, term:get_term())
+end
+assert(table.concat(eterms, " ") == "there is anybodi XYzzy")
+
+function testexpanddecider(term)
+  return term ~= "there"
+end
+
+eset = enq:get_eset(10, rset, testexpanddecider)
+assert (eset:size() == 3)
+
+eterms={}
+for term in eset:terms() do
+	table.insert(eterms, term:get_term())
+end
+assert(table.concat(eterms, " ") == "is anybodi XYzzy")
+
 -- Regression test - overload resolution involving boolean types failed.
 enq:set_sort_by_value(1, true)
 
