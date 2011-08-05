@@ -1,3 +1,9 @@
+Fri Aug 05 11:36:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Fix doc comment typo which reversed the
+	  intended sense.
+
 Fri Aug 05 11:30:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
