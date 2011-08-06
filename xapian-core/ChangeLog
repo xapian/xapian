@@ -1,3 +1,11 @@
+Sat Aug 06 03:14:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_matchspy.cc: Remove checks for remote dbtype in matchspy2
+	  and matchspy4 testcases - these were checking for values which would
+	  never match, and the testcases should and do work with remote
+	  backends.
+
 Fri Aug 05 15:26:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Add Flint-related classes to fix build with
