@@ -1,3 +1,13 @@
+Sat Aug 06 05:15:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/positioniterator.cc,api/postingsource.cc,api/valueiterator.cc,
+	  common/serialise.h,include/xapian/positioniterator.h,
+	  include/xapian/postingsource.h: Fix new warnings from -Wshadow with
+	  GCC 4.6.  These warnings are when a variable name "shadows" a
+	  typename, which doesn't seem problematic in general, but the only
+	  alternative seems to be to disable -Wshadow entirely, and it is
+	  useful in other cases.
+
 Thu Aug 04 07:57:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory_remote.cc,docs/deprecation.rst,

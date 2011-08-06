@@ -99,11 +99,11 @@ PositionIterator::operator++()
 }
 
 void
-PositionIterator::skip_to(Xapian::termpos termpos)
+PositionIterator::skip_to(Xapian::termpos pos)
 {
-    LOGCALL_VOID(API, "PositionIterator::skip_to", termpos);
+    LOGCALL_VOID(API, "PositionIterator::skip_to", pos);
     Assert(internal);
-    internal->skip_to(termpos);
+    internal->skip_to(pos);
     if (internal->at_end()) {
 	decref();
 	internal = NULL;

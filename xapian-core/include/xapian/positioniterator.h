@@ -70,9 +70,9 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
     /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<Xapian::termpos> operator++(int) {
-	Xapian::termpos termpos(**this);
+	Xapian::termpos pos(**this);
 	operator++();
-	return DerefWrapper_<Xapian::termpos>(termpos);
+	return DerefWrapper_<Xapian::termpos>(pos);
     }
 
     /** Advance the iterator to term position @a termpos.

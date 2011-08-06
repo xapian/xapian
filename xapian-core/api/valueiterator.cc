@@ -127,11 +127,11 @@ ValueIterator::skip_to(Xapian::docid docid_or_slot)
 }
 
 bool
-ValueIterator::check(Xapian::docid docid)
+ValueIterator::check(Xapian::docid did)
 {
-    LOGCALL(API, bool, "ValueIterator::check", docid);
+    LOGCALL(API, bool, "ValueIterator::check", did);
     Assert(internal);
-    if (!internal->check(docid)) return false;
+    if (!internal->check(did)) return false;
     if (internal->at_end()) {
 	decref();
 	internal = NULL;
