@@ -1,3 +1,7 @@
+Sat Aug 06 07:17:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory_remote.cc: Fix -Wshadow warnings from GCC 4.6.
+
 Sat Aug 06 06:32:15 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
