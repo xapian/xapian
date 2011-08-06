@@ -1,3 +1,9 @@
+Sat Aug 06 04:16:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-check.cc: Document in --help that checking a whole
+	  database performs additional cross-checks between the tables.
+
 Sat Aug 06 04:14:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

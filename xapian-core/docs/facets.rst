@@ -1,6 +1,7 @@
 
-.. Copyright (C) 2007,2010 Olly Betts
+.. Copyright (C) 2007,2010,2011 Olly Betts
 .. Copyright (C) 2009 Lemur Consulting Ltd
+.. Copyright (C) 2011 Richard Boulton
 
 =======================
 Xapian Faceting Support
@@ -50,8 +51,9 @@ the number of times each facet value occurs in each slot; for the example
 above, if you wanted to get facets for "price", "author" and "publication type"
 you'd want to get the counts from slots 0, 1 and 3.
 
-This can be done by calling ``Xapian::Enquire::add_matchspy()`` with a
-``Xapian::ValueCountMatchSpy`` object, like so::
+This can be done by calling ``Xapian::Enquire::add_matchspy()`` with a pointer
+to a ``Xapian::ValueCountMatchSpy`` object for each value slot you want to
+get facet counts for, like so::
 
     Xapian::ValueCountMatchSpy spy0(0);
     Xapian::ValueCountMatchSpy spy1(1);
