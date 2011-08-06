@@ -11,14 +11,15 @@ Sat Aug 06 05:55:32 GMT 2011  Olly Betts <olly@survex.com>
 Sat Aug 06 04:32:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* bin/xapian-check.cc: Document in --help that checking a whole
-	  database performs additional cross-checks between the tables.
+	* docs/index.rst: Add links to Omega and bindings docs.
 
 Sat Aug 06 04:18:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* bin/xapian-check.cc: Document in --help that checking a whole
-	  database performs additional cross-checks between the tables.
+	* include/xapian/queryparser.h: Reword documentation of
+	  add_boolean_prefix()'s exclusive parameter to talk about terms and
+	  prefixes rather than values and fields (which was confusing since
+	  "document value" has a particular meaning in Xapian).
 
 Sat Aug 06 04:16:38 GMT 2011  Olly Betts <olly@survex.com>
 
@@ -421,7 +422,7 @@ Tue May 31 03:36:49 GMT 2011  Dan Colish <dcolish@gmail.com>
 	docs/queryparser.rst docs/stemming.rst docs/intro_ir.rst
 	docs/code_structure.rst docs/Makefile.am docs/tests.rst
 	docs/overview.rst: Bulk port all remaining documentation to RST.
-	
+
 Sun May 29 07:04:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Add PostingSource example.  (ticket#503)
@@ -477,7 +478,7 @@ Mon May 09 20:13:17 GMT 2011  Olly Betts <olly@survex.com>
 
 Thu Apr 07 05:38:36 GMT 2011  Dan Colish <dcolish@gmail.com>
 
-	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc, 
+	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc,
 	  matcher/exactphrasepostlist.cc, matcher/exactphrasepostlist.h,
 	  matcher/phrasepostlist.h: Remove temporary vector in queryoptimiser
 	  and replace with iterators.
@@ -563,7 +564,7 @@ Tue Mar 22 01:18:38 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/,backends/chert/chert_database.cc,
 	  backends/flint/flint_database.cc,tests/api_replicate.cc:
-          Clean up changesets when replicating. Add test coverage for this
+	  Clean up changesets when replicating. Add test coverage for this
 	  feature. Allow XAPIAN_MAX_CHANGESETS to be altered without reopening
 	  the database. Closes Ticket #278.
 
