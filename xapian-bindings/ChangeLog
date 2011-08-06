@@ -1,3 +1,9 @@
+Sat Aug 06 14:20:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/symbol-test.t: Fix to work when built against an installed
+	  xapian-core.  (ticket#558)
+
 Tue Jun 28 11:57:22 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
