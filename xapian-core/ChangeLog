@@ -1,3 +1,11 @@
+Sat Aug 06 04:14:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* docs/facets.rst: Expand descriptions for indexing and finding
+	  facets to hopefully be more helpful to newcomers.
+	* docs/facets.rst: Fix example calls to add_matchspy() to be passed
+	  pointers, and example call to get_termfreq().
+
 Sat Aug 06 03:14:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

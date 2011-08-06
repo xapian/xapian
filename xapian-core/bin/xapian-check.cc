@@ -46,6 +46,8 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
+"If a whole database is checked, then additional cross-checks between\n"
+"the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
