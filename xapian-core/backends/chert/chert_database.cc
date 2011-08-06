@@ -1338,6 +1338,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
+	    bool pos_modified = !modifying ||
+				document.internal->term_positions_modified();
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
@@ -1368,7 +1370,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    termcount old_wdf = termlist.get_wdf();
 		    new_doclen -= old_wdf;
 		    add_freq_delta(old_tname, -1, -old_wdf);
-		    position_table.delete_positionlist(did, old_tname);
+		    if (pos_modified)
+			position_table.delete_positionlist(did, old_tname);
 		    update_mod_plist(did, old_tname, 'D', 0u);
 		    termlist.next();
 		} else if (cmp > 0) {
@@ -1380,11 +1383,13 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(
-			    did, new_tname,
-			    pos, term.positionlist_end(), false);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(
+				did, new_tname,
+				pos, term.positionlist_end(), false);
+			}
 		    }
 		    ++term;
 		} else if (cmp == 0) {
@@ -1403,13 +1408,15 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(did, new_tname, pos,
-							term.positionlist_end(),
-							true);
-		    } else {
-			position_table.delete_positionlist(did, new_tname);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(did, new_tname, pos,
+							    term.positionlist_end(),
+							    true);
+			} else {
+			    position_table.delete_positionlist(did, new_tname);
+			}
 		    }
 
 		    ++term;

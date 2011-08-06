@@ -1281,6 +1281,8 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
+	    bool pos_modified = !modifying ||
+				document.internal->term_positions_modified();
 	    Xapian::Internal::RefCntPtr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
@@ -1311,7 +1313,8 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    termcount old_wdf = termlist.get_wdf();
 		    new_doclen -= old_wdf;
 		    inverter.remove_posting(did, old_tname, old_wdf);
-		    position_table.delete_positionlist(did, old_tname);
+		    if (pos_modified)
+			position_table.delete_positionlist(did, old_tname);
 		    termlist.next();
 		} else if (cmp > 0) {
 		    // Term new_tname as been added.
@@ -1321,11 +1324,13 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(
-			    did, new_tname,
-			    pos, term.positionlist_end(), false);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(
+				did, new_tname,
+				pos, term.positionlist_end(), false);
+			}
 		    }
 		    ++term;
 		} else if (cmp == 0) {
@@ -1343,13 +1348,15 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(did, new_tname, pos,
-							term.positionlist_end(),
-							true);
-		    } else {
-			position_table.delete_positionlist(did, new_tname);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(did, new_tname, pos,
+							    term.positionlist_end(),
+							    true);
+			} else {
+			    position_table.delete_positionlist(did, new_tname);
+			}
 		    }
 
 		    ++term;

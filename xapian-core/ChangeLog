@@ -1,3 +1,13 @@
+Sat Aug 06 05:55:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdocument.cc,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  common/document.h: Document objects now track if term positions might
+	  have been modified, so we can avoid having to consider them at all if
+	  you take a document and add or remove a boolean filter term.  This
+	  gives an 18% speedup for adding tags in notmuch.
+
 Sat Aug 06 04:32:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
