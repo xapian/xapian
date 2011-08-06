@@ -21,6 +21,11 @@ Documentation
 
 A number of pieces of documentation are available.
 
+The Omega search application has its `own documentation
+<http://xapian.org/docs/omega/>`_, and there's also separate
+documentation for the `other language bindings
+<http://xapian.org/docs/bindings/>`_.
+
 We suggest you start by reading the `Installation
 Guide <install.html>`_, which covers downloading the code, and
 unpacking, configuring, building and installing it.
