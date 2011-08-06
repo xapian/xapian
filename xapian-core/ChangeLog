@@ -1,3 +1,11 @@
+Sat Aug 06 06:32:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/termgenerator.h,
+	  queryparser/termgenerator_internal.cc: Rename weight parameter to
+	  wdf_inc, which much better describes what it does, and avoids a
+	  -Wshadow warning with GCC 4.6.
+
 Sat Aug 06 06:26:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
