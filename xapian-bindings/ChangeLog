@@ -1,3 +1,12 @@
+Sun Aug 07 21:59:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/Makefile.am,php/docs/examples/,php/smoketest.php: Change
+	  'include "php5/xapian.php"' to 'include "xapian.php"' in
+	  smoketest.php and the examples, and set include_path=php5 in
+	  TESTS_ENVIRONMENT so smoketest.php finds the uninstalled
+	  xapian.php.
+
 Sun Aug 07 21:57:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

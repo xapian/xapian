@@ -24,7 +24,7 @@ if (php_sapi_name() != "cli") {
     exit(1);
 }
 
-include "php5/xapian.php";
+include "xapian.php";
 
 if ($argc < 4) {
     print "Usage: {$argv[0]} PATH_TO_DATABASE AVOID_VALUE QUERY\n";
