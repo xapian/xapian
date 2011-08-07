@@ -18,6 +18,9 @@ Lua bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/simpleindex.lua">simpleindex.lua</a>,
 <a href="examples/simplesearch.lua">simplesearch.lua</a>,
 <a href="examples/simpleexpand.lua">simpleexpand.lua</a>.
+There's also 
+<a href="examples/simplematchdecider.lua">simplematchdecider.lua</a>
+which shows how to define a MatchDecider in Lua.
 </p>
 
 <h2>Unicode Support</h2>
@@ -171,6 +174,23 @@ These are wrapped for Lua as
    match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
 </p>
+
+<h2>MatchDecider</h2>
+
+<p>
+Custom MatchDeciders can be created in Lua in the form of lua function; simply 
+function ensures you create a subclass of xapian.MatchDecider, which calls 
+the super-constructor, and overloads the operator method to callback the lua function
+that will do the work. The simplest example (which does nothing
+useful) would be as follows:
+</p>
+
+<pre>
+function mymatchdecider(doc)
+	return 1
+end
+</pre>
+
 
 <address>
 Last updated $Date$
