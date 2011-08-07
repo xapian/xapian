@@ -1,3 +1,10 @@
+Sun Aug 07 22:16:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/Makefile.am: Use the same NEED_JNILIB_EXT machinery which
+	  the hand-coded JNI bindings had, so that on Mac OS X the JNI library
+	  has a .jnilib extension.
+
 Sun Aug 07 21:59:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
