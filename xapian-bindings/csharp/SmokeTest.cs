@@ -119,6 +119,13 @@ class SmokeTest {
 		}
 	    }
 
+	    {
+		Xapian.QueryParser qp = new Xapian.QueryParser();
+		// FIXME: It would be better if the (uint) cast wasn't required
+		// here.
+		qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
+	    }
+
             if (Xapian.Query.MatchAll.GetDescription() != "Xapian::Query(<alldocuments>)") {
 		System.Console.WriteLine("Unexpected Query.MatchAll.toString()");
 		System.Environment.Exit(1);
