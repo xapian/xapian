@@ -270,11 +270,11 @@ class luaMatchSpy : public Xapian::MatchSpy {
 };
 %}
 
-%define SUB_CLASS_TYPEMAPS(NS, CLASS, POINTER)
+%define SUB_CLASS_TYPEMAPS(NS, CLASS)
 
 %typemap(typecheck, precedence=100) NS::CLASS * {
 	void *ptr;
-	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_##NS##__##POINTER, 0))) {
+	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, $descriptor(NS::CLASS *), 0))) {
 		$1 = 1;
 	}
 	else {
@@ -286,19 +286,19 @@ class luaMatchSpy : public Xapian::MatchSpy {
 		$1 = new lua##CLASS(L);
 	}
 	else {
-		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, SWIGTYPE_p_##NS##__##POINTER, 0))){
+		if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))){
 			SWIG_fail;
 		}
 	}
 }
 
 %enddef
-SUB_CLASS_TYPEMAPS(Xapian, MatchDecider, MatchDecider)
-SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider, ExpandDecider)
-SUB_CLASS_TYPEMAPS(Xapian, Stopper, Stopper)
-SUB_CLASS_TYPEMAPS(Xapian, StemImplementation, Stem)
-SUB_CLASS_TYPEMAPS(Xapian, KeyMaker, KeyMaker)
-SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor, ValueRangeProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, MatchDecider)
+SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider)
+SUB_CLASS_TYPEMAPS(Xapian, Stopper)
+SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
+SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
+SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor)
 
 %luacode {
 function xapian.Iterator(begin, _end)
@@ -414,10 +414,10 @@ class XapianSWIGQueryItor {
 	}
 
 	NS::ITERATOR_CLASS * begin = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.first);
-	SWIG_NewPointerObj(L, (void *) begin, SWIGTYPE_p_##NS##__##ITERATOR_CLASS, 1);
+	SWIG_NewPointerObj(L, (void *) begin, $descriptor(Xapian::ITERATOR_CLASS *), 1);
 	
 	NS::ITERATOR_CLASS * end = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.second);
-	SWIG_NewPointerObj(L, (void *) end, SWIGTYPE_p_##NS##__##ITERATOR_CLASS, 1);
+	SWIG_NewPointerObj(L, (void *) end, $descriptor(Xapian::ITERATOR_CLASS *), 1);
 
 	if (lua_pcall(L, 2, 1, 0) != 0) {
 		luaL_error(L, "error running function: %s", lua_tostring(L, -1));
