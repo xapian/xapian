@@ -52,8 +52,8 @@ using namespace std;
 
 // In C#, we wrap ++ and -- as ++ and --.
 #ifdef SWIGCSHARP
-#define NEXT(RET, CLASS) CLASS & next() { return ++(*self); }
-#define PREV(RET, CLASS) CLASS & prev() { return --(*self); }
+#define NEXT(RET, CLASS) CLASS next() { return ++(*self); }
+#define PREV(RET, CLASS) CLASS prev() { return --(*self); }
 #elif defined SWIGJAVA
 #define NEXT(RET, CLASS) RET next() { return *(++(*self)); }
 #define PREV(RET, CLASS) RET prev() { return *(--(*self)); }
