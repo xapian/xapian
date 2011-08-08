@@ -57,6 +57,30 @@ class luaMatchDecider : public Xapian::MatchDecider {
 		}
 };
 %}
+
+%luacode {
+function xapian.Iterator(begin, _end)
+	local iter = begin;
+	local isFirst = 1
+	return function()
+		if iter:equals(_end) then
+			return nil
+		else
+			if isFirst == 1 then
+				isFirst = 0;
+				return iter
+			else
+				iter:next()
+				if iter:equals(_end) then
+					return nil
+				end
+				return iter
+			end
+		end
+	end
+end
+}
+
 %typemap(typecheck, precedence=100) Xapian::MatchDecider * {
 	void *ptr;
 	if (lua_isfunction(L, $input) || (SWIG_isptrtype(L, $input) && !SWIG_ConvertPtr(L, $input, (void **) &ptr, SWIGTYPE_p_Xapian__MatchDecider, 0))) {
@@ -139,14 +163,88 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	$1 = &v;
 }
 
-#define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
-%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-	lua_newtable(L);
-	int i = 1;
+%define OUTPUT_ITERATOR_METHODS(NS, CLASS, ITERATOR_CLASS, ITERATOR_BEGIN, ITERATOR_END, DEREF_METHOD, PARAMETER_NAME, PARAMETER_VALUE)
 
-	for (Xapian::TermIterator iter = $1.first; iter != $1.second; ++iter) {
-		lua_pushlstring(L, (*iter).data(), (*iter).length());
-		lua_rawseti(L, -2, i++);
+%extend NS::CLASS {
+	std::pair<NS::ITERATOR_CLASS , NS::ITERATOR_CLASS> DEREF_METHOD(PARAMETER_NAME) {
+		return std::make_pair($self->ITERATOR_BEGIN(PARAMETER_VALUE), $self->ITERATOR_END(PARAMETER_VALUE));
+	}
+}
+
+%typemap(out) std::pair<NS::ITERATOR_CLASS, NS::ITERATOR_CLASS> {
+	lua_getglobal(L, "xapian");
+	lua_pushstring(L, "Iterator");
+	lua_gettable(L, -2);
+	lua_remove(L, -2);
+
+	if (!lua_isfunction(L, -1)) {
+				luaL_typerror(L, -1, "function");
+	}
+
+	NS::ITERATOR_CLASS * begin = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.first);
+	SWIG_NewPointerObj(L, (void *) begin, SWIGTYPE_p_##NS##__##ITERATOR_CLASS, 1);
+
+	NS::ITERATOR_CLASS * end = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.second);
+	SWIG_NewPointerObj(L, (void *) end, SWIGTYPE_p_##NS##__##ITERATOR_CLASS, 1);
+
+	if (lua_pcall(L, 2, 1, 0) != 0) {
+		luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+	}
+
+	SWIG_arg++;
+}
+
+%enddef
+
+OUTPUT_ITERATOR_METHODS(Xapian, Query, TermIterator, get_terms_begin, get_terms_end, get_terms, void, )
+
+OUTPUT_ITERATOR_METHODS(Xapian, ESet, ESetIterator, begin, end, terms, void, )
+
+OUTPUT_ITERATOR_METHODS(Xapian, MSet, MSetIterator, begin, end, items, void, )
+
+OUTPUT_ITERATOR_METHODS(Xapian, Document, TermIterator, termlist_begin, termlist_end, termlist, void, )
+OUTPUT_ITERATOR_METHODS(Xapian, Document, ValueIterator, values_begin, values_end, values, void, )
+
+OUTPUT_ITERATOR_METHODS(Xapian, Enquire, TermIterator, get_matching_terms_begin, get_matching_terms_end, get_matching_terms, Xapian::docid did, did)
+OUTPUT_ITERATOR_METHODS(Xapian, Enquire, TermIterator, get_matching_terms_begin, get_matching_terms_end, get_matching_terms, const MSetIterator &it, it)
+
+OUTPUT_ITERATOR_METHODS(Xapian, ValueCountMatchSpy, TermIterator, values_begin, values_end, values, void, )
+OUTPUT_ITERATOR_METHODS(Xapian, ValueCountMatchSpy, TermIterator, top_values_begin, top_values_end, top_values, size_t maxvalues, maxvalues)
+
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, allterms_begin, allterms_end, allterms, void, )
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, spellings_begin, spellings_end, spellings, void, )
+OUTPUT_ITERATOR_METHODS(Xapian, Database, PostingIterator, postlist_begin, postlist_end, postlist, const std::string &tname, tname)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, termlist_begin, termlist_end, termlist, Xapian::docid did, did)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, ValueIterator, valuestream_begin, valuestream_end, valuestream, Xapian::valueno slot, slot)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, allterms_begin, allterms_end, allterms, const std::string &prefix, prefix)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, synonyms_begin, synonyms_end, synonyms, const std::string &term, term)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, synonym_keys_begin, synonym_keys_end, synonym_keys, const std::string &prefix, prefix)
+OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, metadata_keys_begin, metadata_keys_end, metadata_keys, const std::string &prefix, prefix)
+
+%extend Xapian::Database {
+	std::pair<Xapian::PositionIterator , Xapian::PositionIterator> positionlist(Xapian::docid did, const std::string &tname) {
+		return std::make_pair($self->positionlist_begin(did, tname), $self->positionlist_end(did, tname));
+	}
+}
+
+%typemap(out) std::pair<Xapian::PositionIterator, Xapian::PositionIterator> {
+	lua_getglobal(L, "xapian");
+	lua_pushstring(L, "Iterator");
+	lua_gettable(L, -2);
+	lua_remove(L, -2);
+
+	if (!lua_isfunction(L, -1)) {
+		luaL_typerror(L, -1, "function");
+	}
+
+	Xapian::PositionIterator * begin = new Xapian::PositionIterator((const Xapian::PositionIterator &)$1.first);
+	SWIG_NewPointerObj(L, (void *) begin, SWIGTYPE_p_Xapian__PositionIterator, 1);
+
+	Xapian::PositionIterator * end = new Xapian::PositionIterator((const Xapian::PositionIterator &)$1.second);
+	SWIG_NewPointerObj(L, (void *) end, SWIGTYPE_p_Xapian__PositionIterator, 1);
+
+	if (lua_pcall(L, 2, 1, 0) != 0) {
+		luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 
 	SWIG_arg++;

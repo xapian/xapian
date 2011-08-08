@@ -64,6 +64,12 @@ assert(doc:termlist_count() == 6)
 assert(db:get_description() == "WritableDatabase()")
 assert(db:get_doccount() == 1)
 
+term_count = 0
+for term in db:allterms() do
+ term_count = term_count + 1
+end
+assert(term_count == 5)
+
 -- Test queries
 terms = {"smoke", "test", "terms"}
 assert(xapian.Query(xapian.Query_OP_OR, terms):get_description() == "Xapian::Query((smoke OR test OR terms))")
@@ -84,7 +90,12 @@ query = xapian.Query(xapian.Query_OP_OR, {"there", "is"})
 enq:set_query(query)
 mset = enq:get_mset(0, 10)
 assert(mset:size() == 1)
-assert(table.concat(enq:get_matching_terms(mset:get_hit(0)), " ") == "is there")
+
+terms = {}
+for term in enq:get_matching_terms(mset:get_hit(0)) do
+	table.insert(terms, term:get_term())
+end
+assert(table.concat(terms, " ") == "is there")
 
 -- Check value of OP_ELITE_SET
 assert(xapian.Query_OP_ELITE_SET == 10)
@@ -265,4 +276,4 @@ assert(#values == #expected)
 for i, v in ipairs(values) do
   assert(values[i] == expected[i])
 end
-
+mset:get_hit(0)
