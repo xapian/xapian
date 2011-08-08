@@ -46,7 +46,7 @@ class lua##CLASS : public NS::CLASS {
 				luaL_typerror(L, -1, "function");
 			}
 
-			lua_pushstring(L, (char *)term.c_str());
+			lua_pushlstring(L, (char *)term.c_str(), term.length());
 			if (lua_pcall(L, 1, 1, 0) != 0){
 				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 			}
