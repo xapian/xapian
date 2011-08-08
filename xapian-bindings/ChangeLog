@@ -1,3 +1,8 @@
+Mon Aug 08 00:52:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/examples/simplematchdecider.lua: Actually add new
+	  example.
+
 Mon Aug 08 00:48:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
