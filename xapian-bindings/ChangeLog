@@ -1,3 +1,9 @@
+Mon Aug 08 01:19:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* php/smoketest.php: Install an error handler so the test fails if
+	  there are any errors, warnings, notices, etc.
+
 Mon Aug 08 01:13:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

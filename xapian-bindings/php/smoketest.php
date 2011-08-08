@@ -23,6 +23,18 @@
  * USA
  */
 
+# Die on any error, warning, notice, etc.
+function die_on_error($errno, $errstr, $file, $line) {
+    if ($file !== Null) {
+	print $file;
+	if ($line !== Null) print ":$line";
+	print ": ";
+    }
+    print "$errstr\n";
+    exit(1);
+}
+set_error_handler("die_on_error", -1);
+
 include "xapian.php";
 
 # Test the version number reporting functions give plausible results.
