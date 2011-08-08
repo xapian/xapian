@@ -28,7 +28,7 @@ class MyMatchDecider extends MatchDecider {
 	// NB It's not normally appropriate to call getData() in a MatchDecider
 	// but we do it here to make sure we don't get an empty document.
 /*	try { */
-	    return d.getData() == "";
+	    return d.getData().length() == 0;
 /*
 	} catch (XapianError e) {
 	    return true;
@@ -157,7 +157,7 @@ public class SmokeTest {
 	    ESetIterator eit = eset.iterator();
 	    int count = 0;
 	    while (eit.hasNext()) {
-		if (eit.getTerm().substring(0, 1) == "a") {
+		if (eit.getTerm().charAt(0) == 'a') {
 		    System.err.println("MyExpandDecider wasn't used");
 		    System.exit(1);
 		}

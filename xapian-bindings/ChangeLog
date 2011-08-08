@@ -1,3 +1,7 @@
+Mon Aug 08 03:35:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix == comparisons with literal strings.
+
 Thu Aug 04 07:34:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i,xapian.i: Wrap iterator operator++ and operator--
