@@ -48,6 +48,7 @@ exampledatadir = $(docdir)/lua/examples
 dist_exampledata_DATA = \
 	docs/examples/simpleindex.lua \
 	docs/examples/simpleexpand.lua \
+	docs/examples/simplematchdecider.lua \
 	docs/examples/simplesearch.lua
 
 docdatadir = $(docdir)/lua
