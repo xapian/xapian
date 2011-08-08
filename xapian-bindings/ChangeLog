@@ -1,3 +1,9 @@
+Mon Aug 08 03:46:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java/SmokeTest.java,java-swig/SmokeTest.java: Fix
+	  MyExpandDecider.accept to really check the passed parameter.
+
 Mon Aug 08 01:19:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

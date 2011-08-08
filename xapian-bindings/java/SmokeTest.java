@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006 Olly Betts
+// Copyright (C) 2005,2006,2011 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ class MyMatchDecider implements MatchDecider {
 }
 
 class MyExpandDecider implements ExpandDecider {
-    public boolean accept(String s) { return s.substring(0, 1) != "a"; }
+    public boolean accept(String s) { return s.charAt(0) != 'a'; }
 }
 
 public class SmokeTest {

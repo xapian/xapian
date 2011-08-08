@@ -39,7 +39,7 @@ class MyMatchDecider extends MatchDecider {
 
 // FIXME: "implements" not "extends" in JNI Java API
 class MyExpandDecider extends ExpandDecider {
-    public boolean accept(String s) { return s.substring(0, 1) != "a"; }
+    public boolean accept(String s) { return s.charAt(0) != 'a'; }
 }
 
 public class SmokeTest {
