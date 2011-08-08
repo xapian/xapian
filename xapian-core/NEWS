@@ -1,3 +1,94 @@
+ 15980       olly Sat Aug 06 07:32:16 GMT 2011  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.7 (2011-08-08):
+
+API:
+
+* Document objects now track whether any document positions have been modified
+  so that replacing a modified document can completely skip considering
+  updating positions if none have changed.  Currently the flint, chert, and
+  brass implement this optimisation.  A common case this speeds up is adding
+  and/or removing boolean filter terms to/from existing documents - for
+  example this gives an 18% speedup for adding tags in notmuch.
+
+testsuite:
+
+* Make sure that perftest isn't run with libeatmydata preloaded, as making
+  fsync() a no-op makes performance tests rather bogus.
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+* Remove unnecessary call to reopen() in the remote servers in a case where
+  either we had just called it or we are using a writable database and so
+  reopen() doesn't do anything.
+
+inmemory backend:
+
+
+build system:
+
+* configure: -Wshadow gives bogus warnings with 4.0 (at least on Mac OS X), so
+  disable it for GCC < 4.1 (like the comments already said we did!)
+
+documentation:
+
+* Improve the documentation comment for Database::close().  (ticket#504)
+
+* Fix typo in documentation comment for Enquire constructor which reversed the
+  intended sense (though the text was fairly obviously wrong before).
+
+* Improve documentation of QueryParser::add_boolean_prefix()'s exclusive
+  parameter to talk about terms and prefixes rather than values and fields
+  (which was confusing since "document value" has a particular meaning in
+  Xapian).
+
+* docs/facets.html: Expand descriptions for indexing and finding facets.
+  Fix errors in example code.
+
+* docs/index.html: Add links to Omega and bindings documentation.
+
+* docs/remote_protocol.html: Fixed typo which reversed the intended sense.
+
+* xapian-check --help: Document that checking a whole database performs
+  additional cross-checks between the tables.
+
+* docs/admin_notes.html: Add note about xapian-chert-update.
+
+* docs/deprecation.html: Note here that WritableDatabase::flush() is
+  deprecated in favour of WritableDatabase::commit().
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix -Wshadow warnings from GCC 4.6.
+
+* Fix warning from GCC 3.3.
+
+packaging:
+
+
+debug code:
+
+* Fix some problems with the templates used to implement output of parameters
+  and return values in debug logging.
+
 Xapian-core 1.2.6 (2011-06-12):
 
 API:
