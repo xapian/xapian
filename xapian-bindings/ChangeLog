@@ -1,3 +1,7 @@
+Tue Aug 09 08:53:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Initial update for 1.2.7.
+
 Mon Aug 08 04:13:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java-swig/SmokeTest.java: Add test that string passing is zero byte

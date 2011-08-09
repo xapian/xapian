@@ -1,3 +1,131 @@
+ 15997       olly Mon Aug 08 04:13:26 GMT 2011  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.7 (2011-08-08):
+
+Documentation:
+
+* INSTALL: Pull in a few updates from the latest version of the automake
+  document which this file was originally based on.  Add in the missing
+  copyright and licensing information.
+
+* INSTALL: Add --with-lua to list of options.
+
+* INSTALL,README: It's no longer noteworthy that Mac OS X 10.1 and 10.2 aren't
+  supported as Apple ditched them long ago, so drop this as a "Known Issue" in
+  INSTALL and instead just say "Mac OS X >= 10.3" in the discussion of
+  supported platforms in the README.
+
+* HACKING: Update and start section on deprecation warnings for the bindings.
+
+General:
+
+* Add missing wrappers for Database::has_positions() and
+  TermIterator::positionlist_count(), and correct the return type of
+  Database::get_doclength() from double to Xapian::termcount.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+* README: Note a recent version of Mono which we've tested the C# bindings
+  with.
+
+* Check that exactly the sources we expect are generated, and add some sources
+  which were missing from the list.
+
+* Fix "make uninstall" so the compiled C++ module (typically _XapianSharp.so)
+  gets removed.
+
+* Fix iterator ++ and -- so that the reference to the object isn't released
+  prematurely, which was causing an occasional crash if the garbage collection
+  happened at just the wrong moment,
+
+* Add test coverage for QueryParser.ParseQuery() with flags argument.
+
+* Wrap Query::MatchAll and Query::MatchNothing. (ticket#158)
+
+Java:
+
+* SmokeTest.java: Fix == comparisons with strings to use equals().
+
+* Add test that string passing is zero byte safe.
+
+* Fix MyExpandDecider.accept() to really check the passed parameter.
+
+Java-SWIG:
+
+* Put the SWIG-generated Java bindings in package org.xapian.
+
+* Wrap Query::MatchAll and Query::MatchNothing. (ticket#158)
+
+* SmokeTest.java: Fix == comparisons with literal strings to use equals()
+
+* Add test that string passing is zero byte safe.
+
+* Fix MyExpandDecider.accept() to really check the passed parameter.
+
+* Fix the compile JNI code to have a .jnilib extension on Mac OS X.
+
+* Create an HTML documentation page based on java/README.
+
+* Copy java examples from the hand-coded JNI ones.
+
+* docs/examples/SimpleIndex.java: Update to use commit() rather than flush().
+
+* Wrap Query::MatchAll and Query::MatchNothing. (ticket#158)
+
+* Check that exactly the sources we expect are generated, and add some sources
+  which were missing from the list.
+
+Lua:
+
+* Merge latest Lua changes from Xiaona Han.
+
+* lua/smoketest.lua: Add simple test for Database::positionlist_begin().
+
+* simpleexpand.lua: Don't try to add anything to the RSet if there are no
+  matches.
+
+Perl:
+
+* Sync updates to examples from XS Search::Xapian:
+
+  + Require Perl >= 5.6 so we can "use warnings;".
+
+  + Loop over file using while() (which reads a line per iteration) not
+    foreach() (which reads the whole file up front).
+
+* Wrap MatchAll and MatchNothing for Perl (as Search::Xapian::Query::MatchAll
+  and Search::Xapian::Query::MatchNothing).  (ticket#158)
+
+* perl/t/termgenerator.t: Test TermIterator::index_text() with two arguments.
+
+* perl/Makefile.am: Fix "make check".
+
+* perl/t/symbol-test.t: Fix to work when built against an installed
+  xapian-core.  (ticket#558)
+
+PHP:
+
+* php/smoketest.php: Install an error handler so the test fails if there are
+  any errors, warnings, notices, etc.
+
+* Change PHP examples and test program to use 'include "xapian.php"' like user
+  code should (rather than 'include "php5/xapian.php"' as they did previously).
+
+* Wrap MatchAll and MatchNothing for PHP as XapianQuery::MatchAll() and
+  XapianQuery::MatchNothing(). (ticket#158)
+
+Python:
+
+Ruby:
+
+* Wrap MatchAll and MatchNothing for Ruby.  (ticket#158)
+
+Tcl:
+
 Xapian-bindings 1.2.6 (2011-06-12):
 
 General:
