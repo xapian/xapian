@@ -127,7 +127,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 				luaL_typerror(L, -1, "function");
 			}
 
-			SWIG_NewPointerObj(L, &word, SWIGTYPE_p_std__string, 0);
+			lua_pushlstring(L, (char *)word.c_str(), word.length());
 			if (lua_pcall(L, 1, 1, 0) != 0){
 				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 			}
@@ -220,8 +220,8 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 				luaL_typerror(L, -1, "function");
 			}
 
-			SWIG_NewPointerObj(L, &begin, SWIGTYPE_p_std__string, 0);
-			SWIG_NewPointerObj(L, &end, SWIGTYPE_p_std__string, 0);
+			lua_pushlstring(L, (char *)begin.c_str(), begin.length());
+			lua_pushlstring(L, (char *)end.c_str(), end.length());
 
 			if (lua_pcall(L, 2, 1, 0) != 0){
 				luaL_error(L, "error running function: %s", lua_tostring(L, -1));
