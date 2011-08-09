@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.7.0  Tue Aug  9 09:01:39 UTC 2011
+	- Note in README that the hand-coded XS wrappers are heading for
+	  retirement.
+
 1.2.6.0  Sun Jun 12 11:55:42 UTC 2011
 	[Changes contributed by Adam Sjøgren]
 	- Wrap new method QueryParser::set_max_wildcard_expansion().

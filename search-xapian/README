@@ -1,7 +1,14 @@
-Search::Xapian version 1.2.6.0
+Search::Xapian version 1.2.7.0
 ==============================
 
 This is Search::Xapian, a Perl XS frontend to the Xapian C++ search library.
+
+We are working on replacing this module with a version generated with SWIG.
+You can find the current work on this in the xapian-bindings sources which
+are available from http://xapian.org/download - in Xapian 1.3.0 (which is
+a development release), the hand-coded XS wrappers will be retired.  If
+you want to help make this a smooth migration, please test your code with the
+new wrappers and report any issues you find.
 
 INSTALLATION
 
