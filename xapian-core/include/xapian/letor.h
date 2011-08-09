@@ -55,35 +55,33 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
     void set_query(const Xapian::Query & query);
 
-	std::map<std::string,long int> termfreq( const Xapian::Document & doc , const Xapian::Query & query);
+    std::map<std::string,long int> termfreq( const Xapian::Document & doc , const Xapian::Query & query);
 
-	std::map<std::string,double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
+    std::map<std::string,double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
 
-	std::map<std::string,long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
+    std::map<std::string,long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
 
-	std::map<std::string,long int> collection_length(const Xapian::Database & db);
+    std::map<std::string,long int> collection_length(const Xapian::Database & db);
 
-	std::map<std::string,long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
-	
-	void make_feature_vector();
+    std::map<std::string,long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
 
-	double calculate_f1(const Xapian::Query&, std::map<std::string,long int> &,char);
+    double calculate_f1(const Xapian::Query&, std::map<std::string,long int> &,char);
 
-	double calculate_f2(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length, char ch);
+    double calculate_f2(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length, char ch);
 
-	double calculate_f3(const Xapian::Query & query, std::map<std::string,double> & idf, char ch);
+    double calculate_f3(const Xapian::Query & query, std::map<std::string,double> & idf, char ch);
 
-	double calculate_f4(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & coll_len, char ch);
+    double calculate_f4(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & coll_len, char ch);
 
-	double calculate_f5(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,double> & idf, std::map<std::string,long int> & doc_length,char ch);
+    double calculate_f5(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,double> & idf, std::map<std::string,long int> & doc_length,char ch);
 
-	double calculate_f6(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length,std::map<std::string,long int> & coll_tf, std::map<std::string,long int> & coll_length, char ch);
+    double calculate_f6(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length,std::map<std::string,long int> & coll_tf, std::map<std::string,long int> & coll_length, char ch);
 
-	std::map<Xapian::docid,double> letor_score(const Xapian::MSet & mset);
+    std::map<Xapian::docid,double> letor_score(const Xapian::MSet & mset);
 
-	void letor_learn_model();
+    void letor_learn_model();
 
-	void prepare_training_file(std::string query_file, std::string qrel_file);
+    void prepare_training_file(std::string query_file, std::string qrel_file);
 };
 
 }

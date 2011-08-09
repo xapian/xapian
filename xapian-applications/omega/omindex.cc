@@ -31,6 +31,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 #include <sys/types.h>
 #include "safeunistd.h"
@@ -829,7 +830,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	// Index the title, document text, and keywords.
 	indexer.set_document(newdocument);
 	if (!title.empty()) {
-	    indexer.index_text(title, 5);
+	    indexer.index_text(title, 1,"S");
 	    indexer.increase_termpos(100);
 	}
 	if (!dump.empty()) {
@@ -1464,6 +1465,36 @@ main(int argc, char **argv)
 
     // If we created a temporary directory then delete it.
     if (!tmpdir.empty()) rmdir(tmpdir.c_str());
+
+    
+    //storing the collection statistics in uset metadata which is used in Letor features calculation
+    Xapian::TermIterator dt,dt_end;
+
+    dt=db.allterms_begin();
+    dt_end=db.allterms_end();
+
+    dt.skip_to("S");
+    long int temp_count=0;
+    for(;dt!=dt_end;++dt) {
+        if((*dt).substr(0,1)=="S")
+            temp_count+=db.get_collection_freq(*dt);    //because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
+        else
+            break;
+    }
+
+    std::ostringstream sin;
+    sin<<temp_count;
+    string title_len = sin.str();
+
+    sin<<(db.get_avlength() * db.get_doccount());
+    string whole_len = sin.str();
+
+    sin<<((db.get_avlength() * db.get_doccount())-temp_count);
+    string body_len = sin.str();
+
+    db.set_metadata("collection_len_title",title_len);
+    db.set_metadata("collection_len_body",body_len);
+    db.set_metadata("collection_len_whole",whole_len);
 
     return exitcode;
 }

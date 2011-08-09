@@ -87,11 +87,6 @@ Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & qu
     return coll_tf;
 }
 
-void
-Letor::make_feature_vector() {
-    internal->make_feature_vector();
-}
-
 double
 Letor::calculate_f1(const Xapian::Query & query, map<string,long int> & tf,char ch) {
     double value = internal->calculate_f1(query,tf,ch);

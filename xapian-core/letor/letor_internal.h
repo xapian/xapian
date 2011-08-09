@@ -1,4 +1,4 @@
-/* queryparser_internal.h: The internal Letor Class.
+/* letor_internal.h: The internal Letor Class.
  *
  * Copyright (C) 2011 Parth Gupta
  *
@@ -34,8 +34,6 @@ class Letor::Internal : public Xapian::Internal::RefCntBase {
     Query letor_query;
  
   public:
-      
-	void make_feature_vector();
 	
 	map<string,long int> termfreq(const Xapian::Document & doc,const Xapian::Query & query);
 

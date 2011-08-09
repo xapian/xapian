@@ -45,8 +45,8 @@ using namespace std;
 
 using namespace Xapian;
 
-struct svm_parameter param;		// set by parse_command_line
-struct svm_problem prob;		// set by read_problem
+struct svm_parameter param;
+struct svm_problem prob;
 struct svm_model *model;
 struct svm_node *x_space;
 int cross_validation;
@@ -75,12 +75,6 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-
-void
-Letor::Internal::make_feature_vector()
-{
-
-}
 
 map<string,long int>
 Letor::Internal::termfreq(const Xapian::Document & doc,const Xapian::Query & query) {
@@ -152,24 +146,31 @@ map<string,long int>
 Letor::Internal::collection_length(const Xapian::Database & db) {
     map<string,long int> len;
 
-    Xapian::TermIterator dt,dt_end;
-
-    dt=db.allterms_begin();
-    dt_end=db.allterms_end();
-
-    dt.skip_to("S");
-    long int temp_count=0;
-    for(;dt!=dt_end;++dt) {
-        if((*dt).substr(0,1)=="S")
-            temp_count+=db.get_collection_freq(*dt);	//	because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
-        else
-            break;	
+    if(!db.get_metadata("collection_len_title").empty() && !db.get_metadata("collection_len_body").empty() && !db.get_metadata("collection_len_whole").empty()) {
+        len["title"]=atol(db.get_metadata("collection_len_title").c_str());
+        len["body"] = atol(db.get_metadata("collection_len_body").c_str());
+        len["whole"] = atol(db.get_metadata("collection_len_whole").c_str());
     }
-    len["title"]=temp_count;
-    len["whole"]=db.get_avlength() * db.get_doccount();
-    len["body"]=len["whole"] - len["title"];
+    else {
+        Xapian::TermIterator dt,dt_end;
 
+        dt=db.allterms_begin();
+        dt_end=db.allterms_end();
+
+        dt.skip_to("S");
+        long int temp_count=0;
+        for(;dt!=dt_end;++dt) {
+            if((*dt).substr(0,1)=="S")
+                temp_count+=db.get_collection_freq(*dt);	//	because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
+            else
+                break;	
+        }
+        len["title"]=temp_count;
+        len["whole"]=db.get_avlength() * db.get_doccount();
+        len["body"]=len["whole"] - len["title"];
+    }
     return len;
+    
 }
 
 map<string,long int>
@@ -490,8 +491,6 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
     map<Xapian::docid,double> letor_mset;
 
-//    cout<<"in the letor Score\n";
-//    cout<<letor_query.get_description()<<"\n";
     Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
     Xapian::PostingIterator p,pend;
 
@@ -504,7 +503,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     map<string,double> idf;
     idf=inverse_doc_freq(letor_db,letor_query);
 
-    int first=1;                //used as a flag in QueryLevelNorm and module
+    int first=1;                //used as a flag in QueryLevelNorm module
 
     typedef list<double> List1;     //the values of a particular feature for MSet documents will be stored in the list
     typedef map<int,List1> Map3;    //the above list will be mapped to an integer with its feature id.
@@ -614,7 +613,6 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
                 }   
             }
 
-//            string test_case = "0 ";
             int xx=0,j=0;
             Xapian::MSetIterator mset_iter = mset.begin();
             Xapian::Document doc;
@@ -633,15 +631,10 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
                     test_case.append(":");
                     test_case.append(convertDouble(norm_outer->second.front()));
                     test_case.append(" ");
-//                    cout <<j<<":"<<norm_outer->second.front()<<" ";
                     norm_outer->second.pop_front();
                     j++;   
                 }
-//                cout<<"\n";
-//                cout<<test_case<<"\n";
                 xx++;   
-//            }//while closed
-//        }//if closed
 
         string model_file;
         model_file = get_cwd();
@@ -650,10 +643,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
         model = svm_load_model(model_file.c_str());
         x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));
       
-//      	int correct = 0;
 	int total = 0;
-//	double error = 0;
-//	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
 
 	int svm_type=svm_get_svm_type(model);
 	int nr_class=svm_get_nr_class(model);
@@ -666,8 +656,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
             else {
                 int *labels=(int *) malloc(nr_class*sizeof(int));
 		svm_get_labels(model,labels);
-		prob_estimates = (double *) malloc(nr_class*sizeof(double));
-//		fprintf(output,"labels");		
+		prob_estimates = (double *) malloc(nr_class*sizeof(double));		
 		free(labels);
             }
         }
@@ -675,14 +664,9 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	max_line_len = 1024;
 	line = (char *)malloc(max_line_len*sizeof(char));
 	
-//        char str[] = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
-//
-//        char str[] = "0  1:0.5 2:0.48899 3:0.490207 4:0.5 5:0.59154 6:0.616206 7:1 8:1 9:1 10:1 11:1 12:1 13:0.525171 14:0.645693 15:0.692602 16:0.539406 17:0.734753 18:0.75317 19:0.810033";
 
-        line = const_cast<char *>(test_case.c_str());
+    line = const_cast<char *>(test_case.c_str());
 
-	
-//        line = "0 1:0.5 2:0.454915 3:0.459898 4:0.354756 5:0.429721 6:0.460177 7:1 8:1 9:1 10:1 11:1 12:1 13:0.404163 14:0.458089 15:0.519025 16:0.515825 17:0.768318 18:0.784637 19:0.857456";
 	int i = 0;
 	double target_label, predict_label;
 	char *idx, *val, *label, *endptr;
@@ -723,10 +707,8 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	
         x[i].index = -1;
 
-        predict_label = svm_predict(model,x);
+        predict_label = svm_predict(model,x);	//this is the score for a particular document
        
-//        cout<<doc.get_docid()<<"\t";
-//        printf("%g\n",predict_label);
 
         letor_mset[doc.get_docid()] = predict_label;
 
@@ -759,129 +741,6 @@ static char* readline(FILE *input)
 	return line;
 }
 
-/*
-static void exit_with_help() {
-    printf("Error in passing or parsing the parameter of SVM\n");
-}
-
-
-
-static void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name)
-{
-//	int i;
-//	void (*print_func)(const char*) = NULL;	// default printing to stdout
-
-	// default values
-	param.svm_type = 4;
-	param.kernel_type = 0;
-	param.degree = 3;
-	param.gamma = 0;	// 1/num_features
-	param.coef0 = 0;
-	param.nu = 0.5;
-	param.cache_size = 100;
-	param.C = 1;
-	param.eps = 1e-3;
-	param.p = 0.1;
-	param.shrinking = 1;
-	param.probability = 0;
-	param.nr_weight = 0;
-	param.weight_label = NULL;
-	param.weight = NULL;
-	cross_validation = 0;
-
-
-	// parse options
-	for(i=1;i<argc;i++)
-	{
-//		if(argv[i][0] != '-') break;
-		if(++i>=argc)
-			exit_with_help();
-		switch(argv[i-1][1])
-		{
-			case 's':
-				param.svm_type = atoi(argv[i]);
-				break;
-			case 't':
-				param.kernel_type = atoi(argv[i]);
-				break;
-			case 'd':
-				param.degree = atoi(argv[i]);
-				break;
-			case 'g':
-				param.gamma = atof(argv[i]);
-				break;
-			case 'r':
-				param.coef0 = atof(argv[i]);
-				break;
-			case 'n':
-				param.nu = atof(argv[i]);
-				break;
-			case 'm':
-				param.cache_size = atof(argv[i]);
-				break;
-			case 'c':
-				param.C = atof(argv[i]);
-				break;
-			case 'e':
-				param.eps = atof(argv[i]);
-				break;
-			case 'p':
-				param.p = atof(argv[i]);
-				break;
-			case 'h':
-				param.shrinking = atoi(argv[i]);
-				break;
-			case 'b':
-				param.probability = atoi(argv[i]);
-				break;
-			case 'q':				print_func = &print_null;
-				i--;
-				break;
-			case 'v':
-				cross_validation = 1;
-				nr_fold = atoi(argv[i]);
-				if(nr_fold < 2)
-				{
-					fprintf(stderr,"n-fold cross validation: n must >= 2\n");
-					exit_with_help();
-				}
-				break;
-			case 'w':
-				++param.nr_weight;
-				param.weight_label = (int *)realloc(param.weight_label,sizeof(int)*param.nr_weight);
-				param.weight = (double *)realloc(param.weight,sizeof(double)*param.nr_weight);
-				param.weight_label[param.nr_weight-1] = atoi(&argv[i-1][2]);
-				param.weight[param.nr_weight-1] = atof(argv[i]);
-				break;
-			default:
-				fprintf(stderr,"Unknown option: -%c\n", argv[i-1][1]);
-				exit_with_help();
-		}
-	}
-
-//	svm_set_print_string_function(print_func);
-
-	// determine filenames
-
-	if(i>=argc)
-		exit_with_help();
-
-	strcpy(input_file_name, argv[i]);
-
-	if(i<argc-1)
-		strcpy(model_file_name,argv[i+1]);
-	else
-	{
-		char *p = strrchr(argv[i],'/');
-		if(p==NULL)
-			p = argv[i];
-		else
-			++p;
-		sprintf(model_file_name,"%s.model",p);
-	}
-
-}
-*/
 
 static void read_problem(const char *filename)
 {
@@ -1015,18 +874,8 @@ Letor::Internal::letor_learn_model() {
 	string model_file_name; // = "/home/encoder/gsoc/gsoc2011-parth/xapian-core/examples/model.txt";
 	const char *error_msg;
 
-//	int argc = 2;
-
 	input_file_name = get_cwd().append("/train.txt");
 	model_file_name = get_cwd().append("/model.txt");
-        //
-
-
-
-//	char **parameters = (char**)para.c_str();
-
-
-//	parse_command_line(argc, parameters, input_file_name, model_file_name);
 
 	read_problem(input_file_name.c_str());
 	error_msg = svm_check_parameter(&prob,&param);
@@ -1037,14 +886,6 @@ Letor::Internal::letor_learn_model() {
 			fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
 			exit(1);
 		}
-/*		svm_free_and_destroy_model(&model);
-
-		svm_destroy_param(&param);
-	free(prob.y);
-	free(prob.x);
-	free(x_space);
-	free(line);
-*/
 
 }
 

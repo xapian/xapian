@@ -25,6 +25,8 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <iostream>
 #include <fstream>
@@ -241,6 +243,8 @@ try {
 
     set<MyPair,MyTestCompare>::iterator it;
 
+    cout<<atol(db.get_metadata("collection_len_title").c_str());
+
     int rank=1;
     for ( it=s.begin() ; it != s.end(); it++ ) {
         cout<<"Item: "<<rank<<"\t"<<(*it).second<<"\n";
@@ -249,6 +253,8 @@ try {
         cout<<doc.get_data()<<"\n";
         rank++;
     }
+
+
 
 
 //    map<Xapian::docid,double>::iterator n;
