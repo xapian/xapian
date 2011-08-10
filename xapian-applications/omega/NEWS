@@ -1,34 +1,16 @@
- 15758       olly Thu Jun 23 01:01:25 GMT 2011  Olly Betts <olly@survex.com>
-
-Omega 1.2.7 (2011-08-09):
-
-general:
+Omega 1.2.7 (2011-08-10):
 
 documentation:
 
-* docs/termprefixes.html: Expand to document mapping a user prefix to multiple
-  term prefixes.
+* docs/termprefixes.html: Document how to map a user prefix to multiple term
+  prefixes.
 
 * docs/overview.html: Improve documentation of htdig_noindex.
-
-indexers:
-
-* omindex:
-
-* scriptindex:
 
 omega:
 
 * Improve $version output from "Xapian - xapian-omega 1.2.7" to "xapian-omega
   1.2.7".
-
-templates:
-
-testsuite:
-
-build system:
-
-portability:
 
 packaging:
 
