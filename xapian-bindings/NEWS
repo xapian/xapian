@@ -1,6 +1,4 @@
- 15997       olly Mon Aug 08 04:13:26 GMT 2011  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.7 (2011-08-08):
+Xapian-bindings 1.2.7 (2011-08-10):
 
 Documentation:
 
@@ -22,10 +20,6 @@ General:
 * Add missing wrappers for Database::has_positions() and
   TermIterator::positionlist_count(), and correct the return type of
   Database::get_doclength() from double to Xapian::termcount.
-
-Packaging:
-
-Portability:
 
 CSharp:
 
@@ -118,13 +112,9 @@ PHP:
 * Wrap MatchAll and MatchNothing for PHP as XapianQuery::MatchAll() and
   XapianQuery::MatchNothing(). (ticket#158)
 
-Python:
-
 Ruby:
 
 * Wrap MatchAll and MatchNothing for Ruby.  (ticket#158)
-
-Tcl:
 
 Xapian-bindings 1.2.6 (2011-06-12):
 
