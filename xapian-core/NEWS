@@ -1,6 +1,4 @@
- 15980       olly Sat Aug 06 07:32:16 GMT 2011  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.7 (2011-08-08):
+Xapian-core 1.2.7 (2011-08-10):
 
 API:
 
@@ -16,26 +14,11 @@ testsuite:
 * Make sure that perftest isn't run with libeatmydata preloaded, as making
   fsync() a no-op makes performance tests rather bogus.
 
-matcher:
-
-
-brass backend:
-
-
-chert backend:
-
-
-flint backend:
-
-
 remote backend:
 
 * Remove unnecessary call to reopen() in the remote servers in a case where
   either we had just called it or we are using a writable database and so
   reopen() doesn't do anything.
-
-inmemory backend:
-
 
 build system:
 
@@ -69,20 +52,11 @@ documentation:
 * docs/deprecation.html: Note here that WritableDatabase::flush() is
   deprecated in favour of WritableDatabase::commit().
 
-tools:
-
-
-examples:
-
-
 portability:
 
 * Fix -Wshadow warnings from GCC 4.6.
 
 * Fix warning from GCC 3.3.
-
-packaging:
-
 
 debug code:
 
