@@ -430,6 +430,8 @@ class XapianSWIGQueryItor {
 
 OUTPUT_ITERATOR_METHODS(Xapian, Query, TermIterator, get_terms_begin, get_terms_end, get_terms, void, )
 
+OUTPUT_ITERATOR_METHODS(Xapian, QueryParser, TermIterator, stoplist_begin, stoplist_end, stoplist, void, )
+
 OUTPUT_ITERATOR_METHODS(Xapian, ESet, ESetIterator, begin, end, terms, void, )
 
 OUTPUT_ITERATOR_METHODS(Xapian, MSet, MSetIterator, begin, end, items, void, )
