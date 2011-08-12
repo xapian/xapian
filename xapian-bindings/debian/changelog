@@ -11,7 +11,7 @@ xapian-bindings (1.2.7-1) unstable; urgency=low
     automatically.
   * debian/rules: Add build-arch and build-indep targets.
 
- -- Olly Betts <olly@survex.com>  Fri, 12 Aug 2011 01:37:23 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 12 Aug 2011 02:08:22 +0000
 
 xapian-bindings (1.2.5-2) unstable; urgency=low
 
