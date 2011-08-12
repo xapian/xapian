@@ -1,3 +1,7 @@
+Fri Aug 12 23:11:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.7 and ChangeLog.
+
 Fri Aug 12 06:38:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Factor out throw_bad_message().
