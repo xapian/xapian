@@ -209,6 +209,8 @@ Letor::Internal::calculate_f1(const Xapian::Query & query, map<string,long int> 
                         {
                                 value+=log10(1+tf[*qt]);       // always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
                         }
+                        else
+                            value+=0;
                 }
                 return value;
 
@@ -221,6 +223,8 @@ Letor::Internal::calculate_f1(const Xapian::Query & query, map<string,long int> 
                         {
                                 value+=log10(1+tf[*qt]);      //  always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
                         }
+                        else
+                            value+=0;
                 }
                 return value;
 
@@ -254,7 +258,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
                         {
 					
 //				cout<<"in Feature 2 "<<*qt<<"\tTF=\t"<<tf[*qt]<<"\tdoc len=\t"<<doc_length["title"]<<"\n";
-				value+=log10(1+((double)tf[*qt]/(double)doc_len["title"]));        //always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
+				value+=log10(1+((double)tf[*qt]/(1+(double)doc_len["title"])));        //always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
 //				cout<<"Value for "<<*qt<<" is "<<value;
 			}
 		}
@@ -268,7 +272,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
 			if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S")
 			{
 //				cout<<"in Feature 1 "<<*qt<<"and"<<tf[*qt]<<"\t"<<doc_length["body"]<<"\n";
-				value+=log10(1+((double)tf[*qt]/(double)doc_len["body"]));
+				value+=log10(1+((double)tf[*qt]/(1+(double)doc_len["body"])));
 			}
 		}
 		return value;
@@ -278,7 +282,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
 		for(;qt!=qt_end;++qt)
 		{
 //			cout<<"in Feature 1 "<<*qt<<"and"<<tf[*qt]<<"\t"<<doc_length["whole"]<<"\n";
-			value+=log10(1+((double)tf[*qt]/(double)doc_len["whole"]));
+			value+=log10(1+((double)tf[*qt]/(1+(double)doc_len["whole"])));
 		}
 		return value;
 	}
@@ -301,6 +305,8 @@ Letor::Internal::calculate_f3(const Xapian::Query & query, map<string,double> & 
 			{
 				value+=log10(1+idf[*qt]);
 			}
+                        else
+                            value+=0;
 		}
 		return value;
 	}
@@ -312,6 +318,8 @@ Letor::Internal::calculate_f3(const Xapian::Query & query, map<string,double> & 
 			{
 				value+=log10(1+idf[*qt]);
 			}
+                        else
+                            value+=0;
 		}
 		return value;
 	}
@@ -342,6 +350,8 @@ Letor::Internal::calculate_f4(const Xapian::Query & query, map<string,long int> 
                         {
 				value+=log10(1+((double)coll_len["title"]/(double)(1+tf[*qt])));
 			}
+                        else
+                            value+=0;
 		 
                 }
                 return value;
@@ -354,6 +364,8 @@ Letor::Internal::calculate_f4(const Xapian::Query & query, map<string,long int> 
                         {
                                 value+=log10(1+((double)coll_len["body"]/(double)(1+tf[*qt])));
                         }
+                        else
+                            value+=0;
                  }
                 return value;
         }
@@ -383,8 +395,10 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
                 {
                         if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S")
                         {
-                                value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_len["title"]));
+                                value+=log10(1+((double)(tf[*qt] * idf[*qt])/(1+(double)doc_len["title"])));    //      1+doc_len because if title info is not available then doc_len["title"] will be zero.
                         }
+                        else
+                            value+=0;
 
                 }
                 return value;
@@ -395,8 +409,10 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
                 {
                         if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S")
                         {
-                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_len["body"]));
+                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(1+(double)doc_len["body"])));
                         }
+                        else
+                            value+=0;
                  }
                 return value;
         }
@@ -404,7 +420,7 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
         {
                 for(;qt!=qt_end;++qt)
                 {
-                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(double)doc_len["whole"]));
+                                 value+=log10(1+((double)(tf[*qt] * idf[*qt])/(1+(double)doc_len["whole"])));
                 }
                 return value;
         }
@@ -427,6 +443,8 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
                         {
                                  value+=log10(1+(((double)tf[*qt] * (double)coll_length["title"])/(double)(1+((double)doc_len["title"] * (double)coll_tf[*qt]))));
                         }
+                        else
+                            value+=0;
 
                 }
                 return value;
@@ -440,6 +458,8 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
                                  value+=log10(1+(((double)tf[*qt] * (double)coll_length["body"])/(double)(1+((double)doc_len["body"] * (double)coll_tf[*qt]))));
 
                         }
+                        else
+                            value+=0;
                  }
                 return value;
         }
@@ -608,7 +628,8 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
                         max = *norm_inner;       
                 }
                 for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
-                    *norm_inner /= max;
+                    if(max!=0)
+                        *norm_inner /= max;
                     k++;   
                 }   
             }
@@ -954,6 +975,8 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
     outerit=qrel.find("2010003");
     innerit = outerit->second.find("19243417");
 
+    cout<<"QrelFile Read Properly\n";
+
 //    int q=innerit->second;
 
     //reading qrel in a map over.
@@ -1103,9 +1126,9 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
                         norm.insert(pair<int , list<double> > (0,l));
                         doc_ids.push_back(id);
                         for(int j=1;j<20;j++) {
-//                            List1 l;
-                            l.push_back(f[j]);
-                            norm.insert(pair <int , list<double> > (j,l));   
+                            List1 l1;
+                            l1.push_back(f[j]);
+                            norm.insert(pair <int , list<double> > (j,l1));   
                         }
                         first=0;   
                     }
@@ -1141,7 +1164,8 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
                         max = *norm_inner;       
                 }
                 for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
-                    *norm_inner /= max;
+                    if(max!=0)
+                        *norm_inner /= max;
                     k++;   
                 }   
             }
@@ -1155,7 +1179,7 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
                 norm_outer++;
                 j++;
 //Uncomment the line below if you want 'Qid' in the training file
-//              train_file <<" qid:"<<qid;
+//                train_file <<" qid:"<<qid;
                 for(;norm_outer!=norm.end();++norm_outer) {
                     train_file << " "<<j<<":"<<norm_outer->second.front();
                     norm_outer->second.pop_front();

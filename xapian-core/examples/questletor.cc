@@ -229,6 +229,75 @@ try {
     ltr.set_database(db);
     ltr.set_query(query);
 
+/*
+// ------------------------ Testing ----------------------------//
+        map<string,long int> coll_len;
+        coll_len=ltr.collection_length(db);
+
+	map<string,long int> coll_tf;
+	coll_tf=ltr.collection_termfreq(db,query);
+
+
+	map<string,double> idf;
+        idf=ltr.inverse_doc_freq(db,query);
+
+	map<string, long int> doclen;
+	doclen=ltr.doc_length(db,doc);
+
+	map<string,long int> tf;			//defininf a map for term frequencies for query words in this particular document
+	tf=ltr.termfreq(doc,query);
+
+	map<string,long int>::iterator i;
+	map<string,double>::iterator j;
+
+	qt=query.get_terms_begin();
+	qt_end=query.get_terms_end();
+	
+	i=doclen.begin();
+	for(;i!=doclen.end();++i)
+	{
+		cout<<"Document Length of "<<(*i).first<<"\t"<<(*i).second<<"\n";
+	}
+
+	i=coll_len.begin();
+	for(;i!=coll_len.end();++i)
+	{
+		cout<<"Collection Length of "<<(*i).first<<"\t"<<(*i).second<<"\n";
+	}
+
+
+	for(;qt!=qt_end;++qt)
+	{
+	cout<<"Term: "<<*qt<<"\tTF: ";
+	i=tf.find(*qt);
+	if(i!=tf.end())
+		cout<<(*i).second;
+	else
+		cout<<"NOT FOUND";
+
+	cout<<"\tIDF: ";
+	j=idf.find(*qt);
+	if(j!=idf.end())
+		cout<<(*j).second;
+	else
+		cout<<"NOT FOUND";
+	cout<<"\tColl TF: ";
+	i=coll_tf.find(*qt);
+        if(i!=coll_tf.end())
+                cout<<(*i).second;
+        else
+                cout<<"NOT FOUND";
+
+
+	cout<<"\n";
+	}
+
+
+//------------------------- Testing ----------------------------//
+*/
+
+//    ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels");
+
  
     ltr.letor_learn_model();
     map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
@@ -270,14 +339,14 @@ try {
     }
 */
 //org    cout << "MSet:" << endl;
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
-	Xapian::Document doc = i.get_document();
+//    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+//	Xapian::Document doc = i.get_document();
 
 
 //	string data = doc.get_data();   //org
 
 //  cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
-    }   // for closed
+//    }   // for closed
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
