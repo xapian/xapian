@@ -1,12 +1,25 @@
- 15826       olly Mon Jun 27 15:22:22 GMT 2011  Olly Betts <olly@survex.com>
+ 15993       olly Mon Aug 08 03:35:23 GMT 2011  Olly Betts <olly@survex.com>
+
+ 15934       olly Fri Jul 29 13:49:51 GMT 2011  Olly Betts <olly@survex.com>
+	* php/smoketest.php: Add regression test for recently fixed SWIG bug
+	  which caused "return $r;" to be generated in some cases when $r
+	  wasn't set.
+
+ 15917       olly Mon Jul 25 07:36:26 GMT 2011  Olly Betts <olly@survex.com>
+	* java/SmokeTest.java: Add test that string passing is zero byte safe.
 
 trunk only:
 
 backported:
 
-Xapian-bindings 1.3.0 (2011-06-28):
+Xapian-bindings 1.3.0 (2011-08-08):
 
 Documentation:
+
+	* python/Makefile.am,
+	  ruby/Makefile.am,ruby/generate-rdoc-stubs: Run doxygen to generate
+	  XML for the bindings in the bindings build system, not as a
+	  side-effect in xapian-core's.  (ticket#262)
 
 General:
 
@@ -20,6 +33,20 @@ General:
 	  even if we don't have director support - there's a
 	  ExpandDeciderFilterTerms subclass which is useful in itself, though
 	  it still needs some typemap work to actually get it usefully wrapped.
+
+ 15953       olly Thu Aug 04 00:24:22 GMT 2011  Olly Betts <olly@survex.com>
+	* configure.ac: Add --disable-visibility option to match xapian-core.
+
+ 15952       olly Thu Aug 04 00:04:47 GMT 2011  Olly Betts <olly@survex.com>
+	* configure.ac: Add -fshow-column for GCC.
+
+ 15935       olly Sat Jul 30 06:22:37 GMT 2011  Olly Betts <olly@survex.com>
+	* configure.ac,csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
+	  lua/Makefile.am,perl/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Don't put -Werror in SWIG_FLAGS
+	  - instead put it in a new SWIG_WERROR variable, so that it's easy
+	  to override it if you're getting a new warning from SWIG but want
+	  to just ignore it for the time being.
 
 Packaging:
 
@@ -51,6 +78,13 @@ Python:
 
 * Python >= 2.4 is now required.
 
+	* python/python.i: By default, SWIG's thread locking code for Python
+	  always initialises threads, which just adds overhead for single
+	  threaded Python code.  So instead we now replace SWIG's thread
+	  locking with a version which does nothing unless threads are already
+	  initialised.  This seems to be about 5-10% faster for pythontest2.py
+	  modified to repeat the tests 100 times.
+
 Ruby:
 
 * The XapianQuery constructor which takes an array of subqueries is now
@@ -62,6 +96,122 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.7 (2011-08-10):
+
+Documentation:
+
+* INSTALL: Pull in a few updates from the latest version of the automake
+  document which this file was originally based on.  Add in the missing
+  copyright and licensing information.
+
+* INSTALL: Add --with-lua to list of options.
+
+* INSTALL,README: It's no longer noteworthy that Mac OS X 10.1 and 10.2 aren't
+  supported as Apple ditched them long ago, so drop this as a "Known Issue" in
+  INSTALL and instead just say "Mac OS X >= 10.3" in the discussion of
+  supported platforms in the README.
+
+* HACKING: Update and start section on deprecation warnings for the bindings.
+
+General:
+
+* Add missing wrappers for Database::has_positions() and
+  TermIterator::positionlist_count(), and correct the return type of
+  Database::get_doclength() from double to Xapian::termcount.
+
+CSharp:
+
+* README: Note a recent version of Mono which we've tested the C# bindings
+  with.
+
+* Check that exactly the sources we expect are generated, and add some sources
+  which were missing from the list.
+
+* Fix "make uninstall" so the compiled C++ module (typically _XapianSharp.so)
+  gets removed.
+
+* Fix iterator ++ and -- so that the reference to the object isn't released
+  prematurely, which was causing an occasional crash if the garbage collection
+  happened at just the wrong moment,
+
+* Add test coverage for QueryParser.ParseQuery() with flags argument.
+
+* Wrap Query::MatchAll and Query::MatchNothing. (ticket#158)
+
+Java:
+
+* SmokeTest.java: Fix == comparisons with strings to use equals().
+
+* Add test that string passing is zero byte safe.
+
+* Fix MyExpandDecider.accept() to really check the passed parameter.
+
+Java-SWIG:
+
+* Put the SWIG-generated Java bindings in package org.xapian.
+
+* Wrap Query::MatchAll and Query::MatchNothing. (ticket#158)
+
+* SmokeTest.java: Fix == comparisons with literal strings to use equals()
+
+* Add test that string passing is zero byte safe.
+
+* Fix MyExpandDecider.accept() to really check the passed parameter.
+
+* Fix the compile JNI code to have a .jnilib extension on Mac OS X.
+
+* Create an HTML documentation page based on java/README.
+
+* Copy java examples from the hand-coded JNI ones.
+
+* docs/examples/SimpleIndex.java: Update to use commit() rather than flush().
+
+* Check that exactly the sources we expect are generated, and add some sources
+  which were missing from the list.
+
+Lua:
+
+* Merge latest Lua changes from Xiaona Han.
+
+* lua/smoketest.lua: Add simple test for Database::positionlist_begin().
+
+* simpleexpand.lua: Don't try to add anything to the RSet if there are no
+  matches.
+
+Perl:
+
+* Sync updates to examples from XS Search::Xapian:
+
+  + Require Perl >= 5.6 so we can "use warnings;".
+
+  + Loop over file using while() (which reads a line per iteration) not
+    foreach() (which reads the whole file up front).
+
+* Wrap MatchAll and MatchNothing for Perl (as Search::Xapian::Query::MatchAll
+  and Search::Xapian::Query::MatchNothing).  (ticket#158)
+
+* perl/t/termgenerator.t: Test TermIterator::index_text() with two arguments.
+
+* perl/Makefile.am: Fix "make check".
+
+* perl/t/symbol-test.t: Fix to work when built against an installed
+  xapian-core.  (ticket#558)
+
+PHP:
+
+* php/smoketest.php: Install an error handler so the test fails if there are
+  any errors, warnings, notices, etc.
+
+* Change PHP examples and test program to use 'include "xapian.php"' like user
+  code should (rather than 'include "php5/xapian.php"' as they did previously).
+
+* Wrap MatchAll and MatchNothing for PHP as XapianQuery::MatchAll() and
+  XapianQuery::MatchNothing(). (ticket#158)
+
+Ruby:
+
+* Wrap MatchAll and MatchNothing for Ruby.  (ticket#158)
 
 Xapian-bindings 1.2.6 (2011-06-12):
 

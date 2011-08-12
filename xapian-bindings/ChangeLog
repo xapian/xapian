@@ -1,3 +1,7 @@
+Fri Aug 12 23:18:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.7 and ChangeLog.
+
 Mon Aug 08 03:35:23 GMT 2011  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java: Fix == comparisons with literal strings.
