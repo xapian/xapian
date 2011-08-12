@@ -14,16 +14,16 @@ Xapian Learning-to-Rank
 Introduction
 ============ 
 
-Learning-to-Rank(LTR) can be viewed as a weighting scheme which involves machine learning. With Machine Learning involved, of-course it needs training data. So if you have some training data with relevance judgements then you can train the LTR model and can use it to assign score to documents for the new query. Learning-to-Rank has gained immense popularity and attention among researchers now a days. Xapian is the first project with Learning-to-Rank functionality added to it. 
+Learning-to-Rank(LTR) can be viewed as a weighting scheme which involves machine learning. The Machine Learning involved requires training data to build a model. So if you have some training data with relevance judgements then you can train the LTR model and can use it to assign score to documents for the new query. Learning-to-Rank has gained immense popularity and attention among researchers recently. Xapian is the first project with Learning-to-Rank functionality added to it. 
 
-The main idea behind LTR is, there are many relevant documents back in the ranked list and we wish to pump them up in the ranked-list replacing the irrelevant documents. We identify such relevant and irrelavant documents by their feature vetors. Before understanding about these features and how it works, it would be important to look at the typical Learning-to-Rank training data.
+The main idea behind LTR is that there are many relevant documents low down in the ranked list and we wish to move them up in the rankings to replace irrelevant documents. We identify such relevant and irrelevant documents by their feature vectors. Before understanding about these features and how it works, it would be important to look at the typical Learning-to-Rank training data.
 
 ::
 
         0 qid:10032 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000 19:1.000000 #docid = 1123323
         1 qid:10032 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000 19:0.023400 #docid = 4222333
 
-Here each represents the document for the specified query. First column is the relevance label and which can take two values: 0 for irrelevant and 1 being relvant document. Second column represents queryid. While last column is docid. Third column represents the value of the first feature and so on till 19th feature.
+Here each row represents the document for the specified query. The first column is the relevance label and which can take two values: 0 for irrelevant and 1 for relevant documents. The second column represents the queryid, and the last column is the docid. The third column represents the value of the first feature and so on until 19th feature.
 
 LTR can be broadly seen in two stages: Learning the model & Ranking. Learning the model takes the training file as input in the above mentioned format and produces a model. After that given this learnt model, when a new query comes in, scores can be assigned to the documents associated to it.
 
@@ -32,7 +32,7 @@ Learning the model
 
 As mentioned before, this process requires a training file in the above format. Xapian::Letor API empowers you to generate such training file. But for that you have to supply some information files like:
 
-1. Query file	: This file has information of queries to be involved in learning and its id. It should be formatted in such a way::
+1. Query file: This file has information of queries to be involved in learning and its id. It should be formatted in such a way::
 
 	2010001 'landslide malaysia'
 	2010002 'search engine'
@@ -41,7 +41,7 @@ As mentioned before, this process requires a training file in the above format. 
 
 	where 2010xxx being query-id followed by a comma separated query in single-quotes.
 
-2. Qrel file	: This is the file containing relevance judgements. It should be formatted in this way::
+2. Qrel file: This is the file containing relevance judgements. It should be formatted in this way::
 
 	2010003 Q0 19243417 1
 	2010003 Q0 3256433 1
@@ -64,32 +64,32 @@ Provided such information, API is capable of creating the 'train.txt' file which
 Ranking
 -------
 
-After we have built a model, its quite straight forward to get a real score for a particular document for the given query. Here we supply the first hand retieved ranked-list to the Ranking function, which assigns a new score to each document after converting it in the same dimentioned feature vector. These list is reranked according to the new scores.
+After we have built a model, its quite straightforward to get a real score for a particular document for the given query. Here we supply the first hand retrieved ranked-list to the Ranking function, which assigns a new score to each document after converting it to the same dimensioned feature vector. This list is re-ranked according to the new scores.
 
 
 Features
 ========
 
-Features play a majpr role in the learing. In LTR features are mainly of three types: query dependant, document dependent ( pagerank, inLink/outLink Num, Num of children etc) and query-document pair dependent (TF-IDF Score, BM25 Score etc). In total we have incorporated 19 features and are described as below::
+Features play a major role in the learning. In LTR, features are mainly of three types: query dependant, document dependant (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependant (TF-IDF Score, BM25 Score etc). In total we have incorporated 19 features and are described as below::
 
 	    Here c(w,D) means that count of term w in Document D. C represents the Collection. 'n' is the total number of terms in query. 
 	    |.| is size-of function and idf(.) is the inverse-document-frequency.
 
 1. $\sum_{q_i \in Q \cap D} \log{c(q_i,D)}$
-2. 
-3.  
-4. 
-5. 
-6. 
+1. 
+1.  
+1. 
+1. 
+1. 
 
-All the above 6 features are calculated considering 'title only', 'body only' and 'whole' document. So they make in total 6*3=18 features. While 19th feature being the BM25 score assigned to the document by Xapian weighting scheme.
+All the above 6 features are calculated considering 'title only', 'body only' and 'whole' document. So they make in total 6*3=18 features. The 19th feature is the BM25 score assigned to the document by the Xapian weighting scheme.
 
-One thing should be noticed that all the feature values are `normalized at Query-Level <http://trac.xapian.org/wiki/GSoC2011/LTR/Notes#QueryLevelNorm>`_. That means a particular feature vales for a particular Query are divided by its query-level maximum value and hence all the feature values will be between 0 and 1. This normalization helps for unbiased learning.
+One thing that should be noticed is that all the feature values are `normalized at Query-Level <http://trac.xapian.org/wiki/GSoC2011/LTR/Notes#QueryLevelNorm>`_. That means a particular feature vales for a particular Query are divided by its query-level maximum value and hence all the feature values will be between 0 and 1. This normalization helps for unbiased learning.
 
 How to Use
 ==========
 
-The whole process can be seen in following steps:
+The whole process can be seen as the following steps:
 
 1. Index the collection using the Omindex with title information presrved if any with prefix 'S'.
 
@@ -173,7 +173,7 @@ To use Xapian::Letor for learning a model and then to score the document vector,
 
 ::
 
-	After succeessfully installing it you should check if there is 'svm.h' in "/usr/include/libsvm/" , If it is there then 
+	After successfully installing it you should check if there is 'svm.h' in "/usr/include/libsvm/" , If it is there then 
 	you are ready to use the API. Otherwise if your distro install the libSVM package at some other location then find out 
 	the directory which contains 'svm.h' and modify the Makefile.mk in ../core/letor/ directory in the following way::
 
@@ -191,11 +191,9 @@ Xapian::Letor can be easily extended for new LTR algorithms and/or to incorporat
 To add new Features
 -------------------
 
-To add a new feature you should define a new method like Xapian::Letor::calculate_f1() and call it in the places where the document vector is created like, in prepare_training_file() and letor_score() methods.
+To add a new feature you should define a new method like Xapian::Letor::calculate_f1() and call it in the places where the document vector is created, such as in prepare_training_file() and letor_score() methods.
 
 To add new LTR Algorithm
 ------------------------
 
 To add new LTR algorithm you should override letor_learn_model() and letor_score() depending on the algorithm. According to different parameters, a required version of letor_learn_model() and letor_score will be called. Although prepare_training_file() method may not be affected because it generates a training file in the standard format of Learning-to-Rank data.
-
-
