@@ -1,3 +1,7 @@
+Fri Aug 12 06:17:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Factor out throw_read_only() function.
+
 Fri Aug 12 06:17:01 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/noreturn.h: Add comment showing how to use XAPIAN_NORETURN

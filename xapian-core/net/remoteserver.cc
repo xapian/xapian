@@ -34,12 +34,20 @@
 
 #include "autoptr.h"
 #include "multimatch.h"
+#include "noreturn.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 #include "weightinternal.h"
+
+XAPIAN_NORETURN(static void throw_read_only());
+static void
+throw_read_only()
+{
+    throw Xapian::InvalidOperationError("Server is read-only");
+}
 
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
@@ -299,7 +307,7 @@ void
 RemoteServer::msg_writeaccess(const string & msg)
 {
     if (!writable) 
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     wdb = new Xapian::WritableDatabase(context, Xapian::DB_OPEN);
     delete db;
@@ -562,7 +570,7 @@ void
 RemoteServer::msg_commit(const string &)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     wdb->commit();
 
@@ -573,7 +581,7 @@ void
 RemoteServer::msg_cancel(const string &)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     // We can't call cancel since that's an internal method, but this
     // has the same effect with minimal additional overhead.
@@ -585,7 +593,7 @@ void
 RemoteServer::msg_adddocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     Xapian::docid did = wdb->add_document(unserialise_document(message));
 
@@ -596,7 +604,7 @@ void
 RemoteServer::msg_deletedocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -611,7 +619,7 @@ void
 RemoteServer::msg_deletedocumentterm(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     wdb->delete_document(message);
 }
@@ -620,7 +628,7 @@ void
 RemoteServer::msg_replacedocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -633,7 +641,7 @@ void
 RemoteServer::msg_replacedocumentterm(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -668,7 +676,7 @@ void
 RemoteServer::msg_setmetadata(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
     size_t keylen = decode_length(&p, p_end, false);
@@ -682,7 +690,7 @@ void
 RemoteServer::msg_addspelling(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::termcount freqinc = decode_length(&p, p_end, false);
@@ -693,7 +701,7 @@ void
 RemoteServer::msg_removespelling(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::termcount freqdec = decode_length(&p, p_end, false);
