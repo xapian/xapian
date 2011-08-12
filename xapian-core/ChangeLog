@@ -1,3 +1,8 @@
+Fri Aug 12 06:17:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/noreturn.h: Add comment showing how to use XAPIAN_NORETURN
+	  macro.
+
 Sat Aug 06 05:15:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/positioniterator.cc,api/postingsource.cc,api/valueiterator.cc,

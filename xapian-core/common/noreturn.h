@@ -1,7 +1,7 @@
 /** @file noreturn.h
  * @brief Define the XAPIAN_NORETURN macro.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,15 @@
 
 #ifndef XAPIAN_INCLUDED_NORETURN_H
 #define XAPIAN_INCLUDED_NORETURN_H
+
+// The macro needs to be applied to a declaration, so use it like so:
+//
+// XAPIAN_NORETURN(static void throw_read_only());
+// static void
+// throw_read_only()
+// {
+//     throw Xapian::InvalidOperationError("Server is read-only");
+// }
 
 // Allow the user to override XAPIAN_NORETURN on the compiler command line.
 #ifndef XAPIAN_NORETURN
