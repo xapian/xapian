@@ -347,3 +347,81 @@ for term in doc:termlist() do
 	table.insert(terms, term:get_term())
 end
 expect(terms, {"Zbe", "be", "to"})
+
+-- Test use of matchspies
+function setup_database()
+	-- Set up and return an inmemory database with 5 documents.
+	db = xapian.inmemory_open()
+
+	doc = xapian.Document()
+	doc:set_data("is it cold?")
+	doc:add_term("is")
+	doc:add_posting("it", 1)
+	doc:add_posting("cold", 2)
+	db:add_document(doc)
+
+	doc = xapian.Document()
+	doc:set_data("was it warm?")
+	doc:add_posting("was", 1)
+	doc:add_posting("it", 2)
+	doc:add_posting("warm", 3)
+	db:add_document(doc)
+	doc:set_data("was it warm? two")
+	doc:add_term("two", 2)
+	doc:add_value(0, xapian.sortable_serialise(2))
+	db:add_document(doc)
+	doc:set_data("was it warm? three")
+	doc:add_term("three", 3)
+	doc:add_value(0, xapian.sortable_serialise(1.5))
+	db:add_document(doc)
+	doc:set_data("was it warm? four it")
+	doc:add_term("four", 4)
+	doc:add_term("it", 6)
+	doc:add_posting("it", 7)
+	doc:add_value(5, 'five')
+	doc:add_value(9, 'nine')
+	doc:add_value(0, xapian.sortable_serialise(2))
+	db:add_document(doc)
+
+	expect(db:get_doccount(), 5)
+	return db
+end
+db = setup_database()
+query = xapian.Query(xapian.Query_OP_OR, "was", "it")
+enq = xapian.Enquire(db)
+enq:set_query(query)
+function set_matchspy_deref(enq)
+	-- Set a matchspy, and then drop the reference, to check that it
+	-- doesn't get deleted too soon.
+	spy = xapian.ValueCountMatchSpy(0)
+	enq:add_matchspy(spy)
+end
+set_matchspy_deref(enq)
+mset = enq:get_mset(0, 10)
+expect(mset:size(), 5)
+
+spy = xapian.ValueCountMatchSpy(0)
+enq:add_matchspy(spy)
+enq:clear_matchspies()
+mset = enq:get_mset(0, 10)
+spy:values()
+items = {}
+for item in spy:values() do
+	table.insert(items, item:get_term())
+end
+expect(items, {	})
+
+enq:add_matchspy(spy)
+mset = enq:get_mset(0, 10)
+expect(spy:get_total(), 5)
+items = {}
+for item in spy:values() do
+	table.insert(items, {item:get_term(), item:get_termfreq()})
+end
+expect(items, {{xapian.sortable_serialise(1.5), 1}, {xapian.sortable_serialise(2), 2}})
+
+items = {}
+for item in spy:top_values(10) do
+	table.insert(items, {item:get_term(), item:get_termfreq()})
+end
+expect(items, {{xapian.sortable_serialise(2), 2}, {xapian.sortable_serialise(1.5), 1}})
