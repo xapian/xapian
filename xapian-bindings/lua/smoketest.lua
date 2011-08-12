@@ -135,13 +135,13 @@ expect(mset:get_docid(0), 2)
 rset = xapian.RSet()
 rset:add_document(1)
 eset = enq:get_eset(10, rset)
-expect (eset:size(), 4)
+expect(eset:size(), 4)
 
 eterms={}
 for term in eset:terms() do
 	table.insert(eterms, term:get_term())
 end
-expect(table.concat(eterms, " "), "there is anybodi XYzzy")
+expect(eterms, {"there", "is", "anybodi", "XYzzy"})
 
 function testexpanddecider(term)
   return term ~= "there"
@@ -154,7 +154,7 @@ eterms={}
 for term in eset:terms() do
 	table.insert(eterms, term:get_term())
 end
-expect(table.concat(eterms, " "), "is anybodi XYzzy")
+expect(eterms, {"is", "anybodi", "XYzzy"})
 
 -- Regression test - overload resolution involving boolean types failed.
 enq:set_sort_by_value(1, true)
@@ -308,10 +308,8 @@ while not beg:equals(_end) do
 end
 
 expected = {["ABB"] = 1, ["ABC"] = 1, ["ABC\0"] = 1, ["ABCD"] =1, ["ABC\xff"] = 1}
-expect(#values, #expected)
-for i, v in ipairs(values) do
-  expect(values[i], expected[i])
-end
+expect(values, expected)
+
 mset:get_hit(0)
 
 ---Test preservation of stopper set on query parser.
@@ -329,7 +327,7 @@ terms = {}
 for term in queryparser:stoplist() do
 	table.insert(terms, term:get_term())
 end
-expect(table.concat(terms, " "), "to")
+expect(terms, {"to"})
 
 -- Test preservation of stopper set on term generator.
 function make_tg()
@@ -348,5 +346,4 @@ terms = {}
 for term in doc:termlist() do
 	table.insert(terms, term:get_term())
 end
-expect(table.concat(terms, " "), "Zbe be to")
-
+expect(terms, {"Zbe", "be", "to"})
