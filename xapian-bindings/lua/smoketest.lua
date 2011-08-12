@@ -319,3 +319,21 @@ for term in queryparser:stoplist() do
 end
 assert(table.concat(terms, " ") == "to")
 
+-- Test preservation of stopper set on term generator.
+function make_tg()
+	termgen = xapian.TermGenerator()
+	termgen:set_stemmer(xapian.Stem('en'))
+	stopper = xapian.SimpleStopper()
+	stopper:add('to')
+	stopper:add('not')
+	termgen:set_stopper(stopper)
+	return termgen
+end
+termgen = make_tg()
+termgen:index_text('to be')
+doc = termgen:get_document()
+terms = {}
+for term in doc:termlist() do
+	table.insert(terms, term:get_term())
+end
+assert(table.concat(terms, " ") == "Zbe be to")
