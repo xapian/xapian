@@ -1,3 +1,7 @@
+Fri Aug 12 06:22:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Factor out throw_database_closed().
+
 Fri Aug 12 06:17:43 GMT 2011  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: Factor out throw_read_only() function.
