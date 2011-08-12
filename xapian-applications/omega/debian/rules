@@ -111,7 +111,9 @@ configure-stamp:
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
 
-build: build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C debian/build
