@@ -301,3 +301,21 @@ for i, v in ipairs(values) do
   assert(values[i] == expected[i])
 end
 mset:get_hit(0)
+
+---Test preservation of stopper set on query parser.
+function make_qp()
+	queryparser = xapian.QueryParser()
+	stopper = xapian.SimpleStopper()
+	stopper:add('to')
+	stopper:add('not')
+	queryparser:set_stopper(stopper)
+	return queryparser
+end
+queryparser = make_qp()
+query = queryparser:parse_query('to be')
+terms = {}
+for term in queryparser:stoplist() do
+	table.insert(terms, term:get_term())
+end
+assert(table.concat(terms, " ") == "to")
+
