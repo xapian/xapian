@@ -167,13 +167,6 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-/* read a the file into a string as a query
-	std::ifstream t(argv[optind]);
-	std::stringstream buffer;
-	buffer << t.rdbuf();
-	string s=buffer.str();	
-//done parth
-*/
 
 
     /* This module converts the query terms inclusive of the query terms
@@ -182,6 +175,7 @@ try {
      * original query = "parth gupta"
      * converted query = "title:parth title:gupta parth gupta"
      */
+
     string qq=argv[optind];
     istringstream iss(argv[optind]);
     string title="title:";
@@ -246,8 +240,6 @@ try {
 
     set<MyPair,MyTestCompare>::iterator it;
 
-    cout<<atol(db.get_metadata("collection_len_title").c_str());
-
     int rank=1;
     for ( it=s.begin() ; it != s.end(); it++ ) {
         cout<<"Item: "<<rank<<"\t"<<(*it).second<<"\n";
@@ -256,31 +248,6 @@ try {
         cout<<doc.get_data()<<"\n";
         rank++;
     }
-
-
-
-
-//    map<Xapian::docid,double>::iterator n;
-
-/*    for(n = letor_mset.begin();n!=letor_mset.end();n++) {
-
-        cout<<"Item: "<<rank<<"\n";
-
-        Xapian::Document doc = db.get_document((*n).first);
-        cout<<doc.get_data()<<"\n";
-        rank++;
-        cout<<(*n).first<<"\t"<<(*n).second<<"\n\n\n";
-    }
-*/
-//org    cout << "MSet:" << endl;
-//    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
-//	Xapian::Document doc = i.get_document();
-
-
-//	string data = doc.get_data();   //org
-
-//  cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
-//    }   // for closed
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;

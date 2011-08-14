@@ -55,22 +55,19 @@ Letor::set_query(const Xapian::Query & query) {
 }
 
 map<string,long int>
-Letor::termfreq(const Xapian::Document & doc,const Xapian::Query & query)
-{
+Letor::termfreq(const Xapian::Document & doc,const Xapian::Query & query) {
 	map<string,long int> tf = internal->termfreq(doc,query);
 	return tf;
 }
 
 map<string,double>
-Letor::inverse_doc_freq(const Xapian::Database & db,const Xapian::Query & query)
-{
+Letor::inverse_doc_freq(const Xapian::Database & db,const Xapian::Query & query) {
 	map<string,double> idf1 = internal->inverse_doc_freq(db,query);
 	return idf1;
 }
 
 map<string,long int>
-Letor::doc_length(const Xapian::Database & db, const Xapian::Document & doc)
-{
+Letor::doc_length(const Xapian::Database & db, const Xapian::Document & doc) {
 	map<string,long int> len = internal->doc_length(db,doc);
 	return len;
 }
