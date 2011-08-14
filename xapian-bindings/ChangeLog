@@ -1,3 +1,10 @@
+Sun Aug 14 12:45:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: In test_matchingterms_iter, run the code
+	  we're testing for leaks twice, and only check for leaks the second
+	  time to avoid falsely reporting a leak when some cached value gets
+	  initialised under Python 2.5.
+
 Fri Aug 12 23:18:20 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.7 and ChangeLog.

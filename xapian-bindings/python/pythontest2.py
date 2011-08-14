@@ -231,25 +231,35 @@ def test_matchingterms_iter():
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
-    # Check for memory leaks: Prior to 1.2.4 Enquire.matching_terms()
-    # leaked references to its members.
-    object_count = gc_object_count()
+    # With Python 2.5, we get an apparent leak, but it doesn't appear on
+    # subsequent runs.  Presumably some cached value gets initialised,
+    # perhaps due to Python's optimisation for small integers:
+    #
+    # http://docs.python.org/c-api/int.html#PyInt_FromLong
 
-    enquire = xapian.Enquire(db)
-    enquire.set_query(query)
-    mset = enquire.get_mset(0, 10)
+    for run in 0, 1:
+        # Check for memory leaks: Prior to 1.2.4 Enquire.matching_terms()
+        # leaked references to its members.
+        if run:
+            object_count = gc_object_count()
 
-    for item in mset:
-        # Make a list of the term names
-        mterms = [term for term in enquire.matching_terms(item.docid)]
-        mterms2 = [term for term in enquire.matching_terms(item)]
-        expect(mterms, mterms2)
+        enquire = xapian.Enquire(db)
+        enquire.set_query(query)
+        mset = enquire.get_mset(0, 10)
 
-    mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
-    expect(mterms, ['it', 'two', 'warm', 'was'])
+        for item in mset:
+            # Make a list of the term names
+            mterms = [term for term in enquire.matching_terms(item.docid)]
+            mterms2 = [term for term in enquire.matching_terms(item)]
+            expect(mterms, mterms2)
 
-    del mterms, mterms2, term, item, enquire, mset
-    expect(object_count, gc_object_count())
+        mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
+        expect(mterms, ['it', 'two', 'warm', 'was'])
+
+        del mterms, mterms2, term, item, enquire, mset
+
+        if run:
+            expect(object_count, gc_object_count())
 
 def test_queryterms_iter():
     """Test Query term iterator.
