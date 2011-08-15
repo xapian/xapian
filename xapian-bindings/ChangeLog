@@ -1,3 +1,8 @@
+Mon Aug 15 01:28:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/doxy2swig.py,python/pythontest2.py,python/testsuite2.py:
+	  Remove trailing whitespace.
+
 Mon Aug 15 01:19:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py,python/testsuite2.py: Move the check for

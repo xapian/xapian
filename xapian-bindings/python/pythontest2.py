@@ -1283,7 +1283,7 @@ def test_serialise_query():
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query()')
- 
+
     q = xapian.Query('hello')
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
@@ -1308,7 +1308,7 @@ def test_preserve_query_parser_stopper():
         return queryparser
     queryparser = make_qp()
     query = queryparser.parse_query('to be')
-    expect([term for term in queryparser.stoplist()], ['to']) 
+    expect([term for term in queryparser.stoplist()], ['to'])
 
 def test_preserve_term_generator_stopper():
     """Test preservation of stopper set on term generator.
@@ -1329,7 +1329,7 @@ def test_preserve_term_generator_stopper():
     doc = termgen.get_document()
     terms = [term.term for term in doc.termlist()]
     terms.sort()
-    expect(terms, ['Zbe', 'be', 'to']) 
+    expect(terms, ['Zbe', 'be', 'to'])
 
 def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.

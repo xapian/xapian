@@ -213,7 +213,7 @@ class TestRunner(object):
 
     def runtest(self, name, test_fn):
         """Run a single test.
-    
+
         """
         startline = "Running test: %s..." % name
         self._out.write(startline)
@@ -250,7 +250,7 @@ class TestRunner(object):
 
     def runtests(self, namedict, runonly=None):
         """Run a set of tests.
-    
+
         Takes a dictionary of name-value pairs and runs all the values which are
         callables, for which the name begins with "test_".
 
