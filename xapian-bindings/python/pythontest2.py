@@ -19,7 +19,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-import gc
 import os
 import random
 import shutil
@@ -28,17 +27,6 @@ import tempfile
 import xapian
 
 from testsuite import *
-
-def gc_object_count():
-    # Python 2.7 doesn't seem to free all objects even for a full collection,
-    # so collect repeatedly until no further objects get freed.
-    old_count, count = len(gc.get_objects()), 0
-    while True:
-        gc.collect()
-        count = len(gc.get_objects())
-        if count == old_count:
-            return count
-        old_count = count
 
 def setup_database():
     """Set up and return an inmemory database with 5 documents.
@@ -231,35 +219,20 @@ def test_matchingterms_iter():
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
-    # With Python 2.5, we get an apparent leak, but it doesn't appear on
-    # subsequent runs.  Presumably some cached value gets initialised,
-    # perhaps due to Python's optimisation for small integers:
-    #
-    # http://docs.python.org/c-api/int.html#PyInt_FromLong
+    # Prior to 1.2.4 Enquire.matching_terms() leaked references to its members.
 
-    for run in 0, 1:
-        # Check for memory leaks: Prior to 1.2.4 Enquire.matching_terms()
-        # leaked references to its members.
-        if run:
-            object_count = gc_object_count()
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10)
 
-        enquire = xapian.Enquire(db)
-        enquire.set_query(query)
-        mset = enquire.get_mset(0, 10)
+    for item in mset:
+        # Make a list of the term names
+        mterms = [term for term in enquire.matching_terms(item.docid)]
+        mterms2 = [term for term in enquire.matching_terms(item)]
+        expect(mterms, mterms2)
 
-        for item in mset:
-            # Make a list of the term names
-            mterms = [term for term in enquire.matching_terms(item.docid)]
-            mterms2 = [term for term in enquire.matching_terms(item)]
-            expect(mterms, mterms2)
-
-        mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
-        expect(mterms, ['it', 'two', 'warm', 'was'])
-
-        del mterms, mterms2, term, item, enquire, mset
-
-        if run:
-            expect(object_count, gc_object_count())
+    mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
+    expect(mterms, ['it', 'two', 'warm', 'was'])
 
 def test_queryterms_iter():
     """Test Query term iterator.
@@ -1550,10 +1523,8 @@ def test_leak_mset_items():
     enq.set_query(xapian.Query('drip'))
     mset = enq.get_mset(0, 10)
 
-    object_count = gc_object_count()
     # Prior to 1.2.4 this next line leaked an object.
     mset.items
-    expect(object_count, gc_object_count())
 
 def test_custom_matchspy():
     class MSpy(xapian.MatchSpy):

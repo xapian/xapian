@@ -1,3 +1,11 @@
+Mon Aug 15 01:19:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/testsuite2.py: Move the check for
+	  leaked objects into the testsuite harness so all tests get checked,
+	  not just the two which are regression tests for leaks in older
+	  versions.  This also gives us a single place to disable it if it
+	  should prove problematic in alternative Python implementations.
+
 Sun Aug 14 12:45:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: In test_matchingterms_iter, run the code
