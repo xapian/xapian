@@ -289,9 +289,6 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	cout << "No errors found" << endl;
-    } catch (const char *error) {
-	cerr << argv[0] << ": " << error << endl;
-	exit(1);
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);

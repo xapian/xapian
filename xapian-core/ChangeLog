@@ -1,3 +1,11 @@
+Tue Aug 16 04:49:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/brass/brass_check.h,
+	  backends/chert/chert_check.cc,backends/chert/chert_check.h,
+	  bin/xapian-check.cc: Instead of giving cryptic numeric codes for
+	  B-tree errors and then throwing const char *, throw
+	  Xapian::DatabaseError() exceptions with string descriptions.
+
 Fri Aug 12 23:11:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.7 and ChangeLog.
