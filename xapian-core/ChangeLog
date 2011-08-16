@@ -1,3 +1,8 @@
+Tue Aug 16 04:56:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Throw Xapian::FeatureUnavailableError if
+	  backends are disabled, rather than const char *.
+
 Tue Aug 16 04:49:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_check.cc,backends/brass/brass_check.h,
