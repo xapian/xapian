@@ -38,7 +38,7 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-lua-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-lua-exceptions
 
-xapian_wrap.cc:
+xapian_wrap.cc: except.i
 	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'lua.i

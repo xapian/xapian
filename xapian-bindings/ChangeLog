@@ -1,3 +1,8 @@
+Wed Aug 17 11:07:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am: Add dependency on except.i so it gets (re)generated
+	  when it should.
+
 Wed Aug 17 10:11:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/Makefile.am,lua/docs/examples/simpleexpand.lua,lua/: Merge latest
