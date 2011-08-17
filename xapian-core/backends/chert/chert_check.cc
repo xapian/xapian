@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -116,10 +116,9 @@ void ChertTableCheck::report_block(int m, int n, const byte * p) const
     out << endl;
 }
 
-void ChertTableCheck::failure(int n) const
+void ChertTableCheck::failure(const char * msg) const
 {
-    out << "B-tree error " << n << endl;
-    throw "btree error";
+    throw Xapian::DatabaseError(msg);
 }
 
 void
@@ -135,12 +134,16 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     size_t dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
-    if (base.block_free_at_start(n)) failure(0);
-    if (base.block_free_now(n)) failure(1);
+    if (base.block_free_at_start(n))
+	failure("Block was free at start");
+    if (base.block_free_now(n))
+	failure("Block is free now");
     base.free_block(n);
 
-    if (j != GET_LEVEL(p)) failure(10);
-    if (dir_end <= DIR_START || dir_end > block_size) failure(20);
+    if (j != GET_LEVEL(p))
+	failure("Block has wrong level");
+    if (dir_end <= DIR_START || dir_end > block_size)
+	failure("directory end pointer invalid");
 
     if (opts & OPT_SHORT_TREE) report_block(3*(level - j), n, p);
 
@@ -149,18 +152,21 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     for (c = DIR_START; c < dir_end; c += D2) {
 	Item item(p, c);
 	int o = item.get_address() - p;
-	if (o > int(block_size)) failure(21);
-	if (o - dir_end < max_free) failure(30);
+	if (o > int(block_size))
+	    failure("Item starts outside block");
+	if (o - dir_end < max_free)
+	    failure("Item overlaps directory");
 
 	int kt_len = item.size();
-	if (o + kt_len > int(block_size)) failure(40);
+	if (o + kt_len > int(block_size))
+	    failure("Item ends outside block");
 	total_free -= kt_len;
 
 	if (c > significant_c && Item(p, c - D2).key() >= item.key())
-	    failure(50);
+	    failure("Items not in sorted order");
     }
     if (total_free != TOTAL_FREE(p))
-	failure(60);
+	failure("Stored total free space value wrong");
 
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
@@ -175,14 +181,14 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
 	if (j == 1 && c > DIR_START)
 	    if (Item(q, DIR_START).key() < Item(p, c).key())
-		failure(70);
+		failure("Key < left dividing key in root block");
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
 	    Item(q, DIR_START + D2).key() < Item(p, c).key())
-	    failure(80);
+	    failure("Key < left dividing key in level above");
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
 	 * D2 < dir_end: */
@@ -190,9 +196,10 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 	if (c + D2 < dir_end &&
 	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
 	    Item(q, DIR_END(q) - D2).key() >= Item(p, c + D2).key())
-	    failure(90);
+	    failure("Key >= right dividing key in level above");
 
-	if (REVISION(q) > REVISION(p)) failure(91);
+	if (REVISION(q) > REVISION(p))
+	    failure("Child block has greater revision than parent");
     }
 }
 
@@ -245,7 +252,7 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	/* the bit map should now be entirely clear: */
 
 	if (!B.base.is_empty()) {
-	    B.failure(100);
+	    B.failure("Unused block(s) marked used in bitmap");
 	}
     }
     if (opts) out << "B-tree checked okay" << endl;

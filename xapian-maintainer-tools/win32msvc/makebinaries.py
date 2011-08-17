@@ -115,7 +115,8 @@ zipit("xapian-%s-examples.zip" % rev,"..\\Release\\quest.exe")
 zipit("xapian-%s-examples.zip" % rev,"..\\Release\\copydatabase.exe")
 zipandmd5it("xapian-%s-examples.zip" % rev,"..\\Release\\simple*.exe")
 zipandmd5it("xapian-%s-tools.zip" % rev,"..\\Release\\xapian*.exe")
-zipandmd5it("xapian-%s-bindings-php.zip" % rev,"..\\Release\\PHP\\php5\\dist\\*.*")
+zipandmd5it("xapian-%s-bindings-php52.zip" % rev,"..\\Release\\PHP52\\php5\\dist\\*.*")
+zipandmd5it("xapian-%s-bindings-php53.zip" % rev,"..\\Release\\PHP53\\php5\\dist\\*.*")
 
 filename = 'xapian-python-bindings for Python 2.4.4 -%s.win32.exe' % rev
 os.system ('copy "..\\Release\\Python24\\dist\\%s" ' % filename)
@@ -123,30 +124,45 @@ md5it(filename)
 filename = 'xapian-python-bindings for Python 2.5.1 -%s.win32.exe' % rev
 os.system ('copy "..\\Release\\Python25\\dist\\%s" ' % filename)
 md5it(filename)
-filename = 'xapian-python-bindings for Python 2.6.2 -%s.win32.exe' % rev
+filename = 'xapian-python-bindings for Python 2.6.4 -%s.win32.exe' % rev
 os.system ('copy "..\\Release\\Python26\\dist\\%s" ' % filename)
+md5it(filename)
+filename = 'xapian-python-bindings for Python 2.7.0 -%s.win32.exe' % rev
+os.system ('copy "..\\Release\\Python27\\dist\\%s" ' % filename)
 md5it(filename)
 
 zipandmd5it("xapian-%s-bindings-ruby.zip" % rev,"..\\Release\\Ruby\\dist\\*.*")
 zipandmd5it("xapian-%s-bindings-csharp.zip" % rev,"..\\Release\\CSharp\\dist\\*.*")
-zipandmd5it("xapian-%s-bindings-java-swig.zip" % rev,"..\\Release\\Java-swig\\dist\\*.*")
+
+# Java bindings do not work in this release, see http://trac.xapian.org/ticket/474
+# zipandmd5it("xapian-%s-bindings-java.zip" % rev,"..\\Release\\Java\\dist\\*.*")
 
 # Make a HTML list 
 ifi = open(tmpfile, "r")
 ofi = open(newhtml, "w")
 print >> ofi, r"<html><head></head><body><table>"
 print >> ofi, r"<!-- cut and paste from after here -->"
-print >> ofi, r'<tr><td><b>' + rev + '</b><br><br>'
-print >> ofi, r'<a href=xapian/' + revnodots + '/xapian-core-' + rev + '.tar.gz>xapian-core-' + rev + '.tar.gz</a><br>'
-print >> ofi, r'<a href=xapian/' + revnodots + '/xapian-bindings-' + rev + '.tar.gz>xapian-bindings-' + rev + '.tar.gz</a><br>'
-print >> ofi, r'<a href=xapian/' + revnodots + '/xapian-omega-' + rev + '.tar.gz>xapian-omega-' + rev + '.tar.gz</a></td>'
-print >> ofi, '<td><a href=\"xapian/' + revnodots + '/win32.zip\">win32.zip</a></td>'
-print >> ofi, r'<td><a href="xapian/' + revnodots + '/readme.txt\">readme.txt</a></td><td>'
+print >> ofi, r"       <tr>"
+print >> ofi, r"        <td class version>"
+print >> ofi, r"         <h3>" + rev + " <?php binaries_link('xapian/" + revnodots + "/readme.txt'); ?></h3>"
+print >> ofi, r"         <h4>Source</h4>"
+print >> ofi, r"         <?php binaries_link('xapian/" + revnodots + "/xapian-core-" + rev + ".tar.gz'); ?>"
+print >> ofi, r"         <?php binaries_link('xapian/" + revnodots + "/xapian-bindings-" + rev + ".tar.gz'); ?>"
+print >> ofi, r"         <?php binaries_link('xapian/" + revnodots + "/xapian-omega-" + rev + ".tar.gz'); ?>"
+print >> ofi, r"         <h4>Build Files</h4>"
+print >> ofi, r"         <?php binaries_link('xapian/" + revnodots + "/win32.zip'); ?>"
+print >> ofi, r"        </td>"
+print >> ofi, r'        <td class="binaries">'
+print >> ofi, r"          <?php binaries_list(array("
 for line in ifi:
     parts = line.split('*')
     print parts
     parts1mod = parts[1].replace("\n","")
-    print >> ofi, r'<a href="' + newdir + r'/' + parts[1] + r'">' + parts[1] + r'</a> MD5 sum: ' + parts[0] + r'<br>'
+    print >> ofi, r"            'xapian/" + revnodots + "/" + parts1mod + r"'  => '" + parts[0] + r"',"
+    
+print >> ofi, r"           )); ?>"
+print >> ofi, r"        </td>"
+print >> ofi, r"       </tr>"
     
 print >> ofi, r"<!-- cut and paste to before here -->"
 print >> ofi, r"</table></body></html>"

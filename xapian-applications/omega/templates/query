@@ -1,7 +1,8 @@
 $httpheader{Content-Type,text/html; charset=utf-8}
 <html>
-$set{spelling,$ne{$cgi{SPELL},0}}
+$set{flag_spelling,$ne{$cgi{SPELL},0}}
 $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+$setmap{prefix,,$split{ S},title,S,author,A}
 ${
 $def{PREV,
 $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
@@ -48,7 +49,11 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
 <FORM NAME=P METHOD=GET 
 ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <center>
-<INPUT NAME=P VALUE="$html{$query}" SIZE=65>
+<INPUT id="omega-autofocus" type=search NAME=P VALUE="$html{$query}" SIZE=65 autofocus>
+<script>
+if (!("autofocus" in document.createElement("input")))
+ document.getElementById("omega-autofocus").focus();
+</script>
 <INPUT TYPE=SUBMIT VALUE="Search">
 <hr>
 $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
@@ -60,7 +65,7 @@ $if{$opt{topterms},
  </div>
 }
 <br>
-$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$html{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$cgi{COLLAPSE}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$html{$cgi{THRESHOLD}}"}$map{$cgilist{B},&B=$html{$_}}&SPELL=0">$html{$suggestion}</a><br>}
+$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}"}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
 $or{$html{$error},
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,
@@ -84,7 +89,7 @@ ${<IMG SRC="/icons/omega/score-$div{$percentage,10}.png" ALT="$percentage%" HEIG
 </div></div>
 <div style='float:left;margin-top:2px;font-size:x-small;'>
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
-<script type="text/javascript">write_date($field{modtime});</script>
+<script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
 <span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
 Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
@@ -97,9 +102,9 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><B><A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
+<td><B><A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
 <small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
-<A HREF="$field{url}">$html{$field{url}}</A><br>
+<A HREF="$html{$field{url}}">$html{$field{url}}</A><br>
 <small>
 $percentage% relevant$. matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},$. ,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}

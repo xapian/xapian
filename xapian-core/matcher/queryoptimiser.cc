@@ -113,26 +113,40 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	case Xapian::Query::OP_VALUE_RANGE: {
 	    if (factor != 0.0)
 		++total_subqs;
-	    Xapian::valueno valno(query->parameter);
+	    Xapian::valueno slot(query->parameter);
 	    const string & range_begin = query->tname;
 	    const string & range_end = query->str_parameter;
-	    RETURN(new ValueRangePostList(&db, valno, range_begin, range_end));
+	    const string & lb = db.get_value_lower_bound(slot);
+	    if (!lb.empty() &&
+		(range_end < lb ||
+		 range_begin > db.get_value_upper_bound(slot))) {
+		RETURN(new EmptyPostList);
+	    }
+	    RETURN(new ValueRangePostList(&db, slot, range_begin, range_end));
 	}
 
 	case Xapian::Query::OP_VALUE_GE: {
 	    if (factor != 0.0)
 		++total_subqs;
-	    Xapian::valueno valno(query->parameter);
+	    Xapian::valueno slot(query->parameter);
 	    const string & range_begin = query->tname;
-	    RETURN(new ValueGePostList(&db, valno, range_begin));
+	    const string & lb = db.get_value_lower_bound(slot);
+	    if (!lb.empty() &&
+		range_begin > db.get_value_upper_bound(slot)) {
+		RETURN(new EmptyPostList);
+	    }
+	    RETURN(new ValueGePostList(&db, slot, range_begin));
 	}
 
 	case Xapian::Query::OP_VALUE_LE: {
 	    if (factor != 0.0)
 		++total_subqs;
-	    Xapian::valueno valno(query->parameter);
+	    Xapian::valueno slot(query->parameter);
 	    const string & range_end = query->tname;
-	    RETURN(new ValueRangePostList(&db, valno, "", range_end));
+	    if (range_end < db.get_value_lower_bound(slot)) {
+		RETURN(new EmptyPostList);
+	    }
+	    RETURN(new ValueRangePostList(&db, slot, string(), range_end));
 	}
 
 	case Xapian::Query::OP_SCALE_WEIGHT: {
@@ -183,20 +197,18 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor)
     for (i = pos_filters.begin(); i != pos_filters.end(); ++i) {
 	const PosFilter & filter = *i;
 
-	// FIXME: make NearPostList, etc ctors take a pair of itors so we don't
-	// need to create this temporary vector.
-	vector<PostList *> terms(plists.begin() + filter.begin,
-				 plists.begin() + filter.end);
+	vector<PostList *>::const_iterator terms_begin = plists.begin() + filter.begin;
+	vector<PostList *>::const_iterator terms_end = plists.begin() + filter.end;
 
 	Xapian::termcount window = filter.window;
 	if (filter.op == Xapian::Query::OP_NEAR) {
-	    pl = new NearPostList(pl, window, terms);
+	    pl = new NearPostList(pl, window, terms_begin, terms_end);
 	} else if (window == filter.end - filter.begin) {
 	    AssertEq(filter.op, Xapian::Query::OP_PHRASE);
-	    pl = new ExactPhrasePostList(pl, terms);
+	    pl = new ExactPhrasePostList(pl, terms_begin, terms_end);
 	} else {
 	    AssertEq(filter.op, Xapian::Query::OP_PHRASE);
-	    pl = new PhrasePostList(pl, window, terms);
+	    pl = new PhrasePostList(pl, window, terms_begin, terms_end);
 	}
     }
 
@@ -274,7 +286,7 @@ struct CmpMaxOrTerms {
 	if (a->get_termfreq_max() == 0) return false;
 	if (b->get_termfreq_max() == 0) return true;
 
-#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__)
+#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__) || defined(__mc68010__) || defined(__mc68020__) || defined(__mc68030__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
 	// If the two get_maxweight() calls below return identical values in a
@@ -285,6 +297,10 @@ struct CmpMaxOrTerms {
 	// violates the antisymmetry property of the strict weak ordering
 	// required by nth_element().  This can have serious consequences (e.g.
 	// segfaults).
+	//
+	// Note that m68k only has excess precision in earlier models - 68040
+	// and later are OK:
+	// http://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
 	//
 	// To avoid this, we store each result in a volatile double prior to
 	// comparing them.  This means that the result of this test should

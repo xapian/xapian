@@ -88,7 +88,7 @@ class NetworkTermList : public TermList {
 	Xapian::doccount database_size;
 
 	///  Keep a reference to our database
-	Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db;
+	Xapian::Internal::intrusive_ptr<const RemoteDatabase> this_db;
 
 	/// The id of the document this termlist came from (or 0 if not applicable).
 	Xapian::docid did;
@@ -103,7 +103,7 @@ class NetworkTermList : public TermList {
 	 */
 	NetworkTermList(Xapian::termcount document_length_,
 			Xapian::doccount database_size_,
-			Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
+			Xapian::Internal::intrusive_ptr<const RemoteDatabase> this_db_,
 			Xapian::docid did_);
     public:
 

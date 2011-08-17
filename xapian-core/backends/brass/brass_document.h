@@ -44,7 +44,7 @@ class BrassDocument : public Xapian::Document::Internal {
     friend class BrassDatabase;
 
     /// Private constructor - only called by BrassDatabase::open_document().
-    BrassDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db,
+    BrassDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
 		  const BrassValueManager *value_manager_,
 		  const BrassRecordTable *record_table_)

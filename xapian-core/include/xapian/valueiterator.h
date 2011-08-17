@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,23 +25,21 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
 
-/// @private @internal A proxy class for an end ValueIterator.
-class ValueIteratorEnd_ { };
-
 /// Class for iterating over document values.
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
+    void decref();
+
   public:
     /// Class representing the ValueIterator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Internal * internal;
 
     /// @private @internal Construct given internals.
     explicit ValueIterator(Internal *internal_);
@@ -49,24 +47,20 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Copy constructor.
     ValueIterator(const ValueIterator & o);
 
-    /// @internal Copy from an end iterator proxy.
-    ValueIterator(const ValueIteratorEnd_ &);
-
     /// Assignment.
     ValueIterator & operator=(const ValueIterator & o);
-
-    /// @internal Assignment of an end iterator proxy.
-    ValueIterator & operator=(const ValueIteratorEnd_ &);
 
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    ValueIterator();
+    ValueIterator() : internal(0) { }
 
     /// Destructor.
-    ~ValueIterator();
+    ~ValueIterator() {
+	if (internal) decref();
+    }
 
     /// Return the value at the current position.
     std::string operator*() const;
@@ -132,7 +126,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  position after document @a did, and skip_to() will act as it would if
      *  the position was the first matching position after document @a did.
      *
-     *  Currently the inmemory, flint, and remote backends behave in the
+     *  Currently the inmemory and remote backends behave in the
      *  latter way because they don't support streamed values and so skip_to()
      *  must check each document it skips over which is significantly slower.
      */
@@ -145,7 +139,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  input_iterator.
      *
      *  The following typedefs allow std::iterator_traits<> to work so that
-     *  this iterator can be used with with STL.
+     *  this iterator can be used with the STL.
      *
      *  These are deliberately hidden from the Doxygen-generated docs, as the
      *  machinery here isn't interesting to API users.  They just need to know
@@ -171,54 +165,12 @@ operator==(const ValueIterator &a, const ValueIterator &b)
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
-    return a.internal.get() == b.internal.get();
-}
-
-/// @internal Equality test for ValueIterator object and end iterator.
-inline bool
-operator==(const ValueIterator &a, const ValueIteratorEnd_ &)
-{
-    return a.internal.get() == NULL;
-}
-
-/// @internal Equality test for ValueIterator object and end iterator.
-inline bool
-operator==(const ValueIteratorEnd_ &a, const ValueIterator &b)
-{
-    return b == a;
-}
-
-/// @internal Equality test for end iterators.
-inline bool
-operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &)
-{
-    return true;
+    return a.internal == b.internal;
 }
 
 /// Inequality test for ValueIterator objects.
 inline bool
 operator!=(const ValueIterator &a, const ValueIterator &b)
-{
-    return !(a == b);
-}
-
-/// @internal Inequality test for ValueIterator object and end iterator.
-inline bool
-operator!=(const ValueIterator &a, const ValueIteratorEnd_ &b)
-{
-    return !(a == b);
-}
-
-/// @internal Inequality test for ValueIterator object and end iterator.
-inline bool
-operator!=(const ValueIteratorEnd_ &a, const ValueIterator &b)
-{
-    return !(a == b);
-}
-
-/// @internal Inequality test for end iterators.
-inline bool
-operator!=(const ValueIteratorEnd_ &a, const ValueIteratorEnd_ &b)
 {
     return !(a == b);
 }

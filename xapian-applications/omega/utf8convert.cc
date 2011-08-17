@@ -1,6 +1,6 @@
 /* utf8convert.cc: convert a string to UTF-8 encoding.
  *
- * Copyright (C) 2006,2007,2008 Olly Betts
+ * Copyright (C) 2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,32 @@ convert_to_utf8(string & text, const string & charset)
 
 #ifdef USE_ICONV
     iconv_t conv = iconv_open("UTF-8", charset.c_str());
-    if (conv == (iconv_t)-1) return;
+    if (conv == (iconv_t)-1) {
+	if (charset.size() < 4 || charset[3] == '-')
+	    return;
+
+	// Try correcting common misspellings of UTF-16 and UCS-2 charsets.
+	// In particular, handle ' ' or '_' instead of '-', and a missing '-',
+	// so: UCS2 -> UCS-2, UTF_16 -> UTF-16, etc.
+	//
+	// Note: libiconv on OSX doesn't support these misspellings, though
+	// libiconv on Ubuntu does.
+	if (strncasecmp(charset.c_str(), "ucs", 3) != 0 &&
+	    strncasecmp(charset.c_str(), "utf", 3) != 0) {
+	    return;
+	}
+
+	string adjusted_charset(charset, 0, 3);
+	adjusted_charset += '-';
+	if (charset[3] == ' ' || charset[3] == '_') {
+	    adjusted_charset.append(charset, 4, string::npos);
+	} else {
+	    adjusted_charset.append(charset, 3, string::npos);
+	}
+
+	conv = iconv_open("UTF-8", adjusted_charset.c_str());
+	if (conv == (iconv_t)-1) return;
+    }
 
     string tmp;
 
@@ -80,13 +105,13 @@ convert_to_utf8(string & text, const string & charset)
     bool utf16 = false;
     if (strncasecmp(p, "utf", 3) == 0) {
 	p += 3;
-	if (*p == '-' || *p == '_') ++p;
+	if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	if (*p != '1' || p[1] != '6') return;
 	p += 2;
 	utf16 = true;
     } else if (strncasecmp(p, "ucs", 3) == 0) {
 	p += 3;
-	if (*p == '-' || *p == '_') ++p;
+	if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	if (*p != '2') return;
 	++p;
 	utf16 = true;
@@ -158,11 +183,11 @@ convert_to_utf8(string & text, const string & charset)
     } else {
 	if (strncasecmp(p, "iso", 3) == 0) {
 	    p += 3;
-	    if (*p == '-' || *p == '_') ++p;
+	    if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	}
 	if (strncmp(p, "8859", 4) != 0) return;
 	p += 4;
-	if (*p == '-' || *p == '_') ++p;
+	if (*p == '-' || *p == '_' || *p == ' ') ++p;
 	if (strcmp(p, "1") != 0) return;
 
 	// FIXME: pull this out as a standard "normalise utf-8" function?

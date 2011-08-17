@@ -1,7 +1,7 @@
 /* utils.cc: string conversion utility functions for omega
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2006 Olly Betts
+ * Copyright 2003,2004,2006,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,8 @@
 
 #include "utils.h"
 
-#include <cstdio> // for sprintf/snprintf
+#include <cassert>
+#include <stdio.h> // for sprintf/snprintf
 #include <cstdlib>
 
 #include <string>
@@ -69,7 +70,7 @@ date_to_string(int y, int m, int d)
     if (d < 1) d = 1; else if (d > 31) d = 31;
 #ifdef SNPRINTF
     int len = SNPRINTF(buf, sizeof(buf), "%04d%02d%02d", y, m, d);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    if (len == -1 || len > (int)sizeof(buf)) return string(buf, sizeof(buf));
     return string(buf, len);
 #else
     buf[sizeof(buf) - 1] = '\0';
@@ -77,4 +78,24 @@ date_to_string(int y, int m, int d)
     if (buf[sizeof(buf) - 1]) abort(); /* Uh-oh, buffer overrun */
     return string(buf);
 #endif
+}
+
+void
+trim(string & s)
+{
+    string::size_type first_nonspace;
+    first_nonspace = s.find_first_not_of(" \t\r\n\v");
+    if (first_nonspace == string::npos) {
+	// String is all whitespace.
+	s.resize(0);
+    } else {
+	// Remove any trailing whitespace.
+	string::size_type len = s.find_last_not_of(" \t\r\n\v");
+	assert(len != string::npos);
+	if (len < s.size() - 1)
+	    s.resize(len + 1);
+	// Remove any leading whitespace.
+	if (first_nonspace > 0)
+	    s.erase(0, first_nonspace);
+    }
 }

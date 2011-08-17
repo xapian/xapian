@@ -2,7 +2,7 @@
  *
  * Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2005,2007 Olly Betts
+ * Copyright 2003,2005,2007,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,14 +86,17 @@ try_read_config_file(const char * cfile)
 	    throw string("Bad line in configuration file `") + cfile + "'";
 	}
 
+	if (*value.rbegin() != '/')
+	    value += '/';
+
 	if (name == "database_dir") {
-	    database_dir = value + "/";
+	    swap(database_dir, value);
 	} else if (name == "template_dir") {
-	    template_dir = value + "/";
+	    swap(template_dir, value);
 	} else if (name == "log_dir") {
-	    log_dir = value + "/";
+	    swap(log_dir, value);
 	} else if (name == "cdb_dir") {
-	    cdb_dir = value + "/";
+	    swap(cdb_dir, value);
 	}
     }
 

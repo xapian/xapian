@@ -259,12 +259,12 @@ ValueWeightPostingSource::unserialise(const string &s) const
     const char * p = s.data();
     const char * end = p + s.size();
 
-    Xapian::valueno new_valno = decode_length(&p, end, false);
+    Xapian::valueno new_slot = decode_length(&p, end, false);
     if (p != end) {
 	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
     }
 
-    return new ValueWeightPostingSource(new_valno);
+    return new ValueWeightPostingSource(new_slot);
 }
 
 void
@@ -307,10 +307,10 @@ ValueMapPostingSource::ValueMapPostingSource(Xapian::valueno slot_)
 }
 
 void
-ValueMapPostingSource::add_mapping(const string & key, double weight)
+ValueMapPostingSource::add_mapping(const string & key, double wt)
 {
-    weight_map[key] = weight;
-    max_weight_in_map = max(weight, max_weight_in_map);
+    weight_map[key] = wt;
+    max_weight_in_map = max(wt, max_weight_in_map);
 }
 
 void

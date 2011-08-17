@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007,2008,2009,2010 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
 
 ==========================
 Xapian Spelling Correction
@@ -73,7 +73,8 @@ QueryParser Integration
 
 If FLAG_SPELLING_CORRECTION is passed to QueryParser::parse_query() and
 QueryParser::set_database() has been called, the QueryParser will look for
-corrections for words in the query which aren't found in the database.
+corrections for words in the query.  In Xapian 1.2.2 and earlier, it only
+did this for terms which aren't found in the database.
 
 If a correction is found, then a modified version of the query string will be
 generated which can be obtained by calling
@@ -87,7 +88,7 @@ Omega
 
 As of Omega 1.1.1, omindex and scriptindex support indexing spelling correction
 data and omega supports suggesting corrected spellings at search time.  See the
-Omega documentation for more details.
+`Omega documentation <http://xapian.org/docs/omega/>`_ for more details.
 
 Algorithm
 =========
@@ -130,6 +131,9 @@ distance is found, and if more than one word has the smallest edit distance,
 that which occurs the most times is chosen.  If there's a tie of this too,
 it's essentially arbitrary which is chosen.
 
+If the word passed in is in the spelling dictionary, then a candidate will
+still be returned if one is found with the same or greater frequency.
+
 The maximum edit distance to consider can be specified as an optional parameter
 to Xapian::Database::get_spelling_suggestion().  If not specified, the default
 is 2, which generally does a good job.  3 is also a reasonable choice in many
@@ -158,7 +162,7 @@ search would be prohibitively expensive for many uses.
 Backend Support
 ---------------
 
-Currently spelling correction is supported for chert, flint, and brass
+Currently spelling correction is supported for chert, and brass
 databases.  It works with a single database or multiple databases (use
 Database::add_database() as usual).  We've no plans to support it for the
 InMemory backend, but we do intend to support it for

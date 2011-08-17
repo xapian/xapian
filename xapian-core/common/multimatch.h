@@ -1,7 +1,7 @@
 /* multimatch.h: class for performing a match
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,7 @@ class MultiMatch
 {
     private:
 	/// Vector of the items.
-	std::vector<Xapian::Internal::RefCntPtr<SubMatch> > leaves;
+	std::vector<Xapian::Internal::intrusive_ptr<SubMatch> > leaves;
 
 	const Xapian::Database db;
 
@@ -127,7 +127,6 @@ class MultiMatch
 		      Xapian::MSet & mset,
 		      const Xapian::Weight::Internal & stats,
 		      const Xapian::MatchDecider * mdecider,
-		      const Xapian::MatchDecider * matchspy_legacy,
 		      const Xapian::KeyMaker * sorter);
 
 	/** Called by postlists to indicate that they've rearranged themselves

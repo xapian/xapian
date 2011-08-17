@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,6 +50,7 @@
 #include <iostream>
 
 #include <cstring>
+#include <cstdio> // For sprintf() on __WIN32__ or cygwin.
 #include <sys/types.h>
 
 using namespace std;
@@ -178,7 +179,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 
 	if (hostent == 0) {
 	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-		"",
 #ifdef __WIN32__
 		socket_errno()
 #else
@@ -206,6 +206,12 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
 	    // server failed to bind to the requested port.
 	    exit(69); // FIXME: calling exit() here isn't ideal...
+	}
+	if (saved_errno == EACCES) {
+	    cerr << "Can't bind to privileged port " << port << endl;
+	    // 77 is EX_NOPERM.  Scripts can use this to detect if
+	    // xapian-tcpsrv failed to bind to the requested port.
+	    exit(77); // FIXME: calling exit() here isn't ideal...
 	}
 	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("bind failed", saved_errno);

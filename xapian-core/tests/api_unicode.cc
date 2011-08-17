@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,50 @@ static const testcase testcases[] = {
     { "abcd", "abcd" }, // Sanity check!
     { "a\x80""bcd", "a\xc2\x80""bcd" },
     { "a\xa0", "a\xc2\xa0" },
+    { "a\xa0z", "a\xc2\xa0z" },
+    { "x\xc1yz", "x\xc3\x81yz" },
+    { "\xc2z", "\xc3\x82z" },
+    { "\xc2", "\xc3\x82" },
+    { "xy\xc3z", "xy\xc3\x83z" },
+    { "xy\xc3\xc3z", "xy\xc3\x83\xc3\x83z" },
+    { "xy\xc3\xc3", "xy\xc3\x83\xc3\x83" },
+    { "\xe0", "\xc3\xa0" },
+    { "\xe0\x80", "\xc3\xa0\xc2\x80" },
+    { "\xe0\xc0", "\xc3\xa0\xc3\x80" },
+    { "\xe0\xc0z", "\xc3\xa0\xc3\x80z" },
+    { "\xe0\xc0zz", "\xc3\xa0\xc3\x80zz" },
+    { "\xe0\xc0\x81", "\xc3\xa0\xc3\x80\xc2\x81" },
+    { "\xe0\x82\xc1", "\xc3\xa0\xc2\x82\xc3\x81" },
+    { "\xe0\xc5\xc7", "\xc3\xa0\xc3\x85\xc3\x87" },
+    { "\xf0", "\xc3\xb0" },
+    { "\xf0\x80", "\xc3\xb0\xc2\x80" },
+    { "\xf0\xc0", "\xc3\xb0\xc3\x80" },
+    { "\xf0\xc0z", "\xc3\xb0\xc3\x80z" },
+    { "\xf0\xc0zz", "\xc3\xb0\xc3\x80zz" },
+    { "\xf0\xc0\x81", "\xc3\xb0\xc3\x80\xc2\x81" },
+    { "\xf0\x82\xc1", "\xc3\xb0\xc2\x82\xc3\x81" },
+    { "\xf0\xc5\xc7", "\xc3\xb0\xc3\x85\xc3\x87" },
+    { "\xf0\xc0\x81\xc9", "\xc3\xb0\xc3\x80\xc2\x81\xc3\x89" },
+    { "\xf0\x82\xc1\xc8", "\xc3\xb0\xc2\x82\xc3\x81\xc3\x88" },
+    { "\xf0\xc5\xc7\xc6", "\xc3\xb0\xc3\x85\xc3\x87\xc3\x86" },
+    { "\xf0\xc0\x81\x89", "\xc3\xb0\xc3\x80\xc2\x81\xc2\x89" },
+    { "\xf0\x82\xc1\x88", "\xc3\xb0\xc2\x82\xc3\x81\xc2\x88" },
+    { "\xf0\xc5\xc7\xc6", "\xc3\xb0\xc3\x85\xc3\x87\xc3\x86" },
+    { "\xf4P\x80\x80", "\xc3\xb4P\xc2\x80\xc2\x80" },
+    { "\xf4\x80P\x80", "\xc3\xb4\xc2\x80P\xc2\x80" },
+    { "\xf4\x80\x80P", "\xc3\xb4\xc2\x80\xc2\x80P" },
+    { "\xfe\xffxyzzy", "\xc3\xbe\xc3\xbfxyzzy" },
+    // Overlong encodings:
+    { "\xc0\x80", "\xc3\x80\xc2\x80" },
+    { "\xc0\xbf", "\xc3\x80\xc2\xbf" },
+    { "\xc1\x80", "\xc3\x81\xc2\x80" },
+    { "\xc1\xbf", "\xc3\x81\xc2\xbf" },
+    { "\xe0\x80\x80", "\xc3\xa0\xc2\x80\xc2\x80" },
+    { "\xe0\x9f\xbf", "\xc3\xa0\xc2\x9f\xc2\xbf" },
+    { "\xf0\x80\x80\x80", "\xc3\xb0\xc2\x80\xc2\x80\xc2\x80" },
+    { "\xf0\x8f\xbf\xbf", "\xc3\xb0\xc2\x8f\xc2\xbf\xc2\xbf" },
+    // Above Unicode:
+    { "\xf4\x90\x80\x80", "\xc3\xb4\xc2\x90\xc2\x80\xc2\x80" },
     { 0, 0 }
 };
 
@@ -46,6 +90,7 @@ static const testcase testcases[] = {
 DEFINE_TESTCASE(utf8iterator1,!backend) {
     const testcase * p;
     for (p = testcases; p->a; ++p) {
+	tout.str(string());
 	tout << '"' << p->a << "\" and \"" << p->b << '"' << endl;
 	size_t a_len = strlen(p->a);
 	Xapian::Utf8Iterator a(p->a, a_len);
@@ -77,7 +122,11 @@ static const testcase2 testcases2[] = {
     { "\xa0", 160 },
     { "\xc2\x80", 128 },
     { "\xc2\xa0", 160 },
+    { "\xe0\xa0\x80", 0x0800 },
+    { "\xe1\x80\x80", 0x1000 },
     { "\xf0\xa8\xa8\x8f", 166415 },
+    { "\xf3\x80\x80\x80", 0x0c0000 },
+    { "\xf4\x80\x80\x80", 0x100000 },
     { 0, 0 }
 };
 
@@ -85,7 +134,7 @@ static const testcase2 testcases2[] = {
 DEFINE_TESTCASE(utf8iterator2,!backend) {
     const testcase2 * p;
     for (p = testcases2; p->a; ++p) {
-	Xapian::Utf8Iterator a(p->a, strlen(p->a));
+	Xapian::Utf8Iterator a(p->a);
 
 	TEST(a != Xapian::Utf8Iterator());
 	TEST_EQUAL(*a, p->n);
@@ -103,6 +152,26 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
     // U+0242 was added in Unicode 5.0.0.
     TEST_EQUAL(Unicode::get_category(0x242), Unicode::LOWERCASE_LETTER);
+    // U+0526 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0526), Unicode::UPPERCASE_LETTER);
+    // U+0527 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0527), Unicode::LOWERCASE_LETTER);
+    // U+0620 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0620), Unicode::OTHER_LETTER);
+    // U+065F was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x065F), Unicode::NON_SPACING_MARK);
+    // U+06DE changed category in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x06DE), Unicode::OTHER_SYMBOL);
+    // U+0840 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0840), Unicode::OTHER_LETTER);
+    // U+093A was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x093A), Unicode::NON_SPACING_MARK);
+    // U+093B was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x093B), Unicode::COMBINING_SPACING_MARK);
+    // U+0CF1 changed category in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0CF1), Unicode::OTHER_LETTER);
+    // U+0CF2 changed category in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0CF2), Unicode::OTHER_LETTER);
     // U+11A7 was added in Unicode 5.2.0.
     TEST_EQUAL(Unicode::get_category(0x11A7), Unicode::OTHER_LETTER);
     // U+9FCB was added in Unicode 5.2.0.
@@ -116,6 +185,12 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x10FFFF), Unicode::UNASSIGNED);
     // U+1109A was added in Unicode 5.2.0.
     TEST_EQUAL(Unicode::get_category(0x1109a), Unicode::OTHER_LETTER);
+    // U+1F773 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x1F773), Unicode::OTHER_SYMBOL);
+    // U+2B740 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x2B740), Unicode::OTHER_LETTER);
+    // U+2B81D was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x2B81D), Unicode::OTHER_LETTER);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -165,7 +240,7 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
     return true;
 }
 
-/// Test Unicode 5.1 support.
+/// Test Unicode 5.1 and 6.0.0 support.
 DEFINE_TESTCASE(caseconvert2,!backend) {
     using namespace Xapian;
 
@@ -179,6 +254,12 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::get_category(0x5be), Unicode::DASH_PUNCTUATION);
     TEST_EQUAL(Unicode::get_category(0x1f093), Unicode::OTHER_SYMBOL);
 
+    // U+0526, U+0527 and U+A78D were added in Unicode 6.0.0:
+    TEST_EQUAL(Unicode::toupper(0x265), 0xa78d);
+    TEST_EQUAL(Unicode::tolower(0xa78d), 0x265);
+    TEST_EQUAL(Unicode::tolower(0x526), 0x527);
+    TEST_EQUAL(Unicode::toupper(0x527), 0x526);
+
     TEST_EQUAL(Unicode::tolower(0x370), 0x371);
     TEST_EQUAL(Unicode::toupper(0x371), 0x370);
     TEST_EQUAL(Unicode::tolower(0x372), 0x373);
@@ -187,6 +268,7 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::toupper(0x377), 0x376);
     TEST_EQUAL(Unicode::tolower(0x3cf), 0x3d7);
     TEST_EQUAL(Unicode::toupper(0x3d7), 0x3cf);
+
 
     unsigned u;
     for (u = 0x514; u < 0x524; u += 2) {

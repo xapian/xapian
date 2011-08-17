@@ -15,7 +15,15 @@ endif
 if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 # This requires GNU make, but apparently that's the default on OS X.
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+
+# This is a hack to enable tests in an SVN build (or build with similar layout)
+# on Mac OS X to find the uninstalled xapian library. See
+# http://trac.xapian.org/ticket/322
+export DYLD_LIBRARY_PATH="$(abs_builddir)/../../xapian-core/.libs"
 endif
+
+# Define separately to allow overriding easily with: make SWIG_WERROR=
+SWIG_WERROR = -Werror
 
 # Recover from the removal of $@.  A full explanation of this is in the
 # automake manual under the heading "Multiple Outputs".
@@ -34,15 +42,3 @@ fi
 
 multitarget_begin = @rm -f $@-t; touch $@-t
 multitarget_end = @mv -f $@-t $@
-
-SWIG_mainsource = \
-	$(srcdir)/../xapian.i
-
-SWIG_sources = \
-	$(SWIG_mainsource) \
-	$(srcdir)/../generic/except.i
-
-SWIG_includes = \
-	-I$(srcdir) \
-	-I$(srcdir)/../generic
-

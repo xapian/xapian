@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2009,2010,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** @private @internal Constructor is only used by internal classes.
 	 *
@@ -86,9 +86,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  Returns an empty string if no value with the given number is present
 	 *  in the document.
 	 *
-	 *  @param valueno The number of the value.
+	 *  @param slot The number of the value.
 	 */
-	std::string get_value(Xapian::valueno valueno) const;
+	std::string get_value(Xapian::valueno slot) const;
 
 	/** Add a new value.
 	 *
@@ -96,10 +96,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  (or if the new value is empty, it will remove any existing value
 	 *  with the same number).
 	 */
-	void add_value(Xapian::valueno valueno, const std::string &value);
+	void add_value(Xapian::valueno slot, const std::string &value);
 
 	/// Remove any value with the given number.
-	void remove_value(Xapian::valueno valueno);
+	void remove_value(Xapian::valueno slot);
 
 	/// Remove all values associated with the document.
 	void clear_values();
@@ -206,7 +206,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/// Equivalent end iterator for termlist_begin().
 	TermIterator termlist_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Count the values in this document.
@@ -216,8 +216,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	ValueIterator values_begin() const;
 
 	/// Equivalent end iterator for values_begin().
-	ValueIteratorEnd_ values_end() const {
-	    return ValueIteratorEnd_();
+	ValueIterator values_end() const {
+	    return ValueIterator();
 	}
 
 	/** Get the document id which is associated with this document (if any).
@@ -227,7 +227,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  database!
 	 *
 	 *  @return If this document came from a database, return the document
-	 *	    id in that database.  Otherwise, return 0.
+	 *	    id in that database.  Otherwise, return 0 (in Xapian
+	 *	    1.0.22/1.2.4 or later; prior to this the returned value was
+	 *	    uninitialised).
 	 */
 	docid get_docid() const;
 

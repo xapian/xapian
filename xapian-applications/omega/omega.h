@@ -40,8 +40,6 @@ const char filter_sep = '-';
 // someone changed a filter, the first page wouldn't be forced.
 // That's hardly the end of the world...
 
-extern string query_string;
-
 extern string dbname;
 extern string fmtname;
 extern string filters;
@@ -69,5 +67,7 @@ extern map<string, string> option;
 extern string date_start, date_end, date_span;
 
 extern const string default_dbname;
+
+extern bool set_content_type, suppress_http_headers;
 
 #endif // OMEGA_INCLUDED_OMEGA_H

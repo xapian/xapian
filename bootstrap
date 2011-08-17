@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -116,6 +116,13 @@ lazy_build() {
     esac
 
     cd "$basename"
+    # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
+    # which stops it building on each new OS X release.
+    if [ -f qtools/qglobal.h ] ; then
+	sed 's!^[	 ]*#[	 ]*error.*Mac *OS *X is unsupported!// &!' \
+	    qtools/qglobal.h > qtools/qglobal.hT
+	mv qtools/qglobal.hT qtools/qglobal.h
+    fi
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
     else
@@ -128,6 +135,16 @@ lazy_build() {
 
     touch "$stamp"
   fi
+}
+
+handle_svn_external() {
+  path=$1
+  revopt=$2
+  url=$3
+  if [ ! -d "$path" ] ; then
+    git svn init "$url" "$path"/
+  fi
+  (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 }
 
 curdir=`pwd`
@@ -143,7 +160,14 @@ esac
 
 if [ -d ".git" ] ; then
   for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
-    test -d "$emptydir" || mkdir "$emptydir"
+    if test -d "$emptydir" ; then
+      :
+    else
+      parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
+      if test -d "$parent" ; then
+	mkdir "$emptydir"
+      fi
+    fi
   done
 
   sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
@@ -157,21 +181,34 @@ END
     mv .git/info/exclude~ .git/info/exclude
   fi
 
-  # FIXME: Currently requires manual update...
-  #svn:external revision for SWIG
-  rev=11320
-  if [ ! -d swig ] ; then
-    git svn init svn://svn.tartarus.org/swig/trunk/ swig/
-  fi
-  (cd swig && git svn fetch -r"$rev")
+  if git config --get svn-remote.svn.url >/dev/null ; then
+    # git repo checked out with git-svn from svn.xapian.org.
 
-  # FIXME: Currently requires manual update...
-  #svn:external revision for xapian-applications/omega/common
-  rev=14328
-  if [ ! -d xapian-applications/omega/common ] ; then
-    git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
+    # Pull in each svn:externals as a separate little git repo:
+    git svn show-externals | while read path revopt url ; do
+      # For example:
+      # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
+      if [ -n "$url" ] ; then
+	case $path in
+	/*)
+	  path=`echo "$path"|sed 's,^/,,'`
+	  handle_svn_external "$path" "$revopt" "$url"
+	  ;;
+	esac
+      fi
+    done
+  else
+    # git repo cloned from git.xapian.org or a mirror of it.
+
+    # FIXME: Currently rev here requires manual update...
+    #svn:externals revision for SWIG
+    handle_svn_external swig -r12767 svn://svn.tartarus.org/swig/trunk/
+  
+    # FIXME: Currently rev here requires manual update...
+    #svn:externals revision for xapian-applications/omega/common
+    # Note: this needs to be the exact revision of the previous change!
+    handle_svn_external xapian-applications/omega/common -r14916 svn://svn.xapian.org/xapian/trunk/xapian-core/common
   fi
-  (cd xapian-applications/omega/common && git svn fetch -r"$rev")
 fi
 
 if [ "$1" = "--without-autotools" ] ; then
@@ -190,10 +227,10 @@ else
 
   # The last field is the SHA1 checksum of the tarball.
   lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
-  lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
+  lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  lazy_build libtool 2.2.10 tar.gz e8fa9813d8e9a5497c636744e6fd3f55d86eec38
+  lazy_build libtool 2.4 tar.gz 149e9d7a993b643d13149a94d07bbca1085e601c
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
@@ -266,14 +303,6 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
     modules="$modules $module"
   fi
 done
-
-# Search::Xapian doesn't use autotools.
-if [ -f "$srcdir/search-xapian/Makefile.PL" ] ; then
-  cd "$srcdir/search-xapian"
-  perl generate-perl-exceptions
-  cd "$curdir"
-  modules="$modules search-xapian"
-fi
 
 # Generate the top-level configure script.
 rm -f configure.tmp
@@ -386,28 +415,6 @@ for d in $modules ; do
     esac
     cd "$here"
     dirs="$dirs $d"
-  elif [ search-xapian = "$d" ] ; then
-    if [ "$here" = "$srcdir" ] ; then
-      makefilepl=Makefile.PL
-    else
-      [ -d "$d" ] || mkdir "$d"
-      makefilepl=$srcdir/$d/Makefile.PL
-    fi
-    cd "$d"
-    if [ -f "$makefilepl" ] ; then
-      echo "Configuring \`$d'"
-      # Extract any CXX=... argument from those passed to us.
-      unset cxxarg
-      for arg
-      do
-	case $arg in
-	  CXX=*) cxxarg=$arg ;;
-	esac
-      done
-      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
-      dirs="$dirs $d"
-    fi
-    cd "$here"
   fi
 done
 
@@ -422,19 +429,14 @@ for target in $targets ; do
   echo "$target:"
   for d in $dirs ; do
     case $d,$target in
-    swig,install*|swig,uninstall|swig,dist|swig,check|swig,distcheck|swig,all)
+    swig,install*|swig,uninstall)
+      # Nothing to do with swig when installing/uninstalling.
+      ;;
+    swig,dist|swig,check|swig,distcheck|swig,all)
       # Need to ensure swig is built before "make dist", "make check", etc.
       echo "	cd $d && \$(MAKE)" ;;
-    swig,mostlyclean|search-xapian,mostlyclean)
+    swig,mostlyclean)
       echo "	cd $d && \$(MAKE) clean" ;;
-    search-xapian,install-strip)
-      echo "	cd $d && \$(MAKE) install" ;;
-    search-xapian,maintainer-clean)
-      echo "	cd $d && \$(MAKE) realclean" ;;
-    search-xapian,dist)
-      echo "	cd $d && \$(MAKE) dist GZIP=-f" ;;
-    search-xapian,distcheck)
-      echo "	cd $d && \$(MAKE) disttest && \$(MAKE) dist GZIP=-f" ;;
     xapian-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.
@@ -444,14 +446,19 @@ for target in $targets ; do
     esac
   done
   case $target in
-    distclean) echo "	rm -f Makefile config.cache" ;;
-    maintainer-clean) echo "	rm -f Makefile configure config.cache" ;;
+    distclean|maintainer-clean) echo "	rm -f Makefile config.cache" ;;
   esac
 done >> Makefile.tmp
 cat <<EOF >> Makefile.tmp
 
 recheck:
 	$cmd
+
+Makefile: $srcdir/configure
+	$cmd
+
+$srcdir/configure: $srcdir/bootstrap
+	$srcdir/bootstrap
 
 .PHONY: $targets recheck
 EOF

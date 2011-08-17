@@ -155,13 +155,14 @@ extern int main(int argc, char * argv[]) {
     read_options(o, argc, argv);
     {
         symbol * filename = add_s_to_b(0, argv[1]);
-        symbol * u = get_input(filename);
+        char * file;
+        symbol * u = get_input(filename, &file);
         if (u == 0) {
             fprintf(stderr, "Can't open input %s\n", argv[1]);
             exit(1);
         }
         {
-            struct tokeniser * t = create_tokeniser(u);
+            struct tokeniser * t = create_tokeniser(u, file);
             struct analyser * a = create_analyser(t);
             t->widechars = o->widechars;
             t->includes = o->includes;

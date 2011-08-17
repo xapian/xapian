@@ -1,7 +1,7 @@
 /** @file emptypostlist.cc
  * @brief A PostList which contains no entries.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,14 +85,12 @@ EmptyPostList::recalc_maxweight()
 PostList *
 EmptyPostList::next(Xapian::weight)
 {
-    Assert(false);
     return NULL;
 }
 
 PostList *
 EmptyPostList::skip_to(Xapian::docid, Xapian::weight)
 {
-    Assert(false);
     return NULL;
 }
 

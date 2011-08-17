@@ -1,3 +1,40 @@
+xapian-core (1.2.5-2) UNRELEASED; urgency=low
+
+  * debian/control.in: Standards-Version: 3.9.2 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Thu, 12 May 2011 03:00:57 +0000
+
+xapian-core (1.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fix up link to the internal sourcedocs in internals.html to point to those
+    on the Xapian website.
+
+ -- Olly Betts <olly@survex.com>  Wed, 06 Apr 2011 02:19:10 +0000
+
+xapian-core (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:32:14 +0000
+
+xapian-core (1.2.3-2) unstable; urgency=low
+
+  * Only include debug symbols for the shared library in the debug package
+    (Closes: #594455).
+
+ -- Olly Betts <olly@survex.com>  Thu, 26 Aug 2010 07:10:51 +0000
+
+xapian-core (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+  * debian/control.in:
+    + Standards-Version: 3.9.1 (no changes required).
+  * debian/patches/check-select-errors.patch: Drop, merged upstream.
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 11:18:50 +0000
+
 xapian-core (1.2.2-4) experimental; urgency=low
 
   * Add patch check-select-errors.patch which will hopefully fix erratic FTBFS

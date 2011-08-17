@@ -1,5 +1,7 @@
 noinst_HEADERS +=\
 	backends/flint_lock.h\
+	backends/byte_length_strings.h\
+	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h
 
 EXTRA_DIST +=\
@@ -19,11 +21,6 @@ lib_src +=\
 	backends/dbfactory_remote.cc
 endif
 
-if BUILD_BACKEND_FLINT
-lib_src +=\
-	backends/contiguousalldocspostlist.cc\
-	backends/flint_lock.cc
-else
 if BUILD_BACKEND_CHERT
 lib_src +=\
         backends/contiguousalldocspostlist.cc\
@@ -33,7 +30,6 @@ if BUILD_BACKEND_BRASS
 lib_src +=\
         backends/contiguousalldocspostlist.cc\
 	backends/flint_lock.cc
-endif
 endif
 endif
 
@@ -51,7 +47,6 @@ endif
 
 include backends/brass/Makefile.mk
 include backends/chert/Makefile.mk
-include backends/flint/Makefile.mk
 include backends/inmemory/Makefile.mk
 include backends/multi/Makefile.mk
 include backends/remote/Makefile.mk

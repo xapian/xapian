@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <xapian/base.h>
-#include <xapian/document.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -38,6 +37,8 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
+
+class Document;
 
 /** This class is used to access a database, or a group of databases.
  *
@@ -57,7 +58,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
-	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
+	std::vector<Xapian::Internal::intrusive_ptr<Internal> > internal;
 
 	/** @private @internal Get a document from the database, but doesn't
 	 *  need to check if it exists.
@@ -70,11 +71,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  The caller should delete the returned object when it has finished
 	 *  with it.
 	 *
+	 *  The returned value is cast to void* to avoid needing to include
+	 *  xapian/document.h from here.
+	 *
 	 *  @param did   The document id of the document to retrieve.
 	 *
-	 *  @return      Pointer to Document::Internal object.
+	 *  @return      Pointer to Document::Internal object cast to void*.
 	 */
-	Document::Internal * get_document_lazily(Xapian::docid did) const;
+	void * get_document_lazily_(Xapian::docid did) const;
 
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
@@ -123,35 +127,43 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  Calling reopen() on a database which has been closed (with @a
 	 *  close()) will always raise a Xapian::DatabaseError.
+	 *
+	 *  @return	true if the database might have been reopened (if false
+	 *		is returned, the database definitely hasn't been
+	 *		reopened, which applications may find useful when
+	 *		caching results, etc).  In Xapian < 1.3.0, this method
+	 *		did not return a value.
 	 */
-	void reopen();
+	bool reopen();
 
 	/** Close the database.
 	 *
 	 *  This closes the database and releases all file handles held by the
 	 *  database.
 	 *
-	 *  This is a permanent close of the database: calling reopen() after
-	 *  closing a database will not reopen it, and will raise an exception.
+	 *  This cannot be undone - in particular, calling reopen() after
+	 *  closing a database will not reopen it, but will instead throw a
+	 *  Xapian::DatabaseError exception.
 	 *
-	 *  Calling close() on a database which is already closed has no effect
-	 *  (and doesn't raise an exception).
+	 *  Calling close() again on a database which has already been closed
+	 *  has no effect (and doesn't raise an exception).
 	 *
-	 *  After this call, calls made to methods of the database (other than
-	 *  close() or the destructor), or to objects associated with the
-	 *  database will behave in one of the following ways (but which
-	 *  behaviour happens may vary between releases, and between database
-	 *  backends):
-	 *
-	 *   - raise a Xapian::DatabaseError indicating that the database is
-	 *   closed.
+	 *  After close() has been called, calls to other methods of the
+	 *  database, and to methods of other objects associated with the
+	 *  database, will either:
 	 *
 	 *   - behave exactly as they would have done if the database had not
-	 *   been closed (by using cached data).
+	 *     been closed (this can only happen if all the required data is
+	 *     cached)
 	 *
-	 *  To summarise - you should not rely on the exception being raised,
-	 *  or the normal result being available, but if you do get a result,
-	 *  it will be correct.
+	 *   - raise a Xapian::DatabaseError exception indicating that the
+	 *     database is closed.
+	 *
+	 *  The reason for this behaviour is that otherwise we'd have to check
+	 *  that the database is still open on every method call on every
+	 *  object associated with a Database, when in many cases they are
+	 *  working on data which has already been loaded and so they are able
+	 *  to just behave correctly.
 	 */
 	virtual void close();
 
@@ -171,7 +183,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to postlist_begin().
 	 */
 	PostingIterator postlist_end(const std::string &) const {
-	    return PostingIterator(NULL);
+	    return PostingIterator();
 	}
 
 	/** An iterator pointing to the start of the termlist
@@ -182,7 +194,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to termlist_begin().
 	 */
 	TermIterator termlist_end(Xapian::docid) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Does this database have any positional information? */
@@ -196,7 +208,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to positionlist_begin().
 	 */
 	PositionIterator positionlist_end(Xapian::docid, const std::string &) const {
-	    return PositionIterator(NULL);
+	    return PositionIterator();
 	}
 
 	/** An iterator which runs across all terms in the database.
@@ -206,7 +218,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to allterms_begin().
 	 */
 	TermIterator allterms_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** An iterator which runs across all terms with a given prefix.
@@ -216,7 +228,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  to move to the start of the prefix, but is more convenient (because
 	 *  it detects the end of the prefixed terms), and may be more
 	 *  efficient than simply calling skip_to() after opening the iterator,
-	 *  particularly for network databases.
+	 *  particularly for remote databases.
 	 *
 	 *  @param prefix The prefix to restrict the returned terms to.
 	 */
@@ -225,7 +237,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to allterms_begin(prefix).
 	 */
 	TermIterator allterms_end(const std::string &) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Get the number of documents in the database.
@@ -264,12 +276,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This is the number of documents which have a (non-empty) value
 	 *  stored in the slot.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 *
 	 *  @exception UnimplementedError The frequency of the value isn't
 	 *  available for this database type.
 	 */
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 
 	/** Get a lower bound on the values stored in the given value slot.
 	 *
@@ -279,21 +291,21 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  If the lower bound isn't available for the given database type,
 	 *  this will return the lowest possible bound - the empty string.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 */
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
+	std::string get_value_lower_bound(Xapian::valueno slot) const;
 
 	/** Get an upper bound on the values stored in the given value slot.
 	 *
 	 *  If there are no values stored in the given value slot, this will
 	 *  return an empty string.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 *
 	 *  @exception UnimplementedError The upper bound of the values isn't
 	 *  available for this database type.
 	 */
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	std::string get_value_upper_bound(Xapian::valueno slot) const;
 
 	/** Get a lower bound on the length of a document in this DB.
 	 *
@@ -311,8 +323,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
 
 	/// Return end iterator corresponding to valuestream_begin().
-	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const {
-	    return ValueIteratorEnd_();
+	ValueIterator valuestream_end(Xapian::valueno) const {
+	    return ValueIterator();
 	}
 
 	/// Get the length of a document.
@@ -335,6 +347,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *		could not be found in the database.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  did was 0, which is not
+	 *		a valid document id.
 	 */
 	Xapian::Document get_document(Xapian::docid did) const;
 
@@ -360,7 +375,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to spellings_begin().
 	Xapian::TermIterator spellings_end() const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** An iterator which returns all the synonyms for a given term.
@@ -371,7 +386,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to synonyms_begin(term).
 	Xapian::TermIterator synonyms_end(const std::string &) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** An iterator which returns all terms which have synonyms.
@@ -383,7 +398,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
 	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** Get the user-specified metadata associated with a given key.
@@ -434,7 +449,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to metadata_keys_begin().
 	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** Get a UUID for the database.
@@ -892,8 +907,6 @@ const int DB_CREATE = 2;
 const int DB_CREATE_OR_OVERWRITE = 3;
 /** Open for read/write; fail if no db exists. */
 const int DB_OPEN = 4;
-// Can't see any sensible use for this one
-// const int DB_OVERWRITE = XXX;
 
 }
 

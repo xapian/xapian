@@ -40,6 +40,8 @@
 # include "safesysselect.h"
 #endif
 
+using namespace std;
+
 int
 TcpClient::open_socket(const std::string & hostname, int port,
 		       double timeout_connect, bool tcp_nodelay)

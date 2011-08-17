@@ -42,7 +42,8 @@ try {
 		rc = 0;
 	    }
 	}
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE" << endl;
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE\n"
+		"Index each paragraph of a text file as a Xapian document." << endl;
 	exit(rc);
     }
 
@@ -74,7 +75,7 @@ try {
 		// Add the document to the database.
 		db.add_document(doc);
 
-		para = "";
+		para.resize(0);
 	    }
 	} else {
 	    if (!para.empty()) para += ' ';

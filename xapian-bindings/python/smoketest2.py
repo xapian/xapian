@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ def test_all():
     def access_cvar():
         return xapian.cvar
 
-    # Check that SWIG isn't generated cvar (regression test for ticket#297).
+    # Check that SWIG isn't generating cvar (regression test for ticket#297).
     expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
                      access_cvar)
 
@@ -229,6 +229,12 @@ def test_all():
     expect(len(eset_terms), eset.size(), "Unexpected number of terms returned by expand")
     if [t for t in eset_terms if t.startswith('a')]:
         raise TestFail("ExpandDecider was not used")
+
+    # Check min_wt argument to get_eset() works (new in 1.2.5).
+    eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ)
+    expect(eset.items[-1][xapian.ESET_WT] < 1.9, True, "test get_eset() without min_wt")
+    eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, None, 1.9)
+    expect(eset.items[-1][xapian.ESET_WT] >= 1.9, True, "test get_eset() min_wt")
 
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()

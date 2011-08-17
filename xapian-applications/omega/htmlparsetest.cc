@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008 Olly Betts
+ * Copyright (C) 2006,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,13 +64,7 @@ main()
 	    p.parse_html(tests[i].html, "iso-8859-1", false);
 	} catch (const string &newcharset) {
 	    p.reset();
-	    try {
-		p.parse_html(tests[i].html, newcharset, true);
-	    } catch (bool) {
-	    }
-	} catch (bool) {
-	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
-	    // indexing is disallowed
+	    p.parse_html(tests[i].html, newcharset, true);
 	}
 	if (!p.indexing_allowed) {
 	    cout << "indexing disallowed by meta tag - skipping\n";

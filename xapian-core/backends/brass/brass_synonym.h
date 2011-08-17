@@ -118,7 +118,7 @@ class BrassSynonymTermList : public AllTermsList {
     void operator=(const BrassSynonymTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the synonym table reading termnames from
      *  the keys.
@@ -129,7 +129,7 @@ class BrassSynonymTermList : public AllTermsList {
     string prefix;
 
   public:
-    BrassSynonymTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+    BrassSynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 		      BrassCursor * cursor_,
 		      const string & prefix_)
 	    : database(database_), cursor(cursor_), prefix(prefix_)

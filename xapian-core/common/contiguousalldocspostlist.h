@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_FLINT_CONTIGUOUSALLDOCSPOSTLIST_H
-#define XAPIAN_INCLUDED_FLINT_CONTIGUOUSALLDOCSPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_CONTIGUOUSALLDOCSPOSTLIST_H
+#define XAPIAN_INCLUDED_CONTIGUOUSALLDOCSPOSTLIST_H
 
 #include <string>
 
@@ -36,7 +36,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
     ContiguousAllDocsPostList(const ContiguousAllDocsPostList &);
 
     /// The database we're iterating over.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db;
 
     /// The current document id.
     Xapian::docid did;
@@ -46,7 +46,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
 
   public:
     /// Constructor.
-    ContiguousAllDocsPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db_,
+    ContiguousAllDocsPostList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db_,
 			      Xapian::doccount doccount_)
 	: LeafPostList(std::string()),
 	  db(db_), did(0), doccount(doccount_) { }
@@ -86,4 +86,4 @@ class ContiguousAllDocsPostList : public LeafPostList {
     std::string get_description() const;
 };
 
-#endif // XAPIAN_INCLUDED_FLINT_CONTIGUOUSALLDOCSPOSTLIST_H
+#endif // XAPIAN_INCLUDED_CONTIGUOUSALLDOCSPOSTLIST_H

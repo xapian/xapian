@@ -1,7 +1,7 @@
 /* @configure_input@
  * AssemblyInfo.cs.in - set attributes for the XapianSharp.dll assembly.
  *
- * Copyright (c) 2006 Olly Betts
+ * Copyright (c) 2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,6 +35,6 @@ using System.Reflection;
 
 // Informational attributes.
 [assembly: AssemblyCompany("The Xapian Project")]
-[assembly: AssemblyCopyright("Licensed under the GNU GPL")]
+[assembly: AssemblyCopyright("Licensed under the GNU GPL version 2 or later")]
 [assembly: AssemblyDescription("C# bindings for the Xapian Search Library")]
 [assembly: AssemblyTitle("Xapian C# bindings")]

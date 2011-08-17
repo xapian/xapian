@@ -2,7 +2,7 @@
  * \brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008 Olly Betts
+ * Copyright 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/visibility.h"
 
 #include <string>
@@ -116,7 +116,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
     /// Class holding details of the replica.
     class Internal;
     /// Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
     /// Copying is allowed (and is cheap).
@@ -187,12 +187,15 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *
      *  @param info     If non-NULL, the supplied structure will be updated
      *                  to reflect the changes read from the file descriptor.
+     *  @param reader_close_time	Wait at least this many seconds between
+     *					applying changesets to allow active
+     *					readers to finish.
      *
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
     bool apply_next_changeset(ReplicationInfo * info,
-			      int reader_close_time);
+			      double reader_close_time);
 
     /** Close the DatabaseReplica.
      *

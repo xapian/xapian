@@ -4,7 +4,7 @@
 # Original version by Paul Legato (plegato@nks.net), 4/20/06.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2011 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -153,7 +153,7 @@ module Xapian
       Xapian._safelyIterate(self._dangerous_values_begin(), self._dangerous_values_end()) { |item|
         Xapian::Value.new(item.value, item.valueno, 0)
       }
-    end # terms
+    end # values
 
   end # class Xapian::Document
 
@@ -168,7 +168,7 @@ module Xapian
         Xapian::Term.new(item.term, item.wdf)
         # termfreq is not supported by TermIterators from Queries
       }
-    end
+    end # terms
   end # Xapian::Query
 
   # Refer to the
@@ -184,7 +184,7 @@ module Xapian
                             self._dangerous_matching_terms_end(document)) { |item|
         Xapian::Term.new(item.term, item.wdf)
       }
-    end
+    end # matching_terms
   end # Xapian::Enquire
 
   # Refer to the
@@ -286,7 +286,7 @@ module Xapian
                             self._dangerous_valuestream_end(slot)) { |item|
         Xapian::Value.new(item.value, slot, item.docid)
       }
-    end # positionlist
+    end # valuestream(slot)
   end # Xapian::Database
 
   # Refer to the
@@ -301,7 +301,7 @@ module Xapian
                             self._dangerous_values_end()) { |item|
         Xapian::Term.new(item.term, 0, item.termfreq)
       }
-    end # allterms
+    end # values
 
     # Returns an Array of the top values seen, by frequency
     def top_values(maxvalues)
@@ -309,7 +309,7 @@ module Xapian
                             self._dangerous_top_values_end(maxvalues)) { |item|
         Xapian::Term.new(item.term, 0, item.termfreq)
       }
-    end # allterms
+    end # top_values
   end # Xapian::Database
 
   # Refer to the

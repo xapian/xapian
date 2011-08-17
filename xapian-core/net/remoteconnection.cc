@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <string>
 
 #include "debuglog.h"
+#include "noreturn.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
@@ -47,6 +48,13 @@
 using namespace std;
 
 #define CHUNKSIZE 4096
+
+XAPIAN_NORETURN(static void throw_database_closed());
+static void
+throw_database_closed()
+{
+    throw Xapian::DatabaseError("Database has been closed");
+}
 
 #ifdef __WIN32__
 inline void
@@ -181,9 +189,8 @@ bool
 RemoteConnection::ready_to_read() const
 {
     LOGCALL(REMOTE, bool, "RemoteConnection::ready_to_read", NO_ARGS);
-    if (fdin == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdin == -1)
+	throw_database_closed();
 
     if (!buffer.empty()) RETURN(true);
 
@@ -206,9 +213,8 @@ RemoteConnection::send_message(char type, const string &message,
 			       double end_time)
 {
     LOGCALL_VOID(REMOTE, "RemoteConnection::send_message", type | message | end_time);
-    if (fdout == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdout == -1)
+	throw_database_closed();
 
     string header;
     header += type;
@@ -315,28 +321,20 @@ RemoteConnection::send_message(char type, const string &message,
 }
 
 void
-RemoteConnection::send_file(char type, const string &file, double end_time)
+RemoteConnection::send_file(char type, int fd, double end_time)
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::send_file", type | file | end_time);
-    if (fdout == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
-
-#ifdef __WIN32__
-    int fd = msvc_posix_open(file.c_str(), O_RDONLY);
-#else
-    int fd = open(file.c_str(), O_RDONLY);
-#endif
-    if (fd == -1) throw Xapian::NetworkError("File not found: " + file, errno);
-    fdcloser closefd(fd);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::send_file", type | fd | end_time);
+    if (fdout == -1)
+	throw_database_closed();
 
     off_t size;
     {
 	struct stat sb;
 	if (fstat(fd, &sb) == -1)
-	    throw Xapian::NetworkError("Couldn't stat file: " + file, errno);
+	    throw Xapian::NetworkError("Couldn't stat file to send", errno);
 	size = sb.st_size;
     }
+    // FIXME: Use sendfile() or similar if available?
 
     char buf[CHUNKSIZE];
     buf[0] = type;
@@ -465,9 +463,8 @@ char
 RemoteConnection::sniff_next_message_type(double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::sniff_next_message_type", end_time);
-    if (fdin == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdin == -1)
+	throw_database_closed();
 
     read_at_least(1, end_time);
     char type = buffer[0];
@@ -478,9 +475,8 @@ char
 RemoteConnection::get_message(string &result, double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::get_message", result | end_time);
-    if (fdin == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdin == -1)
+	throw_database_closed();
 
     read_at_least(2, end_time);
     size_t len = static_cast<unsigned char>(buffer[1]);
@@ -517,9 +513,8 @@ char
 RemoteConnection::get_message_chunked(double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
-    if (fdin == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdin == -1)
+	throw_database_closed();
 
     read_at_least(2, end_time);
     off_t len = static_cast<unsigned char>(buffer[1]);
@@ -558,9 +553,8 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 				    double end_time)
 {
     LOGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk", result | at_least | end_time);
-    if (fdin == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdin == -1)
+	throw_database_closed();
 
     if (at_least <= result.size()) RETURN(true);
     at_least -= result.size();
@@ -597,9 +591,8 @@ char
 RemoteConnection::receive_file(const string &file, double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::receive_file", file | end_time);
-    if (fdin == -1) {
-	throw Xapian::DatabaseError("Database has been closed");
-    }
+    if (fdin == -1)
+	throw_database_closed();
 
 #ifdef __WIN32__
     // Do we want to be able to delete the file during writing?

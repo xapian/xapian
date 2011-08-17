@@ -1,4 +1,4 @@
-/** @file: termgenerator_internal.cc
+/** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
 /* Copyright (C) 2007,2010 Olly Betts
@@ -28,6 +28,7 @@
 
 #include "stringutils.h"
 
+#include <limits>
 #include <string>
 
 using namespace std;
@@ -67,7 +68,7 @@ should_stem(const std::string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-const unsigned UNICODE_IGNORE(-1);
+const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
 
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
@@ -123,7 +124,7 @@ inline unsigned check_suffix(unsigned ch) {
 #define STOPWORDS_INDEX_UNSTEMMED_ONLY 2
 
 void
-TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
+TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
     int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
@@ -212,9 +213,9 @@ endofterm:
 	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
 
 	if (with_positions) {
-	    doc.add_posting(prefix + term, ++termpos, weight);
+	    doc.add_posting(prefix + term, ++termpos, wdf_inc);
 	} else {
-	    doc.add_term(prefix + term, weight);
+	    doc.add_term(prefix + term, wdf_inc);
 	}
 	if ((flags & FLAG_SPELLING) && prefix.empty()) db.add_spelling(term);
 
@@ -231,7 +232,7 @@ endofterm:
 	string stem("Z");
 	stem += prefix;
 	stem += stemmer(term);
-	doc.add_term(stem, weight);
+	doc.add_term(stem, wdf_inc);
     }
 }
 

@@ -1,7 +1,7 @@
 /** \file dbfactory.h
  * \brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,10 @@
 #ifndef XAPIAN_INCLUDED_DBFACTORY_H
 #define XAPIAN_INCLUDED_DBFACTORY_H
 
+#ifndef _MSC_VER
+# include <sys/types.h>
+#endif
+
 #include <string>
 
 #include <xapian/types.h>
@@ -29,6 +33,10 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
+
+#ifdef _MSC_VER
+typedef unsigned useconds_t;
+#endif
 
 class Database;
 class WritableDatabase;
@@ -145,42 +153,6 @@ open(const std::string &dir, int action, int block_size = 8192);
 }
 #endif
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-/// Database factory functions for the flint backend.
-namespace Flint {
-
-/** Construct a Database object for read-only access to a Flint database.
- *
- * @param dir  pathname of the directory containing the database.
- */
-XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &dir);
-
-/** Construct a Database object for update access to a Flint database.
- *
- * @param dir		pathname of the directory containing the database.
- * @param action	determines handling of existing/non-existing database:
- *  - Xapian::DB_CREATE			fail if database already exist,
- *					otherwise create new database.
- *  - Xapian::DB_CREATE_OR_OPEN		open existing database, or create new
- *					database if none exists.
- *  - Xapian::DB_CREATE_OR_OVERWRITE	overwrite existing database, or create
- *					new database if none exists.
- *  - Xapian::DB_OPEN			open existing database, failing if none
- *					exists.
- * @param block_size	the Btree blocksize to use (in bytes), which must be a
- *			power of two between 2048 and 65536 (inclusive).  The
- *			default (also used if an invalid value if passed) is
- *			8192 bytes.  This parameter is ignored when opening an
- *			existing database.
- */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
-
-}
-#endif
-
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 /// Database factory functions for the remote backend.
 namespace Remote {
@@ -205,7 +177,7 @@ namespace Remote {
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 10000);
+Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000, useconds_t connect_timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a TCP connection.
@@ -226,7 +198,7 @@ Database open(const std::string &host, unsigned int port, Xapian::timeout timeou
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 0, Xapian::timeout connect_timeout = 10000);
+WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 0, useconds_t connect_timeout = 10000);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -243,7 +215,7 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, Xapia
  *			is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a program.
@@ -259,7 +231,7 @@ Database open(const std::string &program, const std::string &args, Xapian::timeo
  *			is 0, which means don't timeout).
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 0);
+WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 0);
 
 }
 #endif

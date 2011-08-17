@@ -26,67 +26,38 @@ SUBDIRS = . docs tests
 noinst_HEADERS =
 BUILT_SOURCES =
 noinst_LTLIBRARIES =
+CLEANFILES =
 DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
-.PHONY: check-none check-inmemory check-multi \
-        check-remote check-remoteprog check-remotetcp \
-        check-chert check-flint check-perftest \
-	coverage-reconfigure coverage-check
+.PHONY: coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 
-check-none:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
+# This relies on GNU make (for the pattern rule) but it's just a convenience
+# as you can run these check-* targets with any make using:
+#
+#   cd tests ; make check-FOO
+#
+# So the pain of maintaining a huge list of target forwarding rules here isn't
+# worth it.
+#
+# Note: We use @PERCENT@ here instead of a literal % to suppress an automake
+# portability warning.
+check-@PERCENT@:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
-check-inmemory:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-inmemory
-
-check-multi:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi
-
-if BUILD_BACKEND_REMOTE
-check-remote:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remote
-check-remoteprog:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
-check-remotetcp:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
-if BUILD_BACKEND_CHERT
-check-remoteprog-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-chert
-check-remotetcp-chert: apitest$(EXEEXT)
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-chert
-endif
-if BUILD_BACKEND_FLINT
-check-remoteprog-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-flint
-check-remotetcp-flint: apitest$(EXEEXT)
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-flint
-endif
-endif
-
-if BUILD_BACKEND_CHERT
-check-multi-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-chert
-check-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
-endif
-
-if BUILD_BACKEND_FLINT
-check-multi-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-flint
-check-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
-endif
-
-check-perf:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
+## --disable-shared as shared builds fail for me on x86-64 Debian etch.
+## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
+COVERAGE_CONFIGURE = \
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' \
+    --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
 
 coverage-reconfigure: distclean
-	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
-	$(srcdir)/configure CXXFLAGS='-O0 --coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+	$(COVERAGE_CONFIGURE)
+
+coverage-reconfigure-maintainer-mode: distclean
+	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
 
 coverage-check:
 	## GNU find and xargs specific.
@@ -105,11 +76,11 @@ coverage-check:
 
 bin_SCRIPTS = xapian-config
 
-CLEANFILES = xapian-config
+DISTCLEANFILES += xapian-config
 
-EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
- include/xapian/error.h include/xapian/errordispatch.h generate-exceptions \
- exception_data.pm preautoreconf dir_contents
+EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
+ xapian-core.spec include/xapian/error.h include/xapian/errordispatch.h \
+ generate-exceptions exception_data.pm preautoreconf dir_contents
 
 cmakedir = $(libdir)/cmake/xapian
 cmake_DATA = cmake/xapian-config.cmake cmake/xapian-config-version.cmake
@@ -163,8 +134,6 @@ MAINTAINERCLEANFILES += $(dist_man_MANS)
 endif
 
 if DOCUMENTATION_RULES
-CLEANFILES += $(dist_man_MANS)
-
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif

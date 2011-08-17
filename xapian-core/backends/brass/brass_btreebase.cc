@@ -1,7 +1,7 @@
 /* brass_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -189,7 +189,8 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-BrassTable_base::read(const string & name, char ch, string &err_msg)
+BrassTable_base::read(const string & name, char ch, bool read_bitmap,
+		      string &err_msg)
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
@@ -257,6 +258,9 @@ BrassTable_base::read(const string & name, char ch, string &err_msg)
     delete [] bit_map;
     bit_map = 0;
 
+    if (!read_bitmap)
+	return true;
+
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];
 
@@ -319,11 +323,11 @@ BrassTable_base::write_to_file(const string &filename,
     pack_uint(buf, static_cast<uint4>(last_block));
     pack_uint(buf, have_fakeroot);
     pack_uint(buf, sequential);
-    pack_uint(buf, revision);
+    pack_uint(buf, revision);  // REVISION2
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    pack_uint(buf, revision);  // REVISION2
+    pack_uint(buf, revision);  // REVISION3
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);

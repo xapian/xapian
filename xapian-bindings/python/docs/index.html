@@ -150,10 +150,8 @@ removed in Xapian 1.1.0.
 Before the pythonic iterator wrappers were added, the python bindings provided
 thin wrappers around the C++ iterators.  However, these iterators don't behave
 like most iterators do in Python, so the pythonic iterators were implemented to
-replace them.  The non-pythonic iterators are still available to allow existing
-code to continue to work, but they're now deprecated and we plan to remove them
-in Xapian 1.3.0.  The documentation below is provided to aid migration away from
-them.
+replace them.  The non-pythonic iterators were removed in Xapian 1.3.0 -
+the documentation below is provided to aid migration away from them.
 </p>
 
 <p>
@@ -209,17 +207,18 @@ them.
 
 <p>
 Additionally, the MSet has a property, <code>mset.items</code>, which returns a
-list of tuples representing the MSet; this may be more convenient than using
-an MSetIter. The members of the tuple are as follows.
+list of tuples representing the MSet.  This is now deprecated - please use the
+property API instead (it works in Xapian 1.0.x too).  The tuple members and the
+equivalent property names are as follows:
 </p>
 
 <table title="MSet.items member members">
-<thead><td>Index</td><td>Contents</td></thead>
-<tr><td><code>xapian.MSET_DID</code></td><td>Document id</td></tr>
-<tr><td><code>xapian.MSET_WT</code></td><td>Weight</td></tr>
-<tr><td><code>xapian.MSET_RANK</code></td><td>Rank</td></tr>
-<tr><td><code>xapian.MSET_PERCENT</code></td><td>Percentage weight</td></tr>
-<tr><td><code>xapian.MSET_DOCUMENT</code></td><td>Document object</td></tr>
+<thead><td>Index</td><td>Property name</td><td>Contents</td></thead>
+<tr><td><code>xapian.MSET_DID</code></td><td>docid</td><td>Document id</td></tr>
+<tr><td><code>xapian.MSET_WT</code></td><td>weight</td><td>Weight</td></tr>
+<tr><td><code>xapian.MSET_RANK</code></td><td>rank</td><td>Rank</td></tr>
+<tr><td><code>xapian.MSET_PERCENT</code></td><td>percent</td><td>Percentage weight</td></tr>
+<tr><td><code><i>xapian.MSET_DOCUMENT</i></code></td><td>document</td><td>Document object (Note: this member of the tuple was never actually set!)</td></tr>
 </table>
 
 <p>
@@ -232,14 +231,15 @@ same index in the second MSet, with the same weight.
 
 <p>
 The ESet has a property, <code>eset.items</code>, which returns a list of
-tuples representing the ESet; this may be more convenient than using the
-ESetIterator. The members of the tuple are as follows.
+tuples representing the ESet.  This is now deprecated - please use the
+property API instead (it works in Xapian 1.0.x too).  The tuple members and the
+equivalent property names are as follows:
 </p>
 
 <table title="ESet.items member members">
-<thead><td>Index</td><td>Contents</td></thead>
-<tr><td><code>xapian.ESET_TNAME</code></td><td>Term name</td></tr>
-<tr><td><code>xapian.ESET_WT</code></td><td>Weight</td></tr>
+<thead><td>Index</td><td>Property name</td><td>Contents</td></thead>
+<tr><td><code>xapian.ESET_TNAME</code></td><td>term</td><td>Term name</td></tr>
+<tr><td><code>xapian.ESET_WT</code></td><td>weight</td><td>Weight</td></tr>
 </table>
 
 <h2>Non-Class Functions</h2>
@@ -258,7 +258,6 @@ wrapped like so for Python:
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
 <li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian.brass_open()</code>
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian.chert_open()</code>
-<li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian.flint_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
@@ -289,15 +288,6 @@ decide which to call).
 <p>
 As of 1.1.1, these are wrapped as <code>xapian.Query.MatchAll</code> and
 <code>xapian.Query.MatchNothing</code>.
-</p>
-
-<h2>Enquire</h2>
-
-<p>
-   There is an additional method <code>get_matching_terms()</code> which takes
-   an MSetIterator and returns a list of terms in the current query which
-   match the document given by that iterator.  You may find this
-   more convenient than using the TermIterator directly.
 </p>
 
 <h2>MatchDecider</h2>
@@ -388,12 +378,6 @@ mod_python scripts which use Xapian:
 </p>
 <pre>PythonInterpreter main_interpreter
 </pre>
-
-<p>
-You may also need to use Python &gt;= 2.4 (due to <a
-href="http://issues.apache.org/jira/browse/MODPYTHON-217">problems in Python
-2.3 with the APIs the code uses</a>).
-</p>
 
 <h3 id="mod_wsgi">mod_wsgi</h3>
 

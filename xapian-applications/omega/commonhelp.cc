@@ -1,6 +1,6 @@
 /* commonhelp.cc: handle command line help common to omindex and scriptindex
  *
- * Copyright (C) 2005,2006,2008,2009 Olly Betts
+ * Copyright (C) 2005,2006,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,9 +49,9 @@ void print_stemmer_help(const char * spaces) {
     cout << string(22, ' ') << spaces << wrap << endl;
 }
 
-void print_help_and_version_help(const char * spaces, char short_version) {
+void print_help_and_version_help(const char * spaces) {
     cout << "  -h, --help          " << spaces << "display this help and exit\n"
-	    "  -" << short_version << ", --version       " << spaces << "output version information and exit\n"
+	    "  -V, --version       " << spaces << "output version information and exit\n"
 	    "\n"
 	    "Please report bugs at:\n"
 	    PACKAGE_BUGREPORT << endl;

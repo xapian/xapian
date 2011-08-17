@@ -1,7 +1,7 @@
 /* api_valuestats.cc: tests of the value statistics functions.
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009 Olly Betts
+ * Copyright 2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -168,7 +168,7 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
 
     // Check that readonly database catches up when a commit is done.
     db_w.commit();
-    db.reopen();
+    TEST(db.reopen());
     TEST_EQUAL(db.get_value_freq(1), 1);
     TEST_EQUAL(db.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db.get_value_upper_bound(1), "cheese");
@@ -208,7 +208,7 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
 
     // Check that a readonly database gets the right statistics, too.
     db_w.commit();
-    db.reopen();
+    TEST(db.reopen());
     TEST_EQUAL(db.get_value_freq(0), 0);
     TEST_EQUAL(db.get_value_lower_bound(0), "");
     TEST_EQUAL(db.get_value_upper_bound(0), "");

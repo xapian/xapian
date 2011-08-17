@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+use strict;
+
+my ($srcdir) = ($0 =~ m!^(.*?)[^/]*$!);
+my $dir = '../doxygen-xml';
+
+my %documented = ();
+
+open XAPIAN_RB, '<', "${srcdir}/xapian.rb" or die $!;
+mkdir 'docs', 0777 unless -d 'docs';
+my $out = 'docs/xapian.rb';
+open OUT, '>', $out."T" or die $!;
+while (<XAPIAN_RB>) {
+    print OUT $_;
+    if (m!^\s*class\s+Xapian::(\w+)!) {
+	++$documented{$1};
+    }
+}
+close XAPIAN_RB;
+
+my %id = ();
+
+open INDEX, '<', "$dir/index.xml" or die $!;
+while (<INDEX>) {
+    if (m!\bkind="(?:class|struct)".*><name>Xapian::(.+)</name>!) {
+       my $class = $1;
+       if (exists $documented{$class}) {
+	   next;
+       }
+       if (m!\brefid="(\w+)"!) {
+	   my $refid = $1;
+	   if ($refid !~ m![/.]!) {
+	       $id{$refid} = $class;
+	   } else {
+	       print STDERR "Bad refid: $refid\n";
+	   }
+       } else {
+	   print STDERR "No refid found for $class: $_";
+       }
+    }
+}
+close INDEX;
+
+for my $refid (sort keys %id) {
+    my $prot;
+    open F, '<', "$dir/$refid.xml";
+    while (<F>) {
+	if (/<compounddef id="\Q$refid\E" kind="class" prot="(\w+)"/) {
+	    $prot = $1;
+	    last;
+	}
+    }
+    close F;
+    if ($refid =~ /^struct/ || (defined $prot && $prot eq 'public')) {
+	my $class = $id{$refid};
+	print OUT <<"END";
+  # Refer to the
+  # {Xapian::$class C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1$class.html].
+  class Xapian::$class
+  end
+END
+    } elsif (!defined $prot) {
+	print STDERR "No prot found for $refid\n";
+    }
+}
+close OUT or die $!;
+rename $out."T", $out or die $!;

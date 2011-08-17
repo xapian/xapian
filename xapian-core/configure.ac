@@ -2,9 +2,9 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.2], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
-AC_PREREQ([2.63])
+AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -33,18 +33,26 @@ dnl 21:11:6 1.0.20 No API changes
 dnl 22:0:0 1.2.0 Many API changes!
 dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
 dnl 23:1:1 1.2.2 No API changes
-LIBRARY_VERSION_INFO=23:1:1
+dnl 23:2:1 1.2.3 No API changes
+dnl 24:0:2 1.2.4 Compactor
+dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
+dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
+dnl
+dnl LIBRARY_VERSION_INFO for libxapian-1.3:
+dnl 0:0:0 1.3.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
 dnl Disabled for stable release series.
-dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
-dnl test x"$program_suffix" != xNONE || program_suffix=-1.1
+dnl Default to "-1.3"; for no suffix, specify: --program-suffix=
+test x"$program_suffix" != xNONE || program_suffix=-1.3
 
-dnl Where xapian.h, etc go.  In development release append "/xapian-1.1".
-incdir=$includedir
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
+dnl incdir=$includedir
+incdir=$includedir/xapian-1.3
 AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -132,8 +140,9 @@ AM_MAINTAINER_MODE
 dnl Checks for programs.
 AC_PROG_CXX
 
+# Checked: freebsd8.0 openbsd4.6
 case $host_os in
-  linux* | k*bsd*-gnu)
+  linux* | k*bsd*-gnu | freebsd* | openbsd*)
     dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
     link_all_deplibs_CXX=no
     ;;
@@ -255,8 +264,10 @@ WARNING_CXXFLAGS=
 ANSI_CXXFLAGS=
 AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
 if test yes = "$GXX"; then
+  compiler=gcc
   AC_MSG_RESULT([none required])
 else
+  compiler=unknown
   dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
   dnl this early in configure so such settings are used for other tests.
   case $CXX in
@@ -282,8 +293,8 @@ else
       dnl 2340 (remark) "value copied to temporary, reference to temporary
       dnl	use", in: throw Xapian::UnimplementedError("...");
       dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
-      dnl	virtual destructor for RefCntBase, since we never delete its
-      dnl	subclasses by a RefCntBase *).
+      dnl	virtual destructor for intrusive_base, since we never delete
+      dnl       its subclasses by a intrusive_base *).
       dnl 3348 "declaration hides constant ..." which seems to misfire!
       dnl 4255 (remark) "padding size of struct "..." with ... bytes to
       dnl	alignment boundary".
@@ -313,6 +324,7 @@ else
 	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
 	dnl (Looks like -features=tmplife was added around 2000 so just pass
 	dnl it unconditionally)
+	compiler=sun
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
 	case `$CXX -v 2>&1` in
@@ -355,26 +367,42 @@ dnl x86 has excess precision issues with 387 FP instructions, which are
 dnl avoided by using SSE instructions instead.  This is also faster (~6% in
 dnl a CPU bound testcase).
 AC_ARG_ENABLE([sse],
-  [AS_HELP_STRING([--disable-sse], [disable use of SSE FP instructions (only affects x86)])],
+[AS_HELP_STRING([--disable-sse],
+		[disable use of SSE FP instructions on x86])]
+[AS_HELP_STRING([[--enable-sse[=sse|sse2]]],
+		[set which SSE FP instructions to use on x86 (default: sse2)])],
   [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --disable-sse]) ;;
-  esac])
+    sse|sse2|yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-sse or --disable-sse]) ;;
+  esac],
+  [enable_sse=yes])
 
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
 dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
-dnl Don't use a constant argument to log as the compiler might simply evaluate
-dnl the whole expression at compile time.
-AC_TRY_LINK([#include <cmath>
-#include <cstdlib>
-using namespace std;], [double a = log((double)rand());], [AC_MSG_RESULT(no)], [
+dnl Don't use constant arguments as the compiler might simply evaluate the
+dnl whole expression at compile time, and it might inline certain functions
+dnl so test several functions.  Also write results using printf() so that
+dnl the compiler can't optimise away the computations.
+AC_TRY_LINK([#ifdef __SUNPRO_CC
+#error Need -lm for Sun C++ 5.9 under libtool 2.2.10
+#endif
+#include <cmath>
+#include <cstdio>
+#include <ctime>
+using namespace std;], [
+  double a = log(ceil(time(NULL)/7.0));
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));
+  ], [AC_MSG_RESULT(no)], [
     LIBS="-lm $LIBS"
     AC_TRY_LINK([#include <cmath>
-#include <cstdlib>
-using namespace std;], [double a = log((double)rand());],
+#include <cstdio>
+#include <ctime>
+using namespace std;], [
+  double a = log(ceil(time(NULL)/7.0));
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));],
 	[AC_MSG_RESULT(yes)],
-	[AC_MSG_ERROR([Failed to link a C++ program using log()])
+	[AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
     ])
 ])
 
@@ -390,6 +418,14 @@ AC_TRY_COMPILE([#include <typeinfo>],
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl For _ftime64() on mingw we need to tell it we're happy to require
+dnl MSVCRT 0x0601, which isn't too onerous a requirement it seems.
+case $host_os in
+  *mingw*)
+    AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    ;;
+esac
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
@@ -401,6 +437,14 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
+dnl Used by tests/api_replicate.cc (Solaris < 10 only has putenv()):
+AC_CHECK_FUNCS([setenv])
+
+dnl Check for a more efficient way of closing fds during daemonisation.
+dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
+dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
+dnl dirfd() is useful for an efficient implementation on some platforms.
+AC_CHECK_FUNCS([closefrom dirfd])
 
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
@@ -439,8 +483,8 @@ AC_ARG_ENABLE(documentation,
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
-  esac])
-test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
+  esac],
+  [enable_documentation=$USE_MAINTAINER_MODE])
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
 
@@ -620,7 +664,6 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(brass)
 XAPIAN_BACKEND_ENABLE(chert)
-XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
 
@@ -640,18 +683,10 @@ if test yes = "$enable_backend_chert" ; then
   esac
 fi
 
-if test yes = "$enable_backend_flint" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build flint there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_flint=no ;;
-  esac
-fi
-
 use_win32_uuid_api=0
-case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
+case $enable_backend_chert$enable_backend_brass in
 *yes*)
-  dnl We use zlib for compressing tags in brass/chert/flint.  We could
+  dnl We use zlib for compressing tags in brass/chert.  We could
   dnl automatically disable support if zlib isn't found, but overall that
   dnl probably does more harm than good - it's most likely that someone just
   dnl forgot to install the -dev package for zlib.
@@ -660,7 +695,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -668,27 +703,29 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
   fi
   LIBS=$SAVE_LIBS
 
-  dnl Find the UUID library (from e2fsprogs, not the OSSP one).
+  dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
   case $host_os in
     *mingw* | *cygwin*) dnl Use built-in API.
       use_win32_uuid_api=1
       ;;
     *)
-      dnl Check for uuid/uuid.h (e2fsprogs) or uuid.h (FreeBSD/NetBSD).
+      dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
+      dnl (FreeBSD/NetBSD).
       AC_CHECK_HEADERS([uuid/uuid.h], [
-	dnl e2fsprogs' uuid/uuid.h found - check for uuid_generate in -luuid.
+	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
+	dnl -luuid.
 	SAVE_LIBS=$LIBS
 	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
 	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -698,10 +735,10 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	AC_CHECK_HEADERS([uuid.h], [
 	  dnl Check for uuid_create with no extra libraries required.
 	  AC_CHECK_FUNC([uuid_create], [], [
-	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
-	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	], [ ])
       ], [ ])
       ;;
@@ -722,11 +759,11 @@ AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
-  AC_PREPROC_IFELSE([
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #ifdef __WIN32__
 #error WIN32
 #endif
-  ], [win32=no], [win32=yes])
+  ]])], [win32=no], [win32=yes])
 
   case $host_os-$win32 in
     *-yes )
@@ -812,11 +849,10 @@ dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_BRASS, test yes = "$enable_backend_brass")
 AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
-AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
-AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT_OR_FLINT,
-  [test nonono != "$enable_backend_brass$enable_backend_chert$enable_backend_flint"])
+AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT,
+  [test nono != "$enable_backend_brass$enable_backend_chert"])
 
 dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
@@ -992,10 +1028,10 @@ if test yes = "$GXX"; then
       dnl GCC:
       dnl
       dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
-      dnl we can rely on it.
+      dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -1009,17 +1045,17 @@ if test yes = "$GXX"; then
 	;;
       3.*) ;;
       *) dnl GCC >= 4.0
-	dnl -Wstrict-null-sentinel was new 4.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
-
 	case $gxx_version in
 	4.0) ;;
 	4.1)
+	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
+	  dnl only enable it for GCC >= 4.1.
+	  dnl
 	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
 	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
 	  dnl in a static method is the same as a member variable, so only
 	  dnl enable it for GCC >= 4.1.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
@@ -1029,7 +1065,7 @@ if test yes = "$GXX"; then
 	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
 	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
 	  dnl See http://trac.xapian.org/ticket/449 for more details.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -1040,7 +1076,7 @@ if test yes = "$GXX"; then
 	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
 	  dnl anyway - we don't intend to use this idiom, so any instances are
 	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:
@@ -1094,16 +1130,27 @@ case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
-    elif test yes = "$GXX"; then
-      AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-      case $gxx_version in
-      3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
-        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2" ;;
-      *)
-        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -msse2 -mtune=generic" ;;
-      esac
     else
-      AC_MSG_RESULT([don't know how to for compiler $CXX])
+      dnl Default to sse2.
+      test "$enable_sse" != yes || enable_sse=sse2
+      case $compiler in
+      gcc)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	case $gxx_version in
+	3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse" ;;
+	*)
+	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic" ;;
+	esac
+	;;
+      sun)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"
+	;;
+      *)
+        AC_MSG_RESULT([don't know how to for compiler $CXX])
+	;;
+      esac
     fi
     ;;
   *)
@@ -1173,6 +1220,12 @@ module=no
 eval "SHLIBEXT=$shrext_cmds"
 AC_SUBST(SHLIBEXT)
 
+dnl We want to be able to use GNU make % pattern rules in maintainer targets
+dnl but automake warns these aren't portable, so we substitute the % to avoid
+dnl this warning.
+PERCENT='%'
+AC_SUBST(PERCENT)
+
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
@@ -1220,7 +1273,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in BRASS CHERT FLINT INMEMORY REMOTE ; do
+for backend in BRASS CHERT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

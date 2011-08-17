@@ -27,9 +27,11 @@
 
 #include <xapian/error.h>
 
+using Xapian::Internal::intrusive_ptr;
+
 NetworkTermList::NetworkTermList(Xapian::termcount document_length_,
 				 Xapian::doccount database_size_,
-				 Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
+				 intrusive_ptr<const RemoteDatabase> this_db_,
 				 Xapian::docid did_)
 	: items(),
 	  current_position(items.begin()),

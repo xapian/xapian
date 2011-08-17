@@ -25,11 +25,11 @@ character '"' in C and similar languages).  This can make complex OmegaScript
 slightly difficult to read at times.
 
 When a command takes no arguments, the braces must be omitted (i.e.
-$simplecommand rather than $simplecommand{} - the latter is a command with a
-single empty argument).  If you want to have the value of $simplecommand
-immediately followed by a letter, digit, or "_", you can use a comment to
+`$msize` rather than `$msize{}` - the latter is a command with a single empty
+argument).  If you want to have the value of `$msize` immediately
+followed by a letter, digit, or "_", you can use an empty comment (`${}`) to
 prevent the parser treating the following character as part of a command name.
-E.g. $simplecommand${}k rather than $simplecommandk
+E.g. `_$msize${}_` rather than `_$msize_`
 
 It is important to realise that all whitespace is significant in OmegaScript
 - e.g. if you put whitespace around a "," which separates two command arguments
@@ -106,6 +106,17 @@ $def{MACRONAME,VALUE}
 $defaultop
 	"and" or "or" (set from CGI variable DEFAULTOP).
 
+$emptydocs[{TERM}]
+	returns a list of docids of any documents with document length zero
+	(such documents probably only contain scanned images, rather than
+	machine readable text, or suggest the input filter isn't working well).
+	If TERM is specified, only consider documents matching TERM, otherwise
+	all documents are considered (so Tapplication/pdf reports all PDF files
+	for which no text was found).
+
+	If you're using omindex, note that it skips files with zero size, so
+	these won't get reported here as they aren't present in the database.
+
 $env{VAR}
 	lookup variable ``VAR`` in the environment.
 
@@ -114,10 +125,12 @@ $error
         be parsed, or a Xapian exception has been thrown) or empty if there
 	wasn't an error.
 
-$field{NAME}
-	lookup field in record.  If multiple instances of field exist the
-	field values are returned tab separated, which means you can pass the
-	results to ``$map``, e.g.::
+$field{NAME[,DOCID]}
+	lookup field ``NAME`` in document ``DOCID``.  If ``DOCID`` is omitted
+	then the current hit is used (which only works inside ``$hitlist``).
+
+	If multiple instances of field exist the field values are returned tab
+	separated, which means you can pass the results to ``$map``, e.g.::
 
             $map{$field{keywords},<b>$html{$_}</b><br>}
 
@@ -163,10 +176,11 @@ $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
         If ``OPEN`` is specified, but close is omitted, ``CLOSE`` defaults to
         the appropriate closing tag for ``OPEN`` (i.e. with a "/" in front and
         any parameters removed).  If both are omitted, then ``OPEN`` is set to:
-	``<b style="color:black;background-color:#XXXXXX">`` (where ``XXXXXX``
-        cycles through ``ffff66`` ``66ffff`` ``ff66ff`` ``6666ff`` ``ff6666``
-        ``66ff66`` ``ffaa33`` ``33ffaa`` ``aa33ff`` ``33aaff``) and ``CLOSE``
-        is ``</b>``.
+	``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
+        cycles through ``ffff66`` ``99ff99`` ``99ffff`` ``ff66ff`` ``ff9999``
+        ``990000`` ``009900`` ``996600`` ``006699`` ``990099`` and ``XXXXX``
+        is ``black`` is ``YYYYYY`` contains an ``f``, and otherwise ``white``)
+        and ``CLOSE`` is ``</b>``.
 
 $hit
 	MSet index of current doc (first document in MSet is 0, so if
@@ -298,9 +312,13 @@ $prettyterm{TERM}
 	Otherwise term prefixes are converted back to user forms as specified
 	by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
 
-$query
-	query string (built from CGI ``P`` variable(s) plus possible added
-	terms from ``ADD`` and ``X``).
+$query[{PREFIX}]
+	query string for prefix PREFIX.
+
+	If PREFIX is omitted or empty, this is built from CGI ``P`` variable(s)
+	plus possible added terms from ``ADD`` and ``X``.
+
+	If PREFIX is non-empty, this is built from CGI ``P.PREFIX`` variables.
 
 $querydescription
         a human readable description of the ``Xapian::Query`` object which
@@ -342,7 +360,9 @@ $set{OPT,VALUE}
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
 	* spelling - if "true", then the query parser spelling correction
-	  feature is enabled and ``$suggestion`` can be used.
+	  feature is enabled and ``$suggestion`` can be used.  Deprecated -
+	  use flag_spelling_correction instead (which was added in version
+	  1.2.5).
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So
@@ -359,6 +379,38 @@ $set{OPT,VALUE}
           their default values.  Valid scheme names are ``bm25``, ``bool``, and
           ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
 
+	Omega 1.2.5 and later support the following options can be set to a
+	non-empty value to enable the corresponding ``QueryParser`` flag.
+	Omega sets ``flag_default`` to ``true`` by default - you can set it to
+	an empty value to turn it off (``$set{flag_default,}``):
+
+	* flag_auto_multiword_synonyms
+	* flag_auto_synonyms
+	* flag_boolean
+	* flag_boolean_any_case
+	* flag_default
+	* flag_lovehate
+	* flag_partial
+	* flag_phrase
+	* flag_pure_not
+	* flag_spelling_correction
+	* flag_synonym
+	* flag_wildcard
+
+	Omega 1.2.7 added support for search fields with a probabilistic
+	prefix, and you can set different QueryParser flags for each prefix -
+	for example, for the ``XFOO`` prefix use ``XFOO:flag_pure_not``, etc.
+	The unprefixed constants provide a default value for these.  If a flag
+	is set in the default, the prefix specific flag can unset it if it
+	is set to the empty value (e.g.
+	``$set{flag_pure_not,1}$set{XFOO:flag_pure_not,}``).
+
+	You can use ``:flag_partial``, etc to set or unset a flag just for
+	unprefixed fields.
+
+	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
+	``XFOO``, with ``stemmer`` providing a default.
+
 $setrelevant{docids}
 	add documents into the RSet
 
@@ -372,6 +424,16 @@ $setmap{MAP,NAME1,VALUE1,...}
 	"title:" to "S" you would use::
 
 	 $setmap{prefix,author,A,title,S}
+
+	In Omega 1.3.0 and later, you can map a prefix in the query string to
+	more than one term prefix by specifying an OmegaScript list, for
+	example to search unprefixed and S prefix by default use this
+	(this also shows how you can map from an empty query string prefix, and
+	also that you can map to an empty term prefix - these don't require
+	Omega 1.3.0, but become much more useful in combination with this new
+	feature)::
+
+	 $setmap{prefix,,$split{ S}}
 
 	Similarly, if you want to be able to restrict a search with a
 	boolean filter from the text query (e.g. "group:" to "G") you
@@ -491,7 +553,7 @@ $value{VALUENO[,DOCID]}
         ``$hitlist``).
 
 $version
-	omega version string - e.g. "Xapian - omega 0.9.2"
+	omega version string - e.g. "xapian-omega 1.2.6"
 
 $weight
 	raw document weight of the current hit, as a floating point value
@@ -500,26 +562,27 @@ $weight
 Numeric Operators:
 ==================
 
-$add{A,B,...}
-	add arguments together
+$add{...}
+	add arguments together (if called with one argument, this will convert
+	it to a string and back, which ensures it is an integer).
 
 $div{A,B}
-	returns int(A / B) (or "divide by 0" if B is zero)
+	returns int(A / B) (or the text "divide by 0" if B is zero)
 
 $mod{A,B}
-	returns int(A % B) (or "divide by 0" if B is zero)
+	returns int(A % B) (or the text "divide by 0" if B is zero)
 
-$max{...}
+$max{A,...}
 	maximum of the arguments
 
-$min{...}
+$min{A,...}
 	minimum of the arguments
 
 $mul{A,B,...}
-	multiply arguments together
+multiply arguments together
 
 $muldiv{A,B,C}
-	returns int((A * B) / C) (or "divide by 0" if C is zero)
+	returns int((A * B) / C) (or the text "divide by 0" if C is zero)
 
 $sub{A,B}
 	returns (A - B)

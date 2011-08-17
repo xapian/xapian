@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,19 @@
  * USA
  */
 
-include "php5/xapian.php";
+# Die on any error, warning, notice, etc.
+function die_on_error($errno, $errstr, $file, $line) {
+    if ($file !== Null) {
+	print $file;
+	if ($line !== Null) print ":$line";
+	print ": ";
+    }
+    print "$errstr\n";
+    exit(1);
+}
+set_error_handler("die_on_error", -1);
+
+include "xapian.php";
 
 # Test the version number reporting functions give plausible results.
 $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
@@ -145,6 +157,34 @@ if ($terms != "is there") {
     exit(1);
 }
 
+# Feature test for MatchDecider
+$doc = new XapianDocument();
+$doc->set_data("Two");
+$doc->add_posting($stem->apply("out"), 1);
+$doc->add_posting($stem->apply("outside"), 1);
+$doc->add_posting($stem->apply("source"), 2);
+$doc->add_value(0, "yes");
+$db->add_document($doc);
+
+class testmatchdecider extends XapianMatchDecider {
+    function apply($doc) {
+	return ($doc->get_value(0) == "yes");
+    }
+}
+
+$query = new XapianQuery($stem->apply("out"));
+$enquire = new XapianEnquire($db);
+$enquire->set_query($query);
+$mdecider = new testmatchdecider();
+$mset = $enquire->get_mset(0, 10, null, $mdecider);
+if ($mset->size() != 1) {
+    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+    exit(1);
+}
+if ($mset->get_docid(0) != 2) {
+    print "MatchDecider mset has wrong docid in\n";
+}
+
 if (XapianQuery::OP_ELITE_SET != 10) {
     print "OP_ELITE_SET is XapianQuery::OP_ELITE_SET not 10\n";
     exit(1);
@@ -188,7 +228,7 @@ if ($query4->get_description() != "Xapian::Query(5 * foo)") {
     exit(1);
 }
 
-# Test MultiValueSorter.
+# Test MultiValueKeyMaker.
 
 $doc = new XapianDocument();
 $doc->add_term("foo");
@@ -207,53 +247,53 @@ $enquire = new XapianEnquire($db2);
 $enquire->set_query(new XapianQuery("foo"));
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0, false);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0, true);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0);
-    $sorter->add(1);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0);
+    $sorter->add_value(1);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0, false);
-    $sorter->add(1);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0, true);
+    $sorter->add_value(1);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0);
-    $sorter->add(1, false);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0);
+    $sorter->add_value(1, true);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = new XapianMultiValueSorter();
-    $sorter->add(0, false);
-    $sorter->add(1, false);
-    $enquire->set_sort_by_key($sorter);
+    $sorter = new XapianMultiValueKeyMaker();
+    $sorter->add_value(0, true);
+    $sorter->add_value(1, true);
+    $enquire->set_sort_by_key($sorter, true);
     $mset = $enquire->get_mset(0, 10);
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }
@@ -315,6 +355,20 @@ if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
     exit(1);
 }
 
+$query = XapianQuery::MatchAll();
+if ($query->get_description() != 'Xapian::Query(<alldocuments>)') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
+$query = XapianQuery::MatchNothing();
+if ($query->get_description() != 'Xapian::Query()') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
 # Test access to matchspy values:
 {
     $matchspy = new XapianValueCountMatchSpy(0);
@@ -342,5 +396,14 @@ if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
 	exit(1);
     }
 }
+
+# Regression test for SWIG bug - it was generating "return $r;" in wrapper
+# functions which didn't set $r.
+$indexer = new XapianTermGenerator();
+$doc = new XapianDocument();
+
+$indexer->set_document($doc);
+$indexer->index_text("I ask nothing in return");
+$indexer->index_text_without_positions("Tea time");
 
 ?>

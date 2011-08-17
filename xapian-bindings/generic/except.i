@@ -76,5 +76,3 @@ static int XapianExceptionHandler(string & msg) {
 	XapianException(code, msg);
     }
 }
-
-/* vim:set syntax=cpp:set noexpandtab: */

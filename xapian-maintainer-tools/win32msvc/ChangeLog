@@ -1,3 +1,45 @@
+Wed Jun 29 00:47:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* win32msvc/: Update for rename of java-swig to java.
+
+Wed May 25 03:32:42 GMT 2011  Charlie Hull <charlie@flax.co.uk>
+
+	* README: add details of patch to api/compactor.cc and diritor.h
+	* win32_backends_brass.mak, win32_backends_flint.mak,
+	  win32_backends_chert.mak: add brass_compact.cc etc.
+	* win32_api.mak: add compactor.cc
+	* win32_bin.mak: remove separate compactors and add
+	  xapian_chert_update.exe
+	* win32_bindings_csharp.mak: add Compactor.cs
+	* config.h.omega.win32: add PKGLIBBINDIR definitions
+	* win32_applications_omega.mak: add svgparse.cc, pkglibbindir.cc
+
+Fri Sep 03 13:35:00 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* README: remove details of some patches that are no longer necessary
+	* config.mak, win32_bindings_python.mak, makebinaries.py, Makefile:
+	add Python 2.7 support
+	* config.mak, win32_bindings_php.mak, makebinaries.py, Makefile:
+	add PHP 5.3 support, improve cleanup behaviour
+
+Wed Jul 14 15:59:00 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* win32_tests.mak: add unittest
+	* README: clarify deps.d and compilation errors behaviour, PCRE
+	requirements
+	* win32_common.mak, win32_backends_brass.cc, win32_matcher.cc:
+	remove omdebug.cc, brass_io.cc, rset.cc, localmatch.cc
+	* win32_matcher.cc: xorpostlist.cc now multixorpostlist.cc, add
+	localsubmatch.cc
+	* win32_tests.cc: add missing api_opvalue.cc, api_opsynonym.cc,
+	api_stem.cc
+	* win32_bindings_python.mak: copy test_xapian_star.py for testing
+	* win32_bindings_csharp.mak: add missing StemImplementation.cs
+	* win32_applications_omega: changed way .objs are listed to match 1.0
+	branch), add missing object files, add PCRE lib
+	* config.mak: add PCRE file locations
+	* win32_languages_mak: use SnowballStemImplementation
+
 Mon May 17 10:37:26 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	Patch from Charlie Hull:

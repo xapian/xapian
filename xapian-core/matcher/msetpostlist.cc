@@ -85,7 +85,7 @@ MSetPostList::get_weight() const
 const string *
 MSetPostList::get_collapse_key() const
 {
-    LOGCALL(MATCH, string *, "MSetPostList::get_collapse_key", NO_ARGS);
+    LOGCALL(MATCH, const string *, "MSetPostList::get_collapse_key", NO_ARGS);
     Assert(cursor != -1);
     RETURN(&mset_internal->items[cursor].collapse_key);
 }

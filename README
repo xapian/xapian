@@ -1,5 +1,5 @@
-Welcome to the Xapian subversion repository!
-============================================
+Welcome to the Xapian repository!
+=================================
 
 Xapian is split into several modules, which are held in sub-directories of
 the directory containing this file.  The core code and documentation is in

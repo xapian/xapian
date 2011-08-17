@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -305,7 +305,8 @@ HtmlParser::parse_html(const string &body)
 	    lowercase_string(tag);
 
 	    if (closing) {
-		closing_tag(tag);
+		if (!closing_tag(tag))
+		    return;
 		if (in_script && tag == "script") in_script = false;
 
 		/* ignore any bogus parameters on closing tags */
@@ -313,13 +314,24 @@ HtmlParser::parse_html(const string &body)
 		if (p == body.end()) break;
 		start = p + 1;
 	    } else {
+		bool empty_element = false;
 		// FIXME: parse parameters lazily.
 		while (start < body.end() && *start != '>') {
 		    string name, value;
 
 		    p = find_if(start, body.end(), p_whitespaceeqgt);
 
-		    name.assign(body, start - body.begin(), p - start);
+		    size_t name_len = p - start;
+		    if (name_len == 1) {
+			if (*start == '/' && p < body.end() && *p == '>') {
+			    // E.g. <tag foo="bar" />
+			    start = p;
+			    empty_element = true;
+			    break;
+			}
+		    }
+
+		    name.assign(body, start - body.begin(), name_len);
 
 		    p = find_if(p, body.end(), p_notwhitespace);
 
@@ -359,8 +371,14 @@ HtmlParser::parse_html(const string &body)
 		}
 		cout << ">\n";
 #endif
-		opening_tag(tag);
+		if (!opening_tag(tag))
+		    return;
 		parameters.clear();
+
+		if (empty_element) {
+		    if (!closing_tag(tag))
+			return;
+		}
 
 		// In <script> tags we ignore opening tags to avoid problems
 		// with "a<b".

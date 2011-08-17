@@ -21,22 +21,21 @@ OBJS= \
     $(INTDIR)\collapser.obj\
     $(INTDIR)\exactphrasepostlist.obj\
     $(INTDIR)\externalpostlist.obj\
-    $(INTDIR)\localmatch.obj\
+    $(INTDIR)\localsubmatch.obj\
     $(INTDIR)\mergepostlist.obj\
     $(INTDIR)\msetcmp.obj\
     $(INTDIR)\msetpostlist.obj\
     $(INTDIR)\multiandpostlist.obj\
     $(INTDIR)\multimatch.obj\
+    $(INTDIR)\multixorpostlist.obj\
     $(INTDIR)\orpostlist.obj\
     $(INTDIR)\phrasepostlist.obj\
     $(INTDIR)\queryoptimiser.obj\
-    $(INTDIR)\rset.obj\
     $(INTDIR)\selectpostlist.obj\
     $(INTDIR)\synonympostlist.obj\
     $(INTDIR)\valuerangepostlist.obj\
     $(INTDIR)\valuegepostlist.obj\
     $(INTDIR)\valuestreamdocument.obj\
-    $(INTDIR)\xorpostlist.obj\
     $(INTDIR)\remotesubmatch.obj
 
 
@@ -47,22 +46,21 @@ SRCS= \
     $(INTDIR)\collapser.cc\
     $(INTDIR)\exactphrasepostlist.cc\
     $(INTDIR)\externalpostlist.cc\
-    $(INTDIR)\localmatch.cc\
+    $(INTDIR)\localsubmatch.cc\
     $(INTDIR)\mergepostlist.cc\
     $(INTDIR)\msetcmp.cc\
     $(INTDIR)\msetpostlist.cc\
     $(INTDIR)\multiandpostlist.cc\
     $(INTDIR)\multimatch.cc\
+    $(INTDIR)\multixorpostlist.cc\
     $(INTDIR)\orpostlist.cc\
     $(INTDIR)\phrasepostlist.cc\
     $(INTDIR)\queryoptimiser.cc\
-    $(INTDIR)\rset.cc\
     $(INTDIR)\selectpostlist.cc\
     $(INTDIR)\synonympostlist.cc\
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
     $(INTDIR)\valuestreamdocument.cc\
-    $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
 
 CLEAN :

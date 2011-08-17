@@ -31,7 +31,7 @@ class ValueRangePostList : public PostList {
   protected:
     const Xapian::Database::Internal *db;
 
-    Xapian::valueno valno;
+    Xapian::valueno slot;
 
     const std::string begin, end;
 
@@ -47,9 +47,9 @@ class ValueRangePostList : public PostList {
 
   public:
     ValueRangePostList(const Xapian::Database::Internal *db_,
-		       Xapian::valueno valno_,
+		       Xapian::valueno slot_,
 		       const std::string &begin_, const std::string &end_)
-	: db(db_), valno(valno_), begin(begin_), end(end_),
+	: db(db_), slot(slot_), begin(begin_), end(end_),
 	  db_size(db->get_doccount()), valuelist(0) { }
 
     ~ValueRangePostList();

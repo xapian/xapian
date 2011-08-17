@@ -612,7 +612,7 @@ EXCLUDE_SYMLINKS       = YES
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */.* \
-			 */base.h \
+			 */intrusive_ptr.h \
 			 */deprecated.h \
 			 */derefwrapper.h \
 			 */errordispatch.h \
@@ -1136,13 +1136,13 @@ MAN_LINKS              = NO
 # generate an XML file that captures the structure of
 # the code including all documentation.
 
-GENERATE_XML           = YES
+GENERATE_XML           = NO
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `xml' will be used as the default path.
 
-XML_OUTPUT             = xml
+XML_OUTPUT             =
 
 # The XML_SCHEMA tag can be used to specify an XML schema,
 # which can be used by a validating XML parser to check the
@@ -1262,6 +1262,7 @@ INCLUDE_FILE_PATTERNS  =
 
 PREDEFINED             = DOXYGEN \
 			 XAPIAN_VISIBILITY_DEFAULT= \
+			 XAPIAN_DEPRECATED_CLASS= \
 			 XAPIAN_DEPRECATED(D)=D
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then

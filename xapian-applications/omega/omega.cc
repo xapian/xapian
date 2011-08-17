@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 
 #include <config.h>
 
-#include <cassert>
 #include <cstdio>
 #include <ctime>
 
@@ -55,6 +54,10 @@ string date_start, date_end, date_span;
 
 const string default_dbname = "default";
 
+bool set_content_type = false;
+
+bool suppress_http_headers = false;
+
 string dbname;
 string fmtname = "query";
 string filters;
@@ -62,9 +65,6 @@ string filters;
 Xapian::docid topdoc = 0;
 Xapian::docid hits_per_page = 0;
 Xapian::docid min_hits = 0;
-
-// the probabilistic query
-string query_string;
 
 // percentage cut-off
 int threshold = 0;
@@ -90,6 +90,8 @@ try {
     char *method;
     MCI val;
     pair<MCI, MCI> g;
+
+    option["flag_default"] = "true";
 
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";
@@ -180,6 +182,9 @@ try {
 	if (!v.empty()) fmtname = v;
     }
 
+    // The probabilistic query string.
+    string query_string;
+
     // Get the probabilistic query.
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
@@ -199,7 +204,6 @@ try {
 	    OmegaExpandDecider decider(db);
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
-		if ((*i).empty()) continue;
 		if (!query_string.empty()) query_string += ' ';
 		query_string += pretty_term(*i);
 	    }
@@ -207,7 +211,7 @@ try {
     }
 
     if (query_string.empty()) {
-	// collect the prob fields
+	// collect the unprefixed prob fields
 	g = cgi_params.equal_range("P");
 	for (MCI i = g.first; i != g.second; i++) {
 	    const string & v = i->second;
@@ -230,17 +234,16 @@ try {
 	}
     } 
 
-    // strip leading and trailing whitespace from query_string
-    string::size_type first_nonspace;
-    first_nonspace = query_string.find_first_not_of(" \t\r\n\v");
-    if (first_nonspace == string::npos) {
-	query_string.resize(0);
-    } else {
-	string::size_type len = query_string.find_last_not_of(" \t\r\n\v");
-	assert(len != string::npos);
-	if (first_nonspace > 0 || len <= query_string.length() - 1) {
-	    len = len + 1 - first_nonspace;
-	    query_string = query_string.substr(first_nonspace, len + 1);
+    set_probabilistic_query(string(), query_string);
+
+    g.first = cgi_params.lower_bound("P.");
+    g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
+    for (MCI i = g.first; i != g.second; i++) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    string pfx(i->first, 2, string::npos);
+	    set_probabilistic_query(pfx, v);
+	    // FIXME: Handled P.FOO specified more than once.
 	}
     }
 
@@ -348,13 +351,23 @@ try {
 
     parse_omegascript(); 
 } catch (const Xapian::Error &e) {
+    if (!set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: " << html_escape(e.get_msg()) << endl;
 } catch (const std::exception &e) {
+    if (!set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: std::exception " << html_escape(e.what()) << endl;
 } catch (const string &s) {
+    if (!set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: " << html_escape(s) << endl;
 } catch (const char *s) {
+    if (!set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Exception: " << html_escape(s) << endl;
 } catch (...) {
+    if (!set_content_type && !suppress_http_headers)
+	cout << "Content-Type: text/html\n\n";
     cout << "Caught unknown exception" << endl;
 }

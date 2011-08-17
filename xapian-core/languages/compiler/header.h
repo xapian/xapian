@@ -53,11 +53,13 @@ struct m_pair {
 
 };
 
+/* struct input must be a prefix of struct tokeniser. */
 struct input {
 
     struct input * next;
     symbol * p;
     int c;
+    char * file;
     int line_number;
 
 };
@@ -69,11 +71,13 @@ struct include {
 
 };
 
+/* struct input must be a prefix of struct tokeniser. */
 struct tokeniser {
 
     struct input * next;
     symbol * p;
     int c;
+    char * file;
     int line_number;
     symbol * b;
     symbol * b2;
@@ -94,8 +98,8 @@ struct tokeniser {
 
 };
 
-extern symbol * get_input(symbol * p);
-extern struct tokeniser * create_tokeniser(symbol * b);
+extern symbol * get_input(symbol * p, char ** p_file);
+extern struct tokeniser * create_tokeniser(symbol * b, char * file);
 extern int read_token(struct tokeniser * t);
 extern byte * name_of_token(int code);
 extern void close_tokeniser(struct tokeniser * t);

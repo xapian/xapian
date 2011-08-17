@@ -43,6 +43,10 @@
 
 #define DONT_COMPRESS -1
 
+/** Even for items of at maximum size, it must be possible to get this number of
+ *  items in a block */
+#define BLOCK_CAPACITY 4
+
 /** The largest possible value of a key_len.
  *
  *  This gives the upper limit of the size of a key that may be stored in the
@@ -598,7 +602,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	 *  The default is BLOCK_CAPACITY (which is currently 4).
 	 */
 	void set_max_item_size(size_t block_capacity) {
-	    if (block_capacity > 4) block_capacity = 4;
+	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
 	}

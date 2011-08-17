@@ -2,18 +2,18 @@ $set{thousand,$.}$set{decimal,.}<html>
 <head>
 <title>Omega:
 $if{$cgi{ID},
-Document #$cgi{ID},
+Document #$html{$cgi{ID}},
 $if{$ne{$msize,0},
 Term "$html{$cgi{B}}",
 Choose what to Inspect}}
 </title>
 </head>
 <body bgcolor=white>
-<form METHOD=GET ACTION="$env{SCRIPT_NAME}">
+<form METHOD=GET ACTION="$html{$env{SCRIPT_NAME}}">
 
 $if{$cgi{ID},
 $setrelevant{$cgi{ID}}
-<H1>Document #$cgi{ID}</H1>
+<H1>Document #$html{$cgi{ID}}</H1>
     
 <H2>Terms indexing this document</H2>
 
@@ -21,7 +21,7 @@ $setrelevant{$cgi{ID}}
 <tr><th>Frequency</th><th align=left>Term</th></tr>
 $map{$allterms{$cgi{ID}},
 <tr><td align=right>$freq{$_}</td>
-<td><A HREF="$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&B=$url{$_}">$html{$_}</A></td></tr>}
+<td><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&B=$url{$_}}">$html{$_}</A></td></tr>}
 </table>
 
 <H2>Document Data</H2>
@@ -50,11 +50,11 @@ $if{$not{$msizeexact},
 <hr>
 <table>
 $hitlist{<TR>
-<td align=right><A HREF="$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id">#$id</A>&nbsp;</td>
+<td align=right><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</A>&nbsp;</td>
 <TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
-<A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
+<A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
 <small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
-<A HREF="$field{url}">$html{$field{url}}</A><br>
+<A HREF="$html{$field{url}}">$html{$field{url}}</A><br>
 <hr></TD></TR>}
 </table>
 ${suppress next, prev, and page links if there's only one page}
@@ -82,7 +82,7 @@ $NEXT
 }
 }}
 $if{$or{$error,$and{$not{$cgi{ID}},$eq{$msize,0}}},
-$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form METHOD=GET ACTION="$env{SCRIPT_NAME}">}
+$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form METHOD=GET ACTION="$html{$env{SCRIPT_NAME}}">}
 Inspect document # <INPUT NAME=ID SIZE=10>
 <INPUT TYPE=SUBMIT VALUE="Inspect">
 <hr>

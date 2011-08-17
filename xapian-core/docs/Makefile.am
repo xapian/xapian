@@ -11,16 +11,39 @@ endif
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
- stemming.html quickstart.html remote.html remote_protocol.html \
- matcherdesign.html tests.html scalability.html \
- bm25.html code_structure.html queryparser.html \
+HTMLDOCS = code_structure.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst categorisation.rst deprecation.rst glossary.rst \
- postingsource.rst replication.rst replication_protocol.rst \
- sorting.rst serialisation.rst spelling.rst synonyms.rst \
- termgenerator.rst valueranges.rst
+RSTDOCS = \
+	admin_notes.rst \
+	bm25.rst \
+	collapsing.rst \
+	deprecation.rst \
+	facets.rst \
+	glossary.rst \
+	index.rst \
+	install.rst \
+	internals.rst \
+	intro_ir.rst \
+	matcherdesign.rst \
+	overview.rst \
+	postingsource.rst \
+	queryparser.rst \
+	quickstart.rst \
+	remote_protocol.rst \
+	remote.rst \
+	replication_protocol.rst \
+	replication.rst \
+	scalability.rst \
+	serialisation.rst \
+	sorting.rst \
+	spelling.rst \
+	stemming.rst \
+	synonyms.rst \
+	termgenerator.rst \
+	tests.rst \
+	valueranges.rst
+
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake

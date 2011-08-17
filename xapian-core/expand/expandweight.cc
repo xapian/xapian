@@ -2,6 +2,7 @@
  * @brief Calculate term weights for the ESet.
  */
 /* Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,9 +103,6 @@ ExpandWeight::get_weight(TermList * merger, const string & term) const
     AssertRel(num,>,0);
     denom = (termfreq - rtermfreq + 0.5) * (reldocs_without_term + 0.5);
     AssertRel(denom,>,0);
-
-    // If the returned termweight would be negative, clamp it to 0.0.
-    if (rare(num <= denom)) RETURN(0.0);
 
     Xapian::weight tw = log(num / denom);
     LOGVALUE(EXPAND, tw);

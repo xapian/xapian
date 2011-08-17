@@ -1,4 +1,4 @@
-/** @file fdtracker.cc
+/** @file fdtracker.h
  * @brief Track leaked file descriptors.
  */
 /* Copyright (C) 2010 Olly Betts

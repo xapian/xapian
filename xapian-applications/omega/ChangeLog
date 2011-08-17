@@ -1,3 +1,900 @@
+Fri Aug 12 23:25:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.7 and ChangeLog.
+
+Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: MyHtmlParser::parse_html() no longer throws bool to
+	  stop parsing early, so we no longer need to catch it.
+
+Wed Aug 03 23:25:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync changes from xapian-core: Don't pass -Wshadow for
+	  GCC < 4.1; don't pass -Wstrict-null-sentinel for GCC 4.0.x; only
+	  enable symbol visibility on platforms where it is supported; remove
+	  now superfluous check for GCC >= 3.  Also, add FIXME for enabling
+	  -Woverloaded-virtual.
+
+Wed Aug 03 06:27:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index title with an 'S' prefix rather than no prefix.
+	* templates/query: Set up prefixes for 'author', 'title', and map
+	  no prefix so that terms from the title are still matched by default.
+
+Wed Aug 03 06:11:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Allow mapping a query string prefix to
+	  more than one term prefix (which xapian-core has supported since
+	  1.0.4).
+
+Fri Jul 29 01:47:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add support for per-prefix stemmers.
+
+Thu Jul 28 13:23:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,omega.cc,omega.h,query.cc,query.h: Add support
+	  for search inputs for multiple probabilistic prefixes.
+
+Wed Jul 27 02:35:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Add link to
+	  http://xapian.org/docs/omega/scriptindex.html to --help output (and
+	  so also to the man page which is generated from this).
+
+Tue Jul 26 05:54:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Rearrange logic for discarding the RSet and forcing the
+	  first page.
+
+Tue Jul 26 05:27:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Remove support for OLDP CGI parameter which was superseded
+	  by xP approximately a decade ago, and isn't even documented.
+
+Mon Jul 04 06:20:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omega.cc,utils.cc,utils.h: Factor out trim() function.
+
+Mon Jul 04 06:14:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omega.cc: Avoid creating a temporary string object just to trim
+	  leading and/or trailing whitespace.
+
+Mon Jul 04 06:08:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omega.cc: If P had trailing spaces, we would remove all but one -
+	  fixed to remove all of them!
+
+Wed Jun 22 15:32:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Pull in a few updates from the latest version of the
+	  automake document which this file was originally based on.
+	  Add in the missing copyright and licensing information.
+
+Thu Jun 16 15:42:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Drop legacy support for handling '.' separated terms in
+	  OLDP - that changed in Omega 0.9.7, which is approaching 5 years
+	  ago now.
+
+Thu Jun 16 15:38:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Improve $version output from "Xapian - xapian-omega 1.2.6"
+	  to "xapian-omega 1.2.6".
+	* docs/omegascript.rst: Update example to match (and use less ancient
+	  version!)
+
+Thu Jun 16 15:36:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* dbi2omega: Remove uninteresting reference to 0.9.4.
+
+Mon Jun 13 14:25:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* hashterm.cc: Avoid unnecessary temporary string object.
+
+Mon Jun 13 14:01:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* hashterm.cc: Fix comment typo.
+
+Mon Jun 13 13:49:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: We're ABI compatible within a release series
+	  so make dependency on xapian-core-libs >= rather than =.
+
+Mon Jun 13 12:30:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Avoid unnecessary temporary string object.
+
+Mon Jun 13 12:24:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Remove error warning that index=nopos was replaced
+	  with indexnopos - this was removed in 1.1.0 so there's been enough
+	  time to upgrade.
+
+Mon Jun 13 09:56:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version to 1.3.0.
+
+Mon Jun 13 09:42:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Update reference to flint.`
+
+Mon Jun 13 08:00:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Expand to document mapping a user prefix to
+	  multiple term prefixes.
+
+Mon Jun 13 03:23:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Improve documentation of htdig_noindex.
+
+Sun Jun 12 11:52:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Final update for 1.2.6.
+
+Fri Jun 10 12:02:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update in preparation for 1.2.6.
+
+Fri Jun 10 03:28:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/inc/anyallexactradio: Remove unused duplicate of
+	  anyallradio.
+
+Fri Jun 10 03:21:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,omindex-config.cc,omindex-config.html: Strip out partly
+	  written and long untouched omindex-config utility.
+
+Thu Jun 09 14:20:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* weight.cc: Fix a compiler warning (I failed to note the compiler
+	  unfortunately).
+
+Sun May 29 13:00:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: Make search query input type=search.
+
+Sun May 29 12:24:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: Autofocus the search query input (using HTML
+	  autofocus attribute with Javascript fallback for older browsers).
+	  (ticket#544)
+
+Wed May 25 14:33:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Correct the documentation of the colours used by
+	  $highlight{}.
+
+Fri May 13 05:50:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Add using unoconv as more complex example of
+	  using --filter (ticket#324).
+
+Wed Apr 20 07:00:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo; clarify wording.
+
+Mon Apr 04 13:58:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update release date.
+
+Mon Apr 04 13:53:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Fix syntax error from recent edit.
+
+Sun Apr 03 10:54:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.5.
+
+Sat Apr 02 14:15:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: Use $add{$field{modtime}} to ensure it is numeric.
+
+Sat Apr 02 14:14:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/godmode: More missing escaping.
+
+Sat Apr 02 14:07:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Remove double escaping.
+
+Sat Apr 02 13:58:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: More escaping fixes.
+
+Sat Apr 02 13:55:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/emptydocs,templates/opensearch,templates/xml: More missing
+	  escaping.
+
+Sat Apr 02 12:34:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/query: Add missing escaping.
+
+Sat Apr 02 11:48:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/godmode: Add missing escaping.
+
+Sat Apr 02 10:34:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Remove support for undocumented HILITECLASS CGI
+	  variable.  There's no evidence I can find using Google code search
+	  or web search that this has been used anywhere, and it's problematic
+	  to escape properly.
+
+Sat Mar 26 14:51:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.
+	  Replace VPATH section with better equivalent from
+	  xapian-core/INSTALL.
+
+Wed Mar 23 15:21:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,htmlparse.h,htmlparsetest.cc,metaxmlparse.cc,
+	  metaxmlparse.h,myhtmlparse.cc,myhtmlparse.h,omindex.cc,svgparse.cc,
+	  svgparse.h,xmlparse.cc,xmlparse.h,xpsxmlparse.cc,xpsxmlparse.h:
+	  Instead of throwing a bool to abandon parsing, change methods to
+	  return bool to signify if they want to continue parsing or not.
+	  This is a bit faster (~0.23% for indexing a lot of HTML files).
+
+Mon Mar 21 05:48:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Add --ignore-exclusions
+	  option, which will index HTML files despite meta robots tags, etc -
+	  omindex is often used in environments where such exclusions aren't
+	  relevant.
+
+Fri Mar 18 10:24:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Just report the mimetype as unknown instead of saying
+	  "unknown Office 2007 MIME subtype".
+
+Fri Mar 18 05:53:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* diritor.h: Avoid using S_IRUSR, etc under __WIN32__.
+
+Fri Mar 18 03:00:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Ignore *.css and *.js by default too.
+
+Thu Mar 17 23:34:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: For skip messages which are only to be shown in verbose
+	  mode, call skip with new SKIP_VERBOSE_ONLY flag.  Pass new
+	  SKIP_SHOW_FILENAME flag for skip messages shown before we say what
+	  file we are indexing so we know to show the filename even in verbose
+	  mode.
+
+Thu Mar 17 03:47:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Restore handling of exceptions from
+	  DirectoryIterator::get_type(), and handle exceptions from
+	  DirectoryIterator::next() which ended up at the top level
+	  before (though they probably never happen, at least on Linux).
+
+Wed Mar 16 06:19:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Push all the code associated with indexing a file into
+	  index_file().
+
+Wed Mar 16 02:55:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Push try block around index_file() call into the
+	  function.
+
+Wed Mar 16 02:51:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Factor out handling for skipping files, and improve
+	  these messages by consistently reporting the filename.
+
+Tue Mar 15 12:47:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/index.rst: Add index page which links to all
+	  the other documentation pages.
+
+Tue Mar 15 12:20:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add --empty-docs option to allow documents we extract
+	  no body text from to be indexed (existing behaviour), skipped, or
+	  reported and then indexed.
+
+Fri Mar 04 14:13:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Minor improvements.
+
+Wed Mar 02 11:17:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Wed Mar 02 06:14:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: New standard prefix E for filename extension.
+	* omindex.cc: Index file extension as E-prefixed term.
+
+Mon Feb 28 13:45:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Tell xls2csv not to quote fields and to put spaces
+	  not commas between them.  Fixes indexing of numeric fields, and
+	  means we don't need to use our CSV parser to get a sample.
+
+Mon Feb 28 12:10:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xmlparse.cc: Add whitespace between chunks of text extracted from
+	  Microsoft Office 2007 formats.
+
+Wed Feb 23 12:34:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Try $field{caption} (which is what omindex sets)
+	  before $field{title} when getting a value for the hit tag's title
+	  attribute - this is consistent with how the query template gets the
+	  title.  Add new type attribute which gives $field{type}.
+
+Thu Feb 17 05:19:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* templates/xml: Add DBSize attribute to <result> element.
+
+Wed Feb 16 03:19:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,query.cc,urlencode.cc,urlencode.h: Update
+	  URL encoding to follow RFC3986.
+
+Tue Feb 15 03:20:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Encode reserved characters in URLs - now links to
+	  files with names containing '#' and '?' will work.
+
+Sun Jan 23 13:27:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Later Microsoft Works version produce
+	  .xlr spreadsheet files, which are apparently XL files with a
+	  different extension, so handle them as XL files.
+
+Thu Jan 20 11:07:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,omega.cc,query.cc,templates/query: Allow
+	  QueryParser flags to be set from OmegaScript (ticket#418).
+
+Sat Jan 15 11:14:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog, 1.0.22 and 1.0.23.
+
+Wed Jan 12 02:21:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix double Content-Type header in some error reporting
+	  situations (regression introduced in 1.2.4).
+
+Mon Jan 10 10:00:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc,pkglibbindir.cc,pkglibbindir.h: Fix typo in function name
+	  (get_pkglibdindir() -> get_pkglibbindir()).
+
+Mon Jan 10 09:50:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h: Don't define or try to set euid member of
+	  DirectoryIterator on platforms where we aren't going to use it.
+
+Mon Jan 10 09:15:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* diritor.h: Stub out get_owner() and get_group() for __WIN32__.
+
+Fri Dec 24 10:35:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Dec 23 01:53:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Fix to work with older libmagic which doesn't have
+	  MAGIC_MIME_TYPE (e.g. on Ubuntu hardy).
+
+Sun Dec 19 12:39:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: 1.2.4.
+
+Sun Dec 19 12:37:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* query.cc: Disable permission filtering based on $REMOTE_USER as that
+	  will break some existing installations if users upgrade, which we
+	  don't want.  Probably this should be specifiable from OmegaScript
+	  but it's not worth delaying 1.2.4 while we sort this out.
+
+Sun Dec 19 02:46:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Change the new name for
+	  "--preserve-unupdated" from "--preserve-removed" to "--no-delete".
+
+Sun Dec 19 02:32:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix comment typo.
+
+Fri Dec 17 12:45:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* commonhelp.cc,commonhelp.h,omindex.cc,scriptindex.cc: Swap the
+	  meanings of -v and -V in omindex for consistency with scriptindex
+	  and typical short options for --verbose and --version in other
+	  packages.  For backward compatibility, "omindex -v" is handled
+	  specially and still reports the version.
+
+Fri Dec 17 08:31:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc: Fix built in converter to handle space in charset
+	  names, which fixes failing utf8converttest when iconv isn't
+	  available.
+
+Fri Dec 17 05:36:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc: Rework the fixing up of charset names which iconv()
+	  doesn't understand a little.
+
+Thu Dec 16 06:35:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: If fstat() fails, preserve the errno value rather than
+	  letting close() clobber it.
+
+Thu Dec 16 06:31:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: Fix file descriptor leak if load_file() is called on
+	  something which isn't a file (found by cppcheck run on the Debian
+	  archive).  This case probably couldn't occur in omindex, but could if
+	  you used the LOADFILE action in scriptindex.
+
+Thu Dec 09 10:58:48 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Replace $simplecommand with $query - a concrete
+	  example is more useful.  Improve mark-up.
+	* docs/termprefixes.rst: Remove mention of pre-0.9.7 use of W prefix.
+
+Thu Nov 18 12:25:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omega.cc: Fix reversed condition in recent exception reporting fix.
+
+Wed Nov 17 03:46:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Add missing magic_cookie argument to calls to
+	  magic_error().
+
+Sat Nov 13 12:17:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Build up document data with += for efficiency.
+
+Sat Nov 13 12:08:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index author with A prefix.
+
+Sat Nov 13 12:00:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: A file extension can't contain a '/'.
+
+Sat Nov 13 11:50:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index the leafname of the file (without any extension) as
+	  if it contained additional keywords.
+
+Sat Nov 13 11:32:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If a filter command isn't installed, flag this in the
+	  commands map so we don't try running this command again for any
+	  file with the same mimetype (previously we'd rerun it for a different
+	  extension which gave the same mimetype).
+
+Fri Nov 12 09:11:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Add -no-undefined to AM_LDFLAGS on
+	  platforms which need it to dynamically link such as cygwin (need
+	  to do this taken from ticket#282).
+
+Fri Nov 12 03:35:56 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report MIME type if it's unknown to us.  Remove debug
+	  output line.  Update comments.
+
+Fri Nov 12 03:32:27 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Report errors from libmagic.
+
+Fri Nov 12 02:58:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h: Fix to compile when libmagic is detected.
+
+Fri Nov 12 01:40:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Add missing class qualifier to method definition.
+
+Fri Nov 12 01:25:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Mention libmagic in install instructions.
+
+Fri Nov 12 01:16:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,diritor.cc,diritor.h,omindex.cc: Optionally
+	  use libmagic to detect MIME types for files for which we have no
+	  extension mapping, which allows us to handle files with a misleading
+	  extension, and files with no extension.  (ticket#114)
+
+Thu Nov 11 23:23:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Refactor slightly to handle the unknown extension case
+	  up front, so we lose an indentation level for the known extension
+	  case.
+
+Thu Nov 11 12:25:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add new --filter option to allow the user to specify
+	  new filters without patching omindex.cc.
+	* docs/overview.rst: Document --filter.
+
+Thu Nov 11 02:51:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Factor out handling for external filter programs which
+	  simply return UTF-8 text on stdout.
+
+Mon Nov 08 10:58:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,svgparse.cc,svgparse.h: Extract author for SVG files.
+
+Mon Nov 08 10:40:09 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Extract metadata from Microsoft Office 2007 file formats.
+
+Mon Nov 08 10:21:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Extract author from HTML
+	  documents.
+
+Mon Nov 08 09:46:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Escape wildcard patterns being passed to unzip - in the
+	  unlikely event that one of these matched files in or under the
+	  current directory, we might fail to extract all the files we wanted
+	  to.
+
+Mon Nov 08 05:03:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* metaxmlparse.cc,metaxmlparse.h,omindex.cc: Extract author from
+	  OpenDocument documents.
+
+Mon Nov 08 03:18:26 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Extract author from PDF metadata.
+
+Mon Nov 08 03:15:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* metaxmlparse.h: Initialise field member variable.
+
+Mon Nov 08 00:28:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index text in headers and footers for .odt and .docx
+	  files.
+
+Thu Nov 04 11:55:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omega.cc,omega.h,query.cc: If we catch an error early on, make sure
+	  that if it's appropriate, we write out a "Content-Type:" HTTP header
+	  and end the headers.
+
+Thu Nov 04 11:39:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utf8converttest.cc: Add back in testcases for charset names with
+	  hyphens in.
+
+Thu Nov 04 09:01:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* utils.cc: Fix misuse of BUFSIZE which should be sizeof(buf) (issue
+	  reported by compilation with CPPFLAGS=-D_GLIBCXX_DEBUG).
+
+Thu Nov 04 09:01:08 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* utf8convert.cc,utf8converttest.cc: If iconv can't handle a
+	  charset, check if it's of the form (UTF|UCS)[_ ]?.* and if so,
+	  convert to the official hypenated form.  Should fix failure of
+	  utf8converttest on OSX, where it fails due to iconv not
+	  supporting "UTF16".
+
+Tue Nov 02 09:48:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h,loadfile.cc,loadfile.h,md5wrap.cc,md5wrap.h,
+	  omindex.cc,scriptindex.cc: Use O_NOATIME if available and either the
+	  file is owned by the current euid, or the current euid is 0 (i.e.
+	  we're running as root).  Fixes ticket#222.
+
+Fri Oct 29 14:26:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use the CSV parser to generate a nicer sample for files
+	  of type application/vnd.ms-excel.
+
+Fri Oct 29 09:26:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Put $(PCRE_LIBS) in libtransform_la_LIBADD rather than
+	  omega_LDADD (more correct, but probably doesn't actually make any
+	  difference).
+
+Thu Oct 28 14:46:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Disable more output unless --verbose is specified.  Don't
+	  flush the "Indexing" partial message until we get to the potentially
+	  time consuming actions.
+
+Thu Oct 28 13:54:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Improve mark-up, and tweak wording in a few
+	  places.
+
+Thu Oct 28 13:46:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Update docs for --duplicates and
+	  --preserve-removed.
+
+Thu Oct 28 13:27:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Deprecated "--preserve-nonduplicates" in favour of new
+	  long option "--preserve-removed" which does the same thing, but has
+	  a (hopefully) clearer name.  Rename the variable it controls from
+	  preserve_unupdated to delete_removed_documents (with the opposite
+	  sense).
+
+Thu Oct 28 12:08:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configfile.cc: Only append '/' to directory values if they don't
+	  already have a trailing '/'.
+
+Thu Oct 28 11:49:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* runfilter.cc: Make the memory limit for filter processes the size
+	  of physical memory, not 7/8 of this value, which is a little less
+	  arbitrary (ticket#424).
+
+Thu Oct 28 11:47:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Under --duplicate=ignore, fix so that old documents which
+	  aren't seen get deleted, which wasn't implemented before (to suppress
+	  this deletion, pass -p as well).
+
+Thu Oct 28 10:38:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Track how many documents in the index we haven't seen
+	  in this index run - if this is 0, we don't need to check for docs
+	  to delete at all; otherwise we can at least use it to know when we
+	  have found them all.  Use a PostingIterator over all documents to
+	  avoid having to catch exceptions from delete_document() for gaps
+	  in the used docids.
+
+Thu Oct 28 04:52:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add quotes around directory name in "Entering directory"
+	  message.  Add directory name to "skipping directory" error message.
+
+Thu Oct 28 04:50:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Document --verbose in --help.  Actually recognise -V.
+
+Thu Oct 28 04:01:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Move the directory iteration loop out of the try/catch
+	  block for starting the iteration, which means it's indented by a
+	  whole level less.
+
+Thu Oct 28 03:47:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add --verbose option, and disable the less interesting
+	  output unless it is specified.
+
+Thu Oct 28 03:34:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Eliminate the message "Caught unknown exception in
+	  index_directory, rethrowing" as it isn't actually informative.
+
+Thu Oct 28 01:43:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Variable dbpath doesn't need to be global.
+
+Thu Oct 28 01:28:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: The Host and Path terms are the same for every document
+	  in a single invocation of omindex, so calculate them just once up
+	  front.
+
+Thu Oct 28 01:13:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Eliminate the leading slash on filenames in output, so
+	  they are now relative filenames on the system.  This also simplifies
+	  path building internally.
+
+Wed Oct 27 09:51:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use rpm's --qf option to produce output which is simpler
+	  to parse.
+
+Wed Oct 27 09:32:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for indexing RPM packages
+	  (ticket#493).
+
+Wed Oct 27 06:07:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for indexing Debian package
+	  files (ticket #493).
+
+Wed Oct 27 05:37:02 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Quietly ignore files with mimetype set
+	  to "ignore".  The initial list of extensions set to ignore is:
+	      .a .dll .dylib .exe .lib .o .obj .so
+
+Wed Oct 27 02:25:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report get_description() for Xapian exceptions, which
+	  is provides additional information above get_msg().
+
+Wed Oct 27 01:56:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,query.cc,values.h: Add file size as a value, and set up a
+	  NumberValueRangeProcessor so size: works in the query (has to be in
+	  bytes currently).
+
+Wed Oct 27 01:31:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Report get_description() for Xapian exceptions, which
+	  is provides additional information above get_msg().
+
+Tue Oct 26 12:00:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document the new emptydocs template.
+
+Tue Oct 26 11:51:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add new $emptydocs command which
+	  returns a list of documents with doclength zero.
+	* query.cc: Extend $field to take an optional DOCID argument, rather
+	  than always using the context from $hitlist.
+	* templates/emptydocs: New template which lists documents with
+	  doclength zero.
+
+Thu Oct 21 12:05:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,unixperm.cc: Fix to build on platforms where
+	  getgrouplist() exists but takes int* not gid_t* (e.g. Mac OS X).
+
+Wed Oct 20 10:30:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Add boolean terms with add_boolean_term()
+	  so they get wdf of 0 and don't contribute to document length.
+
+Sat Oct 16 06:13:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Probe for any options needed to enable large file
+	  support.  Handling files >= 2GB isn't especially useful, but more
+	  importantly this is needed to allow omindex to index files on filing
+	  systems with 64 bit inodes on some platforms (e.g. 32-bit Linux).
+
+Mon Oct 11 11:11:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Drop special case to remove man pages on "make clean"
+	  in maintainer-mode.
+
+Wed Sep 29 04:14:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,query.cc,unixperm.cc,unixperm.h: Pull out
+	  permission checks into a separate file and check Unix user and group
+	  permissions based on environmental variable REMOTE_USER, if set.
+
+Tue Sep 28 08:06:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Ship common/realtime.h.
+
+Tue Sep 28 06:32:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* query.cc: Apply permission filters if USER and/or GROUP are set.
+
+Tue Sep 28 06:14:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ./: Update svn:externals to latest common from xapian-core.
+	* query.cc: Use RealTime::now() to time running the query.  Include
+	  more enquire set-up in the time.
+
+Tue Sep 28 05:26:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index file owner and read permissions, to allow finding
+	  documents with a particular owner, and so searches can be restricted
+	  to documents a user is able to read.
+	* docs/termprefixes.rst: Document term prefixes used by the above.
+
+Tue Sep 28 05:20:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.h: Rename get_other_read() to is_other_readable() for
+	  consistency.
+
+Tue Sep 28 04:16:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h: Rearrange so that the setting of statbuf_valid
+	  gets inlined so the compiler should be able to optimise out
+	  subsequent calls to call_stat().
+
+Tue Sep 28 04:10:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* diritor.h: Add methods to read the owner and group, and to check
+	  who can read the file.
+
+Tue Sep 28 01:39:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo.
+
+Tue Sep 28 01:33:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix whitespace oddities.
+
+Tue Sep 28 01:31:46 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Tue Sep 28 01:27:41 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Improve --help for --mime-type option.
+
+Mon Sep 20 06:50:45 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc,svgparse.cc,svgparse.h: Extract any document title and
+	  keywords from SVG files.
+
+Mon Sep 20 06:49:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Call closing_tag() for XML empty tag syntax (like
+	  "<tag foo=bar />").
+
+Mon Sep 20 05:30:54 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/overview.rst,omindex.cc,svgparse.cc,svgparse.h: Add
+	  support for indexing SVG files.
+
+Tue Sep 07 04:39:59 GMT 2010  Olly Betts <olly@survex.com>
+
+	* outlookmsg2html.in: If the required perl modules aren't available,
+	  exit with status 127 which omindex interprets as "filter not
+	  installed" and won't try further .msg files.
+
+Tue Sep 07 02:24:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,docs/overview.rst,omindex.cc,
+	  outlookmsg2html.in,pkglibbindir.cc,pkglibbindir.h: Add support for
+	  indexing .msg files from Microsoft Outlook.  (ticket#334)
+
+Tue Aug 31 06:32:15 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix handling of quoting in CSV files to match what's
+	  most common.
+
+Tue Aug 31 05:41:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: The V in CSV is Values not Variable.
+
+Mon Aug 30 14:56:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for indexing .csv files.
+
+Sat Aug 28 11:46:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* cdb_find.cc,cdb_init.cc,cgiparam.cc,date.cc,md5.cc,query.cc,utils.cc,
+	  values.h: Fix to compile with Sun C++.
+
+Sat Aug 28 11:36:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* omega.cc: An ESet can't contain empty terms, so there's no need to
+	  check for them.
+
+Tue Aug 24 05:58:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.3.
+
+Mon Aug 23 15:08:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: Don't run autoreconf - it's no longer required.
+
+Tue Aug 03 14:11:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Update "flint and quartz" to "flint and chert"
+	  as quartz is no longer supported.  Give exact term length limit for
+	  flint and chert.
+
 Sun Jun 27 05:00:39 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.2.

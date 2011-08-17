@@ -2,6 +2,7 @@
  * @brief Brass class for database statistics.
  */
 /* Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,11 +36,7 @@ BrassDatabaseStats::read(BrassPostListTable & postlist_table)
     string data;
     if (!postlist_table.get_exact_entry(DATABASE_STATS_KEY, data)) {
 	// If there's no entry yet, then all the values are zero.
-	total_doclen = 0;
-	last_docid = 0;
-	doclen_lbound = 0;
-	doclen_ubound = 0;
-	wdf_ubound = 0;
+	zero();
 	return;
     }
 
@@ -50,6 +47,7 @@ BrassDatabaseStats::read(BrassPostListTable & postlist_table)
 	unpack_uint(&p, end, &doclen_lbound) &&
 	unpack_uint(&p, end, &wdf_ubound) &&
 	unpack_uint(&p, end, &doclen_ubound) &&
+	unpack_uint(&p, end, &oldest_changeset) &&
 	unpack_uint_last(&p, end, &total_doclen)) {
 	// doclen_ubound should always be >= wdf_ubound, so we store the
 	// difference as it may encode smaller.  wdf_ubound is likely to
@@ -75,6 +73,7 @@ BrassDatabaseStats::write(BrassPostListTable & postlist_table) const
     // difference as it may encode smaller.  wdf_ubound is likely to
     // be larger than doclen_lbound.
     pack_uint(data, doclen_ubound - wdf_ubound);
+    pack_uint(data, oldest_changeset);
     // Micro-optimisation: total_doclen is likely to be the largest value, so
     // store it last as pack_uint_last() uses a slightly more compact encoding
     // - this could save us a few bytes!

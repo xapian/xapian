@@ -32,7 +32,7 @@ using namespace std;
 ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
 				       double timeout_connect)
     : socket(open_socket(hostname, port, timeout_connect)),
-      remconn(-1, socket, "")
+      remconn(-1, socket)
 {
 }
 
@@ -54,17 +54,15 @@ ReplicateTcpClient::update_from_master(const std::string & path,
     remconn.send_message('D', masterdb, 0.0);
     replica.set_read_fd(socket);
     info.clear();
-    Xapian::ReplicationInfo subinfo;
-    while (replica.apply_next_changeset(&subinfo, reader_close_time)) {
+    bool more;
+    do {
+	Xapian::ReplicationInfo subinfo;
+	more = replica.apply_next_changeset(&subinfo, reader_close_time);
 	info.changeset_count += subinfo.changeset_count;
 	info.fullcopy_count += subinfo.fullcopy_count;
 	if (subinfo.changed)
 	    info.changed = true;
-    }
-    info.changeset_count += subinfo.changeset_count;
-    info.fullcopy_count += subinfo.fullcopy_count;
-    if (subinfo.changed)
-	info.changed = true;
+    } while (more);
 }
 
 ReplicateTcpClient::~ReplicateTcpClient()

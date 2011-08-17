@@ -1,3 +1,67 @@
+xapian-bindings (1.2.6-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+    + Includes fixes for #625679 and Ruby Dir.mktmpdir() issue so drop patches
+      for these.
+  * debian/rules: Use single quotes for substituting into debian/control.in to
+    stop the shell from attempting to expand ${python:Versions}.
+  * debian/rules: Use build-stamp and configure-stamp in the top level rather
+    than in the debian subdirectory - this is consistent with where other
+    packages put these files, and means dh_clean removes them for us
+    automatically.
+
+ -- Olly Betts <olly@survex.com>  Tue, 28 Jun 2011 14:42:53 +0000
+
+xapian-bindings (1.2.5-2) unstable; urgency=low
+
+  * Use dh_python2 instead of pycentral for Debian >= squeeze and Ubuntu >=
+    natty.  (Closes: #617149)
+  * python/pythontest2.py: With Python 2.7, gc.collect() doesn't always
+    collect all the garbage, so repeat until no further objects are
+    freed.  (Closes: #625679)
+  * ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() -
+    just skip the compaction tests for these versions.
+  * debian/rules: Don't force building against tcl 8.5 in experimental - that
+    was just for the transition to tcl 8.5 being the default.
+  * debian/control.in: Standards-Version: 3.9.2 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Tue, 17 May 2011 02:54:08 +0000
+
+xapian-bindings (1.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 05 Apr 2011 13:52:50 +0000
+
+xapian-bindings (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:48:14 +0000
+
+xapian-bindings (1.2.3-3) unstable; urgency=low
+
+  * debian/libxapian-ruby1.9.1.doc-base: Correct paths to rdocs to say "1.9.1"
+    not "1.9".
+
+ -- Olly Betts <olly@survex.com>  Fri, 27 Aug 2010 00:35:42 +0000
+
+xapian-bindings (1.2.3-2) unstable; urgency=low
+
+  * debian/rules: Stop trying to build against tcl 8.5.
+  * debian/rules: dh_clean -k -> dh_prep.
+
+ -- Olly Betts <olly@survex.com>  Wed, 25 Aug 2010 16:22:03 +0000
+
+xapian-bindings (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+  * debian/control.in:
+    + Standards-Version: 3.9.1 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 09:05:31 +0000
+
 xapian-bindings (1.2.2-1) experimental; urgency=low
 
   * New upstream release.
@@ -258,7 +322,7 @@ xapian-bindings (1.0.4-1) unstable; urgency=low
     + "make clean" now removes python/testsuite.pyc.  Closes: #442766
   * debian/rules: Override RUBY_LIB and RUBY_LIB_ARCH which now have different
     defaults upstream.
-  * debian/patch: Backport configure fix from upstream SVN to allow tcl8 to be 
+  * debian/patch: Backport configure fix from upstream SVN to allow tcl8 to be
     built on unstable.
   * debian/tclxapian.install: Also package "usr/share/tcltk/xapian*" which is
     where files get installed on unstable.
@@ -448,7 +512,7 @@ xapian-bindings (0.9.6-1) unstable; urgency=low
     in the path.
 
  -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:11:41 +0100
-  
+
 xapian-bindings (0.9.5-3) unstable; urgency=low
 
   * PHP bindings packages now have the correct "Depends:" and are able to
@@ -497,7 +561,7 @@ xapian-bindings (0.9.4-1) unstable; urgency=low
   * New upstream release.  (No package was made of 0.9.3)
   * Query constructor which takes a list of strings fixed.
   * Zero byte cleanliness.
-  * Improved tests. 
+  * Improved tests.
   * Other small fixes.
 
  -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:32:31 +0000

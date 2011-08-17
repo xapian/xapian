@@ -54,13 +54,13 @@ encode_length(T len)
 	result += '\xff';
 	len -= 255;
 	while (true) {
-	    unsigned char byte = static_cast<unsigned char>(len & 0x7f);
+	    unsigned char b = static_cast<unsigned char>(len & 0x7f);
 	    len >>= 7;
 	    if (!len) {
-		result += (byte | static_cast<unsigned char>(0x80));
+		result += (b | static_cast<unsigned char>(0x80));
 		break;
 	    }
-	    result += byte;
+	    result += b;
 	}
     }
     return result;

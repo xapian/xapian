@@ -45,6 +45,7 @@
 
 using namespace std;
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
 MatchSpy::~MatchSpy() {}
 
@@ -93,7 +94,7 @@ class ValueCountTermList : public TermList {
   private:
     map<string, Xapian::doccount>::const_iterator it;
     bool started;
-    Xapian::Internal::RefCntPtr<Xapian::ValueCountMatchSpy::Internal> spy;
+    intrusive_ptr<Xapian::ValueCountMatchSpy::Internal> spy;
   public:
 
     ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_) {
@@ -136,12 +137,13 @@ class ValueCountTermList : public TermList {
 	return it == spy->values.end();
     }
 
-    Xapian::termcount get_approx_size() const { unsupported_method(); }
-    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
+    Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
+	return Xapian::PositionIterator();
     }
-    Xapian::termcount positionlist_count() const { unsupported_method(); }
+    Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
 
 /** A string with a corresponding frequency.
@@ -233,12 +235,13 @@ class StringAndFreqTermList : public TermList {
 	return it == values.end();
     }
 
-    Xapian::termcount get_approx_size() const { unsupported_method(); }
-    Xapian::termcount get_wdf() const { unsupported_method(); }
+    Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
+    Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
     Xapian::PositionIterator positionlist_begin() const {
 	unsupported_method();
+	return Xapian::PositionIterator();
     }
-    Xapian::termcount positionlist_count() const { unsupported_method(); }
+    Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
 
 /** Get the most frequent items from a map from string to frequency.

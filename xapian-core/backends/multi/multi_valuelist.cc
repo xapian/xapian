@@ -29,6 +29,7 @@
 #include <algorithm>
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
 struct SubValueList {
     ValueList * valuelist;
@@ -80,7 +81,7 @@ template<class CLASS> struct delete_ptr {
     void operator()(CLASS *p) { delete p; }
 };
 
-MultiValueList::MultiValueList(const vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> > & dbs,
+MultiValueList::MultiValueList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,
 			       Xapian::valueno slot_)
     : current_docid(0), slot(slot_), multiplier(dbs.size())
 {
@@ -89,7 +90,7 @@ MultiValueList::MultiValueList(const vector<Xapian::Internal::RefCntPtr<Xapian::
     valuelists.reserve(multiplier);
     try {
 	unsigned db_idx = 0;
-	vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
+	vector<intrusive_ptr<Xapian::Database::Internal> >::const_iterator i;
 	for (i = dbs.begin(); i != dbs.end(); ++i) {
 	    ValueList * vl = (*i)->open_value_list(slot);
 	    valuelists.push_back(new SubValueList(vl, db_idx));

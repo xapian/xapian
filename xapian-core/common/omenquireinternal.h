@@ -2,8 +2,9 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,7 +101,6 @@ class MSetItem {
 	Xapian::doccount collapse_count;
 
 	/** Used when sorting by value. */
-	/* FIXME: why not just cache the Xapian::Document here!?! */
 	string sort_key;
 
 	/// Return a string describing this object.
@@ -113,7 +113,7 @@ class MSetItem {
  *  This allows the implementation of Xapian::Enquire to be hidden and reference
  *  counted.
  */
-class Enquire::Internal : public Xapian::Internal::RefCntBase {
+class Enquire::Internal : public Xapian::Internal::intrusive_base {
     private:
 	/// The database which this enquire object uses.
 	const Xapian::Database db;
@@ -177,23 +177,20 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      const RSet *omrset,
-		      const MatchDecider *mdecider,
-		      const MatchDecider *matchspy_legacy) const;
+		      const MatchDecider *mdecider) const;
+
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
-		      double k, const ExpandDecider *edecider) const;
+		      double k, const ExpandDecider *edecider, Xapian::weight min_wt) const;
 
 	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
 
 	Xapian::doccount get_termfreq(const string &tname) const;
 
-	void register_match_decider(const string &name,
-				    const MatchDecider *mdecider);
-
 	string get_description() const;
 };
 
-class MSet::Internal : public Xapian::Internal::RefCntBase {
+class MSet::Internal : public Xapian::Internal::intrusive_base {
     public:
 	/// Factor to multiply weights by to convert them to percentages.
 	double percent_factor;
@@ -217,7 +214,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 
     public:
 	/// Xapian::Enquire reference, for getting documents.
-	Xapian::Internal::RefCntPtr<const Enquire::Internal> enquire;
+	Xapian::Internal::intrusive_ptr<const Enquire::Internal> enquire;
 
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
@@ -314,7 +311,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
 };
 
-class RSet::Internal : public Xapian::Internal::RefCntBase {
+class RSet::Internal : public Xapian::Internal::intrusive_base {
     friend class Xapian::RSet;
 
     private:

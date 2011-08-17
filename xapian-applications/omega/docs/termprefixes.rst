@@ -4,8 +4,8 @@ Term Prefixes
 
 Xapian itself doesn't put any restrictions on the contents of a term, other
 than that terms can't be empty, and there's an upper limit on the length
-(which is backend dependent - flint and quartz allow just over 240 characters,
-except that zero bytes count double in this length).
+(which is backend dependent - chert and brass allow 245 bytes, except that
+zero bytes count double in this length).
 
 However, Omega and ``Xapian::QueryParser`` impose some rules to aid
 interoperability and make it easier to write code that doesn't require
@@ -33,10 +33,14 @@ A
         Author
 D	
         Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
+E
+        Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
 G	
         newsGroup (or similar entity - e.g. a web forum name)
 H	
         Hostname
+I
+	boolean filter term for "can see" permission (mnemonic: Include)
 K	
         Keyword
 L	
@@ -45,6 +49,8 @@ M
         Month (numeric format: YYYYMM)
 N	
         ISO couNtry code (or domaiN name)
+O
+	Owner
 P	
         Pathname
 Q	
@@ -59,10 +65,8 @@ U
         full URL of indexed document - if the resulting term would be > 240
 	characters, a hashing scheme is used to prevent overflowing
 	the Xapian term length limit (see omindex for how to do this).
-W	
-        "weak" (approximately 10 day intervals, taken as YYYYMMD from
-	the D term, and changing the last digit to a '2' if it's a '3')
-	(unused by Xapian since 0.9.7)
+V
+	boolean filter term for "can't see" permission (mnemonic: grep -v)
 X	
         longer prefix for user-defined use
 Y	
@@ -70,7 +74,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: BCEFIJOV
+Reserved but currently unallocated: BCFJW
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.
@@ -162,4 +166,13 @@ the decoupling of "UI prefix" and "term prefix" means you can easily translate
 the "UI prefixes" if you have frontends in different languages.
 
 Note that if you want words from the subject to be found without a prefix, you
-need to generate unprefixed terms as well as the prefixed ones.
+either need to generate unprefixed terms as well as the prefixed ones, or map
+the empty prefix to both "" and "S" like so::
+
+    Xapian::QueryParser qp;
+    // Search both subject and body if no field is specified:
+    qp.add_prefix("", "");
+    qp.add_prefix("", "S");
+    // Search just the subject if 'subject:' is specified:
+    qp.add_prefix("subject", "S");
+    Xapian::Query query = qp.parse_query(user_query_string);

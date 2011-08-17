@@ -1,6 +1,6 @@
 # generate-exceptions: generate C++ files for Xapian's exception hierarchy.
 #
-# Copyright (C) 2003,2004,2006,2007,2008,2009 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2009,2011 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -18,7 +18,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 use strict;
-use exception_data qw($copyright $generated_warning @baseclasses @classes);
+use exception_data qw(
+    $copyright $generated_warning @baseclasses @classes %classcode
+);
 
 open HDR, ">include/xapian/error.h" or die $!;
 open DISPATCH, ">include/xapian/errordispatch.h" or die $!;
@@ -68,6 +70,12 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      */
     std::string context;
 
+    /** The error string derived from my_errno.
+     *
+     *  This string is generated from my_errno lazily.
+     */
+    mutable std::string error_string;
+
     /// The type of this error (e.g. DocNotFoundError.)
     const char * type;
 
@@ -85,12 +93,6 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  platforms where errno is a preprocessor macro.
      */
     int my_errno;
-
-    /** The error string derived from my_errno.
-     *
-     *  This string is generated from my_errno lazily.
-     */
-    mutable std::string error_string;
 
     /// True if this error has already been passed to an ErrorHandler.
     bool already_handled;
@@ -110,12 +112,12 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      */
     Error(const std::string &msg_, const std::string &context_,
 	  const char * type_, int errno_)
-	: msg(msg_), context(context_), type(type_), my_errno(errno_),
-	  error_string(), already_handled(false) { }
+	: msg(msg_), context(context_), error_string(), type(type_),
+	  my_errno(errno_), already_handled(false) { }
 
   public:
     /// The type of this error (e.g. "DocNotFoundError".)
-    const char * get_type() const { return type; }
+    const char * get_type() const { return type + 1; }
 
     /// Message giving details of the error, intended for human consumption.
     const std::string & get_msg() const { return msg; }
@@ -179,8 +181,9 @@ EOF
 for (@classes) {
     chomp;
     my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my $code = sprintf('\%03o', $classcode{$class});
 
-    print DISPATCH "if (type == \"$class\") throw Xapian::$class(msg, context, error_string);\n";
+    print DISPATCH "case '$code': throw Xapian::$class(msg, context, error_string);\n";
 
     print HDR <<EOF;
 
@@ -193,13 +196,13 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
      *  \@param error_string_	Optional string describing error.  May be NULL.
      */
     $class(const std::string \&msg_, const std::string \&context_, const char * error_string_)
-	: $parent(msg_, context_, "$class", error_string_) {}
+	: $parent(msg_, context_, "$code$class", error_string_) {}
     /** General purpose constructor which allows setting errno. */
     explicit $class(const std::string \&msg_, const std::string \&context_ = std::string(), int errno_ = 0)
-	: $parent(msg_, context_, "$class", errno_) {}
+	: $parent(msg_, context_, "$code$class", errno_) {}
     /** Construct from message and errno value. */
     $class(const std::string \&msg_, int errno_)
-	: $parent(msg_, std::string(), "$class", errno_) {}
+	: $parent(msg_, std::string(), "$code$class", errno_) {}
   protected:
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.

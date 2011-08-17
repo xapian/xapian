@@ -1,7 +1,7 @@
 /** @file api_metadata.cc
  * @brief Test the user metadata functionality.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -81,7 +81,7 @@ DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     TEST_EQUAL(dbr.get_metadata("foo"), "");
     db.commit();
     TEST_EQUAL(dbr.get_metadata("foo"), "");
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(db.get_metadata("foo"), "bar");
     TEST_EQUAL(dbr.get_metadata("foo"), "bar");
     TEST_EQUAL(dbr.get_doccount(), 0);
@@ -93,14 +93,14 @@ DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     db.commit();
 
     TEST_EQUAL(dbr.get_metadata("foo"), "bar");
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_metadata("foo"), "baz");
 
     db.set_metadata("foo", "");
     TEST_EQUAL(db.get_metadata("foo"), "");
     db.commit();
     TEST_EQUAL(dbr.get_metadata("foo"), "baz");
-    dbr.reopen();
+    TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_metadata("foo"), "");
 
     TEST_EQUAL(db.get_doccount(), 1);
@@ -137,8 +137,7 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
 }
 
 // Test metadata iterators.
-// !remote because the remote backend doesn't support metadata iteration.
-DEFINE_TESTCASE(metadata5, writable && !remote) {
+DEFINE_TESTCASE(metadata5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.
@@ -241,12 +240,17 @@ DEFINE_TESTCASE(metadata5, writable && !remote) {
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo1");
 
-    // Check that skip_to can move backwards.
-    iter.skip_to("");
+    // Check that skipping to the current key works.
+    iter.skip_to("foo1");
     TEST(iter != db.metadata_keys_end());
-    TEST_EQUAL(*iter, "a");
+    TEST_EQUAL(*iter, "foo1");
 
-    // Skip back to the foo1 key.
+    // Check that skip_to a key before the current one doesn't move forwards.
+    iter.skip_to("a");
+    TEST(iter != db.metadata_keys_end());
+    TEST_REL(*iter, <=, "foo1");
+
+    // Make sure we're back on foo1.
     iter.skip_to("foo1");
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo1");

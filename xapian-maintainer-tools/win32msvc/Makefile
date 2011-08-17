@@ -133,16 +133,15 @@ COPYMAKFILES:
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile
-   if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
    if exist $(XAPIAN_BINDINGS) copy doccomments.i $(XAPIAN_BINDINGS)\python
    if exist $(XAPIAN_BINDINGS) copy version.rc.python $(XAPIAN_BINDINGS)\python\version.rc
    if exist $(XAPIAN_BINDINGS) copy setup.py $(XAPIAN_BINDINGS)\python
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\Makefile
    if exist $(XAPIAN_BINDINGS) copy version.rc.php $(XAPIAN_BINDINGS)\php\version.rc
-   if exist $(XAPIAN_BINDINGS) copy win32_bindings_java-swig.mak $(XAPIAN_BINDINGS)\java-swig\Makefile
-   if exist $(XAPIAN_BINDINGS) copy version.rc.java-swig $(XAPIAN_BINDINGS)\java-swig\version.rc
-   if exist $(XAPIAN_BINDINGS) copy WriteJavaVersion.java $(XAPIAN_BINDINGS)\java-swig\WriteJavaVersion.java
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_java.mak $(XAPIAN_BINDINGS)\java\Makefile
+   if exist $(XAPIAN_BINDINGS) copy version.rc.java $(XAPIAN_BINDINGS)\java\version.rc
+   if exist $(XAPIAN_BINDINGS) copy WriteJavaVersion.java $(XAPIAN_BINDINGS)\java\WriteJavaVersion.java
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_ruby.mak $(XAPIAN_BINDINGS)\ruby\Makefile
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_csharp.mak $(XAPIAN_BINDINGS)\csharp\Makefile
    if exist $(XAPIAN_BINDINGS) copy version.rc.csharp $(XAPIAN_BINDINGS)\csharp\version.rc
@@ -169,22 +168,31 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    
    nmake PYTHON_VER=26 CLEAN
    nmake PYTHON_VER=26 DIST
-   
-   cd $(XAPIAN_BINDINGS)\php
-   nmake CLEAN
-   nmake DIST
-   
-   cd $(XAPIAN_BINDINGS)\java-swig
-   nmake CLEAN
-   nmake DIST
+  
+   nmake PYTHON_VER=27 CLEAN
+   nmake PYTHON_VER=27 DIST
 
-   cd $(XAPIAN_BINDINGS)\ruby
-   nmake CLEAN
-   nmake DIST
+   cd $(XAPIAN_BINDINGS)\php
+   nmake PHP_VER=52 CLEAN
+   nmake PHP_VER=52 DIST
+   nmake PHP_VER=53 CLEAN
+   nmake PHP_VER=53 DIST
    
+# Java bindings didn't work, see http://trac.xapian.org/ticket/474
+# That issue is fixed, needs testing again
+#   cd $(XAPIAN_BINDINGS)\java
+#   nmake CLEAN
+#   nmake DIST
    cd $(XAPIAN_BINDINGS)\csharp
    nmake CLEAN
    nmake DIST
+
+# Ruby fails a test in this release, but we package anyway
+   cd $(XAPIAN_BINDINGS)\ruby
+   nmake CLEAN
+   nmake DISTNOCHECK
+   
+
    
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h

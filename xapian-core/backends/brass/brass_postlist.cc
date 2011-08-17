@@ -1,7 +1,7 @@
 /* brass_postlist.cc: Postlists in a brass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,8 @@
 #include "pack.h"
 #include "str.h"
 
+using Xapian::Internal::intrusive_ptr;
+
 Xapian::doccount
 BrassPostListTable::get_termfreq(const string & term) const
 {
@@ -59,7 +61,7 @@ BrassPostListTable::get_collection_freq(const string & term) const
 
 Xapian::termcount
 BrassPostListTable::get_doclength(Xapian::docid did,
-				  Xapian::Internal::RefCntPtr<const BrassDatabase> db) const {
+				  intrusive_ptr<const BrassDatabase> db) const {
     if (!doclen_pl.get()) {
 	// Don't keep a reference back to the database, since this
 	// would make a reference loop.
@@ -72,7 +74,7 @@ BrassPostListTable::get_doclength(Xapian::docid did,
 
 bool
 BrassPostListTable::document_exists(Xapian::docid did,
-				    Xapian::Internal::RefCntPtr<const BrassDatabase> db) const
+				    intrusive_ptr<const BrassDatabase> db) const
 {
     if (!doclen_pl.get()) {
 	// Don't keep a reference back to the database, since this
@@ -136,6 +138,8 @@ class Brass::PostlistChunkWriter {
 
 	string chunk;
 };
+
+using Brass::PostlistChunkWriter;
 
 // Static functions
 
@@ -292,6 +296,8 @@ class Brass::PostlistChunkReader {
     void next();
 };
 
+using Brass::PostlistChunkReader;
+
 void
 PostlistChunkReader::next()
 {
@@ -312,7 +318,7 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    LOGCALL_VOID(DB, "PostlistChunkWriter::PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
+    LOGCALL_CTOR(DB, "PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
 }
 
 void
@@ -667,16 +673,16 @@ void BrassPostList::read_number_of_entries(const char ** posptr,
  *  frequency, then the docid of the first document, then has the header of a
  *  standard chunk.
  */
-BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> this_db_,
+BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 			     const string & term_,
 			     bool keep_reference)
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
-	  cursor(this_db_->postlist_table.cursor_get()),
-	  is_at_end(false)
+	  is_at_end(false),
+	  cursor(this_db_->postlist_table.cursor_get())
 {
-    LOGCALL_VOID(DB, "BrassPostList::BrassPostList", this_db_.get() | term_ | keep_reference);
+    LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | keep_reference);
     string key = BrassPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
@@ -703,7 +709,7 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 
 BrassPostList::~BrassPostList()
 {
-    LOGCALL_VOID(DB, "BrassPostList::~BrassPostList", NO_ARGS);
+    LOGCALL_DTOR(DB, "BrassPostList");
 }
 
 Xapian::termcount

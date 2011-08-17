@@ -138,8 +138,8 @@ DEFINE_TESTCASE(closedb1, backend) {
 DEFINE_TESTCASE(closedb2, writable && !inmemory && !remote) {
     Xapian::WritableDatabase dbw1(get_named_writable_database("apitest_closedb2"));
     TEST_EXCEPTION(Xapian::DatabaseLockError,
-		   Xapian::WritableDatabase(get_named_writable_database_path("apitest_closedb2"),
-					    Xapian::DB_OPEN));
+		   Xapian::WritableDatabase db(get_named_writable_database_path("apitest_closedb2"),
+					       Xapian::DB_OPEN));
     dbw1.close();
     Xapian::WritableDatabase dbw2 = get_named_writable_database("apitest_closedb2");
     TEST_EXCEPTION(Xapian::DatabaseError, dbw1.postlist_begin("paragraph"));

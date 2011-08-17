@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2010 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -37,7 +37,8 @@ OrPostList::OrPostList(PostList *left_,
 		       MultiMatch *matcher_,
 		       Xapian::doccount dbsize_)
 	: BranchPostList(left_, right_, matcher_),
-	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
+	  lhead(0), rhead(0), lvalid(false), rvalid(false),
+	  lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
     LOGCALL_CTOR(MATCH, "OrPostList", left_ | right_ | matcher_ | dbsize_);
     AssertRel(left_->get_termfreq_est(),>=,right_->get_termfreq_est());
@@ -55,7 +56,7 @@ OrPostList::next(Xapian::weight w_min)
 		LOGLINE(MATCH, "OR -> AND");
 		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		Xapian::docid newdocid = std::max(lhead, rhead);
-		if (lhead == rhead) {
+		if (newdocid == 0 || (lvalid && rvalid && lhead == rhead)) {
 		    ++newdocid;
 		}
 		skip_to_handling_prune(ret, newdocid, w_min, matcher);
@@ -91,11 +92,12 @@ OrPostList::next(Xapian::weight w_min)
     }
 
     bool ldry = false;
-    bool rnext = false;
+    bool rnext = !rvalid;
 
-    if (lhead <= rhead) {
+    if (!lvalid || lhead <= rhead) {
         if (lhead == rhead) rnext = true;
         next_handling_prune(l, w_min - rmax, matcher);
+	lvalid = true;
 	if (l->at_end()) ldry = true;
     } else {
 	rnext = true;
@@ -103,6 +105,7 @@ OrPostList::next(Xapian::weight w_min)
 
     if (rnext) {
         next_handling_prune(r, w_min - lmax, matcher);
+	rvalid = true;
         if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
@@ -160,11 +163,13 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     bool ldry = false;
     if (lhead < did) {
 	skip_to_handling_prune(l, did, w_min - rmax, matcher);
+	lvalid = true;
 	ldry = l->at_end();
     }
 
     if (rhead < did) {
 	skip_to_handling_prune(r, did, w_min - lmax, matcher);
+	rvalid = true;
 
 	if (r->at_end()) {
 	    PostList *ret = l;
@@ -219,14 +224,14 @@ OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
     }
 
     bool ldry = false;
-    bool lvalid = false;
-    bool rvalid = false;
-    if (lhead <= did) {
+    if (!lvalid || lhead < did) {
+	lvalid = false;
 	check_handling_prune(l, did, w_min - rmax, matcher, lvalid);
 	ldry = l->at_end();
     }
 
-    if (rhead <= did) {
+    if (!rvalid || rhead <= did) {
+	rvalid = false;
 	check_handling_prune(r, did, w_min - lmax, matcher, rvalid);
 
 	if (r->at_end()) {

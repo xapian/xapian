@@ -52,7 +52,7 @@ NearPostList::test_doc()
     LOGCALL(MATCH, bool, "NearPostList::test_doc", NO_ARGS);
     std::vector<PositionList *> plists;
 
-    std::vector<PostList *>::iterator i;
+    std::vector<PostList *>::const_iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
 	PositionList * p = (*i)->read_position_list();
 	// If p is NULL, the backend doesn't support positionlists
@@ -178,7 +178,7 @@ PhrasePostList::test_doc()
     LOGCALL(MATCH, bool, "PhrasePostList::test_doc", NO_ARGS);
     std::vector<PositionList *> plists;
 
-    std::vector<PostList *>::iterator i;
+    std::vector<PostList *>::const_iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
 	PositionList * p = (*i)->read_position_list();
 	// If p is NULL, the backend doesn't support positionlists

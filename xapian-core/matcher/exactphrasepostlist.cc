@@ -31,10 +31,11 @@
 using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
-					 const vector<PostList*> &terms_)
-	: SelectPostList(source_), terms(terms_)
+					 const vector<PostList*>::const_iterator &terms_begin,
+					 const vector<PostList*>::const_iterator &terms_end)
+    : SelectPostList(source_), terms(terms_begin, terms_end)
 {
-    size_t n = terms_.size();
+    size_t n = terms.size();
     poslists = new PositionList*[n];
     try {
 	order = new unsigned[n];
@@ -138,10 +139,10 @@ ExactPhrasePostList::get_wdf() const
     // order, and phrases are therefore rarer than near matches and (non-exact)
     // phrase matches.
 
-    std::vector<PostList *>::const_iterator i = terms.begin();
+    vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
     for (; i != terms.end(); i++) {
-	wdf = std::min(wdf, (*i)->get_wdf());
+	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
 }

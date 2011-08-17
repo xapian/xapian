@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -254,8 +254,8 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
     tout << "available languages '" << langs << "'" << endl;
     TEST(!langs.empty());
 
-    // Also test the language codes.
-    langs += " da nl en fi fr de hu it no pt ro ru es sv tr";
+    // Also test the language codes and none.
+    langs += " da nl en fi fr de hu it no pt ro ru es sv tr none";
 
     string::size_type i = 0;
     while (true) {
@@ -280,11 +280,9 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	i = spc + 1;
     }
 
-    // Check that we get an exception for a bogus language name.
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stemmer("bogus"));
-
     // Stem("") should give an object which doesn't change any input.
     Xapian::Stem stem_nothing = Xapian::Stem("");
+    TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
 
     return true;
 }

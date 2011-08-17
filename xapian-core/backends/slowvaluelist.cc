@@ -1,7 +1,7 @@
 /** @file slowvaluelist.cc
  * @brief Slow implementation for backends which don't streamed values.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,9 +65,11 @@ SlowValueList::next()
 	try {
 	    // Open document lazily so that we don't waste time checking for
 	    // its existence.
+	    void * d = db.get_document_lazily_(current_did);
+	    if (!d)
+		continue;
 	    AutoPtr<Xapian::Document::Internal>
-		doc(db.get_document_lazily(current_did));
-	    if (!doc.get()) continue;
+		doc(static_cast<Xapian::Document::Internal*>(d));
 	    string value = doc->get_value(slot);
 	    if (!value.empty()) {
 		swap(current_value, value);
@@ -109,9 +111,10 @@ SlowValueList::check(Xapian::docid did)
 
     current_did = did;
     try {
-	AutoPtr<Xapian::Document::Internal>
-	    doc(db.get_document_lazily(current_did));
-	if (doc.get()) {
+	void * d = db.get_document_lazily_(current_did);
+	if (d) {
+	    AutoPtr<Xapian::Document::Internal>
+		doc(static_cast<Xapian::Document::Internal*>(d));
 	    current_value = doc->get_value(slot);
 	    if (!current_value.empty()) return true;
 	}

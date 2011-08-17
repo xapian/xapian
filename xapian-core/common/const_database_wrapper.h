@@ -2,7 +2,7 @@
  * @brief Wrapper which exposes only the const methods of database internals.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_CONST_DATABASE_WRAPPER_H
 #define XAPIAN_INCLUDED_CONST_DATABASE_WRAPPER_H
 
-#include "xapian/base.h"
+#include "xapian/intrusive_ptr.h"
 #include "database.h"
 #include "noreturn.h"
 
@@ -39,13 +39,13 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     void operator=(const ConstDatabaseWrapper &);
 
     /// The const database which this wrapper wraps.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> realdb;
 
     /// Raise an exception complaining about access to a non-const method.
     XAPIAN_NORETURN(void nonconst_access() const);
 
   public:
-    ConstDatabaseWrapper(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb_);
+    ConstDatabaseWrapper(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> realdb_);
 
     // Const methods: these are proxied to realdb.
     Xapian::doccount get_doccount() const;
@@ -55,9 +55,9 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::doccount get_termfreq(const string & tname) const;
     Xapian::termcount get_collection_freq(const string & tname) const;
-    Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-    std::string get_value_lower_bound(Xapian::valueno valno) const;
-    std::string get_value_upper_bound(Xapian::valueno valno) const;
+    Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+    std::string get_value_lower_bound(Xapian::valueno slot) const;
+    std::string get_value_upper_bound(Xapian::valueno slot) const;
     bool term_exists(const string & tname) const;
     bool has_positions() const;
     LeafPostList * open_post_list(const string & tname) const;
@@ -88,7 +88,7 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     void remove_synonym(const string & term, const string & synonym) const;
     void clear_synonyms(const string & term) const;
     void set_metadata(const string &, const string &);
-    void reopen();
+    bool reopen();
     void close();
     void commit();
     void cancel();

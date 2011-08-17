@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@
 
 using namespace std;
 
-class ValueStats;
+struct ValueStats;
 
 // Class representing a posting (a term/doc pair, and
 // all the relevant positional information, is a single posting)
@@ -145,9 +145,9 @@ class InMemoryPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
-	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+	InMemoryPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
 			 const InMemoryTerm & imterm, const std::string & term_);
     public:
 	Xapian::doccount get_termfreq() const;
@@ -175,9 +175,9 @@ class InMemoryAllDocsPostList : public LeafPostList {
     private:
 	Xapian::docid did;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
-	InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db);
+	InMemoryAllDocsPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db);
     public:
 	Xapian::doccount get_termfreq() const;
 
@@ -206,11 +206,11 @@ class InMemoryTermList : public TermList {
 	Xapian::termcount terms;
 	bool started;
 
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 	Xapian::docid did;
 	Xapian::termcount document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+	InMemoryTermList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
 			 Xapian::docid did,
 			 const InMemoryDoc & doc,
 			 Xapian::termcount len);
@@ -308,7 +308,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     ~InMemoryDatabase();
 
-    void reopen();
+    bool reopen();
     void close();
     bool is_closed() const { return closed; }
 

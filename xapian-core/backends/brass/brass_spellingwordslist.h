@@ -35,7 +35,7 @@ class BrassSpellingWordsList : public AllTermsList {
     void operator=(const BrassSpellingWordsList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the spelling table reading termnames from
      *  the keys.
@@ -54,7 +54,7 @@ class BrassSpellingWordsList : public AllTermsList {
     void read_termfreq() const;
 
   public:
-    BrassSpellingWordsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+    BrassSpellingWordsList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 			   BrassCursor * cursor_)
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Seek to the entry before the first key with a "W" prefix, so the

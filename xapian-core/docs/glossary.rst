@@ -1,5 +1,5 @@
 .. Copyright (C) 2007 Jenny Black
-.. Copyright (C) 2007,2008,2009 Olly Betts
+.. Copyright (C) 2007,2008,2009,2011 Olly Betts
 .. Copyright (C) 2007 Deron Meranda
 
 ========
@@ -81,9 +81,8 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  differentiators between relevant and non-relevant documents.
 
 **Flint**
- Flint is the default database format used in Xapian 1.0.x.  Flint is very
- efficient and highly scalable.  It supports incremental modifications, and
- concurrent single-writer and multiple-reader access to a database.
+ Flint was the default database format used in Xapian 1.0.x.  It was
+ deprecated in 1.2.x and removed in 1.3.0.
 
 **Index**
  If a document is described by a term, this term is said to index the document.

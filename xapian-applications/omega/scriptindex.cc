@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -292,7 +292,7 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
-		string val = string(j, i);
+		string val(j, i);
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
 			cout << filename << ':' << line_no
@@ -302,18 +302,6 @@ parse_index_script(const string &filename)
 		}
 		switch (code) {
 		    case Action::INDEX:
-			if (val == "nopos") {
-			    // INDEX used to take an optional argument which
-			    // could be "nopos" to mean the same that
-			    // INDEXNOPOS now does.  FIXME:1.3.0 remove this
-			    // error eventually
-			    cerr << filename << ':' << line_no
-				 << ": Support for 'index=nopos' has been "
-				    "removed - use 'indexnopos' instead"
-				 << endl;
-			    exit(1);
-			}
-			/* FALLTHRU */
 		    case Action::INDEXNOPOS:
 			actions.push_back(Action(code, val, weight));
 			useless_weight_pos = string::npos;
@@ -518,7 +506,7 @@ index_file(const char *fname, istream &stream,
 			if (prefix_needs_colon(term, value[0])) term += ':';
 			term += value;
 
-			doc.add_term(term);
+			doc.add_boolean_term(term);
 			break;
 		    }
 		    case Action::HASH: {
@@ -534,7 +522,8 @@ index_file(const char *fname, istream &stream,
 			break;
 		    case Action::LOAD: {
 			bool truncated = false;
-			if (!load_file(value, i->get_num_arg(), true,
+			// FIXME: Use NOATIME if we own the file or are root.
+			if (!load_file(value, i->get_num_arg(), NOCACHE,
 				       value, truncated)) {
 			    cerr << "Couldn't load file '" << value << "': "
 				 << strerror(errno) << endl;
@@ -557,16 +546,7 @@ index_file(const char *fname, istream &stream,
 			    p.parse_html(value, "iso-8859-1", false);
 			} catch (const string & newcharset) {
 			    p.reset();
-			    try {
-				p.parse_html(value, newcharset, true);
-			    } catch (bool) {
-				// MyHtmlParser throws a bool to abandon
-				// parsing at </body> or when indexing is
-				// disallowed.
-			    }
-			} catch (bool) {
-			    // MyHtmlParser throws a bool to abandon parsing at
-			    // </body> or when indexing is disallowed.
+			    p.parse_html(value, newcharset, true);
 			}
 			if (p.indexing_allowed)
 			    value = p.dump;
@@ -606,7 +586,7 @@ again:
 			} catch (const Xapian::Error &e) {
 			    // Hmm, what happened?
 			    cout << "Caught exception in UNIQUE!" << endl;
-			    cout << "E: " << e.get_msg() << endl;
+			    cout << "E: " << e.get_description() << endl;
 			    database.commit();
 			    goto again;
 			}
@@ -643,13 +623,13 @@ again:
 			}
 			if (yyyymmdd.empty()) break;
 			// Date (YYYYMMDD)
-			doc.add_term("D" + yyyymmdd);
+			doc.add_boolean_term("D" + yyyymmdd);
 			yyyymmdd.resize(6);
 			// Month (YYYYMM)
-			doc.add_term("M" + yyyymmdd);
+			doc.add_boolean_term("M" + yyyymmdd);
 			yyyymmdd.resize(4);
 			// Year (YYYY)
-			doc.add_term("Y" + yyyymmdd);
+			doc.add_boolean_term("Y" + yyyymmdd);
 			break;
 		    }
 		    default:
@@ -693,7 +673,7 @@ again:
 		    if (verbose) cout << "Replace: " << docid << endl;
 		    repcount ++;
 		} catch (const Xapian::Error &e) {
-		    cout << "E: " << e.get_msg() << endl;
+		    cout << "E: " << e.get_description() << endl;
 		    // Possibly the document was deleted by another
 		    // process in the meantime...?
 		    docid = database.add_document(doc);
@@ -769,15 +749,20 @@ try {
     argc -= optind;
     if (show_help || argc < 2) {
 	cout << PROG_NAME" - "PROG_DESC"\n"
-"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
+"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
+"\n"
 "Creates or updates a Xapian database with the data from the input files listed\n"
-"on the command line.  If no files are specified, data is read from stdin.\n\n"
+"on the command line.  If no files are specified, data is read from stdin.\n"
+"\n"
+"See http://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
+"format for INDEXER_SCRIPT.\n"
+"\n"
 "Options:\n"
 "  -v, --verbose       display additional messages to aid debugging\n"
 "      --overwrite     create the database anew (the default is to update if\n"
 "                      the database already exists)\n";
 	print_stemmer_help("");
-	print_help_and_version_help("", 'V');
+	print_help_and_version_help("");
 	exit(show_help ? 0 : 1);
     }
 
@@ -824,7 +809,7 @@ try {
     cout << "records (added, replaced, deleted) = (" << addcount << ", "
 	 << repcount << ", " << delcount << ")" << endl;
 } catch (const Xapian::Error &error) {
-    cout << "Exception: " << error.get_msg() << endl;
+    cout << "Exception: " << error.get_description() << endl;
     exit(1);
 } catch (const std::bad_alloc &) {
     cout << "Exception: std::bad_alloc" << endl;

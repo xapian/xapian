@@ -1,3 +1,41 @@
+xapian-omega (1.2.5-2) UNRELEASED; urgency=low
+
+  * debian/control.in: Standards-Version: 3.9.2 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Thu, 12 May 2011 02:59:24 +0000
+
+xapian-omega (1.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Add zlib1g-dev to B-D for hardy, which needs it, probably
+    because of the new libmagic-dev B-D.
+  * debian/xapian-omega.postinst,debian/xapian-omega.postrm: Use "set -e"
+    rather than "#!/bin/sh -e" so the "-e" is used even if the script is run
+    explicitly using "sh /path/to/script".
+
+ -- Olly Betts <olly@survex.com>  Tue, 05 Apr 2011 13:12:57 +0000
+
+xapian-omega (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+    + debian/control: Add libmagic-dev to build deps as upstream now uses it.
+    + debian/control: Suggests: libemail-outlook-message-perl and
+      libhtml-parser-perl for Outlook .msg parsing, and rpm for indexing RPM
+      package files.
+    + debian/xapian-omega.install: Package new script outlookmsg2html.
+  * debian/rules: dh_clean -k -> dh_prep (fixing lintian warning).
+
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:47:15 +0000
+
+xapian-omega (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+  * debian/control.in:
+    + Standards-Version: 3.9.1 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 08:38:35 +0000
+
 xapian-omega (1.2.2-1) experimental; urgency=low
 
   * New upstream release.

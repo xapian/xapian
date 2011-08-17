@@ -1,6 +1,6 @@
 /* values.h: constants and functions for document value handling.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #ifndef OMEGA_INCLUDED_VALUES_H
 #define OMEGA_INCLUDED_VALUES_H
 
+#include <cstring>
 #include <string>
 
 // Include these to get uint32_t and htonl, etc.
@@ -44,14 +45,15 @@ inline uint32_t htonl(uint32_t v) {
 
 enum value_slot {
     VALUE_LASTMOD = 0,	// 4 byte big endian value - seconds since 1970.
-    VALUE_MD5 = 1	// 16 byte MD5 checksum of original document.
+    VALUE_MD5 = 1,	// 16 byte MD5 checksum of original document.
+    VALUE_SIZE = 2	// sortable_serialise(<file size in bytes>).
 };
 
 inline uint32_t binary_string_to_int(const std::string &s)
 {
     if (s.size() != 4) return (uint32_t)-1;
     uint32_t v;
-    memcpy(&v, s.data(), 4);
+    std::memcpy(&v, s.data(), 4);
     return ntohl(v);
 }
 

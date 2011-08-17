@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2010 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 
 #include "progclient.h"
 #include <xapian/error.h>
+#include "closefrom.h"
 #include "debuglog.h"
 
 #include <string>
@@ -37,6 +38,7 @@
 # include <sys/socket.h>
 # include <sys/wait.h>
 #else
+# include <cstdio> // For sprintf().
 # include <io.h>
 #endif
 
@@ -70,7 +72,7 @@ ProgClient::ProgClient(const string &progname, const string &args,
         ),
 			 timeout_, get_progcontext(progname, args), writable)
 {
-    LOGCALL_VOID(DB, "ProgClient::ProgClient", progname | args | timeout_ | writable);
+    LOGCALL_CTOR(DB, "ProgClient", progname | args | timeout_ | writable);
 }
 
 string
@@ -88,7 +90,7 @@ ProgClient::run_program(const string &progname, const string &args
 			)
 {
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | "[&pid]");
+    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&pid]"));
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */
@@ -125,10 +127,7 @@ ProgClient::run_program(const string &progname, const string &args
     }
 
     // close unnecessary file descriptors
-    int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-    for (int fd = 2; fd < maxfd; ++fd) {
-	::close(fd);
-    }
+    closefrom(2);
 
     // Redirect stderr to /dev/null
     int stderrfd = open("/dev/null", O_WRONLY);

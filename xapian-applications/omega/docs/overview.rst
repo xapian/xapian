@@ -34,10 +34,10 @@ lower-case, and are also stemmed before adding to the
 database.
 
 The "english" stemmer is used by default - you can configure this for omindex
-and scriptindex with "--stemmer LANGUAGE" (use 'none' to disable stemming, see
-omindex --help for the list of accepted language names).  At search time you
-can configure the stemmer by adding $set{stemmer,LANGUAGE} to the top of you
-OmegaScript template.
+and scriptindex with ``--stemmer=LANGUAGE`` (use ``--stemmer=none`` to disable
+stemming, see omindex ``--help`` for the list of accepted language names).  At
+search time you can configure the stemmer by adding ``$set{stemmer,LANGUAGE}``
+to the top of your OmegaScript template.
 
 The two term types are used as follows when building the query:
 B(oolean) terms with the same prefix are ORed together, with all the
@@ -171,21 +171,23 @@ $ omindex -p --db /var/lib/omega/data/default --url /products/large /www/example
 because that would make the large products part of a new site,
 '/products/large', which is unlikely to be what you want, as large
 products would no longer come up in a search of the products
-site. (Note that the --depth-limit option may come in handy if you have
+site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
-omindex has built-in support for indexing HTML, PHP, text files, and AbiWord
-documents.  It can also index a number of other formats using external
-programs.  Filter programs are run with CPU and memory limits to prevent a
-runaway filter from blocking indexing of other files.
+omindex has built-in support for indexing HTML, PHP, text files, CSV
+(Comma-Separated Values) files, and AbiWord documents.  It can also index a
+number of other formats using external programs.  Filter programs are run with
+CPU and memory limits to prevent a runaway filter from blocking indexing of
+other files.
 
-The following formats are currently supported (if you know of a reliable
-filter which can extract text from another useful file format, please let us
-know):
+The following formats are supported as standard (you can tell omindex to use
+other filters too - see below):
 
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
+* SVG (.svg)
+* CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext is available (comes with xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
   with xpdf) are available
@@ -195,14 +197,16 @@ know):
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
 * MS Word documents (.doc, .dot) if antiword is available
-* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with
-  catdoc)
+* MS Excel documents (.xls, .xlb, .xlt, .xlr) if xls2csv is available (comes
+  with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
   catdoc)
 * MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,
   .xltm, .pptx, .pptm, .potx, .potm, .ppsx, .ppsm) if unzip is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
+* MS Outlook message (.msg) if perl with Email::Outlook::Message and
+  HTML::Parser modules is available
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw) if gzip is available
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -210,16 +214,20 @@ know):
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
 * XPS files (.xps) if unzip is available
+* Debian packages (.deb, .udeb) if dpkg-deb is available
+* RPM packages (.rpm) if rpm is available
 
-If you have additional extensions that represent one of these types, you need
-to add an additional MIME mapping using the --mime-type option. For instance::
+If you have additional extensions that represent one of these types, you can
+add an additional MIME mapping using the ``--mime-type`` option.  For
+instance::
 
-$ omindex --db /var/lib/omega/data/default --url /press /www/example/press  --mime-type doc:application/postscript
+$ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type doc:application/postscript
 
-The syntax of --mime-type is 'ext:type', where ext is the extension of
+The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
 of:
 
+   - text/csv
    - text/html
    - text/plain
    - text/rtf
@@ -228,6 +236,7 @@ of:
    - application/pdf
    - application/postscript
    - application/vnd.ms-excel
+   - application/vnd.ms-outlook
    - application/vnd.ms-powerpoint
    - application/vnd.ms-works
    - application/vnd.ms-xpsdocument
@@ -268,11 +277,28 @@ of:
    - application/vnd.wordperfect
    - application/x-abiword
    - application/x-abiword-compressed
+   - application/x-debian-package
    - application/x-dvi
+   - application/x-redhat-package-manager
+   - image/svg+xml
    - image/vnd.djvu
+   - ignore (magic token to tell omindex to quietly ignore such files)
+
+By default, files with the following extensions are marked as 'ignore'::
+
+   - a
+   - css
+   - dll
+   - dylib
+   - exe
+   - js
+   - lib
+   - o
+   - obj
+   - so
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
-for example to not index .doc files, use: --mime-type doc:
+for example to not index .doc files, use: ``--mime-type=doc:``
 
 The lookup of extensions in the MIME mappings is case sensitive, but if an
 extension isn't found and includes upper case ASCII letters, they're converted
@@ -281,30 +307,54 @@ insensitive lookup for mappings specified with a lower-case extension, but
 you can set different handling for differently cased variants if you need
 to.
 
---duplicates configures how omindex handles duplicates (detected on
-URL). 'ignore' means to ignore a document if it already appears to be
-in the database; 'replace' means to replace the document in the
-database with a new one by indexing this file, and 'duplicate' means
-to index this file as a new document, leaving the previous one in the
-database as well. The last strategy is very fast, but is liable to do
-strange things to your results set. In general, 'ignore' is useful for
-completely static documents (e.g. archive sites), while 'replace' is
-the most generally useful.
+You can add support for additional MIME content types (or override existing
+ones) using the ``--filter`` option - for example, if you wanted to handle
+files of MIME type ``application/octet-stream`` by running them through
+``strings -n8``, you can pass the option
+``--filter=application/octet-stream:'strings -n8'``.  The filename of the
+file to be extracted will be appended to this command, separated by a space.
+Commands run via ``--filter`` need to produce UTF-8 text output on stdout.
 
-With 'replace', omindex will remove any document it finds in the
-database that it did not update - in other words, it will clear out
-everything that doesn't exist any more. However if you are building up
+A more complex example of the use of ``--filter`` makes use of OpenOffice,
+via the unoconv script, to extract text from various formats.  First you
+need to start a listening instance (if you don't, unoconv will start up
+OpenOffice for every file, which is rather inefficient) - the ``&`` just
+tell the shell to run it in the background::
+
+  unoconv --listener &
+
+Then run omindex with options such as
+``--filter=application/msword:'unoconv --stdout -f text'`` (you'll want one
+for each format which you want to extract text from with OpenOffice).
+
+If you know of a reliable filter which can extract text from a file format
+which might be of interest to others, please let us know so we can consider
+including it as a standard filter.
+
+The ``--duplicates`` option controls how omindex handles documents which map
+to a URL which is already in the database.  The default (which can be
+explicitly set with ``--duplicates=replace``) is to reindex if the last
+modified time of the file is newer than that recorded in the database.
+The alternative is ``--duplicates=ignore``, which will never reindex an
+existing document.  If you only add documents, this avoids the overhead
+of checking the last modified time.  It also allows you to prioritise
+adding completely new documents to the database over updating existing ones.
+
+By default, omindex will remove any document in the database which has a URL
+that doesn't correspond to a file seen on disk - in other words, it will clear
+out everything that doesn't exist any more.  However if you are building up
 an omega database with several runs of omindex, this is not
 appropriate (as each run would delete the data from the previous run),
-so you should use the --preserve-nonduplicates. Note that if you
+so you should use the ``--no-delete`` option.  Note that if you
 choose to work like this, it is impossible to prune old documents from
 the database using omindex. If this is a problem for you, an
 alternative is to index each subsite into a different database, and
 merge all the databases together when searching.
 
---depth-limit allows you to prevent omindex from descending more than
-a certain number of directories.  If you wish to replicate the old
---no-recurse option, use ----depth-limit=1.
+``--depth-limit`` allows you to prevent omindex from descending more than
+a certain number of directories.  Specifying ``--depth-limit=0`` means no limit
+is imposed on recursion; ``--depth-limit=1`` means don't descend into any
+subdirectories of the start directory.
 
 HTML Parsing
 ============
@@ -320,11 +370,12 @@ which are marked as ``noindex`` or ``none``, for example any of the following::
     <meta name="robots" content="noindex">
     <meta name="robots" content="none">
 
-The parser also understand ht://dig comments to mark sections of the document
-to not index (for example, you can use this to avoid indexing navigation links
-or standard headers/footers) - for example::
+Sometimes it is useful to be able to exclude just part of a page from being
+indexed (for example you may not want to index navigation links, or a footer
+which appears on every page).  To allow this, the parser also understands
+ht://dig-style comments to mark sections of the document to not index::
 
-    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex>
+    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
 
 Boolean terms
 =============
@@ -414,6 +465,10 @@ The OmegaScript templates supplied with Omega are:
  * opensearch - Provides results in OpenSearch format (for more details
    see http://www.opensearch.org/).
  * xml - Provides results in a custom XML format.
+ * emptydocs - Shows a list of documents with zero length.  If CGI parameter
+   TERM is set to a non-empty value, then only documents indexed by that given
+   term are shown (e.g. TERM=Tapplication/pdf to show PDF files with no text);
+   otherwise all zero length documents are shown.
 
 There are also "helper fragments" used by the templates above:
 

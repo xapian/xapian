@@ -36,7 +36,7 @@ using namespace std;
 class NetworkPostList : public LeafPostList {
     friend class RemoteDatabase;
 
-    Xapian::Internal::RefCntPtr<const RemoteDatabase> db;
+    Xapian::Internal::intrusive_ptr<const RemoteDatabase> db;
 
     string postings;
     bool started;
@@ -45,7 +45,7 @@ class NetworkPostList : public LeafPostList {
 
     Xapian::docid lastdocid;
     Xapian::termcount lastwdf;
-    Xapian::Internal::RefCntPtr<PositionList> lastposlist;
+    Xapian::Internal::intrusive_ptr<PositionList> lastposlist;
 
     Xapian::doccount termfreq;
 
@@ -58,7 +58,7 @@ class NetworkPostList : public LeafPostList {
 
   public:
     /// Constructor.
-    NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
+    NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
 		    const string & term_)
 	: LeafPostList(term_),
 	  db(db_), started(false), pos(NULL), pos_end(NULL),

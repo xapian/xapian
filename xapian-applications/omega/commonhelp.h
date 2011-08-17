@@ -23,6 +23,6 @@
 
 void print_package_info(const char *name);
 void print_stemmer_help(const char *spaces);
-void print_help_and_version_help(const char *spaces, char short_version = 'v');
+void print_help_and_version_help(const char *spaces);
 
 #endif // OMEGA_INCLUDED_COMMONHELP_H

@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,9 +34,6 @@ namespace Xapian {
 class Registry;
 
 /** Base class which provides an "external" source of postings.
- *
- *  Warning: the PostingSource interface is currently experimental, and is
- *  liable to change between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow assignment.
@@ -159,7 +156,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     virtual void next(Xapian::weight min_wt) = 0;
 
-    /** Skip forward to the specified docid.
+    /** Advance to the specified docid.
      *
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
@@ -527,7 +524,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
      *  @param key The key looked up from the value slot.
      *  @param weight The weight to give this key.
      */
-    void add_mapping(const std::string &key, double weight);
+    void add_mapping(const std::string &key, double wt);
 
     /** Clear all mappings. */
     void clear_mappings();

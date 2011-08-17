@@ -26,8 +26,9 @@ installed these days.
 Xapian 1.1.0 and higher also requires a library which can generate UUIDs.
 On FreeBSD, NetBSD, and Microsoft Windows, Xapian makes use of built-in UUID
 APIs.  On other platforms, you need to install libuuid which you can find in
-e2fsprogs (http://e2fsprogs.sourceforge.net/).  On Debian and Ubuntu, the
-package to install is uuid-dev, while on Fedora, it is e2fsprogs-devel.
+util-linux-ng (http://userweb.kernel.org/~kzak/util-linux-ng/).  On Debian and
+Ubuntu, the package to install is uuid-dev, while on Fedora, it is
+libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
 
 Compilers
 =========
@@ -38,16 +39,18 @@ or a reasonable approximation to it.
 If you're using MS Visual C++, see the Xapian download page for a link to
 a set of suitable makefiles: http://xapian.org/download
 
-If you're using GCC, we currently recommend GCC 3.3 or newer.
+If you're using GCC, we currently recommend GCC 4.3 or newer (this is the
+oldest version we regularly test with).
 
-The minimum required GCC version is 3.1 (2.95.2 and earlier don't have
-the <sstream> header; 3.0 adds support for the <limits> header and has
-<streambuf> as well as <streambuf.h>, but widespread adoption of GCC3
-didn't happen until after 3.0, and 3.1 was released on 2002-05-15 so
-we now require this as it eliminates some preprocessor conditionals which we
-aren't able to test regularly as we don't have easy access to such old GCC
-versions).  If you really still need to use an older version of GCC, Xapian
-1.0.x should build with GCC 2.95.3 or GCC 3.0.x.
+The oldest version we've tested with at all recently was GCC 3.3, but the
+hard minimum requirement is GCC 3.1 (we rely on the <limits> and <streambuf>
+headers, which were added in GCC 3.0, but requiring GCC 3.1 allows us to
+eliminate some preprocessor conditionals which we are no longer easily able
+to test.  We also doubt GCC 3.0 is still in use since GCC 3.1 was released on
+2002-05-15, and widespread adoption of GCC3 didn't happen until after 3.0).
+
+If you really still need to use an older version of GCC, Xapian 1.0.x should
+build with GCC 2.95.3 or GCC 3.0.x.
 
 When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
 xapian-core's configure automatically detects and passes.  This means your code
@@ -63,6 +66,16 @@ in CXXFLAGS (this is now added automatically by Omega's configure).  You may
 need to do the same when building your own applications.  We don't fully
 understand the issues here yet, but perhaps "-ptused" should be automatically
 set by xapian-config.  Feedback from developers on IRIX is invited.
+
+Multi-Arch
+==========
+
+When using GCC on platforms which support multiple architecture, the simplest
+way to select a non-default architecture is to pass a CXX setting to configure
+which includes the appropriate -m option - e.g. to build for x86 on x86-64
+you would configure with:
+
+./configure CXX='g++ -m32'
 
 Building in a separate directory
 ================================
@@ -88,7 +101,6 @@ Options to give to configure
 
 --enable-backend-brass
 --enable-backend-chert
---enable-backend-flint
 --enable-backend-inmemory
 --enable-backend-remote
 	These options enable (or disable if --disable-backend-XXX is specified)

@@ -8,6 +8,7 @@ endif
 
 RSTDOCS = \
 	cgiparams.rst\
+	index.rst\
 	omegascript.rst\
 	overview.rst\
 	quickstart.rst\

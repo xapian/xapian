@@ -2,7 +2,7 @@
  *  \brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010 Olly Betts
+ * Copyright 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@
 #include "backendmanager.h"
 #include "backendmanager_brass.h"
 #include "backendmanager_chert.h"
-#include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
 #include "backendmanager_remoteprog.h"
@@ -57,17 +56,12 @@ static BackendProperties backend_properties[] = {
 	       "synonyms,replicas,valuestats,generated,brass" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
 	       "synonyms,replicas,valuestats,generated,chert" },
-    { "flint", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,generated,flint" },
     { "multi_brass", "backend,positional,valuestats,multi" },
     { "multi_chert", "backend,positional,valuestats,multi" },
-    { "multi_flint", "backend,positional,multi" },
     { "remoteprog_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remotetcp_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
-    { "remoteprog_flint", "backend,remote,transactions,positional,writable,metadata" },
-    { "remotetcp_flint", "backend,remote,transactions,positional,writable,metadata" },
     { NULL, NULL }
 };
 
@@ -92,7 +86,6 @@ TestRunner::set_properties(const string & properties)
     inmemory = false;
     brass = false;
     chert = false;
-    flint = false;
 
     // Read the properties specified in the string
     string::size_type pos = 0;
@@ -133,8 +126,6 @@ TestRunner::set_properties(const string & properties)
 	    brass = true;
 	else if (propname == "chert")
 	    chert = true;
-	else if (propname == "flint")
-	    flint = true;
 	else
 	    throw Xapian::InvalidArgumentError("Unknown property '" + propname + "' found in proplist");
 
@@ -219,13 +210,6 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	{
-	    BackendManagerFlint m;
-	    do_tests_for_backend(&m);
-	}
-#endif
-
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	{
 	    BackendManagerMulti m("brass");
@@ -235,12 +219,6 @@ TestRunner::run_tests(int argc, char ** argv)
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	{
 	    BackendManagerMulti m("chert");
-	    do_tests_for_backend(&m);
-	}
-#endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	{
-	    BackendManagerMulti m("flint");
 	    do_tests_for_backend(&m);
 	}
 #endif
@@ -263,16 +241,6 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 	{
 	    BackendManagerRemoteTcp m("chert");
-	    do_tests_for_backend(&m);
-	}
-#endif
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	{
-	    BackendManagerRemoteProg m("flint");
-	    do_tests_for_backend(&m);
-	}
-	{
-	    BackendManagerRemoteTcp m("flint");
 	    do_tests_for_backend(&m);
 	}
 #endif

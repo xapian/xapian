@@ -1,19 +1,20 @@
 Welcome to Xapian!
 ==================
 
-Xapian is free software, licensed under the GNU General Public License.  You
-should find a copy of the GNU General Public License in the file "COPYING"
-in the top level of this distribution of Xapian.
+Xapian is free software, licensed under the GNU General Public License
+(version 2 or later).  You should find a copy of the GNU General Public
+License in the file "COPYING" in the top level of this distribution of
+Xapian.
 
 See the file "INSTALL" for information on building and installing Xapian.
-If you're wanting to modify Xapian itself or build sources from SVN, the
-contents of the file "HACKING" are recommended reading.
+If you're wanting to modify Xapian itself or build sources from SVN/git,
+then the contents of the file "HACKING" are recommended reading.
 
-You can find downloads, mailing lists, SVN access, and other useful resources
-on the Xapian website:
+You can find downloads, mailing lists, SVN/git access, and other useful
+resources on the Xapian website:
 
 http://xapian.org/
 
 There's also a wiki with user-contributed and evolving documentation:
 
-http://wiki.xapian.org/
+http://trac.xapian.org/wiki/

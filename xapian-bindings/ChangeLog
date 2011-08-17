@@ -15,6 +15,1587 @@ Sun Jun 06 15:10:47 GMT 2010  Richard Boulton <richard@tartarus.org>
 	* csharp/Makefile.am,xapian.i: Apply patch geospatial_clean3.patch
 	  from ticket #481: adds basic geospatial search support.
 
+Wed Aug 17 11:07:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am: Add dependency on except.i so it gets (re)generated
+	  when it should.
+
+Wed Aug 17 10:11:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am,lua/docs/examples/simpleexpand.lua,lua/: Merge latest
+	  Lua improvements from Xiaona Han.
+
+Mon Aug 15 01:28:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/doxy2swig.py,python/pythontest2.py,python/testsuite2.py:
+	  Remove trailing whitespace.
+
+Mon Aug 15 01:19:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/testsuite2.py: Move the check for
+	  leaked objects into the testsuite harness so all tests get checked,
+	  not just the two which are regression tests for leaks in older
+	  versions.  This also gives us a single place to disable it if it
+	  should prove problematic in alternative Python implementations.
+
+Sun Aug 14 12:45:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: In test_matchingterms_iter, run the code
+	  we're testing for leaks twice, and only check for leaks the second
+	  time to avoid falsely reporting a leak when some cached value gets
+	  initialised under Python 2.5.
+
+Fri Aug 12 23:18:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.7 and ChangeLog.
+
+Mon Aug 08 03:35:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix == comparisons with literal strings.
+
+Thu Aug 04 07:34:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap iterator operator++ and operator--
+	  methods with a new INC_OR_DEC macro, replacing the old NEXT and
+	  PREV macros.
+
+Thu Aug 04 07:21:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian-headers.i: We no longer need special handling
+	  for ValueIteratorEnd_ in the bindings, as that hack is gone from the
+	  C++ API headers.
+
+Thu Aug 04 07:15:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian.i: Update for the Xapian::timeout -> useconds_t
+	  change.
+
+Thu Aug 04 06:45:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: JAVA_CXXFLAGS is no longer used, so remove it.
+
+Thu Aug 04 00:24:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add --disable-visibility option to match xapian-core.
+
+Thu Aug 04 00:04:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add -fshow-column for GCC.
+
+Tue Aug 02 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test.t: Fix to work when built against an installed
+	  xapian-core.  (ticket#558)
+
+Sat Jul 30 12:05:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,doxygen_xml.conf.in,python/Makefile.am,
+	  ruby/Makefile.am,ruby/generate-rdoc-stubs: Run doxygen to generate
+	  XML for the bindings in the bindings build system, not as a
+	  side-effect in xapian-core's.  (ticket#262)
+
+Sat Jul 30 06:22:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
+	  lua/Makefile.am,perl/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Don't put -Werror in SWIG_FLAGS
+	  - instead put it in a new SWIG_WERROR variable, so that it's easy
+	  to override it if you're getting a new warning from SWIG but want
+	  to just ignore it for the time being.
+
+Fri Jul 29 13:49:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add regression test for recently fixed SWIG bug
+	  which caused "return $r;" to be generated in some cases when $r
+	  wasn't set.
+
+Fri Jul 29 03:41:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Install an error handler so the test fails if
+	  there are any errors, warnings, notices, etc.
+
+Mon Jul 25 07:36:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Add test that string passing is zero byte safe.
+
+Mon Jul 25 06:42:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix MyExpandDecider.accept to really check the
+	  passed parameter.
+
+Mon Jul 25 05:52:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Don't return iterator from C# Next() and Prev() methods by
+	  reference as that results in it being eligible for garbage collection
+	  while we're still using it.
+	* csharp/SmokeTest.cs: Add regression test.
+
+Sat Jul 23 15:27:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Whitespace tweaks.
+
+Sat Jul 23 15:18:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/examples/simpleexpand.lua,
+	  lua/docs/examples/simplematchdecider.lua,
+	  lua/docs/examples/simplesearch.lua,lua/docs/index.html,
+	  lua/smoketest.lua,lua/util.i: Merge latest Lua changes from Xiaona
+	  Han.
+
+Thu Jul 07 23:28:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Restore ruby to DIST_SUBDIRS (accidentally removed when
+	  java-swig was renamed to java).
+
+Wed Jul 06 12:26:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am: Include new example in tarball.
+
+Tue Jul 05 02:10:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i: By default, SWIG's thread locking code for Python
+	  always initialises threads, which just adds overhead for single
+	  threaded Python code.  So instead we now replace SWIG's thread
+	  locking with a version which does nothing unless threads are already
+	  initialised.  This seems to be about 5-10% faster for pythontest2.py
+	  modified to repeat the tests 100 times.
+
+Tue Jul 05 01:32:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/examples/simplematchdecider.lua: Wrap comment to <80
+	  characters.
+
+Tue Jul 05 01:25:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/examples/simplematchdecider.lua: New example from Xiaona
+	  Han's git repo.
+	* lua/docs/index.html: Add link to simplematchdecider.lua.
+
+Mon Jul 04 15:04:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua,lua/util.i: Fix whitespace inconsistencies.
+
+Mon Jul 04 14:58:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.html,lua/smoketest.lua,lua/util.i: Merge latest Lua
+	  changes from Xiaona Han.
+
+Mon Jul 04 01:35:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Use the same NEED_JNILIB_EXT machinery which the
+	  hand-coded JNI bindings had, so that on Mac OS X the JNI library
+	  has a .jnilib extension.
+
+Sun Jul 03 11:01:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/: Actually rename to java/.
+
+Sun Jul 03 10:36:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/: Actually remove the old hand-coded JNI Java bindings.
+
+Wed Jun 29 22:38:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/docs/examples/,php/smoketest.php: Change
+	  'include "php5/xapian.php"' to 'include "xapian.php"' in
+	  smoketest.php and the examples, and set include_path=php5 in
+	  TESTS_ENVIRONMENT so smoketest.php finds the uninstalled
+	  xapian.php.
+
+Wed Jun 29 01:04:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Add test coverage for QueryParser.ParseQuery()
+	  with flags argument.
+
+Wed Jun 29 00:00:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Rename java-swig subdirectory to java.
+
+Tue Jun 28 23:52:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Add simple test for
+	  Database::positionlist_begin().
+
+Tue Jun 28 12:14:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Mon Jun 27 15:22:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python/python.i,python/util.i: If
+	  MAINTAINER_NO_DOCS is true, then just create an empty doccomments.i
+	  rather then carefully arranging not to include it.
+
+Mon Jun 27 15:04:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Clarify that extra.i is for extra *Python* code.
+
+Mon Jun 27 14:39:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* TODO: Wrapping Xapian::Weight isn't possible. (ticket#401)
+
+Mon Jun 27 14:34:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/perl.i,perl/util.i.in: Move the SWIG typemaps into perl.i,
+	  leaving just the %perlcode in util.i.in.
+
+Mon Jun 27 14:23:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove %module line which is no longer used.
+
+Mon Jun 27 14:10:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: WritableDatabase::delete_document() was broken by
+	  the migration to wrapping <xapian/database.h> directly - now fixed
+	  and cleaned up how we wrap delete_document_by_term(),
+	  replace_document() and replace_document_by_term().
+
+Mon Jun 27 11:21:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tcl8/tcl.i: Use the iterator approach for wrapping the mixed array
+	  Query ctor in Tcl.
+
+Mon Jun 27 11:05:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/ruby.i: Use the iterator approach for wrapping the mixed array
+	  Query ctor in Ruby.
+
+Mon Jun 27 08:18:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.i,xapian.i: Wrap the XapianQuery ctor which takes a mixed
+	  array of XapianQuery objects and strings by defining an iterator so
+	  subqueries get added directly rather than creating an intermediate
+	  std::vector.
+
+Mon Jun 27 03:08:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.i: Tweak the phpinfo() generation code.
+
+Mon Jun 27 02:40:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/docs/examples/SimpleIndex.java: Update to use commit()
+	  rather than flush().  Remove reference to quartz.
+
+Sun Jun 26 15:32:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap <xapian/query.h> in xapian-headers.i,
+	  except for the current %extend part which I'm looking to reimplement
+	  in a slicker way.
+
+Sun Jun 26 14:54:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/ruby.i: Fix to work with direct wrapping on xapian/enquire.h
+	  - the signature in that file has Xapian:: qualifiers on the
+	  arguments types for set_query() so it wasn't getting renamed.
+	  Missed this because of incorrect dependencies, as fixed in the
+	  last commit.
+
+Sun Jun 26 14:47:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: Fix automatic dependency generation for files
+	  generated by SWIG.
+
+Sun Jun 26 14:09:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html,java-swig/docs/index.html: Document wrapping
+	  of MatchAll and MatchNothing.
+
+Sun Jun 26 10:24:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,csharp/csharp.i,java-swig/SmokeTest.java,
+	  java-swig/java.i: Wrap Query::MatchAll and Query::MatchNothing for C#
+	  and Java. (ticket#158)
+
+Sun Jun 26 03:35:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html,php/smoketest.php,xapian.i: Wrap MatchAll and
+	  MatchNothing for PHP as XapianQuery::MatchAll() and
+	  XapianQuery::MatchNothing(). (ticket#158)
+
+Sat Jun 25 15:58:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap <xapian/weight.h> using the new
+	  macros.
+
+Sat Jun 25 15:38:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap <xapian/valuesetmatchdecider.h> in
+	  xapian-headers.i.
+
+Sat Jun 25 15:32:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap Xapian::Stem using the new macros.
+
+Sat Jun 25 15:15:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am: Upon "make
+	  maintainer-clean", delete the directories which we get SWIG to
+	  generate the source files into, and also the 'built' subdirectory for
+	  java-swig.
+
+Sat Jun 25 15:10:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Port over from csharp/Makefile.am the smarter
+	  check that we got exactly the sources generated which we wanted.
+	  Add missing new source ExpandDeciderAnd.java.
+
+Sat Jun 25 15:08:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Delete all files in generated-csharp before
+	  running swig, not just those in $(XAPIAN_SWIG_CS_SRCS).
+
+Sat Jun 25 15:01:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,xapian-headers.i,xapian.i: Wrap enquire.h and
+	  expanddecider.h by parsing the headers directly.  Wrap ExpandDecider
+	  even if we don't have director support - there's a
+	  ExpandDeciderFilterTerms subclass which is useful in itself, though
+	  it still needs some typemap work to actually get it usefully wrapped.
+	  Ignore copy ctors for all classes (rather than just some) for all
+	  languages except Tcl where we now consistently ignore none of them.
+
+Sat Jun 25 11:13:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/util.i: Rename SWIG_anystring_as_ptr to
+	  XapianSWIG_anystring_as_ptr as it's not a part of SWIG itself.
+	  Handle generating XapianSWIG_anystring_as_ptr in the right place
+	  in the file by specifying it with %fragment, and specify its
+	  dependency on the fragment SWIG_AsPtr_std_string.
+
+Sat Jun 25 07:50:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Put the generated C# sources into a subdirectory
+	  to make it easier to manage them.  Check that exactly the sources in
+	  XAPIAN_SWIG_CS_SRCS are generated previously we checked that the
+	  sources in that list were generated, but not if extra ones were).
+	  Add six missing sources to XAPIAN_SWIG_CS_SRCS.
+
+Fri Jun 24 17:16:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap Database and WritableDatabase by
+	  using %include <xapian/database.h>.  Adds missing wrappers for
+	  Database::has_positions(), wrapping of Database::reopen()'s new
+	  bool return type, and corrects the return type of
+	  Database::get_doclength() from double to Xapian::termcount.
+
+Fri Jun 24 15:47:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap MatchSpy and PostingSource with
+	  SUBCLASSABLE macro.
+
+Fri Jun 24 15:30:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Add SUBCLASSABLE macro to indicate a class
+	  which is subclassable in the target language (assuming SWIG supports
+	  directors for that language).
+
+Fri Jun 24 12:44:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Factor out ignoring of internal stuff and
+	  operator= from INPUT_ITERATOR_METHODS into new STANDARD_IGNORES
+	  macro.  Use STANDARD_IGNORES to wrap Xapian::Document.  Wrap
+	  ValueIterator via %include <xapian/valueiterator.h>.
+
+Fri Jun 24 09:29:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap TermIterator via %include
+	  <xapian/termiterator.h>.  TermIterator::positionlist_count() is now
+	  wrapped.
+
+Fri Jun 24 09:15:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Do setup for %include <postingiterator.h>
+	  using a parameterised macro INPUT_ITERATOR_METHODS().  Use this new
+	  macro to wrap %include <xapian/positioniterator.h> instead of having
+	  its declarations repeated in xapian.i.
+
+Fri Jun 24 05:39:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,xapian-headers.i,xapian.i: Start a new interface file
+	  to contain wrapping of xapian-core API headers by getting SWIG to
+	  parse them directly rather than duplicated declarations in the
+	  interface file.
+
+Fri Jun 24 04:33:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update JNI comments.
+
+Fri Jun 24 04:06:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am,README,configure.ac,java-swig/SmokeTest.java,
+	  java/,java/native/,java/org/xapian/,java/org/xapian/errors/,
+	  java/org/xapian/examples/,java/run-java-test: Remove the hand-coded
+	  JNI bindings.
+
+Fri Jun 24 03:37:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,java-swig/docs/: Copy java examples
+	  from the JNI ones, and create an HTML documentation page
+	  based on java/README.
+
+Fri Jun 24 03:13:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Switch java bindings to java-swig.
+
+Wed Jun 22 15:08:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add --with-lua and sort the list of --with-* options.
+
+Wed Jun 22 15:01:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Pull in a few updates from the latest version of the
+	  automake document which this file was originally based on.
+	  Add in the missing copyright and licensing information.
+
+Wed Jun 22 14:35:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: It's not really noteworthy that Mac OS X 10.1 and
+	  10.2 aren't supported as Apple ditched them long ago, so drop this
+	  as a "Known Issue" in INSTALL and instead just say "Mac OS X >= 10.3"
+	  in the discussion of supported platforms in the README.
+
+Wed Jun 22 08:50:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Need to build except.i before we run swig.
+
+Wed Jun 22 08:46:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Need to build except.i and doccomments.i before
+	  we run swig.
+
+Wed Jun 22 04:41:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,java-swig/SmokeTest.java: Put the
+	  SWIG-generated Java bindings in package org.xapian.
+
+Wed Jun 22 03:26:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/SmokeTest.java: Add more FIXME notes.
+
+Wed Jun 22 02:55:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Clean up MyMatchDecider.class and
+	  MyExpandDecider.class.  Include Query$1.class in the jar file.
+
+Wed Jun 22 01:47:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Update for Xapian::Compactor.
+
+Wed Jun 22 01:23:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Use the same trick as in java-swig/ to check that
+	  SWIG generated all the sources we expected it to.
+
+Wed Jun 22 01:21:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am,lua/Makefile.am,
+	  perl/Makefile.am,php/Makefile.am,python/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Include explicit '$(srcdir)/' path on the main SWIG
+	  interface file to work better in a VPATH build.
+
+Tue Jun 21 16:12:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Pass -I. to SWIG so it finds generated
+	  doccomments.i in a VPATH build.
+
+Tue Jun 21 14:55:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/csharp.i,csharp/util.i,generic/except.i,
+	  generic/generic.mk,java-swig/Makefile.am,java-swig/java.i,
+	  java-swig/util.i,lua/Makefile.am,lua/lua.i,perl/Makefile.am,
+	  perl/perl.i,php/Makefile.am,php/php.i,php/util.i,python/Makefile.am,
+	  python/python.i,python/util.i,ruby/Makefile.am,ruby/ruby.i,
+	  ruby/util.i,tcl8/Makefile.am,tcl8/tcl.i,tcl8/util.i,xapian-head.i,
+	  xapian.i: Change how the inclusion of SWIG interface files works -
+	  instead of carefully setting up include paths so that files get
+	  pulled in from language-specific directories, with fallbacks to
+	  generic files in some cases, we now have a master interface file for
+	  each language which explicitly includes all the other files we want.
+
+Tue Jun 21 14:34:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* generic/generic.mk: 'macosx' -> 'Mac OS X'.
+
+Tue Jun 21 14:16:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README: Note a recent version of Mono which we've tested the C#
+	  bindings with.
+
+Tue Jun 21 13:52:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Combine the two uninstall-local targets so the
+	  commands from both actually get run.
+
+Tue Jun 21 11:09:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Wrap sources used by AC_COMPILE_IFELSE in
+	  AC_LANG_SOURCE to fix warning from autoconf.
+
+Tue Jun 21 06:54:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Update comment about MatchAll/MatchNothing.
+
+Tue Jun 21 06:49:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/10query.t,perl/util.i.in: Wrap MatchAll and MatchNothing for
+	  Perl (as Search::Xapian::Query::MatchAll and
+	  Search::Xapian::Query::MatchNothing).  (ticket#158)
+
+Tue Jun 21 06:00:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/docs/index.html,ruby/extra.i,ruby/smoketest.rb,xapian.i: Wrap
+	  MatchAll and MatchNothing for Ruby.  (ticket#158)
+
+Tue Jun 21 05:09:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Fix whitespace inconsistencies.
+
+Tue Jun 21 05:07:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Restore semicolons to licence text.
+
+Tue Jun 21 05:01:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.html,lua/smoketest.lua,xapian.i: Merge latest Lua
+	  changes from Xiaona Han.
+
+Tue Jun 21 04:16:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/termgenerator.t: Test TermIterator::index_text() with two
+	  arguments.
+
+Fri Jun 17 08:11:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Start section on deprecation warnings for the bindings.
+
+Fri Jun 17 07:43:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Update.
+
+Thu Jun 16 09:24:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Fix "make check".
+
+Thu Jun 16 07:48:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Improve comment about replicationtest.py.
+
+Thu Jun 16 06:34:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unnecessary nested single quotes.  Remove
+	  superfluous trailing ; from Perl one-liners.
+
+Thu Jun 16 06:10:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html: Drop references to Xapian versions before 1.0.0.
+
+Thu Jun 16 06:05:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,php/docs/index.html: Raise the minimum required
+	  PHP version to 5.2 as older versions are no longer supported by the
+	  PHP developers.  Even 5.2.x was recently declared unsupported
+	  upstream.
+
+Thu Jun 16 05:56:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Simplify probe for PHP CLI - we dropped PHP4 support in
+	  1.1.0 so we can rely on having php-config --php-binary available.
+
+Wed Jun 15 14:13:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,python/docs/index.html: Update required Python
+	  version to 2.4.
+
+Wed Jun 15 07:46:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-bindings/lua/docs/examples/simpleexpand.lua: Don't try to add
+	  anything to the RSet if there are no matches.
+
+Tue Jun 14 03:50:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test/SymbolTest.pm: Sync update from XS Search::Xapian
+	  - add "1;" to end of test module.
+
+Tue Jun 14 03:48:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/docs/examples/: Sync updates from XS Search::Xapian: Require
+	  Perl >= 5.6 so we can "use warnings;"; loop over file using while()
+	  (which reads a line per iteration) not foreach() (which reads the
+	  whole file up front).
+
+Mon Jun 13 17:00:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Simplify.
+
+Mon Jun 13 16:49:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am,
+	  perl/generate-perl-exceptions,python/generate-python-exceptions:
+	  More references to Sorter and MultiValueSorter removed.
+
+Mon Jun 13 16:43:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/sorter.t,php/smoketest.php,python/pythontest2.py,xapian.i:
+	  Update in line with the removed deprecations from xapian-core.
+
+Mon Jun 13 13:37:48 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Change function names defined inside wrapper()
+	  closures to match the name which the result of the closure will
+	  be assigned to, so that help text for the functions displays the
+	  correct function name.
+
+Mon Jun 13 13:15:00 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py: Extend coverage of tests of removed features.
+
+Mon Jun 13 12:56:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc: Update for Enquire::set_sort_by_value()
+	  change.
+
+Mon Jun 13 12:50:39 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py: Change checks for removed attributes to
+	  use a neater approach.
+
+Mon Jun 13 12:48:00 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/testsuite2.py: Add support to expect_exception for passing
+	  None as the message, to skip checking the message for the raised
+	  exception.  Add documentation comment describing the parameters.
+
+Mon Jun 13 12:37:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove deprecated Enquire::set_sort_by_* methods.
+
+Mon Jun 13 12:10:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Remove checks for deprecated forms of Enquire
+	  set_sort_* methods, which have now been removed from the C++ API.
+
+Mon Jun 13 11:43:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Hide away the deprecated non-pythonic
+	  iterators - we still need them to implement the pythonic iterators,
+	  so we can't entirely remove them.
+	* python/pythontest2.py: Check that the deprecated methods are no
+	  longer accessible (not all methods are checked).
+	* docs/index.html: Update documentation to say they've been removed.
+
+Mon Jun 13 10:35:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Remove deprecated Stem_get_available_languages().
+	* python/pythontest2.py: Add test to make sure it stays removed!
+
+Mon Jun 13 10:10:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix odd ordering of line and comment (which
+	  has been that way since I committed the change which added the
+	  code around the comment.
+
+Mon Jun 13 09:54:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/docs/index.html,java-swig/Makefile.am,
+	  lua/docs/index.html,php/docs/index.html,python/docs/index.html,
+	  ruby/docs/index.html,tcl8/docs/index.html,xapian-head.i,xapian.i:
+	  Update for removal of flint.
+
+Mon Jun 13 09:34:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version to 1.3.0.
+
+Sun Jun 12 23:34:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: The SWIG upgrade means we now have xapian_wrap.h as
+	  well as xapian_wrap.cc.  Really the final update for 1.2.6.
+
+Sun Jun 12 13:06:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Lua's _VERSION reports "Lua 5.0.3" for Lua 5.0.3, so
+	  add '|5.0.*' to the pattern since '5.0' won't match.
+
+Sun Jun 12 11:47:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Final update for 1.2.6.
+
+Sun Jun 12 07:47:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS.SKELETON: Add Lua and Perl headings.
+
+Sun Jun 12 07:29:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README: Move C# first so the languages are all in alphabetical
+	  order.
+
+Sun Jun 12 07:28:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README: Add Lua.
+
+Sun Jun 12 07:24:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need to quote [01234] to stop m4 eating the [].
+
+Sun Jun 12 07:19:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,lua/docs/examples/simpleexpand.lua,
+	  lua/docs/examples/simpleindex.lua,lua/docs/index.html,lua/util.i:
+	  Fix whitespace issues.
+
+Sun Jun 12 07:07:18 GMT 2011  Xiaona Han <xiaonahappy@gmail.com>
+
+	* Makefile.am,configure.ac,lua/Makefile.am,
+	  lua/docs/examples/simpleexpand.lua,lua/docs/examples/simpleindex.lua,
+	  lua/docs/examples/simplesearch.lua,lua/docs/index.html,
+	  lua/smoketest.lua,lua/util.i: Merge in current state of Lua
+	  bindings.
+
+Fri Jun 10 12:08:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update in preparation for 1.2.6.
+
+Fri Jun 10 09:11:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/LICENSE: Remove, since it is explicitly included in each source
+	  file it applies to.
+
+Fri Jun 10 06:43:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Add simplematchdecider.php5 example to tarball.
+
+Fri Jun 10 06:40:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.ini: Remove file which is no longer used.
+
+Fri Jun 10 01:21:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian.i: Update for addition of
+	  XAPIAN_DEPRECATED_CLASS.
+
+Thu Jun 02 03:07:35 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplematchdecider.php5: Change start tag from <?
+	  to <?php - issue pointed out by Daniel Menard in ticket#488.
+
+Mon May 30 10:34:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Mon May 30 07:06:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/index.html: Fix <i> to </i> (reported by Xiaona Han).
+
+Mon May 30 07:04:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplematchdecider.php5,php/smoketest.php: Objects
+	  passed to virtual methods overridden in PHP are now wrapped properly.
+	  (ticket#488)
+
+Sun May 29 14:41:13 GMT 2011  James Aylett <james@tartarus.org>
+
+	* configure.ac: set NEED_JNILIB_EXT for all Mac OS versions
+
+Sun May 29 14:36:55 GMT 2011  James Aylett <james@tartarus.org>
+
+	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am,
+	  java/org/xapian/examples/Makefile.am: use .NOTPARALLEL when
+	  compiling Java classfiles to avoid race condition during
+	  parallel builds
+
+Sun May 29 13:27:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/Makefile.am: XapianObjectHolder.h was removed so stop
+	  trying to ship it.
+
+Fri May 27 05:28:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Fri May 27 05:09:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/utils.cc: Remove another unused <typeinfo>.
+
+Fri May 27 05:01:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/: Factor out Java jstring -> C++ std::string conversion
+	  into cpp_string() function, which also fixes memory leaks upon
+	  exceptions.
+
+Fri May 27 04:29:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/xapian_jni.h: Remove unused <typeinfo>.
+
+Fri May 27 04:25:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/xapian_jni.h: Remove unused struct streq.
+
+Fri May 27 04:02:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/,java/org/xapian/: Instead of using an unordered_map to
+	  track id -> pointer mappings, just use reinterpret_cast - jlong is
+	  64 bits, which will hold a pointer on current platforms.
+	* java/README: This avoids needing thread locks, so remove pthread
+	  linking issues from TODO list.
+
+Thu May 26 13:06:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/: C++'s delete operator will ignore a NULL pointer, so
+	  remove checks that the pointer is non-NULL before calling it.
+
+Thu May 26 11:30:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/native/unordered_map.h: Portability wrapper around various ways
+	  to get unordered_map with different compilers.
+	* java/native/XapianObjectHolder.h: Use new unordered_map.h which fixes
+	  warnings about using deprecated headers with recent GCC versions.
+
+Wed May 25 13:58:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/util.i,xapian.i: Move PHP special cases to php/util.i (generated
+	  code is identical before and after this change).
+
+Wed May 25 13:20:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplematchdecider.php5,php/docs/index.html: Add
+	  simplematchdecider.php example.
+
+Wed May 25 12:17:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/util.i: Now we have directors enabled, stop ignoring Xapian::Sorter
+	  and uncomment directorin typemap for passing a count and array of
+	  std::string.
+
+Tue May 24 15:08:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php,php/util.i,python/generate-python-exceptions,
+	  ruby/Makefile.am: Update to newer SWIG (ticket#538).  Fixes C#
+	  binding issues with strings with newer C# versions.  Directors
+	  now work for PHP (ticket#488).
+
+Mon May 23 13:58:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README: say that Perl bindings probably need Perl 5.8 or later.
+
+Mon May 23 07:47:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Get the Ruby version from the rbconfig module, rather
+	  than parsing the potentially more variable output of ruby --version.
+
+Wed May 11 21:50:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/xapian.rb: Fix comments on "end" keywords to match function
+	  names.
+
+Wed May 11 03:50:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Older Ruby 1.8.x doesn't have Dir.mktmpdir() -
+	  just skip the compaction tests for these versions.
+
+Mon May 09 01:36:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always
+	  collect all the garbage, so repeat until no further objects are
+	  freed.  (http://bugs.debian.org/625679 and
+	  https://bugs.gentoo.org/349484).
+
+Mon Apr 04 13:58:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update release date.
+
+Mon Mar 28 12:02:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: 1.2.5.
+
+Sat Mar 26 14:50:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Fix typo in recent commit.
+
+Sat Mar 26 14:44:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix m4 quoting so that the release series check works.
+
+Sat Mar 26 14:34:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.
+	  Replace VPATH section with better equivalent from
+	  xapian-core/INSTALL.
+
+Sat Mar 26 14:29:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Test Xapian::Compactor.
+
+Sun Mar 20 10:53:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Remove two print statements left over from
+	  debugging.
+
+Fri Mar 18 13:46:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't override MACOSX_DEPLOYMENT_TARGET on 10.5 and
+	  later, or 10.4 on x86 as the default if unset on these platforms
+	  is the current OS version.
+
+Fri Mar 18 11:33:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Second part of ticket#516 fix.
+
+Fri Mar 18 05:29:01 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't pass extra flags to Microsoft's gacutil.
+	  (ticket#516)
+
+Wed Mar 16 05:29:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Add test coverage for min_wt argument of
+	  get_eset().
+
+Wed Mar 16 05:13:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/smoketest2.py: Fix comment typo.
+
+Wed Mar 16 03:33:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Handle an empty response to $RUBY --version specially.
+	  This gives a less opaque error in cases where the user specified
+	  RUBY but the value given wasn't an executable file.
+
+Tue Mar 15 23:09:04 GMT 2011  Dan Colish <dcolish@gmail.com>
+
+	* xapian.i: Expose ESet.get_eset with min_wt parameter
+
+Tue Mar 01 11:51:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Mon Feb 21 14:47:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: Document that MSet.items and ESet.items are
+	  deprecated, and what to use instead.  Note that MSET_DOCUMENT never
+	  worked on the tuple returned by MSet.items.
+
+Sat Jan 29 05:25:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Add test coverage for mset.items.
+
+Sat Jan 29 02:12:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: If xapian-core is a different release series, promote
+	  the mismatched versions warning to an error.
+
+Sat Jan 15 12:03:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/AssemblyInfo.cs.in: Revert COMPAT_VERSION
+	  change - we need to strip the _svnNNNNN suffix for snapshots, and
+	  it isn't any extra effort to handle an optional subrevision in the
+	  same sed regexp.
+
+Sat Jan 15 11:38:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix comment typo.
+
+Sat Jan 15 11:36:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/AssemblyInfo.cs.in: Clarify the licence is GPL "version 2 or
+	  later".
+
+Sat Jan 15 11:32:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/AssemblyInfo.cs.in: Remove COMPAT_VERSION
+	  machinery - we've not used it since 0.9.10.1, and it seems unlikely
+	  we will again.  If we do, we can reverse this change.
+
+Sat Jan 15 11:20:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog, 1.0.22 and 1.0.23.
+
+Thu Jan 13 01:50:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: In test_compactor(), close any open databases
+	  before removing the directory as you can't delete an open database
+	  on Microsoft Windows.  (ticket#526)
+
+Mon Jan 10 12:53:51 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/extra.i: Remove broken implementation of
+	  MSet.__contains__.  This appears never to have worked, and to
+	  have been broken for at least the past 3.5 years without anyone
+	  mentioning it, and is probably of little use anyway, so no need
+	  to deprecate.
+
+Tue Dec 21 12:18:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Update info on SWIG-based Perl bindings.
+
+Mon Dec 20 09:54:52 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/util.i: Remove old and broken Enquire.get_matching_terms()
+	  method.  We deprecated Enquire.get_matching_terms() in 1.0.x, and
+	  removed it in 1.1.0, but accidentally left an older version of
+	  get_matching_terms() exposed.
+	* python/docs/index.html: Also, remove the old documentation for
+	  get_matching_terms().
+
+Mon Dec 20 09:53:56 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py: Remove test of
+	  Enquire.get_matching_terms(), and the associated contortions to
+	  get a corresponding msetiter to pass to it.
+
+Sun Dec 19 12:40:39 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update release date.
+
+Sat Dec 18 15:09:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: 1.2.4.
+
+Thu Dec 16 10:11:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Pass CPPFLAGS, CXX, CXXFLAGS to the testsuite.
+
+Tue Dec 14 14:23:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test.t: Merge VPATH fixes from Search::Xapian.
+
+Tue Dec 14 05:25:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/: Disable tests from the XS version which don't yet pass
+	  here with a $disable_fixme variable, so they are more clearly marked
+	  and can easily be reenabled for testing.
+
+Tue Dec 14 03:01:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/symbol-test.t,perl/util.i.in: Merge fix and
+	  adapt testcase for it from XS Search::Xapian:
+	  [Changes contributed by David F. Skoll and Dave O'Neill]
+	  - Tell DynaLoader to load the module with RTLD_GLOBAL so exceptions
+	    still work when multiple Perl modules which link to xapian-core are
+	    loaded.  (ticket#522)
+
+Tue Dec 14 02:46:52 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Whitespace tweaks.
+
+Mon Dec 13 20:22:13 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* python/pythontest2.py,python/util.i: Fix memory leak in
+	  Enquire.get_matching_terms() method, and add coverage for this
+	  method.  Check gc.get_objects() is the same before and after the
+	  calls to get the matching terms; this failed before the fix.
+
+Mon Dec 13 12:04:28 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html: Document that iterators shouldn't be
+	  dereferenced or advanced when at their end points (ticket#520).
+
+Mon Dec 13 06:04:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/util.i: Add commented out typemap for director support for
+	  Compactor::resolve_duplicate_metadata().
+
+Sat Dec 11 23:20:29 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions: Remove PostingSource's serialise
+	  method from the list as we %ignore it in xapian.i.
+
+Sat Dec 11 10:31:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions,xapian.i: Wrap MatchSpy as a
+	  director class so it can be subclassed in Python.
+	* python/pythontest2.py: Add test that subclassing MatchSpy works.
+
+Tue Dec 07 04:10:37 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Add regression test for last fix.
+
+Tue Dec 07 03:10:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/util.i: Fix memory leaks in typemaps which return Python
+	  lists (reported by AlexB on #xapian).
+
+Tue Dec 07 02:51:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove unused typemap.
+
+Wed Nov 17 10:13:00 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Wrap Compactor::resolve_duplicate_metadata().
+
+Mon Nov 08 12:33:31 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Remove unused, commented-out typemap for wrapping a pair
+	  of TermIterators.
+
+Sun Nov 07 14:17:08 GMT 2010  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/util.i: Wrap updated
+	  Compactor::resolve_duplicate_metadata() method signature.
+
+Sat Nov 06 11:59:23 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Nov 04 12:44:51 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* generic/generic.mk: For Mac OS X builds, set DYLD_LIBRARY_PATH to
+	  allow tests to find uninstalled xapian library.  See ticket #322.
+
+Mon Oct 11 12:29:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: We don't want to distribute util.i - configure
+	  generates it from util.i.in.
+
+Mon Oct 11 12:28:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: No need to list AssemblyInfo.cs.in in EXTRA_DIST
+	  or AssemblyInfo.cs in CLEANFILES - automake takes care of
+	  distributing and cleaning these.
+
+Mon Oct 11 12:21:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am: No need to list pkgIndex.tcl.in in EXTRA_DIST or
+	  pkgIndex.tcl in CLEANFILES - automake takes care of distributing and
+	  cleaning these.
+
+Mon Oct 11 12:18:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am,perl/Makefile.am,
+	  php/Makefile.am,python/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Don't list swig-built files in CLEANFILES.
+
+Mon Oct 11 11:58:21 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Don't explicitly list files in EXTRA_DIST which automake
+	  will ship anyway.  Don't ship xapian-version.h as configure will
+	  generate that (xapian.spec is different - we put that in the tarball
+	  so rpmbuild can find it).
+
+Mon Oct 11 11:51:57 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile.am: No need to explicitly list xapian-version.h in
+	  DISTCLEANFILES - automake will remove in for us on "make distclean"
+	  since it is created by AC_CONFIG_FILES in configure.ac.
+
+Fri Oct 08 13:32:38 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo in code to set PYTHON_LIBS under cygwin.
+	  (ticket#509)
+
+Fri Oct 01 12:10:55 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am,python/generate-python-exceptions,
+	  python/pythontest2.py,xapian.i: Wrap the new Xapian::Compactor
+	  class as a Director class, and add a testcase for it in python.
+
+Wed Sep 29 05:35:03 GMT 2010  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Fix to delete libxapian_jni.la rather than
+	  xapian.la.
+
+Wed Sep 29 05:33:43 GMT 2010  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,xapian-bindings.spec.in: Don't install or package
+	  _XapianSharp.la.
+
+Wed Sep 29 05:19:44 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Package the Perl bindings too (patch from
+	  Tim Brody).
+
+Wed Sep 29 04:44:24 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Don't install Xapian.la.
+
+Wed Sep 29 02:30:49 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/10query.t,perl/util.i.in: Fix building a
+	  Query from subqueries which are themselves Query objects.  Patch
+	  from Tim Brody.
+
+Mon Sep 27 13:00:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Fix $(PHP_MAJOR_VERSION) to literal 5 in two places.
+
+Mon Sep 27 12:51:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need python in maintainer mode to run doxy2swig.py.
+
+Wed Sep 08 03:10:33 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/01use.t: Revert debug change, as it has served its purpose.
+	* configure.ac: Handle the "_svn<rev>" suffix of snapshot versions
+	  specially for Perl, to match how this is handled for Search::Xapian.
+
+Wed Sep 08 02:00:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/01use.t: This test is mysteriously failing in the snapshot
+	  builder, so add a line of code to help debug this.
+
+Wed Sep 08 00:24:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Remove commented out SUBDIRS line.
+
+Wed Sep 08 00:24:22 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Fix to create docs subdirectory when srcdir !=
+	  builddir.
+
+Tue Sep 07 11:54:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am,ruby/docs/generate-rdoc-stubs,
+	  ruby/generate-rdoc-stubs: Fix generation of rdocs to work when srcdir
+	  != buildir (broken by last but one commit).
+
+Tue Sep 07 10:46:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am: Eliminate
+	  csharp/docs/Makefile.am similarly.
+
+Tue Sep 07 10:28:25 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/Makefile.am,php/docs/Makefile.am,python/Makefile.am,
+	  python/docs/Makefile.am,ruby/Makefile.am,ruby/docs/Makefile.am,
+	  tcl8/Makefile.am,tcl8/docs/Makefile.am: Eliminate separate
+	  Makefile.am in docs subdirectory of each language subdirectory and
+	  just inline any rules into the main sub-Makefile.am, which allows
+	  make to run more of the build in parallel.
+
+Tue Sep 07 10:19:55 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac,perl/Makefile.am: Install
+	  architecture-independent perl files in the appropriate directory.
+	* perl/Makefile.am,perl/lib/,perl/Search/Xapian/: Structure source
+	  and build trees more like installed tree so we don't need to create
+	  symlinks to run tests in the uninstalled tree.  Fix tests to work
+	  when srcdir != builddir.
+
+Mon Sep 06 05:40:34 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't try to generate perl/docs/Makefile.
+
+Mon Sep 06 05:37:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/docs/Makefile.am: Merge perl/docs/Makefile.am
+	  into perl/Makefile.am and fix to install.
+
+Mon Sep 06 03:30:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Fix "make clean" to work properly.
+
+Mon Sep 06 03:17:01 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Fix path to index.html in rule.
+
+Mon Sep 06 02:43:47 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/t/: Update with newer testcases from Search::Xapian.
+
+Mon Sep 06 02:27:35 GMT 2010  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Build shared object as Xapian.la not xapian.la as
+	  Perl looks for it capitalised.
+
+Mon Sep 06 02:14:06 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: No need to m4 quote shell fragments without [] in.
+	  Remove trailing ; from statements.
+
+Mon Sep 06 02:07:11 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Whitespace tweaks.
+
+Mon Sep 06 02:02:42 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tweak help message for PERL_INC.
+
+Sun Sep 05 23:24:05 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Merge Kosei's SWIG-based Perl bindings from GSoC 2009.
+
+Sun Sep 05 12:55:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* INSTALL: Fix typo ("Ruby" should be "Perl").
+
+Sun Sep 05 12:49:20 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove accidentally added ';' from Ruby checks.
+
+Fri Aug 14 16:45:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/lib/:Add "1;" into end of lib/*.pm files.
+
+Thu Aug 13 12:36:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix some lines and clean up code.
+
+Wed Aug 12 14:11:49 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* INSTALL,perl/util.i.in:Add and fix some lines to describe
+	SWIG based perl biding.
+
+Wed Aug 12 12:59:30 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/docs/index.html:Fix Makefile to
+	generate docs/index.html from pod document of Search::Xapian.
+
+Wed Aug 12 09:32:17 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Remove and replace some lines and clean
+	up code.
+
+Wed Aug 12 06:22:31 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/lib/,perl/lib/MSet/Tied.pm,perl/lib/,
+	perl/util.i.in:Remove perl code from lib/*.pm files, add pod
+	document of Search::Xapian to util.i.in, and fix test environment
+	and test programs in Makefile.am.
+
+Tue Aug 11 10:01:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_sort_by_key(), set_sort_by_key_then_relevance()
+	and set_sort_by_relevance_then_key() of Enquire using %feature("shadow")
+	directive.
+
+Mon Aug 10 16:11:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/t/search.t: Modifire some tests to use get_termname()
+	instead of stringification operator because now we haven't
+	support it, and remove some machdecider tests since we also
+	haven't support it.
+	* perl/util.i.in:Fix MSetIterator::clone(), remove
+	MSetIterator::get_docid() since same function is already
+	defined at xapian.i, and add overloaded operators of
+	ESetIterator.
+
+Mon Aug 10 16:03:10 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add CLONE_SKIP functions for thread support.
+
+Sat Aug 08 03:35:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix internal function call of MSet::FETCH.
+
+Fri Aug 07 15:29:21 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add tie support of MSetIterator and
+	ESetIterator. Wrap function MSet::matches() and
+	MSet::items(). Add class MSet::Tied. Wrap overload operators
+	of ESet.
+
+Fri Aug 07 06:03:05 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/lib/TermIterator.pm,perl/lib/ValueIterator.pm,
+	perl/t/document.t,perl/t/index.t,perl/util.i.in:
+	Remove "" operator wrapping, modify test cases and
+	pod documents. Because modifying SWIG is needed to
+	support "" operator.
+
+Thu Aug 06 08:29:25 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Wrap operator overload of MSetIterator.
+
+Wed Aug 05 14:42:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Replace each iterator's function 'inc()'
+	to 'increment()', which is macro 'NEXT' defined in xapian.i
+	and renamed in per/util.i, because both two function's
+	operation is same.
+
+Wed Aug 05 14:39:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Remove new object constructing operation
+	in TermIterator's inc() function. Because it prevents a
+	destruction of other object (such as WritableDatabase).
+
+Fri Jul 31 16:32:19 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add constant variable FLAG_SPELLING for
+	TermGenerator::set_flags().
+
+Fri Jul 31 16:28:53 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Replace get_mset() definition to %rename.
+
+Thu Jul 30 11:54:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Modifying some proxy functions using %feature("shadow")
+	directive for removing repeatedly defined functions (constructor of
+	QueryParser, SimpleStopper and WritableDatabase).
+
+Wed Jul 29 10:04:51 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/t/index.t,perl/t/parser.t: Fix exception tests because
+	previous test suppose working of XS binding with bug.
+
+Wed Jul 29 01:24:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix add_valuerangeprocessor to push
+	ValueRangeProcessors object into it's member array
+	since storing all ValueRangeProcessors objects which
+	added.
+
+Tue Jul 28 06:09:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_stopper of TermGenerator to keep
+	SimpleStopper reference	in the object for it won't be deleted.
+	Similar fix for set_sort_by_key, set_sort_by_key_then_relevance,
+	set_sort_by_relevance_then_key to keep MultiValueSorter.
+
+Tue Jul 28 03:56:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_stopper to keep SimpleStopper reference
+	in object for it won't be deleted. Same fix for add_valuerangeprocessor.
+
+Mon Jul 27 09:31:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add operator overload support for PositionIterator,
+	fix new3_WritableDatabase, and TermIterator::clone for overloading
+	operator '='.
+
+Mon Jul 27 06:40:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add function new3_WritableDatabase and
+	WritableDatabase::new to construct WritableDatabase
+	correctly.
+
+Thu Jul 23 16:58:26 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Wrap functions SimpleStopper::stop_word,
+	QueryParser::new and SimpleStopper::new.
+
+Wed Jul 22 15:23:39 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add wrapper functions for Stem::stem_word,
+	WritableDatabase::replace_document_by_term,
+	writabledatabase::delete_document_by_term,
+	some ValueIterator functions and some TermIterator functions.
+	Add operator overload support for ValueIterator and
+	TermIterator, but now double quotation operator is
+	commented out temporarily to avoid error.
+
+Tue Jul 21 17:20:01 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am:Fix the way of compile xapian_wrap.cc
+	and Xapian.pm for multiple file compilation.
+
+Tue Jul 21 17:05:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Ignore Xapian::Query::Query for taking away
+	duplication of definition. Change some argument handling process
+	of Xapian::Query::new* functions.
+
+Mon Jul 20 13:37:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Add wrapper function get_mset() and it's
+	internal function get_mset1. Fix newN() function to handle
+	multiple query argument well by introducing typemap which
+	maps perl array to SV **.
+
+Fri Jul 17 14:52:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/generate-perl-exceptions: Add exception
+	wrapping refering python/generate-python-exceptions and
+	search-xapian/handle_exception.cc .
+
+Thu Jul 16 13:45:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Rename constructors of Query and Enquire::set_query,
+	add wrapper function newN for generatig new query, add function
+	Database::enquire, Query::new and Enquire::set_query.
+
+Tue Jul 14 15:02:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac: Fix PERL_XAPIAN_VERSION to get binding's
+	version number. Previously it gets from xaian-core's one.
+
+Tue Jul 14 07:52:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: Add some options for testing.
+	* perl/util.i.in: Fix for variable $VERSION.
+
+Mon Jul 13 11:43:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Add a valiable $VERSION for adjusting
+	usage how to get version number.
+
+Mon Jul 13 11:32:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: Add swig's -const and -proxy option to
+	wrap constant values correctly.
+	* perl/util.i.in: Add %constant directive for wraipping
+	constant values. Fix generation process of OP_NAMES, DB_NAMES,
+	FLAG_NAMES and STEM_NAMES because of change of above constant
+	value handling.
+
+Sun Jul 12 23:47:54 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Fix that array OP_NAMES, DB_NAMES, FLAG_NAMES
+	and STEM_NAES could contain values correctory.
+	* perl/Makefile.am: Fix a spelling mistake.
+
+Mon Jul 06 05:50:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/util.i.in:  Add some hashes such as EXPORT_TAGS
+	for exporter module. And add arrays OP_NAMES, DB_NAMES, FLAG_NAMES and
+	STEM_NAMES to util.i.in.
+	* perl/lib/,perl/lib/MSet/Tied.pm,perl/lib/:Rename directory
+	name 'Xapian' to 'lib' to process Test::Pod.
+
+Sun Jun 28 20:44:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac,perl/util.i,perl/util.i.in: Add VERSION variable
+	into Xapian.pm. To do this, add #define directive into perl/util.i
+	and get version number from configure.
+
+Sun Jun 28 17:56:03 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: To override module name (from 'xapian'
+	to 'Search::Xapian') add swig's '-module Search::Xapian' option,
+	change test environment from 'perl' to 'prove', and change directory
+	to install Xapian.pm.
+	* configure.ac: Remove '/auto/Search/Xapian' from PERL_LIB variable,
+	and add dot into PERL_SO variable.
+
+Mon Jun 22 02:53:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac,perl/Makefile.am: Add configure test to get appropriate
+	  setting for directories to install perl files into. Also add test to
+	  get perl module extension.
+	* perl/util.i: Add %rename directive to rename "next()" function in
+	  xapian-bindings/xapian.i and "next(Xapian::weight min_wt)" function
+	  in xapian-core/include/xapian/postingsource.h because these functions
+	  conflicts perl's "next" keyword.
+
+Sun Jun 21 21:45:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/xapian.pm: remove a generated file (xapian.pm) from repository.
+	* ChangeLog: add log message of revision 12910 (Mon Jun 15 17:58:09 GMT 2009).
+
+Mon Jun 15 17:58:09 GMT 2009  Kosei Moriyama <cou929@gmail.comm>
+
+	* Makefile.am,configure.ac: Add --with-perl configure option,
+	  and add configure test to get appropriate setting for include
+	  path for perl.
+	* perl/Makefile.am, perl/docs/Makefile.am,
+	  perl/docs/examples/, perl/docs/index.html,
+	  perl/t/, perl/util.i, perl/xapian.pm: Add perl subdirectory to
+	  build system.
+
+Wed Aug 25 15:15:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use sys.version_info tuple, rather than string splicing
+	  which assumes the Python "major.minor" is 3 characters (which would
+	  fail if Python 2.10 were ever released, for example).
+
+Tue Aug 24 06:02:17 GMT 2010  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.3.
+
+Tue Aug 24 05:09:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Don't run autoreconf - it's no longer
+	  required.
+
 Sun Jun 27 05:24:00 GMT 2010  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.2.

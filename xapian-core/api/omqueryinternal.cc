@@ -582,24 +582,24 @@ QUnserial::readcompound() {
 		    len = decode_length(&p, end, true);
 		    string stop(p, len);
 		    p += len;
-		    Xapian::valueno valno(decode_length(&p, end, false));
-		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
+		    Xapian::valueno slot(decode_length(&p, end, false));
+		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, slot,
 						       start, stop);
 	        }
 		case '}': {
 		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    Xapian::valueno valno(decode_length(&p, end, false));
-		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, valno,
+		    Xapian::valueno slot(decode_length(&p, end, false));
+		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, slot,
 						       start);
 	        }
 		case '{': {
 		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    Xapian::valueno valno(decode_length(&p, end, false));
-		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_LE, valno,
+		    Xapian::valueno slot(decode_length(&p, end, false));
+		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_LE, slot,
 						       start);
 	        }
 	        case '.': {
@@ -642,7 +642,7 @@ Xapian::Query::Internal::unserialise(const string &, const Xapian::Registry &)
 #endif
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
-	: Xapian::Internal::RefCntBase(),
+	: Xapian::Internal::intrusive_base(),
 	  op(copyme.op),
 	  subqs(),
 	  parameter(copyme.parameter),
@@ -697,10 +697,10 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 	throw Xapian::InvalidArgumentError("parameter is only meaningful for OP_NEAR, OP_PHRASE, or OP_ELITE_SET");
 }
 
-Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
+Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno slot,
 				  const string &begin, const string &end)
 	: op(op_),
-	  parameter(Xapian::termcount(valno)),
+	  parameter(Xapian::termcount(slot)),
 	  tname(begin),
 	  str_parameter(end),
 	  external_source(NULL),
@@ -711,10 +711,10 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
     validate_query();
 }
 
-Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
+Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno slot,
 				  const std::string &value)
 	: op(op_),
-	  parameter(Xapian::termcount(valno)),
+	  parameter(Xapian::termcount(slot)),
 	  tname(value),
 	  external_source(NULL),
 	  external_source_owned(false)

@@ -1,7 +1,7 @@
 /** @file api_opvalue.cc
  * @brief Tests of the OP_VALUE_* query operators.
  */
-/* Copyright 2007,2008,2009,2010,2010 Olly Betts
+/* Copyright 2007,2008,2009,2010,2010,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -85,6 +85,40 @@ DEFINE_TESTCASE(valuerange2, writable) {
 
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(*(mset[0]), 5);
+    return true;
+}
+
+static void
+make_valuerange5(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_value(0, "BOOK");
+    db.add_document(doc);
+    doc.add_value(0, "VOLUME");
+    db.add_document(doc);
+}
+
+// Check that lower and upper bounds are used.
+DEFINE_TESTCASE(valuerange5, generated) {
+    Xapian::Database db = get_database("valuerange5", make_valuerange5);
+
+    // If the lower bound is empty, either ther the specified value slot is
+    // never used in the database, or the backend doesn't track value bounds.
+    // Neither should be true here.
+    TEST(!db.get_value_lower_bound(0).empty());
+
+    Xapian::Enquire enq(db);
+
+    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 0, "APPLE", "BANANA");
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+
+    Xapian::Query query2(Xapian::Query::OP_VALUE_RANGE, 0, "WALRUS", "ZEBRA");
+    enq.set_query(query2);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+
     return true;
 }
 

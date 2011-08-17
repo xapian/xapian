@@ -1,7 +1,7 @@
 /** @file debuglog.h
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,6 +69,9 @@ enum debuglog_categories {
     /// Weight calculations.
     DEBUGLOG_CATEGORY_WTCALC = ('W' - '@'),
 
+    /// Query stuff.
+    DEBUGLOG_CATEGORY_QUERY = ('Y' - '@'),
+
     /// Messages which are always logged.
     DEBUGLOG_CATEGORY_ALWAYS = 31
 };
@@ -89,8 +92,8 @@ class DebugLogger {
     /// File descriptor for debug logging.
     int fd;
 
-    /// The current indent, as a string of spaces.
-    std::string indent_string;
+    /// The current indent level.
+    int indent_level;
 
     /// Initialise categories_mask.
     void initialise_categories_mask();
@@ -98,8 +101,7 @@ class DebugLogger {
   public:
     /// Constructor.
     DebugLogger()
-	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1),
-	  indent_string(" ")
+	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent_level(0)
     { }
 
     /// Destructor.
@@ -119,12 +121,10 @@ class DebugLogger {
     /// Log message @msg of category @a category.
     void log_line(debuglog_categories category, const std::string & msg);
 
-    void indent() { indent_string += ' '; }
+    void indent() { ++indent_level; }
 
     void outdent() {
-	if (indent_string.size() > 1) {
-	    indent_string.resize(indent_string.size() - 1);
-	}
+	if (indent_level) --indent_level;
     }
 };
 

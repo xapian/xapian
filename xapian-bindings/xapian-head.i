@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,8 @@
 
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
+#define XAPIAN_DEPRECATED_CLASS
+
 #include <xapian.h>
 
 #include <string>
@@ -54,17 +56,6 @@ namespace Xapian {
     }
 #endif
 
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    namespace Flint {
-	static Database open(const string &) {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-    }
-#endif
-
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
 	static WritableDatabase open() {
@@ -75,19 +66,19 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
-	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
+	static Database open(const string &, unsigned int, useconds_t = 0, useconds_t = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
 
-	static WritableDatabase open_writable(const string &, unsigned int, timeout = 0, timeout = 0) {
+	static WritableDatabase open_writable(const string &, unsigned int, useconds_t = 0, useconds_t = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
 
-	static Database open(const string &, const string &, timeout = 0) {
+	static Database open(const string &, const string &, useconds_t = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
 
-	static WritableDatabase open_writable(const string &, const string &, timeout = 0) {
+	static WritableDatabase open_writable(const string &, const string &, useconds_t = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
     }
@@ -95,8 +86,20 @@ namespace Xapian {
 }
 %}
 
-// ValueIteratorEnd_ is just a proxy for an end ValueIterator, so we just
-// wrap it as if it were a ValueIterator.
-#define ValueIteratorEnd_ ValueIterator
+using namespace std;
 
-/* vim:set syntax=cpp:set noexpandtab: */
+%include exception.i
+%include stl.i
+
+// Define these away for SWIG's parser.
+#define XAPIAN_DEPRECATED(D) D
+#define XAPIAN_DEPRECATED_CLASS
+#define XAPIAN_VISIBILITY_DEFAULT
+
+// Ignore these which SWIG seems to add pointless type entries for due them
+// being used in the SWIG typemap for std::pair.
+%ignore first_type;
+%ignore second_type;
+
+// Treat POSIX useconds_t as unsigned.
+%apply unsigned { useconds_t };

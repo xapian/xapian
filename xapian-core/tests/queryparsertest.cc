@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -72,9 +72,21 @@ static const test test_or_queries[] = {
     { "author:\"milne a.a.\"", "(Amilne:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
     // Regression test for bug reported in 0.9.7.
     { "site:/path/name", "0 * H/path/name" },
-    // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.0.
-    { "author:/path/name", "(author:(pos=1) PHRASE 3 path:(pos=2) PHRASE 3 name:(pos=3))" },
-    // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.0.
+    // Regression test for bug introduced (and fixed) in SVN prior to 1.0.0.
+    { "author:/path/name", "(Apath:(pos=1) PHRASE 2 Aname:(pos=2))" },
+    // Feature tests for change to allow phrase generators after prefix in 1.2.4.
+    { "author:/path", "ZApath:(pos=1)" },
+    { "author:-Foo", "Afoo:(pos=1)" },
+    { "author:/", "Zauthor:(pos=1)" },
+    { "author::", "Zauthor:(pos=1)" },
+    { "author:/ foo", "(Zauthor:(pos=1) OR Zfoo:(pos=2))" },
+    { "author:: foo", "(Zauthor:(pos=1) OR Zfoo:(pos=2))" },
+    { "author::foo", "(author:(pos=1) PHRASE 2 foo:(pos=2))" },
+    { "author:/ AND foo", "(Zauthor:(pos=1) AND Zfoo:(pos=2))" },
+    { "author:: AND foo", "(Zauthor:(pos=1) AND Zfoo:(pos=2))" },
+    { "foo AND author:/", "(Zfoo:(pos=1) AND Zauthor:(pos=2))" },
+    { "foo AND author::", "(Zfoo:(pos=1) AND Zauthor:(pos=2))" },
+    // Regression test for bug introduced into (and fixed) in SVN prior to 1.0.0.
     { "author:(title::case)", "(Atitle:(pos=1) PHRASE 2 Acase:(pos=2))" },
     // Regression test for bug fixed in 1.0.4 - the '+' would be ignored there
     // because the whitespace after the '"' wasn't noticed.
@@ -161,6 +173,13 @@ static const test test_or_queries[] = {
     // before testing C_isdigit(), so this rather artificial example parsed
     // to: (a:(pos=1) NEAR 262 b:(pos=2))
     { "a NEAR/\xc4\xb5 b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    { "a ADJ/\xc4\xb5 b", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    // Regression test - the first two cases were parsed as if the '/' were a
+    // space, which was inconsistent with the second two.  Fixed in 1.2.5.
+    { "a NEAR/b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 b:(pos=3)))" },
+    { "a ADJ/b", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 b:(pos=3)))" },
+    { "a NEAR/b c", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 b:(pos=3)) OR Zc:(pos=4))" },
+    { "a ADJ/b c", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 b:(pos=3)) OR Zc:(pos=4))" },
     // Regression tests - + and - didn't work on bracketed subexpressions prior
     // to 1.0.2.
     { "+(one two) three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND_MAYBE Zthree:(pos=3))" },
@@ -922,6 +941,69 @@ static bool test_qp_flag_wildcard2()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)))");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)) OR test:(pos=2)))");
+    return true;
+#endif
+}
+
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+static void
+test_qp_flag_wildcard1_helper(const Xapian::Database &db,
+			      Xapian::termcount max_expansion,
+			      const string & query_string)
+{
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    qp.set_max_wildcard_expansion(max_expansion);
+    Xapian::Enquire e(db);
+    e.set_query(qp.parse_query(query_string, Xapian::QueryParser::FLAG_WILDCARD));
+    // The exception for expanding too much may happen at parse time or later
+    // so we need to calculate the MSet too.
+    e.get_mset(0, 10);
+}
+#endif
+
+// Test right truncation with a limit on expansion.
+static bool test_qp_flag_wildcard3()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("muscat");
+    doc.add_term("muscle");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    db.add_document(doc);
+
+    // Test that a max of 0 doesn't set a limit.
+    test_qp_flag_wildcard1_helper(db, 0, "z*");
+    test_qp_flag_wildcard1_helper(db, 0, "m*");
+
+    // These cases should expand to the limit given.
+    test_qp_flag_wildcard1_helper(db, 1, "z*");
+    test_qp_flag_wildcard1_helper(db, 1, "ab*");
+    test_qp_flag_wildcard1_helper(db, 2, "muscle*");
+    test_qp_flag_wildcard1_helper(db, 4, "musc*");
+    test_qp_flag_wildcard1_helper(db, 4, "mus*");
+    test_qp_flag_wildcard1_helper(db, 5, "mu*");
+    test_qp_flag_wildcard1_helper(db, 6, "m*");
+
+    // These cases should expand to one more than the limit.
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 1, "muscle*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "musc*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "mus*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 4, "mu*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 5, "m*"));
+
     return true;
 #endif
 }
@@ -1689,15 +1771,25 @@ static const test test_mispelled_queries[] = {
     { "documento", "document" },
     { "documento-documento", "document-document" },
     { "documento-searcho", "document-search" },
+    { "test saerch", "test search" },
+    { "paragraf search", "paragraph search" },
     { NULL, NULL }
 };
 
 // Test spelling correction in the QueryParser.
 static bool test_qp_spell1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    Xapian::Document doc;
+    doc.add_term("document", 6);
+    doc.add_term("search", 7);
+    doc.add_term("saerch", 1);
+    doc.add_term("paragraph", 8);
+    doc.add_term("paragraf", 2);
+    db.add_document(doc);
 
     db.add_spelling("document");
     db.add_spelling("search");
@@ -1723,15 +1815,15 @@ static bool test_qp_spell1()
 // Test spelling correction in the QueryParser with multiple databases.
 static bool test_qp_spell2()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell2";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spell2";
     Xapian::WritableDatabase db1(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db1.add_spelling("document");
     db1.add_spelling("search");
     db1.commit();
 
-    dbdir = ".flint/qp_spell2b";
+    dbdir = ".chert/qp_spell2b";
     Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db2.add_spelling("document");
@@ -1770,8 +1862,8 @@ static const test test_mispelled_wildcard_queries[] = {
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellwild1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spellwild1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spellwild1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -1819,8 +1911,8 @@ static const test test_mispelled_partial_queries[] = {
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellpartial1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spellpartial1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_spellpartial1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -1863,8 +1955,8 @@ static const test test_synonym_queries[] = {
 // Test single term synonyms in the QueryParser.
 static bool test_qp_synonym1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("Zsearch", "Zfind");
@@ -1905,8 +1997,8 @@ static const test test_multi_synonym_queries[] = {
 // Test multi term synonyms in the QueryParser.
 static bool test_qp_synonym2()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym2";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym2";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("sun tan cream", "lotion");
@@ -1956,8 +2048,8 @@ static const test test_synonym_op_queries[] = {
 // Test the synonym operator in the QueryParser.
 static bool test_qp_synonym3()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_synonym3";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_synonym3";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("Zsearch", "Zfind");
@@ -2077,8 +2169,8 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 // size of the query.
 static bool test_qp_scale1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_scale1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/qp_scale1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("foo", "bar");
@@ -2122,14 +2214,14 @@ static const test test_near_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give NEAR 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) NEAR 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) NEAR 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) NEAR 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) NEAR 12 Zbar:(pos=2) NEAR 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) NEAR 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) NEAR 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) NEAR 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) NEAR 12 bar:(pos=2) NEAR 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) NEAR 12 Zanim:(pos=2) NEAR 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2146,7 +2238,7 @@ static const test test_near_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) NEAR 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) NEAR 11 space:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -2168,6 +2260,81 @@ static bool test_qp_near1()
     queryparser.add_boolean_prefix("category", "XCAT", false);
     queryparser.set_default_op(Xapian::Query::OP_NEAR);
     for (const test *p = test_near_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = queryparser.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_phrase_queries[] = {
+    { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
+    { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
+// FIXME: these give PHRASE 2
+//    { "foo -baz bar", "((foo:(pos=1) PHRASE 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) PHRASE 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) PHRASE 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) PHRASE 12 bar:(pos=2) PHRASE 12 baz:(pos=3))" },
+    { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
+    { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
+    { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
+    { "author:Orwell Animal Farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
+    { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
+    { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
+    { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
+    { "NOT windows", "Syntax: <expression> NOT <expression>" },
+    { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
+    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
+    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
+    { "OR foo", "Syntax: <expression> OR <expression>" },
+    { "XOR", "Syntax: <expression> XOR <expression>" },
+    { "hard\xa0space", "(hard:(pos=1) PHRASE 11 space:(pos=2))" },
+    // FIXME: this isn't what we want, but fixing phrase to work with
+    // subqueries first might be the best approach.
+    { "(one AND two) three", "((Zone:(pos=1) PHRASE 11 Zthree:(pos=3)) AND (Ztwo:(pos=2) PHRASE 11 Zthree:(pos=3)))" },
+    { NULL, NULL }
+};
+
+static bool test_qp_phrase1()
+{
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("writer", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_prefix("authortitle", "A");
+    queryparser.add_prefix("authortitle", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    queryparser.add_boolean_prefix("site2", "J");
+    queryparser.add_boolean_prefix("multisite", "H");
+    queryparser.add_boolean_prefix("multisite", "J");
+    queryparser.add_boolean_prefix("category", "XCAT", false);
+    queryparser.set_default_op(Xapian::Query::OP_PHRASE);
+    for (const test *p = test_phrase_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -2271,6 +2438,32 @@ static bool test_qp_stopword_group1()
 #endif
 }
 
+/// Regression test for bug with default_op set such that we get an exception.
+// Fixed in 1.0.23 and 1.2.4.
+static bool test_qp_default_op2()
+{
+    Xapian::QueryParser qp;
+    static const Xapian::Query::op ops[] = {
+	Xapian::Query::OP_AND_NOT,
+	Xapian::Query::OP_AND_MAYBE,
+	Xapian::Query::OP_FILTER,
+	Xapian::Query::OP_VALUE_RANGE,
+	Xapian::Query::OP_SCALE_WEIGHT,
+	Xapian::Query::OP_VALUE_GE,
+	Xapian::Query::OP_VALUE_LE
+    };
+    const Xapian::Query::op * p;
+    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
+	tout << *p << endl;
+	qp.set_default_op(*p);
+	// Before the fix, we tried to free an object twice when parsing the
+	// following query with default_op set such that we get an exception.
+	TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		       qp.parse_query("a-b NEAR c NEAR d"));
+    }
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static const test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -2278,6 +2471,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_odd_chars1),
     TESTCASE(qp_flag_wildcard1),
     TESTCASE(qp_flag_wildcard2),
+    TESTCASE(qp_flag_wildcard3),
     TESTCASE(qp_flag_partial1),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),
@@ -2305,7 +2499,9 @@ static const test_desc tests[] = {
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
+    TESTCASE(qp_phrase1),
     TESTCASE(qp_stopword_group1),
+    TESTCASE(qp_default_op2),
     END_OF_TESTCASES
 };
 

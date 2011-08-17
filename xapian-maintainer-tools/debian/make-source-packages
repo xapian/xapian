@@ -22,7 +22,7 @@
 set -e
 
 if [ x"$1" = x--help ] ; then
-  echo "Usage: $0"
+  echo "Usage: $0 [xapian-core] [xapian-bindings] [xapian-omega]"
   echo
   echo 'Make Debian source packages.'
   exit 0
@@ -35,7 +35,7 @@ BRANCH=trunk
 #BRANCH=branches/1.0
 
 # Options to pass to dpkg-buildpackage when building source packages
-BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
+BUILDPACKAGE_SRC_OPTS="--no-lintian -us -uc -d -S"
 
 # Location to download tarballs from
 DOWNLOAD_BASE="http://oligarchy.co.uk/xapian/"
@@ -88,14 +88,15 @@ done
 ls -l build
 
 cd build
-  # Make source package for xapian-core
-  make_source_package xapian-core xapian-core
+  for module in ${*:-xapian-core xapian-bindings xapian-omega} ; do
+    case $module in
+    xapian-omega) modulepath=xapian-applications/omega ;;
+    *) modulepath=$module ;;
+    esac
 
-  # Make source package for xapian-bindings
-  make_source_package xapian-bindings xapian-bindings
-
-  # Make source package for xapian-omega
-  make_source_package xapian-omega xapian-applications/omega
+    # Make source package
+    make_source_package "$module" "$modulepath"
+  done
 cd ..
 
 echo "Successfully built Debian source packages."

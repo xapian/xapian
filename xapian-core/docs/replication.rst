@@ -1,5 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2008 Olly Betts
+.. Copyright (C) 2008,2010,2011 Olly Betts
 
 =======================================
 Xapian Database Replication Users Guide
@@ -50,7 +50,7 @@ the separate `Replication Protocol <replication_protocol.html>`_ document.
 Backend Support
 ===============
 
-Replication is supported by the chert, flint, and brass database backends,
+Replication is supported by the chert, and brass database backends,
 and can cleanly handle the
 master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.
@@ -72,7 +72,7 @@ Firstly, on the master machine, the indexer must be run with the environment
 variable `XAPIAN_MAX_CHANGESETS` set to a non-zero value.  (Currently, the
 actual value it is set to is irrelevant, but I suggest using a value of 10).
 This will cause changeset files to be created whenever a transaction is
-performed, which allow the transaction to be replaced efficiently on a replica
+performed, which allow the transaction to be replayed efficiently on a replica
 of the database.
 
 Secondly, also on the master machine, run the `xapian-replicate-server` server
@@ -82,7 +82,7 @@ network interface to serve on.  The `--help` option will cause usage
 information to be displayed.  For example, if `/var/search/dbs`` contains a
 set of Xapian databases to be replicated::
 
-  ./xapian-replicate-server /var/search/dbs -p 7010
+  xapian-replicate-server /var/search/dbs -p 7010
 
 would run a server allowing access to these databases, on port 7010.
 
@@ -93,10 +93,18 @@ the `-m` option to the client.  One non-option argument is required - this is
 the name that the database should be stored in on the slave machine.  For
 example, contacting the above server from the same machine::
 
-  ./xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
+  xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
 
 would produce a database "foo2" containing a replica of the database
-"/var/search/dbs/foo".
+"/var/search/dbs/foo".  Note that the first time you run this, this command
+will create the foo2 directory and populate it with appropriate files; you
+should not create this directory yourself.
+
+As of 1.2.5, if you don't specify the master name, the same name is used
+remotely and locally, so this will replicate remote database "foo2" to
+local database "foo2"::
+
+  xapian-replicate -h 127.0.0.1 -p 7010 foo2
 
 Both the server and client can be run in "one-shot" mode, by passing `-o`.
 This may be particularly useful for the client, to allow a shell script to be
@@ -130,11 +138,11 @@ you were using the original database have finished.
 Calling reopen
 --------------
 
-The reopen method is usually an efficient way to ensure that a database is
+`Database::reopen()` is usually an efficient way to ensure that a database is
 up-to-date with the latest changes.  Unfortunately, it does not currently work
-correctly with databases which are being updated by the replication client.
-The workaround is simple; don't use the reopen() method on databases created by
-the replication client: instead, you should close the database and open it
+as you might expect with databases which are being updated by the replication
+client.  The workaround is simple; don't use the reopen() method on such
+databases: instead, you should close the database and open it
 again from scratch.
 
 Briefly, the issue is that the databases created by the replication client are
@@ -142,11 +150,11 @@ created in a subdirectory of the target path supplied to the client, rather
 than at that path.  A "stub database" file is then created in that directory,
 pointing to the database.  This allows the database which readers open to be
 switched atomically after a database copy has occurred.  The reopen() method
-doesn't currently re-read the stub database file in this situation, so ends up
+doesn't re-read the stub database file in this situation, so ends up
 attempting to read the old database which has been deleted.
 
-Ticket #434 in the Xapian Trac system gives some more details and discussion
-about this issue, and will be updated when a fix is implemented.
+We intend to fix this issue in the Brass backend (currently under development
+by eliminating this hidden use of a stub database file).
 
 Alternative approaches
 ======================
@@ -177,8 +185,9 @@ Copying database after each update
 Databases could be pushed to the slaves after each update simply by copying the
 entire database from the master (using scp, ftp, http or one of the many other
 transfer options).  After the copy is completed, the new database would be made
-live (perhaps by symlink switching, if symlinks are available).  After a
-reasonable interval to allow searches in progress on the old database to
+live by indirecting access through a stub database and switching what it points to.
+
+After a sufficient interval to allow searches in progress on the old database to
 complete, the old database would be removed.  (On UNIX filesystems, the old
 database could be unlinked immediately, and the resources used by it would be
 automatically freed as soon as the current searches using it complete.)

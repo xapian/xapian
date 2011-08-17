@@ -5,7 +5,7 @@ const char * dummy[] = {
 "/** @file version.h",
 " * @brief Define preprocesor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -125,13 +125,6 @@ const char * dummy[] = {
 "#define XAPIAN_HAS_CHERT_BACKEND 1",
 #else
 "/* #undef XAPIAN_HAS_CHERT_BACKEND */",
-#endif
-"",
-"/// XAPIAN_HAS_FLINT_BACKEND Defined if the flint backend is enabled.",
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-"#define XAPIAN_HAS_FLINT_BACKEND 1",
-#else
-"/* #undef XAPIAN_HAS_FLINT_BACKEND */",
 #endif
 "",
 "/// XAPIAN_HAS_INMEMORY_BACKEND Defined if the inmemory backend is enabled.",

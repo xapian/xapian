@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.2.2], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.3.0], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
@@ -12,6 +12,15 @@ AC_CONFIG_MACRO_DIR([m4])
 
 LT_PREREQ([2.2.6])
 LT_INIT
+
+dnl -no-undefined can cause problems on some platforms, so only pass it
+dnl on platforms where it is required in order to link a shared library at
+dnl all (Windows is the main one).
+NO_UNDEFINED=
+if test unsupported = "$allow_undefined_flag" ; then
+  NO_UNDEFINED=-no-undefined
+fi
+AC_SUBST(NO_UNDEFINED)
 
 dnl Checks for programs.
 AC_PROG_CXX
@@ -68,6 +77,19 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])
 
+dnl libmagic used to detect MIME types for files we don't detect by extension.
+AC_CHECK_HEADERS([magic.h])
+if test $ac_cv_header_magic_h = yes ; then
+  save_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([magic_open], [magic])
+  MAGIC_LIBS=$LIBS
+  LIBS=$save_LIBS
+else
+  MAGIC_LIBS=
+fi
+AC_SUBST([MAGIC_LIBS])
+
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)
 AC_TYPE_MODE_T
@@ -83,6 +105,17 @@ if test $ac_cv_func_ftime = yes ; then
     [struct timeb tp; int i = ftime(&tp);],
     ,
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
+fi
+
+dnl Use for Unix permission checks.
+AC_CHECK_FUNCS([getgrouplist])
+
+dnl See if getgrouplist() takes gid_t * (e.g. Linux) or int * (e.g. OS X).
+if test $ac_cv_func_getgrouplist = yes ; then
+  AC_TRY_COMPILE([#include <grp.h>
+#include <unistd.h>],
+    [int g[10]; int n = 10; return getgrouplist("root", 1, g, &n) == -1;],
+    AC_DEFINE([GETGROUPLIST_TAKES_INT_P], 1, [Define if getgrouplist takes int *]))
 fi
 
 dnl Check for lstat() (not available under mingw for example).
@@ -268,12 +301,11 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-if test x"$USE_MAINTAINER_MODE" = xyes; then
-  dnl Check for perl. (Needed to make man pages from "--help" output, and to
-  dnl make the omegascript vim syntax mode.)
-  AC_PATH_PROG(PERL, perl, [])
-  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
-fi
+dnl Check for perl.  Needed for outlookmsg2html script.
+dnl (And in maintainer-mode, also to make man pages from "--help" output, and
+dnl to make the omegascript vim syntax mode.)
+AC_PATH_PROG(PERL, perl, [])
+test -z "$PERL" && AC_MSG_ERROR([perl is required])
 
 if test x"$enable_documentation" = xyes; then
   dnl Check for help2man. (Needed to make man pages from "--help" output).
@@ -309,49 +341,6 @@ PCRE_LIBS=`$PCRE_CONFIG --libs`
 AC_SUBST(PCRE_CFLAGS)
 AC_SUBST(PCRE_LIBS)
 
-dnl Disabled XML stuff as we don't currently build omindex-config
-dnl dnl Check for libxml or libxml2.  We do this by looking for xml-config.
-dnl AC_PATH_PROG(XML_CONFIG_PATH, xml2-config)
-dnl if test -n "$XML_CONFIG_PATH" ; then
-dnl   HAVE_LIBXML2=yes
-dnl   AC_DEFINE(HAVE_LIBXML2,, [Define if libxml2 is available.])
-dnl else
-dnl   HAVE_LIBXML2=no
-dnl   AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
-dnl fi
-dnl if test -n "$XML_CONFIG_PATH" ; then
-dnl   AC_DEFINE(HAVE_LIBXML,, [Define if libxml or libxml2 is available.])
-dnl fi
-dnl AM_CONDITIONAL(HAVE_LIBXML2, test yes = "$HAVE_LIBXML2")
-dnl 
-dnl if test -n "$XML_CONFIG_PATH" ; then
-dnl     AC_MSG_CHECKING([libxml flags])
-dnl     LIBXML_CFLAGS="`$XML_CONFIG_PATH --cflags`"
-dnl     LIBXML_LIBS="`$XML_CONFIG_PATH --libs`"
-dnl 
-dnl     AC_LANG_SAVE
-dnl     AC_LANG_C
-dnl     SAVE_CFLAGS="$CFLAGS"
-dnl     CFLAGS="$CFLAGS $LIBXML_CFLAGS"
-dnl     AC_TRY_COMPILE([
-dnl #include <parser.h>
-dnl #include <valid.h>
-dnl ], [ xmlValidCtxt ctxt;
-dnl      xmlDocPtr doc;
-dnl      xmlValidateDocument(&ctxt, doc);
-dnl      ], [have_libxml_valid=yes], [have_libxml_valid=no])
-dnl     CFLAGS="$SAVE_CFLAGS"
-dnl     AC_LANG_RESTORE
-dnl     AC_MSG_RESULT("$LIBXML_CFLAGS")
-dnl fi
-dnl AC_SUBST(LIBXML_CFLAGS)
-dnl AC_SUBST(LIBXML_LIBS)
-dnl if test yes = "$have_libxml_valid"; then
-dnl AC_DEFINE(HAVE_LIBXML_VALID,, [Define if libxml has validation available ])
-dnl else
-dnl AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
-dnl fi
-
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
@@ -379,12 +368,13 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
-      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
-      dnl All the other options were supported by g++ 2.95 and there's little
-      dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow"
+      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
+      dnl we can rely on it.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
+      dnl
+      dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -398,15 +388,21 @@ if test yes = "$GXX"; then
 	;;
       3.*) ;;
       *) dnl GCC >= 4.0
-	dnl -Wstrict-null-sentinel was new 4.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
-
 	case $gxx_version in
-	4.[[01]]) ;;
+	4.0) ;;
+	4.1)
+	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
+	  dnl only enable it for GCC >= 4.1.
+	  dnl
+	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
+	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
+	  dnl in a static method is the same as a member variable, so only
+	  dnl enable it for GCC >= 4.1.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -417,7 +413,7 @@ if test yes = "$GXX"; then
 	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
 	  dnl anyway - we don't intend to use this idiom, so any instances are
 	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:
@@ -430,18 +426,30 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	if test no != "$enable_visibility"; then
+	  dnl GCC doesn't support symbol visibility on all platforms (notably
+	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	    AC_MSG_RESULT([yes])
+	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
 	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
 	dnl and some GCC 3.x compilers issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+	  case $gxx_version in
+	  4.0)
+	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
+	    ;;
+	  *)
+	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	  esac
 	fi
 	;;
       esac
@@ -472,7 +480,7 @@ AH_BOTTOM(
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__ && __GNUC__ >= 3
+#if defined __GNUC__
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.
@@ -505,6 +513,9 @@ AC_SUBST(QUIET)
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
+dnl Enable large file support if possible.
+AC_SYS_LARGEFILE
+
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
 AC_SUBST([AUTOM4TE])
@@ -515,4 +526,5 @@ dnl **************************
 
 AC_CONFIG_FILES([Makefile docs/Makefile xapian-omega.spec])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
+AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
 AC_OUTPUT

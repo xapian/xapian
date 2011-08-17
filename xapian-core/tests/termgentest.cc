@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -721,8 +721,8 @@ static bool test_termgen1()
 /// Test spelling data generation.
 static bool test_tg_spell1()
 {
-    mkdir(".flint", 0755);
-    string dbdir = ".flint/tg_spell1";
+    mkdir(".chert", 0755);
+    string dbdir = ".chert/tg_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     Xapian::TermGenerator termgen;

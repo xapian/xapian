@@ -43,7 +43,7 @@ class OmDocumentTerm {
     OmDocumentTerm(const string & tname_, Xapian::termcount wdf_)
 	: tname(tname_), wdf(wdf_)
     {
-	LOGCALL_VOID(DB, "OmDocumentTerm::OmDocumentTerm", tname_ | wdf_);
+	LOGCALL_CTOR(DB, "OmDocumentTerm", tname_ | wdf_);
     }
 
     /** The name of this term.

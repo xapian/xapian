@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ struct WinsockInitializer {
 	// that we have a version of winsock which is recent enough for us?
 
 	if (wsaerror != 0) {
-	    throw Xapian::NetworkError("Failed to initialize winsock", "", wsaerror);
+	    throw Xapian::NetworkError("Failed to initialize winsock", wsaerror);
 	}
     }
 
@@ -154,7 +154,9 @@ class RemoteConnection {
 
   public:
     /// Constructor.
-    RemoteConnection(int fdin_, int fdout_, const std::string & context_);
+    RemoteConnection(int fdin_, int fdout_,
+		     const std::string & context_ = std::string());
+
     /// Destructor
     ~RemoteConnection();
 
@@ -167,7 +169,8 @@ class RemoteConnection {
     /** Check what the next message type is.
      *
      *  This must not be called after a call to get_message_chunked() until
-     *  get_message_chunk() has returned fales to indicate the message.
+     *  get_message_chunk() has returned false to indicate the whole message
+     *  has been received.
      *
      *  Other than that restriction, this may be called at any time to
      *  determine what the next message waiting to be processed is: it will not
@@ -216,19 +219,20 @@ class RemoteConnection {
      *
      *  You must call get_message_chunked() before calling this method.
      *
-     *  @param[inout] result	Message data.  This is appended to, so if you read
-     *				more than needed the previous time, leave the excess
-     *				in result.
-     *	@param at_least		Return at least this many bytes in result, unless
-     *				there isn't enough data left in the message (in
-     *				which case all remaining data is read and false is
-     *				returned).
+     *  @param[inout] result	Message data.  This is appended to, so if you
+     *				read more than needed the previous time, leave
+     *				the excess in result.
+     *	@param at_least		Return at least this many bytes in result,
+     *				unless there isn't enough data left in the
+     *				message (in which case all remaining data is
+     *				read and false is returned).
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			true if at least at_least bytes are now in result.
+     *  @return			true if at least at_least bytes are now in
+     *				result.
      */
     bool get_message_chunk(std::string &result, size_t at_least,
 			   double end_time);
@@ -260,13 +264,13 @@ class RemoteConnection {
     /** Send the contents of a file as a message.
      *
      *  @param type		Message type code.
-     *  @param file		Path to file containing the Message data.
+     *  @param fd		File containing the message data.
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      */
-    void send_file(char type, const std::string &file, double end_time);
+    void send_file(char type, int fd, double end_time);
 
     /** Shutdown the connection.
      *

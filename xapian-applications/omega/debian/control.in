@@ -3,8 +3,9 @@ Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ debhelper (>= 7), autotools-dev, libpcre3-dev,
+    libmagic-dev,
     libxapian-dev (>= 1.2.0-2~)
-Standards-Version: 3.8.4
+Standards-Version: 3.9.2
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-applications/omega
 Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-applications/omega
@@ -14,7 +15,8 @@ Section: web
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, ghostscript,
-    catdoc, libwps-tools, catdvi, djvulibre-bin, perl
+    catdoc, libwps-tools, catdvi, djvulibre-bin, rpm,
+    perl, libemail-outlook-message-perl, libhtml-parser-perl
 Recommends: apache2|httpd-cgi
 Description: CGI search interface and indexers using Xapian
  This package contains:

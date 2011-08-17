@@ -1,8 +1,8 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010 Olly Betts
-# Copyright (C) 2010 Richard Boulton
+# Copyright (C) 2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,10 +19,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-import sys
-import xapian
-import shutil
+import os
 import random
+import shutil
+import sys
+import tempfile
+import xapian
 
 from testsuite import *
 
@@ -95,6 +97,20 @@ def test_mset_iter():
     expect(items[2].collapse_key, '')
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
+
+    # Test coverage for mset.items
+    mset_items = mset.items
+    expect(len(mset), len(mset_items), "Expected number of items to be length of mset")
+
+    context("testing mset_items[2]")
+    expect(mset_items[2][xapian.MSET_DID], 4)
+    expect(mset_items[2][xapian.MSET_WT] > 0.0, True)
+    expect(mset_items[2][xapian.MSET_RANK], 2)
+    expect(mset_items[2][xapian.MSET_PERCENT], 86)
+    # MSET_DOCUMENT is documented but not implemented!  FIXME: resolve this -
+    # if it has never worked, we may just want to remove the documentation for
+    # it.
+    #expect(mset_items[2][xapian.MSET_DOCUMENT].get_data(), 'was it warm? three')
 
     # Check iterators for sub-msets against the whole mset.
     for start in range(0, 6):
@@ -203,24 +219,19 @@ def test_matchingterms_iter():
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
+    # Prior to 1.2.4 Enquire.matching_terms() leaked references to its members.
+
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10)
+
     for item in mset:
-
         # Make a list of the term names
-        mterms = []
-        for term in enquire.matching_terms(item.docid):
-            mterms.append(term)
-
-        mterms2 = []
-        for term in enquire.matching_terms(item):
-            mterms2.append(term)
+        mterms = [term for term in enquire.matching_terms(item.docid)]
+        mterms2 = [term for term in enquire.matching_terms(item)]
         expect(mterms, mterms2)
 
-    mterms = []
-    for term in enquire.matching_terms(mset.get_hit(0)):
-        mterms.append(term)
+    mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
     expect(mterms, ['it', 'two', 'warm', 'was'])
 
 def test_queryterms_iter():
@@ -1272,7 +1283,7 @@ def test_serialise_query():
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query()')
- 
+
     q = xapian.Query('hello')
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
@@ -1297,7 +1308,7 @@ def test_preserve_query_parser_stopper():
         return queryparser
     queryparser = make_qp()
     query = queryparser.parse_query('to be')
-    expect([term for term in queryparser.stoplist()], ['to']) 
+    expect([term for term in queryparser.stoplist()], ['to'])
 
 def test_preserve_term_generator_stopper():
     """Test preservation of stopper set on term generator.
@@ -1318,7 +1329,7 @@ def test_preserve_term_generator_stopper():
     doc = termgen.get_document()
     terms = [term.term for term in doc.termlist()]
     terms.sort()
-    expect(terms, ['Zbe', 'be', 'to']) 
+    expect(terms, ['Zbe', 'be', 'to'])
 
 def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.
@@ -1333,8 +1344,8 @@ def test_preserve_enquire_sorter():
 
     def make_enq1(db):
         enq = xapian.Enquire(db)
-        sorter = xapian.MultiValueSorter()
-        enq.set_sort_by_key(sorter, True)
+        sorter = xapian.MultiValueKeyMaker()
+        enq.set_sort_by_key(sorter, False)
         del sorter
         return enq
     enq = make_enq1(db)
@@ -1343,8 +1354,8 @@ def test_preserve_enquire_sorter():
 
     def make_enq2(db):
         enq = xapian.Enquire(db)
-        sorter = xapian.MultiValueSorter()
-        enq.set_sort_by_key_then_relevance(sorter, True)
+        sorter = xapian.MultiValueKeyMaker()
+        enq.set_sort_by_key_then_relevance(sorter, False)
         del sorter
         return enq
     enq = make_enq2(db)
@@ -1353,8 +1364,8 @@ def test_preserve_enquire_sorter():
 
     def make_enq3(db):
         enq = xapian.Enquire(db)
-        sorter = xapian.MultiValueSorter()
-        enq.set_sort_by_relevance_then_key(sorter, True)
+        sorter = xapian.MultiValueKeyMaker()
+        enq.set_sort_by_relevance_then_key(sorter, False)
         del sorter
         return enq
     enq = make_enq3(db)
@@ -1421,6 +1432,193 @@ def test_latlongcoords_iter():
     expect([str(c) for c in coords], ['Xapian::LatLongCoord(0, 0)',
                                       'Xapian::LatLongCoord(0, 1)'])
 
+
+def test_compactor():
+    """Test that xapian.Compactor works.
+
+    """
+    tmpdir = tempfile.mkdtemp()
+    db1 = db2 = db3 = None
+    try:
+        db1path = os.path.join(tmpdir, 'db1')
+        db2path = os.path.join(tmpdir, 'db2')
+        db3path = os.path.join(tmpdir, 'db3')
+
+        # Set up a couple of sample input databases
+        db1 = xapian.WritableDatabase(db1path, xapian.DB_CREATE_OR_OVERWRITE)
+        doc1 = xapian.Document()
+        doc1.add_term('Hello')
+        doc1.add_term('Hello1')
+        doc1.add_value(0, 'Val1')
+        db1.set_metadata('key', '1')
+        db1.set_metadata('key1', '1')
+        db1.add_document(doc1)
+        db1.flush()
+
+        db2 = xapian.WritableDatabase(db2path, xapian.DB_CREATE_OR_OVERWRITE)
+        doc2 = xapian.Document()
+        doc2.add_term('Hello')
+        doc2.add_term('Hello2')
+        doc2.add_value(0, 'Val2')
+        db2.set_metadata('key', '2')
+        db2.set_metadata('key2', '2')
+        db2.add_document(doc2)
+        db2.flush()
+
+        # Compact with the default compactor
+        # Metadata conflicts are resolved by picking the first value
+        c = xapian.Compactor()
+        c.add_source(db1path)
+        c.add_source(db2path)
+        c.set_destdir(db3path)
+        c.compact()
+
+        db3 = xapian.Database(db3path)
+        expect([(item.term, item.termfreq) for item in db3.allterms()],
+               [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
+        expect(db3.get_document(1).get_value(0), 'Val1')
+        expect(db3.get_document(2).get_value(0), 'Val2')
+        expect(db3.get_metadata('key'), '1')
+        expect(db3.get_metadata('key1'), '1')
+        expect(db3.get_metadata('key2'), '2')
+
+        context("testing a custom compactor which merges duplicate metadata")
+        class MyCompactor(xapian.Compactor):
+            def __init__(self):
+                xapian.Compactor.__init__(self)
+                self.log = []
+
+            def set_status(self, table, status):
+                if len(status) == 0:
+                    self.log.append('Starting %s' % table)
+                else:
+                    self.log.append('%s: %s' % (table, status))
+
+            def resolve_duplicate_metadata(self, key, vals):
+                return ','.join(vals)
+
+        c = MyCompactor()
+        c.add_source(db1path)
+        c.add_source(db2path)
+        c.set_destdir(db3path)
+        c.compact()
+        log = '\n'.join(c.log)
+        # Check we got some messages in the log
+        expect('Starting postlist' in log, True)
+
+        db3 = xapian.Database(db3path)
+        expect([(item.term, item.termfreq) for item in db3.allterms()],
+               [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
+        expect(db3.get_metadata('key'), '1,2')
+        expect(db3.get_metadata('key1'), '1')
+        expect(db3.get_metadata('key2'), '2')
+
+    finally:
+        if db1 != None:
+            db1.close()
+        if db2 != None:
+            db2.close()
+        if db3 != None:
+            db3.close()
+
+        shutil.rmtree(tmpdir)
+
+def test_leak_mset_items():
+    """Test that items property of MSet doesn't leak
+
+    """
+    db = xapian.inmemory_open()
+    doc = xapian.Document()
+    doc.add_term('drip')
+    db.add_document(doc)
+    enq = xapian.Enquire(db)
+    enq.set_query(xapian.Query('drip'))
+    mset = enq.get_mset(0, 10)
+
+    # Prior to 1.2.4 this next line leaked an object.
+    mset.items
+
+def test_custom_matchspy():
+    class MSpy(xapian.MatchSpy):
+        def __init__(self):
+            xapian.MatchSpy.__init__(self)
+            self.count = 0
+
+        def __call__(self, doc, weight):
+            self.count += 1
+
+    mspy = MSpy()
+
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, "was", "it")
+
+    enquire = xapian.Enquire(db)
+    enquire.add_matchspy(mspy)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 1)
+    expect(len(mset), 1)
+    expect(mspy.count >= 1, True)
+
+    expect(db.get_doccount(), 5)
+
+def test_removed_features():
+    ok = True
+    db = xapian.inmemory_open()
+    doc = xapian.Document()
+    enq = xapian.Enquire(db)
+    eset = xapian.ESet()
+    mset = xapian.MSet()
+    query = xapian.Query()
+    qp = xapian.QueryParser()
+    titer = xapian._TermIterator()
+    postiter = xapian._PostingIterator()
+
+    def check_missing(obj, attr):
+        expect_exception(AttributeError, None, getattr, obj, attr)
+
+    check_missing(xapian, 'Stem_get_available_languages')
+    check_missing(xapian, 'TermIterator')
+    check_missing(xapian, 'PositionIterator')
+    check_missing(xapian, 'PostingIterator')
+    check_missing(xapian, 'ValueIterator')
+    check_missing(xapian, 'MSetIterator')
+    check_missing(xapian, 'ESetIterator')
+    check_missing(db, 'allterms_begin')
+    check_missing(db, 'allterms_end')
+    check_missing(db, 'metadata_keys_begin')
+    check_missing(db, 'metadata_keys_end')
+    check_missing(db, 'synonym_keys_begin')
+    check_missing(db, 'synonym_keys_end')
+    check_missing(db, 'synonyms_begin')
+    check_missing(db, 'synonyms_end')
+    check_missing(db, 'spellings_begin')
+    check_missing(db, 'spellings_end')
+    check_missing(db, 'positionlist_begin')
+    check_missing(db, 'positionlist_end')
+    check_missing(db, 'postlist_begin')
+    check_missing(db, 'postlist_end')
+    check_missing(db, 'termlist_begin')
+    check_missing(db, 'termlist_end')
+    check_missing(doc, 'termlist_begin')
+    check_missing(doc, 'termlist_end')
+    check_missing(doc, 'values_begin')
+    check_missing(doc, 'values_end')
+    check_missing(enq, 'get_matching_terms_begin')
+    check_missing(enq, 'get_matching_terms_end')
+    check_missing(eset, 'begin')
+    check_missing(eset, 'end')
+    check_missing(mset, 'begin')
+    check_missing(mset, 'end')
+    check_missing(postiter, 'positionlist_begin')
+    check_missing(postiter, 'positionlist_end')
+    check_missing(query, 'get_terms_begin')
+    check_missing(query, 'get_terms_end')
+    check_missing(qp, 'stoplist_begin')
+    check_missing(qp, 'stoplist_end')
+    check_missing(qp, 'unstem_begin')
+    check_missing(qp, 'unstem_end')
+    check_missing(titer, 'positionlist_begin')
+    check_missing(titer, 'positionlist_end')
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

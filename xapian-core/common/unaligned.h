@@ -1,7 +1,7 @@
 /* unaligned.h: Read/write unaligned 1, 2, 4 byte integers.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004,2008 Olly Betts
+ * Copyright 2002,2004,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,12 +19,12 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
-#define XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
+#ifndef XAPIAN_INCLUDED_UNALIGNED_H
+#define XAPIAN_INCLUDED_UNALIGNED_H
 
 #include "omassert.h"
 
-// FIXME: 65536 in Asserts below is the max flint/chert block size.  We should
+// FIXME: 65536 in Asserts below is the max chert block size.  We should
 // abstract this out, and use the current block_size to catch overruns better.
 inline int
 getint1(const unsigned char *p, int c)
@@ -78,4 +78,4 @@ setint4(unsigned char *p, int c, int x)
     p[c + 3] = static_cast<unsigned char>(x);
 }
 
-#endif // XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
+#endif // XAPIAN_INCLUDED_UNALIGNED_H

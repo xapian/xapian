@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,38 +21,53 @@
 
 #include "diritor.h"
 
+#include "safeunistd.h"
+#include <sys/types.h>
 #include "safeerrno.h"
 
 #include <cstring>
 
 using namespace std;
 
+#if defined O_NOATIME && O_NOATIME != 0
+uid_t DirectoryIterator::euid = geteuid();
+#endif
+
+#ifdef HAVE_MAGIC_H
+magic_t DirectoryIterator::magic_cookie = NULL;
+#endif
+
 void
 DirectoryIterator::call_stat()
 {
-    string file = path;
-    file += '/';
-    file += leafname();
+    build_path();
     int retval;
 #ifdef HAVE_LSTAT
     if (follow_symlinks) {
 #endif
-	retval = stat(file.c_str(), &statbuf);
+	retval = stat(path.c_str(), &statbuf);
 #ifdef HAVE_LSTAT
     } else {
-	retval = lstat(file.c_str(), &statbuf);
+	retval = lstat(path.c_str(), &statbuf);
     }
 #endif
     if (retval == -1) {
 	string error = "Can't stat \"";
-	error += file;
+	error += path;
 	error += "\" (";
 	error += strerror(errno);
 	error += ')';
 	throw error;
     }
+}
 
-    statbuf_valid = true;
+void
+DirectoryIterator::build_path()
+{
+    if (path.length() == path_len) {
+	path += '/';
+	path += leafname();
+    }
 }
 
 void
@@ -60,6 +75,7 @@ DirectoryIterator::start(const std::string & path_)
 {
     if (dir) closedir(dir);
     path = path_;
+    path_len = path.length();
     dir = opendir(path.c_str());
     if (dir == NULL) {
 	string error = "Can't open directory \"";
@@ -81,3 +97,56 @@ DirectoryIterator::next_failed() const
     error += ')';
     throw error;
 }
+
+#ifdef HAVE_MAGIC_H
+string
+DirectoryIterator::get_magic_mimetype()
+{
+    if (rare(magic_cookie == NULL)) {
+#ifdef MAGIC_MIME_TYPE
+	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
+#else
+	// MAGIC_MIME_TYPE is relatively new - the changelog doesn't mention it
+	// being added, but 4.21 didn't have it and 4.26 did.  If we don't have
+	// it then use MAGIC_MIME instead and trim any encoding off below.
+	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME|MAGIC_ERROR);
+#endif
+	if (magic_cookie == NULL) {
+	    string m("Failed to initialise the file magic library: ");
+	    m += strerror(errno);
+	    throw m;
+	}
+	if (magic_load(magic_cookie, NULL) == -1) {
+	    string m("Failed to load the file magic database");
+	    const char * err = magic_error(magic_cookie);
+	    if (err) {
+		m += ": ";
+		m += err;
+	    }
+	    throw m;
+	}
+    }
+
+    // FIXME: handle NOATIME here and share the fd with load_file().
+    build_path();
+    const char * res = magic_file(magic_cookie, path.c_str());
+    if (!res) {
+	const char * err = magic_error(magic_cookie);
+	if (rare(err)) {
+	    string m("Failed to use magic on file: ");
+	    m += err;
+	    throw m;
+	}
+	return string();
+    }
+
+#ifndef MAGIC_MIME_TYPE
+    // Discard any encoding returned.
+    char * spc = strchr(res, ' ');
+    if (spc)
+	*spc = '\0';
+#endif
+
+    return res;
+}
+#endif

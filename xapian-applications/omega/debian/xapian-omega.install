@@ -6,6 +6,7 @@ usr/share/omega/mbox2omega.script usr/share/doc/xapian-omega/examples/
 usr/bin/omindex
 usr/bin/scriptindex
 usr/lib/xapian-omega/bin/omega usr/lib/cgi-bin/omega
+usr/lib/xapian-omega/bin/outlookmsg2html
 usr/share/images
 etc/omega.conf
 usr/share/man

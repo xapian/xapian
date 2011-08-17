@@ -23,8 +23,8 @@ use exception_data;
 my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter KeyMaker
-    StemImplementation
+    MatchDecider ExpandDecider Stopper ValueRangeProcessor KeyMaker
+    StemImplementation Compactor MatchSpy
 );
 
 my @posting_source_virtual_methods = qw(
@@ -41,7 +41,12 @@ my @posting_source_virtual_methods = qw(
     get_description
     init
     name
-    serialise
+);
+
+my @matchspy_virtual_methods = qw(
+    name
+    merge_results
+    get_description
 );
 
 open FD, ">except.i" or die $!;
@@ -147,7 +152,6 @@ print FD <<'EOF';
     try {
 	$action
     } catch (...) {
-	SWIG_PYTHON_THREAD_END_ALLOW;
 	Xapian::SetPythonException();
 	SWIG_fail;
     }
@@ -182,6 +186,19 @@ for my $method (@posting_source_virtual_methods) {
 EOF
 }
 
+for my $method (@matchspy_virtual_methods) {
+    print FD <<"EOF";
+%exception Xapian::MatchSpy::${method} {
+    try {
+        \$action
+    } catch (...) {
+        Xapian::SetPythonException();
+        SWIG_fail;
+    }
+}
+EOF
+}
+
 print FD <<'EOF';
 %exception Xapian::Stopper::get_description {
     try {
@@ -192,6 +209,22 @@ print FD <<'EOF';
     }
 }
 %exception Xapian::StemImplementation::get_description {
+    try {
+	$action
+    } catch (...) {
+	Xapian::SetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::Compactor::set_status {
+    try {
+	$action
+    } catch (...) {
+	Xapian::SetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::Compactor::resolve_duplicate_metadata {
     try {
 	$action
     } catch (...) {

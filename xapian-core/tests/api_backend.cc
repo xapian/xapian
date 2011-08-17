@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
-DEFINE_TESTCASE(lockfileumask1, brass || chert || flint) {
+DEFINE_TESTCASE(lockfileumask1, brass || chert) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
@@ -159,7 +159,7 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lockfilefd0or1, brass || chert || flint) {
+DEFINE_TESTCASE(lockfilefd0or1, brass || chert) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     int old_stdin = dup(0);
     int old_stdout = dup(1);
@@ -218,21 +218,12 @@ DEFINE_TESTCASE(matchdecider4, remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
 
-    MyMatchDecider mdecider, mspyold;
+    MyMatchDecider mdecider;
     Xapian::MSet mset;
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, NULL, &mdecider));
     TEST(!mdecider.called);
-
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-	mset = enquire.get_mset(0, 10, 0, NULL, NULL, &mspyold));
-    TEST(!mspyold.called);
-
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-	mset = enquire.get_mset(0, 10, 0, NULL, &mdecider, &mspyold));
-    TEST(!mdecider.called);
-    TEST(!mspyold.called);
 
     return true;
 }
@@ -272,7 +263,7 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     TEST_EQUAL(rodb.get_doccount(), 1);
 
     db.flush();
-    rodb.reopen();
+    TEST(rodb.reopen());
 
     TEST_EQUAL(rodb.get_doccount(), 2);
     return true;
@@ -333,6 +324,14 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote) {
     db.add_document(doc);
     try {
 	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
+	return false;
+    } catch (const Xapian::DatabaseModifiedError &) {
+    }
+
+    try {
+	Xapian::Enquire enq(rodb);
+	enq.set_query(Xapian::Query("abc"));
+	Xapian::MSet mset = enq.get_mset(0, 10);
 	return false;
     } catch (const Xapian::DatabaseModifiedError &) {
     }
@@ -642,7 +641,7 @@ DEFINE_TESTCASE(orcheck1, generated) {
  *
  *  We failed to mark the Btree as unmodified after cancel().
  */
-DEFINE_TESTCASE(failedreplace1, brass || chert || flint) {
+DEFINE_TESTCASE(failedreplace1, brass || chert) {
     Xapian::WritableDatabase db(get_writable_database());
     Xapian::Document doc;
     doc.add_term("foo");
@@ -658,7 +657,7 @@ DEFINE_TESTCASE(failedreplace1, brass || chert || flint) {
     return true;
 }
 
-DEFINE_TESTCASE(failedreplace2, brass || chert || flint) {
+DEFINE_TESTCASE(failedreplace2, brass || chert) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
     db.commit();
     Xapian::doccount db_size = db.get_doccount();
@@ -676,5 +675,69 @@ DEFINE_TESTCASE(failedreplace2, brass || chert || flint) {
     db.commit();
     TEST_EQUAL(db.get_doccount(), db_size);
     TEST_EQUAL(db.get_termfreq("foo"), 0);
+    return true;
+}
+
+/// Coverage for SelectPostList::skip_to().
+DEFINE_TESTCASE(phrase3, positional) {
+    Xapian::Database db = get_database("apitest_phrase");
+
+    const char * phrase_words[] = { "phrase", "near" };
+    Xapian::Query q(Xapian::Query::OP_NEAR, phrase_words, phrase_words + 2, 12);
+    q = Xapian::Query(Xapian::Query::OP_AND_MAYBE, Xapian::Query("pad"), q);
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(q);
+    Xapian::MSet mset = enquire.get_mset(0, 5);
+
+    return true;
+}
+
+/// Check that get_mset(<large number>, 10) doesn't exhaust memory needlessly.
+// Regression test for fix in 1.2.4.
+DEFINE_TESTCASE(msetfirst2, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+    // Before the fix, this tried to allocated too much memory.
+    mset = enquire.get_mset(0xfffffff0, 1);
+    TEST_EQUAL(mset.get_firstitem(), 0xfffffff0);
+    // Check that the number of documents gets clamped too.
+    mset = enquire.get_mset(1, 0xfffffff0);
+    TEST_EQUAL(mset.get_firstitem(), 1);
+    // Another regression test - MatchNothing used to give an MSet with
+    // get_firstitem() returning 0.
+    enquire.set_query(Xapian::Query::MatchNothing);
+    mset = enquire.get_mset(1, 1);
+    TEST_EQUAL(mset.get_firstitem(), 1);
+    return true;
+}
+
+DEFINE_TESTCASE(bm25weight2, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("the"));
+    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 0, 0, 1));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+    TEST_REL(mset.size(),>=,2);
+    Xapian::weight weight0 = mset[0].get_weight();
+    for (size_t i = 1; i != mset.size(); ++i) {
+	TEST_EQUAL(weight0, mset[i].get_weight());
+    }
+    return true;
+}
+
+DEFINE_TESTCASE(tradweight2, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("the"));
+    enquire.set_weighting_scheme(Xapian::TradWeight(0));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+    TEST_REL(mset.size(),>=,2);
+    Xapian::weight weight0 = mset[0].get_weight();
+    for (size_t i = 1; i != mset.size(); ++i) {
+	TEST_EQUAL(weight0, mset[i].get_weight());
+    }
     return true;
 }

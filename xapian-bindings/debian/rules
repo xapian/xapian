@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,10 +24,7 @@
 # Codename we're building packages for.  For backported packages, put the
 # codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
 # exist, the default is sid.
-#CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
-
-# Default to experimental for tcl 8.5 testing until Xapian 1.2.x hits unstable.
-CODENAME := $(shell cat debian/codename 2>/dev/null||echo experimental)
+CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
@@ -39,10 +36,7 @@ XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1".
 # `--exclude=.EXT' arguments to pass dh_install
 DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
-# The python versions to build for:
-PYTHON_VERSIONS := $(shell pyversions -r debian/control)
-
-BUILD_DEPS := debhelper (>= 7), python, python-central (>= 0.4.10), python-all-dev,
+BUILD_DEPS := debhelper (>= 7),
 
 # Disabled due to incompatibility of GPL and PHP licence.  Uncomment to build
 # your own binary packages (just don't distribute them!)
@@ -54,9 +48,23 @@ else
 RUBY_VERSIONS := 1.8
 endif
 
+# The python versions to build for:
+PYTHON_VERSIONS := $(shell pyversions -r debian/control)
+
+ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.karmic.lucid.maverick.), )
+USING_PYCENTRAL := 0
+BUILD_DEPS += python, python-all-dev (>= 2.6.6-3~),
+XB_PYTHON_VERSION := X-Dummy: Remove me once python-central support is dropped
+X_PYTHON_VERSION := X-Python-Version: >= 2.3
+else
+USING_PYCENTRAL := 1
+BUILD_DEPS += python, python-central (>= 0.4.10), python-all-dev,
+XB_PYTHON_VERSION := XB-Python-Version: $${python:Versions}
+X_PYTHON_VERSION := XS-Python-Version: all
 # We'll need this if we ever generate different .py modules for different
 # supported python versions.
 #export DH_PYCENTRAL=nomove
+endif
 
 export DH_OPTIONS
 
@@ -103,11 +111,7 @@ BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 #
 # lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
 # for the current preferred version.
-ifeq ($(CODENAME), experimental)
-BUILD_DEPS += tcl-dev (>= 8.5), tcl (>= 8.5),# NB Trailing ',' required here!
-else
 BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
-endif
 TCLSH=/usr/bin/tclsh-default
 
 # Build depends for Ruby.
@@ -139,18 +143,20 @@ maintclean: clean
 
 debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
-	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
+	sed -e 's/@BUILD_DEPS@/$(BUILD_DEPS)/g' \
+	    -e 's/@X_PYTHON_VERSION@/$(X_PYTHON_VERSION)/g' \
+	    -e 's/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g' \
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
-	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
+	    sed 's/@PHP_VERSION@/$$v/g' debian/control-php.in ;\
 	done >> debian/control.tmp
 	for v in $(RUBY_VERSIONS); do \
-	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
+	    sed 's/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
 	done >> debian/control.tmp
 	mv debian/control.tmp debian/control
 
-configure: debian/configure-stamp
-debian/configure-stamp:
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
 
 	# Use the latest config.sub and config.guess from the autotools-dev
@@ -198,8 +204,8 @@ debian/configure-stamp:
 
 	touch $@
 
-build: debian/build-stamp
-debian/build-stamp: configure
+build: build-stamp
+build-stamp: configure
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
@@ -226,7 +232,7 @@ install: DH_OPTIONS=
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Install the files under 'debian/tmp'.
@@ -277,7 +283,11 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
+ifeq ($(USING_PYCENTRAL), 1)
 	DH_PYCENTRAL=include-links dh_pycentral
+else
+	dh_python2
+endif
 	dh_installdeb
 
 	dh_shlibdeps

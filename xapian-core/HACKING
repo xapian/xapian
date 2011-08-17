@@ -103,10 +103,9 @@ Debugging memory allocations
 The testsuite can make use of valgrind 3.3.0 or newer to check for memory
 leaks, reads from uninitialised memory, and some other bugs during tests.
 
-Valgrind only runs on a few platforms (currently x86, x86_64, ppc32, and ppc64
-Linux are supported, with other ports being investigated).  However Xapian
-contains very little platform specific code (and most of what there is is
-Windows specific) so even just testing with valgrind on one platform gives good
+Valgrind doesn't support every platform, but Xapian contains very little
+platform specific code (and most of what there is is Microsoft Windows
+specific) so even just testing with valgrind on one platform gives good
 coverage.
 
 If you have a new enough version of valgrind installed, it's automatically
@@ -130,9 +129,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, brass, chert, or flint backends using ``make check-inmemory``,
+multi-database, brass, or chert backends using ``make check-inmemory``,
 ``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-``make check-brass``, ``make check-chert``, or ``make check-flint``
+``make check-brass``, or ``make check-chert``
 respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
@@ -164,7 +163,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 ./runtest valgrind ./apitest -v deldoc1
 
 Some test programs take special arguments - for example, you can restrict
-apitest to the flint backend using ``-bflint``.
+apitest to the chert backend using ``-bchert``.
 
 There are a few environmental variables which the testsuite harness checks for
 which you might find useful:
@@ -185,6 +184,14 @@ which you might find useful:
     can be explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).
     Any other value forces the use of colour.  Colour output is always disabled
     on Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
+
+  XAPIAN_TESTSUITE_LD_PRELOAD:
+    The runtest script will add this to LD_PRELOAD if it is set, allowing you
+    to easily load LD_PRELOAD libraries when running the testsuite.  The
+    intended use is to allow use of libeatmydata
+    (http://www.flamingspork.com/projects/libeatmydata/) which makes fsync
+    and related calls no-ops.  Since the testsuite does a lot of small
+    database operations, this can speed up running the testsuite substantially.
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -277,11 +284,11 @@ all the necessary tools and libraries::
 
 If you want to build Omega, you'll also need::
 
-    apt-get install libpcre3-dev
+    apt-get install libpcre3-dev libmagic-dev
 
 On Fedora, the uuid library can be installed by doing::
 
-    yum install e2fsprogs-devel
+    yum install libuuid-devel
 
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
@@ -358,28 +365,21 @@ The documentation tools are:
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
 
-Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
-system path (as specified by the environmental variable PATH), since doxygen
-will look for them there.
+Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
+path (as specified by the environmental variable PATH), since doxygen will look
+for them there.
 
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
     apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
 
-On Debian 4.0 (etch) you may also need:
-
-apt-get install texlive-pdfetex
-
 Autotools versions
 ------------------
 
-* autoconf 2.64 is recommended and a hard minimum requirement.
+* autoconf 2.68 is used to generate snapshots and releases.
 
-  autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
-
-  autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
-  day as 2.58 to fix a problem.
+  autoconf 2.64 is a hard minimum requirement.
 
   autoconf 2.60 is required for docdir support and AC_TYPE_SSIZE_T.
 
@@ -391,12 +391,9 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.10.2 is recommended and a hard minimum requirement.
+* automake 1.11.1 is used to generate snapshots and releases.
 
-  automake 1.7 adds support for per-program and per-library _CPPFLAGS.
-
-  automake 1.9 is required for option "tar-ustar".  It also reduces Makefile.in
-  size.
+  automake 1.10.2 is a hard minimum requirement.
 
   automake 1.10 requires autoconf 2.60 and Perl 5.6.
 
@@ -404,7 +401,7 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.10 is used to generate snapshots and releases.
+* libtool 2.4 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 
@@ -412,8 +409,8 @@ Autotools versions
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
 
-Please tell us if you find that older or newer versions of any of these
-tools work or fail to work.
+Please tell us if you find that newer versions of any of these tools work or
+fail to work.
 
 There is a good GNU autotools tutorial at
 <http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
@@ -943,15 +940,17 @@ Marking Features as Deprecated
 ==============================
 
 In the API headers, a feature (a class, method, function, enum, typedef, etc)
-can be marked as deprecated by using the XAPIAN_DEPRECATED() macro.  Note that
-you can't deprecate a preprocessor macro.
+can be marked as deprecated by using the XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
+macro.
 
 For compilers with a suitable mechanism (currently GCC 3.1 or later, and
 MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
 any use of the deprecated feature.  For compilers without support, the macro
 just expands to its argument.
 
-You must add this line to any API header which uses XAPIAN_DEPRECATED():
+You must add this line to any API header which uses XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS::
 
     #include <xapian/deprecated.h>
 
@@ -976,19 +975,19 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
-Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
-keyword like so::
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED_CLASS`` after the
+class keyword like so::
 
-    class XAPIAN_DEPRECATED() Foo {
+    class XAPIAN_DEPRECATED_CLASS Foo {
       public:
-        Foo() { };
+        Foo() { }
 
         // ...
     };
 
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
-XAPIAN_DEPRECATED (this works with recent GCC versions though)::
+``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
     
     class Foo {
       public:
@@ -1085,6 +1084,10 @@ to follow the style of the existing code.  In particular:
 
   The rationale for this is that it conserves vertical space (allowing more
   code to fit on screen) without reducing readability.
+
+* If you have an empty loop body, use `{ }` rather than `;` as the former
+  stands out more clearly to the reader (but also consider if the code might be
+  clearer written a different way).
 
 * Prefer "++i;" to "i++;", "i += 1;", or "i = i + 1".  For simple integer
   variables these should generate equivalent (if not identical) code, but if i
@@ -1332,9 +1335,9 @@ API Structure Notes
 ===================
 
 We use reference counted pointers for most API classes.  These are implemented
-using Xapian::Internal::RefCntPtr, the implementation of which is exposed for
-efficiency, and because it's unlikely we'll need to change it frequently, if at
-all.
+using Xapian::Internal::intrusive_ptr, the implementation of which is exposed
+for efficiency, and because it's unlikely we'll need to change it frequently,
+if at all.
 
 For the reference counted classes, the API class (e.g. Xapian::Enquire) is
 really just a wrapper around a reference counted pointer.  This points to an
@@ -1415,9 +1418,6 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the lists of deprecated/removed API methods in docs/deprecation.rst
 
 * Update the NEWS files using information from the ChangeLog files
-
-* Update the PLATFORMS file.  Don't forget to use reports from automated
-  builds: http://trac.xapian.org/wiki/AutomatedBuilds
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac

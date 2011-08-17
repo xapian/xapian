@@ -14,17 +14,32 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 !INCLUDE $(XAPIAN_CORE_REL_PHP)\win32\config.mak
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res" 
-
 CPP=cl.exe
 RSC=rc.exe
 
-OUTROOT=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\PHP
-OUTDIR=$(OUTROOT)\php$(PHP_MAJOR_VERSION)
-INTDIR=.\
+!if "$(PHP_VER)" == "52"
+PHP_EXE_DIR=$(PHP52_EXE_DIR)
+PHP_LIB = $(PHP52_LIB)
+PHP_SRC_DIR = $(PHP52_SRC_DIR)
+PHP_INCLUDE_CPPFLAGS = $(PHP52_INCLUDE_CPPFLAGS)
+PHP_DEBUG_OR_RELEASE = $(PHP52_DEBUG_OR_RELEASE)
+OUTROOT = $(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\PHP52
+PHP_EXE = $(PHP52_EXE)
+!else if "$(PHP_VER)" == "53"
+PHP_EXE_DIR = $(PHP53_EXE_DIR)
+PHP_LIB = $(PHP53_LIB)
+PHP_SRC_DIR = $(PHP53_SRC_DIR)
+PHP_INCLUDE_CPPFLAGS = $(PHP53_INCLUDE_CPPFLAGS)
+PHP_DEBUG_OR_RELEASE = $(PHP53_DEBUG_OR_RELEASE)
+OUTROOT = $(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\PHP53
+PHP_EXE = $(PHP53_EXE)
+!endif
 
+OUTDIR=$(OUTROOT)\php5
+INTDIR=.\
 	
 ALL : "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\xapian.php" \
-	"$(OUTROOT)\smoketest.php" "$(OUTDIR)\smoketest$(PHP_MAJOR_VERSION).php" 
+	"$(OUTROOT)\smoketest.php" 
 
 CLEAN :
 	-@erase "$(OUTDIR)\php_xapian.dll"
@@ -32,20 +47,15 @@ CLEAN :
 	-@erase "$(OUTDIR)\php_xapian.lib"
 	-@erase $(LIB_XAPIAN_OBJS)
 	-@erase "$(OUTDIR)\xapian.php"
-	-@erase "$(OUTDIR)\smoketest4.php"
-	-@erase "$(OUTDIR)\smoketest5.php"
 	-@erase "$(OUTROOT)\smoketest.php"
-
 	
 CLEANSWIG :	
-	-@erase /Q /s php4
 	-@erase /Q /s php5
-	if exist "php4" rmdir "php4" /s /q
 	if exist "php5" rmdir "php5" /s /q
 
 DOTEST :
 	cd "$(OUTROOT)"
-	$(PHP_EXE) -q -n -d safe_mode=off -d enable_dl=on -d extension_dir="php$(PHP_MAJOR_VERSION)" -d include_path="php$(PHP_MAJOR_VERSION)" smoketest.php
+	$(PHP_EXE) -q -n -d safe_mode=off -d enable_dl=on -d extension_dir="php5" -d include_path="php5" smoketest.php
 
 CHECK: ALL DOTEST
 
@@ -73,11 +83,6 @@ CPP_OBJS=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
 !IF "$(SWIGBUILD)" == "1"
-php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
-	-erase /Q /s php4
-	-md php4
-	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php4 \
-	    -outdir php4 -o php4/xapian_wrap.cc $(srcdir)/../xapian.i
 
 php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
 	-erase /Q /s php5
@@ -95,15 +100,11 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
   $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\php_xapian.dll" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<
 
-"$(OUTDIR)\xapian.php" : php$(PHP_MAJOR_VERSION)\xapian.php
+"$(OUTDIR)\xapian.php" : php5\xapian.php
 	-copy $** "$(OUTDIR)\xapian.php"
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests
 	$(MANIFEST) "$(OUTDIR)\php_xapian.dll.manifest" -outputresource:"$(OUTDIR)\php_xapian.dll;2"
 	-@erase "$(OUTDIR)\php_xapian.dll.manifest"
-"$(OUTDIR)\smoketest5.php" : ".\smoketest5.php"
-	-copy $** "$(OUTDIR)\smoketest5.php"
-"$(OUTDIR)\smoketest4.php" : ".\smoketest4.php"
-	-copy $** "$(OUTDIR)\smoketest4.php"
 "$(OUTROOT)\smoketest.php" : ".\smoketest.php"
 	-copy $** "$(OUTROOT)\smoketest.php"
 #
@@ -115,10 +116,10 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
       /fo version.res \
       /I "$(XAPIAN_CORE_REL_PHP)\include" \
       /I "$(PHP_SRC_DIR)\main" \
-      /d PHP_MAJOR_VERSION="\"$(PHP_MAJOR_VERSION)\"" \
+      /d PHP_MAJOR_VERSION="\"5\"" \
       version.rc 
 
-".\xapian_wrap.obj" : "php$(PHP_MAJOR_VERSION)\xapian_wrap.cc"
+".\xapian_wrap.obj" : "php5\xapian_wrap.cc"
      $(CPP) @<<
   $(CPP_PROJ) $**
 <<

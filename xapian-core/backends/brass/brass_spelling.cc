@@ -1,7 +1,7 @@
 /** @file brass_spelling.cc
  * @brief Spelling correction data for a brass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 #include "ortermlist.h"
 #include "pack.h"
 
+#include "../prefix_compressed_strings.h"
+
 #include <algorithm>
 #include <map>
 #include <queue>
@@ -38,94 +40,6 @@
 
 using namespace Brass;
 using namespace std;
-
-// We XOR the length values with this so that they are more likely to coincide
-// with lower case ASCII letters, which are likely to be common.  This means
-// that zlib should do a better job of compressing tag values - in tests, this
-// gave 5% better compression.
-#define MAGIC_XOR_VALUE 96
-
-class PrefixCompressedStringItor {
-    const unsigned char * p;
-    size_t left;
-    string current;
-
-    PrefixCompressedStringItor(const unsigned char * p_, size_t left_,
-			       const string &current_)
-	: p(p_), left(left_), current(current_) { }
-
-  public:
-    PrefixCompressedStringItor(const std::string & s)
-	: p(reinterpret_cast<const unsigned char *>(s.data())),
-	  left(s.size()) {
-	if (left) {
-	    operator++();
-	} else {
-	    p = NULL;
-	}
-    }
-
-    const string & operator*() const {
-	return current;
-    }
-
-    PrefixCompressedStringItor operator++(int) {
-	const unsigned char * old_p = p;
-	size_t old_left = left;
-	string old_current = current;
-	operator++();
-	return PrefixCompressedStringItor(old_p, old_left, old_current);
-    }
-
-    PrefixCompressedStringItor & operator++() {
-	if (left == 0) {
-	    p = NULL;
-	} else {
-	    if (!current.empty()) {
-		current.resize(*p++ ^ MAGIC_XOR_VALUE);
-		--left;
-	    }
-	    size_t add;
-	    if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
-		throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
-	    current.append(reinterpret_cast<const char *>(p + 1), add);
-	    p += add + 1;
-	    left -= add + 1;
-	}
-	return *this;
-    }
-
-    bool at_end() const {
-	return p == NULL;
-    }
-};
-
-class PrefixCompressedStringWriter {
-    string current;
-    string & out;
-
-  public:
-    PrefixCompressedStringWriter(string & out_) : out(out_) { }
-
-    void append(const string & word) {
-	// If this isn't the first entry, see how much of the previous one
-	// we can reuse.
-	if (!current.empty()) {
-	    size_t len = min(current.size(), word.size());
-	    size_t i;
-	    for (i = 0; i < len; ++i) {
-		if (current[i] != word[i]) break;
-	    }
-	    out += char(i ^ MAGIC_XOR_VALUE);
-	    out += char((word.size() - i) ^ MAGIC_XOR_VALUE);
-	    out.append(word.data() + i, word.size() - i);
-	} else {
-	    out += char(word.size() ^ MAGIC_XOR_VALUE);
-	    out += word;
-	}
-	current = word;
-    }
-};
 
 void
 BrassSpellingTable::merge_changes()
@@ -240,48 +154,15 @@ BrassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	wordfreq_changes[word] = freqinc;
     }
 
-    // New word - need to create trigrams for it.
-
-    fragment buf;
-    // Head:
-    buf[0] = 'H';
-    buf[1] = word[0];
-    buf[2] = word[1];
-    buf[3] = '\0';
-    toggle_fragment(buf, word);
-
-    // Tail:
-    buf[0] = 'T';
-    buf[1] = word[word.size() - 2];
-    buf[2] = word[word.size() - 1];
-    buf[3] = '\0';
-    toggle_fragment(buf, word);
-
-    if (word.size() <= 4) {
-	// We also generate 'bookends' for two, three, and four character
-	// terms so we can handle transposition of the middle two characters
-	// of a four character word, substitution or deletion of the middle
-	// character of a three character word, or insertion in the middle of a
-	// two character word.
-	// 'Bookends':
-	buf[0] = 'B';
-	buf[1] = word[0];
-	buf[3] = '\0';
-	toggle_fragment(buf, word);
-    }
-    if (word.size() > 2) {
-	// Middles:
-	buf[0] = 'M';
-	for (size_t start = 0; start <= word.size() - 3; ++start) {
-	    memcpy(buf.data + 1, word.data() + start, 3);
-	    toggle_fragment(buf, word);
-	}
-    }
+    // Add trigrams for word.
+    toggle_word(word);
 }
 
 void
 BrassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 {
+    if (word.size() <= 1) return;
+
     map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	if (i->second == 0) {
@@ -317,8 +198,13 @@ BrassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	wordfreq_changes[word] = 0;
     }
 
-    // Remove fragment entries for word.
+    // Remove trigrams for word.
+    toggle_word(word);
+}
 
+void
+BrassSpellingTable::toggle_word(const string & word)
+{
     fragment buf;
     // Head:
     buf[0] = 'H';
@@ -335,6 +221,11 @@ BrassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
     toggle_fragment(buf, word);
 
     if (word.size() <= 4) {
+	// We also generate 'bookends' for two, three, and four character
+	// terms so we can handle transposition of the middle two characters
+	// of a four character word, substitution or deletion of the middle
+	// character of a three character word, or insertion in the middle of a
+	// two character word.
 	// 'Bookends':
 	buf[0] = 'B';
 	buf[1] = word[0];
@@ -342,11 +233,15 @@ BrassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	toggle_fragment(buf, word);
     }
     if (word.size() > 2) {
+	set<fragment> done;
 	// Middles:
 	buf[0] = 'M';
 	for (size_t start = 0; start <= word.size() - 3; ++start) {
 	    memcpy(buf.data + 1, word.data() + start, 3);
-	    toggle_fragment(buf, word);
+	    // Don't toggle the same fragment twice or it will cancel out.
+	    // Bug fixed in 1.2.6.
+	    if (done.insert(buf).second)
+		toggle_fragment(buf, word);
 	}
     }
 }

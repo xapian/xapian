@@ -120,13 +120,13 @@ SynonymPostList::get_termfreq_min() const {
 
 Xapian::doccount
 SynonymPostList::get_termfreq_est() const {
-    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_min", NO_ARGS);
+    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_est", NO_ARGS);
     RETURN(subtree->get_termfreq_est());
 }
 
 Xapian::doccount
 SynonymPostList::get_termfreq_max() const {
-    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_min", NO_ARGS);
+    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_max", NO_ARGS);
     RETURN(subtree->get_termfreq_max());
 }
 

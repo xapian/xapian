@@ -30,8 +30,9 @@
 #include "str.h"
 
 using namespace std;
+using Xapian::Internal::intrusive_ptr;
 
-ChertAllDocsPostList::ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+ChertAllDocsPostList::ChertAllDocsPostList(intrusive_ptr<const ChertDatabase> db_,
 					   Xapian::doccount doccount_)
 	: ChertPostList(db_, string(), true),
 	  doccount(doccount_)
@@ -65,14 +66,14 @@ ChertAllDocsPostList::get_wdf() const
 PositionList *
 ChertAllDocsPostList::read_position_list()
 {
-    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::read_position_list", NO_ARGS);
+    LOGCALL(DB, PositionList *, "ChertAllDocsPostList::read_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("ChertAllDocsPostList::read_position_list() not meaningful");
 }
 
 PositionList *
 ChertAllDocsPostList::open_position_list() const
 {
-    LOGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::open_position_list", NO_ARGS);
+    LOGCALL(DB, PositionList *, "ChertAllDocsPostList::open_position_list", NO_ARGS);
     throw Xapian::InvalidOperationError("ChertAllDocsPostList::open_position_list() not meaningful");
 }
 

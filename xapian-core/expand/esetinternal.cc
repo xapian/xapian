@@ -2,6 +2,7 @@
  * @brief Xapian::ESet::Internal class
  */
 /* Copyright (C) 2008,2010 Olly Betts
+ * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +139,8 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		       const Xapian::Database & db,
 		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
-		       const Xapian::Internal::ExpandWeight & eweight)
+		       const Xapian::Internal::ExpandWeight & eweight,
+		       Xapian::weight min_wt)
 {
     LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
     // These two cases are handled by our caller.
@@ -148,8 +150,6 @@ ESet::Internal::expand(Xapian::termcount max_esize,
     // check we're empty.
     Assert(ebound == 0);
     Assert(items.empty());
-
-    Xapian::weight min_wt = 0;
 
     AutoPtr<TermList> tree(build_termlist_tree(db, rset));
     Assert(tree.get());

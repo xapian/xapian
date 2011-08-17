@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,8 +38,8 @@ using namespace std;
 
 Xapian::Error::Error(const std::string &msg_, const std::string &context_,
 		     const char * type_, const char * error_string_)
-    : msg(msg_), context(context_), type(type_), my_errno(0),
-      error_string(), already_handled(false)
+    : msg(msg_), context(context_), error_string(), type(type_),
+      my_errno(0), already_handled(false)
 {
     if (error_string_) error_string.assign(error_string_);
 }
@@ -106,7 +106,7 @@ Xapian::Error::get_error_string() const
 string
 Xapian::Error::get_description() const
 {
-    string desc(type);
+    string desc(get_type());
     desc += ": ";
     desc += msg;
     if (!context.empty()) {

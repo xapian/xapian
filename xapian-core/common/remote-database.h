@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -80,13 +80,13 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
 
-    /** The value number for the most recently used value statistics.
+    /** The value slot for the most recently used value statistics.
      *
      *  Set to BAD_VALUENO if no value statistics have yet been looked up.
      */
-    mutable Xapian::valueno mru_valno;
+    mutable Xapian::valueno mru_slot;
 
-    void update_stats(message_type msg_code = MSG_UPDATE) const;
+    bool update_stats(message_type msg_code = MSG_UPDATE) const;
 
   protected:
     /** Constructor.  The constructor is protected so that raw instances
@@ -173,6 +173,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void get_mset(Xapian::MSet &mset,
 		  const vector<Xapian::MatchSpy *> & matchspies);
 
+    /// Get remote metadata key list.
+    TermList * open_metadata_keylist(const std::string & prefix) const;
+
     /// Get remote termlist.
     TermList * open_term_list(Xapian::docid did) const;
 
@@ -181,7 +184,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     bool has_positions() const;
 
-    void reopen();
+    bool reopen();
 
     void close();
 
@@ -217,10 +220,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_collection_freq(const string & tname) const;
 
     /// Read the value statistics for a value from a remote database.
-    void read_value_stats(Xapian::valueno valno) const;
-    Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-    std::string get_value_lower_bound(Xapian::valueno valno) const;
-    std::string get_value_upper_bound(Xapian::valueno valno) const;
+    void read_value_stats(Xapian::valueno slot) const;
+    Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+    std::string get_value_lower_bound(Xapian::valueno slot) const;
+    std::string get_value_upper_bound(Xapian::valueno slot) const;
 
     Xapian::termcount get_doclength_lower_bound() const;
     Xapian::termcount get_doclength_upper_bound() const;

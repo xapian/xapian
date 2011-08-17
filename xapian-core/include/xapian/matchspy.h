@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -23,16 +23,12 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
-#include <xapian/base.h>
-#include <xapian/enquire.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
 #include <string>
 #include <map>
-#include <set>
-#include <string>
-#include <vector>
 
 namespace Xapian {
 
@@ -161,9 +157,6 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 
 
 /** Class for counting the frequencies of values in the matching documents.
- *
- *  Warning: this API is currently experimental, and is liable to change
- *  between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
   public:
@@ -171,7 +164,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
 #ifndef SWIG // SWIG doesn't need to know about the internal class
     struct XAPIAN_VISIBILITY_DEFAULT Internal
-	    : public Xapian::Internal::RefCntBase
+	    : public Xapian::Internal::intrusive_base
     {
 	/// The slot to count.
 	Xapian::valueno slot;
@@ -188,7 +181,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 #endif
 
   protected:
-    Xapian::Internal::RefCntPtr<Internal> internal;
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
     /// Construct an empty ValueCountMatchSpy.
@@ -214,7 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to values_begin() */
     TermIterator values_end() const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /** Get an iterator over the most frequent values seen in the slot.
@@ -231,7 +224,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to top_values_begin() */
     TermIterator top_values_end(size_t) const {
-	return TermIterator(NULL);
+	return TermIterator();
     }
 
     /** Implementation of virtual operator().

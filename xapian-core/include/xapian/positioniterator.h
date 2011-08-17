@@ -1,9 +1,7 @@
-/** \file positioniterator.h
- * \brief Classes for iterating through position lists
+/** @file  positioniterator.h
+ *  @brief Class for iterating over term positions.
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007,2009 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,84 +25,100 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/base.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
 
-class Database;
-class PostingIterator;
-class TermIterator;
-
-/** An iterator pointing to items in a list of positions.
- */
+/// Class for iterating over term positions.
 class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
-    private:
-	// friend classes which need to be able to construct us
-	friend class PostingIterator;
-	friend class TermIterator;
-	friend class Database;
+    void decref();
 
-    public:
-	class Internal;
-	/// @private @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+  public:
+    /// Class representing the PositionIterator internals.
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Internal * internal;
 
-        friend bool operator==(const PositionIterator &a, const PositionIterator &b);
+    /// @private @internal Construct given internals.
+    explicit PositionIterator(Internal *internal_);
 
-	// FIXME: ought to be private
-	explicit PositionIterator(Internal *internal_);
+    /// Copy constructor.
+    PositionIterator(const PositionIterator & o);
 
-	/// Default constructor - for declaring an uninitialised iterator
-	PositionIterator();
+    /// Assignment.
+    PositionIterator & operator=(const PositionIterator & o);
 
-	/// Destructor
-        ~PositionIterator();
+    /** Default constructor.
+     *
+     *  Creates an uninitialised iterator, which can't be used before being
+     *  assigned to, but is sometimes syntactically convenient.
+     */
+    PositionIterator() : internal(0) { }
 
-        /** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
-	 */
-	PositionIterator(const PositionIterator &o);
+    /// Destructor.
+    ~PositionIterator() {
+	if (internal) decref();
+    }
 
-        /** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
-	 */
-	void operator=(const PositionIterator &o);
+    /// Return the term position at the current iterator position.
+    Xapian::termpos operator*() const;
 
-	Xapian::termpos operator *() const;
+    /// Advance the iterator to the next position.
+    PositionIterator & operator++();
 
-	PositionIterator & operator++();
+    /// Advance the iterator to the next position (postfix version).
+    DerefWrapper_<Xapian::termpos> operator++(int) {
+	Xapian::termpos pos(**this);
+	operator++();
+	return DerefWrapper_<Xapian::termpos>(pos);
+    }
 
-	DerefWrapper_<termpos> operator++(int) {
-	    Xapian::termpos tmp = **this;
-	    operator++();
-	    return DerefWrapper_<termpos>(tmp);
-	}
+    /** Advance the iterator to term position @a termpos.
+     *
+     *  If the specified position isn't in the stream being iterated, then
+     *  the iterator is moved to the next term position after @a termpos.
+     */
+    void skip_to(Xapian::termpos termpos);
 
-	// extra method, not required for an input_iterator
-	void skip_to(Xapian::termpos pos);
+    /// Return a string describing this object.
+    std::string get_description() const;
 
-	/// Return a string describing this object.
-	std::string get_description() const;
-
-	// Allow use as an STL iterator
-	typedef std::input_iterator_tag iterator_category;
-	typedef Xapian::termpos value_type;
-	typedef Xapian::termpos_diff difference_type;  // "om_termposcount"
-	typedef Xapian::termpos * pointer;
-	typedef Xapian::termpos & reference;
+    /** @private @internal PositionIterator is what the C++ STL calls an
+     *  input_iterator.
+     *
+     *  The following typedefs allow std::iterator_traits<> to work so that
+     *  this iterator can be used with the STL.
+     *
+     *  These are deliberately hidden from the Doxygen-generated docs, as the
+     *  machinery here isn't interesting to API users.  They just need to know
+     *  that Xapian iterator classes are compatible with the STL.
+     */
+    // @{
+    /// @private
+    typedef std::input_iterator_tag iterator_category;
+    /// @private
+    typedef Xapian::termpos value_type;
+    /// @private
+    typedef Xapian::termpos_diff difference_type;
+    /// @private
+    typedef Xapian::termpos * pointer;
+    /// @private
+    typedef Xapian::termpos & reference;
+    // @}
 };
 
-/// Test equality of two PositionIterators
+/// Equality test for PositionIterator objects.
 inline bool
 operator==(const PositionIterator &a, const PositionIterator &b)
 {
-    return (a.internal.get() == b.internal.get());
+    // Use a pointer comparison - this ensures both that (a == a) and correct
+    // handling of end iterators (which we ensure have NULL internals).
+    return a.internal == b.internal;
 }
 
-/// Test inequality of two PositionIterators
+/// Inequality test for PositionIterator objects.
 inline bool
 operator!=(const PositionIterator &a, const PositionIterator &b)
 {
@@ -113,4 +127,4 @@ operator!=(const PositionIterator &a, const PositionIterator &b)
 
 }
 
-#endif /* XAPIAN_INCLUDED_POSITIONITERATOR_H */
+#endif // XAPIAN_INCLUDED_POSITIONITERATOR_H

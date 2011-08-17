@@ -69,11 +69,14 @@ EXTRA_DIST =\
 	images/score-9.png \
 	xapian-omega.spec
 
-AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
+AM_CPPFLAGS = \
+	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
+	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
+dist_pkglibbin_SCRIPTS = outlookmsg2html
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
@@ -89,9 +92,9 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
  commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h datematchdecider.h sample.h strcasecmp.h\
+ namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
- weight.h
+ weight.h svgparse.h urlencode.h unixperm.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -99,6 +102,7 @@ noinst_HEADERS +=\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
+	common/realtime.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
@@ -110,7 +114,7 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(ICONV_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS)
 
 # We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
@@ -120,20 +124,22 @@ AM_LDFLAGS = $(ICONV_LDFLAGS)
 noinst_LTLIBRARIES = libtransform.la
 libtransform_la_SOURCES = transform.cc
 libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
+libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
- utf8convert.cc datematchdecider.cc weight.cc common/str.cc
-omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc utf8convert.cc\
+ datematchdecider.cc weight.cc common/str.cc unixperm.cc urlencode.cc
+omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
- runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc
+ runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
+ pkglibbindir.cc svgparse.cc urlencode.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
-omindex_LDADD = $(XAPIAN_LIBS)
+omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
@@ -155,8 +161,6 @@ MAINTAINERCLEANFILES = $(dist_man_MANS)
 endif
 
 if DOCUMENTATION_RULES
-CLEANFILES = $(dist_man_MANS)
-
 omindex.1: omindex$(EXEEXT) makemanpage
 	./makemanpage ./omindex $(srcdir)/omindex.cc omindex.1
 

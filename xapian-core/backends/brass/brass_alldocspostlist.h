@@ -37,7 +37,7 @@ class BrassAllDocsPostList : public BrassPostList {
     Xapian::doccount doccount;
 
   public:
-    BrassAllDocsPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> db_,
+    BrassAllDocsPostList(Xapian::Internal::intrusive_ptr<const BrassDatabase> db_,
 			 Xapian::doccount doccount_);
 
     Xapian::doccount get_termfreq() const;

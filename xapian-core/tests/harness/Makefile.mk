@@ -6,7 +6,6 @@ noinst_HEADERS +=\
 	harness/backendmanager.h\
 	harness/backendmanager_brass.h\
 	harness/backendmanager_chert.h\
-	harness/backendmanager_flint.h\
 	harness/backendmanager_inmemory.h\
 	harness/backendmanager_local.h\
 	harness/backendmanager_multi.h\
@@ -41,10 +40,6 @@ endif
 
 if BUILD_BACKEND_CHERT
 testharness_sources += harness/backendmanager_chert.cc
-endif
-
-if BUILD_BACKEND_FLINT
-testharness_sources += harness/backendmanager_flint.cc
 endif
 
 if BUILD_BACKEND_INMEMORY

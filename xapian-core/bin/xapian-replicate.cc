@@ -1,7 +1,7 @@
 /** @file xapian-replicate.cc
  * @brief Replicate a database from a master server to a local copy.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,9 +48,9 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -h, --host=HOST     host to connect to\n"
-"  -p, --port=PORT     port to connect to\n"
-"  -m, --master=DB     replicate database DB from the master\n"
+"  -h, --host=HOST     host to connect to (required)\n"
+"  -p, --port=PORT     port to connect to (required)\n"
+"  -m, --master=DB     replicate database DB from the master (default: DATABASE)\n"
 "  -i, --interval=N    wait N seconds between each connection to the master\n"
 "                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
@@ -128,8 +128,23 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    if (host.empty()) {
+	cout << "Host required - specify with --host=HOST\n\n";
+	show_usage();
+	exit(1);
+    }
+
+    if (port == 0) {
+	cout << "Port required - specify with --port=PORT\n\n";
+	show_usage();
+	exit(1);
+    }
+
     // Path to the database to create/update.
     string dbpath(argv[optind]);
+
+    if (masterdb.empty())
+	masterdb = dbpath;
 
     while (true) {
 	try {
@@ -150,6 +165,12 @@ main(int argc, char **argv)
 			info.changeset_count << " changesets, " <<
 			(info.changed ? "new live database" : "no changes to live database") <<
 			endl;
+		if (info.fullcopy_count > 0 && !info.changed) {
+		    cout <<
+"Replication using a full copy failed. This is usually due to changes being\n"
+"made at remote end too frequently. Ensure that sufficient changesets are\n"
+"present at remote end by setting XAPIAN_MAX_CHANGESETS" << endl;
+		}
 	    }
 	} catch (const Xapian::NetworkError &error) {
 	    // Don't stop running if there's a network error - just log to

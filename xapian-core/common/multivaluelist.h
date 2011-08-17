@@ -51,7 +51,7 @@ class MultiValueList : public ValueList {
 
   public:
     /// Constructor.
-    MultiValueList(const std::vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> > & dbs,
+    MultiValueList(const std::vector<Xapian::Internal::intrusive_ptr<Xapian::Database::Internal> > & dbs,
 		   Xapian::valueno slot_);
 
     /// Destructor.

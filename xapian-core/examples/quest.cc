@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 #include <xapian.h>
 
 #include <cstdlib>
+#include <cstring>
 
 #include <iostream>
 
@@ -54,6 +55,8 @@ static void show_usage() {
 "  -m, --msize=MSIZE   maximum number of matches to return\n"
 "  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
 "                      (pass 'none' to disable stemming)\n"
+"  -p, --prefix=PFX:TERMPFX  Add a prefix\n"
+"  -b, --boolean-prefix=PFX:TERMPFX  Add a boolean prefix\n"
 "  -h, --help          display this help and exit\n"
 "  -v, --version       output version information and exit\n";
 }
@@ -61,11 +64,13 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:s:hv";
+    const char * opts = "d:m:s:p:b:hv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
 	{ "stemmer",	required_argument, 0, 's' },
+	{ "prefix",	required_argument, 0, 'p' },
+	{ "boolean-prefix",	required_argument, 0, 'b' },
 	{ "help",	no_argument, 0, 'h' },
 	{ "version",	no_argument, 0, 'v' },
 	{ NULL,		0, 0, 0}
@@ -78,6 +83,7 @@ try {
     bool have_database = false;
 
     Xapian::Database db;
+    Xapian::QueryParser parser;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -93,13 +99,27 @@ try {
 		try {
 		    stemmer = Xapian::Stem(optarg);
 		} catch (const Xapian::InvalidArgumentError &) {
-		    cerr << "Unknown stemming language '" << optarg
-			 << "'.\n"
+		    cerr << "Unknown stemming language '" << optarg << "'.\n"
 			    "Available language names are: "
 			 << Xapian::Stem::get_available_languages() << endl;
 		    exit(1);
 		}
 		break;
+	    case 'b': case 'p': {
+		const char * colon = strchr(optarg, ':');
+		if (colon == NULL) {
+		    cerr << argv[0] << ": need ':' when setting prefix" << endl;
+		    exit(1);
+		}
+		string prefix(optarg, colon - optarg);
+		string termprefix(colon + 1);
+		if (c == 'b') {
+		    parser.add_boolean_prefix(prefix, termprefix);
+		} else {
+		    parser.add_prefix(prefix, termprefix);
+		}
+		break;
+	    }
 	    case 'v':
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
@@ -119,15 +139,20 @@ try {
 	exit(1);
     }
 
-    Xapian::QueryParser parser;
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    Xapian::Query query = parser.parse_query(argv[optind]);
-    cout << "Query: " << query.get_description() << endl;
+    Xapian::Query query = parser.parse_query(argv[optind],
+					     parser.FLAG_DEFAULT|
+					     parser.FLAG_SPELLING_CORRECTION);
+    const string & correction = parser.get_corrected_query_string();
+    if (!correction.empty())
+	cout << "Did you mean: " << correction << "\n\n";
+
+    cout << "Parsed Query: " << query.get_description() << endl;
 
     if (!have_database) {
 	cout << "No database specified so not running the query." << endl;

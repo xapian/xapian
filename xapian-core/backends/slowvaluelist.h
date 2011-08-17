@@ -1,7 +1,7 @@
 /** @file slowvaluelist.h
  * @brief Slow implementation for backends which don't streamed values.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 
 /** Slow implementation for backends which don't streamed values.
  *
- *  Used by flint, inmemory, and remote backends.
+ *  Used by inmemory and remote backends.
  */
 class SlowValueList : public ValueList {
     /// Don't allow assignment.

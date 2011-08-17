@@ -1,12 +1,6 @@
 A section 3 man page should be written to describe libxapian (see the libxml
 manpage for example.)
 
-We could also produce debug variant of the libxapian package, built with
---enable-assertions and/or --enable-log.
-
-xapian-doc: in index.html, there is one broken link (which occurs in two
-places, pointing to the "internal classes" documentation, since we don't
-generate this by default).  We could move this to point to the Xapian website.
-There should almost certainly be a link back to the front page of the Xapian
-website, too.  The documentation should also probably be in the style of the
-Xapian website, and should use the Xapian logo on the front page.
+We could also produce debug variants of the libxapian package, built with
+--enable-assertions and/or --enable-log (the current -dbg package is just
+debug symbols for the libxapian package).

@@ -520,17 +520,17 @@ BrassValueManager::get_value_stats(Xapian::valueno slot) const
 {
     LOGCALL_VOID(DB, "BrassValueManager::get_value_stats", slot);
     // Invalidate the cache first in case an exception is thrown.
-    mru_valno = Xapian::BAD_VALUENO;
+    mru_slot = Xapian::BAD_VALUENO;
     get_value_stats(slot, mru_valstats);
-    mru_valno = slot;
+    mru_slot = slot;
 }
 
 void
 BrassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
-    LOGCALL_VOID(DB, "BrassValueManager::get_value_stats", slot | "[stats]");
+    LOGCALL_VOID(DB, "BrassValueManager::get_value_stats", slot | Literal("[stats]"));
     // Invalidate the cache first in case an exception is thrown.
-    mru_valno = Xapian::BAD_VALUENO;
+    mru_slot = Xapian::BAD_VALUENO;
 
     string tag;
     if (postlist_table->get_exact_entry(make_valuestats_key(slot), tag)) {
@@ -555,7 +555,7 @@ BrassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 	stats.clear();
     }
 
-    mru_valno = slot;
+    mru_slot = slot;
 }
 
 void
@@ -581,5 +581,5 @@ BrassValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stat
 	}
     }
     value_stats.clear();
-    mru_valno = Xapian::BAD_VALUENO;
+    mru_slot = Xapian::BAD_VALUENO;
 }

@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,12 +34,20 @@
 
 #include "autoptr.h"
 #include "multimatch.h"
+#include "noreturn.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 #include "weightinternal.h"
+
+XAPIAN_NORETURN(static void throw_read_only());
+static void
+throw_read_only()
+{
+    throw Xapian::InvalidOperationError("Server is read-only");
+}
 
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
@@ -89,21 +97,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 #endif
 
     // Send greeting message.
-    string message;
-    message += char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION);
-    message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
-    message += encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
-    message += encode_length(db->get_doclength_lower_bound());
-    message += encode_length(db->get_doclength_upper_bound());
-    message += (db->has_positions() ? '1' : '0');
-    // FIXME: clumsy to reverse calculate total_len like this:
-    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
-    message += encode_length(total_len);
-    //message += encode_length(db->get_total_length());
-    string uuid = db->get_uuid();
-    message += uuid;
-    send_message(REPLY_GREETING, message);
+    msg_update(string());
 }
 
 RemoteServer::~RemoteServer()
@@ -183,13 +177,14 @@ RemoteServer::run()
 		&RemoteServer::msg_setmetadata,
 		&RemoteServer::msg_addspelling,
 		&RemoteServer::msg_removespelling,
-		// MSG_GETMSET - used during a conversation.
-		// MSG_SHUTDOWN - handled by get_message().
+		0, // MSG_GETMSET - used during a conversation.
+		0, // MSG_SHUTDOWN - handled by get_message().
+		&RemoteServer::msg_openmetadatakeylist,
 	    };
 
 	    string message;
 	    size_t type = get_message(idle_timeout, message);
-	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
+	    if (type >= sizeof(dispatch)/sizeof(dispatch[0]) || !dispatch[type]) {
 		string errmsg("Unexpected message type ");
 		errmsg += str(type);
 		throw Xapian::InvalidArgumentError(errmsg);
@@ -232,9 +227,7 @@ RemoteServer::run()
 void
 RemoteServer::msg_allterms(const string &message)
 {
-    const char *p = message.data();
-    const char *p_end = p + message.size();
-    string prefix(p, p_end - p);
+    const string & prefix = message;
 
     const Xapian::TermIterator end = db->allterms_end(prefix);
     for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
@@ -288,9 +281,7 @@ RemoteServer::msg_positionlist(const string &message)
 void
 RemoteServer::msg_postlist(const string &message)
 {
-    const char *p = message.data();
-    const char *p_end = p + message.size();
-    string term(p, p_end - p);
+    const string & term = message;
 
     Xapian::doccount termfreq = db->get_termfreq(term);
     Xapian::termcount collfreq = db->get_collection_freq(term);
@@ -316,7 +307,7 @@ void
 RemoteServer::msg_writeaccess(const string & msg)
 {
     if (!writable) 
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     wdb = new Xapian::WritableDatabase(context, Xapian::DB_OPEN);
     delete db;
@@ -327,21 +318,27 @@ RemoteServer::msg_writeaccess(const string & msg)
 void
 RemoteServer::msg_reopen(const string & msg)
 {
-    db->reopen();
+    if (!db->reopen()) {
+	send_message(REPLY_DONE, string());
+	return;
+    }
     msg_update(msg);
 }
 
 void
 RemoteServer::msg_update(const string &)
 {
-    // reopen() doesn't do anything for a WritableDatabase, so there's
-    // no harm in calling it unconditionally.
-    db->reopen();
-
-    string message = encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
-    message += encode_length(db->get_doclength_lower_bound());
-    message += encode_length(db->get_doclength_upper_bound());
+    static const char protocol[2] = {
+	char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION),
+	char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)
+    };
+    string message(protocol, 2);
+    Xapian::doccount num_docs = db->get_doccount();
+    message += encode_length(num_docs);
+    message += encode_length(db->get_lastdocid() - num_docs);
+    Xapian::termcount doclen_lb = db->get_doclength_lower_bound();
+    message += encode_length(doclen_lb);
+    message += encode_length(db->get_doclength_upper_bound() - doclen_lb);
     message += (db->has_positions() ? '1' : '0');
     // FIXME: clumsy to reverse calculate total_len like this:
     totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
@@ -481,7 +478,7 @@ RemoteServer::msg_query(const string &message_in)
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
     message.resize(0);
     vector<Xapian::MatchSpy *>::const_iterator i;
@@ -546,13 +543,13 @@ RemoteServer::msg_valuestats(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     while (p != p_end) {
-	Xapian::valueno valno = decode_length(&p, p_end, false);
+	Xapian::valueno slot = decode_length(&p, p_end, false);
 	string message_out;
-	message_out += encode_length(db->get_value_freq(valno));
-	string bound = db->get_value_lower_bound(valno);
+	message_out += encode_length(db->get_value_freq(slot));
+	string bound = db->get_value_lower_bound(slot);
 	message_out += encode_length(bound.size());
 	message_out += bound;
-	bound = db->get_value_upper_bound(valno);
+	bound = db->get_value_upper_bound(slot);
 	message_out += encode_length(bound.size());
 	message_out += bound;
 
@@ -573,7 +570,7 @@ void
 RemoteServer::msg_commit(const string &)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     wdb->commit();
 
@@ -584,7 +581,7 @@ void
 RemoteServer::msg_cancel(const string &)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     // We can't call cancel since that's an internal method, but this
     // has the same effect with minimal additional overhead.
@@ -596,7 +593,7 @@ void
 RemoteServer::msg_adddocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     Xapian::docid did = wdb->add_document(unserialise_document(message));
 
@@ -607,7 +604,7 @@ void
 RemoteServer::msg_deletedocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -622,7 +619,7 @@ void
 RemoteServer::msg_deletedocumentterm(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     wdb->delete_document(message);
 }
@@ -631,7 +628,7 @@ void
 RemoteServer::msg_replacedocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -644,7 +641,7 @@ void
 RemoteServer::msg_replacedocumentterm(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -664,10 +661,22 @@ RemoteServer::msg_getmetadata(const string & message)
 }
 
 void
+RemoteServer::msg_openmetadatakeylist(const string & message)
+{
+    const Xapian::TermIterator end = db->metadata_keys_end(message);
+    Xapian::TermIterator t = db->metadata_keys_begin(message);
+    for (; t != end; ++t) {
+	send_message(REPLY_METADATAKEYLIST, *t);
+    }
+
+    send_message(REPLY_DONE, string());
+}
+
+void
 RemoteServer::msg_setmetadata(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
     size_t keylen = decode_length(&p, p_end, false);
@@ -681,7 +690,7 @@ void
 RemoteServer::msg_addspelling(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::termcount freqinc = decode_length(&p, p_end, false);
@@ -692,7 +701,7 @@ void
 RemoteServer::msg_removespelling(const string & message)
 {
     if (!wdb)
-	throw Xapian::InvalidOperationError("Server is read-only");
+	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::termcount freqdec = decode_length(&p, p_end, false);

@@ -152,6 +152,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get metadata
     void msg_getmetadata(const std::string & message);
 
+    // read metadata key list
+    void msg_openmetadatakeylist(const std::string & message);
+
     // set metadata
     void msg_setmetadata(const std::string & message);
 

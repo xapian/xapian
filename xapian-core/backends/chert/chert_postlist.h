@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -40,8 +40,10 @@ using namespace std;
 class ChertCursor;
 class ChertDatabase;
 
-class PostlistChunkReader;
-class PostlistChunkWriter;
+namespace Chert {
+    class PostlistChunkReader;
+    class PostlistChunkWriter;
+}
 
 class ChertPostList;
 
@@ -80,7 +82,8 @@ class ChertPostListTable : public ChertTable {
 
 	Xapian::docid get_chunk(const string &tname,
 		Xapian::docid did, bool adding,
-		PostlistChunkReader ** from, PostlistChunkWriter **to);
+		Chert::PostlistChunkReader ** from,
+		Chert::PostlistChunkWriter **to);
 
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
@@ -110,11 +113,11 @@ class ChertPostListTable : public ChertTable {
 
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,
-					Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+					Xapian::Internal::intrusive_ptr<const ChertDatabase> db) const;
 
 	/** Check if document @a did exists. */
 	bool document_exists(Xapian::docid did,
-			     Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+			     Xapian::Internal::intrusive_ptr<const ChertDatabase> db) const;
 };
 
 /** A postlist in a chert database.
@@ -125,20 +128,23 @@ class ChertPostList : public LeafPostList {
 	 *  database doesn't get deleted before us, and also to give us access
 	 *  to the position_table.
 	 */
-	Xapian::Internal::RefCntPtr<const ChertDatabase> this_db;
-
-	/// Whether we've started reading the list yet.
-	bool have_started;
+	Xapian::Internal::intrusive_ptr<const ChertDatabase> this_db;
 
 	/// The position list object for this posting list.
 	ChertPositionList positionlist;
 
-    private:
-	/// Cursor pointing to current chunk of postlist.
-	AutoPtr<ChertCursor> cursor;
+	/// Whether we've started reading the list yet.
+	bool have_started;
 
+    private:
 	/// True if this is the last chunk.
 	bool is_last_chunk;
+
+	/// Whether we've run off the end of the list yet.
+	bool is_at_end;
+
+	/// Cursor pointing to current chunk of postlist.
+	AutoPtr<ChertCursor> cursor;
 
 	/// The first document id in this chunk.
 	Xapian::docid first_did_in_chunk;
@@ -157,9 +163,6 @@ class ChertPostList : public LeafPostList {
 
 	/// The wdf of the current document.
 	Xapian::termcount wdf;
-
-	/// Whether we've run off the end of the list yet.
-	bool is_at_end;
 
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
@@ -217,7 +220,7 @@ class ChertPostList : public LeafPostList {
 
     public:
 	/// Default constructor.
-	ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
+	ChertPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> this_db_,
 		      const string & term,
 		      bool keep_reference);
 

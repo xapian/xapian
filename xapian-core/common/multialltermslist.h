@@ -44,7 +44,7 @@ class MultiAllTermsList : public AllTermsList {
 
   public:
     /// Constructor.
-    MultiAllTermsList(const std::vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> > & dbs,
+    MultiAllTermsList(const std::vector<Xapian::Internal::intrusive_ptr<Xapian::Database::Internal> > & dbs,
 		      const std::string & prefix);
 
     /// Destructor.

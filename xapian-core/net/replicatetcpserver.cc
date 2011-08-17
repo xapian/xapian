@@ -39,7 +39,7 @@ ReplicateTcpServer::~ReplicateTcpServer() {
 void
 ReplicateTcpServer::handle_one_connection(int socket)
 {
-    RemoteConnection client(socket, -1, "");
+    RemoteConnection client(socket, -1);
     try {
 	// Read start_revision from the client.
 	string start_revision;
