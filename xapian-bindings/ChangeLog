@@ -1,3 +1,8 @@
+Wed Aug 17 10:11:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am,lua/docs/examples/simpleexpand.lua,lua/: Merge latest
+	  Lua improvements from Xiaona Han.
+
 Mon Aug 15 01:28:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/doxy2swig.py,python/pythontest2.py,python/testsuite2.py:
