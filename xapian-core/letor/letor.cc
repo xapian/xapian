@@ -127,11 +127,11 @@ Letor::letor_score(const Xapian::MSet & mset) {
 }
 
 void
-Letor::letor_learn_model() {
-    internal->letor_learn_model();
+Letor::letor_learn_model(int s, int k) {
+    internal->letor_learn_model(s,k);
 }
 
 void
-Letor::prepare_training_file(std::string query_file, std::string qrel_file) {
-    internal->prepare_training_file(query_file,qrel_file);
+Letor::prepare_training_file(std::string query_file, std::string qrel_file, int msetsize) {
+    internal->prepare_training_file(query_file,qrel_file,msetsize);
 }

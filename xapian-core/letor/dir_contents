@@ -1,0 +1,5 @@
+<Directory>letor</Directory>
+
+<Description>
+Implementations of the Xapian::Letor class.
+</Description>

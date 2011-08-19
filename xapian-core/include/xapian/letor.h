@@ -1,5 +1,5 @@
 /** @file letor.h
- *  @brief weighting scheme based on Learning to Rank
+ *  @brief weighting scheme based on Learning to Rank. Note: letor.h is not a part of official stable Xapain API.
  */
 /* Copyright (C) 2011 Parth Gupta
  *
@@ -121,7 +121,19 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string,long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
 
-    double calculate_f1(const Xapian::Query&, std::map<std::string,long int> &,char);
+    /** It calculated the feature value for the query-document pair. These feature calculation methods uses the data generated using above defined 
+     *  methods like termfreq, inverse_doc_freq, doc_length, coll_freq and collection_length.
+     *
+     *  These features are depicted in overview documentation of Letor.
+     *
+     *  @param  query   Query being used.
+     *  @param  tf      Map generated using Letor::termfreq() method.
+     *  @param  ch      Specifies the part of document for which the value needs to be calculated. Values:
+     *          't'     Title only
+     *          'b'     Body only
+     *          'w'     Whole document
+     */
+    double calculate_f1(const Xapian::Query & query, std::map<std::string,long int> & tf, char ch);
 
     double calculate_f2(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length, char ch);
 
@@ -133,11 +145,49 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
     double calculate_f6(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length,std::map<std::string,long int> & coll_tf, std::map<std::string,long int> & coll_length, char ch);
 
+    /** Gives the scores to each item of initial mset using the trained model. Note: It assigns a score to each document only so user needs to sort that map
+     *  as descending order of the value of map.
+     *
+     *  @return Letor score corresponding to each document in mset as map<docid,score> format.
+     */
     std::map<Xapian::docid,double> letor_score(const Xapian::MSet & mset);
 
-    void letor_learn_model();
+    /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is 
+     *  installed in the system. The SVM model is learnt using libsvm.
+     *
+     *  @param  s       its is svm_type (default s=4). In libsvm-3.1,
+     *          1 -- C-SVC
+     *          1 -- nu-SVC
+     *          2 -- one-class SVM
+     *          3 -- epsilon-SVR
+     *          4 -- nu-SVR
+     *  @param  k       kernel_type (default k=0). In libsvm-3.1,
+     *          0 -- linear
+     *          1 -- polynomial
+     *          2 -- radial basis function
+     *          3 -- sigmoid
+     *          4 -- precomputed kernel
+     *
+     */
+    void letor_learn_model(int s, int k);
 
-    void prepare_training_file(std::string query_file, std::string qrel_file);
+    /** This method prepares the 'train.txt' in the current working directory. This file is used to train a model which in turn will be used to 
+     *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
+     *  as below:
+     *
+     *  0 qid:102 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000 19:1.000000 #docid = 13566007
+     *  1 qid:102 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000 19:0.000000 #docid = 0740276 
+     *
+     *  where first column is relevance judgement of the document with docid as shown in the last column. The second column is query id and in between 
+     *  there are 19 feature values.
+     *
+     *  @param  query_file      Here you have to give a path to the file (in free text form)  containing training queries in specified format.
+     *  @param  qrel_file       Here supply the path to the qrel file (in free text form) containing the relevance judgements for the 
+     *          queries in the training file. This file should be in standard format specified.
+     *  @param  msize   This is the msize used for the first retrieval for training queries. It should be selected depending on te qrel file 
+     *          and database size.
+     */
+    void prepare_training_file(std::string query_file, std::string qrel_file, int msize);
 };
 
 }

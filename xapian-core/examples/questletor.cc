@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include <xapian.h>
+#include <xapian/letor.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -42,6 +43,7 @@ using namespace std;
 
 #define PROG_NAME "letor"
 #define PROG_DESC "Xapian command line search tool with Lerning to Rank Facility"
+
 
 typedef std::pair<Xapian::docid, double> MyPair;
 
@@ -224,30 +226,32 @@ try {
     ltr.set_query(query);
 
 
-//    ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels");
+    ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
 
  
-    ltr.letor_learn_model();
+    ltr.letor_learn_model(4,0);
     map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
 
     set<MyPair,MyTestCompare> s;
     map<Xapian::docid, double>::iterator iter = letor_mset.begin();
     map<Xapian::docid, double>::iterator endIter = letor_mset.end();
+
     for(; iter != endIter; ++iter) {
-        s.insert(*iter);
+       s.insert(*iter);
     }
 
 
     set<MyPair,MyTestCompare>::iterator it;
 
     int rank=1;
-    for ( it=s.begin() ; it != s.end(); it++ ) {
+    for ( it=s.end() ; it != s.begin(); it-- ) {
         cout<<"Item: "<<rank<<"\t"<<(*it).second<<"\n";
 
         Xapian::Document doc = db.get_document((*it).first);
         cout<<doc.get_data()<<"\n";
         rank++;
     }
+
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;

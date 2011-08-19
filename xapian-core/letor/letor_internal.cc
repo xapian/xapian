@@ -19,6 +19,7 @@
 #include <config.h>
 
 #include <xapian.h>
+#include <xapian/letor.h>
 
 #include "letor_internal.h"
 #include <xapian/error.h>
@@ -61,6 +62,7 @@ static char *line = NULL;
 static int max_line_len;
 
 int MAXPATHLEN=200;
+
 
 //Stop-words
 static const char * sw[] = {
@@ -659,6 +661,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
         }//while closed
     }//if closed
+
     return letor_mset;
 }
 
@@ -777,10 +780,10 @@ static void read_problem(const char *filename) {
 }
 
 void
-Letor::Internal::letor_learn_model() {
+Letor::Internal::letor_learn_model(int s_type, int k_type) {
     // default values
-    param.svm_type = 4;         // nu-svr
-    param.kernel_type = 0;      // linear
+    param.svm_type = s_type;
+    param.kernel_type = k_type;
     param.degree = 3;
     param.gamma = 0;	// 1/num_features
     param.coef0 = 0;
@@ -824,7 +827,7 @@ Letor::Internal::letor_learn_model() {
  */
 
 void
-Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_file) {
+Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_file, int msetsize) {
 
     ofstream train_file;
     train_file.open("train.txt");
@@ -832,7 +835,7 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
 
-    int msize = 100;		//Let it be 100 now later that can be decided or can be made dynamic
+    int msize = msetsize;
 
     Xapian::QueryParser parser;
     parser.add_prefix("title","S");

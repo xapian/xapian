@@ -59,9 +59,9 @@ class Letor::Internal : public Xapian::Internal::RefCntBase {
 
 	map<Xapian::docid,double>  letor_score(const Xapian::MSet & mset);
 
-	void letor_learn_model();
+	void letor_learn_model(int svm_type, int kernel_type);
 
-	void prepare_training_file(std::string query_file, std::string qrel_file);
+	void prepare_training_file(std::string query_file, std::string qrel_file, int msetsize);
     
 };
 

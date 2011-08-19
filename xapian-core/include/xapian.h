@@ -56,9 +56,6 @@
 // Stemming
 #include <xapian/stem.h>
 
-//Learning to Rank
-#include <xapian/letor.h>
-
 // Subclass registry
 #include <xapian/registry.h>
 

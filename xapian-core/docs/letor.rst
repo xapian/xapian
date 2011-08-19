@@ -1,5 +1,3 @@
-.. role:: raw-math(raw)
-    :format: latex html
 
 .. Copyright (C) 2011 Parth Gupta
 
@@ -70,21 +68,31 @@ After we have built a model, its quite straightforward to get a real score for a
 Features
 ========
 
-Features play a major role in the learning. In LTR, features are mainly of three types: query dependant, document dependant (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependant (TF-IDF Score, BM25 Score etc). In total we have incorporated 19 features and are described as below::
+Features play a major role in the learning. In LTR, features are mainly of three types: query dependant, document dependant (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependant (TF-IDF Score, BM25 Score etc). In total we have incorporated 19 features and are described as below. This features are statistically tested in [Nallapati2004]_.
+
+::
 
 	    Here c(w,D) means that count of term w in Document D. C represents the Collection. 'n' is the total number of terms in query. 
 	    |.| is size-of function and idf(.) is the inverse-document-frequency.
 
-1. $\sum_{q_i \in Q \cap D} \log{c(q_i,D)}$
-1. 
-1.  
-1. 
-1. 
-1. 
+	    1. $ \sum_{q_i \in Q \cap D} \log{\left( c(q_i,D) \right)} $
+
+	    2. $\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\right)} $
+
+	    3. $ \sum_{q_i \in Q \cap D} \log{\left(idf(q_i) \right) } $
+
+	    4. $ \sum_{q_i \in Q \cap D} \log{\left( \frac{|C|}{c(q_i,C)} \right)} $
+
+	    5. $\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}idf(q_i)\right)} $
+
+	    6. $\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\frac{|C|}{c(q_i,C)}\right)} $
+
 
 All the above 6 features are calculated considering 'title only', 'body only' and 'whole' document. So they make in total 6*3=18 features. The 19th feature is the BM25 score assigned to the document by the Xapian weighting scheme.
 
 One thing that should be noticed is that all the feature values are `normalized at Query-Level <http://trac.xapian.org/wiki/GSoC2011/LTR/Notes#QueryLevelNorm>`_. That means a particular feature vales for a particular Query are divided by its query-level maximum value and hence all the feature values will be between 0 and 1. This normalization helps for unbiased learning.
+
+.. [Nallapati2004] Nallapati, R. Discriminative models for information retrieval. Proceedings of SIGIR 2004 (pp. 64-71). 
 
 How to Use
 ==========
@@ -169,7 +177,7 @@ The whole process can be seen as the following steps:
 Pre-requisite: libSVM
 =====================
 
-To use Xapian::Letor for learning a model and then to score the document vector, there has to be libSVM installed at system level. In order to install libSVM you can get an RPM package of libSVM and install it. You can use 'yum' or 'apt-get' kind of utilities to get it installed depending upon your linux distro. 
+To use Xapian::Letor for learning a model and then to score the document vector, there has to be libSVM installed at system level. In order to install libSVM you can get an RPM package of libSVM and install it. You can use 'yum' or 'apt-get' kind of utilities to get it installed depending upon your linux distro. Version:libsvm-3.1 was used for the development of Letor project. libsvm-3.0-2 also works fine with the project as tested.
 
 ::
 
