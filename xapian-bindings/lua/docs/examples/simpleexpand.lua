@@ -21,23 +21,6 @@
 
 require("xapian")
 
--- Iterator the results and return their rank, percent, id, and data
-function msetIter(mset)
-	local m = mset:begin()
-	return function()
-		if m:equals(mset:_end()) then
-			return nil
-		else
-			local rank = m:get_rank()
-			local percent = m:get_percent()
-			local id = m:get_docid()
-			local data = m:get_document():get_data()
-			m:next()
-			return rank, percent, id, data
-		end
-	end
-end
-
 -- Require at least two command line arguments.
 if #arg < 2 then
 	io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE QUERY [-- [DOCID...]]\n")
@@ -92,28 +75,28 @@ if not query:empty() then
 	print(string.format("Results 1-%i:", matches:size()))
 
 	-- Display the results
-	for rank, percent, id, data in msetIter(matches) do
-		print(rank + 1, percent .. "%", id, data)
+	for m in matches:items() do
+		print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
 	end
 
 	-- Put the top 5 (at most) docs into the rset if rset is empty
 	if reldocs:empty() then
-		local i = matches:begin()
-		for j = 1, 5 do
-			if i:equals(matches:_end()) then
+		local c = 5
+		for m in matches:items() do
+			reldocs:add_document(m:get_docid())
+			print (c)
+			c = c - 1
+			if c == 0 then
 				break
 			end
-			reldocs:add_document(i:get_docid())
-			i:next()
 		end
 	end
 
 	-- Get the suggested expand terms
 	eterms = enquire:get_eset(10, reldocs)
 	print (string.format("%i suggested additional terms", eterms:size()))
-	local k = eterms:begin()
-	while not k:equals(eterms:_end()) do
-		print(string.format("%s: %f", k:get_term(), k:get_weight()))
-		k:next()
+	for m in eterms:terms() do
+		print(string.format("%s: %f", m:get_term(), m:get_weight()))
 	end
+
 end

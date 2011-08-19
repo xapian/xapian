@@ -1,9 +1,7 @@
-/** \file termiterator.h
- * \brief Classes for iterating through term lists
+/** @file  termiterator.h
+ *  @brief Class for iterating over a list of terms
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,108 +25,121 @@
 #include <iterator>
 #include <string>
 
-#include <xapian/intrusive_ptr.h>
 #include <xapian/derefwrapper.h>
-#include <xapian/types.h>
 #include <xapian/positioniterator.h>
+#include <xapian/types.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
 
-class Database;
-
-/** An iterator pointing to items in a list of terms.
- */
+/// Class for iterating over a list of terms.
 class XAPIAN_VISIBILITY_DEFAULT TermIterator {
-    public:
-	class Internal;
-	/// @internal Reference counted internals.
-	Xapian::Internal::intrusive_ptr<Internal> internal;
+  public:
+    /// Class representing the TermIterator internals.
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Internal * internal;
 
-	/// @internal Reference counted internals.
-	explicit TermIterator(Internal *internal_);
+    /// @private @internal Construct given internals.
+    explicit TermIterator(Internal *internal_);
 
-	/// Default constructor - for declaring an uninitialised iterator.
-	TermIterator();
+    /// Copy constructor.
+    TermIterator(const TermIterator & o);
 
-	/// Destructor.
-	~TermIterator();
+    /// Assignment.
+    TermIterator & operator=(const TermIterator & o);
 
-	/** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
-	 */
-	TermIterator(const TermIterator &other);
+    /** Default constructor.
+     *
+     *  Creates an uninitialised iterator, which can't be used before being
+     *  assigned to, but is sometimes syntactically convenient.
+     */
+    TermIterator() : internal(0) { }
 
-	/** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
-	 */
-	TermIterator & operator=(const TermIterator &other);
+    /// Destructor.
+    ~TermIterator() {
+	if (internal) decref();
+    }
 
-	/// Return the current term.
-	std::string operator *() const;
+    /// Return the term at the current position.
+    std::string operator*() const;
 
-	TermIterator & operator++();
+    /// Return the wdf for the term at the current position.
+    Xapian::termcount get_wdf() const;
 
-	DerefWrapper_<std::string> operator++(int) {
-	    const std::string & term(**this);
-	    operator++();
-	    return DerefWrapper_<std::string>(term);
-	}
+    /// Return the term frequency for the term at the current position.
+    Xapian::doccount get_termfreq() const;
 
-	/** Advance the iterator to the specified term.
-	 *
-	 *  If the specified term isn't in the list, position ourselves on the
-	 *  first term after it (or at_end() if no greater terms are present).
-	 */
-	void skip_to(const std::string & tname);
+    /// Return the length of the position list for the current position.
+    Xapian::termcount positionlist_count() const;
 
-	/** Return the wdf of the current term (if meaningful).
-	 *
-	 *  The wdf (within document frequency) is the number of occurrences
-	 *  of a term in a particular document.
-	 */
-	Xapian::termcount get_wdf() const;
+    /// Return a PositionIterator for the current term.
+    PositionIterator positionlist_begin() const;
 
-	/** Return the term frequency of the current term (if meaningful).
-	 *
-	 *  The term frequency is the number of documents which a term indexes.
-	 */
-	Xapian::doccount get_termfreq() const;
+    /// Return an end PositionIterator for the current term.
+    PositionIterator positionlist_end() const {
+	return PositionIterator();
+    }
 
-	/** Return length of positionlist for current term.
-	 */
-	Xapian::termcount positionlist_count() const;
+    /// Advance the iterator to the next position.
+    TermIterator & operator++();
 
-	/** Return PositionIterator pointing to start of positionlist for
-	 *  current term.
-	 */
-	PositionIterator positionlist_begin() const;
+    /// Advance the iterator to the next position (postfix version).
+    DerefWrapper_<std::string> operator++(int) {
+	const std::string & term(**this);
+	operator++();
+	return DerefWrapper_<std::string>(term);
+    }
 
-	/** Return PositionIterator pointing to end of positionlist for
-	 *  current term.
-	 */
-	PositionIterator positionlist_end() const {
-	    return PositionIterator();
-	}
+    /** Advance the iterator to term @a term.
+     *
+     *  If the iteration is over an unsorted list of terms, then this method
+     *  will throw Xapian::InvalidOperationError.
+     *
+     *  If the specified term isn't in the stream being iterated, then
+     *  the iterator is moved to the next term after @a term.
+     */
+    void skip_to(const std::string &term);
 
-	/// Return a string describing this object.
-	std::string get_description() const;
+    /// Return a string describing this object.
+    std::string get_description() const;
 
-	/// Allow use as an STL iterator
-	//@{
-	typedef std::input_iterator_tag iterator_category;
-	typedef std::string value_type;
-	typedef Xapian::termcount_diff difference_type;
-	typedef std::string * pointer;
-	typedef std::string & reference;
-	//@}
+    /** @private @internal TermIterator is what the C++ STL calls an
+     *  input_iterator.
+     *
+     *  The following typedefs allow std::iterator_traits<> to work so that
+     *  this iterator can be used with the STL.
+     *
+     *  These are deliberately hidden from the Doxygen-generated docs, as the
+     *  machinery here isn't interesting to API users.  They just need to know
+     *  that Xapian iterator classes are compatible with the STL.
+     */
+    // @{
+    /// @private
+    typedef std::input_iterator_tag iterator_category;
+    /// @private
+    typedef std::string value_type;
+    /// @private
+    typedef Xapian::termcount_diff difference_type;
+    /// @private
+    typedef std::string * pointer;
+    /// @private
+    typedef std::string & reference;
+    // @}
+
+  private:
+    void decref();
+
+    void post_advance(Internal * res);
 };
 
 /// Equality test for TermIterator objects.
 inline bool
 operator==(const TermIterator &a, const TermIterator &b)
 {
-    return (a.internal.get() == b.internal.get());
+    // Use a pointer comparison - this ensures both that (a == a) and correct
+    // handling of end iterators (which we ensure have NULL internals).
+    return a.internal == b.internal;
 }
 
 /// Inequality test for TermIterator objects.
@@ -140,4 +151,4 @@ operator!=(const TermIterator &a, const TermIterator &b)
 
 }
 
-#endif /* XAPIAN_INCLUDED_TERMITERATOR_H */
+#endif // XAPIAN_INCLUDED_TERMITERATOR_H

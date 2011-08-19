@@ -767,19 +767,17 @@ TermIterator
 Enquire::Internal::get_matching_terms(Xapian::docid did) const
 {
     if (query.empty())
-	throw Xapian::InvalidArgumentError("get_matching_terms with empty query");
-	//return TermIterator();
+	return TermIterator();
 
     // The ordered list of terms in the query.
     TermIterator qt = query.get_terms_begin();
-    TermIterator qt_end = query.get_terms_end();
 
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
     map<string, unsigned int> tmap;
     unsigned int index = 1;
-    for ( ; qt != qt_end; ++qt) {
+    for ( ; qt != query.get_terms_end(); ++qt) {
 	if (tmap.find(*qt) == tmap.end())
 	    tmap[*qt] = index++;
     }

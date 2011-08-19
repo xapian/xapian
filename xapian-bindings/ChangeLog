@@ -1,3 +1,130 @@
+Wed Aug 17 11:07:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am: Add dependency on except.i so it gets (re)generated
+	  when it should.
+
+Wed Aug 17 10:11:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am,lua/docs/examples/simpleexpand.lua,lua/: Merge latest
+	  Lua improvements from Xiaona Han.
+
+Mon Aug 15 01:28:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/doxy2swig.py,python/pythontest2.py,python/testsuite2.py:
+	  Remove trailing whitespace.
+
+Mon Aug 15 01:19:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/testsuite2.py: Move the check for
+	  leaked objects into the testsuite harness so all tests get checked,
+	  not just the two which are regression tests for leaks in older
+	  versions.  This also gives us a single place to disable it if it
+	  should prove problematic in alternative Python implementations.
+
+Sun Aug 14 12:45:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: In test_matchingterms_iter, run the code
+	  we're testing for leaks twice, and only check for leaks the second
+	  time to avoid falsely reporting a leak when some cached value gets
+	  initialised under Python 2.5.
+
+Fri Aug 12 23:18:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.7 and ChangeLog.
+
+Mon Aug 08 03:35:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix == comparisons with literal strings.
+
+Thu Aug 04 07:34:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap iterator operator++ and operator--
+	  methods with a new INC_OR_DEC macro, replacing the old NEXT and
+	  PREV macros.
+
+Thu Aug 04 07:21:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian-headers.i: We no longer need special handling
+	  for ValueIteratorEnd_ in the bindings, as that hack is gone from the
+	  C++ API headers.
+
+Thu Aug 04 07:15:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian.i: Update for the Xapian::timeout -> useconds_t
+	  change.
+
+Thu Aug 04 06:45:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: JAVA_CXXFLAGS is no longer used, so remove it.
+
+Thu Aug 04 00:24:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add --disable-visibility option to match xapian-core.
+
+Thu Aug 04 00:04:47 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add -fshow-column for GCC.
+
+Tue Aug 02 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test.t: Fix to work when built against an installed
+	  xapian-core.  (ticket#558)
+
+Sat Jul 30 12:05:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,doxygen_xml.conf.in,python/Makefile.am,
+	  ruby/Makefile.am,ruby/generate-rdoc-stubs: Run doxygen to generate
+	  XML for the bindings in the bindings build system, not as a
+	  side-effect in xapian-core's.  (ticket#262)
+
+Sat Jul 30 06:22:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
+	  lua/Makefile.am,perl/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Don't put -Werror in SWIG_FLAGS
+	  - instead put it in a new SWIG_WERROR variable, so that it's easy
+	  to override it if you're getting a new warning from SWIG but want
+	  to just ignore it for the time being.
+
+Fri Jul 29 13:49:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add regression test for recently fixed SWIG bug
+	  which caused "return $r;" to be generated in some cases when $r
+	  wasn't set.
+
+Fri Jul 29 03:41:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Install an error handler so the test fails if
+	  there are any errors, warnings, notices, etc.
+
+Mon Jul 25 07:36:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Add test that string passing is zero byte safe.
+
+Mon Jul 25 06:42:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix MyExpandDecider.accept to really check the
+	  passed parameter.
+
+Mon Jul 25 05:52:29 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Don't return iterator from C# Next() and Prev() methods by
+	  reference as that results in it being eligible for garbage collection
+	  while we're still using it.
+	* csharp/SmokeTest.cs: Add regression test.
+
+Sat Jul 23 15:27:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Whitespace tweaks.
+
+Sat Jul 23 15:18:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/examples/simpleexpand.lua,
+	  lua/docs/examples/simplematchdecider.lua,
+	  lua/docs/examples/simplesearch.lua,lua/docs/index.html,
+	  lua/smoketest.lua,lua/util.i: Merge latest Lua changes from Xiaona
+	  Han.
+
 Thu Jul 07 23:28:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Restore ruby to DIST_SUBDIRS (accidentally removed when

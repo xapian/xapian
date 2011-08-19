@@ -124,7 +124,7 @@ inline unsigned check_suffix(unsigned ch) {
 #define STOPWORDS_INDEX_UNSTEMMED_ONLY 2
 
 void
-TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
+TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
     int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
@@ -213,9 +213,9 @@ endofterm:
 	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
 
 	if (with_positions) {
-	    doc.add_posting(prefix + term, ++termpos, weight);
+	    doc.add_posting(prefix + term, ++termpos, wdf_inc);
 	} else {
-	    doc.add_term(prefix + term, weight);
+	    doc.add_term(prefix + term, wdf_inc);
 	}
 	if ((flags & FLAG_SPELLING) && prefix.empty()) db.add_spelling(term);
 
@@ -232,7 +232,7 @@ endofterm:
 	string stem("Z");
 	stem += prefix;
 	stem += stemmer(term);
-	doc.add_term(stem, weight);
+	doc.add_term(stem, wdf_inc);
     }
 }
 

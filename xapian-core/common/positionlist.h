@@ -1,8 +1,7 @@
 /* positionlist.h
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +22,7 @@
 #ifndef OM_HGUARD_POSITIONLIST_H
 #define OM_HGUARD_POSITIONLIST_H
 
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>

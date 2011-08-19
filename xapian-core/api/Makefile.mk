@@ -22,10 +22,10 @@ lib_src +=\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\
-	api/ompostlistiterator.cc\
 	api/omquery.cc\
 	api/omqueryinternal.cc\
 	api/positioniterator.cc\
+	api/postingiterator.cc\
 	api/postingsource.cc\
 	api/postlist.cc\
 	api/registry.cc\

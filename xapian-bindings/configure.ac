@@ -118,6 +118,13 @@ AC_ARG_ENABLE(quiet,
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
   esac])
 
+AC_ARG_ENABLE(visibility,
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
+  esac])
+
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
 AM_MAINTAINER_MODE
@@ -164,12 +171,34 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 	AC_MSG_ERROR([$msg])
       fi ;;
   esac
-  SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
+  SWIG_FLAGS=`$XAPIAN_CONFIG --swigflags`
   AC_SUBST(SWIG_FLAGS)
+  XAPIAN_HEADER_DIRS=
+  XAPIAN_HEADERS=
+  for a in $SWIG_FLAGS ; do
+    case $a in
+    -I*)
+      d=`echo "x$a"|sed 's/^x-I//'`
+      dnl Quote each entry in XAPIAN_HEADER_DIRS with "".
+      XAPIAN_HEADER_DIRS=$XAPIAN_HEADER_DIRS' "'$d'"'
+      for f in "$d/"*.h "$d/xapian/*.h" ; do
+	if test -f "$f" ; then
+	  XAPIAN_HEADERS="$XAPIAN_HEADERS $f"
+	fi
+      done
+      ;;
+    esac
+  done
+  AC_SUBST([XAPIAN_HEADER_DIRS])
+  AC_SUBST([XAPIAN_HEADERS])
 
   dnl Need perl in maintainer mode to generate the except.i file for python.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+  dnl Need doxygen in maintainer mode to convert C++ doxygen comments to Python
+  dnl docstrings.
+  AC_PATH_PROG(DOXYGEN, doxygen, [])
+  test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
   dnl Need python in maintainer mode to run doxy2swig.py.
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
@@ -965,7 +994,6 @@ AC_SUBST(BINDINGS)
 dnl Set flags to control warnings (enable more, or disable annoying ones)
 dnl and other compiler specific flags.
 SWIG_CXXFLAGS=
-JAVA_CXXFLAGS=
 if test yes = "$GXX" ; then
   dnl Python itself is compiled with -fno-strict-aliasing, and it appears
   dnl it's safest to follow this lead when compiling the SWIG generated
@@ -1002,26 +1030,26 @@ if test yes = "$GXX" ; then
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
       SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl The Java JNI wrappers have a few unused variables.
-      JAVA_CXXFLAGS="-Wall -w1 -wd177,1572"
     ],
     [
       dnl GCC:
       dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -Wno-unused -Wno-uninitialized"
-      AC_MSG_CHECKING([whether to use -fvisibility=hidden])
-      dnl To be robust, we check both that -fvisibility=hidden is recognised
-      dnl and that SWIG will have added the visibility attributes.
-      dnl The GCC wiki says it's supported from GCC 4.0 onwards.  GCC 3.4
-      dnl also supports -fvisibility, but doesn't allow visibility to be
-      dnl specified for classes, which probably breaks throwing exception
-      dnl classes from the library.  We want that to work, so only switch
-      dnl this on for GCC 4.0 onwards.
-      SAVE_CXXFLAGS=$CXXFLAGS
-      CXXFLAGS="-fvisibility=hidden"
-      AC_TRY_COMPILE([], [
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fshow-column -Wall -Wno-unused -Wno-uninitialized"
+
+      if test no != "$enable_visibility"; then
+	AC_MSG_CHECKING([whether to use -fvisibility=hidden])
+	dnl To be robust, we check both that -fvisibility=hidden is recognised
+	dnl and that SWIG will have added the visibility attributes.
+	dnl The GCC wiki says it's supported from GCC 4.0 onwards.  GCC 3.4
+	dnl also supports -fvisibility, but doesn't allow visibility to be
+	dnl specified for classes, which probably breaks throwing exception
+	dnl classes from the library.  We want that to work, so only switch
+	dnl this on for GCC 4.0 onwards.
+	SAVE_CXXFLAGS=$CXXFLAGS
+	CXXFLAGS="-Werror -fvisibility=hidden"
+	AC_TRY_COMPILE([], [
 #if __GNUC__ >= 4
   /* GCC supports -fvisibility and allows specifying visibility for classes. */
 #else
@@ -1032,13 +1060,11 @@ if test yes = "$GXX" ; then
 		     SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fvisibility=hidden"
 		     ,
 		     AC_MSG_RESULT(no))
-      CXXFLAGS=$SAVE_CXXFLAGS
-      dnl The Java JNI wrappers have a few unused variables.
-      JAVA_CXXFLAGS="-Wall -W -Wno-unused"
+	CXXFLAGS=$SAVE_CXXFLAGS
+      fi
     ])
 fi
 AC_SUBST(SWIG_CXXFLAGS)
-AC_SUBST(JAVA_CXXFLAGS)
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
@@ -1048,6 +1074,7 @@ dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 AC_SUBST([AUTOM4TE])
 
 AC_CONFIG_FILES([Makefile
+ doxygen_xml.conf
  xapian-version.h
  python/Makefile
  php/Makefile

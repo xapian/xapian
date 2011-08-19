@@ -28,7 +28,7 @@ class MyMatchDecider extends MatchDecider {
 	// NB It's not normally appropriate to call getData() in a MatchDecider
 	// but we do it here to make sure we don't get an empty document.
 /*	try { */
-	    return d.getData() == "";
+	    return d.getData().length() == 0;
 /*
 	} catch (XapianError e) {
 	    return true;
@@ -39,7 +39,7 @@ class MyMatchDecider extends MatchDecider {
 
 // FIXME: "implements" not "extends" in JNI Java API
 class MyExpandDecider extends ExpandDecider {
-    public boolean accept(String s) { return s.substring(0, 1) != "a"; }
+    public boolean accept(String s) { return s.charAt(0) != 'a'; }
 }
 
 public class SmokeTest {
@@ -51,6 +51,16 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 	    Document doc = new Document();
+	    doc.setData("a\000b");
+	    String s = doc.getData();
+	    if (s.equals("a")) {
+		System.err.println("getData+setData truncates at a zero byte");
+		System.exit(1);
+	    }
+	    if (!s.equals("a\000b")) {
+		System.err.println("getData+setData doesn't transparently handle a zero byte");
+		System.exit(1);
+	    }
 	    doc.setData("is there anybody out there?");
 	    doc.addTerm("XYzzy");
 // apply was stemWord() in the JNI bindings
@@ -147,7 +157,7 @@ public class SmokeTest {
 	    ESetIterator eit = eset.iterator();
 	    int count = 0;
 	    while (eit.hasNext()) {
-		if (eit.getTerm().substring(0, 1) == "a") {
+		if (eit.getTerm().charAt(0) == 'a') {
 		    System.err.println("MyExpandDecider wasn't used");
 		    System.exit(1);
 		}

@@ -31,6 +31,7 @@
 #include "inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"
+#include "noreturn.h"
 #include "remote-document.h"
 #include "omassert.h"
 #include "realtime.h"
@@ -48,6 +49,13 @@
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
+
+XAPIAN_NORETURN(static void throw_bad_message(const string & context));
+static void
+throw_bad_message(const string & context)
+{
+    throw Xapian::NetworkError("Bad message received", context);
+}
 
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 			       const string & context_, bool writable)
@@ -115,9 +123,8 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
 	item.tname = message;
 	items.push_back(item);
     }
-    if (type != REPLY_DONE) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_DONE)
+	throw_bad_message(context);
 
     tlist->current_position = tlist->items.begin();
     return tlist.release();
@@ -158,9 +165,8 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	item.tname.assign(p, p_end);
 	items.push_back(item);
     }
-    if (type != REPLY_DONE) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_DONE)
+	throw_bad_message(context);
 
     tlist->current_position = tlist->items.begin();
     return tlist.release();
@@ -189,9 +195,8 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 	item.tname.assign(p, p_end);
 	items.push_back(item);
     }
-    if (type != REPLY_DONE) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_DONE)
+	throw_bad_message(context);
 
     tlist->current_position = tlist->items.begin();
     return tlist.release();
@@ -219,9 +224,8 @@ RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
     while ((type = get_message(message)) == REPLY_POSTLISTITEM) {
 	pl.append_posting(message);
     }
-    if (type != REPLY_DONE) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_DONE)
+	throw_bad_message(context);
 
     return termfreq;
 }
@@ -242,9 +246,8 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
 	lastpos += decode_length(&p, p_end, false) + 1;
 	positions.push_back(lastpos);
     }
-    if (type != REPLY_DONE) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_DONE)
+	throw_bad_message(context);
 
     return new InMemoryPositionList(positions);
 }
@@ -294,9 +297,8 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 	Xapian::valueno slot = decode_length(&p, p_end, false);
 	values.insert(make_pair(slot, string(p, p_end)));
     }
-    if (type != REPLY_DONE) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_DONE)
+	throw_bad_message(context);
 
     return new RemoteDocument(this, did, doc_data, values);
 }
@@ -385,9 +387,8 @@ RemoteDatabase::term_exists(const string & tname) const
     send_message(MSG_TERMEXISTS, tname);
     string message;
     reply_type type = get_message(message);
-    if (type != REPLY_TERMEXISTS && type != REPLY_TERMDOESNTEXIST) {
-	throw Xapian::NetworkError("Bad message received", context);
-    }
+    if (type != REPLY_TERMEXISTS && type != REPLY_TERMDOESNTEXIST)
+	throw_bad_message(context);
     return (type == REPLY_TERMEXISTS);
 }
 

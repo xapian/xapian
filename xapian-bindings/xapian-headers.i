@@ -55,6 +55,17 @@
 %enddef
 #endif
 
+#ifdef SWIGCSHARP
+/* In C#, next and prev return the iterator object. */
+#define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) NS::CLASS METHOD() { return OP(*self); }
+#elif defined SWIGJAVA
+/* In Java, next and prev return the result of dereferencing the iterator. */
+#define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) RET_TYPE METHOD() { return *(OP(*self)); }
+#else
+/* Otherwise, next and prev return void. */
+#define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) void METHOD() { OP(*self); }
+#endif
+
 /* We use %ignore and %extend rather than %rename on operator* so that any
  * pattern rename used to match local naming conventions applies to
  * DEREF_METHOD.
@@ -66,7 +77,7 @@
     %extend NS::CLASS {
 	bool equals(const NS::CLASS & o) const { return *self == o; }
 	RET_TYPE DEREF_METHOD() const { return **self; }
-	NEXT(RET_TYPE, NS::CLASS)
+	INC_OR_DEC(next, ++, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -74,7 +85,7 @@
     INPUT_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
     %ignore NS::CLASS::operator--;
     %extend NS::CLASS {
-	PREV(RET_TYPE, NS::CLASS)
+	INC_OR_DEC(prev, --, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -127,20 +138,8 @@ INPUT_ITERATOR_METHODS(Xapian, PostingIterator, Xapian::docid, get_docid)
 INPUT_ITERATOR_METHODS(Xapian, TermIterator, std::string, get_term)
 %include <xapian/termiterator.h>
 
-/* FIXME: Not all languages fully ignore ValueIteratorEnd_ */
-#undef ValueIteratorEnd_
-%ignore ValueIterator(const ValueIteratorEnd_ &);
-%ignore operator=(const ValueIteratorEnd_ &);
-%ignore operator==(const ValueIterator &, const ValueIteratorEnd_ &);
-%ignore operator==(const ValueIteratorEnd_ &, const ValueIterator &);
-%ignore operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &);
-%ignore operator!=(const ValueIterator &, const ValueIteratorEnd_ &);
-%ignore operator!=(const ValueIteratorEnd_ &, const ValueIterator &);
-%ignore operator!=(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &);
-%ignore Xapian::ValueIteratorEnd_;
 INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 %include <xapian/valueiterator.h>
-#define ValueIteratorEnd_ ValueIterator
 
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007,2008,2009,2010 Olly Betts
+ * Copyright 2003,2004,2005,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,6 +59,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack
 	mutable bool terms_here;
+	mutable bool positions_modified;
 
 	/// The (user defined) data associated with this document.
 	string data;
@@ -174,6 +175,11 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	    return terms_here;
 	}
 
+	/// Return true if term positions may have been modified.
+	bool term_positions_modified() const {
+	    return positions_modified;
+	}
+
 	/// Return true if the document may have been modified.
 	bool modified() const {
 	    return terms_here || values_here || data_here;
@@ -201,11 +207,11 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	Internal(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 		 Xapian::docid did_)
 	    : database(database_), data_here(false), values_here(false),
-	      terms_here(false), did(did_) { }
+	      terms_here(false), positions_modified(false), did(did_) { }
 
         Internal()
 	    : database(0), data_here(false), values_here(false),
-	      terms_here(false), did(0) { }
+	      terms_here(false), positions_modified(false), did(0) { }
 
 	/** Destructor.
 	 *

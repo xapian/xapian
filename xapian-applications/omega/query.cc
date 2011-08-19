@@ -207,11 +207,103 @@ vet_filename(const string &filename)
 // BAD_QUERY parse error (message in error_msg)
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
+static map<string, string> probabilistic_query;
+
+void
+set_probabilistic_query(const string & prefix, const string & s)
+{
+    string query_string = s;
+    // Strip leading and trailing whitespace from query_string.
+    trim(query_string);
+    if (!query_string.empty())
+	probabilistic_query.insert(make_pair(prefix, query_string));
+}
+
+static unsigned
+read_qp_flags(const string & opt_pfx, unsigned f)
+{
+    map<string, string>::const_iterator i = option.lower_bound(opt_pfx);
+    for (; i != option.end() && startswith(i->first, opt_pfx); ++i) {
+	unsigned mask = 0;
+	const char * s = i->first.c_str() + opt_pfx.size();
+	switch (s[0]) {
+	    case 'a':
+		if (strcmp(s, "auto_multiword_synonyms") == 0) {
+		    mask = Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+		    break;
+		}
+		if (strcmp(s, "auto_synonyms") == 0) {
+		    mask = Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
+		    break;
+		}
+		break;
+	    case 'b':
+		if (strcmp(s, "boolean") == 0) {
+		    mask = Xapian::QueryParser::FLAG_BOOLEAN;
+		    break;
+		}
+		if (strcmp(s, "boolean_any_case") == 0) {
+		    mask = Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
+		    break;
+		}
+		break;
+	    case 'd':
+		if (strcmp(s, "default") == 0) {
+		    mask = Xapian::QueryParser::FLAG_DEFAULT;
+		    break;
+		}
+		break;
+	    case 'l':
+		if (strcmp(s, "lovehate") == 0) {
+		    mask = Xapian::QueryParser::FLAG_LOVEHATE;
+		    break;
+		}
+		break;
+	    case 'p':
+		if (strcmp(s, "partial") == 0) {
+		    mask = Xapian::QueryParser::FLAG_PARTIAL;
+		    break;
+		}
+		if (strcmp(s, "phrase") == 0) {
+		    mask = Xapian::QueryParser::FLAG_PHRASE;
+		    break;
+		}
+		if (strcmp(s, "pure_not") == 0) {
+		    mask = Xapian::QueryParser::FLAG_PURE_NOT;
+		    break;
+		}
+		break;
+	    case 's':
+		if (strcmp(s, "spelling_correction") == 0) {
+		    mask = Xapian::QueryParser::FLAG_SPELLING_CORRECTION;
+		    break;
+		}
+		if (strcmp(s, "synonym") == 0) {
+		    mask = Xapian::QueryParser::FLAG_SYNONYM;
+		    break;
+		}
+		break;
+	    case 'w':
+		if (strcmp(s, "wildcard") == 0) {
+		    mask = Xapian::QueryParser::FLAG_WILDCARD;
+		    break;
+		}
+		break;
+	}
+
+	if (i->second.empty()) {
+	    f &= ~mask;
+	} else {
+	    f |= mask;
+	}
+    }
+    return f;
+}
+
 static querytype
 set_probabilistic(const string &oldp)
 {
     // Parse the query string.
-    qp.set_stemmer(Xapian::Stem(option["stemmer"]));
     qp.set_stemming_strategy(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
@@ -221,13 +313,21 @@ set_probabilistic(const string &oldp)
 	size_vrp = new Xapian::NumberValueRangeProcessor(VALUE_SIZE, "size:",
 							 true);
     qp.add_valuerangeprocessor(size_vrp);
-    // std::map::insert() won't overwrite an existing entry, so we'll prefer
-    // the first user_prefix for which a particular term prefix is specified.
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && startswith(pfx->first, "prefix,"); ++pfx) {
-	string user_prefix = pfx->first.substr(7);
-	qp.add_prefix(user_prefix, pfx->second);
-	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
+	string user_prefix(pfx->first, 7);
+	const string & term_pfx_list = pfx->second;
+	string::size_type i = 0;
+	do {
+	    string::size_type i0 = i;
+	    i = term_pfx_list.find('\t', i);
+	    const string & term_pfx = term_pfx_list.substr(i0, i - i0);
+	    qp.add_prefix(user_prefix, term_pfx);
+	    // std::map::insert() won't overwrite an existing entry, so we'll
+	    // prefer the first user_prefix for which a particular term prefix
+	    // is specified.
+	    termprefix_to_userprefix.insert(make_pair(term_pfx, user_prefix));
+	} while (++i);
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
@@ -237,79 +337,32 @@ set_probabilistic(const string &oldp)
     }
 
     try {
-	unsigned f = 0;
-	map<string, string>::const_iterator i = option.lower_bound("flag_");
-	for (; i != option.end() && startswith(i->first, "flag_"); ++i) {
-	    if (i->second.empty()) continue;
-	    const string & s = i->first;
-	    switch (s[5]) {
-		case 'a':
-		    if (s == "flag_auto_multiword_synonyms") {
-			f |= Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
-			break;
-		    }
-		    if (s == "flag_auto_synonyms") {
-			f |= Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
-			break;
-		    }
-		    break;
-		case 'b':
-		    if (s == "flag_boolean") {
-			f |= Xapian::QueryParser::FLAG_BOOLEAN;
-			break;
-		    }
-		    if (s == "flag_boolean_any_case") {
-			f |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
-			break;
-		    }
-		    break;
-		case 'd':
-		    if (s == "flag_default") {
-			f |= Xapian::QueryParser::FLAG_DEFAULT;
-			break;
-		    }
-		    break;
-		case 'l':
-		    if (s == "flag_lovehate") {
-			f |= Xapian::QueryParser::FLAG_LOVEHATE;
-			break;
-		    }
-		    break;
-		case 'p':
-		    if (s == "flag_partial") {
-			f |= Xapian::QueryParser::FLAG_PARTIAL;
-			break;
-		    }
-		    if (s == "flag_phrase") {
-			f |= Xapian::QueryParser::FLAG_PHRASE;
-			break;
-		    }
-		    if (s == "flag_pure_not") {
-			f |= Xapian::QueryParser::FLAG_PURE_NOT;
-			break;
-		    }
-		    break;
-		case 's':
-		    if (s == "flag_spelling_correction") {
-			f |= Xapian::QueryParser::FLAG_SPELLING_CORRECTION;
-			break;
-		    }
-		    if (s == "flag_synonym") {
-			f |= Xapian::QueryParser::FLAG_SYNONYM;
-			break;
-		    }
-		    break;
-		case 'w':
-		    if (s == "flag_wildcard") {
-			f |= Xapian::QueryParser::FLAG_WILDCARD;
-			break;
-		    }
-		    break;
-	    }
-	}
+	unsigned default_flags = read_qp_flags("flag_", 0);
 	if (option["spelling"] == "true")
-	    f |= qp.FLAG_SPELLING_CORRECTION;
-	query = qp.parse_query(query_string, f);
+	    default_flags |= qp.FLAG_SPELLING_CORRECTION;
+
+	vector<Xapian::Query> queries;
+	queries.reserve(probabilistic_query.size());
+
+	map<string, string>::const_iterator j;
+	for (j = probabilistic_query.begin();
+	     j != probabilistic_query.end();
+	     ++j) {
+	    const string & prefix = j->first;
+
+	    // Choose the stemmer to use for this input.
+	    string stemlang = option[prefix + ":stemmer"];
+	    if (stemlang.empty())
+		stemlang = option["stemmer"];
+	    qp.set_stemmer(Xapian::Stem(stemlang));
+
+	    // Work out the flags to use for this input.
+	    unsigned f = read_qp_flags(prefix + ":flag_", default_flags);
+
+	    const string & query_string = j->second;
+	    queries.push_back(qp.parse_query(query_string, f, prefix));
+	}
+	query = Xapian::Query(query.OP_AND, queries.begin(), queries.end());
     } catch (Xapian::QueryParserError &e) {
 	error_msg = e.get_msg();
 	return BAD_QUERY;
@@ -327,9 +380,12 @@ set_probabilistic(const string &oldp)
     }
 
     // Check new query against the previous one
-    if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
+    if (oldp.empty()) {
+	// FIXME: should take into account other probabilistic prefixes here...
+	return probabilistic_query[string()].empty() ? SAME_QUERY : NEW_QUERY;
+    }
 
-    // The terms in OLDP are separated by tabs.
+    // The terms in oldp are separated by tabs.
     const char oldp_separator = '\t';
     size_t n_old_terms = count(oldp.begin(), oldp.end(), oldp_separator) + 1;
 
@@ -951,7 +1007,7 @@ T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
-T(query,	   0, 0, N, Q), // query
+T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, Q), // query.get_description()
 T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
@@ -1387,7 +1443,7 @@ eval(const string &fmt, const vector<string> &param)
 		url_query_string = "?DB=";
 		url_query_string += dbname;
 		url_query_string += "&P=";
-		q = query_string.c_str();
+		q = probabilistic_query[string()].c_str();
 		while ((ch = *q++) != '\0') {
 		    switch (ch) {
 		     case '+':
@@ -1686,7 +1742,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = pretty_term(args[0]);
 		break;
 	    case CMD_query:
-		value = query_string;
+		value = probabilistic_query[args.empty() ? string() : args[0]];
 		break;
 	    case CMD_querydescription:
 		value = query.get_description();
@@ -2139,22 +2195,22 @@ ensure_query_parsed()
     pair<MCI, MCI> g;
 
     // Should we discard the existing R-set recorded in R CGI parameters?
-    bool discard_rset = true;
+    bool discard_rset = false;
 
     // Should we force the first page of hits (and ignore [ > < # and TOPDOC
     // CGI parameters)?
-    bool force_first_page = true;
+    bool force_first_page = false;
 
     string v;
     // get list of terms from previous iteration of query
     val = cgi_params.find("xP");
-    if (val == cgi_params.end()) val = cgi_params.find("OLDP");
     if (val != cgi_params.end()) {
 	v = val->second;
-    } else {
-	// if xP not given, default to keeping the rset and don't force page 1
-	discard_rset = false;
-	force_first_page = false;
+	// If xP given, default to discarding any RSet and forcing the first
+	// page of results.  If the query is the same, or an extension of
+	// the previous query, we adjust these again below.
+	discard_rset = true;
+	force_first_page = true;
     }
     querytype result = set_probabilistic(v);
     switch (result) {

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@ class ChertTableCheck : public ChertTable {
 	void report_block_full(int m, int n, const byte * p) const;
 	void report_cursor(int N, const Cursor *C_) const;
 
-	XAPIAN_NORETURN(void failure(int n) const);
+	XAPIAN_NORETURN(void failure(const char * msg) const);
 	void print_key(const byte * p, int c, int j) const;
 	void print_tag(const byte * p, int c, int j) const;
 	void print_spaces(int n) const;

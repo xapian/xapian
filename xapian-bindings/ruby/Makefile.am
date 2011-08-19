@@ -35,7 +35,7 @@ xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)
 xapian_wrap.stamp:
 	$(multitarget_begin)
-	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'ruby.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
@@ -88,7 +88,7 @@ BUILT_SOURCES += docs/rdocs/index.html
 
 docs/rdocs: docs/rdocs/index.html
 
-docs/xapian.rb: generate-rdoc-stubs xapian.rb ../../xapian-core/docs/apidoc/xml/index.xml
+docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
 	$(PERL) $(srcdir)/generate-rdoc-stubs
 
 docs/rdocs/index.html: docs/xapian.rb

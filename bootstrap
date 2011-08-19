@@ -137,6 +137,16 @@ lazy_build() {
   fi
 }
 
+handle_svn_external() {
+  path=$1
+  revopt=$2
+  url=$3
+  if [ ! -d "$path" ] ; then
+    git svn init "$url" "$path"/
+  fi
+  (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
+}
+
 curdir=`pwd`
 
 # cd to srcdir if we aren't already there.
@@ -171,22 +181,34 @@ END
     mv .git/info/exclude~ .git/info/exclude
   fi
 
-  # FIXME: Currently requires manual update...
-  #svn:externals revision for SWIG
-  rev=12724
-  if [ ! -d swig ] ; then
-    git svn init svn://svn.tartarus.org/swig/trunk/ swig/
-  fi
-  (cd swig && git svn fetch -r"$rev" && git reset --hard `git svn log -r"$rev" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
+  if git config --get svn-remote.svn.url >/dev/null ; then
+    # git repo checked out with git-svn from svn.xapian.org.
 
-  # FIXME: Currently requires manual update...
-  #svn:externals revision for xapian-applications/omega/common
-  # Note: this needs to be the exact revision of the previous change!
-  rev=14916
-  if [ ! -d xapian-applications/omega/common ] ; then
-    git svn init svn://svn.xapian.org/xapian/trunk/xapian-core/common xapian-applications/omega/common
+    # Pull in each svn:externals as a separate little git repo:
+    git svn show-externals | while read path revopt url ; do
+      # For example:
+      # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
+      if [ -n "$url" ] ; then
+	case $path in
+	/*)
+	  path=`echo "$path"|sed 's,^/,,'`
+	  handle_svn_external "$path" "$revopt" "$url"
+	  ;;
+	esac
+      fi
+    done
+  else
+    # git repo cloned from git.xapian.org or a mirror of it.
+
+    # FIXME: Currently rev here requires manual update...
+    #svn:externals revision for SWIG
+    handle_svn_external swig -r12767 svn://svn.tartarus.org/swig/trunk/
+  
+    # FIXME: Currently rev here requires manual update...
+    #svn:externals revision for xapian-applications/omega/common
+    # Note: this needs to be the exact revision of the previous change!
+    handle_svn_external xapian-applications/omega/common -r14916 svn://svn.xapian.org/xapian/trunk/xapian-core/common
   fi
-  (cd xapian-applications/omega/common && git svn fetch -r"$rev" && git reset --hard `git svn log -r"$rev" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 fi
 
 if [ "$1" = "--without-autotools" ] ; then

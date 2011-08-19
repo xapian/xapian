@@ -127,7 +127,7 @@ main(int argc, char **argv)
 	string dir(argv[1]);
 	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
-	    throw "Chert database support isn't enabled";
+	    throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else
 	    // Check a whole chert database directory.
 	    // If we can't read the last docid, set it to its maximum value
@@ -175,7 +175,7 @@ main(int argc, char **argv)
 #endif
 	} else if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_BRASS_BACKEND
-	    throw "Brass database support isn't enabled";
+	    throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
 #else
 	    // Check a whole brass database directory.
 	    // If we can't read the last docid, set it to its maximum value
@@ -261,7 +261,7 @@ main(int argc, char **argv)
 	    // assume it is chert.
 	    if (file_exists(path + "iambrass")) {
 #ifndef XAPIAN_HAS_BRASS_BACKEND
-		throw "Brass database support isn't enabled";
+		throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
 #else
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
@@ -275,7 +275,7 @@ main(int argc, char **argv)
 		exit(1);
 	    } else {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
-		throw "Chert database support isn't enabled";
+		throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);

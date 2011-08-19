@@ -1,3 +1,57 @@
+Fri Aug 12 23:25:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.7 and ChangeLog.
+
+Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: MyHtmlParser::parse_html() no longer throws bool to
+	  stop parsing early, so we no longer need to catch it.
+
+Wed Aug 03 23:25:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync changes from xapian-core: Don't pass -Wshadow for
+	  GCC < 4.1; don't pass -Wstrict-null-sentinel for GCC 4.0.x; only
+	  enable symbol visibility on platforms where it is supported; remove
+	  now superfluous check for GCC >= 3.  Also, add FIXME for enabling
+	  -Woverloaded-virtual.
+
+Wed Aug 03 06:27:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index title with an 'S' prefix rather than no prefix.
+	* templates/query: Set up prefixes for 'author', 'title', and map
+	  no prefix so that terms from the title are still matched by default.
+
+Wed Aug 03 06:11:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Allow mapping a query string prefix to
+	  more than one term prefix (which xapian-core has supported since
+	  1.0.4).
+
+Fri Jul 29 01:47:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add support for per-prefix stemmers.
+
+Thu Jul 28 13:23:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,omega.cc,omega.h,query.cc,query.h: Add support
+	  for search inputs for multiple probabilistic prefixes.
+
+Wed Jul 27 02:35:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Add link to
+	  http://xapian.org/docs/omega/scriptindex.html to --help output (and
+	  so also to the man page which is generated from this).
+
+Tue Jul 26 05:54:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Rearrange logic for discarding the RSet and forcing the
+	  first page.
+
+Tue Jul 26 05:27:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Remove support for OLDP CGI parameter which was superseded
+	  by xP approximately a decade ago, and isn't even documented.
+
 Mon Jul 04 06:20:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omega.cc,utils.cc,utils.h: Factor out trim() function.

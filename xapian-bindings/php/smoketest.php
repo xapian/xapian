@@ -23,6 +23,18 @@
  * USA
  */
 
+# Die on any error, warning, notice, etc.
+function die_on_error($errno, $errstr, $file, $line) {
+    if ($file !== Null) {
+	print $file;
+	if ($line !== Null) print ":$line";
+	print ": ";
+    }
+    print "$errstr\n";
+    exit(1);
+}
+set_error_handler("die_on_error", -1);
+
 include "xapian.php";
 
 # Test the version number reporting functions give plausible results.
@@ -384,5 +396,14 @@ if ($query->get_description() != 'Xapian::Query()') {
 	exit(1);
     }
 }
+
+# Regression test for SWIG bug - it was generating "return $r;" in wrapper
+# functions which didn't set $r.
+$indexer = new XapianTermGenerator();
+$doc = new XapianDocument();
+
+$indexer->set_document($doc);
+$indexer->index_text("I ask nothing in return");
+$indexer->index_text_without_positions("Tea time");
 
 ?>

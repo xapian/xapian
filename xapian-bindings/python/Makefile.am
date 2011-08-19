@@ -103,8 +103,8 @@ if MAINTAINER_NO_DOCS
 doccomments.i:
 	: > doccomments.i
 else
-doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
-	$(PYTHON) $(srcdir)/doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
+doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/index.xml
+	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
@@ -112,7 +112,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d
 modern/xapian_wrap.stamp: except.i doccomments.i
 	-test -d modern || mkdir modern
 	$(multitarget_begin)
-	$(SWIG) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc -MD -MF modern/xapian_wrap_d.tmp '$(srcdir)/'python.i
 	$(PERL) -pi -e 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp

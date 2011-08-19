@@ -21,6 +21,18 @@
 -- USA
 
 require("xapian")
+
+function expect(m, n)
+	if type(m) == "table" then
+		assert(#m == #n)
+		for i = 1, #m do
+			expect(m[i], n[i])
+		end
+	else
+		assert(m == n)
+	end
+end
+
 stem = xapian.Stem("english")
 doc = xapian.Document()
 doc:set_data("is there anybody out there?")
@@ -45,49 +57,60 @@ end
 -- Test the version number reporting functions give plausible results.
 v = xapian.major_version() .. "." .. xapian.minor_version() .. "." .. xapian.revision()
 v2 = xapian.version_string()
-assert(v == v2)
+expect(v, v2)
 
 -- Test stem
-assert(stem:get_description(), "Xapian::Stem(english)")
-assert("is" == stem("is"))
-assert("go" == stem("going"))
-assert("want" == stem("wanted"))
-assert("refer" == stem("reference"))
+expect(stem:get_description(), "Xapian::Stem(english)")
+expect("is", stem("is"))
+expect("go", stem("going"))
+expect("want", stem("wanted"))
+expect("refer", stem("reference"))
 
 -- Test document
-assert(doc:termlist_count() == 5)
-assert(doc:get_data() == "is there anybody out there?")
+expect(doc:termlist_count(), 5)
+expect(doc:get_data(), "is there anybody out there?")
 doc:add_term("foo")
-assert(doc:termlist_count() == 6)
+expect(doc:termlist_count(), 6)
 
 -- Test database
-assert(db:get_description() == "WritableDatabase()")
-assert(db:get_doccount() == 1)
+expect(db:get_description(), "WritableDatabase()")
+expect(db:get_doccount(), 1)
+
+term_count = 0
+for term in db:allterms() do
+ term_count = term_count + 1
+end
+expect(term_count, 5)
 
 -- Test queries
 terms = {"smoke", "test", "terms"}
-assert(xapian.Query(xapian.Query_OP_OR, terms):get_description() == "Xapian::Query((smoke OR test OR terms))")
+expect(xapian.Query(xapian.Query_OP_OR, terms):get_description(), "Xapian::Query((smoke OR test OR terms))")
 query1 = xapian.Query(xapian.Query_OP_PHRASE, {"smoke", "test", "tuple"})
 query2 = xapian.Query(xapian.Query_OP_XOR, {xapian.Query("smoke"), query1, "string"})
-assert(query1:get_description() == "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
-assert(query2:get_description() == "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
+expect(query1:get_description(), "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
+expect(query2:get_description(), "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
 subqs = {"a", "b"}
-assert(xapian.Query(xapian.Query_OP_OR, subqs):get_description() == "Xapian::Query((a OR b))")
-assert(xapian.Query(xapian.Query_OP_VALUE_RANGE, 0, '1', '4'):get_description() == "Xapian::Query(VALUE_RANGE 0 1 4)")
+expect(xapian.Query(xapian.Query_OP_OR, subqs):get_description(), "Xapian::Query((a OR b))")
+expect(xapian.Query(xapian.Query_OP_VALUE_RANGE, 0, '1', '4'):get_description(), "Xapian::Query(VALUE_RANGE 0 1 4)")
 
 -- Test MatchAll and MatchNothing
-assert(xapian.Query_MatchAll:get_description() == "Xapian::Query(<alldocuments>)")
-assert(xapian.Query_MatchNothing:get_description() == "Xapian::Query()")
+expect(xapian.Query_MatchAll:get_description(), "Xapian::Query(<alldocuments>)")
+expect(xapian.Query_MatchNothing:get_description(), "Xapian::Query()")
 
 -- Test enq
 query = xapian.Query(xapian.Query_OP_OR, {"there", "is"})
 enq:set_query(query)
 mset = enq:get_mset(0, 10)
-assert(mset:size() == 1)
-assert(table.concat(enq:get_matching_terms(mset:get_hit(0)), " ") == "is there")
+expect(mset:size(), 1)
+
+terms = {}
+for term in enq:get_matching_terms(mset:get_hit(0)) do
+	table.insert(terms, term:get_term())
+end
+expect(terms, {"is", "there"})
 
 -- Check value of OP_ELITE_SET
-assert(xapian.Query_OP_ELITE_SET == 10)
+expect(xapian.Query_OP_ELITE_SET, 10)
 
 -- Test for MatchDecider
 doc = xapian.Document()
@@ -106,8 +129,32 @@ query = xapian.Query("out")
 enq = xapian.Enquire(db)
 enq:set_query(query)
 mset = enq:get_mset(0, 10, None, testmatchdecider)
-assert(mset:size() == 1)
-assert(mset:get_docid(0) == 2)
+expect(mset:size(), 1)
+expect(mset:get_docid(0), 2)
+
+rset = xapian.RSet()
+rset:add_document(1)
+eset = enq:get_eset(10, rset)
+expect(eset:size(), 4)
+
+eterms={}
+for term in eset:terms() do
+	table.insert(eterms, term:get_term())
+end
+expect(eterms, {"there", "is", "anybodi", "XYzzy"})
+
+function testexpanddecider(term)
+  return term ~= "there"
+end
+
+eset = enq:get_eset(10, rset, testexpanddecider)
+expect (eset:size(), 3)
+
+eterms={}
+for term in eset:terms() do
+	table.insert(eterms, term:get_term())
+end
+expect(eterms, {"is", "anybodi", "XYzzy"})
 
 -- Regression test - overload resolution involving boolean types failed.
 enq:set_sort_by_value(1, true)
@@ -124,15 +171,15 @@ qp = xapian.QueryParser()
 vrpdate = xapian.DateValueRangeProcessor(1, true, 1960)
 qp:add_valuerangeprocessor(vrpdate)
 query = qp:parse_query("12/03/99..12/04/01")
-assert(query:get_description() == "Xapian::Query(VALUE_RANGE 1 19991203 20011204)")
+expect(query:get_description(), "Xapian::Query(VALUE_RANGE 1 19991203 20011204)")
 
 -- Test setting and getting metadata
 db:set_metadata('Foo', 'Foo')
-assert(db:get_metadata('Foo') == 'Foo')
+expect(db:get_metadata('Foo'), 'Foo')
 
 -- Test OP_SCALE_WEIGHT and corresponding constructor
 query4 = xapian.Query(xapian.Query_OP_SCALE_WEIGHT, xapian.Query('foo'), 5.0)
-assert(query4:get_description() == "Xapian::Query(5 * foo)")
+expect(query4:get_description(), "Xapian::Query(5 * foo)")
 
 -- Function to test the order of mset docid
 function mset_expect_order(mset, a)
@@ -261,8 +308,120 @@ while not beg:equals(_end) do
 end
 
 expected = {["ABB"] = 1, ["ABC"] = 1, ["ABC\0"] = 1, ["ABCD"] =1, ["ABC\xff"] = 1}
-assert(#values == #expected)
-for i, v in ipairs(values) do
-  assert(values[i] == expected[i])
-end
+expect(values, expected)
 
+mset:get_hit(0)
+
+---Test preservation of stopper set on query parser.
+function make_qp()
+	queryparser = xapian.QueryParser()
+	stopper = xapian.SimpleStopper()
+	stopper:add('to')
+	stopper:add('not')
+	queryparser:set_stopper(stopper)
+	return queryparser
+end
+queryparser = make_qp()
+query = queryparser:parse_query('to be')
+terms = {}
+for term in queryparser:stoplist() do
+	table.insert(terms, term:get_term())
+end
+expect(terms, {"to"})
+
+-- Test preservation of stopper set on term generator.
+function make_tg()
+	termgen = xapian.TermGenerator()
+	termgen:set_stemmer(xapian.Stem('en'))
+	stopper = xapian.SimpleStopper()
+	stopper:add('to')
+	stopper:add('not')
+	termgen:set_stopper(stopper)
+	return termgen
+end
+termgen = make_tg()
+termgen:index_text('to be')
+doc = termgen:get_document()
+terms = {}
+for term in doc:termlist() do
+	table.insert(terms, term:get_term())
+end
+expect(terms, {"Zbe", "be", "to"})
+
+-- Test use of matchspies
+function setup_database()
+	-- Set up and return an inmemory database with 5 documents.
+	db = xapian.inmemory_open()
+
+	doc = xapian.Document()
+	doc:set_data("is it cold?")
+	doc:add_term("is")
+	doc:add_posting("it", 1)
+	doc:add_posting("cold", 2)
+	db:add_document(doc)
+
+	doc = xapian.Document()
+	doc:set_data("was it warm?")
+	doc:add_posting("was", 1)
+	doc:add_posting("it", 2)
+	doc:add_posting("warm", 3)
+	db:add_document(doc)
+	doc:set_data("was it warm? two")
+	doc:add_term("two", 2)
+	doc:add_value(0, xapian.sortable_serialise(2))
+	db:add_document(doc)
+	doc:set_data("was it warm? three")
+	doc:add_term("three", 3)
+	doc:add_value(0, xapian.sortable_serialise(1.5))
+	db:add_document(doc)
+	doc:set_data("was it warm? four it")
+	doc:add_term("four", 4)
+	doc:add_term("it", 6)
+	doc:add_posting("it", 7)
+	doc:add_value(5, 'five')
+	doc:add_value(9, 'nine')
+	doc:add_value(0, xapian.sortable_serialise(2))
+	db:add_document(doc)
+
+	expect(db:get_doccount(), 5)
+	return db
+end
+db = setup_database()
+query = xapian.Query(xapian.Query_OP_OR, "was", "it")
+enq = xapian.Enquire(db)
+enq:set_query(query)
+function set_matchspy_deref(enq)
+	-- Set a matchspy, and then drop the reference, to check that it
+	-- doesn't get deleted too soon.
+	spy = xapian.ValueCountMatchSpy(0)
+	enq:add_matchspy(spy)
+end
+set_matchspy_deref(enq)
+mset = enq:get_mset(0, 10)
+expect(mset:size(), 5)
+
+spy = xapian.ValueCountMatchSpy(0)
+enq:add_matchspy(spy)
+enq:clear_matchspies()
+mset = enq:get_mset(0, 10)
+spy:values()
+items = {}
+for item in spy:values() do
+	table.insert(items, item:get_term())
+end
+expect(items, {	})
+
+enq:add_matchspy(spy)
+mset = enq:get_mset(0, 10)
+expect(spy:get_total(), 5)
+items = {}
+for item in spy:values() do
+	table.insert(items, {item:get_term(), item:get_termfreq()})
+end
+expect(items, {{xapian.sortable_serialise(1.5), 1}, {xapian.sortable_serialise(2), 2}})
+
+items = {}
+for item in spy:top_values(10) do
+	table.insert(items, {item:get_term(), item:get_termfreq()})
+end
+expect(items, {{xapian.sortable_serialise(2), 2}, {xapian.sortable_serialise(1.5), 1}})

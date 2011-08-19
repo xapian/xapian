@@ -24,18 +24,6 @@
  */
 %}
 
-// In C#, we wrap ++ and -- as ++ and --.
-#ifdef SWIGCSHARP
-#define NEXT(RET, CLASS) CLASS & next() { return ++(*self); }
-#define PREV(RET, CLASS) CLASS & prev() { return --(*self); }
-#elif defined SWIGJAVA
-#define NEXT(RET, CLASS) RET next() { return *(++(*self)); }
-#define PREV(RET, CLASS) RET prev() { return *(--(*self)); }
-#else
-#define NEXT(RET, CLASS) void next() { ++(*self); }
-#define PREV(RET, CLASS) void prev() { --(*self); }
-#endif
-
 #ifndef SWIGPYTHON
 #ifdef SWIGCSHARP
 %rename(Apply) operator();
@@ -113,15 +101,15 @@ namespace Remote {
     %rename(remote_open) open;
     %rename(remote_open_writable) open_writable;
 
-    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
-    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+    Database open(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
+    Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000);
 
-    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
-    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 10000);
 
-    Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+    Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 
-    WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+    WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 }
 #else
 /* Lie to SWIG that Auto, etc are classes with static methods rather than
@@ -172,20 +160,20 @@ class Remote {
     ~Remote();
   public:
     static
-    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+    Database open(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
     static
-    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+    Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000);
 
     static
-    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
     static
-    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 10000);
 
     static
-    Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+    Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 
     static
-    WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+    WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 };
 #endif
 

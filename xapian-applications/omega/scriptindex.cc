@@ -546,16 +546,7 @@ index_file(const char *fname, istream &stream,
 			    p.parse_html(value, "iso-8859-1", false);
 			} catch (const string & newcharset) {
 			    p.reset();
-			    try {
-				p.parse_html(value, newcharset, true);
-			    } catch (bool) {
-				// MyHtmlParser throws a bool to abandon
-				// parsing at </body> or when indexing is
-				// disallowed.
-			    }
-			} catch (bool) {
-			    // MyHtmlParser throws a bool to abandon parsing at
-			    // </body> or when indexing is disallowed.
+			    p.parse_html(value, newcharset, true);
 			}
 			if (p.indexing_allowed)
 			    value = p.dump;
@@ -758,9 +749,14 @@ try {
     argc -= optind;
     if (show_help || argc < 2) {
 	cout << PROG_NAME" - "PROG_DESC"\n"
-"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
+"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
+"\n"
 "Creates or updates a Xapian database with the data from the input files listed\n"
-"on the command line.  If no files are specified, data is read from stdin.\n\n"
+"on the command line.  If no files are specified, data is read from stdin.\n"
+"\n"
+"See http://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
+"format for INDEXER_SCRIPT.\n"
+"\n"
 "Options:\n"
 "  -v, --verbose       display additional messages to aid debugging\n"
 "      --overwrite     create the database anew (the default is to update if\n"

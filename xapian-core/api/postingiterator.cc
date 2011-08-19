@@ -1,5 +1,5 @@
-/** @file termiterator.cc
- *  @brief Class for iterating over a list of terms.
+/** @file postingiterator.cc
+ *  @brief Class for iterating over a list of document ids.
  */
 /* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
@@ -20,18 +20,18 @@
 
 #include <config.h>
 
-#include "xapian/termiterator.h"
+#include "xapian/postingiterator.h"
 
 #include "debuglog.h"
 #include "omassert.h"
-#include "termlist.h"
+#include "postlist.h"
 
 using namespace std;
 
 namespace Xapian {
 
 void
-TermIterator::decref()
+PostingIterator::decref()
 {
     Assert(internal);
     if (--internal->_refs == 0)
@@ -39,10 +39,11 @@ TermIterator::decref()
 }
 
 void
-TermIterator::post_advance(Internal * res)
+PostingIterator::post_advance(Internal * res)
 {
     if (res) {
-	// This can happen with iterating allterms from multiple databases.
+	// FIXME: It seems this can't happen for any PostList which we wrap
+	// with PostingIterator.
 	++res->_refs;
 	decref();
 	internal = res;
@@ -53,9 +54,9 @@ TermIterator::post_advance(Internal * res)
     }
 }
 
-TermIterator::TermIterator(Internal *internal_) : internal(internal_)
+PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
 {
-    LOGCALL_CTOR(API, "TermIterator", internal_);
+    LOGCALL_CTOR(API, "PostingIterator", internal_);
     if (!internal) return;
     try {
 	++internal->_refs;
@@ -68,18 +69,18 @@ TermIterator::TermIterator(Internal *internal_) : internal(internal_)
     }
 }
 
-TermIterator::TermIterator(const TermIterator & o)
+PostingIterator::PostingIterator(const PostingIterator & o)
     : internal(o.internal)
 {
-    LOGCALL_CTOR(API, "TermIterator", o);
+    LOGCALL_CTOR(API, "PostingIterator", o);
     if (internal)
 	++internal->_refs;
 }
 
-TermIterator &
-TermIterator::operator=(const TermIterator & o)
+PostingIterator &
+PostingIterator::operator=(const PostingIterator & o)
 {
-    LOGCALL(API, TermIterator &, "TermIterator::operator=", o);
+    LOGCALL(API, PostingIterator &, "PostingIterator::operator=", o);
     if (o.internal)
 	++o.internal->_refs;
     if (internal)
@@ -88,75 +89,73 @@ TermIterator::operator=(const TermIterator & o)
     RETURN(*this);
 }
 
-string
-TermIterator::operator*() const
+Xapian::docid
+PostingIterator::operator*() const
 {
-    LOGCALL(API, string, "TermIterator::operator*", NO_ARGS);
+    LOGCALL(API, Xapian::docid, "PostingIterator::operator*", NO_ARGS);
     Assert(internal);
-    RETURN(internal->get_termname());
+    RETURN(internal->get_docid());
 }
 
-TermIterator &
-TermIterator::operator++()
+PostingIterator &
+PostingIterator::operator++()
 {
-    LOGCALL(API, TermIterator &, "TermIterator::operator++", NO_ARGS);
+    LOGCALL(API, PostingIterator &, "PostingIterator::operator++", NO_ARGS);
     Assert(internal);
     post_advance(internal->next());
     RETURN(*this);
 }
 
 Xapian::termcount
-TermIterator::get_wdf() const
+PostingIterator::get_wdf() const
 {
-    LOGCALL(API, Xapian::termcount, "TermIterator::get_wdf", NO_ARGS);
+    LOGCALL(API, Xapian::termcount, "PostingIterator::get_wdf", NO_ARGS);
     Assert(internal);
     RETURN(internal->get_wdf());
 }
 
-Xapian::doccount
-TermIterator::get_termfreq() const
+Xapian::termcount
+PostingIterator::get_doclength() const
 {
-    LOGCALL(API, Xapian::doccount, "TermIterator::get_termfreq", NO_ARGS);
+    LOGCALL(API, Xapian::termcount, "PostingIterator::get_doclength", NO_ARGS);
     Assert(internal);
-    RETURN(internal->get_termfreq());
+    RETURN(internal->get_doclength());
 }
 
+#if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
 Xapian::termcount
-TermIterator::positionlist_count() const
+PostingIterator::positionlist_count() const
 {
-    LOGCALL(API, Xapian::termcount, "TermIterator::positionlist_count", NO_ARGS);
+    LOGCALL(API, Xapian::termcount, "PostingIterator::positionlist_count", NO_ARGS);
     Assert(internal);
     RETURN(internal->positionlist_count());
 }
+#endif
 
 PositionIterator
-TermIterator::positionlist_begin() const
+PostingIterator::positionlist_begin() const
 {
-    LOGCALL(API, PositionIterator, "TermIterator::positionlist_begin", NO_ARGS);
+    LOGCALL(API, PositionIterator, "PostingIterator::positionlist_begin", NO_ARGS);
     Assert(internal);
-    RETURN(internal->positionlist_begin());
+    RETURN(PositionIterator(internal->open_position_list()));
 }
 
 void
-TermIterator::skip_to(const string & term)
+PostingIterator::skip_to(Xapian::docid did)
 {
-    LOGCALL_VOID(API, "TermIterator::skip_to", term);
+    LOGCALL_VOID(API, "PostingIterator::skip_to", did);
     Assert(internal);
-    post_advance(internal->skip_to(term));
+    post_advance(internal->skip_to(did));
 }
 
 std::string
-TermIterator::get_description() const
+PostingIterator::get_description() const
 {
-#if 0 // FIXME: Add TermIterator::Internal::get_description() method.
-    string desc = "TermIterator(";
+    string desc = "PostingIterator(";
     if (internal)
 	desc += internal->get_description();
     desc += ')';
     return desc;
-#else
-    return "TermIterator()";
-#endif
 }
 
 }

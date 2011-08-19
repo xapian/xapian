@@ -1905,7 +1905,11 @@ DEFINE_TESTCASE(emptyop1, backend) {
     enquire.set_query(query1);
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 0);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, enquire.get_matching_terms_begin(1));
+    // In Xapian < 1.3.0, this gave InvalidArgumentError (because
+    // query1.empty()) but elsewhere we treat an empty query as just not
+    // matching any documents, so we now do the same here too.
+    TEST_EQUAL(enquire.get_matching_terms_begin(1),
+	       enquire.get_matching_terms_end(1));
 
     return true;
 }

@@ -426,6 +426,9 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method instead.
         ``Enquire::get_mset()``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::timeout`` typedef         Use POSIX ``useconds_t`` (from ``<sys/types.h>``) instead, which should also work
+					    with older Xapian releases.
 ======= =================================== ==================================================================================
 
 
@@ -555,4 +558,7 @@ Removed Feature name                        Upgrade suggestion and comments
 1.0.0   scriptindex -q                      ``-q`` was ignored for compatibility with 0.6.1 and earlier, so just remove it.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.0   scriptindex index=nopos             Use ``indexnopos`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``OLDP`` CGI parameter              Use ``xP`` CGI parameter instead (direct replacement), which has been supported
+                                            since at least 0.5.0.
 ======= =================================== ==================================================================================

@@ -300,10 +300,10 @@ ValueMapPostingSource::ValueMapPostingSource(Xapian::valueno slot_)
 }
 
 void
-ValueMapPostingSource::add_mapping(const string & key, double weight)
+ValueMapPostingSource::add_mapping(const string & key, double wt)
 {
-    weight_map[key] = weight;
-    max_weight_in_map = max(weight, max_weight_in_map);
+    weight_map[key] = wt;
+    max_weight_in_map = max(wt, max_weight_in_map);
 }
 
 void

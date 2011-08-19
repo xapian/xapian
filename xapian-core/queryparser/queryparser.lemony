@@ -23,22 +23,22 @@
 
 #include <config.h>
 
-#include "omassert.h"
 #include "queryparser_internal.h"
-#include <xapian/error.h>
-#include <xapian/unicode.h>
+
+#include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
+#include "xapian/error.h"
+#include "xapian/unicode.h"
 
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
 
 #include <algorithm>
+#include <cstring>
 #include <limits>
 #include <list>
 #include <string>
-
-#include <string.h>
 
 using namespace std;
 

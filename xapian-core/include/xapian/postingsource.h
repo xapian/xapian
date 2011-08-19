@@ -506,7 +506,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
      *  @param key The key looked up from the value slot.
      *  @param weight The weight to give this key.
      */
-    void add_mapping(const std::string &key, double weight);
+    void add_mapping(const std::string &key, double wt);
 
     /** Clear all mappings. */
     void clear_mappings();

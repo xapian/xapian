@@ -37,7 +37,7 @@ BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
 xapian_wrap.cc:
-	$(SWIG) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion '@VERSION_NO_SNAPSHOT@' \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'tcl.i
 	mv xapian_wrap_d.tmp xapian_wrap.d

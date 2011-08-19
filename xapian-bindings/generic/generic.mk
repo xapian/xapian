@@ -22,6 +22,9 @@ export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 export DYLD_LIBRARY_PATH="$(abs_builddir)/../../xapian-core/.libs"
 endif
 
+# Define separately to allow overriding easily with: make SWIG_WERROR=
+SWIG_WERROR = -Werror
+
 # Recover from the removal of $@.  A full explanation of this is in the
 # automake manual under the heading "Multiple Outputs".
 make_many_locked = \
