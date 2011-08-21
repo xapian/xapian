@@ -60,8 +60,8 @@ coverage-reconfigure-maintainer-mode: distclean
 	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
 
 coverage-check:
-	## GNU find and xargs specific.
-	find . -name '*.gcda' -print0|xargs -0 rm -f
+	## GNU find specific.
+	find . -name '*.gcda' -delete
 	## Don't run under valgrind even if configure was run by hand.
 	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
 	rm -f xapian-core.lcov

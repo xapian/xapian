@@ -1,3 +1,8 @@
+Sun Aug 21 12:43:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Since we require GNU find for the coverage-check target,
+	  make use of its -delete option, so we no longer also need GNU xargs.
+
 Thu Aug 18 06:28:11 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Reorder header includes to be more
