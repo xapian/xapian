@@ -1,3 +1,11 @@
+Mon Aug 22 14:32:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_synonym.cc,backends/chert/chert_synonym.cc,
+	  common/Makefile.mk,common/vectortermlist.h,
+	  queryparser/queryparser.cc: Reimplement VectorTermList to store the
+	  list of terms encoded into a single std::string, which is a lot more
+	  memory efficient that std::vector<std::string>.
+
 Mon Aug 22 12:22:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/const_database_wrapper.cc,

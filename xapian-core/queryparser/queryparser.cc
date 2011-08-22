@@ -22,11 +22,13 @@
 
 #include <config.h>
 
+#include "xapian/error.h"
 #include <xapian/queryparser.h>
 #include <xapian/termiterator.h>
 
+#include "api/vectortermlist.h"
+#include "omassert.h"
 #include "queryparser_internal.h"
-#include "vectortermlist.h"
 
 #include <cstring>
 

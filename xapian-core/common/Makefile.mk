@@ -70,7 +70,6 @@ noinst_HEADERS +=\
 	common/utils.h\
 	common/valuelist.h\
 	common/valuestats.h\
-	common/vectortermlist.h\
 	common/weightinternal.h
 
 EXTRA_DIST +=\

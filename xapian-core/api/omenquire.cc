@@ -39,6 +39,7 @@
 #include "esetinternal.h"
 #include "expandweight.h"
 #include "multimatch.h"
+#include "omassert.h"
 #include "omenquireinternal.h"
 #include "str.h"
 #include "weightinternal.h"
