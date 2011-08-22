@@ -1,3 +1,11 @@
+Mon Aug 22 12:22:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/const_database_wrapper.cc,
+	  common/const_database_wrapper.h,matcher/Makefile.mk,
+	  matcher/const_database_wrapper.cc,matcher/const_database_wrapper.h:
+	  Move const_database_wrapper.h and const_database_wrapper.cc from
+	  common/ to matcher/.
+
 Sun Aug 21 12:43:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Since we require GNU find for the coverage-check target,

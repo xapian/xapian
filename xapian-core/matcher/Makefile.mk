@@ -3,6 +3,7 @@ noinst_HEADERS +=\
 	matcher/andnotpostlist.h\
 	matcher/branchpostlist.h\
 	matcher/collapser.h\
+	matcher/const_database_wrapper.h\
 	matcher/exactphrasepostlist.h\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
@@ -39,6 +40,7 @@ lib_src +=\
 	matcher/andnotpostlist.cc\
 	matcher/branchpostlist.cc\
 	matcher/collapser.cc\
+	matcher/const_database_wrapper.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
 	matcher/localsubmatch.cc\

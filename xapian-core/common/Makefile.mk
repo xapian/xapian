@@ -3,7 +3,6 @@ noinst_HEADERS +=\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
-	common/const_database_wrapper.h\
 	common/contiguousalldocspostlist.h\
 	common/database.h\
 	common/databasereplicator.h\
@@ -83,7 +82,6 @@ EXTRA_DIST +=\
 lib_src +=\
 	common/bitstream.cc\
 	common/closefrom.cc\
-	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/io_utils.cc\
