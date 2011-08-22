@@ -1,3 +1,8 @@
+Mon Aug 22 11:22:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Use "if x is not None:" rather than "if x !=
+	  None:" (PEP 8).
+
 Wed Aug 17 11:07:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/Makefile.am: Add dependency on except.i so it gets (re)generated
