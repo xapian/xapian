@@ -1,3 +1,7 @@
+Mon Aug 22 15:30:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.cc: Add new source file missed from last commit.
+
 Mon Aug 22 14:32:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/brass_synonym.cc,backends/chert/chert_synonym.cc,
