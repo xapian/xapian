@@ -1,3 +1,8 @@
+Tue Aug 23 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.cc,api/vectortermlist.h: Change so that p == NULL
+	  represents at_end, and p == data.data() means we've yet to start.
+
 Mon Aug 22 15:30:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.cc: Add new source file missed from last commit.

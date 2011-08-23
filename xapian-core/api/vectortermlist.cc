@@ -37,8 +37,8 @@ string
 VectorTermList::get_termname() const
 {
     // Check we've started but not reached the end.
-    Assert(p);
-    Assert(!at_end());
+    Assert(p != data.data());
+    Assert(!VectorTermList::at_end());
     return current_term;
 }
 
@@ -46,8 +46,8 @@ Xapian::termcount
 VectorTermList::get_wdf() const
 {
     // Check we've started but not reached the end.
-    Assert(p);
-    Assert(!at_end());
+    Assert(p != data.data());
+    Assert(!VectorTermList::at_end());
     return 1;
 }
 
@@ -60,19 +60,17 @@ VectorTermList::get_termfreq() const
 TermList *
 VectorTermList::next()
 {
-    Assert(!at_end());
-    if (!p) {
-	p = data.data();
-    } else {
-	p += current_term.size();
-    }
+    // Check we've not reached the end.
+    Assert(!VectorTermList::at_end());
 
     const char * end = data.data() + data.size();
     if (p == end) {
 	current_term.resize(0);
+	p = NULL;
     } else {
 	size_t len = decode_length(&p, end, false);
 	current_term.assign(p, len);
+	p += len;
     }
 
     return NULL;
@@ -81,15 +79,14 @@ VectorTermList::next()
 TermList *
 VectorTermList::skip_to(const string &)
 {
-    Assert(!at_end());
-    // skip_to only makes sense for termlists in sorted order.
+    // skip_to only makes sense for termlists which are in sorted order.
     throw Xapian::InvalidOperationError("VectorTermList::skip_to() not meaningful");
 }
 
 bool
 VectorTermList::at_end() const
 {
-    return p == data.data() + data.size();
+    return p == NULL;
 }
 
 Xapian::termcount

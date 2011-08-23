@@ -39,7 +39,7 @@ class VectorTermList : public TermList {
     /// The encoded terms.
     std::string data;
 
-    /// Pointer to the current term's data, or NULL if we haven't yet started.
+    /// Pointer to the next term's data, or NULL if we are at end.
     const char * p;
 
     /// The number of terms in the list.
@@ -50,7 +50,7 @@ class VectorTermList : public TermList {
 
   public:
     template<typename I>
-    VectorTermList(I begin, I end) : p(NULL), num_terms(0)
+    VectorTermList(I begin, I end) : num_terms(0)
     {
 	// First calculate how much space we'll need so we can reserve it.
 	size_t total_size = 0;
@@ -73,6 +73,8 @@ class VectorTermList : public TermList {
 	    data += encode_length(s.size());
 	    data += s;
 	}
+
+	p = data.data();
     }
 
     Xapian::termcount get_approx_size() const;
