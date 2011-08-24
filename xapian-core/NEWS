@@ -5,8 +5,8 @@ API:
 * Document objects now track whether any document positions have been modified
   so that replacing a modified document can completely skip considering
   updating positions if none have changed.  Currently the flint, chert, and
-  brass implement this optimisation.  A common case this speeds up is adding
-  and/or removing boolean filter terms to/from existing documents - for
+  brass backends implement this optimisation.  A common case this speeds up is
+  adding and/or removing boolean filter terms to/from existing documents - for
   example this gives an 18% speedup for adding tags in notmuch.
 
 testsuite:

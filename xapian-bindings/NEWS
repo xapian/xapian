@@ -68,8 +68,6 @@ Java-SWIG:
 
 * docs/examples/SimpleIndex.java: Update to use commit() rather than flush().
 
-* Wrap Query::MatchAll and Query::MatchNothing. (ticket#158)
-
 * Check that exactly the sources we expect are generated, and add some sources
   which were missing from the list.
 

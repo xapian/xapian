@@ -1,3 +1,11 @@
+Wed Aug 24 14:13:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/,tests/queryparsertest.cc,tests/termgentest.cc: Add
+	  support for indexing and searching CJK text using n-grams.  Currently
+	  this is only enabled if environmental variable XAPIAN_CJK_NGRAM is
+	  set to a non-empty value.
+
 Wed Aug 10 06:09:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Finalise 1.2.7.

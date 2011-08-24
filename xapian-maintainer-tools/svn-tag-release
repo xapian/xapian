@@ -2,7 +2,7 @@
 
 set -e
 
-BRANCH=trunk
+BRANCH=branches/1.2
 
 version="$1"
 
