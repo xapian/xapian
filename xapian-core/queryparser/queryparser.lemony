@@ -1609,6 +1609,8 @@ Term::as_positional_cjk_term(Terms * terms) const
     }
 
     // FIXME: we want to add the n-grams as filters too for efficiency.
+
+    delete this;
 }
 
 // Helper macro for converting a boolean operation into a Xapian::Query.

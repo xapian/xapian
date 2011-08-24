@@ -1,3 +1,9 @@
+Wed Aug 24 14:25:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Fix memory leak (caught by existing
+	  testcase queryparser1 when run under valgrind).
+
 Wed Aug 24 14:13:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
