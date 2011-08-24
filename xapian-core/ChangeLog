@@ -1,3 +1,8 @@
+Wed Aug 24 14:12:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix memory leak (caught by existing
+	  testcase queryparser1 when run under valgrind).
+
 Wed Aug 24 12:47:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/,tests/queryparsertest.cc,tests/termgentest.cc: Add
