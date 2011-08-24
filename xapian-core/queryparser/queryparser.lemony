@@ -34,6 +34,8 @@
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
 
+#include "cjk-tokenizer.h"
+
 #include <algorithm>
 #include <cstring>
 #include <limits>
@@ -136,6 +138,8 @@ struct filter_group_id {
     }
 };
 
+class Terms;
+
 /** Class used to pass information about a token from lexer to parser.
  *
  *  Generally an instance of this class carries term information, but it can be
@@ -191,6 +195,12 @@ class Term {
      *  know).
      */
     Query * as_partial_query(State * state_) const;
+
+    /** Build a query for a string of CJK characters. */
+    Query * as_cjk_query() const;
+
+    /** Handle a CJK character string in a positional context. */
+    void as_positional_cjk_term(Terms * terms) const;
 
     /// Value range query.
     Query as_value_range_query() const;
@@ -430,6 +440,24 @@ Term::as_partial_query(State * state_) const
     return q;
 }
 
+Query *
+Term::as_cjk_query() const
+{
+    vector<Query> prefix_cjk;
+    const list<string> & prefixes = prefix_info->prefixes;
+    list<string>::const_iterator piter;
+    for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
+	for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	    string cjk = *piter;
+	    cjk += *tk;
+	    prefix_cjk.push_back(Query(cjk, 1, pos));
+	}
+    }
+    Query * q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
+    delete this;
+    return q;
+}
+
 Query
 Term::as_value_range_query() const
 {
@@ -537,6 +565,7 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix,
 
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
+				  bool cjk_ngram, bool & is_cjk_term,
 				  bool &was_acronym)
 {
     string term;
@@ -562,10 +591,16 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     }
     was_acronym = !term.empty();
 
+    if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
+	term = CJK::get_cjk(it);
+	is_cjk_term = true;
+    }
+
     if (term.empty()) {
 	unsigned prevch = *it;
 	Unicode::append_utf8(term, prevch);
 	while (++it != end) {
+	    if (cjk_ngram && CJK::codepoint_is_cjk(*it)) break;
 	    unsigned ch = *it;
 	    if (!is_wordchar(ch)) {
 		// Treat a single embedded '&' or "'" or similar as a word
@@ -634,6 +669,8 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
+    bool cjk_ngram = CJK::is_cjk_enabled();
+
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
     value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
@@ -975,7 +1012,8 @@ not_prefix:
 
 phrased_term:
 	bool was_acronym;
-	string term = parse_term(it, end, was_acronym);
+	bool is_cjk_term = false;
+	string term = parse_term(it, end, cjk_ngram, is_cjk_term, was_acronym);
 
 	// Boolean operators.
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
@@ -1074,6 +1112,12 @@ phrased_term:
 
 	    Term * term_obj = new Term(&state, term, prefix_info,
 				       unstemmed_term, stem_term, term_pos++);
+
+	    if (is_cjk_term) {
+		Parse(pParser, CJKTERM, term_obj, &state);
+		if (it == end) break;
+		continue;
+	    }
 
 	    if (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
 		if (it != end) {
@@ -1552,6 +1596,21 @@ class Terms {
     }
 };
 
+void
+Term::as_positional_cjk_term(Terms * terms) const
+{
+    // Add each individual CJK character to the phrase.
+    string t;
+    for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
+	Unicode::append_utf8(t, *it);
+	Term * c = new Term(state, t, prefix_info, unstemmed, stem, pos);
+	terms->add_positional_term(c);
+	t.resize(0);
+    }
+
+    // FIXME: we want to add the n-grams as filters too for efficiency.
+}
+
 // Helper macro for converting a boolean operation into a Xapian::Query.
 #define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
     do {\
@@ -1935,6 +1994,10 @@ compound_term(T) ::= SYNONYM TERM(U). {
     delete U;
 }
 
+compound_term(T) ::= CJKTERM(U). {
+    { T = U->as_cjk_query(); }
+}
+
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
 %type phrase {Terms *}
@@ -1946,9 +2009,19 @@ phrase(P) ::= TERM(T). {
     P->add_positional_term(T);
 }
 
+phrase(P) ::= CJKTERM(T). {
+    P = new Terms;
+    T->as_positional_cjk_term(P);
+}
+
 phrase(P) ::= phrase(Q) TERM(T). {
     P = Q;
     P->add_positional_term(T);
+}
+
+phrase(P) ::= phrase(Q) CJKTERM(T). {
+    P = Q;
+    T->as_positional_cjk_term(P);
 }
 
 // phrased_term - A phrased term works like a single term, but is actually

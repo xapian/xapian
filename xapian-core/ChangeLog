@@ -1,3 +1,10 @@
+Wed Aug 24 12:47:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/,tests/queryparsertest.cc,tests/termgentest.cc: Add
+	  support for indexing and searching CJK text using n-grams.  Currently
+	  this is only enabled if environmental variable XAPIAN_CJK_NGRAM is
+	  set to a non-empty value.
+
 Tue Aug 23 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.cc,api/vectortermlist.h: Change so that p == NULL

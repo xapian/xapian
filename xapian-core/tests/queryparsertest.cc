@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#include <stdlib.h> // For setenv() or putenv()
+
 using namespace std;
 
 #define TESTCASE(S) {#S, test_##S}
@@ -639,6 +641,17 @@ static const test test_or_queries[] = {
     { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard:(pos=1) OR ZArichard:(pos=2) OR ZXTrichard:(pos=2)) FILTER (Hwww.xapian.org AND (Hxapian.org OR Jxapian.org)))"},
     { "authortitle:richard-boulton", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
     { "authortitle:\"richard boulton\"", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
+    // Some CJK tests.
+    { "久有归天愿", "(久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1) AND 有归:(pos=1) AND 归:(pos=1) AND 归天:(pos=1) AND 天:(pos=1) AND 天愿:(pos=1) AND 愿:(pos=1))" },
+    { "title:久有 归 天愿", "((XT久:(pos=1) AND XT久有:(pos=1) AND XT有:(pos=1)) OR 归:(pos=2) OR (天:(pos=3) AND 天愿:(pos=3) AND 愿:(pos=3)))" },
+    { "h众ello万众", "(Zh:(pos=1) OR 众:(pos=2) OR Zello:(pos=3) OR (万:(pos=4) AND 万众:(pos=4) AND 众:(pos=4)))" },
+    { "世(の中)TEST_tm", "(世:(pos=1) OR (の:(pos=2) AND の中:(pos=2) AND 中:(pos=2)) OR test_tm:(pos=3))" },
+    { "다녀 AND 와야", "(다:(pos=1) AND 다녀:(pos=1) AND 녀:(pos=1) AND 와:(pos=2) AND 와야:(pos=2) AND 야:(pos=2))" },
+    { "authortitle:학술 OR 연구를", "((A학:(pos=1) AND XT학:(pos=1) AND A학술:(pos=1) AND XT학술:(pos=1) AND A술:(pos=1) AND XT술:(pos=1)) OR (연:(pos=2) AND 연구:(pos=2) AND 구:(pos=2) AND 구를:(pos=2) AND 를:(pos=2)))" },
+    // FIXME: These should really filter by bigrams to accelerate:
+    { "\"久有归\"", "(久:(pos=1) PHRASE 3 有:(pos=1) PHRASE 3 归:(pos=1))" },
+    { "\"久有test归\"", "(久:(pos=1) PHRASE 4 有:(pos=1) PHRASE 4 test:(pos=2) PHRASE 4 归:(pos=3))" },
+    // FIXME: this should work: { "久 NEAR 有", "(久:(pos=1) NEAR 11 有:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -709,6 +722,9 @@ static const test test_and_queries[] = {
     // Add coverage for other cases similar to the above.
     { "a b site:xapian.org", "((Za:(pos=1) AND Zb:(pos=2)) FILTER Hxapian.org)" },
     { "site:xapian.org a b", "((Za:(pos=1) AND Zb:(pos=2)) FILTER Hxapian.org)" },
+    // Some CJK tests.
+    { "author:험가 OR subject:万众 hello world!", "((A험:(pos=1) AND A험가:(pos=1) AND A가:(pos=1)) OR (XT万:(pos=2) AND XT万众:(pos=2) AND XT众:(pos=2) AND Zhello:(pos=3) AND Zworld:(pos=4)))" },
+    { "洛伊one儿差点two脸three", "(洛:(pos=1) AND 洛伊:(pos=1) AND 伊:(pos=1) AND Zone:(pos=2) AND 儿:(pos=3) AND 儿差:(pos=3) AND 差:(pos=3) AND 差点:(pos=3) AND 点:(pos=3) AND Ztwo:(pos=4) AND 脸:(pos=5) AND Zthree:(pos=6))" },
     { NULL, NULL }
 };
 
@@ -761,6 +777,8 @@ static bool test_qp_default_prefix1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
     qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZAme:(pos=2)))");
+    qobj = qp.parse_query("英国 title:文森hello", 0, "A");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((A英:(pos=1) AND A英国:(pos=1) AND A国:(pos=1)) OR (XT文:(pos=2) AND XT文森:(pos=2) AND XT森:(pos=2)) OR ZAhello:(pos=3)))");
     return true;
 }
 
@@ -2507,6 +2525,14 @@ static const test_desc tests[] = {
 
 int main(int argc, char **argv)
 try {
+    // FIXME: It would be better to test with and without XAPIAN_CJK_NGRAM set.
+#ifdef __WIN32__
+    _putenv_s("XAPIAN_CJK_NGRAM", "1");
+#elif defined HAVE_SETENV
+    setenv("XAPIAN_CJK_NGRAM", "1", 1);
+#else
+    putenv(const_cast<char*>("XAPIAN_CJK_NGRAM=1"));
+#endif
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 } catch (const char * e) {
