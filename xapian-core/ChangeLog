@@ -1,3 +1,7 @@
+Tue Aug 30 13:51:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/index.rst: Add link to apidoc.pdf.
+
 Wed Aug 24 14:12:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix memory leak (caught by existing
