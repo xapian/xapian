@@ -1,3 +1,8 @@
+Tue Aug 30 13:56:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/index.rst: Add link to apidoc.pdf.
+
 Wed Aug 24 14:25:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
