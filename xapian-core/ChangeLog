@@ -1,3 +1,8 @@
+Thu Sep 01 12:50:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Clarify "sort by date" with BoolWeight
+	  example.
+
 Tue Aug 30 13:51:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/index.rst: Add link to apidoc.pdf.

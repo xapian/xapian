@@ -785,8 +785,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  Note: If you add documents in strict date order, then a boolean
 	 *  search - i.e. set_weighting_scheme(Xapian::BoolWeight()) - with
-	 *  set_docid_order(Xapian::Enquire::DESCENDING) is a very efficient
-	 *  way to perform "sort by date, newest first".
+	 *  set_docid_order(Xapian::Enquire::DESCENDING) is an efficient
+	 *  way to perform "sort by date, newest first", and with
+	 *  set_docid_order(Xapian::Enquire::ASCENDING) a very efficient way
+	 *  to perform "sort by date, oldest first".
 	 */
 	void set_docid_order(docid_order order);
 
