@@ -71,6 +71,10 @@ cp AUTHORS ChangeLog COPYING NEWS README TODO %{buildroot}/usr/share/doc/%{name}
 %{_bindir}/scriptindex
 %{_bindir}/htdig2omega
 %{_bindir}/mbox2omega
+# On 64-bit, this goes to /usr/lib64/...
+# FIXME: Sort this out:
+# http://thread.gmane.org/gmane.comp.search.xapian.general/8678
+%{_libdir}/xapian-omega/bin/outlookmsg2html
 %{contentdir}/omega
 %{logdir}/omega
 /var/www/cgi-bin/omega

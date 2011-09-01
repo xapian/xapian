@@ -1,3 +1,7 @@
+Thu Sep 01 12:28:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: Package outlookmsg2html helper.
+
 Fri Aug 12 23:25:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.7 and ChangeLog.
