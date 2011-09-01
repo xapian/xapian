@@ -1,3 +1,8 @@
+Thu Sep 01 12:31:59 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-omega.spec.in: Package outlookmsg2html helper.
+
 Wed Aug 10 06:13:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Finalise 1.2.7.
