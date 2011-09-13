@@ -1,3 +1,7 @@
+Tue Sep 13 08:51:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Fix comment typo.
+
 Thu Sep 01 12:50:43 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Clarify "sort by date" with BoolWeight
