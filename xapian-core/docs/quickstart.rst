@@ -60,10 +60,10 @@ An example indexer
 ------------------
 
 We now present sample code for an indexer. This is deliberately
-simplified to make it easier to follow. You can also read it in `an HTML
+simplified to make it easier to follow. You can also read it in an `HTML
 formatted version`_.
 
-.. _`an HTML formatted version`: quickstartsearch.cc.html
+.. _`HTML formatted version`: quickstartindex.cc.html
 
 The "indexer" presented here is simply a small program which takes a
 path to a database and a set of parameters defining a document on the

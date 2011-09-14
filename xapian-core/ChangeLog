@@ -1,3 +1,9 @@
+Wed Sep 14 05:05:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/quickstart.rst: Correct link which was to
+	  quickstartsearch.cc.html but should be to quickstartindex.cc.html.
+
 Wed Sep 14 05:02:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
