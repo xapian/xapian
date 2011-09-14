@@ -1,3 +1,9 @@
+Wed Sep 14 04:59:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Clarify "sort by date" with BoolWeight
+	  example.
+
 Tue Aug 30 13:56:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
