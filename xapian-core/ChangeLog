@@ -1,3 +1,8 @@
+Wed Sep 14 04:48:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Correct link which was to
+	  quickstartsearch.cc.html but should be to quickstartindex.cc.html.
+
 Tue Sep 13 08:51:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Fix comment typo.
