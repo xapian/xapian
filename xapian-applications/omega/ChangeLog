@@ -1,3 +1,8 @@
+Fri Sep 23 04:09:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,tmpdir.cc,tmpdir.h: Factor out tmpdir handling
+	  into a separate source file.
+
 Fri Sep 23 01:49:38 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Factor out index_mimetype() function as a step towards
