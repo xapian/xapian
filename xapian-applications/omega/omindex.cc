@@ -905,7 +905,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	}
 
 	string ext_term("E");
-	for (string::iterator i = ext.begin(); i != ext.end(); ++i) {
+	for (string::const_iterator i = ext.begin(); i != ext.end(); ++i) {
 	    char ch = *i;
 	    if (ch >= 'A' && ch <= 'Z')
 		ch |= 32;

@@ -1,3 +1,8 @@
+Fri Sep 23 00:54:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use string::const_iterator where we don't modify the
+	  string.
+
 Thu Sep 01 12:28:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian-omega.spec.in: Package outlookmsg2html helper.
