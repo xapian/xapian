@@ -328,6 +328,10 @@ skip_unknown_mimetype(const string & file, const string & mimetype)
     skip(file, "unknown MIME type '" + mimetype + "'");
 }
 
+void
+index_mimetype(const string & file, const string & url, const string & ext,
+	       const string &mimetype, DirectoryIterator &d);
+
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
 	   map<string, string>& mime_map)
@@ -382,6 +386,13 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
+    index_mimetype(file, url, ext, mimetype, d);
+}
+
+void
+index_mimetype(const string & file, const string & url, const string & ext,
+	       const string &mimetype, DirectoryIterator &d)
+{
     string urlterm("U");
     urlterm += url;
 

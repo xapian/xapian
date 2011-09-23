@@ -1,3 +1,9 @@
+Fri Sep 23 01:49:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Factor out index_mimetype() function as a step towards
+	  allowing indexing files within other files (like zip files and email
+	  attachments).
+
 Fri Sep 23 00:54:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use string::const_iterator where we don't modify the
