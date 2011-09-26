@@ -60,7 +60,7 @@ $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
 $if{$opt{topterms},
  <div title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
- $map{$topterms,<span style="white-space:nowrap"><INPUT TYPE=checkbox NAME=X VALUE="$prettyterm{$_}" onClick="C(this)">$prettyterm{$_}</span> }
+ $map{$topterms,<span style="white-space:nowrap"><INPUT TYPE=checkbox NAME=X VALUE="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
  <BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
  </div>
 }
