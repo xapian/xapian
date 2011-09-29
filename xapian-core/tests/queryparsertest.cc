@@ -193,6 +193,8 @@ static const test test_or_queries[] = {
     // Feature tests for quoted boolean terms:
     { "category:\"Hello world\"", "0 * XCAT:Hello world" },
     { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
+    { "category:\" \"", "0 * XCAT " },
+    { "category:\"\"", "0 * XCAT" },
     { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },

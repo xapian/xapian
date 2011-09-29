@@ -1,3 +1,8 @@
+Thu Sep 29 12:11:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add cases to ensure a quoted boolean
+	  prefix accepts an empty value or a single space.
+
 Wed Sep 14 04:48:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.rst: Correct link which was to
