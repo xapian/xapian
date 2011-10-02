@@ -1,3 +1,10 @@
+Sun Oct 02 23:14:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e22c090f35:
+	  "Another attempt at fixing the table generator in lemon. Again, this
+	  does not effect the SQLite grammar."  No change to generated grammar
+	  for QueryParser.
+
 Sun Oct 02 22:59:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/077a6bee2d:
