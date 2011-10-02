@@ -274,6 +274,7 @@ struct lemon {
   char *outname;           /* Name of the current output file */
   char *tokenprefix;       /* A prefix added to token names in the .h file */
   int nconflict;           /* Number of parsing conflicts */
+  int nexpected;           /* Number of expected parsing conflicts */
   int tablesize;           /* Size of the parse tables */
   int basisflag;           /* Print only basis configurations */
   int has_fallback;        /* True if any %fallback is seen in the grammar */
@@ -1503,6 +1504,7 @@ char **argv;
     {OPT_FLAG,0,0,0,0}
   };
   int i;
+  int exitcode;
   struct lemon lem;
 
   (void)argc; /* Suppress "unused argument" warning. */
@@ -1517,6 +1519,7 @@ char **argv;
   }
   memset(&lem, 0, sizeof(lem));
   lem.errorcnt = 0;
+  lem.nexpected = -1;
 
   /* Initialize the machine */
   Strsafe_init();
@@ -1602,11 +1605,17 @@ char **argv;
     printf("                   %d states, %d parser table entries, %d conflicts\n",
       lem.nstate, lem.tablesize, lem.nconflict);
   }
-  if( lem.nconflict ){
-    fprintf(stderr,"%d parsing conflicts.\n",lem.nconflict);
+  if( lem.nexpected < 0 ) {
+    lem.nexpected = 0;  /* grammar didn't have an %expect declaration. */
   }
-  exit(lem.errorcnt + lem.nconflict);
-  return (lem.errorcnt + lem.nconflict);
+  if( lem.nconflict != lem.nexpected ){
+    fprintf(stderr,"%d parsing conflicts (%d expected).\n",lem.nconflict,lem.nexpected);
+  }
+
+  /* return 0 on success, 1 on failure. */
+  exitcode = ((lem.errorcnt > 0) || (lem.nconflict != lem.nexpected)) ? 1 : 0;
+  exit(exitcode);
+  return (exitcode);
 }
 /******************** From the file "msort.c" *******************************/
 /*
@@ -2048,6 +2057,7 @@ struct pstate {
     WAITING_FOR_DESTRUCTOR_SYMBOL,
     WAITING_FOR_DATATYPE_SYMBOL,
     WAITING_FOR_FALLBACK_ID,
+    WAITING_FOR_EXPECT_VALUE,
     WAITING_FOR_WILDCARD_ID
   } state;                   /* The state of the parser */
   struct symbol *fallback;   /* The fallback token */
@@ -2071,6 +2081,7 @@ struct pstate {
 static void parseonetoken(psp)
 struct pstate *psp;
 {
+  char *endptr;
   char *x;
   x = Strsafe(psp->tokenstart);     /* Save the token permanently */
 #if 0
@@ -2355,6 +2366,14 @@ struct pstate *psp;
           psp->state = WAITING_FOR_FALLBACK_ID;
         }else if( strcmp(x,"wildcard")==0 ){
           psp->state = WAITING_FOR_WILDCARD_ID;
+        }else if( strcmp(x,"expect")==0 ){
+          if (psp->gp->nexpected >= 0) {
+            ErrorMsg(psp->filename,psp->tokenlineno, "Multiple %expect declarations.");
+            psp->errorcnt++;
+            psp->state = RESYNC_AFTER_DECL_ERROR;
+          } else {
+            psp->state = WAITING_FOR_EXPECT_VALUE;
+          }
         }else{
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Unknown declaration keyword: \"%%%s\".",x);
@@ -2382,6 +2401,19 @@ struct pstate *psp;
         psp->state = WAITING_FOR_DECL_ARG;
       }
       break;
+    case WAITING_FOR_EXPECT_VALUE:
+        psp->gp->nexpected = (int) strtol(x, &endptr, 10);
+        if( (*endptr != '\0') || (endptr == x) ) {
+          ErrorMsg(psp->filename,psp->tokenlineno,
+            "Integer expected after %%expect keyword");
+          psp->errorcnt++;
+        } else if (psp->gp->nexpected < 0) {
+          ErrorMsg(psp->filename,psp->tokenlineno,
+            "Integer can't be negative after %%expect keyword");
+          psp->errorcnt++;
+        }
+        psp->state = WAITING_FOR_DECL_OR_RULE;
+        break;
     case WAITING_FOR_DATATYPE_SYMBOL:
       if( !isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,

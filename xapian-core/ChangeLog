@@ -1,3 +1,10 @@
+Sun Oct 02 23:31:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d8bab8cf0b:
+	  'Added %expect directive, to consider a certain number of conflicts
+	  "correct." This has the side effect of changing the process exit
+	  code to never overflow.'
+
 Sun Oct 02 23:26:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e6cbe1e5ee: 
