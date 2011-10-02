@@ -1,3 +1,11 @@
+Sun Oct 02 22:25:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge
+	  http://www.sqlite.org/src/info/27d8e684db: Enhancements to lemon to
+	  generate more compact action tables and to avoid making array bounds
+	  tests that can never fail on action table calculations.  This
+	  reduces the size of QueryParser's tables a little.
+
 Sun Oct 02 21:47:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d66a0f31eb:
