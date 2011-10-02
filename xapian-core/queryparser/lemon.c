@@ -1464,6 +1464,14 @@ static void handle_h_option(char *z){
   strcpy(output_header_filename, z);
 }
 
+static char *user_templatename = NULL;
+static void handle_T_option(char *z){
+  user_templatename = malloc( lemonStrlen(z)+1 );
+  if( user_templatename==0 ){
+    memory_error();
+  }
+  strcpy(user_templatename, z);
+}
 
 /* The main program.  Parse the command line and do it... */
 int main(argc,argv)
@@ -1482,6 +1490,7 @@ char **argv;
     {OPT_FLAG, "b", (void*)&basisflag, 0, "Print only the basis in report."},
     {OPT_FLAG, "c", (void*)&compress, 0, "Don't compress the action table."},
     {OPT_FSTR, "D", 0, handle_D_option, "Define an %ifdef macro."},
+    {OPT_FSTR, "T", (char*)handle_T_option, "Specify a template file."},
     {OPT_FLAG, "g", (void*)&rpflag, 0, "Print grammar without actions."},
     {OPT_FLAG, "m", (char*)&mhflag, 0, "Output a makeheaders compatible file."},
     {OPT_FLAG, "l", (char*)&nolinenosflag, 0, "Do not print #line statements."},
@@ -3158,6 +3167,23 @@ struct lemon *lemp;
   char *tpltname;
   char *cp;
   char *to_free = NULL;
+
+  /* first, see if user specified a template filename on the command line. */
+  if (user_templatename != 0) {
+    if( access(user_templatename,004)==-1 ){
+      fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
+        user_templatename);
+      lemp->errorcnt++;
+      return 0;
+    }
+    in = fopen(user_templatename,"rb");
+    if( in==0 ){
+      fprintf(stderr,"Can't open the template file \"%s\".\n",user_templatename);
+      lemp->errorcnt++;
+      return 0;
+    }
+    return in;
+  }
 
   cp = strrchr(lemp->filename,'.');
   if( cp ){

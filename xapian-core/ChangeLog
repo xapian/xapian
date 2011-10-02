@@ -1,3 +1,11 @@
+Sun Oct 02 23:26:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e6cbe1e5ee: 
+	  "Added -T option, to specify a template filename on the command
+	  line.  The default is still "lempar.c", though."  Not currently
+	  useful to us, but trying to minimise differences with upstream
+	  lemon.
+
 Sun Oct 02 23:14:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e22c090f35:
