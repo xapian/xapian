@@ -1,3 +1,10 @@
+Sun Oct 02 21:47:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d66a0f31eb:
+	  Adjust the lemon implementation so that it always computes the same
+	  PDA regardless of qsort() implementation on the host platform. In
+	  other words, make all sorts in lemon stable.
+
 Thu Sep 29 12:11:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add cases to ensure a quoted boolean
