@@ -1,3 +1,10 @@
+Mon Oct 03 00:53:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Incorporate changes from latest upstream
+	  version.  I'm failing to follow branch structure upstream to work
+	  out which changesets to merge so it's simpler to just compare the
+	  latest version with what we currently have.
+
 Sun Oct 02 23:31:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d8bab8cf0b:
