@@ -1,3 +1,8 @@
+Wed Oct 05 13:31:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb,ruby/xapian.rb: Wrap optional prefix parameter to
+	  Database::allterms.
+
 Mon Aug 22 11:22:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: Use "if x is not None:" rather than "if x !=

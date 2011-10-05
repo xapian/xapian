@@ -246,9 +246,9 @@ module Xapian
   # Wrap some dangerous iterators.
   class Xapian::Database
     # Returns an Array of all Xapian::Terms for this database.
-    def allterms
-      Xapian._safelyIterate(self._dangerous_allterms_begin(), 
-                            self._dangerous_allterms_end()) { |item|
+    def allterms(pref = '')
+      Xapian._safelyIterate(self._dangerous_allterms_begin(pref),
+                            self._dangerous_allterms_end(pref)) { |item|
         Xapian::Term.new(item.term, 0, item.termfreq)
       }
     end # allterms
