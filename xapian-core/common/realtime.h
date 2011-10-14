@@ -1,7 +1,7 @@
 /** @file realtime.h
  *  @brief Functions for handling a time or time interval in a double.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <cmath>
 #include <ctime>
 #include "safeerrno.h"
-#include "safeunistd.h"
 
 #ifndef __WIN32__
 # ifdef HAVE_FTIME
@@ -33,6 +32,7 @@
 # ifdef HAVE_GETTIMEOFDAY
 #  include <sys/time.h>
 # endif
+# include "safesysselect.h"
 #else
 # include <sys/types.h>
 # include <sys/timeb.h>

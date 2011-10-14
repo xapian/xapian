@@ -1,3 +1,7 @@
+Fri Oct 14 12:38:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/realtime.h: Use safesysselect.h.
+
 Mon Oct 03 00:53:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Incorporate changes from latest upstream
