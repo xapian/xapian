@@ -1,3 +1,9 @@
+Fri Oct 14 12:36:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,runfilter.cc: If we don't get any data from a filter
+	  for 5 minutes, give up - it has probably ended up blocked
+	  indefinitely.
+
 Mon Sep 26 01:22:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* templates/query: HTML escape topterms.
