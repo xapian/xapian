@@ -1,3 +1,7 @@
+Sat Oct 29 10:04:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Fix typo in example code.
+
 Fri Oct 28 14:39:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Note that commit() was new in 1.1.0.

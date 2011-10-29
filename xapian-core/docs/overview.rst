@@ -507,7 +507,7 @@ A plain probabilistic query is created by connecting terms together with
 Xapian::Query::OP\_OR operators. For example,
 ::
 
-        Xapian::Query query("regulation"));
+        Xapian::Query query("regulation");
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("import"));
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("export"));
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("canned"));
