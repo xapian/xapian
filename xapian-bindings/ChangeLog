@@ -1,3 +1,8 @@
+Sat Oct 29 15:05:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python/module_top.py: Add a module docstring
+	  (fixes #573).
+
 Wed Oct 05 13:31:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/smoketest.rb,ruby/xapian.rb: Wrap optional prefix parameter to
