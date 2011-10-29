@@ -370,6 +370,11 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 
 	/** This returns the weight of the document as a percentage score.
 	 *
+	 *  You probably don't want to show these percentage scores to end
+	 *  users in new applications - they're not really a percentage of
+	 *  anything meaningful, and research seems to suggest that users
+	 *  don't find numeric scores in search results useful.
+	 *
 	 *  The return value will be an integer in the range 0 to 100:  0
 	 *  meaning that the item did not match the query at all.
 	 *
