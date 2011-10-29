@@ -1,3 +1,12 @@
+Sat Oct 29 14:40:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst,docs/quickstartexpand.cc.html,
+	  docs/quickstartsearch.cc.html,examples/quest.cc,
+	  examples/simpleexpand.cc,examples/simplesearch.cc: Use get_weight()
+	  instead of get_percent() in examples, since percentages are rather
+	  old fashioned and you probably don't want to use them in new
+	  applications.
+
 Sat Oct 29 13:29:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/omenquireinternal.h,docs/deprecation.rst,

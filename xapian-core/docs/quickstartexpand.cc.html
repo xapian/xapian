@@ -89,7 +89,7 @@
                  ++i) {
                 Xapian::Document doc = i.get_document();
                 cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; *i &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
-                        i.get_percent() &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
+                        i.get_weight() &lt;&lt; <FONT color=#ff00ff>&quot; [&quot;</FONT> &lt;&lt;
                         doc.get_data() &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
             }
         }

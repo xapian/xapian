@@ -83,7 +83,7 @@ try {
     cout << "Matches 1-" << matches.size() << ":\n" << endl;
 
     for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
-	cout << i.get_rank() + 1 << ": " << i.get_percent() << "% docid=" << *i
+	cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
 	     << " [" << i.get_document().get_data() << "]\n\n";
     }
 } catch (const Xapian::Error &e) {

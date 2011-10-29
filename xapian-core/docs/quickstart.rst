@@ -434,11 +434,9 @@ Now we display some information about each of the items in the
 -  First, we display the document ID, accessed by ``*i``. This is not
    usually very useful information to give to users, but it is at least
    a unique handle on each document.
--  Next, we display a "percentage" score for the document. Readers
-   familiar with Information Retrieval will not be surprised to hear
-   that this is not really a percentage: it is just a value from 0 to
-   100, such that a more relevant document has a higher value. We get
-   this using ``i.get_percent()``.
+-  Next, we display the weight score for the document.  The more relevant
+   a document is, the higher this values will be.  We get this using
+   ``i.get_weight()``.
 -  Last, we display the data associated with each returned document,
    which was specified by the user at database generation time. To do
    this, we first use ``i.get_document()`` to get an
@@ -451,7 +449,7 @@ Now we display some information about each of the items in the
         Xapian::MSetIterator i;
         for (i = matches.begin(); i != matches.end(); ++i) {
             cout << "Document ID " << *i << "\t";
-            cout << i.get_percent() << "% ";
+            cout << i.get_weight() << " ";
             Xapian::Document doc = i.get_document();
             cout << "[" << doc.get_data() << "]" << endl;
         }
