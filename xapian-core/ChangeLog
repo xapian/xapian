@@ -1,3 +1,7 @@
+Sat Oct 29 12:30:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Fix indentation of example code.
+
 Sat Oct 29 10:04:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Fix typo in example code.
