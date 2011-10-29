@@ -98,10 +98,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
 	 */
-	Xapian::percent convert_to_percent(Xapian::weight wt) const;
+	int convert_to_percent(Xapian::weight wt) const;
 
 	/// Return the percentage score for a particular item.
-	Xapian::percent convert_to_percent(const MSetIterator &it) const;
+	int convert_to_percent(const MSetIterator &it) const;
 
 	/** Return the term frequency of the given query term.
 	 *
@@ -383,7 +383,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 *  having to apply the MatchDecider to potentially many more
 	 *  documents, which is potentially costly).
 	 */
-	Xapian::percent get_percent() const;
+	int get_percent() const;
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -810,7 +810,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	specified weighting scheme.
 	 *	(default 0 => no weight cut-off).
 	 */
-	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
+	void set_cutoff(int percent_cutoff, Xapian::weight weight_cutoff = 0);
 
 	/** Set the sorting to be by relevance only.
 	 *

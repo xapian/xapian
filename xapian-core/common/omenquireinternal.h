@@ -138,7 +138,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	Xapian::Enquire::docid_order order;
 
-	percent percent_cutoff;
+	int percent_cutoff;
 
 	Xapian::weight weight_cutoff;
 
@@ -301,7 +301,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	Xapian::Document get_doc_by_index(Xapian::doccount index) const;
 
 	/// Converts a weight to a percentage weight
-	percent convert_to_percent_internal(Xapian::weight wt) const;
+	int convert_to_percent_internal(Xapian::weight wt) const;
 
 	/// Return a string describing this object.
 	string get_description() const;

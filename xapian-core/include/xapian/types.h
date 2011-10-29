@@ -53,8 +53,12 @@ typedef unsigned docid;
  */
 typedef double doclength;
 
-/** The percentage score for a document in an MSet. */
-typedef int percent;
+/** The percentage score for a document in an MSet.
+ *
+ *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
+ *  type int instead, which should work with older Xapian too.
+ */
+XAPIAN_DEPRECATED(typedef int percent);
 
 /** A counts of terms.
  *

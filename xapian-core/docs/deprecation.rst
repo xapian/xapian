@@ -429,6 +429,8 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``Xapian::timeout`` typedef         Use POSIX ``useconds_t`` (from ``<sys/types.h>``) instead, which should also work
 					    with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
 ======= =================================== ==================================================================================
 
 

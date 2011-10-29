@@ -200,18 +200,18 @@ MSet::fetch() const
 	internal->fetch_items(0, internal->items.size() - 1);
 }
 
-percent
+int
 MSet::convert_to_percent(Xapian::weight wt) const
 {
-    LOGCALL(API, Xapian::percent, "Xapian::MSet::convert_to_percent", wt);
+    LOGCALL(API, int, "Xapian::MSet::convert_to_percent", wt);
     Assert(internal.get() != 0);
     RETURN(internal->convert_to_percent_internal(wt));
 }
 
-percent
+int
 MSet::convert_to_percent(const MSetIterator & it) const
 {
-    LOGCALL(API, Xapian::percent, "Xapian::MSet::convert_to_percent", it);
+    LOGCALL(API, int, "Xapian::MSet::convert_to_percent", it);
     Assert(internal.get() != 0);
     RETURN(internal->convert_to_percent_internal(it.get_weight()));
 }
@@ -365,15 +365,15 @@ MSet::get_description() const
     return "Xapian::MSet(" + internal->get_description() + ")";
 }
 
-percent
+int
 MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
 {
-    LOGCALL(MATCH, Xapian::percent, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
+    LOGCALL(MATCH, int, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
     if (percent_factor == 0) RETURN(100);
 
     // Excess precision on x86 can result in a difference here.
     double v = wt * percent_factor + 100.0 * DBL_EPSILON;
-    Xapian::percent pcent = static_cast<Xapian::percent>(v);
+    int pcent = static_cast<int>(v);
     LOGLINE(MATCH, "wt = " << wt << ", max_possible = " << max_possible <<
 		   " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;
@@ -606,10 +606,10 @@ MSetIterator::get_collapse_count() const
     return mset.internal->items[index].collapse_count;
 }
 
-Xapian::percent
+int
 MSetIterator::get_percent() const
 {
-    LOGCALL(API, Xapian::percent, "MSetIterator::get_percent", NO_ARGS);
+    LOGCALL(API, int, "MSetIterator::get_percent", NO_ARGS);
     RETURN(mset.internal->convert_to_percent_internal(get_weight()));
 }
 
@@ -941,7 +941,7 @@ Enquire::set_docid_order(Enquire::docid_order order)
 }
 
 void
-Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff)
+Enquire::set_cutoff(int percent_cutoff, Xapian::weight weight_cutoff)
 {
     internal->percent_cutoff = percent_cutoff;
     internal->weight_cutoff = weight_cutoff;

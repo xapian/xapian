@@ -757,7 +757,7 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     TEST(mset.size() >= 2);
     TEST(mset[0].get_percent() - mset[1].get_percent() >= 2);
 
-    Xapian::percent cutoff = mset[0].get_percent() + mset[1].get_percent();
+    int cutoff = mset[0].get_percent() + mset[1].get_percent();
     cutoff /= 2;
 
     enquire.set_cutoff(cutoff);
