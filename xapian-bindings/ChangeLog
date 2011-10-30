@@ -1,3 +1,7 @@
+Sun Oct 30 21:42:48 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: Add module_top.py to tarballs.
+
 Sat Oct 29 15:05:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python/module_top.py: Add a module docstring
