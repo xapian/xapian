@@ -1,3 +1,8 @@
+Sun Oct 30 13:16:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: List which flags FLAG_DEFAULT includes
+	  in the doxygen documentation comments.
+
 Sat Oct 29 14:47:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Add note to API docs to discourage use
