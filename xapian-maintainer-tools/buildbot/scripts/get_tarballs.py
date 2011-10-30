@@ -111,8 +111,8 @@ fd.close()
 # relative paths for XAPIAN_CONFIG to configure, and I can't see any other way
 # to pass it the absolute path).
 fd = open(os.path.join(builddir, 'xapian-bindings', 'runconfigure.py'), 'wb')
-fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
+fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config ' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
 fd.close()
 fd = open(os.path.join(builddir, 'xapian-omega', 'runconfigure.py'), 'wb')
-fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
+fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config ' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
 fd.close()
