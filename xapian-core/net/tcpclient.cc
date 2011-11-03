@@ -64,9 +64,13 @@ TcpClient::open_socket(const std::string & hostname, int port,
 		);
     }
 
+#ifdef __WIN32__
+    SOCKET socketfd = socket(PF_INET, SOCK_STREAM, 0);
+    if (socketfd == INVALID_SOCKET) {
+#else
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
-
     if (socketfd < 0) {
+#endif
 	throw Xapian::NetworkError("Couldn't create socket", socket_errno());
     }
 
