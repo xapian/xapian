@@ -53,7 +53,7 @@ inline void xapian_FD_SET_(int fd, fd_set *set) {
 # ifdef FD_SET
 #  undef FD_SET
 # endif
-# define FDSET(FD,SET) xapian_FD_SET_(FD,SET)
+# define FD_SET(FD,SET) xapian_FD_SET_(FD,SET)
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFESYSSELECT_H

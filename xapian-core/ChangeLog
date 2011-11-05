@@ -1,3 +1,7 @@
+Sat Nov 05 23:20:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/safesysselect.h: Fix typo (FDSET -> FD_SET).
+
 Sat Nov 05 23:12:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/safesysselect.h: Enhance to provide portability for __WIN32__
