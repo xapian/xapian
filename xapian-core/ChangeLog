@@ -1,3 +1,8 @@
+Sat Nov 05 12:07:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Fix some factual errors, and tweak .rst
+	  source layout a little (":\n::\n" -> "::\n").
+
 Thu Nov 03 20:53:49 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* common/msvc_posix_wrapper.cc,common/safe.cc,net/tcpclient.cc:
