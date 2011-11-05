@@ -1,5 +1,4 @@
 noinst_HEADERS +=\
-	common/alltermslist.h\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\

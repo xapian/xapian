@@ -1,7 +1,7 @@
 /* inmemory_alltermslist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2008,2009 Olly Betts
+ * Copyright 2003,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef OM_HGUARD_INMEMORY_ALLTERMSLIST_H
 #define OM_HGUARD_INMEMORY_ALLTERMSLIST_H
 
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 #include "inmemory_database.h"
 
 /** class for alltermslists over several databases */

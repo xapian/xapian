@@ -1,3 +1,11 @@
+Sat Nov 05 23:28:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/Makefile.mk,backends/alltermslist.h,
+	  backends/brass/,backends/chert/,
+	  backends/inmemory/inmemory_alltermslist.h,common/Makefile.mk,
+	  common/alltermslist.h,common/multialltermslist.h: Move alltermslist.h
+	  from common to backends.
+
 Sat Nov 05 23:20:05 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/safesysselect.h: Fix typo (FDSET -> FD_SET).

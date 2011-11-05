@@ -1,7 +1,7 @@
 /** @file multialltermslist.h
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_MULTIALLTERMSLIST_H
 #define XAPIAN_INCLUDED_MULTIALLTERMSLIST_H
 
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 
 #include "database.h"
 

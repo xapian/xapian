@@ -35,7 +35,7 @@
 #include "debuglog.h"
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 #include "multialltermslist.h"
 #include "multivaluelist.h"
 #include "database.h"

@@ -1,7 +1,7 @@
 /** @file brass_metadata.h
  * @brief Access to metadata for a brass database.
  */
-/* Copyright (C) 2005,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #include <xapian/database.h>
 #include <xapian/types.h>
 
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 #include "brass_table.h"
 #include "termlist.h"
 

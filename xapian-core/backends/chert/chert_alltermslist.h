@@ -1,6 +1,6 @@
 /* chert_alltermslist.h: A termlist containing all terms in a chert database.
  *
- * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_CHERT_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_CHERT_ALLTERMSLIST_H
 
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 #include "chert_database.h"
 #include "chert_postlist.h"
 
