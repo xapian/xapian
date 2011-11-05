@@ -3,7 +3,6 @@ noinst_HEADERS +=\
 	common/bitstream.h\
 	common/closefrom.h\
 	common/database.h\
-	common/databasereplicator.h\
 	common/debuglog.h\
 	common/document.h\
 	common/documentterm.h\

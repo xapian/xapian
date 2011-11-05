@@ -1,3 +1,12 @@
+Sat Nov 05 23:55:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/Makefile.mk,
+	  backends/brass/brass_databasereplicator.h,
+	  backends/chert/chert_databasereplicator.h,
+	  backends/databasereplicator.h,common/Makefile.mk,
+	  common/databasereplicator.h: Move databasereplicator.h from common to
+	  backends.
+
 Sat Nov 05 23:51:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk: Fix sort order of noinst_HEADERS.

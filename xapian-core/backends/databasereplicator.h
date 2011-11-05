@@ -52,7 +52,7 @@ class DatabaseReplicator {
     public:
 	/** Destroy the replicator.
 	 */
-        virtual ~DatabaseReplicator();
+	virtual ~DatabaseReplicator();
 
 	/** Open a DatabaseReplicator for the given path.
 	 *

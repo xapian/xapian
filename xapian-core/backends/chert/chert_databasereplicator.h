@@ -3,7 +3,7 @@
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
- * Copyright 2010 Olly Betts
+ * Copyright 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #ifndef XAPIAN_INCLUDED_CHERT_DATABASEREPLICATOR_H
 #define XAPIAN_INCLUDED_CHERT_DATABASEREPLICATOR_H
 
-#include "databasereplicator.h"
+#include "backends/databasereplicator.h"
 
 class ChertDatabaseReplicator : public Xapian::DatabaseReplicator {
     private:

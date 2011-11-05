@@ -29,7 +29,7 @@
 #include "xapian/version.h"
 
 #include "database.h"
-#include "databasereplicator.h"
+#include "backends/databasereplicator.h"
 #include "debuglog.h"
 #include "fileutils.h"
 #ifdef __WIN32__
