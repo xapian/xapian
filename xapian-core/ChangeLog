@@ -1,3 +1,10 @@
+Sat Nov 05 22:39:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/safesysselect.h: Add wrapper around FD_SET() under __WIN32__
+	  which casts the fd parameter to unsigned to avoid a warning on mingw.
+	* net/tcpclient.cc: Remove __WIN32__-specific case here which was
+	  working around this warning.
+
 Sat Nov 05 21:58:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/.gitignore,bin/Makefile.mk,bin/xapian-delve.cc,

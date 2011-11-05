@@ -1,6 +1,6 @@
 /* safesysselect.h: #include <sys/select.h> with portability workarounds.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,5 +36,20 @@
 
 // On Solaris FDSET uses memset but fails to prototype it.
 #include <cstring>
+
+#ifdef __WIN32__
+// Under __WIN32__, socket() returns the unsigned type SOCKET.  We can safely
+// assign that to an int (it'll be a non-negative fd or INVALID_SOCKET, which
+// will cast to -1 as an int), but when we use int in FD_SET, we get a warning
+// about comparing signed and unsigned, so we add a wrapper to cast the fd
+// argument of FD_SET to unsigned.
+inline void xapian_FD_SET_(int fd, fd_set *set) {
+    FD_SET((unsigned)fd, set);
+}
+# ifdef FD_SET
+#  undef FD_SET
+# endif
+# define FDSET(FD,SET) xapian_FD_SET_(FD,SET)
+#endif
 
 #endif // XAPIAN_INCLUDED_SAFESYSSELECT_H
