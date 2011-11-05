@@ -29,7 +29,7 @@
 #include "brass_inverter.h"
 #include "brass_types.h"
 #include "brass_positionlist.h"
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "omassert.h"
 
 #include "autoptr.h"

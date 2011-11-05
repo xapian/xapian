@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_SYNONYMPOSTLIST_H
 
 #include "multimatch.h"
-#include "postlist.h"
+#include "api/postlist.h"
 
 /** A postlist comprising several postlists SYNONYMed together.
  *

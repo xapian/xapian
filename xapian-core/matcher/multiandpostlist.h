@@ -1,7 +1,7 @@
 /** @file multiandpostlist.h
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 
 #include "multimatch.h"
 #include "omassert.h"
-#include "postlist.h"
+#include "api/postlist.h"
 
 /// N-way AND postlist.
 class MultiAndPostList : public PostList {

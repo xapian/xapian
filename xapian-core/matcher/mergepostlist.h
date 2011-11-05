@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2009,2011 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_MERGEPOSTLIST_H
 #define OM_HGUARD_MERGEPOSTLIST_H
 
-#include "postlist.h"
+#include "api/postlist.h"
 
 class MultiMatch;
 class ValueStreamDocument;

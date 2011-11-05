@@ -28,7 +28,7 @@
 
 #include "chert_types.h"
 #include "chert_positionlist.h"
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "omassert.h"
 
 #include "autoptr.h"

@@ -1,7 +1,7 @@
 /** @file submatch.h
  *  @brief base class for sub-matchers
  */
-/* Copyright (C) 2006,2007,2009 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <xapian/types.h>
 
 #include "omenquireinternal.h"
-#include "postlist.h"
+#include "api/postlist.h"
 #include "xapian/weight.h"
 
 class SubMatch : public Xapian::Internal::intrusive_base {

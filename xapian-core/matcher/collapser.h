@@ -1,7 +1,7 @@
 /** @file collapser.h
  * @brief Collapse documents with the same collapse key during the match.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #include "document.h"
 #include "msetcmp.h"
 #include "omenquireinternal.h"
-#include "postlist.h"
+#include "api/postlist.h"
 
 #include <map>
 

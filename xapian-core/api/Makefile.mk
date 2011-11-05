@@ -1,7 +1,10 @@
 noinst_HEADERS +=\
 	api/documentvaluelist.h\
 	api/editdistance.h\
+	api/emptypostlist.h\
+	api/leafpostlist.h\
 	api/maptermlist.h\
+	api/postlist.h\
 	api/vectortermlist.h
 
 EXTRA_DIST +=\

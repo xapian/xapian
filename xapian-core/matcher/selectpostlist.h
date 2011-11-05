@@ -1,7 +1,7 @@
 /* selectpostlist.h: Parent class for classes which only return selected docs
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2009,2010 Olly Betts
+ * Copyright 2003,2004,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef OM_HGUARD_SELECTPOSTLIST_H
 #define OM_HGUARD_SELECTPOSTLIST_H
 
-#include "postlist.h"
+#include "api/postlist.h"
 
 /** A postlist parent class for classes which only return selected docs
  *  from a source postlist (e.g. NEAR and PHRASE)

@@ -7,7 +7,6 @@ noinst_HEADERS +=\
 	common/debuglog.h\
 	common/document.h\
 	common/documentterm.h\
-	common/emptypostlist.h\
 	common/esetinternal.h\
 	common/expandweight.h\
 	common/fileutils.h\
@@ -15,7 +14,6 @@ noinst_HEADERS +=\
 	common/inmemory_positionlist.h\
 	common/internaltypes.h\
 	common/io_utils.h\
-	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
@@ -29,7 +27,6 @@ noinst_HEADERS +=\
 	common/output.h\
 	common/positionlist.h\
 	common/pack.h\
-	common/postlist.h\
 	common/pretty.h\
 	common/progclient.h\
 	common/realtime.h\

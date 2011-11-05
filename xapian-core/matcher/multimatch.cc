@@ -35,7 +35,7 @@
 #include "omassert.h"
 #include "omenquireinternal.h"
 
-#include "emptypostlist.h"
+#include "api/emptypostlist.h"
 #include "branchpostlist.h"
 #include "mergepostlist.h"
 

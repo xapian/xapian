@@ -1,7 +1,7 @@
 /* multi_postlist.h: C++ class definition for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005,2007,2009 Olly Betts
+ * Copyright 2003,2005,2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef OM_HGUARD_MULTI_POSTLIST_H
 #define OM_HGUARD_MULTI_POSTLIST_H
 
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include <vector>
 
 class MultiPostList : public PostList {

@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_INMEMORY_DATABASE_H
 #define OM_HGUARD_INMEMORY_DATABASE_H
 
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
 #include <map>

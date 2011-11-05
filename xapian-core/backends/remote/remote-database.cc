@@ -27,7 +27,7 @@
 #include <signal.h>
 
 #include "autoptr.h"
-#include "emptypostlist.h"
+#include "api/emptypostlist.h"
 #include "inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"

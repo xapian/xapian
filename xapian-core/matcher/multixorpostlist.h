@@ -1,7 +1,7 @@
 /** @file multixorpostlist.h
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
 
 #include "multimatch.h"
-#include "postlist.h"
+#include "api/postlist.h"
 #include <algorithm>
 
 using namespace std;

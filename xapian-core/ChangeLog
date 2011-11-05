@@ -1,3 +1,12 @@
+Sat Nov 05 23:40:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_postlist.h,backends/chert/chert_postlist.h,
+	  backends/contiguousalldocspostlist.h,backends/database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.h,backends/remote/net_postlist.h,
+	  backends/remote/remote-database.cc,common/,matcher/: Move
+	  emptypostlist.h, leafpostlist.h and postlist.h from common to api.
+
 Sat Nov 05 23:31:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/brass/brass_database.cc,
