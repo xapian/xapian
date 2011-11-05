@@ -6,6 +6,7 @@
 /.dirstamp
 /xapian-check
 /xapian-compact
+/xapian-delve
 /xapian-inspect
 /xapian-progsrv
 /xapian-replicate
@@ -13,6 +14,7 @@
 /xapian-tcpsrv
 /xapian-check.exe
 /xapian-compact.exe
+/xapian-delve.exe
 /xapian-inspect.exe
 /xapian-progsrv.exe
 /xapian-replicate.exe
@@ -20,6 +22,7 @@
 /xapian-tcpsrv.exe
 /xapian-check.1
 /xapian-compact.1
+/xapian-delve.1
 /xapian-inspect.1
 /xapian-progsrv.1
 /xapian-replicate.1
