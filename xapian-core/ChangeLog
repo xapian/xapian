@@ -1,3 +1,11 @@
+Sat Nov 05 23:31:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,
+	  backends/contiguousalldocspostlist.h,common/Makefile.mk,
+	  common/contiguousalldocspostlist.h: Move contiguousalldocspostlist.h
+	  from common to backends.
+
 Sat Nov 05 23:28:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/Makefile.mk,backends/alltermslist.h,

@@ -32,7 +32,7 @@
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
-#include "contiguousalldocspostlist.h"
+#include "backends/contiguousalldocspostlist.h"
 #include "brass_alldocspostlist.h"
 #include "brass_alltermslist.h"
 #include "brass_replicate_internal.h"

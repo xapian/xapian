@@ -2,7 +2,6 @@ noinst_HEADERS +=\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
-	common/contiguousalldocspostlist.h\
 	common/database.h\
 	common/databasereplicator.h\
 	common/debuglog.h\

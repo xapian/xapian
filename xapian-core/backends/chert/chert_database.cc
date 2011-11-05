@@ -32,7 +32,7 @@
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
-#include "contiguousalldocspostlist.h"
+#include "backends/contiguousalldocspostlist.h"
 #include "chert_alldocsmodifiedpostlist.h"
 #include "chert_alldocspostlist.h"
 #include "chert_alltermslist.h"
