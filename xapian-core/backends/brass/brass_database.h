@@ -37,7 +37,7 @@
 #include "brass_version.h"
 #include "../flint_lock.h"
 #include "brass_types.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include <map>
 

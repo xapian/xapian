@@ -31,7 +31,7 @@
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "str.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include <string>
 #include <vector>

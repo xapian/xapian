@@ -2,7 +2,7 @@
  * @brief Check consistency of a chert table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@
 #include "chert_table.h"
 #include "chert_types.h"
 #include "pack.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include <xapian.h>
 

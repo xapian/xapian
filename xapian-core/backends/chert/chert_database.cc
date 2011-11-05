@@ -59,7 +59,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "utils.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"

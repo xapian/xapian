@@ -38,7 +38,7 @@
 #include "internaltypes.h"
 #include "pack.h"
 #include "utils.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"

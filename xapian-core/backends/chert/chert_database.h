@@ -36,7 +36,7 @@
 #include "chert_version.h"
 #include "../flint_lock.h"
 #include "chert_types.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include <map>
 

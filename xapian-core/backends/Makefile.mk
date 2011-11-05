@@ -3,8 +3,11 @@ noinst_HEADERS +=\
 	backends/flint_lock.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
+	backends/multivaluelist.h\
 	backends/prefix_compressed_strings.h\
-	backends/slowvaluelist.h
+	backends/slowvaluelist.h\
+	backends/valuelist.h\
+	backends/valuestats.h
 
 EXTRA_DIST +=\
 	backends/dir_contents\

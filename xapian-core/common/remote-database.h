@@ -26,7 +26,7 @@
 #include "omenquireinternal.h"
 #include "omqueryinternal.h"
 #include "remoteconnection.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 #include "xapian/weight.h"
 
 namespace Xapian {

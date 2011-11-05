@@ -1,7 +1,7 @@
 /** @file brass_valuelist.h
  * @brief Brass class for value streams.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_VALUELIST_H
 #define XAPIAN_INCLUDED_BRASS_VALUELIST_H
 
-#include "valuelist.h"
+#include "backends/valuelist.h"
 #include "brass_values.h"
 
 class BrassCursor;

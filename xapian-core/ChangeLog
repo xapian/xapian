@@ -1,3 +1,14 @@
+Sat Nov 05 23:50:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.h,api/omdatabase.cc,api/valueiterator.cc,
+	  backends/Makefile.mk,backends/brass/,backends/chert/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_valuelist.cc,backends/multivaluelist.h,
+	  backends/valuelist.h,backends/valuestats.h,bin/xapian-check-brass.cc,
+	  bin/xapian-check-chert.cc,common/,matcher/valuerangepostlist.h,
+	  matcher/valuestreamdocument.h: Move multivaluelist.h, valuelist.h and
+	  valuestats.h from common to backends.
+
 Sat Nov 05 23:40:49 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/brass_postlist.h,backends/chert/chert_postlist.h,

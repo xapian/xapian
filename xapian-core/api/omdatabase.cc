@@ -37,7 +37,7 @@
 #include "../backends/multi/multi_termlist.h"
 #include "backends/alltermslist.h"
 #include "multialltermslist.h"
-#include "multivaluelist.h"
+#include "backends/multivaluelist.h"
 #include "database.h"
 #include "editdistance.h"
 #include "ortermlist.h"

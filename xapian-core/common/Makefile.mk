@@ -18,7 +18,6 @@ noinst_HEADERS +=\
 	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
 	common/multimatch.h\
-	common/multivaluelist.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/omenquireinternal.h\
@@ -63,8 +62,6 @@ noinst_HEADERS +=\
 	common/termlist.h\
 	common/unaligned.h\
 	common/utils.h\
-	common/valuelist.h\
-	common/valuestats.h\
 	common/weightinternal.h
 
 EXTRA_DIST +=\
