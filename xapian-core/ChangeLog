@@ -1,3 +1,9 @@
+Sat Nov 05 23:12:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/safesysselect.h: Enhance to provide portability for __WIN32__
+	  too.
+	* net/remoteconnection.cc,net/tcpclient.cc: Update to make use of this.
+
 Sat Nov 05 22:39:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/safesysselect.h: Add wrapper around FD_SET() under __WIN32__

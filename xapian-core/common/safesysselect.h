@@ -24,25 +24,29 @@
 # error You must #include <config.h> before #include "safesysselect.h"
 #endif
 
-#ifdef HAVE_SYS_SELECT_H
+#ifndef __WIN32__
+# ifdef HAVE_SYS_SELECT_H
 // According to POSIX 1003.1-2001.
-# include <sys/select.h>
-#else
+#  include <sys/select.h>
+# else
 // According to earlier standards.
-# include <sys/time.h>
-# include <sys/types.h>
-# include <unistd.h>
-#endif
+#  include <sys/time.h>
+#  include <sys/types.h>
+#  include <unistd.h>
+# endif
 
 // On Solaris FDSET uses memset but fails to prototype it.
-#include <cstring>
+# include <cstring>
 
-#ifdef __WIN32__
+#else
 // Under __WIN32__, socket() returns the unsigned type SOCKET.  We can safely
 // assign that to an int (it'll be a non-negative fd or INVALID_SOCKET, which
 // will cast to -1 as an int), but when we use int in FD_SET, we get a warning
 // about comparing signed and unsigned, so we add a wrapper to cast the fd
 // argument of FD_SET to unsigned.
+
+// select() and FD_SET() are defined in <winsock2.h>:
+# include "safewinsock2.h"
 inline void xapian_FD_SET_(int fd, fd_set *set) {
     FD_SET((unsigned)fd, set);
 }
