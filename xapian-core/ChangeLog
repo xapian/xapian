@@ -1,3 +1,10 @@
+Sun Nov 06 11:26:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/,tests/api_replicate.cc: Factor internal classes out of
+	  output.h into new output-internal.h to fix build failures in VPATH
+	  due to move of weightinternal.h out of common (since the test harness
+	  uses output.h).
+
 Sun Nov 06 00:49:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,

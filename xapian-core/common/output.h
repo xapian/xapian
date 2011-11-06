@@ -75,12 +75,4 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::MatchSpy)
 #include <xapian/postingsource.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::PostingSource)
 
-#include "replication.h"
-XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
-XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
-
-#include "weight/weightinternal.h"
-XAPIAN_OUTPUT_FUNCTION(TermFreqs)
-XAPIAN_OUTPUT_FUNCTION(Xapian::Weight::Internal)
-
 #endif /* XAPIAN_INCLUDED_OUTPUT_H */

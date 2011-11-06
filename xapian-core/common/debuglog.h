@@ -23,7 +23,7 @@
 
 #ifdef XAPIAN_DEBUG_LOG
 
-#include "output.h"
+#include "output-internal.h"
 #include "pretty.h"
 
 #include <cstring>

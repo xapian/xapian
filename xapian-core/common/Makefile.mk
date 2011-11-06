@@ -19,6 +19,7 @@ noinst_HEADERS +=\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
 	common/output.h\
+	common/output-internal.h\
 	common/positionlist.h\
 	common/pack.h\
 	common/pretty.h\
