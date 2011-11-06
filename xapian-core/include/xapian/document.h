@@ -105,13 +105,20 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	void clear_values();
 
 	/** Get data stored in the document.
-	 *  This is a potentially expensive operation, and shouldn't normally
-	 *  be used in a match decider functor.  Put data for use by match
-	 *  deciders in a value instead.
+	 *
+	 *  This is potentially a relatively expensive operation, and shouldn't
+	 *  normally be used during the match (e.g. in a PostingSource or match
+	 *  decider functor.  Put data for use by match deciders in a value
+	 *  instead.
 	 */
 	std::string get_data() const;
 
-	/// Set data stored in the document.
+	/** Set data stored in the document.
+	 *
+	 *  Xapian treats the data as an opaque blob.  It may try to compress
+	 *  it, but other than that it will just store it and return it when
+	 *  requested.
+	 */
 	void set_data(const std::string &data);
 
 	/** Add an occurrence of a term at a particular position.

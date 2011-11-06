@@ -1,3 +1,8 @@
+Sun Nov 06 17:53:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: Improve Document get_data() and set_data()
+	  documentation comments.
+
 Sun Nov 06 17:14:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Add -I$(top_srcdir) so api/replication.h is found
