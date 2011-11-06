@@ -631,6 +631,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
  *  the encoding in some situation where this distinction matters.
  *
  *  Handling of NaN isn't (currently) guaranteed to be sensible.
+ *
+ *  @param value	The number to serialise.
  */
 XAPIAN_VISIBILITY_DEFAULT
 std::string sortable_serialise(double value);
@@ -646,6 +648,8 @@ std::string sortable_serialise(double value);
  *  supplied to @a sortable_serialise() when making the string on platforms
  *  which represent doubles with the precisions specified by IEEE_754, but
  *  may be a different (nearby) value on other platforms.
+ *
+ *  @param value	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
 double sortable_unserialise(const std::string & value);
