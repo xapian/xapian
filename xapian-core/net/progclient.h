@@ -1,7 +1,7 @@
 /** @file progclient.h
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include <sys/types.h>
 
-#include "remote-database.h"
+#include "backends/remote/remote-database.h"
 
 /** Implementation of RemoteDatabase using a spawned server.
  *

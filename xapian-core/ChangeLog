@@ -1,3 +1,14 @@
+Sun Nov 06 14:55:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,backends/inmemory/Makefile.mk,
+	  backends/inmemory/inmemory_positionlist.h,
+	  backends/remote/Makefile.mk,backends/remote/remote-database.cc,
+	  backends/remote/remote-database.h,common/Makefile.mk,
+	  common/inmemory_positionlist.h,common/remote-database.h,
+	  matcher/multimatch.cc,matcher/remotesubmatch.cc,
+	  matcher/remotesubmatch.h,net/progclient.h,net/remotetcpclient.h:
+	  Move two more headers out of common.
+
 Sun Nov 06 11:56:46 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Fix for VPATH build.

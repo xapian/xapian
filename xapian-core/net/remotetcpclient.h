@@ -1,7 +1,7 @@
 /** @file remotetcpclient.h
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
-/* Copyright (C) 2007,2008,2010 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_REMOTETCPCLIENT_H
 #define XAPIAN_INCLUDED_REMOTETCPCLIENT_H
 
-#include "remote-database.h"
+#include "backends/remote/remote-database.h"
 
 #ifdef __WIN32__
 # define SOCKET_INITIALIZER_MIXIN private WinsockInitializer,

@@ -8,7 +8,6 @@ noinst_HEADERS +=\
 	common/documentterm.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
-	common/inmemory_positionlist.h\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/msvc_dirent.h\
@@ -25,7 +24,6 @@ noinst_HEADERS +=\
 	common/pretty.h\
 	common/realtime.h\
 	common/registryinternal.h\
-	common/remote-database.h\
 	common/remoteprotocol.h\
 	common/replicate_utils.h\
 	common/replication.h\

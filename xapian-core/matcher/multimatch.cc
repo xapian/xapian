@@ -55,7 +55,7 @@
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 #include "remotesubmatch.h"
-#include "remote-database.h"
+#include "backends/remote/remote-database.h"
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>

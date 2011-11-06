@@ -25,7 +25,7 @@
 
 #include "debuglog.h"
 #include "msetpostlist.h"
-#include "remote-database.h"
+#include "backends/remote/remote-database.h"
 #include "weight/weightinternal.h"
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
