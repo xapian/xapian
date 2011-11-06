@@ -1,7 +1,7 @@
 /** @file compactor.h
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -49,55 +49,60 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
 
     /** Set the block size to use for tables in the output database.
      *
-     *  Valid block sizes are currently powers of two between 2048 and
-     *  65536, with the default being 8192, but the valid sizes and
-     *  default may change in the future.
+     *  @param block_size	The block size to use.  Valid block sizes are
+     *				currently powers of two between 2048 and 65536,
+     *				with the default being 8192, but the valid
+     *				sizes and default may change in the future.
      */
     void set_block_size(size_t block_size);
 
     /** Set whether to preserve existing document id values.
      *
-     *  The default is true, which means that document ids will be renumbered -
-     *  currently by applying the same offset to all the document ids in a
-     *  particular source database.
+     *  @param renumber	The default is true, which means that document ids will
+     *			be renumbered - currently by applying the same offset
+     *			to all the document ids in a particular source
+     *			database.
      *
-     *  If false, then the document ids must be unique over all source
-     *  databases.  Currently the ranges of document ids in each source must
-     *  not overlap either, though this restriction may be removed in the
-     *  future.
+     *			If false, then the document ids must be unique over all
+     *			source databases.  Currently the ranges of document ids
+     *			in each source must not overlap either, though this
+     *			restriction may be removed in the future.
      */
     void set_renumber(bool renumber);
 
     /** Set whether to merge postlists in multiple passes.
      *
-     *  Default is false.  If set to true and merging more than 3 databases,
+     *  @param multipass	If true and merging more than 3 databases,
      *  merge the postlists in multiple passes, which is generally faster but
-     *  requires more disk space for temporary files.
+     *  requires more disk space for temporary files.  By default we don't do
+     *  this.
      */
     void set_multipass(bool multipass);
 
     /** Set the compaction level.
      *
-     *  Values are:
-     *  - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
-     *  - Xapian::Compactor::FULL     - Split items whenever it saves space
-     *    (the default).
-     *  - Xapian::Compactor::FULLER   - Allow oversize items to save more
-     *    space.
-     *
-     *  FULLER isn't recommended if you ever plan to update the compacted
-     *  database.
+     *  @param compaction Available values are: - Xapian::Compactor::STANDARD -
+     *  Don't split items unnecessarily.  - Xapian::Compactor::FULL     - Split
+     *  items whenever it saves space (the default).  -
+     *  Xapian::Compactor::FULLER   - Allow oversize items to save more space
+     *  (not recommended if you ever plan to update the compacted database).
      */
     void set_compaction_level(compaction_level compaction);
 
     /** Set where to write the output.
      *
-     *  This can be the same as an input if that input is a stub database (in
-     *  which case it will be updated atomically).
+     *  @param destdir	Output path.  This can be the same as an input if that
+     *			input is a stub database (in which case the database(s)
+     *			listed in the stub will be compacted to a new database
+     *			and then the stub will be atomically updated to point
+     *			to this new database).
      */
     void set_destdir(const std::string & destdir);
 
-    /** Add a source database. */
+    /** Add a source database.
+     *
+     *  @param srcdir	The path to the source database to add.
+     */
     void add_source(const std::string & srcdir);
 
     /// Perform the actual compaction/merging operation.
@@ -110,6 +115,9 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  And then one or more times with non-empty status.
      *
      *  The default implementation does nothing.
+     *
+     *  @param table	The table currently being compacted.
+     *  @param status	A status message.
      */
     virtual void
     set_status(const std::string & table, const std::string & status);
@@ -125,6 +133,11 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  For multipass this will currently get called multiple times for the
      *  same key if there are duplicates to resolve in each pass, but this
      *  may change in the future.
+     *
+     *  @param key	The metadata key with duplicate entries.
+     *  @param num_tags	How many tags there are.
+     *  @param tags	An array of num_tags strings containing the tags to
+     *			merge.
      */
     virtual std::string
     resolve_duplicate_metadata(const std::string & key,

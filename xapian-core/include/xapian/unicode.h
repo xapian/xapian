@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -250,20 +250,22 @@ namespace Internal {
  *
  *  This is intended mainly as a helper method for to_utf8().
  *
- *  The character @a ch (which must be > 128) is written to the buffer @a buf
- *  and the length of the resultant UTF-8 character is returned.
+ *  @param ch	The character (which must be > 128) to write to @a buf.
+ *  @param buf	The buffer to write the character to - it must have
+ *		space for (at least) 4 bytes.
  *
- *  NB buf must have space for (at least) 4 bytes.
+ *  @return	The length of the resultant UTF-8 character in bytes.
  */
 XAPIAN_VISIBILITY_DEFAULT
 unsigned nonascii_to_utf8(unsigned ch, char * buf);
 
 /** Convert a single Unicode character to UTF-8.
  *
- *  The character @a ch is written to the buffer @a buf and the length of the
- *  resultant UTF-8 character is returned.
+ *  @param ch	The character to write to @a buf.
+ *  @param buf	The buffer to write the character to - it must have
+ *		space for (at least) 4 bytes.
  *
- *  NB buf must have space for (at least) 4 bytes.
+ *  @return	The length of the resultant UTF-8 character in bytes.
  */
 inline unsigned to_utf8(unsigned ch, char *buf) {
     if (ch < 128) {

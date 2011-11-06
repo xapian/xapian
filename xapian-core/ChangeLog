@@ -1,3 +1,7 @@
+Sun Nov 06 22:03:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Fix doxygen warnings.
+
 Sun Nov 06 21:00:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Document value parameter of
