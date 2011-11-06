@@ -37,12 +37,12 @@
 #endif
 #include "omassert.h"
 #include "realtime.h"
-#include "remoteconnection.h"
+#include "net/remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
-#include "serialise.h"
+#include "net/serialise.h"
 #include "str.h"
 #include "utils.h"
 

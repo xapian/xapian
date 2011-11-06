@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 #include <xapian/postingiterator.h>
 
 #include "positionlist.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 /// Abstract base class for postlists.
 class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_base {

@@ -6,8 +6,6 @@ noinst_HEADERS +=\
 	common/debuglog.h\
 	common/document.h\
 	common/documentterm.h\
-	common/esetinternal.h\
-	common/expandweight.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
@@ -16,28 +14,19 @@ noinst_HEADERS +=\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
-	common/multimatch.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
-	common/ortermlist.h\
 	common/output.h\
 	common/positionlist.h\
 	common/pack.h\
 	common/pretty.h\
-	common/progclient.h\
 	common/realtime.h\
 	common/registryinternal.h\
-	common/remoteconnection.h\
 	common/remote-database.h\
 	common/remoteprotocol.h\
-	common/remoteserver.h\
-	common/remotetcpclient.h\
-	common/remotetcpserver.h\
 	common/replicate_utils.h\
-	common/replicatetcpclient.h\
-	common/replicatetcpserver.h\
 	common/replication.h\
 	common/replicationprotocol.h\
 	common/safedirent.h\
@@ -51,17 +40,13 @@ noinst_HEADERS +=\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/serialise-double.h\
-	common/serialise.h\
 	common/socket_utils.h\
 	common/str.h\
 	common/stringutils.h\
 	common/submatch.h\
-	common/tcpclient.h\
-	common/tcpserver.h\
 	common/termlist.h\
 	common/unaligned.h\
-	common/utils.h\
-	common/weightinternal.h
+	common/utils.h
 
 EXTRA_DIST +=\
 	common/dir_contents\

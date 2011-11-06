@@ -23,7 +23,7 @@
 
 #include "xapian/types.h"
 
-#include "serialise.h"
+#include "net/serialise.h"
 #include "termlist.h"
 
 /** This class stores a list of terms.

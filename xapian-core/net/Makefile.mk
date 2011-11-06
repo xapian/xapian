@@ -1,3 +1,15 @@
+noinst_HEADERS +=\
+	net/progclient.h\
+	net/remoteconnection.h\
+	net/remoteserver.h\
+	net/remotetcpclient.h\
+	net/remotetcpserver.h\
+	net/replicatetcpclient.h\
+	net/replicatetcpserver.h\
+	net/serialise.h\
+	net/tcpclient.h\
+	net/tcpserver.h
+
 EXTRA_DIST +=\
 	net/dir_contents\
 	net/Makefile

@@ -35,11 +35,11 @@
 #include "remote-document.h"
 #include "omassert.h"
 #include "realtime.h"
-#include "serialise.h"
+#include "net/serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 #include "stringutils.h" // For STRINGIZE().
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <string>
 #include <vector>

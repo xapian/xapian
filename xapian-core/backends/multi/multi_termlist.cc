@@ -1,7 +1,7 @@
 /* multi_termlist.cc: C++ class definition for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 
 #include "database.h"
 #include "debuglog.h"
-#include "expandweight.h"
+#include "expand/expandweight.h"
 
 MultiTermList::MultiTermList(TermList * tl_,
 			     const Xapian::Database &db_,

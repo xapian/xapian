@@ -31,7 +31,7 @@
 #include "serialise.h"
 #include "serialise-double.h"
 #include "utils.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <string>
 #include <cstring>

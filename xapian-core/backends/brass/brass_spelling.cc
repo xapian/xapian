@@ -23,10 +23,10 @@
 #include <xapian/error.h>
 #include <xapian/types.h>
 
-#include "expandweight.h"
+#include "expand/expandweight.h"
 #include "brass_spelling.h"
 #include "omassert.h"
-#include "ortermlist.h"
+#include "expand/ortermlist.h"
 #include "pack.h"
 
 #include "../prefix_compressed_strings.h"

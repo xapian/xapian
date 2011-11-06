@@ -1,7 +1,7 @@
 /** @file xapian-progsrv.cc
  * @brief Remote server for use with ProgClient.
  */
-/* Copyright (C) 2002,2003,2006,2007,2008,2010 Olly Betts
+/* Copyright (C) 2002,2003,2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "remoteserver.h"
+#include "net/remoteserver.h"
 
 #include "gnu_getopt.h"
 

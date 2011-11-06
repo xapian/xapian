@@ -28,7 +28,7 @@
 #include "document.h"
 #include "documentvaluelist.h"
 #include "maptermlist.h"
-#include "serialise.h"
+#include "net/serialise.h"
 #include "str.h"
 
 #include <xapian/error.h>

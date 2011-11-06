@@ -27,7 +27,7 @@
 
 #include "debuglog.h"
 
-#include "expandweight.h"
+#include "expand/expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "str.h"

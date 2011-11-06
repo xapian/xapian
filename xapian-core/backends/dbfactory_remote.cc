@@ -1,6 +1,6 @@
 /* dbfactory_remote.cc: Database factories for remote databases.
  *
- * Copyright (C) 2006,2007,2008,2010 Olly Betts
+ * Copyright (C) 2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +22,8 @@
 #include <xapian/dbfactory.h>
 
 #include "debuglog.h"
-#include "progclient.h"
-#include "remotetcpclient.h"
+#include "net/progclient.h"
+#include "net/remotetcpclient.h"
 
 #include <string>
 

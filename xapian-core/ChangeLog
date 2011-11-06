@@ -1,3 +1,13 @@
+Sun Nov 06 00:49:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_termlist.cc,backends/remote/net_postlist.cc,
+	  backends/remote/net_termlist.h,backends/remote/remote-database.cc,
+	  bin/,common/,expand/,matcher/,net/,tests/internaltest.cc,
+	  weight/Makefile.mk,weight/weightinternal.h: Move even more headers
+	  out of common and next to their corresponding C++ file.
+
 Sat Nov 05 23:55:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/Makefile.mk,

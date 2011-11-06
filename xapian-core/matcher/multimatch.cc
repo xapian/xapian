@@ -47,7 +47,7 @@
 #include "msetcmp.h"
 
 #include "valuestreamdocument.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <xapian/errorhandler.h>
 #include <xapian/matchspy.h>

@@ -32,7 +32,7 @@
 #include "queryoptimiser.h"
 #include "synonympostlist.h"
 #include "termlist.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include "autoptr.h"
 #include <map>

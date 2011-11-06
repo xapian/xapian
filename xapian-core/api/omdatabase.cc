@@ -40,7 +40,7 @@
 #include "backends/multivaluelist.h"
 #include "database.h"
 #include "editdistance.h"
-#include "ortermlist.h"
+#include "expand/ortermlist.h"
 #include "noreturn.h"
 
 #include <cstdlib> // For abs().

@@ -65,7 +65,7 @@ class MultiMatch
 	/** Internal flag to note that w_max needs to be recalculated
 	 *  while query is running.
 	 */
-        bool recalculate_w_max;
+	bool recalculate_w_max;
 
 	/** Is each sub-database remote? */
 	vector<bool> is_remote;
@@ -77,7 +77,7 @@ class MultiMatch
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
 	 *  Must only be called on the top of the postlist tree.
 	 */
-        Xapian::weight getorrecalc_maxweight(PostList *pl);
+	Xapian::weight getorrecalc_maxweight(PostList *pl);
 
 	/// Copying is not permitted.
 	MultiMatch(const MultiMatch &);
@@ -132,7 +132,7 @@ class MultiMatch
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.
 	 */
-        void recalc_maxweight() {
+	void recalc_maxweight() {
 	    recalculate_w_max = true;
 	}
 };

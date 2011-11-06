@@ -79,7 +79,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::PostingSource)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
 
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 XAPIAN_OUTPUT_FUNCTION(TermFreqs)
 XAPIAN_OUTPUT_FUNCTION(Xapian::Weight::Internal)
 

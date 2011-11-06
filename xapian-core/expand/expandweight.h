@@ -60,7 +60,7 @@ class ExpandStats {
 
     ExpandStats(Xapian::doclength avlen_, double expand_k_)
 	: avlen(avlen_), expand_k(expand_k_),
-          dbsize(0), termfreq(0), multiplier(0), rtermfreq(0), db_index(0) {
+	  dbsize(0), termfreq(0), multiplier(0), rtermfreq(0), db_index(0) {
     }
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
@@ -129,7 +129,7 @@ public:
 		 double expand_k_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
 	  rsize(rsize_), use_exact_termfreq(use_exact_termfreq_),
-	  expand_k(expand_k_) { } 
+	  expand_k(expand_k_) { }
 
     /** Get the expand weight.
      *

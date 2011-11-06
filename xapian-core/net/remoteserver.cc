@@ -33,14 +33,14 @@
 #include <cstdlib>
 
 #include "autoptr.h"
-#include "multimatch.h"
+#include "matcher/multimatch.h"
 #include "noreturn.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 XAPIAN_NORETURN(static void throw_read_only());
 static void

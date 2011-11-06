@@ -22,7 +22,7 @@
 
 #include "xapian/postingsource.h"
 #include "xapian/error.h"
-#include "serialise.h"
+#include "net/serialise.h"
 #include "serialise-double.h"
 #include <cmath>
 

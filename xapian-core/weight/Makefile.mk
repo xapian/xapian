@@ -1,3 +1,6 @@
+noinst_HEADERS +=\
+	weight/weightinternal.h
+
 lib_src +=\
 	weight/bm25weight.cc\
 	weight/boolweight.cc\

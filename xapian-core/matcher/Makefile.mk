@@ -12,6 +12,7 @@ noinst_HEADERS +=\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
 	matcher/multiandpostlist.h\
+	matcher/multimatch.h\
 	matcher/multixorpostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\

@@ -36,13 +36,13 @@
 
 #include "database.h"
 #include "debuglog.h"
-#include "esetinternal.h"
-#include "expandweight.h"
-#include "multimatch.h"
+#include "expand/esetinternal.h"
+#include "expand/expandweight.h"
+#include "matcher/multimatch.h"
 #include "omassert.h"
 #include "omenquireinternal.h"
 #include "str.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <algorithm>
 #include "autoptr.h"

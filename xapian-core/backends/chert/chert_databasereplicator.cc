@@ -2,7 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010 Olly Betts
+ * Copyright 2009,2010,2011 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@
 #include "debuglog.h"
 #include "io_utils.h"
 #include "pack.h"
-#include "remoteconnection.h"
+#include "net/remoteconnection.h"
 #include "replicate_utils.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
