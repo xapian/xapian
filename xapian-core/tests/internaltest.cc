@@ -39,7 +39,7 @@ using namespace std;
 
 #include "omassert.h"
 #include "pack.h"
-#include "net/serialise.h"
+#include "../net/serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 

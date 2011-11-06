@@ -1,3 +1,7 @@
+Sun Nov 06 11:56:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Fix for VPATH build.
+
 Sun Nov 06 11:26:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/,tests/api_replicate.cc: Factor internal classes out of
