@@ -1,3 +1,9 @@
+Sun Nov 06 16:06:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/database.h,backends/document.h,
+	  backends/multi/multi_alltermslist.h,backends/positionlist.h,common/,
+	  tests/harness/: More more headers out of common.
+
 Sun Nov 06 14:55:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/maptermlist.h,backends/inmemory/Makefile.mk,

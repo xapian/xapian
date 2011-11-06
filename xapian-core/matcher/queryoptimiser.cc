@@ -34,7 +34,7 @@
 #include "multimatch.h"
 #include "multixorpostlist.h"
 #include "omassert.h"
-#include "omqueryinternal.h"
+#include "api/omqueryinternal.h"
 #include "orpostlist.h"
 #include "phrasepostlist.h"
 #include "api/postlist.h"

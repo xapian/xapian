@@ -34,13 +34,13 @@
 
 #include "vectortermlist.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
 #include "matcher/multimatch.h"
 #include "omassert.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 #include "str.h"
 #include "weight/weightinternal.h"
 

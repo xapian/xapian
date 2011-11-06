@@ -100,7 +100,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 *  will attempt to clean things up by cancelling the transaction,
 	 *  but any errors produced by these operations will not be reported.
 	 */
-        virtual ~Internal();
+	virtual ~Internal();
 
 	/** Send a keep-alive signal to a remote database, to stop
 	 *  it from timing out.

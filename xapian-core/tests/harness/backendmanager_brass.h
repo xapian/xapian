@@ -28,8 +28,6 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
-
 /// BackendManager subclass for brass databases.
 class BackendManagerBrass : public BackendManager {
     /// Don't allow assignment.

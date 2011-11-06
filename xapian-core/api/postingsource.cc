@@ -26,8 +26,8 @@
 
 #include "autoptr.h"
 
-#include "database.h"
-#include "document.h"
+#include "backends/database.h"
+#include "backends/document.h"
 #include "matcher/multimatch.h"
 
 #include "xapian/document.h"

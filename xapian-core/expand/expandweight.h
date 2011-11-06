@@ -1,7 +1,7 @@
 /** @file expandweight.h
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include <xapian/database.h>
 
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <string>
 #include <vector>

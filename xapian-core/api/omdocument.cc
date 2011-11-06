@@ -25,7 +25,7 @@
 
 #include <xapian/document.h>
 
-#include "document.h"
+#include "backends/document.h"
 #include "documentvaluelist.h"
 #include "maptermlist.h"
 #include "net/serialise.h"

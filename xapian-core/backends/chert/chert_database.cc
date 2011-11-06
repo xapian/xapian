@@ -53,7 +53,7 @@
 #include "pack.h"
 #include "net/remoteconnection.h"
 #include "replicate_utils.h"
-#include "replication.h"
+#include "api/replication.h"
 #include "replicationprotocol.h"
 #include "net/serialise.h"
 #include "str.h"

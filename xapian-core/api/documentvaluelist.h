@@ -23,7 +23,7 @@
 
 #include "backends/valuelist.h"
 
-#include "document.h"
+#include "backends/document.h"
 
 /// Iteration over values in a document.
 class DocumentValueList : public ValueList {

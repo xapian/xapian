@@ -28,7 +28,7 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
+#include "backends/positionlist.h"
 #include "weight/weightinternal.h"
 
 /// Abstract base class for postlists.

@@ -26,7 +26,7 @@
 #include "api_replicate.h"
 
 #include <xapian.h>
-#include "replication.h"
+#include "api/replication.h"
 
 #include "apitest.h"
 #include "dbcheck.h"

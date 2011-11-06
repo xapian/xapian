@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_BRASS_DATABASE_H
 #define OM_HGUARD_BRASS_DATABASE_H
 
-#include "database.h"
+#include "backends/database.h"
 #include "brass_dbstats.h"
 #include "brass_inverter.h"
 #include "brass_positionlist.h"

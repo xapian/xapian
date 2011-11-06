@@ -24,9 +24,9 @@
 #include <xapian/types.h>
 
 #include "backends/alltermslist.h"
-#include "database.h"
+#include "backends/database.h"
 #include "chert_lazytable.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <set>
 #include <string>

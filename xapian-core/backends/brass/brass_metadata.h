@@ -28,7 +28,7 @@
 
 #include "backends/alltermslist.h"
 #include "brass_table.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <string>
 

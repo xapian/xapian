@@ -25,7 +25,7 @@
 #include "termlist.h"
 
 #include "backends/inmemory/inmemory_positionlist.h"
-#include "document.h"
+#include "backends/document.h"
 
 #include "omassert.h"
 

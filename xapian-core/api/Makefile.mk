@@ -1,10 +1,15 @@
 noinst_HEADERS +=\
+	api/documentterm.h\
 	api/documentvaluelist.h\
 	api/editdistance.h\
 	api/emptypostlist.h\
 	api/leafpostlist.h\
 	api/maptermlist.h\
+	api/omenquireinternal.h\
+	api/omqueryinternal.h\
 	api/postlist.h\
+	api/replication.h\
+	api/termlist.h\
 	api/vectortermlist.h
 
 EXTRA_DIST +=\

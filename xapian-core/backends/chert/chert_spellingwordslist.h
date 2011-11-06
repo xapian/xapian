@@ -22,7 +22,7 @@
 #define XAPIAN_HGUARD_CHERT_SPELLINGWORDSLIST_H
 
 #include "backends/alltermslist.h"
-#include "database.h"
+#include "backends/database.h"
 #include "chert_spelling.h"
 
 class ChertCursor;

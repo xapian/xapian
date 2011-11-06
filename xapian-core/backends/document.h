@@ -25,9 +25,9 @@
 
 #include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
-#include "termlist.h"
-#include "database.h"
-#include "documentterm.h"
+#include "api/termlist.h"
+#include "backends/database.h"
+#include "api/documentterm.h"
 #include <map>
 #include <string>
 
@@ -52,9 +52,9 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     private:
-        // Prevent copying
-        Internal(const Internal &);
-        Internal & operator=(const Internal &);
+	// Prevent copying
+	Internal(const Internal &);
+	Internal & operator=(const Internal &);
 
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack
@@ -140,7 +140,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	 *
 	 *  @return       An string containing the data for this document.
 	 */
-	string get_data() const;	
+	string get_data() const;
 
 	void set_data(const string &);
 
@@ -209,7 +209,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	    : database(database_), data_here(false), values_here(false),
 	      terms_here(false), positions_modified(false), did(did_) { }
 
-        Internal()
+	Internal()
 	    : database(0), data_here(false), values_here(false),
 	      terms_here(false), positions_modified(false), did(0) { }
 

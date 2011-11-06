@@ -23,7 +23,7 @@
 
 #include "multi_termlist.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
 #include "expand/expandweight.h"
 

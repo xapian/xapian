@@ -1,7 +1,7 @@
 /** @file replicatetcpserver.h
  * @brief TCP/IP replication server class.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #include "tcpserver.h"
 
 #include "xapian/visibility.h"
-#include "replication.h"
+#include "api/replication.h"
 
 class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
     /// The path to pass to DatabaseMaster.

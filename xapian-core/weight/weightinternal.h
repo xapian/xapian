@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 #include "xapian/database.h"
 #include "xapian/query.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "internaltypes.h"
 
 #include <map>

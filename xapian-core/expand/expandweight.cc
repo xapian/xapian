@@ -1,7 +1,7 @@
 /** @file expandweight.cc
  * @brief Calculate term weights for the ESet.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2011 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 
 #include "debuglog.h"
 #include "omassert.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <cmath>
 

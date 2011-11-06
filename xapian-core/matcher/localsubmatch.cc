@@ -23,15 +23,15 @@
 
 #include "localsubmatch.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
 #include "extraweightpostlist.h"
 #include "api/leafpostlist.h"
 #include "omassert.h"
-#include "omqueryinternal.h"
+#include "api/omqueryinternal.h"
 #include "queryoptimiser.h"
 #include "synonympostlist.h"
-#include "termlist.h"
+#include "api/termlist.h"
 #include "weight/weightinternal.h"
 
 #include "autoptr.h"

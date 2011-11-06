@@ -33,14 +33,14 @@
 #include "submatch.h"
 #include "localsubmatch.h"
 #include "omassert.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 
 #include "api/emptypostlist.h"
 #include "branchpostlist.h"
 #include "mergepostlist.h"
 
-#include "document.h"
-#include "omqueryinternal.h"
+#include "backends/document.h"
+#include "api/omqueryinternal.h"
 
 #include "submatch.h"
 

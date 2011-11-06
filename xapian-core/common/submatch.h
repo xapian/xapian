@@ -24,7 +24,7 @@
 #include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 #include "api/postlist.h"
 #include "xapian/weight.h"
 

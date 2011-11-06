@@ -23,7 +23,7 @@
 
 #include "backends/alltermslist.h"
 
-#include "database.h"
+#include "backends/database.h"
 
 #include <string>
 #include <vector>

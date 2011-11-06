@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010 Olly Betts
+/* Copyright (C) 2008,2010,2011 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,14 +25,14 @@
 
 #include "xapian/enquire.h"
 #include "xapian/expanddecider.h"
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 #include "expandweight.h"
 #include "omassert.h"
 #include "ortermlist.h"
 #include "str.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include "autoptr.h"
 #include <set>

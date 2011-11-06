@@ -48,7 +48,7 @@ class Xapian::PositionIterator::Internal : public Xapian::Internal::intrusive_ba
 	/** Gets size of position list.  This need only be an approximation.
 	 *  Typical use is to look for positional match restrictions (e.g.
 	 *  NEAR, PHRASE) around the least frequent term.
-	 */	
+	 */
 	virtual Xapian::termcount get_size() const = 0;
 
 	/// Gets current position.

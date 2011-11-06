@@ -28,8 +28,6 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
-
 /// BackendManager subclass for chert databases.
 class BackendManagerChert : public BackendManager {
     /// Don't allow assignment.

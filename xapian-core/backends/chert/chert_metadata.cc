@@ -1,7 +1,7 @@
 /** @file chert_metadata.cc
  * @brief Access to metadata for a chert database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 #include <config.h>
 #include "chert_metadata.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
 #include "omassert.h"
 #include "stringutils.h"

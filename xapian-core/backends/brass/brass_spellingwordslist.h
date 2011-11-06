@@ -22,7 +22,7 @@
 #define XAPIAN_HGUARD_BRASS_SPELLINGWORDSLIST_H
 
 #include "backends/alltermslist.h"
-#include "database.h"
+#include "backends/database.h"
 #include "brass_spelling.h"
 
 class BrassCursor;

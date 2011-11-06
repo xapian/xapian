@@ -24,7 +24,7 @@
 #include <xapian/types.h>
 
 #include "chert_lazytable.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <map>
 #include <set>

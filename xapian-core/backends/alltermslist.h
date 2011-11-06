@@ -1,7 +1,7 @@
 /** @file alltermslist.h
  * @brief Abstract base class for iterating all terms in a database.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_ALLTERMSLIST_H
 
-#include "termlist.h"
+#include "api/termlist.h"
 
 /// Abstract base class for iterating all terms in a database.
 class AllTermsList : public TermList {

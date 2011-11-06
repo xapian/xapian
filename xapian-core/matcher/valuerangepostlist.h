@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 #define XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 
-#include "database.h"
+#include "backends/database.h"
 #include "api/postlist.h"
 #include "backends/valuelist.h"
 

@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 #define XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 
-#include "document.h"
+#include "backends/document.h"
 #include "backends/valuelist.h"
 #include "xapian/types.h"
 

@@ -26,7 +26,7 @@
 
 #include <xapian/types.h>
 #include <xapian/error.h>
-#include "termlist.h"
+#include "api/termlist.h"
 #include "expand/expandweight.h"
 #include "remote-database.h"
 

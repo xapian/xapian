@@ -2,31 +2,23 @@ noinst_HEADERS +=\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
-	common/database.h\
 	common/debuglog.h\
-	common/document.h\
-	common/documentterm.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
-	common/multialltermslist.h\
 	common/noreturn.h\
 	common/omassert.h\
-	common/omenquireinternal.h\
-	common/omqueryinternal.h\
 	common/output.h\
 	common/output-internal.h\
-	common/positionlist.h\
 	common/pack.h\
 	common/pretty.h\
 	common/realtime.h\
 	common/registryinternal.h\
 	common/remoteprotocol.h\
 	common/replicate_utils.h\
-	common/replication.h\
 	common/replicationprotocol.h\
 	common/safedirent.h\
 	common/safeerrno.h\
@@ -43,7 +35,6 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h\
 	common/submatch.h\
-	common/termlist.h\
 	common/unaligned.h\
 	common/utils.h
 

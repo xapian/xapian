@@ -28,7 +28,7 @@
 #include "xapian/error.h"
 #include "xapian/version.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "backends/databasereplicator.h"
 #include "debuglog.h"
 #include "fileutils.h"

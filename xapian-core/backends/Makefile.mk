@@ -2,9 +2,12 @@ noinst_HEADERS +=\
 	backends/alltermslist.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
+	backends/database.h\
 	backends/databasereplicator.h\
+	backends/document.h\
 	backends/flint_lock.h\
 	backends/multivaluelist.h\
+	backends/positionlist.h\
 	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h\
 	backends/valuelist.h\

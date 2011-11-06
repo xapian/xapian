@@ -50,7 +50,7 @@
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
-#include "replication.h"
+#include "api/replication.h"
 #include "replicationprotocol.h"
 #include "net/serialise.h"
 #include "str.h"

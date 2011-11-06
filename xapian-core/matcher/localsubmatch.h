@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,9 @@
 #ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
 #define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
-#include "omqueryinternal.h"
+#include "api/omqueryinternal.h"
 #include "submatch.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"

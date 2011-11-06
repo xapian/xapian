@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_ORTERMLIST_H
 #define XAPIAN_INCLUDED_ORTERMLIST_H
 
-#include "termlist.h"
+#include "api/termlist.h"
 
 namespace Xapian {
 namespace Internal {

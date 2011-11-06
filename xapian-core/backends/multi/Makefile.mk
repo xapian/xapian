@@ -3,6 +3,7 @@ EXTRA_DIST +=\
 	backends/multi/Makefile
 
 noinst_HEADERS +=\
+	backends/multi/multi_alltermslist.h\
 	backends/multi/multi_postlist.h\
 	backends/multi/multi_termlist.h
 

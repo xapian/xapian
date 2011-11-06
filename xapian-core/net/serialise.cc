@@ -27,7 +27,7 @@
 #include <xapian/valueiterator.h>
 
 #include "omassert.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "utils.h"

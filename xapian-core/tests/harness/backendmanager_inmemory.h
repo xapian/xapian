@@ -28,8 +28,6 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
-
 /// BackendManager subclass for inmemory databases.
 class BackendManagerInMemory : public BackendManager {
     /// Don't allow assignment.

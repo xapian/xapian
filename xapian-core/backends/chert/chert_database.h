@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_CHERT_DATABASE_H
 #define OM_HGUARD_CHERT_DATABASE_H
 
-#include "database.h"
+#include "backends/database.h"
 #include "chert_dbstats.h"
 #include "chert_positionlist.h"
 #include "chert_postlist.h"

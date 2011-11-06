@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_CONST_DATABASE_WRAPPER_H
 
 #include "xapian/intrusive_ptr.h"
-#include "database.h"
+#include "backends/database.h"
 #include "noreturn.h"
 
 using namespace std;

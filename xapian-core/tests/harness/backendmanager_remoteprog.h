@@ -30,8 +30,6 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
-
 /// BackendManager subclass for remoteprog databases.
 class BackendManagerRemoteProg : public BackendManagerRemote {
     /// Don't allow assignment.

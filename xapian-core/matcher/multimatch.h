@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_MULTIMATCH_H
 #define OM_HGUARD_MULTIMATCH_H
 
-#include "omqueryinternal.h"
+#include "api/omqueryinternal.h"
 #include "submatch.h"
 
 #include <vector>
