@@ -1,3 +1,8 @@
+Sun Nov 06 17:14:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Add -I$(top_srcdir) so api/replication.h is found
+	  in a VPATH build.
+
 Sun Nov 06 16:06:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/database.h,backends/document.h,
