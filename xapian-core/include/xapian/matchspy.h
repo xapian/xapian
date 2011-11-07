@@ -121,6 +121,11 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *
      *  Note that the returned object will be deallocated by Xapian after use
      *  with "delete".  It must therefore have been allocated with "new".
+     *
+     *  @param s	A string containing the serialised results.
+     *  @param context	Registry object to use for unserialisation to permit
+     *			MatchSpy subclasses with sub-MatchSpy objects to be
+     *			implemented.
      */
     virtual MatchSpy * unserialise(const std::string & s,
 				   const Registry & context) const;
@@ -142,6 +147,8 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  If you don't want to support the remote backend in your match spy, you
      *  can use the default implementation which simply throws
      *  Xapian::UnimplementedError.
+     *
+     *  @param s	A string containing the serialised results.
      */
     virtual void merge_results(const std::string & s);
 
@@ -230,6 +237,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     /** Implementation of virtual operator().
      *
      *  This implementation tallies values for a matching document.
+     *
+     *  @param doc	The document to tally values for.
+     *  @param wt	The weight of the document (ignored by this class).
      */
     void operator()(const Xapian::Document &doc, Xapian::weight wt);
 

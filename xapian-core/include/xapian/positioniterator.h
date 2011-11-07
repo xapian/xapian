@@ -77,8 +77,9 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
     /** Advance the iterator to term position @a termpos.
      *
-     *  If the specified position isn't in the stream being iterated, then
-     *  the iterator is moved to the next term position after @a termpos.
+     *  @param termpos	The position to advance to.  If this position isn't in
+     *			the stream being iterated, then the iterator is moved
+     *			to the next term position after it which is.
      */
     void skip_to(Xapian::termpos termpos);
 

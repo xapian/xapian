@@ -1,3 +1,8 @@
+Mon Nov 07 01:59:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Document lots of parameters, fixing doxygen
+	  warnings.
+
 Sun Nov 06 22:05:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* generate-exceptions: Document all parameters to fix doxygen

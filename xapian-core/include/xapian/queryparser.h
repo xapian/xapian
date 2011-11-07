@@ -89,9 +89,17 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
 
     /** Check for a valid range of this type.
      *
-     *  If this ValueRangeProcessor recognises BEGIN..END it returns the
-     *  value number to range filter on.  Otherwise it returns
-     *  Xapian::BAD_VALUENO.
+     *  @param[in,out] begin	The start of the range as specified in the query
+     *				string by the user.  This parameter is a
+     *				non-const reference so the ValueRangeProcessor
+     *				can modify it to return the value to start the
+     *				range with.
+     *  @param[in,out] end	The end of the range.  This is also a non-const
+     *				reference so it can be modified.
+     *
+     *  @return	If this ValueRangeProcessor recognises the range BEGIN..END it
+     *		returns the value slot number to range filter on.  Otherwise it
+     *		returns Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
 };

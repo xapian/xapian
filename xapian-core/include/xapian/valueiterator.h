@@ -105,6 +105,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  overloading works.  Xapian::docid and Xapian::valueno are both typedefs
      *  for the same unsigned integer type, so overloading can't distinguish
      *  them.
+     *
+     *  @param docid_or_slot	The docid/slot to advance to.
      */
     void skip_to(Xapian::docid docid_or_slot);
 
@@ -129,6 +131,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  Currently the inmemory and remote backends behave in the
      *  latter way because they don't support streamed values and so skip_to()
      *  must check each document it skips over which is significantly slower.
+     *
+     *  @param docid	The document id to check.
      */
     bool check(Xapian::docid docid);
 

@@ -159,12 +159,14 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Test two Utf8Iterators for equality.
      *
+     *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
     bool operator==(const Utf8Iterator &other) const { return p == other.p; }
 
     /** Test two Utf8Iterators for inequality.
      *
+     *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
     bool operator!=(const Utf8Iterator &other) const { return p != other.p; }
