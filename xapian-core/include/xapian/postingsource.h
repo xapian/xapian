@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -71,6 +71,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  If you don't call this method, the upper bound will default to 0, for
      *  convenience when implementing "weight-less" PostingSource subclasses.
+     *
+     *  @param max_weight	The upper bound to set.
      */
     void set_maxweight(Xapian::weight max_weight);
 
@@ -177,6 +179,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  the docid in the single subdatabase relevant to this posting source.
      *  See the @a init() method for details.
      *
+     *  @param did	The document id to advance to.
      *  @param min_wt	The minimum weight contribution that is needed (this is
      *			just a hint which subclasses may ignore).
      */
@@ -212,6 +215,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Note: in the case of a multi-database search, the docid specified is
      *  the docid in the single subdatabase relevant to this posting source.
      *  See the @a init() method for details.
+     *
+     *  @param did	The document id to check.
+     *  @param min_wt	The minimum weight contribution that is needed (this is
+     *			just a hint which subclasses may ignore).
      */
     virtual bool check(Xapian::docid did, Xapian::weight min_wt);
 
@@ -504,14 +511,17 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     /** Add a mapping.
      *
      *  @param key The key looked up from the value slot.
-     *  @param weight The weight to give this key.
+     *  @param wt The weight to give this key.
      */
     void add_mapping(const std::string &key, double wt);
 
     /** Clear all mappings. */
     void clear_mappings();
 
-    /** Set a default weight for document values not in the map. */
+    /** Set a default weight for document values not in the map.
+     *
+     *  @param wt The weight to set as the default.
+     */
     void set_default_weight(double wt);
 
     Xapian::weight get_weight() const;

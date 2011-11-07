@@ -1,3 +1,9 @@
+Mon Nov 07 02:40:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Document undocumented parameters,
+	  fixing doxygen warnings.
+	* include/xapian/queryparser.h: Escape < and > in doxygen comments.
+
 Mon Nov 07 02:38:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Enquire::get_eset() doesn't take a min_wt

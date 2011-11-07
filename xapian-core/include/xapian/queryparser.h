@@ -482,11 +482,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *			@li Unknown range operation
      *			@li parse error
-     *			@li Syntax: <expression> AND <expression>
-     *			@li Syntax: <expression> AND NOT <expression>
-     *			@li Syntax: <expression> NOT <expression>
-     *			@li Syntax: <expression> OR <expression>
-     *			@li Syntax: <expression> XOR <expression>
+     *			@li Syntax: &lt;expression&gt; AND &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; OR &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
