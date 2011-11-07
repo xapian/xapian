@@ -982,8 +982,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *		     given term should be put in the ESet
 	 *
-	 *  @param min_wt    the minimum weight for included terms
-	 *
 	 *  @return	     An ESet object containing the results of the
 	 *		     expand.
 	 *
