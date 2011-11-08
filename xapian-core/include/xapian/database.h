@@ -111,11 +111,15 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	Database(const Database &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const Database &other);
 
@@ -173,10 +177,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 *
-	 *  If the term name is the empty string, the iterator returned
-	 *  will list all the documents in the database.  Such an iterator
-	 *  will always return a WDF value of 1, since there is no obvious
-	 *  meaning for this quantity in this case.
+	 *  @param tname	The termname to iterate postings for.  If the
+	 *			term name is the empty string, the iterator
+	 *			returned will list all the documents in the
+	 *			database.  Such an iterator will always return
+	 *			a WDF value of 1, since there is no obvious
+	 *			meaning for this quantity in this case.
 	 */
 	PostingIterator postlist_begin(const std::string &tname) const;
 
@@ -188,6 +194,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
+	 *
+	 *  @param did	The document id of the document to iterate terms for.
 	 */
 	TermIterator termlist_begin(Xapian::docid did) const;
 
@@ -254,9 +262,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Check if a given term exists in the database.
 	 *
-	 *  Return true if and only if the term exists in the database.
-	 *  This is the same as (get_termfreq(tname) != 0), but will often be
-	 *  more efficient.
+	 *  @param tname	The term to test the existence of.
+	 *
+	 *  @return	true if and only if the term exists in the database.
+	 *		This is the same as (get_termfreq(tname) != 0), but
+	 *		will often be more efficient.
 	 */
 	bool term_exists(const std::string & tname) const;
 
@@ -515,6 +525,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	WritableDatabase(const WritableDatabase &other);
 
@@ -524,6 +536,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  Note that only an WritableDatabase may be assigned to an
 	 *  WritableDatabase: an attempt to assign a Database is caught
 	 *  at compile-time.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const WritableDatabase &other);
 
@@ -604,6 +618,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  were pending before the transaction began will also be discarded.
 	 *
 	 *  Transactions aren't currently supported by the InMemory backend.
+	 *
+	 *  @param flushed	Is this a flushed transaction?  By default
+	 *			transactions are "flushed", which means that
+	 *			committing a transaction will ensure those
+	 *			changes are permanently written to the
+	 *			database.  By contrast, unflushed transactions
+	 *			only ensure that changes within the transaction
+	 *			are either all applied or all aren't.
 	 *
 	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
@@ -833,22 +855,26 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
 	/** Add a synonym for a term.
 	 *
-	 *  If @a synonym is already a synonym for @a term, then no action is
-	 *  taken.
+	 *  @param term		The term to add a synonym for.
+	 *  @param synonym	The synonym to add.  If this is already a
+	 *			synonym for @a term, then no action is taken.
 	 */
 	void add_synonym(const std::string & term,
 			 const std::string & synonym) const;
 
 	/** Remove a synonym for a term.
 	 *
-	 *  If @a synonym isn't a synonym for @a term, then no action is taken.
+	 *  @param term		The term to remove a synonym for.
+	 *  @param synonym	The synonym to remove.  If this isn't currently
+	 *			a synonym for @a term, then no action is taken.
 	 */
 	void remove_synonym(const std::string & term,
 			    const std::string & synonym) const;
 
 	/** Remove all synonyms for a term.
 	 *
-	 *  If @a term has no synonyms, no action is taken.
+	 *  @param term		The term to remove all synonyms for.  If the
+	 *			term has no synonyms, no action is taken.
 	 */
 	void clear_synonyms(const std::string & term) const;
 

@@ -67,11 +67,15 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	Document(const Document &other);
 
 	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const Document &other);
 
@@ -95,6 +99,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  The new value will replace any existing value with the same number
 	 *  (or if the new value is empty, it will remove any existing value
 	 *  with the same number).
+	 *
+	 *  @param slot		The value slot to add the value in.
+	 *  @param value	The value to set.
 	 */
 	void add_value(Xapian::valueno slot, const std::string &value);
 
@@ -118,6 +125,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  Xapian treats the data as an opaque blob.  It may try to compress
 	 *  it, but other than that it will just store it and return it when
 	 *  requested.
+	 *
+	 *  @param data	The data to store.
 	 */
 	void set_data(const std::string &data);
 
