@@ -397,4 +397,13 @@ if ($query->get_description() != 'Xapian::Query()') {
     }
 }
 
+# Regression test for SWIG bug - it was generating "return $r;" in wrapper
+# functions which didn't set $r.
+$indexer = new XapianTermGenerator();
+$doc = new XapianDocument();
+
+$indexer->set_document($doc);
+$indexer->index_text("I ask nothing in return");
+$indexer->index_text_without_positions("Tea time");
+
 ?>

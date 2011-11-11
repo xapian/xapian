@@ -1,3 +1,10 @@
+Fri Nov 11 18:53:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/smoketest.php: Add regression test for recently fixed SWIG bug
+	  which caused "return $r;" to be generated in some cases when $r
+	  wasn't set.
+
 Wed Aug 10 06:11:13 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Finalise 1.2.7.
