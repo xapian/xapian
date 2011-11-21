@@ -170,12 +170,17 @@ if [ -d ".git" ] ; then
     fi
   done
 
-  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  if [ -f .git/info/exclude ] ; then
+    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  else
+    [ -d .git/info ] || mkdir .git/info
+  fi
   cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 END
-  if cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+  if [ -f .git/info/exclude ] && 
+     cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
     rm .git/info/exclude~
   else
     mv .git/info/exclude~ .git/info/exclude
