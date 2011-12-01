@@ -804,11 +804,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  document.add_term(unique_term) first when using replace_document()
 	 *  in this way.
 	 *
-	 *  Another possible use is to allow groups of documents to be marked for
-	 *  later deletion - for example, you could add a "deletion date" term
-	 *  to documents at index time and use this method to easily and efficiently
-	 *  delete all documents due for deletion on a particular date.
-	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see commit() for more details.
 	 *
