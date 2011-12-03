@@ -161,7 +161,7 @@ DEFINE_TESTCASE(synonym1, backend) {
     // part in the OR query, except that the wqf of "date" is 2.  We're
     // currently not using the wqfs of components of synonyms, so this
     // difference has no effect on the weightings.  Therefore, for the 1
-    // document which does not contain "data", we get the same result with
+    // document which does not contain "date", we get the same result with
     // SYNONYM as with OR.
     subqueries_sameweight_count.push_back(1);
     subqueries_diffweight_count.push_back(33);
