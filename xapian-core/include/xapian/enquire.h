@@ -98,6 +98,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
+	 *
+	 *  @param wt	The weight to convert.
 	 */
 	Xapian::percent convert_to_percent(Xapian::weight wt) const;
 
@@ -235,6 +237,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  In other words, the offset is into the documents represented by
 	 *  this object, not into the set of documents matching the query.
+	 *
+	 *  @param i	The index into the MSet.
 	 */
 	MSetIterator operator[](Xapian::doccount i) const;
 
@@ -462,7 +466,10 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 	/** Iterator pointing to the last element of this E-Set */
 	ESetIterator back() const;
 
-	/** This returns the term at position i in this E-Set.  */
+	/** This returns the term at position i in this E-Set.
+	 *
+	 *  @param i	The index into the ESet.
+	 */
 	ESetIterator operator[](Xapian::termcount i) const;
 
 	/// Return a string describing this object.
@@ -615,7 +622,9 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
     public:
 	/** Decide whether we want this document to be in the MSet.
 	 *
-	 *  Return true if the document is acceptable, or false if the document
+	 *  @param doc	The document to test.
+	 *
+	 *  @return true if the document is acceptable, or false if the document
 	 *  should be excluded from the MSet.
 	 */
 	virtual bool operator()(const Xapian::Document &doc) const = 0;
@@ -1007,8 +1016,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *		     given term should be put in the ESet
-	 *
-	 *  @param min_wt    the minimum weight for included terms
 	 *
 	 *  @return	     An ESet object containing the results of the
 	 *		     expand.

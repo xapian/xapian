@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *
      *  Stemmed forms of stopwords aren't indexed, but unstemmed forms still
      *  are so that searches for phrases including stop words still work.
+     *
+     *  @param stop	The Stopper object to set (default NULL, which means no
+     *			stopwords).
      */
     void set_stopper(const Xapian::Stopper *stop = NULL);
 
@@ -101,6 +104,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Index some text.
      *
+     * @param itor	Utf8Iterator pointing to the text to index.
      * @param wdf_inc	The wdf increment (default 1).
      * @param prefix	The term prefix to use (default is no prefix).
      */
@@ -110,6 +114,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Index some text in a std::string.
      *
+     * @param text	The text to index.
      * @param wdf_inc	The wdf increment (default 1).
      * @param prefix	The term prefix to use (default is no prefix).
      */
@@ -124,6 +129,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * Just like index_text, but no positional information is generated.  This
      * means that the database will be significantly smaller, but that phrase
      * searching and NEAR won't be supported.
+     *
+     * @param itor	Utf8Iterator pointing to the text to index.
+     * @param wdf_inc	The wdf increment (default 1).
+     * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
 				      Xapian::termcount wdf_inc = 1,
@@ -134,6 +143,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * Just like index_text, but no positional information is generated.  This
      * means that the database will be significantly smaller, but that phrase
      * searching and NEAR won't be supported.
+     *
+     * @param text	The text to index.
+     * @param wdf_inc	The wdf increment (default 1).
+     * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text_without_positions(const std::string & text,
 				      Xapian::termcount wdf_inc = 1,
@@ -141,17 +154,23 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 	return index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 
-    /** Increase the termpos used by index_text by @a delta.
+    /** Increase the term position used by index_text.
      *
-     *  This can be used to prevent phrase searches from spanning two
-     *  unconnected blocks of text (e.g. the title and body text).
+     *  This can be used between indexing text from different fields or other
+     *  places to prevent phrase searches from spanning between them (e.g.
+     *  between the title and body text, or between two chapters in a book).
+     *
+     *  @param delta	Amount to increase the term position by (default: 100).
      */
     void increase_termpos(Xapian::termcount delta = 100);
 
     /// Get the current term position.
     Xapian::termcount get_termpos() const;
 
-    /// Set the current term position.
+    /** Set the current term position.
+     *
+     *  @param termpos	The new term position to set.
+     */
     void set_termpos(Xapian::termcount termpos);
 
     /// Return a string describing this object.

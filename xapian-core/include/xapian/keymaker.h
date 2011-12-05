@@ -35,9 +35,11 @@ class Document;
 /** Virtual base class for key making functors. */
 class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
   public:
-    /** This method takes a Document object and builds a key string from it.
+    /** Build a key string for a Document.
      *
-     *  These keys are then used for ordering or collapsing matching documents.
+     *  These keys can be used for sorting or collapsing matching documents.
+     *
+     *  @param doc	Document object to build a key for.
      */
     virtual std::string operator()(const Xapian::Document & doc) const = 0;
 

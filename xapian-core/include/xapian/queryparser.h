@@ -39,7 +39,10 @@ class Stem;
 /// Base class for stop-word decision functor.
 class XAPIAN_VISIBILITY_DEFAULT Stopper {
   public:
-    /// Is term a stop-word?
+    /** Is term a stop-word?
+     *
+     *  @param term	The term to test.
+     */
     virtual bool operator()(const std::string & term) const = 0;
 
     /// Class has virtual methods, so provide a virtual destructor.
@@ -73,12 +76,10 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     /// Add a single stop word.
     void add(const std::string & word) { stop_words.insert(word); }
 
-    /// Is term a stop-word?
     virtual bool operator()(const std::string & term) const {
 	return stop_words.find(term) != stop_words.end();
     }
 
-    /// Return a string describing this object.
     virtual std::string get_description() const;
 };
 
@@ -89,9 +90,17 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
 
     /** Check for a valid range of this type.
      *
-     *  If this ValueRangeProcessor recognises BEGIN..END it returns the
-     *  value number to range filter on.  Otherwise it returns
-     *  Xapian::BAD_VALUENO.
+     *  @param[in,out] begin	The start of the range as specified in the query
+     *				string by the user.  This parameter is a
+     *				non-const reference so the ValueRangeProcessor
+     *				can modify it to return the value to start the
+     *				range with.
+     *  @param[in,out] end	The end of the range.  This is also a non-const
+     *				reference so it can be modified.
+     *
+     *  @return	If this ValueRangeProcessor recognises the range BEGIN..END it
+     *		returns the value slot number to range filter on.  Otherwise it
+     *		returns Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
 };
@@ -128,15 +137,21 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
 			      bool prefix_ = true)
 	: valno(slot_), prefix(prefix_), str(str_) { }
 
-    /** Check for a valid range of this type.
+    /** Check for a valid string range.
      *
-     *  If no prefix or suffix is specified, then this always returns the
-     *  value slot specified at construction time.
+     *  @param[in,out] begin	The start of the range as specified in the
+     *				query string by the user.  This parameter is a
+     *				non-const reference so the ValueRangeProcessor
+     *				can modify it to return the value to start the
+     *				range with.
+     *  @param[in,out] end	The end of the range.  This is also a non-const
+     *				reference so it can be modified.
      *
-     *  If a prefix or suffix is specified, this is checked for first, and
-     *  it it doesn't match, this method returns Xapian::BAD_VALUENO.
+     *  @return	A StringValueRangeProcessor always accepts a range it is
+     *		offered, and returns the value of slot_ passed at construction
+     *		time.  It doesn't modify @a begin or @a end.
      */
-    Xapian::valueno operator()(std::string &, std::string &);
+    Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
 /** Handle a date range.
@@ -206,11 +221,20 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
 	: StringValueRangeProcessor(slot_, str_, prefix_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
-    /** Check for a valid range of this type.
+    /** Check for a valid date range.
      *
-     *  If BEGIN..END is a sensible date range, this method returns the
-     *  value number of range filter on.  Otherwise it returns
-     *  Xapian::BAD_VALUENO.
+     *  @param[in,out] begin	The start of the range as specified in the
+     *				query string by the user.  This parameter is a
+     *				non-const reference so the ValueRangeProcessor
+     *				can modify it to return the value to start the
+     *				range with.
+     *  @param[in,out] end	The end of the range.  This is also a non-const
+     *				reference so it can be modified.
+     *
+     *  @return	If BEGIN..END is a sensible date range, this method modifies
+     *		them into the format YYYYMMDD and returns the value of slot_
+     *		passed at construction time.  Otherwise it returns
+     *		Xapian::BAD_VALUENO.
      */
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
@@ -267,14 +291,22 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
 			      bool prefix_ = true)
 	: StringValueRangeProcessor(slot_, str_, prefix_) { }
 
-    /** Check for a valid range of this type.
+    /** Check for a valid numeric range.
      *
-     *  If BEGIN..END is a valid numeric value range, and has the
-     *  appropriate prefix or suffix (if specified) required for this
-     *  NumberValueRangeProcessor, this method returns the value number of
-     *  range filter on, and sets begin and end to the appropriate serialised
-     *  values needed to delimit the range.  Otherwise it returns
-     *  Xapian::BAD_VALUENO.
+     *  @param[in,out] begin	The start of the range as specified in the
+     *				query string by the user.  This parameter is a
+     *				non-const reference so the ValueRangeProcessor
+     *				can modify it to return the value to start the
+     *				range with.
+     *  @param[in,out] end	The end of the range.  This is also a non-const
+     *				reference so it can be modified.
+     *
+     *  @return	If BEGIN..END is a valid numeric range with the specified
+     *		prefix/suffix (if one was specified), this method modifies
+     *		them by removing the prefix/suffix, converting to a number,
+     *		and encoding with Xapian::sortable_serialise(), and returns the
+     *		value of slot_ passed at construction time.  Otherwise it
+     *		returns Xapian::BAD_VALUENO.
      */
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
@@ -398,15 +430,19 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  to the stemming strategy set by set_stemming_strategy(), which defaults
      *  to STEM_NONE.  Therefore, to use a stemming algorithm, you will also
      *  need to call set_stemming_strategy() with a value other than STEM_NONE.
+     *
+     *  @param stemmer	The Xapian::Stem object to set.
      */
     void set_stemmer(const Xapian::Stem & stemmer);
 
     /** Set the stemming strategy.
      *
      *  This controls how the query parser will apply the stemming algorithm.
-     *  The default value is STEM_NONE.  The possible values are:
+     *  Note that the stemming algorithm is only applied to words in
+     *  probabilistic fields - boolean filter terms are never stemmed.
      *
-     *   - STEM_NONE: Don't perform any stemming.
+     *  @param strategy	The strategy to use - possible values are:
+     *   - STEM_NONE: Don't perform any stemming (the default).
      *   - STEM_SOME: Search for stemmed forms of terms except for those which
      *		      start with a capital letter, or are followed by certain
      *		      characters (currently: (/\@<>=*[{" ), or are used with
@@ -414,25 +450,27 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		      terms are prefixed with 'Z'.
      *   - STEM_ALL:  Search for stemmed forms of all words (note: no 'Z'
      *		      prefix is added).
-     *
-     *  Note that the stemming algorithm is only applied to words in
-     *  probabilistic fields - boolean filter terms are never stemmed.
      */
     void set_stemming_strategy(stem_strategy strategy);
 
-    /// Set the stopper.
+    /** Set the stopper.
+     *
+     *  @param stop	The Stopper object to set (default NULL, which means no
+     *			stopwords).
+     */
     void set_stopper(const Stopper *stop = NULL);
 
     /** Set the default operator.
      *
-     *  This operator is used to combine non-filter query items when no
-     *  explicit operator is used.
+     *  @param default_op	The operator to use to combine non-filter
+     *				query items when no explicit operator is used.
      *
-     *  The most useful values for this are OP_OR (the default) and OP_AND.
-     *  OP_NEAR and OP_PHRASE can also be useful.
+     *				The most useful values for this are OP_OR (the
+     *				default) and OP_AND.  OP_NEAR and OP_PHRASE can
+     *				also be useful.
      *
-     *  So for example, 'weather forecast' is parsed as if it were 'weather OR
-     *  forecast' by default.
+     *				So for example, 'weather forecast' is parsed as
+     *				if it were 'weather OR forecast' by default.
      */
     void set_default_op(Query::op default_op);
 
@@ -441,10 +479,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Specify the database being searched.
      *
-     *  The database is used for wildcard expansion (FLAG_WILDCARD and
-     *  FLAG_PARTIAL), spelling correction (FLAG_SPELLING_CORRECTION), and
-     *  synonyms (FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and
-     *  FLAG_AUTO_MULTIWORD_SYNONYMS).
+     *  @param db	The database to use for wildcard expansion
+     *			(FLAG_WILDCARD and FLAG_PARTIAL), spelling correction
+     *			(FLAG_SPELLING_CORRECTION), and synonyms (FLAG_SYNONYM,
+     *			FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS).
      */
     void set_database(const Database &db);
 
@@ -474,11 +512,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *			@li Unknown range operation
      *			@li parse error
-     *			@li Syntax: <expression> AND <expression>
-     *			@li Syntax: <expression> AND NOT <expression>
-     *			@li Syntax: <expression> NOT <expression>
-     *			@li Syntax: <expression> OR <expression>
-     *			@li Syntax: <expression> XOR <expression>
+     *			@li Syntax: &lt;expression&gt; AND &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; OR &lt;expression&gt;
+     *			@li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
@@ -635,6 +673,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
  *  the encoding in some situation where this distinction matters.
  *
  *  Handling of NaN isn't (currently) guaranteed to be sensible.
+ *
+ *  @param value	The number to serialise.
  */
 XAPIAN_VISIBILITY_DEFAULT
 std::string sortable_serialise(double value);
@@ -650,6 +690,8 @@ std::string sortable_serialise(double value);
  *  supplied to @a sortable_serialise() when making the string on platforms
  *  which represent doubles with the precisions specified by IEEE_754, but
  *  may be a different (nearby) value on other platforms.
+ *
+ *  @param value	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
 double sortable_unserialise(const std::string & value);

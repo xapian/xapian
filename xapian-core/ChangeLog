@@ -1,3 +1,25 @@
+Mon Dec 05 15:29:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* include/xapian/enquire.h: Add missing doxygen @param commands.
+	* include/xapian/database.h,include/xapian/document.h: Add missing
+	  doxygen @param commands.
+	* include/xapian/queryparser.h: Address doxygen warnings.
+	* include/xapian/postingsource.h: Document undocumented parameters,
+	  fixing doxygen warnings.
+	* include/xapian/queryparser.h: Escape < and > in doxygen comments.
+	* include/xapian/enquire.h: Enquire::get_eset() doesn't take a min_wt
+	  parameter, so remove @param documentation for it.
+	* include/xapian/: Document lots of parameters, fixing doxygen
+	  warnings.
+	* generate-exceptions: Document all parameters to fix doxygen
+	  warnings.
+	* include/xapian/: Fix doxygen warnings.
+	* include/xapian/queryparser.h: Document value parameter of
+	  sortable_serialise() and sortable_unserialise().
+	* include/xapian/document.h: Improve Document get_data() and set_data()
+	  documentation comments.
+
 Mon Dec 05 15:08:53 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
