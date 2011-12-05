@@ -22,6 +22,7 @@
 
 #ifdef __WIN32__
 
+#include "realtime.h"
 #include "safewindows.h"
 
 // Used by safeunistd.h:

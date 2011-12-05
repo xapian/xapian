@@ -1,3 +1,12 @@
+Mon Dec 05 14:28:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/msvc_posix_wrapper.cc,common/safe.cc,net/tcpclient.cc:
+	  Some fixes for warnings when cross-compiling with mingw; missing
+	  includes to get declarations of functions in windows support
+	  code, and change to use the windows SOCKET type to avoid a
+	  signed/unsigned comparison warning in tcpclient.
+
 Mon Dec 05 13:59:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
