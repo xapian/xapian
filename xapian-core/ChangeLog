@@ -1,3 +1,9 @@
+Mon Dec 05 14:58:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* docs/quickstart.rst: Fix indentation of example code.
+	* docs/overview.rst: Fix typo in example code.
+
 Mon Dec 05 14:55:46 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -451,9 +451,9 @@ Now we display some information about each of the items in the
         Xapian::MSetIterator i;
         for (i = matches.begin(); i != matches.end(); ++i) {
             cout << "Document ID " << *i << "\t";
-        cout << i.get_percent() << "% ";
+            cout << i.get_percent() << "% ";
             Xapian::Document doc = i.get_document();
-        cout << "[" << doc.get_data() << "]" << endl;
+            cout << "[" << doc.get_data() << "]" << endl;
         }
 
 --------------
