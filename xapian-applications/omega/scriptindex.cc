@@ -411,6 +411,11 @@ parse_index_script(const string &filename)
 	    }
 	}
     }
+
+    if (index_spec.empty()) {
+	cout << filename << ": No rules found in index script" << endl;
+	exit(1);
+    }
 }
 
 static bool

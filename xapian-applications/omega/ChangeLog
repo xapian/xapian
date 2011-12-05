@@ -1,3 +1,9 @@
+Mon Dec 05 03:19:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: If no rules are found in the index script, report an
+	  error and give up - this is inevitably the result of a mistake, and
+	  adding empty documents to the database isn't helpful.
+
 Sat Oct 29 14:49:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Add note to discourage use of percentage
