@@ -1,3 +1,15 @@
+Mon Dec 05 14:39:23 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* common/safesysselect.h: Fix typo (FDSET -> FD_SET).
+	* common/safesysselect.h: Enhance to provide portability for __WIN32__
+	  too.
+	* net/remoteconnection.cc,net/tcpclient.cc: Update to make use of this.
+	* common/safesysselect.h: Add wrapper around FD_SET() under __WIN32__
+	  which casts the fd parameter to unsigned to avoid a warning on mingw.
+	* net/tcpclient.cc: Remove __WIN32__-specific case here which was
+	  working around this warning.
+
 Mon Dec 05 14:28:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

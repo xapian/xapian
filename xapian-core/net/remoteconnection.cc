@@ -26,6 +26,7 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safesysselect.h"
 #include "safeunistd.h"
 
 #include <algorithm>
@@ -38,9 +39,7 @@
 #include "socket_utils.h"
 #include "utils.h"
 
-#ifndef __WIN32__
-# include "safesysselect.h"
-#else
+#ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 
