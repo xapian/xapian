@@ -1,3 +1,8 @@
+Mon Dec 05 14:55:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/database.h: Note that commit() was new in 1.1.0.
+
 Mon Dec 05 14:39:23 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

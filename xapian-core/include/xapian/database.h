@@ -546,6 +546,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  you can improve indexing throughput dramatically by setting
 	 *  XAPIAN_FLUSH_THRESHOLD in the environment to a larger value.
 	 *
+	 *  This method was new in Xapian 1.1.0 - in earlier versions it was
+	 *  called flush().
+	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
 	 *
