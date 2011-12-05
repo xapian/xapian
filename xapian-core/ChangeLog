@@ -1,3 +1,11 @@
+Mon Dec 05 15:08:53 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* docs/overview.rst: Fix a few things which were out of date and
+	  improve wording in various places.
+	* docs/quickstart.rst: Fix some factual errors, and tweak .rst
+	  source layout a little (":\n::\n" -> "::\n").
+
 Mon Dec 05 15:01:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

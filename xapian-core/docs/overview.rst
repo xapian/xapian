@@ -48,9 +48,8 @@ just like those in the C++ STL.
 Errors and exceptions
 ---------------------
 
-Error reporting is often relegated to the back of manuals such as this.
-However, it is extremely important to understand the errors which may be
-caused by the operations which you are trying to perform.
+It is important to understand the errors which may be caused by the
+operations which you are trying to perform.
 
 This becomes particularly relevant when using a large system, with such
 possibilities as databases which are being updated while you search
@@ -80,7 +79,7 @@ calling
 
 In addition, standard system errors may occur: these will be reported by
 throwing appropriate exceptions. Most notably, if the system runs out of
-memory, a ``std::bad_alloc()`` exception will be thrown.
+memory, a ``std::bad_alloc`` exception will be thrown.
 
 Terminology
 -----------
@@ -114,10 +113,10 @@ The user of Xapian does not usually need to worry about how Xapian
 performs its memory allocation: Xapian objects can all be created and
 deleted as any other C++ objects. The convention is that whoever creates
 an object is ultimately responsible for deleting it. This becomes
-relevant when passing a pointer to data to Xapian: Xapian will not
-assume that such pointers remain valid across separate API calls, and it
-will be the callers responsibility to delete the object pointed to, as
-and when required.
+relevant when passing a pointer to data to Xapian: it will be the caller's
+responsibility to delete the object once it is finished with.  Where
+an object is set by one API call and used by another, Xapian will assume
+that such pointers remain valid.
 
 The Xapian::Enquire class
 -------------------------
@@ -244,7 +243,7 @@ Specifying a query
 ------------------
 
 Xapian implements both boolean and probabilistic searching. There are
-two obvious ways in which a pure boolean query can be combined with a
+two obvious ways in which a pure boolean query could be combined with a
 pure probabilistic query:
 
 -  First perform the boolean search to create a subset of the whole
@@ -293,8 +292,8 @@ term query can be created as follows (where ``term`` is a
 
     Xapian::Query query(term);
 
-A term in Xapian is represented simply by a string of binary characters.
-Usually, when searching text, these characters will be the word which
+A term in Xapian is represented simply by a string of bytes.  Usually, when
+searching text, these bytes will represent the characters of the word which
 the term represents, but during the information retrieval process Xapian
 attaches no specific meaning to the term.
 
@@ -306,15 +305,15 @@ query::
             Xapian::termcount wqf_ = 1,
             Xapian::termpos term_pos_ = 0)
 
-The ``wqf`` (Within Query Frequency) is a measure of how
-common a term is in the query. This isn't useful for a single term query
-unless it is going to be combined to form a more complex query. In that
-case, it's particularly useful when generating a query from an existing
-document, but may also be used to increase the "importance"  of a term in
-a query. Another way to increase the "importance" of a term is to use
-``OP_SCALE_WEIGHT``. But if the intention is simply to ensure that a
-particular term is in the query results, you should use a boolean AND or
-AND\_MAYBE rather than setting a high wqf.
+The ``wqf`` (Within Query Frequency) is a measure of how common a term is
+in the query. This isn't useful for a single term query unless it is going
+to form part of a more complex query. In that case, it's particularly
+useful when generating a query from an existing document, but may also be
+used to increase the "importance" of a term in a query. Another way to
+increase the "importance" of a term is to use ``OP_SCALE_WEIGHT``. But if
+the intention is simply to ensure that a particular term is in the query
+results, you should use a boolean AND or AND\_MAYBE rather than setting a
+high wqf.
 
 The ``term_pos`` represents the position of the term in the query.
 Again, this isn't useful for a single term query by itself, but is used
@@ -351,7 +350,7 @@ probabilistic query in its simplest form, where we have a list of terms
 which give rise to weights that need to be added together, is also made
 up from a set of terms joined together with ``Xapian::Query::OP_OR``.
 
-The full set of available ``Xapian::Query::op`` operators is:
+Some of the available ``Xapian::Query::op`` operators are:
 
 +---------------------------------+-----------------------------------------------------------------------------------------------------------------------+
 | Xapian::Query::OP\_AND          | Return documents returned by both subqueries.                                                                         |
@@ -524,7 +523,7 @@ This creates a probabilistic query with terms \`regulation', \`import',
 In fact this style of creation is so common that there is the shortcut
 construction::
 
-        vector <string> terms;
+        vector<string> terms;
         terms.push_back("regulation");
         terms.push_back("import");
         terms.push_back("export");
@@ -539,7 +538,7 @@ Boolean queries
 Suppose now we have this Boolean query,
 ::
 
-        ('EEC' - 'France') and ('1989' or '1991' or '1992') and 'Corporate Law'
+        ('EEC' - 'France') and ('1989' or '1991' or '1992') and 'Corporate_Law'
 
 This could be built up as bquery like this,
 ::
@@ -550,7 +549,7 @@ This could be built up as bquery like this,
         bquery2 = Xapian::Query(Xapian::Query::OP_OR, bquery2, "1991");
         bquery2 = Xapian::Query(Xapian::Query::OP_OR, bquery2, "1992");
 
-        Xapian::Query bquery3("Corporate Law");
+        Xapian::Query bquery3("Corporate_Law");
 
         Xapian::Query bquery(Xapian::Query::OP_AND, bquery1, Xapian::Query(Xapian::Query::OP_AND(bquery2, bquery3)));
 
@@ -578,9 +577,9 @@ of the retrieved documents (\`-' terms). For example,
 the corresponding query can be set up by,
 ::
 
-        vector <string> plus_terms;
-        vector <string> minus_terms;
-        vector <string> normal_terms;
+        vector<string> plus_terms;
+        vector<string> minus_terms;
+        vector<string> normal_terms;
 
         plus_terms.push_back("canned");
         plus_terms.push_back("fish");
@@ -603,16 +602,13 @@ Undefined queries
 ~~~~~~~~~~~~~~~~~
 
 Performing a match with an undefined query matches nothing, which is
-sometimes useful. However an undefined query can't be used with
-operators to compose a query.
+sometimes useful. Composing an undefined query with operators behaves
+just as it would for any subquery which matches nothing.
 
 Retrieving the results of a query
 ---------------------------------
 
-The Xapian::Enquire class does not require that a method be called in
-order to perform the query. Rather, you simply ask for the results of a
-query, and it will perform whatever calculations are necessary to
-provide the answer::
+To get the results of the query, call the ``Enquire::get_mset()`` method::
 
     Xapian::MSet Xapian::Enquire::get_mset(Xapian::doccount first,
                                Xapian::doccount maxitems,
@@ -744,12 +740,12 @@ the Xapian::Enquire object <apidoc/html/classXapian_1_1Enquire.html>`_.
 The options are as follows.
 
 collapse key
-    Each document in a database may have a set of numbered keys. The contents
-    of each key is a string of arbitrary length. The
-    ``set_collapse_key(Xapian::valueno collapse_key)`` method specifies a key
-    number upon which to remove duplicates. Only the most recently set
-    duplicate removal key is active at any time, and the default is to perform
-    no duplicate removal.
+    Each document in a database may have a set of numbered value slots. The
+    contents of each value slot is a string of arbitrary length. The
+    ``set_collapse_key(Xapian::valueno collapse_key)`` method specifies a
+    value slot number upon which to remove duplicates. Only the most
+    recently set duplicate removal key is active at any time, and the
+    default is to perform no duplicate removal.
 percentage cutoff
     It may occasionally be desirable to exclude any documents which have a
     weight less than a given percentage value. This may be done using
@@ -760,7 +756,7 @@ sort direction
     be returned in ascending document id order. This can be changed by using
     ``set_docid_order()`` to set the sort direction.
 
-    ``set_sort_forward(Xapian::Enquire::DESCENDING)`` may be useful, for
+    ``set_docid_order(Xapian::Enquire::DESCENDING)`` may be useful, for
     example, when it would be best to return the newest documents, and new
     documents are being added to the end of the database (which is what happens
     by default).
@@ -778,8 +774,9 @@ decision based on the document values via
 
 The functor will also have access to the document data stored in the
 database (via ``Xapian::Document::get_data()``), but beware that for
-most database backends, this is an expensive operation and is likely to
-slow down the search considerably.
+most database backends, this is an expensive operation to be calling
+for a lot of documents, so doing that is likely to slow down the search
+considerably.
 
 Expand - Suggesting new terms for the query
 -------------------------------------------

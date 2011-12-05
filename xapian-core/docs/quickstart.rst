@@ -203,9 +203,8 @@ term to the struct. The first parameter is the "*termname*", which is a
 string defining the term. This string can be anything, as long as the
 same string is always used to refer to the same term. The string will
 often be the (possibly stemmed) text of the term, but might be in a
-compressed, or even hashed, form. In general, there is no upper limit to
-the length of a termname, but some database methods may impose their own
-limits.
+compressed, or even hashed, form. Most backends impose a limit on the
+length of a termname (for chert the limit is 245 bytes).
 
 The second parameter is the position at which the term occurs within the
 document. These positions start at 1. This information is used for some
@@ -394,25 +393,19 @@ Performing the search
 ~~~~~~~~~~~~~~~~~~~~~
 
 Now, we are ready to perform the search. The first step of this is to
-give the query object to the enquire session. Note that the query is
-copied at this operation, and that changing the Xapian::Query object
-after setting the query with it has no effect.
-
-::
+give the query object to the enquire session::
 
         enquire.set_query(query);
 
-Next, we ask for the results of the search. There is no need to tell
-Xapian to perform the search: it will do this automatically. We use the
-``get_mset()`` method to get the results, which are returned in an
-``Xapian::MSet`` object. (MSet for Match Set)
+Next, we ask for the results of the search, which implicitly performs the
+the search.  We use the ``get_mset()`` method to get the results, which are
+returned in an ``Xapian::MSet`` object. (MSet for Match Set)
 
 ``get_mset()`` can take many parameters, such as a set of relevant
 documents to use, and various options to modify the search, but we give
-it the minimum; which is the first document to return (starting at 0 for
+it the minimum, which is the first document to return (starting at 0 for
 the top ranked document), and the maximum number of documents to return
-(we specify 10 here):
-::
+(we specify 10 here)::
 
         Xapian::MSet matches = enquire.get_mset(0, 10);
 
@@ -422,8 +415,7 @@ Displaying the results of the search
 Finally, we display the results of the search. The results are stored in
 in the ``Xapian::MSet`` object, which provides the features required to
 be an STL-compatible container, so first we display how many items are
-in the MSet:
-::
+in the MSet::
 
         cout << matches.size() << " results found" << endl;
 
@@ -498,8 +490,7 @@ Compiling the quickstart examples
 
 Once you know the compilation flags, compilation is a simple matter of
 invoking the compiler! For our example, we could compile the two
-utilities (quickstartindex and quickstartsearch) with the commands:
-::
+utilities (quickstartindex and quickstartsearch) with the commands::
 
     c++ quickstartindex.cc `xapian-config --libs --cxxflags` -o quickstartindex
     c++ quickstartsearch.cc `xapian-config --libs --cxxflags` -o quickstartsearch
