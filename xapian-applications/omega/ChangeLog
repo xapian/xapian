@@ -1,3 +1,10 @@
+Tue Dec 06 13:30:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* scriptindex.cc: If no rules are found in the index script, report an
+	  error and give up - this is inevitably the result of a mistake, and
+	  adding empty documents to the database isn't helpful.
+
 Tue Dec 06 13:28:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
