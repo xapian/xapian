@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009,2010 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #ifdef HAVE_SYS_RESOURCE_H
 # include <sys/resource.h>
 #endif
+#include "safesysselect.h"
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
@@ -116,7 +117,35 @@ stdout_to_string(const string &cmd)
 
     int fd = fds[0];
 
+    fd_set readfds;
+    FD_ZERO(&readfds);
     while (true) {
+	// If we wait 300 seconds (5 minutes) without getting data from the
+	// filter, then give up to avoid waiting forever for a filter which
+	// has ended up blocked waiting for something which will never happen.
+	struct timeval tv;
+	tv.tv_sec = 300;
+	tv.tv_usec = 0;
+	FD_SET(fd, &readfds);
+	int r = select(fd + 1, &readfds, NULL, NULL, &tv);
+	if (r <= 0) {
+	    if (r < 0) {
+		if (errno == EINTR) {
+		    // select() interrupted by a signal, so retry.
+		    continue;
+		}
+		cerr << "Reading from filter failed (" << strerror(errno) << ")"
+		     << endl;
+	    } else {
+		cerr << "Filter inactive for too long" << endl;
+	    }
+	    kill(child, SIGKILL);
+	    close(fd);
+	    int status;
+	    (void)waitpid(child, &status, 0);
+	    throw ReadError();
+	}
+
 	char buf[4096];
 	ssize_t res = read(fd, buf, sizeof(buf));
 	if (res == 0) break;

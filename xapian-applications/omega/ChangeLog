@@ -1,3 +1,10 @@
+Tue Dec 06 13:26:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,runfilter.cc: If we don't get any data from a filter
+	  for 5 minutes, give up - it has probably ended up blocked
+	  indefinitely.
+
 Tue Dec 06 12:51:24 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
