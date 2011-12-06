@@ -31,7 +31,7 @@ $map{$allterms{$cgi{ID}},
 <H2>Document Values</H2>
 
 $set{values,$list{$map{$range{0,255},$if{$value{$_,$cgi{ID}},
-<tr><td>$_</td><td>$value{$_,$cgi{ID}}</td></tr>
+<tr><td>$_</td><td>$html{$value{$_,$cgi{ID}}}</td></tr>
 }},}}
 $if{$opt{values},
 <table><tr><th>Value#</th><th>Value</th></tr>
