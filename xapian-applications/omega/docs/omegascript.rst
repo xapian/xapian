@@ -305,6 +305,11 @@ $pack{NUMBER}
 $percentage
 	percentage score of current hit (in range 1-100).
 
+	You probably don't want to show these percentage scores to end
+	users in new applications - they're not really a percentage of
+	anything meaningful, and research seems to suggest that users
+	don't find numeric scores in search results useful.
+
 $prettyterm{TERM}
 	convert a term to "user form", as it might be entered in a query.  If
 	a matching term was entered in the query, just use that (the first
