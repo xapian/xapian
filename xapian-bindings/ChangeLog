@@ -1,3 +1,9 @@
+Tue Dec 06 14:01:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/Makefile.am,python/module_top.py: Add a module docstring
+	  (fixes #573).
+
 Tue Dec 06 13:42:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
