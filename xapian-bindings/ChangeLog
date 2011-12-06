@@ -1,3 +1,9 @@
+Tue Dec 06 14:09:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/pythontest2.py: Use "if x is not None:" rather than "if x !=
+	  None:" (PEP 8).
+
 Tue Dec 06 14:06:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

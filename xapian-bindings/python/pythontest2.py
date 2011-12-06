@@ -1502,11 +1502,11 @@ def test_compactor():
         expect(db3.get_metadata('key2'), '2')
 
     finally:
-        if db1 != None:
+        if db1 is not None:
             db1.close()
-        if db2 != None:
+        if db2 is not None:
             db2.close()
-        if db3 != None:
+        if db3 is not None:
             db3.close()
 
         shutil.rmtree(tmpdir)
