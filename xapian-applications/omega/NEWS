@@ -1,6 +1,47 @@
- 16029       olly Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
+ 16127       olly Mon Dec 05 03:19:21 GMT 2011  Olly Betts <olly@survex.com>
 
 backport fodder:
+
+trunk only:
+
+ 16068       olly Fri Sep 23 04:09:12 GMT 2011  Olly Betts <olly@survex.com>
+	* Makefile.am,omindex.cc,tmpdir.cc,tmpdir.h: Factor out tmpdir handling
+	  into a separate source file.
+
+ 16067       olly Fri Sep 23 01:49:38 GMT 2011  Olly Betts <olly@survex.com>
+	* omindex.cc: Factor out index_mimetype() function as a step towards
+	  allowing indexing files within other files (like zip files and email
+	  attachments).
+
+ 16066       olly Fri Sep 23 00:54:40 GMT 2011  Olly Betts <olly@survex.com>
+	* omindex.cc: Use string::const_iterator where we don't modify the
+	  string.
+
+backported:
+
+ 16127       olly Mon Dec 05 03:19:21 GMT 2011  Olly Betts <olly@survex.com>
+	* scriptindex.cc: If no rules are found in the index script, report an
+	  error and give up - this is inevitably the result of a mistake, and
+	  adding empty documents to the database isn't helpful.
+
+ 16088       olly Sat Oct 29 14:49:40 GMT 2011  Olly Betts <olly@survex.com>
+	* docs/omegascript.rst: Add note to discourage use of percentage
+	  scores.
+	* templates/query: Don't show the percentage score in the default
+	  template.
+
+ 16080       olly Fri Oct 14 12:36:43 GMT 2011  Olly Betts <olly@survex.com>
+	* configure.ac,runfilter.cc: If we don't get any data from a filter
+	  for 5 minutes, give up - it has probably ended up blocked
+	  indefinitely.
+
+ 16070       olly Mon Sep 26 01:22:08 GMT 2011  Olly Betts <olly@survex.com>
+	* templates/query: HTML escape topterms.
+ 16069       olly Mon Sep 26 00:52:42 GMT 2011  Olly Betts <olly@survex.com>
+	* templates/godmode: HTML escape the contents of document values.
+
+ 16058       olly Thu Sep 01 12:28:36 GMT 2011  Olly Betts <olly@survex.com>
+	* xapian-omega.spec.in: Package outlookmsg2html helper.
 
  16029       olly Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
 	* scriptindex.cc: MyHtmlParser::parse_html() no longer throws bool to
@@ -27,11 +68,7 @@ backport fodder:
 	  automake document which this file was originally based on.
 	  Add in the missing copyright and licensing information.
 
-trunk only:
-
-backported:
-
-Omega 1.3.0 (2011-08-12):
+Omega 1.3.0 (2011-12-06):
 
 general:
 

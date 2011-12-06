@@ -1,3 +1,7 @@
+Tue Dec 06 13:30:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and to reflect backporting activity.
+
 Mon Dec 05 03:19:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: If no rules are found in the index script, report an
