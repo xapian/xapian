@@ -1,7 +1,7 @@
 # Utility functions for running tests and reporting the results.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2011 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+import gc
 import os as _os
 import os.path as _path
 import sys as _sys
@@ -190,15 +191,39 @@ class TestRunner(object):
 
         self._out.flush()
 
+    def gc_object_count(self):
+        # Python 2.7 doesn't seem to free all objects even for a full
+        # collection, so collect repeatedly until no further objects get freed.
+        old_count, count = len(gc.get_objects()), 0
+        while True:
+            gc.collect()
+            count = len(gc.get_objects())
+            if count == old_count:
+                return count
+            old_count = count
+
     def runtest(self, name, test_fn):
         """Run a single test.
-    
+
         """
         startline = "Running test: %s..." % name
         self._out.write(startline)
         self._out.flush()
         try:
+            object_count = self.gc_object_count()
             test_fn()
+            object_count = self.gc_object_count() - object_count
+            if object_count != 0:
+                # Maybe some lazily initialised object got initialised for the
+                # first time, so rerun the test.
+                self._out.ensure_space()
+                msg = "#yellow#possible leak (%d), rerunning## " % object_count
+                self._out.write_colour(msg)
+                object_count = self.gc_object_count()
+                test_fn()
+                expect(object_count, self.gc_object_count())
+                self._out.write_colour("#green#ok##\n")
+
             if self._verbose > 0 or self._out.plain:
                 self._out.ensure_space()
                 self._out.write_colour("#green#ok##\n")
@@ -216,7 +241,7 @@ class TestRunner(object):
 
     def runtests(self, namedict, runonly=None):
         """Run a set of tests.
-    
+
         Takes a dictionary of name-value pairs and runs all the values which are
         callables, for which the name begins with "test_".
 

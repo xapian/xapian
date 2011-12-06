@@ -1,3 +1,18 @@
+Tue Dec 06 13:42:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* python/doxy2swig.py,python/pythontest2.py,python/testsuite2.py:
+	  Remove trailing whitespace.
+	* python/pythontest2.py,python/testsuite2.py: Move the check for
+	  leaked objects into the testsuite harness so all tests get checked,
+	  not just the two which are regression tests for leaks in older
+	  versions.  This also gives us a single place to disable it if it
+	  should prove problematic in alternative Python implementations.
+	* python/pythontest2.py: In test_matchingterms_iter, run the code
+	  we're testing for leaks twice, and only check for leaks the second
+	  time to avoid falsely reporting a leak when some cached value gets
+	  initialised under Python 2.5.
+
 Fri Nov 11 18:53:14 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

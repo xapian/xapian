@@ -19,7 +19,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-import gc
 import os
 import random
 import shutil
@@ -28,17 +27,6 @@ import tempfile
 import xapian
 
 from testsuite import *
-
-def gc_object_count():
-    # Python 2.7 doesn't seem to free all objects even for a full collection,
-    # so collect repeatedly until no further objects get freed.
-    old_count, count = len(gc.get_objects()), 0
-    while True:
-        gc.collect()
-        count = len(gc.get_objects())
-        if count == old_count:
-            return count
-        old_count = count
 
 def setup_database():
     """Set up and return an inmemory database with 5 documents.
@@ -231,9 +219,7 @@ def test_matchingterms_iter():
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
-    # Check for memory leaks: Prior to 1.2.4 Enquire.matching_terms()
-    # leaked references to its members.
-    object_count = gc_object_count()
+    # Prior to 1.2.4 Enquire.matching_terms() leaked references to its members.
 
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
@@ -247,9 +233,6 @@ def test_matchingterms_iter():
 
     mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
     expect(mterms, ['it', 'two', 'warm', 'was'])
-
-    del mterms, mterms2, term, item, enquire, mset
-    expect(object_count, gc_object_count())
 
 def test_queryterms_iter():
     """Test Query term iterator.
@@ -1300,7 +1283,7 @@ def test_serialise_query():
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query()')
- 
+
     q = xapian.Query('hello')
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
@@ -1325,7 +1308,7 @@ def test_preserve_query_parser_stopper():
         return queryparser
     queryparser = make_qp()
     query = queryparser.parse_query('to be')
-    expect([term for term in queryparser.stoplist()], ['to']) 
+    expect([term for term in queryparser.stoplist()], ['to'])
 
 def test_preserve_term_generator_stopper():
     """Test preservation of stopper set on term generator.
@@ -1346,7 +1329,7 @@ def test_preserve_term_generator_stopper():
     doc = termgen.get_document()
     terms = [term.term for term in doc.termlist()]
     terms.sort()
-    expect(terms, ['Zbe', 'be', 'to']) 
+    expect(terms, ['Zbe', 'be', 'to'])
 
 def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.
@@ -1540,10 +1523,8 @@ def test_leak_mset_items():
     enq.set_query(xapian.Query('drip'))
     mset = enq.get_mset(0, 10)
 
-    object_count = gc_object_count()
     # Prior to 1.2.4 this next line leaked an object.
     mset.items
-    expect(object_count, gc_object_count())
 
 def test_custom_matchspy():
     class MSpy(xapian.MatchSpy):
