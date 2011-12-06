@@ -1,3 +1,9 @@
+Tue Dec 06 11:30:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omega.cc: If P had trailing spaces, we would remove all but one -
+	  fixed to remove all of them!
+
 Thu Sep 01 12:31:59 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
