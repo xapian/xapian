@@ -1,3 +1,9 @@
+Tue Dec 06 12:48:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* scriptindex.cc: MyHtmlParser::parse_html() no longer throws bool to
+	  stop parsing early, so we no longer need to catch it.
+
 Tue Dec 06 12:45:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
