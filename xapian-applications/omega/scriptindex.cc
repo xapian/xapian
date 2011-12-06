@@ -770,9 +770,14 @@ try {
     argc -= optind;
     if (show_help || argc < 2) {
 	cout << PROG_NAME" - "PROG_DESC"\n"
-"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
+"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
+"\n"
 "Creates or updates a Xapian database with the data from the input files listed\n"
-"on the command line.  If no files are specified, data is read from stdin.\n\n"
+"on the command line.  If no files are specified, data is read from stdin.\n"
+"\n"
+"See http://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
+"format for INDEXER_SCRIPT.\n"
+"\n"
 "Options:\n"
 "  -v, --verbose       display additional messages to aid debugging\n"
 "      --overwrite     create the database anew (the default is to update if\n"

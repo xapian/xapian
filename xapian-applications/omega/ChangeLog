@@ -1,3 +1,10 @@
+Tue Dec 06 11:57:58 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* scriptindex.cc: Add link to
+	  http://xapian.org/docs/omega/scriptindex.html to --help output (and
+	  so also to the man page which is generated from this).
+
 Tue Dec 06 11:30:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
