@@ -156,6 +156,9 @@ class XapianSmoketest < Test::Unit::TestCase
   # Feature test for Database.allterms
   def test_006_database_allterms
     assert_equal(5, @db.allterms.size())
+    ou_terms = @db.allterms('ou')
+    assert_equal(1, ou_terms.size())
+    assert_equal('out', ou_terms[0].term)
   end
   
   # Feature test for Database.postlist

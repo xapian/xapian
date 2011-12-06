@@ -1,3 +1,9 @@
+Tue Dec 06 14:12:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* ruby/smoketest.rb,ruby/xapian.rb: Wrap optional prefix parameter to
+	  Database::allterms.
+
 Tue Dec 06 14:09:16 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
