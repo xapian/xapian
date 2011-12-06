@@ -1,3 +1,8 @@
+Tue Dec 06 14:06:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/Makefile.am: Add module_top.py to tarballs.
+
 Tue Dec 06 14:01:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
