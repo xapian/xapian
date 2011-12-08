@@ -1,3 +1,8 @@
+Thu Dec 08 08:19:26 GMT 2011  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Improve --help output (and man page which is generated
+	  from it).  Closes bug#572.
+
 Thu Dec 08 04:51:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Ship new header urldecode.h.
