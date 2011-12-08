@@ -1,3 +1,8 @@
+Thu Dec 08 04:53:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am: Ship new header urldecode.h.
+
 Thu Dec 08 04:46:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
