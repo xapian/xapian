@@ -1,3 +1,9 @@
+Thu Dec 08 08:27:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Improve --help output (and man page which is generated
+	  from it).  Closes bug#572.
+
 Thu Dec 08 04:53:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
