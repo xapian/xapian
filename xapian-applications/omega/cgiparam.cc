@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2003,2009 Olly Betts
+ * Copyright 2002,2003,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,9 @@
 #include <config.h>
 
 #include "cgiparam.h"
+
+#include "urldecode.h"
+#include "urlencode.h"
 
 #include <cstdio>
 #include <climits>
@@ -79,6 +82,12 @@ add_param(string name, string val)
 }
 
 void
+CGIParameterHandler::operator()(const string& var, const string& val) const
+{
+    add_param(var, val);
+}
+
+void
 decode_argv(char **argv)
 {
     cgi_params.clear();
@@ -122,86 +131,22 @@ void
 decode_post()
 {
     char *content_length;
-    unsigned int cl = INT_MAX;
+    size_t cl = INT_MAX;
     
     content_length = getenv("CONTENT_LENGTH");
     /* Netscape Fasttrack server for NT doesn't give CONTENT_LENGTH */
     if (content_length) cl = atoi(content_length);
 
     cgi_params.clear();
-    while (cl && (!feof(stdin))) {
-	string name, val;
-	bool had_equals = false;
-	while (1) {
-	    int ch = EOF;
-	    if (cl) {
-		ch = getchar();
-		cl--;
-	    }
-	    if (ch == EOF || ch == '&') {
-		if (!name.empty()) add_param(name, val);
-		break;
-	    }
-	    char orig_ch = ch;
-	    if (ch == '+')
-		ch = ' ';
-	    else if (ch == '%') {
-		if (cl >= 2) {
-		    cl -= 2;
-		    int c = getchar();
-		    ch = (c & 0xf) + ((c & 64) ? 9 : 0);
-		    if (c != EOF) c = getchar();
-		    ch = ch << 4;
-		    ch |= (c & 0xf) + ((c & 64) ? 9 : 0);
-	        }
-	    }
-	    if (had_equals) {
-		val += char(ch);
-	    } else if (orig_ch == '=') {
-		had_equals = true;
-	    } else {
-		name += char(ch);
-	    }
-	}
-    }
+    url_decode(CGIParameterHandler(), StdinItor(cl), StdinItor());
 }
 
 void
 decode_get()
 {
-    const char *q_str = getenv("QUERY_STRING");
-    if (!q_str) q_str = ""; // Hmm, sounds like a broken web server
-
     cgi_params.clear();
-    char ch;
-    do {
-	string name, val;
-	bool had_equals = false;
-	while (1) {
-	    ch = *q_str++;
-	    if (ch == '\0' || ch == '&') {
-		if (name.empty()) return; // end on blank line
-		add_param(name, val);
-		break;
-	    }
-	    char orig_ch = ch;
-	    if (ch == '+')
-		ch = ' ';
-	    else if (ch == '%') {
-		int c = *q_str++;
-		ch = (c & 0xf) + ((c & 64) ? 9 : 0);
-		if (c) c = *q_str++;
-		ch = ch << 4;
-		ch |= (c & 0xf) + ((c & 64) ? 9 : 0);
-		if (!c) return; // unfinished % code
-	    }
-	    if (had_equals) {
-		val += char(ch);
-	    } else if (orig_ch == '=') {
-		had_equals = true;
-	    } else {
-		name += char(ch);
-	    }
-	}
-    } while (ch);
+    const char *q_str = getenv("QUERY_STRING");
+    // If QUERY_STRING isn't set, that's pretty broken, but don't segfault.
+    if (q_str)
+	url_decode(CGIParameterHandler(), CStringItor(q_str), CStringItor());
 }

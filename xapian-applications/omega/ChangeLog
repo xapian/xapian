@@ -1,3 +1,13 @@
+Thu Dec 08 04:46:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,cgiparam.cc,urldecode.h,urlenctest.cc: Add new
+	  implementation of URL decoding - the old one didn't handle
+	  various corner cases well, and had two cut and pasted variants
+	  for handling a input from a C string (GET) or from stdin (POST).
+	  Also add a new unit test program to test URL encoding and decoding.
+	  Fixes bug#578.
+
 Tue Dec 06 13:30:58 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
