@@ -1,3 +1,9 @@
+Fri Dec 09 08:11:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/types.h: Explicitly document which value slot numbers
+	  are valid.  Fixes ticket#555.
+
 Mon Dec 05 15:29:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
