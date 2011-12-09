@@ -113,7 +113,7 @@ typedef int valueno_diff; /* FIXME: can overflow. */
 typedef double weight;
 
 /** Reserved value to indicate "no valueno". */
-const valueno BAD_VALUENO = static_cast<valueno>(-1);
+const valueno BAD_VALUENO = 0xffffffff;
 
 }
 

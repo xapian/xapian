@@ -1,3 +1,9 @@
+Fri Dec 09 07:51:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Set BAD_VALUENO to 0xffffffff rather than
+	  static_cast<valueno>(-1) - it's the same value currently, but more
+	  robust to valueno being set a wider type.
+
 Fri Dec 09 07:49:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/types.h: Explicitly document which value slot numbers
