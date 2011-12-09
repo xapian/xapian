@@ -2,6 +2,7 @@
  * @brief Long-running "soak" tests for Xapian.
  */
 /* Copyright (C) 2010 Richard boulton
+ * Copyright (C) 2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +28,8 @@
 #include "testrunner.h"
 #include "testsuite.h"
 
-#include <cstdlib>
+// random() and srandom() aren't in <cstdlib> with Sun's compiler.
+#include <stdlib.h>
 
 using namespace std;
 

@@ -1,3 +1,8 @@
+Fri Dec 09 10:31:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/soaktest/soaktest.cc: With Sun's compiler, random() and
+	  srandom() aren't in <cstdlib> so we need to use <stdlib.h> instead.
+
 Fri Dec 09 07:51:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/types.h: Set BAD_VALUENO to 0xffffffff rather than
