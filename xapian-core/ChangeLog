@@ -1,3 +1,8 @@
+Fri Dec 09 07:49:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Explicitly document which value slot numbers
+	  are valid.  Fixes ticket#555.
+
 Sat Dec 03 09:32:55 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Fix typo in comment.

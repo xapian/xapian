@@ -96,7 +96,9 @@ XAPIAN_DEPRECATED(typedef unsigned timeout);
 
 /** The number for a value slot in a document.
  *
- *  Any value slot number except Xapian::BAD_VALUENO is valid.
+ *  Value slot numbers are unsigned and (currently) a 32-bit quantity, with
+ *  Xapian::BAD_VALUENO being represented by the largest possible value.
+ *  Therefore value slots 0 to 0xFFFFFFFE are available for use.
  */
 typedef unsigned valueno;
 
