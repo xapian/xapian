@@ -59,6 +59,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "transform.h"
+#include "urldecode.h"
 #include "urlencode.h"
 #include "unixperm.h"
 #include "values.h"
@@ -888,6 +889,7 @@ CMD_or,
 CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
+CMD_prettyurl,
 CMD_query,
 CMD_querydescription,
 CMD_queryterms,
@@ -1007,6 +1009,7 @@ T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
+T(prettyurl,	   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, Q), // query.get_description()
 T(queryterms,	   0, 0, N, Q), // list of query terms
@@ -1740,6 +1743,10 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_prettyterm:
 		value = pretty_term(args[0]);
+		break;
+	    case CMD_prettyurl:
+		value = args[0];
+		url_prettify(value);
 		break;
 	    case CMD_query:
 		value = probabilistic_query[args.empty() ? string() : args[0]];

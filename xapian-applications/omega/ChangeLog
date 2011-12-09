@@ -1,3 +1,10 @@
+Fri Dec 09 14:08:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc,templates/emptydocs,templates/godmode,
+	  templates/query,urldecode.h,urlenctest.cc: Add new $prettyurl{}
+	  command which undoes RFC3986 URL escaping which doesn't affect
+	  semantics in practice.  Partly addresses ticket#550.
+
 Thu Dec 08 08:19:26 GMT 2011  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Improve --help output (and man page which is generated

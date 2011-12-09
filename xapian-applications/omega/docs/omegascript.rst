@@ -317,6 +317,12 @@ $prettyterm{TERM}
 	Otherwise term prefixes are converted back to user forms as specified
 	by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
 
+$prettyurl{URL}
+	Prettify URL.  This command undoes RFC3986 URL escaping which doesn't
+	affect semantics in practice, in order to make a prettier version of a
+	URL for displaying to the user (rather than in links), but which should
+	still work if copied and pasted.
+
 $query[{PREFIX}]
 	query string for prefix PREFIX.
 
