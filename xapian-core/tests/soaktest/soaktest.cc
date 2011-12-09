@@ -1,7 +1,7 @@
 /** @file soaktest.cc
  * @brief Long-running "soak" tests for Xapian.
  */
-/* Copyright (C) 2010 Richard boulton
+/* Copyright (C) 2010 Richard Boulton
  * Copyright (C) 2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
