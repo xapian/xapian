@@ -1,3 +1,9 @@
+Mon Dec 12 13:16:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/soaktest/soaktest.cc: With Sun's compiler, random() and
+	  srandom() aren't in <cstdlib> so we need to use <stdlib.h> instead.
+
 Fri Dec 09 08:11:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
