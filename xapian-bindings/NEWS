@@ -1,18 +1,11 @@
- 15993       olly Mon Aug 08 03:35:23 GMT 2011  Olly Betts <olly@survex.com>
-
- 15934       olly Fri Jul 29 13:49:51 GMT 2011  Olly Betts <olly@survex.com>
-	* php/smoketest.php: Add regression test for recently fixed SWIG bug
-	  which caused "return $r;" to be generated in some cases when $r
-	  wasn't set.
-
- 15917       olly Mon Jul 25 07:36:26 GMT 2011  Olly Betts <olly@survex.com>
-	* java/SmokeTest.java: Add test that string passing is zero byte safe.
+ 16092    richard Sun Oct 30 21:42:48 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 trunk only:
 
 backported:
 
-Xapian-bindings 1.3.0 (2011-08-08):
+
+Xapian-bindings 1.3.0 (2011-12-13):
 
 Documentation:
 
@@ -62,6 +55,8 @@ Java:
   to existing code.  Overall we feel the short-term pain is worth the long
   term benefits of having Java bindings which stay up to date.
 
+* java/SmokeTest.java: Add test that string passing is zero byte safe.
+
 Lua:
 
 Perl:
@@ -96,6 +91,31 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.8 (2011-12-13):
+
+Lua:
+
+* Wrap user-subclassable functor objects by allowing the user to pass a
+  Lua function where the functor object would be passed in the C++ API.
+
+PHP:
+
+* Fix "PHP Notice:  Undefined variable: r in xapian.php".  (Fixes bug#576)
+
+Python:
+
+* Add a module docstring.  (Fixes bug #573)
+
+* The python testsuite now checks for object leaks during each testcase.
+
+* In test_matchingterms_iter, run the code we're testing for leaks twice, and
+  only check for leaks the second time to avoid falsely reporting a leak when
+  some cached value gets initialised under Python 2.5.
+
+Ruby:
+
+* Wrap optional prefix parameter to Database::allterms.
 
 Xapian-bindings 1.2.7 (2011-08-10):
 

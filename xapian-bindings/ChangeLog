@@ -1,3 +1,7 @@
+Tue Dec 13 14:29:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.8 and ChangeLog.
+
 Sun Oct 30 21:42:48 GMT 2011  Richard Boulton <richard@tartarus.org>
 
 	* python/Makefile.am: Add module_top.py to tarballs.
