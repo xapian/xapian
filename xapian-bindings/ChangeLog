@@ -1,3 +1,9 @@
+Tue Dec 13 14:12:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* lua/Makefile.am,lua/docs/examples/simpleexpand.lua,lua/: Merge latest
+	  Lua improvements from Xiaona Han.
+
 Tue Dec 06 14:12:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

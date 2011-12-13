@@ -351,8 +351,10 @@ class MatchDecider {
  * directors be supported.  So we only wrap ExpandDecider for languages which
  * support directors. */
 
-#ifdef XAPIAN_SWIG_DIRECTORS
+#if defined XAPIAN_SWIG_DIRECTORS || defined SWIGLUA
+# ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") ExpandDecider;
+# endif
 class ExpandDecider {
   public:
     virtual bool operator() (const string &term) const = 0;
@@ -422,7 +424,7 @@ class Enquire {
 		  const RSet *omrset,
 		  const MatchDecider *mdecider = 0) const;
 
-#ifdef XAPIAN_SWIG_DIRECTORS
+#if defined XAPIAN_SWIG_DIRECTORS || defined SWIGLUA
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
