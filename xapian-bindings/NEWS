@@ -1,3 +1,28 @@
+Xapian-bindings 1.2.8 (2011-12-13):
+
+Lua:
+
+* Wrap user-subclassable functor objects by allowing the user to pass a
+  Lua function where the functor object would be passed in the C++ API.
+
+PHP:
+
+* Fix "PHP Notice:  Undefined variable: r in xapian.php".  (Fixes bug#576)
+
+Python:
+
+* Add a module docstring.  (Fixes bug #573)
+
+* The python testsuite now checks for object leaks during each testcase.
+
+* In test_matchingterms_iter, run the code we're testing for leaks twice, and
+  only check for leaks the second time to avoid falsely reporting a leak when
+  some cached value gets initialised under Python 2.5.
+
+Ruby:
+
+* Wrap optional prefix parameter to Database::allterms.
+
 Xapian-bindings 1.2.7 (2011-08-10):
 
 Documentation:
