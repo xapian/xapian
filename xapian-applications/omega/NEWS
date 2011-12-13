@@ -1,3 +1,58 @@
+Omega 1.2.8 (2011-12-13):
+
+documentation:
+
+* scriptindex.cc: Add link to http://xapian.org/docs/omega/scriptindex.html to
+  --help output (and so also to the man page which is generated from this).
+
+* omegascript.html: Add note to discourage use of percentage scores.
+
+indexers:
+
+* omindex:
+
+  + If we don't get any data from an external filter for 5 minutes, give up -
+    it has probably ended up blocked indefinitely.
+
+  + Improve --help output (and man page which is generated from it).  Closes
+    bug#572.
+
+* scriptindex:
+
+  + If no rules are found in the index script, report an error and give up -
+    this is inevitably the result of a mistake, and adding empty documents to
+    the database isn't helpful.
+
+omega:
+
+  + Replace URL decoder with new implementation which handles various corner
+    cases better.  Fixes bug#578.
+
+  + If CGI parameter P has trailing spaces, we now remove them all rather than
+    leaving one.
+
+templates:
+
+* templates/query: HTML escape topterms.
+
+* templates/godmode: HTML escape the contents of document values.
+
+* templates/query: Don't show the percentage score in the default template.
+
+testsuite:
+
+* Add new urlenctest unit test of URL encoding and decoding.
+
+portability:
+
+* configure: Sync changes from xapian-core: Don't pass -Wshadow for GCC < 4.1;
+  don't pass -Wstrict-null-sentinel for GCC 4.0.x; only enable symbol
+  visibility on platforms where it is supported.
+
+packaging:
+
+* xapian-omega.spec: Package outlookmsg2html helper.
+
 Omega 1.2.7 (2011-08-10):
 
 documentation:
