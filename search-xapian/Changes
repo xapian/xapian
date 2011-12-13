@@ -1,5 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.8.0  Tue Dec 13 14:45:07 UTC 2011
+	[Changes contributed by Olly Betts]
+	- Add note to README about documentation, pointing out that the docs
+	  for Xapian are useful.
+	- Improve note in README about moving to SWIG-generated wrappers in the
+	  next release series.
+
 1.2.7.0  Wed Aug 10 06:14:53 UTC 2011
 	[Changes contributed by Olly Betts]
 	- Note in README that the hand-coded XS wrappers are heading for

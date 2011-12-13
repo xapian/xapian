@@ -1,14 +1,17 @@
-Search::Xapian version 1.2.7.0
+Search::Xapian version 1.2.8.0
 ==============================
 
-This is Search::Xapian, a Perl XS frontend to the Xapian C++ search library.
+This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
 
-We are working on replacing this module with a version generated with SWIG.
-You can find the current work on this in the xapian-bindings sources which
-are available from http://xapian.org/download - in Xapian 1.3.0 (which is
-a development release), the hand-coded XS wrappers will be retired.  If
-you want to help make this a smooth migration, please test your code with the
-new wrappers and report any issues you find.
+In the next release series (Xapian 1.4.x) these hand-coded XS wrappers will
+be replaced with a version generated with SWIG.  This means that new C++
+API features can be wrapped for Perl more quickly and easily than currently.
+
+These new wrappers attempt to be compatible with the current ones, but we
+encourage you to try them with your code and report any incompatibilities so we
+can attempt to address them.  Currently this work in on trunk in the Xapian SVN
+tree, and it will be available in the forthcoming Xapian 1.3.0 development
+release.
 
 INSTALLATION
 
@@ -45,6 +48,13 @@ This module requires these other modules and libraries:
 
   The Xapian C++ search library, which can be downloaded by following
   the instructions on http://xapian.org/
+
+DOCUMENTATION
+
+Most of the classes have POD documentation, which you can view using perldoc or
+man (e.g. perldoc Search::Xapian::Database).  The Perl API closely follows the
+C++ API in most places, so the documentation for Xapian itself is generally
+applicable: <http://xapian.org/docs/>
 
 COPYRIGHT AND LICENCE
 
