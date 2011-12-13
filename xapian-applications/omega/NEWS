@@ -25,6 +25,9 @@ indexers:
 
 omega:
 
+  + Add new $prettyurl{} command which undoes RFC3986 URL escaping which
+    doesn't affect semantics in practice.  Partly addresses ticket#550.
+
   + Replace URL decoder with new implementation which handles various corner
     cases better.  Fixes bug#578.
 
