@@ -1,3 +1,7 @@
+Tue Dec 13 10:29:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* AUTHORS,NEWS,configure.ac: Update for 1.2.8.
+
 Mon Dec 12 13:23:29 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

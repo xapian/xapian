@@ -1,3 +1,41 @@
+Xapian-core 1.2.8 (2011-12-13):
+
+API:
+
+* Add support to TermGenerator and QueryParser for indexing and searching CJK
+  text using n-grams.  Currently this is only enabled when the environmental
+  variable XAPIAN_CJK_NGRAM is set to a non-empty value.
+
+documentation:
+
+* Add link from index page to apidoc.pdf.
+
+* quickstart.html: Correct link which was to quickstartsearch.cc.html but
+  should be to quickstartindex.cc.html.
+
+* overview.html,quickstart.html: Fix several factual errors.
+
+* API documentation:
+
+  + Improve documentation comments for several methods.
+
+  + Add documentation for function parameters which didn't have it.
+
+  + Remove bogus paragraph in WritableDatabase::replace_document()
+    documentation comment which had been cut and pasted from delete_document()
+    documentation comment.  (Fixes ticket#579)
+
+  + Explicitly document which value slot numbers are valid.  (Fixes ticket#555)
+
+  + Escape < and > in doxygen comments so "<foo>" doesn't get eaten by doxygen.
+
+portability:
+
++ Some fixes for warnings when cross-compiling to mingw.
+
+* tests/soaktest/soaktest.cc: With Sun's compiler, random() and srandom()
+  aren't in <cstdlib> so we need to use <stdlib.h> instead.
+
 Xapian-core 1.2.7 (2011-08-10):
 
 API:
