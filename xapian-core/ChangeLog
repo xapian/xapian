@@ -1,3 +1,7 @@
+Tue Dec 13 10:33:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and branches/1.2.
+
 Fri Dec 09 10:33:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/soaktest/soaktest.cc,tests/soaktest/soaktest.h,
