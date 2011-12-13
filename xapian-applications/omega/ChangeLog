@@ -1,3 +1,7 @@
+Tue Dec 13 11:21:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.8 and ChangeLog.
+
 Fri Dec 09 14:08:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc,templates/emptydocs,templates/godmode,

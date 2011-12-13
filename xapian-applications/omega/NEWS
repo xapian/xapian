@@ -1,74 +1,13 @@
- 16127       olly Mon Dec 05 03:19:21 GMT 2011  Olly Betts <olly@survex.com>
+ 16154       olly Thu Dec 08 08:19:26 GMT 2011  Olly Betts <olly@survex.com>
 
 backport fodder:
 
 trunk only:
 
- 16068       olly Fri Sep 23 04:09:12 GMT 2011  Olly Betts <olly@survex.com>
-	* Makefile.am,omindex.cc,tmpdir.cc,tmpdir.h: Factor out tmpdir handling
-	  into a separate source file.
-
- 16067       olly Fri Sep 23 01:49:38 GMT 2011  Olly Betts <olly@survex.com>
-	* omindex.cc: Factor out index_mimetype() function as a step towards
-	  allowing indexing files within other files (like zip files and email
-	  attachments).
-
- 16066       olly Fri Sep 23 00:54:40 GMT 2011  Olly Betts <olly@survex.com>
-	* omindex.cc: Use string::const_iterator where we don't modify the
-	  string.
-
 backported:
 
- 16127       olly Mon Dec 05 03:19:21 GMT 2011  Olly Betts <olly@survex.com>
-	* scriptindex.cc: If no rules are found in the index script, report an
-	  error and give up - this is inevitably the result of a mistake, and
-	  adding empty documents to the database isn't helpful.
 
- 16088       olly Sat Oct 29 14:49:40 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/omegascript.rst: Add note to discourage use of percentage
-	  scores.
-	* templates/query: Don't show the percentage score in the default
-	  template.
-
- 16080       olly Fri Oct 14 12:36:43 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac,runfilter.cc: If we don't get any data from a filter
-	  for 5 minutes, give up - it has probably ended up blocked
-	  indefinitely.
-
- 16070       olly Mon Sep 26 01:22:08 GMT 2011  Olly Betts <olly@survex.com>
-	* templates/query: HTML escape topterms.
- 16069       olly Mon Sep 26 00:52:42 GMT 2011  Olly Betts <olly@survex.com>
-	* templates/godmode: HTML escape the contents of document values.
-
- 16058       olly Thu Sep 01 12:28:36 GMT 2011  Olly Betts <olly@survex.com>
-	* xapian-omega.spec.in: Package outlookmsg2html helper.
-
- 16029       olly Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
-	* scriptindex.cc: MyHtmlParser::parse_html() no longer throws bool to
-	  stop parsing early, so we no longer need to catch it.
-
- 15951       olly Wed Aug 03 23:25:18 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac: Sync changes from xapian-core: Don't pass -Wshadow for
-	  GCC < 4.1; don't pass -Wstrict-null-sentinel for GCC 4.0.x; only
-	  enable symbol visibility on platforms where it is supported; remove
-	  now superfluous check for GCC >= 3.  Also, add FIXME for enabling
-	  -Woverloaded-virtual.
-
- 15926       olly Wed Jul 27 02:35:39 GMT 2011  Olly Betts <olly@survex.com>
-	* scriptindex.cc: Add link to
-	  http://xapian.org/docs/omega/scriptindex.html to --help output (and
-	  so also to the man page which is generated from this).
-
- 15867       olly Mon Jul 04 06:08:47 GMT 2011  Olly Betts <olly@survex.com>
-	* omega.cc: If P had trailing spaces, we would remove all but one -
-	  fixed to remove all of them!
-
- 15783       olly Wed Jun 22 15:32:12 GMT 2011  Olly Betts <olly@survex.com>
-	* INSTALL: Pull in a few updates from the latest version of the
-	  automake document which this file was originally based on.
-	  Add in the missing copyright and licensing information.
-
-Omega 1.3.0 (2011-12-06):
+Omega 1.3.0 (2011-12-13):
 
 general:
 
@@ -126,6 +65,61 @@ packaging:
  15631       olly Mon Jun 13 13:49:14 GMT 2011  Olly Betts <olly@survex.com>
 	* xapian-omega.spec.in: We're ABI compatible within a release series
 	  so make dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.8 (2011-12-13):
+
+documentation:
+
+* scriptindex.cc: Add link to http://xapian.org/docs/omega/scriptindex.html to
+  --help output (and so also to the man page which is generated from this).
+
+* omegascript.html: Add note to discourage use of percentage scores.
+
+indexers:
+
+* omindex:
+
+  + If we don't get any data from an external filter for 5 minutes, give up -
+    it has probably ended up blocked indefinitely.
+
+  + Improve --help output (and man page which is generated from it).  Closes
+    bug#572.
+
+* scriptindex:
+
+  + If no rules are found in the index script, report an error and give up -
+    this is inevitably the result of a mistake, and adding empty documents to
+    the database isn't helpful.
+
+omega:
+
+  + Replace URL decoder with new implementation which handles various corner
+    cases better.  Fixes bug#578.
+
+  + If CGI parameter P has trailing spaces, we now remove them all rather than
+    leaving one.
+
+templates:
+
+* templates/query: HTML escape topterms.
+
+* templates/godmode: HTML escape the contents of document values.
+
+* templates/query: Don't show the percentage score in the default template.
+
+testsuite:
+
+* Add new urlenctest unit test of URL encoding and decoding.
+
+portability:
+
+* configure: Sync changes from xapian-core: Don't pass -Wshadow for GCC < 4.1;
+  don't pass -Wstrict-null-sentinel for GCC 4.0.x; only enable symbol
+  visibility on platforms where it is supported.
+
+packaging:
+
+* xapian-omega.spec: Package outlookmsg2html helper.
 
 Omega 1.2.7 (2011-08-10):
 
