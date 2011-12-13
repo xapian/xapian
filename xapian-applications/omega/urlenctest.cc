@@ -99,6 +99,29 @@ static dec_testcase urldec_testcases[] = {
     { NULL, { 0 } }
 };
 
+struct pretty_testcase {
+    const char * input;
+    const char * result;
+};
+
+// 0 for result means "same as input" here.
+struct pretty_testcase pretty_testcases[] = {
+    { "", 0 },
+    { "http://localhost/", 0 },
+    { "%", 0 },
+    { "%x", 0 },
+    { "%xy", 0 },
+    { "%xyz", 0 },
+    { "%25", 0 },
+    { "%20", " " },
+    { "%20hello", " hello" },
+    { "http://example.com/%7ehello%20world/",
+      "http://example.com/~hello world/" },
+    { "http://example.com/%25/a%20b%80/100%",
+      "http://example.com/%25/a b%80/100%" },
+    { NULL, NULL }
+};
+
 static multimap<string, string> params;
 
 void
@@ -144,6 +167,17 @@ int main() {
 		 j != params.end(); ++j) {
 		cerr << "    " << j->first << " = " << j->second << endl;
 	    }
+	    exit(1);
+	}
+    }
+
+    for (pretty_testcase * e = pretty_testcases; e->input; ++e) {
+	string url = e->input;
+	url_prettify(url);
+	const char * result = (e->result ? e->result : e->input);
+	if (url != result) {
+	    cerr << "url_prettify of " << e->input << " should be " << result
+		 << "\", got \"" << url << "\"" << endl;
 	    exit(1);
 	}
     }

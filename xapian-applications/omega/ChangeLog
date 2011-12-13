@@ -1,3 +1,11 @@
+Tue Dec 13 12:38:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/omegascript.rst,query.cc,templates/emptydocs,templates/godmode,
+	  templates/query,urldecode.h,urlenctest.cc: Add new $prettyurl{}
+	  command which undoes RFC3986 URL escaping which doesn't affect
+	  semantics in practice.  Partly addresses ticket#550.
+
 Tue Dec 13 11:19:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.8.

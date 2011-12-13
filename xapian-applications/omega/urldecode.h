@@ -179,4 +179,57 @@ operator!=(const StdinItor& a, const StdinItor& b)
     return !(a == b);
 }
 
+// First group is RFC3986 reserved "gen-delims", second reserved "sub-delims".
+// We also need to leave an encoded "%" alone!
+//
+// We may not need to honour all of these in practice, but let's start
+// cautious.  Some are only reserved in particular contexts, which may
+// depend on the scheme.
+#define URL_PRESERVE ":/?#[]@" "!$&'()*+,;=" "%"
+
+/** Prettify a URL.
+ *
+ *  Undo RFC3986 escaping which doesn't affect semantics in practice, to make
+ *  a prettier version of a URL to show the user, but which should still work
+ *  if copied and pasted.
+ */
+inline void
+url_prettify(std::string & url)
+{
+    size_t pcent = url.find('%');
+    // Fast path for URLs without a % in.
+    if (pcent == std::string::npos || pcent + 2 >= url.size())
+	return;
+
+    size_t start = 0;
+    std::string in;
+    swap(in, url);
+    url.reserve(in.size());
+    while (true) {
+	// We've checked there are at least two bytes after the '%' already.
+	if (isxdigit(in[pcent + 1]) && isxdigit(in[pcent + 2])) {
+	    int ch = (hex_decode_(in[pcent + 1]) << 4);
+	    ch |= hex_decode_(in[pcent + 2]);
+	    // FIXME: It would be nice to unescape top bit set bytes, at least
+	    // when they form valid UTF-8 sequences.
+	    if (0x20 <= ch && ch < 0x7f && !strchr(URL_PRESERVE, ch)) {
+		url.append(in, start, pcent - start);
+		url += char(ch);
+		pcent += 3;
+		start = pcent;
+	    } else {
+		pcent += 3;
+	    }
+	} else {
+	    ++pcent;
+	}
+	pcent = in.find('%', pcent);
+
+	if (pcent == std::string::npos || pcent + 2 >= in.size()) {
+	    url.append(in, start, std::string::npos);
+	    return;
+	}
+    }
+}
+
 #endif // OMEGA_INCLUDED_URLDECODE_H
