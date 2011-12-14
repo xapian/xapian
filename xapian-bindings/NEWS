@@ -9,6 +9,11 @@ PHP:
 
 * Fix "PHP Notice:  Undefined variable: r in xapian.php".  (Fixes bug#576)
 
+* The PHP bindings will now work again with a version of PHP built with ZTS
+  enabled (which is the default on Microsoft Windows).  This was broken by
+  the changes to support subclassing in PHP in the version of SWIG used since
+  1.2.6.
+
 Python:
 
 * Add a module docstring.  (Fixes bug #573)
