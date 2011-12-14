@@ -1,3 +1,9 @@
+Wed Dec 14 10:54:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/generate-lua-exceptions: Restore other copyright holders to
+	  generated file - it seems likely this constitutes a derived work
+	  and it is better to err on the side of caution.
+
 Tue Dec 13 14:29:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.8 and ChangeLog.
