@@ -3,13 +3,13 @@
 <h1>Lua bindings for Xapian</h1>
 
 <p>
-The Lua bindings for Xapian are packaged in the <code>xapian</code> namespace,
-and largely follow the C++ API, with the following differences and
-additions.
+These bindings require Lua version 5.1 or later.
 </p>
 
 <p>
-These bindings require Lua5.1 or later version.
+The Lua bindings for Xapian are packaged in the <code>xapian</code> namespace,
+and largely follow the C++ API, with the following differences and
+additions.
 </p>
 
 <p>
@@ -28,7 +28,7 @@ which shows how to define a MatchDecider in Lua.
 <p>
 In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  A Lua string
-is an aribitrary sequence of values which have at least 8 bits (octets);
+is an arbitrary sequence of values which have at least 8 bits (octets);
 they map directly into the char type of the C compiler. Lua does not
 reserve any value, including NUL. That means that Lua can store a UTF-8
 string without problems.
@@ -37,8 +37,18 @@ string without problems.
 <h2>Exceptions</h2>
 
 <p>
-Exceptions thrown by Xapian are translated into Lua Exception objects
-which are thrown into the Lua script.
+Exceptions thrown by Xapian are translated into Lua xapian.Error objects
+and raised as Lua errors, which you can catch by using <code>pcall</code>
+like so:
+
+<pre>
+ok,res = pcall(db.get_document, db, docid)
+if ok then
+  print("Got document data: " .. res:get_data())
+else
+  print("Got exception: " .. tostring(res))
+end
+</pre>
 </p>
 
 <h2>Iterators</h2>
@@ -47,14 +57,14 @@ which are thrown into the Lua script.
    All iterators support <code>next</code> and <code>equals</code> methods
    to move through and test iterators (as for all language bindings).
    MSetIterator and ESetIterator also support <code>prev</code>. As "end" is
-   keyword in Lua, we rename it to "_end" that means the end of the iterator.
-   The following shows an exmple that iterators the mset to get the rank, percent,
-   id and data of the document in the mset.
+   a keyword in Lua, we rename it to "_end" that means the end of the iterator.
+   The following shows an example of iterating the MSet to get the rank,
+   document id, and data for each entry in the MSet:
 </p>
 
 <pre>
 for m in mset:items() do
-	print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
+    print(m:get_rank() + 1, m:get_docid(), m:get_document():get_data())
 end
 </pre>
 
