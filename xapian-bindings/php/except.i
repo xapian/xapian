@@ -1,6 +1,7 @@
-/* php/except.i: Custom PHP exception handling.
- *
- * Copyright 2006,2007,2010 Olly Betts
+/** @file php/except.i
+ * @brief Custom PHP exception handling.
+ */
+/* Copyright 2006,2007,2010,2011 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +21,7 @@
  */
 
 %{
+#include <exception>
 #include <zend_exceptions.h>
 
 static void
@@ -33,9 +35,10 @@ XapianExceptionHandler()
     } catch (const Xapian::Error &e) {
         // FIXME: It would be nicer to make the exceptions PHP classes
         // corresponding to the C++ Xapian::Error class hierarchy.
-	msg = e.get_type();
-	msg += ": ";
-	msg += e.get_msg();
+	msg = e.get_description();
+    } catch (const std::exception &e) {
+	msg = "std::exception: ";
+	msg += e.what();
     } catch (...) {
 	msg = "unknown error in Xapian";
     }
