@@ -82,7 +82,7 @@ EOF
 
 print FD <<'EOF';
     } catch (const std::exception& e) {
-        croak( "std::exception: %s", e.what());
+        croak("std::exception: %s", e.what());
     } catch (...) {
         croak("something terrible happened");
     }
