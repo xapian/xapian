@@ -1,3 +1,14 @@
+Thu Dec 15 12:50:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* generic/except.i: Correct comments about how and where this file gets
+	  included - this changed in the major restructuring a few months ago.
+	* generic/except.i,php/except.i,tcl8/except.i: Return
+	  Error::get_description() rather than get_type + ": " + get_msg().  In
+	  many cases this is the same, but if context or errno are available,
+	  get_description() includes them.  Catch and report std::exception
+	  rather than handling it as an unknown error (so in particular
+	  std::bad_alloc will now be reported more helpfully).
+
 Thu Dec 15 12:30:15 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/generate-perl-exceptions: Whitespace tweak.

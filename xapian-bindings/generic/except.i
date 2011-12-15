@@ -1,6 +1,7 @@
-/* generic/except.i: Language independent exception handling.
- *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+/** @file generic/except.i
+ * @brief Language independent exception handling.
+ */
+/* Copyright (C) 2004,2005,2006,2007,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +20,15 @@
  * USA
  */
 
-/* This file is included from xapian.i for any languages which don't have
- * language specific handling for exceptions.
- *
- * This file needs to be in a different directory than xapian.i, because swig
- * always tries to include files from the same directory as the source file
- * before looking in alternative include paths.
+/* This file is included for any languages which don't have language specific
+ * handling for exceptions.
  */
 
 %{
+#include <exception>
+
+// Language interface files can #define XapianException before including this
+// file to override this.
 #ifndef XapianException
 # define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
 #endif
@@ -37,9 +38,7 @@ static int XapianExceptionHandler(string & msg) {
 	// Rethrow so we can look at the exception if it was a Xapian::Error.
 	throw;
     } catch (const Xapian::Error &e) {
-	msg = e.get_type();
-	msg += ": ";
-	msg += e.get_msg();
+	msg = e.get_description();
 	try {
 	    // Re-rethrow the previous exception so we can handle the type in a
 	    // fine-grained way, but only in one place to avoid bloating the
@@ -60,6 +59,9 @@ static int XapianExceptionHandler(string & msg) {
 	} catch (...) {
 	    return SWIG_UnknownError;
 	}
+    } catch (const std::exception &e) {
+	msg = "std::exception: ";
+        msg += e.what();
     } catch (...) {
 	msg = "unknown error in Xapian";
     }
