@@ -1,3 +1,8 @@
+Thu Dec 15 14:44:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Remove superfluous ';' after closing
+	  '}' of namespace.  Tweak whitespace.
+
 Thu Dec 15 12:50:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* generic/except.i: Correct comments about how and where this file gets
