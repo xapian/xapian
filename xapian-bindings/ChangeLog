@@ -1,3 +1,8 @@
+Thu May 14 10:57:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Remove superfluous ';' after closing
+	  '}' of namespace.
+
 Thu May 14 10:52:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/generate-perl-exceptions: Use croak_sv() or ERRSV if defined.
