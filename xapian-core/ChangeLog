@@ -1,3 +1,7 @@
+Thu Dec 15 22:17:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* weight/Makefile.mk: Ship dir_contents and Makefile.
+
 Tue Dec 13 10:33:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and branches/1.2.
