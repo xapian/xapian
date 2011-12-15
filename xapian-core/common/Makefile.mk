@@ -3,6 +3,7 @@ noinst_HEADERS +=\
 	common/bitstream.h\
 	common/closefrom.h\
 	common/debuglog.h\
+	common/fd.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/internaltypes.h\

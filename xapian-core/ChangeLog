@@ -1,3 +1,8 @@
+Thu Dec 15 23:54:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/fd.h: Add new FD class which wraps a file
+	  descriptor and ensures it gets released when we exit the scope.
+
 Thu Dec 15 22:44:16 GMT 2011  Olly Betts <olly@survex.com>
 
 	* weight/Makefile: Add forwarding Makefile.
