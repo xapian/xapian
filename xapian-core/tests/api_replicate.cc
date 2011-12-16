@@ -113,7 +113,7 @@ truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 	FAIL_TEST("Open failed (when creating '" + destpath + "')");
     }
 
-#define BUFSIZE 1024
+    const int BUFSIZE = 1024;
     char buf[BUFSIZE];
     size_t total_bytes = 0;
     while (tocopy > 0) {
@@ -126,7 +126,6 @@ truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 	total_bytes += bytes;
 	do_write(fdout, buf, bytes);
     }
-#undef BUFSIZE
 
     if (close(fdout) == -1)
 	FAIL_TEST("Error closing file");

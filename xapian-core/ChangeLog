@@ -1,3 +1,8 @@
+Fri Dec 16 00:56:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Use a const int rather than a #define for
+	  BUFSIZE.
+
 Fri Dec 16 00:50:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_replicate.cc: Avoid leaking fds on exceptions in
