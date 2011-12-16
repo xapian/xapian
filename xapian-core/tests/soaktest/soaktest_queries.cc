@@ -31,7 +31,6 @@
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include <list>
 

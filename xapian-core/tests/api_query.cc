@@ -27,7 +27,6 @@
 
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include "apitest.h"
 

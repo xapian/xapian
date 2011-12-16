@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "safesysstat.h" // For mkdir().
 
 #include <xapian.h>
 
@@ -38,7 +39,6 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
-#include "utils.h"
 
 #include "apitest.h"
 

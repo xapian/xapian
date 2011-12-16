@@ -31,7 +31,6 @@
 
 #include "noreturn.h"
 #include "remoteconnection.h"
-#include "utils.h"
 
 #ifdef __WIN32__
 # include <process.h>    /* _beginthread, _endthread */
@@ -51,6 +50,7 @@
 
 #include <cstring>
 #include <cstdio> // For sprintf() on __WIN32__ or cygwin.
+#include <cstdlib>
 #include <sys/types.h>
 
 using namespace std;

@@ -30,7 +30,6 @@
 #include "apitest.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include "autoptr.h"
 #include <list>

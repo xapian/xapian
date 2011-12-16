@@ -30,7 +30,6 @@
 #include "omassert.h"
 #include "pack.h"
 #include "stringutils.h"
-#include "utils.h"
 
 #include <string>
 

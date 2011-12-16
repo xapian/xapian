@@ -25,7 +25,6 @@
 
 #include "debuglog.h"
 #include "omassert.h"
-#include "utils.h"
 
 #ifdef XAPIAN_ASSERTIONS_PARANOID
 #include "xapian/database.h"

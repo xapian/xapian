@@ -29,9 +29,9 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include <stdlib.h> // For setenv() or putenv()
+#include "safesysstat.h" // For mkdir().
 
 using namespace std;
 

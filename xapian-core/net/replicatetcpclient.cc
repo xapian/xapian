@@ -25,7 +25,6 @@
 #include "api/replication.h"
 
 #include "tcpclient.h"
-#include "utils.h"
 
 using namespace std;
 

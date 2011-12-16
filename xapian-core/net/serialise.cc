@@ -30,7 +30,6 @@
 #include "api/omenquireinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "utils.h"
 #include "weight/weightinternal.h"
 
 #include <string>

@@ -26,12 +26,12 @@
 #include "cputimer.h"
 #include "str.h"
 #include "stringutils.h"
-#include "utils.h"
 
 #include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
+#include "safesysstat.h" // For mkdir().
 
 #include <stdlib.h> // For setenv() or putenv()
 
