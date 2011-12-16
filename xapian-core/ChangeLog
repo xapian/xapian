@@ -1,3 +1,8 @@
+Fri Dec 16 00:50:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Avoid leaking fds on exceptions in
+	  truncated_copy().
+
 Fri Dec 16 00:42:11 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/fd.h: Oops, fix to actually compile.
