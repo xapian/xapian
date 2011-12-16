@@ -34,13 +34,14 @@ class FD {
   public:
     FD() : fd(-1) { }
 
-    explicit FD(int fd_) : fd(fd_) { }
+    FD(int fd_) : fd(fd_) { }
 
     ~FD() { if (fd != -1) ::close(fd); }
 
     FD & operator=(int fd_) {
-	swap(fd, fd_);
-	if (fd_ != -1) ::close(fd_);
+	if (fd != -1) ::close(fd);
+	fd = fd_;
+	return *this;
     }
 
     operator int() const { return fd; }
@@ -48,11 +49,12 @@ class FD {
     int close() {
 	// Don't check for -1 here, so that close(FD) sets errno as close(int)
 	// would.
-	::close(fd);
+	int fd_to_close = fd;
 	fd = -1;
+	return ::close(fd_to_close);
     }
 };
 
-int close(FD & fd) {
+inline int close(FD & fd) {
    return fd.close();
 }

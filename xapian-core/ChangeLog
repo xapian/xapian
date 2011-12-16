@@ -1,3 +1,7 @@
+Fri Dec 16 00:42:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/fd.h: Oops, fix to actually compile.
+
 Thu Dec 15 23:54:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/fd.h: Add new FD class which wraps a file
