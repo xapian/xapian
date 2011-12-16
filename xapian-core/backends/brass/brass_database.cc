@@ -47,6 +47,7 @@
 #include "brass_valuelist.h"
 #include "brass_values.h"
 #include "debuglog.h"
+#include "fd.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
@@ -336,13 +337,11 @@ BrassDatabase::get_changeset_revisions(const string & path,
 				       brass_revision_number_t * startrev,
 				       brass_revision_number_t * endrev) const
 {
-    int changes_fd = -1;
 #ifdef __WIN32__
-    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY);
+    FD changes_fd(msvc_posix_open(path.c_str(), O_RDONLY));
 #else
-    changes_fd = open(path.c_str(), O_RDONLY);
+    FD changes_fd(open(path.c_str(), O_RDONLY));
 #endif
-    fdcloser closer(changes_fd);
 
     if (changes_fd < 0) {
 	string message = string("Couldn't open changeset ")
@@ -425,7 +424,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
     }
 
     try {
-	fdcloser closefd(changes_fd);
+	FD closefd(changes_fd);
 	if (changes_fd >= 0) {
 	    string buf;
 	    brass_revision_number_t old_revision = get_revision_number();
@@ -563,12 +562,11 @@ BrassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
 	filepath.replace(db_dir.size() + 1, string::npos, leaf);
 #ifdef __WIN32__
-	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY);
+	FD fd(msvc_posix_open(filepath.c_str(), O_RDONLY));
 #else
-	int fd = open(filepath.c_str(), O_RDONLY);
+	FD fd(open(filepath.c_str(), O_RDONLY));
 #endif
 	if (fd > 0) {
-	    fdcloser closefd(fd);
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
@@ -668,13 +666,11 @@ BrassDatabase::write_changesets_to_fd(int fd,
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 #ifdef __WIN32__
-	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY);
+	    FD fd_changes(msvc_posix_open(changes_name.c_str(), O_RDONLY));
 #else
-	    int fd_changes = open(changes_name.c_str(), O_RDONLY);
+	    FD fd_changes(open(changes_name.c_str(), O_RDONLY));
 #endif
 	    if (fd_changes > 0) {
-		fdcloser closefd(fd_changes);
-
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
 		brass_revision_number_t changeset_start_rev_num;

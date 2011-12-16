@@ -31,6 +31,7 @@
 #include "brass_replicate_internal.h"
 #include "brass_types.h"
 #include "brass_version.h"
+#include "fd.h"
 #include "debuglog.h"
 #include "io_utils.h"
 #include "pack.h"
@@ -123,7 +124,7 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	throw DatabaseError(msg, errno);
     }
     {
-	fdcloser closer(fd);
+	FD closer(fd);
 
 	io_write(fd, buf.data(), base_size);
 	io_sync(fd);
@@ -189,7 +190,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	}
     }
     {
-	fdcloser closer(fd);
+	FD closer(fd);
 
 	while (true) {
 	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);

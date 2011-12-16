@@ -33,6 +33,7 @@
 #include "chert_types.h"
 #include "chert_version.h"
 #include "debuglog.h"
+#include "fd.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
@@ -130,7 +131,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	throw DatabaseError(msg, errno);
     }
     {
-	fdcloser closer(fd);
+	FD closer(fd);
 
 	io_write(fd, buf.data(), base_size);
 	io_sync(fd);
@@ -199,7 +200,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	}
     }
     {
-	fdcloser closer(fd);
+	FD closer(fd);
 
 	while (true) {
 	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
@@ -285,13 +286,12 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (ptr == end)
 	throw NetworkError("Unexpected end of changeset (1)");
 
-    int changes_fd = -1;
+    FD changes_fd;
     string changes_name;
     if (max_changesets > 0) {
 	changes_fd = create_changeset_file(db_dir, "changes" + str(startrev),
 					   changes_name);
     }
-    fdcloser closer(changes_fd);
 
     if (valid) {
 	// Check the revision number.

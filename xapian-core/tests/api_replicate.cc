@@ -143,12 +143,11 @@ get_changeset(const string & changesetpath,
 	      int expected_fullcopies,
 	      bool expected_changed)
 {
-    int fd = open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    FD fd(open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when creating a new changeset file at '"
 		  + changesetpath + "')");
     }
-    fdcloser fdc(fd);
     Xapian::ReplicationInfo info1;
     master.write_changesets_to_fd(fd, replica.get_revision_info(), &info1);
 
@@ -164,12 +163,11 @@ apply_changeset(const string & changesetpath,
 		int expected_fullcopies,
 		bool expected_changed)
 {
-    int fd = open(changesetpath.c_str(), O_RDONLY);
+    FD fd(open(changesetpath.c_str(), O_RDONLY));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when reading changeset file at '"
 		  + changesetpath + "')");
     }
-    fdcloser fdc(fd);
 
     int count = 1;
     replica.set_read_fd(fd);

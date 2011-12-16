@@ -30,11 +30,11 @@
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
+#include "fd.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
 #include "str.h"
-#include "utils.h"
 
 #include <algorithm>
 #include <climits>
@@ -196,16 +196,15 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
-    int h = msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY);
+    FD h(msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY));
 #else
-    int h = open(basename.c_str(), O_RDONLY | O_BINARY);
+    FD h(open(basename.c_str(), O_RDONLY | O_BINARY));
 #endif
 
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
     }
-    fdcloser closefd(h);
 
     char buf[REASONABLE_BASE_SIZE];
 
@@ -332,16 +331,15 @@ ChertTable_base::write_to_file(const string &filename,
     pack_uint(buf, revision);  // REVISION3
 
 #ifdef __WIN32__
-    int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+    FD h(msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY));
 #else
-    int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    FD h(open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
 #endif
     if (h < 0) {
 	string message = string("Couldn't open base ")
 		+ filename + " to write: " + strerror(errno);
 	throw Xapian::DatabaseOpeningError(message);
     }
-    fdcloser closefd(h);
 
     if (changes_fd >= 0) {
 	string changes_buf;
