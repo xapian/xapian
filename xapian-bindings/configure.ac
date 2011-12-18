@@ -937,13 +937,15 @@ if test no != "$with_lua" ; then
     if test -n "$LUA" ; then
       AC_MSG_RESULT([$lua_version])
       AC_ARG_VAR(LUA_LIB, [Directory to install xapian.so into])
-      AC_MSG_CHECKING(for Lua library to install xapian.so)
-      LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
-      LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
-      if test -z "$LUA_LIB"; then
-        AC_MSG_RESULT(not found)
-      else
-        AC_MSG_RESULT($LUA_LIB)
+      if test -z "$LUA_LIB" ; then
+	AC_MSG_CHECKING(for Lua library to install xapian.so)
+	LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
+	LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
+	if test -z "$LUA_LIB"; then
+	  AC_MSG_RESULT(not found)
+	else
+	  AC_MSG_RESULT($LUA_LIB)
+	fi
       fi
       AC_SUBST(LUA_LIB)
 

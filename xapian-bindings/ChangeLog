@@ -1,3 +1,7 @@
+Sun Dec 18 01:50:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Honour LUA_LIB if already set.  Fixes #581.
+
 Thu Dec 15 14:44:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/generate-perl-exceptions: Remove superfluous ';' after closing
