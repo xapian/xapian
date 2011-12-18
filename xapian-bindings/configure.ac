@@ -914,7 +914,7 @@ if test no != "$with_lua" ; then
   if test -n "$LUA" ; then
     dnl We need Lua 5.1 or later.
     AC_MSG_CHECKING([$LUA version])
-    [lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`]
+    lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`
 
     case $lua_version in
     [[01234]].*|5.0|5.0.*)
@@ -936,21 +936,21 @@ if test no != "$with_lua" ; then
 
     if test -n "$LUA" ; then
       AC_MSG_RESULT([$lua_version])
-      AC_ARG_VAR(LUA_LIB, [Directory to install xapian.so into])
+      AC_ARG_VAR([LUA_LIB], [Directory to install xapian.so into])
       if test -z "$LUA_LIB" ; then
-	AC_MSG_CHECKING(for Lua library to install xapian.so)
+	AC_MSG_CHECKING([for Lua library to install xapian.so])
 	LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
 	LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
 	if test -z "$LUA_LIB"; then
-	  AC_MSG_RESULT(not found)
+	  AC_MSG_RESULT([not found])
 	else
-	  AC_MSG_RESULT($LUA_LIB)
+	  AC_MSG_RESULT([$LUA_LIB])
 	fi
       fi
-      AC_SUBST(LUA_LIB)
+      AC_SUBST([LUA_LIB])
 
-      AC_MSG_CHECKING(for Lua header files)
-      AC_ARG_VAR(LUA_INC, [Directory to include for lua headers])
+      AC_MSG_CHECKING([for Lua header files])
+      AC_ARG_VAR([LUA_INC], [Directory to include for lua headers])
       if test -z "$LUA_INC" ; then
         dirs="/usr/local/include /usr/local/include/lua* /usr/include/lua* /usr/include"
         for i in $dirs ; do
@@ -962,13 +962,13 @@ if test no != "$with_lua" ; then
       fi
 
       if test -z "$LUA_INC" ; then
-        AC_MSG_RESULT(not found)
+        AC_MSG_RESULT([not found])
       else
-        AC_MSG_RESULT($LUA_INC)
+        AC_MSG_RESULT([$LUA_INC])
         BINDINGS="$BINDINGS lua"
         LUA_CPPFLAGS="-I$LUA_INC"
       fi
-      AC_SUBST(LUA_INC)
+      AC_SUBST([LUA_INC])
 
       dnl Cygwin needs to link with -llua or similar.
       LUA_LIBS=
@@ -981,8 +981,8 @@ if test no != "$with_lua" ; then
       *)
 	LUA_CPPFLAGS="$LUA_CPPFLAGS -DUSE_LUA_STUBS" ;;
       esac
-      AC_SUBST(LUA_CPPFLAGS)
-      AC_SUBST(LUA_LIBS)
+      AC_SUBST([LUA_CPPFLAGS])
+      AC_SUBST([LUA_LIBS])
     fi
   else
     if test yes = "$with_lua" ; then

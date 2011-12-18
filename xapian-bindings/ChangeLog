@@ -1,3 +1,7 @@
+Sun Dec 18 01:55:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: m4 quoting tweaks (cosmetic only).
+
 Sun Dec 18 01:50:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Honour LUA_LIB if already set.  Fixes #581.
