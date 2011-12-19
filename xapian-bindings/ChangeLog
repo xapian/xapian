@@ -1,3 +1,7 @@
+Mon Dec 19 10:18:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix cosmetic typo in recent Lua change.
+
 Mon Dec 19 10:11:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac,lua/Makefile.am: Remove Lua cygwin-specific configure

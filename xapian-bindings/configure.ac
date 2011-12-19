@@ -937,7 +937,7 @@ if test no != "$with_lua" ; then
     if test -n "$LUA" ; then
       AC_MSG_RESULT([$lua_version])
 
-      AC_ARG_VAR([LUA_LIB], [Directory to install compile Lua modules into])
+      AC_ARG_VAR([LUA_LIB], [Directory to install compiled Lua modules into])
       AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules])
       AC_MSG_CHECKING([for directory to install compiled Lua modules into])
       if test -z "$LUA_LIB" -o -z "$LUA_SO" ; then
