@@ -883,7 +883,7 @@ if test no != "$with_perl" ; then
     fi
     AC_SUBST(PERL_LIB)
 
-    AC_ARG_VAR(PERL_SO, [for perl module extension])
+    AC_ARG_VAR(PERL_SO, [Extension for compiled Perl modules])
     if test -z "$PERL_SO" ; then
       PERL_SO=`$PERL -MConfig -e 'print ".", $Config{dlext}'`
     fi
