@@ -1000,20 +1000,7 @@ if test no != "$with_lua" ; then
         LUA_CPPFLAGS="-I$LUA_INC"
       fi
       AC_SUBST([LUA_INC])
-
-      dnl Cygwin needs to link with -llua or similar.
-      LUA_LIBS=
-      case $host_os in
-      cygwin*)
-	AC_CHECK_LIB([lua$lua_version], [Lua_Init],
-		     [LUA_LIBS="-llua$lua_version"],
-		     [AC_MSG_ERROR([liblua$lua_version not found])])
-	;;
-      *)
-	LUA_CPPFLAGS="$LUA_CPPFLAGS -DUSE_LUA_STUBS" ;;
-      esac
       AC_SUBST([LUA_CPPFLAGS])
-      AC_SUBST([LUA_LIBS])
     fi
   else
     if test yes = "$with_lua" ; then
