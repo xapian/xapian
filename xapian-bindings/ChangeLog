@@ -1,3 +1,9 @@
+Mon Dec 19 09:08:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,lua/Makefile.am: Improve probing for LUA_LIB, and also
+	  probe for LUA_SO so we support platforms where the compiled Lua
+	  module isn't called .so.
+
 Sun Dec 18 02:04:16 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Improve LUA_LIB description and probe message - the
