@@ -26,6 +26,12 @@ import sys
 import tempfile
 import xapian
 
+try:
+    import threading
+    have_threads = True
+except ImportError:
+    have_threads = False
+
 from testsuite import *
 
 def setup_database():
@@ -1608,8 +1614,31 @@ def test_removed_features():
     check_missing(titer, 'positionlist_begin')
     check_missing(titer, 'positionlist_end')
 
+result = True
+
 # Run all tests (ie, callables with names starting "test_").
-if not runtests(globals(), sys.argv[1:]):
+def run():
+    global result
+    if not runtests(globals(), sys.argv[1:]):
+        result = False
+
+print "Running tests without threads"
+run()
+
+if have_threads:
+    print "Running tests with threads"
+
+    # This testcase seems to just block when run in a thread, so just remove
+    # it before running tests in a thread.
+    del test_import_star
+
+    t = threading.Thread(name='test runner', target=run)
+    t.start()
+    # Block until the thread has completed so the thread gets a chance to exit
+    # with error status.
+    t.join()
+
+if not result:
     sys.exit(1)
 
 # vim:syntax=python:set expandtab:

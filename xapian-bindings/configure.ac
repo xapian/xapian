@@ -325,6 +325,24 @@ if test no != "$with_python" ; then
 	AC_SUBST(PYTHON_SO)
 	AC_MSG_RESULT([$PYTHON_SO])
 
+	dnl C++11 has thread_local
+	dnl GCC and some others have __thread
+	dnl MSVC and some others have __declspec(thread)
+	AC_MSG_CHECKING([for thread-local storage qualifier])
+	AC_ARG_VAR([THREAD_LOCAL], [thread-local storage qualifier])
+	if test -z "$THREAD_LOCAL" ; then
+	  for t in thread_local __thread '__declspec(thread)' ; do
+	    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[static $t void * p;]])],
+			      [THREAD_LOCAL=$t; break])
+	  done
+	fi
+	if test -z "$THREAD_LOCAL" ; then
+	  AC_MSG_RESULT([unknown, disabling thread-local support])
+	else
+	  AC_MSG_RESULT([$THREAD_LOCAL])
+	  AC_DEFINE_UNQUOTED([THREAD_LOCAL], [$THREAD_LOCAL], [Thread local storage qualifier (undefined if no TLS)])
+	fi
+
 	BINDINGS="$BINDINGS python"
       else
 	AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])
