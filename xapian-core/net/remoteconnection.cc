@@ -27,6 +27,7 @@
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 #include <algorithm>
