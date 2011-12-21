@@ -1,3 +1,10 @@
+Wed Dec 21 10:06:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/Search/Xapian/Document.pm,perl/Search/Xapian/TermGenerator.pm:
+	  Improve POD docs for Document and TermGenerator methods - "weight"
+	  is misleading, so use "wdfinc" and "wdfdec" like the C++ API docs
+	  do.
+
 Wed Dec 21 10:05:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/util.i,perl/perl.i: Change Xapian::weight to double.

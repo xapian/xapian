@@ -44,21 +44,21 @@ Return all document data.
 
 Set all document data. This can be anything you like.
 
-=item add_posting <term> <position> [<weight>]
+=item add_posting <term> <position> [<wdfinc>]
 
-Adds a term at the given position. weight defaults to 1.
+Adds a term at the given position. wdfinc defaults to 1.
 
-=item remove_posting <term> <position> [<weight]
+=item remove_posting <term> <position> [<wdfdec>]
 
-Removes a term from the given position. weight defaults to 1.
+Removes a term from the given position. wdfdec defaults to 1.
 
-=item add_term <term> [<weight>]
+=item add_term <term> [<wdfinc>]
 
-Adds a term without positional information. weight defaults to 1.
+Adds a term without positional information. wdfinc defaults to 1.
 
 =item remove_term <term>
 
-Removes a term without positional information.
+Removes a term and all postings associated with it.
 
 =item clear_terms
 
@@ -66,7 +66,7 @@ Remove all terms from the document.
 
 =item termlist_count 
 
-Returns number of terms in the document.
+Returns number of different terms in the document.
 
 =item termlist_begin
 
