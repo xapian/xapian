@@ -1,3 +1,8 @@
+Wed Dec 21 13:48:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/add-php-type-hints: Don't add a type hint to apply($doc) as that
+	  would break existing subclasses as the signature must match.
+
 Wed Dec 21 10:06:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/Search/Xapian/Document.pm,perl/Search/Xapian/TermGenerator.pm:

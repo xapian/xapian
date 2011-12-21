@@ -46,8 +46,9 @@ while (<>) {
 	# OK!
     } elsif (s/(function (?:set|add)_database\()(\$d)/$1XapianDatabase $2/) {
 	# OK!
-    } elsif (s/(function apply\()(\$doc)/$1XapianDocument $2/) {
-	# OK!
+# This would break existing subclasses as the signature must match.
+#    } elsif (s/(function apply\()(\$doc)/$1XapianDocument $2/) {
+#	# OK!
     } elsif (s/(function set_query\()(\$query\b)/$1XapianQuery $2/) {
 	# OK!
     } elsif (s/(function add_matchspy\()(\$spy\b)/$1XapianMatchSpy $2/) {
