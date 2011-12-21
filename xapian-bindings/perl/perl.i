@@ -27,7 +27,7 @@
 /* Rename function next() to increment() since the keyword "next" is already
  * used in Perl. */
 %rename(increment) *::next();
-%rename(increment_weight) *::next(Xapian::weight min_wt);
+%rename(increment_weight) *::next(double min_wt);
 
 /* Wrapping constant values. */
 %constant int OP_AND = Xapian::Query::OP_AND;

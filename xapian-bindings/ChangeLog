@@ -1,3 +1,7 @@
+Wed Dec 21 10:05:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i,perl/perl.i: Change Xapian::weight to double.
+
 Wed Dec 21 08:43:37 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/add-php-type-hints: XapianSorter should be XapianKeyMaker.

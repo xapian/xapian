@@ -1,6 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
+ * Copyright (C) 2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -256,7 +257,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
 			luaL_unref(L, LUA_REGISTRYINDEX, r);
 		}
 
-		void operator()(const Xapian::Document &doc, Xapian::weight wt) {
+		void operator()(const Xapian::Document &doc, double wt) {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 			if (!lua_isfunction(L, -1)) {
 				luaL_typerror(L, -1, "function");
