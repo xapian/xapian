@@ -1,3 +1,7 @@
+Wed Dec 21 10:02:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Change Xapian::weight to double.
+
 Wed Dec 21 05:25:40 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.rst,omega.cc,query.cc: Make DEFAULTOP default to AND

@@ -819,7 +819,7 @@ static Fields fields;
 static Xapian::docid q0;
 static Xapian::doccount hit_no;
 static int percent;
-static Xapian::weight weight;
+static double weight;
 static Xapian::doccount collapsed;
 
 static string print_caption(const string &fmt, const vector<string> &param);
