@@ -296,7 +296,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 }
 
 void
-ValueCountMatchSpy::operator()(const Document &doc, weight) {
+ValueCountMatchSpy::operator()(const Document &doc, double) {
     ++(internal->total);
     string val(doc.get_value(internal->slot));
     if (!val.empty()) ++(internal->values[val]);

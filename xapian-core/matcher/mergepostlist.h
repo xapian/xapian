@@ -37,7 +37,7 @@ class MergePostList : public PostList {
 	MergePostList(const MergePostList &);
 	MergePostList & operator=(const MergePostList &);
 
-	Xapian::weight w_max;
+	double w_max;
 
 	vector<PostList *> plists;
 
@@ -66,15 +66,15 @@ class MergePostList : public PostList {
 	Xapian::doccount get_termfreq_est() const;
 
 	Xapian::docid  get_docid() const;
-	Xapian::weight get_weight() const;
+	double get_weight() const;
 	const string * get_collapse_key() const;
 
-	Xapian::weight get_maxweight() const;
+	double get_maxweight() const;
 
-	Xapian::weight recalc_maxweight();
+	double recalc_maxweight();
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+	PostList *next(double w_min);
+	PostList *skip_to(Xapian::docid did, double w_min);
 	bool   at_end() const;
 
 	string get_description() const;

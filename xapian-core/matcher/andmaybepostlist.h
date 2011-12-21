@@ -5,7 +5,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2003,2004,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,9 +54,9 @@ class AndMaybePostList : public BranchPostList {
     private:
 	Xapian::doccount dbsize; // only need in case we decay to an AndPostList
 	Xapian::docid lhead, rhead;
-	Xapian::weight lmax, rmax;
+	double lmax, rmax;
 
-        PostList * process_next_or_skip_to(Xapian::weight w_min, PostList *ret);
+	PostList * process_next_or_skip_to(double w_min, PostList *ret);
     public:
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
@@ -66,13 +66,13 @@ class AndMaybePostList : public BranchPostList {
 	    const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;
-	Xapian::weight get_weight() const;
-	Xapian::weight get_maxweight() const;
+	double get_weight() const;
+	double get_maxweight() const;
 
-        Xapian::weight recalc_maxweight();
+	double recalc_maxweight();
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+	PostList *next(double w_min);
+	PostList *skip_to(Xapian::docid did, double w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -111,7 +111,7 @@ class AndMaybePostList : public BranchPostList {
 	/** Synchronise the RHS to the LHS after construction.
 	 *  Used after constructing from a decomposing OrPostList
 	 */
-	PostList * sync_rhs(Xapian::weight w_min);
+	PostList * sync_rhs(double w_min);
 
 	/** get_wdf() for ANDMAYBE postlists returns the sum of the wdfs of the
 	 *  sub postlists which are at the current document - this is desirable

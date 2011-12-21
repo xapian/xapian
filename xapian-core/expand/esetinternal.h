@@ -1,7 +1,7 @@
 /** @file esetinternal.h
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010 Olly Betts
+/* Copyright (C) 2008,2010,2011 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,14 +43,14 @@ class ExpandTerm {
     friend class Xapian::ESet::Internal;
 
     /// The expand weight calculated for this term.
-    Xapian::weight wt;
+    double wt;
 
     /// The term.
     std::string term;
 
   public:
     /// Constructor.
-    ExpandTerm(Xapian::weight wt_, const std::string & term_)
+    ExpandTerm(double wt_, const std::string & term_)
 	: wt(wt_), term(term_) { }
 
     /// Implement custom swap for ESet sorting efficiency.
@@ -103,7 +103,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 		const Xapian::RSet & rset,
 		const Xapian::ExpandDecider * edecider,
 		const Xapian::Internal::ExpandWeight & eweight,
-		Xapian::weight min_wt);
+		double min_wt);
 
     /// Return a string describing this object.
     std::string get_description() const;

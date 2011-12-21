@@ -54,13 +54,13 @@ namespace Internal {
  */
 class MSetItem {
     public:
-	MSetItem(Xapian::weight wt_, Xapian::docid did_)
+	MSetItem(double wt_, Xapian::docid did_)
 		: wt(wt_), did(did_), collapse_count(0) {}
 
-	MSetItem(Xapian::weight wt_, Xapian::docid did_, const string &key_)
+	MSetItem(double wt_, Xapian::docid did_, const string &key_)
 		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
 
-	MSetItem(Xapian::weight wt_, Xapian::docid did_, const string &key_,
+	MSetItem(double wt_, Xapian::docid did_, const string &key_,
 		 Xapian::doccount collapse_count_)
 		: wt(wt_), did(did_), collapse_key(key_),
 		  collapse_count(collapse_count_) {}
@@ -74,7 +74,7 @@ class MSetItem {
 	}
 
 	/** Weight calculated. */
-	Xapian::weight wt;
+	double wt;
 
 	/** Document id. */
 	Xapian::docid did;
@@ -140,7 +140,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	int percent_cutoff;
 
-	Xapian::weight weight_cutoff;
+	double weight_cutoff;
 
 	Xapian::valueno sort_key;
 	sort_setting sort_by;
@@ -180,7 +180,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 		      const MatchDecider *mdecider) const;
 
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
-		      double k, const ExpandDecider *edecider, Xapian::weight min_wt) const;
+		      double k, const ExpandDecider *edecider, double min_wt) const;
 
 	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
@@ -223,10 +223,10 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	    TermFreqAndWeight() { }
 	    explicit TermFreqAndWeight(Xapian::doccount tf)
 		: termfreq(tf), termweight(0.0) { }
-	    TermFreqAndWeight(Xapian::doccount tf, Xapian::weight wt)
+	    TermFreqAndWeight(Xapian::doccount tf, double wt)
 		: termfreq(tf), termweight(wt) { }
 	    Xapian::doccount termfreq;
-	    Xapian::weight termweight;
+	    double termweight;
 	};
 
 	/** The term frequencies and weights returned by the match process.
@@ -254,9 +254,9 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	Xapian::doccount uncollapsed_upper_bound;
 
-	Xapian::weight max_possible;
+	double max_possible;
 
-	Xapian::weight max_attained;
+	double max_attained;
 
 	Internal()
 		: percent_factor(0),
@@ -278,11 +278,11 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	     Xapian::doccount uncollapsed_upper_bound_,
 	     Xapian::doccount uncollapsed_lower_bound_,
 	     Xapian::doccount uncollapsed_estimated_,
-	     Xapian::weight max_possible_,
-	     Xapian::weight max_attained_,
+	     double max_possible_,
+	     double max_attained_,
 	     vector<Xapian::Internal::MSetItem> &items_,
 	     const map<string, TermFreqAndWeight> &termfreqandwts_,
-	     Xapian::weight percent_factor_)
+	     double percent_factor_)
 		: percent_factor(percent_factor_),
 		  termfreqandwts(termfreqandwts_),
 		  firstitem(firstitem_),
@@ -301,7 +301,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	Xapian::Document get_doc_by_index(Xapian::doccount index) const;
 
 	/// Converts a weight to a percentage weight
-	int convert_to_percent_internal(Xapian::weight wt) const;
+	int convert_to_percent_internal(double wt) const;
 
 	/// Return a string describing this object.
 	string get_description() const;

@@ -721,7 +721,7 @@ DEFINE_TESTCASE(bm25weight2, backend) {
     enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 0, 0, 1));
     Xapian::MSet mset = enquire.get_mset(0, 100);
     TEST_REL(mset.size(),>=,2);
-    Xapian::weight weight0 = mset[0].get_weight();
+    double weight0 = mset[0].get_weight();
     for (size_t i = 1; i != mset.size(); ++i) {
 	TEST_EQUAL(weight0, mset[i].get_weight());
     }
@@ -735,7 +735,7 @@ DEFINE_TESTCASE(tradweight2, backend) {
     enquire.set_weighting_scheme(Xapian::TradWeight(0));
     Xapian::MSet mset = enquire.get_mset(0, 100);
     TEST_REL(mset.size(),>=,2);
-    Xapian::weight weight0 = mset[0].get_weight();
+    double weight0 = mset[0].get_weight();
     for (size_t i = 1; i != mset.size(); ++i) {
 	TEST_EQUAL(weight0, mset[i].get_weight());
     }

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009,2010 Olly Betts
+ * Copyright 2003,2004,2009,2010,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -38,7 +38,7 @@ class OrPostList : public BranchPostList {
     private:
         Xapian::docid lhead, rhead;
 	bool lvalid, rvalid;
-        Xapian::weight lmax, rmax, minmax;
+	double lmax, rmax, minmax;
 	Xapian::doccount dbsize;
     public:
 	Xapian::doccount get_termfreq_max() const;
@@ -48,14 +48,14 @@ class OrPostList : public BranchPostList {
 	    const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;
-	Xapian::weight get_weight() const;
-	Xapian::weight get_maxweight() const;
+	double get_weight() const;
+	double get_maxweight() const;
 
-	Xapian::weight recalc_maxweight();
+	double recalc_maxweight();
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
-	PostList *check(Xapian::docid did, Xapian::weight w_min, bool &valid);
+	PostList *next(double w_min);
+	PostList *skip_to(Xapian::docid did, double w_min);
+	PostList *check(Xapian::docid did, double w_min, bool &valid);
 	bool   at_end() const;
 
 	std::string get_description() const;

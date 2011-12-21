@@ -1,7 +1,7 @@
 /** @file externalpostlist.cc
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2010 Olly Betts
+/* Copyright 2008,2009,2010,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -74,10 +74,10 @@ ExternalPostList::get_termfreq_max() const
     return source->get_termfreq_max();
 }
 
-Xapian::weight
+double
 ExternalPostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "ExternalPostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "ExternalPostList::get_maxweight", NO_ARGS);
     // source will be NULL here if we've reached the end.
     if (source == NULL) RETURN(0.0);
     if (factor == 0.0) RETURN(0.0);
@@ -92,10 +92,10 @@ ExternalPostList::get_docid() const
     RETURN(current);
 }
 
-Xapian::weight
+double
 ExternalPostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "ExternalPostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
     Assert(source);
     if (factor == 0.0) RETURN(factor);
     RETURN(factor * source->get_weight());
@@ -108,7 +108,7 @@ ExternalPostList::get_doclength() const
     return 0;
 }
 
-Xapian::weight
+double
 ExternalPostList::recalc_maxweight()
 {
     return ExternalPostList::get_maxweight();
@@ -141,7 +141,7 @@ ExternalPostList::update_after_advance() {
 }
 
 PostList *
-ExternalPostList::next(Xapian::weight w_min)
+ExternalPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::next", w_min);
     Assert(source);
@@ -150,7 +150,7 @@ ExternalPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+ExternalPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did | w_min);
     Assert(source);
@@ -160,7 +160,7 @@ ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 }
 
 PostList *
-ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
+ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | valid);
     Assert(source);

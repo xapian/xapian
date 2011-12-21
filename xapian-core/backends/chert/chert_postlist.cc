@@ -802,7 +802,7 @@ ChertPostList::open_position_list() const
 }
 
 PostList *
-ChertPostList::next(Xapian::weight w_min)
+ChertPostList::next(double w_min)
 {
     LOGCALL(DB, PostList *, "ChertPostList::next", w_min);
     (void)w_min; // no warning
@@ -908,7 +908,7 @@ ChertPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 }
 
 PostList *
-ChertPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
+ChertPostList::skip_to(Xapian::docid desired_did, double w_min)
 {
     LOGCALL(DB, PostList *, "ChertPostList::skip_to", desired_did | w_min);
     (void)w_min; // no warning

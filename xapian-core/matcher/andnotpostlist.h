@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2003,2004,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ class AndNotPostList : public BranchPostList {
 	/// Number of documents in the database this postlist is across
 	Xapian::doccount dbsize;
 
-        PostList *advance_to_next_match(Xapian::weight w_min, PostList *ret);
+	PostList *advance_to_next_match(double w_min, PostList *ret);
     public:
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
@@ -47,13 +47,13 @@ class AndNotPostList : public BranchPostList {
 	    const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;
-	Xapian::weight get_weight() const;
-	Xapian::weight get_maxweight() const;
+	double get_weight() const;
+	double get_maxweight() const;
 
-        Xapian::weight recalc_maxweight();
+	double recalc_maxweight();
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+	PostList *next(double w_min);
+	PostList *skip_to(Xapian::docid did, double w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -69,7 +69,7 @@ class AndNotPostList : public BranchPostList {
 		       Xapian::doccount dbsize_);
 
         PostList *sync_and_skip_to(Xapian::docid id,
-				   Xapian::weight w_min,
+				   double w_min,
 				   Xapian::docid lh,
 				   Xapian::docid rh);
 

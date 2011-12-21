@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007,2009 Olly Betts
+ * Copyright 2003,2004,2007,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@
 #include "omassert.h"
 
 PostList *
-AndNotPostList::advance_to_next_match(Xapian::weight w_min, PostList *ret)
+AndNotPostList::advance_to_next_match(double w_min, PostList *ret)
 {
     LOGCALL(MATCH, PostList *, "AndNotPostList::advance_to_next_match", w_min | ret);
     handle_prune(l, ret);
@@ -69,7 +69,7 @@ AndNotPostList::AndNotPostList(PostList *left_,
 }
 
 PostList *
-AndNotPostList::next(Xapian::weight w_min)
+AndNotPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "AndNotPostList::next", w_min);
     RETURN(advance_to_next_match(w_min, l->next(w_min)));
@@ -77,7 +77,7 @@ AndNotPostList::next(Xapian::weight w_min)
 
 PostList *
 AndNotPostList::sync_and_skip_to(Xapian::docid id,
-				 Xapian::weight w_min,
+				 double w_min,
 				 Xapian::docid lh,
 				 Xapian::docid rh)
 {
@@ -88,7 +88,7 @@ AndNotPostList::sync_and_skip_to(Xapian::docid id,
 }
 
 PostList *
-AndNotPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+AndNotPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "AndNotPostList::skip_to", did | w_min);
     if (did <= lhead) RETURN(NULL);
@@ -164,25 +164,25 @@ AndNotPostList::get_docid() const
 }
 
 // only called if we are doing a probabilistic AND NOT
-Xapian::weight
+double
 AndNotPostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "AndNotPostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "AndNotPostList::get_weight", NO_ARGS);
     RETURN(l->get_weight());
 }
 
 // only called if we are doing a probabilistic AND NOT
-Xapian::weight
+double
 AndNotPostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "AndNotPostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "AndNotPostList::get_maxweight", NO_ARGS);
     RETURN(l->get_maxweight());
 }
 
-Xapian::weight
+double
 AndNotPostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "AndNotPostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "AndNotPostList::recalc_maxweight", NO_ARGS);
     // l cannot be NULL here because it is only set to NULL when the tree
     // decays, so this can never be called at that point.
     RETURN(l->recalc_maxweight());

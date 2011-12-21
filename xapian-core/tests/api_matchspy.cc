@@ -2,7 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2011 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -47,8 +47,7 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
     // Vector which will be filled with all the document contents seen.
     std::vector<std::string> seen;
 
-    void operator()(const Xapian::Document &doc,
-		    Xapian::weight) {
+    void operator()(const Xapian::Document &doc, double) {
 	// Note that this is not recommended usage of get_data() - you
 	// generally shouldn't call get_data() from inside a MatchSpy, because
 	// it is (likely to be) a slow operation resulting in considerable IO.
@@ -325,7 +324,7 @@ DEFINE_TESTCASE(matchspy5, backend)
 }
 
 class MySpy : public Xapian::MatchSpy {
-    void operator()(const Xapian::Document &, Xapian::weight) {
+    void operator()(const Xapian::Document &, double) {
     }
 };
 

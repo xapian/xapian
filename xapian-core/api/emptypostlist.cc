@@ -1,7 +1,7 @@
 /** @file emptypostlist.cc
  * @brief A PostList which contains no entries.
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ EmptyPostList::get_termfreq_est() const
     return 0;
 }
 
-Xapian::weight
+double
 EmptyPostList::get_maxweight() const
 {
     return 0;
@@ -63,7 +63,7 @@ EmptyPostList::get_doclength() const
     return Xapian::termcount(EmptyPostList::get_docid());
 }
 
-Xapian::weight
+double
 EmptyPostList::get_weight() const
 {
     Assert(false);
@@ -76,20 +76,20 @@ EmptyPostList::at_end() const
     return true;
 }
 
-Xapian::weight
+double
 EmptyPostList::recalc_maxweight()
 {
     return EmptyPostList::get_maxweight();
 }
 
 PostList *
-EmptyPostList::next(Xapian::weight)
+EmptyPostList::next(double)
 {
     return NULL;
 }
 
 PostList *
-EmptyPostList::skip_to(Xapian::docid, Xapian::weight)
+EmptyPostList::skip_to(Xapian::docid, double)
 {
     return NULL;
 }

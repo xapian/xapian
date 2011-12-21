@@ -201,7 +201,7 @@ MSet::fetch() const
 }
 
 int
-MSet::convert_to_percent(Xapian::weight wt) const
+MSet::convert_to_percent(double wt) const
 {
     LOGCALL(API, int, "Xapian::MSet::convert_to_percent", wt);
     Assert(internal.get() != 0);
@@ -232,10 +232,10 @@ MSet::get_termfreq(const string &tname) const
     RETURN(internal->enquire->get_termfreq(tname));
 }
 
-Xapian::weight
+double
 MSet::get_termweight(const string &tname) const
 {
-    LOGCALL(API, Xapian::weight, "Xapian::MSet::get_termweight", tname);
+    LOGCALL(API, double, "Xapian::MSet::get_termweight", tname);
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
@@ -295,14 +295,14 @@ MSet::get_uncollapsed_matches_upper_bound() const
     return internal->uncollapsed_upper_bound;
 }
 
-Xapian::weight
+double
 MSet::get_max_possible() const
 {
     Assert(internal.get() != 0);
     return internal->max_possible;
 }
 
-Xapian::weight
+double
 MSet::get_max_attained() const
 {
     Assert(internal.get() != 0);
@@ -366,7 +366,7 @@ MSet::get_description() const
 }
 
 int
-MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
+MSet::Internal::convert_to_percent_internal(double wt) const
 {
     LOGCALL(MATCH, int, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
     if (percent_factor == 0) RETURN(100);
@@ -550,7 +550,7 @@ ESetIterator::operator *() const
     return eset.internal->items[index].term;
 }
 
-Xapian::weight
+double
 ESetIterator::get_weight() const
 {
     Assert(eset.internal.get());
@@ -582,7 +582,7 @@ MSetIterator::get_document() const
     return mset.internal->get_doc_by_index(index);
 }
 
-Xapian::weight
+double
 MSetIterator::get_weight() const
 {
     Assert(mset.internal.get());
@@ -705,7 +705,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
-		    const ExpandDecider * edecider, Xapian::weight min_wt) const
+		    const ExpandDecider * edecider, double min_wt) const
 {
     LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider | min_wt);
 
@@ -941,7 +941,7 @@ Enquire::set_docid_order(Enquire::docid_order order)
 }
 
 void
-Enquire::set_cutoff(int percent_cutoff, Xapian::weight weight_cutoff)
+Enquire::set_cutoff(int percent_cutoff, double weight_cutoff)
 {
     internal->percent_cutoff = percent_cutoff;
     internal->weight_cutoff = weight_cutoff;
@@ -1042,7 +1042,7 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 
 ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		  double k, const ExpandDecider * edecider, Xapian::weight min_wt) const
+		  double k, const ExpandDecider * edecider, double min_wt) const
 {
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider | min_wt);
 

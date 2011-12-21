@@ -1,7 +1,7 @@
 /** @file msetpostlist.cc
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,10 +46,10 @@ MSetPostList::get_termfreq_max() const
     RETURN(mset_internal->matches_upper_bound);
 }
 
-Xapian::weight
+double
 MSetPostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "MSetPostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "MSetPostList::get_maxweight", NO_ARGS);
     // If we've not started, return max_possible from our MSet so that this
     // value gets used to set max_possible in the combined MSet.
     if (cursor == -1) RETURN(mset_internal->max_possible);
@@ -74,10 +74,10 @@ MSetPostList::get_docid() const
     RETURN(mset_internal->items[cursor].did);
 }
 
-Xapian::weight
+double
 MSetPostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "MSetPostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "MSetPostList::get_weight", NO_ARGS);
     Assert(cursor != -1);
     RETURN(mset_internal->items[cursor].wt);
 }
@@ -96,15 +96,15 @@ MSetPostList::get_doclength() const
     throw Xapian::UnimplementedError("MSetPostList::get_doclength() unimplemented");
 }
 
-Xapian::weight
+double
 MSetPostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "MSetPostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "MSetPostList::recalc_maxweight", NO_ARGS);
     RETURN(MSetPostList::get_maxweight());
 }
 
 PostList *
-MSetPostList::next(Xapian::weight w_min)
+MSetPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "MSetPostList::next", w_min);
     Assert(cursor == -1 || !at_end());
@@ -124,7 +124,7 @@ MSetPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-MSetPostList::skip_to(Xapian::docid, Xapian::weight)
+MSetPostList::skip_to(Xapian::docid, double)
 {
     // The usual semantics of skip_to don't make sense since MSetPostList
     // returns documents in MSet order rather than docid order like other

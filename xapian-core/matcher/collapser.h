@@ -50,7 +50,7 @@ class CollapseData {
     vector<Xapian::Internal::MSetItem> items;
 
     /// The highest weight of a document we've rejected.
-    Xapian::weight next_best_weight;
+    double next_best_weight;
 
     /// The number of documents we've rejected.
     Xapian::doccount collapse_count;
@@ -77,7 +77,7 @@ class CollapseData {
 			     Xapian::Internal::MSetItem & old_item);
 
     /// The highest weight of a document we've rejected.
-    Xapian::weight get_next_best_weight() const { return next_best_weight; }
+    double get_next_best_weight() const { return next_best_weight; }
 
     /// The number of documents we've rejected.
     Xapian::doccount get_collapse_count() const { return collapse_count; }
@@ -146,7 +146,7 @@ class Collapser {
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,
 					int percent_cutoff,
-					Xapian::weight min_weight) const;
+					double min_weight) const;
 
     Xapian::doccount get_docs_considered() const { return docs_considered; }
 

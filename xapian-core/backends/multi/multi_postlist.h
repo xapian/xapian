@@ -46,16 +46,16 @@ class MultiPostList : public PostList {
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_est() const;
 
-	Xapian::weight get_maxweight() const;
-	Xapian::weight get_weight() const;
-	Xapian::weight recalc_maxweight();
+	double get_maxweight() const;
+	double get_weight() const;
+	double recalc_maxweight();
 
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document
         Xapian::termcount get_wdf() const;	    // Within Document Frequency
 	PositionList * open_position_list() const;
-	PostList *next(Xapian::weight w_min);          // Moves to next docid
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);// Moves to next docid >= specified docid
+	PostList *next(double w_min);          // Moves to next docid
+	PostList *skip_to(Xapian::docid did, double w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	std::string get_description() const;

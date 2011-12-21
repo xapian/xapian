@@ -48,7 +48,7 @@ class MultiXorPostList : public PostList {
     PostList ** plist;
 
     /// Total maximum weight the XOR could possibly return.
-    Xapian::weight max_total;
+    double max_total;
 
     /// The number of documents in the database.
     Xapian::doccount db_size;
@@ -91,21 +91,21 @@ class MultiXorPostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 
     Xapian::termcount get_doclength() const;
 
-    Xapian::weight get_weight() const;
+    double get_weight() const;
 
     bool at_end() const;
 
-    Xapian::weight recalc_maxweight();
+    double recalc_maxweight();
 
-    Internal *next(Xapian::weight w_min);
+    Internal *next(double w_min);
 
-    Internal *skip_to(Xapian::docid, Xapian::weight w_min);
+    Internal *skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 

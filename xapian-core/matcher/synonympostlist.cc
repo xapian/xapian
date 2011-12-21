@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
 }
 
 PostList *
-SynonymPostList::next(Xapian::weight w_min)
+SynonymPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "SynonymPostList::next", w_min);
     (void)w_min;
@@ -52,7 +52,7 @@ SynonymPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-SynonymPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+SynonymPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "SynonymPostList::skip_to", did | w_min);
     (void)w_min;
@@ -60,10 +60,10 @@ SynonymPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     RETURN(NULL);
 }
 
-Xapian::weight
+double
 SynonymPostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "SynonymPostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "SynonymPostList::get_weight", NO_ARGS);
     // The wdf returned can be higher than the doclength.  In particular, this
     // can currently occur if the query contains a term more than once; the wdf
     // of each occurrence is added up.
@@ -85,17 +85,17 @@ SynonymPostList::get_weight() const
     RETURN(wt->get_sumpart(0, want_doclength ? get_doclength() : 0));
 }
 
-Xapian::weight
+double
 SynonymPostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "SynonymPostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "SynonymPostList::get_maxweight", NO_ARGS);
     RETURN(wt->get_maxpart());
 }
 
-Xapian::weight
+double
 SynonymPostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "SynonymPostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "SynonymPostList::recalc_maxweight", NO_ARGS);
 
     // Call recalc_maxweight on the subtree once, to ensure that the maxweights
     // are initialised.

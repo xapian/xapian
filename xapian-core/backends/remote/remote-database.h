@@ -114,7 +114,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Close the socket
     void do_close();
 
-    bool get_posting(Xapian::docid &did, Xapian::weight &w, string &value);
+    bool get_posting(Xapian::docid &did, double &w, string &value);
 
     /// The timeout value used in network communications, in seconds.
     double timeout;
@@ -152,7 +152,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   Xapian::valueno sort_key,
 		   Xapian::Enquire::Internal::sort_setting sort_by,
 		   bool sort_value_forward,
-		   int percent_cutoff, Xapian::weight weight_cutoff,
+		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
 		   const vector<Xapian::MatchSpy *> & matchspies);

@@ -552,7 +552,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 Xapian::valueno sort_key,
 			 Xapian::Enquire::Internal::sort_setting sort_by,
 			 bool sort_value_forward,
-			 int percent_cutoff, Xapian::weight weight_cutoff,
+			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
 			 const vector<Xapian::MatchSpy *> & matchspies)

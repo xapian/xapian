@@ -431,6 +431,8 @@ Removed Feature name                        Upgrade suggestion and comments
 					    with older Xapian releases.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::weight`` typedef          Use ``double`` instead, which should also work with older Xapian releases.
 ======= =================================== ==================================================================================
 
 

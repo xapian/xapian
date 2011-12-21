@@ -259,10 +259,10 @@ class ChertPostList : public LeafPostList {
 	PositionList * open_position_list() const;
 
 	/// Move to the next document.
-	PostList * next(Xapian::weight w_min);
+	PostList * next(double w_min);
 
 	/// Skip to next document with docid >= docid.
-	PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
+	PostList * skip_to(Xapian::docid desired_did, double w_min);
 
 	/// Return true if and only if we're off the end of the list.
 	bool at_end() const { return is_at_end; }

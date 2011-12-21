@@ -69,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  @param wt The weight of the document.
      */
     virtual void operator()(const Xapian::Document &doc,
-			    Xapian::weight wt) = 0;
+			    double wt) = 0;
 
     /** Clone the match spy.
      *
@@ -241,7 +241,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
      *  @param doc	The document to tally values for.
      *  @param wt	The weight of the document (ignored by this class).
      */
-    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+    void operator()(const Xapian::Document &doc, double wt);
 
     virtual MatchSpy * clone() const;
     virtual std::string name() const;

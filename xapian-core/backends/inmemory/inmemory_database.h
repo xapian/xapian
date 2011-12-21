@@ -158,9 +158,9 @@ class InMemoryPostList : public LeafPostList {
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
-	PostList *next(Xapian::weight w_min); // Moves to next docid
+	PostList *next(double w_min); // Moves to next docid
 
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
+	PostList *skip_to(Xapian::docid did, double w_min); // Moves to next docid >= specified docid
 
 	// True if we're off the end of the list.
 	bool at_end() const;
@@ -187,9 +187,9 @@ class InMemoryAllDocsPostList : public LeafPostList {
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
-	PostList *next(Xapian::weight w_min);      // Moves to next docid
+	PostList *next(double w_min);      // Moves to next docid
 
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
+	PostList *skip_to(Xapian::docid did, double w_min); // Moves to next docid >= specified docid
 
 	// True if we're off the end of the list
 	bool at_end() const;

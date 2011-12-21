@@ -41,18 +41,18 @@ class SelectPostList : public PostList {
 	 */
     	virtual bool test_doc() = 0;
     public:
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
-	PostList *check(Xapian::docid did, Xapian::weight w_min, bool &valid);
+	PostList *next(double w_min);
+	PostList *skip_to(Xapian::docid did, double w_min);
+	PostList *check(Xapian::docid did, double w_min, bool &valid);
 
 	// pass all these through to the underlying source PostList
 	Xapian::doccount get_termfreq_max() const { return source->get_termfreq_max(); }
 	Xapian::doccount get_termfreq_min() const { return 0; }
-	Xapian::weight get_maxweight() const { return source->get_maxweight(); }
+	double get_maxweight() const { return source->get_maxweight(); }
 	Xapian::docid get_docid() const { return source->get_docid(); }
-	Xapian::weight get_weight() const { return source->get_weight(); }
+	double get_weight() const { return source->get_weight(); }
 	Xapian::termcount get_doclength() const { return source->get_doclength(); }
-	Xapian::weight recalc_maxweight() { return source->recalc_maxweight(); }
+	double recalc_maxweight() { return source->recalc_maxweight(); }
 	PositionList * read_position_list() { return source->read_position_list(); }
 	PositionList * open_position_list() const { return source->open_position_list(); }
 	bool at_end() const { return source->at_end(); }

@@ -74,10 +74,10 @@ class ContiguousAllDocsPostList : public LeafPostList {
     PositionList * open_position_list() const;
 
     /// Advance to the next document.
-    PostList * next(Xapian::weight w_min);
+    PostList * next(double w_min);
 
     /// Skip ahead to next document with docid >= target.
-    PostList * skip_to(Xapian::docid target, Xapian::weight w_min);
+    PostList * skip_to(Xapian::docid target, double w_min);
 
     /// Return true if and only if we're off the end of the list.
     bool at_end() const;

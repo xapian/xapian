@@ -100,7 +100,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  @param wt	The weight to convert.
 	 */
-	int convert_to_percent(Xapian::weight wt) const;
+	int convert_to_percent(double wt) const;
 
 	/// Return the percentage score for a particular item.
 	int convert_to_percent(const MSetIterator &it) const;
@@ -122,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  @exception  Xapian::InvalidArgumentError is thrown if the term was
 	 *		not in the query.
 	 */
-	Xapian::weight get_termweight(const std::string &tname) const;
+	double get_termweight(const std::string &tname) const;
 
 	/** The index of the first item in the result which was put into the
 	 *  MSet.
@@ -190,7 +190,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
 	 */
-	Xapian::weight get_max_possible() const;
+	double get_max_possible() const;
 
 	/** The greatest weight which is attained by any document in the
 	 *  database.
@@ -205,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  requested when the query was performed (by specifying
 	 *  maxitems = 0 in Xapian::Enquire::get_mset()), this value will be 0.
 	 */
-	Xapian::weight get_max_attained() const;
+	double get_max_attained() const;
 
 	/** The number of items in this MSet */
 	Xapian::doccount size() const;
@@ -348,7 +348,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	}
 
 	/// Get the weight of the document at the current position
-	Xapian::weight get_weight() const;
+	double get_weight() const;
 
 	/** Get the collapse key for this document.
 	 */
@@ -541,7 +541,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	const std::string & operator *() const;
 
 	/// Get the weight of the term at the current position
-	Xapian::weight get_weight() const;
+	double get_weight() const;
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -824,7 +824,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	specified weighting scheme.
 	 *	(default 0 => no weight cut-off).
 	 */
-	void set_cutoff(int percent_cutoff, Xapian::weight weight_cutoff = 0);
+	void set_cutoff(int percent_cutoff, double weight_cutoff = 0);
 
 	/** Set the sorting to be by relevance only.
 	 *
@@ -1049,7 +1049,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 			int flags,
 			double k,
 			const Xapian::ExpandDecider * edecider,
-			Xapian::weight min_wt) const;
+			double min_wt) const;
 
 	/** Get terms which match a given document, by document id.
 	 *

@@ -169,15 +169,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param wdf    The within document frequency of the term in the document.
      *  @param doclen The document's length (unnormalised).
      */
-    virtual Xapian::weight get_sumpart(Xapian::termcount wdf,
-				       Xapian::termcount doclen) const = 0;
+    virtual double get_sumpart(Xapian::termcount wdf,
+			       Xapian::termcount doclen) const = 0;
 
     /** Return an upper bound on what get_sumpart() can return for any document.
      *
      *  This information is used by the matcher to perform various
      *  optimisations, so strive to make the bound as tight as possible.
      */
-    virtual Xapian::weight get_maxpart() const = 0;
+    virtual double get_maxpart() const = 0;
 
     /** Calculate the term-independent weight component for a document.
      *
@@ -186,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  @param doclen The document's length (unnormalised).
      */
-    virtual Xapian::weight get_sumextra(Xapian::termcount doclen) const = 0;
+    virtual double get_sumextra(Xapian::termcount doclen) const = 0;
 
     /** Return an upper bound on what get_sumextra() can return for any
      *  document.
@@ -194,7 +194,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  This information is used by the matcher to perform various
      *  optimisations, so strive to make the bound as tight as possible.
      */
-    virtual Xapian::weight get_maxextra() const = 0;
+    virtual double get_maxextra() const = 0;
 
     /** @private @internal Initialise this object to calculate weights for term
      *  @a term.
@@ -324,12 +324,12 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     std::string serialise() const;
     BoolWeight * unserialise(const std::string & s) const;
 
-    Xapian::weight get_sumpart(Xapian::termcount wdf,
-			       Xapian::termcount doclen) const;
-    Xapian::weight get_maxpart() const;
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
 
-    Xapian::weight get_sumextra(Xapian::termcount doclen) const;
-    Xapian::weight get_maxextra() const;
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
 };
 
 /// Xapian::Weight subclass implementing the BM25 probabilistic formula.
@@ -338,7 +338,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     mutable Xapian::doclength len_factor;
 
     /// Factor combining all the document independent factors.
-    mutable Xapian::weight termweight;
+    mutable double termweight;
 
     /// The BM25 parameters.
     double param_k1, param_k2, param_k3, param_b;
@@ -428,12 +428,12 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & s) const;
 
-    Xapian::weight get_sumpart(Xapian::termcount wdf,
-			       Xapian::termcount doclen) const;
-    Xapian::weight get_maxpart() const;
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
 
-    Xapian::weight get_sumextra(Xapian::termcount doclen) const;
-    Xapian::weight get_maxextra() const;
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
 };
 
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
@@ -450,7 +450,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     mutable Xapian::doclength len_factor;
 
     /// Factor combining all the document independent factors.
-    mutable Xapian::weight termweight;
+    mutable double termweight;
 
     /// The parameter in the formula.
     double param_k;
@@ -488,12 +488,12 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     std::string serialise() const;
     TradWeight * unserialise(const std::string & s) const;
 
-    Xapian::weight get_sumpart(Xapian::termcount wdf,
-			       Xapian::termcount doclen) const;
-    Xapian::weight get_maxpart() const;
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
 
-    Xapian::weight get_sumextra(Xapian::termcount doclen) const;
-    Xapian::weight get_maxextra() const;
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
 };
 
 }

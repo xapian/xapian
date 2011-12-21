@@ -2,7 +2,7 @@
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,12 +68,12 @@ DEFINE_TESTCASE(consistency3, backend) {
 }
 
 class MyPostingSource : public Xapian::PostingSource {
-    vector<pair<Xapian::docid, Xapian::weight> > weights;
-    vector<pair<Xapian::docid, Xapian::weight> >::const_iterator i;
+    vector<pair<Xapian::docid, double> > weights;
+    vector<pair<Xapian::docid, double> >::const_iterator i;
     bool started;
 
-    MyPostingSource(const vector<pair<Xapian::docid, Xapian::weight> > &weights_,
-		    Xapian::weight max_wt)
+    MyPostingSource(const vector<pair<Xapian::docid, double> > &weights_,
+		    double max_wt)
 	: weights(weights_), started(false)
     {
 	set_maxweight(max_wt);
@@ -87,20 +87,20 @@ class MyPostingSource : public Xapian::PostingSource {
 	return new MyPostingSource(weights, get_maxweight());
     }
 
-    void append_docweight(Xapian::docid did, Xapian::weight wt) {
+    void append_docweight(Xapian::docid did, double wt) {
 	weights.push_back(make_pair(did, wt));
 	if (wt > get_maxweight()) set_maxweight(wt);
     }
 
     void init(const Xapian::Database &) { started = false; }
 
-    Xapian::weight get_weight() const { return i->second; }
+    double get_weight() const { return i->second; }
 
     Xapian::doccount get_termfreq_min() const { return weights.size(); }
     Xapian::doccount get_termfreq_est() const { return weights.size(); }
     Xapian::doccount get_termfreq_max() const { return weights.size(); }
 
-    void next(Xapian::weight /*wt*/) {
+    void next(double /*wt*/) {
 	if (!started) {
 	    i = weights.begin();
 	    started = true;

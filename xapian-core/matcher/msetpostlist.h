@@ -62,23 +62,23 @@ class MSetPostList : public PostList {
 
     Xapian::doccount get_termfreq_max() const;
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 
-    Xapian::weight get_weight() const;
+    double get_weight() const;
 
     const string * get_collapse_key() const;
 
     /// Not implemented for MSetPostList.
     Xapian::termcount get_doclength() const;
 
-    Xapian::weight recalc_maxweight();
+    double recalc_maxweight();
 
-    PostList *next(Xapian::weight w_min);
+    PostList *next(double w_min);
 
     /// Not meaningful for MSetPostList.
-    PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+    PostList *skip_to(Xapian::docid did, double w_min);
 
     bool at_end() const;
 

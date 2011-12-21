@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -79,9 +79,9 @@ class LeafPostList : public PostList {
     Xapian::doccount get_termfreq_max() const;
     Xapian::doccount get_termfreq_est() const;
 
-    Xapian::weight get_maxweight() const;
-    Xapian::weight get_weight() const;
-    Xapian::weight recalc_maxweight();
+    double get_maxweight() const;
+    double get_weight() const;
+    double recalc_maxweight();
 
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;

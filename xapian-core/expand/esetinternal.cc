@@ -140,7 +140,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
 		       const Xapian::Internal::ExpandWeight & eweight,
-		       Xapian::weight min_wt)
+		       double min_wt)
 {
     LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
     // These two cases are handled by our caller.
@@ -172,7 +172,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
 	++ebound;
 
-	Xapian::weight wt = eweight.get_weight(tree.get(), term);
+	double wt = eweight.get_weight(tree.get(), term);
 	// If the weights are equal, we prefer the lexically smaller term and
 	// so we use "<=" not "<" here.
 	if (wt <= min_wt) continue;

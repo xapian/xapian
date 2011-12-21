@@ -50,7 +50,7 @@ class ExpandStats {
     Xapian::doccount termfreq;
 
     /// Factor to multiply w(t) by.
-    Xapian::weight multiplier;
+    double multiplier;
 
     /// The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
@@ -136,8 +136,7 @@ public:
      *  @param merger The tree of TermList objects.
      *  @param term The current term name.
      */
-    Xapian::weight get_weight(TermList * merger,
-			      const std::string & term) const;
+    double get_weight(TermList * merger, const std::string & term) const;
 };
 
 }

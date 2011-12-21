@@ -281,7 +281,7 @@ class MyPostingSource2 : public Xapian::ValuePostingSource {
 	return new MyPostingSource2(s);
     }
 
-    Xapian::weight get_weight() const { return 1.0; }
+    double get_weight() const { return 1.0; }
 
     std::string get_description() const {
 	return "MyPostingSource2(" + desc + ")";
@@ -357,9 +357,9 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_est() const { return 1; }
     Xapian::doccount get_termfreq_max() const { return 2; }
 
-    void next(Xapian::weight) { }
+    void next(double) { }
 
-    void skip_to(Xapian::docid, Xapian::weight) { }
+    void skip_to(Xapian::docid, double) { }
 
     bool at_end() const { return true; }
     Xapian::docid get_docid() const { return 0; }
@@ -457,13 +457,13 @@ class ExceptionalWeight : public Xapian::Weight {
 
     void init(double) { }
 
-    Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
+    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
 	return 0;
     }
-    Xapian::weight get_maxpart() const { return 0; }
+    double get_maxpart() const { return 0; }
 
-    Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
-    Xapian::weight get_maxextra() const { return 0; }
+    double get_sumextra(Xapian::termcount) const { return 0; }
+    double get_maxextra() const { return 0; }
 };
 
 /// Check that exceptions when registering are handled well.
@@ -554,7 +554,7 @@ class ExceptionalMatchSpy : public Xapian::MatchSpy {
 	return allocated;
     }
 
-    void operator()(const Xapian::Document &, Xapian::weight) {
+    void operator()(const Xapian::Document &, double) {
     }
 };
 

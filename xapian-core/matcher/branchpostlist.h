@@ -79,8 +79,7 @@ class BranchPostList : public PostList {
 // Returns true iff a prune was handled, so the caller can recalculate
 // weights etc if necessary
 inline bool
-next_handling_prune(PostList * & pl, Xapian::weight w_min,
-		    MultiMatch *matcher)
+next_handling_prune(PostList * & pl, double w_min, MultiMatch *matcher)
 {
     PostList *p = pl->next(w_min);
     if (!p) return false;
@@ -92,7 +91,7 @@ next_handling_prune(PostList * & pl, Xapian::weight w_min,
 }
 
 inline bool
-skip_to_handling_prune(PostList * & pl, Xapian::docid did, Xapian::weight w_min,
+skip_to_handling_prune(PostList * & pl, Xapian::docid did, double w_min,
 		       MultiMatch *matcher)
 {
     PostList *p = pl->skip_to(did, w_min);
@@ -105,7 +104,7 @@ skip_to_handling_prune(PostList * & pl, Xapian::docid did, Xapian::weight w_min,
 }
 
 inline bool
-check_handling_prune(PostList * & pl, Xapian::docid did, Xapian::weight w_min,
+check_handling_prune(PostList * & pl, Xapian::docid did, double w_min,
 		     MultiMatch *matcher, bool & valid)
 {
     PostList *p = pl->check(did, w_min, valid);

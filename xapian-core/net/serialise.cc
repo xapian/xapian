@@ -218,15 +218,15 @@ unserialise_mset(const char * p, const char * p_end)
     Xapian::doccount uncollapsed_lower_bound = decode_length(&p, p_end, false);
     Xapian::doccount uncollapsed_estimated = decode_length(&p, p_end, false);
     Xapian::doccount uncollapsed_upper_bound = decode_length(&p, p_end, false);
-    Xapian::weight max_possible = unserialise_double(&p, p_end);
-    Xapian::weight max_attained = unserialise_double(&p, p_end);
+    double max_possible = unserialise_double(&p, p_end);
+    double max_attained = unserialise_double(&p, p_end);
 
     double percent_factor = unserialise_double(&p, p_end);
 
     vector<Xapian::Internal::MSetItem> items;
     size_t msize = decode_length(&p, p_end, false);
     while (msize-- > 0) {
-	Xapian::weight wt = unserialise_double(&p, p_end);
+	double wt = unserialise_double(&p, p_end);
 	Xapian::docid did = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
 	string key(p, len);

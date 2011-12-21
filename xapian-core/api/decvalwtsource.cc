@@ -2,6 +2,7 @@
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
+ * Copyright (C) 2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +39,7 @@ DecreasingValueWeightPostingSource::DecreasingValueWeightPostingSource(
 {
 }
 
-Xapian::weight
+double
 DecreasingValueWeightPostingSource::get_weight() const {
     return curr_weight;
 }
@@ -87,7 +88,7 @@ DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
 }
 
 void
-DecreasingValueWeightPostingSource::skip_if_in_range(Xapian::weight min_wt)
+DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 {
     if (value_it == db.valuestream_end(slot)) return;
     curr_weight = Xapian::ValueWeightPostingSource::get_weight();
@@ -113,7 +114,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(Xapian::weight min_wt)
 }
 
 void
-DecreasingValueWeightPostingSource::next(Xapian::weight min_wt) {
+DecreasingValueWeightPostingSource::next(double min_wt) {
     if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
 	started = true;
@@ -125,7 +126,7 @@ DecreasingValueWeightPostingSource::next(Xapian::weight min_wt) {
 
 void
 DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
-					    Xapian::weight min_wt) {
+					    double min_wt) {
     if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
 	started = true;
@@ -137,7 +138,7 @@ DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 
 bool
 DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
-					  Xapian::weight min_wt) {
+					  double min_wt) {
     if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
 	started = true;

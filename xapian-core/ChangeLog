@@ -1,3 +1,18 @@
+Wed Dec 21 09:57:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_postlist.cc,
+	  backends/brass/brass_postlist.h,backends/chert/,
+	  backends/contiguousalldocspostlist.cc,
+	  backends/contiguousalldocspostlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h,
+	  backends/remote/,docs/,expand/,include/xapian/,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,tests/,weight/bm25weight.cc,
+	  weight/boolweight.cc,weight/tradweight.cc: Deprecate Xapian::weight
+	  typedef in favour of just using double, and make the replacement
+	  everywhere.  Closes ticket#560.
+
 Tue Dec 20 13:31:21 GMT 2011  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Include "safesysstat.h" for fstat().

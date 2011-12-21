@@ -2,7 +2,7 @@
  * @brief A ChertAllDocsPostList plus pending modifications.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ ChertAllDocsModifiedPostList::ChertAllDocsModifiedPostList(intrusive_ptr<const C
 }
 
 void
-ChertAllDocsModifiedPostList::skip_deletes(Xapian::weight w_min)
+ChertAllDocsModifiedPostList::skip_deletes(double w_min)
 {
     LOGCALL_VOID(DB, "ChertAllDocsModifiedPostList::skip_deletes", w_min);
     while (!ChertAllDocsPostList::at_end()) {
@@ -79,7 +79,7 @@ ChertAllDocsModifiedPostList::get_doclength() const
 }
 
 PostList *
-ChertAllDocsModifiedPostList::next(Xapian::weight w_min)
+ChertAllDocsModifiedPostList::next(double w_min)
 {
     LOGCALL(DB, PostList *, "ChertAllDocsModifiedPostList::next", w_min);
     if (have_started) {
@@ -106,7 +106,7 @@ ChertAllDocsModifiedPostList::next(Xapian::weight w_min)
 
 PostList *
 ChertAllDocsModifiedPostList::skip_to(Xapian::docid desired_did,
-				      Xapian::weight w_min)
+				      double w_min)
 {
     LOGCALL(DB, PostList *, "ChertAllDocsModifiedPostList::skip_to", desired_did | w_min);
     if (!ChertAllDocsPostList::at_end())

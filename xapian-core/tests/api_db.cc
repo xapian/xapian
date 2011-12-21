@@ -1767,13 +1767,13 @@ class MyWeight : public Xapian::Weight {
     std::string name() const { return "MyWeight"; }
     string serialise() const { return string(); }
     MyWeight * unserialise(const string &) const { return new MyWeight; }
-    Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
+    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
 	return scale_factor;
     }
-    Xapian::weight get_maxpart() const { return scale_factor; }
+    double get_maxpart() const { return scale_factor; }
 
-    Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
-    Xapian::weight get_maxextra() const { return 0; }
+    double get_sumextra(Xapian::termcount) const { return 0; }
+    double get_maxextra() const { return 0; }
 };
 
 // tests user weighting scheme.

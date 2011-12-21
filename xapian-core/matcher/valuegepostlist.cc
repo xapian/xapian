@@ -1,7 +1,7 @@
 /** @file valuegepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008 Olly Betts
+/* Copyright 2007,2008,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -30,7 +30,7 @@
 using namespace std;
 
 PostList *
-ValueGePostList::next(Xapian::weight)
+ValueGePostList::next(double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
@@ -45,7 +45,7 @@ ValueGePostList::next(Xapian::weight)
 }
 
 PostList *
-ValueGePostList::skip_to(Xapian::docid did, Xapian::weight)
+ValueGePostList::skip_to(Xapian::docid did, double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
@@ -60,7 +60,7 @@ ValueGePostList::skip_to(Xapian::docid did, Xapian::weight)
 }
 
 PostList *
-ValueGePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
+ValueGePostList::check(Xapian::docid did, double, bool &valid)
 {
     Assert(db);
     AssertRelParanoid(did, <=, db->get_lastdocid());

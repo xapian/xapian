@@ -34,10 +34,10 @@ using namespace std;
 namespace Xapian {
 namespace Internal {
 
-Xapian::weight
+double
 ExpandWeight::get_weight(TermList * merger, const string & term) const
 {
-    LOGCALL(MATCH, Xapian::weight, "ExpandWeight::get_weight", merger | term);
+    LOGCALL(MATCH, double, "ExpandWeight::get_weight", merger | term);
 
     // Accumulate the stats for this term across all relevant documents.
     ExpandStats stats(avlen, expand_k);
@@ -104,7 +104,7 @@ ExpandWeight::get_weight(TermList * merger, const string & term) const
     denom = (termfreq - rtermfreq + 0.5) * (reldocs_without_term + 0.5);
     AssertRel(denom,>,0);
 
-    Xapian::weight tw = log(num / denom);
+    double tw = log(num / denom);
     LOGVALUE(EXPAND, tw);
     LOGVALUE(EXPAND, stats.multiplier);
     RETURN(stats.multiplier * tw);

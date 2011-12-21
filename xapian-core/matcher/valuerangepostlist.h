@@ -63,25 +63,25 @@ class ValueRangePostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 
-    Xapian::weight get_weight() const;
+    double get_weight() const;
 
     Xapian::termcount get_doclength() const;
 
-    Xapian::weight recalc_maxweight();
+    double recalc_maxweight();
 
     PositionList * read_position_list();
 
     PositionList * open_position_list() const;
 
-    PostList * next(Xapian::weight w_min);
+    PostList * next(double w_min);
 
-    PostList * skip_to(Xapian::docid, Xapian::weight w_min);
+    PostList * skip_to(Xapian::docid, double w_min);
 
-    PostList * check(Xapian::docid did, Xapian::weight w_min, bool &valid);
+    PostList * check(Xapian::docid did, double w_min, bool &valid);
 
     bool at_end() const;
 

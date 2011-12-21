@@ -71,12 +71,12 @@ class SynonymPostList : public PostList {
      */
     void set_weight(const Xapian::Weight * wt_);
 
-    PostList *next(Xapian::weight w_min);
-    PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+    PostList *next(double w_min);
+    PostList *skip_to(Xapian::docid did, double w_min);
 
-    Xapian::weight get_weight() const;
-    Xapian::weight get_maxweight() const;
-    Xapian::weight recalc_maxweight();
+    double get_weight() const;
+    double get_maxweight() const;
+    double recalc_maxweight();
 
     // The following methods just call through to the subtree.
     Xapian::termcount get_wdf() const;

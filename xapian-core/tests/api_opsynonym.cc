@@ -1,7 +1,7 @@
 /** @file api_opsynonym.cc
  * @brief tests of OP_SYNONYM.
  */
-/* Copyright 2009 Olly Betts
+/* Copyright 2009,2011 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -227,8 +227,8 @@ DEFINE_TESTCASE(synonym1, backend) {
 	TEST_NOT_EQUAL(synmset.size(), 0);
 	// Check that the queries return the same number of results.
 	TEST_EQUAL(synmset.size(), ormset.size());
-	map<Xapian::docid, Xapian::weight> values_or;
-	map<Xapian::docid, Xapian::weight> values_synonym;
+	map<Xapian::docid, double> values_or;
+	map<Xapian::docid, double> values_synonym;
 	for (Xapian::doccount i = 0; i < synmset.size(); ++i) {
 	    values_or[*ormset[i]] = ormset[i].get_weight();
 	    values_synonym[*synmset[i]] = synmset[i].get_weight();
@@ -239,7 +239,7 @@ DEFINE_TESTCASE(synonym1, backend) {
 	 * different from those in the "synonym" mset. */
 	int same_weight = 0;
 	int different_weight = 0;
-	for (map<Xapian::docid, Xapian::weight>::const_iterator
+	for (map<Xapian::docid, double>::const_iterator
 	     j = values_or.begin(); j != values_or.end(); ++j) {
 	    Xapian::docid did = j->first;
 	    // Check that all the results in the or tree make it to the synonym

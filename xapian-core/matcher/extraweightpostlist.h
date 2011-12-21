@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2003,2004,2007,2009 Olly Betts
+ * Copyright 2003,2004,2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ class ExtraWeightPostList : public PostList {
 	PostList * pl;
 	Xapian::Weight * wt;
 	MultiMatch * matcher;
-	Xapian::weight max_weight;
+	double max_weight;
 
     public:
 	Xapian::doccount get_termfreq_max() const {
@@ -50,19 +50,19 @@ class ExtraWeightPostList : public PostList {
 
 	Xapian::docid  get_docid() const { return pl->get_docid(); }
 
-	Xapian::weight get_weight() const {
+	double get_weight() const {
 	    return pl->get_weight() + wt->get_sumextra(pl->get_doclength());
 	}
 
-	Xapian::weight get_maxweight() const {
+	double get_maxweight() const {
 	    return pl->get_maxweight() + max_weight;
 	}
 
-	Xapian::weight recalc_maxweight() {
+	double recalc_maxweight() {
 	    return pl->recalc_maxweight() + max_weight;
 	}
 
-	PostList *next(Xapian::weight w_min) {
+	PostList *next(double w_min) {
 	    PostList *p = pl->next(w_min - max_weight);
 	    if (p) {
 		delete pl;
@@ -72,7 +72,7 @@ class ExtraWeightPostList : public PostList {
 	    return NULL;
 	}
 
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min) {
+	PostList *skip_to(Xapian::docid did, double w_min) {
 	    PostList *p = pl->skip_to(did, w_min - max_weight);
 	    if (p) {
 		delete pl;

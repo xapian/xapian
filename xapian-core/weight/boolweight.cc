@@ -1,7 +1,7 @@
 /** @file boolweight.cc
  * @brief Xapian::BoolWeight class - boolean weighting
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,25 +57,25 @@ BoolWeight::unserialise(const string &) const
     return new BoolWeight;
 }
 
-Xapian::weight
+double
 BoolWeight::get_sumpart(Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }
 
-Xapian::weight
+double
 BoolWeight::get_maxpart() const
 {
     return 0;
 }
 
-Xapian::weight
+double
 BoolWeight::get_sumextra(Xapian::termcount) const
 {
     return 0;
 }
 
-Xapian::weight
+double
 BoolWeight::get_maxextra() const
 {
     return 0;

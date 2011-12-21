@@ -802,7 +802,7 @@ BrassPostList::open_position_list() const
 }
 
 PostList *
-BrassPostList::next(Xapian::weight w_min)
+BrassPostList::next(double w_min)
 {
     LOGCALL(DB, PostList *, "BrassPostList::next", w_min);
     (void)w_min; // no warning
@@ -908,7 +908,7 @@ BrassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 }
 
 PostList *
-BrassPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
+BrassPostList::skip_to(Xapian::docid desired_did, double w_min)
 {
     LOGCALL(DB, PostList *, "BrassPostList::skip_to", desired_did | w_min);
     (void)w_min; // no warning

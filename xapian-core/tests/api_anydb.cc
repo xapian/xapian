@@ -814,12 +814,12 @@ DEFINE_TESTCASE(cutoff1, backend) {
     }
 
     unsigned int num_items = 0;
-    Xapian::weight my_wt = -100;
+    double my_wt = -100;
     int changes = 0;
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-        Xapian::weight new_wt = i.get_weight();
+	double new_wt = i.get_weight();
         if (new_wt != my_wt) {
 	    changes++;
 	    if (changes > 3) break;
@@ -888,7 +888,7 @@ DEFINE_TESTCASE(maxattain1, backend) {
     enquire.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 100);
 
-    Xapian::weight mymax = 0;
+    double mymax = 0;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
         if (i.get_weight() > mymax) mymax = i.get_weight();
@@ -1419,8 +1419,8 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     // search for weight of term 'another'
     string theterm = stemmer("another");
 
-    Xapian::weight wt1 = 0;
-    Xapian::weight wt2 = 0;
+    double wt1 = 0;
+    double wt2 = 0;
     {
 	Xapian::ESetIterator i = eset1.begin();
 	for ( ; i != eset1.end(); i++) {

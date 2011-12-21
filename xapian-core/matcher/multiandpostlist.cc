@@ -1,7 +1,7 @@
 /** @file multiandpostlist.cc
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ MultiAndPostList::allocate_plist_and_max_wt()
 {
     plist = new PostList * [n_kids];
     try {
-	max_wt = new Xapian::weight [n_kids];
+	max_wt = new double [n_kids];
     } catch (...) {
 	delete [] plist;
 	plist = NULL;
@@ -132,7 +132,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
 		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
 }
 
-Xapian::weight
+double
 MultiAndPostList::get_maxweight() const
 {
     return max_total;
@@ -155,11 +155,11 @@ MultiAndPostList::get_doclength() const
     return doclength;
 }
 
-Xapian::weight
+double
 MultiAndPostList::get_weight() const
 {
     Assert(did);
-    Xapian::weight result = 0;
+    double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
 	result += plist[i]->get_weight();
     }
@@ -172,12 +172,12 @@ MultiAndPostList::at_end() const
     return (did == 0);
 }
 
-Xapian::weight
+double
 MultiAndPostList::recalc_maxweight()
 {
     max_total = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
-	Xapian::weight new_max = plist[i]->recalc_maxweight();
+	double new_max = plist[i]->recalc_maxweight();
 	max_wt[i] = new_max;
 	max_total += new_max;
     }
@@ -185,7 +185,7 @@ MultiAndPostList::recalc_maxweight()
 }
 
 PostList *
-MultiAndPostList::find_next_match(Xapian::weight w_min)
+MultiAndPostList::find_next_match(double w_min)
 {
 advanced_plist0:
     if (plist[0]->at_end()) {
@@ -214,14 +214,14 @@ advanced_plist0:
 }
 
 PostList *
-MultiAndPostList::next(Xapian::weight w_min)
+MultiAndPostList::next(double w_min)
 {
     next_helper(0, w_min);
     return find_next_match(w_min);
 }
 
 PostList *
-MultiAndPostList::skip_to(Xapian::docid did_min, Xapian::weight w_min)
+MultiAndPostList::skip_to(Xapian::docid did_min, double w_min)
 {
     skip_to_helper(0, did_min, w_min);
     return find_next_match(w_min);

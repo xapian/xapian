@@ -65,7 +65,7 @@ NetworkPostList::open_position_list() const
 }
 
 PostList *
-NetworkPostList::next(Xapian::weight)
+NetworkPostList::next(double)
 {
     if (!started) {
 	started = true;
@@ -85,7 +85,7 @@ NetworkPostList::next(Xapian::weight)
 }
 
 PostList *
-NetworkPostList::skip_to(Xapian::docid did, Xapian::weight min_weight)
+NetworkPostList::skip_to(Xapian::docid did, double min_weight)
 {
     if (!started)
 	next(min_weight);

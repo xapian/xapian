@@ -72,7 +72,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 	const Xapian::Weight::Internal & stats) const;
 
     /// Return an upper bound on what get_weight() can return.
-    virtual Xapian::weight get_maxweight() const = 0;
+    virtual double get_maxweight() const = 0;
 
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
@@ -90,7 +90,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     virtual Xapian::termcount get_wdf() const;
 
     /// Return the weight contribution for the current position.
-    virtual Xapian::weight get_weight() const = 0;
+    virtual double get_weight() const = 0;
 
     /** If the collapse key is already known, return it.
      *
@@ -111,7 +111,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *  Note that this method may be called after the postlist has reached the
      *  end.  In this situation, the method should return 0.
      */
-    virtual Xapian::weight recalc_maxweight() = 0;
+    virtual double recalc_maxweight() = 0;
 
     /** Read the position list for the term in the current document and
      *  return a pointer to it (owned by the PostList).
@@ -141,7 +141,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal * next(Xapian::weight w_min) = 0;
+    virtual Internal * next(double w_min) = 0;
 
     /** Skip forward to the specified docid.
      *
@@ -156,7 +156,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal * skip_to(Xapian::docid, Xapian::weight w_min) = 0;
+    virtual Internal * skip_to(Xapian::docid, double w_min) = 0;
 
     /** Check if the specified docid occurs in this postlist.
      *
@@ -177,8 +177,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *
      *  The default implementation calls skip_to().
      */
-    virtual Internal * check(Xapian::docid did, Xapian::weight w_min,
-			     bool &valid);
+    virtual Internal * check(Xapian::docid did, double w_min, bool &valid);
 
     /** Advance the current position to the next document in the postlist.
      *

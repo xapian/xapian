@@ -663,7 +663,7 @@ displaying to a user. This may be done using the
 methods::
 
          int Xapian::MSet::convert_to_percent(const Xapian::MSetIterator & item) const
-         int Xapian::MSet::convert_to_percent(Xapian::weight wt) const
+         int Xapian::MSet::convert_to_percent(double wt) const
 
 These methods return a value in the range 0 to 100, which will be 0 if
 and only if the item did not match the query at all.

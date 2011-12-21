@@ -409,7 +409,7 @@ RemoteServer::msg_query(const string &message_in)
 	throw Xapian::NetworkError("bad message (percent_cutoff)");
     }
 
-    Xapian::weight weight_cutoff = unserialise_double(&p, p_end);
+    double weight_cutoff = unserialise_double(&p, p_end);
     if (weight_cutoff < 0) {
 	throw Xapian::NetworkError("bad message (weight_cutoff)");
     }

@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.cc
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ ContiguousAllDocsPostList::open_position_list() const
 }
 
 PostList *
-ContiguousAllDocsPostList::next(Xapian::weight)
+ContiguousAllDocsPostList::next(double)
 {
     Assert(!at_end());
     if (did == doccount) {
@@ -85,7 +85,7 @@ ContiguousAllDocsPostList::next(Xapian::weight)
 }
 
 PostList *
-ContiguousAllDocsPostList::skip_to(Xapian::docid target, Xapian::weight)
+ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
 {
     Assert(!at_end());
     if (target > did) {

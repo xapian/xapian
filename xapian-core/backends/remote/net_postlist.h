@@ -89,11 +89,11 @@ class NetworkPostList : public LeafPostList {
 
     /// Move to the next document in the postlist (the weight parameter is
     /// ignored).
-    PostList * next(Xapian::weight);
+    PostList * next(double);
 
     /// Skip forward to the next document with document ID >= the supplied
     /// document ID (the weight parameter is ignored).
-    PostList * skip_to(Xapian::docid did, Xapian::weight weight);
+    PostList * skip_to(Xapian::docid did, double weight);
 
     /// Return true if and only if we've moved off the end of the list.
     bool at_end() const;
