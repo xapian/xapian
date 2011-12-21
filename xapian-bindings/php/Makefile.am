@@ -20,7 +20,7 @@ BUILT_SOURCES =\
 	php5/php_xapian.h\
 	php5/xapian.php
 
-EXTRA_DIST = php.i except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = php.i except.i $(TESTS) $(BUILT_SOURCES) add-php-type-hints
 
 phpextdir = $(PHP_EXTENSION_DIR)
 
@@ -65,6 +65,8 @@ php5/xapian_wrap.stamp:
 	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'php.i
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
+	$(PERL) '$(srcdir)/'add-php-type-hints php5/xapian.php > php5/xapian.tmp
+	mv php5/xapian.tmp php5/xapian.php
 	$(multitarget_end)
 
 -include xapian_wrap.d
