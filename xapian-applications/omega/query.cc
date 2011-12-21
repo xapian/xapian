@@ -105,7 +105,7 @@ static void ensure_match();
 
 static Xapian::Query query;
 //static string url_query_string;
-Xapian::Query::op default_op = Xapian::Query::OP_OR; // default matching mode
+Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 static Xapian::QueryParser qp;
 static Xapian::NumberValueRangeProcessor * size_vrp = NULL;

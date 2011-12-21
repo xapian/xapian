@@ -1,3 +1,9 @@
+Wed Dec 21 05:25:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst,omega.cc,query.cc: Make DEFAULTOP default to AND
+	  rather than OR, since that matches what pretty much every search
+	  engine does these days.  Closes ticket#512.
+
 Tue Dec 13 11:21:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.8 and ChangeLog.

@@ -27,9 +27,9 @@ xDB
 	discarded and the first page of matches is shown.
 
 DEFAULTOP
-	default operator - values recognised "AND", "and", "OR", "or".
-	Default: OR.  If you want to implement "match all words", set
-	DEFAULTOP=AND.
+	default operator - values recognised ``AND``, ``and``, ``OR``, ``or``.
+	As of version 1.3.0, the default is ``AND`` (previously it was ``OR``).
+	If you want to implement "match any words", set ``DEFAULTOP=or``.
 
 P
 	probabilistic query (may occur multiple times).

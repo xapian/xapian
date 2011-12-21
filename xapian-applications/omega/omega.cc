@@ -172,8 +172,8 @@ try {
     val = cgi_params.find("DEFAULTOP");
     if (val != cgi_params.end()) {
 	const string & v = val->second;
-	if (v == "AND" || v == "and")
-	    default_op = Xapian::Query::OP_AND;
+	if (v == "OR" || v == "or")
+	    default_op = Xapian::Query::OP_OR;
     }
 
     val = cgi_params.find("FMT");
