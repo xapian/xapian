@@ -1,3 +1,7 @@
+Wed Dec 21 08:43:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/add-php-type-hints: XapianSorter should be XapianKeyMaker.
+
 Wed Dec 21 08:42:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Rebuild wrappers if "add-php-type-hints" changes.

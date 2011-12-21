@@ -54,7 +54,7 @@ while (<>) {
 	# OK!
     } elsif (s/(function set_weighting_scheme\()(\$weight)/$1XapianWeight $2/) {
 	# OK!
-    } elsif (s/(function set_sort\w+\()(\$sorter\b)/$1XapianSorter $2/) {
+    } elsif (s/(function set_sort\w+\()(\$sorter\b)/$1XapianKeyMaker $2/) {
 	# OK!
     } elsif (s/(function get_mset\(.*)(\$mdecider\b)/$1XapianMatchDecider $2/) {
 	# OK!
