@@ -9,7 +9,7 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libbrass.lib"  "$(OUTDIR)\libbrassbtreecheck.lib" 
+ALL : "$(OUTDIR)\libbrass.lib"  "$(OUTDIR)\libbrassbtreecheck.lib"
 
 LIBBRASSBTREECHECK_OBJS= \
                 $(INTDIR)\brass_check.obj
@@ -66,7 +66,7 @@ SRCS= \
                 $(INTDIR)\brass_check.cc
 
 CLEAN :
-    -@erase "$(OUTDIR)\libbrass.lib" 
+    -@erase "$(OUTDIR)\libbrass.lib"
     -@erase "$(OUTDIR)\libbrassbtreecheck.lib"
     -@erase "*.pch"
     -@erase "$(INTDIR)\*.pdb"
@@ -80,8 +80,8 @@ CLEAN :
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I "..\.." -I "..\..\include" -I"..\..\common" -I"..\..\languages" \
- -Fo"$(INTDIR)\\" 
- 
+ -Fo"$(INTDIR)\\"
+
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
@@ -98,16 +98,16 @@ CPP_SBRS=.
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

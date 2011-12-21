@@ -87,7 +87,7 @@ Thu Dec 15 12:30:15 GMT 2011  Olly Betts <olly@survex.com>
 Thu Dec 15 11:40:39 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/docs/index.html,lua/generate-lua-exceptions,lua/smoketest.lua,
-	  lua/util.i: Handle an exception from C++ by raising a xapian.Error 
+	  lua/util.i: Handle an exception from C++ by raising a xapian.Error
 	  object as an error in Lua.  Rename get_description() methods to
 	  __tostring(), so that you can use write tostring(obj) in Lua.  Fix
 	  indentation not to assume tabs are two spaces.

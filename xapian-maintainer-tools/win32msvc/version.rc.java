@@ -27,4 +27,4 @@ BEGIN
             VALUE "LegalTrademarks", "Xapian is an Open Source Search Engine Library released under the GPL."
         END
     END
-END 
+END

@@ -1,6 +1,6 @@
 package Search::Xapian::TermIterator;
 
-=head1 NAME 
+=head1 NAME
 
 Search::Xapian::TermIterator - Iterate over sets of terms.
 
@@ -15,7 +15,7 @@ This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
 
 =over 4
 
-=item new 
+=item new
 
 Constructor. Defaults to a uninitialized iterator.
 
@@ -27,8 +27,8 @@ Advance the iterator by one. (Called implictly by C<++> overloading )
 
 =item skip_to <tname>
 
-Skip the iterator to term tname, or the first term after tname if tname 
-isn't in the list of terms being iterated. 
+Skip the iterator to term tname, or the first term after tname if tname
+isn't in the list of terms being iterated.
 
 =item get_termname
 
@@ -36,23 +36,23 @@ Get the name of the current term.
 
 =item get_wdf
 
-Return the wdf of the current term (if meaningful). 
+Return the wdf of the current term (if meaningful).
 
 =item get_termfreq
 
-Return the term frequency of the current term (if meaningful). 
+Return the term frequency of the current term (if meaningful).
 
 =item positionlist_begin
 
-Return L<Search::Xapian::PositionIterator> pointing to start of positionlist for current term. 
+Return L<Search::Xapian::PositionIterator> pointing to start of positionlist for current term.
 
 =item positionlist_end
 
-Return L<Search::Xapian::PositionIterator> pointing to end of positionlist for current term. 
+Return L<Search::Xapian::PositionIterator> pointing to end of positionlist for current term.
 
 =item get_description
 
-Returns a string describing this object. 
+Returns a string describing this object.
 
 =item equal <termiterator>
 

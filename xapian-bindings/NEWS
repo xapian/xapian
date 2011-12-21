@@ -594,7 +594,7 @@ General:
   standard MatchDecider subclasses, we now wrap Enquire::get_mset() so that
   these can be passed in even for languages for which SWIG doesn't support
   subclassing.
-  
+
 Packaging:
 
 * xapian-bindings.spec: Updated to reflect the new Python packaging.
@@ -766,7 +766,7 @@ Packaging:
 
 * xapian-bindings.spec: Update C# packaging for rename of XapianSharp.so to
   _XapianSharp.so in 1.0.11.
-  
+
 * xapian-bindings.spec: Update Tcl8 packaging for where we now install the
   bindings since 1.0.6.
 
@@ -1059,7 +1059,7 @@ Portability:
 
 PHP:
 
-* Update to newer SWIG SVN snapshot to fix memory leaks in wrapped constructors 
+* Update to newer SWIG SVN snapshot to fix memory leaks in wrapped constructors
   and methods/functions which return a wrapped class.
 
 * For PHP4, wrap Xapian::sortable_serialise() as xapian_sortable_serialise()
@@ -1082,7 +1082,7 @@ Python:
 
 * Update the examples to use the new-style attributes to access MSet item
   values rather than the old-style MSET_* constants.
-  
+
 * Document MSET_DOCUMENT.
 
 Ruby:

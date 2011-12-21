@@ -68,7 +68,7 @@ register_object(map<string, T*> & registry, const T & obj)
 
     r.first->second = clone;
 }
- 
+
 template<class T>
 static inline const T *
 lookup_object(map<string, T*> registry, const string & name)

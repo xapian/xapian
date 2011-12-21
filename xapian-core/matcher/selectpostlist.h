@@ -61,8 +61,8 @@ class SelectPostList : public PostList {
 	    return source->count_matching_subqs();
 	}
 
-	std::string get_description() const;    
-    
+	std::string get_description() const;
+
 	SelectPostList(PostList *source_) : source(source_) { }
         ~SelectPostList() { delete source; }
 };

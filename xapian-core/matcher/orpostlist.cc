@@ -298,7 +298,7 @@ OrPostList::get_termfreq_est() const
 
 TermFreqs
 OrPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const 
+	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "OrPostList::get_termfreq_est_using_stats", stats);
     // Estimate assuming independence:

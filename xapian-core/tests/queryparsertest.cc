@@ -146,7 +146,7 @@ static const test test_or_queries[] = {
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
-    { "AND -windows", "Syntax: <expression> AND <expression>" }, 
+    { "AND -windows", "Syntax: <expression> AND <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
     { "gordian AND -", "Syntax: <expression> AND <expression>" },

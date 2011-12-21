@@ -17,7 +17,7 @@ struct cdb_rec {
   unsigned hval;
   unsigned rpos;
 };
-  
+
 struct cdb_rl {
   struct cdb_rl *next;
   unsigned cnt;

@@ -12,9 +12,9 @@
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE 
+!ELSE
 NULL=nul
-!ENDIF 
+!ENDIF
 # ----------------------------------------------
 # Xapian paths
 # ----------------------------------------------
@@ -42,7 +42,7 @@ PERL_EXE=$(PERL_DIR)\perl.exe
 # Python folder for 2.4
 PYTHON_DIR_24=c:\Python24
 # Python executable
-PYTHON_EXE_24=$(PYTHON_DIR_24)\python.exe 
+PYTHON_EXE_24=$(PYTHON_DIR_24)\python.exe
  #PYTHON_INCLUDE : Set this to the directory that contains python.h
 PYTHON_INCLUDE_24=$(PYTHON_DIR_24)\include
 #A 'PC' directory is also included for people building from a source tree.
@@ -58,7 +58,7 @@ PYTHON_LIB_DIR_24=$(PYTHON_DIR_24)\libs
 # Python folder for 2.5
 PYTHON_DIR_25=c:\Python25
 # Python executable
-PYTHON_EXE_25=$(PYTHON_DIR_25)\python.exe 
+PYTHON_EXE_25=$(PYTHON_DIR_25)\python.exe
  #PYTHON_INCLUDE : Set this to the directory that contains python.h
 PYTHON_INCLUDE_25=$(PYTHON_DIR_25)\include
 #A 'PC' directory is also included for people building from a source tree.
@@ -74,7 +74,7 @@ PYTHON_LIB_DIR_25=$(PYTHON_DIR_25)\libs
 # Python folder for 2.6
 PYTHON_DIR_26=c:\Python26
 # Python executable
-PYTHON_EXE_26=$(PYTHON_DIR_26)\python.exe 
+PYTHON_EXE_26=$(PYTHON_DIR_26)\python.exe
  #PYTHON_INCLUDE : Set this to the directory that contains python.h
 PYTHON_INCLUDE_26=$(PYTHON_DIR_26)\include
 #A 'PC' directory is also included for people building from a source tree.
@@ -90,7 +90,7 @@ PYTHON_LIB_DIR_26=$(PYTHON_DIR_26)\libs
 # Python folder for 2.7
 PYTHON_DIR_27=c:\Python27
 # Python executable
-PYTHON_EXE_27=$(PYTHON_DIR_27)\python.exe 
+PYTHON_EXE_27=$(PYTHON_DIR_27)\python.exe
  #PYTHON_INCLUDE : Set this to the directory that contains python.h
 PYTHON_INCLUDE_27=$(PYTHON_DIR_27)\include
 #A 'PC' directory is also included for people building from a source tree.
@@ -107,9 +107,9 @@ PYTHON_LIB_DIR_27=$(PYTHON_DIR_27)\libs
 PYTHON_DIR_30=c:\Python30
 # Python executable
 !if "$(DEBUG)"=="1"
-PYTHON_EXE_30=$(PYTHON_DIR_30)\python_d.exe 
+PYTHON_EXE_30=$(PYTHON_DIR_30)\python_d.exe
 !else
-PYTHON_EXE_30=$(PYTHON_DIR_30)\python.exe 
+PYTHON_EXE_30=$(PYTHON_DIR_30)\python.exe
 !endif
 #PYTHON_INCLUDE : Set this to the directory that contains python.h
 PYTHON_INCLUDE_30=$(PYTHON_DIR_30)\include
@@ -132,10 +132,10 @@ PHP52_SRC_DIR=C:\work\php-5.2.1
 
 PHP52_INCLUDE_CPPFLAGS= \
 -I "$(PHP52_SRC_DIR)" -I "$(PHP52_SRC_DIR)\tsrm" -I "$(PHP52_SRC_DIR)\Zend" -I "$(PHP52_SRC_DIR)\main" -I "$(PHP52_SRC_DIR)\regex"  \
--D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1 
+-D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1
 
 # PHP_EXE_DIR: Set this to the folder where the PHP executable is
-# PHP_LIB : Set this to the path to the PHP library 
+# PHP_LIB : Set this to the path to the PHP library
 !if "$(DEBUG)"=="1"
 PHP52_EXE_DIR=C:\php-5.2.1\Debug_TS
 PHP52_LIB=$(PHP52_EXE_DIR)\php5ts_debug.lib
@@ -157,11 +157,11 @@ PHP53_SRC_DIR=C:\php-sdk\php53dev\vc9\x86\php5.3-201009020830
 
 PHP53_INCLUDE_CPPFLAGS= \
 -I "$(PHP53_SRC_DIR)" -I "$(PHP53_SRC_DIR)\tsrm" -I "$(PHP53_SRC_DIR)\Zend" -I "$(PHP53_SRC_DIR)\main" \
--D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1 
+-D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1
 #-I "$(PHP53_SRC_DIR)\regex"  \
 
 # PHP_EXE_DIR: Set this to the folder where the PHP executable is
-# PHP_LIB : Set this to the path to the PHP library 
+# PHP_LIB : Set this to the path to the PHP library
 !if "$(DEBUG)"=="1"
 PHP53_EXE_DIR=$(PHP53_SRC_DIR)\Debug_TS
 PHP53_LIB=$(PHP53_EXE_DIR)\php5ts_debug.lib
@@ -173,7 +173,7 @@ PHP53_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 !endif
 
 #    PHP executable
-PHP53_EXE=$(PHP53_EXE_DIR)\PHP.exe 
+PHP53_EXE=$(PHP53_EXE_DIR)\PHP.exe
 # end PHP 5.3.0 only -----------------
 
 # ------------- end PHP settings-------------
@@ -186,7 +186,7 @@ PHP53_EXE=$(PHP53_EXE_DIR)\PHP.exe
 # Ruby folder
 RUBY_DIR=c:\Ruby
 # Ruby executable
-RUBY_EXE=$(RUBY_DIR)\bin\ruby.exe 
+RUBY_EXE=$(RUBY_DIR)\bin\ruby.exe
 # RUBY_INCLUDE : Set this to the directory that contains ruby.h
 RUBY_INCLUDE=$(RUBY_DIR)\lib\ruby\1.8\i386-mswin32
 # RUBY_SO_DIR : Where to install the dll file
@@ -218,7 +218,7 @@ SN="C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\sn.exe"
 # ------------SWIG settings-------------
 # Swig executable
 SWIG=\work\xapian\xapian-svn\swig\swig.exe
-SWIG_FLAGS= -Werror 
+SWIG_FLAGS= -Werror
 # ------------end SWIG settings-------------
 
 # ------------ Misc external libraries we depend on -------------
@@ -239,13 +239,13 @@ PCRE_LIB_DIR=$(PCRE_DIR)\lib
 # Visual C++ Compiler and linker programs, and flags for these
 #--------------------------------------
 LIB32=link.exe -lib
-LIB32_FLAGS=-nologo  
+LIB32_FLAGS=-nologo
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib rpcrt4.lib\
  wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console -debug -nologo \
  "$(ZLIB_LIB_DIR)\zdll.lib"
- 
+
 CPP=cl.exe
 RSC=rc.exe
 MANIFEST=mt.exe /manifest
@@ -293,7 +293,7 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libremote.lib"  \
  "$(OUTLIBDIR)\libunicode.lib"  \
  "$(OUTLIBDIR)\libweight.lib"  \
- "$(OUTLIBDIR)\libqueryparser.lib"  
+ "$(OUTLIBDIR)\libqueryparser.lib"
 
 !IF "$(DEBUG)" == "1"
 # Debug build

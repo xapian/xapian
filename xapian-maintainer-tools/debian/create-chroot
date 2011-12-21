@@ -54,7 +54,7 @@ if [ 2 = $# ] ; then
   export DEBIAN_HOST_ARCH
 #  DEBIAN_BUILDARCH=$2
 # export DEBIAN_BUILDARCH
-fi 
+fi
 
 eval "`dpkg-architecture|grep ^DEBIAN_BUILD_ARCH=`"
 distro_arch=$DISTRO-$DEBIAN_BUILD_ARCH

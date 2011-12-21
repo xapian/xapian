@@ -242,7 +242,7 @@ To use lcov to generate a test coverage report there are two make targets:
   * coverage-reconfigure: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they
     are needed.
-  
+
   * coverage-check: runs "make check" and generates an HTML report in a
     directory called "lcov".
 
@@ -802,7 +802,7 @@ Here's an incomplete list of things to avoid:
   necessary, but could result in problems if the invocation of SWIG_commands
   failed after creating xapian_wrap.cc, but before creating xapian_wrap.h.
   Instead, we recommend creating an intermediate target::
-  
+
     # This rule works in most cases
     xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
     xapian_wrap.stamp: xapian.i
@@ -988,13 +988,13 @@ class keyword like so::
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
 ``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
-    
+
     class Foo {
       public:
         // This fails to compile with GCC 3.3.5, so don't do this!
         XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
     };
-    
+
 Instead rewrite like so::
 
     class Foo {
@@ -1045,7 +1045,7 @@ to follow the style of the existing code.  In particular:
 
   The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
-  
+
     class Foo {
         int internal_method();
 
@@ -1330,7 +1330,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
    will just conflict with any other changes.  If there are conflicts in
    test cases which aren't easy to resolve, it is acceptable to just drop
    those changes from the patch.
- 
+
 API Structure Notes
 ===================
 

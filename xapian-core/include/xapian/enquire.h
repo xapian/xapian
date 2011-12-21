@@ -196,7 +196,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  database.
 	 *
 	 *  If firstitem == 0 and the primary ordering is by relevance, this is
-	 *  the weight of the first entry in the MSet. 
+	 *  the weight of the first entry in the MSet.
 	 *
 	 *  If no documents are found by the query, this will be 0.
 	 *

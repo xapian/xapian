@@ -144,7 +144,7 @@ is_distributable(Xapian::Query::Internal::op_t op)
  *	<subqueries> is the list of subqueries
  *	<op> is one of: &|%+-^
  *  also ~N "N >F *N (N unsigned int; F floating point)
- * 
+ *
  *  If querylen != sum(wqf) we append `=len' (at present we always do this
  *  for compound queries as it's simpler than working out what sum(wqf) would
  *  be - FIXME).

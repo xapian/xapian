@@ -558,7 +558,7 @@ if test -n "${VALGRIND-unset}" ; then
       else
 	AC_MSG_RESULT([yes])
 	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
-      fi	
+      fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
       dnl x86_64 box with a 32 bit valgrind.

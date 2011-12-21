@@ -28,7 +28,7 @@ my @directorclasses = qw(
 );
 
 my @posting_source_virtual_methods = qw(
-    get_termfreq_min 
+    get_termfreq_min
     get_termfreq_est
     get_termfreq_max
     get_maxweight

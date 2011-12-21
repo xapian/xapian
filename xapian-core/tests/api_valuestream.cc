@@ -51,7 +51,7 @@ DEFINE_TESTCASE(valuestream1, backend && !multi) {
 	    ++it;
 	}
     }
- 
+
     return true;
 }
 
@@ -88,7 +88,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
- 
+
     return true;
 }
 
@@ -150,7 +150,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
- 
+
     return true;
 }
 

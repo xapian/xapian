@@ -14,7 +14,7 @@ Choose what to Inspect}}
 $if{$cgi{ID},
 $setrelevant{$cgi{ID}}
 <H1>Document #$html{$cgi{ID}}</H1>
-    
+
 <H2>Terms indexing this document</H2>
 
 <table>

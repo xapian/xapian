@@ -406,7 +406,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     } else {
 	max_changesets = 0;
     }
- 
+
     if (max_changesets > 0) {
 	chert_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -468,7 +468,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
 	throw;
     }
-    
+
     if (changes_fd >= 0 && max_changesets < new_revision) {
 	// While change sets less than N - max_changesets exist, delete them
 	// 1 must be subtracted so we don't delete the changeset we just wrote

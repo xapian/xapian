@@ -11,7 +11,7 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libunicode.lib" 
+ALL : "$(OUTDIR)\libunicode.lib"
 
 OBJS= \
             $(INTDIR)\utf8itor.obj \
@@ -21,7 +21,7 @@ SRCS= \
             $(INTDIR)\utf8itor.cc \
             $(INTDIR)\tclUniData.cc
 
-	    
+
 CLEAN :
 	-@erase "$(OUTDIR)\libunicode.lib"
 	-@erase "*.pch"
@@ -47,17 +47,17 @@ CPP_SBRS=.
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

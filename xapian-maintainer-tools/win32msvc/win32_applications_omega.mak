@@ -14,9 +14,9 @@ XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE 
+!ELSE
 NULL=nul
-!ENDIF 
+!ENDIF
 
 !INCLUDE $(XAPIAN_CORE_REL_OMEGA)\win32\config.mak
 
@@ -33,7 +33,7 @@ OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
 "$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8converttest.exe"
 
-ALL : HEADERS $(PROGRAMS) 
+ALL : HEADERS $(PROGRAMS)
 
 OMEGA_OBJS= \
 	"$(OUTDIR)\omega.obj" \
@@ -51,8 +51,8 @@ OMEGA_OBJS= \
 	"$(OUTDIR)\datematchdecider.obj" \
 	"$(OUTDIR)\weight.obj" \
 	"$(OUTDIR)\str.obj" \
-	"$(OUTDIR)\transform.obj" 
-    
+	"$(OUTDIR)\transform.obj"
+
 OMINDEX_OBJS= \
 	"$(OUTDIR)\omindex.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
@@ -179,14 +179,14 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I "." -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
  -I "$(PCRE_INCLUDE_DIR)" \
- -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
+ -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(PCRE_LIB_DIR)/pcre.lib"
 
-PROGRAM_DEPENDENCIES = 
+PROGRAM_DEPENDENCIES =
 
  # omega.exe
 # omindex.exe
@@ -262,12 +262,12 @@ PROGRAM_DEPENDENCIES =
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 
@@ -275,5 +275,5 @@ PROGRAM_DEPENDENCIES =
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "$(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)" $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND) 
+    if exist "$(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)" $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

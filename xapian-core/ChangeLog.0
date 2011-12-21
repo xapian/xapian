@@ -25,7 +25,7 @@ Fri Nov 24 10:11:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Btree base files now store things in variable-length fields.
 	  The format number is also now used.
-	
+
 	* New function sys_read_all_bytes() to read an entire file into
 	  a string.
 
@@ -54,7 +54,7 @@ Thu Nov 23 18:12:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Thu Nov 23 16:31:45 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Re-arranged Btree::basic_open slightly to make it easier to 
+	* Re-arranged Btree::basic_open slightly to make it easier to
 	  expand the number of available revisions in the future.
 
 Thu Nov 23 16:26:09 GMT 2000 Olly Betts
@@ -90,7 +90,7 @@ Wed Nov 22 18:28:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Turned the rest of the Btree API functions into Btree member
 	  functions.
-	
+
 	* Added a bit of const to sys_write_* and get_[u]int4
 
 Wed Nov 22 15:53:16 GMT 2000 Olly Betts
@@ -191,10 +191,10 @@ Mon Nov 20 19:00:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added new class Btree_base encapsulating the structure of the
 	  Quartz base file.
-	
+
 	* sys_read_bytes() and sys_read_block() now share most of their
 	  code.  Some of the sys_* made available in btree_util.h.
-	
+
 	* Btree_create now a wrapper around Btree::create().
 
 Mon Nov 20 14:27:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
@@ -303,7 +303,7 @@ Thu Nov 16 19:27:20 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	  Fixed a few FIXMEs, and added some more.
 
 	  Did lots of tweaking to error handling.
-	  
+
 	  There are a few more occurrences to change.  In some cases things
 	  can be made much cleaner when the code is objectified with
 	  constructors and destructors.  Most of Btree_quit() moved
@@ -313,12 +313,12 @@ Thu Nov 16 14:48:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added method str(std::string) to om_ostringstream, to set
 	  the value of the internal string.
-	
+
 	* The testsuite now has a global om_ostringstream "tout", which
 	  should be used by test functions when printing anything out.
 	  Everything sent to the stream will be thrown out when the test
 	  succeeds, or printed out if it fails.
-	
+
 	* Tests in api_db.cc modified to use tout.
 
 Thu Nov 16 11:52:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
@@ -329,7 +329,7 @@ Wed Nov 15 18:14:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added QuartzDocument class, and implemented QuartzDatabase::
 	  open_document().
-	
+
 	* Removed BerkeleyDB 3.1 bits from the Quartz Makefile.am
 
 Wed Nov 15 14:52:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
@@ -439,15 +439,15 @@ Tue Nov  7 17:51:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	  eat_* and swap() allow more efficient manipulation of
 	  indexer data when the original does not need to be preserved.
 	  set_{int,double,string} have actually been implemented.
-	
+
 	* OmIndexerNode has new methods get_config_int(), get_config_double(),
 	  get_config_vector() so the configuration parameters are more
 	  useful.  Also added a set_output() varient for const OmIndexerData&,
 	  for convenience.
-	
+
 	* OmConstantNode now supports int, double, and vector types as
 	  well as string.
-	
+
 	* Implemented config_modified() for several nodes.
 
 	* OmListConcatNode makes use of more efficient data shuffling.

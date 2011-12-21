@@ -271,7 +271,7 @@ public:
  *  A table is a store holding a set of key/tag pairs.
  *
  *  A key is used to access a block of data in a chert table.
- * 
+ *
  *  Keys are of limited length.
  *
  *  Keys may not be empty (each Btree has a special empty key for internal use).
@@ -416,7 +416,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *
 	 *  If the key is found in the table, then the tag is copied to @a
 	 *  tag.  If the key is not found tag is left unchanged.
-	 * 
+	 *
 	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  @param key  The key to look for in the table.

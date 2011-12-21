@@ -169,7 +169,7 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
     Xapian::docid realdid = (did - 1) / multiplier + 2;
     Xapian::doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {	
+    for (i = postlists.begin(); i != postlists.end(); i++) {
 	if (offset == dbnumber) --realdid;
 	++offset;
 	Assert((realdid - 1) * multiplier + offset >= did);

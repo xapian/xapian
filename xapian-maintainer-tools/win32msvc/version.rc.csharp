@@ -19,11 +19,11 @@ BEGIN
         BEGIN
             VALUE "ProductName", "Xapian"
             VALUE "ProductVersion", XAPIAN_VERSION
-            VALUE "FileDescription", "Xapian " XAPIAN_VERSION " bindings for C# " 
+            VALUE "FileDescription", "Xapian " XAPIAN_VERSION " bindings for C# "
             VALUE "LegalCopyright", "Copyright (C) 2009 Xapian"
             VALUE "FileVersion", XAPIAN_VERSION
             VALUE "URL", "http://www.xapian.org/"
             VALUE "LegalTrademarks", "Xapian is an Open Source Search Engine Library released under the GPL."
         END
     END
-END 
+END

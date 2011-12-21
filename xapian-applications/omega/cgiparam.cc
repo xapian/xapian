@@ -132,7 +132,7 @@ decode_post()
 {
     char *content_length;
     size_t cl = INT_MAX;
-    
+
     content_length = getenv("CONTENT_LENGTH");
     /* Netscape Fasttrack server for NT doesn't give CONTENT_LENGTH */
     if (content_length) cl = atoi(content_length);

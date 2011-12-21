@@ -75,7 +75,7 @@ class BranchPostList : public PostList {
 
 // Helper functions - call next/skip_to on a postlist and handle any
 // resulting prune
-// 
+//
 // Returns true iff a prune was handled, so the caller can recalculate
 // weights etc if necessary
 inline bool

@@ -592,7 +592,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
     // Should have pulled a full copy
     check_equal_dbs(masterpath, replicapath);
     TEST(!file_exists(masterpath + "/changes3"));
-    
+
 
     // Need to close the replica before we remove the temporary directory on
     // Windows.
@@ -677,7 +677,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
 	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
     }
     check_equal_dbs(masterpath, replicapath);
-    
+
     // Ensure that only these changesets exists
     TEST(!file_exists(masterpath + "/changes1"));
     TEST(file_exists(masterpath + "/changes2"));
@@ -717,7 +717,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
 	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
     }
     check_equal_dbs(masterpath, replicapath);
-    
+
     TEST(!file_exists(masterpath + "/changes2"));
     TEST(file_exists(masterpath + "/changes3"));
     TEST(file_exists(masterpath + "/changes4"));

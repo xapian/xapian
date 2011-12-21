@@ -209,7 +209,7 @@ HtmlParser::parse_html(const string &body)
 		if (enc == string::npos || enc == decl.size()) break;
 
 		if (decl[enc] != '=') break;
-		
+
 		enc = decl.find_first_not_of(" \t\r\n", enc + 1);
 		if (enc == string::npos || enc == decl.size()) break;
 

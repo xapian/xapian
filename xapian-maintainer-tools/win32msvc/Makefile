@@ -18,7 +18,7 @@ MAKEALL:
 # Note we must run each make process with the HEADERS target to calculate any missing dependencies and add them to the end of the makefile
    cd ..\common
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
-   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" 
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\api
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
@@ -99,7 +99,7 @@ CLEAN: COPYMAKFILES
    cd ..\tests
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\win32
-   -@erase ..\config.h 
+   -@erase ..\config.h
    -@erase ..\include\xapian\version.h
    -@erase ..\include\xapian\error.h
    -@erase ..\include\xapian\errordispatch.h
@@ -110,7 +110,7 @@ CLEAN: COPYMAKFILES
 DISTCLEAN: CLEAN
 
 # Copy mak files to the right folders
-COPYMAKFILES: 
+COPYMAKFILES:
    copy config.h.win32 ..\config.h
    copy  win32_api.mak ..\api\Makefile
    copy  win32_backends.mak ..\backends\Makefile
@@ -150,11 +150,11 @@ COPYMAKFILES:
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\config.h
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\common\config.h
 
-# Test for tools that we MUST have   
+# Test for tools that we MUST have
 TESTFORTOOLS: xapdep.exe
 # Perl is needed for header generation
-   if not exist $(PERL_EXE) exit(1) 
-   
+   if not exist $(PERL_EXE) exit(1)
+
 MAKEALLBINDINGS: ALL COPYMAKFILES
 # Need bindings to exist
    if not exist  $(XAPIAN_BINDINGS) exit(1)
@@ -165,10 +165,10 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
 
    nmake PYTHON_VER=25 CLEAN
    nmake PYTHON_VER=25 DIST
-   
+
    nmake PYTHON_VER=26 CLEAN
    nmake PYTHON_VER=26 DIST
-  
+
    nmake PYTHON_VER=27 CLEAN
    nmake PYTHON_VER=27 DIST
 
@@ -177,7 +177,7 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    nmake PHP_VER=52 DIST
    nmake PHP_VER=53 CLEAN
    nmake PHP_VER=53 DIST
-   
+
 # Java bindings didn't work, see http://trac.xapian.org/ticket/474
 # That issue is fixed, needs testing again
 #   cd $(XAPIAN_BINDINGS)\java
@@ -191,9 +191,9 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    cd $(XAPIAN_BINDINGS)\ruby
    nmake CLEAN
    nmake DISTNOCHECK
-   
 
-   
+
+
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
 
@@ -204,8 +204,8 @@ MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
 
 ..\include\xapian\version.h: version.h.in ..\configure.ac
     $(PERL_EXE) genversion.pl ..\configure.ac version.h.in ..\include\xapian\version.h
-    
-xapdep.exe: 
+
+xapdep.exe:
     cd xapdep
     nmake -f xapdep.mak
     copy xapdep.exe ..

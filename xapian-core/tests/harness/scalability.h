@@ -24,7 +24,7 @@
 void test_scalability(double (*func)(unsigned), unsigned n, double threshold);
 
 // 10 times the work should increase the time by:
-// O(1) : 1 
+// O(1) : 1
 // O(n) : 10
 // O(n*log(n)) : 20 = 100 * log(100) / (10 * log(10))
 // O(n*n) : 100

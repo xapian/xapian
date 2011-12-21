@@ -42,7 +42,7 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I"..\api" -I"..\languages" \
  -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
- 
+
 CPP_PROJ_LEMON=$(CPPFLAGS_EXTRA) \
  -Fo"$(INTDIR)\\" -Tc$(INPUTNAME)
 
@@ -65,23 +65,23 @@ CPP_SBRS=.
   $(CPP_PROJ_LEMON) $** ".\lemon.c"
 <<
 
-"$(INTDIR)\queryparser_internal.cc" : ".\queryparser.lemony" 
-	$(INTDIR)\lemon.exe -q -oqueryparser_internal.cc -hqueryparser_token.h queryparser.lemony 
+"$(INTDIR)\queryparser_internal.cc" : ".\queryparser.lemony"
+	$(INTDIR)\lemon.exe -q -oqueryparser_internal.cc -hqueryparser_token.h queryparser.lemony
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS : "$(INTDIR)\lemon.exe" "$(INTDIR)\queryparser_internal.cc"
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

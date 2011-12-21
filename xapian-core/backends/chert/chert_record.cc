@@ -54,7 +54,7 @@ ChertRecordTable::get_record(Xapian::docid did) const
 
 Xapian::doccount
 ChertRecordTable::get_doccount() const
-{   
+{
     LOGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", NO_ARGS);
     chert_tablesize_t count = get_entry_count();
     if (rare(count > chert_tablesize_t(Xapian::doccount(-1)))) {

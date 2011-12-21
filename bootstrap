@@ -179,7 +179,7 @@ if [ -d ".git" ] ; then
 swig
 xapian-applications/omega/common
 END
-  if [ -f .git/info/exclude ] && 
+  if [ -f .git/info/exclude ] &&
      cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
     rm .git/info/exclude~
   else
@@ -208,7 +208,7 @@ END
     # FIXME: Currently rev here requires manual update...
     #svn:externals revision for SWIG
     handle_svn_external swig -r12767 svn://svn.tartarus.org/swig/trunk/
-  
+
     # FIXME: Currently rev here requires manual update...
     #svn:externals revision for xapian-applications/omega/common
     # Note: this needs to be the exact revision of the previous change!

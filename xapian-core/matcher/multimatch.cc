@@ -191,7 +191,7 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
     void operator()(const Xapian::Document &doc, double wt);
 };
 
-void 
+void
 MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
     vector<Xapian::MatchSpy *>::const_iterator i;
