@@ -1,3 +1,7 @@
+Wed Dec 21 11:23:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/errorhandler.h: Fix typo: 'APU' -> 'API'.
+
 Wed Dec 21 09:57:32 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/brass_postlist.cc,
