@@ -1,3 +1,8 @@
+Wed Dec 21 12:26:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/errorhandler.cc: Rearrange code in ErrorHandler::operator() to
+	  be clearer.
+
 Wed Dec 21 11:23:28 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/errorhandler.h: Fix typo: 'APU' -> 'API'.
