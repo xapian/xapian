@@ -5,6 +5,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
+ * Copyright 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -112,8 +113,41 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	     */
 	    OP_SCALE_WEIGHT,
 
-	    /** Select an elite set from the subqueries, and perform
-	     *  a query with these combined as an OR query.
+	    /** Pick the best N subqueries and combine with OP_OR.
+	     *
+	     *  If you want to implement a feature which finds documents
+	     *  similar to a piece of text, an obvious approach is to build an
+	     *  "OR" query from all the terms in the text, and run this query
+	     *  against a database containing the documents.  However such a
+	     *  query can contain a lots of terms and be quite slow to perform,
+	     *  yet many of these terms don't contribute usefully to the
+	     *  results.
+	     *
+	     *  The OP_ELITE_SET operator can be used instead of OP_OR in this
+	     *  situation.  OP_ELITE_SET selects the most important ''N'' terms
+	     *  and then acts as an OP_OR query with just these, ignoring any
+	     *  other terms.  This will usually return results just as good as
+	     *  the full OP_OR query, but much faster.
+	     *
+	     *  In general, the OP_ELITE_SET operator can be used when you have
+	     *  a large OR query, but it doesn't matter if the search
+	     *  completely ignores some of the less important terms in the
+	     *  query.
+	     *
+	     *  You can specify a parameter to the query constructor which
+	     *  control the number of terms which OP_ELITE_SET will pick.  If
+	     *  not specified, this defaults to 10 (or
+	     *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
+	     *  than 100 subqueries, but this rather arbitrary special case
+	     *  will be dropped in 1.3.0).  For example, this will pick the
+	     *  best 7 terms:
+	     *
+	     *  <pre>
+	     *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
+	     *  </pre>
+	     *
+	     * If the number of subqueries is less than this threshold,
+	     * OP_ELITE_SET behaves identically to OP_OR.
 	     */
 	    OP_ELITE_SET,
 
