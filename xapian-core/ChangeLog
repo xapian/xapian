@@ -1,3 +1,8 @@
+Thu Dec 22 12:16:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/errorhandler.h: Fix typo: 'APU' -> 'API'.
+
 Tue Dec 13 10:29:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* AUTHORS,NEWS,configure.ac: Update for 1.2.8.
