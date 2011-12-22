@@ -1,3 +1,8 @@
+Thu Dec 22 10:55:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* query.cc: Drop special handling for R-prefixed terms in $prettyterm
+	  - we stopped generating these in Xapian 1.0.
+
 Thu Dec 22 03:50:30 GMT 2011  Olly Betts <olly@survex.com>
 
 	* INSTALL,configure.ac,diritor.cc,diritor.h: Make libmagic a required

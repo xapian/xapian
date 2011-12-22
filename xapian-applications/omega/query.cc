@@ -2098,14 +2098,6 @@ pretty_term(string term)
     // Assume unprefixed terms are unstemmed.
     if (!isupper(term[0])) return term;
 
-    // FIXME: keep this for now in case people are still generating 'R' terms?
-    // But if we assumed unprefixed terms are unstemmed, what use is this?
-    if (term[0] == 'R') {
-	term.erase(0, 1);
-	term[0] = toupper(static_cast<unsigned char>(term[0]));
-	return term;
-    }
-
     // Handle stemmed terms.
     bool stemmed = (term[0] == 'Z');
     if (stemmed) {
