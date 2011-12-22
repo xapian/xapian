@@ -134,6 +134,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	     *  completely ignores some of the less important terms in the
 	     *  query.
 	     *
+	     *  The subqueries don't have to be terms, but if they aren't then
+	     *  OP_ELITE_SET will look at the estimated frequencies of the
+	     *  subqueries and so could pick a subset which don't actually
+	     *  match any documents even if the full OR would match some.
+	     *
 	     *  You can specify a parameter to the query constructor which
 	     *  control the number of terms which OP_ELITE_SET will pick.  If
 	     *  not specified, this defaults to 10 (or
