@@ -1,3 +1,9 @@
+Thu Dec 22 12:21:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/Makefile.mk: Link $(libxapian_la) after libbrasscheck.la and
+	  libchertcheck.la to fix mingw build.  Probably closes ticket#567.
+
 Thu Dec 22 12:18:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

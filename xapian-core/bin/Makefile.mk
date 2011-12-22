@@ -50,7 +50,7 @@ bin_xapian_check_CPPFLAGS =\
 	-I$(top_srcdir)/backends/chert\
 	-I$(top_srcdir)/backends/flint
 bin_xapian_check_SOURCES = bin/xapian-check.cc
-bin_xapian_check_LDADD = $(ldflags) $(libxapian_la)
+bin_xapian_check_LDADD = $(ldflags)
 if BUILD_BACKEND_BRASS
 bin_xapian_check_SOURCES += bin/xapian-check-brass.cc bin/xapian-check-brass.h
 bin_xapian_check_LDADD += libbrasscheck.la
@@ -63,6 +63,7 @@ if BUILD_BACKEND_FLINT
 bin_xapian_check_SOURCES += bin/xapian-check-flint.cc bin/xapian-check-flint.h
 bin_xapian_check_LDADD += libflintcheck.la
 endif
+bin_xapian_check_LDADD += $(libxapian_la)
 
 bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
