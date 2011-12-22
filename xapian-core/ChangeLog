@@ -1,3 +1,11 @@
+Thu Dec 22 12:18:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* include/xapian/query.h: Document that OP_ELITE_SET with non-term
+	  subqueries might pick subqueries which don't match anything.
+	  Closes ticket#49.
+	* include/xapian/query.h: Improve documentation of OP_ELITE_SET.
+
 Thu Dec 22 12:16:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
