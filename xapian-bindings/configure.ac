@@ -903,7 +903,7 @@ if test no != "$with_lua" ; then
   if test -n "$LUA" ; then
     dnl We need Lua 5.1 or later.
     AC_MSG_CHECKING([$LUA version])
-    [lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`]
+    lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`
 
     case $lua_version in
     [[01234]].*|5.0|5.0.*)
@@ -925,19 +925,52 @@ if test no != "$with_lua" ; then
 
     if test -n "$LUA" ; then
       AC_MSG_RESULT([$lua_version])
-      AC_ARG_VAR(LUA_LIB, [Directory to install xapian.so into])
-      AC_MSG_CHECKING(for Lua library to install xapian.so)
-      LUA_LIB=`$LUA -e 'require("package") print(package.cpath)' | cut -f 2 -d ';' | cut -f 1 -d '?'`
-      LUA_LIB=`expr X"$LUA_LIB" : X'\(.*\)/$'`
-      if test -z "$LUA_LIB"; then
-        AC_MSG_RESULT(not found)
-      else
-        AC_MSG_RESULT($LUA_LIB)
-      fi
-      AC_SUBST(LUA_LIB)
 
-      AC_MSG_CHECKING(for Lua header files)
-      AC_ARG_VAR(LUA_INC, [Directory to include for lua headers])
+      AC_ARG_VAR([LUA_LIB], [Directory to install compiled Lua modules into])
+      AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules])
+      AC_MSG_CHECKING([for directory to install compiled Lua modules into])
+      if test -z "$LUA_LIB" -o -z "$LUA_SO" ; then
+	lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
+	dnl Look for the first absolute path in lua_cpath which has leaf
+	dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
+	dnl lua_so.
+	lua_lib=
+	lua_so=
+	[lua_so_pat=${LUA_SO:-'[a-zA-Z][a-zA-Z]*'}]
+	lua_so_pat=`echo "X$lua_so_pat"|sed 's/^X\.\?//'`
+	while test x"$lua_cpath" != x ; do
+	  [lua_lib=`expr X"$lua_cpath" : X'\([^;]*\)'`]
+	  lua_so=.`expr X"$lua_lib" : X'/.*/?\.\('"$lua_so_pat"'\)$'`
+	  case $lua_so in
+	    .|.lua)
+	      dnl If someone has foolishly put ?.lua in cpath, ignore them.
+	      ;;
+	    *)
+	      lua_lib=`expr X"$lua_lib" : X'\(/.*\)/?\.'"$lua_so_pat"'$'`
+	      break ;;
+	  esac
+	  [lua_cpath=`expr X"$lua_cpath" : X'[^;]*;*\(.*\)'`]
+	done
+	test -n "$LUA_LIB" || LUA_LIB=$lua_lib
+	test -n "$LUA_SO" || LUA_SO=$lua_so
+      fi
+      if test -z "$LUA_LIB"; then
+	AC_MSG_RESULT([not found])
+      else
+	AC_MSG_RESULT([$LUA_LIB])
+      fi
+      AC_SUBST([LUA_LIB])
+
+      AC_MSG_CHECKING([for extension to use for compiled Lua modules])
+      if test -z "$LUA_SO"; then
+	AC_MSG_RESULT([not found])
+      else
+	AC_MSG_RESULT([$LUA_SO])
+      fi
+      AC_SUBST([LUA_SO])
+
+      AC_MSG_CHECKING([for Lua header files])
+      AC_ARG_VAR([LUA_INC], [Directory to include for lua headers])
       if test -z "$LUA_INC" ; then
         dirs="/usr/local/include /usr/local/include/lua* /usr/include/lua* /usr/include"
         for i in $dirs ; do
@@ -949,27 +982,14 @@ if test no != "$with_lua" ; then
       fi
 
       if test -z "$LUA_INC" ; then
-        AC_MSG_RESULT(not found)
+        AC_MSG_RESULT([not found])
       else
-        AC_MSG_RESULT($LUA_INC)
+        AC_MSG_RESULT([$LUA_INC])
         BINDINGS="$BINDINGS lua"
         LUA_CPPFLAGS="-I$LUA_INC"
       fi
-      AC_SUBST(LUA_INC)
-
-      dnl Cygwin needs to link with -llua or similar.
-      LUA_LIBS=
-      case $host_os in
-      cygwin*)
-	AC_CHECK_LIB([lua$lua_version], [Lua_Init],
-		     [LUA_LIBS="-llua$lua_version"],
-		     [AC_MSG_ERROR([liblua$lua_version not found])])
-	;;
-      *)
-	LUA_CPPFLAGS="$LUA_CPPFLAGS -DUSE_LUA_STUBS" ;;
-      esac
-      AC_SUBST(LUA_CPPFLAGS)
-      AC_SUBST(LUA_LIBS)
+      AC_SUBST([LUA_INC])
+      AC_SUBST([LUA_CPPFLAGS])
     fi
   else
     if test yes = "$with_lua" ; then

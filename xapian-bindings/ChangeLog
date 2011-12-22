@@ -1,3 +1,19 @@
+Thu Dec 22 13:11:22 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Fix cosmetic typo in recent Lua change.
+	* configure.ac,lua/Makefile.am: Remove Lua cygwin-specific configure
+	  code and -DUSE_LUA_STUBS - both were copied from the Tcl support
+	  with Tcl changed to Lua, and have no basis in reality that I can
+	  find.
+	* configure.ac,lua/Makefile.am: Improve probing for LUA_LIB, and also
+	  probe for LUA_SO so we support platforms where the compiled Lua
+	  module isn't called .so.
+	* configure.ac: Improve LUA_LIB description and probe message - the
+	  module won't have an ".so" extension on all platforms.
+	* configure.ac: m4 quoting tweaks (cosmetic only).
+	* configure.ac: Honour LUA_LIB if already set.  Fixes #581.
+
 Thu Dec 22 13:04:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
