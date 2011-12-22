@@ -1,3 +1,8 @@
+Thu Dec 22 03:14:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk: Link $(libxapian_la) after libbrasscheck.la and
+	  libchertcheck.la to fix mingw build.  Probably closes ticket#567.
+
 Thu Dec 22 02:45:45 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Document that OP_ELITE_SET with non-term
