@@ -38,7 +38,7 @@ for my $num (1..1000) {
   $write->add_document( $doc );
 } 
 
-for my $num qw (three four five) {
+for my $num (qw(three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
@@ -135,7 +135,7 @@ is($write->get_doccount(), 1, "check document count");
 is($doc->get_data(), "$term $num", "check document data");
 
 # add documents for following tests
-for my $num qw (one two three four five) {
+for my $num (qw(one two three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
