@@ -1,3 +1,8 @@
+Thu Dec 22 11:18:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Initialise variable which can
+	  be used uninitialised.
+
 Thu Dec 22 03:14:02 GMT 2011  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk: Link $(libxapian_la) after libbrasscheck.la and
