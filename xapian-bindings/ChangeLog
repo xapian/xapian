@@ -1,3 +1,9 @@
+Thu Dec 22 12:00:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
+	  Fix "Use of qw(...) as parentheses is deprecated" warnings in tests
+	  with Perl 5.14.
+
 Wed Dec 21 13:48:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* php/add-php-type-hints: Don't add a type hint to apply($doc) as that
