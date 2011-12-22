@@ -21,6 +21,8 @@
 // "end" is a keyword in Lua, so we rename it to "_end"
 %rename("_end") end;
 
+%rename("__tostring") get_description;
+
 %define SUB_CLASS(NS, CLASS)
 %{
 class lua##CLASS : public NS::CLASS {
