@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,7 @@ using namespace std;
 uid_t DirectoryIterator::euid = geteuid();
 #endif
 
-#ifdef HAVE_MAGIC_H
 magic_t DirectoryIterator::magic_cookie = NULL;
-#endif
 
 void
 DirectoryIterator::call_stat()
@@ -98,7 +96,6 @@ DirectoryIterator::next_failed() const
     throw error;
 }
 
-#ifdef HAVE_MAGIC_H
 string
 DirectoryIterator::get_magic_mimetype()
 {
@@ -149,4 +146,3 @@ DirectoryIterator::get_magic_mimetype()
 
     return res;
 }
-#endif
