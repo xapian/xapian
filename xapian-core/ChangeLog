@@ -1,3 +1,9 @@
+Thu Dec 22 12:50:41 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* languages/compiler/generator.c: Initialise variable which can
+	  be used uninitialised.
+
 Thu Dec 22 12:21:10 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
