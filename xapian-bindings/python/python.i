@@ -35,20 +35,68 @@
 
 static THREAD_LOCAL PyThreadState * swig_pythreadstate = NULL;
 
+inline void swig_pythreadstate_ensure_init() { }
+
+inline PyThreadState * swig_pythreadstate_reset() {
+    PyThreadState * v = swig_pythreadstate;
+    if (v) swig_pythreadstate = NULL;
+    return v;
+}
+
+inline PyThreadState * swig_pythreadstate_set(PyThreadState * v) {
+    PyThreadState * old = swig_pythreadstate;
+    swig_pythreadstate = v;
+    return old;
+}
+
+#else
+
+#include <pthread.h>
+
+static pthread_key_t swig_pythreadstate_key;
+static pthread_once_t swig_pythreadstate_key_once = PTHREAD_ONCE_INIT;
+
+static void swig_pythreadstate_make_key()
+{
+    if (pthread_key_create(&swig_pythreadstate_key, NULL) != 0)
+	Py_FatalError("pthread_key_create failed");
+}
+
+inline void swig_pythreadstate_ensure_init() {
+    pthread_once(&swig_pythreadstate_key_once, swig_pythreadstate_make_key);
+}
+
+inline PyThreadState * swig_pythreadstate_reset() {
+    PyThreadState * v = (PyThreadState*)pthread_getspecific(swig_pythreadstate_key);
+    if (v) pthread_setspecific(swig_pythreadstate_key, NULL);
+    return v;
+}
+
+inline PyThreadState* swig_pythreadstate_set(PyThreadState * v) {
+    PyThreadState * old = (PyThreadState*)pthread_getspecific(swig_pythreadstate_key);
+    pthread_setspecific(swig_pythreadstate_key, (void*)v);
+    return old;
+}
+
+#endif
+
 class XapianSWIG_Python_Thread_Block {
     bool status;
   public:
-    XapianSWIG_Python_Thread_Block()
-	: status(PyEval_ThreadsInitialized() && swig_pythreadstate) {
-	if (status) {
-	    PyEval_RestoreThread(swig_pythreadstate);
-	    swig_pythreadstate = NULL;
+    XapianSWIG_Python_Thread_Block() : status(false) {
+	if (PyEval_ThreadsInitialized()) {
+	    swig_pythreadstate_ensure_init();
+	    PyThreadState * ts = swig_pythreadstate_reset();
+	    if (ts) {
+		status = true;
+		PyEval_RestoreThread(ts);
+	    }
 	}
     }
     void end() {
 	if (status) {
-	    if (swig_pythreadstate) Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Block::end()");
-	    swig_pythreadstate = PyEval_SaveThread();
+	    if (swig_pythreadstate_set(PyEval_SaveThread()))
+		Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Block::end()");
 	    status = false;
 	}
     }
@@ -60,46 +108,22 @@ class XapianSWIG_Python_Thread_Allow {
   public:
     XapianSWIG_Python_Thread_Allow() : status(PyEval_ThreadsInitialized()) {
 	if (status) {
-	    if (swig_pythreadstate) Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
-	    swig_pythreadstate = PyEval_SaveThread();
+	    swig_pythreadstate_ensure_init();
+	    if (swig_pythreadstate_set(PyEval_SaveThread()))
+		Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
 	}
     }
     void end() {
 	if (status) {
-	    if (!swig_pythreadstate) Py_FatalError("swig_pythreadstate unset in XapianSWIG_Python_Thread_Block::end()");
-	    PyEval_RestoreThread(swig_pythreadstate);
-	    swig_pythreadstate = NULL;
+	    PyThreadState * ts = swig_pythreadstate_reset();
+	    if (!ts)
+		Py_FatalError("swig_pythreadstate unset in XapianSWIG_Python_Thread_Block::end()");
+	    PyEval_RestoreThread(ts);
 	    status = false;
 	}
     }
     ~XapianSWIG_Python_Thread_Allow() { end(); }
 };
-
-#else
-
-// If you comment out this #error, you will get Xapian 1.2's behaviour, which
-// risks deadlock if you run on an interpreter which isn't the main one.  See
-// http://trac.xapian.org/ticket/364 for details.
-#error configure did not find how to do thread-local storage for your compiler/platform.  Please report this to the Xapian developers.
-
-       class XapianSWIG_Python_Thread_Block {
-         bool status;
-         PyGILState_STATE state;
-       public:
-         void end() { if (status) { PyGILState_Release(state); status = false;} }
-         XapianSWIG_Python_Thread_Block() : status(PyEval_ThreadsInitialized()) { if (status) state = PyGILState_Ensure(); }
-         ~XapianSWIG_Python_Thread_Block() { end(); }
-       };
-       class XapianSWIG_Python_Thread_Allow {
-         bool status;
-         PyThreadState *save;
-       public:
-         void end() { if (status) { PyEval_RestoreThread(save); status = false; }}
-         XapianSWIG_Python_Thread_Allow() : status(PyEval_ThreadsInitialized()) { if (status) save = PyEval_SaveThread(); }
-         ~XapianSWIG_Python_Thread_Allow() { end(); }
-       };
-
-#endif
 
 #define SWIG_PYTHON_THREAD_BEGIN_BLOCK   XapianSWIG_Python_Thread_Block _xapian_swig_thread_block
 #define SWIG_PYTHON_THREAD_END_BLOCK     _xapian_swig_thread_block.end()

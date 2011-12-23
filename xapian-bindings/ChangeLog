@@ -1,3 +1,8 @@
+Fri Dec 23 01:25:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i: If configure didn't find a way to do TLS, fall back
+	  to using pthread_getspecific() etc, which should work on Mac OS X.
+
 Thu Dec 22 12:00:57 GMT 2011  Olly Betts <olly@survex.com>
 
 	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
