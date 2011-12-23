@@ -180,6 +180,11 @@ number of other formats using external programs.  Filter programs are run with
 CPU, time and memory limits to prevent a runaway filter from blocking indexing of
 other files.
 
+The way omindex decides how to index a file is based around MIME content-types.
+First of all omindex will look up a file's extension in its extension to MIME
+type map.  If there's no entry, it will then ask libmagic to examine the
+contents of the file and try to determine a MIME type.
+
 The following formats are supported as standard (you can tell omindex to use
 other filters too - see below):
 
@@ -224,8 +229,9 @@ instance::
 $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type doc:application/postscript
 
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
-a file of that type (everything after the last '.'), and type is one
-of:
+a file of that type (everything after the last '.').  The ``type`` can be any
+string, but to be useful there either needs to be a filter set for that type
+- either using ``--filter`` or by ``type`` being understood by default:
 
    - text/csv
    - text/html

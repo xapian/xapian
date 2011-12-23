@@ -1,3 +1,9 @@
+Fri Dec 23 05:44:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document that libmagic is used to determine
+	  the MIME type if the extension isn't known.  Partly addresses
+	  ticket#569.
+
 Fri Dec 23 01:29:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: We now limit time as well as CPU and memory for
