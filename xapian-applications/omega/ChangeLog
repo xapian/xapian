@@ -1,3 +1,8 @@
+Fri Dec 23 01:29:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: We now limit time as well as CPU and memory for
+	  external filters.
+
 Thu Dec 22 10:55:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* query.cc: Drop special handling for R-prefixed terms in $prettyterm
