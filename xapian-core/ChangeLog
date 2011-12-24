@@ -1,3 +1,8 @@
+Sat Dec 24 12:28:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Make it clear "Building from SVN" applies to git too, and
+	  mention that git-svn is needed when building from git.
+
 Thu Dec 22 11:18:17 GMT 2011  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Initialise variable which can
