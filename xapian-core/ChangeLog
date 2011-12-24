@@ -1,3 +1,7 @@
+Sat Dec 24 12:34:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Recommend installing valgrind, ccache, and eatmydata.
+
 Sat Dec 24 12:28:44 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Make it clear "Building from SVN" applies to git too, and
