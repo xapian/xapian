@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.h
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,6 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
-  private:
     /// Create a Xapian::Database object indexing multiple files.
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
