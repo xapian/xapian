@@ -1,3 +1,9 @@
+Mon Dec 26 09:12:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_brass.h,
+	  tests/harness/backendmanager_chert.h: Remove superfluous "private:"
+	  access specifiers.
+
 Sat Dec 24 12:34:19 GMT 2011  Olly Betts <olly@survex.com>
 
 	* HACKING: Recommend installing valgrind, ccache, and eatmydata.
