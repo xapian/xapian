@@ -2,7 +2,7 @@
 # Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
 # 7th April 2008
 
-# Will build the Java Swig bindings 
+# Will build the Java Swig bindings
 
 # Where the core is, relative to the Java Swig bindings
 # Change this to match your environment
@@ -73,14 +73,14 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	QueryParser*feature_flag.class\
 	QueryParser*stem_strategy.class\
 	TermGenerator*flags.class
-    
+
 ALL : "$(OUTDIR)/xapian_jni.jar" \
       SmokeTest.class \
       "$(OUTDIR)/xapian_jni.dll" \
       WriteJavaVersion.class
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
     $(MANIFEST) "$(OUTDIR)\xapian_jni.dll.manifest" -outputresource:"$(OUTDIR)\xapian_jni.dll;2"
-    copy "$(ZLIB_LIB_DIR)\zdll.lib" 
+    copy "$(ZLIB_LIB_DIR)\zdll.lib"
     copy "$(ZLIB_BIN_DIR)\zlib1.dll" $(OUTDIR)
 
 CLEAN :
@@ -98,26 +98,26 @@ CLEAN :
     -@erase WriteJavaVersion.class
     -@erase version.res
     -@erase javaversion.h
-    
+
 CLEANSWIG: CLEAN
     -@erase xapian_wrap.cc
     -@erase xapian_wrap.h
     -@erase $(XAPIAN_SWIG_JAVA_SRCS)
 
-DOTEST: 
+DOTEST:
     copy SmokeTest.class "$(OUTDIR)\SmokeTest.class"
     copy MyMatchDecider.class "$(OUTDIR)\MyMatchDecider.class"
     copy MyExpandDecider.class "$(OUTDIR)\MyExpandDecider.class"
     cd $(OUTDIR)
     $(JAVA) -classpath xapian_jni.jar; SmokeTest
-    
+
 CHECK: ALL DOTEST
 
-DIST: CHECK 
+DIST: CHECK
     cd $(MAKEDIR)
     if not exist "$(OUTDIR)\dist\$(NULL)" mkdir "$(OUTDIR)\dist"
     if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
-    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"        
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"
     copy "$(OUTDIR)\xapian_jni.dll" "$(OUTDIR)\dist"
     copy "$(OUTDIR)\xapian_jni.jar" "$(OUTDIR)\dist"
     if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
@@ -126,38 +126,38 @@ DIST: CHECK
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-   
+
 $(OUTDIR)/xapian_jni.jar: xapian_wrap.obj "$(OUTDIR)" $(XAPIAN_SWIG_JAVA_CLASS)
-	$(JAR) -cf $(OUTDIR)/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES) 
-    
+	$(JAR) -cf $(OUTDIR)/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
+
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_JAVA)" /I "$(XAPIAN_CORE_REL_JAVA)\include" /I "$(JAVA_INCLUDE_DIR)" /I "$(JAVA_INCLUDE_DIR)/win32"\
- /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME) 
+ /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
 
-"$(OUTDIR)\xapian_jni.dll" : "$(OUTDIR)" xapian_wrap.obj ".\version.res" 
+"$(OUTDIR)\xapian_jni.dll" : "$(OUTDIR)" xapian_wrap.obj ".\version.res"
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\xapian_jni.dll" xapian_wrap.obj ".\version.res" 
+  $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\xapian_jni.dll" xapian_wrap.obj ".\version.res"
 
 <<
 
 !IF "$(SWIGBUILD)" == "1"
-# FIXME: make this work properly with SWIG 
-xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): 
+# FIXME: make this work properly with SWIG
+xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS):
 # Make sure that we don't package stale generated sources in the
 # case where SWIG changes its mind as to which files it generates.
     -@erase $(XAPIAN_SWIG_JAVA_SRCS)
 	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_JAVA)\include -I..\generic \
 	    -c++ -java -module Xapian \
-	    -o xapian_wrap.cc ../xapian.i   
+	    -o xapian_wrap.cc ../xapian.i
 # Insert code to automatically load the JNI library.
 	$(PERL_EXE) -pe "print \"    System.loadLibrary('xapian_jni'); \n\" if /^\s*swig_module_init/" XapianJNI.java >XapianJNI.java.tmp
 	-erase XapianJNI.java
 	-rename XapianJNI.java.tmp XapianJNI.java
 !ENDIF
 
-JAVAOPTS=-classpath $(INTDIR) -d $(INTDIR) 
+JAVAOPTS=-classpath $(INTDIR) -d $(INTDIR)
 
 #
 # Rules
@@ -168,18 +168,18 @@ JAVAOPTS=-classpath $(INTDIR) -d $(INTDIR)
     $(RSC) /v \
       /fo version.res \
       /I "$(XAPIAN_CORE_REL_JAVA)\include" \
-      version.rc 
+      version.rc
 
 .java{$(XAPIAN_SWIG_JAVA_CLASS)}.class:
     $(JAVAC) $(JAVAOPTS) $*.java
 
-xapian_wrap.obj : xapian_wrap.cc 
+xapian_wrap.obj : xapian_wrap.cc
      $(CPP) @<<
   $(CPP_PROJ) $**
 <<
 
 SmokeTest.class: SmokeTest.java
     $(JAVAC) $(JAVAOPTS) SmokeTest.java
-    
+
 WriteJavaVersion.class: WriteJavaVersion.java
     $(JAVAC) $(JAVAOPTS) WriteJavaVersion.java

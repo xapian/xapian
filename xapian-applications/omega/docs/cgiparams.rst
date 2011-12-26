@@ -98,7 +98,7 @@ DATEVALUE
 SPAN
 	filter on this number of days up to END (if set), or after
 	START (if set), or before today's date (otherwise).
-	
+
 START
 	start of date range, in the format YYYYMMDD (defaults to 1st January
 	1970).  If value-based date ranges are used (see DATEVALUE parameter)

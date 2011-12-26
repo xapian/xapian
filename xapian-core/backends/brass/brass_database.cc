@@ -396,7 +396,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 
     int changes_fd = -1;
     string changes_name;
-    
+
     // always check max_changesets for modification since last revision
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
     if (p) {
@@ -404,7 +404,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
     } else {
 	max_changesets = 0;
     }
- 
+
     if (max_changesets > 0) {
 	brass_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -474,7 +474,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 
 	throw;
     }
-    
+
     // Only remove the oldest_changeset if we successfully write a new changeset and
     // we have a revision number greater than max_changesets
     if (changes_fd >= 0 && max_changesets < new_revision) {
@@ -487,7 +487,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	    if (io_unlink(db_dir + "/changes" + str(oldest_changeset))) {
 		LOGLINE(DB, "Removed changeset " << oldest_changeset);
 	    } else {
-		LOGLINE(DB, "Skipping changeset " << oldest_changeset << 
+		LOGLINE(DB, "Skipping changeset " << oldest_changeset <<
 			", likely removed before");
 	    }
 	    stats.set_oldest_changeset(oldest_changeset++);

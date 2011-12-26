@@ -200,7 +200,7 @@ MergePostList::at_end() const
 {
     LOGCALL(MATCH, bool, "MergePostList::at_end", NO_ARGS);
     Assert(current != -1);
-    return unsigned(current) >= plists.size();    
+    return unsigned(current) >= plists.size();
 }
 
 string

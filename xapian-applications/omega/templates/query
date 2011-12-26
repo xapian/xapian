@@ -46,7 +46,7 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
 </script>
 </head>
 <body bgcolor="#ffffff">
-<FORM NAME=P METHOD=GET 
+<FORM NAME=P METHOD=GET
 ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <center>
 <INPUT id="omega-autofocus" type=search NAME=P VALUE="$html{$query}" SIZE=65 autofocus>

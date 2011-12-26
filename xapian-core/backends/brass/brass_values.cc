@@ -445,7 +445,7 @@ BrassValueManager::delete_document(Xapian::docid did,
             stats.lower_bound.resize(0);
             stats.upper_bound.resize(0);
         }
- 
+
 	remove_value(did, slot);
     }
 }

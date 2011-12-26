@@ -1815,7 +1815,7 @@ DEFINE_TESTCASE(lazytablebug1, brass || chert) {
 
 /** Regression test for bug #287 for flint.
  *
- *  Chert also has the same duff code but this testcase doesn't actually 
+ *  Chert also has the same duff code but this testcase doesn't actually
  *  tickle the bug there.
  */
 DEFINE_TESTCASE(cursordelbug1, brass || chert) {

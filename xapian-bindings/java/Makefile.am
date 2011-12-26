@@ -133,7 +133,7 @@ EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)						       
+	@stamp=xapian_wrap.stamp; $(make_many_locked)
 xapian_wrap.stamp:
 	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the

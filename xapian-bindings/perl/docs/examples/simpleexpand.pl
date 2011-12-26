@@ -85,7 +85,7 @@ eval {
 	my $last = $mset->size() - 1;
 	if ($last > 4) {
 	   $last = 4;
-	} 
+	}
 	foreach my $m (($mset->items())[0..$last]) {
             $reldocs->add_document($m->get_docid());
 	}

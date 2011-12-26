@@ -12,10 +12,10 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-SBL_OPTIONS=-c++ -u 
+SBL_OPTIONS=-c++ -u
 SBL=compiler\snowball.exe
 
-ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib" 
+ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib"
 
 LIBLANGUAGES_OBJS= \
                  $(INTDIR)\stem.obj \
@@ -38,7 +38,7 @@ LIBLANGUAGES_OBJS= \
                  $(INTDIR)\swedish.obj \
 		 $(INTDIR)\romanian.obj \
 		 $(INTDIR)\kraaij_pohlmann.obj \
-		 $(INTDIR)\turkish.obj 
+		 $(INTDIR)\turkish.obj
 
 LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\danish.cc \
@@ -59,7 +59,7 @@ LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\swedish.cc \
 		 $(INTDIR)\romanian.cc \
 		 $(INTDIR)\kraaij_pohlmann.cc \
-		 $(INTDIR)\turkish.cc 
+		 $(INTDIR)\turkish.cc
 
 LIBLANGUAGES_HEADERS= \
                  danish.h \
@@ -80,10 +80,10 @@ LIBLANGUAGES_HEADERS= \
                  swedish.h \
 		 romanian.h \
 		 kraaij_pohlmann.h \
-		 turkish.h 
+		 turkish.h
 
 MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
-		 
+
 CLEAN :
 	-@erase "$(OUTDIR)\liblanguages.lib"
 	-@erase "*.pch"
@@ -110,7 +110,7 @@ CPP_SBRS=.
 
 
 # Generate .h and .cc files from Snowball algorithms using Snowball compiler
-	
+
 ".\danish.h" ".\danish.cc" : ".\danish.sbl"
 	$(SBL) danish.sbl $(SBL_OPTIONS) -o danish -n InternalStemDanish -p SnowballStemImplementation
 
@@ -155,12 +155,12 @@ CPP_SBRS=.
 
 ".\kraaij_pohlmann.h" ".\kraaij_pohlmann.cc" : ".\kraaij_pohlmann.sbl"
 	$(SBL) kraaij_pohlmann.sbl $(SBL_OPTIONS) -o kraaij_pohlmann -n InternalStemKraaij_pohlmann -p SnowballStemImplementation
-		
+
 ".\romanian.h" ".\romanian.cc" : ".\romanian.sbl"
-	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p SnowballStemImplementation	
+	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p SnowballStemImplementation
 
 ".\turkish.h" ".\turkish.cc" : ".\turkish.sbl"
-	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p SnowballStemImplementation	
+	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p SnowballStemImplementation
 
 ".\finnish.h" ".\finnish.cc" : ".\finnish.sbl"
 	$(SBL) finnish.sbl $(SBL_OPTIONS) -o finnish -n InternalStemFinnish -p SnowballStemImplementation
@@ -169,24 +169,24 @@ CPP_SBRS=.
 	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p SnowballStemImplementation
 
 
-"$(INTDIR)\stem.obj" : ".\stem.cc" 
+"$(INTDIR)\stem.obj" : ".\stem.cc"
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<
 
 
-"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES) 
+"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES)
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<
 
-".\allsnowballheaders.h": ".\generate-allsnowballheaders" 
+".\allsnowballheaders.h": ".\generate-allsnowballheaders"
     if not exist languages\. md languages
     $(PERL_EXE) generate-allsnowballheaders $(LIBLANGUAGES_HEADERS)
     copy languages\allsnowballheaders.h
     del languages\allsnowballheaders.h
     rmdir languages
- 
+
 ".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in" Makefile
     $(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" generate-allsnowballheaders.in > generate-allsnowballheaders
 

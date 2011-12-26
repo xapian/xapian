@@ -244,7 +244,7 @@ if test no != "$with_iconv" ; then
     fi
 
     case $with_iconv in
-    bad-yes) 
+    bad-yes)
       AC_MSG_ERROR([iconv not found, but --with-iconv specified]) ;;
     bad-*)
       with_iconv=no ;;

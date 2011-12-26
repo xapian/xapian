@@ -85,7 +85,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	buf[0] = 'M';
 	v.push_back(Xapian::Query(buf));
     }
-    
+
     if (y1 == y2 && m1 == m2) {
 	return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
     }
@@ -96,7 +96,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	buf[0] = 'M';
 	v.push_back(Xapian::Query(buf));
     }
-	
+
     if (y1 < y2) {
 	while (++y1 < y2) {
 	    my_snprintf(buf + 1, 9, "%04d", y1);
@@ -110,7 +110,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	    v.push_back(Xapian::Query(buf));
 	}
     }
-	
+
     my_snprintf(buf + 5, 5, "%02d", m2);
 
     // Deal with any final partial month
@@ -160,7 +160,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    m1 = t2->tm_mon + 1;
 	    d1 = t2->tm_mday;
 	} else if (!date_start.empty()) {
-	    parse_date(date_start, &y1, &m1, &d1);	
+	    parse_date(date_start, &y1, &m1, &d1);
 	    struct tm t;
 	    t.tm_year = y1 - 1900;
 	    t.tm_mon = m1 - 1;
@@ -191,7 +191,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    m1 = 1;
 	    d1 = 1;
 	} else {
-	    parse_date(date_start, &y1, &m1, &d1);	
+	    parse_date(date_start, &y1, &m1, &d1);
 	}
 	if (date_end.empty()) {
 	    time_t now = time(NULL);

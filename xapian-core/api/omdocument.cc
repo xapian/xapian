@@ -242,7 +242,7 @@ void
 OmDocumentTerm::remove_position(Xapian::termpos tpos)
 {
     LOGCALL_VOID(DB, "OmDocumentTerm::remove_position", tpos);
-    
+
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.
     vector<Xapian::termpos>::iterator i;
@@ -281,7 +281,7 @@ Xapian::Document::Internal::get_value(Xapian::valueno slot) const
     if (!database.get()) return string();
     return do_get_value(slot);
 }
-	
+
 string
 Xapian::Document::Internal::get_data() const
 {
@@ -378,7 +378,7 @@ Xapian::Document::Internal::add_term(const string & tname, Xapian::termcount wdf
 void
 Xapian::Document::Internal::remove_posting(const string & tname,
 					   Xapian::termpos tpos,
-					   Xapian::termcount wdfdec)	
+					   Xapian::termcount wdfdec)
 {
     need_terms();
 
@@ -408,7 +408,7 @@ Xapian::Document::Internal::remove_term(const string & tname)
     positions_modified = !i->second.positions.empty();
     terms.erase(i);
 }
-	
+
 void
 Xapian::Document::Internal::clear_terms()
 {

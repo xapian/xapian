@@ -505,7 +505,7 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     Xapian::docid did = db.add_document(doc);
 
     // Check what happens when term doesn't exist - should give an empty list.
-    // Threw RangeError in Xapian < 1.1.0, 
+    // Threw RangeError in Xapian < 1.1.0,
     TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
 	       db.positionlist_end(did, "nosuchterm"));
 

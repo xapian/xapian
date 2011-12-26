@@ -565,7 +565,7 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 	return string();
     return i->second;
 }
- 
+
 TermList *
 InMemoryDatabase::open_metadata_keylist(const string &) const
 {
@@ -605,7 +605,7 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     return 0;
 }
 
-PositionList * 
+PositionList *
 InMemoryDatabase::open_position_list(Xapian::docid did,
 				     const string & tname) const
 {
@@ -725,7 +725,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 
     if (closed) InMemoryDatabase::throw_database_closed();
 
-    if (doc_exists(did)) { 
+    if (doc_exists(did)) {
 	map<Xapian::valueno, string>::const_iterator j;
 	for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
 	    map<Xapian::valueno, ValueStats>::iterator i;

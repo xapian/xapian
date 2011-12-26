@@ -4,7 +4,7 @@
 # 17th March 2006
 # Copyright (C) 2007, Olly Betts
 
-# Will build the Python bindings 
+# Will build the Python bindings
 
 # Where the core is, relative to the Python bindings
 # Change this to match your environment
@@ -15,7 +15,7 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PYTHON)\win32\config.mak
 
-LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res" 
+LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res"
 
 INTDIR=.\
 
@@ -50,14 +50,14 @@ PYTHON_INCLUDE = $(PYTHON_INCLUDE_27)
 PYTHON_INCLUDE_2 = $(PYTHON_INCLUDE_2_27)
 PYTHON_LIB_DIR= $(PYTHON_LIB_DIR_27)
 OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python27
-!else 
+!else
 # Must specify a version
 exit(1)
 !endif
 
 PYTHON_PACKAGE=xapian
 
-ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" 
+ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py"
 
 CLEANLOCAL:
     -@erase *.pdb
@@ -72,12 +72,12 @@ CLEAN : CLEANLOCAL
 	-@erase /Q /s "$(OUTDIR)\dist"
 	-@erase /Q /s "$(OUTDIR)"
 	-@erase "$(OUTDIR)\*.pdb"
-	
+
 CLEANSWIG : CLEAN
 	-@erase /Q /s modern
-	-@erase exception_data.pm 
-	-@erase except.i 
-		
+	-@erase exception_data.pm
+	-@erase except.i
+
 DOTEST :
     copy pythontest*.py "$(OUTDIR)"
     copy testsuite*.py "$(OUTDIR)"
@@ -87,10 +87,10 @@ DOTEST :
 	cd "$(OUTDIR)"
 	copy "$(ZLIB_BIN_DIR)\zlib1.dll"
 	"$(PYTHON_EXE)" smoketest.py
-	"$(PYTHON_EXE)" pythontest.py    
+	"$(PYTHON_EXE)" pythontest.py
 # FIXME "$(PYTHON_EXE)" replicationtest.py
-	
-CHECK: ALL DOTEST	
+
+CHECK: ALL DOTEST
 
 DIST: "$(OUTDIR)\$(PYTHON_PACKAGE)" CHECK
     cd "$(MAKEDIR)"
@@ -104,11 +104,11 @@ DIST: "$(OUTDIR)\$(PYTHON_PACKAGE)" CHECK
     copy "_xapian$(PY_DEBUG_SUFFIX).pyd" $(PYTHON_PACKAGE)
     copy xapian.py "$(PYTHON_PACKAGE)\__init__.py"
     "$(PYTHON_EXE)" setup.py bdist_wininst
-    
+
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
-    
+
 "$(OUTDIR)\$(PYTHON_PACKAGE)" : "$(OUTDIR)"
     if not exist "$(OUTDIR)/$(PYTHON_PACKAGE)/$(NULL)" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)"
 
@@ -119,7 +119,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
 CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)" 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)"
 
 !IF "$(SWIGBUILD)" == "1"
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
@@ -127,24 +127,24 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
 	-md modern
 	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_PYTHON)\include \
         -DDOCCOMMENTS_I_SOURCES -c++ -python -threads -shadow -modern -O -outdir modern \
-	    -o modern/xapian_wrap.cc ../xapian.i       
-        
+	    -o modern/xapian_wrap.cc ../xapian.i
+
 	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern\xapian.py > modern\xapian_py.tmp
 	-erase modern\xapian.py
 	-rename modern\xapian_py.tmp xapian.py
 !ENDIF
 
-"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) 
-                            
+"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS)
+
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<
 
-  
+
 except.i: generate-python-exceptions
-	-copy "$(XAPIAN_CORE_REL_PYTHON)\exception_data.pm" exception_data.pm 
-	$(PERL_EXE) generate-python-exceptions exception_data.pm 
-		
+	-copy "$(XAPIAN_CORE_REL_PYTHON)\exception_data.pm" exception_data.pm
+	$(PERL_EXE) generate-python-exceptions exception_data.pm
+
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
 	$(MANIFEST) "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd.manifest" -outputresource:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd;2"
@@ -165,7 +165,7 @@ except.i: generate-python-exceptions
     $(RSC) /v \
       /fo version.res \
       /I"$(XAPIAN_CORE_REL_PYTHON)\include" \
-      version.rc 
+      version.rc
 
 
 ".\xapian_wrap.obj" : "modern/xapian_wrap.cc"
@@ -180,25 +180,25 @@ except.i: generate-python-exceptions
 
 .cpp{$(CPP_OBJS)}.obj::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .cxx{$(CPP_OBJS)}.obj::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .c{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .cpp{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .cxx{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<

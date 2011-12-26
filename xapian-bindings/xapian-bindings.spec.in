@@ -54,7 +54,7 @@ BuildRequires: ruby-devel >= 1.8
 BuildRequires: tcl-devel >= 8.1
 %endif
 %if 0%{?!_without_csharp:1}
-BuildRequires: mono-devel >= 1.1 
+BuildRequires: mono-devel >= 1.1
 %endif
 %if 0%{?!_without_perl:1}
 # http://fedoraproject.org/wiki/Packaging/Perl

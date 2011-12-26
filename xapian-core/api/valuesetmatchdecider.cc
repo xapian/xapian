@@ -30,7 +30,7 @@ using namespace std;
 
 namespace Xapian {
 
-bool 
+bool
 ValueSetMatchDecider::operator()(const Xapian::Document& doc) const
 {
     string value = doc.get_value(valuenum);

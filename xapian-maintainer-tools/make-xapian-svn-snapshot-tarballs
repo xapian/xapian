@@ -142,7 +142,7 @@ foreach my $tag (@ARGV) {
 	    }
 	    if (/^C. / || /^.C /) {
                 # But we just reverted any local changes!
-		die "A conflict?!  That should be impossible!\n";    
+		die "A conflict?!  That should be impossible!\n";
 	    }
 	}
 	close SVN or die $!;

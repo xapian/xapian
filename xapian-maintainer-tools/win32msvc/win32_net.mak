@@ -7,7 +7,7 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libnet.lib" 
+ALL : "$(OUTDIR)\libnet.lib"
 
 OBJS= \
              $(INTDIR)\progclient.obj \
@@ -20,7 +20,7 @@ OBJS= \
              $(INTDIR)\remotetcpclient.obj \
              $(INTDIR)\replicatetcpserver.obj \
              $(INTDIR)\remotetcpserver.obj
-             
+
 SRCS= \
              $(INTDIR)\progclient.cc \
              $(INTDIR)\remoteconnection.cc  \
@@ -59,17 +59,17 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

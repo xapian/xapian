@@ -29,49 +29,49 @@ resolve ambiguity about where the prefix ends and the term begins.
 
 Here's the current allocation list:
 
-A	
+A
         Author
-D	
+D
         Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
 E
         Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
-G	
+G
         newsGroup (or similar entity - e.g. a web forum name)
-H	
+H
         Hostname
 I
 	boolean filter term for "can see" permission (mnemonic: Include)
-K	
+K
         Keyword
-L	
+L
         ISO Language code
-M	
+M
         Month (numeric format: YYYYMM)
-N	
+N
         ISO couNtry code (or domaiN name)
 O
 	Owner
-P	
+P
         Pathname
-Q	
+Q
         uniQue id
-R	
+R
         Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
-S	
+S
         Subject (or title)
-T	
+T
         mimeType
-U	
+U
         full URL of indexed document - if the resulting term would be > 240
 	characters, a hashing scheme is used to prevent overflowing
 	the Xapian term length limit (see omindex for how to do this).
 V
 	boolean filter term for "can't see" permission (mnemonic: grep -v)
-X	
+X
         longer prefix for user-defined use
-Y	
+Y
         year (four digits)
-Z	
+Z
         stemmed term
 
 Reserved but currently unallocated: BCFJW

@@ -170,7 +170,7 @@ MultiAllTermsList::skip_to(const std::string &term)
     }
 
     make_heap(termlists.begin(), termlists.end(), CompareTermListsByTerm());
-    
+
     current_term = termlists.front()->get_termname();
     return NULL;
 }

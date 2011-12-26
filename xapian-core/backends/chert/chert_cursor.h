@@ -50,7 +50,7 @@ class Cursor {
 	 *
 	 * n is kept in tandem with p.  The unassigned state is when
 	 * p == 0 and n == BLK_UNUSED.
-	 * 
+	 *
 	 * Setting n to BLK_UNUSED is necessary in at least some cases.
 	 */
 
@@ -176,14 +176,14 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
-	 *  
+	 *
 	 *  Effectively, ChertCursor::next() loses the position of BC when it
 	 *  drops off the end of the list of items. If this is awkward, one can
 	 *  always arrange for a key to be present which has a rightmost
 	 *  position in a set of keys,
 	 */
 	bool next();
- 
+
 	/** Move to the previous key.
 	 *
 	 *  This is like ChertCursor::next, but BC is taken to the previous

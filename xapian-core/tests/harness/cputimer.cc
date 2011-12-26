@@ -72,7 +72,7 @@ CPUTimer::get_current_cputime() const
     // FIXME: Fallback to just using wallclock time, which is probably only
     // going to be used on Microsoft Windows, where nobody has implemented
     // the code required to get the CPU time used by a process.
-# ifdef HAVE_FTIME 
+# ifdef HAVE_FTIME
     struct timeb tb;
 #  ifdef FTIME_RETURNS_VOID
     ftime(&tb);

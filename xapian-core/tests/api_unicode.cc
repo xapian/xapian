@@ -277,7 +277,7 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
 	TEST_EQUAL(Unicode::tolower(u), u + 1);
 	TEST_EQUAL(Unicode::toupper(u + 1), u);
     }
-	
+
     return true;
 }
 

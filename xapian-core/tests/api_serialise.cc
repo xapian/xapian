@@ -94,7 +94,7 @@ DEFINE_TESTCASE(serialise_document1, !backend) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
- 
+
     return true;
 }
 
@@ -163,7 +163,7 @@ DEFINE_TESTCASE(serialise_document2, writable) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
- 
+
     return true;
 }
 

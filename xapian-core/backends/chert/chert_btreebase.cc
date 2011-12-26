@@ -143,7 +143,7 @@ ChertTable_base::~ChertTable_base()
 /** Do most of the error handling from unpack_uint() */
 static bool
 do_unpack_uint(const char **start, const char *end,
-	       uint4 *dest, string &err_msg, 
+	       uint4 *dest, string &err_msg,
 	       const string &basename,
 	       const char *varname)
 {
@@ -160,7 +160,7 @@ do_unpack_uint(const char **start, const char *end,
 
 static bool
 do_unpack_uint(const char **start, const char *end,
-	       chert_tablesize_t *dest, string &err_msg, 
+	       chert_tablesize_t *dest, string &err_msg,
 	       const string &basename,
 	       const char *varname)
 {
@@ -412,7 +412,7 @@ ChertTable_base::extend_bit_map()
 
 	memcpy(new_bit_map0, bit_map0, bit_map_size);
 	memset(new_bit_map0 + bit_map_size, 0, n - bit_map_size);
-	
+
 	memcpy(new_bit_map, bit_map, bit_map_size);
 	memset(new_bit_map + bit_map_size, 0, n - bit_map_size);
     } catch (...) {
@@ -474,7 +474,7 @@ ChertTable_base::find_changed_block(uint4 * n)
 	}
 	++(*n);
     }
-    
+
     return false;
 }
 

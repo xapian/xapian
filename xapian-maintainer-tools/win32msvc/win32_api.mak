@@ -13,7 +13,7 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libapi.lib" 
+ALL : "$(OUTDIR)\libapi.lib"
 
 OBJS= \
     $(INTDIR)/compactor.obj\
@@ -45,7 +45,7 @@ OBJS= \
     $(INTDIR)/valuerangeproc.obj \
     $(INTDIR)/valuesetmatchdecider.obj \
     $(INTDIR)/version.obj
-    
+
 SRCS= \
     $(INTDIR)/compactor.cc\
     $(INTDIR)/decvalwtsource.cc\
@@ -77,7 +77,7 @@ SRCS= \
     $(INTDIR)/valuesetmatchdecider.cc \
     $(INTDIR)/version.cc
 
-	     
+
 CLEAN :
     -@erase "$(OUTDIR)\libapi.lib"
     -@erase "*.pch"
@@ -101,17 +101,17 @@ CPP_SBRS=.
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

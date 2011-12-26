@@ -379,7 +379,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
     time_t last_mod = d.get_mtime();
 
-    Xapian::docid did = 0; 
+    Xapian::docid did = 0;
     if (skip_duplicates) {
 	Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	if (p != db.postlist_end(urlterm)) {
@@ -1406,7 +1406,7 @@ main(int argc, char **argv)
 	    }
 	    try {
 		string ubound = db.get_value_upper_bound(VALUE_LASTMOD);
-		if (!ubound.empty()) 
+		if (!ubound.empty())
 		    last_mod_max = binary_string_to_int(ubound);
 	    } catch (const Xapian::UnimplementedError &) {
 		numeric_limits<time_t> n;

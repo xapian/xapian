@@ -51,17 +51,17 @@ module Xapian
   # underlying Iterator
   def _safelyIterate(dangerousStart, dangerousEnd) #:nodoc:
     retval = Array.new
-    
+
     item = dangerousStart
     lastTerm = dangerousEnd
-    
+
     return retval if dangerousStart.equals(dangerousEnd)
 
-    begin      
+    begin
       retval.push(yield(item))
       item.next()
-    end while not item.equals(lastTerm) # must use primitive C++ comparator 
-    
+    end while not item.equals(lastTerm) # must use primitive C++ comparator
+
     return retval
   end # _safelyIterate
   module_function :_safelyIterate
@@ -87,7 +87,7 @@ module Xapian
   # non-iterative data.
   # (MSetIterator is not dangerous, but it is inconvenient to use from a Ruby
   # idiom, so we wrap it..)
-  class Xapian::Match     
+  class Xapian::Match
     attr_accessor :docid, :document, :rank, :weight, :collapse_count, :percent
 
     def initialize(docid, document, rank, weight, collapse_count, percent)
@@ -100,7 +100,7 @@ module Xapian
     end # initialize
 
     def ==(other)
-      return other.is_a?(Xapian::Match) && other.docid == @docid && other.rank == @rank && 
+      return other.is_a?(Xapian::Match) && other.docid == @docid && other.rank == @rank &&
         other.weight == @weight && other.collapse_count == @collapse_count && other.percent == @percent
     end
   end # class Xapian::Match
@@ -125,7 +125,7 @@ module Xapian
   # Ruby wrapper for Xapian::ValueIterator
   class Xapian::Value
     attr_accessor :value, :valueno, :docid
-    
+
     def initialize(value, valueno, docid)
       @value = value
       @valueno = valueno
@@ -180,7 +180,7 @@ module Xapian
     # Get matching terms for some document.
     # document can be either a Xapian::DocID or a Xapian::MSetIterator
     def matching_terms(document)
-      Xapian._safelyIterate(self._dangerous_matching_terms_begin(document), 
+      Xapian._safelyIterate(self._dangerous_matching_terms_begin(document),
                             self._dangerous_matching_terms_end(document)) { |item|
         Xapian::Term.new(item.term, item.wdf)
       }
@@ -195,7 +195,7 @@ module Xapian
   # programming idiom. So we wrap them.
   class Xapian::MSet
     def matches
-      Xapian._safelyIterate(self._begin(), 
+      Xapian._safelyIterate(self._begin(),
                             self._end()) { |item|
         Xapian::Match.new(item.docid, item.document, item.rank, item.weight, item.collapse_count, item.percent)
       }
@@ -211,7 +211,7 @@ module Xapian
   # programming idiom. So we wrap them.
   class Xapian::ESet
     def terms
-      Xapian._safelyIterate(self._begin(), 
+      Xapian._safelyIterate(self._begin(),
                             self._end()) { |item|
 	# note: in the ExpandTerm wrapper, we implicitly rename
 	# ESetIterator#term() (defined in xapian.i) to ExpandTerm#term()
@@ -256,10 +256,10 @@ module Xapian
     # Returns an Array of Xapian::Postings for the given term.
     # term is a string.
     def postlist(term)
-      Xapian._safelyIterate(self._dangerous_postlist_begin(term), 
+      Xapian._safelyIterate(self._dangerous_postlist_begin(term),
                             self._dangerous_postlist_end(term)) { |item|
         Xapian::Posting.new(item.docid, item.doclength, item.wdf)
-      }      
+      }
     end # postlist(term)
 
     # Returns an Array of Terms for the given docid.
@@ -269,7 +269,7 @@ module Xapian
         Xapian::Term.new(item.term, item.wdf, item.termfreq)
       }
     end # termlist(docid)
-    
+
     # Returns an Array of Xapian::Termpos objects for the given term (a String)
     # in the given docid.
     def positionlist(docid, term)

@@ -214,7 +214,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  The Xapian::Query objects are specified with begin and end
 	 *  iterators.
-	 * 
+	 *
 	 *  AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries.
 	 *  Other operators take exactly two subqueries.
 	 *

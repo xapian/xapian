@@ -1,6 +1,6 @@
 package Search::Xapian::PostingIterator;
 
-=head1 NAME 
+=head1 NAME
 
 Search::Xapian::PostingIterator - Iterate over the list of documents indexed
 by a term.
@@ -16,7 +16,7 @@ This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
 
 =over 4
 
-=item new 
+=item new
 
 Constructor. Defaults to an uninitialized iterator.
 
@@ -37,24 +37,24 @@ Get the unique id of this document.
 
 =item get_wdf
 
-Return the wdf of the current term (if meaningful). 
+Return the wdf of the current term (if meaningful).
 
 =item positionlist_begin
 
-Return L<Search::Xapian::PositionIterator> pointing to start of positionlist for current term. 
+Return L<Search::Xapian::PositionIterator> pointing to start of positionlist for current term.
 
 =item positionlist_end
 
-Return L<Search::Xapian::PositionIterator> pointing to end of positionlist for current term. 
+Return L<Search::Xapian::PositionIterator> pointing to end of positionlist for current term.
 
-=item get_doclength 
+=item get_doclength
 
 Get the length of the document at the current position in the postlist.
 
-This information may be stored in the postlist, in which case this lookup 
-should be extremely fast (indeed, not require further disk access). If the 
-information is not present in the postlist, it will be retrieved from the 
-database, at a greater performance cost. 
+This information may be stored in the postlist, in which case this lookup
+should be extremely fast (indeed, not require further disk access). If the
+information is not present in the postlist, it will be retrieved from the
+database, at a greater performance cost.
 
 =item equal <term>
 

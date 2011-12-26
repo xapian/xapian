@@ -2,7 +2,7 @@
 	* author: Evren (Kapusuz) Çilden
 	* email: evren.kapusuz at gmail.com
 	* version: 1.0 (15.01.2007)
-	
+
 
 	* stems nominal verb suffixes
 	* stems nominal inflections
@@ -10,13 +10,13 @@
 	* (y,n,s,U) context check
 	* vowel harmony check
 	* last consonent check and conversion (b, c, d, ğ to p, ç, t, k)
-	
+
 	* The stemming algorithm is based on the paper "An Affix Stripping
 	* Morphological Analyzer for Turkish" by Gülşen Eryiğit and
 	* Eşref Adalı (Proceedings of the IAESTED International Conference
 	* ARTIFICIAL INTELLIGENCE AND APPLICATIONS, February 16-18,2004,
 	* Innsbruck, Austria
-	
+
 	* Turkish is an agglutinative language and has a very rich morphological
 	* structure. In Turkish, you can form many different words from a single stem
 	* by appending a sequence of suffixes. Eg. The word "doktoruymuşsunuz" means
@@ -59,14 +59,14 @@ routines (
 	mark_yken		// nominal verb suffix
 	mark_ymUs_		// nominal verb suffix
 	mark_ysA		// nominal verb suffix
-	
+
 	mark_suffix_with_optional_y_consonant
 	mark_suffix_with_optional_U_vowel
 	mark_suffix_with_optional_n_consonant
 	mark_suffix_with_optional_s_consonant
-	
+
 	more_than_one_syllable_word
-	
+
 	post_process_last_consonants
 	postlude
 
@@ -124,7 +124,7 @@ backwardmode (
 			)
 		)
 	)
-	
+
 	// if the last consonant before suffix is vowel and n then advance and delete
 	// if the last consonant before suffix is non vowel and n do nothing
 	// if the last consonant before suffix is not n then only delete the suffix
@@ -135,7 +135,7 @@ backwardmode (
 		((not(test 'n')) test(next vowel))
 
 	)
-	
+
 	// if the last consonant before suffix is vowel and s then advance and delete
 	// if the last consonant before suffix is non vowel and s do nothing
 	// if the last consonant before suffix is not s then only delete the suffix
@@ -145,7 +145,7 @@ backwardmode (
 		or
 		((not(test 's')) test(next vowel))
 	)
-	
+
 	// if the last consonant before suffix is vowel and y then advance and delete
 	// if the last consonant before suffix is non vowel and y do nothing
 	// if the last consonant before suffix is not y then only delete the suffix
@@ -155,134 +155,134 @@ backwardmode (
 		or
 		((not(test 'y')) test(next vowel))
 	)
-	
+
 	define mark_suffix_with_optional_U_vowel as (
 		(U (test non-vowel))
 		or
 		((not(test U)) test(next non-vowel))
 
 	)
-	
+
 	define mark_possessives as (
 		among ('m{i'}z' 'miz' 'muz' 'm{u"}z'
 		       'n{i'}z' 'niz' 'nuz' 'n{u"}z' 'm' 'n')
 		(mark_suffix_with_optional_U_vowel)
 	)
-	
+
 	define mark_sU as (
 		check_vowel_harmony
 		U
 		(mark_suffix_with_optional_s_consonant)
 	)
-	
+
 	define mark_lArI as (
 		among ('leri' 'lar{i'}')
 	)
-	
+
 	define mark_yU as (
 		check_vowel_harmony
 		U
-		(mark_suffix_with_optional_y_consonant)	
+		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_nU as (
 		check_vowel_harmony
-		among ('n{i'}' 'ni' 'nu' 'n{u"}')	
+		among ('n{i'}' 'ni' 'nu' 'n{u"}')
 	)
-	
+
 	define mark_nUn as (
 		check_vowel_harmony
-		among ('{i'}n' 'in' 'un' '{u"}n')	
+		among ('{i'}n' 'in' 'un' '{u"}n')
 		(mark_suffix_with_optional_n_consonant)
 	)
-	
+
 	define mark_yA as (
 		check_vowel_harmony
 		among('a' 'e')
 		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_nA as (
 		check_vowel_harmony
 		among('na' 'ne')
 	)
-	
+
 	define mark_DA as (
 		check_vowel_harmony
 		among('da' 'de' 'ta' 'te')
 	)
-	
+
 	define mark_ndA as (
 		check_vowel_harmony
 		among('nda' 'nde')
 	)
-	
+
 	define mark_DAn as (
 		check_vowel_harmony
 		among('dan' 'den' 'tan' 'ten')
 	)
-	
+
 	define mark_ndAn as (
 		check_vowel_harmony
 		among('ndan' 'nden')
 	)
-	
+
 	define mark_ylA as (
 		check_vowel_harmony
 		among('la' 'le')
 		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_ki as (
 		'ki'
 	)
-	
+
 	define mark_ncA as (
 		check_vowel_harmony
-		among('ca' 'ce')	
+		among('ca' 'ce')
 		(mark_suffix_with_optional_n_consonant)
 	)
-	
+
 	define mark_yUm as (
 		check_vowel_harmony
 		among ('{i'}m' 'im' 'um' '{u"}m')
 		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_sUn as (
 		check_vowel_harmony
 		among ('s{i'}n' 'sin' 'sun' 's{u"}n' )
 	)
-	
+
 	define mark_yUz as (
 		check_vowel_harmony
 		among ('{i'}z' 'iz' 'uz' '{u"}z')
 		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_sUnUz as (
 		among ('s{i'}n{i'}z' 'siniz' 'sunuz' 's{u"}n{u"}z')
 	)
-	
+
 	define mark_lAr as (
 		check_vowel_harmony
 		among ('ler' 'lar')
 	)
-	
+
 	define mark_nUz as (
 		check_vowel_harmony
 		among ('n{i'}z' 'niz' 'nuz' 'n{u"}z')
 	)
-	
+
 	define mark_DUr as (
 		check_vowel_harmony
 		among ('t{i'}r' 'tir' 'tur' 't{u"}r' 'd{i'}r' 'dir' 'dur' 'd{u"}r')
 	)
-	
+
 	define mark_cAsInA as (
 		among ('cas{i'}na' 'cesine')
 	)
-	
+
 	define mark_yDU as (
 		check_vowel_harmony
 		among ('t{i'}m' 'tim' 'tum' 't{u"}m' 'd{i'}m' 'dim' 'dum' 'd{u"}m'
@@ -292,24 +292,24 @@ backwardmode (
 		(mark_suffix_with_optional_y_consonant)
 	)
 
-	// does not fully obey vowel harmony	
+	// does not fully obey vowel harmony
 	define mark_ysA as (
 		among ('sam' 'san' 'sak' 'sem' 'sen' 'sek' 'sa' 'se')
 		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_ymUs_ as (
 		check_vowel_harmony
 		among ('m{i'}{s.}' 'mi{s.}' 'mu{s.}' 'm{u"}{s.}')
 		(mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define mark_yken as (
 		'ken' (mark_suffix_with_optional_y_consonant)
 	)
-	
+
 	define stem_nominal_verb_suffixes as (
-		[	
+		[
 			set continue_stemming_noun_suffixes
 			(mark_ymUs_ or mark_yDU or mark_ysA or mark_yken)
 			or
@@ -327,7 +327,7 @@ backwardmode (
 			(mark_DUr ] delete try([ (mark_sUnUz or mark_lAr or mark_yUm or mark_sUn or mark_yUz or true) mark_ymUs_))
 		]delete
 	)
-	
+
 	// stems noun suffix chains ending with -ki
 	define stem_suffix_chain_before_ki as (
 		[
@@ -337,7 +337,7 @@ backwardmode (
 					(mark_lAr] delete try(stem_suffix_chain_before_ki))
 					or
 					(mark_possessives] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
-					
+
 				))
 				or
 				(mark_nUn] delete try([
@@ -348,7 +348,7 @@ backwardmode (
 					(stem_suffix_chain_before_ki)
 				))
 				or
-				(mark_ndA (	
+				(mark_ndA (
 					(mark_lArI] delete)
 					or
 					((mark_sU] delete try([mark_lAr]delete stem_suffix_chain_before_ki)))
@@ -357,7 +357,7 @@ backwardmode (
 				))
 			)
 	)
-	
+
 	define stem_noun_suffixes as (
 		([mark_lAr] delete try(stem_suffix_chain_before_ki))
 		or
@@ -404,15 +404,15 @@ backwardmode (
 		)
 		or
 		([mark_lArI] delete)
-		or	
+		or
 		(stem_suffix_chain_before_ki)
 		or
 		([mark_DA or mark_yU or mark_yA] delete try([((mark_possessives] delete try([mark_lAr)) or mark_lAr) ] delete [ stem_suffix_chain_before_ki))
 		or
 		([mark_possessives or mark_sU] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
 	)
-	
-	define post_process_last_consonants as (	
+
+	define post_process_last_consonants as (
 		[substring] among (
 			'b' (<- 'p')
 			'c' (<- '{c.}')
@@ -424,7 +424,7 @@ backwardmode (
 	// after stemming if the word ends with 'd' or 'g' most probably last U is overstemmed
 	// like in 'kedim' -> 'ked'
 	// Turkish words don't usually end with 'd' or 'g'
-	// some very well known words are ignored (like 'ad' 'soyad'	
+	// some very well known words are ignored (like 'ad' 'soyad'
 	// appends U to stems ending with d or g, decides which vowel to add
 	// based on the last vowel in the stem
 	define append_U_to_stems_ending_with_d_or_g as (
@@ -437,7 +437,7 @@ backwardmode (
 		or
 		(test((goto vowel) '{o"}' or '{u"}') <+ '{u"}')
 	)
-	
+
 )
 
 // Tests if there are more than one syllables
@@ -457,7 +457,7 @@ define postlude as (
 	backwards (
 		do append_U_to_stems_ending_with_d_or_g
 		do post_process_last_consonants
-		
+
 	)
 )
 
@@ -469,7 +469,7 @@ define stem as (
 			continue_stemming_noun_suffixes
 			do stem_noun_suffixes
 		)
-		
+
 	postlude
 	)
 )
