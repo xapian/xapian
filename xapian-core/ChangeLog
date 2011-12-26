@@ -1,3 +1,13 @@
+Mon Dec 26 12:13:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc: Change
+	  QueryParser::set_default_op() to reject operators which don't make
+	  sense to set, and explicitly document all the operators which are
+	  allowed.
+	* tests/queryparsertest.cc: Check that bad operators are rejected in
+	  existing testcase qp_default_op2.  Add new testcase qp_default_op3 to
+	  check that good operators can be set and work in a simple testcase.
+
 Mon Dec 26 09:12:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_brass.h,

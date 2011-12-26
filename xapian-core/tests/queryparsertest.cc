@@ -2458,13 +2458,13 @@ static bool test_qp_stopword_group1()
 #endif
 }
 
-/// Regression test for bug with default_op set such that we get an exception.
-// Fixed in 1.0.23 and 1.2.4.
+/// Check that QueryParser::set_default_op() rejects inappropriate ops.
 static bool test_qp_default_op2()
 {
     Xapian::QueryParser qp;
     static const Xapian::Query::op ops[] = {
 	Xapian::Query::OP_AND_NOT,
+	Xapian::Query::OP_XOR,
 	Xapian::Query::OP_AND_MAYBE,
 	Xapian::Query::OP_FILTER,
 	Xapian::Query::OP_VALUE_RANGE,
@@ -2475,11 +2475,43 @@ static bool test_qp_default_op2()
     const Xapian::Query::op * p;
     for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
 	tout << *p << endl;
-	qp.set_default_op(*p);
-	// Before the fix, we tried to free an object twice when parsing the
-	// following query with default_op set such that we get an exception.
 	TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		       qp.parse_query("a-b NEAR c NEAR d"));
+		       qp.set_default_op(*p));
+	TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
+    }
+    return true;
+}
+
+struct qp_default_op3_test {
+    Xapian::Query::op op;
+    const char *expect;
+};
+
+/// Check that QueryParser::set_default_op() accepts appropriate ops.
+static bool test_qp_default_op3()
+{
+    Xapian::QueryParser qp;
+    static const qp_default_op3_test tests[] = {
+	{ Xapian::Query::OP_AND,
+	  "Xapian::Query((a:(pos=1) AND b:(pos=2) AND c:(pos=3)))" },
+	{ Xapian::Query::OP_OR,
+	  "Xapian::Query((a:(pos=1) OR b:(pos=2) OR c:(pos=3)))" },
+	{ Xapian::Query::OP_PHRASE,
+	  "Xapian::Query((a:(pos=1) PHRASE 12 b:(pos=2) PHRASE 12 c:(pos=3)))" },
+	{ Xapian::Query::OP_NEAR,
+	  "Xapian::Query((a:(pos=1) NEAR 12 b:(pos=2) NEAR 12 c:(pos=3)))" },
+	{ Xapian::Query::OP_ELITE_SET,
+	  "Xapian::Query((a:(pos=1) ELITE_SET 10 b:(pos=2) ELITE_SET 10 c:(pos=3)))" },
+	{ Xapian::Query::OP_SYNONYM,
+	  "Xapian::Query((a:(pos=1) SYNONYM b:(pos=2) SYNONYM c:(pos=3)))" },
+    };
+    const qp_default_op3_test * p;
+    for (p = tests; p - tests != sizeof(tests) / sizeof(*tests); ++p) {
+	tout << p ->op<< endl;
+	qp.set_default_op(p->op);
+	// Check that get_default_op() returns what we just set.
+	TEST_EQUAL(qp.get_default_op(), p->op);
+	TEST_EQUAL(qp.parse_query("A B C").get_description(), p->expect);
     }
     return true;
 }
@@ -2522,6 +2554,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_phrase1),
     TESTCASE(qp_stopword_group1),
     TESTCASE(qp_default_op2),
+    TESTCASE(qp_default_op3),
     END_OF_TESTCASES
 };
 

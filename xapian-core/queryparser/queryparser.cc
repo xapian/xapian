@@ -92,6 +92,30 @@ QueryParser::set_stopper(const Stopper * stopper)
 void
 QueryParser::set_default_op(Query::op default_op)
 {
+    switch (default_op) {
+	case Query::OP_AND:
+	case Query::OP_OR:
+	case Query::OP_NEAR:
+	case Query::OP_PHRASE:
+	case Query::OP_ELITE_SET:
+	case Query::OP_SYNONYM:
+	    // These are OK.
+	    break;
+	default:
+	    throw Xapian::InvalidArgumentError(
+		    "QueryParser::set_default_op() only accepts "
+		    "OP_AND"
+		    ", "
+		    "OP_OR"
+		    ", "
+		    "OP_NEAR"
+		    ", "
+		    "OP_PHRASE"
+		    ", "
+		    "OP_ELITE_SET"
+		    " or "
+		    "OP_SYNONYM");
+    }
     internal->default_op = default_op;
 }
 

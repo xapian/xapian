@@ -465,12 +465,14 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param default_op	The operator to use to combine non-filter
      *				query items when no explicit operator is used.
      *
-     *				The most useful values for this are OP_OR (the
-     *				default) and OP_AND.  OP_NEAR and OP_PHRASE can
-     *				also be useful.
-     *
      *				So for example, 'weather forecast' is parsed as
      *				if it were 'weather OR forecast' by default.
+     *
+     *				The most useful values for this are OP_OR (the
+     *				default) and OP_AND.  OP_NEAR, OP_PHRASE,
+     *				OP_ELITE_SET and OP_SYNONYM are also permitted.
+     *				Passing other values will result in
+     *				InvalidArgumentError being thrown.
      */
     void set_default_op(Query::op default_op);
 
