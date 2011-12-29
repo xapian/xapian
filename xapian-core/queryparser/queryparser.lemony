@@ -296,6 +296,48 @@ Term::make_term(const string & prefix) const
     return term;
 }
 
+// Iterator shim to allow building a synonym query from a TermIterator pair.
+class SynonymIterator {
+    Xapian::TermIterator i;
+
+    Xapian::termpos pos;
+
+    const Xapian::Query * first;
+
+  public:
+    SynonymIterator(const Xapian::TermIterator & i_,
+		    Xapian::termpos pos_ = 0,
+		    const Xapian::Query * first_ = NULL)
+	: i(i_), pos(pos_), first(first_) { }
+
+    SynonymIterator & operator++() {
+	if (first)
+	    first = NULL;
+	else
+	    ++i;
+	return *this;
+    }
+
+    const Xapian::Query operator*() const {
+	if (first) return *first;
+	return Xapian::Query(*i, 1, pos);
+    }
+
+    bool operator==(const SynonymIterator & o) {
+	return i == o.i && first == o.first;
+    }
+
+    bool operator!=(const SynonymIterator & o) {
+	return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+    
 Query
 Term::get_query_with_synonyms() const
 {
@@ -327,10 +369,9 @@ Term::get_query_with_synonyms() const
 	    syn = db.synonyms_begin(term);
 	    end = db.synonyms_end(term);
 	}
-	while (syn != end) {
-	    q = Query(Query::OP_SYNONYM, q, Query(*syn, 1, pos));
-	    ++syn;
-	}
+	q = Query(q.OP_SYNONYM,
+		  SynonymIterator(syn, pos, &q),
+		  SynonymIterator(end));
     }
     return q;
 }
@@ -1431,16 +1472,12 @@ reprocess:
 	    subqs2.clear();
 
 	    // Use the position of the first term for the synonyms.
-	    Xapian::termpos pos = (*begin)->pos;
+	    Query q(Query::OP_SYNONYM,
+		    SynonymIterator(syn, (*begin)->pos, &q_original_terms),
+		    SynonymIterator(end));
+	    subqs.push_back(q);
+
 	    begin = i;
-	    while (syn != end) {
-		subqs2.push_back(Query(*syn, 1, pos));
-		++syn;
-	    }
-	    Query q_synonym_terms(Query::OP_SYNONYM, subqs2.begin(), subqs2.end());
-	    subqs2.clear();
-	    subqs.push_back(Query(Query::OP_SYNONYM,
-				  q_original_terms, q_synonym_terms));
 	}
     } else {
 	vector<Term*>::const_iterator i;

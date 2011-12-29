@@ -1051,30 +1051,6 @@ DEFINE_TESTCASE(getmterms2, backend) {
     return true;
 }
 
-// tests that the collapsing on termpos optimisation works
-DEFINE_TESTCASE(poscollapse1, backend) {
-    Xapian::Query myquery1(Xapian::Query::OP_OR,
-		     Xapian::Query("this", 1, 1),
-		     Xapian::Query("this", 1, 1));
-    Xapian::Query myquery2("this", 2, 1);
-
-    if (verbose) {
-	tout << myquery1.get_description() << "\n";
-	tout << myquery2.get_description() << "\n";
-    }
-
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(myquery1);
-    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
-
-    enquire.set_query(myquery2);
-    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
-
-    TEST_EQUAL(mymset1, mymset2);
-
-    return true;
-}
-
 // test that running a query twice returns the same results
 DEFINE_TESTCASE(repeatquery1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));

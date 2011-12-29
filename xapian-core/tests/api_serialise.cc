@@ -172,30 +172,30 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
     Xapian::Query q;
     Xapian::Query q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query()");
+    TEST_EQUAL(q.get_description(), "Query()");
 
     q = Xapian::Query("hello");
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(hello)");
+    TEST_EQUAL(q.get_description(), "Query(hello)");
 
     q = Xapian::Query("hello", 1, 1);
     q2 = Xapian::Query::unserialise(q.serialise());
     // Regression test for fix in Xapian 1.0.0.
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(hello:(pos=1))");
+    TEST_EQUAL(q.get_description(), "Query(hello@1)");
 
     q = Xapian::Query(q.OP_OR, Xapian::Query("hello"), Xapian::Query("world"));
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query((hello OR world))");
+    TEST_EQUAL(q.get_description(), "Query((hello OR world))");
 
     q = Xapian::Query(q.OP_OR,
 		      Xapian::Query("hello", 1, 1),
 		      Xapian::Query("world", 1, 1));
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query((hello:(pos=1) OR world:(pos=1)))");
+    TEST_EQUAL(q.get_description(), "Query((hello@1 OR world@1))");
 
     static const char * phrase[] = { "shaken", "not", "stirred" };
     q = Xapian::Query(q.OP_PHRASE, phrase, phrase + 3);
@@ -213,20 +213,20 @@ DEFINE_TESTCASE(serialise_query2, !backend) {
     Xapian::Query q(&s1);
     Xapian::Query q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
 
     Xapian::ValueMapPostingSource s2(11);
     s2.set_default_weight(5.0);
     q = Xapian::Query(&s2);
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
 
     Xapian::FixedWeightPostingSource s3(5.5);
     q = Xapian::Query(&s3);
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
 
     return true;
 }
@@ -238,20 +238,20 @@ DEFINE_TESTCASE(serialise_query3, !backend) {
     Xapian::Registry reg;
     Xapian::Query q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
 
     Xapian::ValueMapPostingSource s2(11);
     s2.set_default_weight(5.0);
     q = Xapian::Query(&s2);
     q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
 
     Xapian::FixedWeightPostingSource s3(5.5);
     q = Xapian::Query(&s3);
     q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
 
     return true;
 }
@@ -292,12 +292,12 @@ class MyPostingSource2 : public Xapian::ValuePostingSource {
 DEFINE_TESTCASE(serialise_query4, !backend) {
     MyPostingSource2 s1("foo");
     Xapian::Query q(&s1);
-    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(MyPostingSource2(foo)))");
+    TEST_EQUAL(q.get_description(), "Query(PostingSource(MyPostingSource2(foo)))");
     std::string serialised = q.serialise();
 
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised));
+    TEST_EXCEPTION(Xapian::SerialisationError, Xapian::Query::unserialise(serialised));
     Xapian::Registry reg;
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised, reg));
+    TEST_EXCEPTION(Xapian::SerialisationError, Xapian::Query::unserialise(serialised, reg));
 
     reg.register_posting_source(s1);
     Xapian::Query q2 = Xapian::Query::unserialise(serialised, reg);

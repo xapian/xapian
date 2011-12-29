@@ -23,11 +23,11 @@
 #ifndef OM_HGUARD_MULTIMATCH_H
 #define OM_HGUARD_MULTIMATCH_H
 
-#include "api/omqueryinternal.h"
 #include "submatch.h"
 
 #include <vector>
 
+#include "xapian/query.h"
 #include "xapian/weight.h"
 
 class MultiMatch
@@ -38,7 +38,7 @@ class MultiMatch
 
 	const Xapian::Database db;
 
-	const Xapian::Query::Internal *query;
+	Xapian::Query query;
 
 	Xapian::doccount collapse_max;
 
@@ -100,7 +100,7 @@ class MultiMatch
 	 *  @param have_mdecider Is there a Xapian::MatchDecider in use?
 	 */
 	MultiMatch(const Xapian::Database &db_,
-		   const Xapian::Query::Internal * query,
+		   const Xapian::Query & query,
 		   Xapian::termcount qlen,
 		   const Xapian::RSet * omrset,
 		   Xapian::doccount collapse_max_,

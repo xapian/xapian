@@ -41,27 +41,27 @@ struct test {
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
 DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
     static const test test_queries[] = {
-	{ "hello", "hello:(pos=1)" },
-	{ "~hello", "(hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1))" },
-	{ "hello world", "(hello:(pos=1) OR world:(pos=2))" },
-	{ "~hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
-	{ "world ~hello", "(world:(pos=1) OR (hello:(pos=2) SYNONYM hi:(pos=2) SYNONYM howdy:(pos=2)))" },
+	{ "hello", "hello@1" },
+	{ "~hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
+	{ "hello world", "(hello@1 OR world@2)" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
+	{ "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
 	{ NULL, NULL }
     };
     static const test test_queries_auto[] = {
-	{ "hello", "(hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1))" },
-	{ "~hello", "(hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1))" },
-	{ "hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
-	{ "~hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
-	{ "world ~hello", "(world:(pos=1) OR (hello:(pos=2) SYNONYM hi:(pos=2) SYNONYM howdy:(pos=2)))" },
+	{ "hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
+	{ "~hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
+	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
+	{ "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
 	{ NULL, NULL }
     };
     static const  test test_queries_partial_auto[] = {
-	{ "hello", "hello:(pos=1)" },
-	{ "~hello", "hello:(pos=1)" },
-	{ "hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
-	{ "~hello world", "((hello:(pos=1) SYNONYM hi:(pos=1) SYNONYM howdy:(pos=1)) OR world:(pos=2))" },
-	{ "world ~hello", "(world:(pos=1) OR hello:(pos=2))" },
+	{ "hello", "hello@1" },
+	{ "~hello", "hello@1" },
+	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
+	{ "world ~hello", "(world@1 OR hello@2)" },
 	{ NULL, NULL }
     };
 
@@ -87,7 +87,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	    unsigned f = qp.FLAG_SYNONYM | qp.FLAG_PARTIAL | qp.FLAG_DEFAULT;
 	    Xapian::Query qobj = qp.parse_query(p->query, f);
 	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
+	    expect = string("Query(") + expect + ')';
 	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
 	} catch (const Xapian::Error &e) {
@@ -109,7 +109,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	    unsigned f = qp.FLAG_AUTO_SYNONYMS | qp.FLAG_DEFAULT;
 	    Xapian::Query qobj = qp.parse_query(p->query, f);
 	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
+	    expect = string("Query(") + expect + ')';
 	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
 	} catch (const Xapian::Error &e) {
@@ -132,7 +132,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	    f |= qp.FLAG_DEFAULT;
 	    Xapian::Query qobj = qp.parse_query(p->query, f);
 	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
+	    expect = string("Query(") + expect + ')';
 	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
 	} catch (const Xapian::Error &e) {

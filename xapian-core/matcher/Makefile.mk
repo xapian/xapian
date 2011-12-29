@@ -53,7 +53,6 @@ lib_src +=\
 	matcher/multixorpostlist.cc\
 	matcher/orpostlist.cc\
 	matcher/phrasepostlist.cc\
-	matcher/queryoptimiser.cc\
 	matcher/selectpostlist.cc\
 	matcher/synonympostlist.cc\
 	matcher/valuegepostlist.cc\

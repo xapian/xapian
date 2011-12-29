@@ -157,14 +157,17 @@ DEFINE_TESTCASE(synonym1, backend) {
     subqueries_list.push_back(subqueries);
     // When the top-level operator is OR, the synonym part has an estimated
     // termfreq of 35.  When the top-level operator is SYNONYM, the whole query
-    // has an estimated termfreq of 35, and is in fact the same as the synonym
-    // part in the OR query, except that the wqf of "date" is 2.  We're
-    // currently not using the wqfs of components of synonyms, so this
-    // difference has no effect on the weightings.  Therefore, for the 1
-    // document which does not contain "date", we get the same result with
-    // SYNONYM as with OR.
-    subqueries_sameweight_count.push_back(1);
-    subqueries_diffweight_count.push_back(33);
+    // has an estimated termfreq of 66, which is rather bogus, but that's the
+    // current situation here (1.2 did better as it flattened this into a
+    // single OP_SYNONYM operator and then merged the two "date" terms to one
+    // with wqf=2.  We've decided we shouldn't do such merging from 1.3.x on
+    // (merging to sum the scale_factors is fine, but we don't do that yet -
+    // FIXME).
+    //
+    // Anyway, this means that currently the weights are different for all
+    // matches.
+    subqueries_sameweight_count.push_back(0);
+    subqueries_diffweight_count.push_back(34);
 
     subqueries.clear();
     subqueries.push_back(Xapian::Query("sky"));

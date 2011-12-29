@@ -24,7 +24,7 @@
 
 #include "backends/database.h"
 #include "debuglog.h"
-#include "api/omqueryinternal.h"
+#include "api/queryinternal.h"
 #include "submatch.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
@@ -42,7 +42,7 @@ class LocalSubMatch : public SubMatch {
     const Xapian::Weight::Internal * stats;
 
     /// The original query before any rearrangement.
-    const Xapian::Query::Internal * query;
+    Xapian::Query query;
 
     /// The query length (used by some weighting schemes).
     Xapian::termcount qlen;
@@ -66,7 +66,7 @@ class LocalSubMatch : public SubMatch {
   public:
     /// Constructor.
     LocalSubMatch(const Xapian::Database::Internal *db_,
-		  const Xapian::Query::Internal * query_,
+		  const Xapian::Query & query_,
 		  Xapian::termcount qlen_,
 		  const Xapian::RSet & rset_,
 		  const Xapian::Weight *wt_factory_)
@@ -96,12 +96,11 @@ class LocalSubMatch : public SubMatch {
     PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 				     double factor);
 
-    /** Convert an OP_LEAF query to a PostList.
-     *
-     *  This is called by QueryOptimiser when it reaches an OP_LEAF query.
-     */
-    PostList * postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
-					   double factor);
+    Xapian::Weight * make_wt(const std::string & term,
+			     Xapian::termcount wqf,
+			     double factor);
+
+    LeafPostList * open_post_list(const std::string& term, double max_part);
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

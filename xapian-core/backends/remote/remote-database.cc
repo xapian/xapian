@@ -544,7 +544,7 @@ RemoteDatabase::do_close()
 }
 
 void
-RemoteDatabase::set_query(const Xapian::Query::Internal *query,
+RemoteDatabase::set_query(const Xapian::Query& query,
 			 Xapian::termcount qlen,
 			 Xapian::doccount collapse_max,
 			 Xapian::valueno collapse_key,
@@ -557,7 +557,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 const Xapian::RSet &omrset,
 			 const vector<Xapian::MatchSpy *> & matchspies)
 {
-    string tmp = query->serialise();
+    string tmp = query.serialise();
     string message = encode_length(tmp.size());
     message += tmp;
 

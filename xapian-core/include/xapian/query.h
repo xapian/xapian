@@ -1,11 +1,8 @@
-/** \file query.h
- * \brief Classes for representing a query
+/** @file query.h
+ * @brief Xapian::Query API class
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
- * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
- * Copyright 2008 Richard Boulton
+/* Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #ifndef XAPIAN_INCLUDED_QUERY_H
@@ -30,539 +26,327 @@
 #include <vector>
 
 #include <xapian/intrusive_ptr.h>
-#include <xapian/types.h>
+#include <xapian/postingiterator.h>
+#include <xapian/registry.h>
 #include <xapian/termiterator.h>
+#include <xapian/types.h>
 #include <xapian/visibility.h>
 
-// FIXME: sort this out so we avoid exposing Xapian::Query::Internal
-// - we need to at present so that the Xapian::Query's template ctors
-// compile.
-class LocalSubMatch;
-class MultiMatch;
-class QueryOptimiser;
-struct SortPosName;
+class QueryOptimiser; // FIXME
 
 namespace Xapian {
 
 class PostingSource;
-class Registry;
 
-/** Class representing a query.
- *
- *  Queries are represented as a tree of objects.
- */
+/// Class representing a query.
 class XAPIAN_VISIBILITY_DEFAULT Query {
-    public:
-	/// Class holding details of the query
-	class Internal;
-	/// @private @internal Reference counted internals.
-	Xapian::Internal::intrusive_ptr<Internal> internal;
+  public:
+    /// Class representing the query internals.
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
-	/// Enum of possible query operations
-        typedef enum {
-	    /// Return iff both subqueries are satisfied
-	    OP_AND,
+    static const Xapian::Query MatchNothing;
+    static const Xapian::Query MatchAll;
 
-	    /// Return if either subquery is satisfied
-	    OP_OR,
+    enum op {
+	OP_AND = 0,
+	OP_OR = 1,
+	OP_AND_NOT = 2,
+	OP_XOR = 3,
+	OP_AND_MAYBE = 4,
+	OP_FILTER = 5,
+	OP_NEAR = 6,
+	OP_PHRASE = 7,
+	OP_VALUE_RANGE = 8,
+	OP_SCALE_WEIGHT = 9,
 
-	    /// Return if left but not right satisfied
-	    OP_AND_NOT,
-
-	    /// Return if one query satisfied, but not both
-	    OP_XOR,
-
-	    /// Return iff left satisfied, but use weights from both
-	    OP_AND_MAYBE,
-
-	    /// As AND, but use only weights from left subquery
-	    OP_FILTER,
-
-	    /** Find occurrences of a list of terms with all the terms
-	     *  occurring within a specified window of positions.
-	     *
-	     *  Each occurrence of a term must be at a different position,
-	     *  but the order they appear in is irrelevant.
-	     *
-	     *  The window parameter should be specified for this operation,
-	     *  but will default to the number of terms in the list.
-	     */
-	    OP_NEAR,
-
-	    /** Find occurrences of a list of terms with all the terms
-	     *  occurring within a specified window of positions, and all
-	     *  the terms appearing in the order specified.
-	     *
-	     *  Each occurrence of a term must be at a different position.
-	     *
-	     *  The window parameter should be specified for this operation,
-	     *  but will default to the number of terms in the list.
-	     */
-	    OP_PHRASE,
-
-	    /** Filter by a range test on a document value. */
-	    OP_VALUE_RANGE,
-
-	    /** Scale the weight of a subquery by the specified factor.
-	     *
-	     *  A factor of 0 means this subquery will contribute no weight to
-	     *  the query - it will act as a purely boolean subquery.
-	     *
-	     *  If the factor is negative, Xapian::InvalidArgumentError will
-	     *  be thrown.
-	     */
-	    OP_SCALE_WEIGHT,
-
-	    /** Pick the best N subqueries and combine with OP_OR.
-	     *
-	     *  If you want to implement a feature which finds documents
-	     *  similar to a piece of text, an obvious approach is to build an
-	     *  "OR" query from all the terms in the text, and run this query
-	     *  against a database containing the documents.  However such a
-	     *  query can contain a lots of terms and be quite slow to perform,
-	     *  yet many of these terms don't contribute usefully to the
-	     *  results.
-	     *
-	     *  The OP_ELITE_SET operator can be used instead of OP_OR in this
-	     *  situation.  OP_ELITE_SET selects the most important ''N'' terms
-	     *  and then acts as an OP_OR query with just these, ignoring any
-	     *  other terms.  This will usually return results just as good as
-	     *  the full OP_OR query, but much faster.
-	     *
-	     *  In general, the OP_ELITE_SET operator can be used when you have
-	     *  a large OR query, but it doesn't matter if the search
-	     *  completely ignores some of the less important terms in the
-	     *  query.
-	     *
-	     *  The subqueries don't have to be terms, but if they aren't then
-	     *  OP_ELITE_SET will look at the estimated frequencies of the
-	     *  subqueries and so could pick a subset which don't actually
-	     *  match any documents even if the full OR would match some.
-	     *
-	     *  You can specify a parameter to the query constructor which
-	     *  control the number of terms which OP_ELITE_SET will pick.  If
-	     *  not specified, this defaults to 10 (or
-	     *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
-	     *  than 100 subqueries, but this rather arbitrary special case
-	     *  will be dropped in 1.3.0).  For example, this will pick the
-	     *  best 7 terms:
-	     *
-	     *  <pre>
-	     *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
-	     *  </pre>
-	     *
-	     * If the number of subqueries is less than this threshold,
-	     * OP_ELITE_SET behaves identically to OP_OR.
-	     */
-	    OP_ELITE_SET,
-
-	    /** Filter by a greater-than-or-equal test on a document value. */
-	    OP_VALUE_GE,
-
-	    /** Filter by a less-than-or-equal test on a document value. */
-	    OP_VALUE_LE,
-
-	    /** Treat a set of queries as synonyms.
-	     *
-	     *  This returns all results which match at least one of the
-	     *  queries, but weighting as if all the sub-queries are instances
-	     *  of the same term: so multiple matching terms for a document
-	     *  increase the wdf value used, and the term frequency is based on
-	     *  the number of documents which would match an OR of all the
-	     *  subqueries.
-	     *
-	     *  The term frequency used will usually be an approximation,
-	     *  because calculating the precise combined term frequency would
-	     *  be overly expensive.
-	     *
-	     *  Identical to OP_OR, except for the weightings returned.
-	     */
-	    OP_SYNONYM
-	} op;
-
-	/** Copy constructor. */
-	Query(const Query & copyme);
-
-	/** Assignment. */
-	Query & operator=(const Query & copyme);
-
-	/** Default constructor: makes an empty query which matches no
-	 *  documents.
+	/** Pick the best N subqueries and combine with OP_OR.
 	 *
-	 *  Also useful for defining a Query object to be assigned to later.
+	 *  If you want to implement a feature which finds documents similar to
+	 *  a piece of text, an obvious approach is to build an "OR" query from
+	 *  all the terms in the text, and run this query against a database
+	 *  containing the documents.  However such a query can contain a lots
+	 *  of terms and be quite slow to perform, yet many of these terms
+	 *  don't contribute usefully to the results.
 	 *
-	 *  An exception will be thrown if an attempt is made to use an
-	 *  undefined query when building up a composite query.
+	 *  The OP_ELITE_SET operator can be used instead of OP_OR in this
+	 *  situation.  OP_ELITE_SET selects the most important ''N'' terms and
+	 *  then acts as an OP_OR query with just these, ignoring any other
+	 *  terms.  This will usually return results just as good as the full
+	 *  OP_OR query, but much faster.
+	 *
+	 *  In general, the OP_ELITE_SET operator can be used when you have a
+	 *  large OR query, but it doesn't matter if the search completely
+	 *  ignores some of the less important terms in the query.
+	 *
+	 *  The subqueries don't have to be terms, but if they aren't then
+	 *  OP_ELITE_SET will look at the estimated frequencies of the
+	 *  subqueries and so could pick a subset which don't actually
+	 *  match any documents even if the full OR would match some.
+	 *
+	 *  You can specify a parameter to the query constructor which control
+	 *  the number of terms which OP_ELITE_SET will pick.  If not
+	 *  specified, this defaults to 10 (Xapian used to default to
+	 *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
+	 *  than 100 subqueries, but this rather arbitrary special case was
+	 *  dropped in 1.3.0).  For example, this will pick the best 7 terms:
+	 *
+	 *  <pre>
+	 *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
+	 *  </pre>
+	 *
+	 * If the number of subqueries is less than this threshold,
+	 * OP_ELITE_SET behaves identically to OP_OR.
 	 */
-	Query();
+	OP_ELITE_SET = 10,
+	OP_VALUE_GE = 11,
+	OP_VALUE_LE = 12,
+	OP_SYNONYM = 13
+    };
 
-	/** Destructor. */
-	~Query();
+    /// Default constructor.
+    Query() : internal(0) { }
 
-	/** A query consisting of a single term. */
-	Query(const std::string & tname_, Xapian::termcount wqf_ = 1,
-	      Xapian::termpos pos_ = 0);
+    /// Destructor.
+    ~Query() { }
 
-	/** A query consisting of two subqueries, opp-ed together. */
-	Query(Query::op op_, const Query & left, const Query & right);
+    /** Copying is allowed.
+     *
+     *  The internals are reference counted, so copying is cheap.
+     */
+    Query(const Query & o) : internal(o.internal) { }
 
-	/** A query consisting of two termnames opp-ed together. */
-	Query(Query::op op_,
-	      const std::string & left, const std::string & right);
+    /** Copying is allowed.
+     *
+     *  The internals are reference counted, so assignment is cheap.
+     */
+    Query & operator=(const Query & o) { internal = o.internal; return *this; }
 
-	/** Combine a number of Xapian::Query-s with the specified operator.
-	 *
-	 *  The Xapian::Query objects are specified with begin and end
-	 *  iterators.
-	 * 
-	 *  AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries.
-	 *  Other operators take exactly two subqueries.
-	 *
-	 *  The iterators may be to Xapian::Query objects, pointers to
-	 *  Xapian::Query objects, or termnames (std::string-s).
-	 *
-	 *  For NEAR and PHRASE, a window size can be specified in parameter.
-	 *
-	 *  For ELITE_SET, the elite set size can be specified in parameter.
-	 */
-	template <class Iterator>
-	Query(Query::op op_, Iterator qbegin, Iterator qend,
-	      Xapian::termcount parameter = 0);
+    Query(const std::string & term,
+	  Xapian::termcount wqf = 1,
+	  Xapian::termpos pos = 0);
 
-#ifdef SWIG
-	// SWIG's %template doesn't seem to handle a templated ctor so we
-	// provide this fake specialised form of the above prototype.
-	Query::Query(Query::op op_,
-		     XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-		     termcount parameter = 0);
-#endif
+    Query(Xapian::PostingSource * source);
 
-	/** Apply the specified operator to a single Xapian::Query object, with
-	 *  a double parameter.
-	 */
-	Query(Query::op op_, Xapian::Query q, double parameter);
+    // FIXME: new form for OP_SCALE_WEIGHT - do we want this?
+    Query(double factor, const Xapian::Query & subquery);
 
-	/** Construct a value range query on a document value.
-	 *
-	 *  A value range query matches those documents which have a value
-	 *  stored in the slot given by @a slot which is in the range
-	 *  specified by @a begin and @a end (in lexicographical
-	 *  order), including the endpoints.
-	 *
-	 *  @param op_   The operator to use for the query.  Currently, must
-	 *               be OP_VALUE_RANGE.
-	 *  @param slot  The slot number to get the value from.
-	 *  @param begin The start of the range.
-	 *  @param end   The end of the range.
-	 */
-	Query(Query::op op_, Xapian::valueno slot,
-	      const std::string &begin, const std::string &end);
+    // FIXME: legacy form of above (assuming we want to add that...)
+    Query(op op_, const Xapian::Query & subquery, double factor);
 
-	/** Construct a value comparison query on a document value.
-	 *
-	 *  This query matches those documents which have a value stored in the
-	 *  slot given by @a slot which compares, as specified by the
-	 *  operator, to @a value.
-	 *
-	 *  @param op_   The operator to use for the query.  Currently, must
-	 *               be OP_VALUE_GE or OP_VALUE_LE.
-	 *  @param slot  The slot number to get the value from.
-	 *  @param value The value to compare.
-	 */
-	Query(Query::op op_, Xapian::valueno slot, const std::string &value);
-
-	/** Construct an external source query.
-	 *
-	 *  An attempt to clone the posting source will be made immediately, so
-	 *  if the posting source supports clone(), the source supplied may be
-	 *  safely deallocated after this call.  If the source does not support
-	 *  clone(), the caller must ensure that the posting source remains
-	 *  valid until the Query is deallocated.
-	 *
-	 *  @param external_source The source to use in the query.
-	 */
-	explicit Query(Xapian::PostingSource * external_source);
-
-	/** A query which matches all documents in the database. */
-	static const Xapian::Query MatchAll;
-
-	/** A query which matches no documents. */
-	static const Xapian::Query MatchNothing;
-
-	/** Get the length of the query, used by some ranking formulae.
-	 *  This value is calculated automatically - if you want to override
-	 *  it you can pass a different value to Enquire::set_query().
-	 */
-	Xapian::termcount get_length() const;
-
-	/** Return a Xapian::TermIterator returning all the terms in the query,
-	 *  in order of termpos.  If multiple terms have the same term
-	 *  position, their order is unspecified.  Duplicates (same term and
-	 *  termpos) will be removed.
-	 */
-	TermIterator get_terms_begin() const;
-
-	/** Return a Xapian::TermIterator to the end of the list of terms in the
-	 *  query.
-	 */
-	TermIterator get_terms_end() const {
-	    return TermIterator();
-	}
-
-	/** Test if the query is empty (i.e. was constructed using
-	 *  the default ctor or with an empty iterator ctor).
-	 */
-	bool empty() const;
-
-	/** Serialise query into a string.
-	 *
-	 *  The query representation may change between Xapian releases:
-	 *  even between minor versions.  However, it is guaranteed not to
-	 *  change unless the remote database protocol has also changed between
-	 *  releases.
-	 */
-	std::string serialise() const;
-
-	/** Unserialise a query from a string produced by serialise().
-	 *
-	 *  This method will fail if the query contains any external
-	 *  PostingSource leaf nodes.
-	 *
-	 *  @param s The string representing the serialised query.
-	 */
-	static Query unserialise(const std::string &s);
-
-	/** Unserialise a query from a string produced by serialise().
-	 *
-	 *  The supplied registry will be used to attempt to unserialise any
-	 *  external PostingSource leaf nodes.  This method will fail if the
-	 *  query contains any external PostingSource leaf nodes which are not
-	 *  registered in the registry.
-	 *
-	 *  @param s The string representing the serialised query.
-	 *  @param registry Xapian::Registry to use.
-	 */
-	static Query unserialise(const std::string & s,
-				 const Registry & registry);
-
-	/// Return a string describing this object.
-	std::string get_description() const;
-
-    private:
-	void add_subquery(const Query & subq);
-	void add_subquery(const Query * subq);
-	void add_subquery(const std::string & tname);
-	void start_construction(Query::op op_, Xapian::termcount parameter);
-	void end_construction();
-	void abort_construction();
-};
-
-template <class Iterator>
-Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
-    : internal(0)
-{
-    try {
-	start_construction(op_, parameter);
-
-	/* Add all the elements */
-	while (qbegin != qend) {
-	    add_subquery(*qbegin);
-	    ++qbegin;
-	}
-
-	end_construction();
-    } catch (...) {
-	abort_construction();
-	throw;
+    // Pairwise.
+    Query(op op_, const Xapian::Query & a, const Xapian::Query & b)
+    {
+	init(op_, 2);
+	add_subquery(a);
+	add_subquery(b);
+	done();
     }
-}
 
-#ifndef SWIG // SWIG has no interest in the internal class, so hide it completely.
+    // Pairwise with std::string.
+    Query(op op_, const std::string & a, const std::string & b)
+    {
+	init(op_, 2);
+	add_subquery(a);
+	add_subquery(b);
+	done();
+    }
 
-/// @private @internal Internal class, implementing most of Xapian::Query.
-class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::intrusive_base {
-    friend class ::LocalSubMatch;
-    friend class ::MultiMatch;
-    friend class ::QueryOptimiser;
-    friend struct ::SortPosName;
-    friend class Query;
-    public:
-        static const int OP_LEAF = -1;
-        static const int OP_EXTERNAL_SOURCE = -2;
+    // OP_VALUE_GE/OP_VALUE_LE
+    Query(op op_, Xapian::valueno slot, const std::string & limit);
 
-	/// The container type for storing pointers to subqueries
-	typedef std::vector<Internal *> subquery_list;
+    // OP_VALUE_RANGE
+    Query(op op_, Xapian::valueno slot,
+	  const std::string & begin, const std::string & end);
 
-	/// Type storing the operation
-	typedef int op_t;
+    template<typename I>
+    Query(op op_, I begin, I end, Xapian::termcount window = 0)
+    {
+	if (begin != end) {
+	    typedef typename std::iterator_traits<I>::iterator_category iterator_category;
+	    init(op_, window, begin, end, iterator_category());
+	    for (I i = begin; i != end; ++i) {
+		add_subquery(*i);
+	    }
+	}
+	done();
+    }
 
-    private:
-	/// Operation to be performed at this node
-	Xapian::Query::Internal::op_t op;
+    const TermIterator get_terms_begin() const;
 
-	/// Sub queries on which to perform operation
-	subquery_list subqs;
+    const TermIterator get_terms_end() const { return TermIterator(); }
 
-	/** For NEAR or PHRASE, how close terms must be to match: all terms
-	 *  within the operation must occur in a window of this size.
-	 *
-	 * For ELITE_SET, the number of terms to select from those specified.
-	 *
-	 * For RANGE, the value number to apply the range test to.
-	 *
-	 * For a leaf node, this is the within query frequency of the term.
-	 */
-	Xapian::termcount parameter;
+    Xapian::termcount get_length() const;
 
-	/** Term that this node represents, or start of a range query.
-	 *
-	 *  For a leaf node, this holds the term name.  For an OP_VALUE_RANGE
-	 *  query this holds the start of the range.  For an OP_VALUE_GE or
-	 *  OP_VALUE_LE query this holds the value to compare against.
-	 */
-	std::string tname;
+    bool empty() const { return internal.get() == 0; }
 
-	/** Used to store the end of a range query. */
-	std::string str_parameter;
+    std::string serialise() const;
 
-	/// Position in query of this term - leaf node only
-	Xapian::termpos term_pos;
+    static const Query unserialise(const std::string & s,
+				   const Registry & reg = Registry());
 
-	/// External posting source.
-	Xapian::PostingSource * external_source;
+    std::string get_description() const;
 
-	/// Flag, indicating whether the external source is owned by the query.
-	bool external_source_owned;
+    const Query operator&=(const Query & o) {
+	return (*this = Query(OP_AND, *this, o));
+    }
 
-	/// Copy another Xapian::Query::Internal into self.
-	void initialise_from_copy(const Query::Internal & copyme);
+    const Query operator|=(const Query & o) {
+	return (*this = Query(OP_OR, *this, o));
+    }
 
-        void accumulate_terms(
-	    std::vector<std::pair<std::string, Xapian::termpos> > &terms) const;
+    const Query operator^=(const Query & o) {
+	return (*this = Query(OP_XOR, *this, o));
+    }
 
-	/** Simplify the query.
-	 *  For example, an AND query with only one subquery would become the
-	 *  subquery itself.
-	 */
-	Internal * simplify_query();
+    const Query operator*=(double factor) {
+	return (*this = Query(factor, *this));
+    }
 
-	/** Perform checks that query is valid. (e.g., has correct number of
-	 *  sub queries.)  Throw an exception if not.  This is initially called
-	 *  on the query before any simplifications have been made, and after
-	 *  simplifications.
-	 */
-	void validate_query() const;
+    const Query operator/=(double factor) {
+	return (*this = Query(1.0 / factor, *this));
+    }
 
-	/** Simplify any matchnothing subqueries, either eliminating them,
-	 *  or setting this query to matchnothing, depending on the query
-	 *  operator.  Returns true if simplification resulted in a
-	 *  matchnothing query.
-	 */
-	bool simplify_matchnothing();
+  private:
+    // Pass a reference to avoid ambiguity for Query(NULL) (not useful, but the
+    // testsuite does it...)  FIXME
+    Query(Query::Internal & internal_) : internal(&internal_) { }
 
-	/** Get a string describing the given query type.
-	 */
-	static std::string get_op_name(Xapian::Query::Internal::op_t op);
+    void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
 
-	/** Collapse the subqueries together if appropriate.
-	 */
-	void collapse_subqs();
+    template<typename I>
+    void init(Query::op op_, Xapian::termcount window,
+	      const I & begin, const I & end, std::random_access_iterator_tag)
+    {
+	init(op_, end - begin, window);
+    }
 
-	/** Flatten a query structure, by changing, for example,
-	 *  "A NEAR (B AND C)" to "(A NEAR B) AND (A NEAR C)"
-	 */
-	Xapian::Query::Internal * flatten_subqs();
+    template<typename I>
+    void init(Query::op op_, Xapian::termcount window,
+	      const I &, const I &, std::input_iterator_tag)
+    {
+	init(op_, 0, window);
+    }
 
-        /** Implementation of serialisation; called recursively.
-         */
-	std::string serialise(Xapian::termpos & curpos) const;
+    void add_subquery(const Xapian::Query & subquery);
 
-    public:
-	/** Copy constructor. */
-	Internal(const Query::Internal & copyme);
+    void add_subquery(const std::string & subquery) {
+	add_subquery(Xapian::Query(subquery));
+    }
 
-	/** Assignment. */
-	void operator=(const Query::Internal & copyme);
+    void add_subquery(const Xapian::Query * subquery) {
+	// FIXME: subquery NULL?
+	add_subquery(*subquery);
+    }
 
-	/** A query consisting of a single term. */
-	explicit Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
-			  Xapian::termpos term_pos_ = 0);
-
-	/** Create internals given only the operator and a parameter. */
-	Internal(op_t op_, Xapian::termcount parameter);
-
-	/** Construct a range query on a document value. */
-	Internal(op_t op_, Xapian::valueno slot,
-		 const std::string &begin, const std::string &end);
-
-	/** Construct a value greater-than-or-equal query on a document value.
-	 */
-	Internal(op_t op_, Xapian::valueno slot, const std::string &value);
-
-	/// Construct an external source query.
-	explicit Internal(Xapian::PostingSource * external_source_, bool owned);
-
-	/** Destructor. */
-	~Internal();
-
-	static Xapian::Query::Internal * unserialise(const std::string &s,
-						     const Registry & registry);
-
-	/** Add a subquery. */
-	void add_subquery(const Query::Internal * subq);
-
-	/** Add a subquery without copying it.
-	 *
-	 *  subq is owned by the object this is called on after the call.
-	 */
-	void add_subquery_nocopy(Query::Internal * subq);
-
-	void set_dbl_parameter(double dbl_parameter_);
-
-	double get_dbl_parameter() const;
-
-	/** Finish off the construction.
-	 */
-	Query::Internal * end_construction();
-
-	/** Return a string in an easily parsed form
-	 *  which contains all the information in a query.
-	 */
-	std::string serialise() const {
-            Xapian::termpos curpos = 1;
-            return serialise(curpos);
-        }
-
-	/// Return a string describing this object.
-	std::string get_description() const;
-
-	/** Get the numeric parameter used in this query.
-	 *
-	 *  This is used by the QueryParser to get the value number for
-	 *  VALUE_RANGE queries.  It should be replaced by a public method on
-	 *  the Query class at some point, but the API which should be used for
-	 *  that is unclear, so this is a temporary workaround.
-	 */
-	Xapian::termcount get_parameter() const { return parameter; }
-
-	Xapian::termcount get_wqf() const { return parameter; }
-
-	/** Get the length of the query, used by some ranking formulae.
-	 *  This value is calculated automatically - if you want to override
-	 *  it you can pass a different value to Enquire::set_query().
-	 */
-	Xapian::termcount get_length() const;
-
-	/** Return an iterator over all the terms in the query,
-	 *  in order of termpos.  If multiple terms have the same term
-	 *  position, their order is unspecified.  Duplicates (same term and
-	 *  termpos) will be removed.
-	 */
-	TermIterator get_terms() const;
+    void done();
 };
 
-#endif // SWIG
+inline const Query
+operator&(const Query & a, const Query & b)
+{
+    return Query(Query::OP_AND, a, b);
+}
+
+inline const Query
+operator|(const Query & a, const Query & b)
+{
+    return Query(Query::OP_OR, a, b);
+}
+
+inline const Query
+operator^(const Query & a, const Query & b)
+{
+    return Query(Query::OP_XOR, a, b);
+}
+
+inline const Query
+operator*(double factor, const Query & q)
+{
+    return Query(factor, q);
+}
+
+inline const Query
+operator*(const Query & q, double factor)
+{
+    return Query(factor, q);
+}
+
+inline const Query
+operator/(const Query & q, double factor)
+{
+    return Query(1.0 / factor, q);
+}
+
+class InvertedQuery_ {
+    const Query & query;
+
+    void operator=(const InvertedQuery_ &);
+
+    InvertedQuery_(const InvertedQuery_ &);
+
+    InvertedQuery_(const Query & query_) : query(query_) { }
+
+  public:
+    operator Query() const {
+	return Query(Query::OP_AND_NOT, Query::MatchAll, query);
+    }
+
+    friend const InvertedQuery_ operator~(const Query &q);
+
+    friend const Query operator&(const Query & a, const InvertedQuery_ & b);
+};
+
+inline const Query
+operator&(const Query & a, const InvertedQuery_ & b)
+{
+    return Query(Query::OP_AND_NOT, a, b.query);
+}
+
+inline const InvertedQuery_
+operator~(const Query &q)
+{
+    return InvertedQuery_(q);
+}
+
+namespace Internal {
+class AndContext;
+class OrContext;
+class XorContext;
+}
+
+class Query::Internal : public Xapian::Internal::intrusive_base {
+  public:
+    Internal() { }
+
+    virtual ~Internal();
+
+    virtual PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const = 0;
+
+    virtual void postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
+				       QueryOptimiser * qopt,
+				       double factor) const;
+
+    virtual void postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
+				      QueryOptimiser * qopt,
+				      double factor) const;
+
+    virtual void postlist_sub_xor(Xapian::Internal::XorContext& ctx,
+				  QueryOptimiser * qopt,
+				  double factor) const;
+
+    virtual termcount get_length() const;
+
+    virtual void serialise(std::string & result) const = 0;
+
+    static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
+
+    virtual std::string get_description() const = 0;
+
+    virtual void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
+};
 
 }
 
-#endif /* XAPIAN_INCLUDED_QUERY_H */
+#endif // XAPIAN_INCLUDED_QUERY_H

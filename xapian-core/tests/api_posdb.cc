@@ -193,7 +193,11 @@ DEFINE_TESTCASE(near2, positional) {
     enquire.set_query(q);
 
     // retrieve the top ten results
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset;
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mymset = enquire.get_mset(0, 10)
+    );
+#if 0 // Disable until we reimplement this.
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -219,6 +223,7 @@ DEFINE_TESTCASE(near2, positional) {
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
+#endif
 
     return true;
 }
@@ -429,7 +434,11 @@ DEFINE_TESTCASE(phrase2, positional) {
     enquire.set_query(q);
 
     // retrieve the top ten results
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset;
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mymset = enquire.get_mset(0, 10)
+    );
+#if 0 // Disable until we reimplement this.
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -455,6 +464,7 @@ DEFINE_TESTCASE(phrase2, positional) {
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
+#endif
 
     return true;
 }

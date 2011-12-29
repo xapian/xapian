@@ -24,7 +24,7 @@
 
 #include "backends/database.h"
 #include "api/omenquireinternal.h"
-#include "api/omqueryinternal.h"
+#include "api/queryinternal.h"
 #include "net/remoteconnection.h"
 #include "backends/valuestats.h"
 #include "xapian/weight.h"
@@ -144,7 +144,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param omrset			The rset.
      * @param matchspies                The matchspies to use.  NULL if none.
      */
-    void set_query(const Xapian::Query::Internal *query,
+    void set_query(const Xapian::Query& query,
 		   Xapian::termcount qlen,
 		   Xapian::doccount collapse_max,
 		   Xapian::valueno collapse_key,

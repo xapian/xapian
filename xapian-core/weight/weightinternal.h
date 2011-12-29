@@ -84,9 +84,9 @@ class Weight::Internal {
     Internal & operator +=(const Internal & inc);
 
     /// Mark the terms we need to collate stats for.
-    void mark_wanted_terms(const Xapian::Query::Internal &query) {
+    void mark_wanted_terms(const Xapian::Query &query) {
 	Xapian::TermIterator t;
-	for (t = query.get_terms(); t != Xapian::TermIterator(); ++t) {
+	for (t = query.get_terms_begin(); t != Xapian::TermIterator(); ++t) {
 	    termfreqs.insert(make_pair(*t, TermFreqs()));
 	}
     }

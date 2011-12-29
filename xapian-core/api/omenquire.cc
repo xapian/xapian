@@ -676,7 +676,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     Xapian::Weight::Internal stats;
-    ::MultiMatch match(db, query.internal.get(), qlen, rset,
+    ::MultiMatch match(db, query, qlen, rset,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,

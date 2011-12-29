@@ -103,6 +103,10 @@ class MultiXorPostList : public PostList {
 
     double recalc_maxweight();
 
+    PositionList * read_position_list() {
+	return NULL;
+    }
+
     Internal *next(double w_min);
 
     Internal *skip_to(Xapian::docid, double w_min);

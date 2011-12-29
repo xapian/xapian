@@ -26,6 +26,7 @@
 #include "xapian/enquire.h"
 #include "xapian/error.h"
 #include "xapian/matchspy.h"
+#include "xapian/query.h"
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
@@ -374,7 +375,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), reg));
+    Xapian::Query query(Xapian::Query::unserialise(string(p, len), reg));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -455,7 +456,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     Xapian::Weight::Internal local_stats;
-    MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
+    MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
 		     local_stats, wt.get(), matchspies.spies, false, false);

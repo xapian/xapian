@@ -41,16 +41,51 @@ DEFINE_TESTCASE(queryterms1, !backend) {
     return true;
 }
 
+DEFINE_TESTCASE(matchall2, !backend) {
+    TEST_STRINGS_EQUAL(Xapian::Query::MatchAll.get_description(),
+		       "Query(<alldocuments>)");
+    return true;
+}
+
 DEFINE_TESTCASE(matchnothing1, !backend) {
+    TEST_STRINGS_EQUAL(Xapian::Query::MatchNothing.get_description(),
+		       "Query()");
     vector<Xapian::Query> subqs;
     subqs.push_back(Xapian::Query("foo"));
     subqs.push_back(Xapian::Query::MatchNothing);
     Xapian::Query q(Xapian::Query::OP_AND, subqs.begin(), subqs.end());
-    TEST_STRINGS_EQUAL(q.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query()");
 
     Xapian::Query q2(Xapian::Query::OP_AND,
 		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
-    TEST_STRINGS_EQUAL(q2.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(q2.get_description(), "Query()");
+    return true;
+}
+
+DEFINE_TESTCASE(overload1, !backend) {
+    Xapian::Query q;
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
+    q = Xapian::Query("foo") &~ Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
+    q = ~Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((<alldocuments> AND_NOT bar))");
+    q = Xapian::Query("foo") & Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
+    q = Xapian::Query("foo") | Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(foo)");
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
+    q = Xapian::Query("foo") ^ Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(foo)");
+    q = 1.25 * (Xapian::Query("one") | Xapian::Query("two"));
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(1.25 * (one OR two))");
+    q = (Xapian::Query("one") & Xapian::Query("two")) * 42;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(42 * (one AND two))");
+    q = Xapian::Query("one") / 2.0;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(0.5 * one)");
     return true;
 }
 
@@ -62,13 +97,22 @@ DEFINE_TESTCASE(matchnothing1, !backend) {
  *  Having two non-leaf subqueries with OP_NEAR used to be expected to throw
  *  UnimplementedError, but now actually works.
  */
-DEFINE_TESTCASE(nearsubqueries1, !backend) {
+DEFINE_TESTCASE(nearsubqueries1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_posting("a", 1);
+    doc.add_posting("b", 2);
+    doc.add_posting("c", 3);
+    db.add_document(doc);
+
     Xapian::Query a_or_b(Xapian::Query::OP_OR,
 			 Xapian::Query("a"),
 			 Xapian::Query("b"));
     Xapian::Query near(Xapian::Query::OP_NEAR, a_or_b, a_or_b);
+    // As of 1.3.0, we no longer rearrange queries at this point, so check
+    // that we don't.
     TEST_STRINGS_EQUAL(near.get_description(),
-		       "Xapian::Query(((a NEAR 2 a) OR (b NEAR 2 a) OR (b NEAR 2 b) OR (a NEAR 2 b)))");
+		       "Query(((a OR b) NEAR 2 (a OR b)))");
 
     Xapian::Query a_near_b(Xapian::Query::OP_NEAR,
 			   Xapian::Query("a"),
@@ -77,29 +121,27 @@ DEFINE_TESTCASE(nearsubqueries1, !backend) {
 			   Xapian::Query("a"),
 			   Xapian::Query("b"));
 
+    // FIXME: These used to be rejected when the query was constructed, but
+    // now they're only rejected when Enquire::get_mset() is called and we
+    // actually try to get positional data from the subquery.  The plan is to
+    // actually try to support such cases.
+    Xapian::Query q;
+    Xapian::Enquire enq(db);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, a_near_b, Xapian::Query("c"));
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Query q(Xapian::Query::OP_NEAR,
-				   a_near_b,
-				   Xapian::Query("c"))
-    );
+	enq.set_query(q); (void)enq.get_mset(0, 10));
 
+    q = Xapian::Query(Xapian::Query::OP_NEAR, x_phrs_y, Xapian::Query("c"));
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Query q(Xapian::Query::OP_NEAR,
-				   x_phrs_y,
-				   Xapian::Query("c"))
-    );
+	enq.set_query(q); (void)enq.get_mset(0, 10));
 
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, a_near_b, Xapian::Query("c"));
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Query q(Xapian::Query::OP_PHRASE,
-				   a_near_b,
-				   Xapian::Query("c"))
-    );
+	enq.set_query(q); (void)enq.get_mset(0, 10));
 
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, x_phrs_y, Xapian::Query("c"));
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Query q(Xapian::Query::OP_PHRASE,
-				   x_phrs_y,
-				   Xapian::Query("c"))
-    );
+	enq.set_query(q); (void)enq.get_mset(0, 10));
 
     return true;
 }

@@ -1,3 +1,22 @@
+Thu Dec 29 00:03:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/remote/remote-database.cc,
+	  backends/remote/remote-database.h,docs/deprecation.rst,
+	  include/xapian/query.h,matcher/,net/remoteserver.cc,
+	  queryparser/queryparser.lemony,tests/,weight/weightinternal.h: Merge
+	  query-internal-reimplementation git branch which reimplements
+	  Query::Internal. (ticket#280).  These are the most notable changes:
+	  + Query objects are smaller and should be faster.
+	  + More readable format for Query::get_description().
+	  + More compact serialisation format for Query objects.
+	  + Query operators are no longer flattened as you build up a tree (but
+	    the query optimiser still combines groups of the same operator).
+	    This means that Query objects are truly immutable, and so we don't
+	    need to copy Query objects when composing them.  This should also
+	    fix a few O(n*n) cases when building up an n-way query pair-wise.
+	    (ticket#273)
+	  + The Query optimiser can do a few extra optimisations.
+
 Mon Dec 26 12:13:36 GMT 2011  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.cc: Change

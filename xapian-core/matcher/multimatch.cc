@@ -40,7 +40,6 @@
 #include "mergepostlist.h"
 
 #include "backends/document.h"
-#include "api/omqueryinternal.h"
 
 #include "submatch.h"
 
@@ -204,7 +203,7 @@ MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const Xapian::Database &db_,
-		       const Xapian::Query::Internal * query_,
+		       const Xapian::Query & query_,
 		       Xapian::termcount qlen,
 		       const Xapian::RSet * omrset,
 		       Xapian::doccount collapse_max_,
@@ -231,8 +230,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 {
     LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
-    if (!query) return;
-    query->validate_query();
+    if (query.empty()) return;
 
     Xapian::doccount number_of_subdbs = db.internal.size();
     vector<Xapian::RSet> subrsets;
@@ -280,7 +278,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
-    stats.mark_wanted_terms(*query);
+    stats.mark_wanted_terms(query);
     prepare_sub_matches(leaves, errorhandler, stats);
     stats.set_bounds_from_db(db);
 }
@@ -314,7 +312,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("sorter"));
     AssertRel(check_at_least,>=,maxitems);
 
-    if (!query) {
+    if (query.empty()) {
 	mset = Xapian::MSet(new Xapian::MSet::Internal());
 	mset.internal->firstitem = first;
 	return;
