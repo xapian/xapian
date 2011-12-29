@@ -86,18 +86,18 @@ function run_tests()
 
   -- Test queries
   terms = {"smoke", "test", "terms"}
-  expect(tostring(xapian.Query(xapian.Query_OP_OR, terms)), "Xapian::Query((smoke OR test OR terms))")
+  expect(tostring(xapian.Query(xapian.Query_OP_OR, terms)), "Query((smoke OR test OR terms))")
   query1 = xapian.Query(xapian.Query_OP_PHRASE, {"smoke", "test", "tuple"})
   query2 = xapian.Query(xapian.Query_OP_XOR, {xapian.Query("smoke"), query1, "string"})
-  expect(tostring(query1), "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
-  expect(tostring(query2), "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
+  expect(tostring(query1), "Query((smoke PHRASE 3 test PHRASE 3 tuple))")
+  expect(tostring(query2), "Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
   subqs = {"a", "b"}
-  expect(tostring(xapian.Query(xapian.Query_OP_OR, subqs)), "Xapian::Query((a OR b))")
-  expect(tostring(xapian.Query(xapian.Query_OP_VALUE_RANGE, 0, '1', '4')), "Xapian::Query(VALUE_RANGE 0 1 4)")
+  expect(tostring(xapian.Query(xapian.Query_OP_OR, subqs)), "Query((a OR b))")
+  expect(tostring(xapian.Query(xapian.Query_OP_VALUE_RANGE, 0, '1', '4')), "Query(VALUE_RANGE 0 1 4)")
 
   -- Test MatchAll and MatchNothing
-  expect(tostring(xapian.Query_MatchAll), "Xapian::Query(<alldocuments>)")
-  expect(tostring(xapian.Query_MatchNothing), "Xapian::Query()")
+  expect(tostring(xapian.Query_MatchAll), "Query(<alldocuments>)")
+  expect(tostring(xapian.Query_MatchNothing), "Query()")
 
   -- Test enq
   query = xapian.Query(xapian.Query_OP_OR, {"there", "is"})
@@ -173,7 +173,7 @@ function run_tests()
   vrpdate = xapian.DateValueRangeProcessor(1, true, 1960)
   qp:add_valuerangeprocessor(vrpdate)
   query = qp:parse_query("12/03/99..12/04/01")
-  expect(tostring(query), "Xapian::Query(VALUE_RANGE 1 19991203 20011204)")
+  expect(tostring(query), "Query(0 * VALUE_RANGE 1 19991203 20011204)")
 
   -- Test setting and getting metadata
   db:set_metadata('Foo', 'Foo')
@@ -181,7 +181,7 @@ function run_tests()
 
   -- Test OP_SCALE_WEIGHT and corresponding constructor
   query4 = xapian.Query(xapian.Query_OP_SCALE_WEIGHT, xapian.Query('foo'), 5.0)
-  expect(tostring(query4), "Xapian::Query(5 * foo)")
+  expect(tostring(query4), "Query(5 * foo)")
 
   -- Function to test the order of mset docid
   function mset_expect_order(mset, a)
@@ -283,14 +283,14 @@ function run_tests()
 
   -- Feature tests for Query "term" constructor optional arguments:
   query_wqf = xapian.Query('wqf', 3)
-  if tostring(query_wqf) ~= 'Xapian::Query(wqf:(wqf=3))' then
+  if tostring(query_wqf) ~= 'Query(wqf#3)' then
     print "Unexpected \query_wqf->tostring():\n"
     print(tostring(query_wqf) .."\n")
     os.exit(-1)
   end
 
   query = xapian.Query(xapian.Query_OP_VALUE_GE, 0, "100")
-  if tostring(query) ~= 'Xapian::Query(VALUE_GE 0 100)' then
+  if tostring(query) ~= 'Query(VALUE_GE 0 100)' then
     print "Unexpected \query->tostring():\n"
     print(tostring(query) .. "\n")
     os.exit(-1)

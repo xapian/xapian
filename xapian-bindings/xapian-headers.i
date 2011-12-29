@@ -144,13 +144,39 @@ INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>
 
+STANDARD_IGNORES(Xapian, Registry)
+%include <xapian/registry.h>
+
 STANDARD_IGNORES(Xapian, Query)
+%ignore Xapian::Query::Internal;
+%ignore Xapian::InvertedQuery_;
+%ignore operator Query;
+%ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
+%ignore *::operator~;
+%ignore *::operator&=;
+%ignore *::operator|=;
+%ignore *::operator^=;
+%ignore *::operator*=;
+%ignore *::operator/=;
+#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
+%ignore *::operator&;
+%ignore *::operator|;
+%ignore *::operator^;
+%ignore *::operator*;
+%ignore *::operator/;
+#endif
+
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Query::Internal;
 #if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGPERL || \
     defined SWIGPYTHON || defined SWIGRUBY
 // C#, Java, Perl, Python and Ruby wrap these "by hand" to give a nicer API
 // than SWIG gives by default.
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
+#endif
+#ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+%ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+              Xapian::termcount parameter = 0);
 #endif
 %include <xapian/query.h>
 
@@ -270,9 +296,6 @@ STANDARD_IGNORES(Xapian, Weight)
 %ignore Xapian::Weight::serialise;
 %ignore Xapian::Weight::unserialise;
 %include <xapian/weight.h>
-
-STANDARD_IGNORES(Xapian, Registry)
-%include <xapian/registry.h>
 
 /* We don't wrap Xapian's Unicode support as other languages usually already
  * have their own Unicode support. */

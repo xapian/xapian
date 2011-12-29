@@ -93,14 +93,14 @@ class XapianSmoketest < Test::Unit::TestCase
   end # test_database
 
   def test_002_queries
-    assert_equal("Xapian::Query((smoke OR test OR terms))",  
+    assert_equal("Query((smoke OR test OR terms))",
                  Xapian::Query.new(Xapian::Query::OP_OR ,["smoke", "test", "terms"]).description())
 
     phraseQuery = Xapian::Query.new(Xapian::Query::OP_PHRASE ,["smoke", "test", "tuple"])
     xorQuery = Xapian::Query.new(Xapian::Query::OP_XOR, [ Xapian::Query.new("smoke"), phraseQuery, "string" ])
 
-    assert_equal("Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))", phraseQuery.description())
-    assert_equal("Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))", xorQuery.description())
+    assert_equal("Query((smoke PHRASE 3 test PHRASE 3 tuple))", phraseQuery.description())
+    assert_equal("Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))", xorQuery.description())
 
     assert_equal([Xapian::Term.new("smoke", 1), 
                   Xapian::Term.new("string", 1), 
@@ -109,8 +109,8 @@ class XapianSmoketest < Test::Unit::TestCase
 
     assert_equal(Xapian::Query::OP_ELITE_SET, 10)
 
-    assert_equal("Xapian::Query(<alldocuments>)", Xapian::Query::MatchAll.description())
-    assert_equal("Xapian::Query()", Xapian::Query::MatchNothing.description())
+    assert_equal("Query(<alldocuments>)", Xapian::Query::MatchAll.description())
+    assert_equal("Query()", Xapian::Query::MatchNothing.description())
   end # test_queries
 
   def test_003_enquire
@@ -206,7 +206,7 @@ class XapianSmoketest < Test::Unit::TestCase
   def test_013_scaleweight
     query = Xapian::Query.new("foo")
     query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5);
-    assert_equal(query2.description(), "Xapian::Query(5 * foo)")
+    assert_equal(query2.description(), "Query(5 * foo)")
   end
 
   def test_014_sortable_serialise

@@ -126,12 +126,12 @@ class SmokeTest {
 		qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
 	    }
 
-            if (Xapian.Query.MatchAll.GetDescription() != "Xapian::Query(<alldocuments>)") {
+            if (Xapian.Query.MatchAll.GetDescription() != "Query(<alldocuments>)") {
 		System.Console.WriteLine("Unexpected Query.MatchAll.toString()");
 		System.Environment.Exit(1);
             }
 
-            if (Xapian.Query.MatchNothing.GetDescription() != "Xapian::Query()") {
+            if (Xapian.Query.MatchNothing.GetDescription() != "Query()") {
 		System.Console.WriteLine("Unexpected Query.MatchNothing.toString()");
 		System.Environment.Exit(1);
             }
@@ -192,7 +192,7 @@ class SmokeTest {
 
 	    // Test OP_SCALE_WEIGHT and corresponding constructor
 	    Xapian.Query query4 = new Xapian.Query(Xapian.Query.op.OP_SCALE_WEIGHT, new Xapian.Query("foo"), 5.0);
-	    if (query4.GetDescription() != "Xapian::Query(5 * foo)") {
+	    if (query4.GetDescription() != "Query(5 * foo)") {
 		System.Console.WriteLine("Unexpected query4.GetDescription()");
 		System.Environment.Exit(1);
 	    }

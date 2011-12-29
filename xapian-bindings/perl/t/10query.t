@@ -19,11 +19,11 @@ my $query = Search::Xapian::Query->new(
 	"bar"
 );
 ok(defined $query, "AND query created");
-is($query->get_description, 'Xapian::Query((foo AND bar))', "AND query contains foo part");
+is($query->get_description, 'Query((foo AND bar))', "AND query contains foo part");
 
 $query = Search::Xapian::Query::MatchAll;
-is($query->get_description, 'Xapian::Query(<alldocuments>)');
+is($query->get_description, 'Query(<alldocuments>)');
 $query = Search::Xapian::Query::MatchNothing;
-is($query->get_description, 'Xapian::Query()');
+is($query->get_description, 'Query()');
 
 ok(1);

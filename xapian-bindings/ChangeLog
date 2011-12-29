@@ -1,3 +1,11 @@
+Thu Dec 29 11:35:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,java/SmokeTest.java,lua/smoketest.lua,
+	  perl/t/10query.t,perl/t/parser.t,perl/t/search.t,php/smoketest.php,
+	  python/pythontest2.py,python/smoketest2.py,python/testsuite2.py,
+	  ruby/smoketest.rb,tcl8/smoketest.tcl,xapian-headers.i,xapian.i:
+	  Update for Query internals changes.
+
 Thu Dec 29 11:20:48 GMT 2011  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix test for jni.h to try looking for jni.h relative to

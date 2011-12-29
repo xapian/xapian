@@ -267,9 +267,8 @@ def test_queryparser_stoplist_iter():
     query = queryparser.parse_query('to be or not to be is the questions')
     expect([term for term in queryparser.stoplist()], [])
     expect(str(query),
-           'Xapian::Query((Zto:(pos=1) OR Zbe:(pos=2) OR Zor:(pos=3) OR '
-           'Znot:(pos=4) OR Zto:(pos=5) OR Zbe:(pos=6) OR Zis:(pos=7) OR '
-           'Zthe:(pos=8) OR Zquestion:(pos=9)))')
+           'Query((Zto@1 OR Zbe@2 OR Zor@3 OR Znot@4 OR Zto@5 OR Zbe@6 OR '
+           'Zis@7 OR Zthe@8 OR Zquestion@9))')
 
     # Check behaviour with a stoplist, but no stemmer
     queryparser = xapian.QueryParser()
@@ -283,9 +282,7 @@ def test_queryparser_stoplist_iter():
 
     expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
     expect(str(query),
-           'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
-           'be:(pos=6) OR is:(pos=7) OR '
-           'the:(pos=8) OR questions:(pos=9)))')
+           'Query((be@2 OR or@3 OR be@6 OR is@7 OR the@8 OR questions@9))')
 
     # Check behaviour with a stoplist and a stemmer
     queryparser.set_stemmer(stemmer)
@@ -295,9 +292,7 @@ def test_queryparser_stoplist_iter():
 
     expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
     expect(str(query),
-           'Xapian::Query((Zbe:(pos=2) OR Zor:(pos=3) OR '
-           'Zbe:(pos=6) OR Zis:(pos=7) OR '
-           'Zthe:(pos=8) OR Zquestion:(pos=9)))')
+           'Query((Zbe@2 OR Zor@3 OR Zbe@6 OR Zis@7 OR Zthe@8 OR Zquestion@9))')
 
 def test_queryparser_unstem_iter():
     """Test QueryParser unstemlist iterator.
@@ -315,7 +310,7 @@ def test_queryparser_unstem_iter():
     expect([term for term in queryparser.unstemlist('question')], ['question'])
     expect([term for term in queryparser.unstemlist('questions')], ['questions'])
     expect(str(query),
-           'Xapian::Query((to:(pos=1) OR question:(pos=2) OR questions:(pos=3)))')
+           'Query((to@1 OR question@2 OR questions@3))')
 
 
     queryparser = xapian.QueryParser()
@@ -330,7 +325,7 @@ def test_queryparser_unstem_iter():
     expect([term for term in queryparser.unstemlist('Zquestion')], ['question', 'questions'])
     expect([term for term in queryparser.unstemlist('Zquestions')], [])
     expect(str(query),
-           'Xapian::Query((Zto:(pos=1) OR Zquestion:(pos=2) OR Zquestion:(pos=3)))')
+           'Query((Zto@1 OR Zquestion@2 OR Zquestion@3))')
 
 def test_allterms_iter():
     """Test all-terms iterator on Database.
@@ -886,7 +881,7 @@ def test_queryparser_custom_vrp():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
+           'Query(0 * VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_vrp_deallocation():
     """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
@@ -909,7 +904,7 @@ def test_queryparser_custom_vrp_deallocation():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
+           'Query(0 * VALUE_RANGE 7 A5 B8)')
 
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
@@ -937,7 +932,7 @@ def test_scale_weight():
     context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
-                     "Xapian::Query: SCALE_WEIGHT requires a non-negative parameter.",
+                     "OP_SCALE_WEIGHT requires factor >= 0",
                      xapian.Query,
                      xapian.Query.OP_SCALE_WEIGHT, query1, -1)
 
@@ -1288,17 +1283,17 @@ def test_serialise_query():
     q = xapian.Query()
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
-    expect(str(q), 'Xapian::Query()')
+    expect(str(q), 'Query()')
 
     q = xapian.Query('hello')
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
-    expect(str(q), 'Xapian::Query(hello)')
+    expect(str(q), 'Query(hello)')
 
     q = xapian.Query(xapian.Query.OP_OR, ('hello', 'world'))
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
-    expect(str(q), 'Xapian::Query((hello OR world))')
+    expect(str(q), 'Query((hello OR world))')
 
 def test_preserve_query_parser_stopper():
     """Test preservation of stopper set on query parser.
