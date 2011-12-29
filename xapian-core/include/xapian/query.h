@@ -173,6 +173,13 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	done();
     }
 
+#ifdef SWIG
+    // SWIG's %template doesn't seem to handle a templated ctor so we
+    // provide this fake specialised form of the above prototype.
+    Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+		 Xapian::termcount parameter = 0);
+#endif
+
     const TermIterator get_terms_begin() const;
 
     const TermIterator get_terms_end() const { return TermIterator(); }

@@ -1,3 +1,7 @@
+Thu Dec 29 11:29:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Add fake templated ctor for SWIG.
+
 Thu Dec 29 00:23:25 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/api_scalability.cc: Add regression test querypairwise1 for
