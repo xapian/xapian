@@ -1,7 +1,7 @@
 /** @file api_scalability.cc
  * @brief Tests of scalability.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "apitest.h"
 #include "cputimer.h"
 #include "scalability.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -54,5 +55,22 @@ bigoaddvalue1_helper(unsigned num_values)
 DEFINE_TESTCASE(bigoaddvalue1, writable) {
     // O(n*n) is bad, but O(n*log(n)) is acceptable.
     test_scalability(bigoaddvalue1_helper, 5000, O_N_LOG_N);
+    return true;
+}
+
+static double
+querypairwise1_helper(unsigned num_values)
+{
+    CPUTimer timer;
+    Xapian::Query q("xxx");
+    for (unsigned i = 0; i < num_values; ++i) {
+	q = Xapian::Query(q.OP_OR, q, Xapian::Query(str(i)));
+    }
+    return timer.get_time();
+}
+
+// Check that composing queries pairwise is O(n).
+DEFINE_TESTCASE(querypairwise1, !backend) {
+    test_scalability(querypairwise1_helper, 500, O_N);
     return true;
 }
