@@ -1,3 +1,8 @@
+Thu Dec 29 11:20:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix test for jni.h to try looking for jni.h relative to
+	  the real location of javac, which should work for more JDKs.
+
 Fri Dec 23 01:25:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/python.i: If configure didn't find a way to do TLS, fall back
