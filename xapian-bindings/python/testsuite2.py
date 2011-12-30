@@ -289,7 +289,7 @@ class TestRunner(object):
                 failed += 1
         if failed:
             if self._verbose == 0:
-                self._out.write('Re-run with the VERBOSE environment variable set to "1" to see details.\n')
+                self._out.write('Re-run with the environment variable VERBOSE=1 to see details.\n')
             self._out.write_colour("#green#%d## tests passed, #red#%d## tests failed\n" % (passed, failed))
             return False
         else:
