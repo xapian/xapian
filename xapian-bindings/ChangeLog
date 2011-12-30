@@ -1,3 +1,8 @@
+Fri Dec 30 13:17:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Add begin() and end() methods to XapianSWIGQueryItor
+	  instead of using ctors and assignment.
+
 Fri Dec 30 13:16:00 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/util.i: Improve error message.

@@ -341,8 +341,21 @@ class XapianSWIGQueryItor {
   public:
     XapianSWIGQueryItor() { }
 
-    XapianSWIGQueryItor(lua_State * S, int index_, int n)
-	: L(S), index(index_), i(n) { }
+    void begin(lua_State * S, int index_) {
+	L = S;
+	index = index_;
+	i = 0;
+    }
+
+    void end(lua_State * S, int index_, int n) {
+	L = S;
+	index = index_;
+	i = n;
+    }
+
+    void end() {
+	i = 0;
+    }
 
     XapianSWIGQueryItor & operator++() {
 	++i;
@@ -390,11 +403,11 @@ class XapianSWIGQueryItor {
 
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     if (lua_istable(L, $input)) {
-	$1 = XapianSWIGQueryItor(L, $input, 0);
-	$2 = XapianSWIGQueryItor(L, $input, lua_objlen(L, $input));
-    }
-    else {
-	$1 = $2 = XapianSWIGQueryItor(L, $input, 0);
+	$1.begin(L, $input);
+	$2.end(L, $input, lua_objlen(L, $input));
+    } else {
+	$1.end();
+	$2.end();
     }
 }
 
