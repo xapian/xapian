@@ -248,9 +248,7 @@ def test_queryterms_iter():
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
     # Make a list of the term names
-    terms = []
-    for term in query:
-        terms.append(term)
+    terms = [term for term in query]
     expect(terms, ['it', 'two', 'warm', 'was'])
 
 def test_queryparser_stoplist_iter():
@@ -343,9 +341,7 @@ def test_allterms_iter():
         expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
     context("checking that items are no longer valid once the iterator has moved on");
-    termitems = []
-    for termitem in db:
-        termitems.append(termitem)
+    termitems = [termitem for termitem in db]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -432,9 +428,7 @@ def test_termlist_iter():
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
-    termitems = []
-    for termitem in db.termlist(3):
-        termitems.append(termitem)
+    termitems = [termitem for termitem in db.termlist(3)]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -482,9 +476,7 @@ def test_dbdocument_iter():
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
-    termitems = []
-    for termitem in doc:
-        termitems.append(termitem)
+    termitems = [termitem for termitem in doc]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -536,9 +528,7 @@ def test_newdocument_iter():
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
-    termitems = []
-    for termitem in doc:
-        termitems.append(termitem)
+    termitems = [termitem for termitem in doc]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -624,9 +614,7 @@ def test_postinglist_iter():
 
     # Make a list of the postings (so we can test if they're still valid once
     # the iterator has moved on).
-    postings = []
-    for posting in db.postlist('it'):
-        postings.append(posting)
+    postings = [posting for posting in db.postlist('it')]
 
     expect(len(postings), len(docids))
     for i in range(len(postings)):
@@ -721,9 +709,7 @@ def test_position_iter():
     doc = db.get_document(5)
 
     # Make lists of the item contents
-    positions = []
-    for position in db.positionlist(5, 'it'):
-        positions.append(position)
+    positions = [position for position in db.positionlist(5, 'it')]
 
     expect(positions, [2, 7])
 

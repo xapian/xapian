@@ -1,3 +1,7 @@
+Fri Dec 30 00:04:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Use list comprehensions rather than append loops.
+
 Thu Dec 29 23:26:18 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/testsuite2.py: Rephrase so VERBOSE=1 is there to cut and
