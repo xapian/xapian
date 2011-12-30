@@ -1,3 +1,8 @@
+Fri Dec 30 01:13:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove left-over comment associated with
+	  XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP.
+
 Fri Dec 30 01:05:52 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/python.i: Use a SWIG freearg typemap to release the fast

@@ -36,9 +36,6 @@
 
 #ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 %extend Xapian::Query {
-	    /* For some languages we handle strings in the vector<Query>
-	     * case, so we don't need to wrap this ctor. */
-
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator. */
 	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
