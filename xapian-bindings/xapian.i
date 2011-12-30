@@ -34,7 +34,7 @@
 
 // xapian/query.h:
 
-#ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+#if !defined XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP && !defined SWIGPERL
 %extend Xapian::Query {
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator. */

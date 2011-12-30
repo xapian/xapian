@@ -1,3 +1,10 @@
+Fri Dec 30 01:18:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: While we don't currently use
+	  XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP for perl, we also don't
+	  use the fake ctors added by %extend if this isn't defined, so also
+	  skip them if SWIGPERL is defined.
+
 Fri Dec 30 01:13:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian.i: Remove left-over comment associated with
