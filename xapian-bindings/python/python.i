@@ -171,18 +171,6 @@ class XapianSWIGQueryItor {
     }
 
   public:
-    XapianSWIGQueryItor(const XapianSWIGQueryItor & o)
-	: seq(o.seq), i(o.i) {
-	Py_XINCREF(seq);
-    }
-
-    XapianSWIGQueryItor & operator=(const XapianSWIGQueryItor & o) {
-	Py_XINCREF(o.seq);
-	Py_CLEAR(seq);
-	seq = o.seq;
-	i = o.i;
-    }
-
     XapianSWIGQueryItor() : seq(NULL), i(0) { }
 
     void begin(PyObject * seq_) {
@@ -193,8 +181,8 @@ class XapianSWIGQueryItor {
 	i = PySequence_Fast_GET_SIZE(seq_);
     }
 
-    ~XapianSWIGQueryItor() {
-	Py_XDECREF(seq);
+    void free_seq() {
+	Py_CLEAR(seq);
     }
 
     XapianSWIGQueryItor & operator++() {
@@ -259,6 +247,9 @@ class XapianSWIGQueryItor {
     $1.begin(seq);
     $2.end(seq);
 }
+
+%typemap(freearg) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend)
+%{ $1.free_seq(); %}
 
 %include except.i
 %include ../xapian.i
