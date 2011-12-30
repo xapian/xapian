@@ -364,7 +364,7 @@ class XapianSWIGQueryItor {
 			    SWIGTYPE_p_Xapian__Query, 0) == -1) {
 	    lua_pop(L, 1);
 	    luaL_argerror(L, index,
-			  "elements of Tables passed to Query must be either Strings or other Queries");
+			  "elements must be Query objects or strings");
 	}
 
 	lua_pop(L, 1);

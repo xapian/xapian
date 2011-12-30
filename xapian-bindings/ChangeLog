@@ -1,3 +1,7 @@
+Fri Dec 30 13:16:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Improve error message.
+
 Fri Dec 30 13:13:12 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/util.i: Eliminate "else" after "return".
