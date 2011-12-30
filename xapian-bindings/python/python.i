@@ -144,6 +144,122 @@ class XapianSWIG_Python_Thread_Allow {
 %include extracomments.i
 
 %include util.i
+
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+%typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    // Checking for a sequence is enough to disambiguate currently.
+    $1 = PySequence_Check($input);
+}
+
+%{
+class XapianSWIGQueryItor {
+    mutable PyObject * seq;
+
+    int i;
+
+    /// str_obj must be a string object (or bytes object for Python 3.x).
+    Xapian::Query str_obj_to_query(PyObject * str_obj) const {
+	char * p;
+	Py_ssize_t len;
+#if PY_VERSION_HEX >= 0x03000000
+	(void)PyBytes_AsStringAndSize(str_obj, &p, &len);
+#else
+	(void)PyString_AsStringAndSize(str_obj, &p, &len);
+#endif
+	return Xapian::Query(string(p, len));
+    }
+
+  public:
+    XapianSWIGQueryItor(const XapianSWIGQueryItor & o)
+	: seq(o.seq), i(o.i) {
+	Py_XINCREF(seq);
+    }
+
+    XapianSWIGQueryItor & operator=(const XapianSWIGQueryItor & o) {
+	Py_XINCREF(o.seq);
+	Py_CLEAR(seq);
+	seq = o.seq;
+	i = o.i;
+    }
+
+    XapianSWIGQueryItor() : seq(NULL), i(0) { }
+
+    void begin(PyObject * seq_) {
+	seq = seq_;
+    }
+
+    void end(PyObject * seq_) {
+	i = PySequence_Fast_GET_SIZE(seq_);
+    }
+
+    ~XapianSWIGQueryItor() {
+	Py_XDECREF(seq);
+    }
+
+    XapianSWIGQueryItor & operator++() {
+	++i;
+	return *this;
+    }
+
+    Xapian::Query operator*() const {
+	PyObject * obj = PySequence_Fast_GET_ITEM(seq, i);
+
+	// Unicode object.
+	if (PyUnicode_Check(obj)) {
+	    PyObject *s = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj),
+					       PyUnicode_GET_SIZE(obj),
+					       "ignore");
+	    if (!s) goto fail;
+	    Xapian::Query result = str_obj_to_query(s);
+	    Py_DECREF(s);
+	    return result;
+	}
+
+	// String.
+#if PY_VERSION_HEX >= 0x03000000
+	if (PyBytes_Check(obj))
+#else
+	if (PyString_Check(obj))
+#endif
+	    return str_obj_to_query(obj);
+
+	// xapian.Query object (or unexpected object type).
+	{
+	    Xapian::Query * result_ptr = Xapian::get_py_query(obj);
+	    if (result_ptr) return *result_ptr;
+	}
+
+    fail:
+	throw Xapian::InvalidArgumentError("Expected Query object or string");
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return i == o.i;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+
+%}
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+    PyObject * seq;
+    seq = PySequence_Fast($input,
+			  "expected sequence of Query objects and/or strings");
+    if (!seq) SWIG_fail;
+    $1.begin(seq);
+    $2.end(seq);
+}
+
 %include except.i
 %include ../xapian.i
 %include extra.i

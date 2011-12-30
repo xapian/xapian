@@ -1,3 +1,8 @@
+Fri Dec 30 00:53:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i,python/util.i: Implement
+	  XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP approach for Python.
+
 Fri Dec 30 00:04:27 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: Use list comprehensions rather than append loops.
