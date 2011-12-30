@@ -269,7 +269,6 @@ class luaMatchSpy : public Xapian::MatchSpy {
 	if (lua_pcall(L, 2, 1, 0) != 0){
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
-	return;
     }
 };
 %}
