@@ -239,39 +239,82 @@ sub new {
 	free($1);
 }
 
+%{
+class XapianSWIGQueryItor {
+    AV * array;
+
+    int i;
+
+  public:
+    XapianSWIGQueryItor() { }
+
+    void begin(AV * array_) {
+	array = array_;
+	i = 0;
+    }
+
+    void end(int n) {
+	i = n;
+    }
+
+    XapianSWIGQueryItor & operator++() {
+	++i;
+	return *this;
+    }
+
+    Xapian::Query operator*() const {
+        SV **svp = av_fetch(array, i, NULL);
+        if( svp == NULL )
+            croak("Unexpected NULL returned by av_fetch()");
+        SV *sv = *svp;
+
+        if ( sv_isa(sv, "Search::Xapian::Query")) {
+            Xapian::Query *q;
+            SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
+            return *q;
+        }
+
+        if ( SvOK(sv) ) {
+            STRLEN len;
+            const char * ptr = SvPV(sv, len);
+            return Xapian::Query(string(ptr, len));
+        }
+
+        croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return i == o.i;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+};
+
+%}
+
 %inline %{
 Xapian::Query * newN(int op_, SV *q_) {
-	Xapian::Query::op op = (Xapian::Query::op)op_;
-	AV *q = (AV *) SvRV(q_);
-	Xapian::Query * ret;
+    Xapian::Query::op op = (Xapian::Query::op)op_;
+    XapianSWIGQueryItor b, e;
 
-	try {
-	    int items = av_len(q) + 1;
-	    vector<Xapian::Query> queries;
-	    queries.reserve(items);
+    AV *q = (AV *) SvRV(q_);
 
-	    for( int i = 0; i < items; i++ ) {
-		SV **svp = av_fetch(q, i, NULL);
-		if( svp == NULL )
-		    croak("Unexpected NULL returned by av_fetch()");
-		SV *sv = *svp;
-		if ( sv_isa(sv, "Search::Xapian::Query")) {
-		    Xapian::Query *query;
-		    SWIG_ConvertPtr(sv, (void **)&query, SWIGTYPE_p_Xapian__Query, 0);
-		    queries.push_back(*query);
-		} else if ( SvOK(sv) ) {
-		    STRLEN len;
-		    const char * ptr = SvPV(sv, len);
-		    queries.push_back(Xapian::Query(string(ptr, len)));
-		} else {
-		    croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
-		}
-	    }
-            ret = new Xapian::Query(op, queries.begin(), queries.end());
-        } catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-	return ret;
+    b.begin(q);
+    e.end(av_len(q) + 1);
+
+    try {
+	return new Xapian::Query(op, b, e);
+    } catch (const Xapian::Error &error) {
+	croak( "Exception: %s", error.get_msg().c_str() );
+    }
 }
 %}
 
