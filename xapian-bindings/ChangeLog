@@ -1,3 +1,10 @@
+Fri Dec 30 00:54:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP, since none
+	  of the currently supported languages now use it, and we should use
+	  the XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP approach for all
+	  future languages which have containers which allow mixed content.
+
 Fri Dec 30 00:53:07 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/python.i,python/util.i: Implement
