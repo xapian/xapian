@@ -1,3 +1,8 @@
+Fri Dec 30 12:23:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.i: Add begin() method to XapianSWIGQueryItor instead of
+	  using a ctor and assignment.
+
 Fri Dec 30 03:15:31 GMT 2011  Olly Betts <olly@survex.com>
 
 	* ruby/ruby.i: Add begin() and end() methods to XapianSWIGQueryItor
