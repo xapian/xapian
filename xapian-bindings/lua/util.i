@@ -231,7 +231,7 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isnumber(L, -1)) {
-	    luaL_error(L, "function must return a nubmer");
+	    luaL_error(L, "function must return a number");
 	}
 	Xapian::valueno result(lua_tonumber(L, -1));
 	lua_pop(L, 1);

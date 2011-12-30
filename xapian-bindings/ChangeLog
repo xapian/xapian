@@ -1,3 +1,7 @@
+Fri Dec 30 13:09:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Fix typo in error message.
+
 Fri Dec 30 13:07:06 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/util.i: Reindent and fix other whitespace oddities.
