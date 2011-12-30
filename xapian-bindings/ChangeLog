@@ -1,3 +1,10 @@
+Fri Dec 30 01:59:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,xapian.i: We don't use
+	  XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP for C#, but we also don't
+	  use the fake ctors added by %extend if this isn't defined, so also
+	  skip them if SWIGCSHARP is defined.
+
 Fri Dec 30 01:18:03 GMT 2011  Olly Betts <olly@survex.com>
 
 	* xapian.i: While we don't currently use
