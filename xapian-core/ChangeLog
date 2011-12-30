@@ -1,3 +1,9 @@
+Fri Dec 30 09:17:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Update expected results (mostly because we
+	  no longer flatten groups of the same operator at Query construction
+	  time).
+
 Thu Dec 29 13:47:04 GMT 2011  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk: Add missing backslash so various headers actually
