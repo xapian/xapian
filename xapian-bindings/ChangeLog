@@ -1,3 +1,7 @@
+Fri Dec 30 13:13:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Eliminate "else" after "return".
+
 Fri Dec 30 13:12:34 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/util.i: Remove "return;" at end of function.

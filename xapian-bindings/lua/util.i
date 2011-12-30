@@ -356,20 +356,19 @@ class XapianSWIGQueryItor {
 	    const char *p = lua_tolstring(L, -1, &len);
 	    lua_pop(L,1);
 	    return Xapian::Query(string(p, len));
-	} else {
-
-	    Xapian::Query *subq = 0;
-	    if (!lua_isuserdata(L, -1) ||
-		SWIG_ConvertPtr(L, -1, (void **)&subq,
-				SWIGTYPE_p_Xapian__Query, 0) == -1) {
-		lua_pop(L, 1);
-		luaL_argerror(L, index,
-			      "elements of Tables passed to Query must be either Strings or other Queries");
-	    }
-
-	    lua_pop(L, 1);
-	    return *subq;
 	}
+
+	Xapian::Query *subq = 0;
+	if (!lua_isuserdata(L, -1) ||
+	    SWIG_ConvertPtr(L, -1, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) == -1) {
+	    lua_pop(L, 1);
+	    luaL_argerror(L, index,
+			  "elements of Tables passed to Query must be either Strings or other Queries");
+	}
+
+	lua_pop(L, 1);
+	return *subq;
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
