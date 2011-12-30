@@ -1,3 +1,8 @@
+Thu Dec 29 22:52:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/testsuite2.py: Don't run off the traceback looking for a
+	  test function if the exception wasn't from a test function.
+
 Thu Dec 29 11:35:51 GMT 2011  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs,java/SmokeTest.java,lua/smoketest.lua,
