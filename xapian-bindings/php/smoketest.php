@@ -133,6 +133,11 @@ if ($query1->get_description() != "Query((smoke PHRASE 3 test PHRASE 3 tuple))")
     print "Unexpected \$query1->get_description()\n";
     exit(1);
 }
+$query1b = new XapianQuery(XapianQuery::OP_NEAR, array("smoke", "test", "tuple"), 4);
+if ($query1b->get_description() != "Query((smoke NEAR 4 test NEAR 4 tuple))") {
+    print "Unexpected \$query1b->get_description()\n";
+    exit(1);
+}
 $query2 = new XapianQuery(XapianQuery::OP_XOR, array(new XapianQuery("smoke"), $query1, "string"));
 if ($query2->get_description() != "Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
     print "Unexpected \$query2->get_description()\n";
