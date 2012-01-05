@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011 Olly Betts
+/* Copyright (C) 2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -331,7 +331,7 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-#include "common/database.h"
+#include "backends/database.h"
 
 template<class S>
 inline PrettyOStream<S> &

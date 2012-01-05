@@ -1,3 +1,8 @@
+Thu Jan 05 10:53:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/output-internal.h,common/pretty.h: Fix include paths for two
+	  cases which are only used in a logging build.
+
 Fri Dec 30 09:17:50 GMT 2011  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Update expected results (mostly because we
