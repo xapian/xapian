@@ -1,3 +1,7 @@
+Thu Jan 05 12:08:15 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/bitstream.h: BitWriter doesn't need public visibility.
+
 Thu Jan 05 10:53:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/output-internal.h,common/pretty.h: Fix include paths for two

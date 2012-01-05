@@ -1,7 +1,7 @@
 /** @file bitstream.h
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT BitWriter {
+class BitWriter {
     std::string buf;
     int n_bits;
     unsigned int acc;
