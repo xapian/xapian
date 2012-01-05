@@ -1,7 +1,7 @@
 /* @file serialise-double.h
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2012 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,8 +25,6 @@
 #ifndef XAPIAN_INCLUDED_SERIALISE_DOUBLE_H
 #define XAPIAN_INCLUDED_SERIALISE_DOUBLE_H
 
-#include <xapian/visibility.h>
-
 #include <string>
 
 /** Serialise a double to a string.
@@ -35,7 +33,6 @@
  *
  *  @return	Serialisation of @a v.
  */
-XAPIAN_VISIBILITY_DEFAULT
 std::string serialise_double(double v);
 
 /** Unserialise a double serialised by serialise_double.
@@ -46,7 +43,6 @@ std::string serialise_double(double v);
  *
  *  @return	The unserialised double.
  */
-XAPIAN_VISIBILITY_DEFAULT
 double unserialise_double(const char ** p, const char *end);
 
 #endif

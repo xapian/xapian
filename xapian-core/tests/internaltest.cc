@@ -25,7 +25,6 @@
 
 #include <xapian.h>
 
-#include <cfloat>
 #include "safeerrno.h"
 
 #include <iostream>
@@ -40,7 +39,6 @@ using namespace std;
 #include "omassert.h"
 #include "pack.h"
 #include "../net/serialise.h"
-#include "serialise-double.h"
 #include "str.h"
 
 static bool test_except1()
@@ -351,55 +349,6 @@ static bool test_serialiselength2()
 }
 #endif
 
-static void check_double_serialisation(double u)
-{
-    string encoded = serialise_double(u);
-    const char * ptr = encoded.data();
-    const char * end = ptr + encoded.size();
-    double v = unserialise_double(&ptr, end);
-    if (ptr != end || u != v) {
-	tout << u << " -> " << v << ", difference = " << v - u << endl;
-	tout << "FLT_RADIX = " << FLT_RADIX << endl;
-	tout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
-    }
-    TEST(ptr == end);
-    TEST_EQUAL(u, v);
-}
-
-// Check serialisation of doubles.
-static bool test_serialisedouble1()
-{
-    static const double test_values[] = {
-	3.14159265,
-	1e57,
-	123.1,
-	257.12,
-	1234.567e123,
-	255.5,
-	256.125,
-	257.03125,
-    };
-
-    check_double_serialisation(0.0);
-    check_double_serialisation(1.0);
-    check_double_serialisation(-1.0);
-    check_double_serialisation(DBL_MAX);
-    check_double_serialisation(-DBL_MAX);
-    check_double_serialisation(DBL_MIN);
-    check_double_serialisation(-DBL_MIN);
-
-    const double *p;
-    for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
-	double val = *p;
-	check_double_serialisation(val);
-	check_double_serialisation(-val);
-	check_double_serialisation(1.0 / val);
-	check_double_serialisation(-1.0 / val);
-    }
-
-    return true;
-}
-
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of documents.
 static bool test_serialisedoc1()
@@ -574,7 +523,6 @@ static const test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"tostring1",		test_tostring1},
-    {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiselength1",	test_serialiselength1},
     {"serialiselength2",	test_serialiselength2},

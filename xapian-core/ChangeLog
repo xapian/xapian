@@ -1,3 +1,12 @@
+Thu Jan 05 12:23:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc,tests/unittest.cc: Move tests of
+	  serialise_double() and unserialise_double() from internaltest to
+	  unittest.
+	* common/serialise-double.h: This means serialise_double() and
+	  unserialise_double() no longer need external visibility, so make
+	  them internal only.
+
 Thu Jan 05 12:08:15 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/bitstream.h: BitWriter doesn't need public visibility.
