@@ -294,6 +294,8 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
@@ -305,20 +307,6 @@ template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const Xapian::Weight *p) {
     ps.os << "(Xapian:Weight*)" << (void*)p;
-    return ps;
-}
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Internal::ExpandStats &) {
-    ps.os << "Xapian:Internal::ExpandStats";
-    return ps;
-}
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Internal::ExpandWeight &) {
-    ps.os << "Xapian:Internal::ExpandWeight";
     return ps;
 }
 

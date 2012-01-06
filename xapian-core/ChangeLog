@@ -1,3 +1,8 @@
+Fri Jan 06 02:28:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Use XAPIAN_PRETTY_AS_CLASSNAME for classes in
+	  namespace Xapian::Internal too.
+
 Thu Jan 05 12:23:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc,tests/unittest.cc: Move tests of
