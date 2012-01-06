@@ -1,3 +1,8 @@
+Fri Jan 06 08:42:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Delete generated lcov directory before running genhtml.
+	  Pass --demangle-cpp and --html-gzip to genhtml.
+
 Fri Jan 06 08:14:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Trim `pwd` off all paths in coverage report.
