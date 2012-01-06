@@ -1,7 +1,7 @@
 /** @file api_stem.cc
  * @brief Test the stemming API
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ class MyStemImpl : public Xapian::StemImplementation {
 DEFINE_TESTCASE(stem1, !backend) {
     Xapian::Stem st(new MyStemImpl);
 
+    TEST_EQUAL(st.get_description(), "Xapian::Stem(MyStem())");
     TEST_EQUAL(st("a"), "a");
     TEST_EQUAL(st("foo"), "foo");
     TEST_EQUAL(st("food"), "foo");
