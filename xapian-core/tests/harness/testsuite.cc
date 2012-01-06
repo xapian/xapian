@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,9 @@
 
 #include "testsuite.h"
 
-#include "backendmanager.h"
+#ifndef NO_LIBXAPIAN
+# include "backendmanager.h"
+#endif
 #include "fdtracker.h"
 #include "testrunner.h"
 
@@ -59,7 +61,9 @@
 # endif
 #endif
 
-#include <xapian/error.h>
+#ifndef NO_LIBXAPIAN
+# include <xapian/error.h>
+#endif
 #include "noreturn.h"
 #include "stringutils.h"
 #include "utils.h"
@@ -331,8 +335,10 @@ test_driver::runtest(const test_desc *test)
 		    write_and_clear_tout();
 		    return FAIL;
 		}
+#ifndef NO_LIBXAPIAN
 		if (backendmanager)
 		    backendmanager->clean_up();
+#endif
 #ifdef HAVE_VALGRIND
 		if (vg_log_fd != -1) {
 		    // We must empty tout before asking valgrind to perform its
@@ -474,6 +480,7 @@ test_driver::runtest(const test_desc *test)
 		out << col_yellow << " SKIPPED" << col_reset;
 		write_and_clear_tout();
 		return SKIP;
+#ifndef NO_LIBXAPIAN
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
 		if (expected_exception && expected_exception == errclass) {
@@ -483,6 +490,7 @@ test_driver::runtest(const test_desc *test)
 		out << " " << col_red << err.get_description() << col_reset;
 		write_and_clear_tout();
 		return FAIL;
+#endif
 	    } catch (const string & msg) {
 		out << col_red << " EXCEPTION std::string " << msg << col_reset;
 		write_and_clear_tout();
@@ -600,8 +608,10 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
 	    test_driver::test_result test_res = runtest(test);
+#ifndef NO_LIBXAPIAN
 	    if (backendmanager)
 		backendmanager->clean_up();
+#endif
 	    switch (test_res) {
 		case PASS:
 		    ++res.succeeded;

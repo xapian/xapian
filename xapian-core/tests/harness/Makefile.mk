@@ -34,6 +34,10 @@ testharness_sources =\
 	harness/testutils.cc\
 	harness/unixcmds.cc
 
+utestharness_sources =\
+	harness/fdtracker.cc\
+	harness/utestsuite.cc
+
 if BUILD_BACKEND_BRASS
 testharness_sources += harness/backendmanager_brass.cc
 endif

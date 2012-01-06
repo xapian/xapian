@@ -1,3 +1,12 @@
+Fri Jan 06 14:34:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/harness/,tests/queryparsertest.cc,
+	  tests/termgentest.cc,tests/unittest.cc: Make unittest use the test
+	  harness, so it gets all the valgrind and fd leak checks, and other
+	  handy features all the other tests have.  Currently this is done in
+	  a bit of a hacky way, but it's a starting point for abstracting out
+	  the Xapian-specific parts of the test harness.
+
 Fri Jan 06 08:42:26 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Delete generated lcov directory before running genhtml.

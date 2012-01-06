@@ -168,7 +168,7 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
-unittest_SOURCES = unittest.cc
+unittest_SOURCES = unittest.cc $(utestharness_sources)
 unittest_LDFLAGS = -no-install $(ldflags)
 
 BUILT_SOURCES =
