@@ -1,3 +1,8 @@
+Fri Jan 06 20:07:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_sorting.cc: Add check that NeverUseMeKeyMaker::operator()
+	  would actually cause a test failure if called.
+
 Fri Jan 06 20:01:27 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_stem.cc: Test get_description() on a user-implemented
