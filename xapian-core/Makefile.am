@@ -72,7 +72,7 @@ coverage-check:
 	done
 	cd tests && lcov -c -b `pwd` -d `pwd` -o ../tmp.lcov
 	sed '/^SF:\/usr/,/^end_of_record/{d};s,^\(SF:/.*/xapian-core/\)\([^t]\),\1tests/\2,' tmp.lcov > xapian-core.lcov
-	genhtml -q -t "Test Coverage for xapian-core r`svn info|sed 's/^Revision: //p;d'`" -o lcov xapian-core.lcov
+	genhtml -q -p "`pwd`" -t "Test Coverage for xapian-core r`svn info|sed 's/^Revision: //p;d'`" -o lcov xapian-core.lcov
 
 bin_SCRIPTS = xapian-config
 

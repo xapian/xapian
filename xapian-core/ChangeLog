@@ -1,3 +1,7 @@
+Fri Jan 06 08:14:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Trim `pwd` off all paths in coverage report.
+
 Fri Jan 06 02:29:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Add support for AndContext and OrContext.
