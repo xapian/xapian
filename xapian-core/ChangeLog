@@ -1,3 +1,7 @@
+Fri Jan 06 02:29:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Add support for AndContext and OrContext.
+
 Fri Jan 06 02:28:07 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Use XAPIAN_PRETTY_AS_CLASSNAME for classes in

@@ -270,8 +270,10 @@ namespace Xapian {
     class Registry;
     class Weight;
     namespace Internal {
+	class AndContext;
 	class ExpandStats;
 	class ExpandWeight;
+	class OrContext;
     }
 }
 
@@ -294,8 +296,10 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
