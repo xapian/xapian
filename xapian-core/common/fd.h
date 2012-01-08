@@ -1,7 +1,7 @@
 /* @file fd.h
  * @brief Wrapper class around a file descriptor to avoid leaks
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,6 +21,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
+#include "safeunistd.h"
 
 class FD {
     int fd;

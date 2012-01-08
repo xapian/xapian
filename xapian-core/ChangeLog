@@ -1,3 +1,9 @@
+Sun Jan 08 14:05:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/fd.h,tests/api_db.cc,tests/harness/backendmanager.cc: Add
+	  missing explicit header includes, uncovered by compiling with
+	  STLport.
+
 Sat Jan 07 11:45:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* INSTALL,configure.ac,m4/rjb_find_stlport.m4,xapian-config.in: Remove
