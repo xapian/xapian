@@ -1,3 +1,8 @@
+Sun Jan 08 14:47:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Add test coverage for
+	  ByteLengthPrefixedStringItor.
+
 Sun Jan 08 14:05:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/fd.h,tests/api_db.cc,tests/harness/backendmanager.cc: Add
