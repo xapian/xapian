@@ -1,3 +1,14 @@
+Sat Jan 07 11:45:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac,m4/rjb_find_stlport.m4,xapian-config.in: Remove
+	  configure's --with-stlport and --with-stlport-compiler options, as
+	  they don't allow you to actually specify what you need (at least to
+	  use the Debian STLport package), and instead document what to pass
+	  to configure to enable building with STLport (though it seems to no
+	  longer be actively maintained, and the debug mode (which is probably
+	  the most interesting feature now) doesn't seem to work on Debian
+	  stable).
+
 Sat Jan 07 10:24:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: Update STLPort URL to point to the more active fork on

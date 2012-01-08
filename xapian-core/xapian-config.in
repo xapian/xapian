@@ -213,7 +213,6 @@ for arg in $actions ; do
 	fi
 	cxxflags=
 	[ -n "@ANSI_CXXFLAGS@" ] && cxxflags="@ANSI_CXXFLAGS@ "
-	[ -n "@STLPORT_CXXFLAGS@" ] && cxxflags="${cxxflags}@STLPORT_CXXFLAGS@ "
 	echo "$cxxflags$I"
 	;;
 

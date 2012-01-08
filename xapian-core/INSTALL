@@ -163,8 +163,7 @@ Compiling with STLport
 ======================
 
 C++ implementations have improved significantly since we started writing
-Xapian, so your native C++ standard library and STL will probably work
-well.
+Xapian, and these days the STL which comes with your compiler should work well.
 
 But if you wish, you can use STLport instead.  STLport is a freely available
 replacement C++ STL implementation, downloadable from:
@@ -173,27 +172,26 @@ http://stlport.sourceforge.net/
 
 To compile with STLport:
 
- 1) Download, build, and optionally install STLport.
- 2) Configure Xapian, by running ./configure, supplying the following
-    arguments:
+ 1) Install STLport, either from a package if your operating system has one,
+    or by downloading the source, and compiling and installing it.
 
-    --with-stlport=<path>, where <path> is the path to the STLport
-        software.  The directory pointed to by <path> should contain
-        stlport/ and lib/ subdirectories.
+ 2) Tell Xapian to use STLport when you configure in, like so:
 
-    --with-stlport-compiler=<name>, where <name> is the name of the
-        compiler you are using.  This must correspond to the compiler
-        name in the name of the STLport library.  For example, with
-        GCC, the STLport library would be called libstlport_gcc, and
-        you should give --with-stlport-compiler=gcc.
+    ./configure CXXFLAGS='-I/usr/include/stlport -pthread' LDFLAGS=-lstlport
 
- 3) Compile and use Xapian as normal, by running make.
+    Replace /usr/include/stlport with the path to the STLport headers if they
+    are in a different location.
+
+ 3) Compile Xapian as normal, by running make.
+
+ 4) You'll also need to compile code which uses Xapian with STLport, by
+    arranging for the options above to be passed to the compiler when you
+    compile and link that code.
 
 Note that, unless you compile statically, you must make sure that the
-STLport library is on the library path at runtime: on Linux you could
-do this by setting the LD_LIBRARY_PATH environment variable to point
-to the directory containing the library.
-
+STLport library is on the library path at runtime.  If it isn't by
+default, on Linux you could do this by setting the LD_LIBRARY_PATH environment
+variable to point to the directory containing the STLport library.
 
 Developers
 ==========
