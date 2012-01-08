@@ -1,3 +1,8 @@
+Sat Jan 07 10:24:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Update STLPort URL to point to the more active fork on
+	  SourceForge.
+
 Fri Jan 06 20:07:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_sorting.cc: Add check that NeverUseMeKeyMaker::operator()

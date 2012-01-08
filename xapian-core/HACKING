@@ -444,8 +444,8 @@ Use of C++ Features
   There is now plenty of choice of compilers which provide good conformance to
   ISO C++, so if working around problems for some compiler proves too hard we
   should just document the issue and users will either have to upgrade to a
-  more compliant compiler, or use another STL implementation such as STLPort
-  (http://www.stlport.org/).
+  more compliant compiler, or use another STL implementation such as STLport
+  (http://stlport.sourceforge.net/).
 
 * C++ features we currently assume:
 
