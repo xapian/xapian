@@ -420,6 +420,7 @@ make_all_tables(Xapian::WritableDatabase &db, const string &)
     doc.add_term("foo");
     db.add_document(doc);
     db.add_spelling("foo");
+    db.add_synonym("bar", "pub");
     db.add_synonym("foobar", "foo");
 
     db.commit();
@@ -468,6 +469,7 @@ make_all_tables2(Xapian::WritableDatabase &db, const string &)
     doc.add_term("bar");
     db.add_document(doc);
     db.add_spelling("bar");
+    db.add_synonym("bar", "baa");
     db.add_synonym("barfoo", "barbar");
     db.add_synonym("foofoo", "barfoo");
 
@@ -503,6 +505,9 @@ DEFINE_TESTCASE(compactmergesynonym1, generated) {
 	TEST_EQUAL(i, db.spellings_end());
 
 	i = db.synonym_keys_begin();
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "bar");
+	++i;
 	TEST_NOT_EQUAL(i, db.synonym_keys_end());
 	TEST_EQUAL(*i, "barfoo");
 	++i;

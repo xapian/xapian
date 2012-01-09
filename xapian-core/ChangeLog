@@ -1,3 +1,9 @@
+Mon Jan 09 02:16:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Actually add test coverage for
+	  ByteLengthPrefixedStringItor - the previous attempt didn't cause
+	  merging of synonym lists to happen.
+
 Mon Jan 09 00:21:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_replicate.cc: Fix comment typo.
