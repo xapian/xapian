@@ -1,3 +1,7 @@
+Mon Jan 09 00:21:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Fix comment typo.
+
 Sun Jan 08 14:47:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Add test coverage for
