@@ -1,3 +1,9 @@
+Tue Jan 10 13:48:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/safesysstat.h: The S_ISDIR and S_ISREG macros for MSVC are
+	  unlikely to work on other platforms (_S_IFMT vs S_IFMT, etc) so
+	  split them.  Tweak a few comments.
+
 Tue Jan 10 13:10:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* net/: Split encode_length() and decode_length() out of
