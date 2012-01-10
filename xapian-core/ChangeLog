@@ -1,3 +1,7 @@
+Tue Jan 10 22:45:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/unittest.cc: Fix message typo in recent unittest change.
+
 Tue Jan 10 13:48:38 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/safesysstat.h: The S_ISDIR and S_ISREG macros for MSVC are

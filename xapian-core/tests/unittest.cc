@@ -40,7 +40,7 @@ using namespace std;
     do { \
 	try { \
 	    CODE; \
-	    FAIL_TEST("Expected exception "#TYPE" not throw"); \
+	    FAIL_TEST("Expected exception "#TYPE" not thrown"); \
 	} catch (const TYPE &) { \
 	} \
     } while (0)
