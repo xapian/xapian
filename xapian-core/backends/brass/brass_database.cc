@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -53,7 +53,7 @@
 #include "net/remoteconnection.h"
 #include "api/replication.h"
 #include "replicationprotocol.h"
-#include "net/serialise.h"
+#include "net/length.h"
 #include "str.h"
 #include "stringutils.h"
 #include "utils.h"

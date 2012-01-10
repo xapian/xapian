@@ -28,6 +28,7 @@
 
 #include "omassert.h"
 #include "api/omenquireinternal.h"
+#include "length.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "weight/weightinternal.h"
@@ -36,33 +37,6 @@
 #include <cstring>
 
 using namespace std;
-
-size_t
-decode_length(const char ** p, const char *end, bool check_remaining)
-{
-    if (*p == end) {
-	throw Xapian::NetworkError("Bad encoded length: no data");
-    }
-
-    size_t len = static_cast<unsigned char>(*(*p)++);
-    if (len == 0xff) {
-	len = 0;
-	unsigned char ch;
-	int shift = 0;
-	do {
-	    if (*p == end || shift > 28)
-		throw Xapian::NetworkError("Bad encoded length: insufficient data");
-	    ch = *(*p)++;
-	    len |= size_t(ch & 0x7f) << shift;
-	    shift += 7;
-	} while ((ch & 0x80) == 0);
-	len += 255;
-    }
-    if (check_remaining && len > size_t(end - *p)) {
-	throw Xapian::NetworkError("Bad encoded length: length greater than data");
-    }
-    return len;
-}
 
 string
 serialise_error(const Xapian::Error &e)

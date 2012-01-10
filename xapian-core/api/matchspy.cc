@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -34,8 +34,9 @@
 
 #include "autoptr.h"
 #include "debuglog.h"
+#include "noreturn.h"
 #include "omassert.h"
-#include "net/serialise.h"
+#include "net/length.h"
 #include "stringutils.h"
 #include "str.h"
 #include "termlist.h"

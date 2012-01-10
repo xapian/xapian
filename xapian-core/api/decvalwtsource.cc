@@ -2,7 +2,7 @@
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "xapian/postingsource.h"
 #include "xapian/error.h"
-#include "net/serialise.h"
+#include "net/length.h"
 #include "serialise-double.h"
 #include <cmath>
 

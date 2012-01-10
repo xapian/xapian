@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2010,2012 Olly Betts
+/* Copyright (C) 2006,2007,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,14 +28,27 @@
 
 using namespace std;
 
+#define XAPIAN_UNITTEST
+
 // Utility code we use:
 #include "../common/str.cc"
 #include "../common/stringutils.cc"
 #include "../common/utils.cc"
 
+// Simpler version of TEST_EXCEPTION macro.
+#define TEST_EXCEPTION(TYPE, CODE) \
+    do { \
+	try { \
+	    CODE; \
+	    FAIL_TEST("Expected exception "#TYPE" not throw"); \
+	} catch (const TYPE &) { \
+	} \
+    } while (0)
+
 // Code we're unit testing:
 #include "../common/fileutils.cc"
 #include "../common/serialise-double.cc"
+#include "../net/length.cc"
 
 inline string
 r_r_p(string a, const string & b)
@@ -166,9 +179,113 @@ DEFINE_TESTCASE_(serialisedouble1) {
     return true;
 }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+// Check serialisation of lengths.
+static bool test_serialiselength1()
+{
+    size_t n = 0;
+    while (n < 0xff000000) {
+	string s = encode_length(n);
+	const char *p = s.data();
+	const char *p_end = p + s.size();
+	size_t decoded_n = decode_length(&p, p_end, false);
+	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
+	TEST_EQUAL(n, decoded_n);
+	TEST_EQUAL(p_end - p, 0);
+	if (n < 5000) {
+	    ++n;
+	} else {
+	    n += 53643;
+	}
+    }
+
+    return true;
+}
+
+// Regression test: vetting the remaining buffer length
+static bool test_serialiselength2()
+{
+    // Special case tests for 0
+    {
+	string s = encode_length(0);
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 0);
+	    TEST(p == p_end);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 0);
+	    TEST_EQUAL(p_end - p, 1);
+	}
+    }
+    // Special case tests for 1
+    {
+	string s = encode_length(1);
+	TEST_EXCEPTION(Xapian_NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 1);
+	    TEST_EQUAL(p_end - p, 1);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 1);
+	    TEST_EQUAL(p_end - p, 2);
+	}
+    }
+    // Nothing magic here, just test a range of odd and even values.
+    for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
+	string s = encode_length(n);
+	TEST_EXCEPTION(Xapian_NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s.append(n - 1, 'x');
+	TEST_EXCEPTION(Xapian_NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == n);
+	    TEST_EQUAL(size_t(p_end - p), n);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == n);
+	    TEST_EQUAL(size_t(p_end - p), n + 1);
+	}
+    }
+
+    return true;
+}
+#endif
+
 static const test_desc tests[] = {
     TESTCASE(resolverelativepath1),
     TESTCASE(serialisedouble1),
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    TESTCASE(serialiselength1),
+    TESTCASE(serialiselength2),
+#endif
     END_OF_TESTCASES
 };
 

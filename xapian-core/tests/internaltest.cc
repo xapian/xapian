@@ -250,106 +250,6 @@ static bool test_tostring1()
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of lengths.
-static bool test_serialiselength1()
-{
-    size_t n = 0;
-    while (n < 0xff000000) {
-	string s = encode_length(n);
-	const char *p = s.data();
-	const char *p_end = p + s.size();
-	size_t decoded_n = decode_length(&p, p_end, false);
-	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
-	TEST_EQUAL(n, decoded_n);
-	TEST_EQUAL(p_end - p, 0);
-	if (n < 5000) {
-	    ++n;
-	} else {
-	    n += 53643;
-	}
-    }
-
-    return true;
-}
-
-// Regression test: vetting the remaining buffer length
-static bool test_serialiselength2()
-{
-    // Special case tests for 0
-    {
-	string s = encode_length(0);
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 0);
-	    TEST(p == p_end);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 0);
-	    TEST_EQUAL(p_end - p, 1);
-	}
-    }
-    // Special case tests for 1
-    {
-	string s = encode_length(1);
-	TEST_EXCEPTION(Xapian::NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
-	    TEST_EQUAL(p_end - p, 1);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
-	    TEST_EQUAL(p_end - p, 2);
-	}
-    }
-    // Nothing magic here, just test a range of odd and even values.
-    for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
-	string s = encode_length(n);
-	TEST_EXCEPTION(Xapian::NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	);
-	s.append(n-1, 'x');
-	TEST_EXCEPTION(Xapian::NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	    TEST_EQUAL(size_t(p_end - p), n);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	    TEST_EQUAL(size_t(p_end - p), n + 1);
-	}
-    }
-
-    return true;
-}
-#endif
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of documents.
 static bool test_serialisedoc1()
 {
@@ -524,8 +424,6 @@ static const test_desc tests[] = {
     {"temporarydtor1",		test_temporarydtor1},
     {"tostring1",		test_tostring1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    {"serialiselength1",	test_serialiselength1},
-    {"serialiselength2",	test_serialiselength2},
     {"serialisedoc1",		test_serialisedoc1},
     {"serialiseerror1",		test_serialiseerror1},
 #endif

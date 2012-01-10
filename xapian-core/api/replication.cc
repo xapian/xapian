@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 #include "safeerrno.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
-#include "net/serialise.h"
+#include "net/length.h"
 #include "str.h"
 #include "utils.h"
 

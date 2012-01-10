@@ -1,7 +1,7 @@
 /** @file vectortermlist.h
  * @brief A vector-like container of terms which can be iterated.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include "xapian/types.h"
 
-#include "net/serialise.h"
+#include "net/length.h"
 #include "termlist.h"
 
 /** This class stores a list of terms.

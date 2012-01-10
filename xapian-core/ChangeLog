@@ -1,3 +1,15 @@
+Tue Jan 10 13:10:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* net/: Split encode_length() and decode_length() out of
+	  serialise.{cc,h} into new file length.{cc,h}, and remove
+	  XAPIAN_VISIBILITY_DEFAULT from decode_length().
+	* api/,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,backends/remote/net_postlist.cc,
+	  backends/remote/remote-database.cc,net/: Update headers which need
+	  to be included.
+	* tests/internaltest.cc,tests/unittest.cc: Move serialiselength1 and
+	  serialiselength2 from internaltest to unittest.
+
 Mon Jan 09 02:16:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc: Actually add test coverage for

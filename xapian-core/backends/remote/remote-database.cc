@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@
 #include "remote-document.h"
 #include "omassert.h"
 #include "realtime.h"
+#include "net/length.h"
 #include "net/serialise.h"
 #include "serialise-double.h"
 #include "str.h"
