@@ -335,7 +335,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 #if ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Chert backend to be enabled");
 #else
-    if (mkdir(path, 0777) == 0) {
+    if (mkdir(path.c_str(), 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
 	// stub database, and point it to a new database.
 	//
@@ -404,7 +404,7 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
     // updates (probably due to not having changesets available, or the remote
     // database being replaced by a new database).
     removedir(offline_path);
-    if (mkdir(offline_path, 0777)) {
+    if (mkdir(offline_path.c_str(), 0777)) {
 	throw Xapian::DatabaseError("Cannot make directory '" +
 				    offline_path + "'", errno);
     }

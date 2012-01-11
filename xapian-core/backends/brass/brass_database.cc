@@ -56,7 +56,6 @@
 #include "net/length.h"
 #include "str.h"
 #include "stringutils.h"
-#include "utils.h"
 #include "backends/valuestats.h"
 
 #ifdef __WIN32__
@@ -129,9 +128,9 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	// already.
 	bool fail = false;
 	struct stat statbuf;
-	if (stat(db_dir, &statbuf) == 0) {
+	if (stat(db_dir.c_str(), &statbuf) == 0) {
 	    if (!S_ISDIR(statbuf.st_mode)) fail = true;
-	} else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
+	} else if (errno != ENOENT || mkdir(db_dir.c_str(), 0755) == -1) {
 	    fail = true;
 	}
 	if (fail) {

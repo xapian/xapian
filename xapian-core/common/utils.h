@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2009 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,28 +24,6 @@
 #define OM_HGUARD_UTILS_H
 
 #include <string>
-using std::string;
-
-#include <cstdlib>
-#include <sys/types.h>
-#include "safesysstat.h"
-#include "safeunistd.h"
-
-/// Allow unlink to work directly on C++ strings.
-inline int unlink(const string &filename) { return unlink(filename.c_str()); }
-
-/// Allow system to work directly on C++ strings.
-inline int system(const string &command) { return system(command.c_str()); }
-
-/// Allow mkdir to work directly on C++ strings.
-inline int mkdir(const string &filename, mode_t mode) {
-    return mkdir(filename.c_str(), mode);
-}
-
-/// Allow stat to work directly on C++ strings.
-inline int stat(const string &filename, struct stat *buf) {
-    return stat(filename.c_str(), buf);
-}
 
 /** Remove a directory, and its contents.
  *
@@ -54,7 +32,7 @@ inline int stat(const string &filename, struct stat *buf) {
  *  Note - this doesn't currently cope with directories which contain
  *  subdirectories.
  */
-void removedir(const string &dirname);
+void removedir(const std::string &dirname);
 
 namespace Xapian {
     namespace Internal {

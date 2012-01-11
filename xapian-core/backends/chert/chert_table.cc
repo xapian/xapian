@@ -77,7 +77,6 @@ PWRITE_PROTOTYPE
 #include "pack.h"
 #include "str.h"
 #include "unaligned.h"
-#include "utils.h"
 
 #include <algorithm>  // for std::min()
 #include <string>
@@ -1862,7 +1861,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	if (!io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
-	    (void)unlink(tmp);
+	    (void)unlink(tmp.c_str());
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
@@ -1878,7 +1877,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	    // file still exists, which we do by calling unlink(), since we want
 	    // to remove the temporary file anyway.
 	    int saved_errno = errno;
-	    if (unlink(tmp) == 0 || errno != ENOENT) {
+	    if (unlink(tmp.c_str()) == 0 || errno != ENOENT) {
 		string msg("Couldn't update base file ");
 		msg += basefile;
 		msg += ": ";

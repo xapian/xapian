@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -30,10 +30,10 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include "apitest.h"
 
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 using namespace std;
@@ -49,7 +49,7 @@ DEFINE_TESTCASE(lockfileumask1, brass || chert) {
 	path += "/flintlock";
 
 	struct stat statbuf;
-	TEST(stat(path, &statbuf) == 0);
+	TEST(stat(path.c_str(), &statbuf) == 0);
 	TEST_EQUAL(statbuf.st_mode & 0777, 0644);
     } catch (...) {
 	umask(old_umask);

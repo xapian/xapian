@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,13 +41,13 @@
 
 #include "noreturn.h"
 #include "omassert.h"
+#include "filetests.h"
 #include "fileutils.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 #include "stringutils.h"
 #include "str.h"
-#include "utils.h"
 
 #include "backends/brass/brass_compact.h"
 #include "backends/brass/brass_version.h"
@@ -94,8 +94,6 @@ class Compactor::Internal : public Xapian::Internal::intrusive_base {
     Xapian::docid last_docid;
 
     enum { UNKNOWN, BRASS, CHERT } backend;
-
-    struct stat sb;
 
     string first_source;
 
@@ -208,10 +206,10 @@ void
 Compactor::Internal::set_destdir(const string & destdir_) {
     destdir = destdir_;
     compact_to_stub = STUB_NO;
-    if (stat(destdir, &sb) == 0 && S_ISREG(sb.st_mode)) {
+    if (file_exists(destdir)) {
 	// Stub file.
 	compact_to_stub = STUB_FILE;
-    } else if (stat(destdir + "/XAPIANDB", &sb) == 0 && S_ISREG(sb.st_mode)) {
+    } else if (file_exists(destdir + "/XAPIANDB")) {
 	// Stub directory.
 	compact_to_stub = STUB_DIR;
     }
@@ -226,7 +224,8 @@ Compactor::Internal::add_source(const string & srcdir)
 	throw Xapian::InvalidArgumentError("destination may not be the same as any source directory, unless it is a stub database");
     }
 
-    if (stat(srcdir, &sb) == 0) {
+    struct stat sb;
+    if (stat(srcdir.c_str(), &sb) == 0) {
 	bool is_stub = false;
 	string file = srcdir;
 	if (S_ISREG(sb.st_mode)) {
@@ -275,19 +274,19 @@ Compactor::Internal::add_source(const string & srcdir)
 	}
     }
 
-    if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
+    if (file_exists(string(srcdir) + "/iamchert")) {
 	if (backend == UNKNOWN) {
 	    backend = CHERT;
 	} else if (backend != CHERT) {
 	    backend_mismatch(first_source, backend, srcdir, CHERT);
 	}
-    } else if (stat(string(srcdir) + "/iambrass", &sb) == 0) {
+    } else if (file_exists(string(srcdir) + "/iambrass")) {
 	if (backend == UNKNOWN) {
 	    backend = BRASS;
 	} else if (backend != BRASS) {
 	    backend_mismatch(first_source, backend, srcdir, BRASS);
 	}
-    } else if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
+    } else if (file_exists(string(srcdir) + "/iamflint")) {
 	throw Xapian::DatabaseError("Flint backend no longer supported");
     } else {
 	string msg = srcdir;
@@ -420,7 +419,7 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 	while (true) {
 	    destdir.resize(sfx);
 	    destdir += str(now++);
-	    if (mkdir(destdir, 0755) == 0)
+	    if (mkdir(destdir.c_str(), 0755) == 0)
 		break;
 	    if (errno != EEXIST) {
 		string msg = destdir;
@@ -430,15 +429,15 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 	}
     } else {
 	// If the destination database directory doesn't exist, create it.
-	if (mkdir(destdir, 0755) < 0) {
+	if (mkdir(destdir.c_str(), 0755) < 0) {
 	    // Check why mkdir failed.  It's ok if the directory already
 	    // exists, but we also get EEXIST if there's an existing file with
 	    // that name.
 	    if (errno == EEXIST) {
-		if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
+		if (dir_exists(destdir))
 		    errno = 0;
 		else
-		    errno = EEXIST; // stat might have changed it
+		    errno = EEXIST; // dir_exists() might have changed it
 	    }
 	    if (errno) {
 		string msg = destdir;

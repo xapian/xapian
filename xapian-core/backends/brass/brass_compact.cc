@@ -1,7 +1,7 @@
 /** @file brass_compact.cc
  * @brief Compact a brass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,6 @@
 #include "brass_cursor.h"
 #include "internaltypes.h"
 #include "pack.h"
-#include "utils.h"
 #include "backends/valuestats.h"
 
 #include "../byte_length_strings.h"
@@ -836,7 +835,7 @@ compact_brass(Xapian::Compactor & compactor,
 	    s += '.';
 
 	    struct stat sb;
-	    if (stat(s + "DB", &sb) == 0) {
+	    if (stat((s + "DB").c_str(), &sb) == 0) {
 		in_size += sb.st_size / 1024;
 		output_will_exist = true;
 		++inputs_present;
@@ -908,7 +907,7 @@ compact_brass(Xapian::Compactor & compactor,
 	off_t out_size = 0;
 	if (!bad_stat) {
 	    struct stat sb;
-	    if (stat(dest + "DB", &sb) == 0) {
+	    if (stat((dest + "DB").c_str(), &sb) == 0) {
 		out_size = sb.st_size / 1024;
 	    } else {
 		bad_stat = (errno != ENOENT);

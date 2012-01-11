@@ -1,3 +1,14 @@
+Wed Jan 11 05:09:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
+	  backends/dbfactory.cc,common/utils.cc,common/utils.h,
+	  tests/api_backend.cc,tests/api_wrdb.cc,
+	  tests/harness/backendmanager.cc,tests/harness/unixcmds.cc: Remove
+	  std::string wrappers for C library functions from utils.h and just
+	  explicitly call c_str() when we need to.  These wrappers are
+	  problematic as they suppress warnings from _FORTIFY_SOURCE about
+	  ignored return values, and I can't see an easy way to avoid that.
+
 Wed Jan 11 03:35:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/brass/brass_databasereplicator.cc,

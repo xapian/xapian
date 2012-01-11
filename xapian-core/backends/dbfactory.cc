@@ -32,7 +32,6 @@
 #include "filetests.h"
 #include "fileutils.h"
 #include "str.h"
-#include "utils.h"
 
 #include "safeerrno.h"
 
@@ -315,7 +314,7 @@ Database::Database(const string &path)
     LOGCALL_CTOR(API, "Database", path);
 
     struct stat statbuf;
-    if (stat(path, &statbuf) == -1) {
+    if (stat(path.c_str(), &statbuf) == -1) {
 	throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
     }
 
@@ -378,7 +377,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
     } type = UNSET;
 #endif
     struct stat statbuf;
-    if (stat(path, &statbuf) == -1) {
+    if (stat(path.c_str(), &statbuf) == -1) {
 	// ENOENT probably just means that we need to create the directory.
 	if (errno != ENOENT)
 	    throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);

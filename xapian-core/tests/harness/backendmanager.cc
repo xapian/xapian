@@ -41,7 +41,6 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -62,11 +61,11 @@ BackendManager::create_dir_if_needed(const string &dirname)
 {
     // create a directory if not present
     struct stat sbuf;
-    int result = stat(dirname, &sbuf);
+    int result = stat(dirname.c_str(), &sbuf);
     if (result < 0) {
 	if (errno != ENOENT)
 	    throw Xapian::DatabaseOpeningError("Can't stat directory");
-	if (mkdir(dirname, 0700) < 0)
+	if (mkdir(dirname.c_str(), 0700) < 0)
 	    throw Xapian::DatabaseOpeningError("Can't create directory");
 	return true; // Successfully created a directory.
     }

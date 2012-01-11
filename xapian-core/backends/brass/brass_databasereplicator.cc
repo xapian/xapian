@@ -41,7 +41,6 @@
 #include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
-#include "utils.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -141,7 +140,7 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	// file still exists, which we do by calling unlink(), since we want
 	// to remove the temporary file anyway.
 	int saved_errno = errno;
-	if (unlink(tmp_path) == 0 || errno != ENOENT) {
+	if (unlink(tmp_path.c_str()) == 0 || errno != ENOENT) {
 	    string msg("Couldn't update base file ");
 	    msg += tablename;
 	    msg += ".base";
