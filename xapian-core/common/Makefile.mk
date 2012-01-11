@@ -54,6 +54,7 @@ lib_src +=\
 	common/io_utils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
+	common/omassert.cc\
 	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\

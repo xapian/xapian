@@ -29,8 +29,6 @@
 #include "safeerrno.h"
 
 #include <sys/types.h>
-#include <cfloat>
-#include <cmath>
 
 using namespace std;
 
@@ -78,14 +76,4 @@ removedir(const string &dirname)
     if (rmdir(dirname.c_str())) {
 	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
     }
-}
-
-namespace Xapian {
-namespace Internal {
-
-bool within_DBL_EPSILON(double a, double b) {
-    return fabs(a - b) >= DBL_EPSILON;
-}
-
-}
 }

@@ -1,3 +1,13 @@
+Wed Jan 11 05:20:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/omassert.cc,common/omassert.h,
+	  common/utils.cc: Change the sense of the bool returned by
+	  within_DBL_EPSILON() to match what the name suggests instead of being
+	  the opposite, and change the use of it too.  Move
+	  within_DBL_EPSILON() implementation from utils.cc to new file
+	  omassert.cc, only compile it when assertions are on, and prototype it
+	  in omassert.h rather than utils.h.
+
 Wed Jan 11 05:09:39 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
