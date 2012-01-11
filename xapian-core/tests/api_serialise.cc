@@ -2,7 +2,7 @@
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011 Olly Betts
+ * Copyright 2009,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -421,7 +421,7 @@ DEFINE_TESTCASE(registry1, !backend) {
 
 	// Because the destructor threw an exception, the memory allocated for
 	// the object didn't get released.
-	operator delete(ptr_dtor);
+	delete ptr_dtor;
     }
 
     return true;
@@ -520,7 +520,7 @@ DEFINE_TESTCASE(registry2, !backend) {
 
 	// Because the destructor threw an exception, the memory allocated for
 	// the object didn't get released.
-	operator delete(ptr_dtor);
+	delete ptr_dtor;
     }
 
     return true;
@@ -611,7 +611,7 @@ DEFINE_TESTCASE(registry3, !backend) {
 
 	// Because the destructor threw an exception, the memory allocated for
 	// the object didn't get released.
-	operator delete(ptr_dtor);
+	delete ptr_dtor;
     }
 
     return true;
