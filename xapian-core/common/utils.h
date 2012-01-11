@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_UTILS_H
 #define OM_HGUARD_UTILS_H
 
-#include <xapian/visibility.h>
-
 #include <string>
 using std::string;
 
@@ -35,12 +33,10 @@ using std::string;
 
 /** Return true if the file fname exists.
  */
-XAPIAN_VISIBILITY_DEFAULT
 bool file_exists(const string &fname);
 
 /** Return true if the directory dirname exists.
  */
-XAPIAN_VISIBILITY_DEFAULT
 bool dir_exists(const string &dirname);
 
 /// Allow unlink to work directly on C++ strings.
