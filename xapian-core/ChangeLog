@@ -1,3 +1,8 @@
+Wed Jan 11 10:48:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: We no longer have any uses of \ to introduce doxygen
+	  directives, so update HACKING to reflect that.
+
 Wed Jan 11 10:46:01 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Change \todo to @todo.

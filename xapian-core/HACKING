@@ -1266,10 +1266,9 @@ patch you'd like us to include.
    documentation comments alongside the declaration in ``include/xapian/*.h``.
    These are collated by doxygen - see doxygen's documentation for details
    of the supported syntax.  We've decided to prefer to use @ rather than \
-   to introduce doxygen commands (the choice is essentially arbitrary, though
+   to introduce doxygen commands (the choice is essentially arbitrary, but
    \ introduces C/C++ escape sequences so @ is likely to make for easier to
-   read mark up for C/C++ coders).  A *lot* of existing comments use \
-   currently but please use @ for new comments.
+   read mark up for C/C++ coders).
 
  * The documentation comments don't give users a good overview, so we also
    need documentation which gives a good overview of how to achieve particular
