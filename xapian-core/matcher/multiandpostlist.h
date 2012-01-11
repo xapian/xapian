@@ -130,7 +130,7 @@ class MultiAndPostList : public PostList {
 
     /** Construct as the decay product of an OrPostList or AndMaybePostList.
      *
-     *  @parameter check_order	If true, then l and r may need swapping to
+     *  @param check_order	If true, then l and r may need swapping to
      *				ensure freq_est(l) >= freq_est(r).  This
      *				should not be necessary for an OrPostList.
      */

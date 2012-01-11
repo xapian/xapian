@@ -1,3 +1,7 @@
+Wed Jan 11 11:21:31 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.h: Fix "@parameter" to "@param".
+
 Wed Jan 11 11:20:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Fix "@msg" to "@a msg" in doxygen comment.
