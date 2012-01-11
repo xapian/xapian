@@ -64,9 +64,9 @@
 #ifndef NO_LIBXAPIAN
 # include <xapian/error.h>
 #endif
+#include "filetests.h"
 #include "noreturn.h"
 #include "stringutils.h"
-#include "utils.h"
 
 using namespace std;
 

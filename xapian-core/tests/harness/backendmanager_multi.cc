@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,9 @@
 
 #include "backendmanager_multi.h"
 
+#include "filetests.h"
 #include "index_utils.h"
 #include "str.h"
-#include "utils.h"
 
 #include <cstdio> // For rename().
 #include <cstring>

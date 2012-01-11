@@ -1,7 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011 Olly Betts
+ * Copyright 2009,2010,2011,2012 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -31,6 +31,7 @@
 #include "apitest.h"
 #include "dbcheck.h"
 #include "fd.h"
+#include "filetests.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
@@ -38,7 +39,6 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 #include "unixcmds.h"
 
 #include <sys/types.h>
@@ -56,7 +56,7 @@ static void rmtmpdir(const string & path) {
 
 static void mktmpdir(const string & path) {
     rmtmpdir(path);
-    if (mkdir(path, 0700) == -1 && errno != EEXIST) {
+    if (mkdir(path.c_str(), 0700) == -1 && errno != EEXIST) {
 	FAIL_TEST("Can't make temporary directory");
     }
 }

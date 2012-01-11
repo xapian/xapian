@@ -4,6 +4,7 @@ noinst_HEADERS +=\
 	common/closefrom.h\
 	common/debuglog.h\
 	common/fd.h\
+	common/filetests.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/internaltypes.h\

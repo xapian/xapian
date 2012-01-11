@@ -1,3 +1,11 @@
+Wed Jan 11 02:10:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/filetests.h,tests/api_replicate.cc,
+	  tests/harness/backendmanager_multi.cc,tests/harness/testsuite.cc:
+	  Add new inline versions of file_exists() and directory_exists() and
+	  use these from the testsuite, as a step towards making these internal
+	  to the library.
+
 Tue Jan 10 23:37:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_serialise.cc: Change the rather odd "operator delete(p);"
