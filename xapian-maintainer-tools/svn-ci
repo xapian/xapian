@@ -239,6 +239,9 @@ if ($edit_cl) {
 	my @files;
 	my $diff = '';
 	my $whitespace = '';
+	my $fixme_removed = '';
+	my $fixme_added = '';
+	my $doxygen = '';
 	my $fnm;
 	# Property changes don't have an "Index: [...]" line.
 	my $want_tabs = -1;
@@ -271,6 +274,14 @@ if ($edit_cl) {
 		$whitespace .= $fnm;
 		$whitespace .= ": added/changed line uses tab for indentation rather than spaces:\n";
 		$whitespace .= $_;
+	    } elsif (/^-.*\bFIXME\b/) {
+		$fixme_removed .= $_;
+	    } elsif (/^\+.*\bFIXME\b/) {
+		$fixme_added .= $_;
+	    } elsif (/\\(?:[abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+		$doxygen .= $fnm;
+		$doxygen .= ": Doxygen command introduced by \\ not \@:\n";
+		$doxygen .= $_;
 	    }
 	}
 	my $d = "";
@@ -312,7 +323,11 @@ if ($edit_cl) {
 	while (length($line) >= 68 && $line =~ s/^(.{1,68},)//) {
 	    $filelist .= "$1\n\t  ";
 	}
-	$diff = "$filelist$line:\n\n$whitespace\n$diff";
+	my $preamble = "$filelist$line:\n\n";
+	$preamble .= "New FIXMEs:\n$fixme_added\n" if length($fixme_added);
+	$preamble .= "Removed FIXMEs:\n$fixme_removed\n" if length($fixme_removed);
+	$preamble .= "New doxygen issues:\n$doxygen\n" if length($doxygen);
+	$diff = $preamble . $whitespace . "\n" . $diff;
 	add_new_changelog_entry($diff);
     }
     system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
