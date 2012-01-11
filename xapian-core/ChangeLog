@@ -1,3 +1,8 @@
+Wed Jan 11 05:44:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: Check return values from system() calls
+	  and throw a std::string exception if non-zero.
+
 Wed Jan 11 05:20:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/omassert.cc,common/omassert.h,

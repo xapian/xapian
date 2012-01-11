@@ -34,6 +34,7 @@
 #endif
 
 #include "filetests.h"
+#include "str.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -80,6 +81,20 @@ append_filename_argument(string & cmd, const string & arg) {
     return true;
 }
 
+/// Call system() and throw exception if it fails.
+static void
+checked_system(const string & cmd)
+{
+    int res = system(cmd.c_str());
+    if (res) {
+	string msg = "system(\"";
+	msg += cmd;
+	msg += "\") failed, returning ";
+	msg += str(res);
+	throw msg;
+    }
+}
+
 /// Recursively copy a directory.
 void cp_R(const std::string &src, const std::string &dest) {
 #ifdef __WIN32__
@@ -94,13 +109,13 @@ void cp_R(const std::string &src, const std::string &dest) {
 #endif
     if (!append_filename_argument(cmd, src)) return;
     if (!append_filename_argument(cmd, dest)) return;
-    if (system(cmd.c_str())) { /* FIXME */ }
+    checked_system(cmd);
 #ifndef __WIN32__
     // Allow write access to the copy (to deal with builds where srcdir is
     // readonly).
     cmd = "chmod -R +w";
     if (!append_filename_argument(cmd, dest)) return;
-    if (system(cmd.c_str())) { /* FIXME */ }
+    checked_system(cmd);
 #endif
 }
 
@@ -138,7 +153,7 @@ void rm_rf(const string &filename) {
     string cmd("rm -rf");
 #endif
     if (!append_filename_argument(cmd, filename)) return;
-    if (system(cmd.c_str())) { /* FIXME */ }
+    checked_system(cmd);
 }
 
 /// Touch a file, just like the Unix "touch" command.
