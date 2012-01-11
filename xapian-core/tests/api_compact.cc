@@ -26,6 +26,7 @@
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "filetests.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -35,7 +36,6 @@
 #include <fstream>
 
 #include "str.h"
-#include "utils.h"
 #include "unixcmds.h"
 
 using namespace std;

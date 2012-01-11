@@ -1,3 +1,7 @@
+Wed Jan 11 02:19:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Convert to use filetests.h.
+
 Wed Jan 11 02:14:07 GMT 2012  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc,bin/xapian-inspect.cc: Convert to use
