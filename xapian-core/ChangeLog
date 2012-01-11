@@ -1,3 +1,7 @@
+Wed Jan 11 13:03:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_alltermslist.h: Fix filename in @file.
+
 Wed Jan 11 12:53:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/documentterm.h,api/maptermlist.h,api/omenquireinternal.h,
