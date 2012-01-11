@@ -403,7 +403,6 @@ static const test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"tostring1",		test_tostring1},
-    {"serialisedoc1",		test_serialisedoc1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiseerror1",		test_serialiseerror1},
 #endif
