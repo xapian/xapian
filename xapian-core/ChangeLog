@@ -1,3 +1,7 @@
+Wed Jan 11 10:46:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Change \todo to @todo.
+
 Wed Jan 11 10:09:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/replication.h,api/valuesetmatchdecider.cc,

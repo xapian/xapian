@@ -492,7 +492,7 @@ Database::keep_alive()
 string
 Database::get_description() const
 {
-    /// \todo display contents of the database
+    /// @todo display contents of the database
     return "Database()";
 }
 
@@ -916,7 +916,7 @@ WritableDatabase::set_metadata(const string & key, const string & value)
 string
 WritableDatabase::get_description() const
 {
-    /// \todo display contents of the writable database
+    /// @todo display contents of the writable database
     return "WritableDatabase()";
 }
 
