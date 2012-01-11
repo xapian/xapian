@@ -1,3 +1,7 @@
+Wed Jan 11 11:18:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.h: Correct @exceptions to @exception.
+
 Wed Jan 11 10:48:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: We no longer have any uses of \ to introduce doxygen

@@ -102,7 +102,7 @@ class MultiAndPostList : public PostList {
 
     /** Allocate plist and max_wt arrays of @a n_kids each.
      *
-     *  @exceptions  std::bad_alloc.
+     *  @exception  std::bad_alloc.
      */
     void allocate_plist_and_max_wt();
 
