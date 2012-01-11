@@ -1,6 +1,5 @@
 /* phrasepostlist.h: Return only items where terms are near or form a phrase
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2004,2005 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd

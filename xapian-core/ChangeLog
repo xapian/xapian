@@ -1,3 +1,8 @@
+Wed Jan 11 11:36:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.h: Remove lone "----START-LICENCE----" -
+	  the rest got removed ages ago.
+
 Wed Jan 11 11:23:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/replicate_utils.h: Fix "@raises" to "@exception".
