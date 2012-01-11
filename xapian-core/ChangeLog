@@ -3,6 +3,11 @@ Wed Jan 11 10:08:19 GMT 2012  Olly Betts <olly@survex.com>
 	* tests/internaltest.cc: Remove serialisedoc1 from the list of
 	  testcases to run too.
 
+Wed Jan 11 09:38:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/filetests.h: Remove "using namespace std;" which we don't
+	  need here.
+
 Wed Jan 11 09:36:27 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/filetests.h: Add documentation comments.

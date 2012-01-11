@@ -28,8 +28,6 @@
 #include "safesysstat.h"
 #include <string>
 
-using namespace std;
-
 /** Test if a file exists.
  *
  *  @param path	The path to test
