@@ -2,7 +2,7 @@
  * @brief Support class for database replication.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011 Olly Betts
+ * Copyright 2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
 #include "debuglog.h"
-#include "utils.h"
+#include "filetests.h"
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 # include "brass/brass_databasereplicator.h"

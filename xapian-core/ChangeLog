@@ -1,3 +1,13 @@
+Wed Jan 11 03:35:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/brass/brass_databasereplicator.cc,
+	  backends/brass/brass_table.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_table.cc,backends/databasereplicator.cc,
+	  backends/dbfactory.cc,common/utils.cc,common/utils.h: Use
+	  file_exists() and dir_exists() from common/filetests.h everywhere and
+	  remove the old versions in common/utils.h and common/utils.cc.
+
 Wed Jan 11 02:20:45 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Remove XAPIAN_VISIBILITY_DEFAULT from old

@@ -31,6 +31,7 @@
 #include "backends/database.h"
 #include "backends/databasereplicator.h"
 #include "debuglog.h"
+#include "filetests.h"
 #include "fileutils.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"

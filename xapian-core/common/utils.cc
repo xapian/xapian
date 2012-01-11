@@ -34,22 +34,6 @@
 
 using namespace std;
 
-bool
-file_exists(const string &fname)
-{
-    struct stat sbuf;
-    // exists && is a regular file
-    return stat(fname, &sbuf) == 0 && S_ISREG(sbuf.st_mode);
-}
-
-bool
-dir_exists(const string &fname)
-{
-    struct stat sbuf;
-    // exists && is a directory
-    return stat(fname, &sbuf) == 0 && S_ISDIR(sbuf.st_mode);
-}
-
 class dircloser {
     DIR * dir;
   public:

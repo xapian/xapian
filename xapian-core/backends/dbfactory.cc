@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
 #include "debuglog.h"
+#include "filetests.h"
 #include "fileutils.h"
 #include "str.h"
 #include "utils.h"

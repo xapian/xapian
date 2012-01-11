@@ -31,14 +31,6 @@ using std::string;
 #include "safesysstat.h"
 #include "safeunistd.h"
 
-/** Return true if the file fname exists.
- */
-bool file_exists(const string &fname);
-
-/** Return true if the directory dirname exists.
- */
-bool dir_exists(const string &dirname);
-
 /// Allow unlink to work directly on C++ strings.
 inline int unlink(const string &filename) { return unlink(filename.c_str()); }
 

@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011 Olly Betts
+ * Copyright 2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,8 +31,9 @@
 #include "brass_replicate_internal.h"
 #include "brass_types.h"
 #include "brass_version.h"
-#include "fd.h"
 #include "debuglog.h"
+#include "fd.h"
+#include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
