@@ -30,20 +30,48 @@
 
 using namespace std;
 
+/** Test if a file exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path is a regular file, or a symbolic link which
+ *	    resolves to a regular file.
+ */
 inline bool file_exists(const char * path) {
     struct stat st;
     return stat(path, &st) == 0 && S_ISREG(st.st_mode);
 }
 
+/** Test if a file exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path is a regular file, or a symbolic link which
+ *	    resolves to a regular file.
+ */
 inline bool file_exists(const std::string & path) {
     return file_exists(path.c_str());
 }
 
+/** Test if a directory exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path is a directory, or a symbolic link which resolves
+ *	    to a directory.
+ */
 inline bool dir_exists(const char * path) {
     struct stat st;
     return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
+/** Test if a directory exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path is a directory, or a symbolic link which resolves
+ *	    to a directory.
+ */
 inline bool dir_exists(const std::string & path) {
     return dir_exists(path.c_str());
 }
