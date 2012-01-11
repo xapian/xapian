@@ -94,6 +94,8 @@ if (scalar @ARGV && $ARGV[0] eq '--backport') {
     $backport = 1;
 }
 
+my $real_argv = (scalar @ARGV > 0);
+
 # Remove any trailing slashes on directories for consistency.
 @ARGV = map {s,/+$,,; $_} @ARGV;
 
@@ -229,7 +231,7 @@ if ($edit_cl) {
 	if ($vcs eq 'svn') {
 	    open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
 	} elsif ($vcs eq 'git') {
-	    system('git', 'add', '--', @ARGV) if scalar @ARGV;
+	    system('git', 'add', '--', @ARGV) if $real_argv;
 	    open CI, "git diff --cached|";
 	} else {
 	    die "$vcs support for this operation hasn't been implemented yet";
