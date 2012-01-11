@@ -1,6 +1,7 @@
-/* orpostlist.h: OR of two posting lists
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file orpostlist.h
+ * @brief OR of two posting lists
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009,2010,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd

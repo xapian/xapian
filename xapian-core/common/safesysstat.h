@@ -1,6 +1,7 @@
-/* safesysstat.h: #include <sys/stat.h>, but enabling large file support.
- *
- * Copyright (C) 2007,2012 Olly Betts
+/** @file safesysstat.h
+ * @brief #include <sys/stat.h>, but enabling large file support.
+ */
+/* Copyright (C) 2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

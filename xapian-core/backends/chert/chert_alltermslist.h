@@ -1,6 +1,7 @@
-/* chert_alltermslist.h: A termlist containing all terms in a chert database.
- *
- * Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
+/** @file chert_alltermslist.h
+ * @brief A termlist containing all terms in a chert database.
+ */
+/* Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

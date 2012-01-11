@@ -1,6 +1,7 @@
-/* safewindows.h: #include <windows.h> without all the bloat and damage.
- *
- * Copyright (C) 2005,2007 Olly Betts
+/** @file safewindows.h
+ * @brief #include <windows.h> without all the bloat and damage.
+ */
+/* Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

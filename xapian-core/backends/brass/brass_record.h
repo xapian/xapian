@@ -1,6 +1,7 @@
-/* brass_record.h: Records in brass databases
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file brass_record.h
+ * @brief Records in brass databases
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
  *

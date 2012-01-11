@@ -49,6 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     static const Xapian::Query MatchNothing;
     static const Xapian::Query MatchAll;
 
+    /** Query operators. */
     enum op {
 	OP_AND = 0,
 	OP_OR = 1,
@@ -123,10 +124,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      */
     Query & operator=(const Query & o) { internal = o.internal; return *this; }
 
+    /** Construct a Query object for a term. */
     Query(const std::string & term,
 	  Xapian::termcount wqf = 1,
 	  Xapian::termpos pos = 0);
 
+    /** Construct a Query object for a PostingSource. */
     Query(Xapian::PostingSource * source);
 
     // FIXME: new form for OP_SCALE_WEIGHT - do we want this?

@@ -1,6 +1,7 @@
-/* unaligned.h: Read/write unaligned 1, 2, 4 byte integers.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file unaligned.h
+ * @brief Read/write unaligned 1, 2, 4 byte integers.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2004,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

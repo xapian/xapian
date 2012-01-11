@@ -1,6 +1,7 @@
-/* multi_postlist.h: C++ class definition for multiple database access
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file multi_postlist.h
+ * @brief C++ class definition for multiple database access
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2005,2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

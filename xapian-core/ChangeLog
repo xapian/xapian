@@ -1,3 +1,17 @@
+Wed Jan 11 12:53:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/documentterm.h,api/maptermlist.h,api/omenquireinternal.h,
+	  backends/brass/,backends/chert/,backends/database.h,
+	  backends/document.h,backends/inmemory/inmemory_alltermslist.h,
+	  backends/inmemory/inmemory_database.h,
+	  backends/inmemory/inmemory_positionlist.h,
+	  backends/multi/multi_postlist.h,backends/multi/multi_termlist.h,
+	  backends/positionlist.h,backends/remote/net_termlist.h,
+	  backends/valuestats.h,common/,include/xapian/query.h,matcher/,
+	  queryparser/queryparser_internal.h,tests/harness/,
+	  tests/perftest/freemem.h,tests/perftest/runprocess.h: Convert
+	  comments at the start of files to @file and @brief doxygen comments.
+
 Wed Jan 11 11:36:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/phrasepostlist.h: Remove lone "----START-LICENCE----" -

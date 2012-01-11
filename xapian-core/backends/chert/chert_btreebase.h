@@ -1,6 +1,7 @@
-/* chert_btreebase.h: Btree base file implementation
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file chert_btreebase.h
+ * @brief Btree base file implementation
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2004,2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

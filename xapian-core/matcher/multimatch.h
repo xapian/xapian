@@ -1,6 +1,7 @@
-/* multimatch.h: class for performing a match
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file multimatch.h
+ * @brief class for performing a match
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *

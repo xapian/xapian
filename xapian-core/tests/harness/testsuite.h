@@ -1,6 +1,7 @@
-/* testsuite.h: a generic test suite engine
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file testsuite.h
+ * @brief a generic test suite engine
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

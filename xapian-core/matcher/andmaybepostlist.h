@@ -1,9 +1,10 @@
-/* andmaybepostlist.h: Merged postlist: items from one list, weights from both
+/** @file andmaybepostlist.h
+ * @brief Merged postlist: items from one list, weights from both
  *
  * AND MAYBE of two posting lists
  * A AND MAYBE B is logically just A, but we keep B around for weight purposes
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd

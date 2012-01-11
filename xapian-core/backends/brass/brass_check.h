@@ -1,6 +1,7 @@
-/* brass_check.h: Btree checking
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file brass_check.h
+ * @brief Btree checking
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2004,2005,2006,2008,2009,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd

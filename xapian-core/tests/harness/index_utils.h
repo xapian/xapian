@@ -1,6 +1,7 @@
-/* index_utils.h - utility functions for indexing testcase data
- *
- * Copyright (C) 2005,2007 Olly Betts
+/** @file index_utils.h
+ * @brief utility functions for indexing testcase data
+ */
+/* Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

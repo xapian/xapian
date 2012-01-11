@@ -1,6 +1,7 @@
-/* valuestats.h: Statistics about values.
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file valuestats.h
+ * @brief Statistics about values.
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

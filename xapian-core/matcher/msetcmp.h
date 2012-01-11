@@ -1,6 +1,7 @@
-/* msetcmp.h - MSetItem comparison functions and functors.
- *
- * Copyright (C) 2006,2007,2011 Olly Betts
+/** @file msetcmp.h
+ * @brief MSetItem comparison functions and functors.
+ */
+/* Copyright (C) 2006,2007,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

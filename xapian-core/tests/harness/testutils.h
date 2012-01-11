@@ -1,6 +1,7 @@
-/* testutils.h: Xapian-specific test helper functions and macros.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file testutils.h
+ * @brief Xapian-specific test helper functions and macros.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

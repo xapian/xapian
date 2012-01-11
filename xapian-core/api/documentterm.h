@@ -1,6 +1,7 @@
-/* documentterm.h: internal class representing a term in a modified document
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file documentterm.h
+ * @brief internal class representing a term in a modified document
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2007 Olly Betts
  *

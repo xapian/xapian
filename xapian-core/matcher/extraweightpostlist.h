@@ -1,6 +1,7 @@
-/* extraweightpostlist.h: add on extra weight contribution
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file extraweightpostlist.h
+ * @brief add on extra weight contribution
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
  * Copyright 2003,2004,2007,2009,2011 Olly Betts
  *

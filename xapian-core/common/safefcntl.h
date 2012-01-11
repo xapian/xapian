@@ -1,6 +1,7 @@
-/* safefcntl.h: #include <fcntl.h>, but working around broken platforms.
- *
- * Copyright (C) 2006,2007 Olly Betts
+/** @file safefcntl.h
+ * @brief #include <fcntl.h>, but working around broken platforms.
+ */
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

@@ -1,6 +1,7 @@
-/* andnotpostlist.h: Return items which are in A, unless they're in B
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file andnotpostlist.h
+ * @brief Return items which are in A, unless they're in B
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd

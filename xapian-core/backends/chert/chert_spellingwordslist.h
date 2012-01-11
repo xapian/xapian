@@ -1,6 +1,7 @@
-/* chert_spellingwordslist.h: A termlist containing all words which are spelling targets.
- *
- * Copyright (C) 2005,2008,2011 Olly Betts
+/** @file chert_spellingwordslist.h
+ * @brief A termlist containing all words which are spelling targets.
+ */
+/* Copyright (C) 2005,2008,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or

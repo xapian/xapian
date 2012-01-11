@@ -1,6 +1,7 @@
-/* inmemory_alltermslist.h
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file inmemory_alltermslist.h
+ * @brief Iterate all terms in an inmemory db
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
