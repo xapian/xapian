@@ -249,7 +249,6 @@ static bool test_tostring1()
     return true;
 }
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of documents.
 static bool test_serialisedoc1()
 {
@@ -257,19 +256,20 @@ static bool test_serialisedoc1()
 
     string s;
 
-    s = serialise_document(doc);
-    TEST(serialise_document(unserialise_document(s)) == s);
+    s = doc.serialise();
+    TEST(Xapian::Document::unserialise(s).serialise() == s);
 
     doc.set_data("helllooooo");
     doc.add_term("term");
     doc.add_value(1, "foo");
 
-    s = serialise_document(doc);
-    TEST(serialise_document(unserialise_document(s)) == s);
+    s = doc.serialise();
+    TEST(Xapian::Document::unserialise(s).serialise() == s);
 
     return true;
 }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
 {
@@ -423,8 +423,8 @@ static const test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"tostring1",		test_tostring1},
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialisedoc1",		test_serialisedoc1},
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiseerror1",		test_serialiseerror1},
 #endif
     {"static_assert1",		test_static_assert1},

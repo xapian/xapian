@@ -1,3 +1,10 @@
+Wed Jan 11 08:29:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Test document serialisation via the public
+	  API (which was added after the tests were).
+	* net/serialise.h: Remove XAPIAN_VISIBILITY_DEFAULT from 
+	  serialise_document() and unserialise_document().
+
 Wed Jan 11 05:57:14 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,common/,tests/unittest.cc: Move removedir() from
