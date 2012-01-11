@@ -1,3 +1,7 @@
+Wed Jan 11 11:23:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.h: Fix "@raises" to "@exception".
+
 Wed Jan 11 11:21:31 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/multiandpostlist.h: Fix "@parameter" to "@param".

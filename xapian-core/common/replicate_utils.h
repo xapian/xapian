@@ -37,7 +37,7 @@
  *
  *  @return The open file descriptor.
  *
- *  @raises Xapian::DatabaseError if the changeset couldn't be opened.
+ *  @exception Xapian::DatabaseError if the changeset couldn't be opened.
  */
 int
 create_changeset_file(const std::string & changeset_dir,
