@@ -45,7 +45,6 @@
 #include "safeunistd.h"
 #include "net/length.h"
 #include "str.h"
-#include "utils.h"
 
 #include "autoptr.h"
 #include <cstdio> // For rename().

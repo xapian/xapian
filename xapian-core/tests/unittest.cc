@@ -33,7 +33,6 @@ using namespace std;
 // Utility code we use:
 #include "../common/str.cc"
 #include "../common/stringutils.cc"
-#include "../common/utils.cc"
 
 // Simpler version of TEST_EXCEPTION macro.
 #define TEST_EXCEPTION(TYPE, CODE) \

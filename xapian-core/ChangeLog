@@ -1,3 +1,9 @@
+Wed Jan 11 05:57:14 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,common/,tests/unittest.cc: Move removedir() from
+	  utils.{cc,h} to fileutils.{cc,h}, and remove the now empty
+	  utils.{cc,h}.
+
 Wed Jan 11 05:44:38 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc: Check return values from system() calls

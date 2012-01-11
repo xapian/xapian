@@ -37,8 +37,7 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h\
 	common/submatch.h\
-	common/unaligned.h\
-	common/utils.h
+	common/unaligned.h
 
 EXTRA_DIST +=\
 	common/dir_contents\
@@ -60,8 +59,7 @@ lib_src +=\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
 	common/str.cc\
-	common/stringutils.cc\
-	common/utils.cc
+	common/stringutils.cc
 
 if USE_WIN32_UUID_API
 lib_src +=\
