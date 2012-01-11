@@ -244,7 +244,7 @@ if ($edit_cl) {
 	my $want_tabs = -1;
 	while (<CI>) {
 	    $diff .= $_;
-	    if (/^Index: (.*)/ || m!^diff --git a/xapian-(?:applications/omega|\w+)/(\S+)!) {
+	    if (/^Index: (.*)/ || m!^diff --git a/(?:xapian-(?:applications/omega|[-\w]+)/)?(\S+)!) {
 		$fnm = $1;
 		push @files, $fnm;
 		if ($fnm =~ /\.(?:cc|[ch])$/) {
