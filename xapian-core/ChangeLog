@@ -1,3 +1,12 @@
+Wed Jan 11 10:09:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/replication.h,api/valuesetmatchdecider.cc,
+	  common/output-internal.h,common/output.h,include/xapian/,
+	  tests/harness/testrunner.cc,tests/harness/testrunner.h,
+	  tests/perftest/perftest.cc,tests/perftest/perftest.h: Change the
+	  instances of \file and \brief in doxygen comments to @file and
+	  @brief.
+
 Wed Jan 11 10:08:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Remove serialisedoc1 from the list of

@@ -1,5 +1,5 @@
-/** \file output-internal.h
- * \brief Functions for output of strings describing internal Xapian objects.
+/** @file output-internal.h
+ * @brief Functions for output of strings describing internal Xapian objects.
  */
 /*
  * Copyright 1999,2000,2001 BrightStation PLC

@@ -1,5 +1,5 @@
-/** \file  valuesetmatchdecider.h
- *  \brief MatchDecider subclass for filtering results by value.
+/** @file valuesetmatchdecider.h
+ * @brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Limited
  * Copyright 2008,2009,2011 Olly Betts

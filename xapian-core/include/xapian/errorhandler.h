@@ -1,5 +1,5 @@
-/** \file errorhandler.h
- *  \brief Decide if a Xapian::Error exception should be ignored.
+/** @file errorhandler.h
+ * @brief Decide if a Xapian::Error exception should be ignored.
  */
 /* Copyright (C) 2003,2006,2007 Olly Betts
  *

@@ -1,5 +1,5 @@
-/** \file database.h
- * \brief API for working with Xapian databases
+/** @file database.h
+ * @brief API for working with Xapian databases
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd

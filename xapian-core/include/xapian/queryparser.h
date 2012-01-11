@@ -1,5 +1,5 @@
-/** \file  queryparser.h
- *  \brief parsing a user query string to build a Xapian::Query object
+/** @file queryparser.h
+ * @brief parsing a user query string to build a Xapian::Query object
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren

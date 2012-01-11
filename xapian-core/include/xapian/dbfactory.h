@@ -1,5 +1,5 @@
-/** \file dbfactory.h
- * \brief Factory functions for constructing Database and WritableDatabase objects
+/** @file dbfactory.h
+ * @brief Factory functions for constructing Database and WritableDatabase objects
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2011 Olly Betts
  *

@@ -1,5 +1,5 @@
-/** \file  stem.h
- *  \brief stemming algorithms
+/** @file stem.h
+ * @brief stemming algorithms
  */
 /* Copyright (C) 2005,2007,2010,2011 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov

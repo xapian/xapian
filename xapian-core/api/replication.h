@@ -1,5 +1,5 @@
-/** \file replication.h
- * \brief Replication support for Xapian databases.
+/** @file replication.h
+ * @brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2008,2011 Olly Betts

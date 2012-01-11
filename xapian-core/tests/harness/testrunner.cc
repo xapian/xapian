@@ -1,5 +1,5 @@
-/** \file testrunner.cc
- *  \brief Run multiple tests for different backends.
+/** @file testrunner.cc
+ * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2008,2009,2010,2011 Olly Betts

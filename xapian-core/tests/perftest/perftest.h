@@ -1,5 +1,5 @@
-/** \file  perftest.h
- *  \brief performance tests for Xapian.
+/** @file perftest.h
+ * @brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Olly Betts

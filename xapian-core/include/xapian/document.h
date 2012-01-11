@@ -1,5 +1,5 @@
-/** \file document.h
- * \brief API for working with documents
+/** @file document.h
+ * @brief API for working with documents
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
