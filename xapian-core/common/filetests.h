@@ -39,13 +39,13 @@ inline bool file_exists(const std::string & path) {
     return file_exists(path.c_str());
 }
 
-inline bool directory_exists(const char * path) {
+inline bool dir_exists(const char * path) {
     struct stat st;
     return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-inline bool directory_exists(const std::string & path) {
-    return directory_exists(path.c_str());
+inline bool dir_exists(const std::string & path) {
+    return dir_exists(path.c_str());
 }
 
 #endif // XAPIAN_INCLUDED_FILETESTS_H

@@ -1,3 +1,7 @@
+Wed Jan 11 02:13:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/filetests.h: Rename directory_exists() to dir_exists().
+
 Wed Jan 11 02:10:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/filetests.h,tests/api_replicate.cc,
