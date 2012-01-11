@@ -1,7 +1,7 @@
 /** @file xapian-inspect.cc
  * @brief Inspect the contents of a chert table for development or debugging.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@
 
 #include "chert_table.h"
 #include "chert_cursor.h"
+#include "filetests.h"
 #include "stringutils.h"
-#include "utils.h"
 
 #include <xapian.h>
 

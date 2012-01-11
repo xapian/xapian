@@ -1,3 +1,8 @@
+Wed Jan 11 02:14:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc,bin/xapian-inspect.cc: Convert to use
+	  filetests.h.
+
 Wed Jan 11 02:13:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/filetests.h: Rename directory_exists() to dir_exists().
