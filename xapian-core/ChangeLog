@@ -1,3 +1,11 @@
+Wed Jan 11 09:28:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_serialise.cc: Extend serialise_document1 to test
+	  serialising and unserialising an empty document, which is an
+	  interesting edge case.
+	* tests/internaltest.cc: Remove testcase serialisedoc1, which
+	  now doesn't add useful additional coverage over serialise_document1.
+
 Wed Jan 11 08:29:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Test document serialisation via the public

@@ -36,6 +36,16 @@ using namespace std;
 // Test for serialising a document
 DEFINE_TESTCASE(serialise_document1, !backend) {
     Xapian::Document doc;
+
+    // Test serialising and unserialising an empty document.
+    Xapian::Document doc1 = Xapian::Document::unserialise(doc.serialise());
+    TEST_EQUAL(doc1.termlist_count(), 0);
+    TEST_EQUAL(doc1.termlist_begin(), doc1.termlist_end());
+    TEST_EQUAL(doc1.values_count(), 0);
+    TEST_EQUAL(doc1.values_begin(), doc1.values_end());
+    TEST_EQUAL(doc1.get_data(), "");
+
+    // Test serialising a document with things in.
     doc.add_term("foo", 2);
     doc.add_posting("foo", 10);
     doc.add_value(1, "bar");

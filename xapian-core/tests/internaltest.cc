@@ -249,26 +249,6 @@ static bool test_tostring1()
     return true;
 }
 
-// Check serialisation of documents.
-static bool test_serialisedoc1()
-{
-    Xapian::Document doc;
-
-    string s;
-
-    s = doc.serialise();
-    TEST(Xapian::Document::unserialise(s).serialise() == s);
-
-    doc.set_data("helllooooo");
-    doc.add_term("term");
-    doc.add_value(1, "foo");
-
-    s = doc.serialise();
-    TEST(Xapian::Document::unserialise(s).serialise() == s);
-
-    return true;
-}
-
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
