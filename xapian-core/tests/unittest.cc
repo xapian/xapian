@@ -49,6 +49,27 @@ using namespace std;
 #include "../common/serialise-double.cc"
 #include "../net/length.cc"
 
+DEFINE_TESTCASE_(simple_exceptions_work1) {
+    try {
+	throw 42;
+    } catch (int val) {
+	TEST_EQUAL(val, 42);
+	return true;
+    }
+    return false;
+}
+
+class TestException { };
+
+DEFINE_TESTCASE_(class_exceptions_work1) {
+    try {
+	throw TestException();
+    } catch (const TestException &) {
+	return true;
+    }
+    return false;
+}
+
 inline string
 r_r_p(string a, const string & b)
 {
@@ -279,6 +300,8 @@ static bool test_serialiselength2()
 #endif
 
 static const test_desc tests[] = {
+    TESTCASE(simple_exceptions_work1),
+    TESTCASE(class_exceptions_work1),
     TESTCASE(resolverelativepath1),
     TESTCASE(serialisedouble1),
 #ifdef XAPIAN_HAS_REMOTE_BACKEND

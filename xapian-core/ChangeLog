@@ -1,3 +1,11 @@
+Thu Jan 12 13:15:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/unittest.cc: Add new testcases simple_exceptions_work1 and
+	  class_exceptions_work1 which perform sanity tests of exception
+	  handling.
+	* tests/internaltest.cc: Remove testcase test_except1 which is now
+	  redundant.
+
 Thu Jan 12 13:09:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/str.cc: Special cases for 0 in tostring() templates aren't

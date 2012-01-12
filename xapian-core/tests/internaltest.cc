@@ -41,15 +41,6 @@ using namespace std;
 #include "../net/serialise.h"
 #include "str.h"
 
-static bool test_except1()
-{
-    try {
-	throw 1;
-    } catch (int) {
-    }
-    return true;
-}
-
 class Test_Exception {
     public:
 	int value;
@@ -402,7 +393,6 @@ static bool test_pack_uint_preserving_sort1()
 
 /// The lists of tests to perform
 static const test_desc tests[] = {
-    {"except1",			test_except1},
     {"exception1",		test_exception1},
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
