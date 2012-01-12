@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -226,8 +226,15 @@ static bool test_stringcomp1()
 static bool test_tostring1()
 {
     TEST_EQUAL(str(0), "0");
+    TEST_EQUAL(str(0u), "0");
+    TEST_EQUAL(str(1), "1");
+    TEST_EQUAL(str(1u), "1");
+    TEST_EQUAL(str(9), "9");
+    TEST_EQUAL(str(9u), "9");
     TEST_EQUAL(str(10), "10");
     TEST_EQUAL(str(10u), "10");
+    TEST_EQUAL(str(-1), "-1");
+    TEST_EQUAL(str(-9), "-9");
     TEST_EQUAL(str(-10), "-10");
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");

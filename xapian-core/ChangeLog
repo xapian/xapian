@@ -1,3 +1,12 @@
+Thu Jan 12 13:09:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/str.cc: Special cases for 0 in tostring() templates aren't
+	  actually needed, but special casing single digit numbers may be
+	  worthwhile anyway, so change comments to FIXME ones about checking
+	  this.
+	* tests/internaltest.cc: Test str() on unsigned 0, and some negative,
+	  signed positive, and unsigned positive single digits values.
+
 Wed Jan 11 13:03:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_alltermslist.h: Fix filename in @file.

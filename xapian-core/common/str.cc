@@ -1,7 +1,7 @@
 /** @file str.cc
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,8 +36,8 @@ inline string
 tostring_unsigned(T value)
 {
     STATIC_ASSERT_UNSIGNED_TYPE(T);
-    // We need a special case for 0, and we might as well handle all single
-    // digit numbers with it too.
+    // Special case single digit positive numbers.
+    // FIXME: is this actually worthwhile?
     if (value < 10) return string(1, '0' + char(value));
     char buf[(sizeof(T) * 5 + 1) / 2];
     char * p = buf + sizeof(buf);
@@ -54,8 +54,8 @@ template<class T>
 inline string
 tostring(T value)
 {
-    // We need a special case for 0, and we might as well handle all single
-    // digit positive numbers with it too.
+    // Special case single digit positive numbers.
+    // FIXME: is this actually worthwhile?
     if (value < 10 && value >= 0) return string(1, '0' + char(value));
 
     bool negative = (value < 0);
