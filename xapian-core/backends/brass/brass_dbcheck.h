@@ -1,7 +1,7 @@
-/** @file xapian-check-chert.h
- * @brief Check a chert table.
+/** @file xapian-check-brass.h
+ * @brief Check a brass table.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,17 +19,18 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H
-#define XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H
+#ifndef XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H
+#define XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H
 
 #include "xapian/types.h"
 
 #include <cstring> // For size_t.
+#include <iosfwd>
 #include <string>
 #include <vector>
 
-size_t check_chert_table(const char * tablename, std::string table, int opts,
+size_t check_brass_table(const char * tablename, std::string table, int opts,
 			 std::vector<Xapian::termcount> & doclens,
-			 Xapian::docid db_last_docid);
+			 Xapian::docid db_last_docid, std::ostream & out);
 
-#endif // XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H
+#endif // XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H

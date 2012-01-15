@@ -36,20 +36,8 @@ dist_man_MANS +=\
 endif
 endif
 
-bin_xapian_check_CPPFLAGS =\
-	-I$(top_srcdir)/backends/brass\
-	-I$(top_srcdir)/backends/chert
 bin_xapian_check_SOURCES = bin/xapian-check.cc
-bin_xapian_check_LDADD = $(ldflags)
-if BUILD_BACKEND_BRASS
-bin_xapian_check_SOURCES += bin/xapian-check-brass.cc bin/xapian-check-brass.h
-bin_xapian_check_LDADD += libbrasscheck.la
-endif
-if BUILD_BACKEND_CHERT
-bin_xapian_check_SOURCES += bin/xapian-check-chert.cc bin/xapian-check-chert.h
-bin_xapian_check_LDADD += libchertcheck.la
-endif
-bin_xapian_check_LDADD += $(libxapian_la)
+bin_xapian_check_LDADD = $(ldflags) $(libxapian_la)
 
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)

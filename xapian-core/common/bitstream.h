@@ -23,7 +23,6 @@
 #define XAPIAN_INCLUDED_BITSTREAM_H
 
 #include <xapian/types.h>
-#include <xapian/visibility.h>
 
 #include <string>
 #include <vector>
@@ -54,7 +53,7 @@ class BitWriter {
     void encode_interpolative(const std::vector<Xapian::termpos> &pos, int j, int k);
 };
 
-class XAPIAN_VISIBILITY_DEFAULT BitReader {
+class BitReader {
     std::string buf;
     size_t idx;
     int n_bits;

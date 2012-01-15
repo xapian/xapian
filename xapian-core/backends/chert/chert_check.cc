@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2011 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,10 @@
 #include <config.h>
 
 #include "chert_check.h"
+#include "xapian/database.h" // For Xapian::DBCHECK_*
 
 #include <climits>
+#include <ostream>
 
 using namespace std;
 
@@ -145,9 +147,11 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     if (dir_end <= DIR_START || dir_end > block_size)
 	failure("directory end pointer invalid");
 
-    if (opts & OPT_SHORT_TREE) report_block(3*(level - j), n, p);
+    if (opts & Xapian::DBCHECK_SHORT_TREE)
+	report_block(3*(level - j), n, p);
 
-    if (opts & OPT_FULL_TREE) report_block_full(3*(level - j), n, p);
+    if (opts & Xapian::DBCHECK_FULL_TREE)
+	report_block_full(3*(level - j), n, p);
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	Item item(p, c);
@@ -211,7 +215,7 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
     B.open(); // throws exception if open fails
     Cursor * C = B.C;
 
-    if (opts & OPT_SHOW_STATS) {
+    if (opts & Xapian::DBCHECK_SHOW_STATS) {
 	out << "base" << (char)B.base_letter
 	    << " blocksize=" << B.block_size / 1024 << "K"
 	       " items=" << B.item_count
@@ -230,7 +234,7 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 
     limit = limit * CHAR_BIT + CHAR_BIT - 1;
 
-    if (opts & OPT_SHOW_BITMAP) {
+    if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
 	for (int j = 0; j <= limit; j++) {
 	    out << (B.base.block_free_at_start(j) ? '.' : '*');
 	    if (j > 0) {

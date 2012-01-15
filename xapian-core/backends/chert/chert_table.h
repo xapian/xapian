@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -111,7 +111,7 @@
 #define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
 #define SET_DIR_END(b, x)       setint2(b, 9, x)
 
-class XAPIAN_VISIBILITY_DEFAULT Key {
+class Key {
     const byte *p;
 public:
     explicit Key(const byte * p_) : p(p_) { }

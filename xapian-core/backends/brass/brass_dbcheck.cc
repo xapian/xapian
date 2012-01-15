@@ -1,8 +1,8 @@
-/** @file xapian-check-chert.cc
- * @brief Check consistency of a chert table.
+/** @file brass_dbcheck.cc
+ * @brief Check consistency of a brass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,23 +22,23 @@
 
 #include <config.h>
 
-#include "xapian-check-chert.h"
+#include "brass_dbcheck.h"
 
 #include "bitstream.h"
 
 #include "internaltypes.h"
 
-#include "chert_check.h"
-#include "chert_cursor.h"
-#include "chert_table.h"
-#include "chert_types.h"
+#include "brass_check.h"
+#include "brass_cursor.h"
+#include "brass_table.h"
+#include "brass_types.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 
 #include <xapian.h>
 
 #include "autoptr.h"
-#include <iostream>
+#include <ostream>
 
 using namespace std;
 
@@ -55,19 +55,19 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_chert_table(const char * tablename, string filename, int opts,
+check_brass_table(const char * tablename, string filename, int opts,
 		  vector<Xapian::termcount> & doclens,
-		  Xapian::docid db_last_docid)
+		  Xapian::docid db_last_docid, ostream & out)
 {
     filename += '.';
 
     // Check the btree structure.
-    ChertTableCheck::check(tablename, filename, opts);
+    BrassTableCheck::check(tablename, filename, opts, out);
 
-    // Now check the chert structures inside the btree.
-    ChertTable table(tablename, filename, true);
+    // Now check the brass structures inside the btree.
+    BrassTable table(tablename, filename, true);
     table.open();
-    AutoPtr<ChertCursor> cursor(table.cursor_get());
+    AutoPtr<BrassCursor> cursor(table.cursor_get());
 
     size_t errors = 0;
 
@@ -99,29 +99,28 @@ check_chert_table(const char * tablename, string filename, int opts,
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
 		if (!unpack_uint(&data, end, &last_docid)) {
-		    cout << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
+		    out << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
 		    ++errors;
 		} else if (!unpack_uint(&data, end, &doclen_lbound)) {
-		    cout << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
+		    out << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
 		    ++errors;
 		} else if (!unpack_uint(&data, end, &wdf_ubound)) {
-		    cout << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
+		    out << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
 		    ++errors;
 		} else if (!unpack_uint(&data, end, &doclen_ubound)) {
-		    cout << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
+		    out << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
 		    ++errors;
 		} else if (!unpack_uint_last(&data, end, &total_doclen)) {
-		    cout << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
+		    out << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
 		    ++errors;
 		} else if (data != end) {
-		    cout << "Tag containing meta information is corrupt (junk at end)." << endl;
+		    out << "Tag containing meta information is corrupt (junk at end)." << endl;
 		    ++errors;
 		}
 		cursor->next();
 	    }
 	}
 
-	bool seen_doclen_initial_chunk = false;
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -130,14 +129,14 @@ check_chert_table(const char * tablename, string filename, int opts,
 		// checks on it other than to check that the tag isn't empty.
 		cursor->read_tag();
 		if (cursor->current_tag.empty()) {
-		    cout << "User metadata item is empty" << endl;
+		    out << "User metadata item is empty" << endl;
 		    ++errors;
 		}
 		continue;
 	    }
 
 	    if (!have_metainfo_key) {
-		cout << "METAINFO key missing from postlist table" << endl;
+		out << "METAINFO key missing from postlist table" << endl;
 		++errors;
 	    }
 
@@ -147,20 +146,15 @@ check_chert_table(const char * tablename, string filename, int opts,
 		Xapian::docid did = 1;
 		if (key.size() > 2) {
 		    // Non-initial chunk.
-		    if (!seen_doclen_initial_chunk) {
-			cout << "Doclen initial chunk missing" << endl;
-			++errors;
-		    }
 		    pos = key.data();
 		    end = pos + key.size();
 		    pos += 2;
 		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-			cout << "Error unpacking docid from doclen key" << endl;
+			out << "Error unpacking docid from doclen key" << endl;
 			++errors;
 			continue;
 		    }
 		}
-		seen_doclen_initial_chunk = true;
 
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
@@ -168,19 +162,19 @@ check_chert_table(const char * tablename, string filename, int opts,
 		if (key.size() == 2) {
 		    // Initial chunk.
 		    if (end - pos < 2 || pos[0] || pos[1]) {
-			cout << "Initial doclen chunk has nonzero dummy fields" << endl;
+			out << "Initial doclen chunk has nonzero dummy fields" << endl;
 			++errors;
 			continue;
 		    }
 		    pos += 2;
 		    if (!unpack_uint(&pos, end, &did)) {
-			cout << "Failed to unpack firstdid for doclen" << endl;
+			out << "Failed to unpack firstdid for doclen" << endl;
 			++errors;
 			continue;
 		    }
 		    ++did;
 		    if (did <= lastdid) {
-			cout << "First did in this chunk is <= last in "
+			out << "First did in this chunk is <= last in "
 			    "prev chunk" << endl;
 			++errors;
 		    }
@@ -188,13 +182,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		bool is_last_chunk;
 		if (!unpack_bool(&pos, end, &is_last_chunk)) {
-		    cout << "Failed to unpack last chunk flag for doclen" << endl;
+		    out << "Failed to unpack last chunk flag for doclen" << endl;
 		    ++errors;
 		    continue;
 		}
 		// Read what the final document ID in this chunk is.
 		if (!unpack_uint(&pos, end, &lastdid)) {
-		    cout << "Failed to unpack increase to last" << endl;
+		    out << "Failed to unpack increase to last" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -203,28 +197,28 @@ check_chert_table(const char * tablename, string filename, int opts,
 		while (true) {
 		    Xapian::termcount doclen;
 		    if (!unpack_uint(&pos, end, &doclen)) {
-			cout << "Failed to unpack doclen" << endl;
+			out << "Failed to unpack doclen" << endl;
 			++errors;
 			bad = true;
 			break;
 		    }
 
 		    if (did > db_last_docid) {
-			cout << "document id " << did << " in doclen stream "
+			out << "document id " << did << " in doclen stream "
 			     << "is larger than get_last_docid() "
 			     << db_last_docid << endl;
 			++errors;
 		    }
 
 		    if (!doclens.empty()) {
-			// In chert, a document without terms doesn't get a
+			// In brass, a document without terms doesn't get a
 			// termlist entry.
 			Xapian::termcount termlist_doclen = 0;
 			if (did < doclens.size())
 			    termlist_doclen = doclens[did];
 
 			if (doclen != termlist_doclen) {
-			    cout << "document id " << did << ": length "
+			    out << "document id " << did << ": length "
 				 << doclen << " doesn't match "
 				 << termlist_doclen << " in the termlist table"
 				 << endl;
@@ -236,7 +230,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		    Xapian::docid inc;
 		    if (!unpack_uint(&pos, end, &inc)) {
-			cout << "Failed to unpack docid increase" << endl;
+			out << "Failed to unpack docid increase" << endl;
 			++errors;
 			bad = true;
 			break;
@@ -244,7 +238,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 		    ++inc;
 		    did += inc;
 		    if (did > lastdid) {
-			cout << "docid " << did << " > last docid " << lastdid
+			out << "docid " << did << " > last docid " << lastdid
 			     << endl;
 			++errors;
 		    }
@@ -254,7 +248,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 		}
 		if (is_last_chunk) {
 		    if (did != lastdid) {
-			cout << "lastdid " << lastdid << " != last did " << did
+			out << "lastdid " << lastdid << " != last did " << did
 			     << endl;
 			++errors;
 		    }
@@ -270,7 +264,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 		p += 2;
 		Xapian::valueno slot;
 		if (!unpack_uint_last(&p, end, &slot)) {
-		    cout << "Bad valuestats key (no slot)" << endl;
+		    out << "Bad valuestats key (no slot)" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -282,18 +276,18 @@ check_chert_table(const char * tablename, string filename, int opts,
 		VStats & v = valuestats[slot];
 		if (!unpack_uint(&p, end, &v.freq)) {
 		    if (*p == 0) {
-			cout << "Incomplete stats item in value table" << endl;
+			out << "Incomplete stats item in value table" << endl;
 		    } else {
-			cout << "Frequency statistic in value table is too large" << endl;
+			out << "Frequency statistic in value table is too large" << endl;
 		    }
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_string(&p, end, v.lower_bound)) {
 		    if (*p == 0) {
-			cout << "Incomplete stats item in value table" << endl;
+			out << "Incomplete stats item in value table" << endl;
 		    } else {
-			cout << "Lower bound statistic in value table is too large" << endl;
+			out << "Lower bound statistic in value table is too large" << endl;
 		    }
 		    ++errors;
 		    continue;
@@ -315,18 +309,18 @@ check_chert_table(const char * tablename, string filename, int opts,
 		p += 2;
 		Xapian::valueno slot;
 		if (!unpack_uint(&p, end, &slot)) {
-		    cout << "Bad value chunk key (no slot)" << endl;
+		    out << "Bad value chunk key (no slot)" << endl;
 		    ++errors;
 		    continue;
 		}
 		Xapian::docid did;
 		if (!unpack_uint_preserving_sort(&p, end, &did)) {
-		    cout << "Bad value chunk key (no docid)" << endl;
+		    out << "Bad value chunk key (no docid)" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (p != end) {
-		    cout << "Bad value chunk key (trailing junk)" << endl;
+		    out << "Bad value chunk key (trailing junk)" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -340,7 +334,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 		while (true) {
 		    string value;
 		    if (!unpack_string(&p, end, value)) {
-			cout << "Failed to unpack value from chunk" << endl;
+			out << "Failed to unpack value from chunk" << endl;
 			++errors;
 			break;
 		    }
@@ -354,36 +348,36 @@ check_chert_table(const char * tablename, string filename, int opts,
 		    // FIXME: Check if the bounds are tight?  Or is that better
 		    // as a separate tool which can also update the bounds?
 		    if (value < v.lower_bound) {
-			cout << "Value slot " << slot << " has value below "
-				"lower bound: '" << value << "' < '"
-			     << v.lower_bound << "'" << endl;
+			out << "Value slot " << slot << " has value below "
+			       "lower bound: '" << value << "' < '"
+			    << v.lower_bound << "'" << endl;
 			++errors;
 		    } else if (value > v.upper_bound) {
-			cout << "Value slot " << slot << " has value above "
-				"upper bound: '" << value << "' > '"
-			     << v.upper_bound << "'" << endl;
+			out << "Value slot " << slot << " has value above "
+			       "upper bound: '" << value << "' > '"
+			    << v.upper_bound << "'" << endl;
 			++errors;
 		    }
 
 		    if (p == end) break;
 		    Xapian::docid delta;
 		    if (!unpack_uint(&p, end, &delta)) {
-			cout << "Failed to unpack docid delta from chunk" << endl;
+			out << "Failed to unpack docid delta from chunk" << endl;
 			++errors;
 			break;
 		    }
 		    Xapian::docid new_did = did + delta + 1;
 		    if (new_did <= did) {
-			cout << "docid overflowed in value chunk" << endl;
+			out << "docid overflowed in value chunk" << endl;
 			++errors;
 			break;
 		    }
 		    did = new_did;
 
 		    if (did > db_last_docid) {
-			cout << "document id " << did << " in value chunk "
-			     << "is larger than get_last_docid() "
-			     << db_last_docid << endl;
+			out << "document id " << did << " in value chunk "
+			    << "is larger than get_last_docid() "
+			    << db_last_docid << endl;
 			++errors;
 		    }
 		}
@@ -399,19 +393,19 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    string term;
 	    Xapian::docid did;
 	    if (!unpack_string_preserving_sort(&pos, end, term)) {
-		cout << "Error unpacking termname from key" << endl;
+		out << "Error unpacking termname from key" << endl;
 		++errors;
 		continue;
 	    }
 	    if (!current_term.empty() && term != current_term) {
 		// The term changed unexpectedly.
 		if (pos == end) {
-		    cout << "No last chunk for term `" << current_term
-			 << "'" << endl;
+		    out << "No last chunk for term `" << current_term
+			<< "'" << endl;
 		    current_term.resize(0);
 		} else {
-		    cout << "Mismatch in follow-on chunk in posting "
-			"list for term `" << current_term << "' (got `"
+		    out << "Mismatch in follow-on chunk in posting "
+			   "list for term `" << current_term << "' (got `"
 			<< term << "')" << endl;
 		    current_term = term;
 		    tf = cf = 0;
@@ -423,9 +417,8 @@ check_chert_table(const char * tablename, string filename, int opts,
 		// First chunk.
 		if (term == current_term) {
 		    // This probably isn't possible.
-		    cout << "First posting list chunk for term `"
-			 << term << "' follows previous chunk for the same "
-			 "term" << endl;
+		    out << "First posting list chunk for term `" << term
+			<< "' follows previous chunk for the same term" << endl;
 		    ++errors;
 		}
 		current_term = term;
@@ -436,20 +429,20 @@ check_chert_table(const char * tablename, string filename, int opts,
 		pos = cursor->current_tag.data();
 		end = pos + cursor->current_tag.size();
 		if (!unpack_uint(&pos, end, &termfreq)) {
-		    cout << "Failed to unpack termfreq for term `" << term
-			 << "'" << endl;
+		    out << "Failed to unpack termfreq for term `" << term
+			<< "'" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &collfreq)) {
-		    cout << "Failed to unpack collfreq for term `" << term
-			 << "'" << endl;
+		    out << "Failed to unpack collfreq for term `" << term
+			<< "'" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &did)) {
-		    cout << "Failed to unpack firstdid for term `" << term
-			 << "'" << endl;
+		    out << "Failed to unpack firstdid for term `" << term
+			<< "'" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -457,20 +450,20 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    } else {
 		// Continuation chunk.
 		if (current_term.empty()) {
-		    cout << "First chunk for term `" << current_term << "' "
-			 "is a continuation chunk" << endl;
+		    out << "First chunk for term `" << current_term << "' "
+			   "is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
 		}
 		AssertEq(current_term, term);
 		if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		    cout << "Failed to unpack did from key" << endl;
+		    out << "Failed to unpack did from key" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (did <= lastdid) {
-		    cout << "First did in this chunk is <= last in "
-			"prev chunk" << endl;
+		    out << "First did in this chunk is <= last in "
+			   "prev chunk" << endl;
 		    ++errors;
 		}
 		cursor->read_tag();
@@ -480,13 +473,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    bool is_last_chunk;
 	    if (!unpack_bool(&pos, end, &is_last_chunk)) {
-		cout << "Failed to unpack last chunk flag" << endl;
+		out << "Failed to unpack last chunk flag" << endl;
 		++errors;
 		continue;
 	    }
 	    // Read what the final document ID in this chunk is.
 	    if (!unpack_uint(&pos, end, &lastdid)) {
-		cout << "Failed to unpack increase to last" << endl;
+		out << "Failed to unpack increase to last" << endl;
 		++errors;
 		continue;
 	    }
@@ -495,7 +488,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    while (true) {
 		Xapian::termcount wdf;
 		if (!unpack_uint(&pos, end, &wdf)) {
-		    cout << "Failed to unpack wdf" << endl;
+		    out << "Failed to unpack wdf" << endl;
 		    ++errors;
 		    bad = true;
 		    break;
@@ -507,7 +500,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 		Xapian::docid inc;
 		if (!unpack_uint(&pos, end, &inc)) {
-		    cout << "Failed to unpack docid increase" << endl;
+		    out << "Failed to unpack docid increase" << endl;
 		    ++errors;
 		    bad = true;
 		    break;
@@ -515,8 +508,8 @@ check_chert_table(const char * tablename, string filename, int opts,
 		++inc;
 		did += inc;
 		if (did > lastdid) {
-		    cout << "docid " << did << " > last docid " << lastdid
-			 << endl;
+		    out << "docid " << did << " > last docid " << lastdid
+			<< endl;
 		    ++errors;
 		}
 	    }
@@ -525,35 +518,35 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    }
 	    if (is_last_chunk) {
 		if (tf != termfreq) {
-		    cout << "termfreq " << termfreq << " != # of entries "
-			 << tf << endl;
+		    out << "termfreq " << termfreq << " != # of entries "
+			<< tf << endl;
 		    ++errors;
 		}
 		if (cf != collfreq) {
-		    cout << "collfreq " << collfreq << " != sum wdf " << cf
-			 << endl;
+		    out << "collfreq " << collfreq << " != sum wdf " << cf
+			<< endl;
 		    ++errors;
 		}
 		if (did != lastdid) {
-		    cout << "lastdid " << lastdid << " != last did " << did
-			 << endl;
+		    out << "lastdid " << lastdid << " != last did " << did
+			<< endl;
 		    ++errors;
 		}
 		current_term.resize(0);
 	    }
 	}
 	if (!current_term.empty()) {
-	    cout << "Last term `" << current_term << "' has no last chunk"
-		 << endl;
+	    out << "Last term `" << current_term << "' has no last chunk"
+		<< endl;
 	    ++errors;
 	}
 
 	map<Xapian::valueno, VStats>::const_iterator i;
 	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
 	    if (i->second.freq != i->second.freq_real) {
-		cout << "Value stats frequency for slot " << i->first << " is "
-		     << i->second.freq << " but recounting gives "
-		     << i->second.freq_real << endl;
+		out << "Value stats frequency for slot " << i->first << " is "
+		    << i->second.freq << " but recounting gives "
+		    << i->second.freq_real << endl;
 		++errors;
 	    }
 	}
@@ -569,10 +562,10 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		cout << "Error unpacking docid from key" << endl;
+		out << "Error unpacking docid from key" << endl;
 		++errors;
 	    } else if (pos != end) {
-		cout << "Extra junk in key" << endl;
+		out << "Extra junk in key" << endl;
 		++errors;
 	    }
 	}
@@ -587,7 +580,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		cout << "Error unpacking docid from key" << endl;
+		out << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
 	    }
@@ -600,14 +593,14 @@ check_chert_table(const char * tablename, string filename, int opts,
 		end = pos + cursor->current_tag.size();
 
 		if (pos == end) {
-		    cout << "Empty value slots used tag" << endl;
+		    out << "Empty value slots used tag" << endl;
 		    ++errors;
 		    continue;
 		}
 
 		Xapian::valueno prev_slot;
 		if (!unpack_uint(&pos, end, &prev_slot)) {
-		    cout << "Value slot encoding corrupt" << endl;
+		    out << "Value slot encoding corrupt" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -615,13 +608,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 		while (pos != end) {
 		    Xapian::valueno slot;
 		    if (!unpack_uint(&pos, end, &slot)) {
-			cout << "Value slot encoding corrupt" << endl;
+			out << "Value slot encoding corrupt" << endl;
 			++errors;
 			break;
 		    }
 		    slot += prev_slot + 1;
 		    if (slot <= prev_slot) {
-			cout << "Value slot number overflowed (" << prev_slot << " -> " << slot << ")" << endl;
+			out << "Value slot number overflowed (" << prev_slot << " -> " << slot << ")" << endl;
 			++errors;
 		    }
 		    prev_slot = slot;
@@ -630,7 +623,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    }
 
 	    if (pos != end) {
-		cout << "Extra junk in key" << endl;
+		out << "Extra junk in key" << endl;
 		++errors;
 		continue;
 	    }
@@ -650,9 +643,9 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    // Read doclen
 	    if (!unpack_uint(&pos, end, &doclen)) {
 		if (pos != 0) {
-		    cout << "doclen out of range" << endl;
+		    out << "doclen out of range" << endl;
 		} else {
-		    cout << "Unexpected end of data when reading doclen" << endl;
+		    out << "Unexpected end of data when reading doclen" << endl;
 		}
 		++errors;
 		continue;
@@ -661,9 +654,9 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    // Read termlist_size
 	    if (!unpack_uint(&pos, end, &termlist_size)) {
 		if (pos != 0) {
-		    cout << "termlist_size out of range" << endl;
+		    out << "termlist_size out of range" << endl;
 		} else {
-		    cout << "Unexpected end of data when reading termlist_size" << endl;
+		    out << "Unexpected end of data when reading termlist_size" << endl;
 		}
 		++errors;
 		continue;
@@ -697,9 +690,9 @@ check_chert_table(const char * tablename, string filename, int opts,
 		    // Read wdf
 		    if (!unpack_uint(&pos, end, &current_wdf)) {
 			if (pos == 0) {
-			    cout << "Unexpected end of data when reading termlist current_wdf" << endl;
+			    out << "Unexpected end of data when reading termlist current_wdf" << endl;
 			} else {
-			    cout << "Size of wdf out of range, in termlist" << endl;
+			    out << "Size of wdf out of range, in termlist" << endl;
 			}
 			++errors;
 			bad = true;
@@ -715,11 +708,11 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    }
 
 	    if (termlist_size != actual_termlist_size) {
-		cout << "termlist_size != # of entries in termlist" << endl;
+		out << "termlist_size != # of entries in termlist" << endl;
 		++errors;
 	    }
 	    if (doclen != actual_doclen) {
-		cout << "doclen != sum(wdf)" << endl;
+		out << "doclen != sum(wdf)" << endl;
 		++errors;
 	    }
 
@@ -738,12 +731,12 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		cout << "Error unpacking docid from key" << endl;
+		out << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
 	    }
 	    if (pos == end) {
-		cout << "No termname in key" << endl;
+		out << "No termname in key" << endl;
 		++errors;
 		continue;
 	    }
@@ -756,7 +749,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    Xapian::termpos pos_last;
 	    if (!unpack_uint(&pos, end, &pos_last)) {
-		cout << tablename << " table: Position list data corrupt" << endl;
+		out << tablename << " table: Position list data corrupt" << endl;
 		++errors;
 		continue;
 	    }
@@ -777,7 +770,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 		while (current_pos != positions.end()) {
 		    Xapian::termpos termpos = *current_pos++;
 		    if (termpos <= lastpos) {
-			cout << tablename << " table: Positions not strictly monotonically increasing" << endl;
+			out << tablename << " table: Positions not strictly monotonically increasing" << endl;
 			++errors;
 			break;
 		    }
@@ -786,14 +779,14 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    }
 	}
     } else {
-	cout << tablename << " table: Don't know how to check structure\n" << endl;
+	out << tablename << " table: Don't know how to check structure\n" << endl;
 	return errors;
     }
 
     if (!errors)
-	cout << tablename << " table structure checked OK\n" << endl;
+	out << tablename << " table structure checked OK\n" << endl;
     else
-	cout << tablename << " table errors found: " << errors << "\n" << endl;
+	out << tablename << " table errors found: " << errors << "\n" << endl;
 
     return errors;
 }

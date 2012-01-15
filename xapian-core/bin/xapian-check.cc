@@ -1,5 +1,5 @@
 /** @file xapian-check.cc
- * @brief Check the consistency of a database or table.
+ * @brief Tool to check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
@@ -22,15 +22,10 @@
 
 #include <config.h>
 
-#include "xapian-check-brass.h"
-#include "xapian-check-chert.h"
-
-#include "chert_check.h" // For OPT_SHORT_TREE, etc.
-#include "filetests.h"
-#include "stringutils.h"
-
 #include <xapian.h>
 
+#include <cstdlib>
+#include <cstring>
 #include <stdexcept>
 #include <iostream>
 
@@ -38,10 +33,6 @@ using namespace std;
 
 #define PROG_NAME "xapian-check"
 #define PROG_DESC "Check the consistency of a database or table"
-
-// FIXME: We don't currently cross-check wdf between postlist and termlist.
-// It's hard to see how to efficiently.  We do cross-check doclens, but that
-// "only" requires (4 * last_docid()) bytes.
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
@@ -55,31 +46,6 @@ static void show_usage() {
 " + = same as tbv\n"
 " e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
 "      "PROG_NAME" /var/lib/xapian/data/default/postlist fbv" << endl;
-}
-
-static void
-reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid)
-{
-    if (last_docid >= 0x40000000ul / sizeof(Xapian::termcount)) {
-	// The memory block needed by the vector would be >= 1GB.
-	cout << "Cross-checking document lengths between the postlist and "
-		"termlist tables would use more than 1GB of memory, so "
-		"skipping that check" << endl;
-	return;
-    }
-    try {
-	doclens.reserve(last_docid + 1);
-    } catch (const std::bad_alloc &) {
-	// Failed to allocate the required memory.
-	cout << "Couldn't allocate enough memory for cross-checking document "
-		"lengths between the postlist and termlist tables, so "
-		"skipping that check" << endl;
-    } catch (const std::length_error &) {
-	// There are too many elements for the vector to handle!
-	cout << "Couldn't allocate enough elements for cross-checking document "
-		"lengths between the postlist and termlist tables, so "
-		"skipping that check" << endl;
-    }
 }
 
 int
@@ -106,12 +72,14 @@ main(int argc, char **argv)
     if (!opt_string) opt_string = "v";
     for (const char *p = opt_string; *p; ++p) {
 	switch (*p) {
-	    case 't': opts |= OPT_SHORT_TREE; break;
-	    case 'f': opts |= OPT_FULL_TREE; break;
-	    case 'b': opts |= OPT_SHOW_BITMAP; break;
-	    case 'v': opts |= OPT_SHOW_STATS; break;
+	    case 't': opts |= Xapian::DBCHECK_SHORT_TREE; break;
+	    case 'f': opts |= Xapian::DBCHECK_FULL_TREE; break;
+	    case 'b': opts |= Xapian::DBCHECK_SHOW_BITMAP; break;
+	    case 'v': opts |= Xapian::DBCHECK_SHOW_STATS; break;
 	    case '+':
-		opts |= OPT_SHORT_TREE | OPT_SHOW_BITMAP | OPT_SHOW_STATS;
+		opts |= Xapian::DBCHECK_SHORT_TREE;
+		opts |= Xapian::DBCHECK_SHOW_BITMAP;
+		opts |= Xapian::DBCHECK_SHOW_STATS;
 		break;
 	    default:
 		cerr << "option " << opt_string << " unknown\n";
@@ -121,177 +89,12 @@ main(int argc, char **argv)
     }
 
     try {
-	vector<Xapian::termcount> doclens;
-	size_t errors = 0;
-	struct stat sb;
-	string dir(argv[1]);
-	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
-#ifndef XAPIAN_HAS_CHERT_BACKEND
-	    throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
-#else
-	    // Check a whole chert database directory.
-	    // If we can't read the last docid, set it to its maximum value
-	    // to suppress errors.
-	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    try {
-		Xapian::Database db = Xapian::Chert::open(dir);
-		db_last_docid = db.get_lastdocid();
-	    } catch (const Xapian::Error & e) {
-		// Ignore so we can check a database too broken to open.
-		cout << "Database couldn't be opened for reading: "
-		     << e.get_description()
-		     << "\nContinuing check anyway" << endl;
-		++errors;
-	    }
-	    reserve_doclens(doclens, db_last_docid);
-	    // This is a chert directory so try to check all the btrees.
-	    // Note: it's important to check termlist before postlist so
-	    // that we can cross-check the document lengths.
-	    const char * tables[] = {
-		"record", "termlist", "postlist", "position",
-		"spelling", "synonym"
-	    };
-	    for (const char **t = tables;
-		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-		string table(dir);
-		table += '/';
-		table += *t;
-		cout << *t << ":\n";
-		if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
-		    // Other tables are created lazily, so may not exist.
-		    if (!file_exists(table + ".DB")) {
-			if (strcmp(*t, "termlist") == 0) {
-			    cout << "Not present.\n";
-			} else {
-			    cout << "Lazily created, and not yet used.\n";
-			}
-			cout << endl;
-			continue;
-		    }
-		}
-		errors += check_chert_table(*t, table, opts, doclens,
-					    db_last_docid);
-	    }
-#endif
-	} else if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
-#ifndef XAPIAN_HAS_BRASS_BACKEND
-	    throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
-#else
-	    // Check a whole brass database directory.
-	    // If we can't read the last docid, set it to its maximum value
-	    // to suppress errors.
-	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    try {
-		Xapian::Database db = Xapian::Brass::open(dir);
-		db_last_docid = db.get_lastdocid();
-	    } catch (const Xapian::Error & e) {
-		// Ignore so we can check a database too broken to open.
-		cout << "Database couldn't be opened for reading: "
-		     << e.get_description()
-		     << "\nContinuing check anyway" << endl;
-		++errors;
-	    }
-	    reserve_doclens(doclens, db_last_docid);
-	    // This is a brass directory so try to check all the btrees.
-	    // Note: it's important to check termlist before postlist so
-	    // that we can cross-check the document lengths.
-	    const char * tables[] = {
-		"record", "termlist", "postlist", "position",
-		"spelling", "synonym"
-	    };
-	    for (const char **t = tables;
-		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-		string table(dir);
-		table += '/';
-		table += *t;
-		cout << *t << ":\n";
-		if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
-		    // Other tables are created lazily, so may not exist.
-		    if (!file_exists(table + ".DB")) {
-			if (strcmp(*t, "termlist") == 0) {
-			    cout << "Not present.\n";
-			} else {
-			    cout << "Lazily created, and not yet used.\n";
-			}
-			cout << endl;
-			continue;
-		    }
-		}
-		errors += check_brass_table(*t, table, opts, doclens,
-					    db_last_docid);
-	    }
-#endif
-	} else {
-	    if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
-		// Flint is no longer supported as of Xapian 1.3.0.
-		cerr << argv[0] << ": '" << dir << "' is a flint database.\n"
-			"Support for flint was dropped in Xapian 1.3.0" << endl;
-		exit(1);
-	    }
-	    if (stat((dir + "/record_DB").c_str(), &sb) == 0) {
-		// Quartz is no longer supported as of Xapian 1.1.0.
-		cerr << argv[0] << ": '" << dir << "' is a quartz database.\n"
-			"Support for quartz was dropped in Xapian 1.1.0" << endl;
-		exit(1);
-	    }
-	    // Just check a single Btree.  If it ends with "." or ".DB"
-	    // already, trim that so the user can do xapian-check on
-	    // "foo", "foo.", or "foo.DB".
-	    string filename = dir;
-	    if (endswith(filename, '.'))
-		filename.resize(filename.size() - 1);
-	    else if (endswith(filename, ".DB"))
-		filename.resize(filename.size() - 3);
-
-	    size_t p = filename.find_last_of('/');
-#if defined __WIN32__ || defined __EMX__
-	    if (p == string::npos) p = 0;
-	    p = filename.find_last_of('\\', p);
-#endif
-	    if (p == string::npos) p = 0; else ++p;
-
-	    string path(filename, 0, p);
-
-	    string tablename;
-	    while (p != filename.size()) {
-		tablename += tolower(static_cast<unsigned char>(filename[p++]));
-	    }
-
-	    // If we're passed a "naked" table (with no accompanying files)
-	    // assume it is chert.
-	    if (file_exists(path + "iambrass")) {
-#ifndef XAPIAN_HAS_BRASS_BACKEND
-		throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
-#else
-		// Set the last docid to its maximum value to suppress errors.
-		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		errors = check_brass_table(tablename.c_str(), filename, opts,
-					   doclens, db_last_docid);
-#endif
-	    } else if (file_exists(path + "iamflint")) {
-		// Flint is no longer supported as of Xapian 1.3.0.
-		cerr << argv[0] << ": '" << dir << "' is a flint database.\n"
-			"Support for flint was dropped in Xapian 1.3.0" << endl;
-		exit(1);
-	    } else {
-#ifndef XAPIAN_HAS_CHERT_BACKEND
-		throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
-#else
-		// Set the last docid to its maximum value to suppress errors.
-		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		errors = check_chert_table(tablename.c_str(), filename, opts,
-					   doclens, db_last_docid);
-#endif
-	    }
-	}
+	size_t errors = Xapian::Database::check(argv[1], opts);
 	if (errors > 0) {
 	    cout << "Total errors found: " << errors << endl;
 	    exit(1);
 	}
 	cout << "No errors found" << endl;
-    } catch (const char *error) {
-	cerr << argv[0] << ": " << error << endl;
-	exit(1);
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);

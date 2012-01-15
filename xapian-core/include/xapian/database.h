@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #ifndef XAPIAN_INCLUDED_DATABASE_H
 #define XAPIAN_INCLUDED_DATABASE_H
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -477,6 +478,30 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  contain the UUIDs of all the sub-databases.
 	 */
 	std::string get_uuid() const;
+
+	/** Check the integrity of a database or database table.
+	 *
+	 *  This method is currently experimental, and may change incompatibly
+	 *  or possibly even be removed.  Feedback on how well it works and
+	 *  how it might be improved are welcome.
+	 *
+	 *  @param path	Path to database or table
+	 *  @param opts	Options to use for check
+	 *  @param out	std::ostream to write output to
+	 */
+	static size_t check(const std::string & path, int opts,
+			    std::ostream &out);
+
+	/** Check the integrity of a database or database table.
+	 *
+	 *  This method is currently experimental, and may change incompatibly
+	 *  or possibly even be removed.  Feedback on how well it works and
+	 *  how it might be improved are welcome.
+	 *
+	 *  @param path	Path to database or table
+	 *  @param opts	Options to use for check
+	 */
+	static size_t check(const std::string & path, int opts);
 };
 
 /** This class provides read/write access to a database.
@@ -931,6 +956,30 @@ const int DB_CREATE = 2;
 const int DB_CREATE_OR_OVERWRITE = 3;
 /** Open for read/write; fail if no db exists. */
 const int DB_OPEN = 4;
+
+/** Show a short-format display of the B-tree contents.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHORT_TREE = 1;
+
+/** Show a full display of the B-tree contents.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_FULL_TREE = 2;
+
+/** Show the bitmap for the B-tree.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHOW_BITMAP = 4;
+
+/** Show statistics for the B-tree.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHOW_STATS = 8;
 
 }
 

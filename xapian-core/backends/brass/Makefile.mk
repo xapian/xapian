@@ -12,6 +12,7 @@ noinst_HEADERS +=\
 	backends/brass/brass_cursor.h\
 	backends/brass/brass_database.h\
 	backends/brass/brass_databasereplicator.h\
+	backends/brass/brass_dbcheck.h\
 	backends/brass/brass_dbstats.h\
 	backends/brass/brass_document.h\
 	backends/brass/brass_inverter.h\
@@ -36,10 +37,12 @@ lib_src +=\
 	backends/brass/brass_alldocspostlist.cc\
 	backends/brass/brass_alltermslist.cc\
 	backends/brass/brass_btreebase.cc\
+	backends/brass/brass_check.cc\
 	backends/brass/brass_compact.cc\
 	backends/brass/brass_cursor.cc\
 	backends/brass/brass_database.cc\
 	backends/brass/brass_databasereplicator.cc\
+	backends/brass/brass_dbcheck.cc\
 	backends/brass/brass_dbstats.cc\
 	backends/brass/brass_document.cc\
 	backends/brass/brass_inverter.cc\
@@ -57,8 +60,4 @@ lib_src +=\
 	backends/brass/brass_values.cc\
 	backends/brass/brass_version.cc
 
-noinst_LTLIBRARIES += libbrasscheck.la
-
-libbrasscheck_la_SOURCES =\
-	backends/brass/brass_check.cc
 endif

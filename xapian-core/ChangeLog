@@ -1,3 +1,13 @@
+Sun Jan 15 12:41:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* .gitignore,backends/Makefile.mk,backends/brass/,backends/chert/,
+	  backends/dbcheck.cc,bin/,common/bitstream.h,
+	  include/xapian/database.h: Add a (currently experimental) API for
+	  checking the integrity of databases (partly addresses ticket#238).
+	  This means we can remove XAPIAN_VISIBILITY_DEFAULT from a number of
+	  functions which aren't in the public API (partly addresses
+	  ticket#63).
+
 Fri Jan 13 12:07:39 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Include <xapian.h> rather than <xapian/stem.h> -

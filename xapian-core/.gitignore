@@ -27,8 +27,6 @@
 /xapian-config
 /libxapian.la
 /libgetopt.la
-/libbrasscheck.la
-/libchertcheck.la
 /xapian-core-*.tar.gz
 /xapian-core.spec
 /xapian-config.1

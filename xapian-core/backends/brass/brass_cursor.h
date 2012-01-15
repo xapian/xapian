@@ -2,7 +2,7 @@
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +22,6 @@
 
 #ifndef OM_HGUARD_BRASS_CURSOR_H
 #define OM_HGUARD_BRASS_CURSOR_H
-
-#include <xapian/visibility.h>
 
 #include "brass_types.h"
 
@@ -69,7 +67,7 @@ class BrassTable;
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
  */
-class XAPIAN_VISIBILITY_DEFAULT BrassCursor {
+class BrassCursor {
     private:
 	/// Copying not allowed
         BrassCursor(const BrassCursor &);

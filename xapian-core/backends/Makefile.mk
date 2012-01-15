@@ -19,6 +19,7 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	backends/alltermslist.cc\
+	backends/dbcheck.cc\
 	backends/database.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
