@@ -1972,6 +1972,9 @@ static const test test_synonym_queries[] = {
     { "search terms", "((Zsearch@1 SYNONYM find@1) OR Zterm@2)" },
     // Shouldn't trigger synonyms:
     { "\"search terms\"", "(search@1 PHRASE 2 terms@2)" },
+    // Check that setting FLAG_AUTO_SYNONYMS doesn't enable multi-word
+    // synonyms.  Regression test for bug fixed in 1.3.0 and 1.2.9.
+    { "regression test", "(Zregress@1 OR Ztest@2)" },
     { NULL, NULL }
 };
 
@@ -1986,6 +1989,7 @@ static bool test_qp_synonym1()
     db.add_synonym("Zsearch", "Zlocate");
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
+    db.add_synonym("regression test", "magic");
 
     db.commit();
 

@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -397,7 +397,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  NB: You must also call set_database() for this to work.
 	 */
-	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024 | FLAG_AUTO_SYNONYMS,
+	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024,
 
 	/** The default flags.
 	 *

@@ -1,3 +1,10 @@
+Mon Jan 16 22:59:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.lemony: Fix
+	  FLAG_AUTO_SYNONYMS not to enable auto multi-word synonyms too.
+	* tests/queryparsertest.cc: Extend testcase qp_synonym1 to include a
+	  regression test for this bug.
+
 Sun Jan 15 12:41:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* .gitignore,backends/Makefile.mk,backends/brass/,backends/chert/,

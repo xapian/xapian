@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -379,7 +379,10 @@ Term::get_query_with_synonyms() const
 Query
 Term::get_query_with_auto_synonyms() const
 {
-    if (state->flags & QueryParser::FLAG_AUTO_SYNONYMS)
+    const unsigned MASK_ENABLE_AUTO_SYNONYMS =
+	QueryParser::FLAG_AUTO_SYNONYMS |
+	QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+    if (state->flags & MASK_ENABLE_AUTO_SYNONYMS)
 	return get_query_with_synonyms();
 
     return get_query();
