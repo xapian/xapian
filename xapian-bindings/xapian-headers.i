@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2006,2011 Olly Betts
+ * Copyright 2006,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,6 +87,11 @@
     %extend NS::CLASS {
 	INC_OR_DEC(prev, --, NS, CLASS, RET_TYPE)
     }
+%enddef
+
+%define CONSTANT(TYPE, NS, NAME)
+    %ignore NS::NAME;
+    %constant TYPE NAME = NS::NAME;
 %enddef
 
 /* Ignore these for all classes: */
@@ -322,13 +327,12 @@ STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
 %ignore Xapian::Database::get_document_lazily_;
-%ignore Xapian::DB_CREATE;
-%ignore Xapian::DB_CREATE_OR_OPEN;
-%ignore Xapian::DB_CREATE_OR_OVERWRITE;
-%ignore Xapian::DB_OPEN;
+CONSTANT(int, Xapian, DB_CREATE);
+CONSTANT(int, Xapian, DB_CREATE_OR_OPEN);
+CONSTANT(int, Xapian, DB_CREATE_OR_OVERWRITE);
+CONSTANT(int, Xapian, DB_OPEN);
+CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
+CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
+CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
+CONSTANT(int, Xapian, DBCHECK_SHOW_STATS);
 %include <xapian/database.h>
-
-%constant int DB_CREATE = Xapian::DB_CREATE;
-%constant int DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int DB_OPEN = Xapian::DB_OPEN;

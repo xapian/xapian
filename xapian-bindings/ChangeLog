@@ -1,3 +1,8 @@
+Wed Jan 18 13:43:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Handle DBCHECK_* constants like we do DB_* ones.
+	  Factor out this special handliing into a SWIG macro called CONSTANT.
+
 Wed Jan 18 13:22:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Update list of generated file for geospatial API.
