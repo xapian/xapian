@@ -24,7 +24,7 @@ Fri Jan 13 12:07:39 GMT 2012  Olly Betts <olly@survex.com>
 	* tests/stemtest.cc: Include <xapian.h> rather than <xapian/stem.h> -
 	  we're trying to test the public API, so including the public API
 	  header is better.
-`
+
 Thu Jan 12 13:15:27 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/unittest.cc: Add new testcases simple_exceptions_work1 and
@@ -130,7 +130,7 @@ Wed Jan 11 08:29:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Test document serialisation via the public
 	  API (which was added after the tests were).
-	* net/serialise.h: Remove XAPIAN_VISIBILITY_DEFAULT from 
+	* net/serialise.h: Remove XAPIAN_VISIBILITY_DEFAULT from
 	  serialise_document() and unserialise_document().
 
 Wed Jan 11 05:57:14 GMT 2012  Olly Betts <olly@survex.com>
@@ -758,7 +758,7 @@ Sun Oct 02 23:31:52 GMT 2011  Olly Betts <olly@survex.com>
 
 Sun Oct 02 23:26:34 GMT 2011  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e6cbe1e5ee: 
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e6cbe1e5ee:
 	  "Added -T option, to specify a template filename on the command
 	  line.  The default is still "lempar.c", though."  Not currently
 	  useful to us, but trying to minimise differences with upstream
@@ -1735,7 +1735,7 @@ Tue May 31 03:36:49 GMT 2011  Dan Colish <dcolish@gmail.com>
 	docs/queryparser.rst docs/stemming.rst docs/intro_ir.rst
 	docs/code_structure.rst docs/Makefile.am docs/tests.rst
 	docs/overview.rst: Bulk port all remaining documentation to RST.
-	
+
 Sun May 29 07:04:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Add PostingSource example.  (ticket#503)
@@ -1791,7 +1791,7 @@ Mon May 09 20:13:17 GMT 2011  Olly Betts <olly@survex.com>
 
 Thu Apr 07 05:38:36 GMT 2011  Dan Colish <dcolish@gmail.com>
 
-	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc, 
+	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc,
 	  matcher/exactphrasepostlist.cc, matcher/exactphrasepostlist.h,
 	  matcher/phrasepostlist.h: Remove temporary vector in queryoptimiser
 	  and replace with iterators.
@@ -1877,7 +1877,7 @@ Tue Mar 22 01:18:38 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/,backends/chert/chert_database.cc,
 	  backends/flint/flint_database.cc,tests/api_replicate.cc:
-          Clean up changesets when replicating. Add test coverage for this
+	  Clean up changesets when replicating. Add test coverage for this
 	  feature. Allow XAPIAN_MAX_CHANGESETS to be altered without reopening
 	  the database. Closes Ticket #278.
 
