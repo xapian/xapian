@@ -1,3 +1,8 @@
+Wed Jan 18 12:01:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/geospatial.h: Change empty() to return bool not
+	  size_t.
+
 Wed Jan 18 10:44:16 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/geospatial.rst: Fix minor typos in geospatial docs.

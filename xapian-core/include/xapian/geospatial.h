@@ -205,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     }
 
     /// Return true if and only if there are no coordinates in the container.
-    size_t empty() const
+    bool empty() const
     {
 	return coords.empty();
     }
