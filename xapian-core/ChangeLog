@@ -1,3 +1,10 @@
+Wed Jan 18 13:13:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/matchspy.h,include/xapian/postingsource.h,
+	  include/xapian/weight.h: Document that you can define a static
+	  operator delete method in your subclass if deallocation needs to be
+	  handled specially.  (Closes ticket#554)
+
 Wed Jan 18 12:27:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/geospatial.h: Mark as experimental for now.

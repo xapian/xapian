@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -120,7 +120,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
      *
      *  Note that the returned object will be deallocated by Xapian after use
-     *  with "delete".  It must therefore have been allocated with "new".
+     *  with "delete".  If you want to handle the deletion in a special way
+     *  (for example when wrapping the Xapian API for use from another
+     *  language) then you can define a static <code>operator delete</code>
+     *  method in your subclass as shown here:
+     *  http://trac.xapian.org/ticket/554#comment:1
      */
     virtual Weight * clone() const = 0;
 
@@ -155,7 +159,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  default implementation which simply throws Xapian::UnimplementedError.
      *
      *  Note that the returned object will be deallocated by Xapian after use
-     *  with "delete".  It must therefore have been allocated with "new".
+     *  with "delete".  If you want to handle the deletion in a special way
+     *  (for example when wrapping the Xapian API for use from another
+     *  language) then you can define a static <code>operator delete</code>
+     *  method in your subclass as shown here:
+     *  http://trac.xapian.org/ticket/554#comment:1
      *
      *  @param s	A string containing the serialised parameters.
      */
