@@ -1,3 +1,7 @@
+Wed Jan 18 12:27:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/geospatial.h: Mark as experimental for now.
+
 Wed Jan 18 12:22:39 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/geospatial.rst: Say "haversine" rather than "Haversine"

@@ -39,6 +39,8 @@ namespace Xapian {
 class Registry;
 
 /** Convert from miles to metres.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  */
 inline double
 miles_to_metres(double miles)
@@ -47,6 +49,8 @@ miles_to_metres(double miles)
 }
 
 /** Convert from metres to miles.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  */
 inline double
 metres_to_miles(double metres)
@@ -55,6 +59,8 @@ metres_to_miles(double metres)
 }
 
 /** A latitude-longitude coordinate.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  *
  *  Note that latitude-longitude coordinates are only precisely meaningful if
  *  the datum used to define them is specified.  This class ignores this
@@ -138,7 +144,10 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
     std::string get_description() const;
 };
 
-/// An iterator across the values in a LatLongCoords object.
+/** An iterator across the values in a LatLongCoords object.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ */
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
     /// Friend class which needs to be able to construct us.
     friend class LatLongCoords;
@@ -182,7 +191,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
     typedef LatLongCoord & reference;
 };
 
-/// A sequence of latitude-longitude coordinates.
+/** A sequence of latitude-longitude coordinates.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ */
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// The coordinates.
     std::vector<LatLongCoord> coords;
@@ -251,6 +263,8 @@ operator!=(const LatLongCoordsIterator &a, const LatLongCoordsIterator &b)
 }
 
 /** Base class for calculating distances between two lat/long coordinates.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
   public:
@@ -340,6 +354,8 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
 
 /** Calculate the great-circle distance between two coordinates on a sphere.
  *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *
  *  This uses the haversine formula to calculate the distance.  Note that this
  *  formula is subject to inaccuracy due to numerical errors for coordinates on
  *  the opposite side of the sphere.
@@ -380,6 +396,8 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
 };
 
 /** Posting source which returns a weight based on geospatial distance.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  *
  *  Results are weighted by the distance from a fixed point, or list of points,
  *  calculated according to the metric supplied.  If multiple points are
@@ -467,6 +485,8 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
 };
 
 /** KeyMaker subclass which sorts by distance from a latitude/longitude.
+ *
+ *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  *
  *  Results are ordered by the distance from a fixed point, or list of points,
  *  calculated according to the metric supplied.  If multiple points are
