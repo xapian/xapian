@@ -26,11 +26,14 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/ExpandDecider.cs \
 	generated-csharp/ExpandDeciderAnd.cs \
 	generated-csharp/FixedWeightPostingSource.cs \
+	generated-csharp/GreatCircleMetric.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
 	generated-csharp/LatLongCoord.cs \
 	generated-csharp/LatLongCoords.cs \
 	generated-csharp/LatLongCoordsIterator.cs \
+	generated-csharp/LatLongDistanceKeyMaker.cs \
+	generated-csharp/LatLongDistancePostingSource.cs \
 	generated-csharp/LatLongMetric.cs \
 	generated-csharp/MatchDecider.cs \
 	generated-csharp/MatchSpy.cs \

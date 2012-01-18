@@ -1,3 +1,7 @@
+Wed Jan 18 13:22:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Update list of generated file for geospatial API.
+
 Wed Jan 18 10:41:41 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
