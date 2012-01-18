@@ -62,7 +62,7 @@ There is currently only one built-in metric - the GreatCircleMetric.  As the
 name suggests, this calculates the distance between a latitude and longitude
 based on the assumption that the world is a perfect sphere.  The radius of the
 world can be specified as a constructor parameter, but defaults to a reasonable
-approximation of the radius of the Earth.  The calculation uses the Haversine
+approximation of the radius of the Earth.  The calculation uses the haversine
 formula, which is accurate for points which are close together, but can have
 significant error for coordinates which are on opposite sides of the sphere: on
 the other hand, such points are likely to be at the end of a ranked list of

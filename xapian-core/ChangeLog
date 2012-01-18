@@ -1,3 +1,8 @@
+Wed Jan 18 12:22:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/geospatial.rst: Say "haversine" rather than "Haversine"
+	  consistently.
+
 Wed Jan 18 12:01:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/geospatial.h: Change empty() to return bool not
