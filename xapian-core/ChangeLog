@@ -1,3 +1,7 @@
+Tue Jan 17 22:29:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/errorhandler.cc: Reorder header includes.
+
 Mon Jan 16 22:59:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.lemony: Fix
