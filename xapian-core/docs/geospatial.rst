@@ -145,7 +145,7 @@ To return results ranked by a combination of their relevance and their
 distance, you can also use the LatLongDistancePostingSource.  Beware that
 getting the right balance of weights is tricky: there is little solid
 theoretical basis for this, so the best approach is often to try various
-different parameters, evalutate the results, and settle on the best.  The
+different parameters, evaluate the results, and settle on the best.  The
 LatLongDistancePostingSource returns a weight of 1.0 for a document which is at
 the specified location, and a lower, but always positive, weight for points
 further away. It has two parameters, k1 and k2, which control how fast the
@@ -175,11 +175,11 @@ expensive.
 To gain a performance boost, it is possible to store additional terms in
 documents to identify regions at various scales.  There are various ways to
 generate such terms (for example, the O-QTM algorithm referenced below).
-However, the encoding for coodinates that Xapian uses has some nice properties
+However, the encoding for coordinates that Xapian uses has some nice properties
 which help here.  Specifically, the standard encoded form for a coordinate used
 is a 6 byte representation, which identifies a point on the surface of the
 earth to an accuracy of 1/16 of a second (ie, at worst slightly less than 2
-meter accuracy).  However, this representation can be truncated to 2 bytes to
+metre accuracy).  However, this representation can be truncated to 2 bytes to
 represent a bounding box 1 degree on a side, or to 3, 4 or 5 bytes to get
 successively more accurate bounding boxes.
 

@@ -1,3 +1,7 @@
+Wed Jan 18 10:44:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/geospatial.rst: Fix minor typos in geospatial docs.
+
 Wed Jan 18 10:39:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,api/postingsource.cc,api/queryinternal.cc,
