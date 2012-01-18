@@ -297,4 +297,12 @@ class XapianSmoketest < Test::Unit::TestCase
     }
   end
 
+  def test_016_latlongcoords_iterator
+    coords = Xapian::LatLongCoords.new()
+    coords.append(Xapian::LatLongCoord.new(0, 0))
+    assert_equal(coords.size(), 1)
+    assert_equal(coords.all.map{|i| "%s"%i.description}*",",
+		 "Xapian::LatLongCoord(0, 0)")
+  end
+
 end # class XapianSmoketest

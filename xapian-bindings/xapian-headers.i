@@ -306,11 +306,17 @@ SUBCLASSABLE(Xapian, Compactor)
 
 SUBCLASSABLE(Xapian, PostingSource)
 %ignore Xapian::PostingSource::register_matcher_;
+%ignore Xapian::PostingSource::unserialise_with_registry;
 %include <xapian/postingsource.h>
 
 SUBCLASSABLE(Xapian, MatchSpy)
 %ignore Xapian::MatchSpy::serialise_results;
 %include <xapian/matchspy.h>
+
+SUBCLASSABLE(Xapian, LatLongMetric)
+INPUT_ITERATOR_METHODS(Xapian, LatLongCoordsIterator, LatLongCoord, get_coord)
+%ignore Xapian::LatLongCoord::operator<;
+%include <xapian/geospatial.h>
 
 STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)

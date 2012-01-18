@@ -1408,6 +1408,18 @@ def test_import_star():
     """
     import test_xapian_star
 
+def test_latlongcoords_iter():
+    """Test LatLongCoordsIterator wrapping.
+
+    """
+    coords = xapian.LatLongCoords()
+    expect([c for c in coords], [])
+    coords.append(xapian.LatLongCoord(0, 0))
+    coords.append(xapian.LatLongCoord(0, 1))
+    expect([str(c) for c in coords], ['Xapian::LatLongCoord(0, 0)',
+                                      'Xapian::LatLongCoord(0, 1)'])
+
+
 def test_compactor():
     """Test that xapian.Compactor works.
 

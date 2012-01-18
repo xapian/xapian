@@ -312,4 +312,19 @@ module Xapian
     end # top_values
   end # Xapian::Database
 
+  # Refer to the
+  # {Xapian::LatLongCoords C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1LatLongCoords.html]
+  # for methods not specific to Ruby.
+  #--
+  # Wrap some dangerous iterators.
+  class Xapian::LatLongCoords
+    # Returns an Array of all the values seen, in alphabetical order
+    def all()
+      Xapian._safelyIterate(self._begin(),
+                            self._end()) { |item|
+        item.get_coord()
+      }
+    end # allterms
+  end # Xapian::LatLongCoords
+
 end # Xapian module

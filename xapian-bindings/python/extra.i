@@ -1144,6 +1144,59 @@ def wrapper():
 Database.valuestream = wrapper()
 del wrapper
 
+##########################################
+# Support for iteration of LatLongCoords #
+##########################################
+
+class LatLongCoordsIter(object):
+    """An iterator over all the coordinates in a LatLongCoords object.
+
+    The iterator returns LatLongCoord objects.
+
+    """
+    def __init__(self, start, end):
+        self.iter = start
+        self.end = end
+
+    def __iter__(self):
+        return self
+
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.equals(other)
+
+    # For Python2:
+    def next(self):
+        if self.iter.equals(self.end):
+            raise StopIteration
+        else:
+            r = self.iter.get_coord()
+            self.iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self.iter.equals(self.end):
+            raise StopIteration
+        else:
+            r = self.iter.get_coord()
+            self.iter.next()
+            return r
+
+# Modify LatLongCoords to make it iterable.
+def _latlongcoords_iter(self):
+    """Get an iterator over all the coordinates in a LatLongCoords.
+
+    The iterator will return xapian.LatLongCoord objects.
+
+    """
+    return LatLongCoordsIter(self.begin(), self.end())
+LatLongCoords.__iter__ = _latlongcoords_iter
+del _latlongcoords_iter
+del LatLongCoordsIterator
+
 # Fix up Enquire so that it keeps a python reference to the deciders supplied
 # to it so that they won't be deleted before the Enquire object.  This hack can
 # probably be removed once xapian bug #186 is fixed.
