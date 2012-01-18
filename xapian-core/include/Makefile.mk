@@ -35,6 +35,7 @@ xapianinclude_HEADERS =\
 	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
 	include/xapian/valuesetmatchdecider.h\
+	include/xapian/geospatial.h\
 	include/xapian/visibility.h\
 	include/xapian/weight.h
 

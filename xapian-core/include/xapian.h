@@ -62,6 +62,9 @@
 // Unicode support
 #include <xapian/unicode.h>
 
+// Geospatial
+#include <xapian/geospatial.h>
+
 // Database compaction and merging
 #include <xapian/compactor.h>
 

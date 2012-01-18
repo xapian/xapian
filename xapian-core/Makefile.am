@@ -112,6 +112,7 @@ include backends/Makefile.mk
 include common/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk
+include geospatial/Makefile.mk
 include include/Makefile.mk
 include languages/Makefile.mk
 include matcher/Makefile.mk

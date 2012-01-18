@@ -30,6 +30,7 @@
 namespace Xapian {
 
 // Forward declarations.
+class LatLongMetric;
 class MatchSpy;
 class PostingSource;
 class Weight;
@@ -124,6 +125,19 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      */
     const Xapian::MatchSpy *
 	    get_match_spy(const std::string & name) const;
+
+    /// Register a user-defined lat-long metric class.
+    void register_lat_long_metric(const Xapian::LatLongMetric &metric);
+
+    /** Get a lat-long metric given a name.
+     *
+     *  The returned metric is owned by the registry object.
+     *
+     *  Returns NULL if the metric could not be found.
+     */
+    const Xapian::LatLongMetric *
+	    get_lat_long_metric(const std::string & name) const;
+
 };
 
 }

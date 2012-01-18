@@ -35,6 +35,7 @@
 /api_db.h
 /api_generated.cc
 /api_generated.h
+/api_geospatial.h
 /api_matchspy.h
 /api_metadata.h
 /api_nodb.h

@@ -450,7 +450,9 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    }
 
 		    len = decode_length(p, end, true);
-		    PostingSource * source = reg_source->unserialise(string(*p, len));
+		    PostingSource * source =
+			reg_source->unserialise_with_registry(string(*p, len),
+							      reg);
 		    *p += len;
 		    return new Xapian::Internal::QueryPostingSource(source, true);
 		}

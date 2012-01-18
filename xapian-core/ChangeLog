@@ -1,3 +1,13 @@
+Wed Jan 18 10:39:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/postingsource.cc,api/queryinternal.cc,
+	  api/registry.cc,common/output.h,common/registryinternal.h,
+	  docs/geospatial.rst,geospatial/,include/Makefile.mk,include/xapian.h,
+	  include/xapian/geospatial.h,include/xapian/postingsource.h,
+	  include/xapian/registry.h,tests/.gitignore,tests/Makefile.am,
+	  tests/api_geospatial.cc: Merge geotomerge2 branch from github.
+	  Closes ticket#481.
+
 Tue Jan 17 22:29:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/errorhandler.cc: Reorder header includes.
