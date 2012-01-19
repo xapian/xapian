@@ -1,3 +1,8 @@
+Thu Jan 19 00:19:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Update list of generated files for the geospatial
+	  API.
+
 Thu Jan 19 00:17:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Ignore unserialise() variant taking const char**

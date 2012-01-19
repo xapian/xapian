@@ -34,8 +34,15 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/ExpandDecider.java\
 	org/xapian/ExpandDeciderAnd.java\
 	org/xapian/FixedWeightPostingSource.java\
+	org/xapian/GreatCircleMetric.java\
 	org/xapian/InMemory.java\
 	org/xapian/KeyMaker.java\
+	org/xapian/LatLongCoord.java\
+	org/xapian/LatLongCoords.java\
+	org/xapian/LatLongCoordsIterator.java\
+	org/xapian/LatLongDistanceKeyMaker.java\
+	org/xapian/LatLongDistancePostingSource.java\
+	org/xapian/LatLongMetric.java\
 	org/xapian/MatchDecider.java\
 	org/xapian/MatchSpy.java\
 	org/xapian/MSet.java\
