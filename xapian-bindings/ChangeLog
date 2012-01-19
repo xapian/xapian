@@ -1,3 +1,8 @@
+Thu Jan 19 00:17:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore unserialise() variant taking const char**
+	  and Database::check() variant taking std::ostream &.
+
 Wed Jan 18 13:43:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Handle DBCHECK_* constants like we do DB_* ones.

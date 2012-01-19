@@ -105,6 +105,7 @@
 %ignore iterator;
 %ignore const_iterator;
 %ignore size_type;
+%ignore unserialise(const char **, const char *);
 
 /* These methods won't throw exceptions. */
 %exception Xapian::major_version "$action"
@@ -327,6 +328,7 @@ STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
 %ignore Xapian::Database::get_document_lazily_;
+%ignore Xapian::Database::check(const std::string &, int, std::ostream &);
 CONSTANT(int, Xapian, DB_CREATE);
 CONSTANT(int, Xapian, DB_CREATE_OR_OPEN);
 CONSTANT(int, Xapian, DB_CREATE_OR_OVERWRITE);
