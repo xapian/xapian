@@ -1,3 +1,7 @@
+Fri Jan 20 21:35:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: unittest needs getopt for non-glibc platforms.
+
 Fri Jan 20 21:33:59 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: GCC 4.2.1 on Mac OS X seems to need a copy
