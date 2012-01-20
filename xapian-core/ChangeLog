@@ -1,3 +1,8 @@
+Fri Jan 20 21:33:59 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: GCC 4.2.1 on Mac OS X seems to need a copy
+	  ctor for InvertedQuery_ - unclear why, but it's easy to add one.
+
 Wed Jan 18 13:13:07 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h,include/xapian/postingsource.h,

@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -294,11 +294,12 @@ class InvertedQuery_ {
 
     void operator=(const InvertedQuery_ &);
 
-    InvertedQuery_(const InvertedQuery_ &);
-
     InvertedQuery_(const Query & query_) : query(query_) { }
 
   public:
+    // GCC 4.2 seems to needs a copy ctor.
+    InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
+
     operator Query() const {
 	return Query(Query::OP_AND_NOT, Query::MatchAll, query);
     }
