@@ -1,3 +1,7 @@
+Fri Jan 20 23:53:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/document.t,perl/t/index.t: Add tests of Document::get_docid().
+
 Thu Jan 19 00:19:52 GMT 2012  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: Update list of generated files for the geospatial
