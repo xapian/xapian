@@ -1,3 +1,9 @@
+xapian-bindings (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Sat, 17 Dec 2011 10:48:13 +0000
+
 xapian-bindings (1.2.7-1) unstable; urgency=low
 
   * New upstream release.
