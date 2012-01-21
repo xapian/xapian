@@ -1,0 +1,730 @@
+xapian-core (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control: Update "Suggests:" of -dbg package.
+
+ -- Olly Betts <olly@survex.com>  Sat, 17 Dec 2011 07:24:42 +0000
+
+xapian-core (1.2.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.9.2 (no changes required).
+  * debian/rules: Add build-arch and build-indep targets.
+
+ -- Olly Betts <olly@survex.com>  Fri, 12 Aug 2011 01:37:23 +0000
+
+xapian-core (1.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fix up link to the internal sourcedocs in internals.html to point to those
+    on the Xapian website.
+
+ -- Olly Betts <olly@survex.com>  Wed, 06 Apr 2011 02:19:10 +0000
+
+xapian-core (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 21 Dec 2010 07:32:14 +0000
+
+xapian-core (1.2.3-2) unstable; urgency=low
+
+  * Only include debug symbols for the shared library in the debug package
+    (Closes: #594455).
+
+ -- Olly Betts <olly@survex.com>  Thu, 26 Aug 2010 07:10:51 +0000
+
+xapian-core (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+  * debian/control.in:
+    + Standards-Version: 3.9.1 (no changes required).
+  * debian/patches/check-select-errors.patch: Drop, merged upstream.
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Aug 2010 11:18:50 +0000
+
+xapian-core (1.2.2-4) experimental; urgency=low
+
+  * Add patch check-select-errors.patch which will hopefully fix erratic FTBFS
+    on alpha and mipsel, or at least help to debug them.
+
+ -- Olly Betts <olly@survex.com>  Wed, 07 Jul 2010 12:06:07 +0000
+
+xapian-core (1.2.2-3) experimental; urgency=low
+
+  * The special case code to add 'usr/lib/sse2' to libxapian22.install doesn't
+    work as this file is generated when the source package is made, not at
+    binary package build time.  Instead use 'usr/lib/{,sse2}/libxapian.so.*'
+    which will package the sse2 version if it has been built, and won't give
+    an error if it doesn't.
+
+ -- Olly Betts <olly@survex.com>  Wed, 07 Jul 2010 03:04:44 +0000
+
+xapian-core (1.2.2-2) experimental; urgency=low
+
+  * debian/rules: Fix typo in handling sse2 variant on i386/*-i386.
+
+ -- Olly Betts <olly@survex.com>  Tue, 06 Jul 2010 16:19:40 +0000
+
+xapian-core (1.2.2-1) experimental; urgency=low
+
+  * New upstream release:
+    + debian/patches: All patches incorporated upstream, so remove.
+    + Package new upstream cmake support files in libxapian-dev.
+  * Drop quilt dependencies now we're using source format "3.0 (quilt)".
+  * On i386 and *-i386, build both SSE2 and i386 versions of the library.  The
+    main motivation is correctness (upstream now defaults to using SSE because
+    excess precision from 387 FP instructions can cause inconsistencies in
+    weight calculations) but the SSE2 build is faster too (~6%).
+  * debian/rules: Try re-enabling optimisation on alpha - it's been more
+    than a year.
+  * debian/rules: Use dh_prep instead of dh_clean -k.
+
+ -- Olly Betts <olly@survex.com>  Tue, 06 Jul 2010 13:33:37 +0000
+
+xapian-core (1.2.0-3) experimental; urgency=low
+
+  * debian/patches/ftbfs-on-hurd-fix.patch: Fix FTBFS on hurd due to SA_SIGINFO
+    not being defined.
+  * debian/patches/cursor-next-on-modified-table-fix-1.2.patch: Fix bug which
+    manifests in notmuch 0.3.1 testsuite. (Closes: #579951)
+  * Update to require dh7 and use dh compact level 7.
+  * Switch to dpkg-source 3.0 (quilt) format.
+
+ -- Olly Betts <olly@survex.com>  Wed, 05 May 2010 09:49:36 +0000
+
+xapian-core (1.2.0-2) experimental; urgency=low
+
+  * debian/patches/fix-header-installation-location.patch: Fix installation
+    location of headers.
+  * debian/rules: Empty dependency_libs in .la file.
+
+ -- Olly Betts <olly@survex.com>  Mon, 03 May 2010 02:04:37 +0000
+
+xapian-core (1.2.0-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Update "Suggests" of -dbg package (libgcc2-dbg and
+    libstdc++6-4.0-dbg removed; libstdc++6-4.4-dbg added).
+
+ -- Olly Betts <olly@survex.com>  Thu, 29 Apr 2010 07:33:26 +0000
+
+xapian-core (1.1.5-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/patches/runtest-no-fd-ulimit.patch: Drop patch - upstream now has
+    fd leak checking in the test harness and has removed the ulimit.
+  * debian/control.in:
+    + Drop conflict on libxapian2 as that's too ancient to be relevant now.
+    + Just use ${binary:Version} - sarge has reached EOL and I'm not intending
+      to backport 1.1.x to dapper.
+    + Add uuid-dev as a build dependency.
+
+ -- Olly Betts <olly@survex.com>  Sat, 24 Apr 2010 07:51:31 +0000
+
+xapian-core (1.0.19-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Apr 2010 08:01:52 +0000
+
+xapian-core (1.0.18-1) unstable; urgency=low
+
+  * New upstream release.
+    + Includes fix for Xapian ticket#250.  Closes: #564830
+
+ -- Olly Betts <olly@survex.com>  Sun, 14 Feb 2010 12:17:31 +0000
+
+xapian-core (1.0.17+svn13879-1) experimental; urgency=low
+
+  * Snapshot from upstream branches/1.0 including patch for Xapian ticket#250.
+  * debian/control.in:
+    + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
+    + Add "Vcs-Browser:" and "Vcs-svn:".
+    + Standards-Version: 3.8.4 (no changes required).
+    + Add '${misc:Depends}' for xapian-doc to placate lintian.
+  * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
+  * debian/copyright: Update copyright years.
+
+ -- Olly Betts <olly@survex.com>  Tue, 02 Feb 2010 11:21:32 +0000
+
+xapian-core (1.0.17-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Nov 2009 04:05:59 +0000
+
+xapian-core (1.0.16-3) unstable; urgency=low
+
+  * The lsof probing reveals that the fd ulimit problem isn't due to extra
+    fds being open, so remove it as it has served its purpose, and instead
+    just disable the fd ulimit for now.
+
+ -- Olly Betts <olly@survex.com>  Mon, 14 Sep 2009 06:19:30 +0100
+
+xapian-core (1.0.16-2) unstable; urgency=low
+
+  * Add build dependency on lsof which the new fd ulimit patch uses.
+
+ -- Olly Betts <olly@survex.com>  Sun, 13 Sep 2009 11:04:09 +0100
+
+xapian-core (1.0.16-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Force nocheck into DEB_BUILD_OPTIONS on avr32 to try to stop
+    the build from timing out.
+  * debian/README.source: Added.
+  * debian/patches: Replace the patch to disable the fd ulimit on alpha with
+    one to use lsof to report and count the number of already open fds, and
+    then add this number to the limit we were going to set.
+
+ -- Olly Betts <olly@survex.com>  Sat, 12 Sep 2009 14:18:31 +0100
+
+xapian-core (1.0.15-2) unstable; urgency=low
+
+  * debian/rules: Include /usr/share/quilt/quilt.make much earlier so that
+    QUILT_STAMPFN is actually set when we try to use it.  This means that
+    the patch(es) will actually be applied (presumably 1.0.14-2 built on
+    alpha just by luck).
+  * debian/rules: Build with "-g" so that the -dbg package is more useful.
+  * debian/rules: Disable optimisation for avr32 in the hope that will avoid
+    the build failing with "Took too long".
+  * debian/rules: Add -ffloat-store for i386-hurd to try to get topercent2 to
+    pass.
+
+ -- Olly Betts <olly@survex.com>  Fri, 28 Aug 2009 05:09:14 +0000
+
+xapian-core (1.0.15-1) unstable; urgency=low
+
+  * New upstream release.
+  * xapian-tools now depends on the same version of libxapian15 to avoid
+    problems with some undocumented symbols xapian-compact uses.
+  * Fix typo in package description.
+  * debian/rules: Set DEB_HOST_ARCH by calling dpkg-architecture if it isn't
+    already set so that behaviour is the same when running debian/rules "by
+    hand".
+  * debian/control.in: Standards-Version: 3.8.3 (no changes required).
+  * debian/patches/runtest-no-fd-ulimit-on-alpha.patch: Add a description of
+    the patch.
+
+ -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 03:17:52 +0100
+
+xapian-core (1.0.14-2) unstable; urgency=medium
+
+  * "urgency=medium" as 1.0.14-1 has aged 5 days and only FTBFS on alpha
+    because of a new ulimit in the testsuite in 1.0.14-1.
+  * debian/rules,debian/control.in,debian/patches/series: Add support for
+    managing patches with quilt, but only add quilt as a build dependency
+    if there are patches.  Also autogenerate the versioned dependency on
+    debhelper using debian/compat.
+  * debian/patches/runtest-no-fd-ulimit-on-alpha.patch: Fix FTBFS on alpha
+    by disabling the new fd ulimit in the test harness on that architecture.
+
+ -- Olly Betts <olly@survex.com>  Wed, 05 Aug 2009 02:53:41 +0000
+
+xapian-core (1.0.14-1) unstable; urgency=low
+
+  * New upstream release.
+    + debian/patch: Changes included upstream so remove.
+  * debian/control.in: Standards-Version: 3.8.2 (no changes required).
+  * debian/control.in: Update required debhelper version.
+  * debian/copyright: Update for the MIT/X relicensing of the serialise-double
+    code.
+  * debian/rules: Explicitly disable use of valgrind for the testsuite -
+    otherwise if someone builds their own package with valgrind installed (as
+    developer boxes often do), the test suite run will take a really long
+    time.
+
+ -- Olly Betts <olly@survex.com>  Thu, 30 Jul 2009 03:01:21 +0100
+
+xapian-core (1.0.13-3) unstable; urgency=low
+
+  * debian/patch: Backport more testsuite patches from upstream SVN:
+    + Don't bother trying to count CPU time for child processes, as it's hard
+      to ensure that the child processes have finished with the current
+      framework, and just counting time in the current process checks most
+      things (the local backend tests cover much of the work done by the
+      server part of the remote backend).
+    + Increase the number of tests until the first sample takes more than
+      0.001 seconds to avoid trying to base calculations on a length of time
+      we probably can't reliably measure to start with.
+    + Always give the full exception message (was conditional on --verbose).
+      Tidy up output for reporting the various different exception types and
+      other failures to give more consistent output.
+
+ -- Olly Betts <olly@survex.com>  Fri, 19 Jun 2009 10:43:48 +0100
+
+xapian-core (1.0.13-2) unstable; urgency=low
+
+  * debian/patch: Backport two patches from upstream SVN:
+    + Fix failure of topercent2 on some architectures.
+    + Fix leaking of fds used to launch xapian-tcpsrv for remotetcp test,
+      which hopefully will cure sporadic test failures on some buildds.
+  * debian/rules: Reenable testsuite on m68k now that topercent2 should pass
+    reliably.
+  * debian/rules: Improve comment describing why we disable optimisation on
+    alpha.
+
+ -- Olly Betts <olly@survex.com>  Sat, 13 Jun 2009 10:54:22 +0000
+
+xapian-core (1.0.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/TODO: Update since we now have a -dbg package with debugging
+    symbols.
+  * debian/control.in: Better description for libxapian<SOVERSION>-dbg.
+  * debian/rules: Don't allow CODENAME to be set in the environment.
+  * Relicense the Debian packaging under the MIT/X licence.
+  * debian/patch: Changes included upstream so remove.
+
+ -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 14:03:15 +0100
+
+xapian-core (1.0.12-2) unstable; urgency=low
+
+  * debian/control.in: libxapian<SOVERSION>-dbg should be section debug not
+    libs.
+  * debian/copyright: Update for 2009.  /usr/share/common-licenses/GPL ->
+    /usr/share/licenses/GPL-2 since the former is now a symlink to GPL-3
+    and Xapian is GPL v2 or later.
+  * debian/patch: Patch from upstream SVN to fix equality test of const char *
+    with string literal to use strcmp().
+
+ -- Olly Betts <olly@survex.com>  Sun,  3 May 2009 05:59:02 +0100
+
+xapian-core (1.0.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.8.1 (no changes required).
+  * debian/compat: Increase from 4 to 5 since 4 is now deprecated in sid and
+    5 is supported by all currently supported Debian and Ubuntu releases.
+  * debian/control.in,debian/rules: Split off debug information into a new
+    libxapian<SOVERSION>-dbg package.
+
+ -- Olly Betts <olly@survex.com>  Sun, 26 Apr 2009 13:45:21 +0100
+
+xapian-core (1.0.10-2) unstable; urgency=low
+
+  * debian/control.in: Demote xapian-doc and xapian-examples from Recommends
+    to Suggests of libxapian<N>-dev.  Closes: #516511, #516512
+  * debian/rules: Force noopt on alpha to try to work around likely toolchain
+    bug which is causing a SEGV in the testsuite when an exception is thrown.
+
+ -- Olly Betts <olly@survex.com>  Tue, 24 Feb 2009 12:57:04 +0000
+
+xapian-core (1.0.10-1) unstable; urgency=low
+
+  * New upstream release.
+    + Builds with GCC 4.4 snapshot.  Closes: #505413
+    + debian/patch: All changes included upstream so remove.
+  * debian/control.in: Update libxapian15 to "Priority: important" to match
+    the override file.
+  * debian/control.in: Add "DM-Upload-Allowed: yes" since I'm now a Debian
+    Maintainer.
+
+ -- Olly Betts <olly@survex.com>  Wed, 18 Feb 2009 04:15:19 +0000
+
+xapian-core (1.0.7-4) unstable; urgency=low
+
+  * debian/patch: Backport fix from upstream SVN which fixes segfaults when
+    using OP_ELITE_SET on x86 and possibly m68k due to excess precision
+    causing a comparison operator to report true for both a>b and b>a.
+
+ -- Olly Betts <olly@survex.com>  Thu, 09 Oct 2008 12:58:25 +0100
+
+xapian-core (1.0.7-3) unstable; urgency=low
+
+  * debian/rules: Run "make all" and "make check" as separate commands to
+    avoid hitting parallel building bugs.  Closes: #493390
+  * debian/patch: Backport fixes for upstream bug #287 (which can cause
+    database corruption), and a bug without a ticket which causes problems
+    iterating over tables created lazily after the database has had commits
+    which are still in sequential mode.
+
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 09:46:20 +0100
+
+xapian-core (1.0.7-2) unstable; urgency=low
+
+  * debian/rules: Fix configure and build rules to be parallel make safe
+    (caused FTBFS on s390 buildd).
+  * debian/rules: Temporarily disable the testsuite on m68k while we resolve
+    why topercent2 is failing there.  It's a new regression test for a minor
+    bug supposedly fixed in 1.0.7, so it's not like it actually worked any
+    better in the currently installed 1.0.5-1 packages.
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 Jul 2008 11:50:35 +0100
+
+xapian-core (1.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+    + Add "nl" for selecting the Dutch stemmer, which was accidentally missing
+      from the list of language codes recognised.  Reported by Joey Hess.
+      Closes: #484458
+  * debian/copyright: Update for 2008 and a few other minor changes.
+  * debian/control.in: Add "${shlibs:Depends}, ${misc:Depends}" to "Depends"
+    to fix a policy violation (dependencies will pull them in anyway so this
+    hasn't caused problems in practice).  Omission noticed by Niko Tyni.
+  * debian/control.in: Move libxapianNN-dev from "Depends" to "Recommends"
+    for xapian-examples since it's not actually needed to run the built
+    examples.
+  * debian/rules: Add support for parallel=<n> in DEB_BUILD_OPTIONS, as
+    recommended by policy 3.8.0.  Use $(filter ...) instead of $(find ...)
+    to check for noopt in DEB_BUILD_OPTIONS to avoid false matches on
+    substrings of non-standard options (e.g. snooptables).
+  * debian/rules: Run the xapian-core testsuite unless nocheck is specified
+    in DEB_BUILD_OPTIONS.  It takes 3.5 minutes on x86-64, so hopefully
+    shouldn't be too painful for slower architectures.
+  * debian/control.in: Standards-Version: 3.8.0
+  * debian/watch: Add watch file.  Not useful for me as I make the upstream
+    releases, but DEHS, etc find it useful.
+  * debian/xapian-doc.doc-base.apidocs: Section "Apps/Programming" is no
+    longer valid - use section "Programming/C++" instead.
+  * debian/xapian-doc.doc-base.xapian-intro: Section "Apps/Programming" is no
+    longer valid - use section "Programming" instead.
+
+ -- Olly Betts <olly@survex.com>  Wed, 23 Jul 2008 10:30:49 +0100
+
+xapian-core (1.0.5-1) unstable; urgency=low
+
+  * New upstream release.
+    + Fixes compilation with latest GCC 4.3 snapshot.  Closes: #455151
+    + No longer installs ".map" files with documentation, which fixes lintian
+      warning about an empty file in the documentation.
+  * debian/rules: Look for "CODENAME" and "debian/codename" rather than
+    "COMPONENT" and "debian/component".
+  * debian/control.in: Standards-Version: 3.7.3 (no changes required).
+  * debian/control.in: The "Homepage:" header is now official, so convert
+    "Homepage:" pseudo-headers.
+
+ -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 21:37:09 +0000
+
+xapian-core (1.0.4-1) unstable; urgency=low
+
+  * New upstream release.  Closes: #444858
+    + Fixes compilation with latest GCC 4.3 snapshot.  Closes: #441618
+  * debian/control.in,debian/rules: Use "${binary:Version}" instead of
+    "${Source-Version}" (except on sarge and dapper which predate
+    "${binary:Version}").
+
+ -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 03:15:23 +0000
+
+xapian-core (1.0.2-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu,  5 Jul 2007 01:06:06 +0100
+
+xapian-core (1.0.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Mon, 11 Jun 2007 16:51:38 +0100
+
+xapian-core (1.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+    + Now builds with GCC 4.3 snapshot.  Closes: #417778
+  * debian/rules: Generate control from control.in robustly - don't risk
+    leaving a partially generated destination file.
+  * debian/patch: Changes included upstream so remove.
+  * debian/xapian-tools.install: Package new xapian-check tool and its manpage.
+  * debian/control.in: Mention new xapian-check and previously overlooked
+    xapian-progsrv.  Make it clear that quartzXXX is for quartz-format
+    databases.
+  * debian/copyright: Update.
+  * debian/rules: We don't need to pass --mandir or --infodir to configure
+    as the values we explicitly set are the defaults anyway (and we don't
+    have any documentation in "info" format).
+  * debian/control.in: Add "zlib1g-dev" to "Build-Depends:".
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 16:37:31 +0100
+
+xapian-core (0.9.9-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/xapian-tools.install: Install xapian-progsrv.1 man page.
+  * debian/patch: Fix WritableDatabase::replace_document() bug where replacing
+    a document with itself with unmodified postings loses all positional
+    information for that document.
+
+ -- Olly Betts <olly@survex.com>  Wed, 15 Nov 2006 01:03:02 +0000
+
+xapian-core (0.9.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/xapian-doc.doc-base.apidocs: The printable API documentation is now
+    a PDF rather than PostScript.
+
+ -- Olly Betts <olly@survex.com>  Sat,  4 Nov 2006 12:27:01 +0000
+
+xapian-core (0.9.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/xapian-tools.install: Install /usr/bin/xapian-progsrv.
+  * debian/copyright: Add Richard Boulton.
+
+ -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 17:44:47 +0100
+
+xapian-core (0.9.6-5) unstable; urgency=low
+
+  * debian/control.in: Remove "designed to be" from the package description at
+    Wookey's suggestion.
+  * debian/control.in: Add extra space before "Homepage:" as is recommended
+    by the Debian Developer's Reference.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Jul 2006 02:03:19 +0100
+
+xapian-core (0.9.6-4) unstable; urgency=low
+
+  * debian/copyright: Update with a thorough list of copyrights and licences.
+
+ -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 16:00:12 +0100
+
+xapian-core (0.9.6-3) unstable; urgency=low
+
+  * debian/control: Updated description:
+    + The queryparser is no longer a separate library.
+    + The claimed scalability was overly modest - we can certainly handle
+      "hundreds of millions of documents".
+    + Add a link to the homepage.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 04:14:49 +0100
+
+xapian-core (0.9.6-2) unstable; urgency=low
+
+  * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
+    need to check by hand.
+  * configure with --disable-dependency-tracking which will save us some
+    diskspace and a little time during the build.
+
+ -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:29:10 +0100
+
+xapian-core (0.9.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * "Standards-Version: 3.7.2" - no changes required.
+
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:20:07 +0100
+
+xapian-core (0.9.5-3) unstable; urgency=low
+
+  * Create xapian-examples package.
+
+ -- Olly Betts <olly@survex.com>  Wed, 12 Apr 2006 04:14:51 +0100
+
+xapian-core (0.9.5-2) unstable; urgency=low
+
+  * Use debian/compat instead of setting DH_COMPAT.
+  * dh_install with --fail-missing intead of just --list-missing.
+  * dh_install now explicitly excludes the simple* examples.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 21:17:32 +0100
+
+xapian-core (0.9.5-1) unstable; urgency=low
+
+  * New upstream release.
+    + All installed binaries now have man pages.
+  * "Standards-Version: 3.6.2" - no changes required.
+  * debian/copyright: Update FSF address and give download URL for releases
+    instead of obsolete CVS location.
+  * debian/control.in: copydatabase and xapian-compact are packaged in
+    xapian-tools, so add them to the list of tools in the package description.
+  * debian/rules: Increase DH_COMPAT from 3 to 4.
+  * debian/TODO: Updated.
+  * New maintainer.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 00:41:22 +0100
+
+xapian-core (0.9.4-3) unstable; urgency=low
+
+  * Add new header "deprecated.h"
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:59:10 +0000
+
+xapian-core (0.9.4-2) unstable; urgency=low
+
+  * Fix invalid date line in previous changelog entry.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:33:08 +0000
+
+xapian-core (0.9.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * A couple of small, but important, fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:31:23 +0000
+
+xapian-core (0.9.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * API additions: some new functions to get version information, useful
+    when using a shared library of Xapian.
+  * Query parser bug fix with "+" terms when default op is AND.
+  * Query parser supports "AND NOT" as a synonym for "NOT".
+  * Various bug fixes - some errors threw unhelpful exception types.
+  * Use updated versions of automake and libtool.
+  * Various documentation, debug and packaging updates.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu, 16 Feb 2006 12:59:27 +0000
+
+xapian-core (0.9.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * API modifications to queryparser.
+  * "flint" database backend now claimed to be functional.
+  * Many bug-fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 15 Jul 2005 12:56:43 +0100
+
+xapian-core (0.9.1-2) unstable; urgency=low
+
+  * Add new header xapian/dbfactory.h
+  * Add delve and quest to xapian-tools package.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 10:45:17 +0100
+
+xapian-core (0.9.1-1) unstable; urgency=low
+
+  * New upstream release.  (Version 0.9.0 never got packaged.)
+  * Various API changes - see NEWS file for details.
+  * No longer Build-Depend on bison - we now use lemon, and use the copy
+    of lemon in the Xapian source tree.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue,  7 Jun 2005 07:31:29 +0100
+
+xapian-core (0.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * xapian-config: --libs output fixed to not include libxapian.la
+  * quartzcompact: Added --no-full / -n option to disable full compaction,
+    fix largefile support, slight increase in compaction efficiency, slight
+    change in statistics reporting formatting.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed,  5 Jan 2005 11:42:51 +0000
+
+xapian-core (0.8.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * API changes:
+    - Added constructors to Database and WritableDatabase.
+      Auto::open() is now deprecated.
+    - Removed the ability to write a Xapian object to an ostream directly.
+    - Renamed BM25 parameters to match standard naming in papers and elsewhere.
+  * Library version number increased from 3 to 5 due to interface changes.
+  * Some bug and portability fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  9 Dec 2004 17:30:31 +0000
+
+xapian-core (0.8.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed bug which caused a segmentation fault or odd "Document not found"
+    exceptions when new check_at_least parameter to Enquire::get_mset() was
+    used and there weren't many matches (regression test checkatleast1).
+  * omtcpsrv renamed to xapian-tcpsrv.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 21 Sep 2004 13:30:17 +0100
+
+xapian-core (0.8.2-3) unstable; urgency=low
+
+  * Make libxapian3 conflict with libxapian2, because libxapian2 version
+    0.8.1-1 actually contained libxapian.so.3 (which was a bug).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 17:34:43 +0100
+
+xapian-core (0.8.2-2) unstable; urgency=low
+
+  * Oops - library version number should be 3.  Changed it back,
+    so we now have libxapian3.
+    (I was confused between the interface number and the version number.)
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 16:44:37 +0100
+
+xapian-core (0.8.2-1) unstable; urgency=low
+
+  * New upstream release (0.8.2).
+  * library version number increased to 4 (from 2).
+    (Xapian::Database::get_lastdocid added; QueryParser tries
+    reparsing after stripping punctuation; several unused
+    Error subclasses removed; assorted Iterator changes,
+    Xapian::ESet::back and many other methods added).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 01:03:49 +0100
+
+xapian-core (0.8.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 20:10:05 +0100
+
+xapian-core (0.8.0-9) unstable; urgency=low
+
+  * Remove build dependencies on tools which aren't required if not using
+    maintainer mode.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu, 27 May 2004 00:37:02 +0100
+
+xapian-core (0.8.0-8) unstable; urgency=low
+
+  * Fix minor bugs in debian/rules (trailing backslashes, and missing -p
+    from mkdir)
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 13:33:02 +0100
+
+xapian-core (0.8.0-7) unstable; urgency=low
+
+  * Perform build in a subdirectory.  This is neater, and will also make it
+    easier to perform a differently configured build to produce a debug
+    version.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 12:13:45 +0100
+
+xapian-core (0.8.0-6) unstable; urgency=low
+
+  * debian/rules,debian/control.in: Remove queryparser packages - merge
+    them into the main library package.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 01:44:58 +0100
+
+xapian-core (0.8.0-5) unstable; urgency=low
+
+  * debian/rules: Add --list-missing back to dh_install.
+  * debian/control.in: Remove build depend on graphviz, and add TODO item
+    to sort this out properly.
+    Also, build depend on debhelper >= 4.1.22, since this is needed for
+    --list-missing.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 11:59:42 +0100
+
+xapian-core (0.8.0-4) unstable; urgency=low
+
+  * xapian-doc: Correct Recommends field to point to libxapian-dev, not
+    libxapian2-dev, and to libxapian-queryparser-dev not
+    libxapian-queryparser1-dev.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 10:36:16 +0100
+
+xapian-core (0.8.0-3) unstable; urgency=low
+
+  * Remove empty maintainer scripts, allowing debhelper to make them.
+  * Add rules to make symlinks to config.guess and config.sub, and added
+    Build-Depends on autotools-dev.  Remove Build-Depends on automake,
+    autoconf and libtool (these will be run before the source package is
+    generated).
+  * Add some more items to TODO list.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 09:48:34 +0100
+
+xapian-core (0.8.0-2) unstable; urgency=low
+
+  * Fixed postinst, postrm, and prerm scripts to have a #!/bin/sh line, so
+    they actually work.
+  * Various tweaks to debian/rules suggested by looking at dh_make output.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 11 May 2004 17:00:03 +0100
+
+xapian-core (0.8.0-1) unstable; urgency=low
+
+  * Initial release, from upstream source snapshot.
+
+ -- Richard Boulton <richard@tartarus.org>  Sun,  9 May 2004 16:28:37 +0100
