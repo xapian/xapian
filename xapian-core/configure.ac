@@ -963,9 +963,6 @@ esac
 
 AC_CHECK_FUNCS(link)
 
-dnl See if we want to use STLport
-RJB_FIND_STLPORT
-
 dnl *************************
 dnl * Set debugging options *
 dnl *************************
@@ -1199,18 +1196,6 @@ AH_BOTTOM(
 # define usual(COND) (COND)
 #endif
 ])
-
-dnl modify flags for building with stlport
-STLPORT_CXXFLAGS=
-if test yes = "$use_stlport"; then
-  if test yes = "$GXX"; then
-    STLPORT_CXXFLAGS="-nostdinc++"
-  fi
-  STLPORT_CXXFLAGS="$STLPORT_CXXFLAGS $STLPORT_INCLUDE"
-  AM_CXXFLAGS="$STLPORT_CXXFLAGS $AM_CXXFLAGS"
-  LIBS="$STLPORT_LIBS $LIBS"
-fi
-AC_SUBST(STLPORT_CXXFLAGS)
 
 AC_SUBST(AM_CXXFLAGS)
 
