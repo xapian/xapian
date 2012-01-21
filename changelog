@@ -1,3 +1,11 @@
+xapian-omega (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Add "-g" to CFLAGS and CXXFLAGS so that "nostrip" builds are
+    more useful.
+
+ -- Olly Betts <olly@survex.com>  Sat, 17 Dec 2011 11:12:18 +0000
+
 xapian-omega (1.2.7-1) unstable; urgency=low
 
   * New upstream release.
