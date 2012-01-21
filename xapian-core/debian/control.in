@@ -30,7 +30,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Suggests: libc-dbg, libgcc1-dbg | libgcc4-dbg, zlib1g-dbg, libstdc++6-4.4-dbg | libstdc++6-4.3-dbg | libstdc++6-4.2-dbg | libstdc++6-4.1-dbg
+Suggests: libc6-dbg, libgcc1-dbg, zlib1g-dbg, libstdc++6-4.6-dbg
 Description: Debugging symbols for the Xapian Search engine library
  This package contains debugging symbols for the core Xapian library.
  .

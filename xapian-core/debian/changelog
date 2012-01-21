@@ -1,3 +1,10 @@
+xapian-core (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control: Update "Suggests:" of -dbg package.
+
+ -- Olly Betts <olly@survex.com>  Sat, 17 Dec 2011 07:24:42 +0000
+
 xapian-core (1.2.7-1) unstable; urgency=low
 
   * New upstream release.
