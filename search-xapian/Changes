@@ -2,6 +2,7 @@ Revision history for Perl extension Search::Xapian.
 
 1.2.9.0  UNRELEASED
 	[Changes contributed by Olly Betts]
+	- Wrap Document::get_docid() method.
 	- Fix "Use of qw(...) as parentheses is deprecated" warnings in tests
 	  with Perl 5.14.
 

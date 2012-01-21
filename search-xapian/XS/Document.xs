@@ -196,6 +196,17 @@ Document::values_end()
     OUTPUT:
         RETVAL
 
+docid
+Document::get_docid()
+    CODE:
+	try {
+	    RETVAL = THIS->get_docid();
+	} catch (...) {
+	    handle_exception();
+	}
+    OUTPUT:
+	RETVAL
+
 string
 Document::get_description()
 
