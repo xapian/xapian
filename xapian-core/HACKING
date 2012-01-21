@@ -292,6 +292,13 @@ On Fedora, the uuid library can be installed by doing::
 
 If building from git, you'll also need git-svn installed.
 
+If you're doing much development work, you'll probably also want the following
+tools installed:
+
+* valgrind for better testsuite error finding
+* ccache for faster rebuilds
+* eatmydata for faster testsuite runs
+
 The repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep

@@ -1,3 +1,8 @@
+Sat Jan 21 14:03:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Recommend installing valgrind, ccache, and eatmydata.
+
 Sat Jan 21 13:27:52 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
