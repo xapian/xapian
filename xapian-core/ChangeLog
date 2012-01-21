@@ -1,3 +1,12 @@
+Sat Jan 21 14:40:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Fix FLAG_AUTO_SYNONYMS not to enable
+	  auto multi-word synonyms too (but in a different way to trunk so as
+	  to not break the ABI).
+	* tests/queryparsertest.cc: Extend testcase qp_synonym1 to include a
+	  regression test for this bug.
+
 Sat Jan 21 14:24:45 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

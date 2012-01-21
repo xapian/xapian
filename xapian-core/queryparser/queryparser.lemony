@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -1356,7 +1356,11 @@ reprocess:
     Query::op default_op = state->default_op();
     vector<Query> subqs;
     subqs.reserve(terms.size());
-    if (state->flags & QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS) {
+    // FLAG_AUTO_MULTIWORD_SYNONYMS is 1024 | FLAG_AUTO_SYNONYMS so if we
+    // tested with that we'd enable multi-word synonyms when FLAG_AUTO_SYNONYMS
+    // was set (as was the case in 1.2.8 and earlier).
+    const unsigned ENABLE_AUTO_MULTIWORD_SYNONYMS = 1024; 
+    if (state->flags & ENABLE_AUTO_MULTIWORD_SYNONYMS) {
 	// Check for multi-word synonyms.
 	Database db = state->get_database();
 
