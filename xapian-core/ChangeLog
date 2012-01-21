@@ -1,3 +1,10 @@
+Sat Jan 21 14:24:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/safesysstat.h: The S_ISDIR and S_ISREG macros for MSVC are
+	  unlikely to work on other platforms (_S_IFMT vs S_IFMT, etc) so
+	  split them.  Tweak a few comments.
+
 Sat Jan 21 14:19:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
