@@ -1,3 +1,9 @@
+Sat Jan 21 13:27:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Make it clear "Building from SVN" applies to git too, and
+	  mention that git-svn is needed when building from git.
+
 Thu Dec 22 12:50:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

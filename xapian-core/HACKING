@@ -260,15 +260,15 @@ pass "make distcheck" to be automatically uploaded, so using them will help
 to assure that you don't pick a "bad" version.  The snapshots are available
 from the "Bleeding Edge" page of the Xapian website.
 
-Building from SVN
-=================
+Building from SVN or git
+========================
 
-When building from an SVN checkout, we *strongly* recommend that you use the
-``bootstrap`` script in the top level directory to set up the tree ready for
-building.  This script will check what directories you have checked out, so you
-can bootstrap a partial tree.
+When building from an SVN or git checkout, we *strongly* recommend that you use
+the ``bootstrap`` script in the top level directory to set up the tree ready
+for building.  This script will check which directories you have checked out,
+so you can bootstrap a partial tree.
 
-You will need the following tools installed to build from SVN:
+You will need the following tools installed to build from SVN or git:
 
 * GNU m4 (for autoconf)
 * perl 5 (for automake; also for various maintainer scripts)
@@ -290,17 +290,19 @@ On Fedora, the uuid library can be installed by doing::
 
     yum install libuuid-devel
 
-The SVN repository does not contain any automatically generated files
+If building from git, you'll also need git-svn installed.
+
+The repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
-the SVN repo directly (in the case of Snowball and Lemon), or pull them in to
-an SVN checkout using svn:externals (SWIG), or the bootstrap script will lazily
-download, build, and install them within the source tree (autoconf, automake,
-libtool, and doxygen).  To download the source tarballs for these, bootstrap
-will use wget or curl if installed.  If not, it will give an error telling you
-the URL to download from by hand and where to copy the file to.
+the repo directly (in the case of Snowball and Lemon), or pull them in to a
+checkout using svn:externals or git-svn (SWIG), or the bootstrap script will
+lazily download, build, and install them within the source tree (autoconf,
+automake, libtool, and doxygen).  To download the source tarballs for these,
+bootstrap will use wget or curl if installed.  If not, it will give an error
+telling you the URL to download from by hand and where to copy the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -332,12 +334,13 @@ If you wish to prevent bootstrap from downloading and building the autotools
 pass the --without-autotools option.  You can force it to delete the downloaded
 and installed versions by passing --clean.
 
-If you are tracking development in SVN, there will sometimes be changes to the
-build system sources which require regeneration of the generated makefiles and
-associated machinery.  We aim to make the build system automatically regenerate
-the necessary files, but in the event that a build fails after an update, it
-may be worth re-running the bootstrap script to regenerate the build system
-from scratch, before looking for the cause of the error elsewhere.
+If you are tracking development in SVN or git, there will sometimes be changes
+to the build system sources which require regeneration of the generated
+makefiles and associated machinery.  We aim to make the build system
+automatically regenerate the necessary files, but in the event that a build
+fails after an update, it may be worth re-running the bootstrap script to
+regenerate the build system from scratch, before looking for the cause of the
+error elsewhere.
 
 Tools required to build documentation
 -------------------------------------
