@@ -1,3 +1,7 @@
+Sun Jan 22 13:28:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-delve.cc: Send errors to stderr not stdout.
+
 Sun Jan 22 13:16:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: Update details of versions of doxygen, automake and libtool
