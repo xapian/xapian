@@ -231,11 +231,11 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
+  lazy_build doxygen 1.7.6.1 src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
   lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  lazy_build libtool 2.4 tar.gz 149e9d7a993b643d13149a94d07bbca1085e601c
+  lazy_build automake 1.11.2 tar.bz2 34b3808e1d536ee3724fbde28bc1f13b8b40dc43
+  lazy_build libtool 2.4.2 tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
