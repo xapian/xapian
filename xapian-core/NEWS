@@ -1,3 +1,68 @@
+ 16348       olly Sun Jan 22 06:21:08 GMT 2012  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.9 (2012-01-23):
+
+
+API:
+
+* QueryParser: Fix FLAG_AUTO_SYNONYMS not to enable auto multi-word synonyms
+  too (but in a different way to trunk so as to not break the ABI).
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Remove configure's --with-stlport and --with-stlport-compiler options, as
+  they don't allow you to actually specify what you need to (at least to use
+  the Debian STLport package), and instead document what to pass to configure
+  to enable building with STLport (though it seems to no longer be actively
+  maintained, and the debug mode (which is probably the most interesting
+  feature now) doesn't seem to work on Debian stable).
+
+documentation:
+
+* Document that OP_ELITE_SET with non-term subqueries might pick subqueries
+  which don't match anything.  Closes ticket#49.
+
+* Assorted minor documentation improvements.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix argument order when linking xapian-check to fix mingw build.
+  (ticket#567)
+
+* Add some missing explicit header includes to fix build with STLport.
+
+packaging:
+
+
+debug code:
+
 Xapian-core 1.2.8 (2011-12-13):
 
 API:
