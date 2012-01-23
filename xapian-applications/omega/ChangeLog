@@ -1,3 +1,10 @@
+Mon Jan 23 12:48:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst: Document that libmagic is used to determine
+	  the MIME type if the extension isn't known.  Partly addresses
+	  ticket#569.
+
 Mon Jan 23 12:44:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
