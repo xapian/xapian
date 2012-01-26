@@ -88,6 +88,17 @@ is_suffix(unsigned ch) {
 }
 
 inline bool
+is_double_quote(unsigned ch) {
+    // We simply treat all double quotes as equivalent, which is a bit crude,
+    // but it isn't clear that it would actually better to require them to
+    // match up exactly.
+    //
+    // 0x201c is Unicode opening double quote.
+    // 0x201d is Unicode closing double quote.
+    return ch == '"' || ch == 0x201c || ch == 0x201d;
+}
+
+inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
     if (!U_isupper(ch)) return false;
@@ -837,7 +848,10 @@ just_had_operator_needing_term:
 	    if (mode == IN_GROUP || mode == IN_GROUP2)
 		mode = DEFAULT;
 	    switch (ch) {
-	      case '"': // Quoted phrase.
+	      case '"':
+	      case 0x201c: // Left curly double quote.
+	      case 0x201d: // Right curly double quote.
+		// Quoted phrase.
 		if (mode == DEFAULT) {
 		    // Skip whitespace.
 		    it = find_if(it, end, is_not_whitespace);
@@ -847,7 +861,7 @@ just_had_operator_needing_term:
 			// cause a parse error.
 			goto done;
 		    }
-		    if (*it == '"') {
+		    if (is_double_quote(*it)) {
 			// Ignore empty "" (but only if we're not already
 			// IN_QUOTES as we don't merge two adjacent quoted
 			// phrases!)
@@ -981,7 +995,7 @@ just_had_operator_needing_term:
 			    mode = DEFAULT;
 			it = p;
 			string name;
-			if (it != end && *it == '"') {
+			if (it != end && is_double_quote(*it)) {
 			    // Quoted boolean term (can contain any character).
 			    ++it;
 			    while (it != end) {
@@ -989,6 +1003,9 @@ just_had_operator_needing_term:
 				    // Interpret "" as an escaped ".
 				    if (++it == end || *it != '"')
 					break;
+				} else if (is_double_quote(*it)) {
+				    ++it;
+				    break;
 				}
 				Unicode::append_utf8(name, *it++);
 			    }
@@ -1010,7 +1027,7 @@ just_had_operator_needing_term:
 			continue;
 		    }
 
-		    if (ch == '"' && (flags & FLAG_PHRASE)) {
+		    if ((flags & FLAG_PHRASE) && is_double_quote(ch)) {
 			// Prefixed phrase, e.g.: subject:"space flight"
 			mode = IN_PREFIXED_QUOTES;
 			Parse(pParser, QUOTE, NULL, &state);

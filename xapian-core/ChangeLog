@@ -1,3 +1,8 @@
+Thu Jan 26 03:49:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow
+	  Unicode curly double quote characters to start and/or end phrases.
+
 Sun Jan 22 13:28:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* bin/xapian-delve.cc: Send errors to stderr not stdout.
