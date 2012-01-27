@@ -1,3 +1,10 @@
+Fri Jan 27 03:36:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,htmlparse.cc,htmlparsetest.cc: Add support for
+	  ignoring sections bracketed by <!--UdmComment--> and
+	  <!--/UdmComment--> like we already do for <!--htdig_noindex-->.
+	  Patch from Raphael Geissert.
+
 Fri Dec 23 05:44:08 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document that libmagic is used to determine

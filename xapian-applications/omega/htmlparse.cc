@@ -265,6 +265,14 @@ HtmlParser::parse_html(const string &body)
 			start = body.begin() + i + 21;
 			continue;
 		    }
+		    // Check for udmcomment (similar to htdig's)
+		    if (p - start == 12 && string(start, p - 2) == "UdmComment") {
+			string::size_type i;
+			i = body.find("<!--/UdmComment-->", p + 1 - body.begin());
+			if (i == string::npos) break;
+			start = body.begin() + i + 18;
+			continue;
+		    }
 		    // If we found --> skip to there.
 		    start = p;
 		} else {
