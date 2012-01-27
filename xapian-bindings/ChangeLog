@@ -1,3 +1,8 @@
+Fri Jan 27 01:19:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Fix Search::Xapian->new() to work.
+	* perl/t/10query.t: Add testcase for this.
+
 Thu Jan 26 23:41:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/perl.i: Add "use Carp;" where we use functions from that module.

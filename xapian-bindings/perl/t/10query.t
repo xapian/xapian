@@ -5,7 +5,7 @@
 #########################
 
 use Test::More;
-BEGIN { plan tests => 8 };
+BEGIN { plan tests => 9 };
 use Search::Xapian qw(:standard);
 use Config;
 
@@ -24,6 +24,8 @@ is($query->get_description, 'Query((foo AND bar))', "AND query contains foo part
 $query = Search::Xapian::Query::MatchAll;
 is($query->get_description, 'Query(<alldocuments>)');
 $query = Search::Xapian::Query::MatchNothing;
+is($query->get_description, 'Query()');
+$query = Search::Xapian::Query->new();
 is($query->get_description, 'Query()');
 
 eval {

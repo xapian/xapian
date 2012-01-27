@@ -186,7 +186,7 @@ sub new {
   my $class = shift;
   my $query;
 
-  if( @_ == 1 ) {
+  if( @_ <= 1 ) {
     $query = Search::Xapianc::new_Query(@_);
   } else {
     use Carp;
