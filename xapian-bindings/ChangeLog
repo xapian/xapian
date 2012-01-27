@@ -1,3 +1,8 @@
+Thu Jan 26 23:41:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Add "use Carp;" where we use functions from that module.
+	* perl/t/10query.t: Add regression test.
+
 Fri Jan 20 23:53:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/document.t,perl/t/index.t: Add tests of Document::get_docid().

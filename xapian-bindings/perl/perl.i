@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,6 +90,7 @@ sub set_query {
   }
   my $nargs = scalar(@_);
   if( $nargs > 1) {
+    use Carp;
     Carp::carp( "USAGE: \$enquire->set_query(\$query) or \$enquire->set_query(\$query, \$length)" );
     exit;
   }
@@ -188,6 +189,7 @@ sub new {
   if( @_ == 1 ) {
     $query = Search::Xapianc::new_Query(@_);
   } else {
+    use Carp;
     my $op = $_[0];
     if( $op !~ /^\d+$/ ) {
 	Carp::croak( "USAGE: $class->new('term') or $class->new(OP, <args>)" );
