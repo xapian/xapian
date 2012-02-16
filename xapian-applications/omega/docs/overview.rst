@@ -293,15 +293,26 @@ string, but to be useful there either needs to be a filter set for that type
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
+   - bin
    - css
+   - dat
+   - db
    - dll
    - dylib
    - exe
+   - jar
    - js
    - lib
+   - lnk
    - o
    - obj
+   - pyc
+   - pyo
    - so
+   - sqlite
+   - sqlite3
+   - sqlite-journal
+   - tmp
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: ``--mime-type=doc:``

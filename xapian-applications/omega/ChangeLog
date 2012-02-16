@@ -1,3 +1,9 @@
+Thu Feb 16 06:52:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add more extensions to the default
+	  ignore list: bin dat db jar lnk pyc pyo sqlite sqlite3 sqlite-journal
+	  tmp
+
 Fri Jan 27 03:36:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,htmlparse.cc,htmlparsetest.cc: Add support for
