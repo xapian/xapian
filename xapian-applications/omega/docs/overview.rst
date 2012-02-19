@@ -177,8 +177,8 @@ sites '/products' and '/products/large', or similar.)
 omindex has built-in support for indexing HTML, PHP, text files, CSV
 (Comma-Separated Values) files, and AbiWord documents.  It can also index a
 number of other formats using external programs.  Filter programs are run with
-CPU, time and memory limits to prevent a runaway filter from blocking indexing of
-other files.
+CPU, time and memory limits to prevent a runaway filter from blocking indexing
+of other files.
 
 The way omindex decides how to index a file is based around MIME content-types.
 First of all omindex will look up a file's extension in its extension to MIME
