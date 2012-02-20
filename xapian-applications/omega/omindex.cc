@@ -1155,6 +1155,7 @@ main(int argc, char **argv)
     mime_map["dll"] = "ignore";
     mime_map["dylib"] = "ignore";
     mime_map["exe"] = "ignore";
+    mime_map["fon"] = "ignore";
     mime_map["jar"] = "ignore";
     mime_map["js"] = "ignore";
     mime_map["lib"] = "ignore";
@@ -1162,12 +1163,14 @@ main(int argc, char **argv)
     mime_map["o"] = "ignore";
     mime_map["obj"] = "ignore";
     mime_map["pyc"] = "ignore";
+    mime_map["pyd"] = "ignore";
     mime_map["pyo"] = "ignore";
     mime_map["so"] = "ignore";
     mime_map["sqlite"] = "ignore";
     mime_map["sqlite3"] = "ignore";
     mime_map["sqlite-journal"] = "ignore";
     mime_map["tmp"] = "ignore";
+    mime_map["ttf"] = "ignore";
 
     commands["application/msword"] = "antiword -mUTF-8.txt ";
     commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8 ";

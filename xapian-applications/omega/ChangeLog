@@ -1,3 +1,8 @@
+Mon Feb 20 02:45:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: More extensions to ignore by default:
+	  fon pyd ttf
+
 Sun Feb 19 22:20:49 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Wrap over-long line.

@@ -300,6 +300,7 @@ By default, files with the following extensions are marked as 'ignore'::
    - dll
    - dylib
    - exe
+   - fon
    - jar
    - js
    - lib
@@ -307,12 +308,14 @@ By default, files with the following extensions are marked as 'ignore'::
    - o
    - obj
    - pyc
+   - pyd
    - pyo
    - so
    - sqlite
    - sqlite3
    - sqlite-journal
    - tmp
+   - ttf
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: ``--mime-type=doc:``
