@@ -46,12 +46,8 @@ else
     DEB_BUILD_OPTIONS += nocheck
 endif
 
-# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
-ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-    confflags += CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
-else
-    confflags += CFLAGS='-O2 -g' CXXFLAGS='-O2 -g'
-endif
+# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us
+# and dpkg-buildflags handles noopt.
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
@@ -77,7 +73,8 @@ endif
 commonconfflags := \
 	$(confflags) \
 	--prefix=/usr \
-	--sysconfdir=/etc
+	--sysconfdir=/etc \
+	$(shell dpkg-buildflags --export=configure)
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
