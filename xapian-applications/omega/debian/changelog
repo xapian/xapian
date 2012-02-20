@@ -1,3 +1,9 @@
+xapian-omega (1.2.8-2) UNRELEASED; urgency=low
+
+  * Enable hardened build flags. (Closes: #658024)
+
+ -- Olly Betts <olly@survex.com>  Mon, 20 Feb 2012 20:44:30 +0000
+
 xapian-omega (1.2.8-1) unstable; urgency=low
 
   * New upstream release.
