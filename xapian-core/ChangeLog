@@ -1,3 +1,8 @@
+Wed Feb 29 22:36:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Improve documentation of Database::close()
+	  and ~WritableDatabase().
+
 Thu Jan 26 03:49:24 GMT 2012  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow
