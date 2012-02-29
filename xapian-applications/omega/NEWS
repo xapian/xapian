@@ -1,3 +1,36 @@
+ 16354       olly Mon Jan 23 12:48:00 GMT 2012  Olly Betts <olly@survex.com>
+
+Omega 1.2.9 (2012-02-29):
+
+general:
+
+documentation:
+
+* docs/overview.html:
+
+  + Document that libmagic is used to determine the MIME type if the extension
+    isn't known.  Partly addresses ticket#569.
+
+  + We now limit time as well as CPU and memory for external filters.
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.2.8 (2011-12-13):
 
 documentation:
