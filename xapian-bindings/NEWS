@@ -1,3 +1,42 @@
+ 16227       olly Thu Dec 22 13:11:22 GMT 2011  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.9 (2012-02-29):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+* Handle an exception from C++ by raising a xapian.Error object as an error in
+  Lua.
+
+* Rename get_description() methods to __tostring(), so that you can use write
+  tostring(obj) in Lua.
+
+* configure: Honour LUA_LIB if already set.  Fixes #581.
+
+* configure: Improve probing for LUA_LIB, and also probe for LUA_SO so we
+  support platforms where the compiled Lua module isn't called .so.
+
+Perl:
+
+PHP:
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.8 (2011-12-13):
 
 Lua:
