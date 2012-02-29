@@ -1,7 +1,6 @@
- 16348       olly Sun Jan 22 06:21:08 GMT 2012  Olly Betts <olly@survex.com>
+ 16364       olly Wed Feb 29 10:25:18 GMT 2012  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.9 (2012-01-23):
-
+Xapian-core 1.2.9 (2012-02-29):
 
 API:
 
@@ -42,6 +41,9 @@ documentation:
 
 * Document that OP_ELITE_SET with non-term subqueries might pick subqueries
   which don't match anything.  Closes ticket#49.
+
+* Document that you can define a static operator delete method in your subclass
+  if deallocation needs to be handled specially.  (Closes ticket#554)
 
 * Assorted minor documentation improvements.
 
