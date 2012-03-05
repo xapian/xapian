@@ -1,3 +1,7 @@
+Mon Mar 05 06:05:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix curly double quote testcase.
+
 Mon Mar 05 00:36:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/: Fix issue with AND, OR, and XOR queries against a database

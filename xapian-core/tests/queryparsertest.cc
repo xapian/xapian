@@ -225,7 +225,7 @@ static const test test_or_queries[] = {
     { "“missing quote", "(missing@1 PHRASE 2 quote@2)" },
     { "+“must have” optional", "((must@1 PHRASE 2 have@2) AND_MAYBE Zoption@3)" },
     { "category:“Hello world”", "0 * XCAT:Hello world" },
-    { "category:“literal \"\"”", "0 * XCATliteral " },
+    { "category:“literal \"\"”", "0 * XCATliteral \"" },
     { "category:“ ”", "0 * XCAT " },
     { "category:\" ”", "0 * XCAT " },
     { "category:“ \"", "0 * XCAT " },
