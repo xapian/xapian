@@ -1,3 +1,10 @@
+Mon Mar 05 00:36:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/: Fix issue with AND, OR, and XOR queries against a database
+	  with no documents in it - this was causing a divide by zero, which led
+	  to MSet::get_matches_estimated() reporting 2147483648 on i386.
+	* tests/api_backend.cc: Add regression test emptydb1.
+
 Sun Mar 04 23:05:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix comment typo.

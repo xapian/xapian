@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -288,6 +288,8 @@ Xapian::doccount
 OrPostList::get_termfreq_est() const
 {
     LOGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_est", NO_ARGS);
+    if (rare(dbsize == 0))
+	RETURN(0);
     // Estimate assuming independence:
     // P(l or r) = P(l) + P(r) - P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
