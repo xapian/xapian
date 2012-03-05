@@ -1,3 +1,7 @@
+Sun Mar 04 23:05:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix comment typo.
+
 Fri Mar 02 04:00:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Address new warnings from GCC 4.6.

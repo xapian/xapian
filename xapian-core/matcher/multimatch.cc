@@ -438,7 +438,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
     if (mdecider == NULL) {
-	// If we have a match deciderd, the lower bound must be
+	// If we have a match decider, the lower bound must be
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
 	matches_lower_bound = pl->get_termfreq_min();
