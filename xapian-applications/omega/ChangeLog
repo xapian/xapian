@@ -1,3 +1,13 @@
+Tue Mar 06 11:13:03 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* docs/overview.rst,omindex.cc: More extensions to ignore by default:
+	  fon pyd ttf
+	* docs/overview.rst: Wrap over-long line.
+	* docs/overview.rst,omindex.cc: Add more extensions to the default
+	  ignore list: bin dat db jar lnk pyc pyo sqlite sqlite3 sqlite-journal
+	  tmp
+
 Tue Mar 06 11:10:59 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

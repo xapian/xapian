@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  *
  * This program is free software; you can redistribute it and/or
@@ -1158,15 +1158,29 @@ main(int argc, char **argv)
 
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";
+    mime_map["bin"] = "ignore";
+    mime_map["css"] = "ignore";
+    mime_map["dat"] = "ignore";
+    mime_map["db"] = "ignore";
     mime_map["dll"] = "ignore";
     mime_map["dylib"] = "ignore";
     mime_map["exe"] = "ignore";
+    mime_map["fon"] = "ignore";
+    mime_map["jar"] = "ignore";
+    mime_map["js"] = "ignore";
     mime_map["lib"] = "ignore";
+    mime_map["lnk"] = "ignore";
     mime_map["o"] = "ignore";
     mime_map["obj"] = "ignore";
+    mime_map["pyc"] = "ignore";
+    mime_map["pyd"] = "ignore";
+    mime_map["pyo"] = "ignore";
     mime_map["so"] = "ignore";
-    mime_map["css"] = "ignore";
-    mime_map["js"] = "ignore";
+    mime_map["sqlite"] = "ignore";
+    mime_map["sqlite3"] = "ignore";
+    mime_map["sqlite-journal"] = "ignore";
+    mime_map["tmp"] = "ignore";
+    mime_map["ttf"] = "ignore";
 
     commands["application/msword"] = "antiword -mUTF-8.txt ";
     commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8 ";
