@@ -322,6 +322,7 @@ test_driver::runtest(const test_desc *test)
 		    vg_errs = VALGRIND_COUNT_ERRORS;
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
+		    (void)dummy;
 		    // Skip past any unread log output.
 		    lseek(vg_log_fd, 0, SEEK_END);
 		}
@@ -401,6 +402,7 @@ test_driver::runtest(const test_desc *test)
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
 					 dummy);
+		    (void)dummy;
 		    vg_leaks = vg_leaks2 - vg_leaks;
 		    vg_dubious = vg_dubious2 - vg_dubious;
 		    vg_reachable = vg_reachable2 - vg_reachable;

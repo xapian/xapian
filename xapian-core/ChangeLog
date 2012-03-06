@@ -1,3 +1,8 @@
+Tue Mar 06 11:00:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: Address new warnings from GCC 4.6.
+
 Tue Mar 06 10:56:09 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
