@@ -379,10 +379,15 @@ which are marked as ``noindex`` or ``none``, for example any of the following::
 
 Sometimes it is useful to be able to exclude just part of a page from being
 indexed (for example you may not want to index navigation links, or a footer
-which appears on every page).  To allow this, the parser also understands
-ht://dig-style comments to mark sections of the document to not index::
+which appears on every page).  To allow this, the parser supports "magic"
+comments to mark sections of the document to not index.  Two formats are
+supported - htdig_noindex (used by ht://Dig) and UdmComment (used by
+mnoGoSearch)::
 
     Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
+
+::
+    <!--UdmComment--><div>Boring copyright notice</div><!--/UdmComment-->
 
 Boolean terms
 =============

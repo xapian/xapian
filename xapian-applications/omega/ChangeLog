@@ -1,3 +1,11 @@
+Tue Mar 06 11:10:59 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst,htmlparse.cc,htmlparsetest.cc: Add support for
+	  ignoring sections bracketed by <!--UdmComment--> and
+	  <!--/UdmComment--> like we already do for <!--htdig_noindex-->.
+	  Patch from Raphael Geissert.
+
 Wed Feb 29 10:58:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
