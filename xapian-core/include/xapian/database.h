@@ -132,11 +132,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Close the database.
 	 *
-	 *  This closes the database and releases all file handles held by the
-	 *  database.
+	 *  This closes the database and closes all its file handles.
 	 *
-	 *  This cannot be undone - in particular, calling reopen() after
-	 *  closing a database will not reopen it, but will instead throw a
+	 *  For a WritableDatabase, if a transaction is active it will be
+	 *  aborted, while if no transaction is active commit() will be
+	 *  implicitly called.  Also the write lock is released.
+	 *
+	 *  Closing a database cannot be undone - in particular, calling
+	 *  reopen() after close() will not reopen it, but will instead throw a
 	 *  Xapian::DatabaseError exception.
 	 *
 	 *  Calling close() again on a database which has already been closed
@@ -475,9 +478,15 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
     public:
 	/** Destroy this handle on the database.
 	 *
-	 *  If there are no copies of this object remaining, the database
-	 *  will be closed.  If there are any transactions in progress
-	 *  these will be aborted as if cancel_transaction had been called.
+	 *  If no other handles to this database remain, the database will be
+	 *  closed.
+	 *
+	 *  If a transaction is active cancel_transaction() will be implicitly
+	 *  called; if no transaction is active commit() will be implicitly
+	 *  called, but any exception will be swallowed (because throwing
+	 *  exceptions in C++ destructors is problematic).  If you aren't using
+	 *  transactions and want to know about any failure to commit changes,
+	 *  call commit() explicitly before the destructor gets called.
 	 */
 	virtual ~WritableDatabase();
 

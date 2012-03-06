@@ -1,3 +1,9 @@
+Tue Mar 06 10:56:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/database.h: Improve documentation of Database::close()
+	  and ~WritableDatabase().
+
 Wed Feb 29 10:33:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
