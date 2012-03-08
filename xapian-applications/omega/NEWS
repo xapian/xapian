@@ -1,8 +1,4 @@
- 16354       olly Mon Jan 23 12:48:00 GMT 2012  Olly Betts <olly@survex.com>
-
-Omega 1.2.9 (2012-02-29):
-
-general:
+Omega 1.2.9 (2012-03-08):
 
 documentation:
 
@@ -15,21 +11,11 @@ documentation:
 
 indexers:
 
-* omindex:
+* Our HTML parser now ignores sections bracketed by <!--UdmComment--> and
+  <!--/UdmComment-->, like we already do for <!--htdig_noindex-->.
 
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
-
-build system:
-
-portability:
-
-packaging:
+* omindex: Add more extensions to the default ignore list: bin dat db fon jar
+  lnk pyc pyd pyo sqlite sqlite3 sqlite-journal tmp ttf
 
 Omega 1.2.8 (2011-12-13):
 
