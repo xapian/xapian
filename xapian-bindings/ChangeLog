@@ -1,3 +1,9 @@
+Thu Mar 08 03:45:14 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/smoketest.php: Add a test that Query ctor taking OP_NEAR with a
+	  window size works.
+
 Thu Mar 08 03:35:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
