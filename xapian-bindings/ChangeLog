@@ -1,3 +1,8 @@
+Thu Mar 08 04:45:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/document.t,perl/t/index.t: Add tests of Document::get_docid().
+
 Thu Mar 08 03:45:14 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
