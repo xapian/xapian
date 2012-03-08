@@ -1,32 +1,15 @@
- 16364       olly Wed Feb 29 10:25:18 GMT 2012  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.9 (2012-02-29):
+Xapian-core 1.2.9 (2012-03-08):
 
 API:
 
 * QueryParser: Fix FLAG_AUTO_SYNONYMS not to enable auto multi-word synonyms
   too (but in a different way to trunk so as to not break the ABI).
 
-testsuite:
-
-
 matcher:
 
-
-brass backend:
-
-
-chert backend:
-
-
-flint backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
+* Fix issue with running AND, OR and XOR queries against a database with no
+  documents in it - this was leading to a divide by zero, which led to
+  MSet::get_matches_estimated() reporting 2147483648 on i386.
 
 build system:
 
@@ -47,23 +30,14 @@ documentation:
 
 * Assorted minor documentation improvements.
 
-tools:
-
-
-examples:
-
-
 portability:
+
+* Address new warnings from GCC 4.6.
 
 * Fix argument order when linking xapian-check to fix mingw build.
   (ticket#567)
 
 * Add some missing explicit header includes to fix build with STLport.
-
-packaging:
-
-
-debug code:
 
 Xapian-core 1.2.8 (2011-12-13):
 

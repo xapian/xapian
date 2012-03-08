@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.8], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.9], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -39,7 +39,8 @@ dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
 dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
 dnl 26:1:4 1.2.7 No API changes
 dnl 26:2:4 1.2.8 No API changes
-LIBRARY_VERSION_INFO=26:2:4
+dnl 26:3:4 1.2.9 No API changes
+LIBRARY_VERSION_INFO=26:3:4
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
