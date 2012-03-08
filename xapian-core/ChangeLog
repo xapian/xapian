@@ -1,3 +1,8 @@
+Thu Mar 08 13:35:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/index.rst: Add link to new "getting started" guide.
+
 Thu Mar 08 02:05:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.9.

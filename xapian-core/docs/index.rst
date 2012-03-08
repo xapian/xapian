@@ -16,10 +16,15 @@
 Xapian - the open source search engine
 ======================================
 
+Getting Started
+---------------
+
+There's a new
+`Getting Started with Xapian <http://getting-started-with-xapian.readthedocs.org/>`_
+guide, which is the recommended place to start.
+
 Documentation
 -------------
-
-A number of pieces of documentation are available.
 
 The Omega search application has its `own documentation
 <http://xapian.org/docs/omega/>`_, and there's also separate
