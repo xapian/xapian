@@ -5,6 +5,7 @@ Revision history for Perl extension Search::Xapian.
 	- Wrap Document::get_docid() method.
 	- Fix "Use of qw(...) as parentheses is deprecated" warnings in tests
 	  with Perl 5.14.
+	- Improve test coverage of TermGenerator (backported from trunk).
 
 1.2.8.0  Tue Dec 13 14:45:07 UTC 2011
 	[Changes contributed by Olly Betts]
