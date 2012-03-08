@@ -137,16 +137,16 @@ class TestRunner(object):
     def report_failure(self, name, msg, show_traceback=True):
         "Report a test failure, with some useful context."
 
-        orig_tb = _traceback.extract_tb(_sys.exc_info()[2])
-        tb = orig_tb
+        tb = _traceback.extract_tb(_sys.exc_info()[2])
 
         # Move up the traceback until we get to the line in the test
         # function which caused the failure.
-        while tb[-1][2] != 'test_' + name:
-            tb = tb[:-1]
+        for line in xrange(1, len(tb) + 1):
+            if tb[-line][2] == 'test_' + name:
+                break
 
         # Display the context in the text function.
-        filepath, linenum, functionname, text = tb[-1]
+        filepath, linenum, functionname, text = tb[-line]
         filename = _os.path.basename(filepath)
 
         self._out.ensure_space()
@@ -173,7 +173,7 @@ class TestRunner(object):
             # Display the traceback
             if show_traceback:
                 self._out.write("Traceback (most recent call last):\n")
-                for line in _traceback.format_list(orig_tb):
+                for line in _traceback.format_list(tb):
                     self._out.write(line.rstrip() + '\n')
                 self._out.write('\n')
 

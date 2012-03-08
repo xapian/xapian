@@ -1,3 +1,9 @@
+Thu Mar 08 03:35:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/testsuite2.py: Don't run off the traceback looking for a
+	  test function if the exception wasn't from a test function.
+
 Thu Mar 08 03:33:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
