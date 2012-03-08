@@ -1,6 +1,10 @@
- 16227       olly Thu Dec 22 13:11:22 GMT 2011  Olly Betts <olly@survex.com>
+ 16367       olly Wed Feb 29 11:01:39 GMT 2012  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.9 (2012-02-29):
+ 16367       olly Wed Feb 29 11:01:39 GMT 2012  Olly Betts <olly@survex.com>
+	* NEWS: Update from ChangeLog.
+
+
+Xapian-bindings 1.2.9 (2012-03-08):
 
 Documentation:
 

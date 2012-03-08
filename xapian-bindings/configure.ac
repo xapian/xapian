@@ -652,7 +652,21 @@ if test no != "$with_java" ; then
       dnl Debian and Ubuntu boxes at least.  And on Mac OS X, jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
-      for jnidir in $JNI_INCLUDE_DIR ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
+      real_javac=$JAVAC
+      dnl Avoid endlessly traversing if there's a symlink loop.
+      for count in 1 2 3 4 5 6 7 8 9 ; do
+	r=`readlink "$real_javac"`
+	test -n "$r" || break
+	real_javac=$r
+      done
+      dnl Translate ".../bin/javac" to ".../include".
+      [rel_jnidir=`echo "$real_javac"|sed 's!/[^/]*/[^/]*$!/include!'`]
+      for jnidir in \
+	  $JNI_INCLUDE_DIR \
+	  ${JAVA_HOME+"$JAVA_HOME/include"} \
+	  ${JDK_HOME+"$JDK_HOME/include"} \
+	  "$rel_jnidir" \
+	  /System/Library/Frameworks/JavaVM.framework/Headers ; do
 	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
 	AC_MSG_CHECKING([for jni.h in $jnidir])
 	if test -f "$jnidir/jni.h" ; then

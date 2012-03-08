@@ -1,3 +1,9 @@
+Thu Mar 08 03:33:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix test for jni.h to try looking for jni.h relative to
+	  the real location of javac, which should work for more JDKs.
+
 Wed Feb 29 11:01:39 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
