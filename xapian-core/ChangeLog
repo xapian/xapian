@@ -1,3 +1,7 @@
+Thu Mar 08 10:21:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/index.rst: Add link to new "getting started" guide.
+
 Mon Mar 05 06:05:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Fix curly double quote testcase.
