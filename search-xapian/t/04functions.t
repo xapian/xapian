@@ -6,7 +6,7 @@
 
 use Test::More;
 BEGIN { plan tests => 26 };
-use Search::Xapian; qw(:standard);
+use Search::Xapian qw(:standard);
 use Config;
 
 ok(1); # If we made it this far, we're ok.
