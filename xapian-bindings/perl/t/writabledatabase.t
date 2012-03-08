@@ -4,6 +4,10 @@
 
 #########################
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
 plan tests => 35;

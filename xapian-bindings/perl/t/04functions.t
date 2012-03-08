@@ -4,6 +4,10 @@
 
 #########################
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test::More;
 BEGIN { plan tests => 26 };
 use Search::Xapian qw(:standard);

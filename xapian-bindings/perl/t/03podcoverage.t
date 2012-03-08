@@ -1,3 +1,7 @@
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test::More;
 
 eval "use Test::Pod::Coverage 1.04";

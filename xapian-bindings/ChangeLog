@@ -1,3 +1,7 @@
+Thu Mar 08 05:51:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/: Enable warnings for all test cases and make them fatal.
+
 Thu Mar 08 05:37:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/symbol-test.t: Remove lingering reference to @args which is

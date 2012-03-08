@@ -4,6 +4,10 @@
 
 #########################
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test::More;
 if ($] < 5.008007) {
     # Perl 5.8.7 added CLONE_SKIP which is required to implement the behaviour
