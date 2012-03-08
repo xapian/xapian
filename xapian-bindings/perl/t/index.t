@@ -41,7 +41,7 @@ foreach my $backend ("inmemory", "auto") {
   }
 
   my $docid;
-  for my $num qw( one two three ) {
+  for my $num (qw( one two three )) {
     ok( $docs{$num} = Search::Xapian::Document->new() );
     ok( $docs{$num}->get_description() );
 

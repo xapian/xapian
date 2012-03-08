@@ -1,3 +1,9 @@
+Thu Mar 08 07:34:40 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
+	  Fix "Use of qw(...) as parentheses is deprecated" warnings in tests
+	  with Perl 5.14.  Already done for trunk.
+
 Thu Mar 08 04:54:14 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.9.

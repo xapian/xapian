@@ -58,7 +58,7 @@ for my $num (1..1000) {
 $write->flush();
 $read->reopen();
 
-for my $num qw (three four five) {
+for my $num (qw(three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
