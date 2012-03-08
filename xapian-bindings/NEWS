@@ -1,22 +1,9 @@
- 16367       olly Wed Feb 29 11:01:39 GMT 2012  Olly Betts <olly@survex.com>
-
- 16367       olly Wed Feb 29 11:01:39 GMT 2012  Olly Betts <olly@survex.com>
-	* NEWS: Update from ChangeLog.
-
-
 Xapian-bindings 1.2.9 (2012-03-08):
 
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
 Java:
+
+* configure: Fix test for jni.h to try looking for jni.h relative to the real
+  location of javac, which should work for more JDKs.
 
 Lua:
 
@@ -33,13 +20,16 @@ Lua:
 
 Perl:
 
+* Add tests of Document::get_docid().
+
 PHP:
+
+* Add a test that Query constructor taking OP_NEAR with a window size works.
 
 Python:
 
-Ruby:
-
-Tcl:
+* python/testsuite2.py: Don't run off the traceback looking for a test function
+  if the exception wasn't from a test function.
 
 Xapian-bindings 1.2.8 (2011-12-13):
 
