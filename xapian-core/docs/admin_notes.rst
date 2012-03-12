@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.2.5.
+The document is up-to-date for Xapian version 1.2.10.
 
 Databases
 =========
@@ -32,11 +32,12 @@ Xapian databases hold all the information needed to perform searches in a set
 of tables.  The following tables always exist:
 
  - A posting list table, which holds a list of all the documents indexed by
-   each term in the database.
+   each term in the database, and (for chert) also chunked streams of the
+   values in each value slot.
  - A record table, which holds the document data associated with each document
    in the database.
  - A termlist table, which holds a list of all the terms which index each
-   document.
+   document, and (for chert) also the value slots used in each document.
 
 And the following optional tables exist only when there is data to store in
 them (in 1.0.1 and earlier, the position and value tables were always created
@@ -381,12 +382,16 @@ It works much like xapian-compact so should take a similar amount of time (and
 results in a compact database).  The initial version had a few bugs, so use
 xapian-chert-update from Xapian 1.2.5 or later.
 
+The xapian-chert-update utility was removed in Xapian 1.3.0, so you'll need to
+install Xapian 1.2.x to use it.
+
 
 Converting a flint database to a chert database
-------------------------------------------------
+-----------------------------------------------
 
-It is possible to convert a flint database to a chert database by
-using the "copydatabase" example program included with Xapian.  This is a
+It is possible to convert a flint database to a chert database by using
+the "copydatabase" example program included with Xapian (you will need to use
+Xapian 1.2.x for this so it has support for both flint and chert).  This is a
 lot slower to run than "xapian-compact", since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
 re-index from source data since it doesn't need to perform the tokenisation
@@ -402,6 +407,7 @@ If the docids are stored in or come from some external system, you should
 preserve them by using the --no-renumber option (new in Xapian 1.2.5)::
 
   copydatabase --no-renumber SOURCE DESTINATION
+
 
 Converting a quartz database to a flint database
 ------------------------------------------------
