@@ -1,3 +1,7 @@
+Mon Mar 12 10:50:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Catch and report std::exception.
+
 Mon Feb 20 02:45:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: More extensions to ignore by default:
