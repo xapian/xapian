@@ -58,10 +58,6 @@ dist-hook: doxygen_api_docs
 	test -d $(distdir) || mkdir $(distdir)
 	test -d $(distdir)/apidoc || mkdir $(distdir)/apidoc
 	test -d $(distdir)/apidoc/html || mkdir $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.gif`" = "$(srcdir)/apidoc/html/*.gif" || \
-	  cp -p $(srcdir)/apidoc/html/*.gif $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.gif`" = "apidoc/html/*.gif" || \
-	  cp -p apidoc/html/*.gif $(distdir)/apidoc/html
 	test "`echo $(srcdir)/apidoc/html/*.png`" = "$(srcdir)/apidoc/html/*.png" || \
 	  cp -p $(srcdir)/apidoc/html/*.png $(distdir)/apidoc/html
 	test "`echo apidoc/html/*.png`" = "apidoc/html/*.png" || \
@@ -83,7 +79,6 @@ dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
 
 install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
-	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.gif $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.png $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.css $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.html $(DESTDIR)$(docdir)/apidoc/html

@@ -1,3 +1,8 @@
+Mon Mar 12 11:54:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: doxygen no longer generates any GIF files, so
+	  stop trying to ship or install them.
+
 Thu Mar 08 10:21:51 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/index.rst: Add link to new "getting started" guide.
