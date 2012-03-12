@@ -1,3 +1,8 @@
+Mon Mar 12 23:14:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Fix typo - need "1.2.x" not "1.0.x" to get
+	  both flint and chert support.
+
 Mon Mar 12 11:54:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: doxygen no longer generates any GIF files, so

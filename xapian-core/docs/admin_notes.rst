@@ -388,7 +388,7 @@ Converting a flint database to a chert database
 -----------------------------------------------
 
 It is possible to convert a flint database to a chert database by installing
-Xapian 1.0.x (since this has support for both flint and chert)
+Xapian 1.2.x (since this has support for both flint and chert)
 using the "copydatabase" example program included with Xapian.  This is a
 lot slower to run than "xapian-compact", since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
