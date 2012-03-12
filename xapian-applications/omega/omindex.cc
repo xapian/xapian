@@ -922,7 +922,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		}
 	    }
 	    if (verbose) {
-		if (did < old_lastdocid) {
+		if (did <= old_lastdocid) {
 		    cout << "updated" << endl;
 		} else {
 		    cout << "added" << endl;

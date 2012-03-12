@@ -1,3 +1,9 @@
+Mon Mar 12 10:55:57 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If the document with the highest existing docid was
+	  updated, we'd previously report it as "added", but now we correctly
+	  report it as "updated".
+
 Mon Mar 12 10:50:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Catch and report std::exception.
