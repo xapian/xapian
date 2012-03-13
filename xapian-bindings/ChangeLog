@@ -1,3 +1,7 @@
+Tue Mar 13 22:41:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Test constructing XapianLatLongCoord.
+
 Tue Mar 13 00:32:37 GMT 2012  Olly Betts <olly@survex.com>
 
 	* php/add-php-type-hints: Fix typo "XapianStemmer" -> "XapianStem".

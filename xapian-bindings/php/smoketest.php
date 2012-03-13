@@ -412,4 +412,8 @@ $indexer->set_document($doc);
 $indexer->index_text("I ask nothing in return");
 $indexer->index_text_without_positions("Tea time");
 
+# Test GeoSpatial API
+$coord = new XapianLatLongCoord();
+$coord = new XapianLatLongCoord(-41.288889, 174.777222);
+
 ?>
