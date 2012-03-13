@@ -1,109 +1,99 @@
- 16160       olly Fri Dec 09 10:33:25 GMT 2011  Olly Betts <olly@survex.com>
+ 16402       olly Tue Mar 13 00:28:58 GMT 2012  Olly Betts <olly@survex.com>
 
 trunk only:
 
- 16157       olly Fri Dec 09 07:51:44 GMT 2011  Olly Betts <olly@survex.com>
-	* include/xapian/types.h: Set BAD_VALUENO to 0xffffffff rather than
-	  static_cast<valueno>(-1) - it's the same value currently, but more
-	  robust to valueno being set a wider type.
-
- Stop common being a melting pot of random headers.
-
-	  Move delve from
-	  examples to bin and rename to xapian-delve.
-
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d66a0f31eb:
-	  Adjust the lemon implementation so that it always computes the same
-	  PDA regardless of qsort() implementation on the host platform. In
-	  other words, make all sorts in lemon stable.
-
-	* tests/queryparsertest.cc: Add cases to ensure a quoted boolean
-	  prefix accepts an empty value or a single space.
-
-	  Deprecate Xapian::percent and use int instead in the API and our
-	  own code.
-
-	* Makefile.am: Since we require GNU find for the coverage-check target,
-	  make use of its -delete option, so we no longer also need GNU xargs.
-
-	* bin/xapian-check.cc: Throw Xapian::FeatureUnavailableError if
-	  backends are disabled, rather than const char *.
-
-	  xapian-check: Instead of giving cryptic numeric codes for
-	  B-tree errors and then throwing const char *, throw
-	  Xapian::DatabaseError() exceptions with string descriptions.
-
-	   Reimplement VectorTermList to store the
-	  list of terms encoded into a single std::string, which is a lot more
-	  memory efficient that std::vector<std::string>.
-
-Factor out common exception throwing functions in several places.
-
 backported:
 
-
-Xapian-core 1.3.0 (2011-12-13):
-
-	  Convert to use xapian/intrusive_ptr.h instead of xapian/base.h.
+Xapian-core 1.3.0 (2012-03-13):
 
 API:
 
+* Upgrade to Unicode 6.0.0 (ticket#497).
+
+* TermIterator returned by Enquire::get_matching_terms_begin(),
+  Query::get_terms_begin(), Database::synonyms_begin(),
+  QueryParser::stoplist_begin(), and QueryParser::unstem_begin() now stores the
+  list of terms to iterate much more compactly.
+
+* QueryParser:
+
+  + Allow Unicode curly double quote characters to start and/or end phrases.
+
+  + The set_default_op() method will now reject operators which don't make
+    sense to set.  The operators which are allowed are now explicitly
+    documented in the API docs.
+
+* Query: The internals have been completely reimplemented (ticket#280).  The
+  notable changes are:
+
+  + Query objects are smaller and should be faster.
+
+  + More readable format for Query::get_description().
+
+  + More compact serialisation format for Query objects.
+
+  + Query operators are no longer flattened as you build up a tree (but the
+    query optimiser still combines groups of the same operator).  This means
+    that Query objects are truly immutable, and so we don't need to copy Query
+    objects when composing them.  This should also fix a few O(n*n) cases when
+    building up an n-way query pair-wise.  (ticket#273)
+
+  + The Query optimiser can do a few extra optimisations.
+
+* There's now explicit support for geospatial search (this API is currently
+  marked as experimental).  (ticket#481)
+
+* There's now an API (currently experimental) for checking the integrity of
+  databases (partly addresses ticket#238).
+
+* Database::reopen() now returns true if the database may have been reopened
+  (previously it returned void).  (ticket#548)
+
 * Deprecate Xapian::timeout in favour of POSIX type useconds_t.
 
-* Previously,
-	  Enquire::get_matching_terms_begin() threw InvalidArgumentError if
-	  the query was empty.  Now we just return an end iterator, which is
-	  more consistent with how empty queries behave elsewhere.
+* Deprecate Xapian::percent and use int instead in the API and our own code.
 
-	* api/error.cc,generate-exceptions: Rearrange members of Xapian::Error
-	  to reduce its size (from 48 to 40 bytes on x86-64 Linux).
+* Deprecate Xapian::weight typedef in favour of just using double and change
+  all uses in the API and our own code.  (ticket#560)
 
-	* api/,include/xapian/positioniterator.h,
-	  include/xapian/termiterator.h: Reimplementations of PositionIterator
-	  and TermIterator from the end-iterator-proxies branch.  Assignment
-	  operators for these classes now return *this rather than void.
+* Rearrange members of Xapian::Error to reduce its size (from 48 to 40 bytes on
+  x86-64 Linux).
 
-	   Remove the deprecated
-	  old-style match spy approach of using a MatchDecider.
+* Assignment operators for PositionIterator and TermIterator now return *this
+  rather than void.
 
-	   Remove deprecated Sorter
-	  class and MultiValueSorter subclass.
+* PositionIterator, PostingIterator, TermIterator and ValueIterator now
+  handle their reference counts in hand-crafted code rather than using
+  intrusive_ptr/RefCntPtr, which means the compiler can inline the destructor
+  and default constructor, so a comparison to an end iterator should now
+  optimise to a simple NULL pointer check, but without the issues which the
+  ValueIteratorEnd_ proxy class approach had (such as not working in templates
+  or some cases of overload resolution).
 
-	  Database::reopen() now returns true if
-	  the database may have been reopened.  (ticket#548)
+* Enquire:
 
-	* unicode/tclUniData.cc: Upgrade to Unicode 6.0.0 (ticket#497).
+  + Previously, Enquire::get_matching_terms_begin() threw InvalidArgumentError
+    if the query was empty.  Now we just return an end iterator, which is more
+    consistent with how empty queries behave elsewhere.
 
- 15855       olly Wed Jun 29 07:47:30 GMT 2011  Olly Betts <olly@survex.com>
-	* languages/basque.sbl: Use stringdef instead of literal accented
-	  characters in the code.
- 15854       olly Wed Jun 29 07:13:30 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/stemming.rst,include/xapian/stem.h,languages/: Add stemmers
-	  for Armenian (hy), Basque (eu), and Catalan (ca).
+  + Remove the deprecated old-style match spy approach of using a MatchDecider.
 
-	  Don't use
-	  intrusive_ptr to reference count ValueIterator internals, but
-	  instead update the reference count in hand-written code.  This is
-	  less good in itself, but it means we can inline ValueIterator's
-	  default constructor and its destructor in the case where the
-	  internal is NULL, which should mean a comparison with the end
-	  iterator optimises to a NULL pointer check but without needing
-	  the ValueIteratorEnd_ class, which doesn't work as ValueIterator()
-	  would in templates or some cases of overload resolution.
-	  Redo PostingIterator based on TermIterator with efficient end
-	  iterator checks.
+* Remove deprecated Sorter class and MultiValueSorter subclass.
 
- 15887       olly Sat Jul 09 14:00:08 GMT 2011  Olly Betts <olly@survex.com>
-	* include/xapian/stem.h,languages/stem.cc: Stem::operator= now returns
-	  a reference to the assigned-to object.
+* Xapian::Stem:
 
+  + Add stemmers for Armenian (hy), Basque (eu), and Catalan (ca).
+
+  + Stem::operator= now returns a reference to the assigned-to object.
 
 testsuite:
 
-	* tests/internaltest.cc: Remove testcase serialisequery1.
-	* tests/api_serialise.cc: Extend serialise_query1 to cover equivalent
-	  cases via the API.
+* Make unittest use the test harness, so it gets all the valgrind and fd leak
+  checks, and other handy features all the other tests have.
 
+* Improve test coverage in several places.
+
+* Compress generated HTML files in coverage report.
 
 matcher:
 
@@ -116,66 +106,68 @@ chert backend:
 
 flint backend:
 
-	   Remove flint backend.
+* Remove flint backend.
 
 remote backend:
 
-	* exception_data.pm,generate-exceptions,net/serialise.cc: When
-	  propagating exceptions from a remote backend server, use a numeric
-	  code to represent which exception is being transferred rather than
-	  the name of the type as that can be turned back into an exception
-	  with a simple switch statement.  It's also less data to transfer.
-	  (ticket#471)
+* When propagating exceptions from a remote backend server, the protocol now
+  sends a numeric code to represent which exception is being propagated, rather
+  than the name of the type, as a number can be turned back into an exception
+  with a simple switch statement and is also less data to transfer.
+  (ticket#471)
 
-	  Unify REPLY_GREETING and REPLY_UPDATE; send (last_docid - doccount)
-	  instead of last_docid; send (doclen_ubound - doclen_lbound) instead
-	  of doclen_ubound.  This requires a remote protocol major version
-	  bump.  Fix out of date documentation for what's in a REPLY_UPDATE
-	  message.
+* Remote protocol (these changes require a protocol major version bump):
 
-	  Remove special check which gives
-	  a more helpful error message when a modern client is used against a
-	  remote server running Xapian <= 0.9.6.
+  + Unify REPLY_GREETING and REPLY_UPDATE.
+
+  + Send (last_docid - doccount) instead of last_docid and (doclen_ubound -
+    doclen_lbound) instead of doclen_ubound.
+
+* Remove special check which gives a more helpful error message when a modern
+  client is used against a remote server running Xapian <= 0.9.6.
 
 inmemory backend:
 
 
 build system:
 
-	* configure.ac: Update version to 1.3.0 and add -1.3 suffix for
-	  library and /xapian-1.3 suffix to include file installation
-	  directory.
-	* configure.ac: Reset LIBRARY_VERSION_INFO to 0:0:0 for the
-	  development series, since the library name is different (it has a
-	  -1.3 suffix).
+* Various changes allow us to now remove XAPIAN_VISIBILITY_DEFAULT from a
+  number of functions which aren't in the public API (partly addresses
+  ticket#63).
 
-	* Makefile.am,tests/Makefile.am: Just use a GNU-make-specific pattern
-	  rules to forward check-* targets from the top level to the tests
-	  subdirectory.  It's clear we aren't keeping the explicit list of
-	  target forwarding rules up to date, and this is just a convenience
-	  so not worth a lot of maintenance effort.
+* configure: For this development series, the library gets a -1.3 suffix and
+  include files are installed with an extra /xapian-1.3 component to make
+  parallel installs easier.
 
-	* configure.ac: Enable -fshow-column for GCC - things like vim's
-	  quickfix mode will then jump to the appropriate column for a
-	  compiler error or warning, not just the appropriate line.
+* configure: Enable -fshow-column for GCC - things like vim's quickfix mode
+  will then jump to the appropriate column for a compiler error or warning, not
+  just the appropriate line.
 
-	* Snowball compiler now reports "FILE:LINE:" before each error so tools
-	  like vim's quickfix mode can parse this and bring up the line with
-	  the error automatically.
+* Snowball compiler now reports "FILE:LINE:" before each error so tools like
+  vim's quickfix mode can parse this and bring up the line with the error
+  automatically.
 
-	* docs/doxygen_api.conf.in: Don't generate XML from doxygen for the
-	  bindings - the bindings now do this for themselves.  (ticket#262)
+* docs/doxygen_api.conf.in: Don't generate XML from doxygen for the bindings -
+  the bindings now do this for themselves.  (ticket#262)
 
 documentation:
 
-	* INSTALL: Update GCC details - we now recommend 4.3 or newer (was 4.1)
-	  and note that while 3.1 is the hard minimum requirement, the oldest
-	  we've tested with at all recently was 3.3.
+* INSTALL: Update GCC details - we now recommend 4.3 or newer (was 4.1), and
+  note that while 3.1 is the hard minimum requirement, the oldest we've tested
+  with at all recently was 3.3.
 
-	* docs/deprecation.rst: Updated.
+* docs/deprecation.rst: Updated.
 
 tools:
 
+* delve:
+
+  + Move delve from examples to bin and rename to xapian-delve.
+
+  + Send errors to stderr not stdout.
+
+* xapian-check: Now reports useful descriptions rather than cryptic numeric
+  codes for B-tree errors.
 
 examples:
 
@@ -188,32 +180,53 @@ packaging:
 
 debug code:
 
-	* api/omenquire.cc: Add assertions that the index is in range when
-	  dereferencing MSetIterator and ESetIterator.
+* Add assertions that the index is in range when dereferencing MSetIterator and
+  ESetIterator.
 
-	* common/debuglog.h: Add QUERY category for debug logging.
+* Fix various errors in debug logging statements.
 
- 15906       olly Thu Jul 21 03:37:49 GMT 2011  Olly Betts <olly@survex.com>
-	* matcher/mergepostlist.cc: Another debug logging fix.
- 15905       olly Thu Jul 21 03:16:39 GMT 2011  Olly Betts <olly@survex.com>
-	* api/omenquire.cc,api/ompostlistiterator.cc,
-	  backends/brass/brass_database.cc,
-	  backends/brass/brass_positionlist.cc,
-	  backends/brass/brass_postlist.cc,backends/chert/chert_database.cc,
-	  backends/chert/chert_positionlist.cc,
-	  backends/chert/chert_postlist.cc: More debug logging fixes.
- 15904       olly Thu Jul 21 02:55:00 GMT 2011  Olly Betts <olly@survex.com>
-	* api/omdatabase.cc,api/omenquire.cc,api/replication.cc,
-	  backends/brass/brass_alldocspostlist.cc,
-	  backends/brass/brass_database.cc,
-	  backends/brass/brass_spellingwordslist.cc,backends/chert/,
-	  matcher/mergepostlist.cc,matcher/msetpostlist.cc,
-	  matcher/synonympostlist.cc: Fix various incorrect LOGCALL lines.
- 15903       olly Thu Jul 21 02:12:25 GMT 2011  Olly Betts <olly@survex.com>
-	* backends/brass/brass_postlist.cc,backends/chert/chert_postlist.cc,
-	  common/documentterm.h,net/progclient.cc: Fix uses of LOGCALL_VOID
-	  which should be LOGCALL_CTOR.
+* Add QUERY category for debug logging.
 
+Xapian-core 1.2.9 (2012-03-08):
+
+API:
+
+* QueryParser: Fix FLAG_AUTO_SYNONYMS not to enable auto multi-word synonyms
+  too (but in a different way to trunk so as to not break the ABI).
+
+matcher:
+
+* Fix issue with running AND, OR and XOR queries against a database with no
+  documents in it - this was leading to a divide by zero, which led to
+  MSet::get_matches_estimated() reporting 2147483648 on i386.
+
+build system:
+
+* Remove configure's --with-stlport and --with-stlport-compiler options, as
+  they don't allow you to actually specify what you need to (at least to use
+  the Debian STLport package), and instead document what to pass to configure
+  to enable building with STLport (though it seems to no longer be actively
+  maintained, and the debug mode (which is probably the most interesting
+  feature now) doesn't seem to work on Debian stable).
+
+documentation:
+
+* Document that OP_ELITE_SET with non-term subqueries might pick subqueries
+  which don't match anything.  Closes ticket#49.
+
+* Document that you can define a static operator delete method in your subclass
+  if deallocation needs to be handled specially.  (Closes ticket#554)
+
+* Assorted minor documentation improvements.
+
+portability:
+
+* Address new warnings from GCC 4.6.
+
+* Fix argument order when linking xapian-check to fix mingw build.
+  (ticket#567)
+
+* Add some missing explicit header includes to fix build with STLport.
 
 Xapian-core 1.2.8 (2011-12-13):
 
