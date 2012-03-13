@@ -1,3 +1,8 @@
+Tue Mar 13 00:32:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/add-php-type-hints: Fix typo "XapianStemmer" -> "XapianStem".
+	* php/smoketest.php: Add regression test coverage.
+
 Thu Mar 08 05:51:38 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/: Enable warnings for all test cases and make them fatal.

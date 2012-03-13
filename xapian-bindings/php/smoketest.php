@@ -63,6 +63,7 @@ try {
 # Check QueryParser parsing error.
 try {
     $qp = new XapianQueryParser;
+    $qp->set_stemmer(new XapianStem("en"));
     $qp->parse_query("test AND");
     print "Successfully parsed bad query\n";
     exit(1);
