@@ -1,3 +1,7 @@
+Tue Mar 13 10:44:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.9 and ChangeLog.
+
 Mon Mar 12 10:55:57 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If the document with the highest existing docid was
