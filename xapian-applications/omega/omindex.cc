@@ -1473,6 +1473,8 @@ main(int argc, char **argv)
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_description() << endl;
+    } catch (const exception &e) {
+	cout << "Exception: " << e.what() << endl;
     } catch (const string &s) {
 	cout << "Exception: " << s << endl;
     } catch (const char *s) {

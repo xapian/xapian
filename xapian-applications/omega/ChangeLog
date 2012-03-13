@@ -1,3 +1,8 @@
+Tue Mar 13 10:12:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Catch and report std::exception.
+
 Thu Mar 08 02:08:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.9.
