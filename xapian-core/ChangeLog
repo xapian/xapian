@@ -1,3 +1,8 @@
+Tue Mar 13 00:28:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/geospatial.rst: Fix typo - it's LatLongCoords::append() not
+	  LatLongCoords::insert().
+
 Mon Mar 12 23:14:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Fix typo - need "1.2.x" not "1.0.x" to get

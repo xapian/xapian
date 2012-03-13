@@ -92,9 +92,9 @@ To store multiple coordinates in a single slot, use the LatLongCoords class::
 
   Xapian::Document doc;
   Xapian::LatLongCoords coords;
-  coords.insert(Xapian::LatLongCoord(51.53, 0.08));
-  coords.insert(Xapian::LatLongCoord(51.51, 0.07));
-  coords.insert(Xapian::LatLongCoord(51.52, 0.09));
+  coords.append(Xapian::LatLongCoord(51.53, 0.08));
+  coords.append(Xapian::LatLongCoord(51.51, 0.07));
+  coords.append(Xapian::LatLongCoord(51.52, 0.09));
   doc.add_value(0, coords.serialise());
 
 (Note that the serialised form of a LatLongCoords object containing a single
