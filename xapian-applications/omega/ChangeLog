@@ -1,3 +1,10 @@
+Tue Mar 13 10:16:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: If the document with the highest existing docid was
+	  updated, we'd previously report it as "added", but now we correctly
+	  report it as "updated".
+
 Tue Mar 13 10:12:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

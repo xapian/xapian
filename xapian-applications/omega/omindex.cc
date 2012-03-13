@@ -932,7 +932,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		}
 	    }
 	    if (verbose) {
-		if (did < old_lastdocid) {
+		if (did <= old_lastdocid) {
 		    cout << "updated" << endl;
 		} else {
 		    cout << "added" << endl;
