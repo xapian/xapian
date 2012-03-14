@@ -1,3 +1,8 @@
+Wed Mar 14 04:58:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS,tests/api_unicode.cc,unicode/tclUniData.cc: Update
+	  Unicode character database to 6.1.0.
+
 Wed Mar 14 02:23:27 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.3.0.

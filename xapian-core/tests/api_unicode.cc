@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -191,6 +191,36 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x2B740), Unicode::OTHER_LETTER);
     // U+2B81D was added in Unicode 6.0.0.
     TEST_EQUAL(Unicode::get_category(0x2B81D), Unicode::OTHER_LETTER);
+    // U+00A7 changed category in Unicode 6.1.0 (was OTHER_SYMBOL).
+    TEST_EQUAL(Unicode::get_category(0xA7), Unicode::OTHER_PUNCTUATION);
+    // U+00AA changed category in Unicode 6.1.0 (was LOWERCASE_LETTER).
+    TEST_EQUAL(Unicode::get_category(0xAA), Unicode::OTHER_LETTER);
+    // U+00B6 changed category in Unicode 6.1.0 (was OTHER_SYMBOL).
+    TEST_EQUAL(Unicode::get_category(0xB6), Unicode::OTHER_PUNCTUATION);
+    // U+00BA changed category in Unicode 6.1.0 (was LOWERCASE_LETTER).
+    TEST_EQUAL(Unicode::get_category(0xBA), Unicode::OTHER_LETTER);
+    // U+058F was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x058F), Unicode::CURRENCY_SYMBOL);
+    // U+0604 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x0604), Unicode::FORMAT);
+    // U+08A0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x08A0), Unicode::OTHER_LETTER);
+    // U+08E4 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x08E4), Unicode::NON_SPACING_MARK);
+    // U+0AF0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x0AF0), Unicode::OTHER_PUNCTUATION);
+    // U+9FCC was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x9FCC), Unicode::OTHER_LETTER);
+    // U+A7F9 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0xA7F9), Unicode::MODIFIER_LETTER);
+    // U+110F0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x110F0), Unicode::DECIMAL_DIGIT_NUMBER);
+    // U+11100 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x11100), Unicode::NON_SPACING_MARK);
+    // U+1EEF0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x1EEF0), Unicode::MATH_SYMBOL);
+    // U+1F634 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x1F634), Unicode::OTHER_SYMBOL);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -240,7 +270,7 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
     return true;
 }
 
-/// Test Unicode 5.1 and 6.0.0 support.
+/// Test Unicode 5.1, 6.0.0 and 6.1.0 support.
 DEFINE_TESTCASE(caseconvert2,!backend) {
     using namespace Xapian;
 
@@ -257,6 +287,12 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     // U+0526, U+0527 and U+A78D were added in Unicode 6.0.0:
     TEST_EQUAL(Unicode::toupper(0x265), 0xa78d);
     TEST_EQUAL(Unicode::tolower(0xa78d), 0x265);
+    TEST_EQUAL(Unicode::tolower(0x526), 0x527);
+    TEST_EQUAL(Unicode::toupper(0x527), 0x526);
+
+    // U+A7AA was added in Unicode 6.1.0:
+    TEST_EQUAL(Unicode::toupper(0x266), 0xa7aa);
+    TEST_EQUAL(Unicode::tolower(0xa7aa), 0x266);
     TEST_EQUAL(Unicode::tolower(0x526), 0x527);
     TEST_EQUAL(Unicode::toupper(0x527), 0x526);
 
