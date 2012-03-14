@@ -34,12 +34,6 @@ for d in xapian-core xapian-bindings xapian-applications/omega ; do
 	    exit 1
     }
 done
-# Xapian.pm:our $VERSION = '1.1.4.0';
-svn cat "svn+userv:///xapian/$BRANCH/search-xapian/Xapian.pm" |
-    grep '^our \$VERSION = '"'$escaped_version"'\.0'"'" >/dev/null || {
-	echo "search-xapian/Xapian.pm not version $version" 1>&2
-	exit 1
-}
 
 # Add the version to the list in Bugzilla.
 # FIXME this doesn't work, as I need to be logged in to do this!
