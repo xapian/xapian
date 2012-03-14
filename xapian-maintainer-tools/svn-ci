@@ -330,8 +330,10 @@ if ($edit_cl) {
 	$diff = $preamble . $whitespace . "\n" . $diff;
 	add_new_changelog_entry($diff);
     }
-    system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
-    ($? >> 8 == 0) || die "$?\n";
+    unless ($backport) {
+	system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
+	($? >> 8 == 0) || die "$?\n";
+    }
     if ($backport) {
 	unlink "ChangeLog.rej";
     }
@@ -372,14 +374,23 @@ close M;
 # Use a temporary file and -F rather than -m to avoid any risk of overflowing
 # limits on command line length.
 if ($vcs eq 'svn') {
-    system('svn', 'ci', '-F', $newclentry, @ARGV);
+    system('svn', 'ci', '-F', $newclentry, @ARGV) unless $backport;
 } elsif ($vcs eq 'git') {
     system('git', 'add', '--', 'ChangeLog');
-    system('git', 'commit', '-F', $newclentry);
+    system('git', 'commit', '-F', $newclentry) unless $backport;
 } else {
     die "$vcs support for this operation hasn't been implemented yet";
 }
-unlink $newclentry;
+if ($backport) {
+    chomp(my $pwd = `pwd`);
+    print "cd ..";
+    print "/.." if $pwd =~ /omega/;
+    print " && ";
+    print "$vcs commit -F$pwd/$newclentry &&";
+    print "rm $pwd/$newclentry\n";
+} else {
+    unlink $newclentry;
+}
 
 sub add_new_changelog_entry {
     my ($entry) = @_;
