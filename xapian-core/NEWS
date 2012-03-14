@@ -1,10 +1,4 @@
- 16402       olly Tue Mar 13 00:28:58 GMT 2012  Olly Betts <olly@survex.com>
-
-trunk only:
-
-backported:
-
-Xapian-core 1.3.0 (2012-03-13):
+Xapian-core 1.3.0 (2012-03-14):
 
 API:
 
@@ -95,15 +89,6 @@ testsuite:
 
 * Compress generated HTML files in coverage report.
 
-matcher:
-
-
-brass backend:
-
-
-chert backend:
-
-
 flint backend:
 
 * Remove flint backend.
@@ -125,9 +110,6 @@ remote backend:
 
 * Remove special check which gives a more helpful error message when a modern
   client is used against a remote server running Xapian <= 0.9.6.
-
-inmemory backend:
-
 
 build system:
 
@@ -168,15 +150,6 @@ tools:
 
 * xapian-check: Now reports useful descriptions rather than cryptic numeric
   codes for B-tree errors.
-
-examples:
-
-
-portability:
-
-
-packaging:
-
 
 debug code:
 
