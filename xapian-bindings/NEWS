@@ -1,51 +1,43 @@
- 16092    richard Sun Oct 30 21:42:48 GMT 2011  Richard Boulton <richard@tartarus.org>
-
-trunk only:
-
-backported:
-
-
-Xapian-bindings 1.3.0 (2011-12-13):
+Xapian-bindings 1.3.0 (2012-03-14):
 
 Documentation:
 
-	* python/Makefile.am,
-	  ruby/Makefile.am,ruby/generate-rdoc-stubs: Run doxygen to generate
-	  XML for the bindings in the bindings build system, not as a
-	  side-effect in xapian-core's.  (ticket#262)
+* In maintainer builds, run doxygen to generate XML for the bindings in the
+  bindings build system, not as a side-effect in xapian-core's.  (ticket#262)
 
 General:
 
+* Wrap new geospatial API.
+
+* Wrap new database checking API.
+
 * Deprecated features scheduled for removal in 1.3.0 have been removed.
 
-  + Hide away the deprecated non-pythonic iterators - we still need them to
-    implement the pythonic iterators, so we can't entirely remove them.
-  + python: Remove deprecated Stem_get_available_languages().
+* Wrap ExpandDecider even if we don't have director support - there's a
+  ExpandDeciderFilterTerms subclass which is useful in itself, though it still
+  needs some typemap work to actually get it usefully wrapped.
 
-	  Wrap ExpandDecider
-	  even if we don't have director support - there's a
-	  ExpandDeciderFilterTerms subclass which is useful in itself, though
-	  it still needs some typemap work to actually get it usefully wrapped.
+* configure:
 
- 15953       olly Thu Aug 04 00:24:22 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac: Add --disable-visibility option to match xapian-core.
+  + Add --disable-visibility option to match xapian-core.
 
- 15952       olly Thu Aug 04 00:04:47 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac: Add -fshow-column for GCC.
+  + Add -fshow-column for GCC.
 
- 15935       olly Sat Jul 30 06:22:37 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac,csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
-	  lua/Makefile.am,perl/Makefile.am,php/Makefile.am,python/Makefile.am,
-	  ruby/Makefile.am,tcl8/Makefile.am: Don't put -Werror in SWIG_FLAGS
-	  - instead put it in a new SWIG_WERROR variable, so that it's easy
-	  to override it if you're getting a new warning from SWIG but want
-	  to just ignore it for the time being.
+  + Don't put -Werror in SWIG_FLAGS - instead put it in a new SWIG_WERROR
+    variable, so that it's easy to override it if you're getting a new warning
+    from SWIG but want to just ignore it for the time being.
 
-Packaging:
-
-Portability:
+* Exception handling now uses Error::get_description() rather than get_type +
+  ": " + get_msg().  In many cases this is the same, but if context or errno
+  are available, get_description() includes them.  Catch and report
+  std::exception rather than handling it as an unknown error (so in particular
+  std::bad_alloc will now be reported more helpfully).
 
 CSharp:
+
+* Avoid generating unwanted wrapper sources
+  SWIGTYPE_p_std__vectorT_std__string_t.cs and
+  SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs.
 
 Java:
 
@@ -59,11 +51,31 @@ Java:
 
 Lua:
 
+* Improve error messages.
+
 Perl:
+
+* Fix "Use of qw(...) as parentheses is deprecated" warnings in test cases with
+  Perl 5.14.
+
+* Fix Search::Xapian::Query->new() to work.
+
+* Enable warnings for all test cases and make them fatal.
+
+* Add "use Carp;" where we use functions from that module.
+
+* Improve POD docs for Document and TermGenerator methods - "weight" is
+  misleading, so use "wdfinc" and "wdfdec" like the C++ API docs do.
+
+* The Query constructor which takes an array of subqueries is now wrapped more
+  efficiently - previous a temporary C++ std::vector was built but now we avoid
+  doing this.
 
 PHP:
 
 * PHP >= 5.2 is now required.
+
+* Add PHP type hints to the class wrappers.  Fixes ticket#577.
 
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
@@ -73,12 +85,22 @@ Python:
 
 * Python >= 2.4 is now required.
 
-	* python/python.i: By default, SWIG's thread locking code for Python
-	  always initialises threads, which just adds overhead for single
-	  threaded Python code.  So instead we now replace SWIG's thread
-	  locking with a version which does nothing unless threads are already
-	  initialised.  This seems to be about 5-10% faster for pythontest2.py
-	  modified to repeat the tests 100 times.
+* Remove deprecated Stem_get_available_languages().
+
+* Hide away the deprecated non-pythonic iterators - we still need them to
+  implement the pythonic iterators, so we can't entirely remove them.
+
+* Replace SWIG's thread locking with code which does nothing unless threads
+  are already initialised, to avoid the overhead of thread locking in the
+  common case of single-threaded Python code.  This seems to be about 5-10%
+  faster for pythontest2.py modified to repeat the tests 100 times.
+
+* Handle the GIL in a way which also works in sub-interpreters.  Fixes ticket
+  #364.
+
+* The Query constructor which takes an array of subqueries is now wrapped more
+  efficiently - previous a temporary C++ std::vector was built but now we avoid
+  doing this.
 
 Ruby:
 
@@ -91,6 +113,39 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.9 (2012-03-08):
+
+Java:
+
+* configure: Fix test for jni.h to try looking for jni.h relative to the real
+  location of javac, which should work for more JDKs.
+
+Lua:
+
+* Handle an exception from C++ by raising a xapian.Error object as an error in
+  Lua.
+
+* Rename get_description() methods to __tostring(), so that you can use write
+  tostring(obj) in Lua.
+
+* configure: Honour LUA_LIB if already set.  Fixes #581.
+
+* configure: Improve probing for LUA_LIB, and also probe for LUA_SO so we
+  support platforms where the compiled Lua module isn't called .so.
+
+Perl:
+
+* Add tests of Document::get_docid().
+
+PHP:
+
+* Add a test that Query constructor taking OP_NEAR with a window size works.
+
+Python:
+
+* python/testsuite2.py: Don't run off the traceback looking for a test function
+  if the exception wasn't from a test function.
 
 Xapian-bindings 1.2.8 (2011-12-13):
 
