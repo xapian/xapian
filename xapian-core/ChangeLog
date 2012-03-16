@@ -1,3 +1,7 @@
+Fri Mar 16 05:23:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Missing part of previous change.
+
 Fri Mar 16 04:59:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
