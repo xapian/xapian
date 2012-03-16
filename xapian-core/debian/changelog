@@ -1,8 +1,17 @@
-xapian-core (1.2.5-2) UNRELEASED; urgency=low
+xapian-core (1.2.8-1) unstable; urgency=low
 
+  * New upstream release.
+  * debian/control: Update "Suggests:" of -dbg package.
+
+ -- Olly Betts <olly@survex.com>  Sat, 17 Dec 2011 07:24:42 +0000
+
+xapian-core (1.2.7-1) unstable; urgency=low
+
+  * New upstream release.
   * debian/control.in: Standards-Version: 3.9.2 (no changes required).
+  * debian/rules: Add build-arch and build-indep targets.
 
- -- Olly Betts <olly@survex.com>  Thu, 12 May 2011 03:00:57 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 12 Aug 2011 01:37:23 +0000
 
 xapian-core (1.2.5-1) unstable; urgency=low
 
