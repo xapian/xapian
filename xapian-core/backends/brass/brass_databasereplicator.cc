@@ -193,7 +193,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     }
     {
 	FD closer(fd);
-	unsigned char out[8192];
+	unsigned char out[changeset_blocksize];
 	CompressionStream comp_stream = CompressionStream(Z_DEFAULT_STRATEGY);
 
 	while (true) {
@@ -224,7 +224,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		comp_stream.inflate_zstream->next_in = (Bytef*)const_cast<char *>(buf.data());
 		comp_stream.inflate_zstream->avail_in = compressed_block_size;
 		comp_stream.inflate_zstream->next_out = out;
-		comp_stream.inflate_zstream->avail_out = (uInt)sizeof(out);
+		comp_stream.inflate_zstream->avail_out = changeset_blocksize;
 		comp_stream.zerr = inflate(comp_stream.inflate_zstream, Z_FINISH);
 		if (comp_stream.zerr != Z_STREAM_END)
 		    throw Xapian::NetworkError("Bad compressed replication changeset");

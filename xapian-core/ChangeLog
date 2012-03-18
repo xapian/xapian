@@ -1,3 +1,8 @@
+Sun Mar 18 23:24:04 GMT 2012  Dan Colish <dcolish@>
+
+	* backends/brass/brass_databasereplicator.cc: size out buffer to the
+	  incoming blocksize
+
 Sun Mar 18 17:02:14 GMT 2012  Dan Colish <dcolish@>
 
 	* .gitignore: ignore /.deps as well
