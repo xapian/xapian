@@ -236,6 +236,10 @@ else
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.2 tar.bz2 34b3808e1d536ee3724fbde28bc1f13b8b40dc43
   lazy_build libtool 2.4.2 tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
+  if [ "$1" = "--deps=libmagic" ] ; then
+      shift
+      lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89
+  fi
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
@@ -413,6 +417,9 @@ for d in $modules ; do
       ;;
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
+      ;;
+    xapian-applications/omega)
+      cd "$d" && "$configure" --enable-maintainer-mode XAPIAN_CONFIG="$XAPIAN_CONFIG" CXXFLAGS="-I$srcdir/INST/include -L$srcdir/INST/lib" ${1+"$@"}
       ;;
     *)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
