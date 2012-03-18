@@ -89,6 +89,8 @@ lazy_build() {
     *[13579][a-z])
       # GNU alpha release
       $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+    file*)
+      $FETCH_URL_TOOL "ftp://ftp.astron.com/pub/file/$tarball" ;;
     *)
       $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
     esac
