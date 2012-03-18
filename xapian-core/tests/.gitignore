@@ -5,6 +5,7 @@
 /Makefile
 /.deps
 /.libs
+/.replicatmp
 /apitest
 /internaltest
 /queryparsertest
