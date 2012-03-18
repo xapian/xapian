@@ -1,3 +1,9 @@
+Sun Mar 18 00:48:05 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/,common/Makefile.mk, common/compression_stream.h,
+	  common/compression_stream.cc: Compress changesets in brass
+	  replication. Increments the changeset version. Ticket #348
+
 Sun Mar 18 00:39:23 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* tests/.gitignore,tests/soaktest/.gitignore: Add additional ignores

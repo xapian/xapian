@@ -36,10 +36,10 @@
 #include "stringutils.h"
 #include "unaligned.h"
 
+#include "common/compression_stream.h"
+
 #include <algorithm>
 #include <string>
-
-#include <zlib.h>
 
 #define DONT_COMPRESS -1
 
@@ -406,7 +406,7 @@ class BrassTable {
 	 *
 	 *  @param changes_fd  The file descriptor to write changes to.
 	 */
-	void write_changed_blocks(int changes_fd);
+	void write_changed_blocks(int changes_fd, bool compressed);
 
 	/** Cancel any outstanding changes.
 	 *
@@ -649,11 +649,6 @@ class BrassTable {
 	/// The name of the table (used when writing changesets).
 	const char * tablename;
 
-	/// Allocate the zstream for deflating, if not already allocated.
-	void lazy_alloc_deflate_zstream() const;
-
-	/// Allocate the zstream for inflating, if not already allocated.
-	void lazy_alloc_inflate_zstream() const;
 
 	/** revision number of the opened B-tree. */
 	brass_revision_number_t revision_number;
@@ -785,11 +780,7 @@ class BrassTable {
 	 *  Z_RLE. */
 	int compress_strategy;
 
-	/// Zlib state object for deflating
-	mutable z_stream *deflate_zstream;
-
-	/// Zlib state object for inflating
-	mutable z_stream *inflate_zstream;
+	CompressionStream comp_stream;
 
 	/// If true, don't create the table until it's needed.
 	bool lazy;

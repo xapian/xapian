@@ -34,6 +34,7 @@
 #include "debuglog.h"
 #include "fd.h"
 #include "filetests.h"
+#include "internaltypes.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
@@ -41,6 +42,7 @@
 #include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
+
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -52,7 +54,7 @@ using namespace std;
 using namespace Xapian;
 
 BrassDatabaseReplicator::BrassDatabaseReplicator(const string & db_dir_)
-	: db_dir(db_dir_)
+    : db_dir(db_dir_)
 {
 }
 
@@ -191,12 +193,13 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     }
     {
 	FD closer(fd);
+	unsigned char out[8192];
+	CompressionStream comp_stream = CompressionStream(Z_DEFAULT_STRATEGY);
 
 	while (true) {
 	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
 	    ptr = buf.data();
 	    end = ptr + buf.size();
-
 	    uint4 block_number;
 	    if (!unpack_uint(&ptr, end, &block_number))
 		throw NetworkError("Invalid block number in changeset");
@@ -205,9 +208,36 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		break;
 	    --block_number;
 
-	    conn.get_message_chunk(buf, changeset_blocksize, end_time);
-	    if (buf.size() < changeset_blocksize)
-		throw NetworkError("Incomplete block in changeset");
+	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+	    ptr = buf.data();
+	    end = ptr + buf.size();
+	    unsigned int compressed_block_size;
+	    if(!unpack_uint(&ptr, end, &compressed_block_size))
+		throw NetworkError("Invalid v2 changeset");
+	    buf.erase(0, ptr - buf.data());
+
+	    const char * block_ptr;
+	    if (compressed_block_size > 0) {
+
+		conn.get_message_chunk(buf, changeset_blocksize, end_time);
+		comp_stream.lazy_alloc_inflate_zstream();
+		comp_stream.inflate_zstream->next_in = (Bytef*)const_cast<char *>(buf.data());
+		comp_stream.inflate_zstream->avail_in = compressed_block_size;
+		comp_stream.inflate_zstream->next_out = out;
+		comp_stream.inflate_zstream->avail_out = (uInt)sizeof(out);
+		comp_stream.zerr = inflate(comp_stream.inflate_zstream, Z_FINISH);
+		if (comp_stream.zerr != Z_STREAM_END)
+		    throw Xapian::NetworkError("Bad compressed replication changeset");
+		if (comp_stream.inflate_zstream->next_out - out != changeset_blocksize) {
+		    throw NetworkError("Incomplete block in changeset");
+		}
+		block_ptr = reinterpret_cast<const char *>(out);
+	    } else {
+		conn.get_message_chunk(buf, changeset_blocksize, end_time);
+		if (buf.size() < changeset_blocksize)
+		    throw NetworkError("Incomplete block in changeset");
+		block_ptr = buf.data();
+	    }
 
 	    // Write the block.
 	    // FIXME - should use pwrite if that's available.
@@ -216,9 +246,13 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		msg += str(block_number);
 		throw DatabaseError(msg, errno);
 	    }
-	    io_write(fd, buf.data(), changeset_blocksize);
+	    io_write(fd, block_ptr, changeset_blocksize);
 
-	    buf.erase(0, changeset_blocksize);
+	    if (compressed_block_size > 0) {
+		buf.erase(0, compressed_block_size);
+	    } else {
+		buf.erase(0, changeset_blocksize);
+	    }
 	}
 	io_sync(fd);
     }
@@ -255,7 +289,6 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     buf.erase(0, 12);
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
-
     unsigned int changes_version;
     if (!unpack_uint(&ptr, end, &changes_version))
 	throw NetworkError("Couldn't read a valid version number from changeset");

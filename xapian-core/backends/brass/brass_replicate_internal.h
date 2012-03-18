@@ -28,7 +28,8 @@
 
 // The current version of changeset files.
 // 1  - initial implementation
-#define CHANGES_VERSION 1u
+// 2  - compressed changesets
+#define CHANGES_VERSION 2u
 
 // Must be big enough to ensure that the start of the changeset (up to the new
 // revision number) will fit in this much space.

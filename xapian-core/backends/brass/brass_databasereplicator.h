@@ -24,6 +24,7 @@
 #define XAPIAN_INCLUDED_BRASS_DATABASEREPLICATOR_H
 
 #include "backends/databasereplicator.h"
+#include "compression_stream.h"
 
 class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
     private:

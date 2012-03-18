@@ -2,6 +2,7 @@ noinst_HEADERS +=\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
+	common/compression_stream.h\
 	common/debuglog.h\
 	common/fd.h\
 	common/filetests.h\
@@ -48,6 +49,7 @@ EXTRA_DIST +=\
 lib_src +=\
 	common/bitstream.cc\
 	common/closefrom.cc\
+	common/compression_stream.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/io_utils.cc\
@@ -60,6 +62,7 @@ lib_src +=\
 	common/socket_utils.cc\
 	common/str.cc\
 	common/stringutils.cc
+
 
 if USE_WIN32_UUID_API
 lib_src +=\
