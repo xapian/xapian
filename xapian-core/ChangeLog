@@ -1,3 +1,7 @@
+Sun Mar 18 17:02:14 GMT 2012  Dan Colish <dcolish@>
+
+	* .gitignore: ignore /.deps as well
+
 Sun Mar 18 16:46:45 GMT 2012  Dan Colish <dcolish@>
 
 	* .gitignore:Update gitignore for bump to libxapian-1.3
