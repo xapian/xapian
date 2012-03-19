@@ -58,6 +58,8 @@ unless ($email) {
 	$email .= '@tartarus.org';
     } elsif ($email eq 'kosei') {
 	$email = 'cou929@gmail.com';
+    } elsif ($email eq 'dcolish') {
+	$email .= '@gmail.com';
     } else {
 	my $host = `hostname -d`;
 	chomp($host);
