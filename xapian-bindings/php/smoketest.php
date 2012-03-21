@@ -416,4 +416,10 @@ $indexer->index_text_without_positions("Tea time");
 $coord = new XapianLatLongCoord();
 $coord = new XapianLatLongCoord(-41.288889, 174.777222);
 
+define('COORD_SLOT', 2);
+$centre = new XapianLatLongCoords($coord);
+$metric = new XapianGreatCircleMetric();
+$range = 42.0;
+$query = new XapianQuery(new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range));
+
 ?>

@@ -1,3 +1,7 @@
+Tue Mar 20 02:04:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: More tests of geospatial API.
+
 Sun Mar 18 00:38:48 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* .gitignore: Ignore doxygen artifacts
