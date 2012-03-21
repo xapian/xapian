@@ -1,3 +1,36 @@
+ 16406       olly Tue Mar 13 10:16:19 GMT 2012  Olly Betts <olly@survex.com>
+
+Omega 1.2.10 (2012-03-13):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + If the document with the highest existing docid before the run was updated,
+    we were reporting it as "added", but now we correctly report it as
+    "updated".  (Backported from 1.3.0).
+
+  + Catch and report std::exception explicitly, so failing to allocate memory
+    is no longer reported as "Unknown exception".  (Backported from 1.3.0).
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.2.9 (2012-03-08):
 
 documentation:
