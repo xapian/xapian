@@ -1,16 +1,29 @@
-xapian-bindings (1.2.6-1) UNRELEASED; urgency=low
+xapian-bindings (1.2.9-1) unstable; urgency=low
 
   * New upstream release.
-    + Includes fixes for #625679 and Ruby Dir.mktmpdir() issue so drop patches
-      for these.
+
+ -- Olly Betts <olly@survex.com>  Wed, 21 Mar 2012 11:26:33 +0000
+
+xapian-bindings (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Sat, 17 Dec 2011 10:48:13 +0000
+
+xapian-bindings (1.2.7-1) unstable; urgency=low
+
+  * New upstream release.
+    + Includes fixes for #625679 and Ruby Dir.mktmpdir() issue, so drop
+      patches for these.
   * debian/rules: Use single quotes for substituting into debian/control.in to
     stop the shell from attempting to expand ${python:Versions}.
   * debian/rules: Use build-stamp and configure-stamp in the top level rather
     than in the debian subdirectory - this is consistent with where other
     packages put these files, and means dh_clean removes them for us
     automatically.
+  * debian/rules: Add build-arch and build-indep targets.
 
- -- Olly Betts <olly@survex.com>  Tue, 28 Jun 2011 14:42:53 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 12 Aug 2011 02:08:22 +0000
 
 xapian-bindings (1.2.5-2) unstable; urgency=low
 
