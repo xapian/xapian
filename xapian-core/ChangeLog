@@ -1,3 +1,7 @@
+Thu Mar 22 04:29:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-core.spec.in: Remove xapian-chert-update.
+
 Mon Mar 19 05:42:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/multiandpostlist.cc: Don't count unweighted subqueries of
