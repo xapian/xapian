@@ -2,11 +2,6 @@ use ExtUtils::MakeMaker;
 use strict;
 use Config;
 
-# Suppress warnings about parameters we allow the user to specify.
-$ExtUtils::MakeMaker::Recognized_Att_Keys{CPPFLAGS} = 1;
-$ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
-$ExtUtils::MakeMaker::Recognized_Att_Keys{CXXFLAGS} = 1;
-$ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 
 my $builddir;
 
@@ -150,7 +145,13 @@ push @writemakefile_args, (
     # Make sure that we rebuild the Makefile if the version number changes.
     'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
+
+# Throw away STDOUT from WriteMakefile() to suppress warnings about parameters
+# we allow the user to specify: CPPFLAGS CXX CXXFLAGS XAPIAN_CONFIG
+*TEMP = *STDOUT;
+close STDOUT;
 WriteMakefile(@writemakefile_args);
+*STDOUT = *TEMP;
 
 my $VERSION = "unknown";
 open F, "Makefile" or die $!;

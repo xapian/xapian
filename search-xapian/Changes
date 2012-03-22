@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.10.0
+	[Changes contributed by Olly Betts]
+	- Suppress warnings about "not a known MakeMaker parameter name" in a
+	  way which also works for newer versions of Perl.
+
 1.2.9.0  Thu Mar  8 07:19:27 UTC 2012
 	[Changes contributed by Olly Betts]
 	- Wrap Document::get_docid() method.
