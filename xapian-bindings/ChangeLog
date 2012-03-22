@@ -1,3 +1,8 @@
+Thu Mar 22 23:49:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Avoid importing isa from UNIVERSAL to fix Perl 5.12
+	  deprecation warning.
+
 Tue Mar 20 02:04:51 GMT 2012  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: More tests of geospatial API.

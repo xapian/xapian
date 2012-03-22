@@ -228,7 +228,6 @@ package Search::Xapian::MSet::Tied;
 our @ISA = qw(Search::Xapian::MSet);
 
 package Search::Xapian::PositionIterator;
-use UNIVERSAL qw( isa );
 use overload '++' => sub { $_[0]->increment() },
              '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
@@ -249,7 +248,7 @@ sub clone() {
 
 sub equal() {
   my ($self, $other) = @_;
-  if( isa($other, 'Search::Xapian::PositionIterator') ) {
+  if( UNIVERSAL::isa($other, 'Search::Xapian::PositionIterator') ) {
     Search::Xapianc::PositionIterator_equal1($self, $other);
   } else {
     ($self+0) == ($other+0);
@@ -258,7 +257,7 @@ sub equal() {
 
 sub nequal() {
   my ($self, $other) = @_;
-  if( isa($other, 'Search::Xapian::PositionIterator') ) {
+  if( UNIVERSAL::isa($other, 'Search::Xapian::PositionIterator') ) {
     Search::Xapianc::PositionIterator_nequal1($self, $other);
   } else {
     ($self+0) != ($other+0);
