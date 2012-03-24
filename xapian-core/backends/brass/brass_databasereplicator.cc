@@ -228,7 +228,9 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		comp_stream.zerr = inflate(comp_stream.inflate_zstream, Z_FINISH);
 		if (comp_stream.zerr != Z_STREAM_END)
 		    throw Xapian::NetworkError("Bad compressed replication changeset");
-		if (comp_stream.inflate_zstream->next_out - out != changeset_blocksize) {
+
+		unsigned got = comp_stream.inflate_zstream->next_out - out;
+		if (got != changeset_blocksize) {
 		    throw NetworkError("Incomplete block in changeset");
 		}
 		block_ptr = reinterpret_cast<const char *>(out);
