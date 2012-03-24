@@ -2564,6 +2564,15 @@ static bool test_qp_default_op3()
     return true;
 }
 
+/// Test that the default strategy is now STEM_SOME (as of 1.3.1).
+static bool test_qp_defaultstrategysome1()
+{
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("en"));
+    TEST_EQUAL(qp.parse_query("testing").get_description(), "Query(Ztest@1)");
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static const test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -2603,6 +2612,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_stopword_group1),
     TESTCASE(qp_default_op2),
     TESTCASE(qp_default_op3),
+    TESTCASE(qp_defaultstrategysome1),
     END_OF_TESTCASES
 };
 

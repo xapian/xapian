@@ -1,7 +1,7 @@
 /** @file queryparser_internal.h
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011 Olly Betts
+/* Copyright (C) 2005,2006,2007,2010,2011,2012 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -87,8 +87,9 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 			   bool &was_acronym);
 
   public:
-    Internal() : stem_action(STEM_NONE), stopper(NULL),
+    Internal() : stem_action(STEM_SOME), stopper(NULL),
 	default_op(Query::OP_OR), errmsg(NULL), max_wildcard_expansion(0) { }
+
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };
 

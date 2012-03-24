@@ -1,3 +1,12 @@
+Sat Mar 24 12:26:13 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser_internal.h:
+	  Change the default stemming strategy to STEM_SOME, to eliminate
+	  the API gotcha that setting a stemmer is ignored until you also
+	  set a strategy.
+	* tests/queryparsertest.cc: Add testcase qp_defaultstrategysome1 to
+	  check that the default is STEM_SOME.
+
 Fri Mar 23 04:29:32 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest.cc: Fix comment cut-and-paste error.
