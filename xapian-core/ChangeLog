@@ -1,3 +1,8 @@
+Fri Mar 23 04:28:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Use git commit hash in the title of a coverage report
+	  generated from a git tree.
+
 Thu Mar 22 04:29:38 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-core.spec.in: Remove xapian-chert-update.
