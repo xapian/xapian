@@ -417,9 +417,34 @@ $coord = new XapianLatLongCoord();
 $coord = new XapianLatLongCoord(-41.288889, 174.777222);
 
 define('COORD_SLOT', 2);
-$centre = new XapianLatLongCoords($coord);
 $metric = new XapianGreatCircleMetric();
 $range = 42.0;
+
+$centre = new XapianLatLongCoords($coord);
 $query = new XapianQuery(new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range));
+
+$db = Xapian::inmemory_open();
+$coords = new XapianLatLongCoords();
+$coords->append(new XapianLatLongCoord(40.6048, -74.4427));
+$doc = new XapianDocument();
+$doc->add_term("coffee");
+$doc->add_value(COORD_SLOT, $coords->serialise());
+$db->add_document($doc);
+
+$centre = new XapianLatLongCoords();
+$centre->append(new XapianLatLongCoord(40.6048, -74.4427));
+
+$ps = new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range);
+$q = new XapianQuery("coffee");
+$q = new XapianQuery(XapianQuery::OP_AND, $q, new XapianQuery($ps));
+
+$enq = new XapianEnquire($db);
+$enq->set_query($q);
+$mset = $enq->get_mset(0, 10);
+if ($mset->size() != 1) {
+    print "Expected one result with XapianLatLongDistancePostingSource, got ";
+    print $mset->size() . "\n";
+    exit(1);
+}
 
 ?>
