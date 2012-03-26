@@ -140,7 +140,7 @@ eval {
 };
 ok($@);
 ok(ref($@), "Search::Xapian::QueryParserError", "correct class for exception");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 ok($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
 ok( $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 

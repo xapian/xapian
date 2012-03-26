@@ -1,3 +1,11 @@
+Mon Mar 26 05:13:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multiandpostlist.cc: Don't count unweighted subqueries of
+	  MultiAndPostList for percentage calculations, as OP_FILTER maps to
+	  MultiAndPostList now.  (ticket#590)
+	* tests/api_percentages.cc: Regression test topercent6.
+
 Mon Mar 12 23:19:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Mention that postlist and termlist tables hold

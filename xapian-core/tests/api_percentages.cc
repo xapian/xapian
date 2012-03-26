@@ -2,7 +2,7 @@
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010 Olly Betts
+ * Copyright (C) 2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -255,5 +255,24 @@ DEFINE_TESTCASE(topercent5, backend) {
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
     TEST(mset[0].get_percent() >= 50);
+    return true;
+}
+
+/// Test that OP_FILTER doesn't affect percentages.
+//  Regression test for bug fixed in 1.3.1 and 1.2.10.
+DEFINE_TESTCASE(topercent6, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Query q(Xapian::Query::OP_OR,
+		    Xapian::Query("rubbish"), Xapian::Query("letter"));
+    enquire.set_query(q);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+    TEST(!mset.empty());
+    TEST(mset[0].get_percent() < 100);
+
+    q = Xapian::Query(q.OP_FILTER, q, Xapian::Query("this"));
+    enquire.set_query(q);
+    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+    TEST(!mset2.empty());
+    TEST_EQUAL(mset[0].get_percent(), mset2[0].get_percent());
     return true;
 }
