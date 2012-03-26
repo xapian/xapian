@@ -77,6 +77,7 @@ static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
 static bool spelling = false;
+static off_t  max_size = 0;
 static bool verbose = false;
 static enum {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
@@ -361,6 +362,11 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     // tells us the file type.
     if (d.get_size() == 0) {
 	skip(file, "Zero-sized file", SKIP_VERBOSE_ONLY);
+	return;
+    }
+
+    if (max_size > 0 && d.get_size() > max_size) {
+	skip(file, "Larger than size limit", SKIP_VERBOSE_ONLY);
 	return;
     }
 
@@ -1020,6 +1026,7 @@ main(int argc, char **argv)
 	{ "spelling",	no_argument,		NULL, 'S' },
 	{ "verbose",	no_argument,		NULL, 'v' },
 	{ "empty-docs",	required_argument,	NULL, 'e' },
+	{ "max-size",	required_argument,	NULL, 'm' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1196,7 +1203,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:i",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1226,6 +1233,8 @@ main(int argc, char **argv)
 "  -f, --follow             follow symbolic links\n"
 "  -i, --ignore-exclusions  ignore meta robots tags and similar exclusions\n"
 "  -S, --spelling           index data for spelling correction\n"
+"  -m, --max-size           maximum size of file to index (in bytes or with a\n"
+"                           suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
 "  -v, --verbose            show more information about what is happening\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
@@ -1330,6 +1339,35 @@ main(int argc, char **argv)
 	case 'v':
 	    verbose = true;
 	    break;
+	case 'm': {
+	    // Don't want negative numbers, infinity, NaN, or hex numbers.
+	    char * p = optarg;
+	    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+		double arg = strtod(p, &p);
+		switch (*p) {
+		    case '\0':
+			break;
+		    case 'k': case 'K':
+			arg *= 1024;
+			++p;
+			break;
+		    case 'm': case 'M':
+			arg *= (1024 * 1024);
+			++p;
+			break;
+		    case 'g': case 'G':
+			arg *= (1024 * 1024 * 1024);
+			++p;
+			break;
+		}
+		if (*p == '\0') {
+		    max_size = off_t(arg);
+		    break;
+		}
+	    }
+	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
+	    return 1;
+	}
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char

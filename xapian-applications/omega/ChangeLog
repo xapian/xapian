@@ -1,3 +1,8 @@
+Mon Mar 26 08:44:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add --max-size option, based on patch from ndaley in
+	  ticket#587.
+
 Wed Mar 14 02:27:59 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.3.0.
