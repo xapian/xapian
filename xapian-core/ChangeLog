@@ -1,3 +1,9 @@
+Tue Mar 27 13:03:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,docs/deprecation.rst,include/xapian/enquire.h,
+	  include/xapian/errorhandler.h: Deprecate Xapian::ErrorHandler.
+	  (ticket#3)
+
 Tue Mar 27 13:01:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING,docs/deprecation.rst,docs/doxygen_api.conf.in,

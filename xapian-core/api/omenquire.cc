@@ -874,10 +874,16 @@ Enquire::operator=(const Enquire & other)
     internal = other.internal;
 }
 
+Enquire::Enquire(const Database &databases)
+    : internal(new Internal(databases, NULL))
+{
+    LOGCALL_CTOR(API, "Enquire", databases);
+}
+
 Enquire::Enquire(const Database &databases, ErrorHandler * errorhandler)
     : internal(new Internal(databases, errorhandler))
 {
-    LOGCALL_CTOR(API, "Enquire", databases);
+    LOGCALL_CTOR(API, "Enquire", databases | errorhandler);
 }
 
 Enquire::~Enquire()

@@ -439,6 +439,13 @@ Removed Feature name                        Upgrade suggestion and comments
 	``Xapian::SerialisationError`` not
 	``Xapian::InvalidArgumentError``
 	for errors in serialised data
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.1   ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it only
+                                            works in Enquire, whereas you should be able to handle errors at the Database
+                                            level too) and we can't find any evidence that people are actually using it.
+                                            So we are deprecating it and will replace it with something better thought out,
+                                            probably during the 1.3.x development series.  There's so further thoughts at
+                                            http://trac.xapian.org/ticket/3#comment:8
 ======= =================================== ==================================================================================
 
 
