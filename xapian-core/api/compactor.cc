@@ -54,7 +54,8 @@
 #include "backends/chert/chert_compact.h"
 #include "backends/chert/chert_version.h"
 
-#include <xapian.h>
+#include <xapian/database.h>
+#include <xapian/error.h>
 
 using namespace std;
 

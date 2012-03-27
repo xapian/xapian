@@ -1,3 +1,8 @@
+Tue Mar 27 08:46:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc: Include the xapian sub-headers we actually use
+	  rather than xapian.h, to avoid needless rebuilds.
+
 Tue Mar 27 08:33:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: Add example of deprecating a pure virtual method.
