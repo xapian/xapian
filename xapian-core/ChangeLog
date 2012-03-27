@@ -1,3 +1,7 @@
+Tue Mar 27 21:07:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Note when Database::close() was added.
+
 Tue Mar 27 13:03:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,docs/deprecation.rst,include/xapian/enquire.h,

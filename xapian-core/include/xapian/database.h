@@ -172,6 +172,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  object associated with a Database, when in many cases they are
 	 *  working on data which has already been loaded and so they are able
 	 *  to just behave correctly.
+	 *
+	 *  This method was added in Xapian 1.1.0.
 	 */
 	virtual void close();
 
