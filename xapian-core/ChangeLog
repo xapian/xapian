@@ -1,3 +1,9 @@
+Tue Mar 27 13:01:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,docs/deprecation.rst,docs/doxygen_api.conf.in,
+	  docs/doxygen_source.conf.in: Updates for addition of
+	  XAPIAN_DEPRECATED_EX() and XAPIAN_DEPRECATED_CLASS_EX.
+
 Tue Mar 27 10:11:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING,include/xapian.h,include/xapian/deprecated.h: Add
