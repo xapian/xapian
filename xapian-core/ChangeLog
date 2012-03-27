@@ -1,3 +1,7 @@
+Tue Mar 27 08:33:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Add example of deprecating a pure virtual method.
+
 Tue Mar 27 08:30:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

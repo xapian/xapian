@@ -981,6 +981,8 @@ semicolon and any "definition" part, for example::
 
         XAPIAN_DEPRECATED(int old_const_method() const);
 
+        XAPIAN_DEPRECATED(virtual int old_virt_method()) = 0;
+
         XAPIAN_DEPRECATED(static int old_static_method());
 
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
