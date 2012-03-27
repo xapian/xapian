@@ -1,7 +1,7 @@
 /** @file xapian.h
  *  @brief Public interfaces for the Xapian library.
  */
-// Copyright (C) 2003,2004,2005,2007,2008,2009,2010 Olly Betts
+// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 
 #ifndef XAPIAN_INCLUDED_XAPIAN_H
 #define XAPIAN_INCLUDED_XAPIAN_H
+
+// Define so that deprecation warnings are given to API users, but not
+// while building the library.
+#define XAPIAN_IN_XAPIAN_H
 
 // Set defines for library version and check C++ ABI versions match.
 #include <xapian/version.h>
@@ -109,5 +113,7 @@ XAPIAN_VISIBILITY_DEFAULT
 int revision();
 
 }
+
+#undef XAPIAN_IN_XAPIAN_H
 
 #endif /* XAPIAN_INCLUDED_XAPIAN_H */

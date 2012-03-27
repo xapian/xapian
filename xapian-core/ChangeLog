@@ -1,3 +1,10 @@
+Tue Mar 27 10:11:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,include/xapian.h,include/xapian/deprecated.h: Add
+	  XAPIAN_DEPRECATED_EX() and XAPIAN_DEPRECATED_CLASS_EX macros which
+	  mark a feature as deprecated externally but not when building the
+	  library.
+
 Tue Mar 27 08:46:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc: Include the xapian sub-headers we actually use

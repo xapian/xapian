@@ -953,7 +953,9 @@ Marking Features as Deprecated
 In the API headers, a feature (a class, method, function, enum, typedef, etc)
 can be marked as deprecated by using the XAPIAN_DEPRECATED() or
 XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
-macro.
+macro.  If the feature is still used inside the library (for example, so we
+can define class methods), but deprecated for user code, then use
+XAPIAN_DEPRECATED_EX() or XAPIAN_DEPRECATED_CLASS_EX instead.
 
 For compilers with a suitable mechanism (currently GCC 3.1 or later, and
 MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
