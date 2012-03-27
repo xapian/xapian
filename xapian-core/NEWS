@@ -1,3 +1,114 @@
+ 16448       olly Sat Mar 24 12:33:44 GMT 2012  Olly Betts <olly@survex.com>
+
+backported to 1.2.10:
+
+ 16429       olly Mon Mar 19 05:42:50 GMT 2012  Olly Betts <olly@survex.com>
+	* matcher/multiandpostlist.cc: Don't count unweighted subqueries of
+	  MultiAndPostList for percentage calculations, as OP_FILTER maps to
+	  MultiAndPostList now.  (ticket#590)
+	* tests/api_percentages.cc: Regression test topercent6.
+
+trunk only:
+
+ 16448       olly Sat Mar 24 12:33:44 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/brass/brass_databasereplicator.cc: Fix signed vs unsigned
+	  comparison warning with GCC 4.4.3.
+
+ 16447       olly Sat Mar 24 12:26:13 GMT 2012  Olly Betts <olly@survex.com>
+	* include/xapian/queryparser.h,queryparser/queryparser_internal.h:
+	  Change the default stemming strategy to STEM_SOME, to eliminate
+	  the API gotcha that setting a stemmer is ignored until you also
+	  set a strategy.
+	* tests/queryparsertest.cc: Add testcase qp_defaultstrategysome1 to
+	  check that the default is STEM_SOME.
+
+ 16446       olly Fri Mar 23 04:29:32 GMT 2012  Olly Betts <olly@survex.com>
+	* tests/perftest/perftest.cc: Fix comment cut-and-paste error.
+
+ 16445       olly Fri Mar 23 04:28:24 GMT 2012  Olly Betts <olly@survex.com>
+	* Makefile.am: Use git commit hash in the title of a coverage report
+	  generated from a git tree.
+
+ 16441       olly Thu Mar 22 04:29:38 GMT 2012  Olly Betts <olly@survex.com>
+	* xapian-core.spec.in: Remove xapian-chert-update.
+
+ 16428    dcolish Sun Mar 18 23:24:04 GMT 2012  Dan Colish <dcolish@>
+	* backends/brass/brass_databasereplicator.cc: size out buffer to the
+	  incoming blocksize
+
+ 16427    dcolish Sun Mar 18 17:02:14 GMT 2012  Dan Colish <dcolish@>
+	* .gitignore: ignore /.deps as well
+
+ 16425    dcolish Sun Mar 18 16:46:45 GMT 2012  Dan Colish <dcolish@>
+	* .gitignore:Update gitignore for bump to libxapian-1.3
+
+ 16424       olly Sun Mar 18 04:37:37 GMT 2012  Olly Betts <olly@survex.com>
+	* configure.ac: Set LIBRARY_VERSION_SUFFIX to -1.3.
+
+ 16423    dcolish Sun Mar 18 00:48:05 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* backends/brass/,common/Makefile.mk, common/compression_stream.h,
+	  common/compression_stream.cc: Compress changesets in brass
+	  replication. Increments the changeset version. Ticket #348
+
+ 16421    dcolish Sun Mar 18 00:39:23 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* tests/.gitignore,tests/soaktest/.gitignore: Add additional ignores
+	  for test artifacts
+
+ 16419       olly Fri Mar 16 05:23:54 GMT 2012  Olly Betts <olly@survex.com>
+	* common/Makefile.mk: Missing part of previous change.
+
+ 16418       olly Fri Mar 16 04:59:53 GMT 2012  Olly Betts <olly@survex.com>
+	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
+	  and xapian.m4 to xapian-1.3.m4.
+
+Xapian-core 1.3.1 (2012-03-26):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.3.0 (2012-03-14):
 
 API:

@@ -1,3 +1,7 @@
+Tue Mar 27 08:30:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Sat Mar 24 12:33:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc: Fix signed vs unsigned
