@@ -1,3 +1,8 @@
+Wed Mar 28 08:05:13 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/termgentest.cc: Add test coverage for discarding of terms > 64
+	  bytes by TermGenerator.
+
 Tue Mar 27 21:07:07 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Note when Database::close() was added.

@@ -99,6 +99,11 @@ static const test test_simple[] = {
     { "", "c++ -d--", "Zc++:1 Zd:1 c++[1] d[2]" },
     { "", "cd'r toebehoren", "Zcd'r:1 Ztoebehoren:1 cd'r[1] toebehoren[2]" },
 
+    // Test discarding of terms > 64 bytes.
+    { "", "a REALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYLONG term",
+      "Za:1 Zreallyreallyreallyreallyreallyreallyreallyreallyreallyreallylong:1 Zterm:1 a[1] reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylong[2] term[3]" },
+    { "", "a REALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYLONGX term", "Za:1 Zterm:1 a[1] term[2]" },
+
     // In 1.1.4, ENCLOSING_MARK and COMBINING_SPACING_MARK were added, and
     // code to ignore several zero-width space characters was added.
     { "", "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80",
