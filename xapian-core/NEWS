@@ -530,7 +530,7 @@ brass backend:
 
 * If we try to delete an old base file and it isn't there, just continue rather
   than throwing an exception.  We wanted to get rid of it anyway, and it may be
-  NFS issues telling us the wrong thing.  In particular, DatabaseCoruptError
+  NFS issues telling us the wrong thing.  In particular, DatabaseCorruptError
   was rather a pessimistic assessment.
 
 chert backend:
@@ -545,7 +545,7 @@ chert backend:
 
 * If we try to delete an old base file and it isn't there, just continue rather
   than throwing an exception.  We wanted to get rid of it anyway, and it may be
-  NFS issues telling us the wrong thing.  In particular, DatabaseCoruptError
+  NFS issues telling us the wrong thing.  In particular, DatabaseCorruptError
   was rather a pessimistic assessment.
 
 flint backend:
@@ -558,7 +558,7 @@ flint backend:
 
 * If we try to delete an old base file and it isn't there, just continue rather
   than throwing an exception.  We wanted to get rid of it anyway, and it may be
-  NFS issues telling us the wrong thing.  In particular, DatabaseCoruptError
+  NFS issues telling us the wrong thing.  In particular, DatabaseCorruptError
   was rather a pessimistic assessment.
 
 remote backend:
