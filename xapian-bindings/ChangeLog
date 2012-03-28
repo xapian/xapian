@@ -1,3 +1,7 @@
+Wed Mar 28 09:22:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-head.i: Update for new deprecation macros.
+
 Fri Mar 23 00:42:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: More tests of geospatial API.

@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@
 
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
-#define XAPIAN_DEPRECATED_CLASS
 
 #include <xapian.h>
 
@@ -93,7 +92,9 @@ using namespace std;
 
 // Define these away for SWIG's parser.
 #define XAPIAN_DEPRECATED(D) D
+#define XAPIAN_DEPRECATED_EX(D) D
 #define XAPIAN_DEPRECATED_CLASS
+#define XAPIAN_DEPRECATED_CLASS_EX
 #define XAPIAN_VISIBILITY_DEFAULT
 
 // Ignore these which SWIG seems to add pointless type entries for due them
