@@ -1,3 +1,7 @@
+Wed Mar 28 09:54:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typos in another old entry.
+
 Wed Mar 28 09:53:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: DatabaseCoruptError -> DatabaseCorruptError in old entries.

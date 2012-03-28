@@ -1152,7 +1152,7 @@ brass backend:
 
 * New development backend.  Changes over chert:
 
-  + Batched posting list chances during index use significantly less memory.
+  + Batched posting list changes during indexing use significantly less memory.
 
   + Instead of using complex code to iterate modified posting lists and
     documents length lists, brass can flush individual such lists to disk
