@@ -39,7 +39,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include "svm.h"
+#include <svm.h>
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
 using namespace std;
@@ -593,7 +593,6 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
             int svm_type=svm_get_svm_type(model);
             int nr_class=svm_get_nr_class(model);
-            double *prob_estimates=NULL;
             
             if(predict_probability) {
                 if (svm_type==NU_SVR || svm_type==EPSILON_SVR)
@@ -601,7 +600,6 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
                 else {
                     int *labels=(int *) malloc(nr_class*sizeof(int));
                     svm_get_labels(model,labels);
-                    prob_estimates = (double *) malloc(nr_class*sizeof(double));		
                     free(labels);
                 }
             }
@@ -612,7 +610,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
             line = const_cast<char *>(test_case.c_str());
 
             int i = 0;
-            double target_label, predict_label;
+            double predict_label;
             char *idx, *val, *label, *endptr;
             int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
 
@@ -620,7 +618,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
             if(label == NULL) // empty line
                 exit_input_error(total+1);
 
-            target_label = strtod(label,&endptr);
+            (void)strtod(label,&endptr);
             if(endptr == label || *endptr != '\0')
                 exit_input_error(total+1);
 
@@ -809,6 +807,10 @@ Letor::Internal::letor_learn_model(int s_type, int k_type) {
 
     read_problem(input_file_name.c_str());
     error_msg = svm_check_parameter(&prob,&param);
+    if (error_msg) {
+        fprintf(stderr, "svm_check_parameter failed: %s\n", error_msg);
+        exit(1);
+    }
 
     model = svm_train(&prob,&param);
     if(svm_save_model(model_file_name.c_str(),model)) {
