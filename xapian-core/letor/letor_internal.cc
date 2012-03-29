@@ -618,7 +618,9 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
             if(label == NULL) // empty line
                 exit_input_error(total+1);
 
-            (void)strtod(label,&endptr);
+	    if (strtod(label,&endptr)) {
+		// Ignore the result (I guess we're just syntax checking the file?)
+	    }
             if(endptr == label || *endptr != '\0')
                 exit_input_error(total+1);
 
