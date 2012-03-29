@@ -24,7 +24,6 @@
 #include <xapian.h>
 #include <xapian/base.h>
 #include <xapian/types.h>
-#include <xapian/unicode.h>
 #include <xapian/visibility.h>
 
 #include <string>
