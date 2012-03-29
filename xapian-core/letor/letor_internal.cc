@@ -409,7 +409,7 @@ static void exit_input_error(int line_num) {
 static string convertDouble(double value) {
     std::ostringstream o;
     if (!(o << value))
-	return "";
+	return string();
     return o.str();
 }
 
@@ -421,7 +421,7 @@ static string convertInt(int number) {
 
 static string get_cwd() {
     char temp[MAXPATHLEN];
-    return ( getcwd(temp, MAXPATHLEN) ? std::string( temp ) : std::string("") );
+    return ( getcwd(temp, MAXPATHLEN) ? std::string( temp ) : std::string() );
 }
 
 
@@ -536,7 +536,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
     /* this is the place where we have to normalize the norm and after that store it in the file. */
 
-    if((int)norm.size()!=0) {
+    if (!norm.empty()) {
 	norm_outer=norm.begin();
 	norm_outer++;
 	int k=0;
@@ -910,7 +910,7 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 	List2 doc_ids;
 
 	getline (myfile1,str1);
-	if(str1.length()==0) {
+	if(str1.empty()) {
 	    break;
 	}
 
@@ -923,9 +923,9 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 	while(iss) {
 	    string t;
 	    iss >> t;
-	    if(t=="")
+	    if(t.empty())
 		break;
-	    string temp="";
+	    string temp;
 	    temp.append(title);
 	    temp.append(t);
 	    temp.append(" ");
@@ -1047,7 +1047,7 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 	/* this is the place where we have to normalize the norm and after that store it in the file. */
 
 
-	if((int)norm.size()!=0) {
+	if (!norm.empty()) {
 	    norm_outer=norm.begin();
 	    norm_outer++;
 	    int k=0;
