@@ -154,19 +154,11 @@ Letor::Internal::collection_length(const Xapian::Database & db) {
         len["whole"] = atol(db.get_metadata("collection_len_whole").c_str());
     }
     else {
-        Xapian::TermIterator dt,dt_end;
-
-        dt=db.allterms_begin();
-        dt_end=db.allterms_end();
-
-        dt.skip_to("S");
-        long int temp_count=0;
-        for(;dt!=dt_end;++dt) {
-            if((*dt).substr(0,1)=="S")
-                temp_count+=db.get_collection_freq(*dt);	//	because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
-            else
-                break;	
-        }
+	long int temp_count=0;
+	Xapian::TermIterator dt = db.allterms_begin("S");
+	for( ; dt!=db.allterms_end("S"); ++dt) {
+	    temp_count+=db.get_collection_freq(*dt);	//	because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
+	}
         len["title"]=temp_count;
         len["whole"]=db.get_avlength() * db.get_doccount();
         len["body"]=len["whole"] - len["title"];
