@@ -886,207 +886,207 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 
     while ( !myfile1.eof()) {           //reading all the queries line by line from the query file
 
-    typedef list<double> List1;		//the values of a particular feature for MSet documents will be stored in the list
-    typedef map<int,List1> Map3;	//the above list will be mapped to an integer with its feature id.
+	typedef list<double> List1;		//the values of a particular feature for MSet documents will be stored in the list
+	typedef map<int,List1> Map3;	//the above list will be mapped to an integer with its feature id.
 
-	/* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
-	 *
-	 * 1  -> 32.12 - 23.12 - 43.23 - 12.12 - 65.23
-	 * 2  -> 31.23 - 21.43 - 33.99 - 65.23 - 22.22
-	 * 3  -> 1.21 - 3.12 - 2.23 - 6.32 - 4.23
-	 *
-	 * And after that we divide the whole list by the maximum value for that feature in all the 5 documents
-	 * So we divide the values of Feature 1 in above case by 65.23 and hence all the values of that features for that query
-	 * will belongs to [0,1] and is known as Query level Norm
-	 */
+	    /* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
+	     *
+	     * 1  -> 32.12 - 23.12 - 43.23 - 12.12 - 65.23
+	     * 2  -> 31.23 - 21.43 - 33.99 - 65.23 - 22.22
+	     * 3  -> 1.21 - 3.12 - 2.23 - 6.32 - 4.23
+	     *
+	     * And after that we divide the whole list by the maximum value for that feature in all the 5 documents
+	     * So we divide the values of Feature 1 in above case by 65.23 and hence all the values of that features for that query
+	     * will belongs to [0,1] and is known as Query level Norm
+	     */
 
 
-    Map3 norm;
+	Map3 norm;
 
-    map< int, list<double> >::iterator norm_outer;
-    list<double>::iterator norm_inner;
+	map< int, list<double> >::iterator norm_outer;
+	list<double>::iterator norm_inner;
 
-    typedef list<string> List2;
-    List2 doc_ids;
+	typedef list<string> List2;
+	List2 doc_ids;
 
-    getline (myfile1,str1);
-    if(str1.length()==0) {
-	break;
-    }
-
-    string qid= str1.substr(0,(int)str1.find(" "));
-    string querystr = str1.substr((int)str1.find("'")+1,(str1.length() - ((int)str1.find("'")+2)));
-
-    string qq=querystr;
-    istringstream iss(querystr);
-    string title="title:";
-    while(iss) {
-	string t;
-	iss >> t;
-	if(t=="")
+	getline (myfile1,str1);
+	if(str1.length()==0) {
 	    break;
-	string temp="";
-	temp.append(title);
-	temp.append(t);
-	temp.append(" ");
-	temp.append(qq);
-	qq=temp;
-    }
-    cout<<"Processing Query: "<<qq<<"\n";
-
-
-    Xapian::Query query = parser.parse_query(qq,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION);
-
-    Xapian::Enquire enquire(letor_db);
-    enquire.set_query(query);
-
-    Xapian::MSet mset = enquire.get_mset(0, msize);
-
-    Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
-    Xapian::PostingIterator p,pend;
-
-    Xapian::Letor ltr;
-
-    map<string,long int> coll_tf;
-    coll_tf=collection_termfreq(letor_db,query);
-
-    map<string,double> idf;
-    idf=inverse_doc_freq(letor_db,query);
-
-    int first=1;    //used as a flag in QueryLevelNorm and module
-
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
-	Xapian::Document doc = i.get_document();
-
-	map<string,long int> tf;
-	tf=termfreq(doc,query);
-
-	map<string, long int> doclen;
-	doclen=doc_length(letor_db,doc);
-
-	qt=query.get_terms_begin();
-	qt_end=query.get_terms_end();
-
-	double f[20];
-
-	f[1]=calculate_f1(query,tf,'t');
-	f[2]=calculate_f1(query,tf,'b');
-	f[3]=calculate_f1(query,tf,'w');
-
-	f[4]=calculate_f2(query,tf,doclen,'t');
-	f[5]=calculate_f2(query,tf,doclen,'b');
-	f[6]=calculate_f2(query,tf,doclen,'w');
-
-	f[7]=calculate_f3(query,idf,'t');
-	f[8]=calculate_f3(query,idf,'b');
-	f[9]=calculate_f3(query,idf,'w');
-
-	f[10]=calculate_f4(query,coll_tf,coll_len,'t');
-	f[11]=calculate_f4(query,coll_tf,coll_len,'b');
-	f[12]=calculate_f4(query,coll_tf,coll_len,'w');
-
-	f[13]=calculate_f5(query,tf,idf,doclen,'t');
-	f[14]=calculate_f5(query,tf,idf,doclen,'b');
-	f[15]=calculate_f5(query,tf,idf,doclen,'w');
-
-	f[16]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'t');
-	f[17]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'b');
-	f[18]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'w');
-
-	f[19]=i.get_weight();
-
-	string data = doc.get_data();
-
-	string temp_id = data.substr(data.find("url=",0),(data.find("sample=",0) - data.find("url=",0)));
-
-	string id=temp_id.substr(temp_id.rfind('/')+1,(temp_id.rfind('.')- temp_id.rfind('/')-1));  //to parse the actual document name associated with the documents if any
-
-
-	outerit=qrel.find(qid);
-	if(outerit!=qrel.end()) {
-	    innerit = outerit->second.find(id);
-	    if(innerit!=outerit->second.end()) {
-		int q1=innerit->second;
-		cout<<q1<<" Qid:"<<qid<<" #docid:"<<id<<"\n";
-
-		/* This module will make the data structure to store the whole features values for
-		 * all the documents for a particular query along with its relevance judgements
-		 */
-
-		if(first==1) {
-		    List1 l;
-		    l.push_back((double)q1);
-		    norm.insert(pair<int , list<double> > (0,l));
-		    doc_ids.push_back(id);
-		    for(int j=1;j<20;j++) {
-			List1 l1;
-			l1.push_back(f[j]);
-			norm.insert(pair <int , list<double> > (j,l1));
-		    }
-		    first=0;
-		}
-		else {
-		    norm_outer=norm.begin();
-		    norm_outer->second.push_back(q1);
-		    norm_outer++;
-		    doc_ids.push_back(id);
-		    int k=1;
-		    for(;norm_outer!=norm.end();norm_outer++) {
-			norm_outer->second.push_back(f[k]);
-			k++;
-		    }
-		}
-	    }
 	}
 
-    }//for closed
+	string qid= str1.substr(0,(int)str1.find(" "));
+	string querystr = str1.substr((int)str1.find("'")+1,(str1.length() - ((int)str1.find("'")+2)));
 
-
-    /* this is the place where we have to normalize the norm and after that store it in the file. */
-
-
-    if((int)norm.size()!=0) {
-	norm_outer=norm.begin();
-	norm_outer++;
-	int k=0;
-	for(;norm_outer!=norm.end();++norm_outer) {
-	    k=0;
-	    double max= norm_outer->second.front();
-	    for(norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
-		if(*norm_inner > max)
-		    max = *norm_inner;
-	    }
-	    for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
-		if(max!=0)
-		    *norm_inner /= max;
-		k++;
-	    }
+	string qq=querystr;
+	istringstream iss(querystr);
+	string title="title:";
+	while(iss) {
+	    string t;
+	    iss >> t;
+	    if(t=="")
+		break;
+	    string temp="";
+	    temp.append(title);
+	    temp.append(t);
+	    temp.append(" ");
+	    temp.append(qq);
+	    qq=temp;
 	}
+	cout<<"Processing Query: "<<qq<<"\n";
 
-	int i=0,j=0;
-	while(i<k) {
-	    j=0;
+
+	Xapian::Query query = parser.parse_query(qq,
+						 parser.FLAG_DEFAULT|
+						 parser.FLAG_SPELLING_CORRECTION);
+
+	Xapian::Enquire enquire(letor_db);
+	enquire.set_query(query);
+
+	Xapian::MSet mset = enquire.get_mset(0, msize);
+
+	Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
+	Xapian::PostingIterator p,pend;
+
+	Xapian::Letor ltr;
+
+	map<string,long int> coll_tf;
+	coll_tf=collection_termfreq(letor_db,query);
+
+	map<string,double> idf;
+	idf=inverse_doc_freq(letor_db,query);
+
+	int first=1;    //used as a flag in QueryLevelNorm and module
+
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+	    Xapian::Document doc = i.get_document();
+
+	    map<string,long int> tf;
+	    tf=termfreq(doc,query);
+
+	    map<string, long int> doclen;
+	    doclen=doc_length(letor_db,doc);
+
+	    qt=query.get_terms_begin();
+	    qt_end=query.get_terms_end();
+
+	    double f[20];
+
+	    f[1]=calculate_f1(query,tf,'t');
+	    f[2]=calculate_f1(query,tf,'b');
+	    f[3]=calculate_f1(query,tf,'w');
+
+	    f[4]=calculate_f2(query,tf,doclen,'t');
+	    f[5]=calculate_f2(query,tf,doclen,'b');
+	    f[6]=calculate_f2(query,tf,doclen,'w');
+
+	    f[7]=calculate_f3(query,idf,'t');
+	    f[8]=calculate_f3(query,idf,'b');
+	    f[9]=calculate_f3(query,idf,'w');
+
+	    f[10]=calculate_f4(query,coll_tf,coll_len,'t');
+	    f[11]=calculate_f4(query,coll_tf,coll_len,'b');
+	    f[12]=calculate_f4(query,coll_tf,coll_len,'w');
+
+	    f[13]=calculate_f5(query,tf,idf,doclen,'t');
+	    f[14]=calculate_f5(query,tf,idf,doclen,'b');
+	    f[15]=calculate_f5(query,tf,idf,doclen,'w');
+
+	    f[16]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'t');
+	    f[17]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'b');
+	    f[18]=calculate_f6(query,tf,doclen,coll_tf,coll_len,'w');
+
+	    f[19]=i.get_weight();
+
+	    string data = doc.get_data();
+
+	    string temp_id = data.substr(data.find("url=",0),(data.find("sample=",0) - data.find("url=",0)));
+
+	    string id=temp_id.substr(temp_id.rfind('/')+1,(temp_id.rfind('.')- temp_id.rfind('/')-1));  //to parse the actual document name associated with the documents if any
+
+
+	    outerit=qrel.find(qid);
+	    if(outerit!=qrel.end()) {
+		innerit = outerit->second.find(id);
+		if(innerit!=outerit->second.end()) {
+		    int q1=innerit->second;
+		    cout<<q1<<" Qid:"<<qid<<" #docid:"<<id<<"\n";
+
+		    /* This module will make the data structure to store the whole features values for
+		     * all the documents for a particular query along with its relevance judgements
+		     */
+
+		    if(first==1) {
+			List1 l;
+			l.push_back((double)q1);
+			norm.insert(pair<int , list<double> > (0,l));
+			doc_ids.push_back(id);
+			for(int j=1;j<20;j++) {
+			    List1 l1;
+			    l1.push_back(f[j]);
+			    norm.insert(pair <int , list<double> > (j,l1));
+			}
+			first=0;
+		    }
+		    else {
+			norm_outer=norm.begin();
+			norm_outer->second.push_back(q1);
+			norm_outer++;
+			doc_ids.push_back(id);
+			int k=1;
+			for(;norm_outer!=norm.end();norm_outer++) {
+			    norm_outer->second.push_back(f[k]);
+			    k++;
+			}
+		    }
+		}
+	    }
+
+	}//for closed
+
+
+	/* this is the place where we have to normalize the norm and after that store it in the file. */
+
+
+	if((int)norm.size()!=0) {
 	    norm_outer=norm.begin();
-	    train_file << norm_outer->second.front();
-	    norm_outer->second.pop_front();
 	    norm_outer++;
-	    j++;
-//Uncomment the line below if you want 'Qid' in the training file
-//          train_file <<" qid:"<<qid;
+	    int k=0;
 	    for(;norm_outer!=norm.end();++norm_outer) {
-		train_file << " "<<j<<":"<<norm_outer->second.front();
-		norm_outer->second.pop_front();
-		j++;
+		k=0;
+		double max= norm_outer->second.front();
+		for(norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
+		    if(*norm_inner > max)
+			max = *norm_inner;
+		}
+		for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
+		    if(max!=0)
+			*norm_inner /= max;
+		    k++;
+		}
 	    }
-//Uncomment the line below if you want 'DocID' in the training file
-//          train_file<<" #docid:"<<doc_ids.front();
-	    train_file<<"\n";
-	    doc_ids.pop_front();
-	    i++;
-	}
-    } // if closed
+
+	    int i=0,j=0;
+	    while(i<k) {
+		j=0;
+		norm_outer=norm.begin();
+		train_file << norm_outer->second.front();
+		norm_outer->second.pop_front();
+		norm_outer++;
+		j++;
+    //Uncomment the line below if you want 'Qid' in the training file
+    //          train_file <<" qid:"<<qid;
+		for(;norm_outer!=norm.end();++norm_outer) {
+		    train_file << " "<<j<<":"<<norm_outer->second.front();
+		    norm_outer->second.pop_front();
+		    j++;
+		}
+    //Uncomment the line below if you want 'DocID' in the training file
+    //          train_file<<" #docid:"<<doc_ids.front();
+		train_file<<"\n";
+		doc_ids.pop_front();
+		i++;
+	    }
+	} // if closed
 
     }//while closed
     myfile1.close();
