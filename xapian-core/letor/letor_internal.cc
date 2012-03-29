@@ -86,16 +86,16 @@ Letor::Internal::termfreq(const Xapian::Document & doc,const Xapian::Query & que
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    for(;qt!=qt_end;++qt) {
+    for (;qt!=qt_end;++qt) {
 	docterms=doc.termlist_begin();
 	docterms_end=doc.termlist_end();
 
 	docterms.skip_to(*qt);
-	if(docterms!=docterms_end && *qt==*docterms) {
+	if (docterms!=docterms_end && *qt==*docterms) {
 	    tf[*qt]=docterms.get_wdf();
-	}
-	else
+	} else {
 	    tf[*qt]=0;
+	}
     }
     return tf;
 }
@@ -109,14 +109,14 @@ Letor::Internal::inverse_doc_freq(const Xapian::Database & db,const Xapian::Quer
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    for(;qt!=qt_end;++qt) {
-	if(db.term_exists(*qt)) {
+    for (;qt!=qt_end;++qt) {
+	if (db.term_exists(*qt)) {
 	    long int totaldocs=db.get_doccount();
 	    long int df=db.get_termfreq(*qt);
 	    idf[*qt]=log10(totaldocs/(1+df));
-	}
-	else
+	} else {
 	    idf[*qt]=0;
+	}
     }
     return idf;
 }
@@ -132,8 +132,8 @@ Letor::Internal::doc_length(const Xapian::Database & db, const Xapian::Document 
 
     dt.skip_to("S");                 //reach the iterator to the start of the title terms i.e. prefix "S"
     long int temp_count=0;
-    for(;dt!=dt_end;++dt) {
-	if((*dt).substr(0,1)=="S")
+    for (;dt!=dt_end;++dt) {
+	if ((*dt).substr(0,1)=="S")
 	    temp_count+=dt.get_wdf();
 	else
 	    break;          //so other terms have started appearing
@@ -148,15 +148,14 @@ map<string,long int>
 Letor::Internal::collection_length(const Xapian::Database & db) {
     map<string,long int> len;
 
-    if(!db.get_metadata("collection_len_title").empty() && !db.get_metadata("collection_len_body").empty() && !db.get_metadata("collection_len_whole").empty()) {
+    if (!db.get_metadata("collection_len_title").empty() && !db.get_metadata("collection_len_body").empty() && !db.get_metadata("collection_len_whole").empty()) {
 	len["title"]=atol(db.get_metadata("collection_len_title").c_str());
 	len["body"] = atol(db.get_metadata("collection_len_body").c_str());
 	len["whole"] = atol(db.get_metadata("collection_len_whole").c_str());
-    }
-    else {
+    } else {
 	long int temp_count=0;
 	Xapian::TermIterator dt = db.allterms_begin("S");
-	for( ; dt!=db.allterms_end("S"); ++dt) {
+	for ( ; dt!=db.allterms_end("S"); ++dt) {
 	    temp_count+=db.get_collection_freq(*dt);	//	because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
 	}
 	len["title"]=temp_count;
@@ -176,8 +175,8 @@ Letor::Internal::collection_termfreq(const Xapian::Database & db, const Xapian::
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    for(;qt!=qt_end;++qt) {
-	if(db.term_exists(*qt))
+    for (;qt!=qt_end;++qt) {
+	if (db.term_exists(*qt))
 	    tf[*qt]=db.get_collection_freq(*qt);
 	else
 	    tf[*qt]=0;
@@ -194,29 +193,25 @@ Letor::Internal::calculate_f1(const Xapian::Query & query, map<string,long int> 
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    if(ch=='t') {           // if feature1 for title
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
+    if (ch=='t') {           // if feature1 for title
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
 		value+=log10(1+tf[*qt]);       // always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
-	    }
-	    else            // if there is no title information stored with standart "S" prefix
+	    } else            // if there is no title information stored with standart "S" prefix
 		value+=0;
 	}
 	return value;
 
-    }
-    else if(ch=='b') {              //  if for body only
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
+    } else if (ch=='b') {              //  if for body only
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
 		value+=log10(1+tf[*qt]);      //  always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else {                         //   if for whole document
-	for(;qt!=qt_end;++qt) {
+    } else {                         //   if for whole document
+	for (;qt!=qt_end;++qt) {
 	    value+=log10(1+tf[*qt]);      //  always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
 	}
 	return value;
@@ -232,24 +227,22 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string,long int> 
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    if(ch=='t') {            //if feature1 for title then
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
+    if (ch=='t') {            //if feature1 for title then
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
 		value+=log10(1+((double)tf[*qt]/(1+(double)doc_len["title"])));        //always use log10(1+quantity) because log(1)= 0 and log(0) = -inf
 	    }
 	}
 	return value;
-    }
-    else if(ch=='b') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
+    } else if (ch=='b') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
 		value+=log10(1+((double)tf[*qt]/(1+(double)doc_len["body"])));
 	    }
 	}
 	return value;
-    }
-    else {
-	for(;qt!=qt_end;++qt) {
+    } else {
+	for (;qt!=qt_end;++qt) {
 	    value+=log10(1+((double)tf[*qt]/(1+(double)doc_len["whole"])));
 	}
 	return value;
@@ -264,28 +257,24 @@ Letor::Internal::calculate_f3(const Xapian::Query & query, map<string,double> & 
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    if(ch=='t')	{
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
+    if (ch=='t')	{
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
 		value+=log10(1+idf[*qt]);
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else if(ch=='b') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
+    } else if (ch=='b') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
 		value+=log10(1+idf[*qt]);
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else {
-	for(;qt!=qt_end;++qt) {
+    } else {
+	for (;qt!=qt_end;++qt) {
 	    value+=log10(1+idf[*qt]);
 	}
 	return value;
@@ -299,28 +288,24 @@ Letor::Internal::calculate_f4(const Xapian::Query & query, map<string,long int> 
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    if(ch=='t')	{
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
+    if (ch=='t')	{
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
 		value+=log10(1+((double)coll_len["title"]/(double)(1+tf[*qt])));
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else if(ch=='b') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
+    } else if (ch=='b') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
 		value+=log10(1+((double)coll_len["body"]/(double)(1+tf[*qt])));
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else {
-	for(;qt!=qt_end;++qt) {
+    } else {
+	for (;qt!=qt_end;++qt) {
 	    value+=log10(1+((double)coll_len["whole"]/(double)(1+tf[*qt])));
 	}
 	return value;
@@ -336,28 +321,24 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string,long int> 
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    if(ch=='t') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
+    if (ch=='t') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
 		value+=log10(1+((double)(tf[*qt] * idf[*qt])/(1+(double)doc_len["title"])));    //      1+doc_len because if title info is not available then doc_len["title"] will be zero.
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else if(ch=='b') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
+    } else if (ch=='b') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
 		value+=log10(1+((double)(tf[*qt] * idf[*qt])/(1+(double)doc_len["body"])));
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else {
-	for(;qt!=qt_end;++qt) {
+    } else {
+	for (;qt!=qt_end;++qt) {
 	    value+=log10(1+((double)(tf[*qt] * idf[*qt])/(1+(double)doc_len["whole"])));
 	}
 	return value;
@@ -372,28 +353,24 @@ Letor::Internal::calculate_f6(const Xapian::Query & query, map<string,long int> 
     qt=query.get_terms_begin();
     qt_end=query.get_terms_end();
 
-    if(ch=='t') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
+    if (ch=='t') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)=="S" || (*qt).substr(1,1)=="S") {
 		value+=log10(1+(((double)tf[*qt] * (double)coll_length["title"])/(double)(1+((double)doc_len["title"] * (double)coll_tf[*qt]))));
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else if(ch=='b') {
-	for(;qt!=qt_end;++qt) {
-	    if((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
+    } else if (ch=='b') {
+	for (;qt!=qt_end;++qt) {
+	    if ((*qt).substr(0,1)!="S" && (*qt).substr(1,1)!="S") {
 		value+=log10(1+(((double)tf[*qt] * (double)coll_length["body"])/(double)(1+((double)doc_len["body"] * (double)coll_tf[*qt]))));
-	    }
-	    else
+	    } else
 		value+=0;
 	}
 	return value;
-    }
-    else {
-	for(;qt!=qt_end;++qt) {
+    } else {
+	for (;qt!=qt_end;++qt) {
 	    value+=log10(1+(((double)tf[*qt] * (double)coll_length["whole"])/(double)(1+((double)doc_len["whole"] * (double)coll_tf[*qt]))));
 	}
 	return value;
@@ -516,18 +493,17 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	 * all the documents for a particular query along with its relevance judgements
 	 */
 
-	if(first==1) {
-	    for(int j=1;j<20;j++) {
+	if (first==1) {
+	    for (int j=1;j<20;j++) {
 		List1 l;
 		l.push_back(f[j]);
 		norm.insert(pair <int , list<double> > (j,l));
 	    }
 	    first=0;
-	}
-	else {
+	} else {
 	    norm_outer=norm.begin();
 	    int k=1;
-	    for(;norm_outer!=norm.end();norm_outer++) {
+	    for (;norm_outer!=norm.end();norm_outer++) {
 		norm_outer->second.push_back(f[k]);
 		k++;
 	    }
@@ -540,15 +516,15 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	norm_outer=norm.begin();
 	norm_outer++;
 	int k=0;
-	for(;norm_outer!=norm.end();++norm_outer) {
+	for (;norm_outer!=norm.end();++norm_outer) {
 	    k=0;
 	    double max= norm_outer->second.front();
-	    for(norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
-		if(*norm_inner > max)
+	    for (norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
+		if (*norm_inner > max)
 		    max = *norm_inner;
 	    }
 	    for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
-		if(max!=0)      // sometimes value for whole feature is 0 and hence it may cause 'divide-by-zero'
+		if (max!=0)      // sometimes value for whole feature is 0 and hence it may cause 'divide-by-zero'
 		    *norm_inner /= max;
 		k++;
 	    }
@@ -557,14 +533,14 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	int xx=0,j=0;
 	Xapian::MSetIterator mset_iter = mset.begin();
 	Xapian::Document doc;
-	while(xx<k) {
+	while (xx<k) {
 	    doc = mset_iter.get_document();
 
 	    string test_case = "0 ";
 	    j=0;
 	    norm_outer=norm.begin();
 	    j++;
-	    for(;norm_outer!=norm.end();++norm_outer) {
+	    for (;norm_outer!=norm.end();++norm_outer) {
 		test_case.append(convertInt(j));
 		test_case.append(":");
 		test_case.append(convertDouble(norm_outer->second.front()));
@@ -586,10 +562,10 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	    int svm_type=svm_get_svm_type(model);
 	    int nr_class=svm_get_nr_class(model);
 
-	    if(predict_probability) {
-		if (svm_type==NU_SVR || svm_type==EPSILON_SVR)
+	    if (predict_probability) {
+		if (svm_type==NU_SVR || svm_type==EPSILON_SVR) {
 		    printf("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n",svm_get_svr_probability(model));
-		else {
+		} else {
 		    int *labels=(int *) malloc(nr_class*sizeof(int));
 		    svm_get_labels(model,labels);
 		    free(labels);
@@ -607,17 +583,17 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	    int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
 
 	    label = strtok(line," \t\n");
-	    if(label == NULL) // empty line
+	    if (label == NULL) // empty line
 		exit_input_error(total+1);
 
 	    if (strtod(label,&endptr)) {
 		// Ignore the result (I guess we're just syntax checking the file?)
 	    }
-	    if(endptr == label || *endptr != '\0')
+	    if (endptr == label || *endptr != '\0')
 		exit_input_error(total+1);
 
-	    while(1) {
-		if(i>=max_nr_attr-1) {	// need one more for index = -1
+	    while (1) {
+		if (i>=max_nr_attr-1) {	// need one more for index = -1
 		    max_nr_attr *= 2;
 		    x = (struct svm_node *) realloc(x,max_nr_attr*sizeof(struct svm_node));
 		}
@@ -625,19 +601,19 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 		idx = strtok(NULL,":");
 		val = strtok(NULL," \t");
 
-		if(val == NULL)
+		if (val == NULL)
 		    break;
 		errno = 0;
 		x[i].index = (int) strtol(idx,&endptr,10);
 
-		if(endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
+		if (endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
 			exit_input_error(total+1);
 		else
 			inst_max_index = x[i].index;
 
 		errno = 0;
 		x[i].value = strtod(val,&endptr);
-		if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
+		if (endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
 			exit_input_error(total+1);
 		++i;
 	    }
@@ -661,14 +637,14 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 static char* readline(FILE *input) {
     int len;
 
-    if(fgets(line,max_line_len,input) == NULL)
+    if (fgets(line,max_line_len,input) == NULL)
 	return NULL;
 
-    while(strrchr(line,'\n') == NULL) {
+    while (strrchr(line,'\n') == NULL) {
 	max_line_len *= 2;
 	line = (char *) realloc(line,max_line_len);
 	len = (int) strlen(line);
-	if(fgets(line+len,max_line_len-len,input) == NULL)
+	if (fgets(line+len,max_line_len-len,input) == NULL)
 	    break;
     }
     return line;
@@ -681,7 +657,7 @@ static void read_problem(const char *filename) {
     char *endptr;
     char *idx, *val, *label;
 
-    if(fp == NULL) {
+    if (fp == NULL) {
 	fprintf(stderr,"can't open input file %s\n",filename);
 	exit(1);
     }
@@ -692,13 +668,13 @@ static void read_problem(const char *filename) {
     max_line_len = 1024;
     line = Malloc(char,max_line_len);
 
-    while(readline(fp)!=NULL) {
+    while (readline(fp)!=NULL) {
 	char *p = strtok(line," \t"); // label
 
 	// features
-	while(1) {
+	while (1) {
 	    p = strtok(NULL," \t");
-	    if(p == NULL || *p == '\n') // check '\n' as ' ' may be after the last feature
+	    if (p == NULL || *p == '\n') // check '\n' as ' ' may be after the last feature
 		break;
 	    ++elements;
 	}
@@ -714,28 +690,28 @@ static void read_problem(const char *filename) {
     max_index = 0;
     j=0;
 
-    for(i=0;i<prob.l;i++) {
+    for (i=0;i<prob.l;i++) {
 	inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
 	readline(fp);
 	prob.x[i] = &x_space[j];
 	label = strtok(line," \t\n");
-	if(label == NULL) // empty line
+	if (label == NULL) // empty line
 	    exit_input_error(i+1);
 	prob.y[i] = strtod(label,&endptr);
-	if(endptr == label || *endptr != '\0')
+	if (endptr == label || *endptr != '\0')
 	    exit_input_error(i+1);
 
-	while(1) {
+	while (1) {
 	    idx = strtok(NULL,":");
 	    val = strtok(NULL," \t");
 
-	    if(val == NULL)
+	    if (val == NULL)
 		break;
 
 	    errno = 0;
 	    x_space[j].index = (int) strtol(idx,&endptr,10);
 
-	    if(endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
+	    if (endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
 		exit_input_error(i+1);
 	    else
 		inst_max_index = x_space[j].index;
@@ -743,22 +719,22 @@ static void read_problem(const char *filename) {
 	    errno = 0;
 	    x_space[j].value = strtod(val,&endptr);
 
-	    if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
+	    if (endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
 		exit_input_error(i+1);
 
 	    ++j;
 	}
 
-	if(inst_max_index > max_index)
+	if (inst_max_index > max_index)
 	    max_index = inst_max_index;
 	x_space[j++].index = -1;
     }
 
-    if(param.gamma == 0 && max_index > 0)
+    if (param.gamma == 0 && max_index > 0)
 	param.gamma = 1.0/max_index;
 
-    if(param.kernel_type == PRECOMPUTED)
-	for(i=0;i<prob.l;i++) {
+    if (param.kernel_type == PRECOMPUTED)
+	for (i=0;i<prob.l;i++) {
 	    if (prob.x[i][0].index != 0) {
 		fprintf(stderr,"Wrong input format: first column must be 0:sample_serial_number\n");
 		exit(1);
@@ -807,7 +783,7 @@ Letor::Internal::letor_learn_model(int s_type, int k_type) {
     }
 
     model = svm_train(&prob,&param);
-    if(svm_save_model(model_file_name.c_str(),model)) {
+    if (svm_save_model(model_file_name.c_str(),model)) {
 	fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
 	exit(1);
     }
@@ -910,7 +886,7 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 	List2 doc_ids;
 
 	getline (myfile1,str1);
-	if(str1.empty()) {
+	if (str1.empty()) {
 	    break;
 	}
 
@@ -920,10 +896,10 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 	string qq=querystr;
 	istringstream iss(querystr);
 	string title="title:";
-	while(iss) {
+	while (iss) {
 	    string t;
 	    iss >> t;
-	    if(t.empty())
+	    if (t.empty())
 		break;
 	    string temp;
 	    temp.append(title);
@@ -1005,9 +981,9 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 
 
 	    outerit=qrel.find(qid);
-	    if(outerit!=qrel.end()) {
+	    if (outerit!=qrel.end()) {
 		innerit = outerit->second.find(id);
-		if(innerit!=outerit->second.end()) {
+		if (innerit!=outerit->second.end()) {
 		    int q1=innerit->second;
 		    cout<<q1<<" Qid:"<<qid<<" #docid:"<<id<<"\n";
 
@@ -1015,25 +991,24 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 		     * all the documents for a particular query along with its relevance judgements
 		     */
 
-		    if(first==1) {
+		    if (first==1) {
 			List1 l;
 			l.push_back((double)q1);
 			norm.insert(pair<int , list<double> > (0,l));
 			doc_ids.push_back(id);
-			for(int j=1;j<20;j++) {
+			for (int j=1;j<20;j++) {
 			    List1 l1;
 			    l1.push_back(f[j]);
 			    norm.insert(pair <int , list<double> > (j,l1));
 			}
 			first=0;
-		    }
-		    else {
+		    } else {
 			norm_outer=norm.begin();
 			norm_outer->second.push_back(q1);
 			norm_outer++;
 			doc_ids.push_back(id);
 			int k=1;
-			for(;norm_outer!=norm.end();norm_outer++) {
+			for (;norm_outer!=norm.end();norm_outer++) {
 			    norm_outer->second.push_back(f[k]);
 			    k++;
 			}
@@ -1047,46 +1022,45 @@ Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_f
 	/* this is the place where we have to normalize the norm and after that store it in the file. */
 
 
-	if (!norm.empty()) {
-	    norm_outer=norm.begin();
-	    norm_outer++;
-	    int k=0;
-	    for(;norm_outer!=norm.end();++norm_outer) {
-		k=0;
-		double max= norm_outer->second.front();
-		for(norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
-		    if(*norm_inner > max)
-			max = *norm_inner;
-		}
-		for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
-		    if(max!=0)
-			*norm_inner /= max;
-		    k++;
-		}
-	    }
+	if (norm.empty())
+	    continue;
 
-	    int i=0,j=0;
-	    while(i<k) {
-		j=0;
-		norm_outer=norm.begin();
-		train_file << norm_outer->second.front();
-		norm_outer->second.pop_front();
-		norm_outer++;
-		j++;
-    //Uncomment the line below if you want 'Qid' in the training file
-    //          train_file <<" qid:"<<qid;
-		for(;norm_outer!=norm.end();++norm_outer) {
-		    train_file << " "<<j<<":"<<norm_outer->second.front();
-		    norm_outer->second.pop_front();
-		    j++;
-		}
-    //Uncomment the line below if you want 'DocID' in the training file
-    //          train_file<<" #docid:"<<doc_ids.front();
-		train_file<<"\n";
-		doc_ids.pop_front();
-		i++;
+	norm_outer=norm.begin();
+	norm_outer++;
+	int k=0;
+	for (;norm_outer!=norm.end();++norm_outer) {
+	    k=0;
+	    double max= norm_outer->second.front();
+	    for (norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
+		if (*norm_inner > max)
+		    max = *norm_inner;
 	    }
-	} // if closed
+	    for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
+		if (max!=0)
+		    *norm_inner /= max;
+		k++;
+	    }
+	}
+
+	for (int i = 0; i < k; ++i) {
+	    int j=0;
+	    norm_outer=norm.begin();
+	    train_file << norm_outer->second.front();
+	    norm_outer->second.pop_front();
+	    norm_outer++;
+	    j++;
+//Uncomment the line below if you want 'Qid' in the training file
+//          train_file <<" qid:"<<qid;
+	    for (;norm_outer!=norm.end();++norm_outer) {
+		train_file << " "<<j<<":"<<norm_outer->second.front();
+		norm_outer->second.pop_front();
+		j++;
+	    }
+//Uncomment the line below if you want 'DocID' in the training file
+//          train_file<<" #docid:"<<doc_ids.front();
+	    train_file<<"\n";
+	    doc_ids.pop_front();
+	}
 
     }//while closed
     myfile1.close();
