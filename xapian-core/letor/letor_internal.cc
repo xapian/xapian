@@ -23,6 +23,7 @@
 
 #include "letor_internal.h"
 #include <xapian/error.h>
+#include "str.h"
 #include "stringutils.h"
 
 #include <algorithm>
@@ -370,12 +371,6 @@ static string convertDouble(double value) {
     return o.str();
 }
 
-static string convertInt(int number) {
-    stringstream ss;//create a stringstream
-    ss << number;//add number to the stream
-    return ss.str();//return a string with the contents of the stream
-}
-
 static string get_cwd() {
     char temp[MAXPATHLEN];
     return ( getcwd(temp, MAXPATHLEN) ? std::string( temp ) : std::string() );
@@ -515,7 +510,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	    norm_outer=norm.begin();
 	    j++;
 	    for (;norm_outer!=norm.end();++norm_outer) {
-		test_case.append(convertInt(j));
+		test_case.append(str(j));
 		test_case.append(":");
 		test_case.append(convertDouble(norm_outer->second.front()));
 		test_case.append(" ");
