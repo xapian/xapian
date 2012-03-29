@@ -186,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  msize   This is the msize used for the first retrieval for training queries. It should be selected depending on te qrel file
      *          and database size.
      */
-    void prepare_training_file(std::string query_file, std::string qrel_file, int msize);
+    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, int msize);
 };
 
 }

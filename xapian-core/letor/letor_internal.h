@@ -61,7 +61,7 @@ class Letor::Internal : public Xapian::Internal::RefCntBase {
 
     void letor_learn_model(int svm_type, int kernel_type);
 
-    void prepare_training_file(std::string query_file, std::string qrel_file, int msetsize);
+    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, int msetsize);
 
 };
 

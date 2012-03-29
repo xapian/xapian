@@ -768,7 +768,7 @@ Letor::Internal::letor_learn_model(int s_type, int k_type) {
  */
 
 void
-Letor::Internal::prepare_training_file(std::string queryfile, std::string qrel_file, int msetsize) {
+Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file, int msetsize) {
 
     ofstream train_file;
     train_file.open("train.txt");
