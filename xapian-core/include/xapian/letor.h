@@ -57,33 +57,33 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Specify the query. This will be used by the internal class.
     void set_query(const Xapian::Query & query);
 
-    /** This method finds the frequency of the query terms in the specified documents. This method is a helping method and statistics gathered through 
+    /** This method finds the frequency of the query terms in the specified documents. This method is a helping method and statistics gathered through
      *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string,long int> form.
      *
-     *  @param  doc     This is the document in which we want the frequency of the terms in query. Generally in Letor, this document is taken 
+     *  @param  doc     This is the document in which we want the frequency of the terms in query. Generally in Letor, this document is taken
      *          from the Xapain::MSet retieved from the first retrieval.
      *  @param  query   This is the query for which terms we want frequency in the document.
      */
     std::map<std::string,long int> termfreq( const Xapian::Document & doc , const Xapian::Query & query);
 
-    /** This method calculated the inverse document frequency(idf) of query terms in the database. It returns the idf of each term in 
+    /** This method calculated the inverse document frequency(idf) of query terms in the database. It returns the idf of each term in
      *  std::map<string,double> form.
      *
      *  Note: idf of a term 't' is calculated as below:
      *
-     *  idf(t) = log(N/df(t))           
-     *                                  Where, 
+     *  idf(t) = log(N/df(t))
+     *                                  Where,
      *                                  N = Total number of documents in database and
      *                                  df(t) = number of documents containing term 't'
-     *                               
+     *
      *  @param  db      specify the database being used for search to calculate idf values.
-     *  @param  query   query being used in the retrieval  
+     *  @param  query   query being used in the retrieval
      */
     std::map<std::string,double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
 
     /** This method calculated the length of the documents as number of 'terms'. It calculated the length for three different
-     *  parts: title, body and whole document. This information is returned in the std::map<string,long int> format. 
-     *  It can be accessed as below: 
+     *  parts: title, body and whole document. This information is returned in the std::map<string,long int> format.
+     *  It can be accessed as below:
      *
      *  @code
      *  map<string, long int> len;
@@ -97,8 +97,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string,long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
 
-    /** This method calculates the length of the collenction in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated 
-     *  as a stored user metadata in omindex otherwise it is calculated out of scratch(this might take some time depending upon the size of the 
+    /** This method calculates the length of the collenction in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated
+     *  as a stored user metadata in omindex otherwise it is calculated out of scratch(this might take some time depending upon the size of the
      *  database. Lenght information is stored in std::map<string,long int> format and can be accessed as below:
      *
      *  @code
@@ -113,7 +113,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string,long int> collection_length(const Xapian::Database & db);
 
-    /** This method calculates the frequecny of query terms in the whole database. The information is stored in std::map<string, long int> format and 
+    /** This method calculates the frequecny of query terms in the whole database. The information is stored in std::map<string, long int> format and
      *  used during the feature calculation methods.
      *
      *  @param  db      Database to be used
@@ -121,7 +121,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string,long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
 
-    /** It calculated the feature value for the query-document pair. These feature calculation methods uses the data generated using above defined 
+    /** It calculated the feature value for the query-document pair. These feature calculation methods uses the data generated using above defined
      *  methods like termfreq, inverse_doc_freq, doc_length, coll_freq and collection_length.
      *
      *  These features are depicted in overview documentation of Letor.
@@ -152,7 +152,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<Xapian::docid,double> letor_score(const Xapian::MSet & mset);
 
-    /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is 
+    /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
      *  installed in the system. The SVM model is learnt using libsvm.
      *
      *  @param  s       its is svm_type (default s=4). In libsvm-3.1,
@@ -171,24 +171,24 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     void letor_learn_model(int s, int k);
 
-    /** This method prepares the 'train.txt' in the current working directory. This file is used to train a model which in turn will be used to 
+    /** This method prepares the 'train.txt' in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
      *  as below:
      *
      *  0 qid:102 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000 19:1.000000 #docid = 13566007
-     *  1 qid:102 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000 19:0.000000 #docid = 0740276 
+     *  1 qid:102 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000 19:0.000000 #docid = 0740276
      *
-     *  where first column is relevance judgement of the document with docid as shown in the last column. The second column is query id and in between 
+     *  where first column is relevance judgement of the document with docid as shown in the last column. The second column is query id and in between
      *  there are 19 feature values.
      *
      *  @param  query_file      Here you have to give a path to the file (in free text form)  containing training queries in specified format.
-     *  @param  qrel_file       Here supply the path to the qrel file (in free text form) containing the relevance judgements for the 
+     *  @param  qrel_file       Here supply the path to the qrel file (in free text form) containing the relevance judgements for the
      *          queries in the training file. This file should be in standard format specified.
-     *  @param  msize   This is the msize used for the first retrieval for training queries. It should be selected depending on te qrel file 
+     *  @param  msize   This is the msize used for the first retrieval for training queries. It should be selected depending on te qrel file
      *          and database size.
      */
     void prepare_training_file(std::string query_file, std::string qrel_file, int msize);
 };
 
 }
-#endif	/* XAPIAN_INCLUDED_LETOR_H */
+#endif /* XAPIAN_INCLUDED_LETOR_H */
