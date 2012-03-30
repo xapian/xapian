@@ -936,7 +936,7 @@ indexers:
   + The 'BOOLEAN' action now ignores an empty input rather than adding just the
     prefix as a term.
 
-  + The 'UNIQUE' action now issues an warning for empty input but otherwise
+  + The 'UNIQUE' action now issues a warning for empty input but otherwise
     ignores it.
 
 portability:

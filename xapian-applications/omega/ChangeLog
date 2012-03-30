@@ -1,3 +1,7 @@
+Fri Mar 30 22:35:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix "an warning" to "a warning" in old entry.
+
 Mon Mar 26 08:44:51 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Add --max-size option, based on patch from ndaley in
