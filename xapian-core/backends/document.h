@@ -139,7 +139,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	 *  during the match operation (such as in a match decider functor):
 	 *  use a value instead, if at all possible.
 	 *
-	 *  @return       An string containing the data for this document.
+	 *  @return       A string containing the data for this document.
 	 */
 	string get_data() const;
 

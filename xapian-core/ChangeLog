@@ -1,3 +1,8 @@
+Fri Mar 30 22:23:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/document.h: "An string" -> "A string" in internal doc
+	  comment.
+
 Fri Mar 30 22:20:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Fix switched lower and upper in doc comments
