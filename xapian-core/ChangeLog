@@ -1,3 +1,11 @@
+Fri Mar 30 22:20:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Fix switched lower and upper in doc comments
+	  for Weight methods get_doclength_lower_bound() and
+	  get_doclength_upper_bound().  Correct maximum to minimum in
+	  get_doclength_lower_bound() comment and note that this excludes zero
+	  length documents.  Fix "An lower" to "A lower".
+
 Wed Mar 28 09:54:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix typos in another old entry.
