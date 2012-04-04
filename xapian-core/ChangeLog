@@ -1,3 +1,7 @@
+Wed Apr 04 05:28:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* letor/dir_contents: Grammar fix.
+
 Thu Aug 18 06:28:11 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Reorder header includes to be more
