@@ -86,6 +86,7 @@ Database::check(const string & path, int opts, std::ostream &out)
 	try {
 	    Xapian::Database db = Xapian::Chert::open(path);
 	    db_last_docid = db.get_lastdocid();
+	    reserve_doclens(doclens, db_last_docid, out);
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    out << "Database couldn't be opened for reading: "
@@ -93,7 +94,6 @@ Database::check(const string & path, int opts, std::ostream &out)
 		<< "\nContinuing check anyway" << endl;
 	    ++errors;
 	}
-	reserve_doclens(doclens, db_last_docid, out);
 	// This is a chert directory so try to check all the btrees.
 	// Note: it's important to check termlist before postlist so
 	// that we can cross-check the document lengths.
@@ -134,6 +134,7 @@ Database::check(const string & path, int opts, std::ostream &out)
 	try {
 	    Xapian::Database db = Xapian::Brass::open(path);
 	    db_last_docid = db.get_lastdocid();
+	    reserve_doclens(doclens, db_last_docid, out);
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    out << "Database couldn't be opened for reading: "
@@ -141,7 +142,6 @@ Database::check(const string & path, int opts, std::ostream &out)
 		<< "\nContinuing check anyway" << endl;
 	    ++errors;
 	}
-	reserve_doclens(doclens, db_last_docid, out);
 	// This is a brass directory so try to check all the btrees.
 	// Note: it's important to check termlist before postlist so
 	// that we can cross-check the document lengths.

@@ -1,3 +1,10 @@
+Wed Apr 04 01:48:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: If the database couldn't be opened, don't try
+	  to reserve space for cross-checking doclens, as that just results in
+	  us reporting a confusing warning about there being too many documents
+	  to cross-check doclens.
+
 Fri Mar 30 22:23:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/document.h: "An string" -> "A string" in internal doc
