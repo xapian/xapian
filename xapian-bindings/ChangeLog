@@ -1,3 +1,10 @@
+Wed Apr 04 14:06:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py: Update to not use deprecated
+	  MSet iteration features which have been removed on trunk.  This
+	  also fixes a segfault if there are no matches and no documents
+	  are explicitly marked as relevant.
+
 Wed Mar 28 09:22:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-head.i: Update for new deprecation macros.
