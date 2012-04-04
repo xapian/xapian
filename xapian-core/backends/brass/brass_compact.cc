@@ -264,7 +264,10 @@ merge_postlists(Xapian::Compactor & compactor,
 	}
     }
 
-    {
+    // Don't write the metainfo key for a totally empty database.
+    if (last_docid) {
+	if (doclen_lbound > doclen_ubound)
+	    doclen_lbound = doclen_ubound;
 	string tag;
 	pack_uint(tag, last_docid);
 	pack_uint(tag, doclen_lbound);
@@ -928,8 +931,10 @@ compact_brass(Xapian::Compactor & compactor,
 		    delta = out_size - in_size;
 		    status = "INCREASED by ";
 		}
-		status += str(100 * delta / in_size);
-		status += "% ";
+		if (in_size) {
+		    status += str(100 * delta / in_size);
+		    status += "% ";
+		}
 		status += str(delta);
 		status += "K (";
 		status += str(in_size);

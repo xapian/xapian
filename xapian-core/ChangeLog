@@ -1,3 +1,12 @@
+Wed Apr 04 02:22:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  If the output database is empty, don't write a metainfo tag out.
+	  Take care not to divide by zero when computing the percentage
+	  size change for a table.
+	* tests/api_compact.cc: Add new testcase compactempty1 to provide
+	  regression tests.
+
 Wed Apr 04 01:48:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc: If the database couldn't be opened, don't try

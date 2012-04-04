@@ -522,3 +522,37 @@ DEFINE_TESTCASE(compactmergesynonym1, generated) {
 
     return true;
 }
+
+DEFINE_TESTCASE(compactempty1, brass || chert) {
+    string empty_dbpath = get_database_path(string());
+    string outdbpath = get_named_writable_database_path("compactempty1out");
+    rm_rf(outdbpath);
+
+    {
+	// Compacting an empty database tried to divide by zero in 1.3.0.
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
+
+	Xapian::Database outdb(outdbpath);
+	TEST_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 0, 0);
+    }
+
+    {
+	// Check compacting two empty databases together.
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
+
+	Xapian::Database outdb(outdbpath);
+	TEST_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 0, 0);
+    }
+
+    return true;
+}
+
