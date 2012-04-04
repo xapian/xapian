@@ -1,3 +1,11 @@
+Wed Apr 04 14:14:31 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/docs/examples/simpleexpand.py: Update to not use deprecated
+	  MSet iteration features which have been removed on trunk.  This
+	  also fixes a segfault if there are no matches and no documents
+	  are explicitly marked as relevant.
+
 Thu Mar 08 07:34:40 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
