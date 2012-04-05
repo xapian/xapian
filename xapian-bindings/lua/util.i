@@ -24,6 +24,17 @@
 
 %rename("__tostring") get_description;
 
+%{
+#if LUA_VERSION_NUM-0 >= 502
+// luaL_typerror was removed in Lua 5.2.
+int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+#endif
+%}
+
 %define SUB_CLASS(NS, CLASS)
 %{
 class lua##CLASS : public NS::CLASS {
@@ -404,7 +415,7 @@ class XapianSWIGQueryItor {
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     if (lua_istable(L, $input)) {
 	$1.begin(L, $input);
-	$2.end(L, $input, lua_objlen(L, $input));
+	$2.end(L, $input, lua_rawlen(L, $input));
     } else {
 	$1.end();
 	$2.end();
