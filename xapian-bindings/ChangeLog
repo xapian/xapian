@@ -1,3 +1,9 @@
+Thu Apr 05 03:43:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Check behaviour of "require 'xapian'" - SWIG 2.0.4
+	  and earlier got this wrong.  Part of patch from istr in #593, plus
+	  a few tweaks.
+
 Thu Apr 05 03:28:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/smoketest.lua: Improve expect() function to take an option
