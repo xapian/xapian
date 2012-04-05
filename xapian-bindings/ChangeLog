@@ -1,3 +1,9 @@
+Thu Apr 05 03:28:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Improve expect() function to take an option
+	  failure message, to report how values differed, and to compare tables
+	  in a smarter way.  Part of patch from istr in #593.
+
 Thu Apr 05 02:46:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/thread.t,perl/t/writabledatabase.t: Remove #! lines with -W
