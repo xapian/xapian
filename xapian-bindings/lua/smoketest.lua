@@ -206,8 +206,8 @@ function run_tests()
     for j = 0, #a -1 do
       hit = mset:get_hit(j)
       if hit:get_docid() ~= a[j + 1] then
-	print(string.format("Expected MSet[%i] to be %i, got %i.\n", j, a[j + 1], hit:get_docid()))
-	os.exit(-1)
+        print(string.format("Expected MSet[%i] to be %i, got %i.\n", j, a[j + 1], hit:get_docid()))
+        os.exit(-1)
       end
     end
   end
