@@ -1,3 +1,7 @@
+Thu Apr 05 04:23:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Remove bogus \ before q.
+
 Thu Apr 05 03:45:08 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/smoketest.lua: Convert tabs to spaces.

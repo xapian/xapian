@@ -297,14 +297,14 @@ function run_tests()
   -- Feature tests for Query "term" constructor optional arguments:
   query_wqf = xapian.Query('wqf', 3)
   if tostring(query_wqf) ~= 'Query(wqf#3)' then
-    print "Unexpected \query_wqf->tostring():\n"
+    print "Unexpected query_wqf->tostring():\n"
     print(tostring(query_wqf) .."\n")
     os.exit(-1)
   end
 
   query = xapian.Query(xapian.Query_OP_VALUE_GE, 0, "100")
   if tostring(query) ~= 'Query(VALUE_GE 0 100)' then
-    print "Unexpected \query->tostring():\n"
+    print "Unexpected query->tostring():\n"
     print(tostring(query) .. "\n")
     os.exit(-1)
   end
