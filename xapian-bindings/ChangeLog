@@ -1,3 +1,9 @@
+Thu Apr 05 02:46:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/thread.t,perl/t/writabledatabase.t: Remove #! lines with -W
+	  to fix "Name "Test::More::TODO" used only once: possible typo at
+	  /usr/share/perl/5.14/Exporter/Heavy.pm line 190." warnings.
+
 Wed Apr 04 14:06:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simpleexpand.py: Update to not use deprecated
