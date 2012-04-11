@@ -1,3 +1,9 @@
+Wed Apr 11 08:26:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Update section on patches to mention git (git diff and git
+	  format-patch), and using "-r" with normal diff, and also that
+	  ptardiff offers a nice way to diff against an unpacked tarball.
+
 Wed Apr 04 02:22:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
