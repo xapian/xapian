@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ def test_all():
     def access_cvar():
         return xapian.cvar
 
-    # Check that SWIG isn't generated cvar (regression test for ticket#297).
+    # Check that SWIG isn't generating cvar (regression test for ticket#297).
     expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
                      access_cvar)
 
@@ -230,6 +230,12 @@ def test_all():
     if [t for t in eset_terms if t.startswith('a')]:
         raise TestFail("ExpandDecider was not used")
 
+    # Check min_wt argument to get_eset() works (new in 1.2.5).
+    eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ)
+    expect(eset.items[-1][xapian.ESET_WT] < 1.9, True, "test get_eset() without min_wt")
+    eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, None, 1.9)
+    expect(eset.items[-1][xapian.ESET_WT] >= 1.9, True, "test get_eset() min_wt")
+
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
     expect_exception(xapian.QueryParserError, "Syntax: <expression> AND <expression>", qp.parse_query, "test AND")
@@ -237,7 +243,7 @@ def test_all():
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
     expect_query(qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT test:(pos=1))")
+                 "(<alldocuments> AND_NOT test@1)")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -246,10 +252,10 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo:(pos=1) AND ((out:(pos=2) SYNONYM outsid:(pos=2)) OR Zo:(pos=2)))")
+                 "(Zfoo@1 AND ((out@2 SYNONYM outsid@2) OR Zo@2))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo:(pos=1) AND Zoutsid:(pos=2))")
+                 "(Zfoo@1 AND Zoutsid@2)")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar')),
@@ -262,7 +268,7 @@ def test_all():
                  '(foo OR bar)')
 
     expect_query(qp.parse_query("NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT Zt\xc3\xa9st:(pos=1))")
+                 "(<alldocuments> AND_NOT Zt\xc3\xa9st@1)")
 
     doc = xapian.Document()
     doc.set_data("Unicode with an acc\xe9nt")
@@ -276,12 +282,12 @@ def test_all():
     qp.set_stopper(stop)
     expect(stop('a'), False)
     expect_query(qp.parse_query("foo bar a", qp.FLAG_BOOLEAN),
-                 "(Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3))")
+                 "(Zfoo@1 AND Zbar@2 AND Za@3)")
 
     stop.add('a')
     expect(stop('a'), True)
     expect_query(qp.parse_query("foo bar a", qp.FLAG_BOOLEAN),
-                 "(Zfoo:(pos=1) AND Zbar:(pos=2))")
+                 "(Zfoo@1 AND Zbar@2)")
 
     # Feature test for custom Stopper
     class my_b_stopper(xapian.Stopper):
@@ -296,11 +302,11 @@ def test_all():
     qp.set_stopper(stop)
     expect(stop('a'), False)
     expect_query(qp.parse_query("foo bar a", qp.FLAG_BOOLEAN),
-                 "(Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3))")
+                 "(Zfoo@1 AND Zbar@2 AND Za@3)")
 
     expect(stop('b'), True)
     expect_query(qp.parse_query("foo bar b", qp.FLAG_BOOLEAN),
-                 "(Zfoo:(pos=1) AND Zbar:(pos=2))")
+                 "(Zfoo@1 AND Zbar@2)")
 
     # Test TermGenerator
     termgen = xapian.TermGenerator()
@@ -316,7 +322,7 @@ def test_all():
     vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
     qp.add_valuerangeprocessor(vrpdate)
     query = qp.parse_query('12/03/99..12/04/01')
-    expect(str(query), 'Xapian::Query(VALUE_RANGE 1 19991203 20011204)')
+    expect(str(query), 'Query(0 * VALUE_RANGE 1 19991203 20011204)')
 
     # Regression test for bug#193, fixed in 1.0.3.
     context("running regression test for bug#193")
@@ -377,7 +383,7 @@ def test_userstem():
     parser = xapian.QueryParser()
     parser.set_stemmer(xapian.Stem(MyStemmer()))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
-    expect_query(parser.parse_query('color television'), '(clr:(pos=1) OR tlvsn:(pos=2))')
+    expect_query(parser.parse_query('color television'), '(clr@1 OR tlvsn@2)')
 
 def test_zz9_check_leaks():
     import gc

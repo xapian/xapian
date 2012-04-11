@@ -1,3 +1,8 @@
+Wed Apr 11 02:54:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/smoketest3.py,python/testsuite3.py: Update Python 3 tests
+	  from Python 2 versions using 2to3.
+
 Thu Apr 05 04:25:45 GMT 2012  Olly Betts <olly@survex.com>
 
 	* README,configure.ac,lua/docs/index.html,lua/util.i: Fix compatibility
