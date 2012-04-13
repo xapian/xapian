@@ -1,3 +1,9 @@
+Fri Apr 13 23:36:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,atomparse.cc,atomparse.h,overview.rst,omindex.cc: Add
+	  support for atom feed files, patch from Mihai Bivol in ticket#595.
+	* Makefile.am,atomparsetest.cc: Add tests for AtomParser.
+
 Thu Apr 05 14:09:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,htmlparsetest.cc: Add support for CDATA to HTML parser.
