@@ -1,3 +1,8 @@
+Sat Apr 14 00:14:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* atomparse.cc: For type="html", use the charset of the XML rather
+	  than utf-8.
+
 Fri Apr 13 23:36:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,atomparse.cc,atomparse.h,overview.rst,omindex.cc: Add
