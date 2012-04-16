@@ -1,3 +1,9 @@
+Mon Apr 16 06:47:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/AssemblyInfo.cs.in,csharp/Makefile.am: Use -keyfile and
+	  -keycontainer options to the C# compiler, because it warns us
+	  to do this instead of setting them in AssemblyInfo.cs.
+
 Mon Apr 16 06:39:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: Remove now superfluous old check that SWIG

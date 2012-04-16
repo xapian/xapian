@@ -75,7 +75,12 @@ XapianSharp.snk:
 	$(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
+## We specify both -keyfile and -keycontainer - hopefully this means that if
+## this is the first time we're signing, the key in the file is used and
+## then stored in the key container.  From then on, the key in the container
+## is used.
 	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
+	    -keyfile:XapianSharp.snk -keycontainer:"Xapian Signing Key" \
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
 
