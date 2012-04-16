@@ -1,3 +1,9 @@
+Mon Apr 16 23:02:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Make sure the ruby subdirectory exists before
+	  trying to create ruby/rubyio.h, so this works in a VPATH
+	  build from a clean tree.
+
 Mon Apr 16 06:47:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/AssemblyInfo.cs.in,csharp/Makefile.am: Use -keyfile and
