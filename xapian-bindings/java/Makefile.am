@@ -155,7 +155,6 @@ xapian_wrap.stamp:
 	: # Insert code to automatically load the JNI library.
 	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' org/xapian/XapianJNI.java
 	: # Check that exactly the sources we expected were generated.
-	ls $(XAPIAN_SWIG_JAVA_SRCS) > /dev/null
 	LANG=C ls -1 org/xapian/*.java > org/xapian/list
 	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_JAVA_SRCS)|diff -c - org/xapian/list
 	$(multitarget_end)

@@ -1,3 +1,9 @@
+Mon Apr 16 06:39:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Remove now superfluous old check that SWIG
+	  generated at least the sources we wanted - we now check it generated
+	  *exactly* the sources we wanted.
+
 Mon Apr 16 06:34:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am: Use diff's -c option when
