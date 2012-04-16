@@ -427,13 +427,13 @@ for d in $modules ; do
       cd "$d" && "$configure" ${1+"$@"}
       ;;
     xapian-core)
-      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
       ;;
     xapian-applications/omega)
-      cd "$d" && "$configure" --enable-maintainer-mode XAPIAN_CONFIG="$XAPIAN_CONFIG" CXXFLAGS="-I$srcdir/INST/include -L$srcdir/INST/lib" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CXXFLAGS="-I$srcdir/INST/include -L$srcdir/INST/lib" ${1+"$@"}
       ;;
     *)
-      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
       ;;
     esac
     cd "$here"
