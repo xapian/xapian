@@ -1,3 +1,9 @@
+Mon Apr 16 06:34:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Use diff's -c option when
+	  comparing the files SWIG generated against those we were expecting to
+	  get as the output should be easier to understand.
+
 Wed Apr 11 02:54:46 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/smoketest3.py,python/testsuite3.py: Update Python 3 tests
