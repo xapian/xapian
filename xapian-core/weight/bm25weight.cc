@@ -84,7 +84,7 @@ BM25Weight::init(double factor)
     // weight or similar.
     //
     // Truncating to zero doesn't seem a great approach in practice as it
-    // means that some terms in the query can have no affect at all on the
+    // means that some terms in the query can have no effect at all on the
     // ranking, and that some results can have zero weight, both of which
     // are seem surprising.
     //
