@@ -6,7 +6,7 @@
 
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 35;
+plan tests => 40;
 
 use Search::Xapian qw(:standard);
 
@@ -186,10 +186,31 @@ is($write->get_doccount(), 0, 'check WritableDatabase after deleting all documen
 ok(!$write->term_exists($delterm), 'check term exists after deleting all documents');
 is($write->get_termfreq($delterm), 0, 'check term frequency after deleting all documents');
 
+eval {
+  # Should fail because the database is already open for writing.
+  Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN );
+};
+ok( $@ );
+
 $write->close();
 eval {
   # Should fail because the database has been closed.
   $write->add_document(Search::Xapian::Document->new());
+};
+ok( $@ );
+
+# Should work now.
+ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+
+# And reference counting should have closed it.
+ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+
+my $read = Search::Xapian::Database->new( $db_dir );
+ok( $@ );
+$read->close();
+eval {
+  # Should fail because the database has been closed.
+  $write->allterms_begin();
 };
 ok( $@ );
 

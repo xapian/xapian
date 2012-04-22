@@ -2,6 +2,8 @@ Revision history for Perl extension Search::Xapian.
 
 1.2.10.0
 	[Changes contributed by Olly Betts]
+	- Wrap Database::close() (was previously only wrapped for
+	  WritableDatabase).
 	- Suppress warnings about "not a known MakeMaker parameter name" in a
 	  way which also works for newer versions of Perl.
 

@@ -43,14 +43,6 @@ WritableDatabase::flush()
 	    handle_exception();
         }
 
-void
-WritableDatabase::close()
-    CODE:
-	try {
-	    THIS->close();
-	} catch (...) {
-	    handle_exception();
-	}
 
 void
 WritableDatabase::begin_transaction(flushed = NO_INIT)

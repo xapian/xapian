@@ -272,4 +272,13 @@ string
 Database::get_metadata(string key)
 
 void
+Database::close()
+    CODE:
+	try {
+	    THIS->close();
+	} catch (...) {
+	    handle_exception();
+	}
+
+void
 Database::DESTROY()
