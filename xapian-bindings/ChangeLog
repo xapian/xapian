@@ -1,3 +1,8 @@
+Sun Apr 22 11:00:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/writabledatabase.t: Forward port additional test coverage
+	  for Database::close() from Search::Xapian in 1.2 branch.
+
 Mon Apr 16 23:02:18 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Make sure the ruby subdirectory exists before
