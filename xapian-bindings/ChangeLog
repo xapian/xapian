@@ -1,3 +1,9 @@
+Sun Apr 22 13:04:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Sort both the lists of expected
+	  and of found SWIG-generated sources with Perl, to avoid problems with
+	  locale-specific sort orders.
+
 Sun Apr 22 11:00:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/writabledatabase.t: Forward port additional test coverage

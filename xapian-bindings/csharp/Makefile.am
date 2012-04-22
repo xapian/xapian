@@ -134,7 +134,7 @@ xapian_wrap.stamp:
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	: # Check that exactly the sources we expected were generated.
-	LANG=C ls -1 generated-csharp/*.cs > generated-csharp/list
+	$(PERL) -e 'print "$$_\n" for sort @ARGV' generated-csharp/*.cs > generated-csharp/list
 	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_CS_SRCS)|diff -c - generated-csharp/list
 	$(multitarget_end)
 
