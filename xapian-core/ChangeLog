@@ -1,3 +1,8 @@
+Mon Apr 23 13:16:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Fix tradweight1 to test that TradWeight(0)
+	  means that wdf and doc length don't affect the weight of a term.
+
 Mon Apr 23 03:44:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/chert/,backends/dbcheck.cc,bin/xapian-check.cc,
