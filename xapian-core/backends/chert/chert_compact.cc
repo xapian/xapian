@@ -29,12 +29,11 @@
 #include <cstdio>
 
 #include "safeerrno.h"
-#include <sys/types.h>
-#include "safesysstat.h"
 
 #include "chert_table.h"
 #include "chert_compact.h"
 #include "chert_cursor.h"
+#include "filetests.h"
 #include "internaltypes.h"
 #include "pack.h"
 #include "backends/valuestats.h"

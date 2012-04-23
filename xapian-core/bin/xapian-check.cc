@@ -35,10 +35,11 @@ using namespace std;
 #define PROG_DESC "Check the consistency of a database or table"
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
+    cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[F][t][f][b][v][+]]\n\n"
 "If a whole database is checked, then additional cross-checks between\n"
 "the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
+" F = attempt to fix a broken database (implemented for chert currently)\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
 " b = show bitmap\n"
@@ -80,6 +81,9 @@ main(int argc, char **argv)
 		opts |= Xapian::DBCHECK_SHORT_TREE;
 		opts |= Xapian::DBCHECK_SHOW_BITMAP;
 		opts |= Xapian::DBCHECK_SHOW_STATS;
+		break;
+	    case 'F':
+		opts |= Xapian::DBCHECK_FIX;
 		break;
 	    default:
 		cerr << "option " << opt_string << " unknown\n";

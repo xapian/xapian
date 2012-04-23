@@ -390,6 +390,24 @@ ChertTable_base::free_block(uint4 n)
 	    bit_map_low = i;
 }
 
+/* mark_block(B, n) causes block n to be marked allocated in the bit map.
+   B->bit_map_low is the lowest byte in the bit map known to have a free bit
+   set. Searching starts from there when looking for a free block.
+*/
+
+void
+ChertTable_base::mark_block(uint4 n)
+{
+    uint4 i = n / CHAR_BIT;
+    int bit = 0x1 << n % CHAR_BIT;
+    while (i >= bit_map_size)
+	extend_bit_map();
+    bit_map[i] |= bit;
+
+    if (bit_map_low == i && bit_map[i] == 0xff)
+	++bit_map_low;
+}
+
 /* extend(B) increases the size of the two bit maps in an obvious way.
    The bitmap file grows and shrinks as the DB file grows and shrinks in
    internal usage. But the DB file itself does not reduce in size, no matter

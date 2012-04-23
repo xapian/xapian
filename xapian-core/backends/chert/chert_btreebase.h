@@ -99,6 +99,8 @@ class ChertTable_base {
 
 	void free_block(uint4 n);
 
+	void mark_block(uint4 n);
+
 	uint4 next_free_block();
 
 	/** Find the first changed block at or after position *n.

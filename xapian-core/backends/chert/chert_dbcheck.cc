@@ -61,8 +61,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 {
     filename += '.';
 
-    // Check the btree structure.
-    ChertTableCheck::check(tablename, filename, opts, out);
+    try {
+	// Check the btree structure.
+	ChertTableCheck::check(tablename, filename, opts, out);
+    } catch (const Xapian::DatabaseError & e) {
+	out << "Failed to check B-tree: " << e.get_description() << endl;
+	return 1;
+    }
 
     // Now check the chert structures inside the btree.
     ChertTable table(tablename, filename, true);

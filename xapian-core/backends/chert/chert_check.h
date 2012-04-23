@@ -38,7 +38,9 @@ class ChertTableCheck : public ChertTable {
     private:
 	ChertTableCheck(const char * tablename_, const std::string &path_,
 		        bool readonly, std::ostream &out_)
-	    : ChertTable(tablename_, path_, readonly), out(out_) { }
+	    : ChertTable(tablename_, path_, readonly), out(out_),
+	      check_item_count(0), check_sequential(true),
+	      last_sequential_block(0) { }
 
 	void block_check(Cursor * C_, int j, int opts);
 	int block_usage(const byte * p) const;
@@ -53,6 +55,12 @@ class ChertTableCheck : public ChertTable {
 	void print_bytes(int n, const byte * p) const;
 
 	std::ostream &out;
+
+	chert_tablesize_t check_item_count;
+
+	bool check_sequential;
+
+	uint4 last_sequential_block;
 };
 
 #endif /* OM_HGUARD_CHERT_CHECK_H */

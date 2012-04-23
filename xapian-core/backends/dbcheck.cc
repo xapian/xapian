@@ -28,6 +28,7 @@
 
 #include "brass/brass_dbcheck.h"
 #include "chert/chert_dbcheck.h"
+#include "chert/chert_version.h"
 
 #include "filetests.h"
 #include "stringutils.h"
@@ -94,6 +95,9 @@ Database::check(const string & path, int opts, std::ostream &out)
 		<< "\nContinuing check anyway" << endl;
 	    ++errors;
 	}
+
+	size_t pre_table_check_errors = errors;
+
 	// This is a chert directory so try to check all the btrees.
 	// Note: it's important to check termlist before postlist so
 	// that we can cross-check the document lengths.
@@ -121,6 +125,16 @@ Database::check(const string & path, int opts, std::ostream &out)
 	    }
 	    errors += check_chert_table(*t, table, opts, doclens,
 					db_last_docid, out);
+	}
+
+	if (errors == pre_table_check_errors && (opts & Xapian::DBCHECK_FIX)) {
+	    // Check the version file is OK and if not, recreate it.
+	    ChertVersion iam(path);
+	    try {
+		iam.read_and_check();
+	    } catch (const Xapian::DatabaseError &) {
+		iam.create();
+	    }
 	}
 #endif
     } else if (stat((path + "/iambrass").c_str(), &sb) == 0) {

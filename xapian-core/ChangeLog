@@ -1,3 +1,11 @@
+Mon Apr 23 03:44:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/chert/,backends/dbcheck.cc,bin/xapian-check.cc,
+	  include/xapian/database.h: Add "fix" option to xapian-check, which
+	  currently will regenerate iamchert if it isn't valid, and will
+	  regenerate base files from the .DB files (only really tested on
+	  databases which have just been compacted).
+
 Mon Apr 23 03:40:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/filetests.h: Add new function file_size() to get the size
