@@ -25,6 +25,7 @@
 #ifndef XAPIAN_INCLUDED_FILETESTS_H
 #define XAPIAN_INCLUDED_FILETESTS_H
 
+#include "safeerrno.h"
 #include "safesysstat.h"
 #include <string>
 
@@ -49,6 +50,80 @@ inline bool file_exists(const char * path) {
  */
 inline bool file_exists(const std::string & path) {
     return file_exists(path.c_str());
+}
+
+/** Returns the size of a file.
+ *
+ *  @param path	The path to test
+ *
+ *  errno is set to 0 (upon success), or the error returned by stat(), or
+ *  EINVAL (if the path isn't a regular file or a symlink resolving to a
+ *  regular file).
+ *
+ *  If the file's size is larger than the maximum value off_t can represent,
+ *  then stat() will fail with errno=EOVERFLOW, and so will this function.
+ *  There doesn't seem to be a way to determine the file size in this case,
+ *  short of reading it all.  This is only likely if the LFS check in configure
+ *  doesn't work out how to enable largefile support.
+ *
+ *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
+ */
+inline off_t file_size(const char * path) {
+    struct stat st;
+    if (stat(path, &st) == 0) {
+	if (S_ISREG(st.st_mode)) {
+	    errno = 0;
+	    return st.st_size;
+	}
+	errno = EINVAL;
+    }
+    return 0;
+}
+
+/** Returns the size of a file.
+ *
+ *  @param path	The path to test
+ *
+ *  Note: If the file's size is larger than the maximum value off_t can
+ *  represent, then stat() will fail with EOVERFLOW, and so will this
+ *  function.  There doesn't seem to be a way to determine the file size
+ *  in this case, short of reading it all.  This is only likely if the LFS
+ *  check in configure doesn't work out how to enable largefile support.
+ *
+ *  @return The size of the file, or 0 if it doesn't exist or isn't a file;
+ *	    errno is set to 0 (upon success), or the error returned by
+ *	    stat(), or EINVAL (if the path isn't a regular file or a symlink
+ *	    resolving to a regular file).
+ */
+inline off_t file_size(const std::string & path) {
+    return file_size(path.c_str());
+}
+
+/** Returns the size of a file.
+ *
+ *  @param fd	The file descriptor for the file.
+ *
+ *  Note: If the file's size is larger than the maximum value off_t can
+ *  represent, then stat() will fail with EOVERFLOW, and so will this
+ *  function.  There doesn't seem to be a way to determine the file size
+ *  in this case, short of reading it all.  This is only likely if the LFS
+ *  check in configure doesn't work out how to enable largefile support.
+ *
+ *  @return The size of the file, or 0 if it doesn't exist or isn't a file;
+ *	    errno is set to 0 (upon success), or the error returned by
+ *	    stat(), or EINVAL (if the path isn't a regular file or a symlink
+ *	    resolving to a regular file).
+ */
+inline off_t file_size(int fd) {
+    struct stat st;
+    if (fstat(fd, &st) == 0) {
+	if (S_ISREG(st.st_mode)) {
+	    errno = 0;
+	    return st.st_size;
+	}
+	errno = EINVAL;
+    }
+    return 0;
 }
 
 /** Test if a directory exists.

@@ -29,12 +29,11 @@
 #include <cstdio>
 
 #include "safeerrno.h"
-#include <sys/types.h>
-#include "safesysstat.h"
 
 #include "brass_table.h"
 #include "brass_compact.h"
 #include "brass_cursor.h"
+#include "filetests.h"
 #include "internaltypes.h"
 #include "pack.h"
 #include "backends/valuestats.h"
@@ -837,9 +836,9 @@ compact_brass(Xapian::Compactor & compactor,
 	    s += t->name;
 	    s += '.';
 
-	    struct stat sb;
-	    if (stat((s + "DB").c_str(), &sb) == 0) {
-		in_size += sb.st_size / 1024;
+	    off_t db_size = file_size(s + "DB");
+	    if (errno == 0) {
+		in_size += db_size / 1024;
 		output_will_exist = true;
 		++inputs_present;
 	    } else if (errno != ENOENT) {
@@ -909,9 +908,9 @@ compact_brass(Xapian::Compactor & compactor,
 
 	off_t out_size = 0;
 	if (!bad_stat) {
-	    struct stat sb;
-	    if (stat((dest + "DB").c_str(), &sb) == 0) {
-		out_size = sb.st_size / 1024;
+	    off_t db_size = file_size(dest + "DB");
+	    if (errno == 0) {
+		out_size = db_size / 1024;
 	    } else {
 		bad_stat = (errno != ENOENT);
 	    }

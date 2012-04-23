@@ -27,7 +27,6 @@
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
-#include "safesysstat.h"
 #include "safeunistd.h"
 
 #include <algorithm>
@@ -35,6 +34,7 @@
 
 #include "debuglog.h"
 #include "fd.h"
+#include "filetests.h"
 #include "noreturn.h"
 #include "omassert.h"
 #include "realtime.h"
@@ -327,13 +327,9 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     if (fdout == -1)
 	throw_database_closed();
 
-    off_t size;
-    {
-	struct stat sb;
-	if (fstat(fd, &sb) == -1)
-	    throw Xapian::NetworkError("Couldn't stat file to send", errno);
-	size = sb.st_size;
-    }
+    off_t size = file_size(fd);
+    if (errno)
+	throw Xapian::NetworkError("Couldn't stat file to send", errno);
     // FIXME: Use sendfile() or similar if available?
 
     char buf[CHUNKSIZE];

@@ -61,12 +61,12 @@ static void mktmpdir(const string & path) {
     }
 }
 
-static off_t file_size(const string & path) {
-    struct stat sb;
-    if (stat(path.c_str(), &sb)) {
+static off_t get_file_size(const string & path) {
+    off_t size = file_size(path);
+    if (errno) {
 	FAIL_TEST("Can't stat '" + path + "'");
     }
-    return sb.st_size;
+    return size;
 }
 
 static size_t do_read(int fd, char * p, size_t desired)
@@ -438,7 +438,7 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 
     // Try applying truncated changesets of various different lengths.
     string brokenchangesetpath = tempdir + "/changeset_broken";
-    off_t filesize = file_size(changesetpath);
+    off_t filesize = get_file_size(changesetpath);
     off_t len = 10;
     off_t copylen;
     while (len < filesize) {
