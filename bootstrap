@@ -244,8 +244,10 @@ else
   # The last field is the SHA1 checksum of the tarball.
   lazy_build doxygen 1.7.6.1 src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
   lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
+  # 2.69 is fussy about the m4 version
+  # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.11.2 tar.bz2 34b3808e1d536ee3724fbde28bc1f13b8b40dc43
+  lazy_build automake 1.12 tar.gz 735e5a755dd4ba24dbb345901198873b2686804d
   lazy_build libtool 2.4.2 tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
