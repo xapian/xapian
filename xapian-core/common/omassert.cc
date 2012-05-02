@@ -22,6 +22,8 @@
 
 #ifdef XAPIAN_ASSERTIONS
 
+#include "omassert.h"
+
 #include <cfloat>
 #include <cmath>
 

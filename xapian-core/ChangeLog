@@ -1,3 +1,8 @@
+Wed May 02 02:58:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/omassert.cc: Fix warning with GCC in build with assertions
+	  enabled.
+
 Wed May 02 02:55:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: We're now using automake 1.12 to generate snapshots and
