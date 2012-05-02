@@ -1,3 +1,8 @@
+Wed May 02 02:55:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: We're now using automake 1.12 to generate snapshots and
+	  releases.
+
 Mon Apr 23 13:16:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Fix tradweight1 to test that TradWeight(0)
