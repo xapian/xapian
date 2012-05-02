@@ -1,3 +1,8 @@
+Wed May 02 03:44:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Using AssertEq() on NULL doesn't compile,
+	  at least with recent GCC.
+
 Wed May 02 02:58:37 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/omassert.cc: Fix warning with GCC in build with assertions
