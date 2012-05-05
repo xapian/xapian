@@ -5,6 +5,10 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 5 };
@@ -58,7 +62,7 @@ for my $num (1..1000) {
 $write->flush();
 $read->reopen();
 
-for my $num qw (three four five) {
+for my $num (qw(three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );

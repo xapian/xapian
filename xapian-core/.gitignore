@@ -17,6 +17,7 @@
 /stamp-h
 /stamp-h1
 /stamp-h.in
+/.deps
 /.libs
 /autom4te*.cache
 /depcomp
@@ -26,9 +27,8 @@
 /sourcedoc.mk
 /xapian-config
 /libxapian.la
+/libxapian-1.3.la
 /libgetopt.la
-/libbrasscheck.la
-/libchertcheck.la
 /xapian-core-*.tar.gz
 /xapian-core.spec
 /xapian-config.1

@@ -1,8 +1,17 @@
 noinst_HEADERS +=\
-	backends/flint_lock.h\
+	backends/alltermslist.h\
 	backends/byte_length_strings.h\
+	backends/contiguousalldocspostlist.h\
+	backends/database.h\
+	backends/databasereplicator.h\
+	backends/document.h\
+	backends/flint_lock.h\
+	backends/multivaluelist.h\
+	backends/positionlist.h\
 	backends/prefix_compressed_strings.h\
-	backends/slowvaluelist.h
+	backends/slowvaluelist.h\
+	backends/valuelist.h\
+	backends/valuestats.h
 
 EXTRA_DIST +=\
 	backends/dir_contents\
@@ -10,6 +19,7 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	backends/alltermslist.cc\
+	backends/dbcheck.cc\
 	backends/database.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\

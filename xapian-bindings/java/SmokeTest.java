@@ -77,31 +77,31 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 
-            if (!Query.MatchAll.toString().equals("Xapian::Query(<alldocuments>)")) {
+            if (!Query.MatchAll.toString().equals("Query(<alldocuments>)")) {
 		System.err.println("Unexpected Query.MatchAll.toString()");
 		System.exit(1);
             }
 
-            if (!Query.MatchNothing.toString().equals("Xapian::Query()")) {
+            if (!Query.MatchNothing.toString().equals("Query()")) {
 		System.err.println("Unexpected Query.MatchNothing.toString()");
 		System.exit(1);
             }
 
 	    String[] terms = { "smoke", "test", "terms" };
 	    Query query = new Query(Query.OP_OR, terms);
-	    if (!query.toString().equals("Xapian::Query((smoke OR test OR terms))")) {
+	    if (!query.toString().equals("Query((smoke OR test OR terms))")) {
 		System.err.println("Unexpected query.toString()");
 		System.exit(1);
 	    }
 	    Query[] queries = { new Query("smoke"), query, new Query("string") };
 	    Query query2 = new Query(Query.OP_XOR, queries);
-	    if (!query2.toString().equals("Xapian::Query((smoke XOR (smoke OR test OR terms) XOR string))")) {
+	    if (!query2.toString().equals("Query((smoke XOR (smoke OR test OR terms) XOR string))")) {
 		System.err.println("Unexpected query2.toString()");
 		System.exit(1);
 	    }
 	    String[] subqs = { "a", "b" };
 	    Query query3 = new Query(Query.OP_OR, subqs);
-	    if (!query3.toString().equals("Xapian::Query((a OR b))")) {
+	    if (!query3.toString().equals("Query((a OR b))")) {
 		System.err.println("Unexpected query3.toString()");
 		System.exit(1);
 	    }
@@ -178,7 +178,7 @@ public class SmokeTest {
 	    }
 */
 
-	    if (!enq.getQuery().toString().equals("Xapian::Query((there OR is))")) {
+	    if (!enq.getQuery().toString().equals("Query((there OR is))")) {
 		System.err.println("Enquire::getQuery() returned the wrong query: " + enq.getQuery().toString());
 		System.exit(1);
 	    }

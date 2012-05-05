@@ -1,8 +1,9 @@
-/* chert_check.h: Btree checking
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file chert_check.h
+ * @brief Btree checking
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008,2011 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,17 +28,19 @@
 #include "chert_table.h"
 #include "noreturn.h"
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
 
 class ChertTableCheck : public ChertTable {
     public:
 	static void check(const char * tablename, const std::string & path,
-			  int opts, std::ostream &out = std::cout);
+			  int opts, std::ostream &out);
     private:
 	ChertTableCheck(const char * tablename_, const std::string &path_,
 		        bool readonly, std::ostream &out_)
-	    : ChertTable(tablename_, path_, readonly), out(out_) { }
+	    : ChertTable(tablename_, path_, readonly), out(out_),
+	      check_item_count(0), check_sequential(true),
+	      last_sequential_block(0) { }
 
 	void block_check(Cursor * C_, int j, int opts);
 	int block_usage(const byte * p) const;
@@ -52,11 +55,12 @@ class ChertTableCheck : public ChertTable {
 	void print_bytes(int n, const byte * p) const;
 
 	std::ostream &out;
-};
 
-#define OPT_SHORT_TREE  1
-#define OPT_FULL_TREE   2
-#define OPT_SHOW_BITMAP 4
-#define OPT_SHOW_STATS  8
+	chert_tablesize_t check_item_count;
+
+	bool check_sequential;
+
+	uint4 last_sequential_block;
+};
 
 #endif /* OM_HGUARD_CHERT_CHECK_H */

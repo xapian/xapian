@@ -1,5 +1,5 @@
-/** \file enquire.h
- * \brief API for running queries
+/** @file enquire.h
+ * @brief API for running queries
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
@@ -97,11 +97,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
+	 *
+	 *  @param wt	The weight to convert.
 	 */
-	Xapian::percent convert_to_percent(Xapian::weight wt) const;
+	int convert_to_percent(double wt) const;
 
 	/// Return the percentage score for a particular item.
-	Xapian::percent convert_to_percent(const MSetIterator &it) const;
+	int convert_to_percent(const MSetIterator &it) const;
 
 	/** Return the term frequency of the given query term.
 	 *
@@ -120,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  @exception  Xapian::InvalidArgumentError is thrown if the term was
 	 *		not in the query.
 	 */
-	Xapian::weight get_termweight(const std::string &tname) const;
+	double get_termweight(const std::string &tname) const;
 
 	/** The index of the first item in the result which was put into the
 	 *  MSet.
@@ -188,7 +190,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
 	 */
-	Xapian::weight get_max_possible() const;
+	double get_max_possible() const;
 
 	/** The greatest weight which is attained by any document in the
 	 *  database.
@@ -203,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  requested when the query was performed (by specifying
 	 *  maxitems = 0 in Xapian::Enquire::get_mset()), this value will be 0.
 	 */
-	Xapian::weight get_max_attained() const;
+	double get_max_attained() const;
 
 	/** The number of items in this MSet */
 	Xapian::doccount size() const;
@@ -234,6 +236,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  In other words, the offset is into the documents represented by
 	 *  this object, not into the set of documents matching the query.
+	 *
+	 *  @param i	The index into the MSet.
 	 */
 	MSetIterator operator[](Xapian::doccount i) const;
 
@@ -344,7 +348,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	}
 
 	/// Get the weight of the document at the current position
-	Xapian::weight get_weight() const;
+	double get_weight() const;
 
 	/** Get the collapse key for this document.
 	 */
@@ -370,6 +374,11 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 
 	/** This returns the weight of the document as a percentage score.
 	 *
+	 *  You probably don't want to show these percentage scores to end
+	 *  users in new applications - they're not really a percentage of
+	 *  anything meaningful, and research seems to suggest that users
+	 *  don't find numeric scores in search results useful.
+	 *
 	 *  The return value will be an integer in the range 0 to 100:  0
 	 *  meaning that the item did not match the query at all.
 	 *
@@ -383,7 +392,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 *  having to apply the MatchDecider to potentially many more
 	 *  documents, which is potentially costly).
 	 */
-	Xapian::percent get_percent() const;
+	int get_percent() const;
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -461,7 +470,10 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 	/** Iterator pointing to the last element of this E-Set */
 	ESetIterator back() const;
 
-	/** This returns the term at position i in this E-Set.  */
+	/** This returns the term at position i in this E-Set.
+	 *
+	 *  @param i	The index into the ESet.
+	 */
 	ESetIterator operator[](Xapian::termcount i) const;
 
 	/// Return a string describing this object.
@@ -529,7 +541,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	const std::string & operator *() const;
 
 	/// Get the weight of the term at the current position
-	Xapian::weight get_weight() const;
+	double get_weight() const;
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -614,7 +626,9 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
     public:
 	/** Decide whether we want this document to be in the MSet.
 	 *
-	 *  Return true if the document is acceptable, or false if the document
+	 *  @param doc	The document to test.
+	 *
+	 *  @return true if the document is acceptable, or false if the document
 	 *  should be excluded from the MSet.
 	 */
 	virtual bool operator()(const Xapian::Document &doc) const = 0;
@@ -669,7 +683,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
 	 *  empty Database object is supplied.
 	 */
-	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
+	explicit Enquire(const Database &database);
+	XAPIAN_DEPRECATED_EX(Enquire(const Database &database, ErrorHandler * errorhandler_));
 
 	/** Close the Xapian::Enquire object.
 	 */
@@ -785,8 +800,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  Note: If you add documents in strict date order, then a boolean
 	 *  search - i.e. set_weighting_scheme(Xapian::BoolWeight()) - with
-	 *  set_docid_order(Xapian::Enquire::DESCENDING) is a very efficient
-	 *  way to perform "sort by date, newest first".
+	 *  set_docid_order(Xapian::Enquire::DESCENDING) is an efficient
+	 *  way to perform "sort by date, newest first", and with
+	 *  set_docid_order(Xapian::Enquire::ASCENDING) a very efficient way
+	 *  to perform "sort by date, oldest first".
 	 */
 	void set_docid_order(docid_order order);
 
@@ -808,7 +825,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	specified weighting scheme.
 	 *	(default 0 => no weight cut-off).
 	 */
-	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
+	void set_cutoff(int percent_cutoff, double weight_cutoff = 0);
 
 	/** Set the sorting to be by relevance only.
 	 *
@@ -975,8 +992,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *		     given term should be put in the ESet
 	 *
-	 *  @param min_wt    the minimum weight for included terms
-	 *
 	 *  @return	     An ESet object containing the results of the
 	 *		     expand.
 	 *
@@ -1035,7 +1050,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 			int flags,
 			double k,
 			const Xapian::ExpandDecider * edecider,
-			Xapian::weight min_wt) const;
+			double min_wt) const;
 
 	/** Get terms which match a given document, by document id.
 	 *

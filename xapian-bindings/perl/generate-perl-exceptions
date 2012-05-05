@@ -76,18 +76,18 @@ for (reverse @allclasses) {
     } catch (const Xapian::$class &e) {
 	SV * errsv = get_sv("@", TRUE);
 	sv_setref_pv(errsv, "Search::Xapian::$class", (void *) new Xapian::$class(e));
-        croak(Nullch);
+	croak(Nullch);
 EOF
 }
 
 print FD <<'EOF';
     } catch (const std::exception& e) {
-        croak( "std::exception: %s", e.what());
+        croak("std::exception: %s", e.what());
     } catch (...) {
         croak("something terrible happened");
     }
 }
-};
+}
 %}
 
 %exception {

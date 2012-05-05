@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -26,16 +26,16 @@
 
 #include "autoptr.h"
 
-#include "database.h"
-#include "document.h"
-#include "multimatch.h"
+#include "backends/database.h"
+#include "backends/document.h"
+#include "matcher/multimatch.h"
 
 #include "xapian/document.h"
 #include "xapian/error.h"
 #include "xapian/queryparser.h" // For sortable_unserialise().
 
 #include "omassert.h"
-#include "serialise.h"
+#include "net/length.h"
 #include "serialise-double.h"
 #include "str.h"
 
@@ -48,7 +48,7 @@ namespace Xapian {
 PostingSource::~PostingSource() { }
 
 void
-PostingSource::set_maxweight(Xapian::weight max_weight)
+PostingSource::set_maxweight(double max_weight)
 {
     if (usual(matcher_)) {
 	MultiMatch * multimatch = static_cast<MultiMatch*>(matcher_);
@@ -57,14 +57,14 @@ PostingSource::set_maxweight(Xapian::weight max_weight)
     max_weight_ = max_weight;
 }
 
-Xapian::weight
+double
 PostingSource::get_weight() const
 {
     return 0;
 }
 
 void
-PostingSource::skip_to(Xapian::docid did, Xapian::weight min_wt)
+PostingSource::skip_to(Xapian::docid did, double min_wt)
 {
     while (!at_end() && get_docid() < did) {
 	next(min_wt);
@@ -72,7 +72,7 @@ PostingSource::skip_to(Xapian::docid did, Xapian::weight min_wt)
 }
 
 bool
-PostingSource::check(Xapian::docid did, Xapian::weight min_wt)
+PostingSource::check(Xapian::docid did, double min_wt)
 {
     skip_to(did, min_wt);
     return true;
@@ -100,6 +100,13 @@ PostingSource *
 PostingSource::unserialise(const string &) const
 {
     throw Xapian::UnimplementedError("unserialise() not supported for this PostingSource");
+}
+
+PostingSource *
+PostingSource::unserialise_with_registry(const std::string &s,
+					 const Registry &) const
+{
+    return unserialise(s);
 }
 
 string
@@ -133,7 +140,7 @@ ValuePostingSource::get_termfreq_max() const
 }
 
 void
-ValuePostingSource::next(Xapian::weight min_wt)
+ValuePostingSource::next(double min_wt)
 {
     if (!started) {
 	started = true;
@@ -151,7 +158,7 @@ ValuePostingSource::next(Xapian::weight min_wt)
 }
 
 void
-ValuePostingSource::skip_to(Xapian::docid min_docid, Xapian::weight min_wt)
+ValuePostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
     if (!started) {
 	started = true;
@@ -168,8 +175,7 @@ ValuePostingSource::skip_to(Xapian::docid min_docid, Xapian::weight min_wt)
 }
 
 bool
-ValuePostingSource::check(Xapian::docid min_docid,
-				Xapian::weight min_wt)
+ValuePostingSource::check(Xapian::docid min_docid, double min_wt)
 {
     if (!started) {
 	started = true;
@@ -220,7 +226,7 @@ ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_)
 {
 }
 
-Xapian::weight
+double
 ValueWeightPostingSource::get_weight() const
 {
     Assert(!at_end());
@@ -319,7 +325,7 @@ ValueMapPostingSource::set_default_weight(double wt)
     default_weight = wt;
 }
 
-Xapian::weight
+double
 ValueMapPostingSource::get_weight() const
 {
     map<string, double>::const_iterator wit = weight_map.find(*value_it);
@@ -397,7 +403,7 @@ ValueMapPostingSource::get_description() const
     return desc;
 }
 
-FixedWeightPostingSource::FixedWeightPostingSource(Xapian::weight wt)
+FixedWeightPostingSource::FixedWeightPostingSource(double wt)
     : started(false)
 {
     // The weight is fixed at wt, so that's the maxweight too.  So just store wt
@@ -423,14 +429,14 @@ FixedWeightPostingSource::get_termfreq_max() const
     return termfreq;
 }
 
-Xapian::weight
+double
 FixedWeightPostingSource::get_weight() const
 {
     return get_maxweight();
 }
 
 void
-FixedWeightPostingSource::next(Xapian::weight min_wt)
+FixedWeightPostingSource::next(double min_wt)
 {
     if (!started) {
 	started = true;
@@ -452,8 +458,7 @@ FixedWeightPostingSource::next(Xapian::weight min_wt)
 }
 
 void
-FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
-				  Xapian::weight min_wt)
+FixedWeightPostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
     if (!started) {
 	started = true;
@@ -476,8 +481,7 @@ FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
 }
 
 bool
-FixedWeightPostingSource::check(Xapian::docid min_docid,
-				Xapian::weight)
+FixedWeightPostingSource::check(Xapian::docid min_docid, double)
 {
     // We're guaranteed not to be called if the document doesn't
     // exist, so just remember the docid passed, and return true.

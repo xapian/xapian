@@ -1,7 +1,7 @@
 /** @file remotesubmatch.cc
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,8 @@
 
 #include "debuglog.h"
 #include "msetpostlist.h"
-#include "remote-database.h"
-#include "weightinternal.h"
+#include "backends/remote/remote-database.h"
+#include "weight/weightinternal.h"
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
 			       bool decreasing_relevance_,

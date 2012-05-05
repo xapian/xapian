@@ -1,7 +1,7 @@
 /** @file xapian-replicate-server.cc
  * @brief Service database replication requests from clients.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include "replicatetcpserver.h"
+#include "net/replicatetcpserver.h"
 
 #include <xapian.h>
 

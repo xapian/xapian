@@ -33,14 +33,14 @@
 
 #include "omassert.h"
 #include "debuglog.h"
-#include "../backends/multi/multi_postlist.h"
-#include "../backends/multi/multi_termlist.h"
-#include "alltermslist.h"
-#include "multialltermslist.h"
-#include "multivaluelist.h"
-#include "database.h"
+#include "backends/alltermslist.h"
+#include "backends/multi/multi_alltermslist.h"
+#include "backends/multi/multi_postlist.h"
+#include "backends/multi/multi_termlist.h"
+#include "backends/multivaluelist.h"
+#include "backends/database.h"
 #include "editdistance.h"
-#include "ortermlist.h"
+#include "expand/ortermlist.h"
 #include "noreturn.h"
 
 #include <cstdlib> // For abs().
@@ -492,7 +492,7 @@ Database::keep_alive()
 string
 Database::get_description() const
 {
-    /// \todo display contents of the database
+    /// @todo display contents of the database
     return "Database()";
 }
 
@@ -916,7 +916,7 @@ WritableDatabase::set_metadata(const string & key, const string & value)
 string
 WritableDatabase::get_description() const
 {
-    /// \todo display contents of the writable database
+    /// @todo display contents of the writable database
     return "WritableDatabase()";
 }
 

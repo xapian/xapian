@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 #include "mergepostlist.h"
 
 #include "multimatch.h"
-#include "emptypostlist.h"
+#include "api/emptypostlist.h"
 #include "branchpostlist.h"
 #include "debuglog.h"
 #include "omassert.h"
@@ -44,7 +44,7 @@ MergePostList::~MergePostList()
 }
 
 PostList *
-MergePostList::next(Xapian::weight w_min)
+MergePostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "MergePostList::next", w_min);
     LOGVALUE(MATCH, current);
@@ -76,7 +76,7 @@ MergePostList::next(Xapian::weight w_min)
 }
 
 PostList *
-MergePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+MergePostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "MergePostList::skip_to", did | w_min);
     (void)did;
@@ -142,10 +142,10 @@ MergePostList::get_docid() const
     RETURN((plists[current]->get_docid() - 1) * plists.size() + current + 1);
 }
 
-Xapian::weight
+double
 MergePostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "MergePostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "MergePostList::get_weight", NO_ARGS);
     Assert(current != -1);
     return plists[current]->get_weight();
 }
@@ -158,22 +158,22 @@ MergePostList::get_collapse_key() const
     return plists[current]->get_collapse_key();
 }
 
-Xapian::weight
+double
 MergePostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "MergePostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "MergePostList::get_maxweight", NO_ARGS);
     return w_max;
 }
 
-Xapian::weight
+double
 MergePostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "MergePostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "MergePostList::recalc_maxweight", NO_ARGS);
     w_max = 0;
     vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	try {
-	    Xapian::weight w = (*i)->recalc_maxweight();
+	    double w = (*i)->recalc_maxweight();
 	    if (w > w_max) w_max = w;
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {

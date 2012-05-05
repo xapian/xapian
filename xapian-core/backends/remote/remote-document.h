@@ -1,7 +1,7 @@
 /** @file remote-document.h
  * @brief A document read from a RemoteDatabase.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_REMOTE_DOCUMENT_H
 #define XAPIAN_INCLUDED_REMOTE_DOCUMENT_H
 
-#include "database.h"
-#include "document.h"
+#include "backends/database.h"
+#include "backends/document.h"
 
 /// A document read from a RemoteDatabase.
 class RemoteDocument : public Xapian::Document::Internal {

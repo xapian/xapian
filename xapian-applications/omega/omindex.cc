@@ -3,8 +3,9 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
+ * Copyright 2012 Mihai Bivol
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,6 +45,7 @@
 
 #include <xapian.h>
 
+#include "atomparse.h"
 #include "commonhelp.h"
 #include "diritor.h"
 #include "hashterm.h"
@@ -56,6 +58,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "svgparse.h"
+#include "tmpdir.h"
 #include "urlencode.h"
 #include "utf8convert.h"
 #include "utils.h"
@@ -64,10 +67,6 @@
 #include "xpsxmlparse.h"
 
 #include "gnu_getopt.h"
-
-#ifndef HAVE_MKDTEMP
-extern char * mkdtemp(char *);
-#endif
 
 using namespace std;
 
@@ -81,6 +80,7 @@ static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
 static bool spelling = false;
+static off_t  max_size = 0;
 static bool verbose = false;
 static enum {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
@@ -95,8 +95,6 @@ static Xapian::TermGenerator indexer;
 static Xapian::doccount old_docs_not_seen;
 static Xapian::docid old_lastdocid;
 static vector<bool> updated;
-
-static string tmpdir;
 
 static time_t last_mod_max;
 
@@ -166,23 +164,6 @@ shell_protect(const string & file)
     }
 #endif
     return safefile;
-}
-
-static bool ensure_tmpdir() {
-    if (!tmpdir.empty()) return true;
-
-    const char * p = getenv("TMPDIR");
-    if (!p) p = "/tmp";
-    char * dir_template = new char[strlen(p) + 15 + 1];
-    strcpy(dir_template, p);
-    strcat(dir_template, "/omindex-XXXXXX");
-    p = mkdtemp(dir_template);
-    if (p) {
-	tmpdir.assign(dir_template);
-	tmpdir += '/';
-    }
-    delete [] dir_template;
-    return (p != NULL);
 }
 
 static void
@@ -329,6 +310,10 @@ skip_unknown_mimetype(const string & file, const string & mimetype)
     skip(file, "unknown MIME type '" + mimetype + "'");
 }
 
+void
+index_mimetype(const string & file, const string & url, const string & ext,
+	       const string &mimetype, DirectoryIterator &d);
+
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
 	   map<string, string>& mime_map)
@@ -383,6 +368,18 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
+    if (max_size > 0 && d.get_size() > max_size) {
+	skip(file, "Larger than size limit", SKIP_VERBOSE_ONLY);
+	return;
+    }
+
+    index_mimetype(file, url, ext, mimetype, d);
+}
+
+void
+index_mimetype(const string & file, const string & url, const string & ext,
+	       const string &mimetype, DirectoryIterator &d)
+{
     string urlterm("U");
     urlterm += url;
 
@@ -512,7 +509,8 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    // some Chinese PostScript files I found using Google.  It also has
 	    // the benefit of allowing us to extract meta information from
 	    // PostScript files.
-	    if (!ensure_tmpdir()) {
+	    string tmpfile = get_tmpdir();
+	    if (tmpfile.empty()) {
 		// FIXME: should this be fatal?  Or disable indexing postscript?
 		string msg = "Couldn't create temporary directory (";
 		msg += strerror(errno);
@@ -520,7 +518,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		skip(file, msg);
 		return;
 	    }
-	    string tmpfile = tmpdir + "/tmp.pdf";
+	    tmpfile += "/tmp.pdf";
 	    string safetmp = shell_protect(tmpfile);
 	    string cmd = "ps2pdf " + shell_protect(file) + " " + safetmp;
 	    try {
@@ -770,6 +768,13 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    if (idx != string::npos) {
 		dump.assign(desc, idx + 1, string::npos);
 	    }
+	} else if (mimetype == "application/atom+xml") {
+	    AtomParser atomparser;
+	    atomparser.parse_html(d.file_to_string());
+	    dump = atomparser.dump;
+	    title = atomparser.title;
+	    keywords = atomparser.keywords;
+	    author = atomparser.author;
 	} else {
 	    // Don't know how to index this type.
 	    skip_unknown_mimetype(file, mimetype);
@@ -907,7 +912,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	}
 
 	string ext_term("E");
-	for (string::iterator i = ext.begin(); i != ext.end(); ++i) {
+	for (string::const_iterator i = ext.begin(); i != ext.end(); ++i) {
 	    char ch = *i;
 	    if (ch >= 'A' && ch <= 'Z')
 		ch |= 32;
@@ -934,7 +939,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		}
 	    }
 	    if (verbose) {
-		if (did < old_lastdocid) {
+		if (did <= old_lastdocid) {
 		    cout << "updated" << endl;
 		} else {
 		    cout << "added" << endl;
@@ -1032,6 +1037,7 @@ main(int argc, char **argv)
 	{ "spelling",	no_argument,		NULL, 'S' },
 	{ "verbose",	no_argument,		NULL, 'v' },
 	{ "empty-docs",	required_argument,	NULL, 'e' },
+	{ "max-size",	required_argument,	NULL, 'm' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1158,17 +1164,34 @@ main(int argc, char **argv)
     // RPM packages:
     mime_map["rpm"] = "application/x-redhat-package-manager";
 
+    // Atom feeds:
+    mime_map["atom"] = "application/atom+xml";
+
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";
+    mime_map["bin"] = "ignore";
+    mime_map["css"] = "ignore";
+    mime_map["dat"] = "ignore";
+    mime_map["db"] = "ignore";
     mime_map["dll"] = "ignore";
     mime_map["dylib"] = "ignore";
     mime_map["exe"] = "ignore";
+    mime_map["fon"] = "ignore";
+    mime_map["jar"] = "ignore";
+    mime_map["js"] = "ignore";
     mime_map["lib"] = "ignore";
+    mime_map["lnk"] = "ignore";
     mime_map["o"] = "ignore";
     mime_map["obj"] = "ignore";
+    mime_map["pyc"] = "ignore";
+    mime_map["pyd"] = "ignore";
+    mime_map["pyo"] = "ignore";
     mime_map["so"] = "ignore";
-    mime_map["css"] = "ignore";
-    mime_map["js"] = "ignore";
+    mime_map["sqlite"] = "ignore";
+    mime_map["sqlite3"] = "ignore";
+    mime_map["sqlite-journal"] = "ignore";
+    mime_map["tmp"] = "ignore";
+    mime_map["ttf"] = "ignore";
 
     commands["application/msword"] = "antiword -mUTF-8.txt ";
     commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8 ";
@@ -1194,12 +1217,17 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:i",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
-"Usage: "PROG_NAME" [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n\n"
+"Usage: "PROG_NAME" [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n"
+"\n"
+"DIRECTORY is the directory to start indexing from.\n"
+"\n"
+"BASEDIR is the directory corresponding to URL (default: DIRECTORY).\n"
+"\n"
 "Options:\n"
 "  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
 "  -p, --no-delete          skip the deletion of documents corresponding to\n"
@@ -1208,8 +1236,8 @@ main(int argc, char **argv)
 "  -e, --empty-docs=ARG     how to handle documents we extract no text from:\n"
 "                           ARG can be index, warn (issue a diagnostic and\n"
 "                           index), or skip.  (default: warn)\n"
-"  -D, --db                 path to database to use\n"
-"  -U, --url                base url DIRECTORY represents (default: /)\n"
+"  -D, --db=DATABASE        path to database to use\n"
+"  -U, --url=URL            base url BASEDIR corresponds to (default: /)\n"
 "  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
 "                           (empty TYPE removes any MIME mapping for EXT)\n"
 "  -F, --filter=TYPE:CMD    process files with MIME Content-Type TYPE using\n"
@@ -1219,6 +1247,8 @@ main(int argc, char **argv)
 "  -f, --follow             follow symbolic links\n"
 "  -i, --ignore-exclusions  ignore meta robots tags and similar exclusions\n"
 "  -S, --spelling           index data for spelling correction\n"
+"  -m, --max-size           maximum size of file to index (in bytes or with a\n"
+"                           suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
 "  -v, --verbose            show more information about what is happening\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
@@ -1323,6 +1353,35 @@ main(int argc, char **argv)
 	case 'v':
 	    verbose = true;
 	    break;
+	case 'm': {
+	    // Don't want negative numbers, infinity, NaN, or hex numbers.
+	    char * p = optarg;
+	    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+		double arg = strtod(p, &p);
+		switch (*p) {
+		    case '\0':
+			break;
+		    case 'k': case 'K':
+			arg *= 1024;
+			++p;
+			break;
+		    case 'm': case 'M':
+			arg *= (1024 * 1024);
+			++p;
+			break;
+		    case 'g': case 'G':
+			arg *= (1024 * 1024 * 1024);
+			++p;
+			break;
+		}
+		if (*p == '\0') {
+		    max_size = off_t(arg);
+		    break;
+		}
+	    }
+	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
+	    return 1;
+	}
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
@@ -1456,6 +1515,8 @@ main(int argc, char **argv)
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_description() << endl;
+    } catch (const exception &e) {
+	cout << "Exception: " << e.what() << endl;
     } catch (const string &s) {
 	cout << "Exception: " << s << endl;
     } catch (const char *s) {
@@ -1465,7 +1526,7 @@ main(int argc, char **argv)
     }
 
     // If we created a temporary directory then delete it.
-    if (!tmpdir.empty()) rmdir(tmpdir.c_str());
+    remove_tmpdir();
 
     
     //storing the collection statistics in uset metadata which is used in Letor features calculation

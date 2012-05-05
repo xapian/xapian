@@ -1,7 +1,7 @@
 /** @file brass_synonym.h
  * @brief Synonym data for a brass database.
  */
-/* Copyright (C) 2005,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,10 @@
 
 #include <xapian/types.h>
 
-#include "alltermslist.h"
-#include "database.h"
+#include "backends/alltermslist.h"
+#include "backends/database.h"
 #include "brass_lazytable.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <set>
 #include <string>

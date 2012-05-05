@@ -1,6 +1,7 @@
-/* inmemory_database.h: C++ class definition for inmemory database access
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file inmemory_database.h
+ * @brief C++ class definition for inmemory database access
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
@@ -24,9 +25,9 @@
 #ifndef OM_HGUARD_INMEMORY_DATABASE_H
 #define OM_HGUARD_INMEMORY_DATABASE_H
 
-#include "leafpostlist.h"
-#include "termlist.h"
-#include "database.h"
+#include "api/leafpostlist.h"
+#include "api/termlist.h"
+#include "backends/database.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -158,9 +159,9 @@ class InMemoryPostList : public LeafPostList {
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
-	PostList *next(Xapian::weight w_min); // Moves to next docid
+	PostList *next(double w_min); // Moves to next docid
 
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
+	PostList *skip_to(Xapian::docid did, double w_min); // Moves to next docid >= specified docid
 
 	// True if we're off the end of the list.
 	bool at_end() const;
@@ -187,9 +188,9 @@ class InMemoryAllDocsPostList : public LeafPostList {
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
-	PostList *next(Xapian::weight w_min);      // Moves to next docid
+	PostList *next(double w_min);      // Moves to next docid
 
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
+	PostList *skip_to(Xapian::docid did, double w_min); // Moves to next docid >= specified docid
 
 	// True if we're off the end of the list
 	bool at_end() const;

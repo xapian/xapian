@@ -26,8 +26,15 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/ExpandDecider.cs \
 	generated-csharp/ExpandDeciderAnd.cs \
 	generated-csharp/FixedWeightPostingSource.cs \
+	generated-csharp/GreatCircleMetric.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
+	generated-csharp/LatLongCoord.cs \
+	generated-csharp/LatLongCoords.cs \
+	generated-csharp/LatLongCoordsIterator.cs \
+	generated-csharp/LatLongDistanceKeyMaker.cs \
+	generated-csharp/LatLongDistancePostingSource.cs \
+	generated-csharp/LatLongMetric.cs \
 	generated-csharp/MatchDecider.cs \
 	generated-csharp/MatchSpy.cs \
 	generated-csharp/MSet.cs \
@@ -42,8 +49,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Remote.cs \
 	generated-csharp/RSet.cs \
 	generated-csharp/SWIGTYPE_p_std__string.cs \
-	generated-csharp/SWIGTYPE_p_std__vectorT_std__string_t.cs \
-	generated-csharp/SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
 	generated-csharp/Registry.cs \
 	generated-csharp/SimpleStopper.cs \
 	generated-csharp/Stem.cs \
@@ -70,7 +75,12 @@ XapianSharp.snk:
 	$(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
+## We specify both -keyfile and -keycontainer - hopefully this means that if
+## this is the first time we're signing, the key in the file is used and
+## then stored in the key container.  From then on, the key in the container
+## is used.
 	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
+	    -keyfile:XapianSharp.snk -keycontainer:"Xapian Signing Key" \
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
 
@@ -124,8 +134,8 @@ xapian_wrap.stamp:
 	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
 	mv xapian_wrap_d.tmp xapian_wrap.d
 	: # Check that exactly the sources we expected were generated.
-	LANG=C ls -1 generated-csharp/*.cs > generated-csharp/list
-	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_CS_SRCS)|diff - generated-csharp/list
+	$(PERL) -e 'print "$$_\n" for sort @ARGV' generated-csharp/*.cs > generated-csharp/list
+	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_CS_SRCS)|diff -c - generated-csharp/list
 	$(multitarget_end)
 
 -include xapian_wrap.d

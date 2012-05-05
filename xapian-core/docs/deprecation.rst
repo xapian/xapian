@@ -2,7 +2,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
 
 ===========
 Deprecation
@@ -39,10 +39,10 @@ Deprecation markers
 -------------------
 
 At any particular point, some parts of the C++ API will be marked as
-"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED()`` or
-``XAPIAN_DEPRECATED_CLASS`` macros, which will cause compilers with appropriate
-support (such as GCC 3.1 or later, and MSVC 7.0 or later) to emit warning
-messages about the use of deprecated features at compile time.
+"deprecated".  Deprecated features are annotated in the API headers with macros
+such as ``XAPIAN_DEPRECATED()``, which will cause compilers with appropriate
+support (such as GCC 3.1 or later, and MSVC 7.0 or later) to emit compile-time
+warnings if these features are used.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
@@ -429,6 +429,23 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``Xapian::timeout`` typedef         Use POSIX ``useconds_t`` (from ``<sys/types.h>``) instead, which should also work
 					    with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::weight`` typedef          Use ``double`` instead, which should also work with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.0   ``Xapian::Query::unserialise()``    To be compatible with older and newer Xapian, you can catch both exceptions.
+	throws
+	``Xapian::SerialisationError`` not
+	``Xapian::InvalidArgumentError``
+	for errors in serialised data
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.1   ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it only
+                                            works in Enquire, whereas you should be able to handle errors at the Database
+                                            level too) and we can't find any evidence that people are actually using it.
+                                            So we are deprecating it and will replace it with something better thought out,
+                                            probably during the 1.3.x development series.  There's so further thoughts at
+                                            http://trac.xapian.org/ticket/3#comment:8
 ======= =================================== ==================================================================================
 
 

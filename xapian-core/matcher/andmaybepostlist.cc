@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2008,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 #include "omassert.h"
 
 PostList *
-AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
+AndMaybePostList::process_next_or_skip_to(double w_min, PostList *ret)
 {
     LOGCALL(MATCH, PostList *, "AndMaybePostList::process_next_or_skip_to", w_min | ret);
     handle_prune(l, ret);
@@ -58,7 +58,7 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 }
 
 PostList *
-AndMaybePostList::sync_rhs(Xapian::weight w_min)
+AndMaybePostList::sync_rhs(double w_min)
 {
     LOGCALL(MATCH, PostList *, "AndMaybePostList::sync_rhs", w_min);
     bool valid;
@@ -77,7 +77,7 @@ AndMaybePostList::sync_rhs(Xapian::weight w_min)
 }
 
 PostList *
-AndMaybePostList::next(Xapian::weight w_min)
+AndMaybePostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "AndMaybePostList::next", w_min);
     if (w_min > lmax) {
@@ -93,7 +93,7 @@ AndMaybePostList::next(Xapian::weight w_min)
 }
 
 PostList *
-AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "AndMaybePostList::skip_to", did | w_min);
     if (w_min > lmax) {
@@ -155,27 +155,27 @@ AndMaybePostList::get_docid() const
 }
 
 // only called if we are doing a probabilistic AND MAYBE
-Xapian::weight
+double
 AndMaybePostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "AndMaybePostList::get_weight", NO_ARGS);
     Assert(lhead != 0); // check we've started
     if (lhead == rhead) RETURN(l->get_weight() + r->get_weight());
     RETURN(l->get_weight());
 }
 
 // only called if we are doing a probabilistic operation
-Xapian::weight
+double
 AndMaybePostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "AndMaybePostList::get_maxweight", NO_ARGS);
     RETURN(lmax + rmax);
 }
 
-Xapian::weight
+double
 AndMaybePostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "AndMaybePostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "AndMaybePostList::recalc_maxweight", NO_ARGS);
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     RETURN(AndMaybePostList::get_maxweight());

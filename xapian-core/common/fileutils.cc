@@ -2,7 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010 Olly Betts
+ * Copyright (C) 2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,61 @@
 
 #include "fileutils.h"
 
+#include "xapian/error.h"
+#include "safedirent.h"
+#include "safeerrno.h"
+
 #include <cstring>
 #include <string>
+#include <sys/types.h>
 
 using namespace std;
 
+class dircloser {
+    DIR * dir;
+  public:
+    dircloser(DIR * dir_) : dir(dir_) {}
+    ~dircloser() {
+	if (dir != NULL) {
+	    closedir(dir);
+	    dir = NULL;
+	}
+    }
+};
+
+void
+removedir(const string &dirname)
+{
+    DIR * dir;
+
+    dir = opendir(dirname.c_str());
+    if (dir == NULL) {
+	if (errno == ENOENT) return;
+	throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
+    }
+
+    {
+	dircloser dc(dir);
+	while (true) {
+	    errno = 0;
+	    struct dirent * entry = readdir(dir);
+	    if (entry == NULL) {
+		if (errno == 0)
+		    break;
+		throw Xapian::DatabaseError("Cannot read entry from directory at '" + dirname + "'", errno);
+	    }
+	    string name(entry->d_name);
+	    if (name == "." || name == "..")
+		continue;
+	    if (unlink((dirname + "/" + name).c_str())) {
+		throw Xapian::DatabaseError("Cannot remove file '" + string(entry->d_name) + "'", errno);
+	    }
+	}
+    }
+    if (rmdir(dirname.c_str())) {
+	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
+    }
+}
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
 static bool

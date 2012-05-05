@@ -53,8 +53,12 @@ typedef unsigned docid;
  */
 typedef double doclength;
 
-/** The percentage score for a document in an MSet. */
-typedef int percent;
+/** The percentage score for a document in an MSet.
+ *
+ *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
+ *  type int instead, which should work with older Xapian too.
+ */
+XAPIAN_DEPRECATED(typedef int percent);
 
 /** A counts of terms.
  *
@@ -92,7 +96,9 @@ XAPIAN_DEPRECATED(typedef unsigned timeout);
 
 /** The number for a value slot in a document.
  *
- *  Any value slot number except Xapian::BAD_VALUENO is valid.
+ *  Value slot numbers are unsigned and (currently) a 32-bit quantity, with
+ *  Xapian::BAD_VALUENO being represented by the largest possible value.
+ *  Therefore value slots 0 to 0xFFFFFFFE are available for use.
  */
 typedef unsigned valueno;
 
@@ -103,11 +109,15 @@ typedef unsigned valueno;
  */
 typedef int valueno_diff; /* FIXME: can overflow. */
 
-/** The weight of a document or term. */
-typedef double weight;
+/** The weight of a document or term.
+ *
+ *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
+ *  C++ type double instead, which should work with older Xapian too.
+ */
+XAPIAN_DEPRECATED(typedef double weight);
 
 /** Reserved value to indicate "no valueno". */
-const valueno BAD_VALUENO = static_cast<valueno>(-1);
+const valueno BAD_VALUENO = 0xffffffff;
 
 }
 

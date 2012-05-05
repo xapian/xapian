@@ -1,7 +1,7 @@
 /** @file omassert.h
  * @brief Various assertion macros.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,6 @@
 #include <xapian/error.h>
 
 #include "str.h"
-#include "utils.h" // For within_DBL_EPSILON().
 
 #define XAPIAN_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
 #define XAPIAN_ASSERT_LOCATION_(LINE,MSG) XAPIAN_ASSERT_LOCATION__(LINE,MSG)
@@ -107,11 +106,18 @@
  */
 #define AssertEq(A,B) AssertRel(A,==,B)
 
+/** Helper function to check if two values are within DBL_EPSILON. */
+namespace Xapian {
+namespace Internal {
+bool within_DBL_EPSILON(double a, double b);
+}
+}
+
 /// Assert two values differ by DBL_EPSILON or more.
 #define AssertEqDouble(A,B) \
     do {\
 	using Xapian::Internal::within_DBL_EPSILON;\
-	if (rare(within_DBL_EPSILON(A,B))) {\
+	if (rare(!within_DBL_EPSILON(A,B))) {\
 	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(within_DBL_EPSILON(A,B)));\
 	    xapian_assertion_msg += " : values were ";\
 	    xapian_assertion_msg += str(A);\

@@ -63,6 +63,7 @@ try {
 # Check QueryParser parsing error.
 try {
     $qp = new XapianQueryParser;
+    $qp->set_stemmer(new XapianStem("en"));
     $qp->parse_query("test AND");
     print "Successfully parsed bad query\n";
     exit(1);
@@ -124,23 +125,28 @@ if ($db->get_doccount() != 1) {
 
 $terms = array("smoke", "test", "terms");
 $query = new XapianQuery(XapianQuery::OP_OR, $terms);
-if ($query->get_description() != "Xapian::Query((smoke OR test OR terms))") {
+if ($query->get_description() != "Query((smoke OR test OR terms))") {
     print "Unexpected \$query->get_description()\n";
     exit(1);
 }
 $query1 = new XapianQuery(XapianQuery::OP_PHRASE, array("smoke", "test", "tuple"));
-if ($query1->get_description() != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))") {
+if ($query1->get_description() != "Query((smoke PHRASE 3 test PHRASE 3 tuple))") {
     print "Unexpected \$query1->get_description()\n";
     exit(1);
 }
+$query1b = new XapianQuery(XapianQuery::OP_NEAR, array("smoke", "test", "tuple"), 4);
+if ($query1b->get_description() != "Query((smoke NEAR 4 test NEAR 4 tuple))") {
+    print "Unexpected \$query1b->get_description()\n";
+    exit(1);
+}
 $query2 = new XapianQuery(XapianQuery::OP_XOR, array(new XapianQuery("smoke"), $query1, "string"));
-if ($query2->get_description() != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
+if ($query2->get_description() != "Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
     print "Unexpected \$query2->get_description()\n";
     exit(1);
 }
 $subqs = array("a", "b");
 $query3 = new XapianQuery(XapianQuery::OP_OR, $subqs);
-if ($query3->get_description() != "Xapian::Query((a OR b))") {
+if ($query3->get_description() != "Query((a OR b))") {
     print "Unexpected \$query3->get_description()\n";
     exit(1);
 }
@@ -205,7 +211,7 @@ $qp = new XapianQueryParser();
 $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
 $qp->add_valuerangeprocessor($vrpdate);
 $query = $qp->parse_query('12/03/99..12/04/01');
-if ($query->get_description() !== 'Xapian::Query(VALUE_RANGE 1 19991203 20011204)') {
+if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
 }
@@ -223,7 +229,7 @@ if ($db->get_metadata('Foo') !== 'Foo') {
 
 # Test OP_SCALE_WEIGHT and corresponding constructor
 $query4 = new XapianQuery(XapianQuery::OP_SCALE_WEIGHT, new XapianQuery('foo'), 5.0);
-if ($query4->get_description() != "Xapian::Query(5 * foo)") {
+if ($query4->get_description() != "Query(5 * foo)") {
     print "Unexpected \$query4->get_description()\n";
     exit(1);
 }
@@ -342,28 +348,28 @@ function mset_expect_order($mset, $a) {
 
 # Feature tests for Query "term" constructor optional arguments:
 $query_wqf = new XapianQuery('wqf', 3);
-if ($query_wqf->get_description() != 'Xapian::Query(wqf:(wqf=3))') {
+if ($query_wqf->get_description() != 'Query(wqf#3)') {
     print "Unexpected \$query_wqf->get_description():\n";
     print $query_wqf->get_description() . "\n";
     exit(1);
 }
 
 $query = new XapianQuery(XapianQuery::OP_VALUE_GE, 0, "100");
-if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
+if ($query->get_description() != 'Query(VALUE_GE 0 100)') {
     print "Unexpected \$query->get_description():\n";
     print $query->get_description() . "\n";
     exit(1);
 }
 
 $query = XapianQuery::MatchAll();
-if ($query->get_description() != 'Xapian::Query(<alldocuments>)') {
+if ($query->get_description() != 'Query(<alldocuments>)') {
     print "Unexpected \$query->get_description():\n";
     print $query->get_description() . "\n";
     exit(1);
 }
 
 $query = XapianQuery::MatchNothing();
-if ($query->get_description() != 'Xapian::Query()') {
+if ($query->get_description() != 'Query()') {
     print "Unexpected \$query->get_description():\n";
     print $query->get_description() . "\n";
     exit(1);
@@ -405,5 +411,40 @@ $doc = new XapianDocument();
 $indexer->set_document($doc);
 $indexer->index_text("I ask nothing in return");
 $indexer->index_text_without_positions("Tea time");
+
+# Test GeoSpatial API
+$coord = new XapianLatLongCoord();
+$coord = new XapianLatLongCoord(-41.288889, 174.777222);
+
+define('COORD_SLOT', 2);
+$metric = new XapianGreatCircleMetric();
+$range = 42.0;
+
+$centre = new XapianLatLongCoords($coord);
+$query = new XapianQuery(new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range));
+
+$db = Xapian::inmemory_open();
+$coords = new XapianLatLongCoords();
+$coords->append(new XapianLatLongCoord(40.6048, -74.4427));
+$doc = new XapianDocument();
+$doc->add_term("coffee");
+$doc->add_value(COORD_SLOT, $coords->serialise());
+$db->add_document($doc);
+
+$centre = new XapianLatLongCoords();
+$centre->append(new XapianLatLongCoord(40.6048, -74.4427));
+
+$ps = new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range);
+$q = new XapianQuery("coffee");
+$q = new XapianQuery(XapianQuery::OP_AND, $q, new XapianQuery($ps));
+
+$enq = new XapianEnquire($db);
+$enq->set_query($q);
+$mset = $enq->get_mset(0, 10);
+if ($mset->size() != 1) {
+    print "Expected one result with XapianLatLongDistancePostingSource, got ";
+    print $mset->size() . "\n";
+    exit(1);
+}
 
 ?>

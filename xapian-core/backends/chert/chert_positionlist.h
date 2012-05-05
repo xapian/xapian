@@ -1,6 +1,7 @@
-/* chert_positionlist.h: A position list in a chert database.
- *
- * Copyright (C) 2005,2006,2008,2009,2010 Olly Betts
+/** @file chert_positionlist.h
+ * @brief A position list in a chert database.
+ */
+/* Copyright (C) 2005,2006,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +26,7 @@
 
 #include "chert_lazytable.h"
 #include "pack.h"
-#include "positionlist.h"
+#include "backends/positionlist.h"
 
 #include <string>
 #include <vector>

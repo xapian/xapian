@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010 Olly Betts
+/* Copyright (C) 2008,2010,2011 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,14 +25,14 @@
 
 #include "xapian/enquire.h"
 #include "xapian/expanddecider.h"
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 #include "expandweight.h"
 #include "omassert.h"
 #include "ortermlist.h"
 #include "str.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include "autoptr.h"
 #include <set>
@@ -140,7 +140,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
 		       const Xapian::Internal::ExpandWeight & eweight,
-		       Xapian::weight min_wt)
+		       double min_wt)
 {
     LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
     // These two cases are handled by our caller.
@@ -172,7 +172,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
 	++ebound;
 
-	Xapian::weight wt = eweight.get_weight(tree.get(), term);
+	double wt = eweight.get_weight(tree.get(), term);
 	// If the weights are equal, we prefer the lexically smaller term and
 	// so we use "<=" not "<" here.
 	if (wt <= min_wt) continue;

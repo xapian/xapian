@@ -175,10 +175,15 @@ site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
-(Comma-Separated Values) files, and AbiWord documents.  It can also index a
-number of other formats using external programs.  Filter programs are run with
-CPU and memory limits to prevent a runaway filter from blocking indexing of
-other files.
+(Comma-Separated Values) files, Atom feeds, and AbiWord documents.  It can also
+index a number of other formats using external programs.  Filter programs are
+run with CPU, time and memory limits to prevent a runaway filter from blocking
+indexing of other files.
+
+The way omindex decides how to index a file is based around MIME content-types.
+First of all omindex will look up a file's extension in its extension to MIME
+type map.  If there's no entry, it will then ask libmagic to examine the
+contents of the file and try to determine a MIME type.
 
 The following formats are supported as standard (you can tell omindex to use
 other filters too - see below):
@@ -216,6 +221,7 @@ other filters too - see below):
 * XPS files (.xps) if unzip is available
 * Debian packages (.deb, .udeb) if dpkg-deb is available
 * RPM packages (.rpm) if rpm is available
+* Atom feeds (.atom)
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
@@ -224,14 +230,16 @@ instance::
 $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type doc:application/postscript
 
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
-a file of that type (everything after the last '.'), and type is one
-of:
+a file of that type (everything after the last '.').  The ``type`` can be any
+string, but to be useful there either needs to be a filter set for that type
+- either using ``--filter`` or by ``type`` being understood by default:
 
    - text/csv
    - text/html
    - text/plain
    - text/rtf
    - text/x-perl
+   - application/atom+xml
    - application/msword
    - application/pdf
    - application/postscript
@@ -287,15 +295,29 @@ of:
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
+   - bin
    - css
+   - dat
+   - db
    - dll
    - dylib
    - exe
+   - fon
+   - jar
    - js
    - lib
+   - lnk
    - o
    - obj
+   - pyc
+   - pyd
+   - pyo
    - so
+   - sqlite
+   - sqlite3
+   - sqlite-journal
+   - tmp
+   - ttf
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: ``--mime-type=doc:``
@@ -372,10 +394,15 @@ which are marked as ``noindex`` or ``none``, for example any of the following::
 
 Sometimes it is useful to be able to exclude just part of a page from being
 indexed (for example you may not want to index navigation links, or a footer
-which appears on every page).  To allow this, the parser also understands
-ht://dig-style comments to mark sections of the document to not index::
+which appears on every page).  To allow this, the parser supports "magic"
+comments to mark sections of the document to not index.  Two formats are
+supported - htdig_noindex (used by ht://Dig) and UdmComment (used by
+mnoGoSearch)::
 
     Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
+
+::
+    <!--UdmComment--><div>Boring copyright notice</div><!--/UdmComment-->
 
 Boolean terms
 =============

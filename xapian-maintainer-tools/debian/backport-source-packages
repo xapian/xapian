@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ set -e
 MIRROR=http://ftp.nz.debian.org/debian/
 
 DEBIAN_CODENAMES='squeeze lenny'
-UBUNTU_CODENAMES='natty maverick lucid'
+UBUNTU_CODENAMES='oneiric natty maverick lucid'
 
 V_OPT=
 case $1 in

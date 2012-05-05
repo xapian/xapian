@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008,2009,2010 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -45,7 +45,7 @@ OrPostList::OrPostList(PostList *left_,
 }
 
 PostList *
-OrPostList::next(Xapian::weight w_min)
+OrPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "OrPostList::next", w_min);
     if (w_min > minmax) {
@@ -125,7 +125,7 @@ OrPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+OrPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "OrPostList::skip_to", did | w_min);
     if (w_min > minmax) {
@@ -190,7 +190,7 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 }
 
 PostList *
-OrPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
+OrPostList::check(Xapian::docid did, double w_min, bool &valid)
 {
     LOGCALL(MATCH, PostList *, "OrPostList::check", did | w_min);
     if (w_min > minmax) {
@@ -288,6 +288,8 @@ Xapian::doccount
 OrPostList::get_termfreq_est() const
 {
     LOGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_est", NO_ARGS);
+    if (rare(dbsize == 0))
+	RETURN(0);
     // Estimate assuming independence:
     // P(l or r) = P(l) + P(r) - P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
@@ -334,10 +336,10 @@ OrPostList::get_docid() const
 }
 
 // only called if we are doing a probabilistic OR
-Xapian::weight
+double
 OrPostList::get_weight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "OrPostList::get_weight", NO_ARGS);
+    LOGCALL(MATCH, double, "OrPostList::get_weight", NO_ARGS);
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) RETURN(l->get_weight());
     if (lhead > rhead) RETURN(r->get_weight());
@@ -345,17 +347,17 @@ OrPostList::get_weight() const
 }
 
 // only called if we are doing a probabilistic operation
-Xapian::weight
+double
 OrPostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "OrPostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "OrPostList::get_maxweight", NO_ARGS);
     RETURN(lmax + rmax);
 }
 
-Xapian::weight
+double
 OrPostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "OrPostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "OrPostList::recalc_maxweight", NO_ARGS);
     // l and r cannot be NULL here, because the only place where they get set
     // to NULL is when the tree is decaying, and the OrPostList is then
     // immediately replaced.

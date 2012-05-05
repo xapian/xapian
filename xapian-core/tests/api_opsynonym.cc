@@ -1,7 +1,7 @@
 /** @file api_opsynonym.cc
  * @brief tests of OP_SYNONYM.
  */
-/* Copyright 2009 Olly Betts
+/* Copyright 2009,2011 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -157,14 +157,17 @@ DEFINE_TESTCASE(synonym1, backend) {
     subqueries_list.push_back(subqueries);
     // When the top-level operator is OR, the synonym part has an estimated
     // termfreq of 35.  When the top-level operator is SYNONYM, the whole query
-    // has an estimated termfreq of 35, and is in fact the same as the synonym
-    // part in the OR query, except that the wqf of "date" is 2.  We're
-    // currently not using the wqfs of components of synonyms, so this
-    // difference has no effect on the weightings.  Therefore, for the 1
-    // document which does not contain "data", we get the same result with
-    // SYNONYM as with OR.
-    subqueries_sameweight_count.push_back(1);
-    subqueries_diffweight_count.push_back(33);
+    // has an estimated termfreq of 66, which is rather bogus, but that's the
+    // current situation here (1.2 did better as it flattened this into a
+    // single OP_SYNONYM operator and then merged the two "date" terms to one
+    // with wqf=2.  We've decided we shouldn't do such merging from 1.3.x on
+    // (merging to sum the scale_factors is fine, but we don't do that yet -
+    // FIXME).
+    //
+    // Anyway, this means that currently the weights are different for all
+    // matches.
+    subqueries_sameweight_count.push_back(0);
+    subqueries_diffweight_count.push_back(34);
 
     subqueries.clear();
     subqueries.push_back(Xapian::Query("sky"));
@@ -227,8 +230,8 @@ DEFINE_TESTCASE(synonym1, backend) {
 	TEST_NOT_EQUAL(synmset.size(), 0);
 	// Check that the queries return the same number of results.
 	TEST_EQUAL(synmset.size(), ormset.size());
-	map<Xapian::docid, Xapian::weight> values_or;
-	map<Xapian::docid, Xapian::weight> values_synonym;
+	map<Xapian::docid, double> values_or;
+	map<Xapian::docid, double> values_synonym;
 	for (Xapian::doccount i = 0; i < synmset.size(); ++i) {
 	    values_or[*ormset[i]] = ormset[i].get_weight();
 	    values_synonym[*synmset[i]] = synmset[i].get_weight();
@@ -239,7 +242,7 @@ DEFINE_TESTCASE(synonym1, backend) {
 	 * different from those in the "synonym" mset. */
 	int same_weight = 0;
 	int different_weight = 0;
-	for (map<Xapian::docid, Xapian::weight>::const_iterator
+	for (map<Xapian::docid, double>::const_iterator
 	     j = values_or.begin(); j != values_or.end(); ++j) {
 	    Xapian::docid did = j->first;
 	    // Check that all the results in the or tree make it to the synonym

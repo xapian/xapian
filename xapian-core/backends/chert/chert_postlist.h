@@ -1,6 +1,7 @@
-/* chert_postlist.h: Postlists in chert databases
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file chert_postlist.h
+ * @brief Postlists in chert databases
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
@@ -28,7 +29,7 @@
 
 #include "chert_types.h"
 #include "chert_positionlist.h"
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "omassert.h"
 
 #include "autoptr.h"
@@ -259,10 +260,10 @@ class ChertPostList : public LeafPostList {
 	PositionList * open_position_list() const;
 
 	/// Move to the next document.
-	PostList * next(Xapian::weight w_min);
+	PostList * next(double w_min);
 
 	/// Skip to next document with docid >= docid.
-	PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
+	PostList * skip_to(Xapian::docid desired_did, double w_min);
 
 	/// Return true if and only if we're off the end of the list.
 	bool at_end() const { return is_at_end; }

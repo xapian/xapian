@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010 Olly Betts
+/* Copyright 2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -67,7 +67,7 @@ ValueRangePostList::get_termfreq_max() const
     return db_size;
 }
 
-Xapian::weight
+double
 ValueRangePostList::get_maxweight() const
 {
     return 0;
@@ -81,7 +81,7 @@ ValueRangePostList::get_docid() const
     return valuelist->get_docid();
 }
 
-Xapian::weight
+double
 ValueRangePostList::get_weight() const
 {
     Assert(db);
@@ -95,7 +95,7 @@ ValueRangePostList::get_doclength() const
     return 0;
 }
 
-Xapian::weight
+double
 ValueRangePostList::recalc_maxweight()
 {
     Assert(db);
@@ -117,7 +117,7 @@ ValueRangePostList::open_position_list() const
 }
 
 PostList *
-ValueRangePostList::next(Xapian::weight)
+ValueRangePostList::next(double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
@@ -134,7 +134,7 @@ ValueRangePostList::next(Xapian::weight)
 }
 
 PostList *
-ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight)
+ValueRangePostList::skip_to(Xapian::docid did, double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
@@ -151,7 +151,7 @@ ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight)
 }
 
 PostList *
-ValueRangePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
+ValueRangePostList::check(Xapian::docid did, double, bool &valid)
 {
     Assert(db);
     AssertRelParanoid(did, <=, db->get_lastdocid());

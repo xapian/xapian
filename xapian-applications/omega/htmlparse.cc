@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -265,12 +265,31 @@ HtmlParser::parse_html(const string &body)
 			start = body.begin() + i + 21;
 			continue;
 		    }
+		    // Check for udmcomment (similar to htdig's)
+		    if (p - start == 12 && string(start, p - 2) == "UdmComment") {
+			string::size_type i;
+			i = body.find("<!--/UdmComment-->", p + 1 - body.begin());
+			if (i == string::npos) break;
+			start = body.begin() + i + 18;
+			continue;
+		    }
 		    // If we found --> skip to there.
 		    start = p;
 		} else {
 		    // Otherwise skip to the first > we found (as Netscape does).
 		    start = close;
 		}
+	    } else if (body.size() - (start - body.begin()) > 6 &&
+		       body.compare(start - body.begin() - 1, 7, "[CDATA[", 7) == 0) {
+		start += 6;
+		string::size_type b = start - body.begin();
+		string::size_type i;
+		i = body.find("]]>", b);
+		string text(body, b, i - b);
+		convert_to_utf8(text, charset);
+		process_text(text);
+		if (i == string::npos) break;
+		start = body.begin() + i + 2;
 	    } else {
 		// just an SGML declaration, perhaps giving the DTD - ignore it
 		start = find(start - 1, body.end(), '>');

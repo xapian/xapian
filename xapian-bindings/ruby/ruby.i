@@ -181,12 +181,14 @@ class XapianSWIGQueryItor {
   public:
     XapianSWIGQueryItor() { }
 
-    // Second dummy parameter avoids ambiguity if VALUE is a typedef for int.
-    XapianSWIGQueryItor(int n, bool)
-	: i(n) { }
+    void begin(VALUE array_) {
+	array = array_;
+	i = 0;
+    }
 
-    XapianSWIGQueryItor(VALUE array_)
-	: array(array_), i(0) { }
+    void end(int n) {
+	i = n;
+    }
 
     XapianSWIGQueryItor & operator++() {
 	++i;
@@ -231,10 +233,11 @@ class XapianSWIGQueryItor {
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     if (TYPE($input) == T_ARRAY) {
 	// The typecheck typemap should have ensured this is an array.
-	$1 = XapianSWIGQueryItor($input);
-	$2 = XapianSWIGQueryItor(RARRAY_LEN($input), true);
+	$1.begin($input);
+	$2.end(RARRAY_LEN($input));
     } else {
-	$1 = $2 = XapianSWIGQueryItor(0);
+	$1.end(0);
+	$2.end(0);
     }
 }
 

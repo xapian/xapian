@@ -2,7 +2,7 @@
  * @brief A ChertAllDocsPostList plus pending modifications.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009 Olly Betts
+ * Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ class ChertAllDocsModifiedPostList : public ChertAllDocsPostList {
     ChertAllDocsModifiedPostList(const ChertAllDocsModifiedPostList &);
 
     /// Skip over deleted documents after a next() or skip_to().
-    void skip_deletes(Xapian::weight w_min);
+    void skip_deletes(double w_min);
 
   public:
     ChertAllDocsModifiedPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> db_,
@@ -51,9 +51,9 @@ class ChertAllDocsModifiedPostList : public ChertAllDocsPostList {
 
     Xapian::termcount get_doclength() const;
 
-    PostList * next(Xapian::weight w_min);
+    PostList * next(double w_min);
 
-    PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
+    PostList * skip_to(Xapian::docid desired_did, double w_min);
 
     bool at_end() const;
 

@@ -1,6 +1,6 @@
 # Simple test that we can load the xapian module and run a simple test
 #
-# Copyright (C) 2004,2006,2009 Olly Betts
+# Copyright (C) 2004,2006,2009,2011 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -68,34 +68,34 @@ if { [db get_doccount] != 1 } {
 
 set terms [list "smoke" "test" "terms"]
 xapian::Query query $xapian::Query_OP_OR $terms
-if { [query get_description] != "Xapian::Query((smoke OR test OR terms))" } {
+if { [query get_description] != "Query((smoke OR test OR terms))" } {
     puts stderr "Unexpected query.get_description()"
     exit 1
 }
 xapian::Query query1 $xapian::Query_OP_PHRASE [list "smoke" "test" "tuple"]
-if { [query1 get_description] != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))" } {
+if { [query1 get_description] != "Query((smoke PHRASE 3 test PHRASE 3 tuple))" } {
     puts stderr "Unexpected query1.get_description()"
     exit 1
 }
 xapian::Query smoke "smoke"
 xapian::Query query2 $xapian::Query_OP_XOR [list smoke query1 "string" ]
-if { [query2 get_description] != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))" } {
+if { [query2 get_description] != "Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))" } {
     puts stderr "Unexpected query2 get_description"
     exit 1
 }
 set subqs [list "a" "b"]
 xapian::Query query3 $xapian::Query_OP_OR $subqs
-if { [query3 get_description] != "Xapian::Query((a OR b))" } {
+if { [query3 get_description] != "Query((a OR b))" } {
     puts stderr "Unexpected query3 get_description"
     exit 1
 }
 
-if { [$xapian::Query_MatchAll get_description] != "Xapian::Query(<alldocuments>)" } {
+if { [$xapian::Query_MatchAll get_description] != "Query(<alldocuments>)" } {
     puts stderr "Unexpected Query_MatchAll get_description"
     exit 1
 }
 
-if { [$xapian::Query_MatchNothing get_description] != "Xapian::Query()" } {
+if { [$xapian::Query_MatchNothing get_description] != "Query()" } {
     puts stderr "Unexpected Query_MatchNothing get_description"
     exit 1
 }
@@ -157,7 +157,7 @@ if { $xapian::Query_OP_ELITE_SET != 10 } {
 }
 
 xapian::Query query4 $xapian::Query_OP_SCALE_WEIGHT smoke 5
-if { [query4 get_description] != "Xapian::Query(5 * smoke)" } {
+if { [query4 get_description] != "Query(5 * smoke)" } {
     puts stderr "Unexpected query4.get_description()"
     exit 1
 }

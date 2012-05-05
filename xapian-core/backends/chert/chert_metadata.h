@@ -1,7 +1,7 @@
 /** @file chert_metadata.h
  * @brief Access to metadata for a chert database.
  */
-/* Copyright (C) 2005,2007,2008 Olly Betts
+/* Copyright (C) 2005,2007,2008,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,9 +26,9 @@
 #include <xapian/database.h>
 #include <xapian/types.h>
 
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 #include "chert_table.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include <string>
 

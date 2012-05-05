@@ -24,7 +24,7 @@
 
 #include "debuglog.h"
 #include "omassert.h"
-#include "positionlist.h"
+#include "backends/positionlist.h"
 
 using namespace std;
 

@@ -65,7 +65,7 @@ document id - so before a docid can be read, the position must be advanced.
 The ``get_weight()`` method returns the weight that you want to contribute
 to the current document.  This weight must always be >= 0::
 
-    virtual Xapian::weight get_weight() const;
+    virtual double get_weight() const;
 
 The default implementation of ``get_weight()`` returns 0, for convenience when
 deriving "weight-less" subclasses.
@@ -75,7 +75,7 @@ return, which is used by the matcher to perform various optimisations.  You
 should try hard to find a bound for efficiency, but if there really isn't one
 then you can set ``DBL_MAX``::
 
-    void get_maxweight(Xapian::weight max_weight);
+    void get_maxweight(double max_weight);
 
 This method specifies an upper bound on what ``get_weight()`` will return *from
 now on* (until the next call to ``init()``).  So if you know that the upper
@@ -110,7 +110,7 @@ bound defaults to 0, to match the default implementation of ``get_weight()``.
 
 If you want to read the currently set upper bound, you can call::
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
 This is just a getter method for a member variable in the
 ``Xapian::PostingSource`` class, and is inlined from the API headers, so
@@ -138,13 +138,13 @@ The simplest of these three methods is ``next()``, which simply advances the
 iteration position to the next document (possibly skipping documents with
 weight contribution < min_wt)::
 
-    virtual void next(Xapian::weight min_wt) = 0;
+    virtual void next(double min_wt) = 0;
 
 Then there's ``skip_to()``.  This advances the iteration position to the next
 document with document id >= that specified (possibly also skipping documents
 with weight contribution < min_wt)::
 
-    virtual void skip_to(Xapian::docid did, Xapian::weight min_wt);
+    virtual void skip_to(Xapian::docid did, double min_wt);
 
 A default implementation of ``skip_to()`` is provided which just calls
 ``next()`` repeatedly.  This works but ``skip_to()`` can often be implemented
@@ -157,7 +157,7 @@ rather costly to implement (for example, it might require linear scanning
 of document ids).  To avoid this where possible, the ``check()`` method
 allows the matcher to just check if a given document matches::
 
-    virtual bool check(Xapian::docid did, Xapian::weight min_wt);
+    virtual bool check(Xapian::docid did, double min_wt);
 
 The return value is ``true`` if the method leaves the iteration position valid,
 and ``false`` if it doesn't.  In the latter case, ``next()`` will advance to

@@ -7,9 +7,13 @@ my $disable_fixme = 1;
 
 #########################
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 58 };
+BEGIN { plan tests => 59 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -34,10 +38,10 @@ $qp->set_default_op( OP_AND );
 my $query;
 ok( $query = $qp->parse_query( 'one or two', FLAG_BOOLEAN|FLAG_BOOLEAN_ANY_CASE|FLAG_SPELLING_CORRECTION ) );
 ok( not $qp->get_corrected_query_string());
-ok( $query->get_description(), "Xapian::Query((one:(pos=1) OR two:(pos=2)))" );
+ok( $query->get_description(), 'Query((one@1 OR two@2))' );
 
 ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
-ok( $query->get_description(), "Xapian::Query((one:(pos=1) OR (two:(pos=2) AND three:(pos=3))))" );
+ok( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
 
 ok( my $enq = $database->enquire( $query ) );
 
@@ -63,22 +67,23 @@ $qp->add_boolean_prefix("test", "XTEST");
 
 my $pair;
 foreach $pair (
-    [ 'a..b', 'VALUE_RANGE 1 a b' ],
-    [ '$50..100', 'VALUE_RANGE 1 $50 100' ],
-    [ '$50..$100', 'VALUE_RANGE 1 $50 $100' ],
-    [ '02/03/1979..10/12/1980', 'VALUE_RANGE 1 02/03/1979 10/12/1980' ],
-    [ 'a..b hello', '(hello:(pos=1) FILTER VALUE_RANGE 1 a b)' ],
-    [ 'hello a..b', '(hello:(pos=1) FILTER VALUE_RANGE 1 a b)' ],
-    [ 'hello a..b world', '((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)' ],
-    [ 'hello a..b test:foo', '(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND XTESTfoo))' ],
-    [ '-5..7', 'VALUE_RANGE 1 -5 7' ],
-    [ 'hello -5..7', '(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)' ],
-    [ '-5..7 hello', '(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)' ],
-    [ '"time flies" 09:00..12:30', '((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)' ]
+    [ 'a..b', '0 * VALUE_RANGE 1 a b' ],
+    [ '$50..100', '0 * VALUE_RANGE 1 $50 100' ],
+    [ '$50..$99', '0 * VALUE_RANGE 1 $50 $99' ],
+    [ '$50..$100', '' ],
+    [ '02/03/1979..10/12/1980', '0 * VALUE_RANGE 1 02/03/1979 10/12/1980' ],
+    [ 'a..b hello', '(hello@1 FILTER VALUE_RANGE 1 a b)' ],
+    [ 'hello a..b', '(hello@1 FILTER VALUE_RANGE 1 a b)' ],
+    [ 'hello a..b world', '((hello@1 OR world@2) FILTER VALUE_RANGE 1 a b)' ],
+    [ 'hello a..b test:foo', '(hello@1 FILTER (VALUE_RANGE 1 a b AND XTESTfoo))' ],
+    [ '-5..7', '0 * VALUE_RANGE 1 -5 7' ],
+    [ 'hello -5..7', '(hello@1 FILTER VALUE_RANGE 1 -5 7)' ],
+    [ '-5..7 hello', '(hello@1 FILTER VALUE_RANGE 1 -5 7)' ],
+    [ '"time flies" 09:00..12:30', '((time@1 PHRASE 2 flies@2) FILTER VALUE_RANGE 1 09:00 12:30)' ]
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Xapian::Query($res)" );
+    ok( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Search::Xapian::QueryParser();
@@ -96,25 +101,25 @@ $qp->add_valuerangeprocessor( $vrp3 );
 
 $qp->add_boolean_prefix("test", "XTEST");
 foreach $pair (
-    [ 'a..b', 'VALUE_RANGE 3 a b' ],
-    [ '1..12', "VALUE_RANGE 2 \xa0 \xae" ],
-    [ '20070201..20070228', 'VALUE_RANGE 1 20070201 20070228' ],
-    [ '$10..20', "VALUE_RANGE 4 \xad \xb1" ],
-    [ '$10..$20', "VALUE_RANGE 4 \xad \xb1" ],
-    [ '12..42kg', "VALUE_RANGE 5 \xae \xb5@" ],
-    [ '12kg..42kg', "VALUE_RANGE 5 \xae \xb5@" ],
-    [ '12kg..42', 'VALUE_RANGE 3 12kg 42' ],
-    [ '10..$20', 'VALUE_RANGE 3 10 $20' ],
-    [ '1999-03-12..2020-12-30', 'VALUE_RANGE 1 19990312 20201230' ],
-    [ '1999/03/12..2020/12/30', 'VALUE_RANGE 1 19990312 20201230' ],
-    [ '1999.03.12..2020.12.30', 'VALUE_RANGE 1 19990312 20201230' ],
-    [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19990312 20010412' ],
-    [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
-    [ '(test:a..test:b hello)', '(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)' ],
+    [ 'a..b', '0 * VALUE_RANGE 3 a b' ],
+    [ '1..12', "0 * VALUE_RANGE 2 \xa0 \xae" ],
+    [ '20070201..20070228', '0 * VALUE_RANGE 1 20070201 20070228' ],
+    [ '$10..20', "0 * VALUE_RANGE 4 \xad \xb1" ],
+    [ '$10..$20', "0 * VALUE_RANGE 4 \xad \xb1" ],
+    [ '12..42kg', "0 * VALUE_RANGE 5 \xae \xb5\@" ],
+    [ '12kg..42kg', "0 * VALUE_RANGE 5 \xae \xb5\@" ],
+    [ '12kg..42', '0 * VALUE_RANGE 3 12kg 42' ],
+    [ '10..$20', '' ],
+    [ '1999-03-12..2020-12-30', '0 * VALUE_RANGE 1 19990312 20201230' ],
+    [ '1999/03/12..2020/12/30', '0 * VALUE_RANGE 1 19990312 20201230' ],
+    [ '1999.03.12..2020.12.30', '0 * VALUE_RANGE 1 19990312 20201230' ],
+    [ '12/03/99..12/04/01', '0 * VALUE_RANGE 1 19990312 20010412' ],
+    [ '03-12-99..04-14-01', '0 * VALUE_RANGE 1 19990312 20010414' ],
+    [ '(test:a..test:b hello)', '(hello@1 FILTER VALUE_RANGE 3 test:a test:b)' ],
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Xapian::Query($res)" );
+    ok( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Search::Xapian::QueryParser();
@@ -125,13 +130,13 @@ $qp = new Search::Xapian::QueryParser();
 }
 
 foreach $pair (
-    [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19991203 20011204' ],
-    [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
-    [ '01/30/60..02/02/59', 'VALUE_RANGE 1 19600130 20590202' ],
+    [ '12/03/99..12/04/01', '0 * VALUE_RANGE 1 19991203 20011204' ],
+    [ '03-12-99..04-14-01', '0 * VALUE_RANGE 1 19990312 20010414' ],
+    [ '01/30/60..02/02/59', '0 * VALUE_RANGE 1 19600130 20590202' ],
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Xapian::Query($res)" );
+    ok( $query->get_description(), "Query($res)" );
 }
 
 # Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0

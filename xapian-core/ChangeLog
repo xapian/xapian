@@ -1,3 +1,49 @@
+Wed May 02 03:44:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Using AssertEq() on NULL doesn't compile,
+	  at least with recent GCC.
+
+Wed May 02 02:58:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/omassert.cc: Fix warning with GCC in build with assertions
+	  enabled.
+
+Wed May 02 02:55:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: We're now using automake 1.12 to generate snapshots and
+	  releases.
+
+Mon Apr 23 13:16:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Fix tradweight1 to test that TradWeight(0)
+	  means that wdf and doc length don't affect the weight of a term.
+
+Mon Apr 23 03:44:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/chert/,backends/dbcheck.cc,bin/xapian-check.cc,
+	  include/xapian/database.h: Add "fix" option to xapian-check, which
+	  currently will regenerate iamchert if it isn't valid, and will
+	  regenerate base files from the .DB files (only really tested on
+	  databases which have just been compacted).
+
+Mon Apr 23 03:40:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/filetests.h: Add new function file_size() to get the size
+	  of a file from a path or file descriptor.
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc,
+	  net/remoteconnection.cc,tests/api_replicate.cc: Use this new
+	  function.
+
+Wed Apr 18 01:35:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc,weight/tradweight.cc: Fix comment typo.
+
+Wed Apr 11 08:26:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Update section on patches to mention git (git diff and git
+	  format-patch), and using "-r" with normal diff, and also that
+	  ptardiff offers a nice way to diff against an unpacked tarball.
+
 Thu Apr 05 00:48:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/letor.rst: Assorted formatting and phrasing improvements.
@@ -9,6 +55,1129 @@ Thu Apr 05 00:48:06 GMT 2012  Olly Betts <olly@survex.com>
 Wed Apr 04 05:28:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* letor/dir_contents: Grammar fix.
+
+Wed Apr 04 02:22:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  If the output database is empty, don't write a metainfo tag out.
+	  Take care not to divide by zero when computing the percentage
+	  size change for a table.
+	* tests/api_compact.cc: Add new testcase compactempty1 to provide
+	  regression tests.
+
+Wed Apr 04 01:48:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: If the database couldn't be opened, don't try
+	  to reserve space for cross-checking doclens, as that just results in
+	  us reporting a confusing warning about there being too many documents
+	  to cross-check doclens.
+
+Fri Mar 30 22:23:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/document.h: "An string" -> "A string" in internal doc
+	  comment.
+
+Fri Mar 30 22:20:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Fix switched lower and upper in doc comments
+	  for Weight methods get_doclength_lower_bound() and
+	  get_doclength_upper_bound().  Correct maximum to minimum in
+	  get_doclength_lower_bound() comment and note that this excludes zero
+	  length documents.  Fix "An lower" to "A lower".
+
+Wed Mar 28 09:54:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typos in another old entry.
+
+Wed Mar 28 09:53:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: DatabaseCoruptError -> DatabaseCorruptError in old entries.
+
+Wed Mar 28 08:05:13 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/termgentest.cc: Add test coverage for discarding of terms > 64
+	  bytes by TermGenerator.
+
+Tue Mar 27 21:07:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Note when Database::close() was added.
+
+Tue Mar 27 13:03:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,docs/deprecation.rst,include/xapian/enquire.h,
+	  include/xapian/errorhandler.h: Deprecate Xapian::ErrorHandler.
+	  (ticket#3)
+
+Tue Mar 27 13:01:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,docs/deprecation.rst,docs/doxygen_api.conf.in,
+	  docs/doxygen_source.conf.in: Updates for addition of
+	  XAPIAN_DEPRECATED_EX() and XAPIAN_DEPRECATED_CLASS_EX.
+
+Tue Mar 27 10:11:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,include/xapian.h,include/xapian/deprecated.h: Add
+	  XAPIAN_DEPRECATED_EX() and XAPIAN_DEPRECATED_CLASS_EX macros which
+	  mark a feature as deprecated externally but not when building the
+	  library.
+
+Tue Mar 27 08:46:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc: Include the xapian sub-headers we actually use
+	  rather than xapian.h, to avoid needless rebuilds.
+
+Tue Mar 27 08:33:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Add example of deprecating a pure virtual method.
+
+Tue Mar 27 08:30:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Sat Mar 24 12:33:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc: Fix signed vs unsigned
+	  comparison warning with GCC 4.4.3.
+
+Sat Mar 24 12:26:13 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser_internal.h:
+	  Change the default stemming strategy to STEM_SOME, to eliminate
+	  the API gotcha that setting a stemmer is ignored until you also
+	  set a strategy.
+	* tests/queryparsertest.cc: Add testcase qp_defaultstrategysome1 to
+	  check that the default is STEM_SOME.
+
+Fri Mar 23 04:29:32 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: Fix comment cut-and-paste error.
+
+Fri Mar 23 04:28:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Use git commit hash in the title of a coverage report
+	  generated from a git tree.
+
+Thu Mar 22 04:29:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-core.spec.in: Remove xapian-chert-update.
+
+Mon Mar 19 05:42:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.cc: Don't count unweighted subqueries of
+	  MultiAndPostList for percentage calculations, as OP_FILTER maps to
+	  MultiAndPostList now.  (ticket#590)
+	* tests/api_percentages.cc: Regression test topercent6.
+
+Sun Mar 18 23:24:04 GMT 2012  Dan Colish <dcolish@>
+
+	* backends/brass/brass_databasereplicator.cc: size out buffer to the
+	  incoming blocksize
+
+Sun Mar 18 17:02:14 GMT 2012  Dan Colish <dcolish@>
+
+	* .gitignore: ignore /.deps as well
+
+Sun Mar 18 16:46:45 GMT 2012  Dan Colish <dcolish@>
+
+	* .gitignore:Update gitignore for bump to libxapian-1.3
+
+Sun Mar 18 04:37:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set LIBRARY_VERSION_SUFFIX to -1.3.
+
+Sun Mar 18 00:48:05 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/,common/Makefile.mk, common/compression_stream.h,
+	  common/compression_stream.cc: Compress changesets in brass
+	  replication. Increments the changeset version. Ticket #348
+
+Sun Mar 18 00:39:23 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* tests/.gitignore,tests/soaktest/.gitignore: Add additional ignores
+ 	  for test artifacts
+
+Fri Mar 16 05:23:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Missing part of previous change.
+
+Fri Mar 16 04:59:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
+	  and xapian.m4 to xapian-1.3.m4.
+
+Wed Mar 14 04:58:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS,tests/api_unicode.cc,unicode/tclUniData.cc: Update
+	  Unicode character database to 6.1.0.
+
+Wed Mar 14 02:23:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.3.0.
+
+Tue Mar 13 07:44:32 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.9 and ChangeLog.
+
+Tue Mar 13 00:28:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/geospatial.rst: Fix typo - it's LatLongCoords::append() not
+	  LatLongCoords::insert().
+
+Mon Mar 12 23:14:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Fix typo - need "1.2.x" not "1.0.x" to get
+	  both flint and chert support.
+
+Mon Mar 12 11:54:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: doxygen no longer generates any GIF files, so
+	  stop trying to ship or install them.
+
+Thu Mar 08 10:21:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/index.rst: Add link to new "getting started" guide.
+
+Mon Mar 05 06:05:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix curly double quote testcase.
+
+Mon Mar 05 00:36:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/: Fix issue with AND, OR, and XOR queries against a database
+	  with no documents in it - this was causing a divide by zero, which led
+	  to MSet::get_matches_estimated() reporting 2147483648 on i386.
+	* tests/api_backend.cc: Add regression test emptydb1.
+
+Sun Mar 04 23:05:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix comment typo.
+
+Fri Mar 02 04:00:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Address new warnings from GCC 4.6.
+
+Wed Feb 29 22:36:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Improve documentation of Database::close()
+	  and ~WritableDatabase().
+
+Thu Jan 26 03:49:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow
+	  Unicode curly double quote characters to start and/or end phrases.
+
+Sun Jan 22 13:28:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-delve.cc: Send errors to stderr not stdout.
+
+Sun Jan 22 13:16:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Update details of versions of doxygen, automake and libtool
+	  used to bootstrap snapshots and releases.
+
+Fri Jan 20 21:35:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: unittest needs getopt for non-glibc platforms.
+
+Fri Jan 20 21:33:59 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: GCC 4.2.1 on Mac OS X seems to need a copy
+	  ctor for InvertedQuery_ - unclear why, but it's easy to add one.
+
+Wed Jan 18 13:13:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/matchspy.h,include/xapian/postingsource.h,
+	  include/xapian/weight.h: Document that you can define a static
+	  operator delete method in your subclass if deallocation needs to be
+	  handled specially.  (Closes ticket#554)
+
+Wed Jan 18 12:27:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/geospatial.h: Mark as experimental for now.
+
+Wed Jan 18 12:22:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/geospatial.rst: Say "haversine" rather than "Haversine"
+	  consistently.
+
+Wed Jan 18 12:01:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/geospatial.h: Change empty() to return bool not
+	  size_t.
+
+Wed Jan 18 10:44:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/geospatial.rst: Fix minor typos in geospatial docs.
+
+Wed Jan 18 10:39:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/postingsource.cc,api/queryinternal.cc,
+	  api/registry.cc,common/output.h,common/registryinternal.h,
+	  docs/geospatial.rst,geospatial/,include/Makefile.mk,include/xapian.h,
+	  include/xapian/geospatial.h,include/xapian/postingsource.h,
+	  include/xapian/registry.h,tests/.gitignore,tests/Makefile.am,
+	  tests/api_geospatial.cc: Merge geotomerge2 branch from github.
+	  Closes ticket#481.
+
+Tue Jan 17 22:29:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/errorhandler.cc: Reorder header includes.
+
+Mon Jan 16 22:59:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.lemony: Fix
+	  FLAG_AUTO_SYNONYMS not to enable auto multi-word synonyms too.
+	* tests/queryparsertest.cc: Extend testcase qp_synonym1 to include a
+	  regression test for this bug.
+
+Sun Jan 15 12:41:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* .gitignore,backends/Makefile.mk,backends/brass/,backends/chert/,
+	  backends/dbcheck.cc,bin/,common/bitstream.h,
+	  include/xapian/database.h: Add a (currently experimental) API for
+	  checking the integrity of databases (partly addresses ticket#238).
+	  This means we can remove XAPIAN_VISIBILITY_DEFAULT from a number of
+	  functions which aren't in the public API (partly addresses
+	  ticket#63).
+
+Fri Jan 13 12:07:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Include <xapian.h> rather than <xapian/stem.h> -
+	  we're trying to test the public API, so including the public API
+	  header is better.
+
+Thu Jan 12 13:15:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/unittest.cc: Add new testcases simple_exceptions_work1 and
+	  class_exceptions_work1 which perform sanity tests of exception
+	  handling.
+	* tests/internaltest.cc: Remove testcase test_except1 which is now
+	  redundant.
+
+Thu Jan 12 13:09:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/str.cc: Special cases for 0 in tostring() templates aren't
+	  actually needed, but special casing single digit numbers may be
+	  worthwhile anyway, so change comments to FIXME ones about checking
+	  this.
+	* tests/internaltest.cc: Test str() on unsigned 0, and some negative,
+	  signed positive, and unsigned positive single digits values.
+
+Wed Jan 11 13:03:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_alltermslist.h: Fix filename in @file.
+
+Wed Jan 11 12:53:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/documentterm.h,api/maptermlist.h,api/omenquireinternal.h,
+	  backends/brass/,backends/chert/,backends/database.h,
+	  backends/document.h,backends/inmemory/inmemory_alltermslist.h,
+	  backends/inmemory/inmemory_database.h,
+	  backends/inmemory/inmemory_positionlist.h,
+	  backends/multi/multi_postlist.h,backends/multi/multi_termlist.h,
+	  backends/positionlist.h,backends/remote/net_termlist.h,
+	  backends/valuestats.h,common/,include/xapian/query.h,matcher/,
+	  queryparser/queryparser_internal.h,tests/harness/,
+	  tests/perftest/freemem.h,tests/perftest/runprocess.h: Convert
+	  comments at the start of files to @file and @brief doxygen comments.
+
+Wed Jan 11 11:36:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.h: Remove lone "----START-LICENCE----" -
+	  the rest got removed ages ago.
+
+Wed Jan 11 11:23:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.h: Fix "@raises" to "@exception".
+
+Wed Jan 11 11:21:31 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.h: Fix "@parameter" to "@param".
+
+Wed Jan 11 11:20:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Fix "@msg" to "@a msg" in doxygen comment.
+
+Wed Jan 11 11:18:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.h: Correct @exceptions to @exception.
+
+Wed Jan 11 10:48:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: We no longer have any uses of \ to introduce doxygen
+	  directives, so update HACKING to reflect that.
+
+Wed Jan 11 10:46:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Change \todo to @todo.
+
+Wed Jan 11 10:09:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/replication.h,api/valuesetmatchdecider.cc,
+	  common/output-internal.h,common/output.h,include/xapian/,
+	  tests/harness/testrunner.cc,tests/harness/testrunner.h,
+	  tests/perftest/perftest.cc,tests/perftest/perftest.h: Change the
+	  instances of \file and \brief in doxygen comments to @file and
+	  @brief.
+
+Wed Jan 11 10:08:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Remove serialisedoc1 from the list of
+	  testcases to run too.
+
+Wed Jan 11 09:50:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multixorpostlist.h: Remove "using namespace std;" which we
+	  don't need here.
+
+Wed Jan 11 09:38:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/filetests.h: Remove "using namespace std;" which we don't
+	  need here.
+
+Wed Jan 11 09:36:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/filetests.h: Add documentation comments.
+
+Wed Jan 11 09:28:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_serialise.cc: Extend serialise_document1 to test
+	  serialising and unserialising an empty document, which is an
+	  interesting edge case.
+	* tests/internaltest.cc: Remove testcase serialisedoc1, which
+	  now doesn't add useful additional coverage over serialise_document1.
+
+Wed Jan 11 08:29:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Test document serialisation via the public
+	  API (which was added after the tests were).
+	* net/serialise.h: Remove XAPIAN_VISIBILITY_DEFAULT from
+	  serialise_document() and unserialise_document().
+
+Wed Jan 11 05:57:14 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,common/,tests/unittest.cc: Move removedir() from
+	  utils.{cc,h} to fileutils.{cc,h}, and remove the now empty
+	  utils.{cc,h}.
+
+Wed Jan 11 05:44:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: Check return values from system() calls
+	  and throw a std::string exception if non-zero.
+
+Wed Jan 11 05:20:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/omassert.cc,common/omassert.h,
+	  common/utils.cc: Change the sense of the bool returned by
+	  within_DBL_EPSILON() to match what the name suggests instead of being
+	  the opposite, and change the use of it too.  Move
+	  within_DBL_EPSILON() implementation from utils.cc to new file
+	  omassert.cc, only compile it when assertions are on, and prototype it
+	  in omassert.h rather than utils.h.
+
+Wed Jan 11 05:09:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
+	  backends/dbfactory.cc,common/utils.cc,common/utils.h,
+	  tests/api_backend.cc,tests/api_wrdb.cc,
+	  tests/harness/backendmanager.cc,tests/harness/unixcmds.cc: Remove
+	  std::string wrappers for C library functions from utils.h and just
+	  explicitly call c_str() when we need to.  These wrappers are
+	  problematic as they suppress warnings from _FORTIFY_SOURCE about
+	  ignored return values, and I can't see an easy way to avoid that.
+
+Wed Jan 11 03:35:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/brass/brass_databasereplicator.cc,
+	  backends/brass/brass_table.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_table.cc,backends/databasereplicator.cc,
+	  backends/dbfactory.cc,common/utils.cc,common/utils.h: Use
+	  file_exists() and dir_exists() from common/filetests.h everywhere and
+	  remove the old versions in common/utils.h and common/utils.cc.
+
+Wed Jan 11 02:20:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Remove XAPIAN_VISIBILITY_DEFAULT from old
+	  file_exists() and dir_exists().
+
+Wed Jan 11 02:19:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Convert to use filetests.h.
+
+Wed Jan 11 02:14:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc,bin/xapian-inspect.cc: Convert to use
+	  filetests.h.
+
+Wed Jan 11 02:13:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/filetests.h: Rename directory_exists() to dir_exists().
+
+Wed Jan 11 02:10:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/filetests.h,tests/api_replicate.cc,
+	  tests/harness/backendmanager_multi.cc,tests/harness/testsuite.cc:
+	  Add new inline versions of file_exists() and directory_exists() and
+	  use these from the testsuite, as a step towards making these internal
+	  to the library.
+
+Tue Jan 10 23:37:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_serialise.cc: Change the rather odd "operator delete(p);"
+	  to the more natural "delete p;".
+
+Tue Jan 10 22:45:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/unittest.cc: Fix message typo in recent unittest change.
+
+Tue Jan 10 13:48:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/safesysstat.h: The S_ISDIR and S_ISREG macros for MSVC are
+	  unlikely to work on other platforms (_S_IFMT vs S_IFMT, etc) so
+	  split them.  Tweak a few comments.
+
+Tue Jan 10 13:10:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* net/: Split encode_length() and decode_length() out of
+	  serialise.{cc,h} into new file length.{cc,h}, and remove
+	  XAPIAN_VISIBILITY_DEFAULT from decode_length().
+	* api/,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,backends/remote/net_postlist.cc,
+	  backends/remote/remote-database.cc,net/: Update headers which need
+	  to be included.
+	* tests/internaltest.cc,tests/unittest.cc: Move serialiselength1 and
+	  serialiselength2 from internaltest to unittest.
+
+Mon Jan 09 02:16:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Actually add test coverage for
+	  ByteLengthPrefixedStringItor - the previous attempt didn't cause
+	  merging of synonym lists to happen.
+
+Mon Jan 09 00:21:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Fix comment typo.
+
+Sun Jan 08 14:47:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc: Add test coverage for
+	  ByteLengthPrefixedStringItor.
+
+Sun Jan 08 14:05:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/fd.h,tests/api_db.cc,tests/harness/backendmanager.cc: Add
+	  missing explicit header includes, uncovered by compiling with
+	  STLport.
+
+Sat Jan 07 11:45:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac,m4/rjb_find_stlport.m4,xapian-config.in: Remove
+	  configure's --with-stlport and --with-stlport-compiler options, as
+	  they don't allow you to actually specify what you need (at least to
+	  use the Debian STLport package), and instead document what to pass
+	  to configure to enable building with STLport (though it seems to no
+	  longer be actively maintained, and the debug mode (which is probably
+	  the most interesting feature now) doesn't seem to work on Debian
+	  stable).
+
+Sat Jan 07 10:24:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Update STLPort URL to point to the more active fork on
+	  SourceForge.
+
+Fri Jan 06 20:07:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_sorting.cc: Add check that NeverUseMeKeyMaker::operator()
+	  would actually cause a test failure if called.
+
+Fri Jan 06 20:01:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_stem.cc: Test get_description() on a user-implemented
+	  stemmer.
+
+Fri Jan 06 14:34:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/harness/,tests/queryparsertest.cc,
+	  tests/termgentest.cc,tests/unittest.cc: Make unittest use the test
+	  harness, so it gets all the valgrind and fd leak checks, and other
+	  handy features all the other tests have.  Currently this is done in
+	  a bit of a hacky way, but it's a starting point for abstracting out
+	  the Xapian-specific parts of the test harness.
+
+Fri Jan 06 08:42:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Delete generated lcov directory before running genhtml.
+	  Pass --demangle-cpp and --html-gzip to genhtml.
+
+Fri Jan 06 08:14:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Trim `pwd` off all paths in coverage report.
+
+Fri Jan 06 02:29:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Add support for AndContext and OrContext.
+
+Fri Jan 06 02:28:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Use XAPIAN_PRETTY_AS_CLASSNAME for classes in
+	  namespace Xapian::Internal too.
+
+Thu Jan 05 12:23:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc,tests/unittest.cc: Move tests of
+	  serialise_double() and unserialise_double() from internaltest to
+	  unittest.
+	* common/serialise-double.h: This means serialise_double() and
+	  unserialise_double() no longer need external visibility, so make
+	  them internal only.
+
+Thu Jan 05 12:08:15 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/bitstream.h: BitWriter doesn't need public visibility.
+
+Thu Jan 05 10:53:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/output-internal.h,common/pretty.h: Fix include paths for two
+	  cases which are only used in a logging build.
+
+Fri Dec 30 09:17:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Update expected results (mostly because we
+	  no longer flatten groups of the same operator at Query construction
+	  time).
+
+Thu Dec 29 13:47:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk: Add missing backslash so various headers actually
+	  get shipped.
+
+Thu Dec 29 11:29:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Add fake templated ctor for SWIG.
+
+Thu Dec 29 00:23:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_scalability.cc: Add regression test querypairwise1 for
+	  ticket#273.
+
+Thu Dec 29 00:03:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/remote/remote-database.cc,
+	  backends/remote/remote-database.h,docs/deprecation.rst,
+	  include/xapian/query.h,matcher/,net/remoteserver.cc,
+	  queryparser/queryparser.lemony,tests/,weight/weightinternal.h: Merge
+	  query-internal-reimplementation git branch which reimplements
+	  Query::Internal. (ticket#280).  These are the most notable changes:
+	  + Query objects are smaller and should be faster.
+	  + More readable format for Query::get_description().
+	  + More compact serialisation format for Query objects.
+	  + Query operators are no longer flattened as you build up a tree (but
+	    the query optimiser still combines groups of the same operator).
+	    This means that Query objects are truly immutable, and so we don't
+	    need to copy Query objects when composing them.  This should also
+	    fix a few O(n*n) cases when building up an n-way query pair-wise.
+	    (ticket#273)
+	  + The Query optimiser can do a few extra optimisations.
+
+Mon Dec 26 12:13:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc: Change
+	  QueryParser::set_default_op() to reject operators which don't make
+	  sense to set, and explicitly document all the operators which are
+	  allowed.
+	* tests/queryparsertest.cc: Check that bad operators are rejected in
+	  existing testcase qp_default_op2.  Add new testcase qp_default_op3 to
+	  check that good operators can be set and work in a simple testcase.
+
+Mon Dec 26 09:12:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_brass.h,
+	  tests/harness/backendmanager_chert.h: Remove superfluous "private:"
+	  access specifiers.
+
+Sat Dec 24 12:34:19 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Recommend installing valgrind, ccache, and eatmydata.
+
+Sat Dec 24 12:28:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* HACKING: Make it clear "Building from SVN" applies to git too, and
+	  mention that git-svn is needed when building from git.
+
+Thu Dec 22 11:18:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Initialise variable which can
+	  be used uninitialised.
+
+Thu Dec 22 03:14:02 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk: Link $(libxapian_la) after libbrasscheck.la and
+	  libchertcheck.la to fix mingw build.  Probably closes ticket#567.
+
+Thu Dec 22 02:45:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Document that OP_ELITE_SET with non-term
+	  subqueries might pick subqueries which don't match anything.
+	  Closes ticket#49.
+
+Thu Dec 22 02:37:10 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Improve documentation of OP_ELITE_SET.
+
+Wed Dec 21 12:26:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/errorhandler.cc: Rearrange code in ErrorHandler::operator() to
+	  be clearer.
+
+Wed Dec 21 11:23:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/errorhandler.h: Fix typo: 'APU' -> 'API'.
+
+Wed Dec 21 09:57:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_postlist.cc,
+	  backends/brass/brass_postlist.h,backends/chert/,
+	  backends/contiguousalldocspostlist.cc,
+	  backends/contiguousalldocspostlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h,
+	  backends/remote/,docs/,expand/,include/xapian/,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,tests/,weight/bm25weight.cc,
+	  weight/boolweight.cc,weight/tradweight.cc: Deprecate Xapian::weight
+	  typedef in favour of just using double, and make the replacement
+	  everywhere.  Closes ticket#560.
+
+Tue Dec 20 13:31:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Include "safesysstat.h" for fstat().
+
+Fri Dec 16 03:05:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_termlisttable.cc,
+	  backends/chert/chert_termlisttable.cc,
+	  backends/multi/multi_postlist.cc,net/replicatetcpclient.cc,
+	  net/serialise.cc,net/tcpserver.cc,tests/,
+	  tests/harness/backendmanager_remoteprog.cc,tests/queryparsertest.cc,
+	  tests/soaktest/soaktest_queries.cc,tests/termgentest.cc: Remove
+	  unnecessary includes on "utils.h".
+
+Fri Dec 16 02:57:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_database.cc,
+	  backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_btreebase.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  net/remoteconnection.cc,tests/api_replicate.cc: Replace uses of
+	  fdcloser class with new FD class.
+	* common/utils.h: Remove fdcloser class.
+
+Fri Dec 16 00:56:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Use a const int rather than a #define for
+	  BUFSIZE.
+
+Fri Dec 16 00:50:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Avoid leaking fds on exceptions in
+	  truncated_copy().
+
+Fri Dec 16 00:42:11 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/fd.h: Oops, fix to actually compile.
+
+Thu Dec 15 23:54:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/fd.h: Add new FD class which wraps a file
+	  descriptor and ensures it gets released when we exit the scope.
+
+Thu Dec 15 22:44:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* weight/Makefile: Add forwarding Makefile.
+
+Thu Dec 15 22:17:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* weight/Makefile.mk: Ship dir_contents and Makefile.
+
+Tue Dec 13 10:33:21 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and branches/1.2.
+
+Fri Dec 09 10:33:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/soaktest/soaktest.cc,tests/soaktest/soaktest.h,
+	  tests/soaktest/soaktest_queries.cc: "boulton" -> "Boulton" in
+	  copyright statements.
+
+Fri Dec 09 10:31:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/soaktest/soaktest.cc: With Sun's compiler, random() and
+	  srandom() aren't in <cstdlib> so we need to use <stdlib.h> instead.
+
+Fri Dec 09 07:51:44 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Set BAD_VALUENO to 0xffffffff rather than
+	  static_cast<valueno>(-1) - it's the same value currently, but more
+	  robust to valueno being set a wider type.
+
+Fri Dec 09 07:49:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Explicitly document which value slot numbers
+	  are valid.  Fixes ticket#555.
+
+Sat Dec 03 09:32:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Fix typo in comment.
+
+Thu Dec 01 04:41:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Remove bogus paragraph in
+	  replace_document() documentation comment, cut and pasted from
+	  delete_document() documentation comment.  (Fixes bug#579)
+
+Tue Nov 08 01:50:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Add missing doxygen @param commands.
+
+Tue Nov 08 01:33:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h,include/xapian/document.h: Add missing
+	  doxygen @param commands.
+
+Mon Nov 07 10:31:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Address doxygen warnings.
+
+Mon Nov 07 02:40:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Document undocumented parameters,
+	  fixing doxygen warnings.
+	* include/xapian/queryparser.h: Escape < and > in doxygen comments.
+
+Mon Nov 07 02:38:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Enquire::get_eset() doesn't take a min_wt
+	  parameter, so remove @param documentation for it.
+
+Mon Nov 07 01:59:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Document lots of parameters, fixing doxygen
+	  warnings.
+
+Sun Nov 06 22:05:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* generate-exceptions: Document all parameters to fix doxygen
+	  warnings.
+
+Sun Nov 06 22:03:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Fix doxygen warnings.
+
+Sun Nov 06 21:00:08 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Document value parameter of
+	  sortable_serialise() and sortable_unserialise().
+
+Sun Nov 06 17:53:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: Improve Document get_data() and set_data()
+	  documentation comments.
+
+Sun Nov 06 17:14:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Add -I$(top_srcdir) so api/replication.h is found
+	  in a VPATH build.
+
+Sun Nov 06 16:06:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/database.h,backends/document.h,
+	  backends/multi/multi_alltermslist.h,backends/positionlist.h,common/,
+	  tests/harness/: More more headers out of common.
+
+Sun Nov 06 14:55:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,backends/inmemory/Makefile.mk,
+	  backends/inmemory/inmemory_positionlist.h,
+	  backends/remote/Makefile.mk,backends/remote/remote-database.cc,
+	  backends/remote/remote-database.h,common/Makefile.mk,
+	  common/inmemory_positionlist.h,common/remote-database.h,
+	  matcher/multimatch.cc,matcher/remotesubmatch.cc,
+	  matcher/remotesubmatch.h,net/progclient.h,net/remotetcpclient.h:
+	  Move two more headers out of common.
+
+Sun Nov 06 11:56:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Fix for VPATH build.
+
+Sun Nov 06 11:26:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/,tests/api_replicate.cc: Factor internal classes out of
+	  output.h into new output-internal.h to fix build failures in VPATH
+	  due to move of weightinternal.h out of common (since the test harness
+	  uses output.h).
+
+Sun Nov 06 00:49:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_termlist.cc,backends/remote/net_postlist.cc,
+	  backends/remote/net_termlist.h,backends/remote/remote-database.cc,
+	  bin/,common/,expand/,matcher/,net/,tests/internaltest.cc,
+	  weight/Makefile.mk,weight/weightinternal.h: Move even more headers
+	  out of common and next to their corresponding C++ file.
+
+Sat Nov 05 23:55:55 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/Makefile.mk,
+	  backends/brass/brass_databasereplicator.h,
+	  backends/chert/chert_databasereplicator.h,
+	  backends/databasereplicator.h,common/Makefile.mk,
+	  common/databasereplicator.h: Move databasereplicator.h from common to
+	  backends.
+
+Sat Nov 05 23:51:40 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk: Fix sort order of noinst_HEADERS.
+
+Sat Nov 05 23:50:33 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.h,api/omdatabase.cc,api/valueiterator.cc,
+	  backends/Makefile.mk,backends/brass/,backends/chert/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_valuelist.cc,backends/multivaluelist.h,
+	  backends/valuelist.h,backends/valuestats.h,bin/xapian-check-brass.cc,
+	  bin/xapian-check-chert.cc,common/,matcher/valuerangepostlist.h,
+	  matcher/valuestreamdocument.h: Move multivaluelist.h, valuelist.h and
+	  valuestats.h from common to backends.
+
+Sat Nov 05 23:40:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_postlist.h,backends/chert/chert_postlist.h,
+	  backends/contiguousalldocspostlist.h,backends/database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.h,backends/remote/net_postlist.h,
+	  backends/remote/remote-database.cc,common/,matcher/: Move
+	  emptypostlist.h, leafpostlist.h and postlist.h from common to api.
+
+Sat Nov 05 23:31:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,
+	  backends/contiguousalldocspostlist.h,common/Makefile.mk,
+	  common/contiguousalldocspostlist.h: Move contiguousalldocspostlist.h
+	  from common to backends.
+
+Sat Nov 05 23:28:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/Makefile.mk,backends/alltermslist.h,
+	  backends/brass/,backends/chert/,
+	  backends/inmemory/inmemory_alltermslist.h,common/Makefile.mk,
+	  common/alltermslist.h,common/multialltermslist.h: Move alltermslist.h
+	  from common to backends.
+
+Sat Nov 05 23:20:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/safesysselect.h: Fix typo (FDSET -> FD_SET).
+
+Sat Nov 05 23:12:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/safesysselect.h: Enhance to provide portability for __WIN32__
+	  too.
+	* net/remoteconnection.cc,net/tcpclient.cc: Update to make use of this.
+
+Sat Nov 05 22:39:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/safesysselect.h: Add wrapper around FD_SET() under __WIN32__
+	  which casts the fd parameter to unsigned to avoid a warning on mingw.
+	* net/tcpclient.cc: Remove __WIN32__-specific case here which was
+	  working around this warning.
+
+Sat Nov 05 21:58:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* bin/.gitignore,bin/Makefile.mk,bin/xapian-delve.cc,
+	  docs/admin_notes.rst,examples/,xapian-core.spec.in: Move delve from
+	  examples to bin and rename to xapian-delve.
+
+Sat Nov 05 15:18:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Fix a few things which were out of date and
+	  improve wording in various places.
+
+Sat Nov 05 12:07:14 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Fix some factual errors, and tweak .rst
+	  source layout a little (":\n::\n" -> "::\n").
+
+Thu Nov 03 20:53:49 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* common/msvc_posix_wrapper.cc,common/safe.cc,net/tcpclient.cc:
+	  Some fixes for warnings when cross-compiling with mingw; missing
+	  includes to get declarations of functions in windows support
+	  code, and change to use the windows SOCKET type to avoid a
+	  signed/unsigned comparison warning in tcpclient.
+
+Sun Oct 30 23:31:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Sun Oct 30 13:16:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: List which flags FLAG_DEFAULT includes
+	  in the doxygen documentation comments.
+
+Sat Oct 29 14:47:04 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Add note to API docs to discourage use
+	  of percentage scores.
+
+Sat Oct 29 14:40:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst,docs/quickstartexpand.cc.html,
+	  docs/quickstartsearch.cc.html,examples/quest.cc,
+	  examples/simpleexpand.cc,examples/simplesearch.cc: Use get_weight()
+	  instead of get_percent() in examples, since percentages are rather
+	  old fashioned and you probably don't want to use them in new
+	  applications.
+
+Sat Oct 29 13:29:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,docs/deprecation.rst,
+	  include/xapian/enquire.h,include/xapian/types.h,tests/api_anydb.cc:
+	  Deprecate Xapian::percent and use int instead in the API and our
+	  own code.
+
+Sat Oct 29 12:30:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Fix indentation of example code.
+
+Sat Oct 29 10:04:24 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Fix typo in example code.
+
+Fri Oct 28 14:39:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Note that commit() was new in 1.1.0.
+
+Fri Oct 14 12:38:45 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/realtime.h: Use safesysselect.h.
+
+Mon Oct 03 00:53:13 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Incorporate changes from latest upstream
+	  version.  I'm failing to follow branch structure upstream to work
+	  out which changesets to merge so it's simpler to just compare the
+	  latest version with what we currently have.
+
+Sun Oct 02 23:31:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d8bab8cf0b:
+	  'Added %expect directive, to consider a certain number of conflicts
+	  "correct." This has the side effect of changing the process exit
+	  code to never overflow.'
+
+Sun Oct 02 23:26:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e6cbe1e5ee:
+	  "Added -T option, to specify a template filename on the command
+	  line.  The default is still "lempar.c", though."  Not currently
+	  useful to us, but trying to minimise differences with upstream
+	  lemon.
+
+Sun Oct 02 23:14:32 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e22c090f35:
+	  "Another attempt at fixing the table generator in lemon. Again, this
+	  does not effect the SQLite grammar."  No change to generated grammar
+	  for QueryParser.
+
+Sun Oct 02 22:59:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/077a6bee2d:
+	  "Fix an issue with lemon generating incorrect grammars. This issue
+	  does not effect SQLite."  This means we now get the same tables
+	  generated as before the previous change.
+
+Sun Oct 02 22:25:54 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge
+	  http://www.sqlite.org/src/info/27d8e684db: Enhancements to lemon to
+	  generate more compact action tables and to avoid making array bounds
+	  tests that can never fail on action table calculations.  This
+	  reduces the size of QueryParser's tables a little.
+
+Sun Oct 02 21:47:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d66a0f31eb:
+	  Adjust the lemon implementation so that it always computes the same
+	  PDA regardless of qsort() implementation on the host platform. In
+	  other words, make all sorts in lemon stable.
+
+Thu Sep 29 12:11:28 GMT 2011  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add cases to ensure a quoted boolean
+	  prefix accepts an empty value or a single space.
+
+Wed Sep 14 04:48:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Correct link which was to
+	  quickstartsearch.cc.html but should be to quickstartindex.cc.html.
+
+Tue Sep 13 08:51:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Fix comment typo.
+
+Thu Sep 01 12:50:43 GMT 2011  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Clarify "sort by date" with BoolWeight
+	  example.
+
+Tue Aug 30 13:51:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* docs/index.rst: Add link to apidoc.pdf.
+
+Wed Aug 24 14:12:05 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix memory leak (caught by existing
+	  testcase queryparser1 when run under valgrind).
+
+Wed Aug 24 12:47:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* queryparser/,tests/queryparsertest.cc,tests/termgentest.cc: Add
+	  support for indexing and searching CJK text using n-grams.  Currently
+	  this is only enabled if environmental variable XAPIAN_CJK_NGRAM is
+	  set to a non-empty value.
+
+Tue Aug 23 03:49:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.cc,api/vectortermlist.h: Change so that p == NULL
+	  represents at_end, and p == data.data() means we've yet to start.
+
+Mon Aug 22 15:30:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.cc: Add new source file missed from last commit.
+
+Mon Aug 22 14:32:50 GMT 2011  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/brass_synonym.cc,backends/chert/chert_synonym.cc,
+	  common/Makefile.mk,common/vectortermlist.h,
+	  queryparser/queryparser.cc: Reimplement VectorTermList to store the
+	  list of terms encoded into a single std::string, which is a lot more
+	  memory efficient that std::vector<std::string>.
+
+Mon Aug 22 12:22:49 GMT 2011  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/const_database_wrapper.cc,
+	  common/const_database_wrapper.h,matcher/Makefile.mk,
+	  matcher/const_database_wrapper.cc,matcher/const_database_wrapper.h:
+	  Move const_database_wrapper.h and const_database_wrapper.cc from
+	  common/ to matcher/.
+
+Sun Aug 21 12:43:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Since we require GNU find for the coverage-check target,
+	  make use of its -delete option, so we no longer also need GNU xargs.
 
 Thu Aug 18 06:28:11 GMT 2011  Olly Betts <olly@survex.com>
 
@@ -887,7 +2056,7 @@ Tue May 31 03:36:49 GMT 2011  Dan Colish <dcolish@gmail.com>
 	docs/queryparser.rst docs/stemming.rst docs/intro_ir.rst
 	docs/code_structure.rst docs/Makefile.am docs/tests.rst
 	docs/overview.rst: Bulk port all remaining documentation to RST.
-	
+
 Sun May 29 07:04:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Add PostingSource example.  (ticket#503)
@@ -943,7 +2112,7 @@ Mon May 09 20:13:17 GMT 2011  Olly Betts <olly@survex.com>
 
 Thu Apr 07 05:38:36 GMT 2011  Dan Colish <dcolish@gmail.com>
 
-	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc, 
+	* matcher/phrasepostlist.cc, matcher/queryoptimiser.cc,
 	  matcher/exactphrasepostlist.cc, matcher/exactphrasepostlist.h,
 	  matcher/phrasepostlist.h: Remove temporary vector in queryoptimiser
 	  and replace with iterators.
@@ -1029,7 +2198,7 @@ Tue Mar 22 01:18:38 GMT 2011  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/,backends/chert/chert_database.cc,
 	  backends/flint/flint_database.cc,tests/api_replicate.cc:
-          Clean up changesets when replicating. Add test coverage for this
+	  Clean up changesets when replicating. Add test coverage for this
 	  feature. Allow XAPIAN_MAX_CHANGESETS to be altered without reopening
 	  the database. Closes Ticket #278.
 

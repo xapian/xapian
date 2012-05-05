@@ -1,7 +1,7 @@
 /** @file brass_metadata.cc
  * @brief Access to metadata for a brass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 #include "brass_cursor.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
 #include "omassert.h"
 #include "stringutils.h"

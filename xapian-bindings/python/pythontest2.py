@@ -26,6 +26,12 @@ import sys
 import tempfile
 import xapian
 
+try:
+    import threading
+    have_threads = True
+except ImportError:
+    have_threads = False
+
 from testsuite import *
 
 def setup_database():
@@ -242,9 +248,7 @@ def test_queryterms_iter():
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
     # Make a list of the term names
-    terms = []
-    for term in query:
-        terms.append(term)
+    terms = [term for term in query]
     expect(terms, ['it', 'two', 'warm', 'was'])
 
 def test_queryparser_stoplist_iter():
@@ -261,9 +265,8 @@ def test_queryparser_stoplist_iter():
     query = queryparser.parse_query('to be or not to be is the questions')
     expect([term for term in queryparser.stoplist()], [])
     expect(str(query),
-           'Xapian::Query((Zto:(pos=1) OR Zbe:(pos=2) OR Zor:(pos=3) OR '
-           'Znot:(pos=4) OR Zto:(pos=5) OR Zbe:(pos=6) OR Zis:(pos=7) OR '
-           'Zthe:(pos=8) OR Zquestion:(pos=9)))')
+           'Query((Zto@1 OR Zbe@2 OR Zor@3 OR Znot@4 OR Zto@5 OR Zbe@6 OR '
+           'Zis@7 OR Zthe@8 OR Zquestion@9))')
 
     # Check behaviour with a stoplist, but no stemmer
     queryparser = xapian.QueryParser()
@@ -277,9 +280,7 @@ def test_queryparser_stoplist_iter():
 
     expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
     expect(str(query),
-           'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
-           'be:(pos=6) OR is:(pos=7) OR '
-           'the:(pos=8) OR questions:(pos=9)))')
+           'Query((be@2 OR or@3 OR be@6 OR is@7 OR the@8 OR questions@9))')
 
     # Check behaviour with a stoplist and a stemmer
     queryparser.set_stemmer(stemmer)
@@ -289,9 +290,7 @@ def test_queryparser_stoplist_iter():
 
     expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
     expect(str(query),
-           'Xapian::Query((Zbe:(pos=2) OR Zor:(pos=3) OR '
-           'Zbe:(pos=6) OR Zis:(pos=7) OR '
-           'Zthe:(pos=8) OR Zquestion:(pos=9)))')
+           'Query((Zbe@2 OR Zor@3 OR Zbe@6 OR Zis@7 OR Zthe@8 OR Zquestion@9))')
 
 def test_queryparser_unstem_iter():
     """Test QueryParser unstemlist iterator.
@@ -309,7 +308,7 @@ def test_queryparser_unstem_iter():
     expect([term for term in queryparser.unstemlist('question')], ['question'])
     expect([term for term in queryparser.unstemlist('questions')], ['questions'])
     expect(str(query),
-           'Xapian::Query((to:(pos=1) OR question:(pos=2) OR questions:(pos=3)))')
+           'Query((to@1 OR question@2 OR questions@3))')
 
 
     queryparser = xapian.QueryParser()
@@ -324,7 +323,7 @@ def test_queryparser_unstem_iter():
     expect([term for term in queryparser.unstemlist('Zquestion')], ['question', 'questions'])
     expect([term for term in queryparser.unstemlist('Zquestions')], [])
     expect(str(query),
-           'Xapian::Query((Zto:(pos=1) OR Zquestion:(pos=2) OR Zquestion:(pos=3)))')
+           'Query((Zto@1 OR Zquestion@2 OR Zquestion@3))')
 
 def test_allterms_iter():
     """Test all-terms iterator on Database.
@@ -342,9 +341,7 @@ def test_allterms_iter():
         expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
     context("checking that items are no longer valid once the iterator has moved on");
-    termitems = []
-    for termitem in db:
-        termitems.append(termitem)
+    termitems = [termitem for termitem in db]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -431,9 +428,7 @@ def test_termlist_iter():
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
-    termitems = []
-    for termitem in db.termlist(3):
-        termitems.append(termitem)
+    termitems = [termitem for termitem in db.termlist(3)]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -481,9 +476,7 @@ def test_dbdocument_iter():
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
-    termitems = []
-    for termitem in doc:
-        termitems.append(termitem)
+    termitems = [termitem for termitem in doc]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -535,9 +528,7 @@ def test_newdocument_iter():
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
-    termitems = []
-    for termitem in doc:
-        termitems.append(termitem)
+    termitems = [termitem for termitem in doc]
 
     expect(len(termitems), len(terms))
     for i in range(len(termitems)):
@@ -623,9 +614,7 @@ def test_postinglist_iter():
 
     # Make a list of the postings (so we can test if they're still valid once
     # the iterator has moved on).
-    postings = []
-    for posting in db.postlist('it'):
-        postings.append(posting)
+    postings = [posting for posting in db.postlist('it')]
 
     expect(len(postings), len(docids))
     for i in range(len(postings)):
@@ -720,9 +709,7 @@ def test_position_iter():
     doc = db.get_document(5)
 
     # Make lists of the item contents
-    positions = []
-    for position in db.positionlist(5, 'it'):
-        positions.append(position)
+    positions = [position for position in db.positionlist(5, 'it')]
 
     expect(positions, [2, 7])
 
@@ -880,7 +867,7 @@ def test_queryparser_custom_vrp():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
+           'Query(0 * VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_vrp_deallocation():
     """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
@@ -903,7 +890,7 @@ def test_queryparser_custom_vrp_deallocation():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
+           'Query(0 * VALUE_RANGE 7 A5 B8)')
 
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
@@ -931,7 +918,7 @@ def test_scale_weight():
     context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
-                     "Xapian::Query: SCALE_WEIGHT requires a non-negative parameter.",
+                     "OP_SCALE_WEIGHT requires factor >= 0",
                      xapian.Query,
                      xapian.Query.OP_SCALE_WEIGHT, query1, -1)
 
@@ -1282,17 +1269,17 @@ def test_serialise_query():
     q = xapian.Query()
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
-    expect(str(q), 'Xapian::Query()')
+    expect(str(q), 'Query()')
 
     q = xapian.Query('hello')
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
-    expect(str(q), 'Xapian::Query(hello)')
+    expect(str(q), 'Query(hello)')
 
     q = xapian.Query(xapian.Query.OP_OR, ('hello', 'world'))
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
-    expect(str(q), 'Xapian::Query((hello OR world))')
+    expect(str(q), 'Query((hello OR world))')
 
 def test_preserve_query_parser_stopper():
     """Test preservation of stopper set on query parser.
@@ -1421,6 +1408,18 @@ def test_import_star():
     """
     import test_xapian_star
 
+def test_latlongcoords_iter():
+    """Test LatLongCoordsIterator wrapping.
+
+    """
+    coords = xapian.LatLongCoords()
+    expect([c for c in coords], [])
+    coords.append(xapian.LatLongCoord(0, 0))
+    coords.append(xapian.LatLongCoord(0, 1))
+    expect([str(c) for c in coords], ['Xapian::LatLongCoord(0, 0)',
+                                      'Xapian::LatLongCoord(0, 1)'])
+
+
 def test_compactor():
     """Test that xapian.Compactor works.
 
@@ -1502,11 +1501,11 @@ def test_compactor():
         expect(db3.get_metadata('key2'), '2')
 
     finally:
-        if db1 != None:
+        if db1 is not None:
             db1.close()
-        if db2 != None:
+        if db2 is not None:
             db2.close()
-        if db3 != None:
+        if db3 is not None:
             db3.close()
 
         shutil.rmtree(tmpdir)
@@ -1608,8 +1607,31 @@ def test_removed_features():
     check_missing(titer, 'positionlist_begin')
     check_missing(titer, 'positionlist_end')
 
+result = True
+
 # Run all tests (ie, callables with names starting "test_").
-if not runtests(globals(), sys.argv[1:]):
+def run():
+    global result
+    if not runtests(globals(), sys.argv[1:]):
+        result = False
+
+print "Running tests without threads"
+run()
+
+if have_threads:
+    print "Running tests with threads"
+
+    # This testcase seems to just block when run in a thread, so just remove
+    # it before running tests in a thread.
+    del test_import_star
+
+    t = threading.Thread(name='test runner', target=run)
+    t.start()
+    # Block until the thread has completed so the thread gets a chance to exit
+    # with error status.
+    t.join()
+
+if not result:
     sys.exit(1)
 
 # vim:syntax=python:set expandtab:

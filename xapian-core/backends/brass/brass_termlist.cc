@@ -25,7 +25,7 @@
 
 #include "xapian/error.h"
 
-#include "expandweight.h"
+#include "expand/expandweight.h"
 #include "brass_positionlist.h"
 #include "debuglog.h"
 #include "omassert.h"

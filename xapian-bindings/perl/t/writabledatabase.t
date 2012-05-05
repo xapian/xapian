@@ -1,12 +1,15 @@
-#!/usr/bin/perl -W
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
 #########################
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 35;
+plan tests => 40;
 
 use Search::Xapian qw(:standard);
 
@@ -38,7 +41,7 @@ for my $num (1..1000) {
   $write->add_document( $doc );
 } 
 
-for my $num qw (three four five) {
+for my $num (qw(three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
@@ -135,7 +138,7 @@ is($write->get_doccount(), 1, "check document count");
 is($doc->get_data(), "$term $num", "check document data");
 
 # add documents for following tests
-for my $num qw (one two three four five) {
+for my $num (qw(one two three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
@@ -186,10 +189,31 @@ is($write->get_doccount(), 0, 'check WritableDatabase after deleting all documen
 ok(!$write->term_exists($delterm), 'check term exists after deleting all documents');
 is($write->get_termfreq($delterm), 0, 'check term frequency after deleting all documents');
 
+eval {
+  # Should fail because the database is already open for writing.
+  Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN );
+};
+ok( $@ );
+
 $write->close();
 eval {
   # Should fail because the database has been closed.
   $write->add_document(Search::Xapian::Document->new());
+};
+ok( $@ );
+
+# Should work now.
+ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+
+# And reference counting should have closed it.
+ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+
+my $read = Search::Xapian::Database->new( $db_dir );
+ok( $@ );
+$read->close();
+eval {
+  # Should fail because the database has been closed.
+  $write->allterms_begin();
 };
 ok( $@ );
 

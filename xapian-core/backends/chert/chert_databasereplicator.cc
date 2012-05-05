@@ -2,7 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010 Olly Betts
+ * Copyright 2009,2010,2011,2012 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -33,15 +33,16 @@
 #include "chert_types.h"
 #include "chert_version.h"
 #include "debuglog.h"
+#include "fd.h"
+#include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
-#include "remoteconnection.h"
+#include "net/remoteconnection.h"
 #include "replicate_utils.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
-#include "utils.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -130,7 +131,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	throw DatabaseError(msg, errno);
     }
     {
-	fdcloser closer(fd);
+	FD closer(fd);
 
 	io_write(fd, buf.data(), base_size);
 	io_sync(fd);
@@ -150,7 +151,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	// file still exists, which we do by calling unlink(), since we want
 	// to remove the temporary file anyway.
 	int saved_errno = errno;
-	if (unlink(tmp_path) == 0 || errno != ENOENT) {
+	if (unlink(tmp_path.c_str()) == 0 || errno != ENOENT) {
 	    string msg("Couldn't update base file ");
 	    msg += tablename;
 	    msg += ".base";
@@ -199,7 +200,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	}
     }
     {
-	fdcloser closer(fd);
+	FD closer(fd);
 
 	while (true) {
 	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
@@ -285,13 +286,12 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (ptr == end)
 	throw NetworkError("Unexpected end of changeset (1)");
 
-    int changes_fd = -1;
+    FD changes_fd;
     string changes_name;
     if (max_changesets > 0) {
 	changes_fd = create_changeset_file(db_dir, "changes" + str(startrev),
 					   changes_name);
     }
-    fdcloser closer(changes_fd);
 
     if (valid) {
 	// Check the revision number.

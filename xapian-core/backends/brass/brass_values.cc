@@ -1,7 +1,7 @@
 /** @file brass_values.cc
  * @brief BrassValueManager class
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@
 #include "brass_postlist.h"
 #include "brass_termlist.h"
 #include "debuglog.h"
-#include "document.h"
+#include "backends/document.h"
 #include "pack.h"
 
 #include "xapian/error.h"

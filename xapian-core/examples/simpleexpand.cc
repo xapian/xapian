@@ -88,7 +88,7 @@ try {
     cout << matches.get_matches_estimated() << " results found:" << endl;
 
     for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
-	cout << i.get_rank() + 1 << ": " << i.get_percent() << "% docid=" << *i
+	cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
 	     << " [" << i.get_document().get_data() << "]\n\n";
     }
 

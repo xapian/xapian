@@ -1,6 +1,7 @@
-/* chert_cursor.h: Interface to Btree cursors
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file chert_cursor.h
+ * @brief Interface to Btree cursors
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

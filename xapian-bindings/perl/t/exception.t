@@ -5,6 +5,10 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
+# Make warnings fatal
+use warnings;
+BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
+
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 4 };

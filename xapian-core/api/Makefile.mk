@@ -1,7 +1,16 @@
 noinst_HEADERS +=\
+	api/documentterm.h\
 	api/documentvaluelist.h\
 	api/editdistance.h\
-	api/maptermlist.h
+	api/emptypostlist.h\
+	api/leafpostlist.h\
+	api/maptermlist.h\
+	api/omenquireinternal.h\
+	api/postlist.h\
+	api/queryinternal.h\
+	api/replication.h\
+	api/termlist.h\
+	api/vectortermlist.h
 
 EXTRA_DIST +=\
 	api/dir_contents\
@@ -22,12 +31,12 @@ lib_src +=\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\
-	api/omquery.cc\
-	api/omqueryinternal.cc\
 	api/positioniterator.cc\
 	api/postingiterator.cc\
 	api/postingsource.cc\
 	api/postlist.cc\
+	api/query.cc\
+	api/queryinternal.cc\
 	api/registry.cc\
 	api/replication.cc\
 	api/sortable-serialise.cc\
@@ -36,4 +45,5 @@ lib_src +=\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
+	api/vectortermlist.cc\
 	api/version.cc

@@ -23,7 +23,7 @@
 
 #ifdef XAPIAN_DEBUG_LOG
 
-#include "output.h"
+#include "output-internal.h"
 #include "pretty.h"
 
 #include <cstring>
@@ -118,7 +118,7 @@ class DebugLogger {
 	return (categories_mask >> category) & 1;
     }
 
-    /// Log message @msg of category @a category.
+    /// Log message @a msg of category @a category.
     void log_line(debuglog_categories category, const std::string & msg);
 
     void indent() { ++indent_level; }

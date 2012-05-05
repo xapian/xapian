@@ -1,7 +1,8 @@
-/* multi_termlist.h: C++ class declaration for multiple database access
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2010 Olly Betts
+/** @file multi_termlist.h
+ * @brief C++ class declaration for multiple database access
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002,2003,2004,2005,2006,2007,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +23,8 @@
 #ifndef OM_HGUARD_MULTI_TERMLIST_H
 #define OM_HGUARD_MULTI_TERMLIST_H
 
-#include "termlist.h"
-#include "database.h"
+#include "api/termlist.h"
+#include "backends/database.h"
 
 class MultiTermList : public TermList {
     friend class Xapian::Database;

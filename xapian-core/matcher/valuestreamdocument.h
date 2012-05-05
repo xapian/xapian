@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.h
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 #define XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 
-#include "document.h"
-#include "valuelist.h"
+#include "backends/document.h"
+#include "backends/valuelist.h"
 #include "xapian/types.h"
 
 #include <map>

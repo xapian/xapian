@@ -1,7 +1,7 @@
 /** @file brass_values.h
  * @brief BrassValueManager class
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_BRASS_VALUES_H
 
 #include "pack.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include "xapian/error.h"
 #include "xapian/types.h"

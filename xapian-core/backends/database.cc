@@ -27,7 +27,7 @@
 
 #include "xapian/error.h"
 
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "omassert.h"
 #include "slowvaluelist.h"
 

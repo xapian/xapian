@@ -1,7 +1,7 @@
 /** @file chert_modifiedpostlist.h
  * @brief A ChertPostList plus pending modifications
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ class ChertModifiedPostList : public ChertPostList {
     PositionList * poslist;
 
     /// Skip over deleted documents after a next() or skip_to().
-    void skip_deletes(Xapian::weight w_min);
+    void skip_deletes(double w_min);
 
   public:
     /// Constructor.
@@ -65,9 +65,9 @@ class ChertModifiedPostList : public ChertPostList {
 
     PositionList *open_position_list() const;
 
-    PostList * next(Xapian::weight w_min);
+    PostList * next(double w_min);
 
-    PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
+    PostList * skip_to(Xapian::docid desired_did, double w_min);
 
     bool at_end() const;
 

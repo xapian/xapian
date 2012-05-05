@@ -12,7 +12,7 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
 CLEANFILES =
@@ -144,6 +144,7 @@ collated_apitest_sources = \
  api_unicode.cc \
  api_valuestats.cc \
  api_valuestream.cc \
+ api_geospatial.cc \
  api_wrdb.cc
 
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
@@ -168,8 +169,9 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
-unittest_SOURCES = unittest.cc
+unittest_SOURCES = unittest.cc $(utestharness_sources)
 unittest_LDFLAGS = -no-install $(ldflags)
+unittest_LDADD = ../libgetopt.la
 
 BUILT_SOURCES =
 

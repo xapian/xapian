@@ -1,8 +1,8 @@
-/** \file  valuesetmatchdecider.h
- *  \brief MatchDecider subclass for filtering results by value.
+/** @file valuesetmatchdecider.h
+ * @brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Limited
- * Copyright 2008,2009 Olly Betts
+ * Copyright 2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,10 +81,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
 	testset.erase(value);
     }
 
-    /** Decide whether we want this document to be in the MSet.
+    /** Decide whether we want a particular document to be in the MSet.
      *
-     *  Return true if the document is acceptable, or false if the document
-     *  should be excluded from the MSet.
+     *  @param doc	The document to test.
+     *  @return		true if the document is acceptable, or false if the
+     *			document should be excluded from the MSet.
      */
     bool operator()(const Xapian::Document& doc) const;
 };

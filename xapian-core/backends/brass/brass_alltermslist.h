@@ -1,6 +1,7 @@
-/* brass_alltermslist.h: A termlist containing all terms in a brass database.
- *
- * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
+/** @file brass_alltermslist.h
+ * @brief A termlist containing all terms in a brass database.
+ */
+/* Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_BRASS_ALLTERMSLIST_H
 
-#include "alltermslist.h"
+#include "backends/alltermslist.h"
 #include "brass_database.h"
 #include "brass_postlist.h"
 

@@ -1,7 +1,7 @@
 /** @file replicatetcpserver.cc
  * @brief TCP/IP replication server class.
  */
-/* Copyright (C) 2008,2010 Olly Betts
+/* Copyright (C) 2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #include "replicatetcpserver.h"
 
 #include <xapian/error.h>
-#include "replication.h"
+#include "api/replication.h"
 
 using namespace std;
 

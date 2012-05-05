@@ -1,6 +1,7 @@
-/* chert_record.h: Records in chert databases
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file chert_record.h
+ * @brief Records in chert databases
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
  *

@@ -1,7 +1,7 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -183,6 +183,14 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
     enquire.set_sort_by_relevance();
     mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
+
+    // Check that NeverUseMeKeyMaker::operator() would actually cause a test
+    // failure if called.
+    try {
+	sorter(Xapian::Document());
+	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
+    } catch (const TestFail &) {
+    }
 
     return true;
 }

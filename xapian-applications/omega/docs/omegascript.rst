@@ -305,12 +305,23 @@ $pack{NUMBER}
 $percentage
 	percentage score of current hit (in range 1-100).
 
+	You probably don't want to show these percentage scores to end
+	users in new applications - they're not really a percentage of
+	anything meaningful, and research seems to suggest that users
+	don't find numeric scores in search results useful.
+
 $prettyterm{TERM}
 	convert a term to "user form", as it might be entered in a query.  If
 	a matching term was entered in the query, just use that (the first
 	occurrence if a term was generated multiple times from a query).
 	Otherwise term prefixes are converted back to user forms as specified
 	by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
+
+$prettyurl{URL}
+	Prettify URL.  This command undoes RFC3986 URL escaping which doesn't
+	affect semantics in practice, in order to make a prettier version of a
+	URL for displaying to the user (rather than in links), but which should
+	still work if copied and pasted.
 
 $query[{PREFIX}]
 	query string for prefix PREFIX.

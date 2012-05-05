@@ -1,7 +1,7 @@
 %{
 /* tcl8/except.i: Custom tcl8 exception handling.
  *
- * Copyright (c) 2006,2007 Olly Betts
+ * Copyright (c) 2006,2007,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,10 +19,19 @@
  * USA
  */
 
+#include <exception>
+
 static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
     Tcl_ResetResult(interp);
     Tcl_SetErrorCode(interp, "XAPIAN", e.get_type(), NULL);
     Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
+    return TCL_ERROR;
+}
+
+static int XapianTclHandleError(Tcl_Interp * interp, const std::exception &e) {
+    Tcl_ResetResult(interp);
+    Tcl_SetErrorCode(interp, "std::exception", NULL);
+    Tcl_AppendResult(interp, e.what(), NULL);
     return TCL_ERROR;
 }
 
@@ -39,6 +48,8 @@ static int XapianTclHandleError(Tcl_Interp * interp) {
     try {
 	$function
     } catch (const Xapian::Error &e) {
+	return XapianTclHandleError(interp, e);
+    } catch (const std::exception &e) {
 	return XapianTclHandleError(interp, e);
     } catch (...) {
 	return XapianTclHandleError(interp);

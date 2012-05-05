@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -34,8 +34,9 @@
 
 #include "autoptr.h"
 #include "debuglog.h"
+#include "noreturn.h"
 #include "omassert.h"
-#include "serialise.h"
+#include "net/length.h"
 #include "stringutils.h"
 #include "str.h"
 #include "termlist.h"
@@ -296,7 +297,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 }
 
 void
-ValueCountMatchSpy::operator()(const Document &doc, weight) {
+ValueCountMatchSpy::operator()(const Document &doc, double) {
     ++(internal->total);
     string val(doc.get_value(internal->slot));
     if (!val.empty()) ++(internal->values[val]);

@@ -27,43 +27,16 @@
 #include <xapian/valueiterator.h>
 
 #include "omassert.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
+#include "length.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "utils.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <string>
 #include <cstring>
 
 using namespace std;
-
-size_t
-decode_length(const char ** p, const char *end, bool check_remaining)
-{
-    if (*p == end) {
-	throw Xapian::NetworkError("Bad encoded length: no data");
-    }
-
-    size_t len = static_cast<unsigned char>(*(*p)++);
-    if (len == 0xff) {
-	len = 0;
-	unsigned char ch;
-	int shift = 0;
-	do {
-	    if (*p == end || shift > 28)
-		throw Xapian::NetworkError("Bad encoded length: insufficient data");
-	    ch = *(*p)++;
-	    len |= size_t(ch & 0x7f) << shift;
-	    shift += 7;
-	} while ((ch & 0x80) == 0);
-	len += 255;
-    }
-    if (check_remaining && len > size_t(end - *p)) {
-	throw Xapian::NetworkError("Bad encoded length: length greater than data");
-    }
-    return len;
-}
 
 string
 serialise_error(const Xapian::Error &e)
@@ -219,15 +192,15 @@ unserialise_mset(const char * p, const char * p_end)
     Xapian::doccount uncollapsed_lower_bound = decode_length(&p, p_end, false);
     Xapian::doccount uncollapsed_estimated = decode_length(&p, p_end, false);
     Xapian::doccount uncollapsed_upper_bound = decode_length(&p, p_end, false);
-    Xapian::weight max_possible = unserialise_double(&p, p_end);
-    Xapian::weight max_attained = unserialise_double(&p, p_end);
+    double max_possible = unserialise_double(&p, p_end);
+    double max_attained = unserialise_double(&p, p_end);
 
     double percent_factor = unserialise_double(&p, p_end);
 
     vector<Xapian::Internal::MSetItem> items;
     size_t msize = decode_length(&p, p_end, false);
     while (msize-- > 0) {
-	Xapian::weight wt = unserialise_double(&p, p_end);
+	double wt = unserialise_double(&p, p_end);
 	Xapian::docid did = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
 	string key(p, len);

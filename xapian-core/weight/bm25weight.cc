@@ -1,7 +1,7 @@
 /** @file bm25weight.cc
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ BM25Weight::init(double factor)
 {
     Xapian::doccount tf = get_termfreq();
 
-    Xapian::weight tw = 0;
+    double tw = 0;
     if (get_rset_size() != 0) {
 	Xapian::doccount reltermfreq = get_reltermfreq();
 
@@ -84,7 +84,7 @@ BM25Weight::init(double factor)
     // weight or similar.
     //
     // Truncating to zero doesn't seem a great approach in practice as it
-    // means that some terms in the query can have no affect at all on the
+    // means that some terms in the query can have no effect at all on the
     // ranking, and that some results can have zero weight, both of which
     // are seem surprising.
     //
@@ -159,10 +159,10 @@ BM25Weight::unserialise(const string & s) const
     return new BM25Weight(k1, k2, k3, b, min_normlen);
 }
 
-Xapian::weight
+double
 BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
-    LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_sumpart", wdf | len);
+    LOGCALL(WTCALC, double, "BM25Weight::get_sumpart", wdf | len);
     Xapian::doclength normlen = max(len * len_factor, param_min_normlen);
 
     double wdf_double(wdf);
@@ -171,10 +171,10 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     RETURN(termweight * (param_k1 + 1) * (wdf_double / denom));
 }
 
-Xapian::weight
+double
 BM25Weight::get_maxpart() const
 {
-    LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_maxpart", NO_ARGS);
+    LOGCALL(WTCALC, double, "BM25Weight::get_maxpart", NO_ARGS);
     Xapian::doclength normlen_lb = max(get_doclength_lower_bound() * len_factor,
 				       param_min_normlen);
     double wdf_max(get_wdf_upper_bound());
@@ -192,19 +192,19 @@ BM25Weight::get_maxpart() const
  *
  * 2 * param_k2 * query_length / (1 + normlen)
  */
-Xapian::weight
+double
 BM25Weight::get_sumextra(Xapian::termcount len) const
 {
-    LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_sumextra", len);
-    Xapian::weight num = (2.0 * param_k2 * get_query_length());
+    LOGCALL(WTCALC, double, "BM25Weight::get_sumextra", len);
+    double num = (2.0 * param_k2 * get_query_length());
     RETURN(num / (1.0 + max(len * len_factor, param_min_normlen)));
 }
 
-Xapian::weight
+double
 BM25Weight::get_maxextra() const
 {
-    LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_maxextra", NO_ARGS);
-    Xapian::weight num = (2.0 * param_k2 * get_query_length());
+    LOGCALL(WTCALC, double, "BM25Weight::get_maxextra", NO_ARGS);
+    double num = (2.0 * param_k2 * get_query_length());
     RETURN(num / (1.0 + max(double(get_doclength_lower_bound()),
 			    param_min_normlen)));
 }

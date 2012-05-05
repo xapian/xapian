@@ -2,6 +2,10 @@ EXTRA_DIST +=\
 	backends/inmemory/dir_contents\
 	backends/inmemory/Makefile
 
+# InMemoryPositionList is also used by MapTermList and the remote backend.
+noinst_HEADERS +=\
+	backends/inmemory/inmemory_positionlist.h
+
 if BUILD_BACKEND_INMEMORY
 noinst_HEADERS +=\
 	backends/inmemory/inmemory_alltermslist.h\

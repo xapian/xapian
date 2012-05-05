@@ -1,7 +1,7 @@
 /** @file soaktest_queries.cc
  * @brief Soaktest generating lots of random queries.
  */
-/* Copyright (C) 2010 Richard boulton
+/* Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,6 @@
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include <list>
 

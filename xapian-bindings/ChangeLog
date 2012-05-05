@@ -1,3 +1,419 @@
+Sun Apr 22 13:04:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Sort both the lists of expected
+	  and of found SWIG-generated sources with Perl, to avoid problems with
+	  locale-specific sort orders.
+
+Sun Apr 22 11:00:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/writabledatabase.t: Forward port additional test coverage
+	  for Database::close() from Search::Xapian in 1.2 branch.
+
+Mon Apr 16 23:02:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Make sure the ruby subdirectory exists before
+	  trying to create ruby/rubyio.h, so this works in a VPATH
+	  build from a clean tree.
+
+Mon Apr 16 06:47:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/AssemblyInfo.cs.in,csharp/Makefile.am: Use -keyfile and
+	  -keycontainer options to the C# compiler, because it warns us
+	  to do this instead of setting them in AssemblyInfo.cs.
+
+Mon Apr 16 06:39:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Remove now superfluous old check that SWIG
+	  generated at least the sources we wanted - we now check it generated
+	  *exactly* the sources we wanted.
+
+Mon Apr 16 06:34:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Use diff's -c option when
+	  comparing the files SWIG generated against those we were expecting to
+	  get as the output should be easier to understand.
+
+Wed Apr 11 02:54:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/smoketest3.py,python/testsuite3.py: Update Python 3 tests
+	  from Python 2 versions using 2to3.
+
+Thu Apr 05 04:25:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,lua/docs/index.html,lua/util.i: Fix compatibility
+	  with Lua 5.2.
+
+Thu Apr 05 04:23:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Remove bogus \ before q.
+
+Thu Apr 05 03:45:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Convert tabs to spaces.
+
+Thu Apr 05 03:43:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Check behaviour of "require 'xapian'" - SWIG 2.0.4
+	  and earlier got this wrong.  Part of patch from istr in #593, plus
+	  a few tweaks.
+
+Thu Apr 05 03:28:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Improve expect() function to take an option
+	  failure message, to report how values differed, and to compare tables
+	  in a smarter way.  Part of patch from istr in #593.
+
+Thu Apr 05 02:46:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/thread.t,perl/t/writabledatabase.t: Remove #! lines with -W
+	  to fix "Name "Test::More::TODO" used only once: possible typo at
+	  /usr/share/perl/5.14/Exporter/Heavy.pm line 190." warnings.
+
+Wed Apr 04 14:06:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py: Update to not use deprecated
+	  MSet iteration features which have been removed on trunk.  This
+	  also fixes a segfault if there are no matches and no documents
+	  are explicitly marked as relevant.
+
+Wed Mar 28 09:22:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-head.i: Update for new deprecation macros.
+
+Fri Mar 23 00:42:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: More tests of geospatial API.
+
+Thu Mar 22 23:49:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Avoid importing isa from UNIVERSAL to fix Perl 5.12
+	  deprecation warning.
+
+Tue Mar 20 02:04:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: More tests of geospatial API.
+
+Sun Mar 18 00:38:48 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* .gitignore: Ignore doxygen artifacts
+
+Wed Mar 14 02:25:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.9 and ChangeLog for 1.3.0.
+
+Tue Mar 13 22:41:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Test constructing XapianLatLongCoord.
+
+Tue Mar 13 00:32:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/add-php-type-hints: Fix typo "XapianStemmer" -> "XapianStem".
+	* php/smoketest.php: Add regression test coverage.
+
+Thu Mar 08 05:51:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/: Enable warnings for all test cases and make them fatal.
+
+Thu Mar 08 05:37:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test.t: Remove lingering reference to @args which is
+	  no longer set, and enable warnings and make them fatal so we don't
+	  regress on this.
+
+Fri Jan 27 01:21:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/10query.t: Check that Search::Xapian::Query->new("") works.
+
+Fri Jan 27 01:19:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Fix Search::Xapian->new() to work.
+	* perl/t/10query.t: Add testcase for this.
+
+Thu Jan 26 23:41:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Add "use Carp;" where we use functions from that module.
+	* perl/t/10query.t: Add regression test.
+
+Fri Jan 20 23:53:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/document.t,perl/t/index.t: Add tests of Document::get_docid().
+
+Thu Jan 19 00:19:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Update list of generated files for the geospatial
+	  API.
+
+Thu Jan 19 00:17:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore unserialise() variant taking const char**
+	  and Database::check() variant taking std::ostream &.
+
+Wed Jan 18 13:43:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Handle DBCHECK_* constants like we do DB_* ones.
+	  Factor out this special handliing into a SWIG macro called CONSTANT.
+
+Wed Jan 18 13:22:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Update list of generated file for geospatial API.
+
+Wed Jan 18 10:41:41 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  ruby/smoketest.rb,ruby/xapian.rb,xapian-headers.i: Merge bindings
+	  changes for geospatial API.
+
+Wed Jan 04 06:03:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add a test that Query ctor taking OP_NEAR with a
+	  window size works.
+
+Fri Dec 30 13:44:17 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Refactor to use XapianSWIGQueryItor class instead
+	  of temporary std::vector<Xapian::Query> (but not via a SWIG
+	  typemap currently).
+
+Fri Dec 30 13:17:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Add begin() and end() methods to XapianSWIGQueryItor
+	  instead of using ctors and assignment.
+
+Fri Dec 30 13:16:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Improve error message.
+
+Fri Dec 30 13:13:12 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Eliminate "else" after "return".
+
+Fri Dec 30 13:12:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Remove "return;" at end of function.
+
+Fri Dec 30 13:09:00 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Fix typo in error message.
+
+Fri Dec 30 13:07:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Reindent and fix other whitespace oddities.
+
+Fri Dec 30 12:23:38 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/php.i: Add begin() method to XapianSWIGQueryItor instead of
+	  using a ctor and assignment.
+
+Fri Dec 30 03:15:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/ruby.i: Add begin() and end() methods to XapianSWIGQueryItor
+	  as that's clearer than overloaded ctors with dummy parameters.
+
+Fri Dec 30 01:59:46 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,xapian.i: We don't use
+	  XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP for C#, but we also don't
+	  use the fake ctors added by %extend if this isn't defined, so also
+	  skip them if SWIGCSHARP is defined.
+
+Fri Dec 30 01:18:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: While we don't currently use
+	  XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP for perl, we also don't
+	  use the fake ctors added by %extend if this isn't defined, so also
+	  skip them if SWIGPERL is defined.
+
+Fri Dec 30 01:13:31 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove left-over comment associated with
+	  XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP.
+
+Fri Dec 30 01:05:52 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i: Use a SWIG freearg typemap to release the fast
+	  sequence object when we're done with it, rather than carefully
+	  adjusting its reference count when the iterator objects get copied or
+	  assigned.
+
+Fri Dec 30 00:54:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP, since none
+	  of the currently supported languages now use it, and we should use
+	  the XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP approach for all
+	  future languages which have containers which allow mixed content.
+
+Fri Dec 30 00:53:07 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i,python/util.i: Implement
+	  XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP approach for Python.
+
+Fri Dec 30 00:04:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Use list comprehensions rather than append
+	  loops.
+
+Thu Dec 29 23:26:18 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/testsuite2.py: Rephrase so VERBOSE=1 is there to cut and
+	  paste.
+
+Thu Dec 29 22:52:20 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/testsuite2.py: Don't run off the traceback looking for a
+	  test function if the exception wasn't from a test function.
+
+Thu Dec 29 11:35:51 GMT 2011  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,java/SmokeTest.java,lua/smoketest.lua,
+	  perl/t/10query.t,perl/t/parser.t,perl/t/search.t,php/smoketest.php,
+	  python/pythontest2.py,python/smoketest2.py,python/testsuite2.py,
+	  ruby/smoketest.rb,tcl8/smoketest.tcl,xapian-headers.i,xapian.i:
+	  Update for Query internals changes.
+
+Thu Dec 29 11:20:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix test for jni.h to try looking for jni.h relative to
+	  the real location of javac, which should work for more JDKs.
+
+Fri Dec 23 01:25:56 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/python.i: If configure didn't find a way to do TLS, fall back
+	  to using pthread_getspecific() etc, which should work on Mac OS X.
+
+Thu Dec 22 12:00:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
+	  Fix "Use of qw(...) as parentheses is deprecated" warnings in tests
+	  with Perl 5.14.
+
+Wed Dec 21 13:48:27 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/add-php-type-hints: Don't add a type hint to apply($doc) as that
+	  would break existing subclasses as the signature must match.
+
+Wed Dec 21 10:06:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/Search/Xapian/Document.pm,perl/Search/Xapian/TermGenerator.pm:
+	  Improve POD docs for Document and TermGenerator methods - "weight"
+	  is misleading, so use "wdfinc" and "wdfdec" like the C++ API docs
+	  do.
+
+Wed Dec 21 10:05:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/util.i,perl/perl.i: Change Xapian::weight to double.
+
+Wed Dec 21 08:43:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/add-php-type-hints: XapianSorter should be XapianKeyMaker.
+
+Wed Dec 21 08:42:57 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Rebuild wrappers if "add-php-type-hints" changes.
+
+Wed Dec 21 04:12:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/add-php-type-hints: Add PHP type hints to the
+	  class wrappers.  Fixes ticket#577.
+
+Tue Dec 20 11:03:37 GMT 2011  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,python/docs/index.html,python/python.i: Handle
+	  the GIL in a way which also works in sub-interpreters.  Fixes
+	  ticket #364.
+	* python/pythontest2.py: Run tests as before, and then (if Python
+	  supports threads) in a separate thread.
+
+Mon Dec 19 10:19:06 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve description of PERL_SO.
+
+Mon Dec 19 10:18:36 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix cosmetic typo in recent Lua change.
+
+Mon Dec 19 10:11:30 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,lua/Makefile.am: Remove Lua cygwin-specific configure
+	  code and -DUSE_LUA_STUBS - both were copied from the Tcl support
+	  with Tcl changed to Lua, and have no basis in reality that I can
+	  find.
+
+Mon Dec 19 09:08:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac,lua/Makefile.am: Improve probing for LUA_LIB, and also
+	  probe for LUA_SO so we support platforms where the compiled Lua
+	  module isn't called .so.
+
+Sun Dec 18 02:04:16 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve LUA_LIB description and probe message - the
+	  module won't have an ".so" extension on all platforms.
+
+Sun Dec 18 01:55:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: m4 quoting tweaks (cosmetic only).
+
+Sun Dec 18 01:50:48 GMT 2011  Olly Betts <olly@survex.com>
+
+	* configure.ac: Honour LUA_LIB if already set.  Fixes #581.
+
+Thu Dec 15 14:44:09 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Remove superfluous ';' after closing
+	  '}' of namespace.  Tweak whitespace.
+
+Thu Dec 15 12:50:42 GMT 2011  Olly Betts <olly@survex.com>
+
+	* generic/except.i: Correct comments about how and where this file gets
+	  included - this changed in the major restructuring a few months ago.
+	* generic/except.i,php/except.i,tcl8/except.i: Return
+	  Error::get_description() rather than get_type + ": " + get_msg().  In
+	  many cases this is the same, but if context or errno are available,
+	  get_description() includes them.  Catch and report std::exception
+	  rather than handling it as an unknown error (so in particular
+	  std::bad_alloc will now be reported more helpfully).
+
+Thu Dec 15 12:30:15 GMT 2011  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Whitespace tweak.
+
+Thu Dec 15 11:40:39 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.html,lua/generate-lua-exceptions,lua/smoketest.lua,
+	  lua/util.i: Handle an exception from C++ by raising a xapian.Error
+	  object as an error in Lua.  Rename get_description() methods to
+	  __tostring(), so that you can use write tostring(obj) in Lua.  Fix
+	  indentation not to assume tabs are two spaces.
+
+Wed Dec 14 10:54:03 GMT 2011  Olly Betts <olly@survex.com>
+
+	* lua/generate-lua-exceptions: Restore other copyright holders to
+	  generated file - it seems likely this constitutes a derived work
+	  and it is better to err on the side of caution.
+
+Tue Dec 13 14:29:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.8 and ChangeLog.
+
+Sun Oct 30 21:42:48 GMT 2011  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: Add module_top.py to tarballs.
+
+Sat Oct 29 15:05:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python/module_top.py: Add a module docstring
+	  (fixes #573).
+
+Wed Oct 05 13:31:25 GMT 2011  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb,ruby/xapian.rb: Wrap optional prefix parameter to
+	  Database::allterms.
+
+Mon Aug 22 11:22:34 GMT 2011  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Use "if x is not None:" rather than "if x !=
+	  None:" (PEP 8).
+
 Wed Aug 17 11:07:41 GMT 2011  Olly Betts <olly@survex.com>
 
 	* lua/Makefile.am: Add dependency on except.i so it gets (re)generated

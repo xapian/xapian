@@ -357,41 +357,10 @@ should return a tuple of (value number, begin, end).  For example:
 <h2>Apache and mod_python/mod_wsgi</h2>
 
 <p>
-By default, both mod_python and mod_wsgi use a separate sub-interpreter for
-each application.  However, Python's sub-interpreter support is incompatible
-with the simplified GIL state API which SWIG-generated Python bindings use
-by default.  So to avoid deadlocks, you need to tell mod_python and mod_wsgi
-to run applications which use Xapian in the main interpreter as detailed below.
-</p>
-
-<p>
-This restriction could be removed - the details are in Xapian's bugtracker - see
-<a href="http://trac.xapian.org/ticket/364">ticket #364</a> for details of
-what needs doing.
-</p>
-
-<h3 id="mod_python">mod_python</h3>
-
-<p>
-You need to set this option in the Apache configuration section for all
-mod_python scripts which use Xapian:
-</p>
-<pre>PythonInterpreter main_interpreter
-</pre>
-
-<h3 id="mod_wsgi">mod_wsgi</h3>
-
-<p>
-You need to set the
-<a href="http://code.google.com/p/modwsgi/wiki/ConfigurationDirectives#WSGIApplicationGroup">WSGIApplicationGroup option</a> like so:
-</p>
-
-<pre>WSGIApplicationGroup %{GLOBAL}
-</pre>
-
-<p>
-The mod_wsgi documentation 
-<a href="http://code.google.com/p/modwsgi/wiki/ApplicationIssues#Python_Simplified_GIL_State_API">also discusses this issue</a>.
+Prior to Xapian 1.3.0, the you had to tell mod_python and mod_wsgi to run
+applications which use Xapian in the main interpreter.  Xapian 1.3.0 no
+longer uses the simplified GIL state API, and so this restriction should
+no longer apply.
 </p>
 
 <address>

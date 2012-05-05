@@ -1,7 +1,7 @@
 /** @file documentvaluelist.h
  * @brief Iteration over values in a document.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,9 +21,9 @@
 #ifndef XAPIAN_INCLUDED_DOCUMENTVALUELIST_H
 #define XAPIAN_INCLUDED_DOCUMENTVALUELIST_H
 
-#include "valuelist.h"
+#include "backends/valuelist.h"
 
-#include "document.h"
+#include "backends/document.h"
 
 /// Iteration over values in a document.
 class DocumentValueList : public ValueList {

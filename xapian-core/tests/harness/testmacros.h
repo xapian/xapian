@@ -1,7 +1,7 @@
 /** @file testmacros.h
  * @brief Macros for testing conditions hold.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,12 @@
 
 #ifndef XAPIAN_INCLUDED_TESTMACROS_H
 #define XAPIAN_INCLUDED_TESTMACROS_H
+
+// FIXME: DEFINE_TESTCASE is used by apitest but is external and takes a flags
+// argument.
+#define DEFINE_TESTCASE_(T)	static bool test_##T()
+#define TESTCASE(T)		{ #T, test_##T }
+#define END_OF_TESTCASES	{ 0, 0 }
 
 /// Test a relation holds,e.g. TEST_REL(a,>,b);
 #define TEST_REL(A,REL,B) \

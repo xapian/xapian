@@ -1,6 +1,7 @@
-/* freemem.h: determine how much free physical memory there is.
- *
- * Copyright (C) 2007 Olly Betts
+/** @file freemem.h
+ * @brief determine how much free physical memory there is.
+ */
+/* Copyright (C) 2007 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify

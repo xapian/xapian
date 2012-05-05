@@ -13,6 +13,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_cursor.h\
 	backends/chert/chert_database.h\
 	backends/chert/chert_databasereplicator.h\
+	backends/chert/chert_dbcheck.h\
 	backends/chert/chert_dbstats.h\
 	backends/chert/chert_document.h\
 	backends/chert/chert_lazytable.h\
@@ -38,10 +39,12 @@ lib_src +=\
 	backends/chert/chert_alldocspostlist.cc\
 	backends/chert/chert_alltermslist.cc\
 	backends/chert/chert_btreebase.cc\
+	backends/chert/chert_check.cc\
 	backends/chert/chert_compact.cc\
 	backends/chert/chert_cursor.cc\
 	backends/chert/chert_database.cc\
 	backends/chert/chert_databasereplicator.cc\
+	backends/chert/chert_dbcheck.cc\
 	backends/chert/chert_dbstats.cc\
 	backends/chert/chert_document.cc\
 	backends/chert/chert_metadata.cc\
@@ -59,8 +62,4 @@ lib_src +=\
 	backends/chert/chert_values.cc\
 	backends/chert/chert_version.cc
 
-noinst_LTLIBRARIES += libchertcheck.la
-
-libchertcheck_la_SOURCES =\
-	backends/chert/chert_check.cc
 endif

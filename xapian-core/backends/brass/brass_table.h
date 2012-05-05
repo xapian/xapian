@@ -1,7 +1,8 @@
-/* brass_table.h: Btree implementation
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/** @file brass_table.h
+ * @brief Btree implementation
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +25,6 @@
 #define OM_HGUARD_BRASS_TABLE_H
 
 #include <xapian/error.h>
-#include <xapian/visibility.h>
 
 #include "brass_types.h"
 #include "brass_btreebase.h"
@@ -36,10 +36,10 @@
 #include "stringutils.h"
 #include "unaligned.h"
 
+#include "common/compression_stream.h"
+
 #include <algorithm>
 #include <string>
-
-#include <zlib.h>
 
 #define DONT_COMPRESS -1
 
@@ -112,7 +112,7 @@
 
 namespace Brass {
 
-class XAPIAN_VISIBILITY_DEFAULT Key {
+class Key {
     const byte *p;
 public:
     explicit Key(const byte * p_) : p(p_) { }
@@ -290,7 +290,7 @@ public:
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class XAPIAN_VISIBILITY_DEFAULT BrassTable {
+class BrassTable {
     friend class BrassCursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed
@@ -406,7 +406,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	 *
 	 *  @param changes_fd  The file descriptor to write changes to.
 	 */
-	void write_changed_blocks(int changes_fd);
+	void write_changed_blocks(int changes_fd, bool compressed);
 
 	/** Cancel any outstanding changes.
 	 *
@@ -649,11 +649,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	/// The name of the table (used when writing changesets).
 	const char * tablename;
 
-	/// Allocate the zstream for deflating, if not already allocated.
-	void lazy_alloc_deflate_zstream() const;
-
-	/// Allocate the zstream for inflating, if not already allocated.
-	void lazy_alloc_inflate_zstream() const;
 
 	/** revision number of the opened B-tree. */
 	brass_revision_number_t revision_number;
@@ -785,11 +780,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	 *  Z_RLE. */
 	int compress_strategy;
 
-	/// Zlib state object for deflating
-	mutable z_stream *deflate_zstream;
-
-	/// Zlib state object for inflating
-	mutable z_stream *inflate_zstream;
+	CompressionStream comp_stream;
 
 	/// If true, don't create the table until it's needed.
 	bool lazy;

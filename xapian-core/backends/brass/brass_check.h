@@ -1,8 +1,9 @@
-/* brass_check.h: Btree checking
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file brass_check.h
+ * @brief Btree checking
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2009,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,13 +28,13 @@
 #include "brass_table.h"
 #include "noreturn.h"
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
 
 class BrassTableCheck : public BrassTable {
     public:
 	static void check(const char * tablename, const std::string & path,
-			  int opts, std::ostream &out = std::cout);
+			  int opts, std::ostream &out);
     private:
 	BrassTableCheck(const char * tablename_, const std::string &path_,
 		        bool readonly, std::ostream &out_)
@@ -53,10 +54,5 @@ class BrassTableCheck : public BrassTable {
 
 	std::ostream &out;
 };
-
-#define OPT_SHORT_TREE  1
-#define OPT_FULL_TREE   2
-#define OPT_SHOW_BITMAP 4
-#define OPT_SHOW_STATS  8
 
 #endif /* OM_HGUARD_BRASS_CHECK_H */

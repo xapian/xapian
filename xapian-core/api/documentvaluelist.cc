@@ -1,7 +1,7 @@
 /** @file documentvaluelist.cc
  * @brief Iteration over values in a document.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "documentvaluelist.h"
 
-#include "document.h"
+#include "backends/document.h"
 #include "omassert.h"
 #include "str.h"
 

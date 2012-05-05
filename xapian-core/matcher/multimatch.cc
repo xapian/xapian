@@ -33,21 +33,20 @@
 #include "submatch.h"
 #include "localsubmatch.h"
 #include "omassert.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 
-#include "emptypostlist.h"
+#include "api/emptypostlist.h"
 #include "branchpostlist.h"
 #include "mergepostlist.h"
 
-#include "document.h"
-#include "omqueryinternal.h"
+#include "backends/document.h"
 
 #include "submatch.h"
 
 #include "msetcmp.h"
 
 #include "valuestreamdocument.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <xapian/errorhandler.h>
 #include <xapian/matchspy.h>
@@ -55,7 +54,7 @@
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 #include "remotesubmatch.h"
-#include "remote-database.h"
+#include "backends/remote/remote-database.h"
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
@@ -188,11 +187,11 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
      *
      *  This implementation calls all the spies in turn.
      */
-    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+    void operator()(const Xapian::Document &doc, double wt);
 };
 
 void 
-MultipleMatchSpy::operator()(const Xapian::Document &doc, Xapian::weight wt) {
+MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
     vector<Xapian::MatchSpy *>::const_iterator i;
     for (i = spies.begin(); i != spies.end(); ++i) {
@@ -204,12 +203,12 @@ MultipleMatchSpy::operator()(const Xapian::Document &doc, Xapian::weight wt) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const Xapian::Database &db_,
-		       const Xapian::Query::Internal * query_,
+		       const Xapian::Query & query_,
 		       Xapian::termcount qlen,
 		       const Xapian::RSet * omrset,
 		       Xapian::doccount collapse_max_,
 		       Xapian::valueno collapse_key_,
-		       int percent_cutoff_, Xapian::weight weight_cutoff_,
+		       int percent_cutoff_, double weight_cutoff_,
 		       Xapian::Enquire::docid_order order_,
 		       Xapian::valueno sort_key_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
@@ -231,8 +230,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 {
     LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
-    if (!query) return;
-    query->validate_query();
+    if (query.empty()) return;
 
     Xapian::doccount number_of_subdbs = db.internal.size();
     vector<Xapian::RSet> subrsets;
@@ -280,16 +278,16 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
-    stats.mark_wanted_terms(*query);
+    stats.mark_wanted_terms(query);
     prepare_sub_matches(leaves, errorhandler, stats);
     stats.set_bounds_from_db(db);
 }
 
-Xapian::weight
+double
 MultiMatch::getorrecalc_maxweight(PostList *pl)
 {
-    LOGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
-    Xapian::weight wt;
+    LOGCALL(MATCH, double, "MultiMatch::getorrecalc_maxweight", pl);
+    double wt;
     if (recalculate_w_max) {
 	LOGLINE(MATCH, "recalculating max weight");
 	wt = pl->recalc_maxweight();
@@ -314,7 +312,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("sorter"));
     AssertRel(check_at_least,>=,maxitems);
 
-    if (!query) {
+    if (query.empty()) {
 	mset = Xapian::MSet(new Xapian::MSet::Internal());
 	mset.internal->firstitem = first;
 	return;
@@ -422,7 +420,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Empty result set
     Xapian::doccount docs_matched = 0;
-    Xapian::weight greatest_wt = 0;
+    double greatest_wt = 0;
     Xapian::termcount greatest_wt_subqs_matched = 0;
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     unsigned greatest_wt_subqs_db_num = UINT_MAX;
@@ -430,7 +428,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
-    const Xapian::weight max_possible = pl->recalc_maxweight();
+    const double max_possible = pl->recalc_maxweight();
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
     recalculate_w_max = false;
@@ -440,7 +438,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
     if (mdecider == NULL) {
-	// If we have a match deciderd, the lower bound must be
+	// If we have a match decider, the lower bound must be
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
 	matches_lower_bound = pl->get_termfreq_min();
@@ -499,10 +497,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::Internal::MSetItem min_item(0.0, 0);
 
     // Minimum weight an item must have to be worth considering.
-    Xapian::weight min_weight = weight_cutoff;
+    double min_weight = weight_cutoff;
 
     // Factor to multiply maximum weight seen by to get the cutoff weight.
-    Xapian::weight percent_cutoff_factor = percent_cutoff / 100.0;
+    double percent_cutoff_factor = percent_cutoff / 100.0;
     // Corresponding correction to that in omenquire.cc to account for excess
     // precision on x86.
     percent_cutoff_factor -= DBL_EPSILON;
@@ -566,7 +564,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Only calculate the weight if we need it for mcmp, or there's a
 	// percentage or weight cutoff in effect.  Otherwise we calculate it
 	// below if we haven't already rejected this candidate.
-	Xapian::weight wt = 0.0;
+	double wt = 0.0;
 	bool calculated_weight = false;
 	if (sort_by != VAL || min_weight > 0.0) {
 	    wt = pl->get_weight();
@@ -677,7 +675,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// entry with this key which it displaced might still be in the
 		// proto-MSet.  If it might be, we need to check through for
 		// it.
-		Xapian::weight old_wt = old_item.wt;
+		double old_wt = old_item.wt;
 		if (old_wt >= min_weight && mcmp(old_item, min_item)) {
 		    // Scan through (unsorted) MSet looking for entry.
 		    // FIXME: more efficient way than just scanning?
@@ -787,7 +785,7 @@ new_greatest_weight:
 #endif
 	    }
 	    if (percent_cutoff) {
-		Xapian::weight w = wt * percent_cutoff_factor;
+		double w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
 		    min_weight = w;
 		    if (!is_heap) {
@@ -840,7 +838,7 @@ new_greatest_weight:
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
-	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale;
+	    double min_wt = percent_cutoff_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
@@ -1079,7 +1077,7 @@ new_greatest_weight:
     if (!items.empty() && collapser && !collapser.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
-	Xapian::weight min_wt = percent_cutoff_factor / (percent_scale / 100);
+	double min_wt = percent_cutoff_factor / (percent_scale / 100);
 	Xapian::doccount entries = collapser.entries();
 	vector<Xapian::Internal::MSetItem>::iterator i;
 	for (i = items.begin(); i != items.end(); ++i) {

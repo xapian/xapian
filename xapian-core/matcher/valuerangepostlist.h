@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.h
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009 Olly Betts
+/* Copyright 2007,2008,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -23,9 +23,9 @@
 #ifndef XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 #define XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 
-#include "database.h"
-#include "postlist.h"
-#include "valuelist.h"
+#include "backends/database.h"
+#include "api/postlist.h"
+#include "backends/valuelist.h"
 
 class ValueRangePostList : public PostList {
   protected:
@@ -63,25 +63,25 @@ class ValueRangePostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 
-    Xapian::weight get_weight() const;
+    double get_weight() const;
 
     Xapian::termcount get_doclength() const;
 
-    Xapian::weight recalc_maxweight();
+    double recalc_maxweight();
 
     PositionList * read_position_list();
 
     PositionList * open_position_list() const;
 
-    PostList * next(Xapian::weight w_min);
+    PostList * next(double w_min);
 
-    PostList * skip_to(Xapian::docid, Xapian::weight w_min);
+    PostList * skip_to(Xapian::docid, double w_min);
 
-    PostList * check(Xapian::docid did, Xapian::weight w_min, bool &valid);
+    PostList * check(Xapian::docid did, double w_min, bool &valid);
 
     bool at_end() const;
 

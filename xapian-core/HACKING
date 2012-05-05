@@ -260,15 +260,15 @@ pass "make distcheck" to be automatically uploaded, so using them will help
 to assure that you don't pick a "bad" version.  The snapshots are available
 from the "Bleeding Edge" page of the Xapian website.
 
-Building from SVN
-=================
+Building from SVN or git
+========================
 
-When building from an SVN checkout, we *strongly* recommend that you use the
-``bootstrap`` script in the top level directory to set up the tree ready for
-building.  This script will check what directories you have checked out, so you
-can bootstrap a partial tree.
+When building from an SVN or git checkout, we *strongly* recommend that you use
+the ``bootstrap`` script in the top level directory to set up the tree ready
+for building.  This script will check which directories you have checked out,
+so you can bootstrap a partial tree.
 
-You will need the following tools installed to build from SVN:
+You will need the following tools installed to build from SVN or git:
 
 * GNU m4 (for autoconf)
 * perl 5 (for automake; also for various maintainer scripts)
@@ -290,17 +290,26 @@ On Fedora, the uuid library can be installed by doing::
 
     yum install libuuid-devel
 
-The SVN repository does not contain any automatically generated files
+If building from git, you'll also need git-svn installed.
+
+If you're doing much development work, you'll probably also want the following
+tools installed:
+
+* valgrind for better testsuite error finding
+* ccache for faster rebuilds
+* eatmydata for faster testsuite runs
+
+The repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
-the SVN repo directly (in the case of Snowball and Lemon), or pull them in to
-an SVN checkout using svn:externals (SWIG), or the bootstrap script will lazily
-download, build, and install them within the source tree (autoconf, automake,
-libtool, and doxygen).  To download the source tarballs for these, bootstrap
-will use wget or curl if installed.  If not, it will give an error telling you
-the URL to download from by hand and where to copy the file to.
+the repo directly (in the case of Snowball and Lemon), or pull them in to a
+checkout using svn:externals or git-svn (SWIG), or the bootstrap script will
+lazily download, build, and install them within the source tree (autoconf,
+automake, libtool, and doxygen).  To download the source tarballs for these,
+bootstrap will use wget or curl if installed.  If not, it will give an error
+telling you the URL to download from by hand and where to copy the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -332,12 +341,13 @@ If you wish to prevent bootstrap from downloading and building the autotools
 pass the --without-autotools option.  You can force it to delete the downloaded
 and installed versions by passing --clean.
 
-If you are tracking development in SVN, there will sometimes be changes to the
-build system sources which require regeneration of the generated makefiles and
-associated machinery.  We aim to make the build system automatically regenerate
-the necessary files, but in the event that a build fails after an update, it
-may be worth re-running the bootstrap script to regenerate the build system
-from scratch, before looking for the cause of the error elsewhere.
+If you are tracking development in SVN or git, there will sometimes be changes
+to the build system sources which require regeneration of the generated
+makefiles and associated machinery.  We aim to make the build system
+automatically regenerate the necessary files, but in the event that a build
+fails after an update, it may be worth re-running the bootstrap script to
+regenerate the build system from scratch, before looking for the cause of the
+error elsewhere.
 
 Tools required to build documentation
 -------------------------------------
@@ -353,9 +363,10 @@ documentation), but you can configure and build.
 
 The documentation tools are:
 
-* doxygen (v1.5.9 is used for 1.1.x snapshots and releases; 1.4.6 produced
+* doxygen (v1.7.6.1 is used for 1.3.x snapshots and releases; 1.4.6 produced
   incomplete documentation for Xapian::Query).
-* dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs ">1.8.10")
+* dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs
+  ">1.8.10")
 * gs (part of Ghostscript)
 * pdflatex (in texlive-latex-base on Debian/Ubuntu)
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
@@ -391,7 +402,7 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.11.1 is used to generate snapshots and releases.
+* automake 1.12 is used to generate snapshots and releases.
 
   automake 1.10.2 is a hard minimum requirement.
 
@@ -401,7 +412,7 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.4 is used to generate snapshots and releases.
+* libtool 2.4.2 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 
@@ -434,8 +445,8 @@ Use of C++ Features
   There is now plenty of choice of compilers which provide good conformance to
   ISO C++, so if working around problems for some compiler proves too hard we
   should just document the issue and users will either have to upgrade to a
-  more compliant compiler, or use another STL implementation such as STLPort
-  (http://www.stlport.org/).
+  more compliant compiler, or use another STL implementation such as STLport
+  (http://stlport.sourceforge.net/).
 
 * C++ features we currently assume:
 
@@ -949,6 +960,13 @@ MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
 any use of the deprecated feature.  For compilers without support, the macro
 just expands to its argument.
 
+Sometimes a deprecated feature will also be removed from the library itself
+(particularly something like a typedef), but if the feature is still used
+inside the library (for example, so we can define class methods), then use
+XAPIAN_DEPRECATED_EX() or XAPIAN_DEPRECATED_CLASS_EX instead, which will only
+issue a warning in user code (this relies on user code including xapian.h
+and library code including individual headers)
+
 You must add this line to any API header which uses XAPIAN_DEPRECATED() or
 XAPIAN_DEPRECATED_CLASS::
 
@@ -969,6 +987,8 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(int old_method());
 
         XAPIAN_DEPRECATED(int old_const_method() const);
+
+        XAPIAN_DEPRECATED(virtual int old_virt_method()) = 0;
 
         XAPIAN_DEPRECATED(static int old_static_method());
 
@@ -1015,10 +1035,15 @@ on the xapian-devel mailing list first:
 Also, please read the following section on licensing of patches before
 submitting a patch.
 
-We find patches in unified diff format easiest to read.  If you're using a
-SVN checkout just use "svn diff" to generate the diff.  If you're working
-from a tarball, compare against the original versions of files using
-"diff -puN" (-p reports the function name for each chunk).
+We find patches in unified diff format easiest to read.  If you're using
+git, then "git diff" is good (or "git format-patch" for a patch series).  If
+you're using a SVN checkout just use "svn diff" to generate the diff.  If
+you're working from a tarball, you can unpack a second clean copy of the files
+and compare the two versions with "diff -pruN" (-p reports the function name
+for each chunk, -r acts recursively, -u does a unified diff, and -N shows
+new files in the diff).  Alternatively "ptardiff" (which comes with perl, at
+least on Debian and Ubuntu) can diff against the original tarball, unpacking
+it on the fly.
 
 Please set the width of a tab character in your editor to 8 spaces, and use
 Unix line endings (i.e. LF, not CR+LF).  Failing to do so will make it much
@@ -1256,10 +1281,9 @@ patch you'd like us to include.
    documentation comments alongside the declaration in ``include/xapian/*.h``.
    These are collated by doxygen - see doxygen's documentation for details
    of the supported syntax.  We've decided to prefer to use @ rather than \
-   to introduce doxygen commands (the choice is essentially arbitrary, though
+   to introduce doxygen commands (the choice is essentially arbitrary, but
    \ introduces C/C++ escape sequences so @ is likely to make for easier to
-   read mark up for C/C++ coders).  A *lot* of existing comments use \
-   currently but please use @ for new comments.
+   read mark up for C/C++ coders).
 
  * The documentation comments don't give users a good overview, so we also
    need documentation which gives a good overview of how to achieve particular

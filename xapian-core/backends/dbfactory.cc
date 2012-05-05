@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,9 +29,9 @@
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
 #include "debuglog.h"
+#include "filetests.h"
 #include "fileutils.h"
 #include "str.h"
-#include "utils.h"
 
 #include "safeerrno.h"
 
@@ -314,7 +314,7 @@ Database::Database(const string &path)
     LOGCALL_CTOR(API, "Database", path);
 
     struct stat statbuf;
-    if (stat(path, &statbuf) == -1) {
+    if (stat(path.c_str(), &statbuf) == -1) {
 	throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
     }
 
@@ -377,7 +377,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
     } type = UNSET;
 #endif
     struct stat statbuf;
-    if (stat(path, &statbuf) == -1) {
+    if (stat(path.c_str(), &statbuf) == -1) {
 	// ENOENT probably just means that we need to create the directory.
 	if (errno != ENOENT)
 	    throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);

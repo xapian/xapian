@@ -71,7 +71,7 @@ AC_TRY_COMPILE([#include <stdint.h>],
   AC_DEFINE(HAVE_WORKING_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
 
 dnl Check for headers.
-AC_CHECK_HEADERS([strings.h], [], [], [ ])
+AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
@@ -79,15 +79,14 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
-if test $ac_cv_header_magic_h = yes ; then
-  save_LIBS=$LIBS
-  LIBS=
-  AC_SEARCH_LIBS([magic_open], [magic])
-  MAGIC_LIBS=$LIBS
-  LIBS=$save_LIBS
-else
-  MAGIC_LIBS=
+if test $ac_cv_header_magic_h != yes ; then
+  AC_MSG_ERROR([libmagic required but magic.h not found])
 fi
+save_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([magic_open], [magic])
+MAGIC_LIBS=$LIBS
+LIBS=$save_LIBS
 AC_SUBST([MAGIC_LIBS])
 
 dnl mingw (for instance) lacks ssize_t

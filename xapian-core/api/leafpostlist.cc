@@ -1,7 +1,7 @@
 /** @file leafpostlist.cc
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -61,13 +61,13 @@ LeafPostList::set_termweight(const Xapian::Weight * weight_)
     need_doclength = weight->get_sumpart_needs_doclength_();
 }
 
-Xapian::weight
+double
 LeafPostList::get_maxweight() const
 {
     return weight ? weight->get_maxpart() : 0;
 }
 
-Xapian::weight
+double
 LeafPostList::get_weight() const
 {
     if (!weight) return 0;
@@ -78,7 +78,7 @@ LeafPostList::get_weight() const
     return weight->get_sumpart(get_wdf(), doclen);
 }
 
-Xapian::weight
+double
 LeafPostList::recalc_maxweight()
 {
     return LeafPostList::get_maxweight();

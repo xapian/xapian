@@ -1,7 +1,8 @@
-/* multi_postlist.h: C++ class definition for multiple database access
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005,2007,2009 Olly Betts
+/** @file multi_postlist.h
+ * @brief C++ class definition for multiple database access
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003,2005,2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +23,7 @@
 #ifndef OM_HGUARD_MULTI_POSTLIST_H
 #define OM_HGUARD_MULTI_POSTLIST_H
 
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include <vector>
 
 class MultiPostList : public PostList {
@@ -46,16 +47,16 @@ class MultiPostList : public PostList {
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_est() const;
 
-	Xapian::weight get_maxweight() const;
-	Xapian::weight get_weight() const;
-	Xapian::weight recalc_maxweight();
+	double get_maxweight() const;
+	double get_weight() const;
+	double recalc_maxweight();
 
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document
         Xapian::termcount get_wdf() const;	    // Within Document Frequency
 	PositionList * open_position_list() const;
-	PostList *next(Xapian::weight w_min);          // Moves to next docid
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);// Moves to next docid >= specified docid
+	PostList *next(double w_min);          // Moves to next docid
+	PostList *skip_to(Xapian::docid did, double w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	std::string get_description() const;

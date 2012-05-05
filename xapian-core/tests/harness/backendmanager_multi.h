@@ -29,8 +29,6 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
-
 /// BackendManager subclass for multi databases.
 class BackendManagerMulti : public BackendManager {
     /// The type to use for the sub-databases.

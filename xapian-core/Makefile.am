@@ -62,8 +62,8 @@ coverage-reconfigure-maintainer-mode: distclean
 	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
 
 coverage-check:
-	## GNU find and xargs specific.
-	find . -name '*.gcda' -print0|xargs -0 rm -f
+	## GNU find specific.
+	find . -name '*.gcda' -delete
 	## Don't run under valgrind even if configure was run by hand.
 	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
 	rm -f xapian-core.lcov
@@ -74,7 +74,8 @@ coverage-check:
 	done
 	cd tests && lcov -c -b `pwd` -d `pwd` -o ../tmp.lcov
 	sed '/^SF:\/usr/,/^end_of_record/{d};s,^\(SF:/.*/xapian-core/\)\([^t]\),\1tests/\2,' tmp.lcov > xapian-core.lcov
-	genhtml -q -t "Test Coverage for xapian-core r`svn info|sed 's/^Revision: //p;d'`" -o lcov xapian-core.lcov
+	rm -rf lcov
+	genhtml --demangle-cpp --html-gzip -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h||svn info|sed 's/^Revision: /r/p;d'`" -o lcov xapian-core.lcov
 
 bin_SCRIPTS = xapian-config
 
@@ -93,12 +94,12 @@ include docsource.mk
 
 # Install the m4 file containing the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4-macros/xapian.m4
+dist_m4data_DATA = m4-macros/xapian-1.3.m4
 
-libxapian_la = libxapian.la
-lib_LTLIBRARIES = libxapian.la
-libxapian_la_SOURCES = $(lib_src)
-libxapian_la_LDFLAGS = \
+libxapian_la = libxapian-1.3.la
+lib_LTLIBRARIES = libxapian-1.3.la
+libxapian_1_3_la_SOURCES = $(lib_src)
+libxapian_1_3_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
 lib_src =
@@ -113,6 +114,7 @@ include backends/Makefile.mk
 include common/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk
+include geospatial/Makefile.mk
 include include/Makefile.mk
 include languages/Makefile.mk
 include matcher/Makefile.mk

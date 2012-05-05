@@ -1,7 +1,7 @@
 /** @file valuegepostlist.h
  * @brief Return document ids matching a >= test on a specified doc value.
  */
-/* Copyright 2007 Olly Betts
+/* Copyright 2007,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,11 +37,11 @@ class ValueGePostList: public ValueRangePostList {
 		    const std::string &begin_)
 	: ValueRangePostList(db_, slot_, begin_, std::string()) {}
 
-    PostList * next(Xapian::weight w_min);
+    PostList * next(double w_min);
 
-    PostList * skip_to(Xapian::docid, Xapian::weight w_min);
+    PostList * skip_to(Xapian::docid, double w_min);
 
-    PostList * check(Xapian::docid did, Xapian::weight w_min, bool &valid);
+    PostList * check(Xapian::docid did, double w_min, bool &valid);
 
     string get_description() const;
 };

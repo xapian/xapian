@@ -27,11 +27,11 @@
 
 #include "debuglog.h"
 
-#include "expandweight.h"
+#include "expand/expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "str.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include <string>
 #include <vector>
@@ -106,7 +106,7 @@ InMemoryPostList::get_docid() const
 }
 
 PostList *
-InMemoryPostList::next(Xapian::weight /*w_min*/)
+InMemoryPostList::next(double /*w_min*/)
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     if (started) {
@@ -120,7 +120,7 @@ InMemoryPostList::next(Xapian::weight /*w_min*/)
 }
 
 PostList *
-InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+InMemoryPostList::skip_to(Xapian::docid did, double w_min)
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     // FIXME - see if we can make more efficient, perhaps using better
@@ -341,7 +341,7 @@ InMemoryAllDocsPostList::open_position_list() const
 }
 
 PostList *
-InMemoryAllDocsPostList::next(Xapian::weight /*w_min*/)
+InMemoryAllDocsPostList::next(double /*w_min*/)
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(!at_end());
@@ -352,7 +352,7 @@ InMemoryAllDocsPostList::next(Xapian::weight /*w_min*/)
 }
 
 PostList *
-InMemoryAllDocsPostList::skip_to(Xapian::docid did_, Xapian::weight /*w_min*/)
+InMemoryAllDocsPostList::skip_to(Xapian::docid did_, double /*w_min*/)
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(!at_end());

@@ -1,7 +1,7 @@
 /** @file brass_document.h
  * @brief A document read from a BrassDatabase.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,8 @@
 
 #include "brass_record.h"
 #include "brass_values.h"
-#include "database.h"
-#include "document.h"
+#include "backends/database.h"
+#include "backends/document.h"
 
 /// A document read from a BrassDatabase.
 class BrassDocument : public Xapian::Document::Internal {

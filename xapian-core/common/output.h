@@ -1,11 +1,12 @@
-/** \file output.h
- * \brief Functions for output of strings describing Xapian objects.
+/** @file output.h
+ * @brief Functions for output of strings describing Xapian objects.
  */
 /*
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2007,2009,2011 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +55,10 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::ESetIterator)
 XAPIAN_OUTPUT_FUNCTION(Xapian::ESet)
 XAPIAN_OUTPUT_FUNCTION(Xapian::Enquire)
 
+#include <xapian/geospatial.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::LatLongCoord)
+XAPIAN_OUTPUT_FUNCTION(Xapian::LatLongCoords)
+
 #include <xapian/stem.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)
 
@@ -74,13 +79,5 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::MatchSpy)
 
 #include <xapian/postingsource.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::PostingSource)
-
-#include "replication.h"
-XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
-XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
-
-#include "weightinternal.h"
-XAPIAN_OUTPUT_FUNCTION(TermFreqs)
-XAPIAN_OUTPUT_FUNCTION(Xapian::Weight::Internal)
 
 #endif /* XAPIAN_INCLUDED_OUTPUT_H */

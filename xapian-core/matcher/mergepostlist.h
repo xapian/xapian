@@ -1,8 +1,9 @@
-/* mergepostlist.h: merge postlists from different databases
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file mergepostlist.h
+ * @brief merge postlists from different databases
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2009,2011 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +25,7 @@
 #ifndef OM_HGUARD_MERGEPOSTLIST_H
 #define OM_HGUARD_MERGEPOSTLIST_H
 
-#include "postlist.h"
+#include "api/postlist.h"
 
 class MultiMatch;
 class ValueStreamDocument;
@@ -37,7 +38,7 @@ class MergePostList : public PostList {
 	MergePostList(const MergePostList &);
 	MergePostList & operator=(const MergePostList &);
 
-	Xapian::weight w_max;
+	double w_max;
 
 	vector<PostList *> plists;
 
@@ -66,15 +67,15 @@ class MergePostList : public PostList {
 	Xapian::doccount get_termfreq_est() const;
 
 	Xapian::docid  get_docid() const;
-	Xapian::weight get_weight() const;
+	double get_weight() const;
 	const string * get_collapse_key() const;
 
-	Xapian::weight get_maxweight() const;
+	double get_maxweight() const;
 
-	Xapian::weight recalc_maxweight();
+	double recalc_maxweight();
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+	PostList *next(double w_min);
+	PostList *skip_to(Xapian::docid did, double w_min);
 	bool   at_end() const;
 
 	string get_description() const;

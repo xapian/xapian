@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -71,11 +71,11 @@ PWRITE_PROTOTYPE
 #include "brass_cursor.h"
 
 #include "debuglog.h"
+#include "filetests.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
 #include "unaligned.h"
-#include "utils.h"
 
 #include <algorithm>  // for std::min()
 #include <string>
@@ -1030,22 +1030,22 @@ BrassTable::add(const string &key, string tag, bool already_compressed)
 	CompileTimeAssert(DONT_COMPRESS != Z_RLE);
 #endif
 
-	lazy_alloc_deflate_zstream();
+	comp_stream.lazy_alloc_deflate_zstream();
 
-	deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
-	deflate_zstream->avail_in = (uInt)tag.size();
+	comp_stream.deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
+	comp_stream.deflate_zstream->avail_in = (uInt)tag.size();
 
 	// If compressed size is >= tag.size(), we don't want to compress.
 	unsigned long blk_len = tag.size() - 1;
 	unsigned char * blk = new unsigned char[blk_len];
-	deflate_zstream->next_out = blk;
-	deflate_zstream->avail_out = (uInt)blk_len;
+	comp_stream.deflate_zstream->next_out = blk;
+	comp_stream.deflate_zstream->avail_out = (uInt)blk_len;
 
-	int err = deflate(deflate_zstream, Z_FINISH);
+	int err = deflate(comp_stream.deflate_zstream, Z_FINISH);
 	if (err == Z_STREAM_END) {
 	    // If deflate succeeded, then the output was at least one byte
 	    // smaller than the input.
-	    tag.assign(reinterpret_cast<const char *>(blk), deflate_zstream->total_out);
+	    tag.assign(reinterpret_cast<const char *>(blk), comp_stream.deflate_zstream->total_out);
 	    compressed = true;
 	} else {
 	    // Deflate failed - presumably the data wasn't compressible.
@@ -1240,46 +1240,46 @@ BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) cons
 
     Bytef buf[8192];
 
-    lazy_alloc_inflate_zstream();
+    comp_stream.lazy_alloc_inflate_zstream();
 
-    inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
-    inflate_zstream->avail_in = (uInt)tag->size();
+    comp_stream.inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
+    comp_stream.inflate_zstream->avail_in = (uInt)tag->size();
 
     int err = Z_OK;
     while (err != Z_STREAM_END) {
-	inflate_zstream->next_out = buf;
-	inflate_zstream->avail_out = (uInt)sizeof(buf);
-	err = inflate(inflate_zstream, Z_SYNC_FLUSH);
-	if (err == Z_BUF_ERROR && inflate_zstream->avail_in == 0) {
-	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << inflate_zstream->adler);
+	comp_stream.inflate_zstream->next_out = buf;
+	comp_stream.inflate_zstream->avail_out = (uInt)sizeof(buf);
+	err = inflate(comp_stream.inflate_zstream, Z_SYNC_FLUSH);
+	if (err == Z_BUF_ERROR && comp_stream.inflate_zstream->avail_in == 0) {
+	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << comp_stream.inflate_zstream->adler);
 	    Bytef header2[4];
-	    setint4(header2, 0, inflate_zstream->adler);
-	    inflate_zstream->next_in = header2;
-	    inflate_zstream->avail_in = 4;
-	    err = inflate(inflate_zstream, Z_SYNC_FLUSH);
+	    setint4(header2, 0, comp_stream.inflate_zstream->adler);
+	    comp_stream.inflate_zstream->next_in = header2;
+	    comp_stream.inflate_zstream->avail_in = 4;
+	    err = inflate(comp_stream.inflate_zstream, Z_SYNC_FLUSH);
 	    if (err == Z_STREAM_END) break;
 	}
 
 	if (err != Z_OK && err != Z_STREAM_END) {
 	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
 	    string msg = "inflate failed";
-	    if (inflate_zstream->msg) {
+	    if (comp_stream.inflate_zstream->msg) {
 		msg += " (";
-		msg += inflate_zstream->msg;
+		msg += comp_stream.inflate_zstream->msg;
 		msg += ')';
 	    }
 	    throw Xapian::DatabaseError(msg);
 	}
 
 	utag.append(reinterpret_cast<const char *>(buf),
-		    inflate_zstream->next_out - buf);
+		    comp_stream.inflate_zstream->next_out - buf);
     }
-    if (utag.size() != inflate_zstream->total_out) {
+    if (utag.size() != comp_stream.inflate_zstream->total_out) {
 	string msg = "compressed tag didn't expand to the expected size: ";
 	msg += str(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += str((size_t)inflate_zstream->total_out);
+	msg += str((size_t)comp_stream.inflate_zstream->total_out);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -1566,8 +1566,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  cursor_version(0),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
-	  deflate_zstream(NULL),
-	  inflate_zstream(NULL),
+	  comp_stream(compress_strategy_),
 	  lazy(lazy_)
 {
     LOGCALL_CTOR(DB, "BrassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
@@ -1585,80 +1584,6 @@ BrassTable::really_empty() const
     BrassCursor cur(const_cast<BrassTable*>(this));
     cur.find_entry(string());
     return !cur.next();
-}
-
-void
-BrassTable::lazy_alloc_deflate_zstream() const {
-    if (usual(deflate_zstream)) {
-	if (usual(deflateReset(deflate_zstream) == Z_OK)) return;
-	// Try to recover by deleting the stream and starting from scratch.
-	delete deflate_zstream;
-    }
-
-    deflate_zstream = new z_stream;
-
-    deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    deflate_zstream->zfree = reinterpret_cast<free_func>(0);
-    deflate_zstream->opaque = (voidpf)0;
-
-    // -15 means raw deflate with 32K LZ77 window (largest)
-    // memLevel 9 is the highest (8 is default)
-    int err;
-    err = deflateInit2(deflate_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
-		       -15, 9, compress_strategy);
-    if (rare(err != Z_OK)) {
-	if (err == Z_MEM_ERROR) {
-	    delete deflate_zstream;
-	    deflate_zstream = 0;
-	    throw std::bad_alloc();
-	}
-	string msg = "deflateInit2 failed (";
-	if (deflate_zstream->msg) {
-	    msg += deflate_zstream->msg;
-	} else {
-	    msg += str(err);
-	}
-	msg += ')';
-	delete deflate_zstream;
-	deflate_zstream = 0;
-	throw Xapian::DatabaseError(msg);
-    }
-}
-
-void
-BrassTable::lazy_alloc_inflate_zstream() const {
-    if (usual(inflate_zstream)) {
-	if (usual(inflateReset(inflate_zstream) == Z_OK)) return;
-	// Try to recover by deleting the stream and starting from scratch.
-	delete inflate_zstream;
-    }
-
-    inflate_zstream = new z_stream;
-
-    inflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    inflate_zstream->zfree = reinterpret_cast<free_func>(0);
-
-    inflate_zstream->next_in = Z_NULL;
-    inflate_zstream->avail_in = 0;
-
-    int err = inflateInit2(inflate_zstream, -15);
-    if (rare(err != Z_OK)) {
-	if (err == Z_MEM_ERROR) {
-	    delete inflate_zstream;
-	    inflate_zstream = 0;
-	    throw std::bad_alloc();
-	}
-	string msg = "inflateInit2 failed (";
-	if (inflate_zstream->msg) {
-	    msg += inflate_zstream->msg;
-	} else {
-	    msg += str(err);
-	}
-	msg += ')';
-	delete inflate_zstream;
-	inflate_zstream = 0;
-	throw Xapian::DatabaseError(msg);
-    }
 }
 
 bool
@@ -1728,20 +1653,6 @@ BrassTable::create_and_open(unsigned int block_size_)
 BrassTable::~BrassTable() {
     LOGCALL_DTOR(DB, "BrassTable");
     BrassTable::close();
-
-    if (deflate_zstream) {
-	// Errors which we care about have already been handled, so just ignore
-	// any which get returned here.
-	(void) deflateEnd(deflate_zstream);
-	delete deflate_zstream;
-    }
-
-    if (inflate_zstream) {
-	// Errors which we care about have already been handled, so just ignore
-	// any which get returned here.
-	(void) inflateEnd(inflate_zstream);
-	delete inflate_zstream;
-    }
 }
 
 void BrassTable::close(bool permanent) {
@@ -1857,7 +1768,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	if (!io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
-	    (void)unlink(tmp);
+	    (void)unlink(tmp.c_str());
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
@@ -1873,7 +1784,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	    // file still exists, which we do by calling unlink(), since we want
 	    // to remove the temporary file anyway.
 	    int saved_errno = errno;
-	    if (unlink(tmp) == 0 || errno != ENOENT) {
+	    if (unlink(tmp.c_str()) == 0 || errno != ENOENT) {
 		string msg("Couldn't update base file ");
 		msg += basefile;
 		msg += ": ";
@@ -1895,9 +1806,9 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 }
 
 void
-BrassTable::write_changed_blocks(int changes_fd)
+BrassTable::write_changed_blocks(int changes_fd, bool compressed)
 {
-    LOGCALL_VOID(DB, "BrassTable::write_changed_blocks", changes_fd);
+    LOGCALL_VOID(DB, "BrassTable::write_changed_blocks", changes_fd | compressed);
     Assert(changes_fd >= 0);
     if (handle < 0) return;
     if (faked_root_block) return;
@@ -1906,6 +1817,8 @@ BrassTable::write_changed_blocks(int changes_fd)
     pack_uint(buf, 2u); // Indicate the item is a list of blocks
     pack_string(buf, tablename);
     pack_uint(buf, block_size);
+
+    // Write the table name and block size to the file
     io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
@@ -1917,13 +1830,36 @@ BrassTable::write_changed_blocks(int changes_fd)
 	while (base.find_changed_block(&n)) {
 	    buf.resize(0);
 	    pack_uint(buf, n + 1);
+	    // Write the block number to the file
 	    io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
 	    read_block(n, p);
 
 	    // Write block n to the file.
-	    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
+	    if (compressed) {
+		comp_stream.lazy_alloc_deflate_zstream();
+		comp_stream.compress(p, block_size);
+		if (comp_stream.zerr == Z_STREAM_END) {
+		    buf.resize(0);
+		    pack_uint(buf, comp_stream.deflate_zstream->total_out);
+		    io_write(changes_fd, buf.data(), buf.size());
+		    io_write(changes_fd, reinterpret_cast<const char *>(comp_stream.out),
+			     comp_stream.deflate_zstream->total_out);
+		} else {
+		    // The deflate failed, try to write data uncompressed
+		    buf.resize(0);
+		    pack_uint(buf, 0u);
+		    io_write(changes_fd, buf.data(), buf.size());
+		    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
+		}
+	    }
+	    else {
+		buf.resize(0);
+		pack_uint(buf, 0u);
+		io_write(changes_fd, buf.data(), buf.size());
+		io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
+	    }
 	    ++n;
 	}
 	delete[] p;
@@ -1934,6 +1870,7 @@ BrassTable::write_changed_blocks(int changes_fd)
     }
     buf.resize(0);
     pack_uint(buf, 0u);
+    // Write 0 for end of blocks
     io_write(changes_fd, buf.data(), buf.size());
 }
 

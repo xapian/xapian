@@ -1,6 +1,6 @@
 /* api_postingsource.cc: tests of posting sources
  *
- * Copyright 2008,2009 Olly Betts
+ * Copyright 2008,2009,2011 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -62,13 +62,13 @@ class MyOddPostingSource : public Xapian::PostingSource {
 
     Xapian::doccount get_termfreq_max() const { return num_docs; }
 
-    void next(Xapian::weight wt) {
+    void next(double wt) {
 	(void)wt;
 	++did;
 	if (did % 2 == 0) ++did;
     }
 
-    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
+    void skip_to(Xapian::docid to_did, double wt) {
 	(void)wt;
 	did = to_did;
 	if (did % 2 == 0) ++did;
@@ -162,7 +162,7 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
     void init(const Xapian::Database &) { did = 0; }
 
-    Xapian::weight get_weight() const {
+    double get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
     }
 
@@ -173,12 +173,12 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
     Xapian::doccount get_termfreq_max() const { return num_docs; }
 
-    void next(Xapian::weight wt) {
+    void next(double wt) {
 	(void)wt;
 	++did;
     }
 
-    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
+    void skip_to(Xapian::docid to_did, double wt) {
 	(void)wt;
 	did = to_did;
     }
@@ -265,7 +265,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 	did = 0;
     }
 
-    Xapian::weight get_weight() const {
+    double get_weight() const {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
     }
 
@@ -276,12 +276,12 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 
     Xapian::doccount get_termfreq_max() const { return num_docs; }
 
-    void next(Xapian::weight wt) {
+    void next(double wt) {
 	(void)wt;
 	++did;
     }
 
-    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
+    void skip_to(Xapian::docid to_did, double wt) {
 	(void)wt;
 	did = to_did;
     }
@@ -473,7 +473,7 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 
     void init(const Xapian::Database &) { did = 0; }
 
-    Xapian::weight get_weight() const {
+    double get_weight() const {
 	if (did > maxid_accessed) {
 	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
 		      "for docid " + str(did) + ", max id accessed "
@@ -486,12 +486,12 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_est() const { return 4; }
     Xapian::doccount get_termfreq_max() const { return 4; }
 
-    void next(Xapian::weight) {
+    void next(double) {
 	++did;
 	set_maxweight(5 - did);
     }
 
-    void skip_to(Xapian::docid to_did, Xapian::weight) {
+    void skip_to(Xapian::docid to_did, double) {
 	did = to_did;
 	set_maxweight(5 - did);
     }

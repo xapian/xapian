@@ -1,7 +1,7 @@
 /** @file collapser.cc
  * @brief Collapse documents with the same collapse key during the match.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,7 +110,7 @@ Collapser::process(Xapian::Internal::MSetItem & item,
 
 Xapian::doccount
 Collapser::get_collapse_count(const string & collapse_key, int percent_cutoff,
-			      Xapian::weight min_weight) const
+			      double min_weight) const
 {
     map<string, CollapseData>::const_iterator key = table.find(collapse_key);
     // If a collapse key is present in the MSet, it must be in our table.

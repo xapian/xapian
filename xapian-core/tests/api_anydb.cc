@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -33,7 +33,6 @@
 #include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include "apitest.h"
 
@@ -757,7 +756,7 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     TEST(mset.size() >= 2);
     TEST(mset[0].get_percent() - mset[1].get_percent() >= 2);
 
-    Xapian::percent cutoff = mset[0].get_percent() + mset[1].get_percent();
+    int cutoff = mset[0].get_percent() + mset[1].get_percent();
     cutoff /= 2;
 
     enquire.set_cutoff(cutoff);
@@ -815,12 +814,12 @@ DEFINE_TESTCASE(cutoff1, backend) {
     }
 
     unsigned int num_items = 0;
-    Xapian::weight my_wt = -100;
+    double my_wt = -100;
     int changes = 0;
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-        Xapian::weight new_wt = i.get_weight();
+	double new_wt = i.get_weight();
         if (new_wt != my_wt) {
 	    changes++;
 	    if (changes > 3) break;
@@ -889,7 +888,7 @@ DEFINE_TESTCASE(maxattain1, backend) {
     enquire.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 100);
 
-    Xapian::weight mymax = 0;
+    double mymax = 0;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
         if (i.get_weight() > mymax) mymax = i.get_weight();
@@ -1048,30 +1047,6 @@ DEFINE_TESTCASE(getmterms2, backend) {
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
     TEST(list == answers_list);
-
-    return true;
-}
-
-// tests that the collapsing on termpos optimisation works
-DEFINE_TESTCASE(poscollapse1, backend) {
-    Xapian::Query myquery1(Xapian::Query::OP_OR,
-		     Xapian::Query("this", 1, 1),
-		     Xapian::Query("this", 1, 1));
-    Xapian::Query myquery2("this", 2, 1);
-
-    if (verbose) {
-	tout << myquery1.get_description() << "\n";
-	tout << myquery2.get_description() << "\n";
-    }
-
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(myquery1);
-    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
-
-    enquire.set_query(myquery2);
-    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
-
-    TEST_EQUAL(mymset1, mymset2);
 
     return true;
 }
@@ -1420,8 +1395,8 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     // search for weight of term 'another'
     string theterm = stemmer("another");
 
-    Xapian::weight wt1 = 0;
-    Xapian::weight wt2 = 0;
+    double wt1 = 0;
+    double wt2 = 0;
     {
 	Xapian::ESetIterator i = eset1.begin();
 	for ( ; i != eset1.end(); i++) {
@@ -2307,13 +2282,17 @@ DEFINE_TESTCASE(tradweight1, backend) {
     enquire.set_query(Xapian::Query("word") );
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2);
 
     enquire.set_weighting_scheme(Xapian::TradWeight(0));
-    enquire.set_query(Xapian::Query("word") );
+    enquire.set_query(Xapian::Query("this") );
 
     mset = enquire.get_mset(0, 25);
-    // FIXME: should check that TradWeight(0) means wdf and doc length really
-    // don't affect the weights as stated in the documentation.
+    TEST_EQUAL(mset.size(), 6);
+
+    // Check that TradWeight(0) means wdf and doc length really don't affect
+    // the weights as stated in the documentation.
+    TEST_EQUAL(mset[0].get_weight(), mset[5].get_weight());
 
     return true;
 }

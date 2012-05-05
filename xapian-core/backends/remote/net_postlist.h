@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007,2009 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "omassert.h"
 #include "remote-database.h"
 
@@ -89,11 +89,11 @@ class NetworkPostList : public LeafPostList {
 
     /// Move to the next document in the postlist (the weight parameter is
     /// ignored).
-    PostList * next(Xapian::weight);
+    PostList * next(double);
 
     /// Skip forward to the next document with document ID >= the supplied
     /// document ID (the weight parameter is ignored).
-    PostList * skip_to(Xapian::docid did, Xapian::weight weight);
+    PostList * skip_to(Xapian::docid did, double weight);
 
     /// Return true if and only if we've moved off the end of the list.
     bool at_end() const;

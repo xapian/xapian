@@ -45,13 +45,13 @@ Set the L<Search::Xapian::Document> object to index terms into.
 
 Get the currently set L<Search::Xapian::Document> object.
 
-=item index_text <text> [<weight> [<prefix>]]
+=item index_text <text> [<wdf_inc> [<prefix>]]
 
-Indexes the text in string <text>.  The optional parameter <weight> sets the
+Indexes the text in string <text>.  The optional parameter <wdf_inc> sets the
 wdf increment (default 1).  The optional parameter <prefix> sets the term
 prefix to use (default is no prefix).
 
-=item index_text_without_positions <text> [<weight> [<prefix>]]
+=item index_text_without_positions <text> [<wdf_inc> [<prefix>]]
 
 Just like index_text, but no positional information is generated.  This means
 that the database will be significantly smaller, but that phrase searching

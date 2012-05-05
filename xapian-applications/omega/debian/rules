@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -46,12 +46,8 @@ else
     DEB_BUILD_OPTIONS += nocheck
 endif
 
-# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
-ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-    confflags += CFLAGS=-O0 CXXFLAGS=-O0
-else
-    confflags += CFLAGS=-O2 CXXFLAGS=-O2
-endif
+# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us
+# and dpkg-buildflags handles noopt.
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
@@ -77,7 +73,8 @@ endif
 commonconfflags := \
 	$(confflags) \
 	--prefix=/usr \
-	--sysconfdir=/etc
+	--sysconfdir=/etc \
+	$(shell dpkg-buildflags --export=configure)
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
@@ -111,7 +108,9 @@ configure-stamp:
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
 
-build: build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C debian/build

@@ -1,7 +1,7 @@
 /** @file multiandpostlist.h
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 
 #include "multimatch.h"
 #include "omassert.h"
-#include "postlist.h"
+#include "api/postlist.h"
 
 /// N-way AND postlist.
 class MultiAndPostList : public PostList {
@@ -53,10 +53,10 @@ class MultiAndPostList : public PostList {
     PostList ** plist;
 
     /// Array of maximum weights for the sub-postlists.
-    Xapian::weight * max_wt;
+    double * max_wt;
 
     /// Total maximum weight (== sum of max_wt values).
-    Xapian::weight max_total;
+    double max_total;
 
     /// The number of documents in the database.
     Xapian::doccount db_size;
@@ -65,12 +65,12 @@ class MultiAndPostList : public PostList {
     MultiMatch *matcher;
 
     /// Calculate the new minimum weight for sub-postlist n.
-    Xapian::weight new_min(Xapian::weight w_min, size_t n) {
+    double new_min(double w_min, size_t n) {
 	return w_min - (max_total - max_wt[n]);
     }
 
     /// Call next on a sub-postlist n, and handle any pruning.
-    void next_helper(size_t n, Xapian::weight w_min) {
+    void next_helper(size_t n, double w_min) {
 	PostList * res = plist[n]->next(new_min(w_min, n));
 	if (res) {
 	    delete plist[n];
@@ -80,7 +80,7 @@ class MultiAndPostList : public PostList {
     }
 
     /// Call skip_to on a sub-postlist n, and handle any pruning.
-    void skip_to_helper(size_t n, Xapian::docid did_min, Xapian::weight w_min) {
+    void skip_to_helper(size_t n, Xapian::docid did_min, double w_min) {
 	PostList * res = plist[n]->skip_to(did_min, new_min(w_min, n));
 	if (res) {
 	    delete plist[n];
@@ -90,7 +90,7 @@ class MultiAndPostList : public PostList {
     }
 
     /// Call check on a sub-postlist n, and handle any pruning.
-    void check_helper(size_t n, Xapian::docid did_min, Xapian::weight w_min,
+    void check_helper(size_t n, Xapian::docid did_min, double w_min,
 		      bool &valid) {
 	PostList * res = plist[n]->check(did_min, new_min(w_min, n), valid);
 	if (res) {
@@ -102,12 +102,12 @@ class MultiAndPostList : public PostList {
 
     /** Allocate plist and max_wt arrays of @a n_kids each.
      *
-     *  @exceptions  std::bad_alloc.
+     *  @exception  std::bad_alloc.
      */
     void allocate_plist_and_max_wt();
 
     /// Advance the sublists to the next match.
-    PostList * find_next_match(Xapian::weight w_min);
+    PostList * find_next_match(double w_min);
 
   public:
     /** Construct from 2 random-access iterators to a container of PostList*,
@@ -130,12 +130,12 @@ class MultiAndPostList : public PostList {
 
     /** Construct as the decay product of an OrPostList or AndMaybePostList.
      *
-     *  @parameter check_order	If true, then l and r may need swapping to
+     *  @param check_order	If true, then l and r may need swapping to
      *				ensure freq_est(l) >= freq_est(r).  This
      *				should not be necessary for an OrPostList.
      */
     MultiAndPostList(PostList *l, PostList *r,
-		     Xapian::weight lmax, Xapian::weight rmax,
+		     double lmax, double rmax,
 		     MultiMatch * matcher_, Xapian::doccount db_size_,
 		     bool check_order = false)
 	: did(0), n_kids(2), plist(NULL), max_wt(NULL),
@@ -168,21 +168,21 @@ class MultiAndPostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 
     Xapian::termcount get_doclength() const;
 
-    Xapian::weight get_weight() const;
+    double get_weight() const;
 
     bool at_end() const;
 
-    Xapian::weight recalc_maxweight();
+    double recalc_maxweight();
 
-    Internal *next(Xapian::weight w_min);
+    Internal *next(double w_min);
 
-    Internal *skip_to(Xapian::docid, Xapian::weight w_min);
+    Internal *skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 

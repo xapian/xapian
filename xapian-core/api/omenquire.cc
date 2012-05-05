@@ -34,14 +34,15 @@
 
 #include "vectortermlist.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
-#include "esetinternal.h"
-#include "expandweight.h"
-#include "multimatch.h"
-#include "omenquireinternal.h"
+#include "expand/esetinternal.h"
+#include "expand/expandweight.h"
+#include "matcher/multimatch.h"
+#include "omassert.h"
+#include "api/omenquireinternal.h"
 #include "str.h"
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <algorithm>
 #include "autoptr.h"
@@ -199,18 +200,18 @@ MSet::fetch() const
 	internal->fetch_items(0, internal->items.size() - 1);
 }
 
-percent
-MSet::convert_to_percent(Xapian::weight wt) const
+int
+MSet::convert_to_percent(double wt) const
 {
-    LOGCALL(API, Xapian::percent, "Xapian::MSet::convert_to_percent", wt);
+    LOGCALL(API, int, "Xapian::MSet::convert_to_percent", wt);
     Assert(internal.get() != 0);
     RETURN(internal->convert_to_percent_internal(wt));
 }
 
-percent
+int
 MSet::convert_to_percent(const MSetIterator & it) const
 {
-    LOGCALL(API, Xapian::percent, "Xapian::MSet::convert_to_percent", it);
+    LOGCALL(API, int, "Xapian::MSet::convert_to_percent", it);
     Assert(internal.get() != 0);
     RETURN(internal->convert_to_percent_internal(it.get_weight()));
 }
@@ -231,10 +232,10 @@ MSet::get_termfreq(const string &tname) const
     RETURN(internal->enquire->get_termfreq(tname));
 }
 
-Xapian::weight
+double
 MSet::get_termweight(const string &tname) const
 {
-    LOGCALL(API, Xapian::weight, "Xapian::MSet::get_termweight", tname);
+    LOGCALL(API, double, "Xapian::MSet::get_termweight", tname);
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
@@ -294,14 +295,14 @@ MSet::get_uncollapsed_matches_upper_bound() const
     return internal->uncollapsed_upper_bound;
 }
 
-Xapian::weight
+double
 MSet::get_max_possible() const
 {
     Assert(internal.get() != 0);
     return internal->max_possible;
 }
 
-Xapian::weight
+double
 MSet::get_max_attained() const
 {
     Assert(internal.get() != 0);
@@ -364,15 +365,15 @@ MSet::get_description() const
     return "Xapian::MSet(" + internal->get_description() + ")";
 }
 
-percent
-MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
+int
+MSet::Internal::convert_to_percent_internal(double wt) const
 {
-    LOGCALL(MATCH, Xapian::percent, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
+    LOGCALL(MATCH, int, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
     if (percent_factor == 0) RETURN(100);
 
     // Excess precision on x86 can result in a difference here.
     double v = wt * percent_factor + 100.0 * DBL_EPSILON;
-    Xapian::percent pcent = static_cast<Xapian::percent>(v);
+    int pcent = static_cast<int>(v);
     LOGLINE(MATCH, "wt = " << wt << ", max_possible = " << max_possible <<
 		   " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;
@@ -549,7 +550,7 @@ ESetIterator::operator *() const
     return eset.internal->items[index].term;
 }
 
-Xapian::weight
+double
 ESetIterator::get_weight() const
 {
     Assert(eset.internal.get());
@@ -581,7 +582,7 @@ MSetIterator::get_document() const
     return mset.internal->get_doc_by_index(index);
 }
 
-Xapian::weight
+double
 MSetIterator::get_weight() const
 {
     Assert(mset.internal.get());
@@ -605,10 +606,10 @@ MSetIterator::get_collapse_count() const
     return mset.internal->items[index].collapse_count;
 }
 
-Xapian::percent
+int
 MSetIterator::get_percent() const
 {
-    LOGCALL(API, Xapian::percent, "MSetIterator::get_percent", NO_ARGS);
+    LOGCALL(API, int, "MSetIterator::get_percent", NO_ARGS);
     RETURN(mset.internal->convert_to_percent_internal(get_weight()));
 }
 
@@ -675,7 +676,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     Xapian::Weight::Internal stats;
-    ::MultiMatch match(db, query.internal.get(), qlen, rset,
+    ::MultiMatch match(db, query, qlen, rset,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
@@ -704,7 +705,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
-		    const ExpandDecider * edecider, Xapian::weight min_wt) const
+		    const ExpandDecider * edecider, double min_wt) const
 {
     LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider | min_wt);
 
@@ -873,10 +874,16 @@ Enquire::operator=(const Enquire & other)
     internal = other.internal;
 }
 
+Enquire::Enquire(const Database &databases)
+    : internal(new Internal(databases, NULL))
+{
+    LOGCALL_CTOR(API, "Enquire", databases);
+}
+
 Enquire::Enquire(const Database &databases, ErrorHandler * errorhandler)
     : internal(new Internal(databases, errorhandler))
 {
-    LOGCALL_CTOR(API, "Enquire", databases);
+    LOGCALL_CTOR(API, "Enquire", databases | errorhandler);
 }
 
 Enquire::~Enquire()
@@ -940,7 +947,7 @@ Enquire::set_docid_order(Enquire::docid_order order)
 }
 
 void
-Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff)
+Enquire::set_cutoff(int percent_cutoff, double weight_cutoff)
 {
     internal->percent_cutoff = percent_cutoff;
     internal->weight_cutoff = weight_cutoff;
@@ -1041,7 +1048,7 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 
 ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		  double k, const ExpandDecider * edecider, Xapian::weight min_wt) const
+		  double k, const ExpandDecider * edecider, double min_wt) const
 {
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider | min_wt);
 

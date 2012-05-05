@@ -1,7 +1,7 @@
 /** @file msetpostlist.h
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@
 
 #include "xapian/enquire.h"
 
-#include "omenquireinternal.h"
-#include "postlist.h"
+#include "api/omenquireinternal.h"
+#include "api/postlist.h"
 
 /** PostList returning entries from an MSet.
  *
@@ -62,23 +62,23 @@ class MSetPostList : public PostList {
 
     Xapian::doccount get_termfreq_max() const;
 
-    Xapian::weight get_maxweight() const;
+    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 
-    Xapian::weight get_weight() const;
+    double get_weight() const;
 
     const string * get_collapse_key() const;
 
     /// Not implemented for MSetPostList.
     Xapian::termcount get_doclength() const;
 
-    Xapian::weight recalc_maxweight();
+    double recalc_maxweight();
 
-    PostList *next(Xapian::weight w_min);
+    PostList *next(double w_min);
 
     /// Not meaningful for MSetPostList.
-    PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+    PostList *skip_to(Xapian::docid did, double w_min);
 
     bool at_end() const;
 

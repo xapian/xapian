@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,5 +73,72 @@ DEFINE_TESTCASE(document2, !backend) {
     // The return value is uninitialised, so running under valgrind this
     // will fail reliably prior to the fix.
     TEST_EQUAL(doc.get_docid(), 0);
+    return true;
+}
+
+DEFINE_TESTCASE(emptyquery4, !backend) {
+    // Test we get an empty query from applying any of the following ops to
+    // an empty list of subqueries.
+    Xapian::Query q;
+    TEST(Xapian::Query(q.OP_AND, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_OR, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_AND_NOT, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_XOR, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_AND_MAYBE, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_FILTER, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_NEAR, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_PHRASE, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_ELITE_SET, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_SYNONYM, &q, &q).empty());
+    return true;
+}
+
+DEFINE_TESTCASE(singlesubquery1, !backend) {
+    // Test that we get just the subquery if we apply any of the following
+    // ops to just that subquery.
+#define singlesubquery1_(OP) \
+    TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
+	"Query(test)")
+    Xapian::Query q[1] = { Xapian::Query("test") };
+    singlesubquery1_(OP_AND);
+    singlesubquery1_(OP_OR);
+    singlesubquery1_(OP_AND_NOT);
+    singlesubquery1_(OP_XOR);
+    singlesubquery1_(OP_AND_MAYBE);
+    singlesubquery1_(OP_FILTER);
+    singlesubquery1_(OP_NEAR);
+    singlesubquery1_(OP_PHRASE);
+    singlesubquery1_(OP_ELITE_SET);
+    singlesubquery1_(OP_SYNONYM);
+    return true;
+}
+
+DEFINE_TESTCASE(singlesubquery2, !backend) {
+    // Like the previous test, but using MatchNothing as the subquery.
+#define singlesubquery2_(OP) \
+    TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
+	"Query()")
+    Xapian::Query q[1] = { Xapian::Query::MatchNothing };
+    singlesubquery2_(OP_AND);
+    singlesubquery2_(OP_OR);
+    singlesubquery2_(OP_AND_NOT);
+    singlesubquery2_(OP_XOR);
+    singlesubquery2_(OP_AND_MAYBE);
+    singlesubquery2_(OP_FILTER);
+    singlesubquery2_(OP_NEAR);
+    singlesubquery2_(OP_PHRASE);
+    singlesubquery2_(OP_ELITE_SET);
+    singlesubquery2_(OP_SYNONYM);
+    return true;
+}
+
+/// Check we no longer combine wqf for same term at the same position.
+DEFINE_TESTCASE(combinewqfnomore1, !backend) {
+    Xapian::Query q(Xapian::Query::OP_OR,
+		    Xapian::Query("beer", 1, 1),
+		    Xapian::Query("beer", 1, 1));
+    // Prior to 1.3.0, we would have given beer@2, but we decided that wasn't
+    // really useful or helpful.
+    TEST_EQUAL(q.get_description(), "Query((beer@1 OR beer@1))");
     return true;
 }

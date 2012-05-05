@@ -28,8 +28,6 @@
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 
-#include "positionlist.h"
-
 /// BackendManager subclass for chert databases.
 class BackendManagerChert : public BackendManager {
     /// Don't allow assignment.
@@ -41,7 +39,6 @@ class BackendManagerChert : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
-  private:
     /// Get the path of Chert Xapian::Database instance.
     std::string do_get_database_path(const std::vector<std::string> & files);
 

@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,9 +26,9 @@
 #include "xapian/enquire.h"
 
 #include "omassert.h"
-#include "omenquireinternal.h"
+#include "api/omenquireinternal.h"
 #include "str.h"
-#include "termlist.h"
+#include "api/termlist.h"
 
 #include "autoptr.h"
 #include <set>
@@ -99,7 +99,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
 	    const string & term = t->first;
 	    TermList * ret = tl->skip_to(term);
-	    AssertEq(ret, NULL);
+	    Assert(ret == NULL);
 	    (void)ret;
 	    if (tl->at_end())
 		break;

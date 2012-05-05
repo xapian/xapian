@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011 Olly Betts
+/* Copyright (C) 2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -270,8 +270,10 @@ namespace Xapian {
     class Registry;
     class Weight;
     namespace Internal {
+	class AndContext;
 	class ExpandStats;
 	class ExpandWeight;
+	class OrContext;
     }
 }
 
@@ -294,6 +296,10 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
@@ -308,20 +314,6 @@ operator<<(PrettyOStream<S> &ps, const Xapian::Weight *p) {
     return ps;
 }
 
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Internal::ExpandStats &) {
-    ps.os << "Xapian:Internal::ExpandStats";
-    return ps;
-}
-
-template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Internal::ExpandWeight &) {
-    ps.os << "Xapian:Internal::ExpandWeight";
-    return ps;
-}
-
 class RemoteConnection;
 
 template<class S>
@@ -331,7 +323,7 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-#include "common/database.h"
+#include "backends/database.h"
 
 template<class S>
 inline PrettyOStream<S> &

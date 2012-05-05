@@ -30,11 +30,11 @@
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
+#include "fd.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
 #include "str.h"
-#include "utils.h"
 
 #include <algorithm>
 #include <climits>
@@ -196,16 +196,15 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
-    int h = msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY);
+    FD h(msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY));
 #else
-    int h = open(basename.c_str(), O_RDONLY | O_BINARY);
+    FD h(open(basename.c_str(), O_RDONLY | O_BINARY));
 #endif
 
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
     }
-    fdcloser closefd(h);
 
     char buf[REASONABLE_BASE_SIZE];
 
@@ -332,16 +331,15 @@ ChertTable_base::write_to_file(const string &filename,
     pack_uint(buf, revision);  // REVISION3
 
 #ifdef __WIN32__
-    int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+    FD h(msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY));
 #else
-    int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    FD h(open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
 #endif
     if (h < 0) {
 	string message = string("Couldn't open base ")
 		+ filename + " to write: " + strerror(errno);
 	throw Xapian::DatabaseOpeningError(message);
     }
-    fdcloser closefd(h);
 
     if (changes_fd >= 0) {
 	string changes_buf;
@@ -390,6 +388,24 @@ ChertTable_base::free_block(uint4 n)
     if (bit_map_low > i)
 	if ((bit_map0[i] & bit) == 0) /* free at start */
 	    bit_map_low = i;
+}
+
+/* mark_block(B, n) causes block n to be marked allocated in the bit map.
+   B->bit_map_low is the lowest byte in the bit map known to have a free bit
+   set. Searching starts from there when looking for a free block.
+*/
+
+void
+ChertTable_base::mark_block(uint4 n)
+{
+    uint4 i = n / CHAR_BIT;
+    int bit = 0x1 << n % CHAR_BIT;
+    while (i >= bit_map_size)
+	extend_bit_map();
+    bit_map[i] |= bit;
+
+    if (bit_map_low == i && bit_map[i] == 0xff)
+	++bit_map_low;
 }
 
 /* extend(B) increases the size of the two bit maps in an obvious way.

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007,2010 Olly Betts
+ * Copyright 2003,2004,2007,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 #include "omassert.h"
 
 PostList *
-SelectPostList::next(Xapian::weight w_min)
+SelectPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
@@ -39,7 +39,7 @@ SelectPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-SelectPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+SelectPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "SelectPostList::skip_to", did | w_min);
     if (did > get_docid()) {
@@ -53,7 +53,7 @@ SelectPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 }
 
 PostList *
-SelectPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
+SelectPostList::check(Xapian::docid did, double w_min, bool &valid)
 {
     LOGCALL(MATCH, PostList *, "SelectPostList::check", did | w_min | valid);
     PostList *p = source->check(did, w_min, valid);

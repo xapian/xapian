@@ -1,7 +1,7 @@
 /** @file multixorpostlist.cc
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -82,6 +82,8 @@ MultiXorPostList::get_termfreq_max() const
 Xapian::doccount
 MultiXorPostList::get_termfreq_est() const
 {
+    if (rare(db_size == 0))
+	RETURN(0);
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.
@@ -124,10 +126,10 @@ MultiXorPostList::get_termfreq_est_using_stats(
 		     Xapian::doccount(Pr_est * stats.rset_size + 0.5)));
 }
 
-Xapian::weight
+double
 MultiXorPostList::get_maxweight() const
 {
-    LOGCALL(MATCH, Xapian::weight, "MultiXorPostList::get_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "MultiXorPostList::get_maxweight", NO_ARGS);
     RETURN(max_total);
 }
 
@@ -157,11 +159,11 @@ MultiXorPostList::get_doclength() const
     return doclength;
 }
 
-Xapian::weight
+double
 MultiXorPostList::get_weight() const
 {
     Assert(did);
-    Xapian::weight result = 0;
+    double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
 	    result += plist[i]->get_weight();
@@ -175,14 +177,14 @@ MultiXorPostList::at_end() const
     return (did == 0);
 }
 
-Xapian::weight
+double
 MultiXorPostList::recalc_maxweight()
 {
-    LOGCALL(MATCH, Xapian::weight, "MultiXorPostList::recalc_maxweight", NO_ARGS);
+    LOGCALL(MATCH, double, "MultiXorPostList::recalc_maxweight", NO_ARGS);
     max_total = plist[0]->recalc_maxweight();
     double min_max = max_total;
     for (size_t i = 1; i < n_kids; ++i) {
-	Xapian::weight new_max = plist[i]->recalc_maxweight();
+	double new_max = plist[i]->recalc_maxweight();
 	if (new_max < min_max)
 	    min_max = new_max;
 	max_total += new_max;
@@ -195,7 +197,7 @@ MultiXorPostList::recalc_maxweight()
 }
 
 PostList *
-MultiXorPostList::next(Xapian::weight w_min)
+MultiXorPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "MultiXorPostList::next", w_min);
     Xapian::docid old_did = did;
@@ -244,7 +246,7 @@ MultiXorPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-MultiXorPostList::skip_to(Xapian::docid did_min, Xapian::weight w_min)
+MultiXorPostList::skip_to(Xapian::docid did_min, double w_min)
 {
     LOGCALL(MATCH, PostList *, "MultiXorPostList::skip_to", did_min | w_min);
     Xapian::docid old_did = did;

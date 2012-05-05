@@ -1263,7 +1263,9 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = DOXYGEN \
 			 XAPIAN_VISIBILITY_DEFAULT= \
 			 XAPIAN_DEPRECATED_CLASS= \
-			 XAPIAN_DEPRECATED(D)=D
+			 XAPIAN_DEPRECATED_CLASS_EX= \
+			 XAPIAN_DEPRECATED(D)=D \
+			 XAPIAN_DEPRECATED_EX(D)=D
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.

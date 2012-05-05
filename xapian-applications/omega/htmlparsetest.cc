@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008,2011 Olly Betts
+ * Copyright (C) 2006,2008,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,10 @@ static const testcase tests[] = {
     { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><meta charset='utf-8'><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><title>\xc2\xae</title><meta charset=\"utf-8\"></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
+    { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
+    { "Foo<![CDATA", "Foo", "", "", "" },
+    { "foo<![CDATA[bar", "foobar", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 

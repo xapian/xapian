@@ -246,9 +246,9 @@ module Xapian
   # Wrap some dangerous iterators.
   class Xapian::Database
     # Returns an Array of all Xapian::Terms for this database.
-    def allterms
-      Xapian._safelyIterate(self._dangerous_allterms_begin(), 
-                            self._dangerous_allterms_end()) { |item|
+    def allterms(pref = '')
+      Xapian._safelyIterate(self._dangerous_allterms_begin(pref),
+                            self._dangerous_allterms_end(pref)) { |item|
         Xapian::Term.new(item.term, 0, item.termfreq)
       }
     end # allterms
@@ -311,5 +311,20 @@ module Xapian
       }
     end # top_values
   end # Xapian::Database
+
+  # Refer to the
+  # {Xapian::LatLongCoords C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1LatLongCoords.html]
+  # for methods not specific to Ruby.
+  #--
+  # Wrap some dangerous iterators.
+  class Xapian::LatLongCoords
+    # Returns an Array of all the values seen, in alphabetical order
+    def all()
+      Xapian._safelyIterate(self._begin(),
+                            self._end()) { |item|
+        item.get_coord()
+      }
+    end # allterms
+  end # Xapian::LatLongCoords
 
 end # Xapian module

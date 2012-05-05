@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -89,6 +89,8 @@ lazy_build() {
     *[13579][a-z])
       # GNU alpha release
       $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+    file*)
+      $FETCH_URL_TOOL "ftp://ftp.astron.com/pub/file/$tarball" ;;
     *)
       $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
     esac
@@ -170,12 +172,17 @@ if [ -d ".git" ] ; then
     fi
   done
 
-  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  if [ -f .git/info/exclude ] ; then
+    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  else
+    [ -d .git/info ] || mkdir .git/info
+  fi
   cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 END
-  if cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+  if [ -f .git/info/exclude ] && 
+     cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
     rm .git/info/exclude~
   else
     mv .git/info/exclude~ .git/info/exclude
@@ -200,14 +207,23 @@ END
   else
     # git repo cloned from git.xapian.org or a mirror of it.
 
-    # FIXME: Currently rev here requires manual update...
+    # Which SVN branch to check properties from.
+    SVN_BRANCH=trunk
+
+    # FIXME: Currently rev here requires manual update for users without svn
+    # installed or with firewalls which block SVN.
     #svn:externals revision for SWIG
-    handle_svn_external swig -r12767 svn://svn.tartarus.org/swig/trunk/
-  
-    # FIXME: Currently rev here requires manual update...
+    args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH`
+    test -n "$args" || args='swig -r12968 svn://svn.tartarus.org/swig/trunk/'
+    handle_svn_external $args
+
+    # FIXME: Currently rev here requires manual update for users without svn
+    # installed or with firewalls which block SVN.
     #svn:externals revision for xapian-applications/omega/common
     # Note: this needs to be the exact revision of the previous change!
-    handle_svn_external xapian-applications/omega/common -r14916 svn://svn.xapian.org/xapian/trunk/xapian-core/common
+    args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-applications/omega`
+    test -n "$args" || args='common -r15018 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
+    handle_svn_external xapian-applications/omega/$args
   fi
 fi
 
@@ -226,11 +242,17 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
+  lazy_build doxygen 1.7.6.1 src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
   lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
+  # 2.69 is fussy about the m4 version
+  # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.11.1 tar.bz2 44ab0007d8edbe82338e29bdda2f461f43a98818
-  lazy_build libtool 2.4 tar.gz 149e9d7a993b643d13149a94d07bbca1085e601c
+  lazy_build automake 1.12 tar.gz 735e5a755dd4ba24dbb345901198873b2686804d
+  lazy_build libtool 2.4.2 tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
+  if [ "$1" = "--deps=libmagic" ] ; then
+      shift
+      lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89
+  fi
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
@@ -407,10 +429,13 @@ for d in $modules ; do
       cd "$d" && "$configure" ${1+"$@"}
       ;;
     xapian-core)
-      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
+      ;;
+    xapian-applications/omega)
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CXXFLAGS="-I$srcdir/INST/include -L$srcdir/INST/lib" ${1+"$@"}
       ;;
     *)
-      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
       ;;
     esac
     cd "$here"

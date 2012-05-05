@@ -1,7 +1,7 @@
 /** @file chert_modifiedpostlist.cc
  * @brief A ChertPostList plus pending modifications
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ ChertModifiedPostList::~ChertModifiedPostList()
 }
 
 void
-ChertModifiedPostList::skip_deletes(Xapian::weight w_min)
+ChertModifiedPostList::skip_deletes(double w_min)
 {
     while (!ChertPostList::at_end()) {
 	while (it != mods.end() && it->second.first == 'D' &&
@@ -105,7 +105,7 @@ ChertModifiedPostList::open_position_list() const
 }
 
 PostList *
-ChertModifiedPostList::next(Xapian::weight w_min)
+ChertModifiedPostList::next(double w_min)
 {
     if (have_started) {
 	if (ChertPostList::at_end()) {
@@ -129,7 +129,7 @@ ChertModifiedPostList::next(Xapian::weight w_min)
 }
 
 PostList *
-ChertModifiedPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
+ChertModifiedPostList::skip_to(Xapian::docid desired_did, double w_min)
 {
     if (!ChertPostList::at_end()) ChertPostList::skip_to(desired_did, w_min);
     /* FIXME: should we use lower_bound() on the map? */

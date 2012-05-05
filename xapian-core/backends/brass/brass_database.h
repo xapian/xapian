@@ -1,6 +1,7 @@
-/* brass_database.h: C++ class definition for brass database
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file brass_database.h
+ * @brief C++ class definition for brass database
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
@@ -24,7 +25,7 @@
 #ifndef OM_HGUARD_BRASS_DATABASE_H
 #define OM_HGUARD_BRASS_DATABASE_H
 
-#include "database.h"
+#include "backends/database.h"
 #include "brass_dbstats.h"
 #include "brass_inverter.h"
 #include "brass_positionlist.h"
@@ -37,7 +38,7 @@
 #include "brass_version.h"
 #include "../flint_lock.h"
 #include "brass_types.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include <map>
 

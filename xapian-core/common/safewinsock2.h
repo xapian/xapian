@@ -1,6 +1,7 @@
-/* safewinsock2.h: #include <winsock2.h> but working around problems.
- *
- * Copyright (C) 2007 Olly Betts
+/** @file safewinsock2.h
+ * @brief #include <winsock2.h> but working around problems.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

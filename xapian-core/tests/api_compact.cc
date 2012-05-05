@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009,2010,2011 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "filetests.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -35,7 +36,6 @@
 #include <fstream>
 
 #include "str.h"
-#include "utils.h"
 #include "unixcmds.h"
 
 using namespace std;
@@ -420,6 +420,7 @@ make_all_tables(Xapian::WritableDatabase &db, const string &)
     doc.add_term("foo");
     db.add_document(doc);
     db.add_spelling("foo");
+    db.add_synonym("bar", "pub");
     db.add_synonym("foobar", "foo");
 
     db.commit();
@@ -456,6 +457,100 @@ DEFINE_TESTCASE(compactmissingtables1, generated) {
 	TEST_NOT_EQUAL(db.synonym_keys_begin(), db.synonym_keys_end());
 	// FIXME: arrange for input b to not have a termlist table.
 //	TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
+    }
+
+    return true;
+}
+
+static void
+make_all_tables2(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_term("bar");
+    db.add_document(doc);
+    db.add_spelling("bar");
+    db.add_synonym("bar", "baa");
+    db.add_synonym("barfoo", "barbar");
+    db.add_synonym("foofoo", "barfoo");
+
+    db.commit();
+}
+
+/// Adds coverage for merging synonym table.
+DEFINE_TESTCASE(compactmergesynonym1, generated) {
+    string a = get_database_path("compactmergesynonym1a",
+				 make_all_tables);
+    string b = get_database_path("compactmergesynonym1b",
+				 make_all_tables2);
+
+    string out = get_named_writable_database_path("compactmergesynonym1out");
+    rm_rf(out);
+
+    Xapian::Compactor compact;
+    compact.set_destdir(out);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.compact();
+
+    {
+	Xapian::Database db(out);
+
+	Xapian::TermIterator i = db.spellings_begin();
+	TEST_NOT_EQUAL(i, db.spellings_end());
+	TEST_EQUAL(*i, "bar");
+	++i;
+	TEST_NOT_EQUAL(i, db.spellings_end());
+	TEST_EQUAL(*i, "foo");
+	++i;
+	TEST_EQUAL(i, db.spellings_end());
+
+	i = db.synonym_keys_begin();
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "bar");
+	++i;
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "barfoo");
+	++i;
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "foobar");
+	++i;
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "foofoo");
+	++i;
+	TEST_EQUAL(i, db.synonym_keys_end());
+    }
+
+    return true;
+}
+
+DEFINE_TESTCASE(compactempty1, brass || chert) {
+    string empty_dbpath = get_database_path(string());
+    string outdbpath = get_named_writable_database_path("compactempty1out");
+    rm_rf(outdbpath);
+
+    {
+	// Compacting an empty database tried to divide by zero in 1.3.0.
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
+
+	Xapian::Database outdb(outdbpath);
+	TEST_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 0, 0);
+    }
+
+    {
+	// Check compacting two empty databases together.
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
+
+	Xapian::Database outdb(outdbpath);
+	TEST_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 0, 0);
     }
 
     return true;

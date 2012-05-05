@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@
 
 #include "safeerrno.h"
 
+#include <cstdio>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -40,7 +41,6 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -61,11 +61,11 @@ BackendManager::create_dir_if_needed(const string &dirname)
 {
     // create a directory if not present
     struct stat sbuf;
-    int result = stat(dirname, &sbuf);
+    int result = stat(dirname.c_str(), &sbuf);
     if (result < 0) {
 	if (errno != ENOENT)
 	    throw Xapian::DatabaseOpeningError("Can't stat directory");
-	if (mkdir(dirname, 0700) < 0)
+	if (mkdir(dirname.c_str(), 0700) < 0)
 	    throw Xapian::DatabaseOpeningError("Can't create directory");
 	return true; // Successfully created a directory.
     }

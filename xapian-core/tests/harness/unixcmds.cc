@@ -1,7 +1,7 @@
 /** @file unixcmds.cc
  *  @brief C++ function versions of useful Unix commands.
  */
-/* Copyright (C) 2003,2004,2007 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,6 @@
 #include <string>
 #include <cstdlib>
 #include <sys/types.h>
-#include "safesysstat.h"
 #include "safeunistd.h"
 #include "safefcntl.h"
 
@@ -34,8 +33,9 @@
 # include "safewindows.h"
 #endif
 
+#include "filetests.h"
+#include "str.h"
 #include "stringutils.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -81,6 +81,20 @@ append_filename_argument(string & cmd, const string & arg) {
     return true;
 }
 
+/// Call system() and throw exception if it fails.
+static void
+checked_system(const string & cmd)
+{
+    int res = system(cmd.c_str());
+    if (res) {
+	string msg = "system(\"";
+	msg += cmd;
+	msg += "\") failed, returning ";
+	msg += str(res);
+	throw msg;
+    }
+}
+
 /// Recursively copy a directory.
 void cp_R(const std::string &src, const std::string &dest) {
 #ifdef __WIN32__
@@ -95,13 +109,13 @@ void cp_R(const std::string &src, const std::string &dest) {
 #endif
     if (!append_filename_argument(cmd, src)) return;
     if (!append_filename_argument(cmd, dest)) return;
-    system(cmd);
+    checked_system(cmd);
 #ifndef __WIN32__
     // Allow write access to the copy (to deal with builds where srcdir is
     // readonly).
     cmd = "chmod -R +w";
     if (!append_filename_argument(cmd, dest)) return;
-    system(cmd);
+    checked_system(cmd);
 #endif
 }
 
@@ -123,8 +137,7 @@ static bool running_on_win9x() {
 /// Remove a directory and contents, just like the Unix "rm -rf" command.
 void rm_rf(const string &filename) {
     // Check filename exists and is actually a directory
-    struct stat sb;
-    if (filename.empty() || stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode))
+    if (filename.empty() || !dir_exists(filename))
 	return;
 
 #ifdef __WIN32__
@@ -140,7 +153,7 @@ void rm_rf(const string &filename) {
     string cmd("rm -rf");
 #endif
     if (!append_filename_argument(cmd, filename)) return;
-    system(cmd);
+    checked_system(cmd);
 }
 
 /// Touch a file, just like the Unix "touch" command.

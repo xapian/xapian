@@ -1,6 +1,7 @@
-/* brass_spellingwordslist.h: A termlist containing all words which are spelling targets.
- *
- * Copyright (C) 2005,2008,2009 Olly Betts
+/** @file brass_spellingwordslist.h
+ * @brief A termlist containing all words which are spelling targets.
+ */
+/* Copyright (C) 2005,2008,2009,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +22,8 @@
 #ifndef XAPIAN_HGUARD_BRASS_SPELLINGWORDSLIST_H
 #define XAPIAN_HGUARD_BRASS_SPELLINGWORDSLIST_H
 
-#include "alltermslist.h"
-#include "database.h"
+#include "backends/alltermslist.h"
+#include "backends/database.h"
 #include "brass_spelling.h"
 
 class BrassCursor;

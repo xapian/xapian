@@ -24,6 +24,7 @@
 #include "xapian/registry.h"
 
 #include "xapian/error.h"
+#include "xapian/geospatial.h"
 #include "xapian/matchspy.h"
 #include "xapian/postingsource.h"
 #include "xapian/weight.h"
@@ -154,11 +155,25 @@ Registry::get_match_spy(const string & name) const
     RETURN(lookup_object(internal->matchspies, name));
 }
 
+void
+Registry::register_lat_long_metric(const Xapian::LatLongMetric &metric)
+{
+    LOGCALL_VOID(API, "Xapian::Registry::register_lat_long_metric", metric.name());
+    register_object(internal->lat_long_metrics, metric);
+}
+
+const Xapian::LatLongMetric *
+Registry::get_lat_long_metric(const string & name) const
+{
+    LOGCALL(API, const Xapian::MatchSpy *, "Xapian::Registry::get_lat_long_metric", name);
+    RETURN(lookup_object(internal->lat_long_metrics, name));
+}
 
 Registry::Internal::Internal()
 	: Xapian::Internal::intrusive_base(),
           wtschemes(),
-	  postingsources()
+	  postingsources(),
+	  lat_long_metrics()
 {
     add_defaults();
 }
@@ -168,6 +183,7 @@ Registry::Internal::~Internal()
     clear_weighting_schemes();
     clear_posting_sources();
     clear_match_spies();
+    clear_lat_long_metrics();
 }
 
 void
@@ -190,10 +206,18 @@ Registry::Internal::add_defaults()
     postingsources[source->name()] = source;
     source = new Xapian::FixedWeightPostingSource(0.0);
     postingsources[source->name()] = source;
+    source = new Xapian::LatLongDistancePostingSource(0,
+	Xapian::LatLongCoords(),
+	Xapian::GreatCircleMetric());
+    postingsources[source->name()] = source;
 
     Xapian::MatchSpy * spy;
     spy = new Xapian::ValueCountMatchSpy();
     matchspies[spy->name()] = spy;
+
+    Xapian::LatLongMetric * metric;
+    metric = new Xapian::GreatCircleMetric();
+    lat_long_metrics[metric->name()] = metric;
 }
 
 void
@@ -219,6 +243,15 @@ Registry::Internal::clear_match_spies()
 {
     map<string, Xapian::MatchSpy *>::const_iterator i;
     for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	delete i->second;
+    }
+}
+
+void
+Registry::Internal::clear_lat_long_metrics()
+{
+    map<string, Xapian::LatLongMetric *>::const_iterator i;
+    for (i = lat_long_metrics.begin(); i != lat_long_metrics.end(); ++i) {
 	delete i->second;
     }
 }

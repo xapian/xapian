@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,16 +23,16 @@
 
 #include "localsubmatch.h"
 
-#include "database.h"
+#include "backends/database.h"
 #include "debuglog.h"
+#include "api/emptypostlist.h"
 #include "extraweightpostlist.h"
-#include "leafpostlist.h"
+#include "api/leafpostlist.h"
 #include "omassert.h"
-#include "omqueryinternal.h"
 #include "queryoptimiser.h"
 #include "synonympostlist.h"
-#include "termlist.h"
-#include "weightinternal.h"
+#include "api/termlist.h"
+#include "weight/weightinternal.h"
 
 #include "autoptr.h"
 #include <map>
@@ -47,7 +47,6 @@ LocalSubMatch::prepare_match(bool nowait,
     LOGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait | total_stats);
     (void)nowait;
     Assert(db);
-    Assert(query);
     total_stats.accumulate_stats(*db, rset);
     RETURN(true);
 }
@@ -76,11 +75,17 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     term_info = termfreqandwts;
 
     // Build the postlist tree for the query.  This calls
-    // LocalSubMatch::postlist_from_op_leaf_query() for each term in the query,
+    // LocalSubMatch::open_post_list() for each term in the query,
     // which builds term_info as a side effect.
-    QueryOptimiser opt(*db, *this, matcher);
-    PostList * pl = opt.optimise_query(query);
-    *total_subqs_ptr = opt.get_total_subqueries();
+    if (query.empty())
+	return new EmptyPostList; // MatchNothing
+
+    PostList * pl;
+    {
+	QueryOptimiser opt(*db, *this, matcher);
+	pl = query.internal->postlist(&opt, 1.0);
+	*total_subqs_ptr = opt.get_total_subqs();
+    }
 
     AutoPtr<Xapian::Weight> extra_wt(wt_factory->clone());
     extra_wt->init_(*stats, qlen);
@@ -118,22 +123,19 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     RETURN(res.release());
 }
 
-PostList *
-LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *leaf,
-					   double factor)
+Xapian::Weight *
+LocalSubMatch::make_wt(const string& term, Xapian::termcount wqf, double factor)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_op_leaf_query", leaf | factor);
-    Assert(leaf);
-    AssertEq(leaf->op, Xapian::Query::Internal::OP_LEAF);
-    Assert(leaf->subqs.empty());
-    const string & term = leaf->tname;
-    bool boolean = (factor == 0.0);
-    AutoPtr<Xapian::Weight> wt;
-    if (!boolean) {
-	wt.reset(wt_factory->clone());
-	wt->init_(*stats, qlen, term, leaf->get_wqf(), factor);
-    }
+    LOGCALL(MATCH, Xapian::Weight *, "LocalSubMatch::make_wt", term | wqf | factor);
+    AutoPtr<Xapian::Weight> wt(wt_factory->clone());
+    wt->init_(*stats, qlen, term, wqf, factor);
+    return wt.release();
+}
 
+LeafPostList *
+LocalSubMatch::open_post_list(const string& term, double max_part)
+{
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | max_part);
     if (term_info) {
 	Xapian::doccount tf = stats->get_termfreq(term);
 	using namespace Xapian;
@@ -141,14 +143,8 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *leaf,
 	map<string, MSet::Internal::TermFreqAndWeight>::iterator i;
 	i = term_info->insert(
 		make_pair(term, MSet::Internal::TermFreqAndWeight(tf))).first;
-	if (!boolean)
-	    i->second.termweight += wt->get_maxpart();
+	i->second.termweight += max_part;
     }
 
-    LeafPostList * pl = db->open_post_list(term);
-    // The default for LeafPostList is to return 0 weight and maxweight which
-    // is the same as boolean weighting.
-    if (!boolean)
-	pl->set_termweight(wt.release());
-    RETURN(pl);
+    RETURN(db->open_post_list(term));
 }

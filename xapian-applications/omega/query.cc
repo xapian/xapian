@@ -59,6 +59,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "transform.h"
+#include "urldecode.h"
 #include "urlencode.h"
 #include "unixperm.h"
 #include "values.h"
@@ -104,7 +105,7 @@ static void ensure_match();
 
 static Xapian::Query query;
 //static string url_query_string;
-Xapian::Query::op default_op = Xapian::Query::OP_OR; // default matching mode
+Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 static Xapian::QueryParser qp;
 static Xapian::NumberValueRangeProcessor * size_vrp = NULL;
@@ -818,7 +819,7 @@ static Fields fields;
 static Xapian::docid q0;
 static Xapian::doccount hit_no;
 static int percent;
-static Xapian::weight weight;
+static double weight;
 static Xapian::doccount collapsed;
 
 static string print_caption(const string &fmt, const vector<string> &param);
@@ -888,6 +889,7 @@ CMD_or,
 CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
+CMD_prettyurl,
 CMD_query,
 CMD_querydescription,
 CMD_queryterms,
@@ -1007,6 +1009,7 @@ T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
+T(prettyurl,	   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, Q), // query.get_description()
 T(queryterms,	   0, 0, N, Q), // list of query terms
@@ -1741,6 +1744,10 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_prettyterm:
 		value = pretty_term(args[0]);
 		break;
+	    case CMD_prettyurl:
+		value = args[0];
+		url_prettify(value);
+		break;
 	    case CMD_query:
 		value = probabilistic_query[args.empty() ? string() : args[0]];
 		break;
@@ -2090,14 +2097,6 @@ pretty_term(string term)
 
     // Assume unprefixed terms are unstemmed.
     if (!isupper(term[0])) return term;
-
-    // FIXME: keep this for now in case people are still generating 'R' terms?
-    // But if we assumed unprefixed terms are unstemmed, what use is this?
-    if (term[0] == 'R') {
-	term.erase(0, 1);
-	term[0] = toupper(static_cast<unsigned char>(term[0]));
-	return term;
-    }
 
     // Handle stemmed terms.
     bool stemmed = (term[0] == 'Z');

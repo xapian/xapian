@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2006,2011 Olly Betts
+ * Copyright 2006,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,6 +89,11 @@
     }
 %enddef
 
+%define CONSTANT(TYPE, NS, NAME)
+    %ignore NS::NAME;
+    %constant TYPE NAME = NS::NAME;
+%enddef
+
 /* Ignore these for all classes: */
 %ignore operator==;
 %ignore operator!=;
@@ -100,6 +105,7 @@
 %ignore iterator;
 %ignore const_iterator;
 %ignore size_type;
+%ignore unserialise(const char **, const char *);
 
 /* These methods won't throw exceptions. */
 %exception Xapian::major_version "$action"
@@ -144,13 +150,39 @@ INPUT_ITERATOR_METHODS(Xapian, ValueIterator, std::string, get_value)
 STANDARD_IGNORES(Xapian, Document)
 %include <xapian/document.h>
 
+STANDARD_IGNORES(Xapian, Registry)
+%include <xapian/registry.h>
+
 STANDARD_IGNORES(Xapian, Query)
+%ignore Xapian::Query::Internal;
+%ignore Xapian::InvertedQuery_;
+%ignore operator Query;
+%ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
+%ignore *::operator~;
+%ignore *::operator&=;
+%ignore *::operator|=;
+%ignore *::operator^=;
+%ignore *::operator*=;
+%ignore *::operator/=;
+#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
+%ignore *::operator&;
+%ignore *::operator|;
+%ignore *::operator^;
+%ignore *::operator*;
+%ignore *::operator/;
+#endif
+
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Query::Internal;
 #if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGPERL || \
     defined SWIGPYTHON || defined SWIGRUBY
 // C#, Java, Perl, Python and Ruby wrap these "by hand" to give a nicer API
 // than SWIG gives by default.
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
+#endif
+#ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+%ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+              Xapian::termcount parameter = 0);
 #endif
 %include <xapian/query.h>
 
@@ -271,9 +303,6 @@ STANDARD_IGNORES(Xapian, Weight)
 %ignore Xapian::Weight::unserialise;
 %include <xapian/weight.h>
 
-STANDARD_IGNORES(Xapian, Registry)
-%include <xapian/registry.h>
-
 /* We don't wrap Xapian's Unicode support as other languages usually already
  * have their own Unicode support. */
 /* %include <xapian/unicode.h> */
@@ -283,23 +312,29 @@ SUBCLASSABLE(Xapian, Compactor)
 
 SUBCLASSABLE(Xapian, PostingSource)
 %ignore Xapian::PostingSource::register_matcher_;
+%ignore Xapian::PostingSource::unserialise_with_registry;
 %include <xapian/postingsource.h>
 
 SUBCLASSABLE(Xapian, MatchSpy)
 %ignore Xapian::MatchSpy::serialise_results;
 %include <xapian/matchspy.h>
 
+SUBCLASSABLE(Xapian, LatLongMetric)
+INPUT_ITERATOR_METHODS(Xapian, LatLongCoordsIterator, LatLongCoord, get_coord)
+%ignore Xapian::LatLongCoord::operator<;
+%include <xapian/geospatial.h>
+
 STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
 %ignore Xapian::Database::get_document_lazily_;
-%ignore Xapian::DB_CREATE;
-%ignore Xapian::DB_CREATE_OR_OPEN;
-%ignore Xapian::DB_CREATE_OR_OVERWRITE;
-%ignore Xapian::DB_OPEN;
+%ignore Xapian::Database::check(const std::string &, int, std::ostream &);
+CONSTANT(int, Xapian, DB_CREATE);
+CONSTANT(int, Xapian, DB_CREATE_OR_OPEN);
+CONSTANT(int, Xapian, DB_CREATE_OR_OVERWRITE);
+CONSTANT(int, Xapian, DB_OPEN);
+CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
+CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
+CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
+CONSTANT(int, Xapian, DBCHECK_SHOW_STATS);
 %include <xapian/database.h>
-
-%constant int DB_CREATE = Xapian::DB_CREATE;
-%constant int DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int DB_OPEN = Xapian::DB_OPEN;

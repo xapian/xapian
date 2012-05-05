@@ -16,10 +16,15 @@
 Xapian - the open source search engine
 ======================================
 
+Getting Started
+---------------
+
+There's a new
+`Getting Started with Xapian <http://getting-started-with-xapian.readthedocs.org/>`_
+guide, which is the recommended place to start.
+
 Documentation
 -------------
-
-A number of pieces of documentation are available.
 
 The Omega search application has its `own documentation
 <http://xapian.org/docs/omega/>`_, and there's also separate
@@ -38,10 +43,10 @@ The `glossary <glossary.html>`_ provides definitions for specialized
 terminology you might encounter while using Xapian.
 
 The `Overview <overview.html>`_ explains the API which Xapian provides
-to programmers. A full `API Reference <apidoc/html/index.html>`_ is
-automatically collated using doxygen from documentation comments in the
-source code. There's also a list of `deprecated
-features <deprecation.html>`_ which lists features scheduled for
+to programmers.  A full `API Reference <apidoc/html/index.html>`_
+(`PDF <apidoc.pdf>`_) is automatically collated using doxygen from
+documentation comments in the source code.  There's also a list of
+`deprecated features <deprecation.html>`_ which lists features scheduled for
 removal, and also features already removed, along with suggestions for
 replacements.
 

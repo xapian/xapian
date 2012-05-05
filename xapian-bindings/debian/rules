@@ -148,10 +148,10 @@ debian/control: debian/rules debian/control.in
 	    -e 's/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g' \
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
-	    sed 's/@PHP_VERSION@/$$v/g' debian/control-php.in ;\
+	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
 	done >> debian/control.tmp
 	for v in $(RUBY_VERSIONS); do \
-	    sed 's/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
+	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby.in ;\
 	done >> debian/control.tmp
 	mv debian/control.tmp debian/control
 
@@ -204,7 +204,9 @@ configure-stamp:
 
 	touch $@
 
-build: build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp: configure
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \

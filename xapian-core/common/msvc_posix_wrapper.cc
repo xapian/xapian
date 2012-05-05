@@ -24,6 +24,8 @@
 
 #ifdef __WIN32__ /* Ignore the whole file except for __WIN32__ */
 
+#include "msvc_posix_wrapper.h"
+
 #include <io.h>
 
 #include "safeerrno.h"

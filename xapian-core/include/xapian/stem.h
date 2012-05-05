@@ -1,5 +1,5 @@
-/** \file  stem.h
- *  \brief stemming algorithms
+/** @file stem.h
+ * @brief stemming algorithms
  */
 /* Copyright (C) 2005,2007,2010,2011 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
@@ -105,9 +105,10 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  stemming algorithm (or to wrap a third-party algorithm) and then wrap
      *  your implementation in a Xapian::Stem object to pass to the Xapian API.
      *
-     *  The StemImplementation object is reference counted, and so will be
-     *  automatically deleted by the Xapian::Stem wrapper when no longer
-     *  required.
+     *  @param p	The user-subclassed StemImplementation object.  This
+     *			is reference counted, and so will be automatically
+     *			deleted by the Xapian::Stem wrapper when no longer
+     *			required.
      */
     explicit Stem(StemImplementation * p);
 

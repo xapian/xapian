@@ -276,12 +276,13 @@ Inspecting a database
 
 When designing an indexing strategy, it is often useful to be able to check
 the contents of the database.  Xapian includes a simple command-line program,
-"delve", to allow this.
+`xapian-delve`, to allow this (prior to 1.3.0, `xapian-delve` was usually
+called `delve`, though some packages were already renaming it).
 
 For example, to display the list of terms in document "1" of the database
 "foo", use::
 
-  delve foo -r 1
+  xapian-delve foo -r 1
 
 It is also possible to perform simple searches of a database.  Xapian includes
 another simple command-line program, "quest", to support this.  "quest" is
@@ -387,7 +388,7 @@ Converting a flint database to a chert database
 -----------------------------------------------
 
 It is possible to convert a flint database to a chert database by installing
-Xapian 1.0.x (since this has support for both flint and chert)
+Xapian 1.2.x (since this has support for both flint and chert)
 using the "copydatabase" example program included with Xapian.  This is a
 lot slower to run than "xapian-compact", since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a

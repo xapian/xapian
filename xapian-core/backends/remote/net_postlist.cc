@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include "net_postlist.h"
-#include "serialise.h"
+#include "net/length.h"
 
 using namespace std;
 
@@ -65,7 +65,7 @@ NetworkPostList::open_position_list() const
 }
 
 PostList *
-NetworkPostList::next(Xapian::weight)
+NetworkPostList::next(double)
 {
     if (!started) {
 	started = true;
@@ -85,7 +85,7 @@ NetworkPostList::next(Xapian::weight)
 }
 
 PostList *
-NetworkPostList::skip_to(Xapian::docid did, Xapian::weight min_weight)
+NetworkPostList::skip_to(Xapian::docid did, double min_weight)
 {
     if (!started)
 	next(min_weight);

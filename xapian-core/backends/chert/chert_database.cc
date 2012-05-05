@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -32,7 +32,7 @@
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
-#include "contiguousalldocspostlist.h"
+#include "backends/contiguousalldocspostlist.h"
 #include "chert_alldocsmodifiedpostlist.h"
 #include "chert_alldocspostlist.h"
 #include "chert_alltermslist.h"
@@ -49,17 +49,17 @@
 #include "chert_valuelist.h"
 #include "chert_values.h"
 #include "debuglog.h"
+#include "fd.h"
 #include "io_utils.h"
 #include "pack.h"
-#include "remoteconnection.h"
+#include "net/remoteconnection.h"
 #include "replicate_utils.h"
-#include "replication.h"
+#include "api/replication.h"
 #include "replicationprotocol.h"
-#include "serialise.h"
+#include "net/length.h"
 #include "str.h"
 #include "stringutils.h"
-#include "utils.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -131,9 +131,9 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	// already.
 	bool fail = false;
 	struct stat statbuf;
-	if (stat(db_dir, &statbuf) == 0) {
+	if (stat(db_dir.c_str(), &statbuf) == 0) {
 	    if (!S_ISDIR(statbuf.st_mode)) fail = true;
-	} else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
+	} else if (errno != ENOENT || mkdir(db_dir.c_str(), 0755) == -1) {
 	    fail = true;
 	}
 	if (fail) {
@@ -339,13 +339,11 @@ ChertDatabase::get_changeset_revisions(const string & path,
 				       chert_revision_number_t * startrev,
 				       chert_revision_number_t * endrev) const
 {
-    int changes_fd = -1;
 #ifdef __WIN32__
-    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY);
+    FD changes_fd(msvc_posix_open(path.c_str(), O_RDONLY));
 #else
-    changes_fd = open(path.c_str(), O_RDONLY);
+    FD changes_fd(open(path.c_str(), O_RDONLY));
 #endif
-    fdcloser closer(changes_fd);
 
     if (changes_fd < 0) {
 	string message = string("Couldn't open changeset ")
@@ -419,7 +417,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     }
 
     try {
-	fdcloser closefd(changes_fd);
+	FD closefd(changes_fd);
 	if (changes_fd >= 0) {
 	    string buf;
 	    chert_revision_number_t old_revision = get_revision_number();
@@ -546,12 +544,11 @@ ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
 	filepath.replace(db_dir.size() + 1, string::npos, leaf);
 #ifdef __WIN32__
-	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY);
+	FD fd(msvc_posix_open(filepath.c_str(), O_RDONLY));
 #else
-	int fd = open(filepath.c_str(), O_RDONLY);
+	FD fd(open(filepath.c_str(), O_RDONLY));
 #endif
 	if (fd > 0) {
-	    fdcloser closefd(fd);
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
@@ -651,13 +648,11 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 #ifdef __WIN32__
-	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY);
+	    FD fd_changes(msvc_posix_open(changes_name.c_str(), O_RDONLY));
 #else
-	    int fd_changes = open(changes_name.c_str(), O_RDONLY);
+	    FD fd_changes(open(changes_name.c_str(), O_RDONLY));
 #endif
 	    if (fd_changes > 0) {
-		fdcloser closefd(fd_changes);
-
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
 		chert_revision_number_t changeset_start_rev_num;

@@ -43,7 +43,7 @@ dnl 0:0:0 1.3.0 Reset as library renamed
 LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
-LIBRARY_VERSION_SUFFIX=
+LIBRARY_VERSION_SUFFIX=-1.3
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
 dnl Disabled for stable release series.
@@ -955,9 +955,6 @@ esac
 
 AC_CHECK_FUNCS(link)
 
-dnl See if we want to use STLport
-RJB_FIND_STLPORT
-
 dnl *************************
 dnl * Set debugging options *
 dnl *************************
@@ -1191,18 +1188,6 @@ AH_BOTTOM(
 # define usual(COND) (COND)
 #endif
 ])
-
-dnl modify flags for building with stlport
-STLPORT_CXXFLAGS=
-if test yes = "$use_stlport"; then
-  if test yes = "$GXX"; then
-    STLPORT_CXXFLAGS="-nostdinc++"
-  fi
-  STLPORT_CXXFLAGS="$STLPORT_CXXFLAGS $STLPORT_INCLUDE"
-  AM_CXXFLAGS="$STLPORT_CXXFLAGS $AM_CXXFLAGS"
-  LIBS="$STLPORT_LIBS $LIBS"
-fi
-AC_SUBST(STLPORT_CXXFLAGS)
 
 AC_SUBST(AM_CXXFLAGS)
 

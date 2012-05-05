@@ -60,7 +60,7 @@ $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
 $if{$opt{topterms},
  <div title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
- $map{$topterms,<span style="white-space:nowrap"><INPUT TYPE=checkbox NAME=X VALUE="$prettyterm{$_}" onClick="C(this)">$prettyterm{$_}</span> }
+ $map{$topterms,<span style="white-space:nowrap"><INPUT TYPE=checkbox NAME=X VALUE="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
  <BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
  </div>
 }
@@ -102,11 +102,11 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><B><A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
+<td><B><A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</A></B><BR>
 <small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
 <A HREF="$html{$field{url}}">$html{$field{url}}</A><br>
 <small>
-$percentage% relevant$. matching:
+matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},$. ,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
 </table>
 

@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,19 +27,20 @@
 #include <signal.h>
 
 #include "autoptr.h"
-#include "emptypostlist.h"
-#include "inmemory_positionlist.h"
+#include "api/emptypostlist.h"
+#include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"
 #include "noreturn.h"
 #include "remote-document.h"
 #include "omassert.h"
 #include "realtime.h"
-#include "serialise.h"
+#include "net/length.h"
+#include "net/serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 #include "stringutils.h" // For STRINGIZE().
-#include "weightinternal.h"
+#include "weight/weightinternal.h"
 
 #include <string>
 #include <vector>
@@ -544,7 +545,7 @@ RemoteDatabase::do_close()
 }
 
 void
-RemoteDatabase::set_query(const Xapian::Query::Internal *query,
+RemoteDatabase::set_query(const Xapian::Query& query,
 			 Xapian::termcount qlen,
 			 Xapian::doccount collapse_max,
 			 Xapian::valueno collapse_key,
@@ -552,12 +553,12 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 Xapian::valueno sort_key,
 			 Xapian::Enquire::Internal::sort_setting sort_by,
 			 bool sort_value_forward,
-			 int percent_cutoff, Xapian::weight weight_cutoff,
+			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
 			 const vector<Xapian::MatchSpy *> & matchspies)
 {
-    string tmp = query->serialise();
+    string tmp = query.serialise();
     string message = encode_length(tmp.size());
     message += tmp;
 

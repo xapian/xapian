@@ -1,7 +1,7 @@
 /** @file deprecated.h
- * @brief Define XAPIAN_DEPRECATED() and XAPIAN_DEPRECATED_CLASS macros.
+ * @brief Define XAPIAN_DEPRECATED() and related macros.
  */
-// Copyright (C) 2006,2007,2009,2011 Olly Betts
+// Copyright (C) 2006,2007,2009,2011,2012 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,10 +20,20 @@
 #ifndef XAPIAN_INCLUDED_DEPRECATED_H
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
-// How to use of the XAPIAN_DEPRECATED is document in HACKING - see the
-// section "Marking Features as Deprecated".  Don't forget to update the
+// How to make use of XAPIAN_DEPRECATED, etc is documented in HACKING - see
+// the section "Marking Features as Deprecated".  Don't forget to update the
 // documentation of deprecated methods for end users in docs/deprecation.rst
 // too!
+
+// Don't give deprecation warnings for features marked as externally deprecated
+// when building the library.
+#ifdef XAPIAN_IN_XAPIAN_H
+# define XAPIAN_DEPRECATED_EX(D) XAPIAN_DEPRECATED(D)
+# define XAPIAN_DEPRECATED_CLASS_EX XAPIAN_DEPRECATED_CLASS
+#else
+# define XAPIAN_DEPRECATED_EX(D) D
+# define XAPIAN_DEPRECATED_CLASS_EX
+#endif
 
 // xapian-bindings needs to wrap deprecated functions without warnings,
 // so check if XAPIAN_DEPRECATED is defined so xapian-bindings can override

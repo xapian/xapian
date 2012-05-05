@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2011 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,13 @@
 
 #include "chert_check.h"
 
+#include "filetests.h"
+#include "io_utils.h"
+#include "xapian/database.h" // For Xapian::DBCHECK_*
+
 #include <climits>
+#include <ostream>
+#include "safefcntl.h"
 
 using namespace std;
 
@@ -134,20 +140,26 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     size_t dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
-    if (base.block_free_at_start(n))
-	failure("Block was free at start");
-    if (base.block_free_now(n))
-	failure("Block is free now");
-    base.free_block(n);
+    if (opts & Xapian::DBCHECK_FIX) {
+	base.mark_block(n);
+    } else {
+	if (base.block_free_at_start(n))
+	    failure("Block was free at start");
+	if (base.block_free_now(n))
+	    failure("Block is free now");
+	base.free_block(n);
+    }
 
     if (j != GET_LEVEL(p))
 	failure("Block has wrong level");
     if (dir_end <= DIR_START || dir_end > block_size)
 	failure("directory end pointer invalid");
 
-    if (opts & OPT_SHORT_TREE) report_block(3*(level - j), n, p);
+    if (opts & Xapian::DBCHECK_SHORT_TREE)
+	report_block(3*(level - j), n, p);
 
-    if (opts & OPT_FULL_TREE) report_block_full(3*(level - j), n, p);
+    if (opts & Xapian::DBCHECK_FULL_TREE)
+	report_block_full(3*(level - j), n, p);
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	Item item(p, c);
@@ -164,11 +176,25 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
 	if (c > significant_c && Item(p, c - D2).key() >= item.key())
 	    failure("Items not in sorted order");
+
+	if (j == 0 && item.component_of() == 1)
+	    ++check_item_count;
     }
     if (total_free != TOTAL_FREE(p))
 	failure("Stored total free space value wrong");
 
-    if (j == 0) return;
+    if (j == 0) {
+	// Leaf block.
+	if (check_sequential) {
+	    if (n >= last_sequential_block) {
+		last_sequential_block = n;
+	    } else {
+		check_sequential = false;
+	    }
+	}
+	return;
+    }
+
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
 	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
@@ -207,11 +233,85 @@ void
 ChertTableCheck::check(const char * tablename, const string & path, int opts,
 		       ostream &out)
 {
+    string faked_base;
+
     ChertTableCheck B(tablename, path, false, out);
-    B.open(); // throws exception if open fails
+    try {
+	B.open(); // throws exception if open fails
+    } catch (const Xapian::DatabaseOpeningError &) {
+	if ((opts & Xapian::DBCHECK_FIX) == 0 ||
+	    file_size(path + "baseA") > 0 ||
+	    file_size(path + "baseB") > 0) {
+	    // Just propagate the exception.
+	    throw;
+	}
+
+	// Fake up a base file with no bitmap first, then fill it in when we
+	// scan the tree below.
+	int fd = ::open((path + "DB").c_str(), O_RDONLY | O_BINARY);
+	if (fd < 0) throw;
+	unsigned char buf[65536];
+	uint4 blocksize = 8192; // Default.
+	size_t read = io_read(fd, (char*)buf, sizeof(buf), 0);
+	if (read > 0) {
+	    int dir_end = DIR_END(buf);
+	    blocksize = dir_end + TOTAL_FREE(buf);
+	    for (int c = DIR_START; c < dir_end; c += D2) {
+		Item item(buf, c);
+		blocksize += item.size();
+	    }
+	    out << "Block size deduced as " << blocksize << endl;
+	} else {
+	    out << "Empty table, assuming default block size of " << blocksize << endl;
+	}
+
+	if (lseek(fd, 0, SEEK_SET) < 0) {
+	    B.failure("Failed to seek to start of table");
+	}
+	// Scan for root block.
+	uint4 root = 0;
+	uint4 revision = 0;
+	uint4 level = 0;
+	uint4 blk_no = 0;
+	while (io_read(fd, (char*)buf, blocksize, 0) == blocksize) {
+	    uint4 rev = REVISION(buf);
+	    // FIXME: this isn't smart enough - it will happily pick a new
+	    // revision which was partly written but never committed.  Also
+	    // there's nothing to ensure that it picks the same revision of
+	    // each table.
+	    if (rev > revision ||
+		(rev == revision && uint4(GET_LEVEL(buf)) > level)) {
+		root = blk_no;
+		revision = rev;
+		level = GET_LEVEL(buf);
+		out << "Root guess -> blk " << root << " rev "<<revision << " level " << level << endl;
+	    }
+	    ++blk_no;
+	}
+	::close(fd);
+
+	// Check that we actually found a candidate root block.
+	if (revision == 0)
+	    throw;
+
+	ChertTable_base fake_base;
+	fake_base.set_revision(revision);
+	fake_base.set_block_size(blocksize);
+	fake_base.set_root(root);
+	fake_base.set_level(level);
+	fake_base.set_item_count(0); // Will get filled in later.
+	fake_base.set_sequential(false); // Will get filled in later.
+	faked_base = path;
+	faked_base += "baseA";
+	fake_base.write_to_file(faked_base, 'A', string(), -1, NULL);
+
+	// And retry the open.
+	B.open();
+    }
+
     Cursor * C = B.C;
 
-    if (opts & OPT_SHOW_STATS) {
+    if (opts & Xapian::DBCHECK_SHOW_STATS) {
 	out << "base" << (char)B.base_letter
 	    << " blocksize=" << B.block_size / 1024 << "K"
 	       " items=" << B.item_count
@@ -226,11 +326,16 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	out << endl;
     }
 
-    int limit = B.base.get_bit_map_size() - 1;
+    if (opts & Xapian::DBCHECK_FIX) {
+	// Clear the bitmap in case we're regenerating an existing base file.
+	B.base.clear_bit_map();
+    }
 
-    limit = limit * CHAR_BIT + CHAR_BIT - 1;
+    if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
+	int limit = B.base.get_bit_map_size() - 1;
 
-    if (opts & OPT_SHOW_BITMAP) {
+	limit = limit * CHAR_BIT + CHAR_BIT - 1;
+
 	for (int j = 0; j <= limit; j++) {
 	    out << (B.base.block_free_at_start(j) ? '.' : '*');
 	    if (j > 0) {
@@ -247,12 +352,47 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
     if (B.faked_root_block) {
 	if (opts) out << "void ";
     } else {
-	B.block_check(C, B.level, opts);
+	try {
+	    B.block_check(C, B.level, opts);
+	} catch (...) {
+	    if (!faked_base.empty())
+		unlink(faked_base.c_str());
+	    throw;
+	}
 
-	/* the bit map should now be entirely clear: */
+	// Allow for the dummy entry with the empty key.
+	if (B.check_item_count)
+	    --B.check_item_count;
 
-	if (!B.base.is_empty()) {
-	    B.failure("Unused block(s) marked used in bitmap");
+	if (opts & Xapian::DBCHECK_FIX) {
+	    out << "Counted " << B.check_item_count << " entries in the Btree" << endl;
+	    out << (B.check_sequential ? "Sequential" : "Non-sequential") << endl;
+	    B.base.set_item_count(B.check_item_count);
+	    B.base.set_sequential(B.check_sequential);
+	    string base_name = path;
+	    base_name += "base";
+	    base_name += B.base_letter;
+	    B.base.write_to_file(base_name, B.base_letter, string(), -1, NULL);
+	} else {
+	    /* the bit map should now be entirely clear: */
+	    if (!B.base.is_empty()) {
+		B.failure("Unused block(s) marked used in bitmap");
+	    }
+
+	    if (B.check_item_count != B.get_entry_count()) {
+		string err = "Table entry count says ";
+		err += str(B.get_entry_count());
+		err += " but actually counted ";
+		err += str(B.check_item_count);
+		B.failure(err.c_str());
+	    }
+
+	    if (B.sequential && !B.check_sequential) {
+		B.failure("Btree flagged as sequential but isn't");
+	    }
+	    if (!B.sequential && B.check_sequential) {
+		out << "Note: Btree not flagged as sequential, but is (not an error)" << endl;
+	    }
 	}
     }
     if (opts) out << "B-tree checked okay" << endl;

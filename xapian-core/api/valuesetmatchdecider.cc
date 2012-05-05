@@ -1,5 +1,5 @@
-/** \file valuesetmatchdecider.cc
- *  \brief MatchDecider subclass for filtering results by value.
+/** @file valuesetmatchdecider.cc
+ * @brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Limited
  * Copyright 2009 Olly Betts

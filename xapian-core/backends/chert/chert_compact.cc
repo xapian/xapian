@@ -1,7 +1,7 @@
 /** @file chert_compact.cc
  * @brief Compact a chert database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,16 +29,14 @@
 #include <cstdio>
 
 #include "safeerrno.h"
-#include <sys/types.h>
-#include "safesysstat.h"
 
 #include "chert_table.h"
 #include "chert_compact.h"
 #include "chert_cursor.h"
+#include "filetests.h"
 #include "internaltypes.h"
 #include "pack.h"
-#include "utils.h"
-#include "valuestats.h"
+#include "backends/valuestats.h"
 
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
@@ -265,7 +263,10 @@ merge_postlists(Xapian::Compactor & compactor,
 	}
     }
 
-    {
+    // Don't write the metainfo key for a totally empty database.
+    if (last_docid) {
+	if (doclen_lbound > doclen_ubound)
+	    doclen_lbound = doclen_ubound;
 	string tag;
 	pack_uint(tag, last_docid);
 	pack_uint(tag, doclen_lbound);
@@ -838,9 +839,9 @@ compact_chert(Xapian::Compactor & compactor,
 	    s += t->name;
 	    s += '.';
 
-	    struct stat sb;
-	    if (stat(s + "DB", &sb) == 0) {
-		in_size += sb.st_size / 1024;
+	    off_t db_size = file_size(s + "DB");
+	    if (errno == 0) {
+		in_size += db_size / 1024;
 		output_will_exist = true;
 		++inputs_present;
 	    } else if (errno != ENOENT) {
@@ -910,9 +911,9 @@ compact_chert(Xapian::Compactor & compactor,
 
 	off_t out_size = 0;
 	if (!bad_stat) {
-	    struct stat sb;
-	    if (stat(dest + "DB", &sb) == 0) {
-		out_size = sb.st_size / 1024;
+	    off_t db_size = file_size(dest + "DB");
+	    if (errno == 0) {
+		out_size = db_size / 1024;
 	    } else {
 		bad_stat = (errno != ENOENT);
 	    }
@@ -932,8 +933,10 @@ compact_chert(Xapian::Compactor & compactor,
 		    delta = out_size - in_size;
 		    status = "INCREASED by ";
 		}
-		status += str(100 * delta / in_size);
-		status += "% ";
+		if (in_size) {
+		    status += str(100 * delta / in_size);
+		    status += "% ";
+		}
 		status += str(delta);
 		status += "K (";
 		status += str(in_size);

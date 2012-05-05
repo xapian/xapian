@@ -1,9 +1,9 @@
-/** \file database.h
- * \brief API for working with Xapian databases
+/** @file database.h
+ * @brief API for working with Xapian databases
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #ifndef XAPIAN_INCLUDED_DATABASE_H
 #define XAPIAN_INCLUDED_DATABASE_H
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -111,11 +112,15 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	Database(const Database &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const Database &other);
 
@@ -138,11 +143,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Close the database.
 	 *
-	 *  This closes the database and releases all file handles held by the
-	 *  database.
+	 *  This closes the database and closes all its file handles.
 	 *
-	 *  This cannot be undone - in particular, calling reopen() after
-	 *  closing a database will not reopen it, but will instead throw a
+	 *  For a WritableDatabase, if a transaction is active it will be
+	 *  aborted, while if no transaction is active commit() will be
+	 *  implicitly called.  Also the write lock is released.
+	 *
+	 *  Closing a database cannot be undone - in particular, calling
+	 *  reopen() after close() will not reopen it, but will instead throw a
 	 *  Xapian::DatabaseError exception.
 	 *
 	 *  Calling close() again on a database which has already been closed
@@ -164,6 +172,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  object associated with a Database, when in many cases they are
 	 *  working on data which has already been loaded and so they are able
 	 *  to just behave correctly.
+	 *
+	 *  This method was added in Xapian 1.1.0.
 	 */
 	virtual void close();
 
@@ -173,10 +183,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 *
-	 *  If the term name is the empty string, the iterator returned
-	 *  will list all the documents in the database.  Such an iterator
-	 *  will always return a WDF value of 1, since there is no obvious
-	 *  meaning for this quantity in this case.
+	 *  @param tname	The termname to iterate postings for.  If the
+	 *			term name is the empty string, the iterator
+	 *			returned will list all the documents in the
+	 *			database.  Such an iterator will always return
+	 *			a WDF value of 1, since there is no obvious
+	 *			meaning for this quantity in this case.
 	 */
 	PostingIterator postlist_begin(const std::string &tname) const;
 
@@ -188,6 +200,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
+	 *
+	 *  @param did	The document id of the document to iterate terms for.
 	 */
 	TermIterator termlist_begin(Xapian::docid did) const;
 
@@ -254,9 +268,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Check if a given term exists in the database.
 	 *
-	 *  Return true if and only if the term exists in the database.
-	 *  This is the same as (get_termfreq(tname) != 0), but will often be
-	 *  more efficient.
+	 *  @param tname	The term to test the existence of.
+	 *
+	 *  @return	true if and only if the term exists in the database.
+	 *		This is the same as (get_termfreq(tname) != 0), but
+	 *		will often be more efficient.
 	 */
 	bool term_exists(const std::string & tname) const;
 
@@ -467,6 +483,30 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  contain the UUIDs of all the sub-databases.
 	 */
 	std::string get_uuid() const;
+
+	/** Check the integrity of a database or database table.
+	 *
+	 *  This method is currently experimental, and may change incompatibly
+	 *  or possibly even be removed.  Feedback on how well it works and
+	 *  how it might be improved are welcome.
+	 *
+	 *  @param path	Path to database or table
+	 *  @param opts	Options to use for check
+	 *  @param out	std::ostream to write output to
+	 */
+	static size_t check(const std::string & path, int opts,
+			    std::ostream &out);
+
+	/** Check the integrity of a database or database table.
+	 *
+	 *  This method is currently experimental, and may change incompatibly
+	 *  or possibly even be removed.  Feedback on how well it works and
+	 *  how it might be improved are welcome.
+	 *
+	 *  @param path	Path to database or table
+	 *  @param opts	Options to use for check
+	 */
+	static size_t check(const std::string & path, int opts);
 };
 
 /** This class provides read/write access to a database.
@@ -475,9 +515,15 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
     public:
 	/** Destroy this handle on the database.
 	 *
-	 *  If there are no copies of this object remaining, the database
-	 *  will be closed.  If there are any transactions in progress
-	 *  these will be aborted as if cancel_transaction had been called.
+	 *  If no other handles to this database remain, the database will be
+	 *  closed.
+	 *
+	 *  If a transaction is active cancel_transaction() will be implicitly
+	 *  called; if no transaction is active commit() will be implicitly
+	 *  called, but any exception will be swallowed (because throwing
+	 *  exceptions in C++ destructors is problematic).  If you aren't using
+	 *  transactions and want to know about any failure to commit changes,
+	 *  call commit() explicitly before the destructor gets called.
 	 */
 	virtual ~WritableDatabase();
 
@@ -515,6 +561,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	WritableDatabase(const WritableDatabase &other);
 
@@ -524,6 +572,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  Note that only an WritableDatabase may be assigned to an
 	 *  WritableDatabase: an attempt to assign a Database is caught
 	 *  at compile-time.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const WritableDatabase &other);
 
@@ -555,6 +605,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  conservative, and if you have a machine with plenty of memory,
 	 *  you can improve indexing throughput dramatically by setting
 	 *  XAPIAN_FLUSH_THRESHOLD in the environment to a larger value.
+	 *
+	 *  This method was new in Xapian 1.1.0 - in earlier versions it was
+	 *  called flush().
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
@@ -601,6 +654,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  were pending before the transaction began will also be discarded.
 	 *
 	 *  Transactions aren't currently supported by the InMemory backend.
+	 *
+	 *  @param flushed	Is this a flushed transaction?  By default
+	 *			transactions are "flushed", which means that
+	 *			committing a transaction will ensure those
+	 *			changes are permanently written to the
+	 *			database.  By contrast, unflushed transactions
+	 *			only ensure that changes within the transaction
+	 *			are either all applied or all aren't.
 	 *
 	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
@@ -779,11 +840,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  document.add_term(unique_term) first when using replace_document()
 	 *  in this way.
 	 *
-	 *  Another possible use is to allow groups of documents to be marked for
-	 *  later deletion - for example, you could add a "deletion date" term
-	 *  to documents at index time and use this method to easily and efficiently
-	 *  delete all documents due for deletion on a particular date.
-	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see commit() for more details.
 	 *
@@ -830,22 +886,26 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
 	/** Add a synonym for a term.
 	 *
-	 *  If @a synonym is already a synonym for @a term, then no action is
-	 *  taken.
+	 *  @param term		The term to add a synonym for.
+	 *  @param synonym	The synonym to add.  If this is already a
+	 *			synonym for @a term, then no action is taken.
 	 */
 	void add_synonym(const std::string & term,
 			 const std::string & synonym) const;
 
 	/** Remove a synonym for a term.
 	 *
-	 *  If @a synonym isn't a synonym for @a term, then no action is taken.
+	 *  @param term		The term to remove a synonym for.
+	 *  @param synonym	The synonym to remove.  If this isn't currently
+	 *			a synonym for @a term, then no action is taken.
 	 */
 	void remove_synonym(const std::string & term,
 			    const std::string & synonym) const;
 
 	/** Remove all synonyms for a term.
 	 *
-	 *  If @a term has no synonyms, no action is taken.
+	 *  @param term		The term to remove all synonyms for.  If the
+	 *			term has no synonyms, no action is taken.
 	 */
 	void clear_synonyms(const std::string & term) const;
 
@@ -907,6 +967,45 @@ const int DB_CREATE = 2;
 const int DB_CREATE_OR_OVERWRITE = 3;
 /** Open for read/write; fail if no db exists. */
 const int DB_OPEN = 4;
+
+/** Show a short-format display of the B-tree contents.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHORT_TREE = 1;
+
+/** Show a full display of the B-tree contents.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_FULL_TREE = 2;
+
+/** Show the bitmap for the B-tree.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHOW_BITMAP = 4;
+
+/** Show statistics for the B-tree.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHOW_STATS = 8;
+
+/** Fix problems.
+ *
+ *  Currently this is supported for chert, and will:
+ *
+ *    * regenerate the "iamchert" file if it isn't valid (so if it is lost, you
+ *      can just create it empty and then "fix problems").
+ *
+ *    * regenerate base files (currently the algorithm for finding the root
+ *      block may not work if there was a change partly written but not
+ *      committed).
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_FIX = 16;
 
 }
 

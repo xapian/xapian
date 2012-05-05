@@ -25,8 +25,6 @@
 
 #include <xapian.h>
 
-#include "utils.h"
-
 #ifdef HAVE_VALGRIND
 # include <valgrind/memcheck.h>
 #endif

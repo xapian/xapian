@@ -19,6 +19,7 @@ TESTS = smoketest.py pythontest.py
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	module_top.py \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \
 	smoketest2.py smoketest3.py \
@@ -57,10 +58,12 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 # versions so we can't let the .pyc and .pyo files get written there.  Hence we
 # copy the .py file to the build directory from wherever it actually is and use
 # the copy.  We also rename the copy to __init__.py so that it can be installed
-# in a "xapian" directory and be treated as a package.
+# in a "xapian" directory and be treated as a package.  Finally, we take this
+# opportunity to insert a module doc string at the top of the file.
 xapian/__init__.py: modern/xapian.py
 	-test -d xapian || mkdir xapian
-	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py xapian/__init__.py
+	cat '$(srcdir)/module_top.py' `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py > xapian/__init__.pyT
+	mv xapian/__init__.pyT xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken __init__.pyc or __init__.pyo.

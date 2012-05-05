@@ -10,6 +10,8 @@
 /config.log
 /config.status
 /config.sub
+/doxygen-xml/
+/doxygen_xml.conf
 /install-sh
 /libtool
 /ltmain.sh

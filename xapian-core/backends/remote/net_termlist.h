@@ -1,7 +1,8 @@
-/* net_termlist.h
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2006,2007,2009,2010 Olly Betts
+/** @file net_termlist.h
+ * @brief Termlist in a remote db
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003,2006,2007,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +27,8 @@
 
 #include <xapian/types.h>
 #include <xapian/error.h>
-#include "termlist.h"
-#include "expandweight.h"
+#include "api/termlist.h"
+#include "expand/expandweight.h"
 #include "remote-database.h"
 
 using namespace std;

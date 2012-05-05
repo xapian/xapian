@@ -32,6 +32,7 @@ namespace Xapian {
     class Weight;
     class PostingSource;
     class MatchSpy;
+    class LatLongMetric;
 }
 
 class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
@@ -46,6 +47,9 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     /// Registered match spies.
     std::map<std::string, Xapian::MatchSpy *> matchspies;
 
+    /// Registered lat-long metrics.
+    std::map<std::string, Xapian::LatLongMetric *> lat_long_metrics;
+
     /// Add the standard subclasses provided in the API.
     void add_defaults();
 
@@ -57,6 +61,9 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
 
     /// Clear all registered match spies.
     void clear_match_spies();
+
+    /// Clear all registered lat-long metrics.
+    void clear_lat_long_metrics();
 
   public:
     Internal();

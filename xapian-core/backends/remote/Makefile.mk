@@ -4,6 +4,7 @@ EXTRA_DIST +=\
 
 if BUILD_BACKEND_REMOTE
 noinst_HEADERS +=\
+	backends/remote/remote-database.h\
 	backends/remote/remote-document.h\
 	backends/remote/net_postlist.h\
 	backends/remote/net_termlist.h

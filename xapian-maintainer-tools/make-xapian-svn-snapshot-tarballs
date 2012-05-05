@@ -247,7 +247,9 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode 2>&1`;
+    # On atreus, javac keeps going into memory eating loops, so don't try to
+    # build the java bindings.
+    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode --without-java 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** configure failed for '$tag':";
@@ -289,7 +291,7 @@ foreach my $tag (@ARGV) {
 	    }
 	}
 	return unless -f $File::Find::name and (stat _)[8] < $timestamp;
-	return if $_ eq '.svnignore';
+	return if $_ eq '.gitignore';
 	return if $_ eq 'config.h.in~';
 	return if $_ eq 'NEWS.SKELETON';
 	return if $f eq 'README';
@@ -298,7 +300,7 @@ foreach my $tag (@ARGV) {
 	print "Unused during make: $f\n";
     }
     # FIXME: reenable this but fixed
-    # find(\&check_unused_files_from_build, '../xapian');
+    find(\&check_unused_files_from_build, '../xapian');
 
     my $lib = (<xapian-core/.libs/libxapian*.so>)[0];
     my $unstripped_so = -s $lib;
@@ -386,11 +388,11 @@ foreach my $tag (@ARGV) {
 	}
     }
     chdir("..");
+    system("rm -rf xapian/search-xapian/Search-Xapian-*");
     close LOG;
     # Expire logs more than 10 days old
     unlink grep {-M $_ > 10} glob 'snapshot.log.*';
 }
 
 system("/home/olly/bin/plot-sizes");
-system("/home/olly/bin/plot-sizes-two");
 exit($status);

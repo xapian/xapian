@@ -34,9 +34,7 @@
 #include <pwd.h> // For getpwuid().
 #endif
 
-#ifdef HAVE_MAGIC_H
 #include <magic.h>
-#endif
 
 #include "common/noreturn.h"
 
@@ -48,9 +46,7 @@ class DirectoryIterator {
     static uid_t euid;
 #endif
 
-#ifdef HAVE_MAGIC_H
     static magic_t magic_cookie;
-#endif
 
     std::string path;
     std::string::size_type path_len;
@@ -207,11 +203,7 @@ class DirectoryIterator {
 #endif
     }
 
-#ifdef HAVE_MAGIC_H
     std::string get_magic_mimetype();
-#else
-    std::string get_magic_mimetype() { return std::string(); }
-#endif
 
     std::string file_to_string() {
 	build_path();

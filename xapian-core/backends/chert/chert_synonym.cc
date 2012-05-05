@@ -1,7 +1,7 @@
 /** @file chert_synonym.cc
  * @brief Synonym data for a chert database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "chert_cursor.h"
 #include "debuglog.h"
 #include "stringutils.h"
-#include "vectortermlist.h"
+#include "api/vectortermlist.h"
 
 #include <set>
 #include <string>

@@ -30,7 +30,6 @@
 #include "apitest.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 
 #include "autoptr.h"
 #include <list>
@@ -110,6 +109,8 @@ DEFINE_TESTCASE(emptyquery3, !backend) {
 	tout << qcombine.get_description() << endl;
 	Xapian::Query qcombine2(ops[i], q, empty);
 	tout << qcombine2.get_description() << endl;
+	Xapian::Query qcombine3(ops[i], empty, empty);
+	tout << qcombine3.get_description() << endl;
     }
 
     return true;
@@ -183,27 +184,18 @@ DEFINE_TESTCASE(querylen2, !backend) {
 
 // tests that queries validate correctly
 DEFINE_TESTCASE(queryvalid1, !backend) {
-    vector<Xapian::Query> v1;
-    // Need two arguments
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   Xapian::Query(Xapian::Query::OP_AND_NOT, v1.begin(), v1.end()));
-    tout << "ANDNOT () checked" << endl;
-    v1.push_back(Xapian::Query("bad"));
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   Xapian::Query(Xapian::Query::OP_AND_NOT, v1.begin(), v1.end()));
-    tout << "ANDNOT (\"bad\") checked" << endl;
-    v1.clear();
-    v1.push_back(Xapian::Query());
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   Xapian::Query(Xapian::Query::OP_AND_NOT, v1.begin(), v1.end()));
-    tout << "ANDNOT (Xapian::Query()) checked" << endl;
     Xapian::Query q2(Xapian::Query::OP_XOR, Xapian::Query("foo"), Xapian::Query("bar"));
     tout << "XOR (\"foo\", \"bar\") checked" << endl;
     return true;
 }
 
-// tests that collapsing of queries includes subqueries
-DEFINE_TESTCASE(subqcollapse1, !backend) {
+/** Check we no longer flatten subqueries combined with the same operator.
+ *
+ *  Prior to 1.3.0 we did flatten these, but it's simpler to just handle this
+ *  when we convert the query to a PostList tree, and that works better with
+ *  Query objects being immutable.
+ */
+DEFINE_TESTCASE(dontflattensubqueries1, !backend) {
     Xapian::Query queries1[3] = {
 	Xapian::Query("wibble"),
 	Xapian::Query("wobble"),
@@ -219,12 +211,12 @@ DEFINE_TESTCASE(subqcollapse1, !backend) {
     vector<Xapian::Query> vec1(queries1, queries1 + 3);
     Xapian::Query myquery1(Xapian::Query::OP_OR, vec1.begin(), vec1.end());
     TEST_EQUAL(myquery1.get_description(),
-	       "Xapian::Query((wibble OR wobble OR jelly OR belly))");
+	       "Query((wibble OR wobble OR (jelly OR belly)))");
 
     vector<Xapian::Query> vec2(queries2, queries2 + 3);
     Xapian::Query myquery2(Xapian::Query::OP_AND, vec2.begin(), vec2.end());
     TEST_EQUAL(myquery2.get_description(),
-	       "Xapian::Query((jelly AND belly AND wibble AND wobble))");
+	       "Query(((jelly AND belly) AND wibble AND wobble))");
 
     return true;
 }
@@ -237,15 +229,6 @@ DEFINE_TESTCASE(emptyquerypart1, !backend) {
     TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).get_length() == 0);
     TEST(!Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).get_length() == 1);
-    return true;
-}
-
-DEFINE_TESTCASE(singlesubq1, !backend) {
-    vector<string> oneterm;
-    oneterm.push_back("solo");
-    Xapian::Query q_eliteset(Xapian::Query::OP_ELITE_SET, oneterm.begin(), oneterm.end(), 1);
-    Xapian::Query q_near(Xapian::Query::OP_NEAR, oneterm.begin(), oneterm.end(), 1);
-    Xapian::Query q_phrase(Xapian::Query::OP_PHRASE, oneterm.begin(), oneterm.end(), 1);
     return true;
 }
 
@@ -379,23 +362,7 @@ DEFINE_TESTCASE(uninitdb1, !backend) {
 DEFINE_TESTCASE(scaleweight3, !backend) {
     Xapian::Query matchnothing(Xapian::Query::MatchNothing);
     Xapian::Query query(Xapian::Query::OP_SCALE_WEIGHT, matchnothing, 3.0);
-    TEST_EQUAL(query.get_description(), "Xapian::Query()");
-    return true;
-}
-
-// Test that scaling by a weight close to 1 is optimised away.
-DEFINE_TESTCASE(scaleweight4, !backend) {
-    // Factor is a double which, when multiplied by its reciprocal, doesn't
-    // give exactly 1.0
-    double factor = 179.76931348623157e306;
-    volatile double recip = 1.0 / factor;
-    double nearly1 = factor * recip;
-
-    TEST_NOT_EQUAL(nearly1, 1.0);
-    Xapian::Query foo("foo");
-    Xapian::Query foo_nearly1(Xapian::Query::OP_SCALE_WEIGHT, foo, nearly1);
-    TEST_EQUAL(foo_nearly1.get_description(), "Xapian::Query(foo)");
-
+    TEST_EQUAL(query.get_description(), "Query()");
     return true;
 }
 

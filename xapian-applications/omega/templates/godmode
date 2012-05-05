@@ -31,7 +31,7 @@ $map{$allterms{$cgi{ID}},
 <H2>Document Values</H2>
 
 $set{values,$list{$map{$range{0,255},$if{$value{$_,$cgi{ID}},
-<tr><td>$_</td><td>$value{$_,$cgi{ID}}</td></tr>
+<tr><td>$_</td><td>$html{$value{$_,$cgi{ID}}}</td></tr>
 }},}}
 $if{$opt{values},
 <table><tr><th>Value#</th><th>Value</th></tr>
@@ -52,9 +52,9 @@ $if{$not{$msizeexact},
 $hitlist{<TR>
 <td align=right><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</A>&nbsp;</td>
 <TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
-<A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
+<A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</A></B><BR>
 <small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
-<A HREF="$html{$field{url}}">$html{$field{url}}</A><br>
+<A HREF="$html{$field{url}}">$prettyurl{$html{$field{url}}}</A><br>
 <hr></TD></TR>}
 </table>
 ${suppress next, prev, and page links if there's only one page}

@@ -1,7 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011 Olly Betts
+ * Copyright 2009,2010,2011,2012 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -26,9 +26,12 @@
 #include "api_replicate.h"
 
 #include <xapian.h>
+#include "api/replication.h"
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "fd.h"
+#include "filetests.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
@@ -36,7 +39,6 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
 #include "unixcmds.h"
 
 #include <sys/types.h>
@@ -54,17 +56,17 @@ static void rmtmpdir(const string & path) {
 
 static void mktmpdir(const string & path) {
     rmtmpdir(path);
-    if (mkdir(path, 0700) == -1 && errno != EEXIST) {
+    if (mkdir(path.c_str(), 0700) == -1 && errno != EEXIST) {
 	FAIL_TEST("Can't make temporary directory");
     }
 }
 
-static off_t file_size(const string & path) {
-    struct stat sb;
-    if (stat(path.c_str(), &sb)) {
+static off_t get_file_size(const string & path) {
+    off_t size = file_size(path);
+    if (errno) {
 	FAIL_TEST("Can't stat '" + path + "'");
     }
-    return sb.st_size;
+    return size;
 }
 
 static size_t do_read(int fd, char * p, size_t desired)
@@ -101,17 +103,17 @@ static void do_write(int fd, const char * p, size_t n)
 static off_t
 truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 {
-    int fdin = open(srcpath.c_str(), O_RDONLY);
+    FD fdin(open(srcpath.c_str(), O_RDONLY));
     if (fdin == -1) {
 	FAIL_TEST("Open failed (when opening '" + srcpath + "')");
     }
 
-    int fdout = open(destpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    FD fdout(open(destpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
     if (fdout == -1) {
 	FAIL_TEST("Open failed (when creating '" + destpath + "')");
     }
 
-#define BUFSIZE 1024
+    const int BUFSIZE = 1024;
     char buf[BUFSIZE];
     size_t total_bytes = 0;
     while (tocopy > 0) {
@@ -124,16 +126,15 @@ truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 	total_bytes += bytes;
 	do_write(fdout, buf, bytes);
     }
-#undef BUFSIZE
 
-    close(fdin);
-    close(fdout);
+    if (close(fdout) == -1)
+	FAIL_TEST("Error closing file");
 
     return total_bytes;
 }
 
 // Replicate from the master to the replica.
-// Returns the number of changsets which were applied.
+// Returns the number of changesets which were applied.
 static void
 get_changeset(const string & changesetpath,
 	      Xapian::DatabaseMaster & master,
@@ -142,12 +143,11 @@ get_changeset(const string & changesetpath,
 	      int expected_fullcopies,
 	      bool expected_changed)
 {
-    int fd = open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    FD fd(open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when creating a new changeset file at '"
 		  + changesetpath + "')");
     }
-    fdcloser fdc(fd);
     Xapian::ReplicationInfo info1;
     master.write_changesets_to_fd(fd, replica.get_revision_info(), &info1);
 
@@ -163,12 +163,11 @@ apply_changeset(const string & changesetpath,
 		int expected_fullcopies,
 		bool expected_changed)
 {
-    int fd = open(changesetpath.c_str(), O_RDONLY);
+    FD fd(open(changesetpath.c_str(), O_RDONLY));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when reading changeset file at '"
 		  + changesetpath + "')");
     }
-    fdcloser fdc(fd);
 
     int count = 1;
     replica.set_read_fd(fd);
@@ -439,7 +438,7 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 
     // Try applying truncated changesets of various different lengths.
     string brokenchangesetpath = tempdir + "/changeset_broken";
-    off_t filesize = file_size(changesetpath);
+    off_t filesize = get_file_size(changesetpath);
     off_t len = 10;
     off_t copylen;
     while (len < filesize) {

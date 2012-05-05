@@ -1,94 +1,143 @@
- 16029       olly Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
-
-backport fodder:
-
- 16029       olly Fri Aug 12 23:17:09 GMT 2011  Olly Betts <olly@survex.com>
-	* scriptindex.cc: MyHtmlParser::parse_html() no longer throws bool to
-	  stop parsing early, so we no longer need to catch it.
-
- 15951       olly Wed Aug 03 23:25:18 GMT 2011  Olly Betts <olly@survex.com>
-	* configure.ac: Sync changes from xapian-core: Don't pass -Wshadow for
-	  GCC < 4.1; don't pass -Wstrict-null-sentinel for GCC 4.0.x; only
-	  enable symbol visibility on platforms where it is supported; remove
-	  now superfluous check for GCC >= 3.  Also, add FIXME for enabling
-	  -Woverloaded-virtual.
-
- 15926       olly Wed Jul 27 02:35:39 GMT 2011  Olly Betts <olly@survex.com>
-	* scriptindex.cc: Add link to
-	  http://xapian.org/docs/omega/scriptindex.html to --help output (and
-	  so also to the man page which is generated from this).
-
- 15867       olly Mon Jul 04 06:08:47 GMT 2011  Olly Betts <olly@survex.com>
-	* omega.cc: If P had trailing spaces, we would remove all but one -
-	  fixed to remove all of them!
-
- 15783       olly Wed Jun 22 15:32:12 GMT 2011  Olly Betts <olly@survex.com>
-	* INSTALL: Pull in a few updates from the latest version of the
-	  automake document which this file was originally based on.
-	  Add in the missing copyright and licensing information.
-
-trunk only:
-
-backported:
-
-Omega 1.3.0 (2011-08-12):
+Omega 1.3.0 (2012-03-14):
 
 general:
 
+* Make libmagic a required dependency.
+
 documentation:
 
- 15603       olly Mon Jun 13 08:00:16 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/termprefixes.rst: Expand to document mapping a user prefix to
-	  multiple term prefixes.
+* docs/termprefixes.html: Document how to map a user prefix to multiple term
+  prefixes.
 
- 15596       olly Mon Jun 13 03:23:47 GMT 2011  Olly Betts <olly@survex.com>
-	* docs/overview.rst: Improve documentation of htdig_noindex.
+* docs/overview.html: Improve documentation of htdig_noindex.
 
 indexers:
 
 * omindex:
 
-	* omindex.cc: Index title with an 'S' prefix rather than no prefix.
-	* templates/query: Set up prefixes for 'author', 'title', and map
-	  no prefix so that terms from the title are still matched by default.
+  + Index title with an 'S' prefix rather than no prefix.
+
+  + If the document with the highest existing docid before the run was updated,
+    we were reporting it as "added", but now we correctly report it as
+    "updated".
+
+  + Catch and report std::exception explicitly, so failing to allocate memory
+    is no longer reported as "Unknown exception".
 
 * scriptindex:
 
-	* scriptindex.cc: Remove error warning that index=nopos was replaced
-	  with indexnopos - this was removed in 1.1.0 so there's been enough
-	  time to upgrade.
+  + Remove special error handling case noting that index=nopos was replaced
+    with indexnopos - this was removed in 1.1.0 so there's been enough time to
+    upgrade.
 
 omega:
 
-	* docs/omegascript.rst,query.cc: Allow mapping a query string prefix to
-	  more than one term prefix (which xapian-core has supported since
-	  1.0.4).
++ DEFAULTOP now defaults to AND rather than OR, since that matches what pretty
+  much every search engine does these days.  Closes ticket#512.
 
-	* docs/omegascript.rst,query.cc: Add support for per-prefix stemmers.
+* Allow mapping a query string prefix to more than one term prefix (which
+  xapian-core has supported since 1.0.4).
 
-	* docs/omegascript.rst,omega.cc,omega.h,query.cc,query.h: Add support
-	  for search inputs for multiple probabilistic prefixes.
+* Add support for search inputs for multiple probabilistic prefixes, with
+  support for per-prefix stemmers.
 
-	* query.cc: Drop legacy support for handling '.' separated terms in
-	  xP - that changed in Omega 0.9.7, which is approaching 5 years
-	  ago now.
+* Drop legacy support for handling '.' separated terms in xP - that changed in
+  Omega 0.9.7, more than 5 years ago now.
 
-	* query.cc: Remove support for OLDP CGI parameter which was superseded
-	  by xP approximately a decade ago, and isn't even documented.
+* Remove support for OLDP CGI parameter which was superseded by xP
+  approximately a decade ago, and isn't even documented!
+
+* Drop special handling for R-prefixed terms in $prettyterm - we stopped
+  generating these in Xapian 1.0.
 
 templates:
 
-testsuite:
+* templates/query:
 
-build system:
+  + We now map unprefixed queries to include S-prefixed terms to match the
+    change in omindex to prefixing terms from the title with S.  You may want
+    to make the same update to your own templates.
 
-portability:
+  + Set up prefixes for 'author:' and 'title:'.
 
 packaging:
 
- 15631       olly Mon Jun 13 13:49:14 GMT 2011  Olly Betts <olly@survex.com>
-	* xapian-omega.spec.in: We're ABI compatible within a release series
-	  so make dependency on xapian-core-libs >= rather than =.
+* xapian-omega.spec: We're ABI compatible within a release series so make
+  dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.9 (2012-03-08):
+
+documentation:
+
+* docs/overview.html:
+
+  + Document that libmagic is used to determine the MIME type if the extension
+    isn't known.  Partly addresses ticket#569.
+
+  + We now limit time as well as CPU and memory for external filters.
+
+indexers:
+
+* Our HTML parser now ignores sections bracketed by <!--UdmComment--> and
+  <!--/UdmComment-->, like we already do for <!--htdig_noindex-->.
+
+* omindex: Add more extensions to the default ignore list: bin dat db fon jar
+  lnk pyc pyd pyo sqlite sqlite3 sqlite-journal tmp ttf
+
+Omega 1.2.8 (2011-12-13):
+
+documentation:
+
+* scriptindex.cc: Add link to http://xapian.org/docs/omega/scriptindex.html to
+  --help output (and so also to the man page which is generated from this).
+
+* omegascript.html: Add note to discourage use of percentage scores.
+
+indexers:
+
+* omindex:
+
+  + If we don't get any data from an external filter for 5 minutes, give up -
+    it has probably ended up blocked indefinitely.
+
+  + Improve --help output (and man page which is generated from it).  Closes
+    bug#572.
+
+* scriptindex:
+
+  + If no rules are found in the index script, report an error and give up -
+    this is inevitably the result of a mistake, and adding empty documents to
+    the database isn't helpful.
+
+omega:
+
+  + Replace URL decoder with new implementation which handles various corner
+    cases better.  Fixes bug#578.
+
+  + If CGI parameter P has trailing spaces, we now remove them all rather than
+    leaving one.
+
+templates:
+
+* templates/query: HTML escape topterms.
+
+* templates/godmode: HTML escape the contents of document values.
+
+* templates/query: Don't show the percentage score in the default template.
+
+testsuite:
+
+* Add new urlenctest unit test of URL encoding and decoding.
+
+portability:
+
+* configure: Sync changes from xapian-core: Don't pass -Wshadow for GCC < 4.1;
+  don't pass -Wstrict-null-sentinel for GCC 4.0.x; only enable symbol
+  visibility on platforms where it is supported.
+
+packaging:
+
+* xapian-omega.spec: Package outlookmsg2html helper.
 
 Omega 1.2.7 (2011-08-10):
 
@@ -887,7 +936,7 @@ indexers:
   + The 'BOOLEAN' action now ignores an empty input rather than adding just the
     prefix as a term.
 
-  + The 'UNIQUE' action now issues an warning for empty input but otherwise
+  + The 'UNIQUE' action now issues a warning for empty input but otherwise
     ignores it.
 
 portability:

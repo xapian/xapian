@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2006,2007,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,26 +21,54 @@
 
 #include <config.h>
 
+#include <cfloat>
 #include <iostream>
+
+#include "testsuite.h"
 
 using namespace std;
 
+#define XAPIAN_UNITTEST
+
+// Utility code we use:
+#include "../common/str.cc"
+#include "../common/stringutils.cc"
+
+// Simpler version of TEST_EXCEPTION macro.
+#define TEST_EXCEPTION(TYPE, CODE) \
+    do { \
+	try { \
+	    CODE; \
+	    FAIL_TEST("Expected exception "#TYPE" not thrown"); \
+	} catch (const TYPE &) { \
+	} \
+    } while (0)
+
+// Code we're unit testing:
 #include "../common/fileutils.cc"
+#include "../common/serialise-double.cc"
+#include "../net/length.cc"
 
-// Currently the test harness drags in Xapian (for reporting Xapian::Error
-// exceptions, backendmanager-related stuff, and maybe other things, so we
-// can't use it here and have to make do with crude versions of what the test
-// harness does much better.
-// FIXME: Sort out the test harness so we can use it here.
+DEFINE_TESTCASE_(simple_exceptions_work1) {
+    try {
+	throw 42;
+    } catch (int val) {
+	TEST_EQUAL(val, 42);
+	return true;
+    }
+    return false;
+}
 
-#define TEST_EQUAL(A, B) do {\
-    const string & test_equal_a = (A);\
-    const string & test_equal_b = (B);\
-    if (test_equal_a != test_equal_b) {\
-	cout << test_equal_a << " != " << test_equal_b << endl;\
-	return false;\
-    }\
-} while (0)
+class TestException { };
+
+DEFINE_TESTCASE_(class_exceptions_work1) {
+    try {
+	throw TestException();
+    } catch (const TestException &) {
+	return true;
+    }
+    return false;
+}
 
 inline string
 r_r_p(string a, const string & b)
@@ -49,8 +77,7 @@ r_r_p(string a, const string & b)
     return a;
 }
 
-static bool test_resolverelativepath1()
-{
+DEFINE_TESTCASE_(resolverelativepath1) {
     TEST_EQUAL(r_r_p("/abs/o/lute", ""), "/abs/o/lute");
     TEST_EQUAL(r_r_p("/abs/o/lute", "/"), "/abs/o/lute");
     TEST_EQUAL(r_r_p("/abs/o/lute", "//"), "/abs/o/lute");
@@ -124,19 +151,170 @@ static bool test_resolverelativepath1()
     return true;
 }
 
-int main()
-try {
-    int result = 0;
+static void
+check_double_serialisation(double u)
+{
+    string encoded = serialise_double(u);
+    const char * ptr = encoded.data();
+    const char * end = ptr + encoded.size();
+    double v = unserialise_double(&ptr, end);
+    if (ptr != end || u != v) {
+	cout << u << " -> " << v << ", difference = " << v - u << endl;
+	cout << "FLT_RADIX = " << FLT_RADIX << endl;
+	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
+    }
+    TEST_EQUAL(static_cast<const void*>(ptr), static_cast<const void*>(end));
+}
 
-    cout << "resolverelativepath1 ... ";
-    if (test_resolverelativepath1()) {
-	cout << "ok" << endl;
-    } else {
-	cout << "FAIL" << endl;
-	result = 1;
+// Check serialisation of doubles.
+DEFINE_TESTCASE_(serialisedouble1) {
+    static const double test_values[] = {
+	3.14159265,
+	1e57,
+	123.1,
+	257.12,
+	1234.567e123,
+	255.5,
+	256.125,
+	257.03125,
+    };
+
+    check_double_serialisation(0.0);
+    check_double_serialisation(1.0);
+    check_double_serialisation(-1.0);
+    check_double_serialisation(DBL_MAX);
+    check_double_serialisation(-DBL_MAX);
+    check_double_serialisation(DBL_MIN);
+    check_double_serialisation(-DBL_MIN);
+
+    const double *p;
+    for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
+	double val = *p;
+	check_double_serialisation(val);
+	check_double_serialisation(-val);
+	check_double_serialisation(1.0 / val);
+	check_double_serialisation(-1.0 / val);
     }
 
-    return result;
+    return true;
+}
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+// Check serialisation of lengths.
+static bool test_serialiselength1()
+{
+    size_t n = 0;
+    while (n < 0xff000000) {
+	string s = encode_length(n);
+	const char *p = s.data();
+	const char *p_end = p + s.size();
+	size_t decoded_n = decode_length(&p, p_end, false);
+	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
+	TEST_EQUAL(n, decoded_n);
+	TEST_EQUAL(p_end - p, 0);
+	if (n < 5000) {
+	    ++n;
+	} else {
+	    n += 53643;
+	}
+    }
+
+    return true;
+}
+
+// Regression test: vetting the remaining buffer length
+static bool test_serialiselength2()
+{
+    // Special case tests for 0
+    {
+	string s = encode_length(0);
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 0);
+	    TEST(p == p_end);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 0);
+	    TEST_EQUAL(p_end - p, 1);
+	}
+    }
+    // Special case tests for 1
+    {
+	string s = encode_length(1);
+	TEST_EXCEPTION(Xapian_NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 1);
+	    TEST_EQUAL(p_end - p, 1);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == 1);
+	    TEST_EQUAL(p_end - p, 2);
+	}
+    }
+    // Nothing magic here, just test a range of odd and even values.
+    for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
+	string s = encode_length(n);
+	TEST_EXCEPTION(Xapian_NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s.append(n - 1, 'x');
+	TEST_EXCEPTION(Xapian_NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == n);
+	    TEST_EQUAL(size_t(p_end - p), n);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    TEST(decode_length(&p, p_end, true) == n);
+	    TEST_EQUAL(size_t(p_end - p), n + 1);
+	}
+    }
+
+    return true;
+}
+#endif
+
+static const test_desc tests[] = {
+    TESTCASE(simple_exceptions_work1),
+    TESTCASE(class_exceptions_work1),
+    TESTCASE(resolverelativepath1),
+    TESTCASE(serialisedouble1),
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    TESTCASE(serialiselength1),
+    TESTCASE(serialiselength2),
+#endif
+    END_OF_TESTCASES
+};
+
+int main(int argc, char **argv)
+try {
+    test_driver::parse_command_line(argc, argv);
+    return test_driver::run(tests);
 } catch (const char * e) {
     cout << e << endl;
     return 1;

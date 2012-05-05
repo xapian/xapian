@@ -197,10 +197,21 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
      */
     $class(const std::string \&msg_, const std::string \&context_, const char * error_string_)
 	: $parent(msg_, context_, "$code$class", error_string_) {}
-    /** General purpose constructor which allows setting errno. */
+    /** General purpose constructor.
+     *
+     *  \@param msg_		Message giving details of the error, intended
+     *				for human consumption.
+     *  \@param context_	Optional context information for this error.
+     *  \@param errno_		Optional errno value associated with this error.
+     */
     explicit $class(const std::string \&msg_, const std::string \&context_ = std::string(), int errno_ = 0)
 	: $parent(msg_, context_, "$code$class", errno_) {}
-    /** Construct from message and errno value. */
+    /** Construct from message and errno value.
+     *
+     *  \@param msg_		Message giving details of the error, intended
+     *				for human consumption.
+     *  \@param errno_		Optional errno value associated with this error.
+     */
     $class(const std::string \&msg_, int errno_)
 	: $parent(msg_, std::string(), "$code$class", errno_) {}
   protected:

@@ -1,7 +1,7 @@
 /** @file postlist.cc
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ PostingIterator::Internal::get_collapse_key() const
 PositionList *
 PostList::read_position_list()
 {
-    throw Xapian::InvalidOperationError("read_position_list() not meaningful for this PostingIterator");
+    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
 }
 
 PositionList *
@@ -65,7 +65,7 @@ PostList::open_position_list() const
 }
 
 PostList *
-PostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
+PostList::check(Xapian::docid did, double w_min, bool &valid)
 {
     valid = true;
     return skip_to(did, w_min);

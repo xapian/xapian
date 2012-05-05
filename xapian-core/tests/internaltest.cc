@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@
 
 #include <xapian.h>
 
-#include <cfloat>
 #include "safeerrno.h"
 
 #include <iostream>
@@ -39,18 +38,8 @@ using namespace std;
 
 #include "omassert.h"
 #include "pack.h"
-#include "serialise.h"
-#include "serialise-double.h"
+#include "../net/serialise.h"
 #include "str.h"
-
-static bool test_except1()
-{
-    try {
-	throw 1;
-    } catch (int) {
-    }
-    return true;
-}
 
 class Test_Exception {
     public:
@@ -228,8 +217,15 @@ static bool test_stringcomp1()
 static bool test_tostring1()
 {
     TEST_EQUAL(str(0), "0");
+    TEST_EQUAL(str(0u), "0");
+    TEST_EQUAL(str(1), "1");
+    TEST_EQUAL(str(1u), "1");
+    TEST_EQUAL(str(9), "9");
+    TEST_EQUAL(str(9u), "9");
     TEST_EQUAL(str(10), "10");
     TEST_EQUAL(str(10u), "10");
+    TEST_EQUAL(str(-1), "-1");
+    TEST_EQUAL(str(-9), "-9");
     TEST_EQUAL(str(-10), "-10");
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");
@@ -252,175 +248,6 @@ static bool test_tostring1()
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of lengths.
-static bool test_serialiselength1()
-{
-    size_t n = 0;
-    while (n < 0xff000000) {
-	string s = encode_length(n);
-	const char *p = s.data();
-	const char *p_end = p + s.size();
-	size_t decoded_n = decode_length(&p, p_end, false);
-	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
-	TEST_EQUAL(n, decoded_n);
-	TEST_EQUAL(p_end - p, 0);
-	if (n < 5000) {
-	    ++n;
-	} else {
-	    n += 53643;
-	}
-    }
-
-    return true;
-}
-
-// Regression test: vetting the remaining buffer length
-static bool test_serialiselength2()
-{
-    // Special case tests for 0
-    {
-	string s = encode_length(0);
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 0);
-	    TEST(p == p_end);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 0);
-	    TEST_EQUAL(p_end - p, 1);
-	}
-    }
-    // Special case tests for 1
-    {
-	string s = encode_length(1);
-	TEST_EXCEPTION(Xapian::NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
-	    TEST_EQUAL(p_end - p, 1);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
-	    TEST_EQUAL(p_end - p, 2);
-	}
-    }
-    // Nothing magic here, just test a range of odd and even values.
-    for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
-	string s = encode_length(n);
-	TEST_EXCEPTION(Xapian::NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	);
-	s.append(n-1, 'x');
-	TEST_EXCEPTION(Xapian::NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	    TEST_EQUAL(size_t(p_end - p), n);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
-	    TEST_EQUAL(size_t(p_end - p), n + 1);
-	}
-    }
-
-    return true;
-}
-#endif
-
-static void check_double_serialisation(double u)
-{
-    string encoded = serialise_double(u);
-    const char * ptr = encoded.data();
-    const char * end = ptr + encoded.size();
-    double v = unserialise_double(&ptr, end);
-    if (ptr != end || u != v) {
-	tout << u << " -> " << v << ", difference = " << v - u << endl;
-	tout << "FLT_RADIX = " << FLT_RADIX << endl;
-	tout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
-    }
-    TEST(ptr == end);
-    TEST_EQUAL(u, v);
-}
-
-// Check serialisation of doubles.
-static bool test_serialisedouble1()
-{
-    static const double test_values[] = {
-	3.14159265,
-	1e57,
-	123.1,
-	257.12,
-	1234.567e123,
-	255.5,
-	256.125,
-	257.03125,
-    };
-
-    check_double_serialisation(0.0);
-    check_double_serialisation(1.0);
-    check_double_serialisation(-1.0);
-    check_double_serialisation(DBL_MAX);
-    check_double_serialisation(-DBL_MAX);
-    check_double_serialisation(DBL_MIN);
-    check_double_serialisation(-DBL_MIN);
-
-    const double *p;
-    for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
-	double val = *p;
-	check_double_serialisation(val);
-	check_double_serialisation(-val);
-	check_double_serialisation(1.0 / val);
-	check_double_serialisation(-1.0 / val);
-    }
-
-    return true;
-}
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of documents.
-static bool test_serialisedoc1()
-{
-    Xapian::Document doc;
-
-    string s;
-
-    s = serialise_document(doc);
-    TEST(serialise_document(unserialise_document(s)) == s);
-
-    doc.set_data("helllooooo");
-    doc.add_term("term");
-    doc.add_value(1, "foo");
-
-    s = serialise_document(doc);
-    TEST(serialise_document(unserialise_document(s)) == s);
-
-    return true;
-}
-
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
 {
@@ -566,7 +393,6 @@ static bool test_pack_uint_preserving_sort1()
 
 /// The lists of tests to perform
 static const test_desc tests[] = {
-    {"except1",			test_except1},
     {"exception1",		test_exception1},
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
@@ -574,11 +400,7 @@ static const test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"tostring1",		test_tostring1},
-    {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    {"serialiselength1",	test_serialiselength1},
-    {"serialiselength2",	test_serialiselength2},
-    {"serialisedoc1",		test_serialisedoc1},
     {"serialiseerror1",		test_serialiseerror1},
 #endif
     {"static_assert1",		test_static_assert1},

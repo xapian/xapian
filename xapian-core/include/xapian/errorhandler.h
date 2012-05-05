@@ -1,7 +1,7 @@
-/** \file errorhandler.h
- *  \brief Decide if a Xapian::Error exception should be ignored.
+/** @file errorhandler.h
+ * @brief Decide if a Xapian::Error exception should be ignored.
  */
-/* Copyright (C) 2003,2006,2007 Olly Betts
+/* Copyright (C) 2003,2006,2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
 #define XAPIAN_INCLUDED_ERRORHANDLER_H
 
+#include <xapian/deprecated.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -49,7 +50,7 @@ class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
 
     /** Perform user-specified error handling.
      *
-     *  This virtual method must be defined by the APU user to specify
+     *  This virtual method must be defined by the API user to specify
      *  how a Xapian::Error is to be handled.
      *
      *  If you want execution to continue (where possible), then return
@@ -66,7 +67,7 @@ class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
      *
      *  @return  true to attempt to continue; false to rethrow the error.
      */
-    virtual bool handle_error(Xapian::Error &error) = 0;
+    XAPIAN_DEPRECATED_EX(virtual bool handle_error(Xapian::Error &error)) = 0;
 
   public:
     /// Default constructor.

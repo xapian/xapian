@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include "replicatetcpclient.h"
+#include "net/replicatetcpclient.h"
 
 #include <xapian.h>
 

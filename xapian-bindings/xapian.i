@@ -34,21 +34,13 @@
 
 // xapian/query.h:
 
-#ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
-%ignore Query(Query::op op_,
-              XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-              termcount parameter = 0);
+#if !defined XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP && !defined SWIGPERL && !defined SWIGCSHARP
 %extend Xapian::Query {
-#ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
-	    /* For some languages we handle strings in the vector<Query>
-	     * case, so we don't need to wrap this ctor. */
-
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator. */
 	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
-#endif
 
 	    /** Constructs a query from a vector of subqueries merged with the
 	     *  specified operator. */

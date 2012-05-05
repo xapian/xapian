@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,23 +28,23 @@
 #include "xapian/error.h"
 #include "xapian/version.h"
 
-#include "database.h"
-#include "databasereplicator.h"
+#include "backends/database.h"
+#include "backends/databasereplicator.h"
 #include "debuglog.h"
+#include "filetests.h"
 #include "fileutils.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 #include "omassert.h"
 #include "realtime.h"
-#include "remoteconnection.h"
+#include "net/remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
-#include "serialise.h"
+#include "net/length.h"
 #include "str.h"
-#include "utils.h"
 
 #include "autoptr.h"
 #include <cstdio> // For rename().
@@ -334,7 +334,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 #if ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Chert backend to be enabled");
 #else
-    if (mkdir(path, 0777) == 0) {
+    if (mkdir(path.c_str(), 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
 	// stub database, and point it to a new database.
 	//
@@ -403,7 +403,7 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
     // updates (probably due to not having changesets available, or the remote
     // database being replaced by a new database).
     removedir(offline_path);
-    if (mkdir(offline_path, 0777)) {
+    if (mkdir(offline_path.c_str(), 0777)) {
 	throw Xapian::DatabaseError("Cannot make directory '" +
 				    offline_path + "'", errno);
     }

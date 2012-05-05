@@ -168,7 +168,7 @@ try {
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
-	cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
+	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
     }
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {

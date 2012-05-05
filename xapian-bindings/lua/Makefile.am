@@ -2,7 +2,7 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = LUA_CPATH=".libs/?.so" $(LUA)
+TESTS_ENVIRONMENT = LUA_CPATH='.libs/?$(LUA_SO)' $(LUA)
 
 ## Test programs to be run
 TESTS = smoketest.lua
@@ -22,14 +22,13 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	eval `grep '^dlname=' $(lualib_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(lualibdir)/"$$dlname"
+	rm -f $(DESTDIR)$(lualibdir)/xapian$(LUA_SO)
 
 AM_CPPFLAGS = @LUA_CPPFLAGS@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+xapian_la_LDFLAGS = -avoid-version -module -shrext "$(LUA_SO)" $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
-xapian_la_LIBADD = $(XAPIAN_LIBS) $(LUA_LIBS)
+xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
 

@@ -114,7 +114,8 @@ class XapianSWIGQueryItor {
     XapianSWIGQueryItor()
 	: ht(NULL) { }
 
-    XapianSWIGQueryItor(zval ** input TSRMLS_DC) : ht(Z_ARRVAL_PP(input)) {
+    void begin(zval ** input TSRMLS_DC) {
+	ht = Z_ARRVAL_PP(input);
 	TSRMLS_SET_CTX(swig_zts_ctx);
 	zend_hash_internal_pointer_reset_ex(ht, &i);
 	get_current_data();
@@ -168,7 +169,7 @@ fail: // Label which SWIG_PHP_Error needs.
     // $1 and $2 are default initialised where SWIG declares them.
     if (Z_TYPE_PP($input) == IS_ARRAY) {
 	// The typecheck typemap should have ensured this is an array.
-	$1 = XapianSWIGQueryItor($input TSRMLS_CC);
+	$1.begin($input TSRMLS_CC);
     }
 }
 
