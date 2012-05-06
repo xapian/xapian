@@ -1,3 +1,8 @@
+Sun May 06 11:22:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/letor.h,letor/letor_internal.h: Update for the
+	  RefCntPtr -> intrusive_ptr change.
+
 Wed May 02 03:44:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/weightinternal.cc: Using AssertEq() on NULL doesn't compile,

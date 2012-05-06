@@ -28,7 +28,7 @@ using namespace std;
 
 namespace Xapian {
 
-class Letor::Internal : public Xapian::Internal::RefCntBase {
+class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
     Database letor_db;
     Query letor_query;
