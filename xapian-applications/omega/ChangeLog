@@ -1,3 +1,8 @@
+Tue May 08 04:58:57 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* htmlparse.cc,htmlparsetest.cc: Add support for CDATA to HTML parser.
+
 Tue May 08 04:48:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
