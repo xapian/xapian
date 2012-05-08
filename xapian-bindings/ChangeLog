@@ -1,3 +1,10 @@
+Tue May 08 09:08:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* lua/smoketest.lua: Improve expect() function to take an option
+	  failure message, to report how values differed, and to compare tables
+	  in a smarter way.  Part of patch from istr in #593.
+
 Tue May 08 09:03:46 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
