@@ -1,3 +1,8 @@
+Tue May 08 11:30:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/fileutils.cc: Add safeunistd.h for mkdir, required by GCC
+	  4.7 (reported by Gaurav Arora).
+
 Wed May 02 03:44:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/weightinternal.cc: Using AssertEq() on NULL doesn't compile,
