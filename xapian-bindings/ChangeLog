@@ -1,3 +1,10 @@
+Tue May 08 09:03:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/thread.t,perl/t/writabledatabase.t: Remove #! lines with -W
+	  to fix "Name "Test::More::TODO" used only once: possible typo at
+	  /usr/share/perl/5.14/Exporter/Heavy.pm line 190." warnings.
+
 Tue May 08 09:02:09 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
