@@ -95,7 +95,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// The within-query-frequency of this term.
     Xapian::termcount wqf_;
 
-    /// An lower bound on the maximum length of any document in the database.
+    /// A lower bound on the minimum length of any document in the database.
     Xapian::termcount doclength_lower_bound_;
 
     /// An upper bound on the maximum length of any document in the database.
@@ -289,7 +289,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// The within-query-frequency of this term.
     Xapian::termcount get_wqf() const { return wqf_; }
 
-    /** An lower bound on the maximum length of any document in the database.
+    /** An upper bound on the maximum length of any document in the database.
      *
      *  This should only be used by get_maxpart() and get_maxextra().
      */
@@ -297,7 +297,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return doclength_upper_bound_;
     }
 
-    /** An upper bound on the maximum length of any document in the database.
+    /** A lower bound on the minimum length of any document in the database.
+     *
+     *  This bound does not include any zero-length documents.
      *
      *  This should only be used by get_maxpart() and get_maxextra().
      */

@@ -1,3 +1,12 @@
+Tue May 08 06:53:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/weight.h: Fix switched lower and upper in doc comments
+	  for Weight methods get_doclength_lower_bound() and
+	  get_doclength_upper_bound().  Correct maximum to minimum in
+	  get_doclength_lower_bound() comment and note that this excludes zero
+	  length documents.  Fix "An lower" to "A lower".
+
 Tue May 08 06:29:38 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
