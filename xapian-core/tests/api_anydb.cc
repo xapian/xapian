@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -2303,13 +2303,17 @@ DEFINE_TESTCASE(tradweight1, backend) {
     enquire.set_query(Xapian::Query("word") );
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2);
 
     enquire.set_weighting_scheme(Xapian::TradWeight(0));
-    enquire.set_query(Xapian::Query("word") );
+    enquire.set_query(Xapian::Query("this") );
 
     mset = enquire.get_mset(0, 25);
-    // FIXME: should check that TradWeight(0) means wdf and doc length really
-    // don't affect the weights as stated in the documentation.
+    TEST_EQUAL(mset.size(), 6);
+
+    // Check that TradWeight(0) means wdf and doc length really don't affect
+    // the weights as stated in the documentation.
+    TEST_EQUAL(mset[0].get_weight(), mset[5].get_weight());
 
     return true;
 }

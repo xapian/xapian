@@ -1,3 +1,9 @@
+Tue May 08 07:20:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_anydb.cc: Fix tradweight1 to test that TradWeight(0)
+	  means that wdf and doc length don't affect the weight of a term.
+
 Tue May 08 07:16:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
