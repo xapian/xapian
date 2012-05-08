@@ -1,3 +1,9 @@
+Tue May 08 06:29:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/termgentest.cc: Add test coverage for discarding of terms > 64
+	  bytes by TermGenerator.
+
 Wed Apr 25 11:28:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
