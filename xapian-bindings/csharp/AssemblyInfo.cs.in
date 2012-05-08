@@ -1,7 +1,7 @@
 /* @configure_input@
  * AssemblyInfo.cs.in - set attributes for the XapianSharp.dll assembly.
  *
- * Copyright (c) 2006,2011 Olly Betts
+ * Copyright (c) 2006,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,13 +25,6 @@ using System.Reflection;
 
 // We have the private key, so don't need to delay signing.
 [assembly: AssemblyDelaySign(false)]
-
-// We specify both AssemblyKeyName and AssemblyKeyFile.  This means that if
-// this is the first time we're signing, the key in the file is used and
-// then stored in the key container.  From then on, the key in the container
-// is used.
-[assembly: AssemblyKeyFile("XapianSharp.snk")]
-[assembly: AssemblyKeyName("Xapian Signing Key")]
 
 // Informational attributes.
 [assembly: AssemblyCompany("The Xapian Project")]

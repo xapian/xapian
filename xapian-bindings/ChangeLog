@@ -1,3 +1,10 @@
+Tue May 08 10:16:32 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* csharp/AssemblyInfo.cs.in,csharp/Makefile.am: Use -keyfile and
+	  -keycontainer options to the C# compiler, because it warns us
+	  to do this instead of setting them in AssemblyInfo.cs.
+
 Tue May 08 09:59:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
