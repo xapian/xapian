@@ -1,3 +1,10 @@
+Tue May 08 10:26:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Make sure the ruby subdirectory exists before
+	  trying to create ruby/rubyio.h, so this works in a VPATH
+	  build from a clean tree.
+
 Tue May 08 10:16:32 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -798,6 +798,11 @@ if test no != "$with_ruby" ; then
 	rm -f ruby/rubyio.h
 	if test -f "$RUBY_INC/ruby/io.h" ; then
 	  AC_MSG_RESULT(yes)
+
+	  dnl In a VPATH build, the ruby subdirectory won't exist the first
+	  dnl time.
+	  test -d ruby || mkdir ruby
+
 	  dnl Newer Ruby has ruby/io.h - older has rubyio.h.  Ruby doesn't
 	  dnl seem to provide any way to generate code which works with
 	  dnl both (and even the version number isn't a discriminator as
