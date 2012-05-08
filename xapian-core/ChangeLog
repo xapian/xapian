@@ -1,3 +1,9 @@
+Tue May 08 07:28:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* weight/weightinternal.cc: Using AssertEq() on NULL doesn't compile,
+	  at least with recent GCC.
+
 Tue May 08 07:20:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
