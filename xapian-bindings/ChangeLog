@@ -1,3 +1,10 @@
+Tue May 08 09:59:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/Makefile.am: Remove now superfluous old check that SWIG
+	  generated at least the sources we wanted - we now check it generated
+	  *exactly* the sources we wanted.
+
 Tue May 08 09:48:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
