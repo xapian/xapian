@@ -1,3 +1,10 @@
+Tue May 08 10:37:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* csharp/Makefile.am,java-swig/Makefile.am: Sort both the lists of
+	  expected and of found SWIG-generated sources with Perl, to avoid
+	  problems with locale-specific sort orders.
+
 Tue May 08 10:26:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
