@@ -1,3 +1,10 @@
+Tue May 08 09:48:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* csharp/Makefile.am,java-swig/Makefile.am: Use diff's -c option when
+	  comparing the files SWIG generated against those we were expecting to
+	  get as the output should be easier to understand.
+
 Tue May 08 09:08:18 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
