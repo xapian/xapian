@@ -5,6 +5,7 @@
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
+ * Copyright 2012 Mihai Bivol
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +44,7 @@
 
 #include <xapian.h>
 
+#include "atomparse.h"
 #include "commonhelp.h"
 #include "diritor.h"
 #include "hashterm.h"
@@ -775,6 +777,13 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    if (idx != string::npos) {
 		dump.assign(desc, idx + 1, string::npos);
 	    }
+	} else if (mimetype == "application/atom+xml") {
+	    AtomParser atomparser;
+	    atomparser.parse_html(d.file_to_string());
+	    dump = atomparser.dump;
+	    title = atomparser.title;
+	    keywords = atomparser.keywords;
+	    author = atomparser.author;
 	} else {
 	    // Don't know how to index this type.
 	    skip_unknown_mimetype(file, mimetype);
@@ -1162,6 +1171,9 @@ main(int argc, char **argv)
 
     // RPM packages:
     mime_map["rpm"] = "application/x-redhat-package-manager";
+
+    // Atom feeds:
+    mime_map["atom"] = "application/atom+xml";
 
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";
