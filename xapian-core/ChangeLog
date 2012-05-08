@@ -1,3 +1,10 @@
+Tue May 08 07:16:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Update section on patches to mention git (git diff and git
+	  format-patch), and using "-r" with normal diff, and also that
+	  ptardiff offers a nice way to diff against an unpacked tarball.
+
 Tue May 08 07:03:46 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

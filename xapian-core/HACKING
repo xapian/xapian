@@ -1025,10 +1025,15 @@ on the xapian-devel mailing list first:
 Also, please read the following section on licensing of patches before
 submitting a patch.
 
-We find patches in unified diff format easiest to read.  If you're using a
-SVN checkout just use "svn diff" to generate the diff.  If you're working
-from a tarball, compare against the original versions of files using
-"diff -puN" (-p reports the function name for each chunk).
+We find patches in unified diff format easiest to read.  If you're using
+git, then "git diff" is good (or "git format-patch" for a patch series).  If
+you're using a SVN checkout just use "svn diff" to generate the diff.  If
+you're working from a tarball, you can unpack a second clean copy of the files
+and compare the two versions with "diff -pruN" (-p reports the function name
+for each chunk, -r acts recursively, -u does a unified diff, and -N shows
+new files in the diff).  Alternatively "ptardiff" (which comes with perl, at
+least on Debian and Ubuntu) can diff against the original tarball, unpacking
+it on the fly.
 
 Please set the width of a tab character in your editor to 8 spaces, and use
 Unix line endings (i.e. LF, not CR+LF).  Failing to do so will make it much
