@@ -1,3 +1,9 @@
+Tue May 08 09:02:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/util.i.in: Avoid importing isa from UNIVERSAL to fix Perl 5.12
+	  deprecation warning.
+
 Wed Apr 04 14:14:31 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
