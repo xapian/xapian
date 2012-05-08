@@ -1,3 +1,13 @@
+Tue May 08 07:03:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  If the output database is empty, don't write a metainfo tag out.
+	  Take care not to divide by zero when computing the percentage
+	  size change for a table.
+	* tests/api_compact.cc: Add new testcase compactempty1 to provide
+	  regression tests.
+
 Tue May 08 06:53:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
