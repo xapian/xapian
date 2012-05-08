@@ -1,3 +1,8 @@
+Tue May 08 11:32:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported
+	  by Gaurav Arora).
+
 Sat Apr 14 00:14:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* atomparse.cc: For type="html", use the charset of the XML rather

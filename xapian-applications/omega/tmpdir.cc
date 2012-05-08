@@ -23,6 +23,7 @@
 #include "tmpdir.h"
 
 #include "safesysstat.h"
+#include "safeunistd.h"
 #include <sys/types.h>
 #include <stdlib.h> // Not cstdlib as we want mkdtemp.
 #include <cstring>
