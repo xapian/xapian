@@ -1,3 +1,73 @@
+ 16546       olly Wed May 09 05:44:51 GMT 2012  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.10 (2012-05-09):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+* Use -keyfile and -keycontainer options to the C# compiler, because it warns
+  us to do this instead of setting them in AssemblyInfo.cs.
+
+* Use diff's -c option when comparing the files SWIG generated against those we
+  were expecting to get as the output should be easier to understand.
+
+* Sort both the lists of expected and of found SWIG-generated sources with
+  Perl, to avoid problems with locale-specific sort orders.
+
+Java:
+
+Java-SWIG:
+
+* Remove now superfluous old check that SWIG generated at least the sources we
+  want - we now check it generated *exactly* the sources we want.
+
+* Use diff's -c option when comparing the files SWIG generated against those we
+  were expecting to get as the output should be easier to understand.
+
+* Sort both the lists of expected and of found SWIG-generated sources with
+  Perl, to avoid problems with locale-specific sort orders.
+
+Lua:
+
+* Now works with Lua 5.2.
+
+* "require 'xapian'" now returns the module table.  (ticket #593)
+
+* lua/smoketest.lua: Improve reporting of test failures.
+
+Perl:
+
+* Avoid importing isa from UNIVERSAL to fix Perl 5.12 deprecation warning.
+
+* Remove #! lines with -W to fix "Name "Test::More::TODO" used only once:
+  possible typo at /usr/share/perl/5.14/Exporter/Heavy.pm line 190." warnings.
+
+PHP:
+
+Python:
+
+* python/docs/examples/simpleexpand.py: Update to not use deprecated MSet
+  iteration features which have been removed on trunk.  This also fixes a
+  segfault if there are no matches and no documents are explicitly marked as
+  relevant.
+
+* python/testsuite2.py: Explicitly suggest "make check VERBOSE=1" as a simple
+  way to rerun tests with verbose output.
+
+Ruby:
+
+* configure: Make sure the ruby subdirectory exists before trying to create
+  ruby/rubyio.h, so this works in a VPATH build from a clean tree.
+
+Tcl:
+
 Xapian-bindings 1.2.9 (2012-03-08):
 
 Java:
