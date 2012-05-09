@@ -1,5 +1,3 @@
- 16526       olly Tue May 08 07:28:11 GMT 2012  Olly Betts <olly@survex.com>
-
 Xapian-core 1.2.10 (2012-05-09):
 
 API:
@@ -28,14 +26,6 @@ chert backend:
   tag.  Take care not to divide by zero when computing the percentage size
   change for a table.
 
-flint backend:
-
-remote backend:
-
-inmemory backend:
-
-build system:
-
 documentation:
 
 * API documentation:
@@ -55,18 +45,6 @@ documentation:
 * HACKING: Update section on patches to mention git (git diff and git
   format-patch), and using "-r" with normal diff, and also that ptardiff offers
   a nice way to diff against an unpacked tarball.
-
-tools:
-
-
-examples:
-
-
-portability:
-
-
-packaging:
-
 
 debug code:
 
