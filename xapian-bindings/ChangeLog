@@ -1,3 +1,8 @@
+Wed May 09 03:22:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Wrap Xapian::DBCHECK_FIX properly so we don't get
+	  xapian.cvar in Python.
+
 Sun Apr 22 13:04:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am: Sort both the lists of expected
