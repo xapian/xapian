@@ -1,3 +1,9 @@
+Wed May 09 04:05:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/testsuite2.py: Explicitly suggest "make check VERBOSE=1" as a
+	  simple way to rerun tests with verbose output.
+
 Tue May 08 10:37:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

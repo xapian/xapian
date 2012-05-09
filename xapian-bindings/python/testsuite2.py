@@ -1,7 +1,7 @@
 # Utility functions for running tests and reporting the results.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2011 Olly Betts
+# Copyright (C) 2008,2011,2012 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -280,7 +280,8 @@ class TestRunner(object):
                 failed += 1
         if failed:
             if self._verbose == 0:
-                self._out.write('Re-run with the VERBOSE environment variable set to "1" to see details.\n')
+                self._out.write('Re-run with the environment variable VERBOSE=1 to see details.\n')
+                self._out.write('E.g. make check VERBOSE=1\n')
             self._out.write_colour("#green#%d## tests passed, #red#%d## tests failed\n" % (passed, failed))
             return False
         else:
