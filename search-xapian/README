@@ -1,5 +1,5 @@
-Search::Xapian version 1.2.9.0
-==============================
+Search::Xapian version 1.2.10.0
+===============================
 
 This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
 
@@ -8,10 +8,9 @@ be replaced with a version generated with SWIG.  This means that new C++
 API features can be wrapped for Perl more quickly and easily than currently.
 
 These new wrappers attempt to be compatible with the current ones, but we
-encourage you to try them with your code and report any incompatibilities so we
-can attempt to address them.  Currently this work in on trunk in the Xapian SVN
-tree, and it will be available in the forthcoming Xapian 1.3.0 development
-release.
+encourage you to try them with your code and report any incompatibilities so
+we can attempt to address them.  You can find them in the Xapian 1.3.x
+development release series.
 
 INSTALLATION
 
