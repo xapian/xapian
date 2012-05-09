@@ -1,10 +1,4 @@
- 16541       olly Wed May 09 01:20:25 GMT 2012  Olly Betts <olly@survex.com>
-
 Omega 1.2.10 (2012-05-09):
-
-general:
-
-documentation:
 
 indexers:
 
@@ -25,20 +19,10 @@ indexers:
 
 * scriptindex:
 
-omega:
-
-templates:
-
-testsuite:
-
-build system:
-
 portability:
 
 * Fix to build with GCC 4.7 by adding cast to rlim_t to fix error about C++11
   compatibility (reported by Gaurav Arora).
-
-packaging:
 
 Omega 1.2.9 (2012-03-08):
 
