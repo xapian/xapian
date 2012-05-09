@@ -1,3 +1,8 @@
+Tue May 08 23:51:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Document xapian-check for fixing corrupted
+	  databases.
+
 Tue May 08 11:30:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/fileutils.cc: Add safeunistd.h for mkdir, required by GCC
