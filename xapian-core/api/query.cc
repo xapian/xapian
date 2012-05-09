@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,8 @@ using namespace std;
 
 namespace Xapian {
 
-const Query Query::MatchAll = Query(string());
+// Extra () are needed to resolve ambiguity with method declaration.
+const Query Query::MatchAll((string()));
 
 const Query Query::MatchNothing;
 

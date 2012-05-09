@@ -1,3 +1,8 @@
+Wed May 09 00:09:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/query.cc: Construct MatchAll using constructor rather than
+	  assignment syntax.
+
 Wed May 09 00:08:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.h: Whitespace tweaks.
