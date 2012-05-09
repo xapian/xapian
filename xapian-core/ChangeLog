@@ -1,3 +1,7 @@
+Wed May 09 00:08:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_cursor.h: Whitespace tweaks.
+
 Tue May 08 23:51:01 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Document xapian-check for fixing corrupted
