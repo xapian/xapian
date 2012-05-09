@@ -88,7 +88,10 @@ stdout_to_string(const string &cmd)
 	// Limit process data to free physical memory.
 	long mem = get_free_physical_memory();
 	if (mem > 0) {
-	    struct rlimit ram_limit = { mem, RLIM_INFINITY } ;
+	    struct rlimit ram_limit = {
+		static_cast<rlim_t>(mem),
+		RLIM_INFINITY
+	    };
 #ifdef RLIMIT_AS
 	    setrlimit(RLIMIT_AS, &ram_limit);
 #elif defined RLIMIT_VMEM

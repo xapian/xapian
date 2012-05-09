@@ -1,3 +1,9 @@
+Wed May 09 01:20:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* runfilter.cc: Add cast to rlim_t, required for C++11 compatibility
+	  according to new error from GCC 4.7 (reported by Gaurav Arora).
+
 Tue May 08 05:23:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
