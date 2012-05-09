@@ -1,14 +1,4 @@
- 16546       olly Wed May 09 05:44:51 GMT 2012  Olly Betts <olly@survex.com>
-
 Xapian-bindings 1.2.10 (2012-05-09):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
 
 CSharp:
 
@@ -20,8 +10,6 @@ CSharp:
 
 * Sort both the lists of expected and of found SWIG-generated sources with
   Perl, to avoid problems with locale-specific sort orders.
-
-Java:
 
 Java-SWIG:
 
@@ -49,8 +37,6 @@ Perl:
 * Remove #! lines with -W to fix "Name "Test::More::TODO" used only once:
   possible typo at /usr/share/perl/5.14/Exporter/Heavy.pm line 190." warnings.
 
-PHP:
-
 Python:
 
 * python/docs/examples/simpleexpand.py: Update to not use deprecated MSet
@@ -65,8 +51,6 @@ Ruby:
 
 * configure: Make sure the ruby subdirectory exists before trying to create
   ruby/rubyio.h, so this works in a VPATH build from a clean tree.
-
-Tcl:
 
 Xapian-bindings 1.2.9 (2012-03-08):
 
