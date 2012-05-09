@@ -38,6 +38,7 @@
 
 #include "apitest.h"
 
+#include "safeunistd.h"
 #include <cmath>
 #include <cstdlib>
 #include <map>
