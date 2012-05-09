@@ -40,7 +40,8 @@ except.i: $(srcdir)/generate-lua-exceptions ../../xapian-core/exception_data.pm
 xapian_wrap.cc: $(SWIG_sources) util.i except.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -lua \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	    -o xapian_wrap_cc.tmp -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	$(PERL) -p -e 's/\blua_strlen\(/lua_rawlen\(/;s/\bluaL_reg\b/luaL_Reg/;/end module/../return/ and /lua_pop/ and $$_=""' xapian_wrap_cc.tmp > xapian_wrap.cc
 	mv xapian_wrap_d.tmp xapian_wrap.d
 
 -include xapian_wrap.d

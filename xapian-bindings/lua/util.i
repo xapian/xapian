@@ -1,6 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
+ * Copyright (C) 2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,32 @@
 %rename("_end") end;
 
 %rename("__tostring") get_description;
+
+%{
+#if LUA_VERSION_NUM-0 >= 502
+// luaL_typerror was removed in Lua 5.2.
+int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+#endif
+
+// Define lua_rawlen for Lua 5.1 (Lua 5.2 already has it).
+//
+// Newer SWIG already does this, hence the check for !defined lua_rawlen.
+#if !defined lua_rawlen && LUA_VERSION_NUM == 501
+# define lua_rawlen lua_objlen
+#endif
+
+// LUA_RIDX_GLOBALS is new in Lua 5.2.
+#ifdef LUA_RIDX_GLOBALS
+# ifndef LUA_GLOBALSINDEX
+#  define LUA_GLOBALSINDEX (-10002)
+# endif
+#define lua_pushvalue(L,P) do { if ((P) == LUA_GLOBALSINDEX) { lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS); } else { lua_pushvalue(L,P); } } while (0)
+#endif
+%}
 
 %define SUB_CLASS(NS, CLASS)
 %{
@@ -335,7 +362,7 @@ end
 
 
 %typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-    int numitems = lua_objlen(L, $input);;
+    int numitems = lua_rawlen(L, $input);;
     v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
         lua_rawgeti(L, $input, i+1);

@@ -991,10 +991,10 @@ if test no != "$with_lua" ; then
       AC_MSG_CHECKING([for Lua header files])
       AC_ARG_VAR([LUA_INC], [Directory to include for lua headers])
       if test -z "$LUA_INC" ; then
-        dirs="/usr/local/include /usr/local/include/lua* /usr/include/lua* /usr/include"
+        dirs="/usr/include/lua$lua_version /usr/local/include/lua$lua_version"
         for i in $dirs ; do
-          if test -r $i/lua.h; then
-            LUA_INC="$i"
+          if test -r "$i/lua.h"; then
+            LUA_INC=$i
             break
           fi
         done

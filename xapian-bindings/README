@@ -32,10 +32,10 @@ C#		Tested with Mono C# 2.6.7 recently.  Much older versions
 Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 		See java/README for Java binding specific information.
 
-Lua		Requires Lua 5.1 or later.  Currently Lua support is
-		experimental - the Lua API provided is likely to change to
-		provide a more natural wrapping for iterators and some other
-		things.
+Lua		Requires Lua 5.1 or later; tested with 5.1 and 5.2.  Currently
+		Lua support is experimental - the Lua API provided is likely to
+		change to provide a more natural wrapping for iterators and
+		some other things.
 
 Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 		by Olly Betts are available from CPAN (module Search::Xapian).
