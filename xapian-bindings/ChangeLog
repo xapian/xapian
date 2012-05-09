@@ -1,3 +1,8 @@
+Wed May 09 03:23:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/testsuite2.py: Explicitly suggest "make check VERBOSE=1" as a
+	  simple way to rerun tests with verbose output.
+
 Wed May 09 03:22:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Wrap Xapian::DBCHECK_FIX properly so we don't get
