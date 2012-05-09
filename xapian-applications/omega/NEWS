@@ -1,6 +1,6 @@
- 16406       olly Tue Mar 13 10:16:19 GMT 2012  Olly Betts <olly@survex.com>
+ 16541       olly Wed May 09 01:20:25 GMT 2012  Olly Betts <olly@survex.com>
 
-Omega 1.2.10 (2012-03-13):
+Omega 1.2.10 (2012-05-09):
 
 general:
 
@@ -8,7 +8,13 @@ documentation:
 
 indexers:
 
+* Add support for CDATA to HTML/XML parser.
+
 * omindex:
+
+  + Add --max-size option, based on patch from ndaley in ticket#587.
+
+  + Add support for atom feed files, patch from Mihai Bivol in ticket#595.
 
   + If the document with the highest existing docid before the run was updated,
     we were reporting it as "added", but now we correctly report it as
@@ -28,6 +34,9 @@ testsuite:
 build system:
 
 portability:
+
+* Fix to build with GCC 4.7 by adding cast to rlim_t to fix error about C++11
+  compatibility (reported by Gaurav Arora).
 
 packaging:
 
