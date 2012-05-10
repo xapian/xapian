@@ -1,9 +1,11 @@
-xapian-omega (1.2.9-1) unstable; urgency=low
+xapian-omega (1.2.10-1) unstable; urgency=low
 
   * New upstream release.
   * Enable hardened build flags. (Closes: #658024)
+  * debian/control.in: Standards-Version: 3.9.3 (no changes required).
+  * debian/copyright: Update copyright years.
 
- -- Olly Betts <olly@survex.com>  Wed, 21 Mar 2012 11:21:40 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 10 May 2012 03:34:21 +0000
 
 xapian-omega (1.2.8-1) unstable; urgency=low
 
