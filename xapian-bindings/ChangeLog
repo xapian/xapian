@@ -1,3 +1,7 @@
+Thu May 10 09:23:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: "checking ruby/io.h" -> "checking for ruby/io.h".
+
 Wed May 09 03:23:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/testsuite2.py: Explicitly suggest "make check VERBOSE=1" as a
