@@ -1,8 +1,10 @@
-xapian-bindings (1.2.9-1) unstable; urgency=low
+xapian-bindings (1.2.10-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/control.in: Standards-Version: 3.9.3 (no changes required).
+  * debian/copyright: Update copyright years.
 
- -- Olly Betts <olly@survex.com>  Wed, 21 Mar 2012 11:26:33 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 10 May 2012 03:35:41 +0000
 
 xapian-bindings (1.2.8-1) unstable; urgency=low
 
