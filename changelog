@@ -1,3 +1,11 @@
+xapian-core (1.2.10-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.9.3 (no changes required).
+  * debian/copyright: Update copyright years.
+
+ -- Olly Betts <olly@survex.com>  Thu, 10 May 2012 03:15:27 +0000
+
 xapian-core (1.2.9-1) unstable; urgency=low
 
   * New upstream release.
