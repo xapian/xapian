@@ -235,7 +235,11 @@ foreach my $tag (@ARGV) {
     # the build.  Sleep for a couple of seconds first to avoid needing to
     # worry about timestamps equal to $timestamp.
     sleep 2;
-    my $timestamp = time;
+
+    open F, '<', '../xapian/bootstrap' or die $!;
+    <F>;
+    my $timestamp = (stat F)[8];
+    close F;
 
     $log = `../xapian/bootstrap 2>&1`;
     print LOG $log;
