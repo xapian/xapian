@@ -45,8 +45,10 @@ class Cursor {
 
 	/// pointer to a block
 	byte * p;
+
 	/// offset in the block's directory
 	int c;
+
 	/** block number
 	 *
 	 * n is kept in tandem with p.  The unassigned state is when
@@ -54,8 +56,8 @@ class Cursor {
 	 * 
 	 * Setting n to BLK_UNUSED is necessary in at least some cases.
 	 */
-
 	uint4 n;
+
 	/// true if the block is not the same as on disk, and so needs rewriting
 	bool rewrite;
 };
