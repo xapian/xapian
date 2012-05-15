@@ -8,8 +8,7 @@ bin_PROGRAMS +=\
 	examples/simpleexpand\
 	examples/simpleindex\
 	examples/simplesearch\
-	examples/xapian-metadata\
-	examples/questletor
+	examples/xapian-metadata
 
 examples_copydatabase_SOURCES = examples/copydatabase.cc
 examples_copydatabase_LDADD = $(ldflags) $(libxapian_la)
@@ -28,9 +27,6 @@ examples_simplesearch_LDADD = $(ldflags) $(libxapian_la)
 
 examples_xapian_metadata_SOURCES = examples/xapian-metadata.cc
 examples_xapian_metadata_LDADD = $(ldflags) $(libxapian_la)
-
-examples_questletor_SOURCES = examples/questletor.cc
-examples_questletor_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\

@@ -282,7 +282,7 @@ intree_swig=no
 # We no longer snapshot xapian-applications/queryserver since it hasn't seen a
 # check-in for ages.
 modules=
-for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
+for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-letor ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     echo "Bootstrapping \`$module'"

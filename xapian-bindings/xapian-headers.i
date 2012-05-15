@@ -337,4 +337,5 @@ CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
 CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
 CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
 CONSTANT(int, Xapian, DBCHECK_SHOW_STATS);
+CONSTANT(int, Xapian, DBCHECK_FIX);
 %include <xapian/database.h>

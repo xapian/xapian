@@ -25,7 +25,6 @@ RSTDOCS = \
 	install.rst \
 	internals.rst \
 	intro_ir.rst \
-	letor.rst \
 	matcherdesign.rst \
 	overview.rst \
 	postingsource.rst \

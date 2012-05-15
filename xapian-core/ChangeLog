@@ -1,8 +1,3 @@
-Sun May 06 11:22:27 GMT 2012  Olly Betts <olly@survex.com>
-
-	* include/xapian/letor.h,letor/letor_internal.h: Update for the
-	  RefCntPtr -> intrusive_ptr change.
-
 Wed May 02 03:44:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/weightinternal.cc: Using AssertEq() on NULL doesn't compile,
@@ -48,18 +43,6 @@ Wed Apr 11 08:26:42 GMT 2012  Olly Betts <olly@survex.com>
 	* HACKING: Update section on patches to mention git (git diff and git
 	  format-patch), and using "-r" with normal diff, and also that
 	  ptardiff offers a nice way to diff against an unpacked tarball.
-
-Thu Apr 05 00:48:34 GMT 2012  Olly Betts <olly@survex.com>
-
-	* docs/letor.rst: Assorted formatting and phrasing improvements.
-
-Thu Apr 05 00:48:06 GMT 2012  Olly Betts <olly@survex.com>
-
-	* docs/Makefile.am: Add letor.rst to the list of .rst files to process.
-
-Wed Apr 04 05:28:48 GMT 2012  Olly Betts <olly@survex.com>
-
-	* letor/dir_contents: Grammar fix.
 
 Wed Apr 04 02:22:04 GMT 2012  Olly Betts <olly@survex.com>
 

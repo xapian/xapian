@@ -1,3 +1,35 @@
+ 16537       olly Tue May 08 11:39:28 GMT 2012  Olly Betts <olly@survex.com>
+
+trunk only:
+
+Omega 1.3.1 (2012-05-09):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+ 16536       olly Tue May 08 11:32:48 GMT 2012  Olly Betts <olly@survex.com>
+	* tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported
+	  by Gaurav Arora).
+
+packaging:
+
 Omega 1.3.0 (2012-03-14):
 
 general:
@@ -64,6 +96,32 @@ packaging:
 
 * xapian-omega.spec: We're ABI compatible within a release series so make
   dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.10 (2012-05-09):
+
+indexers:
+
+* Add support for CDATA to HTML/XML parser.
+
+* omindex:
+
+  + Add --max-size option, based on patch from ndaley in ticket#587.
+
+  + Add support for atom feed files, patch from Mihai Bivol in ticket#595.
+
+  + If the document with the highest existing docid before the run was updated,
+    we were reporting it as "added", but now we correctly report it as
+    "updated".  (Backported from 1.3.0).
+
+  + Catch and report std::exception explicitly, so failing to allocate memory
+    is no longer reported as "Unknown exception".  (Backported from 1.3.0).
+
+* scriptindex:
+
+portability:
+
+* Fix to build with GCC 4.7 by adding cast to rlim_t to fix error about C++11
+  compatibility (reported by Gaurav Arora).
 
 Omega 1.2.9 (2012-03-08):
 

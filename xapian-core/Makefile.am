@@ -32,8 +32,6 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
-libxapian_la_LIBADD =
-
 .PHONY: coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 
 # This relies on GNU make (for the pattern rule) but it's just a convenience
@@ -122,7 +120,6 @@ include net/Makefile.mk
 include queryparser/Makefile.mk
 include unicode/Makefile.mk
 include weight/Makefile.mk
-include letor/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
 
