@@ -1,3 +1,8 @@
+Tue May 15 12:46:15 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set link_all_deplibs_CXX=no on freebsd and openbsd,
+	  like we already do for xapian-core.
+
 Tue May 15 11:29:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2.10.
