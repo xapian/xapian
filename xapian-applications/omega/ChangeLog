@@ -1,3 +1,7 @@
+Tue May 15 11:29:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.2.10.
+
 Tue May 08 11:39:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* runfilter.cc: Add cast to rlim_t, required for C++11 compatibility
