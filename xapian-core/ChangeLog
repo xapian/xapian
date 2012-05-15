@@ -1,3 +1,7 @@
+Tue May 15 11:24:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.2.10.
+
 Tue May 15 11:12:42 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.cc: Fix incorrect use of "delete" to
