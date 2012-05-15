@@ -1,3 +1,11 @@
+Tue May 15 11:12:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc: Fix incorrect use of "delete" to
+	  "delete []".  The type is POD, so I suspect this mistake didn't
+	  actually cause any problems, and it only happens when a cursor
+	  gets rebuilt because the B-tree has gained a level, so it's
+	  a rather rare occurrence.
+
 Tue May 15 11:09:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.cc: Fix incorrect use of "delete" to
