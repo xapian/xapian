@@ -1,3 +1,7 @@
+Tue May 15 11:41:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/pythontest3.py: Sync with pythontest2.
+
 Tue May 15 11:31:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2.10.
