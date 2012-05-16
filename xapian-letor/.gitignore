@@ -4,6 +4,11 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache
+bin/.deps
+bin/.dirstamp
+bin/.libs
+bin/questletor
+bin/questletor.1
 config.guess
 config.h
 config.h.in
@@ -15,11 +20,6 @@ configure
 depcomp
 docs/Makefile
 docs/Makefile.in
-examples/.deps
-examples/.dirstamp
-examples/.libs
-examples/questletor
-examples/questletor.1
 install-sh
 *.lo
 libtool

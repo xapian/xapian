@@ -57,7 +57,7 @@ if !MAINTAINER_NO_DOCS
 dist_man_MANS =
 endif
 
-include examples/Makefile.mk
+include bin/Makefile.mk
 include include/Makefile.mk
 
 INCLUDES += -I/usr/include/libsvm
