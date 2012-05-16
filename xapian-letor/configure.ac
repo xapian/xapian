@@ -76,6 +76,12 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
+dnl Check for perl (needed to generate some sources and documentation).
+AC_PATH_PROG(PERL, perl, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+fi
+
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
@@ -381,4 +387,5 @@ dnl * Build the output files *
 dnl **************************
 
 AC_CONFIG_FILES([Makefile docs/Makefile])
+AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_OUTPUT
