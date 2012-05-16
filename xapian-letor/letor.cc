@@ -2,6 +2,7 @@
  * @brief Letor Class
  */
 /* Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,74 +56,62 @@ Letor::set_query(const Xapian::Query & query) {
 
 map<string, long int>
 Letor::termfreq(const Xapian::Document & doc, const Xapian::Query & query) {
-    map<string, long int> tf = internal->termfreq(doc, query);
-    return tf;
+    return internal->termfreq(doc, query);
 }
 
 map<string, double>
 Letor::inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query) {
-    map<string, double> idf1 = internal->inverse_doc_freq(db, query);
-    return idf1;
+    return internal->inverse_doc_freq(db, query);
 }
 
 map<string, long int>
 Letor::doc_length(const Xapian::Database & db, const Xapian::Document & doc) {
-    map<string, long int> len = internal->doc_length(db, doc);
-    return len;
+    return internal->doc_length(db, doc);
 }
 
 map<string, long int>
 Letor::collection_length(const Xapian::Database & db) {
-    map<string, long int> coll_len = internal->collection_length(db);
-    return coll_len;
+    return internal->collection_length(db);
 }
 
 map<string, long int>
-Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query_) {
-    map<string, long int> coll_tf = internal->collection_termfreq(db, query_);
-    return coll_tf;
+Letor::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query) {
+    return internal->collection_termfreq(db, query);
 }
 
 double
 Letor::calculate_f1(const Xapian::Query & query, map<string, long int> & tf, char ch) {
-    double value = internal->calculate_f1(query, tf, ch);
-    return value;
+    return internal->calculate_f1(query, tf, ch);
 }
 
 double
 Letor::calculate_f2(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, char ch) {
-    double value = internal->calculate_f2(query, tf, doc_len, ch);
-    return value;
+    return internal->calculate_f2(query, tf, doc_len, ch);
 }
 
 double
 Letor::calculate_f3(const Xapian::Query & query, map<string, double> & idf, char ch) {
-    double value = internal->calculate_f3(query, idf, ch);
-    return value;
+    return internal->calculate_f3(query, idf, ch);
 }
 
 double
 Letor::calculate_f4(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & coll_len, char ch) {
-    double value = internal->calculate_f4(query, tf, coll_len, ch);
-    return value;
+    return internal->calculate_f4(query, tf, coll_len, ch);
 }
 
 double
 Letor::calculate_f5(const Xapian::Query & query, map<string, long int> & tf, map<string, double> & idf, map<string, long int> & doc_len, char ch) {
-    double value = internal->calculate_f5(query, tf, idf, doc_len, ch);
-    return value;
+    return internal->calculate_f5(query, tf, idf, doc_len, ch);
 }
 
 double
 Letor::calculate_f6(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, map<string, long int> & coll_tf, map<string, long int> & coll_length, char ch) {
-    double value = internal->calculate_f6(query, tf, doc_len, coll_tf, coll_length, ch);
-    return value;
+    return internal->calculate_f6(query, tf, doc_len, coll_tf, coll_length, ch);
 }
 
 map<Xapian::docid, double>
 Letor::letor_score(const Xapian::MSet & mset) {
-    map<Xapian::docid, double> letor_mset = internal->letor_score(mset);
-    return letor_mset;
+    return internal->letor_score(mset);
 }
 
 void
