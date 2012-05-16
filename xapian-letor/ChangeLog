@@ -1,3 +1,9 @@
+Wed May 16 05:52:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-letor-update.cc: Add new tool which updates the extra
+	  stats xapian-letor needs, replacing the patch to omindex which was
+	  on the gsoc2011-parth branch.
+
 Wed May 16 05:51:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* examples/questletor.cc: Fix whitespace irregularities.
