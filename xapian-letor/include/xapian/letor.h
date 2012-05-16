@@ -1,5 +1,5 @@
 /** @file letor.h
- *  @brief weighting scheme based on Learning to Rank. Note: letor.h is not a part of official stable Xapain API.
+ *  @brief weighting scheme based on Learning to Rank. Note: letor.h is not a part of official stable Xapian API.
  */
 /* Copyright (C) 2011 Parth Gupta
  *
@@ -60,7 +60,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string, long int> form.
      *
      *  @param  doc     This is the document in which we want the frequency of the terms in query. Generally in Letor, this document is taken
-     *          from the Xapain::MSet retrieved from the first retrieval.
+     *          from the Xapian::MSet retrieved from the first retrieval.
      *  @param  query   This is the query for which terms we want frequency in the document.
      */
     std::map<std::string, long int> termfreq(const Xapian::Document & doc, const Xapian::Query & query);
