@@ -1,3 +1,7 @@
+Wed May 16 11:23:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* letor.cc: Doesn't use <cstring>.
+
 Wed May 16 11:03:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/letor.h: Fix incorrect spellings of "Xapian"!

@@ -23,7 +23,6 @@
 #include <xapian/letor.h>
 #include "letor_internal.h"
 
-#include <cstring>
 #include <map>
 #include <string>
 
