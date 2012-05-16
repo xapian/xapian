@@ -57,16 +57,16 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     void set_query(const Xapian::Query & query);
 
     /** This method finds the frequency of the query terms in the specified documents. This method is a helping method and statistics gathered through
-     *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string,long int> form.
+     *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string, long int> form.
      *
      *  @param  doc     This is the document in which we want the frequency of the terms in query. Generally in Letor, this document is taken
      *          from the Xapain::MSet retrieved from the first retrieval.
      *  @param  query   This is the query for which terms we want frequency in the document.
      */
-    std::map<std::string,long int> termfreq( const Xapian::Document & doc , const Xapian::Query & query);
+    std::map<std::string, long int> termfreq(const Xapian::Document & doc, const Xapian::Query & query);
 
     /** This method calculated the inverse document frequency(idf) of query terms in the database. It returns the idf of each term in
-     *  std::map<string,double> form.
+     *  std::map<string, double> form.
      *
      *  Note: idf of a term 't' is calculated as below:
      *
@@ -78,10 +78,10 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  db      specify the database being used for search to calculate idf values.
      *  @param  query   query being used in the retrieval
      */
-    std::map<std::string,double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
+    std::map<std::string, double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
 
     /** This method calculated the length of the documents as number of 'terms'. It calculated the length for three different
-     *  parts: title, body and whole document. This information is returned in the std::map<string,long int> format.
+     *  parts: title, body and whole document. This information is returned in the std::map<string, long int> format.
      *  It can be accessed as below:
      *
      *  @code
@@ -94,11 +94,11 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  db      Database containing that document.
      *  @param  doc     The document whose length is to be found.
      */
-    std::map<std::string,long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
+    std::map<std::string, long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
 
     /** This method calculates the length of the collection in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated
      *  as a stored user metadata in omindex otherwise it is calculated out of scratch(this might take some time depending upon the size of the
-     *  database. Length information is stored in std::map<string,long int> format and can be accessed as below:
+     *  database. Length information is stored in std::map<string, long int> format and can be accessed as below:
      *
      *  @code
      *  map<string, long int> len;
@@ -110,7 +110,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  db      Database used for retrieval.
      *
      */
-    std::map<std::string,long int> collection_length(const Xapian::Database & db);
+    std::map<std::string, long int> collection_length(const Xapian::Database & db);
 
     /** This method calculates the frequency of query terms in the whole database. The information is stored in std::map<string, long int> format and
      *  used during the feature calculation methods.
@@ -118,7 +118,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  db      Database to be used
      *  @param  query   Query being searched.
      */
-    std::map<std::string,long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
+    std::map<std::string, long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
 
     /** It calculated the feature value for the query-document pair. These feature calculation methods uses the data generated using above defined
      *  methods like termfreq, inverse_doc_freq, doc_length, coll_freq and collection_length.
@@ -132,24 +132,24 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          'b'     Body only
      *          'w'     Whole document
      */
-    double calculate_f1(const Xapian::Query & query, std::map<std::string,long int> & tf, char ch);
+    double calculate_f1(const Xapian::Query & query, std::map<std::string, long int> & tf, char ch);
 
-    double calculate_f2(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length, char ch);
+    double calculate_f2(const Xapian::Query & query, std::map<std::string, long int> & tf, std::map<std::string, long int> & doc_length, char ch);
 
-    double calculate_f3(const Xapian::Query & query, std::map<std::string,double> & idf, char ch);
+    double calculate_f3(const Xapian::Query & query, std::map<std::string, double> & idf, char ch);
 
-    double calculate_f4(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & coll_len, char ch);
+    double calculate_f4(const Xapian::Query & query, std::map<std::string, long int> & tf, std::map<std::string, long int> & coll_len, char ch);
 
-    double calculate_f5(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,double> & idf, std::map<std::string,long int> & doc_length,char ch);
+    double calculate_f5(const Xapian::Query & query, std::map<std::string, long int> & tf, std::map<std::string, double> & idf, std::map<std::string, long int> & doc_length, char ch);
 
-    double calculate_f6(const Xapian::Query & query, std::map<std::string,long int> & tf, std::map<std::string,long int> & doc_length,std::map<std::string,long int> & coll_tf, std::map<std::string,long int> & coll_length, char ch);
+    double calculate_f6(const Xapian::Query & query, std::map<std::string, long int> & tf, std::map<std::string, long int> & doc_length, std::map<std::string, long int> & coll_tf, std::map<std::string, long int> & coll_length, char ch);
 
     /** Gives the scores to each item of initial mset using the trained model. Note: It assigns a score to each document only so user needs to sort that map
      *  as descending order of the value of map.
      *
-     *  @return Letor score corresponding to each document in mset as map<docid,score> format.
+     *  @return Letor score corresponding to each document in mset as map<docid, score> format.
      */
-    std::map<Xapian::docid,double> letor_score(const Xapian::MSet & mset);
+    std::map<Xapian::docid, double> letor_score(const Xapian::MSet & mset);
 
     /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
      *  installed in the system. The SVM model is learnt using libsvm.
@@ -190,4 +190,5 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 };
 
 }
+
 #endif /* XAPIAN_INCLUDED_LETOR_H */
