@@ -1,3 +1,7 @@
+Wed May 16 05:38:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* .gitignore: Create.
+
 Wed May 16 05:37:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac,examples/Makefile.mk,makemanpage.in: Get xapian-letor
