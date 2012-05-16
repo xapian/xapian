@@ -161,7 +161,7 @@ case $srcdir in
 esac
 
 if [ -d ".git" ] ; then
-  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
+  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
     if test -d "$emptydir" ; then
       :
     else
@@ -224,6 +224,10 @@ END
     args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-applications/omega`
     test -n "$args" || args='common -r15018 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
     handle_svn_external xapian-applications/omega/$args
+
+    args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-letor`
+    test -n "$args" || args='common -r15018 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
+    handle_svn_external xapian-letor/$args
   fi
 fi
 
