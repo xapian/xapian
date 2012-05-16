@@ -65,6 +65,7 @@ INCLUDES += -I/usr/include/libsvm
 libxapianletor_la_LIBADD += -lsvm
 
 noinst_HEADERS +=\
+	common/safeunistd.h\
 	common/str.h\
 	common/stringutils.h\
 	letor_internal.h

@@ -40,6 +40,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include "safeunistd.h"
+
 #include <svm.h>
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
