@@ -1,7 +1,7 @@
 /** @file xapian-letor-update.cc
  * @brief Update statistics in user meta-data used by letor module.
- *
- * Copyright (C) 2011 Parth Gupta
+ */
+/* Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

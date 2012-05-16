@@ -1,6 +1,7 @@
-/* letor.cc: Letor Class
- *
- * Copyright (C) 2011 Parth Gupta
+/** @file letor.cc
+ * @brief Letor Class
+ */
+/* Copyright (C) 2011 Parth Gupta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
