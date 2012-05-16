@@ -180,6 +180,7 @@ if [ -d ".git" ] ; then
   cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
+xapian-letor/common
 END
   if [ -f .git/info/exclude ] && 
      cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
