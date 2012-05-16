@@ -177,22 +177,6 @@ the Learning-to-Rank problem for document retrieval. Although if user wishes,
 other parameters can be easily tried by manually setting them in letor_score()
 method.
 
-Pre-requisite: libSVM
-=====================
-
-To use Xapian::Letor for learning a model and then to score the document vector, there has to be libSVM installed at system level. In order to install libSVM you can get an RPM package of libSVM and install it. You can use 'yum' or 'apt-get' kind of utilities to get it installed depending upon your Linux distro. Version:libsvm-3.1 was used for the development of Letor project. libsvm-3.0-2 also works fine with the project as tested.
-
-After successfully installing it you should check if there is 'svm.h' in
-"/usr/include/libsvm/" , If it is there then you are ready to use the API.
-Otherwise if your distro install the libSVM package at some other location then
-find out the directory which contains 'svm.h' and modify the Makefile.mk in
-../core/letor/ directory in the following way::
-
-	Change
-		INCLUDES += -I/usr/include/libsvm
-	To
-		INCLUDES += -I/<path_to_directory_containing_svm.h>
-
 Extendability
 =============
 

@@ -1,0 +1,5 @@
+Wed May 16 04:45:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/letor.rst: Drop discussion of pre-requisites as INSTALL now
+	  covers this.
+
