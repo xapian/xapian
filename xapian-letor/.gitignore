@@ -9,6 +9,8 @@ bin/.dirstamp
 bin/.libs
 bin/questletor
 bin/questletor.1
+bin/xapian-letor-update
+bin/xapian-letor-update.1
 config.guess
 config.h
 config.h.in
