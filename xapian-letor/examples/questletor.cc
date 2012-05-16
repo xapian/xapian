@@ -1,4 +1,4 @@
-/* questletor.cc - Command line search tool using Xapian::QueryParser and Xapian::Letor 
+/* questletor.cc - Command line search tool using Xapian::QueryParser and Xapian::Letor
  *
  * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright (C) 2011 Parth Gupta
@@ -44,16 +44,13 @@ using namespace std;
 #define PROG_NAME "letor"
 #define PROG_DESC "Xapian command line search tool with Lerning to Rank Facility"
 
-
 typedef std::pair<Xapian::docid, double> MyPair;
-
 
 struct MyTestCompare {
     bool operator()(const MyPair& firstPair, const MyPair& secondPair) const {
-        return firstPair.second < secondPair.second;
+	return firstPair.second < secondPair.second;
     }
 };
-
 
 // Stopwords:
 static const char * sw[] = {
@@ -81,7 +78,6 @@ static void show_usage() {
 "  -h, --help          display this help and exit\n"
 "  -v, --version       output version information and exit\n";
 }
-
 
 int
 main(int argc, char **argv)
@@ -169,11 +165,9 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-
-
     /* This module converts the query terms inclusive of the query terms
      * in titles
-     * Example: 
+     * Example:
      * original query = "parth gupta"
      * converted query = "title:parth title:gupta parth gupta"
      */
@@ -182,10 +176,10 @@ try {
     istringstream iss(argv[optind]);
     string title="title:";
     while(iss) {
-        string t;
+	string t;
 	iss >> t;
-	if(t=="")
-            break;
+	if (t=="")
+	    break;
 	string temp="";
 	temp.append(title);
 	temp.append(t);
@@ -193,20 +187,17 @@ try {
 	temp.append(qq);
 	qq=temp;
     }
-    cout<<"Final Query "<<qq<<"\n";
-
-
+    cout << "Final Query " << qq << "\n";
 
     Xapian::Query query = parser.parse_query(qq,
 					     parser.FLAG_DEFAULT|
 					     parser.FLAG_SPELLING_CORRECTION);
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
-        cout << "Did you mean: " << correction << "\n\n";
+	cout << "Did you mean: " << correction << "\n\n";
 
     cout << "Parsed Query: " << query.get_description() << endl;
 
-        
     if (!have_database) {
 	cout << "No database specified so not running the query." << endl;
 	exit(0);
@@ -225,10 +216,8 @@ try {
     ltr.set_database(db);
     ltr.set_query(query);
 
-
     ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
 
- 
     ltr.letor_learn_model(4,0);
     map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
 
@@ -236,20 +225,19 @@ try {
     map<Xapian::docid, double>::iterator iter = letor_mset.begin();
     map<Xapian::docid, double>::iterator endIter = letor_mset.end();
 
-    for(; iter != endIter; ++iter) {
+    for (; iter != endIter; ++iter) {
        s.insert(*iter);
     }
-
 
     set<MyPair,MyTestCompare>::iterator it;
 
     int rank=1;
-    for ( it=s.end() ; it != s.begin(); it-- ) {
-        cout<<"Item: "<<rank<<"\t"<<(*it).second<<"\n";
+    for (it = s.end(); it != s.begin(); it--) {
+	cout << "Item: " << rank << "\t" << (*it).second << "\n";
 
-        Xapian::Document doc = db.get_document((*it).first);
-        cout<<doc.get_data()<<"\n";
-        rank++;
+	Xapian::Document doc = db.get_document((*it).first);
+	cout << doc.get_data() << "\n";
+	rank++;
     }
 
     cout << flush;

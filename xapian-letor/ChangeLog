@@ -1,3 +1,7 @@
+Wed May 16 05:51:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* examples/questletor.cc: Fix whitespace irregularities.
+
 Wed May 16 05:38:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* .gitignore: Create.
