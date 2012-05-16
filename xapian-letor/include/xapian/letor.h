@@ -60,7 +60,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string,long int> form.
      *
      *  @param  doc     This is the document in which we want the frequency of the terms in query. Generally in Letor, this document is taken
-     *          from the Xapain::MSet retieved from the first retrieval.
+     *          from the Xapain::MSet retrieved from the first retrieval.
      *  @param  query   This is the query for which terms we want frequency in the document.
      */
     std::map<std::string,long int> termfreq( const Xapian::Document & doc , const Xapian::Query & query);
@@ -96,9 +96,9 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string,long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
 
-    /** This method calculates the length of the collenction in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated
+    /** This method calculates the length of the collection in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated
      *  as a stored user metadata in omindex otherwise it is calculated out of scratch(this might take some time depending upon the size of the
-     *  database. Lenght information is stored in std::map<string,long int> format and can be accessed as below:
+     *  database. Length information is stored in std::map<string,long int> format and can be accessed as below:
      *
      *  @code
      *  map<string, long int> len;
@@ -112,7 +112,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string,long int> collection_length(const Xapian::Database & db);
 
-    /** This method calculates the frequecny of query terms in the whole database. The information is stored in std::map<string, long int> format and
+    /** This method calculates the frequency of query terms in the whole database. The information is stored in std::map<string, long int> format and
      *  used during the feature calculation methods.
      *
      *  @param  db      Database to be used

@@ -1,3 +1,7 @@
+Wed May 16 07:53:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/letor.h: Fix documentation comment typos.
+
 Wed May 16 07:49:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* bin/questletor.cc,bin/xapian-letor-update.cc,letor.cc,
