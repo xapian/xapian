@@ -420,7 +420,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     typedef list<string> List2;
     List2 doc_ids;
 
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 
 	map<string, long int> tf;
@@ -462,7 +462,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	 */
 
 	if (first == 1) {
-	    for (int j = 1; j < 20; j++) {
+	    for (int j = 1; j < 20; ++j) {
 		List1 l;
 		l.push_back(f[j]);
 		norm.insert(pair<int, list<double> >(j, l));
@@ -471,9 +471,9 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	} else {
 	    norm_outer = norm.begin();
 	    int k = 1;
-	    for (; norm_outer != norm.end(); norm_outer++) {
+	    for (; norm_outer != norm.end(); ++norm_outer) {
 		norm_outer->second.push_back(f[k]);
-		k++;
+		++k;
 	    }
 	}
     }//for closed
@@ -482,7 +482,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
     if (!norm.empty()) {
 	norm_outer = norm.begin();
-	norm_outer++;
+	++norm_outer;
 	int k = 0;
 	for (; norm_outer != norm.end(); ++norm_outer) {
 	    k = 0;
@@ -494,7 +494,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	    for (norm_inner = norm_outer->second.begin(); norm_inner != norm_outer->second.end(); ++norm_inner) {
 		if (max != 0)      // sometimes value for whole feature is 0 and hence it may cause 'divide-by-zero'
 		    *norm_inner /= max;
-		k++;
+		++k;
 	    }
 	}
 
@@ -514,9 +514,9 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 		test_case.append(convertDouble(norm_outer->second.front()));
 		test_case.append(" ");
 		norm_outer->second.pop_front();
-		j++;
+		++j;
 	    }
-	    xx++;
+	    ++xx;
 
 	    string model_file;
 	    model_file = get_cwd();
@@ -592,7 +592,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
 	    letor_mset[doc.get_docid()] = predict_label;
 
-	    mset_iter++;
+	    ++mset_iter;
 	}//while closed
     }//if closed
 
@@ -654,7 +654,7 @@ static void read_problem(const char *filename) {
     max_index = 0;
     j = 0;
 
-    for (i = 0; i < prob.l; i++) {
+    for (i = 0; i < prob.l; ++i) {
 	inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
 	readline(fp);
 	prob.x[i] = &x_space[j];
@@ -698,7 +698,7 @@ static void read_problem(const char *filename) {
 	param.gamma = 1.0 / max_index;
 
     if (param.kernel_type == PRECOMPUTED)
-	for (i = 0; i < prob.l; i++) {
+	for (i = 0; i < prob.l; ++i) {
 	    if (prob.x[i][0].index != 0) {
 		fprintf(stderr, "Wrong input format: first column must be 0:sample_serial_number\n");
 		exit(1);
@@ -802,7 +802,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	    int i = 0;
 	    while (str != NULL)	{
 		token[i] = str;		//store tokens in a string array
-		i++;
+		++i;
 		str = strtok(NULL, " ,.-");
 	    }
 
@@ -891,7 +891,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 	int first = 1;    //used as a flag in QueryLevelNorm and module
 
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	    Xapian::Document doc = i.get_document();
 
 	    map<string, long int> tf;
@@ -950,7 +950,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 			l.push_back((double)q1);
 			norm.insert(pair<int, list<double> >(0, l));
 			doc_ids.push_back(id);
-			for (int j = 1; j < 20; j++) {
+			for (int j = 1; j < 20; ++j) {
 			    List1 l1;
 			    l1.push_back(f[j]);
 			    norm.insert(pair<int, list<double> >(j, l1));
@@ -959,12 +959,12 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 		    } else {
 			norm_outer = norm.begin();
 			norm_outer->second.push_back(q1);
-			norm_outer++;
+			++norm_outer;
 			doc_ids.push_back(id);
 			int k = 1;
-			for (; norm_outer != norm.end(); norm_outer++) {
+			for (; norm_outer != norm.end(); ++norm_outer) {
 			    norm_outer->second.push_back(f[k]);
-			    k++;
+			    ++k;
 			}
 		    }
 		}
@@ -978,7 +978,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	    continue;
 
 	norm_outer = norm.begin();
-	norm_outer++;
+	++norm_outer;
 	int k = 0;
 	for (; norm_outer != norm.end(); ++norm_outer) {
 	    k = 0;
@@ -990,7 +990,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	    for (norm_inner = norm_outer->second.begin(); norm_inner != norm_outer->second.end(); ++norm_inner) {
 		if (max != 0)
 		    *norm_inner /= max;
-		k++;
+		++k;
 	    }
 	}
 
@@ -999,14 +999,14 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	    norm_outer = norm.begin();
 	    train_file << norm_outer->second.front();
 	    norm_outer->second.pop_front();
-	    norm_outer++;
-	    j++;
+	    ++norm_outer;
+	    ++j;
 //Uncomment the line below if you want 'Qid' in the training file
 //          train_file << " qid:" << qid;
 	    for (; norm_outer != norm.end(); ++norm_outer) {
 		train_file << " " << j << ":" << norm_outer->second.front();
 		norm_outer->second.pop_front();
-		j++;
+		++j;
 	    }
 //Uncomment the line below if you want 'DocID' in the training file
 //          train_file << " #docid:" << doc_ids.front();
