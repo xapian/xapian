@@ -21,13 +21,19 @@
 
 #include <config.h>
 
-#include <xapian.h>
 #include <xapian/letor.h>
 
+#include <xapian.h>
+
 #include "letor_internal.h"
-#include <xapian/error.h>
 #include "str.h"
 #include "stringutils.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include "safeerrno.h"
+#include "safeunistd.h"
 
 #include <algorithm>
 #include <list>
@@ -37,13 +43,6 @@
 #include <string>
 #include <map>
 #include <math.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
-#include "safeunistd.h"
 
 #include <libsvm/svm.h>
 #define Malloc(type, n) (type *)malloc((n) * sizeof(type))
