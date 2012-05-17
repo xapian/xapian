@@ -1,3 +1,7 @@
+Wed May 16 14:58:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* letor_internal.h: Remove unused '#include <list>'.
+
 Wed May 16 14:57:37 GMT 2012  Olly Betts <olly@survex.com>
 
 	* letor_internal.h: Add header multiple include guard.
