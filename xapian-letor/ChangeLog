@@ -1,3 +1,7 @@
+Thu May 17 00:57:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Add configure checks for libsvm.
+
 Wed May 16 14:58:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* letor_internal.h: Remove unused '#include <list>'.

@@ -60,9 +60,7 @@ endif
 include bin/Makefile.mk
 include include/Makefile.mk
 
-INCLUDES += -I/usr/include/libsvm
-
-libxapianletor_la_LIBADD += -lsvm
+libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 
 noinst_HEADERS +=\
 	common/safeunistd.h\

@@ -101,6 +101,15 @@ AC_TRY_COMPILE([#include <stdint.h>],
 dnl Check for headers.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 
+dnl libsvm is required.
+AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
+save_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([svm_train], [svm], [], AC_MSG_ERROR([libsvm required]))
+LIBSVM_LIBS=$LIBS
+LIBS=$save_LIBS
+AC_SUBST([LIBSVM_LIBS])
+
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)
 AC_TYPE_MODE_T
