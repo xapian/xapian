@@ -1,3 +1,9 @@
+Thu May 17 12:53:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.h: Change parsing of
+	  multiple <body> tags and text outside of <body> to match the
+	  behaviour if modern web browsers.  (ticket#599)
+
 Tue May 15 12:46:15 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set link_all_deplibs_CXX=no on freebsd and openbsd,
