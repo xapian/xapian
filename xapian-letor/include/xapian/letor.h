@@ -65,7 +65,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string, long int> termfreq(const Xapian::Document & doc, const Xapian::Query & query);
 
-    /** This method calculated the inverse document frequency(idf) of query terms in the database. It returns the idf of each term in
+    /** This method calculates the inverse document frequency(idf) of query terms in the database. It returns the idf of each term in
      *  std::map<string, double> form.
      *
      *  Note: idf of a term 't' is calculated as below:
@@ -80,7 +80,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::map<std::string, double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
 
-    /** This method calculated the length of the documents as number of 'terms'. It calculated the length for three different
+    /** This method calculates the length of the documents as number of 'terms'. It calculates the length for three different
      *  parts: title, body and whole document. This information is returned in the std::map<string, long int> format.
      *  It can be accessed as below:
      *
@@ -97,7 +97,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     std::map<std::string, long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
 
     /** This method calculates the length of the collection in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated
-     *  as a stored user metadata in omindex otherwise it is calculated out of scratch(this might take some time depending upon the size of the
+     *  as a stored user metadata in omindex otherwise it is calculated out of scratch (this might take some time depending upon the size of the
      *  database. Length information is stored in std::map<string, long int> format and can be accessed as below:
      *
      *  @code
@@ -154,7 +154,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
      *  installed in the system. The SVM model is learnt using libsvm.
      *
-     *  @param  s       its is svm_type (default s=4). In libsvm-3.1,
+     *  @param  s       svm_type (default s=4). In libsvm-3.1,
      *          1 -- C-SVC
      *          1 -- nu-SVC
      *          2 -- one-class SVM
@@ -170,7 +170,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     void letor_learn_model(int s, int k);
 
-    /** This method prepares the 'train.txt' in the current working directory. This file is used to train a model which in turn will be used to
+    /** This method prepares the 'train.txt' file in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
      *  as below:
      *
@@ -183,7 +183,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  query_file      Here you have to give a path to the file (in free text form)  containing training queries in specified format.
      *  @param  qrel_file       Here supply the path to the qrel file (in free text form) containing the relevance judgements for the
      *          queries in the training file. This file should be in standard format specified.
-     *  @param  msetsize   This is the mset size used for the first retrieval for training queries. It should be selected depending on te qrel file
+     *  @param  msetsize   This is the mset size used for the first retrieval for training queries. It should be selected depending on the qrel file
      *          and database size.
      */
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
