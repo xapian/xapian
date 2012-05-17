@@ -183,10 +183,10 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  query_file      Here you have to give a path to the file (in free text form)  containing training queries in specified format.
      *  @param  qrel_file       Here supply the path to the qrel file (in free text form) containing the relevance judgements for the
      *          queries in the training file. This file should be in standard format specified.
-     *  @param  msize   This is the msize used for the first retrieval for training queries. It should be selected depending on te qrel file
+     *  @param  msetsize   This is the mset size used for the first retrieval for training queries. It should be selected depending on te qrel file
      *          and database size.
      */
-    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, int msize);
+    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
 };
 
 }

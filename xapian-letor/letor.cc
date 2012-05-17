@@ -120,7 +120,7 @@ Letor::letor_learn_model(int s, int k) {
 }
 
 void
-Letor::prepare_training_file(const string & query_file, const string & qrel_file, int msetsize) {
+Letor::prepare_training_file(const string & query_file, const string & qrel_file, Xapian::doccount msetsize) {
     internal->prepare_training_file(query_file, qrel_file, msetsize);
 }
 

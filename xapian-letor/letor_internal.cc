@@ -763,15 +763,13 @@ Letor::Internal::letor_learn_model(int s_type, int k_type) {
  */
 
 void
-Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file, int msetsize) {
+Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file, Xapian::doccount msetsize) {
 
     ofstream train_file;
     train_file.open("train.txt");
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
-
-    int msize = msetsize;
 
     Xapian::QueryParser parser;
     parser.add_prefix("title","S");
@@ -879,7 +877,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
 
-	Xapian::MSet mset = enquire.get_mset(0, msize);
+	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
 	Xapian::Letor ltr;
 
