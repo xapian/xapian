@@ -45,7 +45,7 @@
 #include <errno.h>
 #include "safeunistd.h"
 
-#include <svm.h>
+#include <libsvm/svm.h>
 #define Malloc(type, n) (type *)malloc((n) * sizeof(type))
 
 using namespace std;
@@ -508,7 +508,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 	    j = 0;
 	    norm_outer = norm.begin();
 	    ++j;
-	    for (;norm_outer != norm.end(); ++norm_outer) {
+	    for (; norm_outer != norm.end(); ++norm_outer) {
 		test_case.append(str(j));
 		test_case.append(":");
 		test_case.append(convertDouble(norm_outer->second.front()));
@@ -740,14 +740,14 @@ Letor::Internal::letor_learn_model(int s_type, int k_type) {
     model_file_name = get_cwd().append("/model.txt");
 
     read_problem(input_file_name.c_str());
-    error_msg = svm_check_parameter(&prob,&param);
+    error_msg = svm_check_parameter(&prob, &param);
     if (error_msg) {
 	fprintf(stderr, "svm_check_parameter failed: %s\n", error_msg);
 	exit(1);
     }
 
-    model = svm_train(&prob,&param);
-    if (svm_save_model(model_file_name.c_str(),model)) {
+    model = svm_train(&prob, &param);
+    if (svm_save_model(model_file_name.c_str(), model)) {
 	fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
 	exit(1);
     }
@@ -772,8 +772,8 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     Xapian::Stem stemmer("english");
 
     Xapian::QueryParser parser;
-    parser.add_prefix("title","S");
-    parser.add_prefix("subject","S");
+    parser.add_prefix("title", "S");
+    parser.add_prefix("subject", "S");
 
     parser.set_database(letor_db);
     parser.set_default_op(Xapian::Query::OP_OR);
@@ -788,15 +788,15 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     Map2 qrel;
 
     string inLine;
-    ifstream myfile(qrel_file.c_str(),ifstream::in);
+    ifstream myfile(qrel_file.c_str(), ifstream::in);
     string token[4];
     if (myfile.is_open()) {
 	while (myfile.good()) {
-	    getline(myfile,inLine);		//read a file line by line
+	    getline(myfile, inLine);		//read a file line by line
 	    char * str;
-	    char *x1;
+	    char * x1;
 	    x1 = const_cast<char*>(inLine.c_str());
-	    str = strtok(x1," ,.-");
+	    str = strtok(x1, " ,.-");
 	    int i = 0;
 	    while (str != NULL)	{
 		token[i] = str;		//store tokens in a string array
@@ -815,7 +815,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     //reading qrel in a map over.
 
-    map<string,long int> coll_len;
+    map<string, long int> coll_len;
     coll_len = collection_length(letor_db);
 
     string str1;
@@ -844,7 +844,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	typedef list<string> List2;
 	List2 doc_ids;
 
-	getline(myfile1,str1);
+	getline(myfile1, str1);
 	if (str1.empty()) {
 	    break;
 	}

@@ -1,3 +1,7 @@
+Thu May 17 00:58:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* letor_internal.cc: More whitespace fettling.
+
 Thu May 17 00:57:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Add configure checks for libsvm.
