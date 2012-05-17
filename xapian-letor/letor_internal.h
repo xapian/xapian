@@ -19,6 +19,9 @@
  * USA
  */
 
+#ifndef XAPIAN_INCLUDED_LETOR_INTERNAL_H
+#define XAPIAN_INCLUDED_LETOR_INTERNAL_H
+
 #include <xapian/letor.h>
 
 #include <list>
@@ -67,3 +70,5 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 };
 
 }
+
+#endif // XAPIAN_INCLUDED_LETOR_INTERNAL_H
