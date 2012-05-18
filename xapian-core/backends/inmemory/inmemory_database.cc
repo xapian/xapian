@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -569,6 +569,7 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 TermList *
 InMemoryDatabase::open_metadata_keylist(const string &) const
 {
+    if (closed) InMemoryDatabase::throw_database_closed();
     if (metadata.empty()) return NULL;
     // FIXME: nobody implemented this yet...
     throw Xapian::UnimplementedError("InMemory backend doesn't currently implement Database::metadata_keys_begin()");

@@ -1,3 +1,9 @@
+Fri May 18 12:50:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Check if the database is
+	  closed when asked to iterate metadata keys.  Fixes recently added
+	  testcase closedb10 for inmemory.
+
 Fri May 18 12:34:24 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Pass -ldl last when compiling zlib-vg.so, as that
