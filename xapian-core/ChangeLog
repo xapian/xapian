@@ -1,3 +1,8 @@
+Fri May 18 04:54:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: We now test almost all methods of Database
+	  and WritableDatabase after calling close().  (ticket#337)
+
 Thu May 17 14:26:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/chert/: After closing the database, methods
