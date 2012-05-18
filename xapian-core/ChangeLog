@@ -1,3 +1,9 @@
+Fri May 18 22:48:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/positioniterator.h,include/xapian/postingiterator.h,
+	  include/xapian/termiterator.h: Backport missing documentation
+	  comments for API operator++ and operator* methods.
+
 Wed May 09 11:47:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Update for people who contributed to 1.2.10.

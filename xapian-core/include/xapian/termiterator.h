@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,8 +67,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	/// Return the current term.
 	std::string operator *() const;
 
+	/// Advance the iterator to the next position.
 	TermIterator & operator++();
 
+	/// Advance the iterator to the next position (postfix version).
 	DerefWrapper_<std::string> operator++(int) {
 	    const std::string & term(**this);
 	    operator++();
