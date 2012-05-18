@@ -915,8 +915,7 @@ BrassDatabase::open_term_list(Xapian::docid did) const
     LOGCALL(DB, TermList *, "BrassDatabase::open_term_list", did);
     Assert(did != 0);
     if (!termlist_table.is_open())
-	throw Xapian::FeatureUnavailableError("Database has no termlist");
-
+	throw_termlist_table_close_exception();
     intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(new BrassTermList(ptrtothis, did));
 }
@@ -1029,6 +1028,16 @@ BrassDatabase::get_uuid() const
 {
     LOGCALL(DB, string, "BrassDatabase::get_uuid", NO_ARGS);
     RETURN(version_file.get_uuid_string());
+}
+
+void
+BrassDatabase::throw_termlist_table_close_exception() const
+{
+    // Either the database has been closed, or else there's no termlist table.
+    // Check if the postlist table is open to determine which is the case.
+    if (!postlist_table.is_open())
+	BrassTable::throw_database_closed();
+    throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1175,7 +1184,7 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
     Assert(did != 0);
 
     if (!termlist_table.is_open())
-	throw Xapian::FeatureUnavailableError("Database has no termlist");
+	throw_termlist_table_close_exception();
 
     if (rare(modify_shortcut_docid == did)) {
 	// The modify_shortcut document can't be used for a modification
@@ -1253,7 +1262,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		(void)add_document_(did, document);
 		return;
 	    }
-	    throw Xapian::FeatureUnavailableError("Database has no termlist");
+	    throw_termlist_table_close_exception();
 	}
 
 	// Check for a document read from this database being replaced - ie, a

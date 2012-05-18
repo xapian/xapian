@@ -2,7 +2,7 @@
  * @brief Tests of closing databases.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,18 @@ struct closedb1_iterators {
 	// closed" error.
 	COUNT_CLOSEDEXC(db.postlist_begin("paragraph"));
 	COUNT_CLOSEDEXC(db.get_document(1).get_value(1));
+	COUNT_CLOSEDEXC(db.termlist_begin(1));
+	COUNT_CLOSEDEXC(db.positionlist_begin(1, "paragraph"));
+	COUNT_CLOSEDEXC(db.allterms_begin());
+	COUNT_CLOSEDEXC(db.allterms_begin("p"));
+	COUNT_CLOSEDEXC(db.get_termfreq("paragraph"));
+	COUNT_CLOSEDEXC(db.get_collection_freq("paragraph"));
+	COUNT_CLOSEDEXC(db.term_exists("paragraph"));
+	COUNT_CLOSEDEXC(db.get_value_freq(1));
+	COUNT_CLOSEDEXC(db.get_value_lower_bound(1));
+	COUNT_CLOSEDEXC(db.get_value_upper_bound(1));
+	COUNT_CLOSEDEXC(db.valuestream_begin(1));
+	COUNT_CLOSEDEXC(db.get_doclength(1));
 
 	// Reopen raises the "database closed" error.
 	COUNT_CLOSEDEXC(db.reopen());
@@ -128,6 +140,11 @@ DEFINE_TESTCASE(closedb1, backend) {
     closedexc_count = iters.perform();
     TEST_NOT_EQUAL(closedexc_count, 0);
 
+    // get_description() shouldn't throw an exception.  Actually do something
+    // with the description, in case this method is marked as "pure" in the
+    // future.
+    TEST(!db.get_description().empty());
+
     // Calling close repeatedly is okay.
     db.close();
 
@@ -158,6 +175,27 @@ DEFINE_TESTCASE(closedb3, backend) {
     }
     try {
 	TEST_EQUAL(db.get_doccount(), 566);
+    } catch (const Xapian::DatabaseError &) {
+    }
+    try {
+	TEST_EQUAL(db.get_lastdocid(), 566);
+    } catch (const Xapian::DatabaseError &) {
+    }
+    try {
+	TEST_REL(db.get_doclength_lower_bound(), <, db.get_avlength());
+    } catch (const Xapian::DatabaseError &) {
+    }
+    try {
+	TEST_REL(db.get_doclength_upper_bound(), >, db.get_avlength());
+    } catch (const Xapian::DatabaseError &) {
+    }
+    try {
+	TEST(db.get_wdf_upper_bound("king"));
+    } catch (const Xapian::DatabaseError &) {
+    }
+    try {
+	// For non-remote databases, keep_alive() is a no-op anyway.
+	db.keep_alive();
     } catch (const Xapian::DatabaseError &) {
     }
     return true;
@@ -197,6 +235,19 @@ DEFINE_TESTCASE(closedb5, transactions && !remote) {
 	wdb.close();
 	Xapian::Database db = get_writable_database_as_database();
 	TEST_EQUAL(db.get_doccount(), 0);
+    }
+    return true;
+}
+
+/// Database::keep_alive() should fail after close() for a remote database.
+DEFINE_TESTCASE(closedb6, remote) {
+    Xapian::Database db(get_database("etext"));
+    db.close();
+
+    try {
+	db.keep_alive();
+	return false;
+    } catch (const Xapian::DatabaseError &) {
     }
     return true;
 }
