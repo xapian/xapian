@@ -1,3 +1,8 @@
+Fri May 18 12:34:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Pass -ldl last when compiling zlib-vg.so, as that
+	  seems to be needed on Ubuntu 12.04.
+
 Fri May 18 04:54:09 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_closedb.cc: We now test almost all methods of Database
