@@ -110,7 +110,7 @@ vg_opts="$vg_opts --suppressions=$srcdir/valgrind.supp"
 echo "Running test '$@' under valgrind"
 # zlib can produce "uninitialised" output from "initialised" input - the output
 # does decode to the input, so this is presumably just some unused bits in the
-# output, so weuse an LD_PRELOAD hack to get valgrind to check the input is
+# output, so we use an LD_PRELOAD hack to get valgrind to check the input is
 # initialised and then tell it that the output is initialised.
 if [ -f zlib-vg.so ] ; then
   if [ -n "$LD_PRELOAD" ] ; then

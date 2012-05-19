@@ -1,3 +1,7 @@
+Sat May 19 00:27:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Fix comment typo.
+
 Fri May 18 12:50:08 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Check if the database is
