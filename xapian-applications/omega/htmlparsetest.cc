@@ -56,6 +56,8 @@ static const testcase tests[] = {
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },
     { "foo<![CDATA[bar", "foobar", "", "", "" },
+    // Test that handling of multiple body tags matches modern browser behaviour (ticket#599).
+    { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
