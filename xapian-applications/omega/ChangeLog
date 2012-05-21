@@ -1,3 +1,9 @@
+Mon May 21 06:34:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Set link_all_deplibs_CXX=no on freebsd and openbsd,
+	  like we already do for xapian-core.
+
 Wed May 09 10:43:41 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.10.
