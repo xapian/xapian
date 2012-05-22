@@ -1,3 +1,8 @@
+Tue May 22 08:21:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/Makefile.am: Fix "make check" for PHP to work in a
+	  VPATH build using a release tarball.
+
 Tue May 15 11:41:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/pythontest3.py: Sync with pythontest2.

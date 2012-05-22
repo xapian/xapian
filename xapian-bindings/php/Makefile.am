@@ -9,7 +9,8 @@ abs_builddir = @abs_builddir@
 # and provide an alternative php.ini but with "-c" it seems PHP still loads the
 # system.ini first (at least with PHP 4.3.10).
 TESTS_ENVIRONMENT = $(PHP) -n -d safe_mode=off -d enable_dl=on \
-	-d extension_dir='$(abs_builddir)/.libs' -d include_path=php5
+	-d extension_dir='$(abs_builddir)/.libs' \
+	-d include_path='php5$(PHP_PATH_SEPARATOR)$(srcdir)/php5'
 
 ## Test programs to be run
 TESTS = smoketest.php
