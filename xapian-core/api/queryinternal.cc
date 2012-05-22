@@ -1012,6 +1012,12 @@ struct is_matchnothing {
 void
 QueryAndLike::add_subquery(const Xapian::Query & subquery)
 {
+    // If the AndLike is already MatchNothing, do nothing.
+    if (subqueries.size() == 1 && subqueries[0].internal.get() == NULL)
+	return;
+    // If we're adding MatchNothing, discard any previous subqueries.
+    if (subquery.internal.get() == NULL)
+	subqueries.clear();
     subqueries.push_back(subquery);
 }
 
@@ -1021,10 +1027,9 @@ QueryAndLike::done()
     // Empty AndLike gives MatchNothing.
     if (subqueries.empty())
 	return NULL;
-    // If any subquery is MatchNothing, then AndLike gives MatchNothing.
-    vector<Query> & v = subqueries;
-    if (find_if(v.begin(), v.end(), is_matchnothing()) != v.end())
-	return NULL;
+    // We handle any subquery being MatchNothing in add_subquery() by leaving
+    // a single MatchNothing subquery, and so this check results in AndLike
+    // giving MatchNothing.
     if (subqueries.size() == 1)
 	return subqueries[0].internal.get();
     return this;

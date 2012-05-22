@@ -1,3 +1,8 @@
+Tue May 22 02:40:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc: Handle QueryAndLike with a MatchNothing
+	  subquery in add_subquery() rather than done().
+
 Tue May 22 02:01:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc,api/queryinternal.h: Drop MatchNothing
