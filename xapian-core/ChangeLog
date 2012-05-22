@@ -1,3 +1,9 @@
+Tue May 22 06:25:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc: Handle the left side of AND_NOT and
+	  AND_MAYBE being MatchNothing in add_subquery() rather than
+	  in done().
+
 Tue May 22 02:40:45 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc: Handle QueryAndLike with a MatchNothing

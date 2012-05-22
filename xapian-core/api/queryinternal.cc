@@ -1078,6 +1078,9 @@ QueryOrLike::done()
 void
 QueryAndNot::add_subquery(const Xapian::Query & subquery)
 {
+    // If the left side of AndNot is already MatchNothing, do nothing.
+    if (subqueries.size() == 1 && subqueries[0].internal.get() == NULL)
+	return;
     // Drop any 2nd or subsequent subqueries which are MatchNothing.
     if (subquery.internal.get() != NULL || subqueries.empty())
 	subqueries.push_back(subquery);
@@ -1086,12 +1089,11 @@ QueryAndNot::add_subquery(const Xapian::Query & subquery)
 Query::Internal *
 QueryAndNot::done()
 {
-    // If left subquery is MatchNothing, then AND_NOT gives MatchNothing.
-    if (subqueries[0].internal.get() == NULL) {
-	return NULL;
-    }
     // Any MatchNothing right subqueries get discarded by add_subquery() - if
     // that leaves just the left subquery, return that.
+    //
+    // If left subquery is MatchNothing, then add_subquery() discards all right
+    // subqueries, so this check also gives MatchNothing for this case.
     if (subqueries.size() == 1)
 	return subqueries[0].internal.get();
     return this;
@@ -1100,6 +1102,9 @@ QueryAndNot::done()
 void
 QueryAndMaybe::add_subquery(const Xapian::Query & subquery)
 {
+    // If the left side of AndMaybe is already MatchNothing, do nothing.
+    if (subqueries.size() == 1 && subqueries[0].internal.get() == NULL)
+	return;
     // Drop any 2nd or subsequent subqueries which are MatchNothing.
     if (subquery.internal.get() != NULL || subqueries.empty())
 	subqueries.push_back(subquery);
@@ -1108,12 +1113,11 @@ QueryAndMaybe::add_subquery(const Xapian::Query & subquery)
 Query::Internal *
 QueryAndMaybe::done()
 {
-    // If left subquery is MatchNothing, then AND_MAYBE gives MatchNothing.
-    if (subqueries[0].internal.get() == NULL) {
-	return NULL;
-    }
     // Any MatchNothing right subqueries get discarded by add_subquery() - if
     // that leaves just the left subquery, return that.
+    //
+    // If left subquery is MatchNothing, then add_subquery() discards all right
+    // subqueries, so this check also gives MatchNothing for this case.
     if (subqueries.size() == 1)
 	return subqueries[0].internal.get();
     return this;
