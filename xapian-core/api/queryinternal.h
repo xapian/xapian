@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,9 +171,7 @@ class QueryBranch : public Query::Internal {
 
     void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
 
-    void add_subquery(const Xapian::Query & subquery) {
-	subqueries.push_back(subquery);
-    }
+    virtual void add_subquery(const Xapian::Query & subquery) = 0;
 
     size_t num_subqueries() const { return subqueries.size(); }
 
@@ -185,6 +183,8 @@ class QueryAndLike : public QueryBranch {
     QueryAndLike(size_t num_subqueries_) : QueryBranch(num_subqueries_) { }
 
   public:
+    void add_subquery(const Xapian::Query & subquery);
+
     Query::Internal * done();
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
@@ -197,6 +197,8 @@ class QueryOrLike : public QueryBranch {
     QueryOrLike(size_t num_subqueries_) : QueryBranch(num_subqueries_) { }
 
   public:
+    void add_subquery(const Xapian::Query & subquery);
+
     Query::Internal * done();
 };
 
@@ -230,6 +232,8 @@ class QueryAndNot : public QueryBranch {
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
+    void add_subquery(const Xapian::Query & subquery);
+
     Query::Internal * done();
 
     std::string get_description() const;
@@ -255,6 +259,8 @@ class QueryAndMaybe : public QueryBranch {
     QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    void add_subquery(const Xapian::Query & subquery);
 
     Query::Internal * done();
 

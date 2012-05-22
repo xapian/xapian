@@ -1009,6 +1009,12 @@ struct is_matchnothing {
     }
 };
 
+void
+QueryAndLike::add_subquery(const Xapian::Query & subquery)
+{
+    subqueries.push_back(subquery);
+}
+
 Query::Internal *
 QueryAndLike::done()
 {
@@ -1044,18 +1050,32 @@ QueryAndLike::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, doub
     }
 }
 
+void
+QueryOrLike::add_subquery(const Xapian::Query & subquery)
+{
+    // Drop any subqueries which are MatchNothing.
+    if (subquery.internal.get() != NULL)
+	subqueries.push_back(subquery);
+}
+
 Query::Internal *
 QueryOrLike::done()
 {
-    // Remove any subqueries which are MatchNothing.
-    vector<Query> & v = subqueries;
-    v.erase(remove_if(v.begin(), v.end(), is_matchnothing()), v.end());
-    // If no subqueries are left, then OrLike gives MatchNothing.
+    // An empty OrLike gives MatchNothing.  Note that add_subquery() drops any
+    // subqueries which are MatchNothing.
     if (subqueries.empty())
 	return NULL;
     if (subqueries.size() == 1)
 	return subqueries[0].internal.get();
     return this;
+}
+
+void
+QueryAndNot::add_subquery(const Xapian::Query & subquery)
+{
+    // Drop any 2nd or subsequent subqueries which are MatchNothing.
+    if (subquery.internal.get() != NULL || subqueries.empty())
+	subqueries.push_back(subquery);
 }
 
 Query::Internal *
@@ -1065,13 +1085,19 @@ QueryAndNot::done()
     if (subqueries[0].internal.get() == NULL) {
 	return NULL;
     }
-    // If all right subqueries are MatchNothing, then AND_NOT gives the left
-    // subquery.
-    for (size_t i = 1; i != subqueries.size(); ++i) {
-	if (subqueries[i].internal.get())
-	    return this;
-    }
-    return subqueries[0].internal.get();
+    // Any MatchNothing right subqueries get discarded by add_subquery() - if
+    // that leaves just the left subquery, return that.
+    if (subqueries.size() == 1)
+	return subqueries[0].internal.get();
+    return this;
+}
+
+void
+QueryAndMaybe::add_subquery(const Xapian::Query & subquery)
+{
+    // Drop any 2nd or subsequent subqueries which are MatchNothing.
+    if (subquery.internal.get() != NULL || subqueries.empty())
+	subqueries.push_back(subquery);
 }
 
 Query::Internal *
@@ -1081,13 +1107,11 @@ QueryAndMaybe::done()
     if (subqueries[0].internal.get() == NULL) {
 	return NULL;
     }
-    // If all right subqueries are MatchNothing, then AND_MAYBE gives the left
-    // subquery.
-    for (size_t i = 1; i != subqueries.size(); ++i) {
-	if (subqueries[i].internal.get())
-	    return this;
-    }
-    return subqueries[0].internal.get();
+    // Any MatchNothing right subqueries get discarded by add_subquery() - if
+    // that leaves just the left subquery, return that.
+    if (subqueries.size() == 1)
+	return subqueries[0].internal.get();
+    return this;
 }
 
 PostingIterator::Internal *

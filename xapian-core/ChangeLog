@@ -1,3 +1,9 @@
+Tue May 22 02:01:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,api/queryinternal.h: Drop MatchNothing
+	  subqueries in OR-like situations in add_subquery() rather than
+	  adding them and then handling it later.
+
 Sat May 19 00:27:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/runsrv.in: Add explanation of why we have this script.
