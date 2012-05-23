@@ -1156,6 +1156,15 @@ static bool test_qp_flag_partial1()
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR outsid@1))");
 
+    // And now with stemming strategy STEM_ALL_Z.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL_Z);
+    qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR Zout@1))");
+    qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((Zoutside@1 OR Zout@1))");
+    qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((Zoutside@1 OR Zoutsid@1))");
+
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qobj = qp.parse_query("title:cow", Xapian::QueryParser::FLAG_PARTIAL);
@@ -2152,6 +2161,7 @@ static const test test_stem_all_queries[] = {
     { "\"chemical engineers\"", "(chemic@1 PHRASE 2 engin@2)" },
     { "chemical NEAR engineers", "(chemic@1 NEAR 11 engin@2)" },
     { "chemical engineers", "(chemic@1 OR engin@2)" },
+    { "title:(chemical engineers)", "(XTchemic@1 OR XTengin@2)" },
     { NULL, NULL }
 };
 
@@ -2160,7 +2170,45 @@ static bool test_qp_stem_all1()
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(qp.STEM_ALL);
+    qp.add_prefix("title", "XT");
     for (const test *p = test_stem_all_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_stem_all_z_queries[] = {
+    { "\"chemical engineers\"", "(Zchemic@1 PHRASE 2 Zengin@2)" },
+    { "chemical NEAR engineers", "(Zchemic@1 NEAR 11 Zengin@2)" },
+    { "chemical engineers", "(Zchemic@1 OR Zengin@2)" },
+    { "title:(chemical engineers)", "(ZXTchemic@1 OR ZXTengin@2)" },
+    { NULL, NULL }
+};
+
+static bool test_qp_stem_all_z1()
+{
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(qp.STEM_ALL_Z);
+    qp.add_prefix("title", "XT");
+    for (const test *p = test_stem_all_z_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -2606,6 +2654,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
+    TESTCASE(qp_stem_all_z1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
     TESTCASE(qp_phrase1),

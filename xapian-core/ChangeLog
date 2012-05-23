@@ -1,3 +1,12 @@
+Wed May 23 11:33:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.lemony:
+	  Add new QueryParser::STEM_ALL_Z stemming strategy, which stems all
+	  terms and adds a Z prefix.  (Patch from Sehaj Singh Kalra, fixes
+	  ticket#562)
+	* tests/queryparsertest.cc: Add test coverage for
+	  QueryParser::STEM_ALL_Z.
+
 Wed May 23 05:37:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/valuesetmatchdecider.cc,include/xapian/valuesetmatchdecider.h:

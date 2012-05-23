@@ -409,7 +409,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
 
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
+    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
 
     /// Copy constructor.
     QueryParser(const QueryParser & o);
@@ -444,14 +444,18 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  probabilistic fields - boolean filter terms are never stemmed.
      *
      *  @param strategy	The strategy to use - possible values are:
-     *   - STEM_NONE: Don't perform any stemming.  (default in Xapian <= 1.3.0)
-     *   - STEM_SOME: Search for stemmed forms of terms except for those which
-     *		      start with a capital letter, or are followed by certain
-     *		      characters (currently: (/\@<>=*[{" ), or are used with
-     *		      operators which need positional information.  Stemmed
-     *		      terms are prefixed with 'Z'.  (default in Xapian > 1.3.1)
-     *   - STEM_ALL:  Search for stemmed forms of all words (note: no 'Z'
-     *		      prefix is added).
+     *   - STEM_NONE:	Don't perform any stemming.  (default in Xapian <=
+     *			1.3.0)
+     *   - STEM_SOME:	Search for stemmed forms of terms except for those
+     *			which start with a capital letter, or are followed by
+     *			certain characters (currently: (/\@<>=*[{" ), or are
+     *			used with operators which need positional information.
+     *			Stemmed terms are prefixed with 'Z'.  (default in
+     *			Xapian >= 1.3.1)
+     *   - STEM_ALL:	Search for stemmed forms of all words (note: no 'Z'
+     *			prefix is added).
+     *   - STEM_ALL_Z:	Search for stemmed forms of all words (note: 'Z'
+     *			prefix is added).  (new in Xapian 1.3.1)
      */
     void set_stemming_strategy(stem_strategy strategy);
 
