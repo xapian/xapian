@@ -1,3 +1,9 @@
+Wed May 23 05:37:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/valuesetmatchdecider.cc,include/xapian/valuesetmatchdecider.h:
+	  "Limited" to "Ltd" in (C) two statements, for consistency (and with
+	  Charlie's agreement on IRC).
+
 Wed May 23 02:25:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/,include/xapian/query.h: Rework QueryBranch to use a special
