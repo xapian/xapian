@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	api/omenquireinternal.h\
 	api/postlist.h\
 	api/queryinternal.h\
+	api/queryvector.h\
 	api/replication.h\
 	api/termlist.h\
 	api/vectortermlist.h

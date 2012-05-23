@@ -737,11 +737,11 @@ QueryBranch::get_length() const
 {
     // Sum results from all subqueries.
     Xapian::termcount result = 0;
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(i->internal.get());
-	result += i->internal->get_length();
+	Assert((*i).internal.get());
+	result += (*i).internal->get_length();
     }
     return result;
 }
@@ -783,11 +783,11 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 	result += ch;
     }
 
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(i->internal.get());
-	i->internal->serialise(result);
+	Assert((*i).internal.get());
+	(*i).internal->serialise(result);
     }
 
     // For OP_NEAR, OP_PHRASE, and OP_ELITE_SET, the window/set size gets
@@ -825,11 +825,11 @@ void
 QueryBranch::gather_terms(vector<pair<Xapian::termpos, string> > &terms) const
 {
     // Gather results from all subqueries.
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(i->internal.get());
-	i->internal->gather_terms(terms);
+	Assert((*i).internal.get());
+	(*i).internal->gather_terms(terms);
     }
 }
 
@@ -847,11 +847,11 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     vector<PostList *> postlists;
     postlists.reserve(subqueries.size() - first);
 
-    vector<Query>::const_iterator q;
+    QueryVector::const_iterator q;
     for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(q->internal.get());
-	q->internal->postlist_sub_or_like(ctx, qopt, factor);
+	Assert((*q).internal.get());
+	(*q).internal->postlist_sub_or_like(ctx, qopt, factor);
     }
 
     if (elite_set_size && elite_set_size < subqueries.size()) {
@@ -888,7 +888,7 @@ QueryBranch::get_description_helper(const char * op,
 				    Xapian::termcount parameter) const
 {
     string desc = "(";
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	if (desc.size() > 1) {
 	    desc += op;
@@ -897,11 +897,11 @@ QueryBranch::get_description_helper(const char * op,
 		desc += ' ';
 	    }
 	}
-	Assert(i->internal.get());
+	Assert((*i).internal.get());
 	// MatchNothing subqueries should have been removed by done(), and we
 	// shouldn't get called before done() is, since that happens at the
 	// end of the Xapian::Query constructor.
-	desc += i->internal->get_description();
+	desc += (*i).internal->get_description();
     }
     desc += ')';
     return desc;
@@ -1047,11 +1047,11 @@ QueryAndLike::postlist(QueryOptimiser * qopt, double factor) const
 void
 QueryAndLike::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(i->internal.get());
-	i->internal->postlist_sub_and_like(ctx, qopt, factor);
+	Assert((*i).internal.get());
+	(*i).internal->postlist_sub_and_like(ctx, qopt, factor);
     }
 }
 
@@ -1163,11 +1163,11 @@ QueryXor::postlist(QueryOptimiser * qopt, double factor) const
 void
 QueryXor::postlist_sub_xor(XorContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(i->internal.get());
-	i->internal->postlist_sub_xor(ctx, qopt, factor);
+	Assert((*i).internal.get());
+	(*i).internal->postlist_sub_xor(ctx, qopt, factor);
     }
 }
 
@@ -1200,11 +1200,11 @@ QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
 void
 QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    vector<Query>::const_iterator i;
+    QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(i->internal.get());
-	i->internal->postlist_sub_and_like(ctx, qopt, factor);
+	Assert((*i).internal.get());
+	(*i).internal->postlist_sub_and_like(ctx, qopt, factor);
 	// Second and subsequent subqueries are unweighted.
 	factor = 0.0;
     }
@@ -1215,12 +1215,12 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 {
     // FIXME: should has_positions() be on the combined DB (not this sub)?
     if (qopt->db.has_positions()) {
-	vector<Query>::const_iterator i;
+	QueryVector::const_iterator i;
 	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	    // MatchNothing subqueries should have been removed by done().
-	    Assert(i->internal.get());
+	    Assert((*i).internal.get());
 	    // FIXME: postlist_sub_positional?
-	    ctx.add_postlist(i->internal->postlist(qopt, factor));
+	    ctx.add_postlist((*i).internal->postlist(qopt, factor));
 	}
 	// Record the positional filter to apply higher up the tree.
 	ctx.add_pos_filter(op, subqueries.size(), window);

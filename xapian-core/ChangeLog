@@ -1,3 +1,14 @@
+Wed May 23 02:25:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/,include/xapian/query.h: Rework QueryBranch to use a special
+	  QueryVector class rather than std::vector<Xapian::Query>.  The
+	  special class is no bigger than std::vector<Xapian::Query>, and
+	  handles up to two entries by holding them within the object (at
+	  least GCC's std::vector doesn't currently do this space optimisation)
+	  which significantly reduces the memory used by a pairwise operator,
+	  which is very desirable as we no longer flatten a tree of the same
+	  pairwise operator as we build the query.
+
 Tue May 22 06:25:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc: Handle the left side of AND_NOT and

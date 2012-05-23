@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
 
 #include "postlist.h"
+#include "queryvector.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
 
@@ -147,12 +148,9 @@ class QueryBranch : public Query::Internal {
     virtual Xapian::Query::op get_op() const = 0;
 
   protected:
-    std::vector<Xapian::Query> subqueries;
+    QueryVector subqueries;
 
-    QueryBranch(size_t n_subqueries) {
-	if (n_subqueries)
-	    subqueries.reserve(n_subqueries);
-    }
+    QueryBranch(size_t n_subqueries) : subqueries(n_subqueries) { }
 
     void serialise_(string & result, Xapian::termcount parameter = 0) const;
 
