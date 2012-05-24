@@ -1,3 +1,14 @@
+Thu May 24 12:28:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
+	  queryparser/termgenerator_internal.cc,
+	  queryparser/termgenerator_internal.h: Add
+	  TermGenerator::set_stemming_strategy() method, with strategies which
+	  correspond to those of QueryParser.  Based on patch from Sehaj Singh
+	  Kalra, with some tweaks for adding term positions in more cases.
+	  (Fixes ticket#563)
+	* tests/termgentest.cc: Add test coverage for the new features.
+
 Thu May 24 01:37:31 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Add doc comment for stem_strategy

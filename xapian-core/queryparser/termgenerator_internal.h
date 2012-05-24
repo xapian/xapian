@@ -34,6 +34,7 @@ class Stopper;
 class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class TermGenerator;
     Stem stemmer;
+    stem_strategy strategy;
     const Stopper * stopper;
     Document doc;
     termcount termpos;
@@ -41,7 +42,7 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     WritableDatabase db;
 
   public:
-    Internal() : stopper(NULL), termpos(0),
+    Internal() : strategy(STEM_SOME), stopper(NULL), termpos(0),
 	flags(TermGenerator::flags(0)) { }
     void index_text(Utf8Iterator itor,
 		    termcount weight,

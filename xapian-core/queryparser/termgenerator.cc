@@ -83,6 +83,12 @@ TermGenerator::set_flags(flags toggle, flags mask)
 }
 
 void
+TermGenerator::set_stemming_strategy(stem_strategy strategy)
+{
+    internal->strategy = strategy;
+}
+
+void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
 			  const string & prefix)
