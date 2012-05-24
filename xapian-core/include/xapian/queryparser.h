@@ -409,6 +409,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
 
+    /// Stemming strategies, for use with set_stemming_strategy().
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
 
     /// Copy constructor.
