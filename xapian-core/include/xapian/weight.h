@@ -475,7 +475,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
      *  @param k  A non-negative parameter controlling how influential
      *		  within-document-frequency (wdf) and document length are.
      *		  k=0 means that wdf and document length don't affect the
-     *		  weights.  The larger k1 is, the more they do.  (default 1)
+     *		  weights.  The larger k is, the more they do.  (default 1)
      */
     explicit TradWeight(double k = 1.0) : param_k(k) {
 	if (param_k < 0) param_k = 0;

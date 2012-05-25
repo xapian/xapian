@@ -1,3 +1,8 @@
+Fri May 25 06:42:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Fix documentation comment typo ("k1" ->
+	  "k").
+
 Fri May 25 05:44:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.h: Mark FlintLock::throw_databaselockerror() as
