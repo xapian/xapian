@@ -1,3 +1,8 @@
+Fri May 25 05:44:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.h: Mark FlintLock::throw_databaselockerror() as
+	  XAPIAN_NORETURN.
+
 Thu May 24 12:28:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
