@@ -265,7 +265,7 @@ class XapianSWIGQueryItor {
     }
 
     Xapian::Query operator*() const {
-        SV **svp = av_fetch(array, i, NULL);
+        SV **svp = av_fetch(array, i, 0);
         if( svp == NULL )
             croak("Unexpected NULL returned by av_fetch()");
         SV *sv = *svp;
