@@ -1,3 +1,8 @@
+Sun May 27 01:51:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-head.i: Hide XAPIAN_CONST_FUNCTION, XAPIAN_PURE_FUNCTION, and
+	  XAPIAN_NOTHROW from SWIG.
+
 Sun May 27 01:40:32 GMT 2012  Olly Betts <olly@survex.com>
 
 	* generic/except.i: Don't name exceptions objects we don't inspect.

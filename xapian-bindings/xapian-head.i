@@ -96,6 +96,9 @@ using namespace std;
 #define XAPIAN_DEPRECATED_CLASS
 #define XAPIAN_DEPRECATED_CLASS_EX
 #define XAPIAN_VISIBILITY_DEFAULT
+#define XAPIAN_CONST_FUNCTION
+#define XAPIAN_PURE_FUNCTION
+#define XAPIAN_NOTHROW(D) D
 
 // Ignore these which SWIG seems to add pointless type entries for due them
 // being used in the SWIG typemap for std::pair.
