@@ -134,7 +134,7 @@ print FD <<'EOF';
 	SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
     }
 }
-};
+}
 %}
 
 /* Functions and methods which are marked as "nothrow": */
