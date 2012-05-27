@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_UNICODE_H
 #define XAPIAN_INCLUDED_UNICODE_H
 
+#include <xapian/attributes.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -225,7 +226,7 @@ namespace Internal {
      *  ch must be a valid Unicode character value (i.e. < 0x110000)
      */
     XAPIAN_VISIBILITY_DEFAULT
-    int get_character_info(unsigned ch);
+    int get_character_info(unsigned ch) XAPIAN_CONST_FUNCTION;
 
     /** @internal Extract how to convert the case of a Unicode character from
      *  its info.

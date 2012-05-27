@@ -1,3 +1,11 @@
+Sun May 27 01:43:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* exception_data.pm,include/Makefile.mk,include/xapian.h,
+	  include/xapian/attributes.h,include/xapian/unicode.h: Add
+	  XAPIAN_CONST_FUNCTION, XAPIAN_PURE_FUNCTION, and XAPIAN_NOTHROW
+	  macros for marking functions and methods with those attributes.
+	  (tickets #151, #454)
+
 Fri May 25 06:42:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Fix documentation comment typo ("k1" ->
