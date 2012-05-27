@@ -1,3 +1,9 @@
+Sun May 27 13:47:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,generic/except.i,generic/generate-generic-exceptions:
+	  Generate generic/except.i so we can skip exception handling for
+	  XAPIAN_NOTHROW methods for all the remaining SWIG-generated bindings.
+
 Sun May 27 13:37:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am,php/except.i,php/generate-php-exceptions: Generate
