@@ -1,3 +1,9 @@
+Sun May 27 14:04:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Use "Internal" instead of "Query::Internal"
+	  in constructor prototype argument list for consistency with other
+	  cosntructors, and so this constructor gets ignored by SWIG.
+
 Sun May 27 07:38:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* exception_data.pm: Fix typo to fix warning and so that XAPIAN_NOTHROW

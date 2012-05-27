@@ -223,7 +223,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  Pass a reference to avoid ambiguity for Query(NULL) (not useful, but the
      *  testsuite does it...)  FIXME
      */
-    Query(Query::Internal & internal_) : internal(&internal_) { }
+    Query(Internal & internal_) : internal(&internal_) { }
 
   private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
