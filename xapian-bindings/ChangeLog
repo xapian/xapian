@@ -1,3 +1,8 @@
+Sun May 27 11:48:56 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions: Don't name exception object we
+	  don't inspect.
+
 Sun May 27 10:08:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/perl.i: Pass 0 instead of NULL for non-pointer parameter to

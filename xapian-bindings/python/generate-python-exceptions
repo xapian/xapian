@@ -103,7 +103,7 @@ namespace Xapian {
 SWIGEXPORT void SetPythonException() {
     try {
 	throw;
-    } catch (Swig::DirectorException &e) {
+    } catch (Swig::DirectorException &) {
 	/* This happens if a director raised an exception.  The standard SWIG
 	 * director exception handling code sets the Python error state if
 	 * necessary, so we don't need to do anything. */
