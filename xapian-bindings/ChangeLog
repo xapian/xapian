@@ -1,3 +1,10 @@
+Sun May 27 01:52:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/generate-lua-exceptions,perl/generate-perl-exceptions,
+	  python/generate-python-exceptions: Use new XAPIAN_NOTHROW markers
+	  in API headers to avoid generate exception handling code around
+	  the calls SWIG generates to such functions and methods.
+
 Sun May 27 01:51:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-head.i: Hide XAPIAN_CONST_FUNCTION, XAPIAN_PURE_FUNCTION, and

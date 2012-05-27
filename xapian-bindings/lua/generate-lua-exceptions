@@ -1,7 +1,7 @@
 # generate-lua-exceptions: generate error handling code for Lua bindings
 #
 # Copyright (C) 2011 Xiaona Han
-# Copyright (C) 2003,2004,2006,2007,2008,2011 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2011,2012 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -75,6 +75,14 @@ print FD <<'EOF';
 }
 }
 %}
+
+/* Functions and methods which are marked as "nothrow": */
+EOF
+
+chdir($INC[0]);
+exception_data::for_each_nothrow(sub { print FD "%exception $_[0];\n" });
+
+print FD <<'EOF';
 
 %exception {
     try {
