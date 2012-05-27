@@ -1,3 +1,9 @@
+Sun May 27 12:57:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am,tcl8/except.i,tcl8/generate-tcl-exceptions: Generate
+	  tcl8/except.i so we can skip exception handling for XAPIAN_NOTHROW
+	  methods.
+
 Sun May 27 12:37:37 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/Makefile.am,perl/Makefile.am,python/Makefile.am: Ship the scripts
