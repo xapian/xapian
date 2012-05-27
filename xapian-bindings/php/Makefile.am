@@ -21,7 +21,10 @@ BUILT_SOURCES =\
 	php5/php_xapian.h\
 	php5/xapian.php
 
-EXTRA_DIST = php.i except.i $(TESTS) $(BUILT_SOURCES) add-php-type-hints
+EXTRA_DIST = php.i except.i \
+	generate-php-exceptions \
+	add-php-type-hints \
+	$(TESTS) $(BUILT_SOURCES)
 
 phpextdir = $(PHP_EXTENSION_DIR)
 
@@ -52,6 +55,10 @@ xapian_la_SOURCES = php5/xapian_wrap.cc php5/xapian_wrap.h
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
 if MAINTAINER_MODE
+BUILT_SOURCES += except.i
+except.i: $(srcdir)/generate-php-exceptions ../../xapian-core/exception_data.pm
+	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-php-exceptions
+
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o
 # option.

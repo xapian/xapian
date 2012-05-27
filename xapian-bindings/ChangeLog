@@ -1,3 +1,9 @@
+Sun May 27 13:37:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/except.i,php/generate-php-exceptions: Generate
+	  php/except.i so we can skip exception handling for XAPIAN_NOTHROW
+	  methods.
+
 Sun May 27 12:57:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tcl8/Makefile.am,tcl8/except.i,tcl8/generate-tcl-exceptions: Generate
