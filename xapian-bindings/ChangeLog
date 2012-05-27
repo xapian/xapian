@@ -1,3 +1,10 @@
+Sun May 27 07:29:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/generate-lua-exceptions,perl/generate-perl-exceptions,
+	  python/generate-python-exceptions: Have a single copyright statement
+	  at the top of the script (in a $copyright variable), and substitute
+	  this into the generated script.
+
 Sun May 27 01:52:08 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/generate-lua-exceptions,perl/generate-perl-exceptions,
