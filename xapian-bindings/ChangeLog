@@ -1,3 +1,8 @@
+Sun May 27 12:12:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions: Fix to use tabs for indentation in
+	  a couple of places where we were using spaces.
+
 Sun May 27 11:48:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions: Don't name exception object we

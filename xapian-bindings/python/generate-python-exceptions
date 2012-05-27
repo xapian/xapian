@@ -129,7 +129,7 @@ print FD <<'EOF';
 			  "Xapian::Error",
 			  SWIGTYPE_p_Xapian__Error);
     } catch (const std::exception& e) {
-        SWIG_Error(SWIG_RuntimeError, e.what());
+	SWIG_Error(SWIG_RuntimeError, e.what());
     } catch (...) {
 	SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
     }
@@ -189,10 +189,10 @@ for my $method (@matchspy_virtual_methods) {
     print FD <<"EOF";
 %exception Xapian::MatchSpy::${method} {
     try {
-        \$action
+	\$action
     } catch (...) {
-        Xapian::SetPythonException();
-        SWIG_fail;
+	Xapian::SetPythonException();
+	SWIG_fail;
     }
 }
 EOF
