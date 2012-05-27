@@ -1,3 +1,9 @@
+Sun May 27 12:13:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore Xapian API class constructor taking
+	  Internal& instead of Internal* (as Query does, to avoid an
+	  ambiguity for Query(NULL).
+
 Sun May 27 12:12:45 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions: Fix to use tabs for indentation in
