@@ -201,7 +201,7 @@ sub for_each_nothrow {
 		next;
 	    }
 	    if (/^[^#]*\bXAPIAN_NOTHROW\((.*)\)/) {
-		&$func("Xapian::$class::$1");
+		&$func("Xapian::$class$1");
 	    }
 	}
 	close H;

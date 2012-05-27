@@ -1,3 +1,8 @@
+Sun May 27 07:38:56 GMT 2012  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Fix typo to fix warning and so that XAPIAN_NOTHROW
+	  on a method will work.
+
 Sun May 27 01:43:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* exception_data.pm,include/Makefile.mk,include/xapian.h,
