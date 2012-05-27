@@ -290,45 +290,55 @@ modules=
 for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-letor ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
-    echo "Bootstrapping \`$module'"
-    [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
-
-    # If we have a custom INSTALL file, preserve it since autoreconf insists on
-    # replacing INSTALL with "generic installation instructions" when --force
-    # is used.  Be careful to replace it if autoreconf fails.
-    if [ -f "$d/INSTALL" ] ; then
-      if grep 'generic installation instructions' "$d/INSTALL" >/dev/null 2>&1 ; then
-	:
-      else
-	mv -f "$d/INSTALL" "$d/INSTALL.preserved-by-bootstrap"
-      fi
-    fi
-
-    autoreconf_rc=
-    if [ swig = "$module" ] ; then
-      # SWIG provides its own bootstrapping script.
-      curdir=`pwd`
-      cd "$d"
-      ./autogen.sh || autoreconf_rc=$?
-      cd "$curdir"
-      # Use the uninstalled wrapper for the in-tree copy of SWIG.
-      intree_swig=yes
-    else
-      # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
-      # (but it doesn't check for -i).
-      #
-      # Use --force so that we update files if autoconf, automake, or libtool
-      # has been upgraded.
-      ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
-    fi
-    if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
-      mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
-    fi
-    if [ -n "$autoreconf_rc" ] ; then
-      exit $autoreconf_rc
-    fi
-    modules="$modules $module"
+    :
+  else
+    # Skip any directories we can't bootstrap.
+    continue
   fi
+  if [ -f "$d/.nobootstrap" ] ; then
+    # Report why to save head scratching when someone forgets they created
+    # a .nobootstrap file.
+    echo "Skipping '$module' due to presence of '$d/.nobootstrap'."
+    continue
+  fi
+  echo "Bootstrapping \`$module'"
+  [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
+
+  # If we have a custom INSTALL file, preserve it since autoreconf insists on
+  # replacing INSTALL with "generic installation instructions" when --force
+  # is used.  Be careful to replace it if autoreconf fails.
+  if [ -f "$d/INSTALL" ] ; then
+    if grep 'generic installation instructions' "$d/INSTALL" >/dev/null 2>&1 ; then
+      :
+    else
+      mv -f "$d/INSTALL" "$d/INSTALL.preserved-by-bootstrap"
+    fi
+  fi
+
+  autoreconf_rc=
+  if [ swig = "$module" ] ; then
+    # SWIG provides its own bootstrapping script.
+    curdir=`pwd`
+    cd "$d"
+    ./autogen.sh || autoreconf_rc=$?
+    cd "$curdir"
+    # Use the uninstalled wrapper for the in-tree copy of SWIG.
+    intree_swig=yes
+  else
+    # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
+    # (but it doesn't check for -i).
+    #
+    # Use --force so that we update files if autoconf, automake, or libtool
+    # has been upgraded.
+    ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
+  fi
+  if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
+    mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
+  fi
+  if [ -n "$autoreconf_rc" ] ; then
+    exit $autoreconf_rc
+  fi
+  modules="$modules $module"
 done
 
 # Generate the top-level configure script.
