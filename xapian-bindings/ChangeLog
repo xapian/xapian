@@ -1,3 +1,7 @@
+Sun May 27 01:40:32 GMT 2012  Olly Betts <olly@survex.com>
+
+	* generic/except.i: Don't name exceptions objects we don't inspect.
+
 Tue May 22 08:21:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac,php/Makefile.am: Fix "make check" for PHP to work in a

@@ -1,7 +1,7 @@
 /** @file generic/except.i
  * @brief Language independent exception handling.
  */
-/* Copyright (C) 2004,2005,2006,2007,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2011,2012 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -44,9 +44,9 @@ static int XapianExceptionHandler(string & msg) {
 	    // fine-grained way, but only in one place to avoid bloating the
 	    // file.
 	    throw;
-	} catch (const Xapian::InvalidArgumentError &e) {
+	} catch (const Xapian::InvalidArgumentError &) {
 	    return SWIG_ValueError;
-	} catch (const Xapian::RangeError &e) {
+	} catch (const Xapian::RangeError &) {
 	    return SWIG_IndexError;
 	} catch (const Xapian::DatabaseError &) {
 	    return SWIG_IOError;
