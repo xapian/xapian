@@ -19,6 +19,7 @@ TESTS = smoketest.py pythontest.py
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	generate-python-exceptions \
 	module_top.py \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \

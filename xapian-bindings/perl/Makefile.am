@@ -45,6 +45,7 @@ auto/Search/Xapian/Xapian$(PERL_SO): Xapian.la
 	rm -f libtoolconfig.tmp
 
 EXTRA_DIST = perl.i except.i $(TESTS) \
+	generate-perl-exceptions \
 	Search/Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \

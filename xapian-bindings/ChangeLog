@@ -1,3 +1,8 @@
+Sun May 27 12:37:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am,perl/Makefile.am,python/Makefile.am: Ship the scripts
+	  which generate the except.i files.
+
 Sun May 27 12:13:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Ignore Xapian API class constructor taking
