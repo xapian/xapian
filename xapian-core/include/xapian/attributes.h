@@ -59,11 +59,4 @@
 # endif
 #endif
 
-/** An API method which will never throw an exception.
- *
- *  C is the classname, used by the bindings to help them generate empty
- *  %exception blocks for such methods.
- */
-#define XAPIAN_NOTHROW_API_METHOD(C,D) XAPIAN_NOTHROW(D)
-
 #endif // XAPIAN_INCLUDED_ATTRIBUTES_H

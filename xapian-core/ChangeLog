@@ -1,3 +1,8 @@
+Mon May 28 05:07:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/attributes.h: Remove unused XAPIAN_NOTHROW_API_METHOD
+	  as we're handling that a different way instead.
+
 Mon May 28 00:41:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Hide new
