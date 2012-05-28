@@ -1,3 +1,8 @@
+Mon May 28 07:22:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* doxygen_xml.conf.in: Hide new function attribute macros, and the
+	  less new deprecation macros, from doxygen.
+
 Sun May 27 13:47:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,generic/except.i,generic/generate-generic-exceptions:
