@@ -1265,7 +1265,10 @@ PREDEFINED             = DOXYGEN \
 			 XAPIAN_DEPRECATED_CLASS= \
 			 XAPIAN_DEPRECATED_CLASS_EX= \
 			 XAPIAN_DEPRECATED(D)=D \
-			 XAPIAN_DEPRECATED_EX(D)=D
+			 XAPIAN_DEPRECATED_EX(D)=D \
+			 XAPIAN_CONST_FUNCTION= \
+			 XAPIAN_PURE_FUNCTION= \
+			 XAPIAN_NOTHROW(D)=D
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.

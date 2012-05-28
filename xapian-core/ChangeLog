@@ -1,3 +1,8 @@
+Mon May 28 00:41:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Hide new
+	  function attribute macros from doxygen.
+
 Sun May 27 14:04:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Use "Internal" instead of "Query::Internal"
