@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -28,6 +28,7 @@
 
 #include <string>
 
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -276,7 +277,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-	MSetIterator() : index(0), mset() { }
+	XAPIAN_NOTHROW(MSetIterator())
+	    : index(0), mset() { }
 
 	/// Copying is allowed (and is cheap).
 	MSetIterator(const MSetIterator &other) {
@@ -497,7 +499,8 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-	ESetIterator() : index(0), eset() { }
+	XAPIAN_NOTHROW(ESetIterator())
+	    : index(0), eset() { }
 
 	/// Copying is allowed (and is cheap).
 	ESetIterator(const ESetIterator &other) {
@@ -512,7 +515,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	}
 
 	/// Advance the iterator.
-	ESetIterator & operator++() {
+	ESetIterator & XAPIAN_NOTHROW(operator++()) {
 	    ++index;
 	    return *this;
 	}
@@ -525,7 +528,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	}
 
 	/// Decrement the iterator.
-	ESetIterator & operator--() {
+	ESetIterator & XAPIAN_NOTHROW(operator--()) {
 	    --index;
 	    return *this;
 	}
@@ -556,14 +559,22 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	//@}
 };
 
+bool
+XAPIAN_NOTHROW(operator==(const ESetIterator &a, const ESetIterator &b));
+
 /// Equality test for ESetIterator objects.
-inline bool operator==(const ESetIterator &a, const ESetIterator &b)
+inline bool
+operator==(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index == b.index);
 }
 
+bool
+XAPIAN_NOTHROW(operator!=(const ESetIterator &a, const ESetIterator &b));
+
 /// Inequality test for ESetIterator objects.
-inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
+inline bool
+operator!=(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index != b.index);
 }
@@ -1083,7 +1094,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	TermIterator get_matching_terms_begin(Xapian::docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(Xapian::docid /*did*/) const {
+	TermIterator XAPIAN_NOTHROW(get_matching_terms_end(Xapian::docid /*did*/) const) {
 	    return TermIterator();
 	}
 
@@ -1112,7 +1123,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(const MSetIterator &/*it*/) const {
+	TermIterator XAPIAN_NOTHROW(get_matching_terms_end(const MSetIterator &/*it*/) const) {
 	    return TermIterator();
 	}
 

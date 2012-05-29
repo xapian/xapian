@@ -22,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_POSTINGSOURCE_H
 #define XAPIAN_INCLUDED_POSTINGSOURCE_H
 
+#include <xapian/attributes.h>
 #include <xapian/database.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -54,7 +55,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
 
   protected:
     /// Allow subclasses to be instantiated.
-    PostingSource() : max_weight_(0), matcher_(NULL) { }
+    XAPIAN_NOTHROW(PostingSource())
+	: max_weight_(0), matcher_(NULL) { }
 
     /** Set an upper bound on what get_weight() can return from now on.
      *
@@ -95,7 +97,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
      */
-    virtual Xapian::doccount get_termfreq_min() const = 0;
+    virtual Xapian::doccount get_termfreq_min() const XAPIAN_PURE_FUNCTION = 0;
 
     /** An estimate of the number of documents this object can return.
      *
@@ -106,17 +108,17 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
      */
-    virtual Xapian::doccount get_termfreq_est() const = 0;
+    virtual Xapian::doccount get_termfreq_est() const XAPIAN_PURE_FUNCTION = 0;
 
     /** An upper bound on the number of documents this object can return.
      *
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
      */
-    virtual Xapian::doccount get_termfreq_max() const = 0;
+    virtual Xapian::doccount get_termfreq_max() const XAPIAN_PURE_FUNCTION = 0;
 
     /// Return the currently set upper bound on what get_weight() can return.
-    double get_maxweight() const { return max_weight_; }
+    double XAPIAN_NOTHROW(get_maxweight() const) { return max_weight_; }
 
     /** Return the weight contribution for the current document.
      *
@@ -131,7 +133,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  next(), skip_to() or check(), and will ensure that the PostingSource is
      *  not at the end by calling at_end()).
      */
-    virtual double get_weight() const;
+    virtual double get_weight() const XAPIAN_PURE_FUNCTION;
 
     /** Return the current docid.
      *
@@ -142,7 +144,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  be in the single subdatabase relevant to this posting source.  See the
      *  @a init() method for details.
      */
-    virtual Xapian::docid get_docid() const = 0;
+    virtual Xapian::docid get_docid() const XAPIAN_PURE_FUNCTION = 0;
 
     /** Advance the current position to the next matching document.
      *
@@ -229,7 +231,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  At least one of @a next(), @a skip_to() or @a check() will be called
      *  before this method is first called.
      */
-    virtual bool at_end() const = 0;
+    virtual bool at_end() const XAPIAN_PURE_FUNCTION = 0;
 
     /** Clone the posting source.
      *

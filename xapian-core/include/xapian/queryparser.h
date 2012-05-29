@@ -23,6 +23,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
@@ -629,13 +630,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
-    TermIterator stoplist_end() const {
+    TermIterator XAPIAN_NOTHROW(stoplist_end() const) {
 	return TermIterator();
     }
 
     /// Iterate over unstemmed forms of the given (stemmed) term used in the query.
     TermIterator unstem_begin(const std::string &term) const;
-    TermIterator unstem_end(const std::string &) const {
+    TermIterator XAPIAN_NOTHROW(unstem_end(const std::string &) const) {
 	return TermIterator();
     }
 
@@ -649,10 +650,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  If there were no corrections, an empty string is returned.
      */
-    std::string get_corrected_query_string() const;
+    std::string get_corrected_query_string() const XAPIAN_PURE_FUNCTION;
 
     /// Return a string describing this object.
-    std::string get_description() const;
+    std::string get_description() const XAPIAN_PURE_FUNCTION;
 };
 
 /** Convert a floating point number to a string, preserving sort order.
@@ -682,7 +683,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
  *  @param value	The number to serialise.
  */
 XAPIAN_VISIBILITY_DEFAULT
-std::string sortable_serialise(double value);
+std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
 
 /** Convert a string encoded using @a sortable_serialise back to a floating
  *  point number.
@@ -699,7 +700,7 @@ std::string sortable_serialise(double value);
  *  @param value	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double sortable_unserialise(const std::string & value);
+double sortable_unserialise(const std::string & value) XAPIAN_CONST_FUNCTION;
 
 }
 

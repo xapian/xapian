@@ -1,3 +1,11 @@
+Tue May 29 00:24:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Use the new function attributes on various API
+	  methods.
+	* tests/api_wrdb.cc: get_termfreq() is now marked as pure, so the
+	  testsuite needs to actually use the return value to check its
+	  exception behaviour.
+
 Mon May 28 22:31:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,

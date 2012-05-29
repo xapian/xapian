@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 
+#include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/keymaker.h>
 #include <xapian/postingsource.h>
@@ -38,6 +39,9 @@ namespace Xapian {
 
 class Registry;
 
+double
+XAPIAN_NOTHROW(miles_to_metres(double miles)) XAPIAN_CONST_FUNCTION;
+
 /** Convert from miles to metres.
  *
  *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
@@ -47,6 +51,9 @@ miles_to_metres(double miles)
 {
     return 1609.344 * miles;
 }
+
+double
+XAPIAN_NOTHROW(metres_to_miles(double metres)) XAPIAN_CONST_FUNCTION;
 
 /** Convert from metres to miles.
  *
@@ -88,7 +95,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Construct an uninitialised coordinate.
      */
-    LatLongCoord() {}
+    XAPIAN_NOTHROW(LatLongCoord()) {}
 
     /** Construct a coordinate.
      *
@@ -133,7 +140,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Compare with another LatLongCoord.
      */
-    bool operator<(const LatLongCoord & other) const
+    bool XAPIAN_NOTHROW(operator<(const LatLongCoord & other) const)
     {
 	if (latitude < other.latitude) return true;
 	if (latitude > other.latitude) return false;

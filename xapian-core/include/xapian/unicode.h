@@ -45,12 +45,12 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
   public:
     /** Return the raw const char * pointer for the current position. */
-    const char * raw() const {
+    const char * raw() const XAPIAN_PURE_FUNCTION {
 	return reinterpret_cast<const char *>(p ? p : end);
     }
 
     /** Return the number of bytes left in the iterator's buffer. */
-    size_t left() const { return p ? end - p : 0; }
+    size_t left() const XAPIAN_PURE_FUNCTION { return p ? end - p : 0; }
 
     /** Assign a new string to the iterator.
      *
@@ -123,13 +123,14 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  This can be compared to another iterator to check if the other iterator
      *  has reached its end.
      */
-    Utf8Iterator() : p(NULL), end(0), seqlen(0) { }
+    XAPIAN_NOTHROW(Utf8Iterator())
+	: p(NULL), end(0), seqlen(0) { }
 
     /** Get the current Unicode character value pointed to by the iterator.
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned operator*() const;
+    unsigned operator*() const XAPIAN_PURE_FUNCTION;
 
     /** Move forward to the next Unicode character.
      *
@@ -163,14 +164,18 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
-    bool operator==(const Utf8Iterator &other) const { return p == other.p; }
+    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator &other) const) {
+	return p == other.p;
+    }
 
     /** Test two Utf8Iterators for inequality.
      *
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
-    bool operator!=(const Utf8Iterator &other) const { return p != other.p; }
+    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator &other) const) {
+	return p != other.p;
+    }
 
     /// We implement the semantics of an STL input_iterator.
     //@{

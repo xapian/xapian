@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
 #define XAPIAN_INCLUDED_ERRORHANDLER_H
 
+#include <xapian/attributes.h>
 #include <xapian/deprecated.h>
 #include <xapian/visibility.h>
 
@@ -71,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
 
   public:
     /// Default constructor.
-    ErrorHandler() {}
+    XAPIAN_NOTHROW(ErrorHandler()) {}
 
     /// We require a virtual destructor because we have virtual methods.
     virtual ~ErrorHandler();

@@ -424,8 +424,10 @@ DEFINE_TESTCASE(adddoc5, writable) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
+		// Actually use termfreq to stop compiler optimising away the
+		// call to get_termfreq().
 		TEST_EXCEPTION(Xapian::InvalidOperationError,
-			       (void)i.get_termfreq());
+			       if (i.get_termfreq()) return false);
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2

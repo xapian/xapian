@@ -23,6 +23,7 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -51,7 +52,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 
   protected:
     /// Default constructor, needed by subclass constructors.
-    MatchSpy() {}
+    XAPIAN_NOTHROW(MatchSpy()) {}
 
   public:
     /** Virtual destructor, because we have virtual methods. */
@@ -207,7 +208,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */
-    size_t get_total() const {
+    size_t XAPIAN_NOTHROW(get_total() const) {
 	return internal->total;
     }
 
@@ -221,7 +222,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator values_begin() const;
 
     /** End iterator corresponding to values_begin() */
-    TermIterator values_end() const {
+    TermIterator XAPIAN_NOTHROW(values_end() const) {
 	return TermIterator();
     }
 
@@ -238,7 +239,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator top_values_begin(size_t maxvalues) const;
 
     /** End iterator corresponding to top_values_begin() */
-    TermIterator top_values_end(size_t) const {
+    TermIterator XAPIAN_NOTHROW(top_values_end(size_t) const) {
 	return TermIterator();
     }
 
