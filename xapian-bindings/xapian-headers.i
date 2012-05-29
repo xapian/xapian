@@ -68,6 +68,13 @@
 #define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) void METHOD() { OP(*self); }
 #endif
 
+/* For other languages, SWIG already renames operator() suitably. */
+#if defined SWIGJAVA || defined SWIGPHP || defined SWIGTCL
+%rename(apply) *::operator();
+#elif defined SWIGCSHARP
+%rename(Apply) *::operator();
+#endif
+
 /* We use %ignore and %extend rather than %rename on operator* so that any
  * pattern rename used to match local naming conventions applies to
  * DEREF_METHOD.

@@ -1,3 +1,10 @@
+Tue May 29 06:11:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Only rename operator() for languages
+	  where SWIG doesn't already.  SWIG's %rename comes first and that
+	  means ours was ignored previously for some languages, which is
+	  liable to cause confusion.
+
 Tue May 29 05:26:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Add dependency on new generated except.i.

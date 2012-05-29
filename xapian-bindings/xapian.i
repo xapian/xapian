@@ -24,14 +24,6 @@
  */
 %}
 
-#ifndef SWIGPYTHON
-#ifdef SWIGCSHARP
-%rename(Apply) operator();
-#else
-%rename(apply) operator();
-#endif
-#endif
-
 // xapian/query.h:
 
 #if !defined XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP && !defined SWIGPERL && !defined SWIGCSHARP
