@@ -1,3 +1,8 @@
+Tue May 29 07:29:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc,tests/harness/testutils.h: Remove unused
+	  test helper mset_range_is_same_percents() (thanks, lcov!)
+
 Tue May 29 04:10:07 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/generate-api_generated: Test that the string returned by a
