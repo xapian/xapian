@@ -65,7 +65,7 @@ except.i: $(srcdir)/generate-php-exceptions ../../xapian-core/exception_data.pm
 
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
-php5/xapian_wrap.stamp: add-php-type-hints
+php5/xapian_wrap.stamp: except.i add-php-type-hints
 	-test -d php5 || mkdir php5
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \

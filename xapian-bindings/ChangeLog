@@ -1,3 +1,7 @@
+Tue May 29 05:26:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Add dependency on new generated except.i.
+
 Tue May 29 03:53:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* generic/generate-generic-exceptions: Ensure that generic subdirectory
