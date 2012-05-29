@@ -23,7 +23,6 @@
 #define XAPIAN_INCLUDED_QUERY_H
 
 #include <string>
-#include <vector>
 
 #include <xapian/intrusive_ptr.h>
 #include <xapian/postingiterator.h>
@@ -358,7 +357,8 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     virtual std::string get_description() const = 0;
 
-    virtual void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
+    // Pass argument as void* to avoid need to include <vector>.
+    virtual void gather_terms(void * void_terms) const;
 };
 
 }

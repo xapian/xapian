@@ -1,3 +1,10 @@
+Mon May 28 22:31:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
+	  include/xapian/query.h: Pass vector<pair<Xapian::termpos>, string> >&
+	  argument to Query::Internal::gather_terms() as a void* to avoid
+	  having to include <vector> in query.h.
+
 Mon May 28 05:07:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/attributes.h: Remove unused XAPIAN_NOTHROW_API_METHOD

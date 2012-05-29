@@ -55,7 +55,7 @@ class QueryTerm : public Query::Internal {
 
     std::string get_description() const;
 
-    void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
+    void gather_terms(void * void_terms) const;
 };
 
 class QueryPostingSource : public Query::Internal {
@@ -91,7 +91,7 @@ class QueryScaleWeight : public Query::Internal {
 
     std::string get_description() const;
 
-    void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
+    void gather_terms(void * void_terms) const;
 };
 
 class QueryValueRange : public Query::Internal {
@@ -167,7 +167,7 @@ class QueryBranch : public Query::Internal {
  
     void serialise(std::string & result) const;
 
-    void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
+    void gather_terms(void * void_terms) const;
 
     virtual void add_subquery(const Xapian::Query & subquery) = 0;
 

@@ -93,7 +93,7 @@ Query::get_terms_begin() const
 	return TermIterator();
 
     vector<pair<Xapian::termpos, string> > terms;
-    internal->gather_terms(terms);
+    internal->gather_terms(static_cast<void*>(&terms));
     sort(terms.begin(), terms.end());
 
     vector<string> v;

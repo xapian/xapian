@@ -321,7 +321,7 @@ AndContext::postlist(QueryOptimiser* qopt)
 Query::Internal::~Internal() { }
 
 void
-Query::Internal::gather_terms(vector<pair<Xapian::termpos, string> > &) const
+Query::Internal::gather_terms(void *) const
 {
 }
 
@@ -607,11 +607,14 @@ QueryScaleWeight::postlist(QueryOptimiser * qopt, double factor) const
 }
 
 void
-QueryTerm::gather_terms(vector<pair<Xapian::termpos, string> > &terms) const
+QueryTerm::gather_terms(void * void_terms) const
 {
     // Skip Xapian::Query::MatchAll (aka Xapian::Query("")).
-    if (!term.empty())
+    if (!term.empty()) {
+	vector<pair<Xapian::termpos, string> > &terms =
+	    *static_cast<vector<pair<Xapian::termpos, string> >*>(void_terms);
 	terms.push_back(make_pair(pos, term));
+    }
 }
 
 PostingIterator::Internal *
@@ -822,14 +825,14 @@ QueryEliteSet::serialise(string & result) const
 }
 
 void
-QueryBranch::gather_terms(vector<pair<Xapian::termpos, string> > &terms) const
+QueryBranch::gather_terms(void * void_terms) const
 {
     // Gather results from all subqueries.
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	(*i).internal->gather_terms(terms);
+	(*i).internal->gather_terms(void_terms);
     }
 }
 
@@ -917,9 +920,9 @@ QueryWindowed::done()
 }
 
 void
-QueryScaleWeight::gather_terms(vector<pair<Xapian::termpos, string> > &terms) const
+QueryScaleWeight::gather_terms(void * void_terms) const
 {
-    subquery.internal->gather_terms(terms);
+    subquery.internal->gather_terms(void_terms);
 }
 
 void QueryTerm::serialise(string & result) const
