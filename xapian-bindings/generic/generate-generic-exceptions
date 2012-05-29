@@ -21,6 +21,7 @@ END
 use strict;
 use exception_data;
 
+mkdir "generic";
 open FD, ">generic/except.i" or die $!;
 
 $copyright =~ s/^/ */mg;
