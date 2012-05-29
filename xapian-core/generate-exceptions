@@ -1,6 +1,6 @@
 # generate-exceptions: generate C++ files for Xapian's exception hierarchy.
 #
-# Copyright (C) 2003,2004,2006,2007,2008,2009,2011 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2012 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -43,6 +43,7 @@ print HDR <<'EOF';
 #define XAPIAN_INCLUDED_ERROR_H
 
 #include <string>
+#include <xapian/attributes.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -117,10 +118,14 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
 
   public:
     /// The type of this error (e.g. "DocNotFoundError".)
-    const char * get_type() const { return type + 1; }
+    const char * XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION {
+	return type + 1;
+    }
 
     /// Message giving details of the error, intended for human consumption.
-    const std::string & get_msg() const { return msg; }
+    const std::string & XAPIAN_NOTHROW(get_msg() const) XAPIAN_PURE_FUNCTION {
+	return msg;
+    }
 
     /** Optional context information.
      *
@@ -129,7 +134,10 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  and remove that server from those being searched).  But it's typically
      *  a plain-text string, and so also fit for human consumption.
      */
-    const std::string & get_context() const { return context; }
+    const std::string & XAPIAN_NOTHROW(get_context() const) XAPIAN_PURE_FUNCTION
+    {
+	return context;
+    }
 
     /** Returns any system error string associated with this exception.
      *
@@ -137,7 +145,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  GetLastError() (on MS Windows).  If there is no associated system
      *  error string, NULL is returned.
      */
-    const char * get_error_string() const;
+    const char * get_error_string() const XAPIAN_PURE_FUNCTION;
 
     /// Return a string describing this object.
     std::string get_description() const;

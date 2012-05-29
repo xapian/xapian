@@ -1,3 +1,7 @@
+Tue May 29 03:54:15 GMT 2012  Olly Betts <olly@survex.com>
+
+	* generate-exceptions: Use function attributes in generated error.h.
+
 Tue May 29 02:10:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/runsrv.in: In the testsuite, only run remote
