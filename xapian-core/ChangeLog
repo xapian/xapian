@@ -1,3 +1,7 @@
+Wed May 30 05:01:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/tradweight.cc: BM25Weight -> TradWeight in exception message.
+
 Wed May 30 04:28:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Fix feature test added for STEM_ALL_Z.
