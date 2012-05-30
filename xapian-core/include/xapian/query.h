@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009,2012 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  * Copyright 2008 Richard Boulton
  *
@@ -215,8 +215,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  The Xapian::Query objects are specified with begin and end
 	 *  iterators.
 	 * 
-	 *  AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries.
-	 *  Other operators take exactly two subqueries.
+	 *  AND, OR, XOR, ELITE_SET, SYNONYM, NEAR and PHRASE can take any
+	 *  number of subqueries.  Other operators take exactly two subqueries.
 	 *
 	 *  The iterators may be to Xapian::Query objects, pointers to
 	 *  Xapian::Query objects, or termnames (std::string-s).

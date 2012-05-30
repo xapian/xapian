@@ -1,3 +1,9 @@
+Wed May 30 01:12:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Fix Query ctor documentation comment - XOR
+	  and ELITE_SET can both take any number of subqueries, not just
+	  exactly two.
+
 Fri May 18 22:48:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/positioniterator.h,include/xapian/postingiterator.h,
