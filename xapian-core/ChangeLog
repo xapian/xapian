@@ -1,3 +1,10 @@
+Wed May 30 05:07:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc,weight/tradweight.cc: Throw SerialisationError
+	  not NetworkError if unserialise() fails.
+	* tests/.gitignore,tests/Makefile.am,tests/api_weight.cc: Add test
+	  coverage for this.
+
 Wed May 30 05:01:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/tradweight.cc: BM25Weight -> TradWeight in exception message.

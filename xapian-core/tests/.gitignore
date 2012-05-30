@@ -60,6 +60,7 @@
 /api_unicode.h
 /api_valuestats.h
 /api_valuestream.h
+/api_weight.h
 /api_wrdb.h
 /perflog.xml
 /submitperftest

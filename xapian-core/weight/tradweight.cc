@@ -1,7 +1,7 @@
 /** @file tradweight.cc
  * @brief Xapian::TradWeight class - the "traditional" probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,7 +135,7 @@ TradWeight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double k = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::NetworkError("Extra data in TradWeight::unserialise()");
+	throw Xapian::SerialisationError("Extra data in TradWeight::unserialise()");
     return new TradWeight(k);
 }
 

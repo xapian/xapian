@@ -1,7 +1,7 @@
 /** @file bm25weight.cc
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -155,7 +155,7 @@ BM25Weight::unserialise(const string & s) const
     double b = unserialise_double(&ptr, end);
     double min_normlen = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::NetworkError("Extra data in BM25Weight::unserialise()");
+	throw Xapian::SerialisationError("Extra data in BM25Weight::unserialise()");
     return new BM25Weight(k1, k2, k3, b, min_normlen);
 }
 
