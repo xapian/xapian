@@ -1,3 +1,8 @@
+Wed May 30 05:38:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_weight.cc: Add tests for BM25 parameter combinations where
+	  doclen shouldn't affect the weights.
+
 Wed May 30 05:11:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Move api_geospatial.cc into alphabetical order.
