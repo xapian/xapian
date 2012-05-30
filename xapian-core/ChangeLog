@@ -1,3 +1,8 @@
+Wed May 30 07:44:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc: Fix use of uninitialised value found by new
+	  bm25weight4 testcase.
+
 Wed May 30 05:38:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_weight.cc: Add tests for BM25 parameter combinations where

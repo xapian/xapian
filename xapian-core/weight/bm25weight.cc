@@ -204,6 +204,8 @@ double
 BM25Weight::get_maxextra() const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_maxextra", NO_ARGS);
+    if (param_k2 == 0.0)
+	RETURN(0.0);
     double num = (2.0 * param_k2 * get_query_length());
     RETURN(num / (1.0 + max(double(get_doclength_lower_bound()),
 			    param_min_normlen)));
