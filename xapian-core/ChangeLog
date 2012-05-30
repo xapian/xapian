@@ -1,3 +1,8 @@
+Wed May 30 13:13:03 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Remove duplicate "need_stat(WDF);" calls,
+	  accidentally added by merge of opsynonym branch in r12609.
+
 Wed May 30 07:44:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/bm25weight.cc: Fix use of uninitialised value found by new
