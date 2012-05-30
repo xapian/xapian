@@ -1,3 +1,8 @@
+Wed May 30 21:50:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_matchspy.cc: Use a cached generated database for matchspy2
+	  and matchspy4.
+
 Wed May 30 13:22:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h,weight/weight.cc: We were failing to call
