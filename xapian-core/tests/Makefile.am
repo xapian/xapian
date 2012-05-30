@@ -122,6 +122,7 @@ collated_apitest_sources = \
  api_compact.cc \
  api_db.cc \
  api_generated.cc \
+ api_geospatial.cc \
  api_matchspy.cc \
  api_metadata.cc \
  api_nodb.cc \
@@ -144,7 +145,6 @@ collated_apitest_sources = \
  api_unicode.cc \
  api_valuestats.cc \
  api_valuestream.cc \
- api_geospatial.cc \
  api_weight.cc \
  api_wrdb.cc
 
