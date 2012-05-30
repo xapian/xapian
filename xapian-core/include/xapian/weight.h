@@ -64,6 +64,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** Allow the subclass to perform any initialisation it needs to.
      *
      *  @param factor	  Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *			  If the Weight object is for the term-independent
+     *			  weight supplied by get_sumextra()/get_maxextra(),
+     *			  then init(0.0) is called (starting from Xapian
+     *			  1.2.11 and 1.3.1 - earlier versions failed to
+     *			  call init() for such Weight objects).
      */
     virtual void init(double factor) = 0;
 
