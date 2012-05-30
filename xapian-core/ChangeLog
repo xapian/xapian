@@ -1,3 +1,7 @@
+Wed May 30 04:28:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix feature test added for STEM_ALL_Z.
+
 Tue May 29 07:29:01 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/testutils.cc,tests/harness/testutils.h: Remove unused
