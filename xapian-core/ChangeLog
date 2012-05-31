@@ -1,3 +1,8 @@
+Thu May 31 11:23:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc: Avoid use of undefined values when k1 or b are
+	  zero.
+
 Wed May 30 21:50:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_matchspy.cc: Use a cached generated database for matchspy2

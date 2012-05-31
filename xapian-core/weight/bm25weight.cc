@@ -175,10 +175,17 @@ double
 BM25Weight::get_maxpart() const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_maxpart", NO_ARGS);
-    Xapian::doclength normlen_lb = max(get_doclength_lower_bound() * len_factor,
-				       param_min_normlen);
     double wdf_max(get_wdf_upper_bound());
-    double denom = param_k1 * (normlen_lb * param_b + (1 - param_b)) + wdf_max;
+    double denom = wdf_max;
+    if (param_k1 != 0.0) {
+	if (param_b != 0.0) {
+	    Xapian::doclength normlen_lb =
+		 max(get_doclength_lower_bound() * len_factor, param_min_normlen);
+	    denom += param_k1 * (normlen_lb * param_b + (1 - param_b));
+	} else {
+	    denom += param_k1;
+	}
+    }
     AssertRel(denom,>,0);
     RETURN(termweight * (param_k1 + 1) * (wdf_max / denom));
 }
