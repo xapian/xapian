@@ -91,3 +91,53 @@ DEFINE_TESTCASE(bm25weight4, backend) {
 
     return true;
 }
+
+class CheckInitWeight : public Xapian::Weight {
+  public:
+    double factor;
+
+    unsigned & zero_inits, & non_zero_inits;
+
+    CheckInitWeight(unsigned &z, unsigned &n)
+	: factor(-1.0), zero_inits(z), non_zero_inits(n) { }
+
+    void init(double factor_) {
+	factor = factor_;
+	if (factor == 0.0)
+	    ++zero_inits;
+	else
+	    ++non_zero_inits;
+    }
+
+    Weight * clone() const {
+	return new CheckInitWeight(zero_inits, non_zero_inits);
+    }
+
+    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	return 1.0;
+    }
+
+    double get_maxpart() const { return 1.0; }
+
+    double get_sumextra(Xapian::termcount doclen) const {
+	return 1.0 / doclen;
+    }
+
+    double get_maxextra() const { return 1.0; }
+};
+
+/// Regression test - check init() is called for the term-indep Weight obj.
+DEFINE_TESTCASE(checkinitweight1, backend && !multi && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::Query q(Xapian::Query::OP_AND,
+		    Xapian::Query("this"), Xapian::Query("paragraph"));
+    enquire.set_query(q);
+    unsigned zero_inits = 0, non_zero_inits = 0;
+    CheckInitWeight wt(zero_inits, non_zero_inits);
+    enquire.set_weighting_scheme(wt);
+    Xapian::MSet mset = enquire.get_mset(0, 3);
+    TEST_EQUAL(zero_inits, 1);
+    TEST_EQUAL(non_zero_inits, 2);
+    return true;
+}

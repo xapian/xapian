@@ -1,3 +1,8 @@
+Thu May 31 11:41:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_weight.cc: Add test that init() is now called for the
+	  term-independent weight contribution.
+
 Thu May 31 11:23:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/bm25weight.cc: Avoid use of undefined values when k1 or b are
