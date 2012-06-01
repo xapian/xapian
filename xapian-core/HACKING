@@ -244,7 +244,10 @@ To use lcov to generate a test coverage report there are two make targets:
     are needed.
   
   * coverage-check: runs "make check" and generates an HTML report in a
-    directory called "lcov".
+    directory called "lcov".  You can specify extra arguments to pass to the
+    ``genhtml`` tool using GENHTML_ARGS, like so::
+
+    make coverage-check GENHTML_ARGS=--html-gzip
 
 If you have runes for using other tools, please add them above, or send them
 to us so we can.

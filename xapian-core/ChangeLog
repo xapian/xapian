@@ -1,3 +1,9 @@
+Fri Jun 01 07:40:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am: If you run "make coverage-check" by hand, the
+	  default of compressed HTML is unhelpful, so don't default to passing
+	  --html-gzip to genhtml, but instead add support for GENHTML_ARGS.
+
 Thu May 31 11:41:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_weight.cc: Add test that init() is now called for the
