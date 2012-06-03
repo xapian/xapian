@@ -313,7 +313,7 @@ main(int argc, char **argv) try {
 	    try {
 		db.add_database(Database(*i));
 	    } catch (const Error &e) {
-		cerr << "Error opening database `" << *i << "': ";
+		cerr << "Error opening database '" << *i << "': ";
 		cerr << e.get_description() << endl;
 		return 1;
 	    }
@@ -363,12 +363,12 @@ main(int argc, char **argv) try {
 	PostingIterator p = db.postlist_begin(term);
 	PostingIterator pend = db.postlist_end(term);
 	if (p == pend) {
-	    cout << "term `" << term << "' not in database\n";
+	    cout << "term '" << term << "' not in database\n";
 	    continue;
 	}
 	if (recnos.empty()) {
 	    // Display posting list
-	    cout << "Posting List for term `" << term << "' (termfreq "
+	    cout << "Posting List for term '" << term << "' (termfreq "
 		 << db.get_termfreq(term) << ", collfreq "
 		 << db.get_collection_freq(term) << ", wdf_max "
 		 << db.get_wdf_upper_bound(term) << "):";
@@ -388,10 +388,10 @@ main(int argc, char **argv) try {
 	    for (j = recnos.begin(); j != recnos.end(); j++) {
 		p.skip_to(*j);
 		if (p == pend || *p != *j) {
-		    cout << "term `" << term <<
+		    cout << "term '" << term <<
 			"' doesn't index document #" << *j << endl;
 		} else {
-		    cout << "Position List for term `" << term
+		    cout << "Position List for term '" << term
 			<< "', record #" << *j << ':';
 		    try {
 			PositionIterator pos = p.positionlist_begin();

@@ -240,7 +240,7 @@ MSet::get_termweight(const string &tname) const
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
     if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term weight of `" + tname +
+	throw InvalidArgumentError("Term weight of '" + tname +
 				     "' not available.");
     }
     RETURN(i->second.termweight);

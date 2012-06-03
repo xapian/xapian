@@ -45,12 +45,12 @@ for my $dir_contents (@ARGV) {
     }
     my $dir = $dir_contents;
     unless ($dir =~ s!^\Q$rootdir\E!!) {
-	die "$dir_contents: not under `$rootdir'.\n";
+	die "$dir_contents: not under '$rootdir'.\n";
     }
     $dir =~ s![^/]+$!!;
     $dir =~ s!/$!!;
     if ($dir ne $xmldir) {
-	die "$dir_contents: File is in `$dir', but <Directory> says `$xmldir'\n";
+	die "$dir_contents: File is in '$dir', but <Directory> says '$xmldir'\n";
     }
     my ($desc) = ($xml =~ m!<Description>\s*(.*?)\s*</Description>!s);
     if (!defined $desc) {

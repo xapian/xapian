@@ -61,16 +61,16 @@ AC_DEFUN([XO_LIB_XAPIAN],
     else
       case $? in
       127)
-	AC_MSG_ERROR([\`$XAPIAN_CONFIG' not found, aborting])
+	AC_MSG_ERROR(['$XAPIAN_CONFIG' not found, aborting])
 	;;
       126)
 	if test -d "$XAPIAN_CONFIG" ; then
-	  AC_MSG_ERROR([\`$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
+	  AC_MSG_ERROR(['$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
 	fi
-	AC_MSG_ERROR([\`$XAPIAN_CONFIG' not executable, aborting])
+	AC_MSG_ERROR(['$XAPIAN_CONFIG' not executable, aborting])
 	;;
       esac
-      AC_MSG_ERROR([\`$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
+      AC_MSG_ERROR(['$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
     fi
 
 dnl If LT_INIT, AC_PROG_LIBTOOL or the deprecated older version

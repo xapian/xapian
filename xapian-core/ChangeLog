@@ -1,3 +1,11 @@
+Sat Jun 02 12:10:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/omdocument.cc,api/omenquire.cc,backends/brass/,
+	  backends/chert/,bin/xapian-delve.cc,common/getopt.cc,configure.ac,
+	  docs/,m4-macros/xapian-1.3.m4,matcher/multimatch.cc,preautoreconf,
+	  tests/Makefile.am,tests/api_db.cc,tests/harness/testsuite.h,
+	  tests/harness/testutils.h: Change `...' quoting in prose to '...'.
+
 Fri Jun 01 07:40:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am: If you run "make coverage-check" by hand, the

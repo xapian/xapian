@@ -38,14 +38,14 @@ Documents and terms
 
 In Information Retrieval (IR), the items we are trying to retrieve are
 called *documents*, and each document is described by a collection of
-*terms*. These two words, \`document' and \`term', are now traditional
+*terms*. These two words, `document` and `term`, are now traditional
 in the vocabulary of IR, and reflect its Library Science origins.
 Usually a document is thought of as a piece of text, most likely in a
 machine readable form, and a term as a word or phrase which helps to
 describe the document, and which may indeed occur one or more times in
 the document. So a document might be about dental care, and could be
-described by corresponding terms \`tooth', \`teeth', \`toothbrush',
-\`decay', \`cavity', \`plaque', \`diet' and so on.
+described by corresponding terms `tooth`, `teeth`, `toothbrush`,
+`decay`, `cavity`, `plaque`, `diet` and so on.
 
 More generally a document can be anything we want to retrieve, and a
 term any feature that helps describe the documents. So the documents
@@ -71,7 +71,7 @@ For a document, D, there is a list of terms which index it. This is
 called the *term list* of D.
 
 For a term, t, there is a list of documents which it indexes. This is
-called the *posting list* of t. (\`Document list' would be more
+called the *posting list* of t. (`Document list` would be more
 consistent, but sounds a little too vague for this very important
 concept.)
 
@@ -86,8 +86,8 @@ themselves, and uses prefix compression to store them compactly.
 
 The terms needn't be (and often aren't) just the words from the
 document. Usually they are converted to lower case, and often a stemming
-algorithm is applied, so a single term \`connect' might derive from a
-number of words, \`connect', \`connects', \`connection', \`connected'
+algorithm is applied, so a single term `connect` might derive from a
+number of words, `connect`, `connects`, `connection`, `connected`
 and so on. A single word might also give rise to more than one term, for
 example you might index both stemmed and unstemmed forms of some or all
 terms. Or a stemming algorithm could conceivably produce more than one
@@ -128,7 +128,7 @@ The model has two striking advantages:
 #. It leads to systems that give good retrieval performance. As the
    model has developed over the last 25 years, this has proved so
    consistently true that one is led to suspect that the probability
-   theory model is, in some sense, the \`correct' model for IR. The IR
+   theory model is, in some sense, the "correct" model for IR. The IR
    process would appear to function as the model suggests.
 #. As new problems come up in IR, the probabilistic model can usually
    suggest a solution. This makes it a very practical mental tool for
@@ -489,7 +489,7 @@ words (for example, the terms are often lower-cased and stemmed forms of
 these words).
 
 If a term derives from words |w9|, |w38|, |w97| and |w221| in the indexing
-process, we can say that the term \`occurs' in D at positions 9, 38, 97 and
+process, we can say that the term "occurs" in D at positions 9, 38, 97 and
 221, and so for each term a document may have a vector of positional
 information. These are the *within-document positions* of t, or the *wdp*
 information of t.

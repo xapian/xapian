@@ -1045,7 +1045,7 @@ new_greatest_weight:
 	    vector<Xapian::Internal::MSetItem>::reverse_iterator nth;
 	    nth = items.rbegin() + first;
 	    nth_element(items.rbegin(), nth, items.rend(), mcmp);
-	    // Erase the trailing ``first'' elements
+	    // Erase the trailing "first" elements
 	    items.erase(items.begin() + items.size() - first, items.end());
 	}
     }

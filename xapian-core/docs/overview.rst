@@ -512,8 +512,8 @@ Xapian::Query::OP\_OR operators. For example,
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("canned"));
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("fish"));
 
-This creates a probabilistic query with terms \`regulation', \`import',
-\`export', \`canned' and \`fish'.
+This creates a probabilistic query with terms `regulation`, `import`,
+`export`, `canned` and `fish`.
 
 In fact this style of creation is so common that there is the shortcut
 construction::
@@ -563,8 +563,8 @@ Plus and minus terms
 
 A common requirement in search engine functionality is to run a
 probabilistic query where some terms are required to index all the
-retrieved documents (\`+' terms), and others are required to index none
-of the retrieved documents (\`-' terms). For example,
+retrieved documents (`+` terms), and others are required to index none
+of the retrieved documents (`-` terms). For example,
 ::
 
         regulation import export +canned +fish -japan

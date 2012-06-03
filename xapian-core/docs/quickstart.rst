@@ -530,7 +530,7 @@ program.
 ::
 
     $ ./quickstartsearch proverbs look
-    Performing query `look'
+    Performing query 'look'
     1 results found
     Document ID 2   50% [Don't look a gift horse in the mouth]
 

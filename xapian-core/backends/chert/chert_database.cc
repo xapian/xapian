@@ -137,7 +137,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	    fail = true;
 	}
 	if (fail) {
-	    throw Xapian::DatabaseCreateError("Cannot create directory `" +
+	    throw Xapian::DatabaseCreateError("Cannot create directory '" +
 					      db_dir + "'", errno);
 	}
 	get_database_write_lock(true);
@@ -147,7 +147,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
     }
 
     if (action == Xapian::DB_CREATE) {
-	throw Xapian::DatabaseCreateError("Can't create new database at `" +
+	throw Xapian::DatabaseCreateError("Can't create new database at '" +
 					  db_dir + "': a database already exists and I was told "
 					  "not to overwrite it");
     }
@@ -506,7 +506,7 @@ ChertDatabase::get_database_write_lock(bool creating)
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
 	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
-	    string msg("No chert database found at path `");
+	    string msg("No chert database found at path '");
 	    msg += db_dir;
 	    msg += '\'';
 	    throw Xapian::DatabaseOpeningError(msg);

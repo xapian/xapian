@@ -72,7 +72,7 @@
 
         Xapian::MSet matches;
         <B><FONT color=#a52a2a>if</FONT></B> (query.is_defined()) {
-            cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query `&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt;
+            cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query '&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt;
                     <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
 
             <FONT color=#0000ff>// Give the query object to the enquire session</FONT>
@@ -115,7 +115,7 @@
         <B><FONT color=#a52a2a>for</FONT></B> (Xapian::ESetIterator k = eterms.begin();
              k != eterms.end();
              ++k) {
-            cout &lt;&lt; <FONT color=#ff00ff>&quot;Term `&quot;</FONT> &lt;&lt; *k &lt;&lt; <FONT color=#ff00ff>&quot;'</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff> &quot;</FONT> &lt;&lt;
+            cout &lt;&lt; <FONT color=#ff00ff>&quot;Term '&quot;</FONT> &lt;&lt; *k &lt;&lt; <FONT color=#ff00ff>&quot;'</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff> &quot;</FONT> &lt;&lt;
                     <FONT color=#ff00ff>&quot;(weight &quot;</FONT> &lt;&lt; k.get_weight() &lt;&lt; <FONT color=#ff00ff>&quot;)&quot;</FONT> &lt;&lt; endl;
         }
     } <B><FONT color=#a52a2a>catch</FONT></B>(const Xapian::Error &amp;error) {

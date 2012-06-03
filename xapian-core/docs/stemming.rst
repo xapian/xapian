@@ -47,8 +47,8 @@ be constant at the front, and to vary at the end::
                        -ed
                        -ing
 
-The variable part is the \`ending', or \`suffix'. Taking these endings
-off is called \`suffix stripping' or \`stemming', and the residual part
+The variable part is the `ending`, or `suffix`. Taking these endings
+off is called `suffix stripping` or `stemming`, and the residual part
 is called the stem.
 
 Endings
@@ -60,7 +60,7 @@ as being made up of a number of endings. For example, the French word
 
                 confirmatives
 
-can be thought of as \`confirm' with a chain of endings,
+can be thought of as `confirm` with a chain of endings,
 ::
 
                 -atif (adjectival ending - morphological)
@@ -68,15 +68,15 @@ can be thought of as \`confirm' with a chain of endings,
         plus    -s    (plural ending - grammatical)
 
 -atif can also be thought of as -ate plus -if. Note that the addition of
-endings can cause respellings, so -e changes preceding \`f' to \`v'.
+endings can cause respellings, so -e changes preceding `f` to `v`.
 
 Endings fall into two classes, grammatical and morphological. The
 addition of -s in English to make a plural is an example of a
 grammatical ending. The word remains of the same type. There is usually
 only one dictionary entry for a word with all its various grammatical
 endings. Morphological endings create new types of word. In English -ise
-or -ize makes verbs from nouns (\`demon', \`demonise'), -ly makes
-adverbs from adjectives (\`foolish', \`foolishly'), and so on. Usually
+or -ize makes verbs from nouns (`demon`, `demonise`), -ly makes
+adverbs from adjectives (`foolish`, `foolishly`), and so on. Usually
 there are separate dictionary endings for these creations.
 
 Language knowledge
@@ -153,8 +153,8 @@ table of morphological endings that roughly looks like this::
       -OUS (adj) --->  -MENT (adv)
 
 The ending forms take different values in different languages. In
-French, -OR becomes \`-eur' (m.) or \`-rice' (f.), -AT disappears into
-the infinitive form of a verb. In English, -MENT becomes \`-ly', and
+French, -OR becomes `-eur` (m.) or `-rice` (f.), -AT disappears into
+the infinitive form of a verb. In English, -MENT becomes `-ly`, and
 then one can recognise,
 ::
 
@@ -247,8 +247,8 @@ Irregular forms
 ---------------
 
 Linguistic irregularities slip through the net of a stemming algorithm.
-The English stemmer stems \`cows' to \`cow', but does not stem \`oxen'
-to \`ox'. In reality this matters much less than one might suppose. In
+The English stemmer stems `cows` to `cow`, but does not stem `oxen`
+to `ox`. In reality this matters much less than one might suppose. In
 English, the irregular plurals tend to be of things that were common in
 Anglo-Saxon England: oxen, sheep, mice, dice - and lice. Men, women and
 children are of course common today, but the very commonness of these
@@ -257,15 +257,15 @@ be said about irregular verbs in English, the total number of which is
 around 150. Here, the fact that verbs are used perhaps rather less than
 nouns and adjectives in IR queries helps account for the unimportance of
 verb irregularities in IR performance. There are in English more
-significant irregularities in morphological changes such as \`receive'
-to \`reception', \`decide' to \`decision' etc., which correspond,
+significant irregularities in morphological changes such as `receive`
+to `reception`, `decide` to `decision` etc., which correspond,
 ultimately, to irregularities in the Latin verbs from which these words
 derive. But again working IR systems are rarely upset by lack of
 resolution of these forms.
 
 An irregularity of English which does cause a problem is the word
-\`news'. It is now a singular noun, and is never regarded as the plural
-of \`new'. This, and a few more howlers, are placed in a table,
+`news`. It is now a singular noun, and is never regarded as the plural
+of `new`. This, and a few more howlers, are placed in a table,
 ``irregular_forms``, in the English stemming algorithm. Similar tables
 are provided in the other stemming algorithms, with some provisional
 entries. The non-English stemming algorithms have not been used enough
@@ -282,9 +282,9 @@ then be stemmed similarly. When the index terms were seen by the user,
 for example during query expansion, they would be seen in their stemmed
 form. It was important therefore that the stemmed form of a word should
 not be too unfamiliar in appearance. A user will be comfortable with
-seeing \`apprehend', which stands for 'apprehending', \`apprehended' as
-well as \`apprehend'. More problematical is \`apprehens', standing for
-\`apprehension', \`apprehensive' etc., but even so, a trained user would
+seeing `apprehend`, which stands for `apprehending`, `apprehended` as
+well as `apprehend`. More problematical is `apprehens`, standing for
+`apprehension`, `apprehensive` etc., but even so, a trained user would
 not have a problem with this. In fact all the Xapian stemming algorithms
 are built on the assumption that it leave stemmed forms which it would
 not be embarrassing to show to real users, and we suggest that new
@@ -329,7 +329,7 @@ like this,
        "do/does/doing/did/"          /* DID */
        ...                           /* multi-line string */
 
-so that the words \`am', \`is' etc. map to the null string (or some
+so that the words `am`, `is` etc. map to the null string (or some
 other easily recognised value).
 
 Alternatively, stopwords could be removed before the stemming algorithm
@@ -341,7 +341,7 @@ result. In Italian for example, the four forms
 
         questa     queste    questi    questo
 
-(meaning \`that') all stem to
+(meaning `that`) all stem to
 ::
 
         quest

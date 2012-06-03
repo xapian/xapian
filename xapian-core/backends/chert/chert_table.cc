@@ -1348,7 +1348,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 		::close(handle);
 		handle = -1;
 	    }
-	    string message = "Error opening table `";
+	    string message = "Error opening table '";
 	    message += name;
 	    message += "':\n";
 	    message += err_msg;

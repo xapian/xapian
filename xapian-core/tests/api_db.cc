@@ -914,11 +914,11 @@ DEFINE_TESTCASE(allterms1, backend) {
     ati++;
     TEST(ati != db.allterms_end());
     if (verbose) {
-	tout << "*ati = `" << *ati << "'\n";
-	tout << "*ati.length = `" << (*ati).length() << "'\n";
+	tout << "*ati = '" << *ati << "'\n";
+	tout << "*ati.length = '" << (*ati).length() << "'\n";
 	tout << "*ati == \"one\" = " << (*ati == "one") << "\n";
 	tout << "*ati[3] = " << ((*ati)[3]) << "\n";
-	tout << "*ati = `" << *ati << "'\n";
+	tout << "*ati = '" << *ati << "'\n";
     }
     TEST(*ati == "three");
     TEST(ati.get_termfreq() == 3);

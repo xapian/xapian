@@ -400,12 +400,12 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    if (!current_term.empty() && term != current_term) {
 		// The term changed unexpectedly.
 		if (pos == end) {
-		    out << "No last chunk for term `" << current_term
+		    out << "No last chunk for term '" << current_term
 			<< "'" << endl;
 		    current_term.resize(0);
 		} else {
 		    out << "Mismatch in follow-on chunk in posting "
-			   "list for term `" << current_term << "' (got `"
+			   "list for term '" << current_term << "' (got '"
 			<< term << "')" << endl;
 		    current_term = term;
 		    tf = cf = 0;
@@ -417,7 +417,7 @@ check_brass_table(const char * tablename, string filename, int opts,
 		// First chunk.
 		if (term == current_term) {
 		    // This probably isn't possible.
-		    out << "First posting list chunk for term `" << term
+		    out << "First posting list chunk for term '" << term
 			<< "' follows previous chunk for the same term" << endl;
 		    ++errors;
 		}
@@ -429,19 +429,19 @@ check_brass_table(const char * tablename, string filename, int opts,
 		pos = cursor->current_tag.data();
 		end = pos + cursor->current_tag.size();
 		if (!unpack_uint(&pos, end, &termfreq)) {
-		    out << "Failed to unpack termfreq for term `" << term
+		    out << "Failed to unpack termfreq for term '" << term
 			<< "'" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &collfreq)) {
-		    out << "Failed to unpack collfreq for term `" << term
+		    out << "Failed to unpack collfreq for term '" << term
 			<< "'" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &did)) {
-		    out << "Failed to unpack firstdid for term `" << term
+		    out << "Failed to unpack firstdid for term '" << term
 			<< "'" << endl;
 		    ++errors;
 		    continue;
@@ -450,7 +450,7 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    } else {
 		// Continuation chunk.
 		if (current_term.empty()) {
-		    out << "First chunk for term `" << current_term << "' "
+		    out << "First chunk for term '" << current_term << "' "
 			   "is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
@@ -536,7 +536,7 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    }
 	}
 	if (!current_term.empty()) {
-	    out << "Last term `" << current_term << "' has no last chunk"
+	    out << "Last term '" << current_term << "' has no last chunk"
 		<< endl;
 	    ++errors;
 	}

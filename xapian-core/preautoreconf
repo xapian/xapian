@@ -54,7 +54,7 @@ for (map {m!^(.*?)[^/]*$!; $1} @makefile_am) {
     my $dir_contents = "${dir}dir_contents";
     push @dir_contents, $dir_contents;
     if (! -f $dir_contents) {
-	print STDERR "$0: Warning: `$dir_contents' not found\n";
+	print STDERR "$0: Warning: '$dir_contents' not found\n";
 	next;
     }
 
@@ -72,7 +72,7 @@ for (map {m!^(.*?)[^/]*$!; $1} @makefile_am) {
     }
     $dir =~ s!/$!!;
     if ($dir ne $xmldir) {
-	die "$dir_contents: File is in `$dir', but <Directory> says `$xmldir'\n";
+	die "$dir_contents: File is in '$dir', but <Directory> says '$xmldir'\n";
     }
     my ($desc) = ($xml =~ m!<Description>\s*(.*?)\s*</Description>!s);
     if (!defined $desc) {

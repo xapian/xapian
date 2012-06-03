@@ -9,7 +9,7 @@ dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
 dnl
-dnl 1. Start with version information of `0:0:0' for each libtool library.
+dnl 1. Start with version information of '0:0:0' for each libtool library.
 dnl
 dnl 2. Update the version information only immediately before a public
 dnl    release of your software.  More frequent updates are unnecessary,
@@ -17,7 +17,7 @@ dnl    and only guarantee that the current interface number gets larger
 dnl    faster.
 dnl
 dnl 3. If the library source code has changed at all since the last
-dnl    update, then increment REVISION (`C:R:A' becomes `C:r+1:A').
+dnl    update, then increment REVISION ('C:R:A' becomes 'C:r+1:A').
 dnl
 dnl 4. If any interfaces have been added, removed, or changed since the
 dnl    last update, increment CURRENT, and set REVISION to 0.
@@ -431,7 +431,7 @@ AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
 AC_TRY_COMPILE([#include <setjmp.h>],
   [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
-  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the `sigsetjmp' function])
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the 'sigsetjmp' function])
   AC_MSG_RESULT([yes]),
   AC_MSG_RESULT([no]))
 
@@ -827,10 +827,10 @@ AC_ARG_ENABLE(visibility,
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
   esac])
 
-dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
+dnl Pass '--quiet' to libtool if quiet building is requested.  Using an
 dnl AC_SUBST-ed value like this allows the choice to be easily overridden
 dnl if you want to see exactly what make and libtool are up to - just run
-dnl make like this: `make QUIET='
+dnl make like this: 'make QUIET='
 QUIET=
 if test yes = "$enable_quiet"; then
   QUIET=--quiet

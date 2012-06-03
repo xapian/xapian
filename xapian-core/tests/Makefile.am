@@ -2,8 +2,8 @@
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
 
-# `make QUIET=' overrides `./configure --enable-quiet'.
-# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+# 'make QUIET=' overrides './configure --enable-quiet'.
+# 'make QUIET=y' overrides './configure' without '--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
 if MAINTAINER_MODE
