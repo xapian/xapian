@@ -1,3 +1,9 @@
+Sun Jun 03 11:48:31 GMT 2012  Olly Betts <olly@survex.com>
+
+	* java/java.i: Use the XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+	  approach for Java too (though we don't actually support mixed
+	  subqueries in the case of Java, so it's now a bit misnamed now!)
+
 Sat Jun 02 12:41:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/parser.t: Fix accidentally pasted comment.

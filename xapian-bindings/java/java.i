@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -126,29 +126,137 @@ namespace Xapian {
 
 }
 
-/* This tells SWIG to treat vector<string> as a special case when used as a
- * parameter in a function call. */
-%typemap(in) const vector<string> & (vector<string> v, jsize len) {
-    len = jenv->GetArrayLength($input);
-    v.reserve(len);
-    for (int i = 0; i < len; ++i) {
-	jstring term = (jstring)jenv->GetObjectArrayElement($input, i);
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+%{
+class XapianSWIGStrItor {
+    JNIEnv * jenv;
+
+    jobjectArray array;
+
+    jsize i;
+
+  public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
+    XapianSWIGStrItor() { }
+
+    void begin(JNIEnv * jenv_, jobjectArray array_) {
+        jenv = jenv_;
+        array = array_;
+        i = 0;
+    }
+
+    void end(jsize len_) {
+        i = len_;
+    }
+
+    XapianSWIGStrItor & operator++() {
+	++i;
+	return *this;
+    }
+
+    Xapian::Query operator*() const {
+	jstring term = (jstring)jenv->GetObjectArrayElement(array, i);
 	const char *c_term = jenv->GetStringUTFChars(term, 0);
-	v.push_back(c_term);
+	Xapian::Query subq(c_term);
 	jenv->ReleaseStringUTFChars(term, c_term);
 	jenv->DeleteLocalRef(term);
+	return subq;
     }
-    $1 = &v;
+
+    bool operator==(const XapianSWIGStrItor & o) {
+	return i == o.i;
+    }
+
+    bool operator!=(const XapianSWIGStrItor & o) {
+	return !(*this == o);
+    }
+
+    difference_type operator-(const XapianSWIGStrItor &o) const {
+        return i - o.i;
+    }
+};
+
+class XapianSWIGQueryItor {
+    jlong * p;
+
+  public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
+    XapianSWIGQueryItor() { }
+
+    void set_p(jlong * p_) { p = p_; }
+
+    XapianSWIGQueryItor & operator++() {
+	++p;
+	return *this;
+    }
+
+    const Xapian::Query & operator*() const {
+	return **(Xapian::Query **)p;
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return p == o.p;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+        return p - o.p;
+    }
+};
+
+%}
+
+%typemap(in) (XapianSWIGStrItor qbegin, XapianSWIGStrItor qend) {
+    $1.begin(jenv, $input);
+    $2.end(jenv->GetArrayLength($input));
 }
 
 /* These 3 typemaps tell SWIG what JNI and Java types to use. */
-%typemap(jni) const vector<string> & "jobjectArray"
-%typemap(jtype) const vector<string> & "String[]"
-%typemap(jstype) const vector<string> & "String[]"
+%typemap(jni) XapianSWIGStrItor, XapianSWIGStrItor "jobjectArray"
+%typemap(jtype) XapianSWIGStrItor, XapianSWIGStrItor "String[]"
+%typemap(jstype) XapianSWIGStrItor, XapianSWIGStrItor "String[]"
 
 /* This typemap handles the conversion of the jtype to jstype typemap type
  * and vice versa. */
-%typemap(javain) const vector<string> & "$javainput"
+%typemap(javain) XapianSWIGStrItor, XapianSWIGStrItor "$javainput"
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) %{
+    if (!$input)
+	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+    jlong * jarr = jenv->GetLongArrayElements($input, NULL);
+    if (!jarr) return $null;
+    $1.set_p(jarr);
+    $2.set_p(jarr + jenv->GetArrayLength($input));
+%}
+
+%typemap(freearg) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) %{
+    /* We don't change the array so use JNI_ABORT to avoid any work
+     * copying back non-existent changes if the JVM gave us a copy
+     * of the array data. */
+    jenv->ReleaseLongArrayElements($input, jarr, JNI_ABORT);
+%}
+
+/* These 3 typemaps tell SWIG what JNI and Java types to use. */
+%typemap(jni) XapianSWIGQueryItor, XapianSWIGQueryItor "jlongArray"
+%typemap(jtype) XapianSWIGQueryItor, XapianSWIGQueryItor "long[]"
+%typemap(jstype) XapianSWIGQueryItor, XapianSWIGQueryItor "Query[]"
+
+/* This typemap handles the conversion of the jstype to the jtype. */
+%typemap(javain) XapianSWIGQueryItor, XapianSWIGQueryItor "Query.cArrayUnwrap($javainput)"
 
 %typemap(javacode) Xapian::Query %{
     // For compatibility with the original JNI wrappers.
@@ -173,34 +281,6 @@ namespace Xapian {
 	return cArray;
     }
 %}
-
-/* This tells SWIG to treat vector<Xapian::Query> as a special case when used
- * as a parameter in a function call. */
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v, jlong *jarr, jsize len) {
-    if (!$input)
-	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    len = jenv->GetArrayLength($input);
-    v.reserve(len);
-    jarr = jenv->GetLongArrayElements($input, NULL);
-    if (!jarr) return $null;
-    for (int i = 0; i < len; ++i) {
-	Xapian::Query * query = *(Xapian::Query **)&jarr[i];
-	v.push_back(*query);
-    }
-    /* We don't change the array so use JNI_ABORT to avoid any work
-     * copying back non-existent changes if the JVM gave us a copy
-     * of the array data. */
-    jenv->ReleaseLongArrayElements($input, jarr, JNI_ABORT);
-    $1 = &v;
-}
-
-/* These 3 typemaps tell SWIG what JNI and Java types to use. */
-%typemap(jni) const vector<Xapian::Query> & "jlongArray"
-%typemap(jtype) const vector<Xapian::Query> & "long[]"
-%typemap(jstype) const vector<Xapian::Query> & "Query[]"
-
-/* This typemap handles the conversion of the jstype to the jtype. */
-%typemap(javain) const vector<Xapian::Query> & "Query.cArrayUnwrap($javainput)"
 
 #if 0
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
