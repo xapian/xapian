@@ -1392,7 +1392,7 @@ main(int argc, char **argv)
 	return 1;
     }
     if (baseurl.empty()) {
-	cerr << PROG_NAME": --url not specified, assuming `/'." << endl;
+	cerr << PROG_NAME": --url not specified, assuming '/'." << endl;
     }
     // baseurl must end in a '/'.
     if (!endswith(baseurl, '/')) {

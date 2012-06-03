@@ -1088,7 +1088,7 @@ eval(const string &fmt, const vector<string> &param)
 	unsigned char ch = fmt[q];
 	switch (ch) {
 	    // Magic sequences:
-	    // `$$' -> `$', `$(' -> `{', `$)' -> `}', `$.' -> `,'
+	    // '$$' -> '$', '$(' -> '{', '$)' -> '}', '$.' -> ','
 	    case '$':
 		res += '$';
 		p = q + 1;
@@ -1135,7 +1135,7 @@ eval(const string &fmt, const vector<string> &param)
 	map<string, const struct func_attrib *>::const_iterator func;
 	func = func_map.find(var);
 	if (func == func_map.end()) {
-	    throw "Unknown function `" + var + "'";
+	    throw "Unknown function '" + var + "'";
 	}
 	vector<string> args;
 	if (fmt[p] == '{') {
@@ -1311,7 +1311,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_error:
 		if (error_msg.empty() && enquire == NULL && !dbname.empty()) {
-		    error_msg = "Database `" + dbname + "' couldn't be opened";
+		    error_msg = "Database '" + dbname + "' couldn't be opened";
 		}
 		value = error_msg;
 		break;
@@ -2050,7 +2050,7 @@ eval(const string &fmt, const vector<string> &param)
 		args.insert(args.begin(), param[0]);
 		int macro_no = func->second->tag - CMD_MACRO;
 		assert(macro_no >= 0 && (unsigned int)macro_no < macros.size());
-		// throw "Unknown function `" + var + "'";
+		// throw "Unknown function '" + var + "'";
 		value = eval(macros[macro_no], args);
 		break;
 	    }
@@ -2080,11 +2080,11 @@ eval_file(const string &fmtfile)
 	}
 	err = strerror(errno);
     } else {
-	err = "name contains `..'";
+	err = "name contains '..'";
     }
 
     // FIXME: report why!
-    string msg = string("Couldn't read format template `") + fmtfile + '\'';
+    string msg = string("Couldn't read format template '") + fmtfile + '\'';
     if (!err.empty()) msg += " (" + err + ')';
     throw msg;
 }

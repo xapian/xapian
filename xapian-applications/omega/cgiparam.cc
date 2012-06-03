@@ -74,8 +74,8 @@ add_param(string name, string val)
 	    }
 	}
     }
-    // Truncate at first space - convert `[ page two ]=2'
-    // into `[=2'
+    // Truncate at first space - convert '[ page two ]=2'
+    // into '[=2'
     i = name.find(' ');
     if (i != string::npos) name.resize(i);
     cgi_params.insert(multimap<string, string>::value_type(name, val));
