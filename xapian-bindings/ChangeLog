@@ -1,3 +1,7 @@
+Sat Jun 02 12:41:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/parser.t: Fix accidentally pasted comment.
+
 Sat Jun 02 12:39:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* INSTALL,Makefile.am,README,debian/rules,doxygen_xml.conf.in,
