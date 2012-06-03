@@ -1,3 +1,8 @@
+Sun Jun 03 13:04:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove the old %extend Query constructors, as they are no
+	  longer used for any of the languages.
+
 Sun Jun 03 12:54:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/util.i,php/php.i,python/python.i,ruby/ruby.i,tcl8/tcl.i: Mark

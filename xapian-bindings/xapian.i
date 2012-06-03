@@ -24,24 +24,6 @@
  */
 %}
 
-// xapian/query.h:
-
-#if !defined XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP && !defined SWIGPERL && !defined SWIGCSHARP
-%extend Xapian::Query {
-	    /** Constructs a query from a vector of terms merged with the
-	     *  specified operator. */
-	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
-		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
-	    }
-
-	    /** Constructs a query from a vector of subqueries merged with the
-	     *  specified operator. */
-	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
-		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
-	    }
-}
-#endif
-
 %include xapian-headers.i
 
 namespace Xapian {
