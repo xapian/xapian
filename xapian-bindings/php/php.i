@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -111,6 +111,12 @@ class XapianSWIGQueryItor {
     }
 
   public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
     XapianSWIGQueryItor()
 	: ht(NULL) { }
 
@@ -156,11 +162,13 @@ fail: // Label which SWIG_PHP_Error needs.
 	return !(*this == o);
     }
 
-    typedef std::input_iterator_tag iterator_category;
-    typedef Xapian::Query value_type;
-    typedef Xapian::termcount_diff difference_type;
-    typedef Xapian::Query * pointer;
-    typedef Xapian::Query & reference;
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+	// This is a hack - the only time where this will actually get called
+	// is when "this" is "end" and "o" is "begin", in which case the
+        // answer is the number of elements in the HashTable, which will be in
+        // o.ht.
+	return zend_hash_num_elements(o.ht);
+    }
 };
 
 %}

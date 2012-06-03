@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,6 +171,12 @@ class XapianSWIGQueryItor {
     }
 
   public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
     XapianSWIGQueryItor() : seq(NULL), i(0) { }
 
     void begin(PyObject * seq_) {
@@ -230,11 +236,9 @@ class XapianSWIGQueryItor {
 	return !(*this == o);
     }
 
-    typedef std::input_iterator_tag iterator_category;
-    typedef Xapian::Query value_type;
-    typedef Xapian::termcount_diff difference_type;
-    typedef Xapian::Query * pointer;
-    typedef Xapian::Query & reference;
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+        return i - o.i;
+    }
 };
 
 %}
