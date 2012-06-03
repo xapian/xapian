@@ -1,3 +1,7 @@
+Sat Jun 02 12:15:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/scalability.rst: Update gmane size, fix a typo, tweak wording.
+
 Sat Jun 02 12:10:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,api/omdocument.cc,api/omenquire.cc,backends/brass/,
