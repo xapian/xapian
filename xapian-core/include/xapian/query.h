@@ -182,6 +182,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     // provide this fake specialised form of the above prototype.
     Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
 		 Xapian::termcount parameter = 0);
+
+# ifdef SWIGJAVA
+    Query::Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
+		 Xapian::termcount parameter = 0);
+# endif
 #endif
 
     const TermIterator get_terms_begin() const;
