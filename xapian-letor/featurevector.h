@@ -27,6 +27,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "featuremanager.h"
+
 #include <list>
 #include <map>
 
@@ -36,23 +38,37 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
-
+    FeatureManager fm;
     std::string qid;
     std::string did;
     double label;
     std::map<int,double> fvals;
-    const int fcount;
+    int fcount;
+    Database letor_db;
+    Query letor_query;
 
   public:
-    FeatureVector();
 
+    FeatureVector(const FeatureVector & o);
+
+    FeatureVector() {
+        fcount=0;
+    }
+    
+    ~FeatureVector();
+    
     void set_database(const Xapian::Database & db);
 
     void set_query(const Xapian::Query & query);
 
+    /** This method takes the document from the MSet as input and gives the feature representation
+     * as vector in the form of 
+     * map<int,double>
+     */
     std::map<int,double> transform(const Xapian::Document & doc);
 
-    std::map<string, map<string, double> load_relevance_judgement(const std::string & qrel_file);
+
+    map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
     void set_qid(const std::string & qid);
 

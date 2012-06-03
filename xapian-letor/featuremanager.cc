@@ -1,7 +1,7 @@
-/** @file letor_internal.cc
- * @brief Internals of Xapian::Letor class
+/** @file featuremanager.cc
+ * @brief FetureManager class
  */
-/* Copyright (C) 2011 Parth Gupta
+/* Copyright (C) 2012 Parth Gupta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,13 +20,20 @@
  */
 
 #include "featuremanager.h"
+#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+
+
 
 using namespace std;
 
 using namespace Xapian;
 
 map<string, long int>
-Letor::Internal::termfreq(const Xapian::Document & doc, const Xapian::Query & query) {
+FeatureManager::termfreq(const Xapian::Document & doc, const Xapian::Query & query) {
     map<string, long int> tf;
 
     Xapian::TermIterator docterms = doc.termlist_begin();
@@ -43,7 +50,7 @@ Letor::Internal::termfreq(const Xapian::Document & doc, const Xapian::Query & qu
 }
 
 map<string, double>
-Letor::Internal::inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query) {
+FeatureManager::inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query) {
     map<string, double> idf;
 
     for (Xapian::TermIterator qt = query.get_terms_begin();
@@ -60,7 +67,7 @@ Letor::Internal::inverse_doc_freq(const Xapian::Database & db, const Xapian::Que
 }
 
 map<string, long int>
-Letor::Internal::doc_length(const Xapian::Database & db, const Xapian::Document & doc) {
+FeatureManager::doc_length(const Xapian::Database & db, const Xapian::Document & doc) {
     map<string, long int> len;
 
     long int temp_count = 0;
@@ -80,7 +87,7 @@ Letor::Internal::doc_length(const Xapian::Database & db, const Xapian::Document 
 }
 
 map<string, long int>
-Letor::Internal::collection_length(const Xapian::Database & db) {
+FeatureManager::collection_length(const Xapian::Database & db) {
     map<string, long int> len;
 
     if (!db.get_metadata("collection_len_title").empty() && !db.get_metadata("collection_len_body").empty() && !db.get_metadata("collection_len_whole").empty()) {
@@ -101,7 +108,7 @@ Letor::Internal::collection_length(const Xapian::Database & db) {
 }
 
 map<string, long int>
-Letor::Internal::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query) {
+FeatureManager::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query) {
     map<string, long int> tf;
 
     for (Xapian::TermIterator qt = query.get_terms_begin();
@@ -115,7 +122,7 @@ Letor::Internal::collection_termfreq(const Xapian::Database & db, const Xapian::
 }
 
 double
-Letor::Internal::calculate_f1(const Xapian::Query & query, map<string, long int> & tf, char ch) {
+FeatureManager::calculate_f1(const Xapian::Query & query, map<string, long int> & tf, char ch) {
     double value = 0;
 
     if (ch == 't') {           // if feature1 for title
@@ -147,7 +154,7 @@ Letor::Internal::calculate_f1(const Xapian::Query & query, map<string, long int>
 
 
 double
-Letor::Internal::calculate_f2(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, char ch) {
+FeatureManager::calculate_f2(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, char ch) {
     double value = 0;
 
     if (ch == 't') {            //if feature1 for title then
@@ -176,7 +183,7 @@ Letor::Internal::calculate_f2(const Xapian::Query & query, map<string, long int>
 }
 
 double
-Letor::Internal::calculate_f3(const Xapian::Query & query, map<string, double> & idf, char ch) {
+FeatureManager::calculate_f3(const Xapian::Query & query, map<string, double> & idf, char ch) {
     double value = 0;
 
     if (ch == 't') {
@@ -207,7 +214,7 @@ Letor::Internal::calculate_f3(const Xapian::Query & query, map<string, double> &
 }
 
 double
-Letor::Internal::calculate_f4(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & coll_len, char ch) {
+FeatureManager::calculate_f4(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & coll_len, char ch) {
     double value = 0;
 
     if (ch == 't') {
@@ -238,7 +245,7 @@ Letor::Internal::calculate_f4(const Xapian::Query & query, map<string, long int>
 }
 
 double
-Letor::Internal::calculate_f5(const Xapian::Query & query, map<string, long int> & tf, map<string, double> & idf, map<string, long int> & doc_len, char ch) {
+FeatureManager::calculate_f5(const Xapian::Query & query, map<string, long int> & tf, map<string, double> & idf, map<string, long int> & doc_len, char ch) {
     double value = 0;
 
     if (ch == 't') {
@@ -269,7 +276,7 @@ Letor::Internal::calculate_f5(const Xapian::Query & query, map<string, long int>
 }
 
 double
-Letor::Internal::calculate_f6(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, map<string, long int> & coll_tf, map<string, long int> & coll_length, char ch) {
+FeatureManager::calculate_f6(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, map<string, long int> & coll_tf, map<string, long int> & coll_length, char ch) {
     double value = 0;
 
     if (ch == 't') {
