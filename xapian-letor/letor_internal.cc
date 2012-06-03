@@ -25,7 +25,8 @@
 
 #include <xapian.h>
 
-#include "letor_internal.h"
+#include "letor_internal_refactored.h"
+#include "featurevector.h"
 #include "str.h"
 #include "stringutils.h"
 
@@ -58,6 +59,8 @@ struct svm_node *x_space;
 int cross_validation;
 int nr_fold;
 
+
+
 struct svm_node *x;
 int max_nr_attr = 64;
 
@@ -82,279 +85,7 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-map<string, long int>
-Letor::Internal::termfreq(const Xapian::Document & doc, const Xapian::Query & query) {
-    map<string, long int> tf;
 
-    Xapian::TermIterator docterms = doc.termlist_begin();
-    for (Xapian::TermIterator qt = query.get_terms_begin();
-	 qt != query.get_terms_end(); ++qt) {
-	docterms.skip_to(*qt);
-	if (docterms != doc.termlist_end() && *qt == *docterms) {
-	    tf[*qt] = docterms.get_wdf();
-	} else {
-	    tf[*qt] = 0;
-	}
-    }
-    return tf;
-}
-
-map<string, double>
-Letor::Internal::inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query) {
-    map<string, double> idf;
-
-    for (Xapian::TermIterator qt = query.get_terms_begin();
-	 qt != query.get_terms_end(); ++qt) {
-	if (db.term_exists(*qt)) {
-	    long int totaldocs = db.get_doccount();
-	    long int df = db.get_termfreq(*qt);
-	    idf[*qt] = log10(totaldocs / (1 + df));
-	} else {
-	    idf[*qt] = 0;
-	}
-    }
-    return idf;
-}
-
-map<string, long int>
-Letor::Internal::doc_length(const Xapian::Database & db, const Xapian::Document & doc) {
-    map<string, long int> len;
-
-    long int temp_count = 0;
-    Xapian::TermIterator dt = doc.termlist_begin();
-    dt.skip_to("S");                 //reach the iterator to the start of the title terms i.e. prefix "S"
-    for ( ; dt != doc.termlist_end(); ++dt) {
-	if ((*dt)[0] != 'S') {
-	    // We've reached the end of the S-prefixed terms.
-	    break;
-	}
-	temp_count += dt.get_wdf();
-    }
-    len["title"] = temp_count;
-    len["whole"] = db.get_doclength(doc.get_docid());
-    len["body"] = len["whole"] - len["title"];
-    return len;
-}
-
-map<string, long int>
-Letor::Internal::collection_length(const Xapian::Database & db) {
-    map<string, long int> len;
-
-    if (!db.get_metadata("collection_len_title").empty() && !db.get_metadata("collection_len_body").empty() && !db.get_metadata("collection_len_whole").empty()) {
-	len["title"] = atol(db.get_metadata("collection_len_title").c_str());
-	len["body"] = atol(db.get_metadata("collection_len_body").c_str());
-	len["whole"] = atol(db.get_metadata("collection_len_whole").c_str());
-    } else {
-	long int temp_count = 0;
-	Xapian::TermIterator dt = db.allterms_begin("S");
-	for ( ; dt != db.allterms_end("S"); ++dt) {
-	    temp_count += db.get_collection_freq(*dt);	//	because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
-	}
-	len["title"] = temp_count;
-	len["whole"] = db.get_avlength() * db.get_doccount();
-	len["body"] = len["whole"] - len["title"];
-    }
-    return len;
-}
-
-map<string, long int>
-Letor::Internal::collection_termfreq(const Xapian::Database & db, const Xapian::Query & query) {
-    map<string, long int> tf;
-
-    for (Xapian::TermIterator qt = query.get_terms_begin();
-	 qt != query.get_terms_end(); ++qt) {
-	if (db.term_exists(*qt))
-	    tf[*qt] = db.get_collection_freq(*qt);
-	else
-	    tf[*qt] = 0;
-    }
-    return tf;
-}
-
-double
-Letor::Internal::calculate_f1(const Xapian::Query & query, map<string, long int> & tf, char ch) {
-    double value = 0;
-
-    if (ch == 't') {           // if feature1 for title
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-		value += log10(1 + tf[*qt]);       // always use log10(1+quantity) because log(1) = 0 and log(0) = -inf
-	    } else            // if there is no title information stored with standart "S" prefix
-		value += 0;
-	}
-	return value;
-    } else if (ch == 'b') {              //  if for body only
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-		value += log10(1 + tf[*qt]);      //  always use log10(1+quantity) because log(1) = 0 and log(0) = -inf
-	    } else
-		value += 0;
-	}
-	return value;
-    } else {                         //   if for whole document
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    value += log10(1 + tf[*qt]);      //  always use log10(1+quantity) because log(1) = 0 and log(0) = -inf
-	}
-	return value;
-    }
-}
-
-
-double
-Letor::Internal::calculate_f2(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, char ch) {
-    double value = 0;
-
-    if (ch == 't') {            //if feature1 for title then
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-		value += log10(1 + ((double)tf[*qt] / (1 + (double)doc_len["title"])));        //always use log10(1+quantity) because log(1) = 0 and log(0) = -inf
-	    }
-	}
-	return value;
-    } else if (ch == 'b') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-		value += log10(1 + ((double)tf[*qt] / (1 + (double)doc_len["body"])));
-	    }
-	}
-	return value;
-    } else {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    value += log10(1 + ((double)tf[*qt] / (1 + (double)doc_len["whole"])));
-	}
-	return value;
-    }
-}
-
-double
-Letor::Internal::calculate_f3(const Xapian::Query & query, map<string, double> & idf, char ch) {
-    double value = 0;
-
-    if (ch == 't') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-		value += log10(1 + idf[*qt]);
-	    } else
-		value += 0;
-	}
-	return value;
-    } else if (ch == 'b') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-		value += log10(1 + idf[*qt]);
-	    } else
-		value += 0;
-	}
-	return value;
-    } else {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    value += log10(1 + idf[*qt]);
-	}
-	return value;
-    }
-}
-
-double
-Letor::Internal::calculate_f4(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & coll_len, char ch) {
-    double value = 0;
-
-    if (ch == 't') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-		value += log10(1 + ((double)coll_len["title"] / (double)(1 + tf[*qt])));
-	    } else
-		value += 0;
-	}
-	return value;
-    } else if (ch == 'b') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-		value += log10(1 + ((double)coll_len["body"] / (double)(1 + tf[*qt])));
-	    } else
-		value += 0;
-	}
-	return value;
-    } else {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    value += log10(1 + ((double)coll_len["whole"] / (double)(1 + tf[*qt])));
-	}
-	return value;
-    }
-}
-
-double
-Letor::Internal::calculate_f5(const Xapian::Query & query, map<string, long int> & tf, map<string, double> & idf, map<string, long int> & doc_len, char ch) {
-    double value = 0;
-
-    if (ch == 't') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-		value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["title"]))); // 1 + doc_len because if title info is not available then doc_len["title"] will be zero.
-	    } else
-		value += 0;
-	}
-	return value;
-    } else if (ch == 'b') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-		value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["body"])));
-	    } else
-		value += 0;
-	}
-	return value;
-    } else {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["whole"])));
-	}
-	return value;
-    }
-}
-
-double
-Letor::Internal::calculate_f6(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_len, map<string, long int> & coll_tf, map<string, long int> & coll_length, char ch) {
-    double value = 0;
-
-    if (ch == 't') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-		value += log10(1 + (((double)tf[*qt] * (double)coll_length["title"]) / (double)(1 + ((double)doc_len["title"] * (double)coll_tf[*qt]))));
-	    } else
-		value += 0;
-	}
-	return value;
-    } else if (ch == 'b') {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-		value += log10(1 + (((double)tf[*qt] * (double)coll_length["body"]) / (double)(1 + ((double)doc_len["body"] * (double)coll_tf[*qt]))));
-	    } else
-		value += 0;
-	}
-	return value;
-    } else {
-	for (Xapian::TermIterator qt = query.get_terms_begin();
-	     qt != query.get_terms_end(); ++qt) {
-	    value += log10(1+(((double)tf[*qt] * (double)coll_length["whole"]) / (double)(1 + ((double)doc_len["whole"] * (double)coll_tf[*qt]))));
-	}
-	return value;
-    }
-}
 
 
 static void exit_input_error(int line_num) {
@@ -782,32 +513,18 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     /* ---------------------------- store whole qrel file in a Map<> ---------------------*/
 
-    typedef map<string, int> Map1;		//docid and relevance judjement 0/1
-    typedef map<string, Map1> Map2;		// qid and map1
-    Map2 qrel;
+//    typedef map<string, int> Map1;      //docid and relevance judjement 0/1
+//    typedef map<string, Map1> Map2;     // qid and map1
+//    Map2 qrel;
 
-    string inLine;
-    ifstream myfile(qrel_file.c_str(), ifstream::in);
-    string token[4];
-    if (myfile.is_open()) {
-	while (myfile.good()) {
-	    getline(myfile, inLine);		//read a file line by line
-	    char * str;
-	    char * x1;
-	    x1 = const_cast<char*>(inLine.c_str());
-	    str = strtok(x1, " ,.-");
-	    int i = 0;
-	    while (str != NULL)	{
-		token[i] = str;		//store tokens in a string array
-		++i;
-		str = strtok(NULL, " ,.-");
-	    }
+    map<string, map<string, int> > qrel;
 
-	    qrel.insert(make_pair(token[0], Map1()));
-	    qrel[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
-	}
-	myfile.close();
-    }
+    Xapian::FeatureVector fv;
+    fv.set_database(letor_db);
+    qrel = fv.load_relevance(qrel_file);
+
+    
+    
 
     map<string, map<string, int> >::iterator outerit;
     map<string, int>::iterator innerit;

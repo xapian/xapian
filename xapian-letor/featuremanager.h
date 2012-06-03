@@ -18,6 +18,9 @@
  * USA
  */
 
+#ifndef FEATURE_MANAGER_H
+#define FEATURE_MANAGER_H
+
 #include <xapian/letor.h>
 
 #include <list>
@@ -29,8 +32,9 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
-
-  public:
+ public:
+    Database letor_db;
+    Query letor_query;
 
     map<string,long int> termfreq(const Xapian::Document & doc,const Xapian::Query & query);
 
@@ -57,3 +61,4 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 };
 
 }
+#endif /* FEATURE_MANAGER_H */

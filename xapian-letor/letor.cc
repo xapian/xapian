@@ -102,6 +102,7 @@ Letor::calculate_f4(const Xapian::Query & query, map<string, long int> & tf, map
 double
 Letor::calculate_f5(const Xapian::Query & query, map<string, long int> & tf, map<string, double> & idf, map<string, long int> & doc_len, char ch) {
     return internal->calculate_f5(query, tf, idf, doc_len, ch);
+
 }
 
 double

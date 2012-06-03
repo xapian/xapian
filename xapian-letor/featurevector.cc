@@ -18,60 +18,77 @@
  * USA
  */
 
+
+
+#include <config.h>
+
 #include <xapian.h>
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "featurevector.h"
+#include "featuremanager.h"
+
 #include <list>
 #include <map>
 
+#include "str.h"
+#include "stringutils.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include "safeerrno.h"
+#include "safeunistd.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+
 using namespace std;
 
-using namespace xapian;
+using namespace Xapian;
 
 void
-set_database(const Xapian::Database & db) {
-        fm->letor_db = db;
+FeatureVector::set_database(const Xapian::Database & db) {
+        fm.letor_db = db;
 }   
 
 void
-set_query(const Xapian::Query & query) {
-        fm->letor_query = query;
+FeatureVector::set_query(const Xapian::Query & query) {
+        fm.letor_query = query;
 }
 
-namespace Xapian {
+map<string, map<string, int> >
+FeatureVector::load_relevance(const std::string & qrel_file) {
+    typedef map<string, int> Map1;		//docid and relevance judjement 0/1
+    typedef map<string, Map1> Map2;		// qid and map1
+    Map2 qrel;
 
-class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
+    string inLine;
+    ifstream myfile(qrel_file.c_str(), ifstream::in);
+    string token[4];
+    if (myfile.is_open()) {
+	while (myfile.good()) {
+	    getline(myfile, inLine);		//read a file line by line
+	    char * str;
+	    char * x1;
+	    x1 = const_cast<char*>(inLine.c_str());
+	    str = strtok(x1, " ,.-");
+	    int i = 0;
+	    while (str != NULL)	{
+		token[i] = str;		//store tokens in a string array
+		++i;
+		str = strtok(NULL, " ,.-");
+	    }
 
-    std::string qid;
-    std::string did;
-    double label;
-    std::map<int,double> fvals;
-    const int fcount;
-    Database letor_db;
-    Query letor_query;
-
-  public:
-
-    void set_database(const Xapian::Database & db);
-
-    void set_query(const Xapian::Query & query);
-
-    /** This method takes the document from the MSet as input and gives the feature representation
-     * as vector in the form of 
-     * map<int,double>
-     */
-    std::map<int,double> transform(const Xapian::Document & doc);
-
-
-    std::map<string, map<string, double> load_relevance_judgement(const std::string & qrel_file);
-
-    void set_qid(const std::string & qid);
-
-    void set_did(const std::string & did);
-
-};
-
+	    qrel.insert(make_pair(token[0], Map1()));
+	    qrel[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
+	}
+	myfile.close();
+    }
+    return qrel;
 }
-#endif /* FEATURE_VECTOR_H */
+
