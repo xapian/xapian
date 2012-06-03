@@ -33,7 +33,7 @@ XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog
 # branch.  So for XAPIAN_VERSION "1.0.<n>", this should be "1.1.0".
 XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1"."$$2+1".0"}')
 
-# `--exclude=.EXT' arguments to pass dh_install
+# '--exclude=.EXT' arguments to pass dh_install
 DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
 BUILD_DEPS := debhelper (>= 7),

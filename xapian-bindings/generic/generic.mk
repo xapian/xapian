@@ -2,8 +2,8 @@
 ## SWIG.  Any makefile rules or variables which should be set for all SWIG
 ## bindings should be placed here.
 
-# `make QUIET=' overrides `./configure --enable-quiet'.
-# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+# 'make QUIET=' overrides './configure --enable-quiet'.
+# 'make QUIET=y' overrides './configure' without '--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
 if MAINTAINER_MODE
