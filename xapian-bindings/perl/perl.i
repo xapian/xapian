@@ -439,4 +439,4 @@ Xapian::WritableDatabase * new3_WritableDatabase() {
 
 %include util.i
 %include except.i
-%include ../xapian.i
+%include ../xapian-headers.i

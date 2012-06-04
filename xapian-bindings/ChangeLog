@@ -1,3 +1,13 @@
+Mon Jun 04 12:07:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,csharp/csharp.i,fake_dbfactory.i,
+	  java/java.i,lua/lua.i,perl/perl.i,php/php.i,python/python.i,
+	  ruby/extra.i,ruby/ruby.i,ruby/xapian.rb,tcl8/tcl.i,xapian-headers.i,
+	  xapian.i: For all languages except C# and Java, wrap the functions
+	  declared in xapian/dbfactory.h by getting SWIG to parse the header.
+	  This means we now wrap the WritableDatabase form of
+	  Xapian::Auto::open_stub() for these languages.
+
 Mon Jun 04 12:01:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* swig-depcomp: Script which wraps a call to SWIG and tells it to

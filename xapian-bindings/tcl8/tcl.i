@@ -149,6 +149,6 @@ static int XapianTclHandleError(Tcl_Interp * interp) {
     }
 }
 
-%include ../xapian.i
+%include ../xapian-headers.i
 
 /* vim:set syntax=cpp: */

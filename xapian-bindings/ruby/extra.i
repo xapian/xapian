@@ -1,5 +1,5 @@
 %{
-/* ruby/extra.i: custom Ruby SWIG stuff to go after xapian.i
+/* ruby/extra.i: custom Ruby SWIG stuff to go after xapian-headers.i
  *
  * Copyright (C) 2011 Olly Betts
  *

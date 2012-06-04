@@ -256,5 +256,5 @@ class XapianSWIGQueryItor {
 %{ $1.free_seq(); %}
 
 %include except.i
-%include ../xapian.i
+%include ../xapian-headers.i
 %include extra.i

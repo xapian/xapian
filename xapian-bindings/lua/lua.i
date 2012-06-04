@@ -24,4 +24,4 @@
 %include ../xapian-head.i
 %include util.i
 %include except.i
-%include ../xapian.i
+%include ../xapian-headers.i

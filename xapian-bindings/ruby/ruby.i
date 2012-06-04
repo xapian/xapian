@@ -258,6 +258,6 @@ class XapianSWIGQueryItor {
 
 %include ../generic/except.i
 
-%include ../xapian.i
+%include ../xapian-headers.i
 
 %include extra.i

@@ -216,4 +216,4 @@ fail: // Label which SWIG_PHP_Error needs.
 
 %include except.i
 
-%include ../xapian.i
+%include ../xapian-headers.i

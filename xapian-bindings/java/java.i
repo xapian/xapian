@@ -294,4 +294,5 @@ class XapianSWIGQueryItor {
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
 
 %include ../generic/except.i
-%include ../xapian.i
+%include ../xapian-headers.i
+%include ../fake_dbfactory.i

@@ -1,5 +1,5 @@
 %{
-/* xapian.i: the Xapian scripting interface.
+/* fake_dbfactory.i: Fake classes for xapian/dbfactory.h functions.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
@@ -24,16 +24,8 @@
  */
 %}
 
-%include xapian-headers.i
-
 namespace Xapian {
 
-// xapian/dbfactory.h
-
-// Database factory functions:
-#if !defined SWIGCSHARP && !defined SWIGJAVA
-// Now handled in xapian-headers.i for all languages except C# and Java.
-#else
 /* Lie to SWIG that Auto, etc are classes with static methods rather than
    namespaces so it wraps it as we want in C# and Java. */
 class Auto {
@@ -97,6 +89,5 @@ class Remote {
     static
     WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 10000);
 };
-#endif
 
 }

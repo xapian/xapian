@@ -143,7 +143,7 @@
 #if defined SWIGCSHARP || defined SWIGJAVA
 
 /* xapian/dbfactory.h is currently wrapped via fake class declarations in
- * xapian.i for C# and Java. */
+ * fake_dbfactory.i for C# and Java. */
 
 #else
 
