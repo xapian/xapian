@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+# swig-depcomp: Wrap call to SWIG and generate and adjust dependencies.
+#
+# Copyright 2012 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+use strict;
+use warnings;
+
+if (@ARGV < 2) {
+    die "Syntax: $0 SWIG ARGS...\n";
+}
+
+my $swig = shift @ARGV;
+my @swig_args = @ARGV;
+
+my $tmp_deps = 'swig_d.tmp';
+
+unshift @swig_args, ('-MD', '-MF', $tmp_deps);
+
+system($swig, @swig_args) == 0 or die $!;
+
+open TMPDEPS, '<', $tmp_deps or die $!;
+unlink $tmp_deps;
+
+open DEPS, '>', "${tmp_deps}2" or die $!;
+my $target;
+
+my @sources = ();
+while (<TMPDEPS>) {
+    if (!defined $target) {
+	/(.*):/ or next;
+	$target = $1;
+	if (exists $ENV{'stamp'}) {
+	    $_ = "$ENV{'stamp'}:\n";
+	}
+    } else {
+        my $line = $_;
+	s/\\$//;
+	push @sources, split;
+	$_ = $line;
+    }
+    print DEPS $_;
+}
+
+# Generate dummy rules for the sources, so that if one gets removed we can
+# still rebuild successfully.
+for (@sources) {
+    print DEPS "\n$_:\n";
+}
+
+close DEPS or die $!;
+
+$target =~ s/(?:\..*)$/.d/;
+rename "${tmp_deps}2", $target or die $!;

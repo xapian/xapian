@@ -63,21 +63,21 @@ except.i: $(srcdir)/generate-php-exceptions ../../xapian-core/exception_data.pm
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
+RUN_SWIG := $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
 php5/xapian_wrap.stamp: except.i add-php-type-hints
 	-test -d php5 || mkdir php5
 	$(multitarget_begin)
-	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
-	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'php.i
-	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
-	mv xapian_wrap_d.tmp xapian_wrap.d
+	    -o php5/xapian_wrap.cc '$(srcdir)/'php.i
 	$(PERL) '$(srcdir)/'add-php-type-hints php5/xapian.php > php5/xapian.tmp
 	mv php5/xapian.tmp php5/xapian.php
 	$(multitarget_end)
 
--include xapian_wrap.d
+-include php5/xapian_wrap.d
 
 CLEANFILES = php5/xapian_wrap.stamp
 endif
