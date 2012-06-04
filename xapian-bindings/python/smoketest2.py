@@ -96,9 +96,8 @@ def test_all():
 
     expect_exception(xapian.DatabaseOpeningError, None,
                      xapian.open_stub, "nosuchdir/nosuchdb")
-    # WritableDatabase form not wrapped currently.
-    #expect_exception(xapian.DatabaseCreateError, None,
-    #                 xapian.open_stub, "nosuchdir/nosuchdb", xapian.DB_CREATE)
+    expect_exception(xapian.DatabaseOpeningError, None,
+                     xapian.open_stub, "nosuchdir/nosuchdb", xapian.DB_OPEN)
 
     expect_exception(xapian.DatabaseOpeningError, None,
                      xapian.brass_open, "nosuchdir/nosuchdb")

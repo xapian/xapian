@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -70,6 +70,30 @@ try {
 } catch (Exception $e) {
     if ($e->getMessage() !== "QueryParserError: Syntax: <expression> AND <expression>") {
 	print "QueryParserError Exception string not as expected, got: '$e->getMessage()'\n";
+	exit(1);
+    }
+}
+
+# Check that open_stub() is wrapped as expected.
+try {
+    $db = Xapian::auto_open_stub("nosuchdir/nosuchdb");
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
+# Check that open_stub() writable form is wrapped as expected.
+try {
+    $db = Xapian::auto_open_stub("nosuchdir/nosuchdb", Xapian::DB_OPEN);
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }

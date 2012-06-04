@@ -32,51 +32,7 @@ namespace Xapian {
 
 // Database factory functions:
 #if !defined SWIGCSHARP && !defined SWIGJAVA
-namespace Auto {
-    Database open_stub(const string & file);
-}
-
-namespace Brass {
-    %rename(brass_open) open;
-    Database open(const std::string &dir);
-/* SWIG Tcl wrappers don't call destructors for classes returned by factory
- * functions, so don't wrap them so users are forced to use the
- * WritableDatabase ctor instead. */
-#ifndef SWIGTCL
-    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-#endif
-}
-
-namespace Chert {
-    %rename(chert_open) open;
-    Database open(const std::string &dir);
-/* SWIG Tcl wrappers don't call destructors for classes returned by factory
- * functions, so don't wrap them so users are forced to use the
- * WritableDatabase ctor instead. */
-#ifndef SWIGTCL
-    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-#endif
-}
-
-namespace InMemory {
-    %rename(inmemory_open) open;
-    WritableDatabase open();
-}
-
-namespace Remote {
-    %rename(remote_open) open;
-    %rename(remote_open_writable) open_writable;
-
-    Database open(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
-    Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000);
-
-    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
-    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 10000);
-
-    Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
-
-    WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 10000);
-}
+// Now handled in xapian-headers.i for all languages except C# and Java.
 #else
 /* Lie to SWIG that Auto, etc are classes with static methods rather than
    namespaces so it wraps it as we want in C# and Java. */

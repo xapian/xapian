@@ -1,3 +1,12 @@
+Mon Jun 04 07:07:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i,xapian.i: Wrap xapian/dbfactory.h functions
+	  directly, except for C# and Java, where we use a fake class hack.
+	* python/smoketest2.py: Enable test that WritableDatabase form of
+	  xapian.open_stub() is now wrapped.
+	* php/smoketest.php: Check that Xapian::Auto::open_stub() is wrapped
+	  as Xapian::auto_open_stub().
+
 Mon Jun 04 06:23:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* python/smoketest2.py: Test xapian.open_stub() is wrapped.
