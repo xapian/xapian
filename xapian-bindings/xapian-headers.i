@@ -31,7 +31,7 @@
 %enddef
 
 /* A class which is only useful to wrap if the target language allows
- * subclassing of wrapped classes (what SWIG calls "director support".
+ * subclassing of wrapped classes (what SWIG calls "director support").
  */
 #ifdef XAPIAN_SWIG_DIRECTORS
 #define SUBCLASSABLE_ONLY(NS, CLASS) SUBCLASSABLE(NS, CLASS)
