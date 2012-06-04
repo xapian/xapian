@@ -1,3 +1,7 @@
+Sun Jun 03 22:51:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* README: Fix 'Jit' -> 'it'.  Typo introduced in r15713.
+
 Sun Jun 03 13:04:18 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian.i: Remove the old %extend Query constructors, as they are no
