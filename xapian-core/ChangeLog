@@ -1,3 +1,9 @@
+Mon Jun 04 06:21:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Test if we fail to open a stub database file
+	  in Xapian::Auto::open_stub() and throw an exception if so.
+	* tests/api_backend.cc: Add regression test stubdb7.
+
 Sun Jun 03 11:43:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Add second fake specialised form of the
