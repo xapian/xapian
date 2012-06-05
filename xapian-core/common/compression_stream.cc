@@ -4,7 +4,7 @@
 #include "str.h"
 #include "stringutils.h"
 
-CompressionStream::CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY)
+CompressionStream::CompressionStream(int compress_strategy_)
     : compress_strategy(compress_strategy_),
       zerr(0),
       out_len(0),

@@ -16,7 +16,7 @@ using namespace std;
 class CompressionStream {
 
  public:
-    CompressionStream(int);
+    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY);
 
     ~CompressionStream();
 

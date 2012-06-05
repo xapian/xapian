@@ -1,3 +1,10 @@
+Tue Jun 05 06:51:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/compression_stream.cc,common/compression_stream.h: Move the
+	  default argument to the CompressionStream constructor to the header
+	  and mark the constructor as explicit, since it has a single argument
+	  form.
+
 Tue Jun 05 06:41:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/queryvector.h: Fix somewhat dubious warning from clang.
