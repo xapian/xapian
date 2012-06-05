@@ -1,3 +1,14 @@
+Tue Jun 05 10:54:13 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/,backends/chert/: After closing the database, methods
+	  which try to use the termlist would throw FeatureUnavailableError
+	  with message "Database has no termlist", assuming that the termlist
+	  table not being open meant it wasn't present.  Fix to check if the
+	  postlist_table is open to determine which case we're in.
+	* tests/api_closedb.cc: Improve test coverage for closed databases.
+	  (ticket#337)
+
 Tue Jun 05 10:31:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -37,6 +37,8 @@
 #include "../flint_lock.h"
 #include "chert_types.h"
 #include "valuestats.h"
+
+#include "noreturn.h"
 
 #include <map>
 
@@ -288,6 +290,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	string get_uuid() const;
 	//@}
 
+	XAPIAN_NORETURN(void throw_termlist_table_close_exception() const);
 };
 
 /** A writable chert database.

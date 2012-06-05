@@ -607,6 +607,9 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 		/ block_capacity;
 	}
 
+	/// Throw an exception indicating that the database is closed.
+	XAPIAN_NORETURN(static void throw_database_closed());
+
     protected:
 
 	/** Perform the opening operation to read.
@@ -796,9 +799,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
-
-	/// Throw an exception indicating that the database is closed.
-	XAPIAN_NORETURN(static void throw_database_closed());
 };
 
 #endif /* OM_HGUARD_BRASS_TABLE_H */
