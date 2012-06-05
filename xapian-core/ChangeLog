@@ -1,3 +1,9 @@
+Tue Jun 05 11:38:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: In amended closedb1, allow for flint not
+	  implementing get_value_freq(), get_value_lower_bound() and
+	  get_value_upper_bound().
+
 Tue Jun 05 10:54:13 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

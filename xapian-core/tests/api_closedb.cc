@@ -84,9 +84,11 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(db.get_termfreq("paragraph"));
 	COUNT_CLOSEDEXC(db.get_collection_freq("paragraph"));
 	COUNT_CLOSEDEXC(db.term_exists("paragraph"));
-	COUNT_CLOSEDEXC(db.get_value_freq(1));
-	COUNT_CLOSEDEXC(db.get_value_lower_bound(1));
-	COUNT_CLOSEDEXC(db.get_value_upper_bound(1));
+	try {
+	    COUNT_CLOSEDEXC(db.get_value_freq(1));
+	    COUNT_CLOSEDEXC(db.get_value_lower_bound(1));
+	    COUNT_CLOSEDEXC(db.get_value_upper_bound(1));
+	} catch (const Xapian::UnimplementedError &) { /* Not implemented for flint */ }
 	COUNT_CLOSEDEXC(db.valuestream_begin(1));
 	COUNT_CLOSEDEXC(db.get_doclength(1));
 
