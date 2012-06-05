@@ -1132,11 +1132,13 @@ else
   AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
 
+FP_EXCESS_PRECISION=no
 AC_MSG_CHECKING([whether to use SSE instructions on x86])
 case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
+      FP_EXCESS_PRECISION=yes
     else
       dnl Default to sse2.
       test "$enable_sse" != yes || enable_sse=sse2
@@ -1163,6 +1165,7 @@ case $host_cpu in
   *)
     AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
 esac
+AC_SUBST(FP_EXCESS_PRECISION)
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */

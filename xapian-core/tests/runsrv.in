@@ -4,9 +4,11 @@
 # Wrapper script for running xapian-progsrv and xapian-tcpsrv from test
 # programs (using libtool and valgrind if required).
 #
-# We use this wrapper script so that if valgrind is in use, we can run the
-# remote servers under it, as valgrind's emulation of excess FP precision
-# isn't exact, and otherwise we get tests failing due to these differences.
+# We use this wrapper script so that we can run the remote servers under
+# valgrind if required.  This is needed on x86 when the testsuite is using
+# valgrind and we were told to build the library without SSE instructions.
+# The issue is that valgrind's emulation of excess FP precision isn't exact,
+# which causes test failures.
 #
 # We don't actually need valgrind's checking here, so we use "--tool=none"
 # which is much quicker than using valgrind's default memcheck tool.
@@ -32,6 +34,9 @@ if test 0 = "$#"; then
    echo "syntax: $0 <remote backend server program> <arguments>"
    exit 1
 fi
+
+# Just run the server if valgrind's imperfect x87 emulation isn't an issue.
+[ "x@FP_EXCESS_PRECISION@" = "xno" ] && exec "$@"
 
 # Set srcdir if it isn't already.
 : ${srcdir="@srcdir@"}
