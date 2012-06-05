@@ -1,3 +1,7 @@
+Tue Jun 05 06:41:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/queryvector.h: Fix somewhat dubious warning from clang.
+
 Tue Jun 05 06:33:09 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Overhaul handling of compilers which pretend to be GCC,

@@ -47,7 +47,7 @@ class QueryVector {
       public:
 	const_iterator() { }
 
-	const_iterator(void * const * p) : ptr(p) { }
+	const_iterator(void * const * ptr_) : ptr(ptr_) { }
 
 	const_iterator & operator++() { ++ptr; return *this; }
 
