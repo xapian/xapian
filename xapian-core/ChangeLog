@@ -1,3 +1,9 @@
+Tue Jun 05 10:31:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Update Debian/Ubuntu packaging instructions.
+	* HACKING: freshmeat -> freecode.
+
 Wed May 30 01:12:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

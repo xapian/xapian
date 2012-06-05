@@ -1477,8 +1477,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Announce the new version on xapian-discuss
 
-* Update the freshmeat entry at:
-  http://freshmeat.net/projects/xapian/releases/new
+* Update the freshcode entry at:
+  http://freecode.com/projects/xapian/releases/new
 
 * Have a nice cup of tea!
 
@@ -1492,9 +1492,7 @@ updated as follows:
 
 * If there are any patch files in "debian/patches", check if these have been
   incorporated into the new release, and if so remove them and update
-  "debian/patches/series".  If there are no patches left and
-  "debian/patches/series" is empty or only contains lines starting with a "#"
-  then the dependency on quilt is automatically omitted.
+  "debian/patches/series".
 
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
@@ -1523,13 +1521,13 @@ updated as follows:
 
 * For the Ubuntu backports::
 
-   ./backport-source-packages xapian-core 1.0.15-1 jaunty intrepid hardy dapper
-   ./backport-source-packages xapian-omega 1.0.15-1 jaunty intrepid hardy dapper
-   ./backport-source-packages xapian-bindings 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-core 1.0.15-1 ubuntu
+   ./backport-source-packages xapian-omega 1.0.15-1 ubuntu
+   ./backport-source-packages xapian-bindings 1.0.15-1 ubuntu
 
   And once libsearch-xapian-perl is uploaded to Debian unstable::
 
-   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 jaunty intrepid hardy
+   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 ubuntu
 
   Then sign::
 
