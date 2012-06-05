@@ -1,5 +1,16 @@
 Wed May 30 01:12:06 GMT 2012  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
+	* backends/chert/chert_cursor.cc: Fix incorrect use of "delete" to
+	  "delete []".  The type is POD, so I suspect this mistake didn't
+	  actually cause any problems, and it only happens when a cursor
+	  gets rebuilt because the B-tree has gained a level, so it's
+	  a rather rare occurrence.
+	* backends/brass/brass_cursor.cc,backends/flint/flint_cursor.cc: Make
+	  the equivalent fix.
+
+Tue May 15 11:09:44 GMT 2012  Olly Betts <olly@survex.com>
+
 	* include/xapian/query.h: Fix Query ctor documentation comment - XOR
 	  and ELITE_SET can both take any number of subqueries, not just
 	  exactly two.
