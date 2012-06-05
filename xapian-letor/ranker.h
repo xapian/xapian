@@ -41,9 +41,9 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
 
-    std::map<Xapian::RankList> traindata;
-    std::map<Xapian::RankList> validata;
-    std::map<Xapian::RankList> testdata;
+    std::list<Xapian::RankList> traindata;
+    std::list<Xapian::RankList> validata;
+    std::list<Xapian::RankList> testdata;
 
     Xapian::EvalMetric trainMetric;
     Xapian::EvalMetric testMetric;

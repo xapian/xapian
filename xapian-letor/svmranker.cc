@@ -1,4 +1,4 @@
-/* featurevector.h: The file responsible for transforming the document into the feature space.
+/* ranker.h: The abstract ranker file.
  *
  * Copyright (C) 2012 Parth Gupta
  *
@@ -18,8 +18,8 @@
  * USA
  */
 
-#ifndef FEATURE_VECTOR_H
-#define FEATURE_VECTOR_H
+#ifndef SVMRANKER_H
+#define SVMRANKER_H
 
 
 #include <xapian.h>
@@ -27,7 +27,9 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featuremanager.h"
+#include "ranker.h"
+#include "ranklist.h"
+//#include "evalmetric.h"
 
 #include <list>
 #include <map>
@@ -37,31 +39,27 @@ using namespace std;
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
-    double label;
-    std::map<int,double> fvals;
-    int fcount;
+class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
+    string model = null;
+    double[] weight;
   public:
+    SVMRanker() {};
 
-    FeatureVector(const FeatureVector & o);
-    
-    virtual ~FeatureVector() {};
-
-    /** This method takes the document from the MSet as input and gives the feature representation
-     * as vector in the form of 
-     * map<int,double>
+    /* Override all the four methods below in the ranker sub-classes files
+     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    std::map<int,double> transform(const Xapian::Document & doc);
+    Xapian::RankList rank(const Xapian::RankList & rl);
 
+    void learn_model();
 
-    map<string, map<string, int> > load_relevance(const std::string & qrel_file);
+    void load_model(const std::string & model_file);
 
-    void set_qid(const std::string & qid);
+    void save_model();
 
-    void set_did(const std::string & did);
+    double score(const Xapian::FeatureVector & fv);
 
 };
 
 }
-#endif /* FEATURE_VECTOR_H */
+#endif /* SVMRANKER_H */

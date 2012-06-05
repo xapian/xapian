@@ -21,44 +21,63 @@
 #ifndef FEATURE_MANAGER_H
 #define FEATURE_MANAGER_H
 
+
 #include <xapian/letor.h>
 
-#include <list>
+#include "featurevector.h"
+#include "ranklist.h"
 #include <map>
+#include <string>
 
 using namespace std;
-
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
- public:
+
+public:
+    FeatureManager();
+
+    virtual ~FeatureManager() {};
+
+    // accessors
+    inline void set_database(const Database &db) { letor_db = db; update_collection_level();}
+    inline const Database &get_database() const { return letor_db; }
+    inline void set_query(const Query &query) { letor_query = query; update_query_level();}
+    inline const Query &get_query() const { return letor_query; }
+
+    // fill "dest" with the corresponding values NOTE: dest should have size NUM_FEATURES (vector safer?)
+    // TODO: the definition of this should be generated (or the whole class inherited from this one)
+//    void compute(const Document &doc, double *dest);
+
+    std::map<int,double> transform(const Xapian::Document & doc);
+
+    RankList createRankList(const Xapian::MSet & mset);
+
+    void load_relevance(const std::string & qrel_file);    
+
+    static const int fNum = 20;
+
+private:
     Database letor_db;
     Query letor_query;
 
-    map<string,long int> termfreq(const Xapian::Document & doc,const Xapian::Query & query);
+    map<string,long int> coll_len;
+    map<string,long int> coll_tf;
+    map<string,double> idf;
 
-    map<string,double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
+    map<string, map<string, int> > qrel;
 
-    map<string,long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
+    // update collection-level measures
+    void update_collection_level();
 
-    map<string,long int> collection_length(const Xapian::Database & db);
-
-    map<string,long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
-
-    double calculate_f1(const Xapian::Query & query, map<string,long int> & tf,char ch);
-
-    double calculate_f2(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length, char ch);
-
-    double calculate_f3(const Xapian::Query & query, map<string,double> & idf, char ch);
-
-    double calculate_f4(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & coll_len, char ch);
-
-    double calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_length,char ch);
-
-    double calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch);
+    // update query-level measures
+    void update_query_level();
 
 };
 
 }
-#endif /* FEATURE_MANAGER_H */
+
+
+
+#endif // FEATURE_MANAGER_H
