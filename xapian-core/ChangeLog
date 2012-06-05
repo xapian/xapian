@@ -1,3 +1,15 @@
+Tue Jun 05 06:33:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Overhaul handling of compilers which pretend to be GCC,
+	  using a simple "case" on the preprocessed output of '__INTEL_COMPILER
+	  __clang__' to tell which is in use.  We now explicitly check for
+	  clang, and only pass it warning flags it actually understands.  GCC
+	  4.0 is now lumped in with 3.*, since we handle it exactly the same.
+	  Enable -Wdouble-promotion for GCC >= 4.6.  Check for symbol
+	  visibility support under any GCC-alike (which means we now run the
+	  test with Intel's compiler).  Move the check for -Bsymbolic-functions 
+	  to be run for all compilers.
+
 Mon Jun 04 06:21:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Test if we fail to open a stub database file

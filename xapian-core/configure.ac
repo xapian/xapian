@@ -1002,27 +1002,13 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl Set flags to control warnings (enable more, or disable annoying ones).
+dash_d_visibility=
 if test yes = "$GXX"; then
-  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
-  dnl which we actually have.
-  AC_EGREP_CPP(yes,
-    [#ifdef __INTEL_COMPILER
-     yes
-     #endif
-    ],
-    [
-      dnl Intel's compiler:
-      dnl
-      dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
-    ],
-    [
-      dnl GCC:
+  dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
+  dnl we actually have, as neither is really 100% compatible.
+  case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
+    *__INTEL_COMPILER*__clang__*)
+      dnl GCC (since neither substituted):
       dnl
       dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
       dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
@@ -1040,10 +1026,9 @@ if test yes = "$GXX"; then
       [[012]].* | 3.0)
 	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      3.*) ;;
-      *) dnl GCC >= 4.0
+      3.*|4.0) ;;
+      *) dnl GCC >= 4.1
 	case $gxx_version in
-	4.0) ;;
 	4.1)
 	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
 	  dnl only enable it for GCC >= 4.1.
@@ -1063,17 +1048,19 @@ if test yes = "$GXX"; then
 	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
 	  dnl See http://trac.xapian.org/ticket/449 for more details.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
-	*)
+	4.[[345]])
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
+	*) dnl GCC >= 4.6
+	  dnl -Wdouble-promotion was added in GCC 4.6.
 	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
-	  dnl is ignored by g++ which warns for this case with -Wuninitialized
-	  dnl (implied by -W).  But at some point this bug (filed upstream as
-	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	  dnl anyway - we don't intend to use this idiom, so any instances are
-	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	  dnl warns for this case with -Wuninitialized (implied by -W).  We
+	  dnl don't intend to use this idiom, so any instances are bugs we'd
+	  dnl like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
 	esac
 
 	dnl FIXME:
@@ -1086,41 +1073,58 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no != "$enable_visibility"; then
-	  dnl GCC doesn't support symbol visibility on all platforms (notably
-	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
-	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
-	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
-	    AC_MSG_RESULT([yes])
-	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
-	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
-	  else
-	    AC_MSG_RESULT([no])
-	  fi
-	fi
-
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-	dnl and some GCC 3.x compilers issue spurious warnings.
+	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
+	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  case $gxx_version in
-	  4.0)
-	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
-	    ;;
-	  *)
-	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
-	  esac
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
 	fi
 	;;
       esac
+      ;;
+    *__clang__*)
+      dnl Intel's compiler (since __clang__ not substituted):
+      dnl
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
 
-      XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
-	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
-    ])
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+    *__INTEL_COMPILER*)
+      dnl clang (since __INTEL_COMPILER not substituted):
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+  esac
+
+  if test no != "$enable_visibility"; then
+    dnl GCC doesn't support symbol visibility on all platforms (notably
+    dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+    AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+    if echo 'int bar() __attribute__((visibility("default"))); int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+      AC_MSG_RESULT([yes])
+      AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+      dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
 else
   dnl WARNING_CXXFLAGS is set above.
   AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
+
+XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
+  [XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
 
 FP_EXCESS_PRECISION=no
 AC_MSG_CHECKING([whether to use SSE instructions on x86])
