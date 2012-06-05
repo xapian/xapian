@@ -1,3 +1,9 @@
+Tue Jun 05 11:58:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am: Pass -ldl last when compiling zlib-vg.so, as that
+	  seems to be needed on Ubuntu 12.04.
+
 Tue Jun 05 11:50:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Check if the database is
