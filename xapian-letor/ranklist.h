@@ -38,10 +38,11 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT RankList {
-
-    std::list<FeatureVector>;
+    
+    std::list<FeatureVector> rl;
 
   public:
+    string qid;
     RankList();
 
     void add_feature_vector(const Xapian::FeatureVector & fv);
