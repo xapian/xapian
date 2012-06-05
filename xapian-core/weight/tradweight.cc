@@ -135,7 +135,7 @@ TradWeight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double k = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::NetworkError("Extra data in BM25Weight::unserialise()");
+	throw Xapian::NetworkError("Extra data in TradWeight::unserialise()");
     return new TradWeight(k);
 }
 

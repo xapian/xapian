@@ -1,3 +1,8 @@
+Tue Jun 05 13:04:57 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* weight/tradweight.cc: BM25Weight -> TradWeight in exception message.
+
 Tue Jun 05 12:43:46 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
