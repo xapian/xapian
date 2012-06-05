@@ -1,3 +1,9 @@
+Tue Jun 05 12:43:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testutils.cc,tests/harness/testutils.h: Remove unused
+	  test helper mset_range_is_same_percents() (thanks, lcov!)
+
 Tue Jun 05 12:34:15 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
