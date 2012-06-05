@@ -170,7 +170,12 @@ DEFINE_TESTCASE(closedb2, writable && !inmemory && !remote) {
 /// Check API methods which might either work or throw an exception.
 DEFINE_TESTCASE(closedb3, backend) {
     Xapian::Database db(get_database("etext"));
+    const string & uuid = db.get_uuid();
     db.close();
+    try {
+	TEST_EQUAL(db.get_uuid(), uuid);
+    } catch (const Xapian::DatabaseError &) {
+    }
     try {
 	TEST(db.has_positions());
     } catch (const Xapian::DatabaseError &) {
@@ -251,5 +256,91 @@ DEFINE_TESTCASE(closedb6, remote) {
 	return false;
     } catch (const Xapian::DatabaseError &) {
     }
+    return true;
+}
+
+// Test WritableDatabase methods.
+DEFINE_TESTCASE(closedb7, writable) {
+    Xapian::WritableDatabase db(get_writable_database());
+    db.add_document(Xapian::Document());
+    db.close();
+
+    // Since we can't make any changes which need to be committed, db.commit()
+    // is a no-op, and so doesn't have to fail.  Similarly we may be able to
+    // call db.begin_transaction(), but we can't make any changes inside that
+    // transaction.
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.add_document(Xapian::Document()));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.delete_document(1));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.replace_document(1, Xapian::Document()));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.replace_document(2, Xapian::Document()));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.replace_document("Qi", Xapian::Document()));
+
+    return true;
+}
+
+// Test spelling related methods.
+DEFINE_TESTCASE(closedb8, writable && spelling) {
+    Xapian::WritableDatabase db(get_writable_database());
+    db.add_spelling("pneumatic");
+    db.add_spelling("pneumonia");
+    db.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.add_spelling("penmanship"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.remove_spelling("pneumatic"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.get_spelling_suggestion("newmonia"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.spellings_begin());
+
+    return true;
+}
+
+// Test synonym related methods.
+DEFINE_TESTCASE(closedb9, writable && synonyms) {
+    Xapian::WritableDatabase db(get_writable_database());
+    db.add_synonym("color", "colour");
+    db.add_synonym("honor", "honour");
+    db.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.add_synonym("behavior", "behaviour"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.remove_synonym("honor", "honour"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.clear_synonyms("honor"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.synonyms_begin("color"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.synonym_keys_begin());
+
+    return true;
+}
+
+// Test metadata related methods.
+DEFINE_TESTCASE(closedb10, writable && metadata) {
+    Xapian::WritableDatabase db(get_writable_database());
+    db.set_metadata("foo", "FOO");
+    db.set_metadata("bar", "BAR");
+    db.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.set_metadata("test", "TEST"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.get_metadata("foo"));
+    TEST_EXCEPTION(Xapian::DatabaseError,
+		   db.get_metadata("foo"));
+    try {
+	TEST_EXCEPTION(Xapian::DatabaseError, db.metadata_keys_begin());
+    } catch (const Xapian::UnimplementedError &) {
+	/* Not implemented for inmemory */
+    }
+
     return true;
 }

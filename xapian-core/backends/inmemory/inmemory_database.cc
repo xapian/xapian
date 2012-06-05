@@ -567,7 +567,7 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 TermList *
 InMemoryDatabase::open_metadata_keylist(const string &) const
 {
-    if (metadata.empty()) return NULL;
+    if (!closed && metadata.empty()) return NULL;
     // FIXME: nobody implemented this yet...
     throw Xapian::UnimplementedError("InMemory backend doesn't currently implement Database::metadata_keys_begin()");
 }
