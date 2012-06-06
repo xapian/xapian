@@ -1,3 +1,8 @@
+Wed Jun 06 11:10:26 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Note that STEM_ALL_Z was added in
+	  1.2.11.  Change already made on 1.2 branch.
+
 Tue Jun 05 06:51:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/compression_stream.cc,common/compression_stream.h: Move the

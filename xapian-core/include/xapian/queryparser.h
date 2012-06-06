@@ -457,7 +457,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *   - STEM_ALL:	Search for stemmed forms of all words (note: no 'Z'
      *			prefix is added).
      *   - STEM_ALL_Z:	Search for stemmed forms of all words (note: 'Z'
-     *			prefix is added).  (new in Xapian 1.3.1)
+     *			prefix is added).  (new in Xapian 1.2.11 and 1.3.1)
      */
     void set_stemming_strategy(stem_strategy strategy);
 
