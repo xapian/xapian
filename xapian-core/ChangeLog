@@ -1,3 +1,8 @@
+Wed Jun 06 10:52:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/scalability.rst: Update gmane size, fix a typo, tweak wording.
+
 Wed Jun 06 10:43:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -2,15 +2,15 @@ Scalability
 ===========
 
 People often want to know how Xapian will scale. The short answer is
-"very well" - a previous version of the software powered BrightStation's
+"very well" - an early version of the software powered the (now defunct)
 Webtop search engine, which offered a search over around 500 million web
 pages (around 1.5 terabytes of database files). Searches took less than
 a second.
 
 In terms of current deployments, `gmane <http://search.gmane.org/>`_
-indexes and searches 90 million mail messages on a single server at the
-time of writing (2011), and we've had user reports of systems with more
-250 million documents.
+indexes and searches nearly 100 million mail messages on a single server
+at the time of writing (2012), and we've had user reports of systems with
+more than 250 million documents.
 
 Benchmarking
 ------------
