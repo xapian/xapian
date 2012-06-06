@@ -1,3 +1,8 @@
+Wed Jun 06 13:08:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* README: Fix 'Jit' -> 'it'.  Typo introduced in r15713.
+
 Wed May 09 10:44:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 1.2.10.

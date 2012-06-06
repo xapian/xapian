@@ -26,7 +26,7 @@ C#		Tested with Mono C# 2.6.7 recently.  Much older versions
 		0.6.12.  For Mono runtimes from 1.2 onwards, you need to
 		compile with gmcs (instead of mcs) or you'll get segmentation
 		faults at runtime.  The configure script prefers to use gmcs if
-		Jit is present, but you can run `./configure CSC=mcs' to force
+		it is present, but you can run `./configure CSC=mcs' to force
 		use of mcs even if gmcs is also installed.
 
 Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
