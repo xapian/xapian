@@ -794,7 +794,7 @@ if test no != "$with_ruby" ; then
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
 
-	AC_MSG_CHECKING([ruby/io.h])
+	AC_MSG_CHECKING([for ruby/io.h])
 	rm -f ruby/rubyio.h
 	if test -f "$RUBY_INC/ruby/io.h" ; then
 	  AC_MSG_RESULT(yes)

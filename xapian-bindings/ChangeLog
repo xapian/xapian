@@ -1,3 +1,8 @@
+Wed Jun 06 13:14:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: "checking ruby/io.h" -> "checking for ruby/io.h".
+
 Wed Jun 06 13:08:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
