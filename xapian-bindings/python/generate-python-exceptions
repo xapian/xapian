@@ -143,7 +143,7 @@ print FD <<'EOF';
 	SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
     }
 }
-};
+}
 %}
 
 /* Note that we have to re-acquire the GIL in the catch() here, because
