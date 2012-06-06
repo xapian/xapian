@@ -7,7 +7,9 @@ TESTS_ENVIRONMENT = LUA_CPATH='.libs/?$(LUA_SO)' $(LUA)
 ## Test programs to be run
 TESTS = smoketest.lua
 
-EXTRA_DIST = util.i except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i except.i \
+	generate-lua-exceptions \
+	$(TESTS) $(BUILT_SOURCES)
 
 lualibdir = @LUA_LIB@
 

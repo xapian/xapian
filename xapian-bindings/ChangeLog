@@ -1,3 +1,9 @@
+Wed Jun 06 13:40:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* lua/Makefile.am,perl/Makefile.am,python/Makefile.am: Ship the scripts
+	  which generate the except.i files.
+
 Wed Jun 06 13:36:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
