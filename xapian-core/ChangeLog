@@ -1,3 +1,9 @@
+Wed Jun 06 10:43:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_weight.cc: Add test that init() is now called for the
+	  term-independent weight contribution.
+
 Wed Jun 06 10:39:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
