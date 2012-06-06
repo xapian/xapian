@@ -1,3 +1,9 @@
+Wed Jun 06 09:39:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/weight.h: Remove duplicate "need_stat(WDF);" calls,
+	  accidentally added by merge of opsynonym branch in r12609.
+
 Tue Jun 05 13:04:57 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
