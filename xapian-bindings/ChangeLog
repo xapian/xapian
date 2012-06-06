@@ -1,3 +1,8 @@
+Wed Jun 06 13:48:31 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* csharp/docs/index.html: Update Mono version tested with.
+
 Wed Jun 06 13:40:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
