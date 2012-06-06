@@ -1,3 +1,10 @@
+Wed Jun 06 10:25:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/.gitignore,tests/Makefile.am,tests/api_weight.cc: Add test
+	  coverage for exception thrown if BM25Weight or TradWeight
+	  unserialise() fails.
+
 Wed Jun 06 10:07:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
