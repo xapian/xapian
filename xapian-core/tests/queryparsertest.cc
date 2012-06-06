@@ -1120,9 +1120,9 @@ static bool test_qp_flag_partial1()
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zout:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zoutside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zoutside:(pos=1) OR Zoutsid:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
 
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);

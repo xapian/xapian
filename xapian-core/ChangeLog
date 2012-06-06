@@ -1,3 +1,8 @@
+Wed Jun 06 11:17:40 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/queryparsertest.cc: Fix feature test added for STEM_ALL_Z.
+
 Wed Jun 06 11:09:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
