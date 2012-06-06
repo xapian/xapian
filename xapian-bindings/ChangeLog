@@ -1,3 +1,9 @@
+Wed Jun 06 13:26:15 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,php/Makefile.am: Fix "make check" for PHP to work in a
+	  VPATH build using a release tarball.
+
 Wed Jun 06 13:14:01 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

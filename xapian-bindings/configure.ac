@@ -389,10 +389,17 @@ if test no != "$with_php" ; then
       if test yes != "$PHP_found" ; then
 	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
 	dnl PHP bindings tests.
-	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [\$(top_srcdir)/skiptest])
+	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [])
       fi
       if test -z "$PHP" ; then
 	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
+	dnl The skiptest script just returns exit code 77.
+	PHP='$(top_srcdir)/skiptest'
+      else
+	AC_MSG_CHECKING([for PHP path separator])
+	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
+	AC_SUBST([PHP_PATH_SEPARATOR])
+	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
       fi
 
       case $host_os in
