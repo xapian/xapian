@@ -116,6 +116,11 @@ open_stub(Database &db, const string &file)
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
+    if (!stub) {
+	string msg = "Couldn't open stub database file: ";
+	msg += file;
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
     string line;
     unsigned int line_no = 0;
     while (getline(stub, line)) {
@@ -221,6 +226,11 @@ open_stub(WritableDatabase &db, const string &file, int action)
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
+    if (!stub) {
+	string msg = "Couldn't open stub database file: ";
+	msg += file;
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
     string line;
     unsigned int line_no = 0;
     while (true) {
