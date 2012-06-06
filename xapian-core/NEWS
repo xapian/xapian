@@ -1,3 +1,118 @@
+ 16718       olly Wed Jun 06 11:17:40 GMT 2012  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.11 (2012-06-06):
+
+API:
+
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
+	  queryparser/termgenerator_internal.cc,
+	  queryparser/termgenerator_internal.h: Add
+	  TermGenerator::set_stemming_strategy() method, with strategies which
+	  correspond to those of QueryParser.  Based on patch from Sehaj Singh
+	  Kalra, with some tweaks for adding term positions in more cases.
+	  (Fixes ticket#563)
+
+	* include/xapian/queryparser.h,queryparser/queryparser.lemony:
+	  Add new QueryParser::STEM_ALL_Z stemming strategy, which stems all
+	  terms and adds a Z prefix.  (Patch from Sehaj Singh Kalra, fixes
+	  ticket#562)
+
+	* weight/tradweight.cc: BM25Weight -> TradWeight in exception message.
+
+	* include/xapian/weight.h,weight/weight.cc: We were failing to call
+	  init() for Weight objects providing the term-independent weight.
+	  These now get called with init(0.0).
+
+	* backends/dbfactory.cc: Test if we fail to open a stub database file
+	  in Xapian::Auto::open_stub() and throw an exception if so.
+
+testsuite:
+
+	* configure.ac,tests/runsrv.in: In the testsuite, only run remote
+	  servers under valgrind if x87 FP instructions are in use.
+
+* Improved test coverage, including more tests for closed databases (ticket#337).
+
+matcher:
+
+
+brass backend:
+
+	* backends/brass/,backends/chert/: After closing the database, methods
+	  which try to use the termlist would throw FeatureUnavailableError
+	  with message "Database has no termlist", assuming that the termlist
+	  table not being open meant it wasn't present.  Fix to check if the
+	  postlist_table is open to determine which case we're in.
+
+
+chert backend:
+
+	* backends/brass/,backends/chert/: After closing the database, methods
+	  which try to use the termlist would throw FeatureUnavailableError
+	  with message "Database has no termlist", assuming that the termlist
+	  table not being open meant it wasn't present.  Fix to check if the
+	  postlist_table is open to determine which case we're in.
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+	* backends/inmemory/inmemory_database.cc: Check if the database is
+	  closed in metadata_keys_begin() for InMemory Databases.
+
+build system:
+
+
+documentation:
+
+ 16660       olly	* include/xapian/query.h: Fix Query ctor documentation comment - XOR
+	  and ELITE_SET can both take any number of subqueries, not just
+	  exactly two.
+
+	* include/xapian/positioniterator.h,include/xapian/postingiterator.h,
+	  include/xapian/termiterator.h: Backport missing documentation
+	  comments for API operator++ and operator* methods.
+
+	* include/xapian/weight.h: Fix documentation comment typo ("k1" ->
+	  "k").
+
+	* docs/scalability.rst: Update gmane size, fix a typo, tweak wording.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+	* tests/Makefile.am: Pass -ldl last when compiling zlib-vg.so, as that
+	  seems to be needed on Ubuntu 12.04.
+
+	* backends/chert/chert_cursor.cc: Fix incorrect use of "delete" to
+	  "delete []".  The type is POD, so I suspect this mistake didn't
+	  actually cause any problems, and it only happens when a cursor
+	  gets rebuilt because the B-tree has gained a level, so it's
+	  a rather rare occurrence.
+	* backends/brass/brass_cursor.cc,backends/flint/flint_cursor.cc: Make
+	  the equivalent fix.
+
+	* weight/bm25weight.cc: Avoid use of undefined values when k1 or b are
+	  zero.
+	* weight/bm25weight.cc: Fix use of uninitialised value found by new
+	  bm25weight4 testcase.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.10 (2012-05-09):
 
 API:
