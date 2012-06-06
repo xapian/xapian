@@ -1,3 +1,23 @@
+Wed Jun 06 11:09:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
+	  queryparser/termgenerator_internal.cc,
+	  queryparser/termgenerator_internal.h: Add
+	  TermGenerator::set_stemming_strategy() method, with strategies which
+	  correspond to those of QueryParser.  Based on patch from Sehaj Singh
+	  Kalra, with some tweaks for adding term positions in more cases.
+	  (Fixes ticket#563)
+	* tests/termgentest.cc: Add test coverage for the new features.
+	* include/xapian/queryparser.h: Add doc comment for stem_strategy
+	  typedef.
+	* include/xapian/queryparser.h,queryparser/queryparser.lemony:
+	  Add new QueryParser::STEM_ALL_Z stemming strategy, which stems all
+	  terms and adds a Z prefix.  (Patch from Sehaj Singh Kalra, fixes
+	  ticket#562)
+	* tests/queryparsertest.cc: Add test coverage for
+	  QueryParser::STEM_ALL_Z.
+
 Wed Jun 06 10:54:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

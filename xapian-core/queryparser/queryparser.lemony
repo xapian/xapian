@@ -280,7 +280,8 @@ string
 Term::make_term(const string & prefix) const
 {
     string term;
-    if (stem == QueryParser::STEM_SOME) term += 'Z';
+    if (stem == QueryParser::STEM_SOME || stem == QueryParser::STEM_ALL_Z)
+	term += 'Z';
     if (!prefix.empty()) {
 	term += prefix;
 	if (prefix_needs_colon(prefix, name[0])) term += ':';

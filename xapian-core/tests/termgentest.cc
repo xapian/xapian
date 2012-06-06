@@ -46,6 +46,14 @@ struct test {
     //  - weight=N: where N is a number - set the weight to N.
     //  - stem=FOO: Change stemming algorithm to foo ("none" to turn off).
     //    (this persists for subsequent tests until it's turned off).
+    //  - all: Set stemming strategy to STEM_ALL.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - all_z: Set stemming strategy to STEM_ALL_Z.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - none: Set stemming strategy to STEM_NONE.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - some: Set stemming strategy to STEM_SOME.
+    //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
     const char *options;
@@ -127,12 +135,23 @@ static const test test_simple[] = {
     { "prefix=", "インtestタ", "test[3] イ[1] イン:1 タ[4] ン[2]" },
     { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
 
+    // Test set_stemming_strategy():
+    { "stem=en,none",
+	  "Unstemmed words!", "unstemmed[1] words[2]" },
+
+    { "all",
+	  "Only stemmed words!", "onli[1] stem[2] word[3]" },
+
+    { "all_z",
+	  "Only stemmed words!", "Zonli[1] Zstem[2] Zword[3]" },
+
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
     // way to implement them yet.
 
     // Test number like things
-    { "stem=en", "11:59", "11[1] 59[2]" },
+    { "stem=en,some",
+	  "11:59", "11[1] 59[2]" },
     { "", "11:59am", "11[1] 59am[2]" },
 
     { NULL, NULL, NULL }
@@ -697,6 +716,18 @@ static bool test_termgen1()
 		}
 		termgen.set_stemmer(Xapian::Stem(stemmer));
 		tout << "Setting stemmer to: " << stemmer << '\n';
+	    } else if (strncmp(o, "all_z", 5) == 0) {
+		o += 5;
+		termgen.set_stemming_strategy(termgen.STEM_ALL_Z);
+	    } else if (strncmp(o, "all", 3) == 0) {
+		o += 3;
+		termgen.set_stemming_strategy(termgen.STEM_ALL);
+	    } else if (strncmp(o, "none", 4) == 0) {
+		o += 4;
+		termgen.set_stemming_strategy(termgen.STEM_NONE);
+	    } else if (strncmp(o, "some", 4) == 0) {
+		o += 4;
+		termgen.set_stemming_strategy(termgen.STEM_SOME);
 	    } else if (strncmp(o, "prefix=", 7) == 0) {
 		o += 7;
 		prefix.resize(0);

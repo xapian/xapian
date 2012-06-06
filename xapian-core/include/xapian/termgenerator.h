@@ -88,6 +88,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 	FLAG_SPELLING = 128 // Value matches QueryParser flag.
     };
 
+    /// Stemming strategies, for use with set_stemming_strategy().
+    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+
     /** Set flags.
      *
      *  The new value of flags is: (flags & mask) ^ toggle
@@ -101,6 +104,21 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  @return		The old flags setting.
      */
     flags set_flags(flags toggle, flags mask = flags(0));
+
+    /** Set the stemming strategy.
+     *
+     *  This method controls how the stemming algorithm is applied.  It was
+     *  new in Xapian 1.3.1.
+     *
+     *  @param strategy	The strategy to use - possible values are:
+     *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
+     *			are generated.
+     *   - STEM_SOME:	Generate both stemmed (with a "Z" prefix) and unstemmed
+     *			terms.  This is the default strategy.
+     *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
+     *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
+     */
+    void set_stemming_strategy(stem_strategy strategy);
 
     /** Index some text.
      *

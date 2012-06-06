@@ -177,29 +177,45 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		    if (stop_mode == STOPWORDS_IGNORE && (*stopper)(cjk_token))
 			continue;
 
-		    if (with_positions && tk.get_length() == 1) {
-			doc.add_posting(prefix + cjk_token, ++termpos, wdf_inc);
-		    } else {
-			doc.add_term(prefix + cjk_token, wdf_inc);
+		    if (strategy == TermGenerator::STEM_SOME ||
+			strategy == TermGenerator::STEM_NONE) {
+			if (with_positions && tk.get_length() == 1) {
+			    doc.add_posting(prefix + cjk_token, ++termpos, wdf_inc);
+			} else {
+			    doc.add_term(prefix + cjk_token, wdf_inc);
+			}
 		    }
+
 		    if ((flags & FLAG_SPELLING) && prefix.empty())
 			db.add_spelling(cjk_token);
 
-		    if (!stemmer.internal.get()) continue;
+		    if (strategy == TermGenerator::STEM_NONE ||
+			!stemmer.internal.get()) continue;
 
-		    if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY &&
-			(*stopper)(cjk_token))
-			continue;
+		    if (strategy == TermGenerator::STEM_SOME) {
+			if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY &&
+			    (*stopper)(cjk_token))
+			    continue;
 
-		    // Note, this uses the lowercased term, but that's OK as we
-		    // only want to avoid stemming terms starting with a digit.
-		    if (!should_stem(cjk_token)) continue;
+			// Note, this uses the lowercased term, but that's OK
+			// as we only want to avoid stemming terms starting
+			// with a digit.
+			if (!should_stem(cjk_token)) continue;
+		    }
 
 		    // Add stemmed form without positional information.
-		    string stem("Z");
+		    string stem;
+		    if (strategy != TermGenerator::STEM_ALL) {
+			stem += "Z";
+		    }
 		    stem += prefix;
 		    stem += stemmer(cjk_token);
-		    doc.add_term(stem, wdf_inc);
+		    if (strategy != TermGenerator::STEM_SOME &&
+			with_positions) {
+			doc.add_posting(stem, ++termpos, wdf_inc);
+		    } else {
+			doc.add_term(stem, wdf_inc);
+		    }
 		}
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
@@ -258,27 +274,41 @@ endofterm:
 
 	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
 
-	if (with_positions) {
-	    doc.add_posting(prefix + term, ++termpos, wdf_inc);
-	} else {
-	    doc.add_term(prefix + term, wdf_inc);
+	if (strategy == TermGenerator::STEM_SOME ||
+	    strategy == TermGenerator::STEM_NONE) {
+	    if (with_positions) {
+		doc.add_posting(prefix + term, ++termpos, wdf_inc);
+	    } else {
+		doc.add_term(prefix + term, wdf_inc);
+	    }
 	}
 	if ((flags & FLAG_SPELLING) && prefix.empty()) db.add_spelling(term);
 
-	if (!stemmer.internal.get()) continue;
+	if (strategy == TermGenerator::STEM_NONE ||
+	    !stemmer.internal.get()) continue;
 
-	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
-	    continue;
+	if (strategy == TermGenerator::STEM_SOME) {
+	    if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
+		continue;
 
-	// Note, this uses the lowercased term, but that's OK as we only
-	// want to avoid stemming terms starting with a digit.
-	if (!should_stem(term)) continue;
+	    // Note, this uses the lowercased term, but that's OK as we only
+	    // want to avoid stemming terms starting with a digit.
+	    if (!should_stem(term)) continue;
+	}
 
 	// Add stemmed form without positional information.
-	string stem("Z");
+	string stem;
+	if (strategy != TermGenerator::STEM_ALL) {
+	    stem += "Z";
+	}
 	stem += prefix;
 	stem += stemmer(term);
-	doc.add_term(stem, wdf_inc);
+	if (strategy != TermGenerator::STEM_SOME &&
+	    with_positions) {
+	    doc.add_posting(stem, ++termpos, wdf_inc);
+	} else {
+	    doc.add_term(stem, wdf_inc);
+	}
     }
 }
 
