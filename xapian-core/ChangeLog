@@ -1,3 +1,11 @@
+Wed Jun 06 10:33:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* weight/bm25weight.cc: Fix use of uninitialised value found by new
+	  bm25weight4 testcase.
+	* tests/api_weight.cc: Add tests for BM25 parameter combinations where
+	  doclen shouldn't affect the weights.
+
 Wed Jun 06 10:25:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

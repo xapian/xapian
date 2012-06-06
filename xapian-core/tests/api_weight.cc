@@ -66,3 +66,28 @@ DEFINE_TESTCASE(bm25weight3, !backend) {
     }
     return true;
 }
+
+// Test parameter combinations which should be unaffected by doclength.
+DEFINE_TESTCASE(bm25weight4, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::BM25Weight(1, 0, 1, 0, 0.5));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Expect: wdf has an effect on weight, but doclen doesn't.
+    TEST_REL(mset[0].get_weight(),>,mset[1].get_weight());
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), mset[2].get_weight());
+    TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
+    TEST_EQUAL_DOUBLE(mset[3].get_weight(), mset[4].get_weight());
+
+    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 1, 1, 0.5));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Expect: neither wdf nor doclen affects weight.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
+
+    return true;
+}
