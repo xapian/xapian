@@ -1,3 +1,10 @@
+Wed Jun 06 10:07:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/weight.h,weight/weight.cc: We were failing to call
+	  init() for Weight objects providing the term-independent weight.
+	  These now get called with init(0.0).
+
 Wed Jun 06 09:39:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -50,6 +50,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
     reltermfreq_ = 0;
     query_length_ = query_length;
     wqf_ = 1;
+    init(0.0);
 }
 
 void
