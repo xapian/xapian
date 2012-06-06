@@ -1,3 +1,9 @@
+Wed Jun 06 13:36:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/util.i: Pass 0 instead of NULL for non-pointer parameter to
+	  av_fetch (spotted due to GCC 4.7 warning).
+
 Wed Jun 06 13:32:40 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
