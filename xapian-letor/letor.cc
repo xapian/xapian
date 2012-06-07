@@ -75,10 +75,10 @@ Letor::prepare_training_file(const string & query_file, const string & qrel_file
 void
 Letor::create_ranker(int ranker_type) {
     switch(ranker_type) {
-        case 0: internal->ranker = new SVMRanker;
+        case 0: internal->ranker = * new SVMRanker;
                 break;
         case 1: break;
-        default: std::cout<<"Please specify proper ranker.";
+        default: ;//cout<<"Please specify proper ranker.";
     }
 }
 

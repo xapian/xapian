@@ -51,15 +51,6 @@ using namespace std;
 
 using namespace Xapian;
 
-void
-FeatureVector::set_database(const Xapian::Database & db) {
-        fm.letor_db = db;
-}   
-
-void
-FeatureVector::set_query(const Xapian::Query & query) {
-        fm.letor_query = query;
-}
 
 map<string, map<string, int> >
 FeatureVector::load_relevance(const std::string & qrel_file) {

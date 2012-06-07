@@ -95,14 +95,14 @@ static void exit_input_error(int line_num) {
     printf("Error at Line : %d", line_num);
     exit(1);
 }
-
+/*
 static string convertDouble(double value) {
     std::ostringstream o;
     if (!(o << value))
 	return string();
     return o.str();
 }
-
+*/
 static string get_cwd() {
     char temp[MAXPATHLEN];
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string());
@@ -124,8 +124,9 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
     fm.set_query(letor_query);
-
-    Xapian::RankList rl = fm.createRankList(mset, qid);
+    
+    std::string s="1";
+    Xapian::RankList rl = fm.createRankList(mset, s);
     std::list<double> scores =ranker.rank(rl);
     
     /*code to convert list<double> scores to map<docid,double>*/
@@ -301,6 +302,8 @@ write_to_file(std::list<Xapian::RankList> l) {
     ofstream train_file;
     train_file.open("train.txt");
     // write it down with proper format
+    for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
+
 }
 
 void

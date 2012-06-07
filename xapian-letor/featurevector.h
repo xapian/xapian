@@ -60,7 +60,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     void set_qid(const std::string & qid);
 
     void set_did(const std::string & did);
-
+    
 };
 
 }
