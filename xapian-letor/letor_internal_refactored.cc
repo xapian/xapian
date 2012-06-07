@@ -25,7 +25,8 @@
 
 #include <xapian.h>
 
-#include "letor_internal.h"
+#include "letor_internal_refactored.h"
+#include "featurevector.h"
 #include "str.h"
 #include "stringutils.h"
 
@@ -510,32 +511,18 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     /* ---------------------------- store whole qrel file in a Map<> ---------------------*/
 
-    typedef map<string, int> Map1;		//docid and relevance judjement 0/1
-    typedef map<string, Map1> Map2;		// qid and map1
-    Map2 qrel;
+//    typedef map<string, int> Map1;      //docid and relevance judjement 0/1
+//    typedef map<string, Map1> Map2;     // qid and map1
+//    Map2 qrel;
 
-    string inLine;
-    ifstream myfile(qrel_file.c_str(), ifstream::in);
-    string token[4];
-    if (myfile.is_open()) {
-	while (myfile.good()) {
-	    getline(myfile, inLine);		//read a file line by line
-	    char * str;
-	    char * x1;
-	    x1 = const_cast<char*>(inLine.c_str());
-	    str = strtok(x1, " ,.-");
-	    int i = 0;
-	    while (str != NULL)	{
-		token[i] = str;		//store tokens in a string array
-		++i;
-		str = strtok(NULL, " ,.-");
-	    }
+    map<string, map<string, int> > qrel;
 
-	    qrel.insert(make_pair(token[0], Map1()));
-	    qrel[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
-	}
-	myfile.close();
-    }
+    Xapian::FeatureVector fv;
+    fv.set_database(letor_db);
+    qrel = fv.load_relevance(qrel_file);
+
+    
+    
 
     map<string, map<string, int> >::iterator outerit;
     map<string, int>::iterator innerit;
