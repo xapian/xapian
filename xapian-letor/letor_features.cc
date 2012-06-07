@@ -19,7 +19,7 @@
  * USA
  */
 
-#include "features.h"
+#include "letor_features.h"
 #include <math.h>
 #include <cstdio>
 #include <cstdlib>

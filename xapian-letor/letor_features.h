@@ -1,4 +1,4 @@
-/* features.h: The feature manager file.
+/* letor_features.h: The feature manager file.
  *
  * Copyright (C) 2012 Parth Gupta
  *
@@ -18,8 +18,8 @@
  * USA
  */
 
-#ifndef FEATURES_H
-#define FEATURES_H
+#ifndef LETOR_FEATURES_H
+#define LETOR_FEATURES_H
 
 #include <xapian/letor.h>
 

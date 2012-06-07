@@ -29,6 +29,8 @@
 #include "featuremanager.h"
 #include "str.h"
 #include "stringutils.h"
+#include "ranker.h"
+#include "svmranker.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -92,27 +94,20 @@ static void exit_input_error(int line_num) {
     printf("Error at Line : %d", line_num);
     exit(1);
 }
-
+/*
 static string convertDouble(double value) {
     std::ostringstream o;
     if (!(o << value))
 	return string();
     return o.str();
 }
-
+*/
 static string get_cwd() {
     char temp[MAXPATHLEN];
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string());
 }
 
-void
-createRanker(int ranker_type) {
-    switch(ranker_type) {
-        case 0: ranker = new SVMRanker;
-                break;
-        case 1: break;
-        default: cout<<"Please specify proper ranker."
-}
+
 
 /* This method will calculate the score assigned by the Letor function.
  * It will take MSet as input then convert the documents in feature vectors
@@ -125,215 +120,16 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
     map<Xapian::docid, double> letor_mset;
 
-    map<string, long int> coll_len;
-    coll_len = collection_length(letor_db);
-
-    map<string, long int> coll_tf;
-    coll_tf = collection_termfreq(letor_db, letor_query);
-
-    map<string, double> idf;
-    idf = inverse_doc_freq(letor_db, letor_query);
-
-    int first = 1;                //used as a flag in QueryLevelNorm module
-
-    typedef list<double> List1;     //the values of a particular feature for MSet documents will be stored in the list
-    typedef map<int, List1> Map3;    //the above list will be mapped to an integer with its feature id.
-
-    /* So the whole structure will look like below if there are 5 documents in  MSet and 3 features to be calculated
-     *
-     * 1  -> 32.12 - 23.12 - 43.23 - 12.12 - 65.23
-     * 2  -> 31.23 - 21.43 - 33.99 - 65.23 - 22.22
-     * 3  -> 1.21 - 3.12 - 2.23 - 6.32 - 4.23
-     *
-     * And after that we divide the whole list by the maximum value for that feature in all the 5 documents
-     * So we divide the values of Feature 1 in above case by 65.23 and hence all the values of that features for that query
-     * will belongs to [0,1] and is known as Query level Norm
-     */
-
-    Map3 norm;
-
-    map<int, list<double> >::iterator norm_outer;
-    list<double>::iterator norm_inner;
-
-    typedef list<string> List2;
-    List2 doc_ids;
-
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	Xapian::Document doc = i.get_document();
-
-	map<string, long int> tf;
-	tf = termfreq(doc, letor_query);
-
-	map<string, long int> doclen;
-	doclen = doc_length(letor_db, doc);
-
-	double f[20];
-
-	f[1] = calculate_f1(letor_query, tf, 't');          //storing the feature values from array index 1 to sync it with feature number.
-	f[2] = calculate_f1(letor_query, tf, 'b');
-	f[3] = calculate_f1(letor_query, tf, 'w');
-
-	f[4] = calculate_f2(letor_query, tf, doclen, 't');
-	f[5] = calculate_f2(letor_query, tf, doclen, 'b');
-	f[6] = calculate_f2(letor_query, tf, doclen, 'w');
-
-	f[7] = calculate_f3(letor_query, idf, 't');
-	f[8] = calculate_f3(letor_query, idf, 'b');
-	f[9] = calculate_f3(letor_query, idf, 'w');
-
-	f[10] = calculate_f4(letor_query, coll_tf, coll_len, 't');
-	f[11] = calculate_f4(letor_query, coll_tf, coll_len, 'b');
-	f[12] = calculate_f4(letor_query, coll_tf, coll_len, 'w');
-
-	f[13] = calculate_f5(letor_query, tf, idf, doclen, 't');
-	f[14] = calculate_f5(letor_query, tf, idf, doclen, 'b');
-	f[15] = calculate_f5(letor_query, tf, idf, doclen, 'w');
-
-	f[16] = calculate_f6(letor_query, tf, doclen, coll_tf, coll_len, 't');
-	f[17] = calculate_f6(letor_query, tf, doclen, coll_tf, coll_len, 'b');
-	f[18] = calculate_f6(letor_query, tf, doclen, coll_tf, coll_len, 'w');
-
-	f[19] = i.get_weight();
-
-	/* This module will make the data structure to store the whole features values for
-	 * all the documents for a particular query along with its relevance judgements
-	 */
-
-	if (first == 1) {
-	    for (int j = 1; j < 20; ++j) {
-		List1 l;
-		l.push_back(f[j]);
-		norm.insert(pair<int, list<double> >(j, l));
-	    }
-	    first = 0;
-	} else {
-	    norm_outer = norm.begin();
-	    int k = 1;
-	    for (; norm_outer != norm.end(); ++norm_outer) {
-		norm_outer->second.push_back(f[k]);
-		++k;
-	    }
-	}
-    }//for closed
-
-    /* this is the place where we have to normalize the norm and after that store it in the file. */
-
-    if (!norm.empty()) {
-	norm_outer = norm.begin();
-	++norm_outer;
-	int k = 0;
-	for (; norm_outer != norm.end(); ++norm_outer) {
-	    k = 0;
-	    double max = norm_outer->second.front();
-	    for (norm_inner = norm_outer->second.begin(); norm_inner != norm_outer->second.end(); ++norm_inner) {
-		if (*norm_inner > max)
-		    max = *norm_inner;
-	    }
-	    for (norm_inner = norm_outer->second.begin(); norm_inner != norm_outer->second.end(); ++norm_inner) {
-		if (max != 0)      // sometimes value for whole feature is 0 and hence it may cause 'divide-by-zero'
-		    *norm_inner /= max;
-		++k;
-	    }
-	}
-
-	int xx = 0, j = 0;
-	Xapian::MSetIterator mset_iter = mset.begin();
-	Xapian::Document doc;
-	while (xx<k) {
-	    doc = mset_iter.get_document();
-
-	    string test_case = "0 ";
-	    j = 0;
-	    norm_outer = norm.begin();
-	    ++j;
-	    for (; norm_outer != norm.end(); ++norm_outer) {
-		test_case.append(str(j));
-		test_case.append(":");
-		test_case.append(convertDouble(norm_outer->second.front()));
-		test_case.append(" ");
-		norm_outer->second.pop_front();
-		++j;
-	    }
-	    ++xx;
-
-	    string model_file;
-	    model_file = get_cwd();
-	    model_file = model_file.append("/model.txt");       // will create "model.txt" in currect working directory
-
-	    model = svm_load_model(model_file.c_str());
-	    x = (struct svm_node *)malloc(max_nr_attr * sizeof(struct svm_node));
-
-	    int total = 0;
-
-	    int svm_type = svm_get_svm_type(model);
-	    int nr_class = svm_get_nr_class(model);
-
-	    if (predict_probability) {
-		if (svm_type == NU_SVR || svm_type == EPSILON_SVR) {
-		    printf("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n" , svm_get_svr_probability(model));
-		} else {
-		    int *labels = (int *) malloc(nr_class * sizeof(int));
-		    svm_get_labels(model, labels);
-		    free(labels);
-		}
-	    }
-
-	    max_line_len = 1024;
-	    line = (char *)malloc(max_line_len*sizeof(char));
-
-	    line = const_cast<char *>(test_case.c_str());
-
-	    int i = 0;
-	    double predict_label;
-	    char *idx, *val, *label, *endptr;
-	    int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
-
-	    label = strtok(line, " \t\n");
-	    if (label == NULL) // empty line
-		exit_input_error(total + 1);
-
-	    if (strtod(label, &endptr)) {
-		// Ignore the result (I guess we're just syntax checking the file?)
-	    }
-	    if (endptr == label || *endptr != '\0')
-		exit_input_error(total + 1);
-
-	    while (1) {
-		if (i >= max_nr_attr - 1) {	// need one more for index = -1
-		    max_nr_attr *= 2;
-		    x = (struct svm_node *)realloc(x, max_nr_attr * sizeof(struct svm_node));
-		}
-
-		idx = strtok(NULL, ":");
-		val = strtok(NULL, " \t");
-
-		if (val == NULL)
-		    break;
-		errno = 0;
-		x[i].index = (int)strtol(idx, &endptr, 10);
-
-		if (endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
-		    exit_input_error(total + 1);
-		else
-		    inst_max_index = x[i].index;
-
-		errno = 0;
-		x[i].value = strtod(val, &endptr);
-		if (endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
-		    exit_input_error(total+1);
-		++i;
-	    }
-
-	    x[i].index = -1;
-
-	    predict_label = svm_predict(model, x);	//this is the score for a particular document
-
-	    letor_mset[doc.get_docid()] = predict_label;
-
-	    ++mset_iter;
-	}//while closed
-    }//if closed
-
+    Xapian::FeatureManager fm;
+    fm.set_database(letor_db);
+    fm.set_query(letor_query);
+    
+    std::string s="1";
+    Xapian::RankList rl = fm.create_rank_list(mset, s);
+    std::list<double> scores =ranker.rank(rl);
+    
+    /*code to convert list<double> scores to map<docid,double>*/
+    
     return letor_mset;
 }
 
@@ -505,6 +301,8 @@ write_to_file(std::list<Xapian::RankList> l) {
     ofstream train_file;
     train_file.open("train.txt");
     // write it down with proper format
+    for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
+
 }
 
 void
@@ -537,7 +335,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
     fm.load_relevance(qrel_file);
-    qrel = fv.load_relevance(qrel_file);
+    qrel = fm.load_relevance(qrel_file);
 
     list<Xapian::RankList> l;
 
@@ -585,10 +383,10 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 	fm.set_query(query);
 
-	Xapian::RankList rl = fm.createRankList(mset, qid);
-	l.add(rl);
+	Xapian::RankList rl = fm.create_rank_list(mset, qid);
+	l.push_back(rl);
     }//while closed
     myfile1.close();
-    write_to_file(rl);
+    write_to_file(l);
 //    train_file.close();
 }

@@ -23,9 +23,6 @@
 #include <config.h>
 
 #include <xapian.h>
-#include <xapian/base.h>
-#include <xapian/types.h>
-#include <xapian/visibility.h>
 
 #include "featurevector.h"
 #include "featuremanager.h"
@@ -51,14 +48,10 @@ using namespace std;
 
 using namespace Xapian;
 
-void
-FeatureVector::set_database(const Xapian::Database & db) {
-        fm.letor_db = db;
-}   
+FeatureVector::FeatureVector() {
+}
 
-void
-FeatureVector::set_query(const Xapian::Query & query) {
-        fm.letor_query = query;
+FeatureVector::FeatureVector(const FeatureVector & /*o*/) {
 }
 
 map<string, map<string, int> >
@@ -91,4 +84,20 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
     }
     return qrel;
 }
+
+void
+FeatureVector::set_did(const std::string & did1) {
+    this->did=did1;
+}
+
+void
+FeatureVector::set_label(double label1) {
+    this->label=label1;
+}
+
+void
+FeatureVector::set_fvals(map<int,double> fvals1) {
+    this->fvals=fvals1;
+}
+
 

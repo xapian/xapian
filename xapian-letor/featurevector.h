@@ -23,7 +23,7 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -38,11 +38,16 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
+
+  public:
+  
     double label;
     std::map<int,double> fvals;
     int fcount;
+    string did;
 
-  public:
+  
+    FeatureVector();
 
     FeatureVector(const FeatureVector & o);
     
@@ -52,15 +57,18 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
      * as vector in the form of 
      * map<int,double>
      */
-    std::map<int,double> transform(const Xapian::Document & doc);
+//    std::map<int,double> transform(const Xapian::Document & doc);
 
 
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
-    void set_qid(const std::string & qid);
+//    void set_qid(const std::string & qid);
 
-    void set_did(const std::string & did);
-
+    void set_did(const std::string & did1);
+    
+    void set_label(double label1);
+    void set_fvals(map<int,double> fvals1);
+    
 };
 
 }
