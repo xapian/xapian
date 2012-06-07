@@ -106,12 +106,13 @@ static string get_cwd() {
 }
 
 void
-createRanker(int ranker_type) {
+create_ranker(int ranker_type) {
     switch(ranker_type) {
         case 0: ranker = new SVMRanker;
                 break;
         case 1: break;
-        default: cout<<"Please specify proper ranker."
+        default: cout<<"Please specify proper ranker.";
+}
 }
 
 /* This method will calculate the score assigned by the Letor function.
