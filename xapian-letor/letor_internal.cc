@@ -108,15 +108,7 @@ static string get_cwd() {
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string());
 }
 
-void
-Letor::Internal::create_ranker(int ranker_type) {
-    switch(ranker_type) {
-        case 0: ranker = new SVMRanker;
-                break;
-        case 1: break;
-        default: cout<<"Please specify proper ranker.";
-}
-}
+
 
 /* This method will calculate the score assigned by the Letor function.
  * It will take MSet as input then convert the documents in feature vectors
@@ -131,7 +123,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
-    fm.set_query(query);
+    fm.set_query(letor_query);
 
     Xapian::RankList rl = fm.createRankList(mset, qid);
     std::list<double> scores =ranker.rank(rl);

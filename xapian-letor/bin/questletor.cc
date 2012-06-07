@@ -216,6 +216,7 @@ try {
 
     ltr.set_database(db);
     ltr.set_query(query);
+    ltr.create_ranker(0);
 
     ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
 

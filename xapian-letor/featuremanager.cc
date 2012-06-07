@@ -1,5 +1,5 @@
 #include "featuremanager.h"
-#include "features.h"
+#include "letor_features.h"
 #include "featurevector.h"
 #include "ranklist.h"
 
@@ -51,7 +51,7 @@ createFeatureVector(map<int>,double> fvals, int &label, std::string & did) {
     return fv;
 }
 
-void
+map<string, map<string,int> >
 FeatureManager::load_relevance(const std::string & qrel_file) {
     typedef map<string, int> Map1;      //docid and relevance judjement 0/1
     typedef map<string, Map1> Map2;     // qid and map1

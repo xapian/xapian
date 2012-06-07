@@ -42,15 +42,15 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
-    string model = null;
-    double[] weight;
+    string model;
+    double weight[];
   public:
     SVMRanker() {};
 
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    Xapian::RankList rank(const Xapian::RankList & rl);
+    std::list<double> rank(const Xapian::RankList & rl);
 
     void learn_model();
 

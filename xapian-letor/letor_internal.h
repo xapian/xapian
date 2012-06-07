@@ -23,6 +23,7 @@
 #define XAPIAN_INCLUDED_LETOR_INTERNAL_H
 
 #include <xapian/letor.h>
+#include "ranker.h"
 
 #include <map>
 
@@ -32,6 +33,7 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
+    Xapian::Ranker ranker;
     Database letor_db;
     Query letor_query;
 
@@ -64,6 +66,7 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     void letor_learn_model(int svm_type, int kernel_type);
 
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+
 
 };
 

@@ -33,6 +33,7 @@
 #include <list>
 #include <map>
 
+
 using namespace std;
 
 
@@ -53,7 +54,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    Xapian::RankList rank(const Xapian::RankList & rl);
+    std::list<double> rank(const Xapian::RankList & rl);
 
     void learn_model();
 
@@ -64,7 +65,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     /* This method shoudl read the letor format data and transform into the list of 
      * Xapian::RankList format
      */
-    std::list<RankList> load_data(const std::string & data_file);
+    std::list<Xapian::RankList> load_data(const std::string & data_file);
 
 };
 

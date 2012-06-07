@@ -25,13 +25,14 @@
 #include <xapian/letor.h>
 
 #include "featurevector.h"
-#include "ranklist.h"
 #include <map>
 #include <string>
 
 using namespace std;
 
 namespace Xapian {
+
+class RankList;
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
@@ -52,9 +53,9 @@ public:
 
     std::map<int,double> transform(const Xapian::Document & doc);
 
-    RankList createRankList(const Xapian::MSet & mset);
+    Xapian::RankList createRankList(const Xapian::MSet & mset,std::string & qid);
 
-    void load_relevance(const std::string & qrel_file);    
+    map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
 
     static const int fNum = 20;
 

@@ -46,10 +46,6 @@ Letor::Letor() : internal(new Letor::Internal) { }
 
 Letor::~Letor() { }
 
-void
-Letor::create_ranker(int ranker_type) {
-    internal->create_ranker(ranker_type);
-}
 
 void
 Letor::set_database(const Xapian::Database & db) {
@@ -74,6 +70,16 @@ Letor::letor_learn_model(int s, int k) {
 void
 Letor::prepare_training_file(const string & query_file, const string & qrel_file, Xapian::doccount msetsize) {
     internal->prepare_training_file(query_file, qrel_file, msetsize);
+}
+
+void
+Letor::create_ranker(int ranker_type) {
+    switch(ranker_type) {
+        case 0: internal->ranker = new SVMRanker;
+                break;
+        case 1: break;
+        default: std::cout<<"Please specify proper ranker.";
+    }
 }
 
 }
