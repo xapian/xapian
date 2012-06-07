@@ -23,7 +23,7 @@
 
 
 #include <xapian/letor.h>
-
+#include "letor_features.h"
 #include "featurevector.h"
 #include "ranklist.h"
 #include <map>
@@ -33,10 +33,30 @@ using namespace std;
 
 namespace Xapian {
 
+class RankList;
+class FeatureVector;
+
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
 public:
+
+    Xapian::Features f;
+
     FeatureManager();
+    
+    std::map<int,double> transform(const Document &doc, double &weight);
+
+    Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
+
+    map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
+    
+    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, std::string & did);
+    
+    std::string getdid(const Document &doc);
+    
+    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
+
+    static const int fNum = 20;
 
     virtual ~FeatureManager() {};
 
@@ -50,13 +70,7 @@ public:
     // TODO: the definition of this should be generated (or the whole class inherited from this one)
 //    void compute(const Document &doc, double *dest);
 
-    std::map<int,double> transform(const Xapian::Document & doc);
 
-    RankList createRankList(const Xapian::MSet & mset);
-
-    void load_relevance(const std::string & qrel_file);    
-
-    static const int fNum = 20;
 
 private:
     Database letor_db;

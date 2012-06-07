@@ -1,4 +1,4 @@
-/* ranklist.h: The ranklist -- list of feature vectors file.
+/* evalmetric.h: The abstract evaluation score file.
  *
  * Copyright (C) 2012 Parth Gupta
  *
@@ -18,43 +18,16 @@
  * USA
  */
 
-#ifndef RANKLIST_H
-#define RANKLIST_H
-
-
-#include <xapian.h>
-#include <xapian/intrusive_ptr.h>
-#include <xapian/types.h>
-#include <xapian/visibility.h>
-
-#include <featurevector.h>
-
-#include <list>
-#include <map>
-#include <iostream>
-
-using namespace std;
-
+#include <evalmetric.h>
 
 namespace Xapian {
 
-class FeatureVector;
+    EvalMetric::EvalMetric() {
+    }
 
-class XAPIAN_VISIBILITY_DEFAULT RankList {
-    
-    std::list<FeatureVector> rl;
-
-  public:
-    std::string qid;
-    RankList();
-    
-    void set_qid(std::string qid1);
-
-    void add_feature_vector(const Xapian::FeatureVector fv);//was & fv initially,check back later
-
-    void normalise();
-
-};
-
+    /* override this in the sub-class like MAP, NDCG, MRR, etc*/
+    double
+    EvalMetric::score(const Xapian::RankList & /*rl*/) {
+        return 1.0;
+    }
 }
-#endif /* RANKLIST_H */
