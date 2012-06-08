@@ -1,3 +1,39 @@
+ 16726       olly Wed Jun 06 13:48:31 GMT 2012  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.11 (2012-06-08):
+
+Documentation:
+
+General:
+
+* Ship the scripts which generate the except.i files for Lua, Perl and Python.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* In generated C++ code, pass 0 instead of NULL for non-pointer parameter to
+  av_fetch() (spotted due to GCC 4.7 warning).
+
+PHP:
+
+* Fix "make check" to work for PHP when building from a release tarball with
+  srcdir != builddir.
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.10 (2012-05-09):
 
 CSharp:
