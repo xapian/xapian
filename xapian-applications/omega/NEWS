@@ -1,3 +1,35 @@
+ 16619       olly Mon May 21 07:28:26 GMT 2012  Olly Betts <olly@survex.com>
+
+Omega 1.2.11 (2012-06-08):
+
+general:
+
+documentation:
+
+indexers:
+
+* Change HTML parser's handling of multiple <body> tags and of text outside of
+  <body> to match the behaviour of modern web browsers.  (ticket#599)
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+* Don't explicitly link indirect shared library dependencies on FreeBSD and
+  OpenBSD.
+
+portability:
+
+packaging:
+
 Omega 1.2.10 (2012-05-09):
 
 indexers:
