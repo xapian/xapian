@@ -1,3 +1,10 @@
+Sat Jun 09 06:04:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Cherry pick changes from Mihai Bivol's GSoC snippets branch:
+	* omindex.cc: Add option for the document sample size.
+	* omindex.cc: Add short option for sample-size
+	* omindex.cc: Make sample-size consistent with max-size
+
 Sat Jun 02 12:23:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* INSTALL,Makefile.am,cgiparam.cc,configfile.cc,configure.ac,

@@ -217,11 +217,11 @@ get_pdf_metainfo(const string & safefile, string &author, string &title,
 }
 
 static void
-generate_sample_from_csv(const string & csv_data, string & sample)
+generate_sample_from_csv(const string & csv_data, string & sample, size_t sample_size)
 {
     // Add 3 to allow for a 4 byte utf-8 sequence being appended when
-    // output is SAMPLE_SIZE - 1 bytes long.
-    sample.reserve(SAMPLE_SIZE + 3);
+    // output is sample_size - 1 bytes long.
+    sample.reserve(sample_size + 3);
     size_t last_word_end = 0;
     bool in_space = true;
     bool in_quotes = false;
@@ -265,11 +265,11 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 	    in_space = false;
 	}
 
-	if (sample.size() >= SAMPLE_SIZE) {
+	if (sample.size() >= sample_size) {
 	    // Need to truncate sample.
-	    if (last_word_end <= SAMPLE_SIZE / 2) {
+	    if (last_word_end <= sample_size / 2) {
 		// Monster word!  We'll have to just split it.
-		sample.replace(SAMPLE_SIZE - 3, string::npos, "...", 3);
+		sample.replace(sample_size - 3, string::npos, "...", 3);
 	    } else {
 		sample.replace(last_word_end, string::npos, " ...", 4);
 	    }
@@ -311,11 +311,11 @@ skip_unknown_mimetype(const string & file, const string & mimetype)
 
 void
 index_mimetype(const string & file, const string & url, const string & ext,
-	       const string &mimetype, DirectoryIterator &d);
+	       const string &mimetype, DirectoryIterator &d, size_t sample_size);
 
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
-	   map<string, string>& mime_map)
+	   map<string, string>& mime_map, size_t sample_size)
 {
     string ext;
     const char * dot_ptr = strrchr(d.leafname(), '.');
@@ -372,12 +372,12 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    index_mimetype(file, url, ext, mimetype, d);
+    index_mimetype(file, url, ext, mimetype, d, sample_size);
 }
 
 void
 index_mimetype(const string & file, const string & url, const string & ext,
-	       const string &mimetype, DirectoryIterator &d)
+	       const string &mimetype, DirectoryIterator &d, size_t sample_size)
 {
     string urlterm("U");
     urlterm += url;
@@ -717,7 +717,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 
-	    generate_sample_from_csv(dump, sample);
+	    generate_sample_from_csv(dump, sample, sample_size);
 	} else if (mimetype == "application/vnd.ms-outlook") {
 	    string cmd = get_pkglibbindir() + "/outlookmsg2html " + shell_protect(file);
 	    MyHtmlParser p;
@@ -802,9 +802,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	// Produce a sample
 	if (sample.empty()) {
-	    sample = generate_sample(dump, SAMPLE_SIZE);
+	    sample = generate_sample(dump, sample_size);
 	} else {
-	    sample = generate_sample(sample, SAMPLE_SIZE);
+	    sample = generate_sample(sample, sample_size);
 	}
 
 	// Put the data in the document
@@ -961,7 +961,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 static void
 index_directory(const string &path, const string &url_, size_t depth_limit,
-		map<string, string>& mime_map)
+		map<string, string>& mime_map, size_t sample_size)
 {
     if (verbose)
 	cout << "[Entering directory \"" << path.substr(root.size()) << "\"]"
@@ -986,11 +986,11 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			}
 			url += '/';
 			file += '/';
-			index_directory(file, url, new_limit, mime_map);
+			index_directory(file, url, new_limit, mime_map, sample_size);
 			break;
 		    }
 		    case DirectoryIterator::REGULAR_FILE:
-			index_file(file, url, d, mime_map);
+			index_file(file, url, d, mime_map, sample_size);
 			break;
 		    default:
 			skip(file, "Not a regular file",
@@ -1006,6 +1006,35 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
     }
 }
 
+static off_t
+parse_size(char* p)
+{
+    // Don't want negative numbers, infinity, NaN, or hex numbers.
+    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+	double arg = strtod(p, &p);
+	switch (*p) {
+	    case '\0':
+		break;
+	    case 'k': case 'K':
+		arg *= 1024;
+		++p;
+		break;
+	    case 'm': case 'M':
+		arg *= (1024 * 1024);
+		++p;
+		break;
+	    case 'g': case 'G':
+		arg *= (1024 * 1024 * 1024);
+		++p;
+		break;
+	}
+	if (*p == '\0') {
+	    return off_t(arg);
+	}
+    }
+    return -1;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -1016,6 +1045,7 @@ main(int argc, char **argv)
     bool delete_removed_documents = true;
     string baseurl;
     size_t depth_limit = 0;
+    size_t sample_size = SAMPLE_SIZE;
 
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
@@ -1036,6 +1066,7 @@ main(int argc, char **argv)
 	{ "verbose",	no_argument,		NULL, 'v' },
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
+	{ "sample-size",required_argument,	NULL, 'E' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1215,7 +1246,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:E:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1247,6 +1278,8 @@ main(int argc, char **argv)
 "  -S, --spelling           index data for spelling correction\n"
 "  -m, --max-size           maximum size of file to index (in bytes or with a\n"
 "                           suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
+"  -E, --sample-size=SIZE   sets the maximum number of bytes for the document\n"
+"                           text sample. (default SIZE = 512)\n"
 "  -v, --verbose            show more information about what is happening\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
@@ -1351,31 +1384,20 @@ main(int argc, char **argv)
 	case 'v':
 	    verbose = true;
 	    break;
+	case 'E': {
+	    off_t arg = parse_size(optarg);
+	    if (arg >= 0) {
+		sample_size = size_t(arg);
+		break;
+	    }
+	    cerr << PROG_NAME": bad sample size '" << optarg << "'" << endl;
+	    return 1;
+	}
 	case 'm': {
-	    // Don't want negative numbers, infinity, NaN, or hex numbers.
-	    char * p = optarg;
-	    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
-		double arg = strtod(p, &p);
-		switch (*p) {
-		    case '\0':
-			break;
-		    case 'k': case 'K':
-			arg *= 1024;
-			++p;
-			break;
-		    case 'm': case 'M':
-			arg *= (1024 * 1024);
-			++p;
-			break;
-		    case 'g': case 'G':
-			arg *= (1024 * 1024 * 1024);
-			++p;
-			break;
-		}
-		if (*p == '\0') {
-		    max_size = off_t(arg);
-		    break;
-		}
+	    off_t size = parse_size(optarg);
+	    if (size >= 0) {
+		max_size = size;
+		break;
 	    }
 	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
 	    return 1;
@@ -1486,7 +1508,7 @@ main(int argc, char **argv)
 	}
 	indexer.set_stemmer(stemmer);
 
-	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map);
+	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map, sample_size);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
