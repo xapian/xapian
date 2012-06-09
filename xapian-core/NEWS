@@ -23,15 +23,20 @@ API:
 	  init() for Weight objects providing the term-independent weight.
 	  These now get called with init(0.0).
 
-	* backends/dbfactory.cc: Test if we fail to open a stub database file
-	  in Xapian::Auto::open_stub() and throw an exception if so.
+* Xapian::Auto::open_stub() now throws a Xapian::DatabaseOpeningError exception
+  if the stub file can't be opened.  Previously we failed to check for this
+  condition, which resulted in us treating the file as empty.
 
 testsuite:
 
-	* configure.ac,tests/runsrv.in: In the testsuite, only run remote
-	  servers under valgrind if x87 FP instructions are in use.
+* When the testsuite is using valgrind, we used to run remote servers under
+  valgrind too (but with --tool=none) to get consistent behaviour as valgrind's
+  emulation of x87 excess precision isn't exact.  Now we only do this if x87 FP
+  instructions are actually in use (which means x86 architecture and configure
+  run with --disable-sse).
 
-* Improved test coverage, including more tests for closed databases (ticket#337).
+* Improved test coverage (including more tests for closed databases -
+  ticket#337).
 
 matcher:
 
@@ -44,7 +49,6 @@ brass backend:
 	  table not being open meant it wasn't present.  Fix to check if the
 	  postlist_table is open to determine which case we're in.
 
-
 chert backend:
 
 	* backends/brass/,backends/chert/: After closing the database, methods
@@ -52,7 +56,6 @@ chert backend:
 	  with message "Database has no termlist", assuming that the termlist
 	  table not being open meant it wasn't present.  Fix to check if the
 	  postlist_table is open to determine which case we're in.
-
 
 flint backend:
 
@@ -70,18 +73,14 @@ build system:
 
 documentation:
 
- 16660       olly	* include/xapian/query.h: Fix Query ctor documentation comment - XOR
-	  and ELITE_SET can both take any number of subqueries, not just
-	  exactly two.
+* Fix API documentation for Query constructors - both XOR and ELITE_SET can
+  take any number of subqueries, not only exactly two.
 
 	* include/xapian/positioniterator.h,include/xapian/postingiterator.h,
 	  include/xapian/termiterator.h: Backport missing documentation
 	  comments for API operator++ and operator* methods.
 
-	* include/xapian/weight.h: Fix documentation comment typo ("k1" ->
-	  "k").
-
-	* docs/scalability.rst: Update gmane size, fix a typo, tweak wording.
+* Fix API documentation for TradWeight constructor - "k1" should be "k".
 
 tools:
 
@@ -94,13 +93,9 @@ portability:
 	* tests/Makefile.am: Pass -ldl last when compiling zlib-vg.so, as that
 	  seems to be needed on Ubuntu 12.04.
 
-	* backends/chert/chert_cursor.cc: Fix incorrect use of "delete" to
-	  "delete []".  The type is POD, so I suspect this mistake didn't
-	  actually cause any problems, and it only happens when a cursor
-	  gets rebuilt because the B-tree has gained a level, so it's
-	  a rather rare occurrence.
-	* backends/brass/brass_cursor.cc,backends/flint/flint_cursor.cc: Make
-	  the equivalent fix.
+* Fix incorrect use of "delete" which should be "delete []".  This is
+  undefined behaviour in C++, though the type is POD, so in practice this
+  probably worked OK on many platforms.
 
 	* weight/bm25weight.cc: Avoid use of undefined values when k1 or b are
 	  zero.
