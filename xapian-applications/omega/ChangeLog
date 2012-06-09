@@ -1,3 +1,11 @@
+Sat Jun 09 11:50:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Cherry pick changes from Mihai Bivol's GSoC snippets branch:
+	* omindex.cc: Add option for the document sample size.
+	* omindex.cc: Add short option for sample-size
+	* omindex.cc: Make sample-size consistent with max-size
+
 Fri Jun 08 12:48:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
