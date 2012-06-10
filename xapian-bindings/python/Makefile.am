@@ -111,7 +111,7 @@ doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/i
 	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
 
-RUN_SWIG := $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
 	@stamp=modern/xapian_wrap.stamp; $(make_many_locked)

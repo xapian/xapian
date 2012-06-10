@@ -63,7 +63,7 @@ except.i: $(srcdir)/generate-php-exceptions ../../xapian-core/exception_data.pm
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-RUN_SWIG := $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)

@@ -119,7 +119,7 @@ all-am: $(ASSEMBLY).dll
 CLEANFILES = XapianSharp.snk $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
-RUN_SWIG := $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)

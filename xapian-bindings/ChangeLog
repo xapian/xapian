@@ -1,3 +1,10 @@
+Sun Jun 10 05:42:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,perl/Makefile.am,
+	  php/Makefile.am,python/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Fix recent swig-depcomp change to use '=' rather than
+	  the apparently less portable ':='.
+
 Mon Jun 04 12:07:08 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,csharp/csharp.i,fake_dbfactory.i,
