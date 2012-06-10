@@ -1,3 +1,13 @@
+Sun Jun 10 12:57:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
+	  backends/brass/brass_check.cc: Remove is_empty(), tweak
+	  calculate_last_block() to calculate the bit map size correctly in
+	  the case of an empty table, and use the bit map size instead of
+	  is_empty() in xapian-check.
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h,
+	  backends/chert/chert_check.cc: Make equivalent changes for chert.
+
 Sun Jun 10 11:27:52 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/brass/brass_table.h: We don't

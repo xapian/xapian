@@ -461,39 +461,25 @@ BrassTable_base::block_free_now(uint4 n)
 void
 BrassTable_base::calculate_last_block()
 {
-    if (bit_map_size == 0) {
-	last_block = 0;
-	return;
-    }
     int i = bit_map_size - 1;
-    while (bit_map[i] == 0 && i > 0) {
+    while (i >= 0 && bit_map[i] == 0) {
 	i--;
     }
     bit_map_size = i + 1;
 
-    int x = bit_map[i];
-
     /* Check for when there are no blocks */
-    if (x == 0) {
+    if (bit_map_size == 0) {
 	last_block = 0;
 	return;
     }
+
+    int x = bit_map[i];
+
     uint4 n = (i + 1) * CHAR_BIT - 1;
     int d = 0x1 << (CHAR_BIT - 1);
     while ((x & d) == 0) { d >>= 1; n--; }
 
     last_block = n;
-}
-
-bool
-BrassTable_base::is_empty() const
-{
-    for (uint4 i = 0; i < bit_map_size; i++) {
-	if (bit_map[i] != 0) {
-	    return false;
-	}
-    }
-    return true;
 }
 
 void

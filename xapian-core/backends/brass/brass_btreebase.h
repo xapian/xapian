@@ -113,9 +113,6 @@ class BrassTable_base {
 
 	void commit();
 
-	/* Used by BrassTable::check() */
-	bool is_empty() const;
-
 	void swap(BrassTable_base &other);
 
     private:

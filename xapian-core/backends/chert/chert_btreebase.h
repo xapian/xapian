@@ -115,9 +115,6 @@ class ChertTable_base {
 
 	void commit();
 
-	/* Used by ChertTable::check() */
-	bool is_empty() const;
-
 	void swap(ChertTable_base &other);
 
     private:

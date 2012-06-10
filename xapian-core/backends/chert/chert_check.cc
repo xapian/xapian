@@ -375,7 +375,8 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	    B.base.write_to_file(base_name, B.base_letter, string(), -1, NULL);
 	} else {
 	    /* the bit map should now be entirely clear: */
-	    if (!B.base.is_empty()) {
+	    B.base.calculate_last_block();
+	    if (B.base.get_bit_map_size() != 0) {
 		B.failure("Unused block(s) marked used in bitmap");
 	    }
 
