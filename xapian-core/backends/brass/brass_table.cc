@@ -1573,20 +1573,6 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 }
 
 bool
-BrassTable::really_empty() const
-{
-    if (handle < 0) {
-	if (handle == -2) {
-	    BrassTable::throw_database_closed();
-	}
-	return true;
-    }
-    BrassCursor cur(const_cast<BrassTable*>(this));
-    cur.find_entry(string());
-    return !cur.next();
-}
-
-bool
 BrassTable::exists() const {
     LOGCALL(DB, bool, "BrassTable::exists", NO_ARGS);
     return (file_exists(name + "DB") &&

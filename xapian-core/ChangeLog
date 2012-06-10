@@ -1,3 +1,10 @@
+Sun Jun 10 11:27:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: We don't
+	  need the workaround for existing tables which were built with a 32
+	  bit item count for brass, since that bug was fixed in 1.1.4, which
+	  is the same version which brass was added in.
+
 Sun Jun 10 11:20:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
