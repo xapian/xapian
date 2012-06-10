@@ -32,9 +32,6 @@ class BrassTable_base {
 	/** Construct an object with all zero fields. */
 	BrassTable_base();
 
-	/** Copy constructor */
-	BrassTable_base(const BrassTable_base &other);
-
 	/** Destructor - frees resources. */
 	~BrassTable_base();
 
@@ -122,6 +119,9 @@ class BrassTable_base {
 	void swap(BrassTable_base &other);
 
     private:
+	/** No copying. */
+	BrassTable_base(const BrassTable_base &);
+
 	/** private assignment operator - you probably want swap() instead */
 	void operator=(const BrassTable_base &other);
 

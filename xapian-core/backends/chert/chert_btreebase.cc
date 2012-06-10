@@ -89,32 +89,6 @@ ChertTable_base::ChertTable_base()
 {
 }
 
-ChertTable_base::ChertTable_base(const ChertTable_base &other)
-	: revision(other.revision),
-	  block_size(other.block_size),
-	  root(other.root),
-	  level(other.level),
-	  bit_map_size(other.bit_map_size),
-	  item_count(other.item_count),
-	  last_block(other.last_block),
-	  have_fakeroot(other.have_fakeroot),
-	  sequential(other.sequential),
-	  bit_map_low(other.bit_map_low),
-	  bit_map0(0),
-	  bit_map(0)
-{
-    try {
-	bit_map0 = new byte[bit_map_size];
-	bit_map = new byte[bit_map_size];
-
-	memcpy(bit_map0, other.bit_map0, bit_map_size);
-	memcpy(bit_map, other.bit_map, bit_map_size);
-    } catch (...) {
-	delete [] bit_map0;
-	delete [] bit_map;
-    }
-}
-
 void
 ChertTable_base::swap(ChertTable_base &other)
 {

@@ -32,9 +32,6 @@ class ChertTable_base {
 	/** Construct an object with all zero fields. */
 	ChertTable_base();
 
-	/** Copy constructor */
-	ChertTable_base(const ChertTable_base &other);
-
 	/** Destructor - frees resources. */
 	~ChertTable_base();
 
@@ -124,6 +121,9 @@ class ChertTable_base {
 	void swap(ChertTable_base &other);
 
     private:
+	/** No copying. */
+	ChertTable_base(const ChertTable_base &);
+
 	/** private assignment operator - you probably want swap() instead */
 	void operator=(const ChertTable_base &other);
 
