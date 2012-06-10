@@ -126,7 +126,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     fm.set_query(letor_query);
     
     std::string s="1";
-    Xapian::RankList rl = fm.createRankList(mset, s);
+    Xapian::RankList rl = fm.create_rank_list(mset, s);
     std::list<double> scores =ranker.rank(rl);
     
     /*code to convert list<double> scores to map<docid,double>*/
@@ -384,7 +384,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 	fm.set_query(query);
 
-	Xapian::RankList rl = fm.createRankList(mset, qid);
+	Xapian::RankList rl = fm.create_rank_list(mset, qid);
 	l.push_back(rl);
     }//while closed
     myfile1.close();

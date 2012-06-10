@@ -44,6 +44,8 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
   public:
     string qid;
     RankList();
+    
+    void set_qid(std::string qid);
 
     void add_feature_vector(const Xapian::FeatureVector & fv);
 

@@ -43,6 +43,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     int fcount;
 
   public:
+  
+   FeatureVector();
 
     FeatureVector(const FeatureVector & o);
     
@@ -52,7 +54,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
      * as vector in the form of 
      * map<int,double>
      */
-    std::map<int,double> transform(const Xapian::Document & doc);
+//    std::map<int,double> transform(const Xapian::Document & doc);
 
 
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
@@ -60,6 +62,9 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     void set_qid(const std::string & qid);
 
     void set_did(const std::string & did);
+    
+     void set_label(int label);
+     void set_fvals(map<int,double> fvals);
     
 };
 
