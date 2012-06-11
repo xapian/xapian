@@ -1,4 +1,4 @@
-/* ranker.cc: The abstract ranker file.
+/* evalmetric.h: The abstract evaluation score file.
  *
  * Copyright (C) 2012 Parth Gupta
  *
@@ -17,20 +17,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
- 
+
 #include <xapian.h>
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
 #include <ranklist.h>
-//#include <evalmetric.h>
-#include <ranker.h>
+#include <evalmetric.h>
 
 #include <list>
 #include <map>
-#include <iostream>
-
 
 using namespace std;
 
@@ -38,42 +35,12 @@ using namespace std;
 using namespace Xapian;
 
 
-Ranker::Ranker() {
+EvalMetric::EvalMetric() {
 }
 
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
-     */
-std::list<double>
-Ranker::rank(const Xapian::RankList & /*rl*/) {
-    std::list<double> res;
-
-    double d=1.0;
-    res.push_back(d);
-    return res;
+    /* override this in the sub-class like MAP, NDCG, MRR, etc*/
+double
+EvalMetric::score(const Xapian::RankList & /*rl*/) {
+return 1.0;
 }
-
-void
-Ranker::learn_model() {
-}
-
-void
-Ranker::load_model(const std::string & /*model_file*/) {
-
-}
-
-void
-Ranker::save_model() {
-}
-
-    /* This method shoudl read the letor format data and transform into the list of 
-     * Xapian::RankList format
-     */
-std::list<Xapian::RankList>
-Ranker::load_data(const std::string & /*data_file*/) {
-    std::list<Xapian::RankList> res;
-
-    return res;
-}
-
 
