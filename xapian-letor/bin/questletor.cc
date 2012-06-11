@@ -166,13 +166,7 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    /* This module converts the query terms inclusive of the query terms
-     * in titles
-     * Example:
-     * original query = "parth gupta"
-     * converted query = "title:parth title:gupta parth gupta"
-     */
-
+    
     string qq=argv[optind];
     istringstream iss(argv[optind]);
     string title="title:";
@@ -213,7 +207,7 @@ try {
     Xapian::PostingIterator p,pend;
 
     Xapian::Letor ltr;
-
+/*
     ltr.set_database(db);
     ltr.set_query(query);
     ltr.create_ranker(0);
@@ -241,7 +235,7 @@ try {
 	cout << doc.get_data() << "\n";
 	rank++;
     }
-
+*/
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
@@ -250,3 +244,6 @@ try {
     cout << err.get_description() << endl;
     exit(1);
 }
+
+
+

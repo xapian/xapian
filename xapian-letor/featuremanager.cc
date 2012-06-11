@@ -4,7 +4,7 @@
 #include "ranklist.h"
 #include <cstring>
 #include <cstdlib>
-
+#include <fstream>
 
 #include <map>
 
@@ -90,7 +90,7 @@ FeatureManager::load_relevance(const std::string & qrel_file) {
     Map2 qrel1;
 
     string inLine;
-    ifstream myfile(qrel_file.c_str(), ifstream::in);
+    ifstream myfile (qrel_file.c_str(), ifstream::in);
     string token[4];
     if (myfile.is_open()) {
     while (myfile.good()) {

@@ -42,7 +42,7 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
     std::list<FeatureVector> rl;
 
   public:
-    string qid;
+    std::string qid;
     RankList();
     
     void set_qid(std::string qid);
