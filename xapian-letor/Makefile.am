@@ -79,7 +79,8 @@ lib_src +=\
 	featurevector.cc\
 	featuremanager.cc\
 	letor_features.cc\
-	ranklist.cc
+	ranklist.cc\
+	ranker.cc
 
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

@@ -12,7 +12,7 @@ using namespace std;
 using namespace Xapian;
 
 //Ranklist(const Xapian::MSet & mset,const Xapian::Database & db,const Xapian::Query & query)
-RankList()
+RankList::RankList()
 {
     /*map<Xapian::docid,double> letor_mset;
 
@@ -104,6 +104,6 @@ RankList::add_feature_vector(const Xapian::FeatureVector fv) {
 }
 
 void
-RankList::set_qid(std::string qid) {
-    this->qid=qid;
+RankList::set_qid(std::string qid1) {
+    this->qid=qid1;
 }

@@ -25,6 +25,7 @@
 #include <xapian/letor.h>
 #include "letor_features.h"
 #include "featurevector.h"
+#include "ranklist.h"
 #include <map>
 #include <string>
 
