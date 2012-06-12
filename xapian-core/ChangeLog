@@ -1,3 +1,7 @@
+Tue Jun 12 01:20:59 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Force link_all_deplibs_CXX=no for Solaris.
+
 Tue Jun 12 01:08:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Don't interpret a missing .la file as meaning that
