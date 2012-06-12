@@ -1,3 +1,9 @@
+Tue Jun 12 13:08:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Make sure XAPIAN_MAX_CHANGESETS gets unset
+	  after testcases which set it, so further testcases don't waste time
+	  generating changesets.
+
 Tue Jun 12 12:11:51 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/replication.rst: The value of XAPIAN_MAX_CHANGESETS does now

@@ -251,11 +251,21 @@ set_max_changesets(int count) {
 # define set_max_changesets(N) putenv(const_cast<char*>("XAPIAN_MAX_CHANGESETS="#N))
 #endif
 
+struct unset_max_changesets_helper_ {
+    unset_max_changesets_helper_() { }
+    ~unset_max_changesets_helper_() { set_max_changesets(0); }
+};
+
+// Ensure that we don't leave generation of changesets on for the next
+// testcase, even if this one exits with an exception.
+#define UNSET_MAX_CHANGESETS_AFTERWARDS unset_max_changesets_helper_ ezlxq
+
 // #######################################################################
 // # Tests start here
 
 // Basic test of replication functionality.
 DEFINE_TESTCASE(replicate1, replicas) {
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
@@ -328,6 +338,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
 // Test replication from a replicated copy.
 DEFINE_TESTCASE(replicate2, replicas) {
     SKIP_TEST_FOR_BACKEND("brass"); // Brass doesn't currently support this.
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
 
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -467,6 +478,7 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 
 // Test changesets which are truncated (and therefore invalid).
 DEFINE_TESTCASE(replicate3, replicas) {
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
@@ -514,6 +526,7 @@ DEFINE_TESTCASE(replicate3, replicas) {
 
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate4, replicas) {
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
@@ -605,6 +618,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate5, replicas) {
     SKIP_TEST_FOR_BACKEND("chert");
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
