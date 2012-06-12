@@ -1,3 +1,8 @@
+Tue Jun 12 12:11:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: The value of XAPIAN_MAX_CHANGESETS does now
+	  actually determine how many changesets we keep.
+
 Tue Jun 12 01:20:59 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Force link_all_deplibs_CXX=no for Solaris.
