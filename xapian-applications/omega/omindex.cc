@@ -786,6 +786,13 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    return;
 	}
 
+	// Remove any trailing formfeeds, so we don't consider them when
+	// considering if we extracted any text (e.g. pdftotext outputs a
+	// formfeed between each page, even for blank pages).
+	string::size_type trim_end = dump.find_last_not_of('\v');
+	if (trim_end != string::npos)
+	    dump.resize(trim_end);
+
 	if (dump.empty()) {
 	    switch (empty_body) {
 		case EMPTY_BODY_INDEX:

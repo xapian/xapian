@@ -1,3 +1,9 @@
+Wed Jun 13 04:53:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: pdftotext outputs a formfeed between each page, which
+	  messes up our "empty body" check, so trim any trailing formfeeds
+	  before the check.
+
 Sat Jun 09 06:04:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Cherry pick changes from Mihai Bivol's GSoC snippets branch:
