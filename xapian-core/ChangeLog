@@ -1,3 +1,9 @@
+Thu Jun 14 13:13:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-config.in: Don't interpret a missing .la file as meaning that
+	  we only have static libraries.
+
 Thu Jun 14 13:01:40 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreebase.cc,backends/flint/flint_btreebase.h:
