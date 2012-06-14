@@ -299,9 +299,6 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 	/// Assignment not allowed
         BrassTable & operator=(const BrassTable &);
 
-	/// Return true if there are no entries in the table.
-	bool really_empty() const;
-
     public:
 	/** Create a new Btree object.
 	 *
@@ -570,16 +567,7 @@ class XAPIAN_VISIBILITY_DEFAULT BrassTable {
 
 	/// Return true if there are no entries in the table.
 	bool empty() const {
-	    // Prior to 1.1.4/1.0.18, item_count was stored in 32 bits, so we
-	    // can't trust it as there could be more than 1<<32 entries.
-	    //
-	    // In theory it should wrap, so if non-zero the table isn't empty,
-	    // but the table this was first noticed in wasn't off by a multiple
-	    // of 1<<32.
-
-	    // An empty table will always have level == 0, and most non-empty
-	    // tables will have more levels, so use that as a short-cut.
-	    return (level == 0) && really_empty();
+	    return (item_count == 0);
 	}
 
 	/** Get a cursor for reading from the table.

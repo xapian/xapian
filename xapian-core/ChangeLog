@@ -1,3 +1,11 @@
+Thu Jun 14 12:14:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_table.cc,backends/brass/brass_table.h: We don't
+	  need the workaround for existing tables which were built with a 32
+	  bit item count for brass, since that bug was fixed in 1.1.4, which
+	  is the same version which brass was added in.
+
 Thu Jun 14 11:35:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
