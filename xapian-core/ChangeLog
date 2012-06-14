@@ -1,3 +1,10 @@
+Thu Jun 14 14:08:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_replicate.cc: Make sure XAPIAN_MAX_CHANGESETS gets unset
+	  after testcases which set it, so further testcases don't waste time
+	  generating changesets.
+
 Thu Jun 14 13:54:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
