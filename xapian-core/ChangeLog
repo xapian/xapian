@@ -1,3 +1,8 @@
+Thu Jun 14 13:40:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Force link_all_deplibs_CXX=no for Solaris.
+
 Thu Jun 14 13:13:16 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
