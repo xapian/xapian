@@ -1,3 +1,11 @@
+Thu Jun 14 11:35:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
+	  backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h:
+	  Remove unused copy constructors for BrassTable_base and
+	  ChertTable_base.
+
 Thu Jun 14 11:24:03 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
