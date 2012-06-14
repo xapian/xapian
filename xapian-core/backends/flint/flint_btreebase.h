@@ -33,9 +33,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	/** Construct an object with all zero fields. */
 	FlintTable_base();
 
-	/** Copy constructor */
-	FlintTable_base(const FlintTable_base &other);
-
 	/** Destructor - frees resources. */
 	~FlintTable_base();
 
@@ -123,6 +120,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	void swap(FlintTable_base &other);
 
     private:
+	/** No copying. */
+	FlintTable_base(const FlintTable_base &);
+
 	/** private assignment operator - you probably want swap() instead */
 	void operator=(const FlintTable_base &other);
 
