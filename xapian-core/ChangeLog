@@ -1,3 +1,9 @@
+Fri Jun 15 10:45:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/admin_notes.rst: Correction - we don't "create a lock file", we
+	  "lock a file".
+
 Thu Jun 14 14:08:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
