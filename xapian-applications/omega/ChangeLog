@@ -1,3 +1,8 @@
+Mon Jun 18 03:16:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,xlsxparse.cc,xlsxparse.h: Index calculated
+	  numbers from .xlsx files.
+
 Wed Jun 13 04:53:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: pdftotext outputs a formfeed between each page, which
