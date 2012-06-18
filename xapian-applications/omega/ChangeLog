@@ -1,3 +1,8 @@
+Mon Jun 18 05:49:07 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix the "trim trailing formfeeds" code not to remove one
+	  character too many.
+
 Mon Jun 18 05:47:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc,xlsxparse.cc,xlsxparse.h: Rework .xlsx parsing to

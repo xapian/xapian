@@ -806,7 +806,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	// considering if we extracted any text (e.g. pdftotext outputs a
 	// formfeed between each page, even for blank pages).
 	string::size_type trim_end = dump.find_last_not_of('\v');
-	if (trim_end != string::npos)
+	if (trim_end != string::npos && ++trim_end != dump.size())
 	    dump.resize(trim_end);
 
 	if (dump.empty()) {
