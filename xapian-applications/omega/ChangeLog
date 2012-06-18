@@ -1,3 +1,7 @@
+Mon Jun 18 07:02:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Properly fix the "trim trailing formfeeds" code.
+
 Mon Jun 18 06:16:39 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Tweak previous change.
