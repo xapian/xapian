@@ -591,8 +591,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		try {
 		    XlsxParser parser;
 		    parser.parse_html(stdout_to_string(cmd));
-		    if (!dump.empty()) dump += ' ';
-		    dump += parser.dump;
+		    dump = parser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(file, cmd);
 		    return;
