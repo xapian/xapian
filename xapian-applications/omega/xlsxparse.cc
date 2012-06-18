@@ -22,27 +22,38 @@
 
 #include "xlsxparse.h"
 
+#include <cstdlib>
+
 using namespace std;
 
 bool
 XlsxParser::opening_tag(const string &tag)
 {
     if (tag == "c") {
-	// Skip <v> tags which are inside <c t="s">, as these are numeric
-	// references to shared strings, which we index separately.
+	// We need to distinguish <v> tags which are inside <c t="s">, as these
+	// are numeric references to shared strings.
 	string type;
-	index_content = (!get_parameter("t", type) || type != "s");
+	if (get_parameter("t", type) && type == "s") {
+	    mode = MODE_C_STRING;
+	} else {
+	    mode = MODE_C_LITERAL;
+	}
     } else if (tag == "v") {
-	in_v = index_content;
-    }
-    return true;
-}
-
-bool
-XlsxParser::closing_tag(const string &tag)
-{
-    if (tag == "v") {
-	in_v = false;
+	if (mode == MODE_C_LITERAL) {
+	    mode = MODE_V_LITERAL;
+	} else if (mode == MODE_C_STRING) {
+	    mode = MODE_V_STRING;
+	}
+    } else if (tag == "si") {
+	mode = MODE_SI;
+    } else if (tag == "sst") {
+	string unique_count;
+	if (get_parameter("uniqueCount", unique_count)) {
+	    unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
+	    // This reserving is just a performance tweak, so don't go reserving
+	    // ludicrous amounts of space just because an XML attribute told us to.
+	    sst.reserve(std::max(c, 1000000ul));
+	}
     }
     return true;
 }
@@ -50,8 +61,26 @@ XlsxParser::closing_tag(const string &tag)
 void
 XlsxParser::process_text(const string &text)
 {
-    if (in_v && !text.empty()) {
-	if (!dump.empty()) dump += ' ';
-	dump += text;
+    switch (mode) {
+	case MODE_V_STRING: {
+	    // Shared string use.
+	    unsigned long c = strtoul(text.c_str(), NULL, 10);
+	    if (c < sst.size())
+		append_field(sst[c]);
+	    mode = MODE_NONE;
+	    return;
+	}
+	case MODE_V_LITERAL:
+	    // Literal (possibly calculated) field value.
+	    append_field(text);
+	    mode = MODE_NONE;
+	    return;
+	case MODE_SI:
+	    // Shared string definition.
+	    sst.push_back(text);
+	    mode = MODE_NONE;
+	    return;
+	default:
+	    return;
     }
 }

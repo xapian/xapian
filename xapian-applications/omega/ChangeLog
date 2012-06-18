@@ -1,3 +1,10 @@
+Mon Jun 18 05:47:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc,xlsxparse.cc,xlsxparse.h: Rework .xlsx parsing to
+	  substitute the shared strings into the positions they are used
+	  in, so that the sample actually matches what appears in the
+	  spreadsheet.
+
 Mon Jun 18 04:49:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xlsxparse.cc,xlsxparse.h: Subclass XlsxParser directly from

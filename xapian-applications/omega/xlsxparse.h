@@ -23,14 +23,31 @@
 
 #include "htmlparse.h"
 
+#include <vector>
+
 class XlsxParser : public HtmlParser {
-    bool index_content, in_v;
+    std::vector<std::string> sst;
+    enum {
+	MODE_NONE,
+	MODE_SI,
+	MODE_C_STRING,
+	MODE_V_STRING,
+	MODE_C_LITERAL,
+	MODE_V_LITERAL
+    } mode;
+
+    void append_field(const std::string &text) {
+	if (!text.empty()) {
+	    if (!dump.empty()) dump += ' ';
+	    dump += text;
+	}
+    }
+
   public:
     std::string dump;
 
-    XlsxParser() : HtmlParser(), index_content(false), in_v(false) { }
+    XlsxParser() : HtmlParser(), mode(MODE_NONE) { }
     bool opening_tag(const std::string &tag);
-    bool closing_tag(const std::string &tag);
     void process_text(const std::string &text);
 };
 
