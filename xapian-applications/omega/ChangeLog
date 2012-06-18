@@ -1,3 +1,8 @@
+Mon Jun 18 04:49:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xlsxparse.cc,xlsxparse.h: Subclass XlsxParser directly from
+	  HtmlParser.
+
 Mon Jun 18 03:16:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omindex.cc,xlsxparse.cc,xlsxparse.h: Index calculated

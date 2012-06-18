@@ -50,8 +50,8 @@ XlsxParser::closing_tag(const string &tag)
 void
 XlsxParser::process_text(const string &text)
 {
-    if (in_v) {
-	MyHtmlParser::process_text(text);
-	pending_space = true;
+    if (in_v && !text.empty()) {
+	if (!dump.empty()) dump += ' ';
+	dump += text;
     }
 }

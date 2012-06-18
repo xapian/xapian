@@ -21,20 +21,17 @@
 #ifndef OMEGA_INCLUDED_XLSXPARSE_H
 #define OMEGA_INCLUDED_XLSXPARSE_H
 
-#include "myhtmlparse.h"
+#include "htmlparse.h"
 
-class XlsxParser : public MyHtmlParser {
+class XlsxParser : public HtmlParser {
     bool index_content, in_v;
   public:
-    XlsxParser() : MyHtmlParser(), index_content(false), in_v(false) { }
+    std::string dump;
+
+    XlsxParser() : HtmlParser(), index_content(false), in_v(false) { }
     bool opening_tag(const std::string &tag);
     bool closing_tag(const std::string &tag);
     void process_text(const std::string &text);
-
-    void parse_html(const std::string &text) {
-	// Ignore overriding charsets in meta tags.
-	MyHtmlParser::parse_html(text, "utf-8", true);
-    }
 };
 
 #endif // OMEGA_INCLUDED_XLSXPARSE_H
