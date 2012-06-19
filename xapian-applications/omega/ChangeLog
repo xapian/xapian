@@ -1,3 +1,8 @@
+Tue Jun 19 00:58:04 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,opendocparse.cc,opendocparse.h,xmlparse.cc:
+	  Improve handling of headers and footers on OpenDocument documents.
+
 Mon Jun 18 07:02:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Properly fix the "trim trailing formfeeds" code.

@@ -51,6 +51,7 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
+#include "opendocparse.h"
 #include "pkglibbindir.h"
 #include "runfilter.h"
 #include "sample.h"
@@ -547,9 +548,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    string safefile = shell_protect(file);
 	    string cmd = "unzip -p " + safefile + " content.xml styles.xml";
 	    try {
-		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
-		dump = xmlparser.dump;
+		OpenDocParser parser;
+		parser.parse_html(stdout_to_string(cmd));
+		dump = parser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
