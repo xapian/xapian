@@ -73,8 +73,6 @@ RankList::RankList()
 void
 RankList::normalise() {
     
-    /* this is the place where we have to normalize the norm and after that store it in the file. */
-
 /*    if (!norm.empty()) {
 	norm_outer=norm.begin();
 	norm_outer++;

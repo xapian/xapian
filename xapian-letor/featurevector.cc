@@ -55,6 +55,7 @@ FeatureVector::FeatureVector() {
 }
 
 FeatureVector::FeatureVector(const FeatureVector & /*o*/) {
+
 }
 
 map<string, map<string, int> >
@@ -79,7 +80,6 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
 		++i;
 		str = strtok(NULL, " ,.-");
 	    }
-
 	    qrel.insert(make_pair(token[0], Map1()));
 	    qrel[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
 	}

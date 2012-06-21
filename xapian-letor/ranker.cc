@@ -39,6 +39,7 @@ using namespace Xapian;
 
 
 Ranker::Ranker() {
+
 }
 
     /* Override all the four methods below in the ranker sub-classes files
@@ -55,15 +56,16 @@ Ranker::rank(const Xapian::RankList & /*rl*/) {
 
 void
 Ranker::learn_model() {
+
 }
 
 void
 Ranker::load_model(const std::string & /*model_file*/) {
-
 }
 
 void
 Ranker::save_model() {
+
 }
 
     /* This method shoudl read the letor format data and transform into the list of 
