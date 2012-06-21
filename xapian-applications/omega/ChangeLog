@@ -1,3 +1,8 @@
+Thu Jun 21 13:44:06 GMT 2012  Olly Betts <olly@survex.com>
+
+	* xlsxparse.cc: Check for "uniquecount" parameter, not "unqiueCount" as
+	  we normalise parameter names to lower case.
+
 Thu Jun 21 13:42:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: unzip extracts files in the order they are in the
