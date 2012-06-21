@@ -1,3 +1,9 @@
+Thu Jun 21 13:42:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: unzip extracts files in the order they are in the
+	  archive, not the order they are on the command line, so call unzip
+	  twice when the order of extraction matters.
+
 Tue Jun 19 00:58:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omindex.cc,opendocparse.cc,opendocparse.h,xmlparse.cc:

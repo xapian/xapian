@@ -546,7 +546,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	{
 	    // Inspired by http://mjr.towers.org.uk/comp/sxw2text
 	    string safefile = shell_protect(file);
-	    string cmd = "unzip -p " + safefile + " content.xml styles.xml";
+	    string cmd = "unzip -p " + safefile + " content.xml ; unzip -p " + safefile + " styles.xml";
 	    try {
 		OpenDocParser parser;
 		parser.parse_html(stdout_to_string(cmd));
@@ -588,7 +588,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// Extract the shared string table first, so our parser can
 		// grab those ready for parsing the sheets which will reference
 		// the shared strings.
-		string cmd = "unzip -p " + safefile + " xl/sharedStrings.xml xl/worksheets/sheet\\*.xml";
+		string cmd = "unzip -p " + safefile + " xl/sharedStrings.xml ; unzip -p " + safefile + " xl/worksheets/sheet\\*.xml";
 		try {
 		    XlsxParser parser;
 		    parser.parse_html(stdout_to_string(cmd));
