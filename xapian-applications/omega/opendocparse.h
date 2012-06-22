@@ -1,6 +1,7 @@
-/* xmlparse.cc: subclass of HtmlParser for parsing XML.
- *
- * Copyright (C) 2006,2009,2011,2012 Olly Betts
+/** @file opendocparse.h
+ * @brief Extract text from XML from an OPENDOC spreadsheet.
+ */
+/* Copyright (C) 2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +18,25 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include <config.h>
+#ifndef OMEGA_INCLUDED_OPENDOCPARSE_H
+#define OMEGA_INCLUDED_OPENDOCPARSE_H
 
-#include "xmlparse.h"
+#include "htmlparse.h"
 
-bool
-XmlParser::opening_tag(const string &)
-{
-    return true;
-}
+#include <vector>
 
-bool
-XmlParser::closing_tag(const string &tag)
-{
-    // For .docx and .pptx respectively.
-    if (tag == "w:t" || tag == "a:t")
-	pending_space = true;
-    return true;
-}
+class OpenDocParser : public HtmlParser {
+    bool indexing;
+    bool pending_space;
+    std::string master_page_name;
+
+  public:
+    std::string dump;
+
+    OpenDocParser() : HtmlParser(), indexing(false), pending_space(false) { }
+    bool opening_tag(const std::string &tag);
+    bool closing_tag(const std::string &tag);
+    void process_text(const std::string &text);
+};
+
+#endif // OMEGA_INCLUDED_OPENDOCPARSE_H

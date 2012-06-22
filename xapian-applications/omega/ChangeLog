@@ -1,3 +1,14 @@
+Fri Jun 22 12:16:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* xlsxparse.cc: Check for "uniquecount" parameter, not "unqiueCount" as
+	  we normalise parameter names to lower case.
+	* omindex.cc: unzip extracts files in the order they are in the
+	  archive, not the order they are on the command line, so call unzip
+	  twice when the order of extraction matters.
+	* Makefile.am,omindex.cc,opendocparse.cc,opendocparse.h,xmlparse.cc:
+	  Improve handling of headers and footers on OpenDocument documents.
+
 Fri Jun 22 12:12:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -48,7 +48,7 @@ XlsxParser::opening_tag(const string &tag)
 	mode = MODE_SI;
     } else if (tag == "sst") {
 	string unique_count;
-	if (get_parameter("uniqueCount", unique_count)) {
+	if (get_parameter("uniquecount", unique_count)) {
 	    unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
 	    // This reserving is just a performance tweak, so don't go reserving
 	    // ludicrous amounts of space just because an XML attribute told us to.
