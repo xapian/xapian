@@ -1,3 +1,8 @@
+Fri Jun 22 12:12:56 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Tweak previous change.
+
 Fri Jun 22 12:10:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
