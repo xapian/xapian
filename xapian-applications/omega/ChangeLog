@@ -1,3 +1,15 @@
+Fri Jun 22 12:10:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* omindex.cc,xlsxparse.cc,xlsxparse.h: Rework .xlsx parsing to
+	  substitute the shared strings into the positions they are used
+	  in, so that the sample actually matches what appears in the
+	  spreadsheet.
+	* xlsxparse.cc,xlsxparse.h: Subclass XlsxParser directly from
+	  HtmlParser.
+	* Makefile.am,omindex.cc,xlsxparse.cc,xlsxparse.h: Index calculated
+	  numbers from .xlsx files.
+
 Fri Jun 22 12:03:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

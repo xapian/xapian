@@ -62,6 +62,7 @@
 #include "utils.h"
 #include "values.h"
 #include "xmlparse.h"
+#include "xlsxparse.h"
 #include "xpsxmlparse.h"
 
 #include "gnu_getopt.h"
@@ -585,6 +586,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    }
 	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
 	    const char * args = NULL;
+	    string safefile = shell_protect(file);
 	    string tail(mimetype, 46);
 	    if (startswith(tail, "wordprocessingml.")) {
 		// unzip returns exit code 11 if a file to extract wasn't found
@@ -592,7 +594,19 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		// no footers.
 		args = " word/document.xml word/header\\*.xml word/footer\\*.xml 2>/dev/null||test $? = 11";
 	    } else if (startswith(tail, "spreadsheetml.")) {
-		args = " xl/sharedStrings.xml";
+		// Extract the shared string table first, so our parser can
+		// grab those ready for parsing the sheets which will reference
+		// the shared strings.
+		string cmd = "unzip -p " + safefile + " xl/sharedStrings.xml xl/worksheets/sheet\\*.xml";
+		try {
+		    XlsxParser parser;
+		    parser.parse_html(stdout_to_string(cmd));
+		    if (!dump.empty()) dump += ' ';
+		    dump += parser.dump;
+		} catch (ReadError) {
+		    skip_cmd_failed(file, cmd);
+		    return;
+		}
 	    } else if (startswith(tail, "presentationml.")) {
 		// unzip returns exit code 11 if a file to extract wasn't found
 		// which we want to ignore, because there may be no notesSlides
@@ -603,18 +617,20 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		skip_unknown_mimetype(file, mimetype);
 		return;
 	    }
-	    string safefile = shell_protect(file);
-	    string cmd = "unzip -p " + safefile + args;
-	    try {
-		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
-		dump = xmlparser.dump;
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
+
+	    if (args) {
+		string cmd = "unzip -p " + safefile + args;
+		try {
+		    XmlParser xmlparser;
+		    xmlparser.parse_html(stdout_to_string(cmd));
+		    dump = xmlparser.dump;
+		} catch (ReadError) {
+		    skip_cmd_failed(file, cmd);
+		    return;
+		}
 	    }
 
-	    cmd = "unzip -p " + safefile + " docProps/core.xml";
+	    string cmd = "unzip -p " + safefile + " docProps/core.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
 		metaxmlparser.parse_html(stdout_to_string(cmd));
