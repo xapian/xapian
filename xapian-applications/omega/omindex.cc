@@ -796,6 +796,16 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    return;
 	}
 
+	// Remove any trailing formfeeds, so we don't consider them when
+	// considering if we extracted any text (e.g. pdftotext outputs a
+	// formfeed between each page, even for blank pages).
+	//
+	// If dump contain only formfeeds, then trim_end will be string::npos
+	// and ++trim_end will be 0, which is the correct new size.
+	string::size_type trim_end = dump.find_last_not_of('\f');
+	if (++trim_end != dump.size())
+	    dump.resize(trim_end);
+
 	if (dump.empty()) {
 	    switch (empty_body) {
 		case EMPTY_BODY_INDEX:
