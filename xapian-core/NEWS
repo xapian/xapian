@@ -1,27 +1,20 @@
- 16718       olly Wed Jun 06 11:17:40 GMT 2012  Olly Betts <olly@survex.com>
+ 16750       olly Fri Jun 15 10:45:20 GMT 2012  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.11 (2012-06-06):
+Xapian-core 1.2.11 (2012-06-15):
 
 API:
 
-	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
-	  queryparser/termgenerator_internal.cc,
-	  queryparser/termgenerator_internal.h: Add
-	  TermGenerator::set_stemming_strategy() method, with strategies which
-	  correspond to those of QueryParser.  Based on patch from Sehaj Singh
-	  Kalra, with some tweaks for adding term positions in more cases.
-	  (Fixes ticket#563)
+* Add new QueryParser::STEM_ALL_Z stemming strategy, which stems all terms and
+  adds a Z prefix.  (Patch from Sehaj Singh Kalra, fixes ticket#562)
 
-	* include/xapian/queryparser.h,queryparser/queryparser.lemony:
-	  Add new QueryParser::STEM_ALL_Z stemming strategy, which stems all
-	  terms and adds a Z prefix.  (Patch from Sehaj Singh Kalra, fixes
-	  ticket#562)
+* Add TermGenerator::set_stemming_strategy() method, with strategies which
+  correspond to those of QueryParser.  Based on patch from Sehaj Singh Kalra,
+  with some tweaks for adding term positions in more cases.  (Fixes ticket#563)
 
-	* weight/tradweight.cc: BM25Weight -> TradWeight in exception message.
+* Correct "BM25Weight" to "TradWeight" in exception message from TradWeight.
 
-	* include/xapian/weight.h,weight/weight.cc: We were failing to call
-	  init() for Weight objects providing the term-independent weight.
-	  These now get called with init(0.0).
+* We were failing to call init() for user-defined Weight objects providing the
+  term-independent weight.  These now get called with init(0.0).
 
 * Xapian::Auto::open_stub() now throws a Xapian::DatabaseOpeningError exception
   if the stub file can't be opened.  Previously we failed to check for this
@@ -35,6 +28,9 @@ testsuite:
   instructions are actually in use (which means x86 architecture and configure
   run with --disable-sse).
 
+* Make sure XAPIAN_MAX_CHANGESETS gets unset after replication testcases which
+  set it, so further testcases don't waste time generating changesets.
+
 * Improved test coverage (including more tests for closed databases -
   ticket#337).
 
@@ -43,19 +39,17 @@ matcher:
 
 brass backend:
 
-	* backends/brass/,backends/chert/: After closing the database, methods
-	  which try to use the termlist would throw FeatureUnavailableError
-	  with message "Database has no termlist", assuming that the termlist
-	  table not being open meant it wasn't present.  Fix to check if the
-	  postlist_table is open to determine which case we're in.
+* After closing the database, methods which try to use the termlist would throw
+  FeatureUnavailableError with message "Database has no termlist", assuming
+  that the termlist table not being open meant it wasn't present.  Fix to check
+  if the postlist_table is open to determine which case we're in.
 
 chert backend:
 
-	* backends/brass/,backends/chert/: After closing the database, methods
-	  which try to use the termlist would throw FeatureUnavailableError
-	  with message "Database has no termlist", assuming that the termlist
-	  table not being open meant it wasn't present.  Fix to check if the
-	  postlist_table is open to determine which case we're in.
+* After closing the database, methods which try to use the termlist would throw
+  FeatureUnavailableError with message "Database has no termlist", assuming
+  that the termlist table not being open meant it wasn't present.  Fix to check
+  if the postlist_table is open to determine which case we're in.
 
 flint backend:
 
@@ -65,20 +59,27 @@ remote backend:
 
 inmemory backend:
 
-	* backends/inmemory/inmemory_database.cc: Check if the database is
-	  closed in metadata_keys_begin() for InMemory Databases.
+* Check if the database is closed in metadata_keys_begin() for InMemory
+  Databases.
 
 build system:
 
+* xapian-config: Don't interpret a missing .la file as meaning that we only
+  have static libraries.
 
 documentation:
 
 * Fix API documentation for Query constructors - both XOR and ELITE_SET can
   take any number of subqueries, not only exactly two.
 
-	* include/xapian/positioniterator.h,include/xapian/postingiterator.h,
-	  include/xapian/termiterator.h: Backport missing documentation
-	  comments for API operator++ and operator* methods.
+* Backport missing API documentation comments for operator++ and operator*
+  methods or PositionIterator, PostingIterator and TermGenerator.
+
+* docs/replication.rst: Update documentation - since 1.2.5, the value of
+  XAPIAN_MAX_CHANGESETS determines how many changesets we keep.
+
+* docs/admin_notes.rst: Correction - we don't "create a lock file", we "lock a
+  file".
 
 * Fix API documentation for TradWeight constructor - "k1" should be "k".
 
@@ -90,8 +91,19 @@ examples:
 
 portability:
 
-	* tests/Makefile.am: Pass -ldl last when compiling zlib-vg.so, as that
-	  seems to be needed on Ubuntu 12.04.
+* configure: Overhaul handling of compilers which pretend to be GCC.  Clang
+  is now detected, and we only pass it warning flags it actually understands.
+  And we now check for symbol visibility support with Intel's compiler.
+
+* configure: Solaris automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* configure: We now check -Bsymbolic-functions for all compilers.
+
+* configure: Enable -Wdouble-promotion for GCC >= 4.6.
+
+* Pass -ldl last when compiling zlib-vg.so, as that seems to be needed on
+  Ubuntu 12.04.
 
 * Fix incorrect use of "delete" which should be "delete []".  This is
   undefined behaviour in C++, though the type is POD, so in practice this
