@@ -28,6 +28,8 @@ PHP:
 * Fix "make check" to work for PHP when building from a release tarball with
   srcdir != builddir.
 
+* Work around "undefined symbol: zend_error_noreturn" error.
+
 Python:
 
 Ruby:

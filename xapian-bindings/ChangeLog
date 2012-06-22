@@ -1,3 +1,9 @@
+Fri Jun 22 11:32:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Document that we now work around "undefined symbol:
+	  zend_error_noreturn".  Fix was accidentally committed along
+	  with backported change in r16693.
+
 Fri Jun 08 12:07:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
