@@ -1,3 +1,10 @@
+Tue Jun 26 08:52:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian.h: Add check for Qt headers being included before us
+	  and defining 'slots' as a macro - if they are, give a clear error
+	  advising how to work around this.
+
 Fri Jun 22 11:46:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
