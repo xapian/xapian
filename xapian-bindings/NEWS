@@ -1,22 +1,8 @@
- 16760       olly Fri Jun 22 11:32:54 GMT 2012  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.11 (2012-06-22):
-
-Documentation:
+Xapian-bindings 1.2.11 (2012-06-26):
 
 General:
 
 * Ship the scripts which generate the except.i files for Lua, Perl and Python.
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
 
 Perl:
 
@@ -29,12 +15,6 @@ PHP:
   srcdir != builddir.
 
 * Work around "undefined symbol: zend_error_noreturn" error.
-
-Python:
-
-Ruby:
-
-Tcl:
 
 Xapian-bindings 1.2.10 (2012-05-09):
 
