@@ -1,3 +1,8 @@
+Tue Jun 26 11:59:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set link_all_deplibs_CXX=no on solaris, like we
+	  already do for xapian-core.
+
 Thu Jun 21 13:44:06 GMT 2012  Olly Betts <olly@survex.com>
 
 	* xlsxparse.cc: Check for "uniquecount" parameter, not "unqiueCount" as
