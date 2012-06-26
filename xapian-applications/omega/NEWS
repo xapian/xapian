@@ -1,10 +1,4 @@
- 16765       olly Fri Jun 22 12:16:30 GMT 2012  Olly Betts <olly@survex.com>
-
-Omega 1.2.11 (2012-06-22):
-
-general:
-
-documentation:
+Omega 1.2.11 (2012-06-26):
 
 indexers:
 
@@ -13,40 +7,22 @@ indexers:
 
 * omindex:
 
-	* Cherry pick changes from Mihai Bivol's GSoC snippets branch:
-	* omindex.cc: Add option for the document sample size.
-	* omindex.cc: Add short option for sample-size
+  + Add command line option to control the size of the document sample stored.
+    Patch from Mihai Bivol.
 
-	* omindex.cc,xlsxparse.cc,xlsxparse.h: Rework .xlsx parsing to
-	  substitute the shared strings into the positions they are used
-	  in, so that the sample actually matches what appears in the
-	  spreadsheet.
-	* Makefile.am,omindex.cc,xlsxparse.cc,xlsxparse.h: Index calculated
-	  numbers from .xlsx files.
+  + Rework .xlsx parsing to substitute the shared strings into the positions
+    they are used in, so that the sample actually matches what appears in the
+    spreadsheet, and to index calculated cell contents.
 
-	* Makefile.am,omindex.cc,opendocparse.cc,opendocparse.h,xmlparse.cc:
-	  Improve handling of headers and footers on OpenDocument documents.
+  + Improve handling of headers and footers in OpenDocument documents.
 
-	* omindex.cc: pdftotext outputs a formfeed between each page, which
-	  messes up our "empty body" check, so trim any trailing formfeeds
-	  before the check.
-
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
+  + pdftotext outputs a formfeed between each page, which messes up our "empty
+    body" check, so trim any trailing formfeeds before this check.
 
 build system:
 
-* Don't explicitly link indirect shared library dependencies on FreeBSD and
-  OpenBSD.
-
-portability:
-
-packaging:
+* Don't explicitly link indirect shared library dependencies on FreeBSD,
+  OpenBSD, and Solaris.
 
 Omega 1.2.10 (2012-05-09):
 
