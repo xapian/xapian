@@ -1,3 +1,9 @@
+Tue Jun 26 08:45:03 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian.h: Add check for Qt headers being included before us
+	  and defining 'slots' as a macro - if they are, give a clear error
+	  advising how to work around this.
+
 Thu Jun 14 23:48:15 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Correction - we don't "create a lock file", we
