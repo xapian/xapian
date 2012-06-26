@@ -1,3 +1,7 @@
+Tue Jun 26 08:48:58 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Jun 22 12:16:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
