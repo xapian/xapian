@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.12.0  Wed Jun 27 12:17:26 UTC 2012
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.12.
+
 1.2.11.0  Tue Jun 26 12:13:39 UTC 2012
 	- No change except for bumping the version to indicate compatibility
 	  with Xapian 1.2.11.

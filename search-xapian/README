@@ -1,4 +1,4 @@
-Search::Xapian version 1.2.11.0
+Search::Xapian version 1.2.12.0
 ===============================
 
 This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
