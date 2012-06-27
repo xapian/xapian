@@ -1,3 +1,8 @@
+Xapian-bindings 1.2.12 (2012-06-27):
+
+No changes since 1.2.11 except to bump the version - this release was made to
+fix an incorrect library version information update in xapian-core 1.2.11.
+
 Xapian-bindings 1.2.11 (2012-06-26):
 
 General:
