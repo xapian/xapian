@@ -1,3 +1,7 @@
+Wed Jun 27 12:51:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update the version too!
+
 Wed Jun 27 12:03:08 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.12.
