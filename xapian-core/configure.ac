@@ -42,7 +42,8 @@ dnl 26:2:4 1.2.8 No API changes
 dnl 26:3:4 1.2.9 No API changes
 dnl 26:4:4 1.2.10 No API changes
 dnl 26:0:5 1.2.11 TermGenerator::set_stemming_strategy() added
-LIBRARY_VERSION_INFO=26:0:5
+dnl 27:0:5 1.2.12 Corrects error in 1.2.11's LIBRARY_VERSION_INFO
+LIBRARY_VERSION_INFO=27:0:5
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=

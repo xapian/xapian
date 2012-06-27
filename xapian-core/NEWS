@@ -1,3 +1,16 @@
+Xapian-core 1.2.12 (2012-06-27):
+
+build system:
+
+* 1.2.11 had its library version information incorrectly set.  This resulted in
+  the shared library having an incorrect SONAME - e.g. on Linux,
+  libxapian.so.21 instead of libxapian.so.22.  This release has been made to
+  fix this problem.
+
+documentation:
+
+* AUTHORS: Add the GSoC students.
+
 Xapian-core 1.2.11 (2012-06-26):
 
 API:
