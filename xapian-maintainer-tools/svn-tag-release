@@ -41,6 +41,16 @@ svn cat "svn+userv:///xapian/$BRANCH/search-xapian/Xapian.pm" |
 	exit 1
 }
 
+# Check soname is as expected for a stable release series (to avoid a repeat of
+# 1.2.11).
+expected_soversion=22
+soversion=`svn cat "svn+userv:///xapian/$BRANCH/xapian-core/configure.ac" |
+    awk -F'[=:]' '($1 == "LIBRARY_VERSION_INFO") {print $2 - $4}'`
+if [ x"$soversion" != x"$expected_soversion" ] ; then
+    echo "xapian-core soversion is $soversion, but expected $expected_soversion" 1>&2
+    exit 1
+fi
+
 # Add the version to the list in Bugzilla.
 # FIXME this doesn't work, as I need to be logged in to do this!
 #wget -o- "http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=new&version=$version" > /dev/null 2> /dev/null
