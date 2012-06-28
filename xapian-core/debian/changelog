@@ -1,3 +1,21 @@
+xapian-core (1.2.12-1) unstable; urgency=low
+
+  * New upstream release.
+    + Checks if Qt headers have already been included and defined 'slots' as
+      a macro, and if so gives a clear error advising how to work around this
+      (previously compilation would fail with a confusing error).
+      (Closes: #651696)
+  * debian/rules: Calculate the soversion in a simpler way, using awk.
+
+ -- Olly Betts <olly@survex.com>  Thu, 28 Jun 2012 07:53:22 +0000
+
+xapian-core (1.2.10-2) unstable; urgency=low
+
+  * Enable hardening flags, based on patch from Moritz Muehlenhoff.
+    (Closes: #672836)
+
+ -- Olly Betts <olly@survex.com>  Sun, 20 May 2012 11:45:04 +0000
+
 xapian-core (1.2.10-1) unstable; urgency=low
 
   * New upstream release.

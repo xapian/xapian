@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -32,8 +32,7 @@
 # supported by the library. This should correspond to the soversion assigned
 # to the library by libtool.  (This isn't documented, and is system dependent,
 # so we need to check it doesn't break with future versions of libtool.)
-libxapian_soversion:=$(shell sed 's/^LIBRARY_VERSION_INFO=\([0-9][0-9]*\):[0-9][0-9]*:\([0-9][0-9]*\).*/\1-\2/p;d' configure.ac)
-libxapian_soversion:=$(shell echo $$(($(libxapian_soversion))))
+libxapian_soversion:=$(shell awk -F'[=:]' '($$1 == "LIBRARY_VERSION_INFO") {print $$2 - $$4}' configure.ac)
 
 # For now, we don't support installation of development files for multiple
 # versions concurrently.  Incompatible ABI changes should be rare, so this
@@ -66,15 +65,24 @@ ifeq ($(DEB_HOST_ARCH), avr32)
     DEB_BUILD_OPTIONS += noopt nocheck
 endif
 
-CFLAGS :=
-CXXFLAGS := -g
+CFLAGS := `dpkg-buildflags --get CFLAGS`
+CXXFLAGS := `dpkg-buildflags --get CXXFLAGS`
+LDFLAGS := `dpkg-buildflags --get LDFLAGS`
+CPPFLAGS := `dpkg-buildflags --get CPPFLAGS`
 
-# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
-
+# Fallback for suites which don't have dpkg-buildflags.
+ifeq (,$(CFLAGS))
+    CFLAGS :=
+    CXXFLAGS := -g
 ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
     CFLAGS += -O2
     CXXFLAGS += -O2
 endif
+endif
+
+# Handle other DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us,
+# and dpkg-buildflags handles noopt with newer dpkg.
+
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
@@ -85,7 +93,7 @@ else
     MAKE_CHECK := $(MAKE) check VALGRIND=
 endif
 
-confflags += CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)"
+confflags += CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
