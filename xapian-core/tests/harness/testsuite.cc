@@ -29,13 +29,13 @@
 #endif
 #include "fdtracker.h"
 #include "testrunner.h"
+#include "safeunistd.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
 # include <valgrind/memcheck.h>
 # include <sys/types.h>
 # include "safefcntl.h"
-# include "safeunistd.h"
 #endif
 
 #include <algorithm>
