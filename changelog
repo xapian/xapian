@@ -1,3 +1,12 @@
+xapian-bindings (1.2.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Enable hardening flags.
+  * debian/rules,debian/control.in: Clean up special handling for versions
+    of Debian and Ubuntu which have reached end of life.
+
+ -- Olly Betts <olly@survex.com>  Thu, 28 Jun 2012 13:52:14 +0000
+
 xapian-bindings (1.2.10-1) unstable; urgency=low
 
   * New upstream release.

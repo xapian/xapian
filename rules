@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -42,7 +42,8 @@ BUILD_DEPS := debhelper (>= 7),
 # your own binary packages (just don't distribute them!)
 # PHP_VERSIONS := 5
 
-ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.), )
+# Ubuntu hardy had 1.9.0, but we don't bother packaging for that.
+ifeq ($(findstring .$(CODENAME)., .hardy.), )
 RUBY_VERSIONS := 1.8 1.9.1
 else
 RUBY_VERSIONS := 1.8
@@ -51,7 +52,7 @@ endif
 # The python versions to build for:
 PYTHON_VERSIONS := $(shell pyversions -r debian/control)
 
-ifeq ($(findstring .$(CODENAME)., .lenny.hardy.intrepid.jaunty.karmic.lucid.maverick.), )
+ifeq ($(findstring .$(CODENAME)., .hardy.lucid.), )
 USING_PYCENTRAL := 0
 BUILD_DEPS += python, python-all-dev (>= 2.6.6-3~),
 XB_PYTHON_VERSION := X-Dummy: Remove me once python-central support is dropped
@@ -61,9 +62,6 @@ USING_PYCENTRAL := 1
 BUILD_DEPS += python, python-central (>= 0.4.10), python-all-dev,
 XB_PYTHON_VERSION := XB-Python-Version: $${python:Versions}
 X_PYTHON_VERSION := XS-Python-Version: all
-# We'll need this if we ever generate different .py modules for different
-# supported python versions.
-#export DH_PYCENTRAL=nomove
 endif
 
 export DH_OPTIONS
@@ -79,11 +77,24 @@ else
     DEB_BUILD_OPTIONS += nocheck
 endif
 
-# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
-ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+CFLAGS := `dpkg-buildflags --get CFLAGS`
+CXXFLAGS := `dpkg-buildflags --get CXXFLAGS`
+LDFLAGS := `dpkg-buildflags --get LDFLAGS`
+CPPFLAGS := `dpkg-buildflags --get CPPFLAGS`
+
+# Fallback for suites which don't have dpkg-buildflags.
+ifeq (,$(CFLAGS))
     # -g needed for armel to workaround unaligned relocations (#576944)
-    confflags += CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
+    CFLAGS := -g
+    CXXFLAGS := -g
+ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    CFLAGS += -O2
+    CXXFLAGS += -O2
 endif
+endif
+
+# Handle deb_build_options.  Note that dh_strip handles nostrip for us, and
+# dpkg-buildflags handles noopt.
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
@@ -306,13 +317,6 @@ endif
 		echo "php$$v:Depends=phpapi-`$$c --phpapi`, php$$v-common" >> debian/php$$v-xapian.substvars; \
 	    fi \
 	done
-
-	# lenny/hardy onwards have a "tcl" dummy package which pulls in the
-	# package for the current preferred version.  "tclsh" is a virtual
-	# package which the Debian Tcl/Tk Policy recommends we specify as an
-	# alternative to allow us to work with all available Tcl/Tk versions:
-	# http://pkg-tcltk.alioth.debian.org/tcltk-policy.html/ch-module_packages.html
-	echo "tcl:Depends=tcl|tclsh" >> debian/tclxapian.substvars
 
 	dh_gencontrol
 	dh_md5sums
