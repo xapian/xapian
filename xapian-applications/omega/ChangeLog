@@ -1,3 +1,7 @@
+Sun Jul 01 10:53:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.2 branch.
+
 Tue Jun 26 11:59:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set link_all_deplibs_CXX=no on solaris, like we
