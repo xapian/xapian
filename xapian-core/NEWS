@@ -1,26 +1,102 @@
- 16570       olly Tue May 15 11:12:42 GMT 2012  Olly Betts <olly@survex.com>
+ 16789    dcolish Fri Jun 29 15:32:11 GMT 2012  Dan Colish <dcolish@>
 
- 16570       olly Tue May 15 11:12:42 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/chert/chert_cursor.cc: Fix incorrect use of "delete" to
-	  "delete []".  The type is POD, so I suspect this mistake didn't
-	  actually cause any problems, and it only happens when a cursor
-	  gets rebuilt because the B-tree has gained a level, so it's
-	  a rather rare occurrence.
+ 16789    dcolish Fri Jun 29 15:32:11 GMT 2012  Dan Colish <dcolish@>
+	* tests/harness/testsuite.cc: Add safeunistd.h unconditionally for
+	  isatty, required by GCC 4.7
 
- 16569       olly Tue May 15 11:09:44 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/brass/brass_cursor.cc: Fix incorrect use of "delete" to
-	  "delete []".  The type is POD, so I suspect this mistake didn't
-	  actually cause any problems, and it only happens when a cursor
-	  gets rebuilt because the B-tree has gained a level, so it's
-	  a rather rare occurrence.
-
- 16559       olly Thu May 10 02:16:21 GMT 2012  Olly Betts <olly@survex.com>
-	* HACKING: Update Debian/Ubuntu packaging instructions.
-
- 16558       olly Thu May 10 02:14:48 GMT 2012  Olly Betts <olly@survex.com>
-	* HACKING: freshmeat -> freecode.
+backported for 1.2.13:
 
 trunk only:
+
+ 16735       olly Sun Jun 10 12:57:16 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
+	  backends/brass/brass_check.cc: Remove is_empty(), tweak
+	  calculate_last_block() to calculate the bit map size correctly in
+	  the case of an empty table, and use the bit map size instead of
+	  is_empty() in xapian-check.
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h,
+	  backends/chert/chert_check.cc: Make equivalent changes for chert.
+
+ 16706       olly Tue Jun 05 06:51:12 GMT 2012  Olly Betts <olly@survex.com>
+	* common/compression_stream.cc,common/compression_stream.h: Move the
+	  default argument to the CompressionStream constructor to the header
+	  and mark the constructor as explicit, since it has a single argument
+	  form.
+
+ 16705       olly Tue Jun 05 06:41:22 GMT 2012  Olly Betts <olly@survex.com>
+	* api/queryvector.h: Fix somewhat dubious warning from clang.
+
+ 16674       olly Sat Jun 02 12:10:55 GMT 2012  Olly Betts <olly@survex.com>
+	* Makefile.am,api/omdocument.cc,api/omenquire.cc,backends/brass/,
+	  backends/chert/,bin/xapian-delve.cc,common/getopt.cc,configure.ac,
+	  docs/,m4-macros/xapian-1.3.m4,matcher/multimatch.cc,preautoreconf,
+	  tests/Makefile.am,tests/api_db.cc,tests/harness/testsuite.h,
+	  tests/harness/testutils.h: Change `...' quoting in prose to '...'.
+
+ 16673       olly Fri Jun 01 07:40:48 GMT 2012  Olly Betts <olly@survex.com>
+	* HACKING,Makefile.am: If you run "make coverage-check" by hand, the
+	  default of compressed HTML is unhelpful, so don't default to passing
+	  --html-gzip to genhtml, but instead add support for GENHTML_ARGS.
+
+ 16663 (part of)      olly Wed May 30 05:07:51 GMT 2012  Olly Betts <olly@survex.com>
+	* weight/bm25weight.cc,weight/tradweight.cc: Throw SerialisationError
+	  not NetworkError if unserialise() fails.
+
+ 16679       olly Sun Jun 03 11:43:44 GMT 2012  Olly Betts <olly@survex.com>
+	* include/xapian/query.h: Add second fake specialised form of the
+	  templated iterator Query constructor, for use in the Java bindings.
+
+	* tests/generate-api_generated: Test that the string returned by a
+	  get_description() method isn't empty.
+
+	* generate-exceptions: Use function attributes in generated error.h.
+	* include/xapian/: Use the new function attributes on various API
+	  methods.
+	* tests/api_wrdb.cc: get_termfreq() is now marked as pure, so the
+	  testsuite needs to actually use the return value to check its
+	  exception behaviour.
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Hide new
+	  function attribute macros from doxygen.
+
+	* include/xapian/query.h: Use "Internal" instead of "Query::Internal"
+	  in constructor prototype argument list for consistency with other
+	  cosntructors, and so this constructor gets ignored by SWIG.
+
+ 16632       olly Sun May 27 01:43:30 GMT 2012  Olly Betts <olly@survex.com>
+	* exception_data.pm,include/Makefile.mk,include/xapian.h,
+	  include/xapian/attributes.h,include/xapian/unicode.h: Add
+	  XAPIAN_CONST_FUNCTION, XAPIAN_PURE_FUNCTION, and XAPIAN_NOTHROW
+	  macros for marking functions and methods with those attributes.
+	  (tickets #151, #454)
+
+ 16625       olly Wed May 23 05:37:20 GMT 2012  Olly Betts <olly@survex.com>
+	* api/valuesetmatchdecider.cc,include/xapian/valuesetmatchdecider.h:
+	  "Limited" to "Ltd" in (C) two statements, for consistency (and with
+	  Charlie's agreement on IRC).
+
+ 16624       olly Wed May 23 02:25:53 GMT 2012  Olly Betts <olly@survex.com>
+	* api/,include/xapian/query.h: Rework QueryBranch to use a special
+	  QueryVector class rather than std::vector<Xapian::Query>.  The
+	  special class is no bigger than std::vector<Xapian::Query>, and
+	  handles up to two entries by holding them within the object (at
+	  least GCC's std::vector doesn't currently do this space optimisation)
+	  which significantly reduces the memory used by a pairwise operator,
+	  which is very desirable as we no longer flatten a tree of the same
+	  pairwise operator as we build the query.
+
+ 16622       olly Tue May 22 06:25:10 GMT 2012  Olly Betts <olly@survex.com>
+	* api/queryinternal.cc: Handle the left side of AND_NOT and
+	  AND_MAYBE being MatchNothing in add_subquery() rather than
+	  in done().
+
+ 16621       olly Tue May 22 02:40:45 GMT 2012  Olly Betts <olly@survex.com>
+	* api/queryinternal.cc: Handle QueryAndLike with a MatchNothing
+	  subquery in add_subquery() rather than done().
+
+ 16620       olly Tue May 22 02:01:00 GMT 2012  Olly Betts <olly@survex.com>
+	* api/queryinternal.cc,api/queryinternal.h: Drop MatchNothing
+	  subqueries in OR-like situations in add_subquery() rather than
+	  adding them and then handling it later.
 
 	* common/fileutils.cc: Add safeunistd.h for mkdir, required by GCC
 	  4.7 (reported by Gaurav Arora).
@@ -67,7 +143,7 @@ trunk only:
 	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
 	  and xapian.m4 to xapian-1.3.m4.
 
-Xapian-core 1.3.1 (2012-05-15):
+Xapian-core 1.3.1 (2012-07-01):
 
 
 API:
@@ -276,6 +352,121 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.12 (2012-06-27):
+
+build system:
+
+* 1.2.11 had its library version information incorrectly set.  This resulted in
+  the shared library having an incorrect SONAME - e.g. on Linux,
+  libxapian.so.21 instead of libxapian.so.22.  This release has been made to
+  fix this problem.
+
+documentation:
+
+* AUTHORS: Add the GSoC students.
+
+Xapian-core 1.2.11 (2012-06-26):
+
+API:
+
+* Add new QueryParser::STEM_ALL_Z stemming strategy, which stems all terms and
+  adds a Z prefix.  (Patch from Sehaj Singh Kalra, fixes ticket#562)
+
+* Add TermGenerator::set_stemming_strategy() method, with strategies which
+  correspond to those of QueryParser.  Based on patch from Sehaj Singh Kalra,
+  with some tweaks for adding term positions in more cases.  (Fixes ticket#563)
+
+* Correct "BM25Weight" to "TradWeight" in exception message from TradWeight.
+
+* We were failing to call init() for user-defined Weight objects providing the
+  term-independent weight.  These now get called with init(0.0).
+
+* Xapian::Auto::open_stub() now throws a Xapian::DatabaseOpeningError exception
+  if the stub file can't be opened.  Previously we failed to check for this
+  condition, which resulted in us treating the file as empty.
+
+testsuite:
+
+* When the testsuite is using valgrind, we used to run remote servers under
+  valgrind too (but with --tool=none) to get consistent behaviour as valgrind's
+  emulation of x87 excess precision isn't exact.  Now we only do this if x87 FP
+  instructions are actually in use (which means x86 architecture and configure
+  run with --disable-sse).
+
+* Make sure XAPIAN_MAX_CHANGESETS gets unset after replication testcases which
+  set it, so further testcases don't waste time generating changesets.
+
+* Improved test coverage (including more tests for closed databases -
+  ticket#337).
+
+brass backend:
+
+* After closing the database, methods which try to use the termlist would throw
+  FeatureUnavailableError with message "Database has no termlist", assuming
+  that the termlist table not being open meant it wasn't present.  Fix to check
+  if the postlist_table is open to determine which case we're in.
+
+chert backend:
+
+* After closing the database, methods which try to use the termlist would throw
+  FeatureUnavailableError with message "Database has no termlist", assuming
+  that the termlist table not being open meant it wasn't present.  Fix to check
+  if the postlist_table is open to determine which case we're in.
+
+inmemory backend:
+
+* Check if the database is closed in metadata_keys_begin() for InMemory
+  Databases.
+
+build system:
+
+* xapian-config: Don't interpret a missing .la file as meaning that we only
+  have static libraries.
+
+documentation:
+
+* Fix API documentation for Query constructors - both XOR and ELITE_SET can
+  take any number of subqueries, not only exactly two.
+
+* Backport missing API documentation comments for operator++ and operator*
+  methods or PositionIterator, PostingIterator and TermGenerator.
+
+* docs/replication.rst: Update documentation - since 1.2.5, the value of
+  XAPIAN_MAX_CHANGESETS determines how many changesets we keep.
+
+* docs/admin_notes.rst: Correction - we don't "create a lock file", we "lock a
+  file".
+
+* Fix API documentation for TradWeight constructor - "k1" should be "k".
+
+portability:
+
+* configure: Overhaul handling of compilers which pretend to be GCC.  Clang
+  is now detected, and we only pass it warning flags it actually understands.
+  And we now check for symbol visibility support with Intel's compiler.
+
+* configure: Solaris automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* configure: We now check -Bsymbolic-functions for all compilers.
+
+* configure: Enable -Wdouble-promotion for GCC >= 4.6.
+
+* Pass -ldl last when compiling zlib-vg.so, as that seems to be needed on
+  Ubuntu 12.04.
+
+* Fix incorrect use of "delete" which should be "delete []".  This is
+  undefined behaviour in C++, though the type is POD, so in practice this
+  probably worked OK on many platforms.
+
+* In BM25Weight when k1 or b is zero (not the default), we used to multiply
+  an uninitialised double by zero, which is undefined behaviour, but in
+  practice will often give zero, leading to the desired results.
+
+* xapian.h: Add check for Qt headers being included before us and defining
+  'slots' as a macro - if they are, give a clear error advising how to work
+  around this (previously compilation would fail with a confusing error).
 
 Xapian-core 1.2.10 (2012-05-09):
 

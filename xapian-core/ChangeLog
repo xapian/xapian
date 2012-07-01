@@ -1,3 +1,7 @@
+Sun Jul 01 10:46:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog, 1.2.11 and 1.2.12.
+
 Fri Jun 29 15:32:11 GMT 2012  Dan Colish <dcolish@>
 
 	* tests/harness/testsuite.cc: Add safeunistd.h unconditionally for
