@@ -1,3 +1,7 @@
+Sun Jul 01 11:37:53 GMT 2012  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.2 branch.
+
 Sun Jun 10 05:42:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,perl/Makefile.am,
