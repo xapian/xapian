@@ -193,7 +193,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     }
     {
 	FD closer(fd);
-	unsigned char out[changeset_blocksize];
+	unsigned char *out = new unsigned char[changeset_blocksize];
 	CompressionStream comp_stream = CompressionStream(Z_DEFAULT_STRATEGY);
 
 	while (true) {
@@ -257,6 +257,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    }
 	}
 	io_sync(fd);
+	delete [] out;
     }
 }
 

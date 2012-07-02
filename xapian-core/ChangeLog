@@ -1,3 +1,8 @@
+Mon Jul 02 05:27:43 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/brass_databasereplicator.cc: Use new/delete to avoid
+	  variable length array gcc extension and comply with c++98
+
 Mon Jul 02 05:02:14 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* api/omdatabase.cc,tests/api_wrdb.cc: Prefer container.empty() to
