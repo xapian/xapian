@@ -145,7 +145,7 @@ Database::postlist_begin(const string &tname) const
     if (internal.size() == 1)
 	RETURN(PostingIterator(internal[0]->open_post_list(tname)));
 
-    if (rare(internal.size() == 0))
+    if (rare(internal.empty()))
 	RETURN(PostingIterator());
 
     vector<LeafPostList *> pls;

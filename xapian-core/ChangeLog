@@ -1,3 +1,8 @@
+Mon Jul 02 05:02:14 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* api/omdatabase.cc,tests/api_wrdb.cc: Prefer container.empty() to
+	  container.size() == 0.
+
 Sun Jul 01 10:46:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog, 1.2.11 and 1.2.12.

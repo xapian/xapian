@@ -1866,7 +1866,7 @@ static void
 check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
 {
     TEST_EQUAL(db.get_doccount(), vals.size());
-    if (vals.size() == 0) return;
+    if (vals.empty()) return;
     TEST_REL(vals.rbegin()->first,<=,db.get_lastdocid());
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
