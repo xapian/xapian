@@ -27,11 +27,14 @@ dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
 OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
 NEED_JNILIB_EXT=no
+NEED_INTREE_DYLD=no
+
 case $host in
 *86*-darwin8*|*-darwin[[91]]*)
   dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
   dnl OS version, so we don't need to override on these.
   NEED_JNILIB_EXT=yes
+  NEED_INTREE_DYLD=yes
   ;;
 *-darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
@@ -42,6 +45,7 @@ case $host in
     OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
   esac
   NEED_JNILIB_EXT=yes
+  NEED_INTREE_DYLD=yes
   ;;
 esac
 AM_CONDITIONAL(OVERRIDE_MACOSX_DEPLOYMENT_TARGET, test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET")
@@ -50,6 +54,7 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
   MACOSX_DEPLOYMENT_TARGET=$OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
+AM_CONDITIONAL(NEED_INTREE_DYLD, test yes = "$NEED_INTREE_DYLD")
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.

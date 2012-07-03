@@ -1,3 +1,8 @@
+Tue Jul 03 03:10:19 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* configure.ac,generic/generic.mk:Configure DYLD_LIBRARY_PATH on OSX
+	  separately from MACOSX_DEPLOYMENT_TARGET
+
 Sun Jul 01 11:37:53 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2 branch.
