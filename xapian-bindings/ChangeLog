@@ -1,3 +1,8 @@
+Tue Jul 03 03:13:40 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* generic/.gitignore,php/.gitignore,tcl8/.gitignore: Update for
+	  except.i generation
+
 Tue Jul 03 03:10:19 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* configure.ac,generic/generic.mk:Configure DYLD_LIBRARY_PATH on OSX
