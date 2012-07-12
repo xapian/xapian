@@ -1,3 +1,8 @@
+Thu Jul 12 05:13:57 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/debuglog.cc: Preserve errno over debug logging calls, so they
+	  can safely be added to code which expects errno not to change.
+
 Mon Jul 02 05:27:43 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/brass_databasereplicator.cc: Use new/delete to avoid
