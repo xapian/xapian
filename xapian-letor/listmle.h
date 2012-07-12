@@ -22,19 +22,26 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <math.h>
 
 using namespace std;
-
+typedef map<int,double> tuple;
+typedef vector<tuple> instance;
+typedef vector<double> scores;
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
 
-    string model = null;
-    double[] weight;
-    vector<double> params;
+  public:
+    string models;
+    vector<double> parameters;
     double tolerance_rate;
     double learning_rate;
+    vector<scores> all_tuple_scores;
     
   public:
     ListMLE() {};
@@ -50,7 +57,9 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
 
     void save_model();
 
-    double score(const Xapian::FeatureVector & fv);
+    double score(const Xapian::FeatureVector &/* fv*/);
+    
+    vector<double> listmle_train(vector<instance> & instances);
 
 };
 
