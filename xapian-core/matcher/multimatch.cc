@@ -41,8 +41,6 @@
 
 #include "backends/document.h"
 
-#include "submatch.h"
-
 #include "msetcmp.h"
 
 #include "valuestreamdocument.h"

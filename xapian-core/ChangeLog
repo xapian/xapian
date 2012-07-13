@@ -1,3 +1,7 @@
+Fri Jul 13 04:55:26 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* matcher/multimatch.cc: Remove duplicate import
+
 Thu Jul 12 05:13:57 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/debuglog.cc: Preserve errno over debug logging calls, so they
