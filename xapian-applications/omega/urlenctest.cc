@@ -1,7 +1,7 @@
 /** @file enctest.cc
  * @brief Test URL encoding and decoding functions
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -96,6 +96,8 @@ static dec_testcase urldec_testcases[] = {
     { "a%01%1f%2A%30%4d%5a%9A%9f%Aa%bF%C0%De%E2%FF=bar%0%",
       { "a\x01\x1f*0MZ\x9a\x9f\xaa\xbf\xc0\xde\xe2\xff", "bar%0%", 0 } },
     { "a=1&b=2&a=1", { "a", "1", "a", "1", "b", "2", 0 } },
+    // Regression test for bug fixed in 1.2.13 and 1.3.1:
+    { "price=10%24", { "price", "10$" } },
     { NULL, { 0 } }
 };
 

@@ -1,7 +1,7 @@
 /* @file urldecode.h
  * @brief URL decoding as described by RFC3986.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2012 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -73,7 +73,7 @@ process_ch:
 		}
 		unsigned char hex2 = *begin;
 		++begin;
-		if (begin == end || !isxdigit(hex2)) {
+		if (!isxdigit(hex2)) {
 		    val += ch;
 		    val += hex1;
 		    ch = hex2;

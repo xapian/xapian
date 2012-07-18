@@ -1,3 +1,9 @@
+Wed Jul 18 10:51:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* urldecode.h: Fix to decode escaped character at the end of the
+	  string.
+	* urlenctest.cc: Add regression testcase.
+
 Sun Jul 01 10:53:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2 branch.
