@@ -37,8 +37,6 @@ using namespace std;
 
 namespace Xapian {
 
-// FIXME: Add API to allow control of how stemming is used?
-
 inline bool
 U_isupper(unsigned ch) {
     return (ch < 128 && C_isupper((unsigned char)ch));

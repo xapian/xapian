@@ -1,3 +1,9 @@
+Thu Jul 19 05:27:38 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator_internal.cc: Remove "FIXME: Add API to
+	  allow control of how stemming is used?", as we have now added such
+	  an API.
+
 Thu Jul 19 05:24:49 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
