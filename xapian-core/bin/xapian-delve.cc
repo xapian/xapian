@@ -1,4 +1,4 @@
-/* delve.cc: Allow inspection of the contents of a Xapian database
+/* xapian-delve.cc: Allow inspection of the contents of a Xapian database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd

@@ -1,4 +1,4 @@
-/** @file xapian-check-brass.h
+/** @file brass_dbcheck.h
  * @brief Check a brass table.
  */
 /* Copyright (C) 2008,2009,2012 Olly Betts
