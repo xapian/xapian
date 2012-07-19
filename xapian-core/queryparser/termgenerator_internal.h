@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.h
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,11 +39,12 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     Document doc;
     termcount termpos;
     TermGenerator::flags flags;
+    unsigned max_word_length;
     WritableDatabase db;
 
   public:
     Internal() : strategy(STEM_SOME), stopper(NULL), termpos(0),
-	flags(TermGenerator::flags(0)) { }
+	flags(TermGenerator::flags(0)), max_word_length(64) { }
     void index_text(Utf8Iterator itor,
 		    termcount weight,
 		    const std::string & prefix,

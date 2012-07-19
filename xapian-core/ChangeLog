@@ -1,3 +1,11 @@
+Thu Jul 19 05:24:49 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
+	  queryparser/termgenerator_internal.cc,
+	  queryparser/termgenerator_internal.h,tests/termgentest.cc: Add new
+	  method TermGenerator::set_max_word_length() to allow this limit to
+	  be adjusted by the user.
+
 Mon Jul 16 03:34:27 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Clarify that the "reverse" parameter of
