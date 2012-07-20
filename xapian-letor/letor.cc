@@ -77,7 +77,8 @@ Letor::create_ranker(int ranker_type) {
     switch(ranker_type) {
         case 0: internal->ranker = * new SVMRanker;
                 break;
-        case 1: break;
+        case 1: //internal->ranker = * new ListMLE;
+		break;
         default: ;//cout<<"Please specify proper ranker.";
     }
 }

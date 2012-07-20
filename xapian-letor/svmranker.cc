@@ -41,7 +41,7 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
-    string model = null;
+    string model;
     double[] weight;
   public:
     SVMRanker() {};

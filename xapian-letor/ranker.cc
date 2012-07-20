@@ -26,6 +26,7 @@
 #include <ranklist.h>
 //#include <evalmetric.h>
 #include <ranker.h>
+#include <listmle.h>
 
 #include <list>
 #include <map>
@@ -48,6 +49,7 @@ Ranker::Ranker() {
 std::list<double>
 Ranker::rank(const Xapian::RankList & /*rl*/) {
     std::list<double> res;
+    Xapian::ListMLE listmle;
 
     double d=1.0;
     res.push_back(d);
@@ -56,7 +58,6 @@ Ranker::rank(const Xapian::RankList & /*rl*/) {
 
 void
 Ranker::learn_model() {
-
 }
 
 void

@@ -103,4 +103,27 @@ FeatureVector::set_fvals(map<int,double> fvals1) {
     this->fvals=fvals1;
 }
 
+double
+FeatureVector::get_score() {
+    return this->score;
+}
 
+std::map<int,double>
+FeatureVector::get_fvals() {
+    return this->fvals;
+}
+
+double
+FeatureVector::get_feature_value(int index) {
+    map<int,double>::const_iterator iter;
+    iter = this->fvals.find(index);
+    if(iter == this->fvals.end())
+	return 0;
+    else
+	return (*iter).second;
+}
+
+void
+FeatureVector::set_score(double score1) {
+    this->score=score1;
+}
