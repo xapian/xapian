@@ -49,7 +49,7 @@ FeatureManager::get_label(map<string, map<string, int> > qrel2, const Document &
 
 Xapian::RankList
 FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid) {
-    Xapian::RankList rl;
+    Xapian::RankList rlist;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
         
@@ -65,12 +65,13 @@ FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid) {
 
         if(label!=-1) {
             Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
-            rl.set_qid(qid);
-            rl.add_feature_vector(fv);
+            rlist.set_qid(qid);
+            rlist.add_feature_vector(fv);
         }
     }
-    rl.normalise();
-    return rl;
+    std::vector<FeatureVector> normalized_rl = rlist.normalise();
+    rlist.set_rl(normalized_rl);//coz i wasn't sure whether the changes will be reflected back from the normalize function.
+    return rlist;
 }
 
 Xapian::FeatureVector

@@ -56,7 +56,7 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
 
     void add_feature_vector(const Xapian::FeatureVector fv);//was & fv initially,check back later
 
-    void normalise();
+    std::vector<FeatureVector> normalise();
     
     std::vector<FeatureVector> sort_by_score();
     

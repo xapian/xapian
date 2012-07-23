@@ -71,31 +71,41 @@ RankList::RankList()
 	*/
 }
 
-//Map3 normalise(Map3 norm,map< int, list<double> >::iterator norm_outer,list<double>::iterator norm_inner) {
-void
+std::vector<FeatureVector>
 RankList::normalise() {
-    
-/*    if (!norm.empty()) {
-	norm_outer=norm.begin();
-	norm_outer++;
-	int k=0;
-	for (;norm_outer!=norm.end();++norm_outer) {
-	    k=0;
-	    double max= norm_outer->second.front();
-	    for (norm_inner = norm_outer->second.begin();norm_inner != norm_outer->second.end(); ++norm_inner) {
-		if (*norm_inner > max)
-		    max = *norm_inner;
-	    }
-	    for (norm_inner = norm_outer->second.begin();norm_inner!=norm_outer->second.end();++norm_inner) {
-		if (max!=0)      // sometimes value for whole feature is 0 and hence it may cause 'divide-by-zero'
-		    *norm_inner /= max;
-		k++;
-	    }
-	}
 
+    std::vector<FeatureVector> local_rl = this->rl;
+    
+    // find the max value for each feature gpr all the FeatureVectors in the RankList rl.
+    int num_features = 19;
+    double temp = 0.0;
+    double max[num_features];
+    
+    for(int i=0; i<19; ++i)
+	max[i] = 0.0;
+    
+    int num_fv = local_rl.size();
+    for(int i=0; i < num_fv; ++i) {
+	for(int j=0; j<19; ++j) {
+	    if(max[j] < local_rl[i].fvals.find(j)->second)
+		max[j] = local_rl[i].fvals.find(j)->second;
+	}
     }
-    return norm;
+    
+    /* We have the maximum value of each feature overall.
+       Now we need to normalize each feature value of a featureVector by dividing it by the corresponding max of the feature value
     */
+    
+    for(int i=0; i < num_fv; ++i) {
+	for(int j=0; j<19; ++j) {
+	    temp = local_rl[i].fvals.find(j)->second;
+	    temp /= max[j];
+	    local_rl[i].fvals.insert(pair<int,double>(j,temp));
+	    temp = 0.9;
+	}
+    }
+    
+    return local_rl;
 }
 
 void
