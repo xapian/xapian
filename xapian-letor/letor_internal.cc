@@ -125,12 +125,12 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     fm.set_database(letor_db);
     fm.set_query(letor_query);
     
-    std::string s="1";
+    std::string s = "1";
     Xapian::RankList rlist = fm.create_rank_list(mset, s);
     
     std::vector<double> scores = ranker.rank(rlist);
     
-    /*code to convert list<double> scores to map<docid,double>*/
+    /*Converting list<double> scores to map<docid,double> letor_mset*/
     int num_fv = scores.size();
     for(int i=0; i<num_fv; ++i) {
 	//Xapian::docid did = (Xapian::docid) rlist.rl[i].did;//need to convert did from string to Xapian::docid
@@ -170,7 +170,6 @@ static void read_problem(const char *filename) {
 
     prob.l = 0;
     elements = 0;
-
     max_line_len = 1024;
     line = Malloc(char, max_line_len);
 
@@ -254,45 +253,17 @@ static void read_problem(const char *filename) {
 }
 
 void
-Letor::Internal::letor_learn_model(int s_type, int k_type) {
-    // default values
-    param.svm_type = s_type;
-    param.kernel_type = k_type;
-    param.degree = 3;
-    param.gamma = 0;	// 1/num_features
-    param.coef0 = 0;
-    param.nu = 0.5;
-    param.cache_size = 100;
-    param.C = 1;
-    param.eps = 1e-3;
-    param.p = 0.1;
-    param.shrinking = 1;
-    param.probability = 0;
-    param.nr_weight = 0;
-    param.weight_label = NULL;
-    param.weight = NULL;
-    cross_validation = 0;
+Letor::Internal::letor_learn_model() {
 
     printf("Learning the model..");
     string input_file_name;
     string model_file_name;
-    const char *error_msg;
-
     input_file_name = get_cwd().append("/train.txt");
     model_file_name = get_cwd().append("/model.txt");
 
-    read_problem(input_file_name.c_str());
-    error_msg = svm_check_parameter(&prob, &param);
-    if (error_msg) {
-	fprintf(stderr, "svm_check_parameter failed: %s\n", error_msg);
-	exit(1);
-    }
-
-    model = svm_train(&prob, &param);
-    if (svm_save_model(model_file_name.c_str(), model)) {
-	fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
-	exit(1);
-    }
+    read_problem(input_file_name.c_str()); // WHY???
+    
+    ranker.learn_model();
 }
 
 
@@ -311,6 +282,10 @@ write_to_file(std::list<Xapian::RankList> l) {
     // write it down with proper format
     for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
 
+}
+
+void
+Letor::Internal::prepare_training_file_listwise(const string & /*queryfile*/, int /*num_features*/) {
 }
 
 void
@@ -342,12 +317,12 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
-    fm.load_relevance(qrel_file);
+    fm.load_relevance(qrel_file);//WHY???
     qrel = fm.load_relevance(qrel_file);
 
-    list<Xapian::RankList> l;
+    list<Xapian::RankList> list_rlist;
 
-    string str1;   
+    string str1;
     ifstream myfile1;
     myfile1.open(queryfile.c_str(), ios::in);
 
@@ -392,9 +367,9 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	fm.set_query(query);
 
 	Xapian::RankList rl = fm.create_rank_list(mset, qid);
-	l.push_back(rl);
+	list_rlist.push_back(rl);
     }//while closed
     myfile1.close();
-    write_to_file(l);
+    write_to_file(list_rlist);
 //    train_file.close();
 }

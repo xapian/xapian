@@ -168,7 +168,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          4 -- precomputed kernel
      *
      */
-    void letor_learn_model(int s, int k);
+    void letor_learn_model();
 
     /** This method prepares the 'train.txt' file in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
@@ -187,6 +187,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          and database size.
      */
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+    
+    void prepare_training_file_listwise(const std::string & query_file, int num_features);
     
     void create_ranker(int ranker_type);
 };

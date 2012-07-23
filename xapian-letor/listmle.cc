@@ -104,14 +104,14 @@ ListMLE::learn_model() {
     /* Read the training file into the format as required by the listmle_train() function
      * with datastructure vector<vector<map<int,double>>>
      */
-    vector<RankList> samples;
+    vector<Xapian::RankList> samples; //all the RankLists from the training file need to be passed onto the listmle_train function
     //read_problem(input_file_name.c_str());
     ListMLE::parameters = listmle_train(samples);
     ListMLE::save_model(model_file_name);  
 }
 
-double
-ListMLE::absolute (double a) {
+static double
+absolute (double a) {
     if(a<0)
         return (-a);
     else

@@ -213,8 +213,11 @@ try {
 //    ltr.create_ranker(0);
 
     ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
+    int num_features = 40;
+    ltr.prepare_training_file_listwise("filename",num_features);
 
-    ltr.letor_learn_model(4,0);
+    //ltr.letor_learn_model(4,0);
+    ltr.letor_learn_model();
     map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
 
     set<MyPair,MyTestCompare> s;

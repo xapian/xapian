@@ -52,9 +52,9 @@ public:
     
     Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, std::string & did);
     
-    std::string getdid(const Document &doc);
+    std::string get_did(const Document &doc);
     
-    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
+    int get_label(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
 
     static const int fNum = 20;
 

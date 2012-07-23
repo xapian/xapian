@@ -63,8 +63,6 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
     //vector<double> listmle_train(vector<instance> & instances, double tolerance_rate, double learning_rate);
     
     vector<double> listmle_train(vector<RankList> & samples);
-    
-    double absolute (double a);
 
 };
 
