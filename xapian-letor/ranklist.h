@@ -42,9 +42,11 @@ class FeatureVector;
 
 class XAPIAN_VISIBILITY_DEFAULT RankList {
     
-    std::vector<FeatureVector> rl;
 
   public:
+  
+    std::vector<FeatureVector> rl;
+    
     std::string qid;
     RankList();
     

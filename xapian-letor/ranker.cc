@@ -46,9 +46,10 @@ Ranker::Ranker() {
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-std::list<double>
+//std::list<double>
+std::vector<double>
 Ranker::rank(const Xapian::RankList & /*rl*/) {
-    std::list<double> res;
+    std::vector<double> res;
     Xapian::ListMLE listmle;
 
     double d=1.0;

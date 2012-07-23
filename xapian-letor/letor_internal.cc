@@ -126,10 +126,17 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     fm.set_query(letor_query);
     
     std::string s="1";
-    Xapian::RankList rl = fm.create_rank_list(mset, s);
-    std::list<double> scores =ranker.rank(rl);
+    Xapian::RankList rlist = fm.create_rank_list(mset, s);
+    
+    std::vector<double> scores = ranker.rank(rlist);
     
     /*code to convert list<double> scores to map<docid,double>*/
+    int num_fv = scores.size();
+    for(int i=0; i<num_fv; ++i) {
+	//Xapian::docid did = (Xapian::docid) rlist.rl[i].did;//need to convert did from string to Xapian::docid
+	Xapian::docid did = (Xapian::docid) atoi(rlist.rl[i].did.c_str());//need to convert did from string to Xapian::docid
+	letor_mset.insert(pair<Xapian::docid,double>(did, scores[i]));
+    }
     
     return letor_mset;
 }
