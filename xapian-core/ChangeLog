@@ -1,3 +1,11 @@
+Tue Jul 24 01:19:03 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add extra DateValueRangeProcessor
+	  constructor overloaded form so that in DateValueRangeProcessor(1,
+	  "date:"), the const char * gets interpreted as std::string rather
+	  than bool.
+	* tests/queryparsertest.cc: Add regression test.
+
 Thu Jul 19 05:32:04 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_dbcheck.h,

@@ -1674,6 +1674,8 @@ static const test test_value_daterange2_queries[] = {
     { "created:12/03/99..12/04/01", "0 * VALUE_RANGE 1 19991203 20011204" },
     { "modified:03-12-99..04-14-01", "0 * VALUE_RANGE 2 19990312 20010414" },
     { "accessed:01/30/70..02/02/69", "0 * VALUE_RANGE 3 19700130 20690202" },
+    // In <=1.2.12, and in 1.3.0, this gave "Unknown range operation":
+    { "deleted:12/03/99..12/04/01", "0 * VALUE_RANGE 4 19990312 20010412" },
     { "1999-03-12..2001-04-14", "Unknown range operation" },
     { "12/03/99..created:12/04/01", "Unknown range operation" },
     { "12/03/99created:..12/04/01", "Unknown range operation" },
@@ -1690,9 +1692,14 @@ static bool test_qp_value_daterange2()
     Xapian::DateValueRangeProcessor vrp_cdate(1, "created:", true, true, 1970);
     Xapian::DateValueRangeProcessor vrp_mdate(2, "modified:", true, true, 1970);
     Xapian::DateValueRangeProcessor vrp_adate(3, "accessed:", true, true, 1970);
+    // Regression test - here a const char * was taken as a bool rather than a
+    // std::string when resolving the overloaded forms.  Fixed in 1.2.13 and
+    // 1.3.1.
+    Xapian::DateValueRangeProcessor vrp_ddate(4, "deleted:");
     qp.add_valuerangeprocessor(&vrp_cdate);
     qp.add_valuerangeprocessor(&vrp_mdate);
     qp.add_valuerangeprocessor(&vrp_adate);
+    qp.add_valuerangeprocessor(&vrp_ddate);
     for (const test *p = test_value_daterange2_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
