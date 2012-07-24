@@ -116,11 +116,11 @@ is_positional(Xapian::Query::op op)
 
 /// A structure identifying a group of filter terms or a value range.
 struct filter_group_id {
-    /** The prefix info for boolean filter terms.
+    /** The field info for boolean filter terms.
      *
      *  This is NULL for a value range.
      */
-    const PrefixInfo *prefix_info;
+    const FieldInfo *field_info;
 
     /** The value number for a value range.
      *
@@ -129,23 +129,27 @@ struct filter_group_id {
     Xapian::valueno slot;
 
     /// Make a new filter_group_id for boolean filter terms.
-    explicit filter_group_id(const PrefixInfo * prefix_info_)
-	: prefix_info(prefix_info_), slot(Xapian::BAD_VALUENO) {}
+    explicit filter_group_id(const FieldInfo * field_info_)
+	: field_info(field_info_), slot(Xapian::BAD_VALUENO) {}
 
     /// Make a new filter_group_id for value range terms.
     explicit filter_group_id(Xapian::valueno slot_)
-	: prefix_info(NULL), slot(slot_) {}
+	: field_info(NULL), slot(slot_) {}
 
     /// Ordering needed to allow storage in a map.
     bool operator<(const filter_group_id & other) const {
 	// Check slot first since comparison is cheap.
 	if (slot != other.slot)
 	    return slot < other.slot;
-	if (!prefix_info || prefix_info == other.prefix_info)
+	if (!field_info || field_info == other.field_info)
 	    return false;
-	if (!other.prefix_info)
+	if (!other.field_info)
 	    return true;
-	return prefix_info->prefixes < other.prefix_info->prefixes;
+	if (field_info->prefixes < other.field_info->prefixes)
+	    return true;
+	if (other.field_info->prefixes < field_info->prefixes)
+	    return false;
+	return field_info->procs < other.field_info->procs;
     }
 };
 
@@ -162,22 +166,22 @@ class Term {
 
   public:
     string name;
-    const PrefixInfo * prefix_info;
+    const FieldInfo * field_info;
     string unstemmed;
     QueryParser::stem_strategy stem;
     termpos pos;
 
     Term(const string &name_, termpos pos_) : name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
     Term(const string &name_) : name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
-    Term(const string &name_, const PrefixInfo * prefix_info_)
-	: name(name_), prefix_info(prefix_info_),
+    Term(const string &name_, const FieldInfo * field_info_)
+	: name(name_), field_info(field_info_),
 	  stem(QueryParser::STEM_NONE), pos(0) { }
     Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
-    Term(State * state_, const string &name_, const PrefixInfo * prefix_info_,
+    Term(State * state_, const string &name_, const FieldInfo * field_info_,
 	 const string &unstemmed_,
 	 QueryParser::stem_strategy stem_ = QueryParser::STEM_NONE,
 	 termpos pos_ = 0)
-	: state(state_), name(name_), prefix_info(prefix_info_),
+	: state(state_), name(name_), field_info(field_info_),
 	  unstemmed(unstemmed_), stem(stem_), pos(pos_) { }
     // For RANGE tokens.
     Term(valueno slot, const string &a, const string &b)
@@ -192,7 +196,7 @@ class Term {
     termpos get_termpos() const { return pos; }
 
     filter_group_id get_filter_group_id() const {
-	return filter_group_id(prefix_info);
+	return filter_group_id(field_info);
     }
 
     Query * as_wildcarded_query(State * state) const;
@@ -353,10 +357,16 @@ class SynonymIterator {
 Query
 Term::get_query_with_synonyms() const
 {
+    // Handle single-word synonyms with each prefix.
+    const list<string> & prefixes = field_info->prefixes;
+    if (prefixes.empty()) {
+	// FIXME: handle multiple here
+	Assert(!field_info->procs.empty());
+	return (**field_info->procs.begin())(name);
+    }
+
     Query q = get_query();
 
-    // Handle single-word synonyms with each prefix.
-    const list<string> & prefixes = prefix_info->prefixes;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	// First try the unstemmed term:
@@ -425,8 +435,12 @@ add_to_query(Query *& q, Query::op op, const Query & term)
 Query
 Term::get_query() const
 {
-    const list<string> & prefixes = prefix_info->prefixes;
-    Assert(prefixes.size() >= 1);
+    const list<string> & prefixes = field_info->prefixes;
+    if (prefixes.empty()) {
+	// FIXME: handle multiple here
+	Assert(!field_info->procs.empty());
+	return (**field_info->procs.begin())(name);
+    }
     list<string>::const_iterator piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
     while (++piter != prefixes.end()) {
@@ -441,7 +455,7 @@ Term::as_wildcarded_query(State * state_) const
     const Database & db = state_->get_database();
     vector<Query> subqs;
 
-    const list<string> & prefixes = prefix_info->prefixes;
+    const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
     Xapian::termcount expansion_count = 0;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
@@ -474,7 +488,7 @@ Term::as_partial_query(State * state_) const
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
-    const list<string> & prefixes = prefix_info->prefixes;
+    const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
@@ -500,7 +514,7 @@ Query *
 Term::as_cjk_query() const
 {
     vector<Query> prefix_cjk;
-    const list<string> & prefixes = prefix_info->prefixes;
+    const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
     for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
 	for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
@@ -607,15 +621,36 @@ void
 QueryParser::Internal::add_prefix(const string &field, const string &prefix,
 				  filter_type type)
 {
-    map<string, PrefixInfo>::iterator p = prefixmap.find(field);
-    if (p == prefixmap.end()) {
-	prefixmap.insert(make_pair(field, PrefixInfo(type, prefix)));
+    map<string, FieldInfo>::iterator p = field_map.find(field);
+    if (p == field_map.end()) {
+	field_map.insert(make_pair(field, FieldInfo(type, prefix)));
     } else {
 	// Check that this is the same type of filter as the existing one(s).
 	if (p->second.type != type) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
 	}
+	if (!p->second.procs.empty())
+	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	p->second.prefixes.push_back(prefix);
+   }
+}
+
+void
+QueryParser::Internal::add_prefix(const string &field, FieldProcessor *proc,
+				  filter_type type)
+{
+    map<string, FieldInfo>::iterator p = field_map.find(field);
+    if (p == field_map.end()) {
+	field_map.insert(make_pair(field, FieldInfo(type, proc)));
+    } else {
+	// Check that this is the same type of filter as the existing one(s).
+	if (p->second.type != type) {
+	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
+	}
+	if (!p->second.prefixes.empty())
+	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
+	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
+	// p->second.procs.push_back(proc);
    }
 }
 
@@ -742,20 +777,20 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     corrected_query.resize(0);
 
     // Stack of prefixes, used for phrases and subexpressions.
-    list<const PrefixInfo *> prefix_stack;
+    list<const FieldInfo *> prefix_stack;
 
     // If default_prefix is specified, use it.  Otherwise, use any list
     // that has been set for the empty prefix.
-    const PrefixInfo def_pfx(NON_BOOLEAN, default_prefix);
+    const FieldInfo def_pfx(NON_BOOLEAN, default_prefix);
     {
-	const PrefixInfo * default_prefix_info = &def_pfx;
+	const FieldInfo * default_field_info = &def_pfx;
 	if (default_prefix.empty()) {
-	    map<string, PrefixInfo>::const_iterator f = prefixmap.find("");
-	    if (f != prefixmap.end()) default_prefix_info = &(f->second);
+	    map<string, FieldInfo>::const_iterator f = field_map.find("");
+	    if (f != field_map.end()) default_field_info = &(f->second);
 	}
 
 	// We always have the current prefix on the top of the stack.
-	prefix_stack.push_back(default_prefix_info);
+	prefix_stack.push_back(default_field_info);
     }
 
     ParserHandler pParser(ParseAlloc());
@@ -972,9 +1007,9 @@ just_had_operator_needing_term:
 	newprev = 'A'; // Any letter will do...
 
 	// A term, a prefix, or a boolean operator.
-	const PrefixInfo * prefix_info = NULL;
+	const FieldInfo * field_info = NULL;
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2 || mode == EXPLICIT_SYNONYM) &&
-	    !prefixmap.empty()) {
+	    !field_map.empty()) {
 	    // Check for a fieldname prefix (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
@@ -982,15 +1017,15 @@ just_had_operator_needing_term:
 		p = it;
 		while (*p != ':')
 		    Unicode::append_utf8(field, *p++);
-		map<string, PrefixInfo>::const_iterator f;
-		f = prefixmap.find(field);
-		if (f != prefixmap.end()) {
+		map<string, FieldInfo>::const_iterator f;
+		f = field_map.find(field);
+		if (f != field_map.end()) {
 		    // Special handling for prefixed fields, depending on the
 		    // type of the prefix.
 		    unsigned ch = *++p;
-		    prefix_info = &(f->second);
+		    field_info = &(f->second);
 
-		    if (prefix_info->type != NON_BOOLEAN) {
+		    if (field_info->type != NON_BOOLEAN) {
 			// Drop out of IN_GROUP if we're in it.
 			if (mode == IN_GROUP || mode == IN_GROUP2)
 			    mode = DEFAULT;
@@ -1023,7 +1058,7 @@ just_had_operator_needing_term:
 			field += name;
 			// Clear any pending value range error.
 			state.error = NULL;
-			Term * token = new Term(&state, name, prefix_info, field);
+			Term * token = new Term(&state, name, field_info, field);
 			Parse(pParser, BOOLEAN_FILTER, token, &state);
 			continue;
 		    }
@@ -1035,7 +1070,7 @@ just_had_operator_needing_term:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefix_info);
+			prefix_stack.push_back(field_info);
 			continue;
 		    }
 
@@ -1046,7 +1081,7 @@ just_had_operator_needing_term:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefix_info);
+			prefix_stack.push_back(field_info);
 			continue;
 		    }
 
@@ -1066,7 +1101,7 @@ just_had_operator_needing_term:
 not_prefix:
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
-			prefix_info = NULL;
+			field_info = NULL;
 		    }
 		}
 	    }
@@ -1082,7 +1117,7 @@ phrased_term:
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
-	    !prefix_info &&
+	    !field_info &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
 
 	    string op = term;
@@ -1148,9 +1183,9 @@ phrased_term:
 	}
 
 	// If no prefix is set, use the default one.
-	if (!prefix_info) prefix_info = prefix_stack.back();
+	if (!field_info) field_info = prefix_stack.back();
 
-	Assert(prefix_info->type == NON_BOOLEAN);
+	Assert(field_info->type == NON_BOOLEAN);
 
 	{
 	    string unstemmed_term(term);
@@ -1172,7 +1207,7 @@ phrased_term:
 		}
 	    }
 
-	    Term * term_obj = new Term(&state, term, prefix_info,
+	    Term * term_obj = new Term(&state, term, field_info,
 				       unstemmed_term, stem_term, term_pos++);
 
 	    if (is_cjk_term) {
@@ -1221,7 +1256,7 @@ phrased_term:
 	    // Check spelling, if we're a normal term, and any of the prefixes
 	    // are empty.
 	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
-		const list<string> & pfxes = prefix_info->prefixes;
+		const list<string> & pfxes = field_info->prefixes;
 		list<string>::const_iterator pfx_it;
 		for (pfx_it = pfxes.begin(); pfx_it != pfxes.end(); ++pfx_it) {
 		    if (!pfx_it->empty())
@@ -1341,7 +1376,7 @@ struct ProbQuery {
 	Query & q = filter[id];
 	// We OR filters with the same prefix if they're exclusive, otherwise
 	// we AND them.
-	bool exclusive = (id.prefix_info->type == BOOLEAN_EXCLUSIVE);
+	bool exclusive = (id.field_info->type == BOOLEAN_EXCLUSIVE);
 	Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
 	q = Query(op, q, qnew);
     }
@@ -1595,7 +1630,7 @@ class Terms {
 
     /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
-	const list<string> & term_prefixes = term->prefix_info->prefixes;
+	const list<string> & term_prefixes = term->field_info->prefixes;
 	if (terms.empty()) {
 	    prefixes = &term_prefixes;
 	} else if (uniform_prefixes && prefixes != &term_prefixes) {
@@ -1661,7 +1696,7 @@ Term::as_positional_cjk_term(Terms * terms) const
     string t;
     for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
 	Unicode::append_utf8(t, *it);
-	Term * c = new Term(state, t, prefix_info, unstemmed, stem, pos);
+	Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
 	terms->add_positional_term(c);
 	t.resize(0);
     }

@@ -1,3 +1,11 @@
+Tue Jul 24 01:35:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h,
+	  tests/queryparsertest.cc: Add FieldProcessor class (ticket#128) -
+	  currently marked as an experimental API while we sort out how best
+	  to sort out exactly how it interacts with other QueryParser features.
+
 Tue Jul 24 01:19:03 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Add extra DateValueRangeProcessor

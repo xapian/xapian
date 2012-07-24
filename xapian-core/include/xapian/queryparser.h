@@ -364,6 +364,23 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
+/** Base class for field processors.
+ *
+ *  Experimental API - may change.
+ */
+struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
+    /// Destructor.
+    virtual ~FieldProcessor();
+
+    /** Convert a field-prefixed string to a Query object.
+     *
+     *  @param str	The string to covert.
+     *
+     *  @return	Query object corresponding to @a str.
+     */
+    virtual Xapian::Query operator()(const std::string &str) = 0;
+};
+
 /// Build a Xapian::Query object from a user query string.
 class XAPIAN_VISIBILITY_DEFAULT QueryParser {
   public:
@@ -625,6 +642,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void add_prefix(const std::string &field, const std::string &prefix);
 
+    /** Register a FieldProcessor.
+     *
+     *  Experimental API - may change.
+     */
+    void add_prefix(const std::string &field, Xapian::FieldProcessor * proc);
+
     /** Add a boolean term prefix allowing the user to restrict a
      *  search with a boolean filter specified in the free text query.
      *
@@ -678,6 +701,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			 [default: true]
      */
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
+			    bool exclusive = true);
+
+    /** Register a FieldProcessor for a boolean prefix.
+     *
+     *  Experimental API - may change.
+     */
+    void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
 			    bool exclusive = true);
 
     /// Iterate over terms omitted from the query as stopwords.
