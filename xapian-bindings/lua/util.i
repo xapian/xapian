@@ -148,7 +148,9 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	if (!lua_isstring(L, -1)) {
 	    luaL_error(L, "function must return a string");
 	}
-	std::string result(lua_tostring(L, -1));
+	size_t len;
+	const char * p = lua_tolstring(L, -1, &len);
+	std::string result(p, len);
 	lua_pop(L, 1);
 	return result;
     }
@@ -166,7 +168,9 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	    luaL_error(L, "function must return a string");
 	}
 
-	std::string result(lua_tostring(L, -1));
+	size_t len;
+	const char * p = lua_tolstring(L, -1, &len);
+	std::string result(p, len);
 	lua_pop(L, 1);
 	return result;
     }
@@ -204,7 +208,9 @@ class luaKeyMaker : public Xapian::KeyMaker {
 	if (!lua_isstring(L, -1)) {
 	    luaL_error(L, "function must return a string");
 	}
-	std::string result(lua_tostring(L, -1));
+	size_t len;
+	const char * p = lua_tolstring(L, -1, &len);
+	std::string result(p, len);
 	lua_pop(L, 1);
 	return result;
     }
