@@ -277,17 +277,25 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
 
 	lua_pushlstring(L, (char *)str.c_str(), str.length());
 
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
-	}
+        }
+
+        // Allow the function to return a string or Query object.
+	if (lua_isstring(L, -1)) {
+            size_t len;
+            const char * p = lua_tolstring(L, -1, &len);
+            std::string result(p, len);
+            lua_pop(L, 1);
+            return Xapian::Query(result);
+        }
 
 	Xapian::Query *subq = 0;
 	if (!lua_isuserdata(L, -1) ||
 	    SWIG_ConvertPtr(L, -1, (void **)&subq,
 			    SWIGTYPE_p_Xapian__Query, 0) == -1) {
 	    lua_pop(L, 1);
-	    luaL_argerror(L, index,
-			  "function must return a Query object");
+	    luaL_error(L, "function must return a string or Query object");
 	}
 
 	lua_pop(L, 1);

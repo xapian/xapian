@@ -1,3 +1,8 @@
+Tue Jul 24 06:06:24 GMT 2012  Olly Betts <olly@survex.com>
+
+	* lua/util.i: Fix wrapping of FieldProcessor.
+	* lua/smoketest.lua: Add test coverage for wrapping of FieldProcessor.
+
 Tue Jul 24 04:11:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Fix XapianFieldProcessor testcase.

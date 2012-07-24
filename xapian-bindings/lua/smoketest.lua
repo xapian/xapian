@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011 Olly Betts
+-- Copyright (C) 2011,2012 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -187,6 +187,12 @@ function run_tests()
   qp:add_valuerangeprocessor(vrpdate)
   query = qp:parse_query("12/03/99..12/04/01")
   expect(tostring(query), "Query(0 * VALUE_RANGE 1 19991203 20011204)")
+
+  -- Check FieldProcessor works
+  qp:add_prefix('test', function (s) return "foo" end)
+  qp:add_prefix('rev', function (s) return xapian.Query(s:reverse()) end)
+  query = qp:parse_query("test:ing rev:erse")
+  expect(tostring(query), "Query((foo OR esre))")
 
   -- Test setting and getting metadata
   db:set_metadata('Foo', 'Foo')
