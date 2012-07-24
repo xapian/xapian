@@ -215,7 +215,7 @@ END
     # installed or with firewalls which block SVN.
     #svn:externals revision for SWIG
     args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH`
-    test -n "$args" || args='swig -r12968 svn://svn.tartarus.org/swig/trunk/'
+    test -n "$args" || args='swig -r13394 svn://svn.tartarus.org/swig/trunk/'
     handle_svn_external $args
 
     # FIXME: Currently rev here requires manual update for users without svn
