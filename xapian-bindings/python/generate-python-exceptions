@@ -26,7 +26,7 @@ my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
     MatchDecider ExpandDecider Stopper ValueRangeProcessor KeyMaker
-    StemImplementation Compactor MatchSpy
+    StemImplementation Compactor MatchSpy FieldProcessor
 );
 
 my @posting_source_virtual_methods = qw(

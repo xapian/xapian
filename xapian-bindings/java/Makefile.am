@@ -33,6 +33,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/ESetIterator.java\
 	org/xapian/ExpandDecider.java\
 	org/xapian/ExpandDeciderAnd.java\
+	org/xapian/FieldProcessor.java\
 	org/xapian/FixedWeightPostingSource.java\
 	org/xapian/GreatCircleMetric.java\
 	org/xapian/InMemory.java\

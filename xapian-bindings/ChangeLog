@@ -1,3 +1,11 @@
+Tue Jul 24 03:45:15 GMT 2012  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/util.i,perl/util.i.in,
+	  python/extra.i,python/generate-python-exceptions,xapian-headers.i:
+	  Wrap FieldProcessor.
+	* php/smoketest.php: Add simple test of subclassing
+	  XapianFieldProcessor.
+
 Sat Jul 21 13:18:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/docs/examples/simpleexpand.lua,

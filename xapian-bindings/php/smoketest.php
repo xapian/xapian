@@ -240,6 +240,21 @@ if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') 
     exit(1);
 }
 
+# Feature test for XapianFieldProcessor
+class testfieldprocessor extends XapianFieldProcessor {
+    function apply($str) {
+	return XapianQuery("spam");
+    }
+}
+
+$tfp = new testfieldprocessor();
+$qp->add_prefix("spam:", $tfp);
+$query = $qp->parse_query('spam:ignored');
+if ($query->get_description() !== 'Query(spam)') {
+    print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
+    exit(1);
+}
+
 # Test setting and getting metadata
 if ($db->get_metadata('Foo') !== '') {
     print "Unexpected value for metadata associated with 'Foo' (expected ''): '".$db->get_metadata('Foo')."'\n";

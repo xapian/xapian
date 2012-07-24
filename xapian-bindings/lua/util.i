@@ -252,6 +252,51 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 %}
 
 %{
+class luaFieldProcessor : public Xapian::FieldProcessor {
+    int r;
+    lua_State* L;
+
+  public:
+    luaFieldProcessor(lua_State* S) {
+	L = S;
+	if (!lua_isfunction(L, -1)) {
+	    luaL_typerror(L, -1, "function");
+	}
+	r = luaL_ref(L, LUA_REGISTRYINDEX);
+    }
+
+    ~luaFieldProcessor() {
+	luaL_unref(L, LUA_REGISTRYINDEX, r);
+    }
+
+    Xapian::Query operator()(const std::string &str) {
+	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+	if (!lua_isfunction(L, -1)) {
+	    luaL_typerror(L, -1, "function");
+	}
+
+	lua_pushlstring(L, (char *)str.c_str(), str.length());
+
+	if (lua_pcall(L, 2, 1, 0) != 0){
+	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+	}
+
+	Xapian::Query *subq = 0;
+	if (!lua_isuserdata(L, -1) ||
+	    SWIG_ConvertPtr(L, -1, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) == -1) {
+	    lua_pop(L, 1);
+	    luaL_argerror(L, index,
+			  "function must return a Query object");
+	}
+
+	lua_pop(L, 1);
+	return *subq;
+    }
+};
+%}
+
+%{
 class luaMatchSpy : public Xapian::MatchSpy {
     int r;
     lua_State* L;
@@ -311,6 +356,7 @@ SUB_CLASS_TYPEMAPS(Xapian, Stopper)
 SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
 SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
 SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
 
 %luacode {
 function xapian.Iterator(begin, _end)

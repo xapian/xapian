@@ -321,6 +321,7 @@ SUBCLASSABLE(Xapian, ExpandDecider)
 SUBCLASSABLE(Xapian, KeyMaker)
 %include <xapian/keymaker.h>
 
+SUBCLASSABLE(Xapian, FieldProcessor)
 SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)
 STANDARD_IGNORES(Xapian, QueryParser)

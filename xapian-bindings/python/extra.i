@@ -741,6 +741,30 @@ _queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeproce
 QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
 del _queryparser_add_valuerangeprocessor
 
+# When we set a FieldProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_prefix_orig = QueryParser.add_prefix
+def _queryparser_add_prefix(self, s, proc):
+    if not isinstance(proc, (str, bytes)):
+        if not hasattr(self, '_fps'):
+            self._fps = []
+        self._fps.append(fproc)
+    return __queryparser_add_prefix_orig(self, s, proc)
+_queryparser_add_prefix.__doc__ = __queryparser_add_prefix_orig.__doc__
+QueryParser.add_prefix = _queryparser_add_prefix
+del _queryparser_add_prefix
+__queryparser_add_boolean_prefix_orig = QueryParser.add_boolean_prefix
+def _queryparser_add_boolean_prefix(self, s, proc, exclusive = True):
+    if not isinstance(proc, (str, bytes)):
+        if not hasattr(self, '_fps'):
+            self._fps = []
+        self._fps.append(fproc)
+    return __queryparser_add_boolean_prefix_orig(self, s, proc, exclusive)
+_queryparser_add_boolean_prefix.__doc__ = __queryparser_add_boolean_prefix_orig.__doc__
+QueryParser.add_boolean_prefix = _queryparser_add_boolean_prefix
+del _queryparser_add_boolean_prefix
+
 # When we set a Stopper into the QueryParser, keep a python reference so it
 # won't be deleted. This hack can probably be removed once xapian bug #186 is
 # fixed.
