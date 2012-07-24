@@ -243,12 +243,12 @@ if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') 
 # Feature test for XapianFieldProcessor
 class testfieldprocessor extends XapianFieldProcessor {
     function apply($str) {
-	return XapianQuery("spam");
+	return new XapianQuery("spam");
     }
 }
 
 $tfp = new testfieldprocessor();
-$qp->add_prefix("spam:", $tfp);
+$qp->add_prefix('spam', $tfp);
 $query = $qp->parse_query('spam:ignored');
 if ($query->get_description() !== 'Query(spam)') {
     print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";

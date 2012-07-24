@@ -1,3 +1,7 @@
+Tue Jul 24 04:11:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Fix XapianFieldProcessor testcase.
+
 Tue Jul 24 03:45:15 GMT 2012  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am,lua/util.i,perl/util.i.in,
