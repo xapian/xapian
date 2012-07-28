@@ -26,6 +26,7 @@
 #include "ranker.h"
 #include "svmranker.h"
 #include "listmle.h"
+#include "ranklist.h"
 
 #include <map>
 #include <string>

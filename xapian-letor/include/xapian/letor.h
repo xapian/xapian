@@ -25,6 +25,7 @@
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
+//#include <ranklist.h>
 
 #include <string>
 #include <map>
@@ -33,6 +34,9 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
   public:
+  
+    
+    
     /// @private @internal Class representing the Letor internals.
     class Internal;
     /// @private @internal Reference counted internals.
@@ -191,6 +195,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     void prepare_training_file_listwise(const std::string & query_file, int num_features);
     
     void create_ranker(int ranker_type);
+    
+//    void test(Xapian::RankList rl);
 };
 
 }

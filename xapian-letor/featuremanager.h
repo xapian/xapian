@@ -21,6 +21,10 @@
 #ifndef FEATURE_MANAGER_H
 #define FEATURE_MANAGER_H
 
+#include <xapian.h>
+#include <xapian/base.h>
+#include <xapian/types.h>
+#include <xapian/visibility.h>
 
 #include <xapian/letor.h>
 #include "letor_features.h"
@@ -33,8 +37,8 @@ using namespace std;
 
 namespace Xapian {
 
-class RankList;
-class FeatureVector;
+class RankList;//WHY???
+class FeatureVector;//WHY???
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 

@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <list>
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -276,11 +277,23 @@ Letor::Internal::letor_learn_model() {
  */
 
 static void
-write_to_file(std::list<Xapian::RankList> l) {
+write_to_file(std::vector<Xapian::RankList> list_rlist) {
+
+    /* This function will save the list<RankList> to the training file
+     * so that this list<RankList> can be loaded again by train_model() and subsequent functions.
+     */
     ofstream train_file;
     train_file.open("train.txt");
     // write it down with proper format
-    for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
+    int size_rlist = list_rlist.size();
+    //for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
+    for(int i = 0; i < size_rlist; ++i) {
+	RankList rlist = list_rlist[i];
+	/* now save this RankList...each RankList has a vectorr<FeatureVector>
+	 * each FeatureVector has the following data: double score, int fcount, string did, map<int, double> fvals
+	 * each line: double int string 1:double 2:double 3:double....
+	 */
+    }
 
 }
 
@@ -317,10 +330,10 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
-    fm.load_relevance(qrel_file);//WHY???
+    fm.load_relevance(qrel_file);
     qrel = fm.load_relevance(qrel_file);
 
-    list<Xapian::RankList> list_rlist;
+    vector<Xapian::RankList> list_rlist;
 
     string str1;
     ifstream myfile1;
