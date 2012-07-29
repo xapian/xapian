@@ -1,3 +1,8 @@
+Sun Jul 29 15:32:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Bump LIBRARY_VERSION_INFO so I can package a snapshot
+	  cleanly.
+
 Tue Jul 24 01:35:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.cc,

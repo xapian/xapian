@@ -40,7 +40,8 @@ dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
 dnl
 dnl LIBRARY_VERSION_INFO for libxapian-1.3:
 dnl 0:0:0 1.3.0 Reset as library renamed
-LIBRARY_VERSION_INFO=0:0:0
+dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
+LIBRARY_VERSION_INFO=1:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.3
