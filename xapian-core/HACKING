@@ -1428,6 +1428,13 @@ single "tab" character!
 Don't forget to remove (or rename) this and check the documentation builds
 before committing or generating a patch though!
 
+If you are using an editor or other tool capable of running syntax checks as you
+work there you can use the `make` target 'check-syntax'. For 'emacs' users this
+works well with 'flymake'. Usage from a shell::
+
+    make check-syntax CHK_SOURCES=api/omdatabase.cc
+
+
 How to make a release
 =====================
 

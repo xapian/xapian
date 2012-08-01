@@ -249,3 +249,9 @@ CLEANFILES += zlib-vg.so
 zlib-vg.so: zlib-vg.c
 	$(CC_FOR_BUILD) -fPIC -shared -o zlib-vg.so $(srcdir)/zlib-vg.c -ldl
 endif
+
+
+.PHONY: check-syntax
+
+check-syntax:
+	$(CXXCOMPILE) -fsyntax-only -gstabs+ $(CHK_SOURCES)

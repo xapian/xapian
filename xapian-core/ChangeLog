@@ -1,3 +1,8 @@
+Wed Aug 01 15:25:25 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* HACKING,Makefile.am,tests/Makefile.am: Fix non-portable warnings
+	from automake, add HACKING doc for check-syntax make target
+
 Wed Aug 01 04:54:18 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* Makefile.am,api/Makefile,backends/Makefile,backends/brass/Makefile,
