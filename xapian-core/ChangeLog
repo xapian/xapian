@@ -1,3 +1,15 @@
+Wed Aug 01 04:54:18 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* Makefile.am,api/Makefile,backends/Makefile,backends/brass/Makefile,
+	  backends/chert/Makefile,backends/inmemory/Makefile,
+	  backends/multi/Makefile,backends/remote/Makefile,bin/Makefile,
+	  common/Makefile,examples/Makefile,expand/Makefile,
+	  geospatial/Makefile,include/Makefile,include/xapian/Makefile,
+	  languages/Makefile,matcher/Makefile,net/Makefile,
+	  queryparser/Makefile,tests/harness/Makefile,unicode/Makefile,
+	  weight/Makefile: Add check-syntax target to Makefiles to support
+	  editor syntax checks
+
 Sun Jul 29 15:32:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bump LIBRARY_VERSION_INFO so I can package a snapshot
