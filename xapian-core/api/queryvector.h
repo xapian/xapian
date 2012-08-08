@@ -112,7 +112,7 @@ class QueryVector {
 
     void clear() {
 	for (const_iterator i = begin(); i != end(); ++i)
-	    if ((*i).internal.get() && --(*i).internal->_refs == 0)
+	    if ((*i).internal.get() && (*i).internal->_refs == 0)
 		delete (*i).internal.get();
 
 	if (c > sizeof(p) / sizeof(*p))

@@ -1,3 +1,7 @@
+Wed Aug 08 02:10:21 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* api/queryvector.h: Fix SIGBUS when clearing QueryVectors
+
 Wed Aug 01 15:25:25 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* HACKING,Makefile.am,tests/Makefile.am: Fix non-portable warnings
