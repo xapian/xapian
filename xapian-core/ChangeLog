@@ -1,3 +1,8 @@
+Wed Aug 08 15:40:38 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* api/queryvector.h: Backout previous fix. When compiling with -O0,
+	  increase the stack limit to > 8M when running scalability tests.
+
 Wed Aug 08 02:10:21 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* api/queryvector.h: Fix SIGBUS when clearing QueryVectors
