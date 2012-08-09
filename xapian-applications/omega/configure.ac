@@ -85,10 +85,25 @@ if test $ac_cv_header_magic_h != yes ; then
 fi
 save_LIBS=$LIBS
 LIBS=
+AC_ARG_VAR(MAGIC_PREFIX, [Prefix for libmagic])
+if test "$MAGIC_PREFIX"; then
+AC_SEARCH_LIBS([magic_open], [magic], [], [
+   MAGIC_LDFLAGS=-L$MAGIC_PREFIX/lib
+   save_LDFLAGS=$LDFLAGS
+   LDFLAGS="$LDFLAGS $MAGIC_LDFLAGS"
+   AC_CHECK_LIB([magic], [magic_open], [], [
+      MAGIC_LIBS=
+      ])
+   LDFLAGS=$save_LDFLAGS
+   AC_SUBST([MAGIC_LDFLAGS])
+ ])
+else
 AC_SEARCH_LIBS([magic_open], [magic])
+fi
 MAGIC_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST([MAGIC_LIBS])
+
 
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)

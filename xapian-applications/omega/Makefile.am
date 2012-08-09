@@ -119,7 +119,7 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS) $(MAGIC_LDFLAGS)
 
 # We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
@@ -134,7 +134,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc utf8convert.cc\
  datematchdecider.cc weight.cc common/str.cc unixperm.cc urlencode.cc
-omega_LDADD = $(XAPIAN_LIBS) libtransform.la
+omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
