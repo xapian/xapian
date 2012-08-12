@@ -1,3 +1,8 @@
+Thu Aug 09 21:50:52 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* weight/weightinternal.h: Include config.h since macros are used
+	  from it. 
+
 Wed Aug 08 15:40:38 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* api/queryvector.h: Backout previous fix. When compiling with -O0,
