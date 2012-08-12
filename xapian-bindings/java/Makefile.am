@@ -12,10 +12,18 @@ CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
 	built/xapian_jni.jar\
 	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
+jdb: SmokeTest
+	JAVA="jdb" $(srcdir)/run-java-test $(TESTS)
+
 SmokeTest: SmokeTest.class
 
+if MAINTAINER_MODE
+.java.class:
+	$(JAVAC) -g -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
+else
 .java.class:
 	$(JAVAC) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
+endif
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Auto.java\

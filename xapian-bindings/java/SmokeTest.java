@@ -69,7 +69,7 @@ public class SmokeTest {
 	    doc.addPosting(stem.apply("anybody"), 3);
 	    doc.addPosting(stem.apply("out"), 4);
 	    doc.addPosting(stem.apply("there"), 5);
-// FIXME: was WritableDatabase db = Xapian.InMemory.open();
+	    // FIXME: was WritableDatabase db = Xapian.InMemory.open();
 	    WritableDatabase db = InMemory.open();
 	    db.addDocument(doc);
 	    if (db.getDocCount() != 1) {
@@ -112,19 +112,22 @@ public class SmokeTest {
 		System.err.println("Unexpected mset.size()");
 		System.exit(1);
 	    }
-/*
+
 	    String term_str = "";
-	    TermIterator itor = enq.getMatchingTerms(mset.getElement(0));
-	    while (itor.hasNext()) {
-		term_str += itor.next();
-		if (itor.hasNext()) term_str += ' ';
+	    String[] itor = enq.getMatchingTerms(mset.getElement(0));
+	    int size = itor.length - 1;
+	    for (String str : itor) {
+		term_str += str;
+		if (size > 0)
+		    term_str += ' ';
+		size--;
 	    }
 	    if (!term_str.equals("is there")) {
 		System.err.println("Unexpected term_str");
 		System.exit(1);
 	    }
-*/
-/*
+
+/* FIXME:dc: Fails since Xapian::Error is still unmapped
 	    boolean ok = false;
 	    try {
 		Database db_fail = new Database("NOsuChdaTabASe");

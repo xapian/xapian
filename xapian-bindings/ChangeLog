@@ -1,3 +1,16 @@
+Sun Aug 12 04:54:04 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* java/Makefile.am,java/SmokeTest.java,java/java.i: Add a typemap for
+	  TermIterator pairs to String[] for the Enquire.getMatchingTerms
+	  API. Use debug symbols when configured with MAINTAINER_MODE.
+
+Sun Aug 12 04:46:59 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* java/Makefile.am,java/SmokeTest.java,java/java.i: Add typemap for
+	  TermIterator pairs to String[] to conform with the
+	  Enquire::getMatchingterms binding API. Build bindings with
+	  debugging symbols.
+
 Tue Jul 24 09:06:14 GMT 2012  Olly Betts <olly@survex.com>
 
 	* lua/util.i: Fix functor wrappers which return strings to be zero-byte

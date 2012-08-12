@@ -282,14 +282,52 @@ class XapianSWIGQueryItor {
     }
 %}
 
-#if 0
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
+    jobjectArray c_result;
+    jboolean jbool;
+    jstring temp_string;
+    int n = 0;
+    const jclass clazz = jenv->FindClass("java/lang/String");
+    const jclass arrayClass = jenv->FindClass("java/util/ArrayList");
+    if (arrayClass == NULL)
+	return NULL;
+
+    const jmethodID mid_init = jenv->GetMethodID(arrayClass, "<init>", "()V");
+    if (mid_init == NULL)
+	return NULL;
+
+    jobject objArr = jenv->NewObject(arrayClass, mid_init);
+    if (objArr == NULL)
+	return NULL;
+
+    const jmethodID mid_add = jenv->GetMethodID(arrayClass, "add",
+						"(Ljava/lang/Object;)Z");
+    if (mid_add == NULL)
+	return NULL;
+
+    const jmethodID mid_toArray = jenv->GetMethodID(arrayClass, "toArray", "([Ljava/lang/Object;)[Ljava/lang/Object;");
+    if (mid_toArray == NULL) return NULL;
+
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	/* FIXME: implement this bit! */
+	temp_string = jenv->NewStringUTF((*i).c_str());
+	jbool = jenv->CallBooleanMethod(objArr, mid_add, temp_string);
+	if (jbool == false) return NULL;
+	jenv->DeleteLocalRef(temp_string);
+	++n;
     }
+
+    c_result = jenv->NewObjectArray(n, clazz, NULL);
+    $result = (jobjectArray)jenv->CallObjectMethod(objArr, mid_toArray, c_result);
 }
-#endif
+
+%typemap(jni) std::pair<Xapian::TermIterator, Xapian::TermIterator> "jobjectArray"
+%typemap(jtype) std::pair<Xapian::TermIterator, Xapian::TermIterator> "String[]"
+%typemap(jstype) std::pair<Xapian::TermIterator, Xapian::TermIterator> "String[]"
+
+/* This typemap handles the conversion of the jstype to the jtype. */
+%typemap(javaout) std::pair<Xapian::TermIterator, Xapian::TermIterator> { return $jnicall; }
+
 
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
 
