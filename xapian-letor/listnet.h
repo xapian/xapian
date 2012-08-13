@@ -1,4 +1,4 @@
-/* listmle.h: The abstract ranker file.
+/* listnet.h: The ListNET file.
  *
  * Copyright (C) 2012 Rishabh Mehrotra
  *
@@ -6,8 +6,8 @@
  * license.
  */
 
-#ifndef LISTMLE_H
-#define LISTMLE_H
+#ifndef LISTNET_H
+#define LISTNET_H
 
 
 #include <xapian.h>
@@ -28,13 +28,9 @@
 #include <math.h>
 
 using namespace std;
-//typedef map<int,double> tuple;
-//typedef vector<tuple> instance;
-//typedef vector<double> scores;
-
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
+class XAPIAN_VISIBILITY_DEFAULT ListNET: public Ranker {
 
   public:
     string models;
@@ -42,15 +38,10 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
     double tolerance_rate;
     double learning_rate;
     vector<Xapian::RankList> training_data;
-    //vector<scores> all_tuple_scores;
     
   public:
-    ListMLE() {};
+    ListNET() {};
 
-
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz listmle.cc , listnet.cc, listmle.cc and so on
-     */
     Xapian::RankList rank(const Xapian::RankList rlist);
     
     void set_training_data(vector<Xapian::RankList> training_data1);
@@ -63,9 +54,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
 
     double score_doc(Xapian::FeatureVector fv);
     
-    //vector<double> listmle_train(vector<instance> & instances, double tolerance_rate, double learning_rate);
-    
-    vector<double> listmle_train(vector<RankList> & samples);
+    vector<double> listnet_train(vector<RankList> & samples);
 
 };
 

@@ -56,6 +56,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
     std::vector<double> rank(const Xapian::RankList & rl);
+    
+    void set_training_data(vector<Xapian::RankList> training_data1);
 
     void learn_model();
 

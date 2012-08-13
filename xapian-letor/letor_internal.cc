@@ -56,6 +56,8 @@ using namespace std;
 
 using namespace Xapian;
 
+typedef vector<Xapian::RankList> Samples;
+
 struct svm_parameter param;
 struct svm_problem prob;
 struct svm_model *model;
@@ -70,8 +72,8 @@ int max_nr_attr = 64;
 
 int predict_probability = 0;
 
-static char *line = NULL;
-static int max_line_len;
+//static char *line = NULL;
+//static int max_line_len;
 
 int MAXPATHLEN = 200;
 
@@ -92,10 +94,10 @@ static const char * sw[] = {
 
 
 
-static void exit_input_error(int line_num) {
+/*static void exit_input_error(int line_num) {
     printf("Error at Line : %d", line_num);
     exit(1);
-}
+}*/
 /*
 static string convertDouble(double value) {
     std::ostringstream o;
@@ -142,6 +144,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     return letor_mset;
 }
 
+/*
 static char* readline(FILE *input) {
     int len;
 
@@ -158,7 +161,8 @@ static char* readline(FILE *input) {
     return line;
 }
 
-static void read_problem(const char *filename) {
+static void
+read_problem(const char *filename) {
     int elements, max_index, inst_max_index, i, j;
     FILE *fp = fopen(filename, "r");
     char *endptr;
@@ -252,6 +256,17 @@ static void read_problem(const char *filename) {
 	}
 	fclose(fp);
 }
+*/
+vector<Xapian::RankList>
+Letor::Internal::load_list_ranklist(const char *filename) { //train.bin
+    fstream train_file (filename, ios::in | ios::out | ios::binary);
+    int size = 0;
+    train_file.read((char *)(&size), sizeof(size));
+    vector<Xapian::RankList> samples;// = (Samples *) malloc(size);
+    train_file.read((char*) &samples, size);
+    train_file.close();
+    return samples;
+}
 
 void
 Letor::Internal::letor_learn_model() {
@@ -259,10 +274,14 @@ Letor::Internal::letor_learn_model() {
     printf("Learning the model..");
     string input_file_name;
     string model_file_name;
-    input_file_name = get_cwd().append("/train.txt");
+    input_file_name = get_cwd().append("/train.bin");
     model_file_name = get_cwd().append("/model.txt");
-
-    read_problem(input_file_name.c_str()); // WHY???
+    
+    //read_problem(input_file_name.c_str());
+    
+    vector<Xapian::RankList> samples = load_list_ranklist(input_file_name.c_str());
+    
+    ranker.set_training_data(samples);
     
     ranker.learn_model();
 }
@@ -293,8 +312,29 @@ write_to_file(std::vector<Xapian::RankList> list_rlist) {
 	 * each FeatureVector has the following data: double score, int fcount, string did, map<int, double> fvals
 	 * each line: double int string 1:double 2:double 3:double....
 	 */
+	int size_rl = rlist.rl.size();
+	// print the size of the rlist so that later we know how many featureVector to scan for this particular rlist.
+	train_file << size_rl << " " << rlist.qid << endl;
+	for(int j=0; j < size_rl; ++j) {
+	    FeatureVector fv = rlist.rl[j];
+	    // now save this feature vector fv to the file
+	    train_file << fv.score << " " << fv.fcount << " " << fv.did;// << " ";
+	    for(int k=0; k < fv.fcount; ++k) {
+		train_file << " " << k << ":" << fv.fvals.find(k)->second;
+	    }
+	    train_file << endl;
+	}
     }
+    train_file.close();
+}
 
+static void
+write_ranklist(std::vector<Xapian::RankList> list_rlist) {
+    fstream train_file ("train.bin", ios::in | ios::out | ios::binary);
+    long int size = sizeof(list_rlist);
+    train_file.write ((char*) &size, sizeof(size));
+    train_file.write ((char*) &list_rlist, sizeof(list_rlist));
+    train_file.close();
 }
 
 void
@@ -383,6 +423,9 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	list_rlist.push_back(rl);
     }//while closed
     myfile1.close();
+    /* Call either one of the following
+     */
     write_to_file(list_rlist);
+    write_ranklist(list_rlist);
 //    train_file.close();
 }
