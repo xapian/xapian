@@ -261,6 +261,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 /** An iterator pointing to items in an MSet.
  *  This is used for access to individual results of a match.
  */
+//FIXME:dc: This iterator should be converted to use an Internal class
 class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     private:
 	friend class MSet;
@@ -396,6 +397,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 */
 	int get_percent() const;
 
+	/// Determine if iterator is exhausted
+	bool at_end() const { return index == mset.size(); }
+
 	/// Return a string describing this object.
 	std::string get_description() const;
 
@@ -482,6 +486,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 	std::string get_description() const;
 };
 
+//FIXME:dc: This iterator should be converted to use an Internal class
 /** Iterate through terms in the ESet */
 class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     private:
@@ -548,6 +553,9 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 
 	/// Return a string describing this object.
 	std::string get_description() const;
+
+	/// Determine if the iterator has been exhausted
+	bool at_end() const { return index == eset.size(); }
 
 	/// Allow use as an STL iterator
 	//@{

@@ -1,3 +1,11 @@
+Sat Aug 25 16:09:50 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* include/xapian/enquire.h: Add function to test MSetIterator and
+	  ESetIterator exhaustion against the size of the underlying interee
+	  since comparison against an empty Itor is not suitable for an
+	  exhaustion test. Add FIXME that these Iterators should use an Internal
+	  class. 
+
 Thu Aug 09 21:50:52 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* weight/weightinternal.h: Include config.h since macros are used
