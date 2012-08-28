@@ -112,21 +112,33 @@ public class SmokeTest {
 		System.err.println("Unexpected mset.size()");
 		System.exit(1);
 	    }
+	    MSetIterator m_itor = mset.begin();
+	    Document m_doc = null;
+	    long m_id;
+	    while(m_itor.hasNext()) {
+		m_id = m_itor.next();
+		if(m_itor.hasNext()) {
+		    m_doc = mset.getDocument(m_id);
+		}
+	    }
+
+	    // Only one doc exists in this mset
+	    if(m_doc != null && m_doc.getDocId() != 0) {
+		System.err.println("Unexpected docid");
+		    System.exit(1);
+	    }
 
 	    String term_str = "";
-	    String[] itor = enq.getMatchingTerms(mset.getElement(0));
-	    int size = itor.length - 1;
-	    for (String str : itor) {
-		term_str += str;
-		if (size > 0)
+	    TermIterator itor = enq.getMatchingTermsBegin(mset.getElement(0));
+	    while (itor.hasNext()) {
+		term_str += itor.next();
+		if (itor.hasNext())
 		    term_str += ' ';
-		size--;
 	    }
 	    if (!term_str.equals("is there")) {
 		System.err.println("Unexpected term_str");
 		System.exit(1);
 	    }
-
 /* FIXME:dc: Fails since Xapian::Error is still unmapped
 	    boolean ok = false;
 	    try {
@@ -156,10 +168,9 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 
-/*
-	    ESetIterator eit = eset.iterator();
 	    int count = 0;
-	    while (eit.hasNext()) {
+	    for(ESetIterator eit = eset.begin(); eit.hasNext(); ) {
+	    // for (int i = 0; i < eset.size(); i++) {
 		if (eit.getTerm().charAt(0) == 'a') {
 		    System.err.println("MyExpandDecider wasn't used");
 		    System.exit(1);
@@ -169,9 +180,9 @@ public class SmokeTest {
 	    }
 	    if (count != eset.size()) {
 		System.err.println("ESet.size() mismatched number of terms returned by ESetIterator");
+		System.err.printf("%s %s", count, eset.size());
 		System.exit(1);
 	    }
-*/
 
 /*
 	    MSet mset2 = enq.getMSet(0, 10, null, new MyMatchDecider());

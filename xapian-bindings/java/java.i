@@ -3,6 +3,7 @@
 /* java.i: SWIG interface file for the Java bindings
  *
  * Copyright (c) 2007,2009,2011,2012 Olly Betts
+ * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -109,20 +110,80 @@ namespace Xapian {
 // For compatibility with the original JNI wrappers.
 // FIXME: These make use of the fact that the default ctor for PostingIterator,
 // TermIterator, and ValueIterator produces an end iterator.
-
 %extend PostingIterator {
-    bool hasNext() const { return (*self) == Xapian::PostingIterator(); }
+    Xapian::docid next () {
+        Xapian::docid tmp;
+        if ((*self) != Xapian::PostingIterator()) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = -1;
+        }
+        return tmp;
+    }
+
+    bool hasNext() const { return (*self) != Xapian::PostingIterator(); }
 }
 
 %extend TermIterator {
-    bool hasNext() const { return (*self) == Xapian::TermIterator(); }
+    std::string next () {
+        std:string tmp;
+        if ((*self) != Xapian::TermIterator()) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = "";
+        }
+        return tmp;
+    }
+
+    bool hasNext() const { return (*self) != Xapian::TermIterator(); }
 }
 
 %extend ValueIterator {
-    bool hasNext() const { return (*self) == Xapian::ValueIterator(); }
+    std::string next () {
+        std:string tmp;
+        if ((*self) != Xapian::ValueIterator()) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = "";
+        }
+        return tmp;
+    }
+
+    bool hasNext() const { return (*self) != Xapian::ValueIterator(); }
 }
 
-// FIXME: MSetIterator::hasNext() and ESetIterator::hasNext().
+%extend ESetIterator {
+    std::string next () {
+	std:string tmp;
+	if (!self->at_end()) {
+	    tmp = (**self);
+	    ++(*self);
+	} else {
+	    tmp = "";
+	}
+	return tmp;
+    }
+
+    bool hasNext() const { return !self->at_end(); }
+}
+
+%extend MSetIterator {
+    Xapian::docid next () {
+	Xapian::docid tmp;
+	if (!self->at_end()) {
+	    tmp = (**self);
+	    ++(*self);
+	} else {
+	    tmp = -1;
+	}
+	return tmp;
+    }
+
+    bool hasNext() const { return !self->at_end(); }
+}
 
 }
 
