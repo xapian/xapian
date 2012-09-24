@@ -1,3 +1,13 @@
+Mon Sep 24 11:15:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* lua/docs/examples/simpleexpand.lua,
+	  lua/docs/examples/simplematchdecider.lua,
+	  lua/docs/examples/simplesearch.lua: query:get_description() should
+	  be str(query).  Fixes #600.
+	* lua/docs/index.html: Document that get_description() is mapped to
+	  str(), and end() to _end().
+
 Wed Jun 27 12:12:27 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.12.

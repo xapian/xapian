@@ -35,6 +35,21 @@ reserve any value, including NUL. That means that Lua can store a UTF-8
 string without problems.
 </p>
 
+<h2>Method names</h2>
+
+<p>
+Most methods are named the same as in the C++ API - the exceptions are:
+</p>
+
+<ul>
+<li> <code>end</code> is a keyword in Lua, so such methods are renamed to
+<code>_end</code> - e.g. in Lua you'd use <code>mset:_end()</code> to get an
+end iterator for an MSet object called mset.
+<li> The C++ method <code>get_description()</code> is mapped to the
+<code>str</code> function in Lua, so <code>str(x)</code> will return a string
+describing object x.
+</ul>
+
 <h2>Exceptions</h2>
 
 <p>
