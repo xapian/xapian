@@ -43,8 +43,14 @@ using namespace std;
 static bool
 append_filename_argument(string & cmd, const string & arg) {
 #ifdef __WIN32__
-    cmd.reserve(cmd.size() + arg.size() + 3);
-    cmd += " \"";
+    cmd.reserve(cmd.size() + arg.size() + 5);
+    // Prevent a leading "-" on the filename being interpreted as a command
+    // line option.
+    if (arg[0] == '-')
+	cmd += " \".\\";
+    else
+	cmd += " \"";
+
     for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
 	if (*i == '/') {
 	    // Convert Unix path separators to backslashes.  C library

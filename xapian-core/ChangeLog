@@ -1,3 +1,11 @@
+Tue Sep 25 06:32:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: Protect filenames which start with '-' on
+	  MS Windows like we already do on other platforms.  The built-in
+	  commands generally only interpret '/' as the character introducing a
+	  command line option (which we already convert to '\'), but many
+	  ported programs understand '-' too/instead.
+
 Sat Aug 25 16:09:50 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* include/xapian/enquire.h: Add function to test MSetIterator and
