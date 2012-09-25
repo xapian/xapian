@@ -1,3 +1,9 @@
+Tue Sep 25 08:09:08 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/append_filename_arg.h,
+	  tests/harness/unixcmds.cc: Split out append_filename_argument() into
+	  its own file so it can be used elsewhere.
+
 Tue Sep 25 06:46:03 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Mark MSetIterator::at_end() and
