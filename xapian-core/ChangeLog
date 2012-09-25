@@ -1,3 +1,10 @@
+Tue Sep 25 06:36:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: Escape filenames on POSIX platforms by
+	  wrapping in single quotes and specially handling single quotes in
+	  the filename - previously newlines in filenames got eaten by the
+	  shell.
+
 Tue Sep 25 06:32:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc: Protect filenames which start with '-' on
