@@ -396,7 +396,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 */
 	int get_percent() const;
 
-	/// Determine if iterator is exhausted
+	/// @private @internal Determine if the iterator has been exhausted.
 	bool at_end() const { return index == mset.size(); }
 
 	/// Return a string describing this object.
@@ -552,7 +552,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	/// Return a string describing this object.
 	std::string get_description() const;
 
-	/// Determine if the iterator has been exhausted
+	/// @private @internal Determine if the iterator has been exhausted.
 	bool at_end() const { return index == eset.size(); }
 
 	/// Allow use as an STL iterator
