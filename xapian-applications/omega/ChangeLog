@@ -1,3 +1,10 @@
+Tue Sep 25 23:57:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc: Replace shell_protect() with
+	  append_filename_argument() from common/append_filename_arg.h.
+	  Extracting text using external filters now works for filenames
+	  containing a newline character.
+
 Thu Aug 09 20:07:59 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* Makefile.am,configure.ac: Allow users to configure with

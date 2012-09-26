@@ -103,6 +103,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
+	common/append_filename_arg.h\
 	common/gnu_getopt.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
