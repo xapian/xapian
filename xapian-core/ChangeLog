@@ -1,3 +1,8 @@
+Mon Oct 01 05:05:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Try to make it clearer we're looking for a dual-licence
+	  on submitted patches.
+
 Tue Sep 25 08:09:08 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/append_filename_arg.h,
