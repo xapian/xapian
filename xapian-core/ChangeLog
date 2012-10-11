@@ -1,3 +1,9 @@
+Thu Oct 11 12:28:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/valueranges.rst: Update documentation to reflect change in
+	  Xapian 1.1.2 - DateValueRangeProcessor and StringValueRangeProcessor
+	  now support a prefix or suffix.
+
 Mon Oct 01 05:05:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: Try to make it clearer we're looking for a dual-licence
