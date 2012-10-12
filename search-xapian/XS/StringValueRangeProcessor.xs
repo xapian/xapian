@@ -13,10 +13,9 @@ StringValueRangeProcessor::new(valno, str="", prefix = true)
             RETVAL = new StringValueRangeProcessor(valno);
             break;
         case 3:
-        case 4: {
+        case 4:
             RETVAL = new StringValueRangeProcessor(valno, str, prefix);
             break;
-        }
         default:
             croak("Bad parameter count for new");
         }
