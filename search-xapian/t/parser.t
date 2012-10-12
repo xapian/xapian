@@ -6,7 +6,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 58 };
+BEGIN { plan tests => 60 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -85,10 +85,14 @@ my $vrp2 = new Search::Xapian::NumberValueRangeProcessor(2);
 my $vrp3 = new Search::Xapian::StringValueRangeProcessor(3);
 my $vrp4 = new Search::Xapian::NumberValueRangeProcessor(4, '$');
 my $vrp5 = new Search::Xapian::NumberValueRangeProcessor(5, 'kg', 0);
+my $vrp6 = new Search::Xapian::StringValueRangeProcessor(6, 'country:');
+my $vrp7 = new Search::Xapian::StringValueRangeProcessor(7, ':name', 0);
 $qp->add_valuerangeprocessor( $vrp1 );
 $qp->add_valuerangeprocessor( $vrp2 );
 $qp->add_valuerangeprocessor( $vrp4 );
 $qp->add_valuerangeprocessor( $vrp5 );
+$qp->add_valuerangeprocessor( $vrp6 );
+$qp->add_valuerangeprocessor( $vrp7 );
 $qp->add_valuerangeprocessor( $vrp3 );
 
 $qp->add_boolean_prefix("test", "XTEST");
@@ -108,6 +112,8 @@ foreach $pair (
     [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19990312 20010412' ],
     [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
     [ '(test:a..test:b hello)', '(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)' ],
+    [ 'country:chile..denmark', 'VALUE_RANGE 6 chile denmark' ],
+    [ 'albert..xeni:name', 'VALUE_RANGE 7 albert xeni' ],
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);

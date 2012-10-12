@@ -3,9 +3,23 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::StringValueRangeProcessor
 PROTOTYPES: ENABLE
 
 StringValueRangeProcessor *
-StringValueRangeProcessor::new(valueno valno)
+StringValueRangeProcessor::new(valno, str="", prefix = TRUE)
+    valueno valno
+    string str
+    bool prefix
     CODE:
-	RETVAL = new StringValueRangeProcessor(valno);
+        switch (items) { /* items includes the hidden this pointer */
+        case 2:
+            RETVAL = new StringValueRangeProcessor(valno);
+            break;
+        case 3:
+        case 4: {
+            RETVAL = new StringValueRangeProcessor(valno, str, prefix);
+            break;
+        }
+        default:
+            croak("Bad parameter count for new");
+        }
     OUTPUT:
 	RETVAL
 
