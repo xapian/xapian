@@ -43,7 +43,7 @@ TermGenerator::get_document()
 	RETVAL
 
 void
-TermGenerator::index_text(text, weight = 1, prefix = "")
+TermGenerator::index_text(text, weight = 1, prefix = NO_INIT)
     string text
     termcount weight
     string prefix
@@ -57,7 +57,7 @@ TermGenerator::set_flags(int toggle, int mask = 0)
 	RETVAL
 
 void
-TermGenerator::index_text_without_positions(text, weight = 1, prefix = "")
+TermGenerator::index_text_without_positions(text, weight = 1, prefix = NO_INIT)
     string text
     termcount weight
     string prefix

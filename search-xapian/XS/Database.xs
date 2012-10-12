@@ -107,7 +107,7 @@ Database::positionlist_end(did, term)
 	RETVAL
 
 TermIterator *
-Database::allterms_begin(prefix = "")
+Database::allterms_begin(prefix = NO_INIT)
     string prefix
     CODE:
 	try {
@@ -119,7 +119,7 @@ Database::allterms_begin(prefix = "")
 	RETVAL
 
 TermIterator *
-Database::allterms_end(prefix = "")
+Database::allterms_end(prefix = NO_INIT)
     string prefix
     CODE:
 	try {

@@ -5,6 +5,9 @@ Revision history for Perl extension Search::Xapian.
 	- Wrap 2 and 3 parameter forms of StringValueRangeProcessor
 	  constructor so prefixes and suffixes can be specified.
 	  (ticket#607)
+	[Changes contributed by Olly Betts]
+	- Don't pointlessly reinitialise default std::string parameters to an
+	  empty string (performance and code size micro-optimisation).
 
 1.2.12.0  Wed Jun 27 12:17:26 UTC 2012
 	- No change except for bumping the version to indicate compatibility

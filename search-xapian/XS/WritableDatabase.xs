@@ -201,7 +201,7 @@ WritableDatabase::positionlist_end(did, term)
         RETVAL
 
 TermIterator *
-WritableDatabase::allterms_begin(prefix = "")
+WritableDatabase::allterms_begin(prefix = NO_INIT)
     string prefix
     CODE:
 	try {
@@ -213,7 +213,7 @@ WritableDatabase::allterms_begin(prefix = "")
         RETVAL
 
 TermIterator *
-WritableDatabase::allterms_end(prefix = "")
+WritableDatabase::allterms_end(prefix = NO_INIT)
     string prefix
     CODE:
 	try {

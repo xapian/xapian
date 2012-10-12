@@ -3,7 +3,7 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::StringValueRangeProcessor
 PROTOTYPES: ENABLE
 
 StringValueRangeProcessor *
-StringValueRangeProcessor::new(valno, str="", prefix = true)
+StringValueRangeProcessor::new(valno, str = NO_INIT,  prefix = true)
     valueno valno
     string str
     bool prefix
