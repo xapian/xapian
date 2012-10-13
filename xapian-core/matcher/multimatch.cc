@@ -42,8 +42,6 @@
 #include "document.h"
 #include "omqueryinternal.h"
 
-#include "submatch.h"
-
 #include "msetcmp.h"
 
 #include "valuestreamdocument.h"
