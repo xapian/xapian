@@ -80,7 +80,7 @@ eval {
 };
 ok($@);
 ok(ref($@), "Search::Xapian::DatabaseModifiedError", "correct class for exception");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 
 ok($@->get_msg, "The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation", "get_msg works");
 

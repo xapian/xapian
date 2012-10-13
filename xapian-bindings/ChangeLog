@@ -1,3 +1,8 @@
+Sat Oct 13 04:28:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/parser.t: Using
+	  UNIVERSAL::isa() as a function is deprecated.
+
 Sat Oct 13 02:57:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/parser.t: Forward port tests of StringValueRangeProcessor

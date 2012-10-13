@@ -119,7 +119,7 @@ eval {
 };
 ok($@);
 ok(ref($@), "Search::Xapian::InvalidArgumentError");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
 ok( $disable_fixme || "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 
