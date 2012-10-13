@@ -1,3 +1,16 @@
+Sat Oct 13 11:23:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/harness/unixcmds.cc: Escape filenames on POSIX platforms by
+	  wrapping in single quotes and specially handling single quotes in
+	  the filename - previously newlines in filenames got eaten by the
+	  shell.
+	* tests/harness/unixcmds.cc: Protect filenames which start with '-' on
+	  MS Windows like we already do on other platforms.  The built-in
+	  commands generally only interpret '/' as the character introducing a
+	  command line option (which we already convert to '\'), but many
+	  ported programs understand '-' too/instead.
+
 Sat Oct 13 08:55:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

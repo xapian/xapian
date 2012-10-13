@@ -34,7 +34,7 @@
 # include "safewindows.h"
 #endif
 
-#include "stringutils.h"
+#include "str.h"
 #include "utils.h"
 
 using namespace std;
@@ -43,8 +43,14 @@ using namespace std;
 static bool
 append_filename_argument(string & cmd, const string & arg) {
 #ifdef __WIN32__
-    cmd.reserve(cmd.size() + arg.size() + 3);
-    cmd += " \"";
+    cmd.reserve(cmd.size() + arg.size() + 5);
+    // Prevent a leading "-" on the filename being interpreted as a command
+    // line option.
+    if (arg[0] == '-')
+	cmd += " \".\\";
+    else
+	cmd += " \"";
+
     for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
 	if (*i == '/') {
 	    // Convert Unix path separators to backslashes.  C library
@@ -60,23 +66,30 @@ append_filename_argument(string & cmd, const string & arg) {
     }
     cmd += '"';
 #else
-    // Allow for escaping a few characters.
-    cmd.reserve(cmd.size() + arg.size() + 10);
+    // Allow for the typical case of a filename without single quote characters
+    // in - this reserving is just an optimisation, and the string will grow
+    // larger if necessary.
+    cmd.reserve(cmd.size() + arg.size() + 5);
 
     // Prevent a leading "-" on the filename being interpreted as a command
     // line option.
     if (arg[0] == '-')
-	cmd += " ./";
+	cmd += " './";
     else
-	cmd += ' ';
+	cmd += " '";
 
     for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	// Don't escape a few safe characters which are common in filenames.
-	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
-	    cmd += '\\';
+	if (*i == '\'') {
+	    // Wrapping the whole argument in single quotes works for
+	    // everything except a single quote - for that we drop out of
+	    // single quotes, then use a backslash-escaped single quote, then
+	    // re-enter single quotes.
+	    cmd += "'\\''";
+	    continue;
 	}
 	cmd += *i;
     }
+    cmd += '\'';
 #endif
     return true;
 }
