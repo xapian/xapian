@@ -34,65 +34,11 @@
 # include "safewindows.h"
 #endif
 
+#include "append_filename_arg.h"
 #include "str.h"
 #include "utils.h"
 
 using namespace std;
-
-/// Append filename argument arg to command cmd with suitable escaping.
-static bool
-append_filename_argument(string & cmd, const string & arg) {
-#ifdef __WIN32__
-    cmd.reserve(cmd.size() + arg.size() + 5);
-    // Prevent a leading "-" on the filename being interpreted as a command
-    // line option.
-    if (arg[0] == '-')
-	cmd += " \".\\";
-    else
-	cmd += " \"";
-
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '/') {
-	    // Convert Unix path separators to backslashes.  C library
-	    // functions understand "/" in paths, but we are going to
-	    // call commands like "deltree" or "rd" which don't.
-	    cmd += '\\';
-	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
-	    // Check for illegal characters in filename.
-	    return false;
-	} else {
-	    cmd += *i;
-	}
-    }
-    cmd += '"';
-#else
-    // Allow for the typical case of a filename without single quote characters
-    // in - this reserving is just an optimisation, and the string will grow
-    // larger if necessary.
-    cmd.reserve(cmd.size() + arg.size() + 5);
-
-    // Prevent a leading "-" on the filename being interpreted as a command
-    // line option.
-    if (arg[0] == '-')
-	cmd += " './";
-    else
-	cmd += " '";
-
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '\'') {
-	    // Wrapping the whole argument in single quotes works for
-	    // everything except a single quote - for that we drop out of
-	    // single quotes, then use a backslash-escaped single quote, then
-	    // re-enter single quotes.
-	    cmd += "'\\''";
-	    continue;
-	}
-	cmd += *i;
-    }
-    cmd += '\'';
-#endif
-    return true;
-}
 
 /// Recursively copy a directory.
 void cp_R(const std::string &src, const std::string &dest) {

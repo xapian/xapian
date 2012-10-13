@@ -1,3 +1,10 @@
+Sat Oct 13 11:30:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/Makefile.mk,common/append_filename_arg.h,
+	  tests/harness/unixcmds.cc: Split out append_filename_argument() into
+	  its own file so it can be used elsewhere.
+
 Sat Oct 13 11:23:37 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
