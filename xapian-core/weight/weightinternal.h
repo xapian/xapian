@@ -22,7 +22,6 @@
 #ifndef XAPIAN_INCLUDED_WEIGHTINTERNAL_H
 #define XAPIAN_INCLUDED_WEIGHTINTERNAL_H
 
-#include <config.h>
 #include "xapian/weight.h"
 
 #include "xapian/database.h"

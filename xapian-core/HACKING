@@ -524,7 +524,11 @@ To help us move towards a consistent ordering of #include lines in source
 files, please follow the following policy when ordering them:
 
 * #include <config.h> should be first, and use <> not "" (as recommended by the
-  autoconf manual).
+  autoconf manual).  Always include config.h from C/C++ source files, but don't
+  include it from header files - the autoconf manual recommends that it should
+  be included first, so including it from headers is either redundant, or may
+  hide a missing config.h include in the source file the header was included
+  from (better to get an error in this case).
 
 * The header corresponding to the source file should be next. This means that
   compilation of the library ensures that each header with a corresponding
