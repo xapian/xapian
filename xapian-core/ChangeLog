@@ -1,3 +1,9 @@
+Sat Oct 13 11:33:27 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Try to make it clearer we're looking for a dual-licence
+	  on submitted patches.
+
 Sat Oct 13 11:30:42 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -1225,8 +1225,8 @@ so please check with your employer if this applies.  Be aware that even if you
 are a student your university may try and claim some rights on code which you
 write.
 
-Patches which are submitted to Xapian will only be included if they are
-licensed for distribution under each of the following licenses:
+Patches which are submitted to Xapian will only be included if the copyright
+holder(s) dual-license them under each of the following licences:
 
  - GPL version 2 and all later versions (see the file "COPYING" for details).
  - MIT/X license::
