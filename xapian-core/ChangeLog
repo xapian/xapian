@@ -1,3 +1,11 @@
+Sat Oct 13 07:37:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Clarify that the "reverse" parameter of
+	  set_sort_by_relevance_then_value() and
+	  set_sort_by_relevance_then_key() only affects the ordering of the
+	  value/key part of the sort.
+
 Sat Oct 13 07:18:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
