@@ -3,6 +3,13 @@ MODULE = Search::Xapian			PACKAGE = Search::Xapian::Query
 PROTOTYPES: ENABLE
 
 Query *
+new0()
+    CODE:
+        RETVAL = new Query();
+    OUTPUT:
+        RETVAL
+
+Query *
 new1(term)
     string	term
     CODE:

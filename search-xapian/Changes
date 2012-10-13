@@ -6,6 +6,8 @@ Revision history for Perl extension Search::Xapian.
 	  constructor so prefixes and suffixes can be specified.
 	  (ticket#607)
 	[Changes contributed by Olly Betts]
+	- Wrap the zero argument Query constructor.
+	- Add wrappers for Query::MatchAll and Query::MatchNothing.
 	- Don't pointlessly reinitialise default std::string parameters to an
 	  empty string (performance and code size micro-optimisation).
 

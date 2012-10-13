@@ -21,7 +21,9 @@ sub new {
   my $class = shift;
   my $query;
 
-  if( @_ == 1 ) {
+  if( @_ == 0 ) {
+    $query = new0();
+  } elsif( @_ == 1 ) {
     $query = new1(@_);
   } else {
     my $op = $_[0];
@@ -78,5 +80,9 @@ sub get_terms {
     }
     return @terms;
 }
+
+sub MatchNothing () { Search::Xapian::Query->new }
+
+sub MatchAll () { Search::Xapian::Query->new('') }
 
 1;
