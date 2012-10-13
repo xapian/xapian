@@ -1,3 +1,10 @@
+Sat Oct 13 08:55:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/termgenerator_internal.cc: Remove "FIXME: Add API to
+	  allow control of how stemming is used?", as we have now added such
+	  an API.
+
 Sat Oct 13 08:17:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
