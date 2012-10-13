@@ -1,3 +1,9 @@
+Sat Oct 13 12:05:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Fix documentation comment typos:
+	  "covert" -> "convert".
+
 Sat Oct 13 11:57:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
