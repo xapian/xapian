@@ -1,3 +1,8 @@
+Sat Oct 13 09:00:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix documentation comment typos:
+	  "covert" -> "convert".
+
 Thu Oct 11 12:28:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/valueranges.rst: Update documentation to reflect change in

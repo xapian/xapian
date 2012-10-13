@@ -229,7 +229,7 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
      *  std::string - we need this overload as otherwise
      *  DateValueRangeProcessor(1, "date:") quietly interprets the second
      *  argument as a boolean in preference to std::string.  If you want to
-     *  be compatible with 1.2.12 and earlier, then explicitly covert to
+     *  be compatible with 1.2.12 and earlier, then explicitly convert to
      *  std::string, i.e.: DateValueRangeProcessor(1, std::string("date:"))
      *
      *  @param slot_	    The value number to return from operator().
@@ -374,7 +374,7 @@ struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
 
     /** Convert a field-prefixed string to a Query object.
      *
-     *  @param str	The string to covert.
+     *  @param str	The string to convert.
      *
      *  @return	Query object corresponding to @a str.
      */
