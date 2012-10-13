@@ -1,3 +1,8 @@
+Sat Oct 13 02:57:22 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/t/parser.t: Forward port tests of StringValueRangeProcessor
+	  with a prefix or suffix from 1.2's XS Search::Xapian.  (ticket#607)
+
 Tue Aug 28 04:33:21 GMT 2012  Dan Colish <dcolish@gmail.com>
 
 	* java/SmokeTest.java,java/java.i: Implement and test MSetIterator,
