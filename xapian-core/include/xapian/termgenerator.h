@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,6 +119,23 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
      */
     void set_stemming_strategy(stem_strategy strategy);
+
+    /** Set the maximum length word to index.
+     *
+     *  The limit is on the length of a word prior to stemming and prior to
+     *  adding any term prefix.
+     *
+     *  The backends mostly impose a limit on the length of terms (often of
+     *  about 240 bytes), but it's generally useful to have a lower limit to
+     *  help prevent the index being bloated by useless junk terms from trying
+     *  to indexing things like binary data, uuencoded data, ASCII art, etc.
+     *
+     *  This method was new in Xapian 1.3.1.
+     *
+     *  @param max_word_length	The maximum length word to index, in bytes in
+     *				UTF-8 representation.  Default is 64.
+     */
+    void set_max_word_length(unsigned max_word_length);
 
     /** Index some text.
      *

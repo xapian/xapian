@@ -1,3 +1,12 @@
+Sat Oct 13 08:17:20 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
+	  queryparser/termgenerator_internal.cc,
+	  queryparser/termgenerator_internal.h,tests/termgentest.cc: Add new
+	  method TermGenerator::set_max_word_length() to allow this limit to
+	  be adjusted by the user.
+
 Sat Oct 13 07:37:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

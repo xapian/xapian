@@ -812,11 +812,29 @@ static bool test_tg_spell2()
     return true;
 }
 
+static bool test_tg_max_word_length1()
+{
+    Xapian::TermGenerator termgen;
+    termgen.set_stemmer(Xapian::Stem("en"));
+    termgen.set_max_word_length(4);
+
+    Xapian::Document doc;
+    termgen.set_document(doc);
+
+    termgen.index_text("cups bowls mugs");
+
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc),
+		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
+
+    return true;
+}
+
 /// Test cases for the TermGenerator.
 static const test_desc tests[] = {
     TESTCASE(termgen1),
     TESTCASE(tg_spell1),
     TESTCASE(tg_spell2),
+    TESTCASE(tg_max_word_length1),
     END_OF_TESTCASES
 };
 
