@@ -1,5 +1,19 @@
 Sat Oct 13 12:24:59 GMT 2012  Olly Betts <olly@survex.com>
 
+	* Makefile.am,omindex.cc: Replace shell_protect() with
+	  append_filename_argument() from common/append_filename_arg.h.
+	  Extracting text using external filters now works for filenames
+	  containing a newline character.
+	* common/: Update svn:externals to latest version of xapian-core
+	  on 1.2 branch to get common/append_filename_arg.h.
+
+Thu Aug 09 20:07:59 GMT 2012  Dan Colish <dcolish@gmail.com>
+
+	* Makefile.am,configure.ac: Allow users to configure with
+          MAGIC_PREFIX for non-standard installs of libmagic
+
+Wed Jul 18 10:51:39 GMT 2012  Olly Betts <olly@survex.com>
+
 	* Backport change from trunk:
 	* urldecode.h: Fix to decode escaped character at the end of the
 	  string.
