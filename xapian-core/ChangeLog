@@ -1,3 +1,8 @@
+Mon Oct 15 04:07:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: automake 1.12.4 is now used to generate snapshots and
+	  releases.
+
 Sat Oct 13 09:34:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* weight/weightinternal.h: Revert addition of "#include <config.h>" in
