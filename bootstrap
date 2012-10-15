@@ -252,7 +252,7 @@ else
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.12 tar.gz 735e5a755dd4ba24dbb345901198873b2686804d
+  lazy_build automake 1.12.4 tar.gz c474eb8c058d93ead9b2433fbcfb0c349517e171
   lazy_build libtool 2.4.2 tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
