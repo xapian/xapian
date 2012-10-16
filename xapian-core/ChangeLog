@@ -1,3 +1,9 @@
+Tue Oct 16 11:19:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,backends/dbcheck.cc,backends/dbfactory.cc,
+	  common/Makefile.mk: Fix to build when configured with
+	  --disable-backend-brass --disable-backend-chert.  (ticket#586)
+
 Mon Oct 15 04:07:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: automake 1.12.4 is now used to generate snapshots and

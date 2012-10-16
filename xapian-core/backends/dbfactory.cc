@@ -34,6 +34,7 @@
 #include "str.h"
 
 #include "safeerrno.h"
+#include <cstdlib> // For atoi().
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 # include "brass/brass_database.h"
@@ -44,6 +45,9 @@
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 # include "inmemory/inmemory_database.h"
 #endif
+// Even if none of the above get included, we still need a definition of
+// Database::Internal.
+#include "backends/database.h"
 
 #include <fstream>
 #include <string>

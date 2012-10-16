@@ -50,7 +50,6 @@ EXTRA_DIST +=\
 lib_src +=\
 	common/bitstream.cc\
 	common/closefrom.cc\
-	common/compression_stream.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/io_utils.cc\
@@ -64,6 +63,11 @@ lib_src +=\
 	common/str.cc\
 	common/stringutils.cc
 
+# echo hello
+if BUILD_BACKEND_BRASS_OR_CHERT
+lib_src +=\
+	common/compression_stream.cc
+endif
 
 if USE_WIN32_UUID_API
 lib_src +=\

@@ -26,9 +26,13 @@
 #include "xapian/dbfactory.h"
 #include "xapian/error.h"
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
 #include "brass/brass_dbcheck.h"
+#endif
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 #include "chert/chert_dbcheck.h"
 #include "chert/chert_version.h"
+#endif
 
 #include "filetests.h"
 #include "stringutils.h"
@@ -42,6 +46,7 @@ using namespace std;
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
 // "only" requires (4 * last_docid()) bytes.
 
+#if defined XAPIAN_HAS_BRASS_BACKEND || defined XAPIAN_HAS_CHERT_BACKEND
 static void
 reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 		ostream & out)
@@ -67,6 +72,7 @@ reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 	       "skipping that check" << endl;
     }
 }
+#endif
 
 namespace Xapian {
 
@@ -78,6 +84,8 @@ Database::check(const string & path, int opts, std::ostream &out)
     struct stat sb;
     if (stat((path + "/iamchert").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
+	(void)opts;
+	(void)out;
 	throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else
 	// Check a whole chert database directory.
@@ -139,6 +147,8 @@ Database::check(const string & path, int opts, std::ostream &out)
 #endif
     } else if (stat((path + "/iambrass").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_BRASS_BACKEND
+	(void)opts;
+	(void)out;
 	throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
 #else
 	// Check a whole brass database directory.
