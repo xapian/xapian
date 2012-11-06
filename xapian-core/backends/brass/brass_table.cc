@@ -375,6 +375,8 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 
     if (rare(j != GET_LEVEL(p))) {
 	string msg = "Expected block ";
+	msg += str(n);
+	msg += " to be level ";
 	msg += str(j);
 	msg += ", not ";
 	msg += str(GET_LEVEL(p));

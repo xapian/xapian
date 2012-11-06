@@ -1,3 +1,8 @@
+Tue Nov 06 22:42:31 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Restore two missing lines in database
+	  checking where we report a block with the wrong level.
+
 Tue Oct 16 11:19:42 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,backends/dbcheck.cc,backends/dbfactory.cc,
