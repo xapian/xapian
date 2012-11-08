@@ -1,3 +1,9 @@
+Thu Nov 08 01:10:54 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING: Update automake version used for bootstrapping snapshots
+	  and releases from 1.11.1 to 1.11.6, to fix security issue in "make
+	  distcheck".
+
 Thu Nov 08 00:08:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
