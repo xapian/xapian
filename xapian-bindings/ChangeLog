@@ -1,3 +1,9 @@
+Thu Nov 08 02:25:49 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/parser.t: Using
+	  UNIVERSAL::isa() as a function is deprecated.
+
 Thu Nov 08 02:20:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
