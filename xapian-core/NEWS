@@ -1,3 +1,71 @@
+ 16857       olly Sat Oct 13 12:05:46 GMT 2012  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.13 (2012-11-08):
+
+API:
+
+* TermGenerator: Add new method TermGenerator::set_max_word_length() to allow
+  this limit to be adjusted by the user.
+
+* DateValueRangeProcessor: Add extra constructor overloaded form so that in
+  DateValueRangeProcessor(1, "date:"), the const char * gets interpreted as
+  std::string rather than bool.
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* valueranges.html: Update documentation to reflect change in Xapian 1.1.2 -
+  DateValueRangeProcessor and StringValueRangeProcessor now support a prefix or
+  suffix.
+
+* Clarify that the "reverse" parameter of set_sort_by_relevance_then_value()
+  and set_sort_by_relevance_then_key() only affects the ordering of the
+  value/key part of the sort.
+
+* HACKING: Try to make it clearer we're looking for a dual-licence on submitted
+  patches.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix testsuite harness to compile with GCC 4.7.
+
+packaging:
+
+
+debug code:
+
+* Preserve errno over debug logging calls, so they can safely be added to code
+  which expects errno not to change.
+
 Xapian-core 1.2.12 (2012-06-27):
 
 build system:
