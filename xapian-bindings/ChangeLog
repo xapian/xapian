@@ -1,3 +1,9 @@
+Thu Nov 08 02:20:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/parser.t: Forward port tests of StringValueRangeProcessor
+	  with a prefix or suffix from 1.2's XS Search::Xapian.  (ticket#607)
+
 Thu Nov 08 02:03:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
