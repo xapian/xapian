@@ -1,3 +1,35 @@
+ 16858       olly Sat Oct 13 12:24:59 GMT 2012  Olly Betts <olly@survex.com>
+
+Omega 1.2.13 (2012-11-08):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Extracting text using external filters now works for filenames containing a
+    newline character - previously the newline got lost during escaping for the
+    shell.
+
+* scriptindex:
+
+omega:
+
+* Fix to decode %-encoded character at the end of the query string.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.2.12 (2012-06-27):
 
 No changes since 1.2.11 except to bump the version - this release was made to
