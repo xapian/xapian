@@ -1,3 +1,9 @@
+Sat Nov 10 08:12:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_percentages.cc: Note bug number in regression test for
+	  #590.
+
 Thu Nov 08 01:10:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING: Update automake version used for bootstrapping snapshots
