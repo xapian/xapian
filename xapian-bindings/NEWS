@@ -1,3 +1,45 @@
+ 16871       olly Thu Nov 08 02:25:49 GMT 2012  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.13 (2012-11-08):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+* configure: Overhaul checks for C# tools to use modern names in preference.
+
+Java:
+
+Lua:
+
+* Fix examples to use str(query) to get the query description.  (Fixes #600)
+
+* Document that get_description() is mapped to str(), and end() to _end().
+
+* Fix functor wrappers which return strings to be zero-byte clean.
+
+Perl:
+
+* Forward port tests of StringValueRangeProcessor with a prefix or suffix from
+  1.2's XS Search::Xapian.  (ticket#607)
+
+* Update testsuite not to use UNIVERSAL::isa() as a function, since doing so
+  is deprecated.
+
+PHP:
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.12 (2012-06-27):
 
 No changes since 1.2.11 except to bump the version - this release was made to
