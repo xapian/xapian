@@ -1,3 +1,12 @@
+Sat Nov 10 05:39:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,matcher/multiandpostlist.cc: Improved fix for
+	  #590 - count all matching LeafPostList objects with a Weight object
+	  rather than trying to prune at the MultiAndPostList level based on
+	  max_wt (if wdf is always zero for a term, BM25 gives max_wt of 0,
+	  which leads to us never counting that subquery.
+	* tests/api_percentages.cc: Add regression test topercent7.
+
 Fri Nov 09 04:25:32 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_percentages.cc: Note bug number in regression test for
