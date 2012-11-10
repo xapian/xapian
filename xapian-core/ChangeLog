@@ -1,3 +1,13 @@
+Sat Nov 10 08:51:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/leafpostlist.cc,matcher/multiandpostlist.cc: Improved fix for
+	  #590 - count all matching LeafPostList objects with a Weight object
+	  rather than trying to prune at the MultiAndPostList level based on
+	  max_wt (if wdf is always zero for a term, BM25 gives max_wt of 0,
+	  which leads to us never counting that subquery.
+	* tests/api_percentages.cc: Add regression test topercent7.
+
 Sat Nov 10 08:12:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

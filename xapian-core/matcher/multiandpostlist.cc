@@ -257,8 +257,7 @@ MultiAndPostList::count_matching_subqs() const
 {
     Xapian::termcount total = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	if (max_wt[i] > 0.0)
-	    total += plist[i]->count_matching_subqs();
+	total += plist[i]->count_matching_subqs();
     }
     return total;
 }

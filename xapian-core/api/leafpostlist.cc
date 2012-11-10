@@ -100,5 +100,5 @@ LeafPostList::get_termfreq_est_using_stats(
 Xapian::termcount
 LeafPostList::count_matching_subqs() const
 {
-    return 1;
+    return weight ? 1 : 0;
 }

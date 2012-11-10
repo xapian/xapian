@@ -27,6 +27,7 @@
 
 #include "apitest.h"
 #include "backendmanager_local.h"
+#include "str.h"
 #include "testutils.h"
 
 #include <cfloat>
@@ -274,5 +275,37 @@ DEFINE_TESTCASE(topercent6, backend) {
     Xapian::MSet mset2 = enquire.get_mset(0, 10);
     TEST(!mset2.empty());
     TEST_EQUAL(mset[0].get_percent(), mset2[0].get_percent());
+    return true;
+}
+
+static void
+make_topercent7_db(Xapian::WritableDatabase &db, const string &)
+{
+    for (int i = 1; i <= 6; ++i) {
+	Xapian::Document d;
+	d.set_data(str(i));
+	d.add_term("boom", 2 + (i - 4)*(i - 2));
+	if (i != 5)
+	    d.add_boolean_term("XCAT122");
+	db.add_document(d);
+    }
+    db.commit();
+}
+
+/// Test that a term with wdf always = 0 gets counted.
+//  Regression test for bug introduced in 1.2.10 by the original fix for #590,
+//  and fixed in 1.2.13 (and in trunk before 1.3.1 was released).
+DEFINE_TESTCASE(topercent7, generated) {
+    Xapian::Database db(get_database("topercent7", make_topercent7_db));
+
+    Xapian::Query q;
+    q = Xapian::Query(q.OP_OR, Xapian::Query("tomb"), Xapian::Query("boom"));
+    q = Xapian::Query(q.OP_AND, q, Xapian::Query("XCAT122"));
+
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet m = enq.get_mset(0, 10);
+    TEST(!m.empty());
+    TEST_REL(m[0].get_percent(),>,60);
     return true;
 }
