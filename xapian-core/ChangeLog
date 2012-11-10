@@ -1,3 +1,8 @@
+Fri Nov 09 04:25:32 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Note bug number in regression test for
+	  #590.
+
 Tue Nov 06 22:42:31 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Restore two missing lines in database

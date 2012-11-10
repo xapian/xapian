@@ -259,7 +259,7 @@ DEFINE_TESTCASE(topercent5, backend) {
 }
 
 /// Test that OP_FILTER doesn't affect percentages.
-//  Regression test for bug fixed in 1.3.1 and 1.2.10.
+//  Regression test for bug#590 fixed in 1.3.1 and 1.2.10.
 DEFINE_TESTCASE(topercent6, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query q(Xapian::Query::OP_OR,
