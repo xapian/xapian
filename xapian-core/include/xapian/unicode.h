@@ -250,7 +250,14 @@ namespace Internal {
 	 * spot this and optimise it to a sign-extending shift on architectures
 	 * with a suitable instruction).
 	 */
-	return (info >= 0) ? (info >> 15) : (~(~info >> 15));
+#ifdef __GNUC__
+	// GCC 4.7.1 doesn't optimise the more complex expression down (though
+	// 4.6.3 does), but the documented behaviour for GCC is that right
+	// shift of a signed integer does sign extension.
+	return info >> 8;
+#else
+	return (info >= 0) ? (info >> 8) : (~(~info >> 8));
+#endif
     }
 }
 

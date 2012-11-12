@@ -1,3 +1,9 @@
+Mon Nov 12 10:21:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,unicode/tclUniData.cc: Update Unicode
+	  character database to 6.2.0.
+	* tests/api_unicode.cc: Add tests for U+20BA, added in 6.2.0.
+
 Sat Nov 10 05:39:16 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc,matcher/multiandpostlist.cc: Improved fix for

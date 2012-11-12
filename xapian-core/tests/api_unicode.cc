@@ -305,6 +305,9 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::tolower(0x3cf), 0x3d7);
     TEST_EQUAL(Unicode::toupper(0x3d7), 0x3cf);
 
+    // U+20BA was added in Unicode 6.2.0:
+    TEST_EQUAL(Unicode::toupper(0x20ba), 0x20ba);
+    TEST_EQUAL(Unicode::tolower(0x20ba), 0x20ba);
 
     unsigned u;
     for (u = 0x514; u < 0x524; u += 2) {
@@ -369,6 +372,8 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
     const unsigned currency[] = {
 	// CURRENCY_SYMBOL
 	'$', 0xa3,
+	// CURRENCY_SYMBOL (added in Unicode 6.2.0)
+	0x20ba,
 	0
     };
     const unsigned whitespace[] = {
