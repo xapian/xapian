@@ -251,9 +251,11 @@ namespace Internal {
 	 * with a suitable instruction).
 	 */
 #ifdef __GNUC__
-	// GCC 4.7.1 doesn't optimise the more complex expression down (though
-	// 4.6.3 does), but the documented behaviour for GCC is that right
-	// shift of a signed integer does sign extension.
+	// GCC 4.7.1 doesn't optimise the more complex expression down
+	// (reported as http://gcc.gnu.org/PR55299), but the documented
+	// behaviour for GCC is that right shift of a signed integer performs
+	// sign extension:
+	// http://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Integers-implementation.html
 	return info >> 8;
 #else
 	return (info >= 0) ? (info >> 8) : (~(~info >> 8));
