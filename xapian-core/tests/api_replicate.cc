@@ -464,7 +464,7 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 				       expected_changed));
 	if (len < 30 || len >= filesize - 10) {
 	    // For lengths near the beginning and end, increment size by 1
-	    len += 1;
+	    ++len;
 	} else {
 	    // Don't bother incrementing by small amounts in the middle of
 	    // the changeset.
@@ -474,7 +474,6 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 	    }
 	}
     }
-    return;
 }
 
 // Test changesets which are truncated (and therefore invalid).
