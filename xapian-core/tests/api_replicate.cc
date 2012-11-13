@@ -141,7 +141,8 @@ get_changeset(const string & changesetpath,
 	      Xapian::DatabaseReplica & replica,
 	      int expected_changesets,
 	      int expected_fullcopies,
-	      bool expected_changed)
+	      bool expected_changed,
+	      bool full_copy = false)
 {
     FD fd(open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
     if (fd == -1) {
@@ -149,7 +150,9 @@ get_changeset(const string & changesetpath,
 		  + changesetpath + "')");
     }
     Xapian::ReplicationInfo info1;
-    master.write_changesets_to_fd(fd, replica.get_revision_info(), &info1);
+    master.write_changesets_to_fd(fd,
+				  full_copy ? "" : replica.get_revision_info(),
+				  &info1);
 
     TEST_EQUAL(info1.changeset_count, expected_changesets);
     TEST_EQUAL(info1.fullcopy_count, expected_fullcopies);
@@ -198,13 +201,15 @@ replicate(Xapian::DatabaseMaster & master,
 	  const string & tempdir,
 	  int expected_changesets,
 	  int expected_fullcopies,
-	  bool expected_changed)
+	  bool expected_changed,
+	  bool full_copy = false)
 {
     string changesetpath = tempdir + "/changeset";
     get_changeset(changesetpath, master, replica,
 		  expected_changesets,
 		  expected_fullcopies,
-		  expected_changed);
+		  expected_changed,
+		  full_copy);
     return apply_changeset(changesetpath, replica,
 			   expected_changesets,
 			   expected_fullcopies,
@@ -735,6 +740,69 @@ DEFINE_TESTCASE(replicate5, replicas) {
     TEST(file_exists(masterpath + "/changes3"));
     TEST(file_exists(masterpath + "/changes4"));
     TEST(file_exists(masterpath + "/changes5"));
+
+    // Need to close the replica before we remove the temporary directory on
+    // Windows.
+    replica.close();
+    rmtmpdir(tempdir);
+    return true;
+}
+
+/// Test --full-copy option.
+DEFINE_TESTCASE(replicate6, replicas) {
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
+    string tempdir = ".replicatmp";
+    mktmpdir(tempdir);
+    string masterpath = get_named_writable_database_path("master");
+
+    set_max_changesets(10);
+
+    Xapian::WritableDatabase orig(get_named_writable_database("master"));
+    Xapian::DatabaseMaster master(masterpath);
+    string replicapath = tempdir + "/replica";
+    Xapian::DatabaseReplica replica(replicapath);
+
+    // Add a document to the original database.
+    Xapian::Document doc1;
+    doc1.set_data(string("doc1"));
+    doc1.add_posting("doc", 1);
+    doc1.add_posting("one", 1);
+    orig.add_document(doc1);
+    orig.commit();
+
+    rm_rf(masterpath + "1");
+    cp_R(masterpath, masterpath + "1");
+
+    orig.add_document(doc1);
+    orig.commit();
+
+    // Apply the replication - we don't have changesets stored, so this should
+    // just do a database copy, and return a count of 1.
+    int count = replicate(master, replica, tempdir, 0, 1, true);
+    TEST_EQUAL(count, 1);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
+
+    Xapian::DatabaseMaster master1(masterpath + "1");
+
+    // Try to replicate an older version of the master.
+    count = replicate(master1, replica, tempdir, 0, 0, false);
+    TEST_EQUAL(count, 1);
+
+    // Force a full copy.
+    count = replicate(master1, replica, tempdir, 0, 1, true, true);
+    TEST_EQUAL(count, 1);
+
+    // Test we can still replicate.
+    orig.add_document(doc1);
+    orig.commit();
+
+    count = replicate(master, replica, tempdir, 2, 0, true);
+    TEST_EQUAL(count, 3);
+
+    check_equal_dbs(masterpath, replicapath);
 
     // Need to close the replica before we remove the temporary directory on
     // Windows.

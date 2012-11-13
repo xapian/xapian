@@ -1,7 +1,7 @@
 /** @file xapian-replicate.cc
  * @brief Replicate a database from a master server to a local copy.
  */
-/* Copyright (C) 2008,2011 Olly Betts
+/* Copyright (C) 2008,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,6 +55,8 @@ static void show_usage() {
 "                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
 "                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
+"  -f, --force-copy    force a full copy of the database to be sent rather than\n"
+"                      incremental changes (usually used with --one-shot)\n"
 "  -o, --one-shot      replicate only once and then exit\n"
 "  -v, --verbose       be more verbose\n"
 "  --help              display this help and exit\n"
@@ -64,7 +66,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
-    const char * opts = "h:p:m:i:r:ov";
+    const char * opts = "h:p:m:i:r:ofv";
     const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
@@ -72,6 +74,7 @@ main(int argc, char **argv)
 	{"interval",	required_argument,	0, 'i'},
 	{"reader-time",	required_argument,	0, 'r'},
 	{"one-shot",	no_argument,		0, 'o'},
+	{"force-copy",	no_argument,		0, 'f'},
 	{"verbose",	no_argument,		0, 'v'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
@@ -84,6 +87,7 @@ main(int argc, char **argv)
     int interval = DEFAULT_INTERVAL;
     bool one_shot = false;
     bool verbose = false;
+    bool force_copy = false;
     int reader_close_time = READER_CLOSE_TIME;
 
     int c;
@@ -103,6 +107,9 @@ main(int argc, char **argv)
 		break;
 	    case 'r':
 		reader_close_time = atoi(optarg);
+		break;
+	    case 'f':
+		force_copy = true;
 		break;
 	    case 'o':
 		one_shot = true;
@@ -158,7 +165,7 @@ main(int argc, char **argv)
 	    }
 	    Xapian::ReplicationInfo info;
 	    client.update_from_master(dbpath, masterdb, info,
-				      reader_close_time);
+				      reader_close_time, force_copy);
 	    if (verbose) {
 		cout << "Update complete: " <<
 			info.fullcopy_count << " copies, " <<

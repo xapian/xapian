@@ -1,3 +1,10 @@
+Tue Nov 13 03:34:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc,net/replicatetcpclient.cc,
+	  net/replicatetcpclient.h: Add --full-copy option to xapian-replicate.
+	* tests/api_replicate.cc: New testcase replicate6 which tests the same
+	  code path used by 'xapian-replicate --full-copy'.
+
 Tue Nov 13 02:55:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_replicate.cc: Use '++' instead of '+= 1'.  Drop superfluous
