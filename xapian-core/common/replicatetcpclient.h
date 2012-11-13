@@ -73,7 +73,8 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     void update_from_master(const std::string & path,
 			    const std::string & remotedb,
 			    Xapian::ReplicationInfo & info,
-			    double reader_close_time);
+			    double reader_close_time,
+			    bool force_copy);
 
     /** Destructor. */
     ~ReplicateTcpClient();

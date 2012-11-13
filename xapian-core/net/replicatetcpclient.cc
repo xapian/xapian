@@ -47,10 +47,13 @@ void
 ReplicateTcpClient::update_from_master(const std::string & path,
 				       const std::string & masterdb,
 				       Xapian::ReplicationInfo & info,
-				       double reader_close_time)
+				       double reader_close_time,
+				       bool force_copy)
 {
     Xapian::DatabaseReplica replica(path);
-    remconn.send_message('R', replica.get_revision_info(), 0.0);
+    remconn.send_message('R',
+			 force_copy ? string() : replica.get_revision_info(),
+			 0.0);
     remconn.send_message('D', masterdb, 0.0);
     replica.set_read_fd(socket);
     info.clear();
