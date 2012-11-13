@@ -99,14 +99,9 @@ void rm_rf(const string &filename) {
 	return;
 
 #ifdef __WIN32__
-    string cmd;
-    if (running_on_win9x()) {
-	// For 95-like systems:
-	cmd = "deltree /y";
-    } else {
-	// For NT-like systems:
-	cmd = "rd /s /q";
-    }
+    string cmd = running_on_win9x() ?
+	"deltree /y" : // for 95-like systems.
+	"rd /s /q"; // for NT-like systems.
 #else
     string cmd("rm -rf");
 #endif

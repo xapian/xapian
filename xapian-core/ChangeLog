@@ -1,3 +1,8 @@
+Tue Nov 13 01:12:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: Tweak to avoid default initialisation of
+	  string.
+
 Mon Nov 12 23:25:14 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: GCC 4.6.3 doesn't optimise the asr idion
