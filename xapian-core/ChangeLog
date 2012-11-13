@@ -1,3 +1,9 @@
+Tue Nov 13 03:44:03 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Pass 'true' or 'false' for 'bool' parameter,
+	  not '0' or '1' (especially confusing as the two previous parameters
+	  were integers which were often 0 or 1...)
+
 Tue Nov 13 03:34:42 GMT 2012  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc,net/replicatetcpclient.cc,
