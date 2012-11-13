@@ -1,3 +1,10 @@
+Tue Nov 13 03:51:01 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/unicode.h: GCC 4.6.3 doesn't optimise the asr idiom
+	  either.  Add links to the PR I filed and the GCC documentation that
+	  signed right shift does sign extension.
+
 Sat Nov 10 08:51:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
