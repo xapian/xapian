@@ -1,3 +1,8 @@
+Tue Nov 13 02:55:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Use '++' instead of '+= 1'.  Drop superfluous
+	  'return;' at end of function returning void.
+
 Tue Nov 13 01:12:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc: Tweak to avoid default initialisation of
