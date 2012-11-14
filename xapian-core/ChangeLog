@@ -1,3 +1,8 @@
+Wed Nov 14 21:40:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Allow files > 32G to be be copied by
+	  replication.
+
 Tue Nov 13 03:44:03 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_replicate.cc: Pass 'true' or 'false' for 'bool' parameter,

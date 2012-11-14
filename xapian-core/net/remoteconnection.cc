@@ -612,7 +612,9 @@ RemoteConnection::receive_file(const string &file, double end_time)
     unsigned char ch;
     int shift = 0;
     do {
-	if (i == buffer.end() || shift > 28) {
+	// Allow a full 64 bits for message lengths - anything longer than that
+	// is almost certainly a corrupt value.
+	if (i == buffer.end() || shift > 63) {
 	    // Something is very wrong...
 	    throw Xapian::NetworkError("Insane message length specified!");
 	}
