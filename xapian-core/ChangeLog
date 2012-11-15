@@ -1,3 +1,8 @@
+Thu Nov 15 01:54:14 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: xapian-replicate --force-copy now only
+	  forces a single copy, and then attempts to replicate incrementally.
+
 Thu Nov 15 00:51:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc: Tweak code layout.

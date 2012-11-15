@@ -55,8 +55,8 @@ static void show_usage() {
 "                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
 "                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
-"  -f, --force-copy    force a full copy of the database to be sent rather than\n"
-"                      incremental changes (usually used with --one-shot)\n"
+"  -f, --force-copy    force a full copy of the database to be sent (and then\n"
+"                      replicate as normal)\n"
 "  -o, --one-shot      replicate only once and then exit\n"
 "  -v, --verbose       be more verbose\n"
 "  --help              display this help and exit\n"
@@ -180,6 +180,7 @@ main(int argc, char **argv)
 "present at remote end by setting XAPIAN_MAX_CHANGESETS" << endl;
 		}
 	    }
+	    force_copy = false;
 	} catch (const Xapian::NetworkError &error) {
 	    // Don't stop running if there's a network error - just log to
 	    // stderr and retry at next timeout.  This should make the client
