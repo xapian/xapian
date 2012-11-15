@@ -1,3 +1,8 @@
+Thu Nov 15 23:57:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_query.cc: Add testcase xor3 to ensure that XOR handles all
+	  remaining subqueries running out at the same time.
+
 Thu Nov 15 10:57:32 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_query.cc: One test here does need a backend, and it seems

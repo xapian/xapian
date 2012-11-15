@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -142,6 +142,39 @@ DEFINE_TESTCASE(nearsubqueries1, writable) {
     q = Xapian::Query(Xapian::Query::OP_PHRASE, x_phrs_y, Xapian::Query("c"));
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	enq.set_query(q); (void)enq.get_mset(0, 10));
+
+    return true;
+}
+
+/// Test that XOR handles all remaining subqueries running out at the same
+//  time.
+DEFINE_TESTCASE(xor3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    const char * subqs[] = {
+	"hack", "which", "paragraph", "is", "return"
+    };
+    // Document where the subqueries run out *does* match XOR:
+    Xapian::Query q(Xapian::Query::OP_XOR, subqs, subqs + 5);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+
+    TEST_EQUAL(mset.size(), 3);
+    TEST_EQUAL(*mset[0], 4);
+    TEST_EQUAL(*mset[1], 2);
+    TEST_EQUAL(*mset[2], 3);
+
+    // Document where the subqueries run out *does not* match XOR:
+    q = Xapian::Query(Xapian::Query::OP_XOR, subqs, subqs + 4);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 10);
+
+    TEST_EQUAL(mset.size(), 4);
+    TEST_EQUAL(*mset[0], 5);
+    TEST_EQUAL(*mset[1], 4);
+    TEST_EQUAL(*mset[2], 2);
+    TEST_EQUAL(*mset[3], 3);
 
     return true;
 }
