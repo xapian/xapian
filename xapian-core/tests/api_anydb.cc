@@ -919,11 +919,13 @@ DEFINE_TESTCASE(reversebool1, backend) {
     {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; i != mymset1.end(), j != mymset2.end(); ++i, j++) {
+	for ( ; i != mymset1.end(); ++i, j++) {
+	    TEST(j != mymset2.end());
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
 	    TEST_EQUAL(*i, *j);
 	}
+	TEST(j == mymset2.end());
     }
 
     // mymset1 and mymset3 should be same but reversed
@@ -966,11 +968,14 @@ DEFINE_TESTCASE(reversebool2, backend) {
     {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; i != mymset1.end(), j != mymset2.end(); ++i, j++) {
+	for ( ; j != mymset2.end(); ++i, j++) {
+	    TEST(i != mymset1.end());
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
 	    TEST_EQUAL(*i, *j);
 	}
+	// mymset1 should be larger.
+	TEST(i != mymset1.end());
     }
 
     // mymset3 should be last msize items of mymset1, in reverse order
