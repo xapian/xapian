@@ -1,3 +1,9 @@
+Thu Nov 15 09:29:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix calculation of 0.0/0.0 in some cases.
+	  This then got used as a minimum weight, but it seems this gives -nan
+	  (at least on x86-64 Linux) so it may have been harmless in practice.
+
 Thu Nov 15 05:39:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Eliminate workarounds for egcs 1.1.2 (certainly
