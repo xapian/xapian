@@ -167,11 +167,12 @@ main(int argc, char **argv)
 	    client.update_from_master(dbpath, masterdb, info,
 				      reader_close_time, force_copy);
 	    if (verbose) {
-		cout << "Update complete: " <<
-			info.fullcopy_count << " copies, " <<
-			info.changeset_count << " changesets, " <<
-			(info.changed ? "new live database" : "no changes to live database") <<
-			endl;
+		cout << "Update complete: "
+		     << info.fullcopy_count << " copies, "
+		     << info.changeset_count << " changesets, "
+		     << (info.changed ? "new live database"
+				      : "no changes to live database")
+		     <<	endl;
 		if (info.fullcopy_count > 0 && !info.changed) {
 		    cout <<
 "Replication using a full copy failed. This is usually due to changes being\n"
