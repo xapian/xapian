@@ -1,3 +1,9 @@
+Thu Nov 15 10:57:32 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_query.cc: One test here does need a backend, and it seems
+	  a more useful category, so drop the "don't need a backend" part from
+	  the @brief documentation comment.
+
 Thu Nov 15 09:29:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix calculation of 0.0/0.0 in some cases.

@@ -1,5 +1,5 @@
 /** @file api_query.cc
- * @brief Query-related tests which don't need a backend.
+ * @brief Query-related tests.
  */
 /* Copyright (C) 2008,2009 Olly Betts
  *
