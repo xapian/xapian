@@ -933,13 +933,11 @@ DEFINE_TESTCASE(reversebool1, backend) {
 
     {
 	Xapian::MSetIterator i = mymset1.begin();
-	vector<Xapian::docid> rev(mymset3.begin(), mymset3.end());
-	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	vector<Xapian::docid>::reverse_iterator j = rev.rbegin();
-	for ( ; i != mymset1.end(); ++i, j++) {
+	Xapian::MSetIterator j = mymset3.end();
+	for ( ; i != mymset1.end(); ++i) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*i, *j);
+	    TEST_EQUAL(*i, *--j);
 	}
     }
 
@@ -981,14 +979,12 @@ DEFINE_TESTCASE(reversebool2, backend) {
     // mymset3 should be last msize items of mymset1, in reverse order
     TEST_EQUAL(msize, mymset3.size());
     {
-	vector<Xapian::docid> rev(mymset1.begin(), mymset1.end());
-	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	vector<Xapian::docid>::reverse_iterator i = rev.rbegin();
-	Xapian::MSetIterator j = mymset3.begin();
-	for ( ; j != mymset3.end(); ++i, j++) {
+	Xapian::MSetIterator i = mymset1.end();
+	Xapian::MSetIterator j;
+	for (j = mymset3.begin(); j != mymset3.end(); j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*i, *j);
+	    TEST_EQUAL(*--i, *j);
 	}
     }
 

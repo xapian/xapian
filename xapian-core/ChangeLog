@@ -1,3 +1,11 @@
+Thu Nov 15 05:39:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Eliminate workarounds for egcs 1.1.2 (certainly
+	  we no longer support a compiler that old, but maybe some newer
+	  compilers have the same issue, so I've rewritten the code to iterate
+	  backwards over one MSet, which is a useful feature to have coverage
+	  for).
+
 Thu Nov 15 05:28:40 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Fix reversebool1 and reversebool2 to actually
