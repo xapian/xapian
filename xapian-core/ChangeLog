@@ -1,3 +1,7 @@
+Fri Nov 16 01:28:55 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Improve a couple of comments.
+
 Fri Nov 16 01:25:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Implicitly close any unclosed brackets
