@@ -1,3 +1,8 @@
+Fri Nov 16 23:36:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_weight.cc: New testcase checkstatsweight1 which checks a
+	  weight subclass gets the correct values for all the stats.
+
 Fri Nov 16 07:30:18 GMT 2012  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Generate a check for compatible _DEBUG
