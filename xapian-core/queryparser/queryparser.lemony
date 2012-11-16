@@ -1345,6 +1345,12 @@ done:
 	// Implicitly close any unclosed quotes...
 	if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
 	    Parse(pParser, QUOTE, NULL, &state);
+
+	// To avoid possible parse errors related to unmatched brackets
+	while (prefix_stack.size() > 1) {
+	    Parse(pParser, KET, NULL, &state);
+	    prefix_stack.pop_back();
+	}
 	Parse(pParser, 0, NULL, &state);
     }
 

@@ -1,3 +1,9 @@
+Fri Nov 16 01:25:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Implicitly close any unclosed brackets
+	  at the end of the query string.  Patch from Sehaj Singh Kalra.
+	* tests/queryparsertest.cc: Adjust existing testcases and feature tests.
+
 Thu Nov 15 23:57:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_query.cc: Add testcase xor3 to ensure that XOR handles all

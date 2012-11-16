@@ -195,6 +195,11 @@ static const test test_or_queries[] = {
     { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
     // Feature tests for curly double quotes:
     { "“curly quotes”", "(curly@1 PHRASE 2 quotes@2)" },
+    // Feature tests for implicitly closing brackets:
+    { "(foo", "Zfoo@1" },
+    { "(foo XOR bar", "(Zfoo@1 XOR Zbar@2)" },
+    { "(foo XOR (bar AND baz)", "(Zfoo@1 XOR (Zbar@2 AND Zbaz@3))" },
+    { "(foo XOR (bar AND baz", "(Zfoo@1 XOR (Zbar@2 AND Zbaz@3))" },
     // Slightly arbitrarily we accept mismatched quotes.
     { "\"curly quotes”", "(curly@1 PHRASE 2 quotes@2)" },
     { "“curly quotes\"", "(curly@1 PHRASE 2 quotes@2)" },
@@ -321,7 +326,7 @@ static const test test_or_queries[] = {
     { "HARWARE ERROR, TRACKING SERVO (4:0X09:0X01)", "(((harware@1 OR error@2) OR (tracking@3 OR servo@4)) OR (4@5 PHRASE 3 0x09@6 PHRASE 3 0x01@7))" },
     { "Chr(10) wat is code van \" teken", "(((chr@1 OR 10@2) OR (Zwat@3 OR Zis@4 OR Zcode@5 OR Zvan@6)) OR Zteken@7)" },
     { "wat is code van \" teken", "((Zwat@1 OR Zis@2 OR Zcode@3 OR Zvan@4) OR teken@5)" },
-    { "The Jet VBA file (VBAJET.dll for 16-bit version, VBAJET32.dll version", "(((((((the@1 OR jet@2 OR vba@3 OR Zfile@4) OR (vbajet@5 PHRASE 2 dll@6)) OR Zfor@7) OR (16@8 PHRASE 2 bit@9)) OR Zversion@10) OR (vbajet32@11 PHRASE 2 dll@12)) OR Zversion@13)" },
+    { "The Jet VBA file (VBAJET.dll for 16-bit version, VBAJET32.dll version", "((the@1 OR jet@2 OR vba@3 OR Zfile@4) OR ((((((vbajet@5 PHRASE 2 dll@6) OR Zfor@7) OR (16@8 PHRASE 2 bit@9)) OR Zversion@10) OR (vbajet32@11 PHRASE 2 dll@12)) OR Zversion@13))" },
     { "Permission denied (publickey,password,keyboard-interactive).", "((permission@1 OR Zdeni@2) OR ((Zpublickey@3 OR Zpassword@4) OR (keyboard@5 PHRASE 2 interactive@6)))" },
     { "De lees- of schrijfbewerking (\"written\") op het geheugen is mislukt", "(((de@1 OR Zlee@2 OR Zof@3 OR Zschrijfbewerk@4) OR written@5) OR (Zop@6 OR Zhet@7 OR Zgeheugen@8 OR Zis@9 OR Zmislukt@10))" },
     { "Primary IDE channel no 80 conductor cable installed\"", "(primary@1 OR ide@2 OR Zchannel@3 OR Zno@4 OR 80@5 OR Zconductor@6 OR Zcabl@7 OR installed@8)" },
@@ -600,7 +605,7 @@ static const test test_or_queries[] = {
     { "if (mysql_num_rows($resultaat)==1)", "(((Zif@1 OR mysql_num_rows@2) OR Zresultaat@3) OR 1@4)" },
     { "Server.CreateObject(\"Persits.Upload.1\")", "((server@1 PHRASE 2 createobject@2) OR (persits@3 PHRASE 3 upload@4 PHRASE 3 1@5))" },
     { "if(cod>9999999)cod=parseInt(cod/64)", "(((((if@1 OR cod@2) OR 9999999@3) OR cod@4) OR parseint@5) OR (cod@6 PHRASE 2 64@7))" },
-    { "if (cod>9999999", "((Zif@1 OR cod@2) OR 9999999@3)" },
+    { "if (cod>9999999", "(Zif@1 OR (cod@2 OR 9999999@3))" },
     { "\"rm -rf /bin/laden\"", "(rm@1 PHRASE 4 rf@2 PHRASE 4 bin@3 PHRASE 4 laden@4)" },
     { "\">>> 0) & 0xFF\"", "(0@1 PHRASE 2 0xff@2)" },
     { "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"> document.body.scrollHeight", "(((doctype@1 OR html@2 OR public@3) OR (w3c@4 PHRASE 5 dtd@5 PHRASE 5 html@6 PHRASE 5 4.01@7 PHRASE 5 en@8)) OR (document@9 PHRASE 3 body@10 PHRASE 3 scrollheight@11))" },
