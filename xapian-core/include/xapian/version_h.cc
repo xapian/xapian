@@ -5,7 +5,7 @@ const char * dummy[] = {
 "/** @file version.h",
 " * @brief Define preprocesor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -23,6 +23,7 @@ const char * dummy[] = {
 "",
 "#ifndef XAPIAN_INCLUDED_VERSION_H",
 "#define XAPIAN_INCLUDED_VERSION_H",
+"",
 #ifdef __GNUC__
 // When building the library with GCC, generate preprocessor code to check that
 // any version of GCC used to build applications has a matching C++ ABI. This
@@ -48,7 +49,6 @@ const char * dummy[] = {
 #define J2(A,B) g++ A##.##B
 #define V3(A,B,C) J3(A,B,C)
 #define J3(A,B,C) g++ A##.##B##.##C
-"",
 "#ifdef __GNUC__",
 "#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ == 0)",
 "#error Xapian no longer supports GCC < 3.1",
@@ -87,6 +87,26 @@ const char * dummy[] = {
 #endif
 #endif
 "#endif",
+"#endif",
+"",
+#elif defined _MSC_VER
+// When building the library with MSVC, generate preprocessor code to check
+// that the same setting of _DEBUG is used for building applications as was
+// used for building the library.
+"#ifdef _MSC_VER",
+#ifdef _DEBUG
+"#ifndef _DEBUG",
+"#error This library was compiled with _DEBUG defined, but you",
+"#error have not specified this flag.  The settings must match or your",
+"#error program will not work correctly.",
+"#endif",
+#else
+"#ifdef _DEBUG",
+"#error You are compiling with _DEBUG defined, but the library",
+"#error was not compiled with this flag.  The settings must match or your",
+"#error program will not work correctly.",
+"#endif",
+#endif
 "#endif",
 "",
 #endif

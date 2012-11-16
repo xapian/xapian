@@ -1,3 +1,8 @@
+Fri Nov 16 07:30:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Generate a check for compatible _DEBUG
+	  settings if built with MSVC.  (ticket#389)
+
 Fri Nov 16 01:28:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Improve a couple of comments.
