@@ -1,3 +1,8 @@
+Sat Nov 17 20:54:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Remove compatibility code for valgrind <
+	  3.3.0, since we reject such old versions at configure time.
+
 Sat Nov 17 00:05:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc: Optimise an unweighted query term which

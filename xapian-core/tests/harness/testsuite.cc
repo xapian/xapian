@@ -768,11 +768,6 @@ test_driver::parse_command_line(int argc, char **argv)
 	    char fname[64];
 	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
 	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    if (vg_log_fd == -1 && errno == ENOENT) {
-		// Older valgrind versions named the log output differently.
-		sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
-		vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    }
 	    if (vg_log_fd != -1) unlink(fname);
 	}
     }
