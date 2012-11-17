@@ -1,3 +1,9 @@
+Sat Nov 17 00:05:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc: Optimise an unweighted query term which
+	  matches all the documents in a subdatabase to use the "MatchAll"
+	  postlist.  (ticket#387)
+
 Fri Nov 16 23:36:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_weight.cc: New testcase checkstatsweight1 which checks a
