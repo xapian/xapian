@@ -1,3 +1,8 @@
+Mon Nov 19 21:17:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator.cc: TermGenerator internal member can
+	  never be NULL, so drop NULL test.
+
 Sat Nov 17 20:54:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Remove compatibility code for valgrind <
