@@ -248,55 +248,7 @@ DEFINE_TESTCASE(wildquery1, backend) {
     return true;
 }
 
-// tests a query across multiple databases
-DEFINE_TESTCASE(multidb1, backend) {
-    Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    Xapian::Enquire enquire1(mydb1);
-
-    Xapian::Database mydb2(get_database("apitest_simpledata"));
-    mydb2.add_database(get_database("apitest_simpledata2"));
-    Xapian::Enquire enquire2(mydb2);
-
-    // make a simple query, with one word in it - "word".
-    Xapian::Query myquery("word");
-    enquire1.set_query(myquery);
-    enquire2.set_query(myquery);
-
-    // retrieve the top ten results from each method of accessing
-    // multiple text files
-    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
-    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
-
-    TEST_EQUAL(mymset1.size(), mymset2.size());
-    TEST(mset_range_is_same_weights(mymset1, 0, mymset2, 0, mymset1.size()));
-    return true;
-}
-
-// tests a query across multiple databases with terms only
-// in one of the two databases
-DEFINE_TESTCASE(multidb2, backend && !multi) {
-    Xapian::Database mydb1(get_database("apitest_simpledata",
-				  "apitest_simpledata2"));
-    Xapian::Enquire enquire1(mydb1);
-
-    Xapian::Database mydb2(get_database("apitest_simpledata"));
-    mydb2.add_database(get_database("apitest_simpledata2"));
-    Xapian::Enquire enquire2(mydb2);
-
-    // make a simple query
-    Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
-    enquire1.set_query(myquery);
-    enquire2.set_query(myquery);
-
-    // retrieve the top ten results from each method of accessing
-    // multiple text files
-    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
-    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
-
-    TEST_EQUAL(mymset1.size(), mymset2.size());
-    TEST(mset_range_is_same_weights(mymset1, 0, mymset2, 0, mymset1.size()));
-    return true;
-}
+// multidb1 and multidb2 no longer exist.
 
 // test that a multidb with 2 dbs query returns correct docids
 DEFINE_TESTCASE(multidb3, backend && !multi) {
