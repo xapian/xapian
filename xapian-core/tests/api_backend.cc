@@ -807,5 +807,21 @@ DEFINE_TESTCASE(msetweights1, backend) {
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected[i].wt);
     }
 
+    // Now test a query which matches only even docids, so in the multi case
+    // one subdatabase doesn't match.
+    enq.set_query(Xapian::Query("one"));
+    mset = enq.get_mset(0, 3);
+
+    static const struct { Xapian::docid did; double wt; } expected2[] = {
+	{ 6, 0.73354729848273669823 },
+	{ 2, 0.45626501034348893038 }
+    };
+
+    TEST_EQUAL(mset.size(), sizeof(expected2) / sizeof(expected2[0]));
+    for (size_t i = 0; i < mset.size(); ++i) {
+	TEST_EQUAL(*mset[i], expected2[i].did);
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
+    }
+
     return true;
 }

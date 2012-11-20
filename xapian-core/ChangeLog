@@ -1,3 +1,9 @@
+Tue Nov 20 07:21:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Extend msetweights1 to test the case where
+	  only even docids match, so in the multi_* case, only docids from
+	  one subdatabase match.
+
 Tue Nov 20 07:04:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Add testcase msetweights1 which checks we
