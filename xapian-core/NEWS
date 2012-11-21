@@ -1,6 +1,6 @@
- 16857       olly Sat Oct 13 12:05:46 GMT 2012  Olly Betts <olly@survex.com>
+ 16887       olly Tue Nov 13 10:07:19 GMT 2012  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.13 (2012-11-08):
+Xapian-core 1.2.13 (2012-11-13):
 
 API:
 
@@ -16,6 +16,10 @@ testsuite:
 
 matcher:
 
+* Improved fix for #590 - count all matching LeafPostList objects with a Weight
+  object rather than trying to prune at the MultiAndPostList level based on
+  max_wt (if wdf is always zero for a term, BM25 gives max_wt of 0, which lead
+  to us never counting that subquery.
 
 brass backend:
 
@@ -34,6 +38,9 @@ inmemory backend:
 
 build system:
 
+* The build system is now generated with automake 1.11.6 rather than 1.11.1,
+  which fixes a security issue in "make distcheck" (not something users will
+  usually run, but it seems worth addressing).
 
 documentation:
 
@@ -50,6 +57,8 @@ documentation:
 
 tools:
 
+* xapian-replicate: Add a --full-copy option to force a full copy to be sent.
+  (ticket#436)
 
 examples:
 
@@ -57,6 +66,10 @@ examples:
 portability:
 
 * Fix testsuite harness to compile with GCC 4.7.
+
+* Micro-optimisation in Unicode handling - GCC doesn't currently optimise the
+  arithmetic shift right idiom we use, but it documents that signed right shift
+  does sign extension so we now just use a right shift for GCC.
 
 packaging:
 
