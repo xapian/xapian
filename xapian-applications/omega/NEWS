@@ -1,6 +1,6 @@
- 16858       olly Sat Oct 13 12:24:59 GMT 2012  Olly Betts <olly@survex.com>
+ 16909       olly Wed Nov 21 05:00:51 GMT 2012  Olly Betts <olly@survex.com>
 
-Omega 1.2.13 (2012-11-08):
+Omega 1.2.13 (2012-11-21):
 
 general:
 
@@ -13,6 +13,8 @@ indexers:
   + Extracting text using external filters now works for filenames containing a
     newline character - previously the newline got lost during escaping for the
     shell.
+
+  + Fix segfault when -F option without a ':' was passed.
 
 * scriptindex:
 
