@@ -1350,7 +1350,7 @@ main(int argc, char **argv)
 	}
 	case 'F': {
 	    const char * s = strchr(optarg, ':');
-	    if (s != NULL || !s[1]) {
+	    if (s != NULL && s[1]) {
 		commands[string(optarg, s - optarg)] = string(s + 1);
 	    } else {
 		cerr << "Invalid filter mapping '" << optarg << "'\n"

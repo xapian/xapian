@@ -1,3 +1,9 @@
+Wed Nov 21 05:00:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Fix omindex not to segfault when -F option without a ':'
+	  is passed.
+
 Sat Nov 10 08:08:20 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
