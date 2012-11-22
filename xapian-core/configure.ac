@@ -444,8 +444,9 @@ AC_CHECK_FUNCS([setenv])
 dnl Check for a more efficient way of closing fds during daemonisation.
 dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
 dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
-dnl dirfd() is useful for an efficient implementation on some platforms.
-AC_CHECK_FUNCS([closefrom dirfd])
+dnl dirfd() and getrlimit are useful for an efficient implementation on some
+dnl platforms.
+AC_CHECK_FUNCS([closefrom dirfd getrlimit])
 
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
@@ -530,6 +531,8 @@ dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
+AC_CHECK_HEADERS([sys/resource.h],
+		 [], [], [#include <sys/types.h>])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and

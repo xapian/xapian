@@ -1,3 +1,11 @@
+Thu Nov 22 00:35:51 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/closefrom.cc,configure.ac: On platforms with the F_MAXFD
+	  fcntl but without closefrom(), we were failing to close the highest
+	  numbered open fd in our closefrom() replacement.  We now also work
+	  around valgrind not hiding some extra fds it has open, but then
+	  complaining if we try to close them.
+
 Wed Nov 21 22:50:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: When reporting valgrind error, skip any
