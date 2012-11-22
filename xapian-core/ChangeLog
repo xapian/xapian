@@ -1,3 +1,9 @@
+Thu Nov 22 09:38:33 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_weight.cc: New testcase checkstatsweight1 which checks a
+	  weight subclass gets the correct values for all the stats.
+
 Thu Nov 22 09:33:22 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
