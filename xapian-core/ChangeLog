@@ -1,3 +1,9 @@
+Thu Nov 22 09:47:57 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/termgenerator.cc: TermGenerator internal member can
+	  never be NULL, so drop NULL test.
+
 Thu Nov 22 09:42:35 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
