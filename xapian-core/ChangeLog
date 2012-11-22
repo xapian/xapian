@@ -1,3 +1,14 @@
+Thu Nov 22 09:54:46 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_anydb.cc: msetweights1 makes multidb1 and multidb2
+	  redundant, so remove them.
+	* tests/api_backend.cc: Extend msetweights1 to test the case where
+	  only even docids match, so in the multi_* case, only docids from
+	  one subdatabase match.
+	* tests/api_backend.cc: Add testcase msetweights1 which checks we
+	  get the weights we expect for a two term query.
+
 Thu Nov 22 09:47:57 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
