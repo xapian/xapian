@@ -1,3 +1,8 @@
+Thu Nov 22 23:34:09 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Pass -f to lcov, which should avoid the need for the
+	  patch we've been applying to lcov.
+
 Thu Nov 22 01:34:05 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Close excess file handles before we get the

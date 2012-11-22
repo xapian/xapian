@@ -70,7 +70,7 @@ coverage-check:
 	    rm -f tests/$$d ; \
 	    ln -s ../$$d tests/$$d ; \
 	done
-	cd tests && lcov -c -b `pwd` -d `pwd` -o ../tmp.lcov
+	cd tests && lcov -c -b -f `pwd` -d `pwd` -o ../tmp.lcov
 	sed '/^SF:\/usr/,/^end_of_record/{d};s,^\(SF:/.*/xapian-core/\)\([^t]\),\1tests/\2,' tmp.lcov > xapian-core.lcov
 	rm -rf lcov
 	genhtml --demangle-cpp $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h||svn info|sed 's/^Revision: /r/p;d'`" -o lcov xapian-core.lcov
