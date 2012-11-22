@@ -194,6 +194,11 @@ static const test test_or_queries[] = {
     { "category:\"Hello world\"", "0 * XCAT:Hello world" },
     { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
     { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
+    // Feature tests for implicitly closing brackets:
+    { "(foo", "Zfoo:(pos=1)" },
+    { "(foo XOR bar", "(Zfoo:(pos=1) XOR Zbar:(pos=2))" },
+    { "(foo XOR (bar AND baz)", "(Zfoo:(pos=1) XOR (Zbar:(pos=2) AND Zbaz:(pos=3)))" },
+    { "(foo XOR (bar AND baz", "(Zfoo:(pos=1) XOR (Zbar:(pos=2) AND Zbaz:(pos=3)))" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },

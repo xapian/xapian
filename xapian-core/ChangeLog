@@ -1,3 +1,10 @@
+Thu Nov 22 09:27:56 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Implicitly close any unclosed brackets
+	  at the end of the query string.  Patch from Sehaj Singh Kalra.
+	* tests/queryparsertest.cc: Adjust existing testcases and feature tests.
+
 Thu Nov 22 09:05:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
