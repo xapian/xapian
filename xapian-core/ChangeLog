@@ -1,3 +1,14 @@
+Thu Nov 22 08:39:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* bin/xapian-replicate.cc: Add --quiet option to xapian-replicate, and
+	  be a little more verbose by default.
+	* bin/xapian-replicate.cc: xapian-replicate --force-copy now only
+	  forces a single copy, and then attempts to replicate incrementally.
+	* bin/xapian-replicate.cc: Tweak code layout.
+	* net/remoteconnection.cc: Allow files > 32G to be be copied by
+	  replication.
+
 Thu Nov 22 08:13:51 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
