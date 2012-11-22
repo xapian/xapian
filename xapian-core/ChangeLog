@@ -1,3 +1,9 @@
+Thu Nov 22 08:45:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_anydb.cc: Fix reversebool1 and reversebool2 to actually
+	  use the result when they check an MSetIterator against end().
+
 Thu Nov 22 08:39:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
