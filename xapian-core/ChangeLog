@@ -1,3 +1,9 @@
+Thu Nov 22 09:42:35 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: Remove compatibility code for valgrind <
+	  3.3.0, since we reject such old versions at configure time.
+
 Thu Nov 22 09:38:33 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
