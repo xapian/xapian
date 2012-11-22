@@ -1,3 +1,12 @@
+Thu Nov 22 09:05:00 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_query.cc: Add testcase xor3 to ensure that XOR handles all
+	  remaining subqueries running out at the same time.
+	* tests/api_query.cc: One test here does need a backend, and it seems
+	  a more useful category, so drop the "don't need a backend" part from
+	  the @brief documentation comment.
+
 Thu Nov 22 08:56:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
