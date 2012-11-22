@@ -293,7 +293,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, 1);
+    int count = replicate(master, replica, tempdir, 0, 1, true);
     TEST_EQUAL(count, 1);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -302,7 +302,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
     // Repeating the replication should return a count of 1, since no further
     // changes should need to be applied.
-    count = replicate(master, replica, tempdir, 0, 0, 0);
+    count = replicate(master, replica, tempdir, 0, 0, false);
     TEST_EQUAL(count, 1);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -313,7 +313,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     // to occur, whether it was needed or not.  Fixed in revision #10117.
     replica.close();
     replica = Xapian::DatabaseReplica(replicapath);
-    count = replicate(master, replica, tempdir, 0, 0, 0);
+    count = replicate(master, replica, tempdir, 0, 0, false);
     TEST_EQUAL(count, 1);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -325,7 +325,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.commit();
 
-    count = replicate(master, replica, tempdir, 2, 0, 1);
+    count = replicate(master, replica, tempdir, 2, 0, true);
     TEST_EQUAL(count, 3);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -371,11 +371,11 @@ DEFINE_TESTCASE(replicate2, replicas) {
 
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
-    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
     check_equal_dbs(masterpath, replicapath);
 
     // Replicate from the replica.
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, 1), 1);
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
     check_equal_dbs(masterpath, replica2path);
 
     orig.add_document(doc1);
@@ -384,7 +384,7 @@ DEFINE_TESTCASE(replicate2, replicas) {
     orig.commit();
 
     // Replicate from the replica - should have no changes.
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 0, 0), 1);
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 0, false), 1);
     check_equal_dbs(replicapath, replica2path);
 
     // Replicate, and replicate from the replica - should have 2 changes.
@@ -401,9 +401,9 @@ DEFINE_TESTCASE(replicate2, replicas) {
     orig.commit();
 
     // Replication should do a full copy.
-    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
     check_equal_dbs(masterpath, replicapath);
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, 1), 1);
+    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
     check_equal_dbs(masterpath, replica2path);
 
     // Start writing changesets, but only keep 1 in history, and make a
@@ -428,9 +428,9 @@ DEFINE_TESTCASE(replicate2, replicas) {
     // is missing.
 
     //FIXME - the following tests are commented out because the backends don't currently tidy up old changesets correctly.
-    //TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    //TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
     //check_equal_dbs(masterpath, replicapath);
-    //TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, 1), 1);
+    //TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
     //check_equal_dbs(masterpath, replica2path);
 
     // Need to close the replicas before we remove the temporary directory on
@@ -503,14 +503,14 @@ DEFINE_TESTCASE(replicate3, replicas) {
     orig.add_document(doc1);
     orig.commit();
 
-    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, 1), 1);
+    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
     check_equal_dbs(masterpath, replicapath);
 
     // Make a changeset.
     orig.add_document(doc1);
     orig.commit();
 
-    replicate_with_brokenness(master, replica, tempdir, 1, 0, 1);
+    replicate_with_brokenness(master, replica, tempdir, 1, 0, true);
     // Although it throws an error, the final replication in
     // replicate_with_brokenness() updates the database, since it's just the
     // end-of-replication message which is missing its body.
@@ -520,7 +520,7 @@ DEFINE_TESTCASE(replicate3, replicas) {
     // next replication.
     orig.add_document(doc1);
     orig.commit();
-    TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, 1), 2);
+    TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, true), 2);
 
     // Need to close the replicas before we remove the temporary directory on
     // Windows.
@@ -552,7 +552,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, 1);
+    int count = replicate(master, replica, tempdir, 0, 1, true);
     TEST_EQUAL(count, 1);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -565,7 +565,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -581,7 +581,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -601,7 +601,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 0, 1, 1);
+    count = replicate(master, replica, tempdir, 0, 1, true);
     TEST_EQUAL(count, 1);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -645,7 +645,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
 
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, 1);
+    int count = replicate(master, replica, tempdir, 0, 1, true);
     TEST_EQUAL(count, 1);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -658,7 +658,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -674,7 +674,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -690,7 +690,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -714,7 +714,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
@@ -730,7 +730,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
     orig.commit();
 
     // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, 1);
+    count = replicate(master, replica, tempdir, 1, 0, true);
     TEST_EQUAL(count, 2);
     {
 	Xapian::Database dbcopy(replicapath);
