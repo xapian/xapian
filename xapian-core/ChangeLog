@@ -1,3 +1,8 @@
+Wed Nov 21 22:50:21 GMT 2012  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: When reporting valgrind error, skip any
+	  warnings.
+
 Tue Nov 20 07:26:24 GMT 2012  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: msetweights1 makes multidb1 and multidb2
