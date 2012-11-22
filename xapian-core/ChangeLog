@@ -1,3 +1,10 @@
+Thu Nov 22 01:34:05 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Close excess file handles before we get the
+	  fcntl() lock, just in case one of those file handles is open on the
+	  lock file.
+	* tests/api_backend.cc: Add regression test lockfilealreadyopen1.
+
 Thu Nov 22 00:35:51 GMT 2012  Olly Betts <olly@survex.com>
 
 	* common/closefrom.cc,configure.ac: On platforms with the F_MAXFD
