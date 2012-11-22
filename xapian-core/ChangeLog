@@ -1,3 +1,10 @@
+Thu Nov 22 08:56:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Fix calculation of 0.0/0.0 in some cases.
+	  This then got used as a minimum weight, but it seems this gives -nan
+	  (at least on x86-64 Linux) so it may have been harmless in practice.
+
 Thu Nov 22 08:50:00 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
