@@ -1,3 +1,9 @@
+Fri Nov 23 03:38:39 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am: With lcov 1.10, we no longer need any of our
+	  hacky workarounds, so make this a requirement and simplify the rules
+	  in the makefile.
+
 Thu Nov 22 23:34:09 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Pass -f to lcov, which should avoid the need for the
