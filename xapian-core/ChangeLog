@@ -1,3 +1,9 @@
+Mon Nov 26 02:59:41 GMT 2012  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: We no longer use the highest weighted
+	  MSet entry to calculate percentages, so stop searching for it.
+	  (Spotted by cppcheck)
+
 Mon Nov 26 02:59:02 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:

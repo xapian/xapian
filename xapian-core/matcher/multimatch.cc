@@ -813,11 +813,6 @@ new_greatest_weight:
 
     double percent_scale = 0;
     if (!items.empty() && greatest_wt > 0) {
-	// Find the document with the highest weight, then total up the
-	// weights for the terms it contains
-	vector<Xapian::Internal::MSetItem>::const_iterator best;
-	best = min_element(items.begin(), items.end(), mcmp);
-
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	if (greatest_wt_subqs_db_num != UINT_MAX) {
 	    const unsigned int n = greatest_wt_subqs_db_num;
