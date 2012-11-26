@@ -1,3 +1,8 @@
+Mon Nov 26 19:52:50 GMT 2012  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Add --flags command line option to allow setting
+	  arbitrary QueryParser flags.
+
 Mon Nov 26 03:02:03 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/valuerangeproc.cc: Move 3 declarations to where we first use the
