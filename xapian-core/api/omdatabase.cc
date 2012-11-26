@@ -297,7 +297,7 @@ Database::get_termfreq(const string & tname) const
 
     Xapian::doccount tf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	tf += (*i)->get_termfreq(tname);
     }
     RETURN(tf);
@@ -311,7 +311,7 @@ Database::get_collection_freq(const string & tname) const
 
     Xapian::termcount cf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	cf += (*i)->get_collection_freq(tname);
     }
     RETURN(cf);
@@ -324,7 +324,7 @@ Database::get_value_freq(Xapian::valueno slot) const
 
     Xapian::doccount vf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	vf += (*i)->get_value_freq(slot);
     }
     RETURN(vf);
@@ -354,7 +354,7 @@ Database::get_value_upper_bound(Xapian::valueno slot) const
 
     std::string full_ub;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	std::string ub = (*i)->get_value_upper_bound(slot);
 	if (ub > full_ub)
 	    full_ub = ub;
@@ -386,7 +386,7 @@ Database::get_doclength_upper_bound() const
 
     Xapian::termcount full_ub = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	Xapian::termcount ub = (*i)->get_doclength_upper_bound();
 	if (ub > full_ub) full_ub = ub;
     }
@@ -400,7 +400,7 @@ Database::get_wdf_upper_bound(const string & term) const
 
     Xapian::termcount full_ub = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	Xapian::termcount ub = (*i)->get_wdf_upper_bound(term);
 	if (ub > full_ub) full_ub = ub;
     }

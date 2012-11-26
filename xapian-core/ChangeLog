@@ -1,3 +1,13 @@
+Mon Nov 26 02:12:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,api/matchspy.cc,api/omdatabase.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  backends/multi/multi_postlist.cc,backends/remote/net_termlist.cc,
+	  bin/xapian-delve.cc,matcher/exactphrasepostlist.cc,
+	  matcher/mergepostlist.cc,matcher/phrasepostlist.cc,
+	  tests/harness/backendmanager.cc: Prefer ++i to i++.
+
 Fri Nov 23 03:38:39 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am: With lcov 1.10, we no longer need any of our

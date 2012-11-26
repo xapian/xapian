@@ -44,7 +44,7 @@ MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 MultiPostList::~MultiPostList()
 {
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	delete *i;
     }
     postlists.clear();
@@ -169,7 +169,7 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
     Xapian::docid realdid = (did - 1) / multiplier + 2;
     Xapian::doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {	
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	if (offset == dbnumber) --realdid;
 	++offset;
 	Assert((realdid - 1) * multiplier + offset >= did);
@@ -202,7 +202,7 @@ MultiPostList::get_description() const
     std::string desc;
 
     std::vector<LeafPostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	if (!desc.empty()) desc += ',';
 	desc += (*i)->get_description();
     }

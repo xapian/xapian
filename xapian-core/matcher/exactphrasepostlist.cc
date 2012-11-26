@@ -141,7 +141,7 @@ ExactPhrasePostList::get_wdf() const
 
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); i++) {
+    for (; i != terms.end(); ++i) {
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;

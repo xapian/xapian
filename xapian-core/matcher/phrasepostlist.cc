@@ -53,7 +53,7 @@ NearPostList::test_doc()
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
+    for (i = terms.begin(); i != terms.end(); ++i) {
 	PositionList * p = (*i)->read_position_list();
 	// If p is NULL, the backend doesn't support positionlists
 	if (!p) return false;
@@ -141,7 +141,7 @@ NearPostList::get_wdf() const
 
     std::vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); i++) {
+    for (; i != terms.end(); ++i) {
 	wdf = std::min(wdf, (*i)->get_wdf());
     }
 
@@ -179,7 +179,7 @@ PhrasePostList::test_doc()
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
+    for (i = terms.begin(); i != terms.end(); ++i) {
 	PositionList * p = (*i)->read_position_list();
 	// If p is NULL, the backend doesn't support positionlists
 	if (!p) return false;
@@ -268,7 +268,7 @@ PhrasePostList::get_wdf() const
 
     std::vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); i++) {
+    for (; i != terms.end(); ++i) {
 	wdf = std::min(wdf, (*i)->get_wdf());
     }
 
