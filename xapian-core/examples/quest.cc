@@ -80,13 +80,14 @@ static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
-"  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
-"  -m, --msize=MSIZE   maximum number of matches to return\n"
-"  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
-"                      (pass 'none' to disable stemming)\n"
-"  -p, --prefix=PFX:TERMPFX  Add a prefix\n"
-"  -b, --boolean-prefix=PFX:TERMPFX  Add a boolean prefix\n"
-"  -f, --flags=FLAG1[,FLAG2]...      Specify QueryParser flags.  Valid flags:";
+"  -d, --db=DIRECTORY                database to search (multiple databases may\n"
+"                                    be specified)\n"
+"  -m, --msize=MSIZE                 maximum number of matches to return\n"
+"  -s, --stemmer=LANG                set the stemming language, the default is\n"
+"                                    'english' (pass 'none' to disable stemming)\n"
+"  -p, --prefix=PFX:TERMPFX          add a prefix\n"
+"  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
+"  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags.  Valid flags:";
 #define INDENT \
 "                                    "
     int pos = 256;
@@ -103,8 +104,8 @@ static void show_usage() {
 	pos += len + 2;
     }
     cout << "\n"
-"  -h, --help          display this help and exit\n"
-"  -v, --version       output version information and exit\n";
+"  -h, --help                        display this help and exit\n"
+"  -v, --version                     output version information and exit\n";
 }
 
 static unsigned

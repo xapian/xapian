@@ -1,3 +1,8 @@
+Mon Nov 26 23:46:43 GMT 2012  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Align option descriptions in --help output, and
+	  make the initial letter of such descriptions consistently lowercase.
+
 Mon Nov 26 19:52:50 GMT 2012  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Add --flags command line option to allow setting
