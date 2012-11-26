@@ -1,3 +1,8 @@
+Mon Nov 26 02:59:02 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  Remove unused variables (spotted by cppcheck).
+
 Mon Nov 26 02:12:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/maptermlist.h,api/matchspy.cc,api/omdatabase.cc,
