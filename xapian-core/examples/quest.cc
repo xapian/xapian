@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
 #include <iostream>
 
 #include "gnu_getopt.h"

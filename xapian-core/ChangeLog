@@ -1,3 +1,7 @@
+Tue Nov 27 05:39:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Need <algorithm> for lower_bound().
+
 Mon Nov 26 23:46:43 GMT 2012  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Align option descriptions in --help output, and
