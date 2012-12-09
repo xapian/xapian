@@ -1,3 +1,9 @@
+Sun Dec 09 22:33:48 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: When reporting valgrind error, skip any
+	  warnings.
+
 Sun Dec 09 22:14:21 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
