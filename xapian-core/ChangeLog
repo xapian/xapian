@@ -1,3 +1,12 @@
+Sun Dec 09 22:46:10 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/closefrom.cc,configure.ac: On platforms with the F_MAXFD
+	  fcntl but without closefrom(), we were failing to close the highest
+	  numbered open fd in our closefrom() replacement.  We now also work
+	  around valgrind not hiding some extra fds it has open, but then
+	  complaining if we try to close them.
+
 Sun Dec 09 22:33:48 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

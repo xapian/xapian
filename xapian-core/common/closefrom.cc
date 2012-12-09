@@ -1,7 +1,7 @@
 /** @file closefrom.cc
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010,2011 Olly Betts
+/* Copyright (C) 2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,11 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 
+#ifdef HAVE_SYS_RESOURCE_H
+# include <sys/types.h>
+# include <sys/resource.h>
+#endif
+
 #if defined __linux__ || defined __APPLE__
 # include "safedirent.h"
 # include <cstdlib>
@@ -36,9 +41,26 @@
 using namespace std;
 #endif
 
+static int
+get_maxfd() {
+#ifdef F_MAXFD
+    int maxfd = fcntl(0, F_MAXFD);
+    if (maxfd >= 0) return maxfd;
+#endif
+#ifdef HAVE_GETRLIMIT
+    struct rlimit rl;
+    if (getrlimit(RLIMIT_NOFILE, &rl) == 0 &&
+	rl.rlim_max != RLIM_INFINITY) {
+	return static_cast<int>(rl.rlim_max) - 1;
+    }
+#endif
+    return static_cast<int>(sysconf(_SC_OPEN_MAX)) - 1;
+}
+
 void
 Xapian::Internal::closefrom(int fd)
 {
+    int maxfd = -1;
 #ifdef F_CLOSEM
     // Apparently supported by at least NetBSD, AIX, IRIX.
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
@@ -87,19 +109,31 @@ Xapian::Internal::closefrom(int fd)
 #if defined HAVE_DIRFD || defined dirfd
 		if (n == dirfd(dir)) continue;
 #endif
+#ifdef __linux__
+		// Running under valgrind causes some entries above the
+		// reported RLIMIT_NOFILE value to appear in /proc/self/fd
+		// (https://bugs.kde.org/show_bug.cgi?id=191758).  If we try
+		// to close these, valgrind issues a warning about trying to
+		// close an invalid file descriptor.  These entries start at
+		// 1024, so we check that value first so we can usually avoid
+		// having to read the fd limit when we're not running under
+		// valgrind.
+		if (n >= 1024) {
+		    if (maxfd < 0)
+			maxfd = get_maxfd();
+		    if (n > maxfd)
+			continue;
+		}
+#endif
 		// Retry on EINTR.
 		while (close(n) < 0 && errno == EINTR) { }
 	    }
 	}
     }
 #endif
-    int maxfd = -1;
-#ifdef F_MAXFD
-    maxfd = fcntl(0, F_MAXFD);
-#endif
     if (maxfd < 0)
-	maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-    while (fd < maxfd) {
+	maxfd = get_maxfd();
+    while (fd <= maxfd) {
 	// Retry on EINTR; just ignore other errors (we'll get EBADF if fd
 	// isn't open so that's OK).
 	while (close(fd) < 0 && errno == EINTR) { }
