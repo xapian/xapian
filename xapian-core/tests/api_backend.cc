@@ -34,6 +34,8 @@
 
 #include "apitest.h"
 
+#include "safefcntl.h"
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 using namespace std;
@@ -197,6 +199,24 @@ DEFINE_TESTCASE(lockfilefd0or1, brass || chert || flint) {
     close(old_stdin);
     close(old_stdout);
 #endif
+
+    return true;
+}
+
+/// Regression test for bug fixed in 1.2.13 and 1.3.1.
+DEFINE_TESTCASE(lockfilealreadyopen1, brass || chert) {
+    string path = get_named_writable_database_path("lockfilealreadyopen1");
+    int fd = ::open((path + "/flintlock").c_str(), O_RDONLY);
+    try {
+	Xapian::WritableDatabase db(path, Xapian::DB_CREATE_OR_OPEN);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::WritableDatabase db2(path, Xapian::DB_CREATE_OR_OPEN)
+	);
+    } catch (...) {
+	close(fd);
+	throw;
+    }
+    close(fd);
 
     return true;
 }

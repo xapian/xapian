@@ -1,3 +1,11 @@
+Sun Dec 09 22:55:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint_lock.cc: Close excess file handles before we get the
+	  fcntl() lock, just in case one of those file handles is open on the
+	  lock file.
+	* tests/api_backend.cc: Add regression test lockfilealreadyopen1.
+
 Sun Dec 09 22:46:10 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
