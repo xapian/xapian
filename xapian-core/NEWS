@@ -1,11 +1,14 @@
- 16887       olly Tue Nov 13 10:07:19 GMT 2012  Olly Betts <olly@survex.com>
+ 16925       olly Thu Nov 22 09:54:46 GMT 2012  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.13 (2012-11-13):
+Xapian-core 1.2.13 (2012-11-22):
 
 API:
 
 * TermGenerator: Add new method TermGenerator::set_max_word_length() to allow
   this limit to be adjusted by the user.
+
+* QueryParser: Implicitly close any unclosed brackets at the end of the query
+  string.  Patch from Sehaj Singh Kalra.
 
 * DateValueRangeProcessor: Add extra constructor overloaded form so that in
   DateValueRangeProcessor(1, "date:"), the const char * gets interpreted as
@@ -13,6 +16,7 @@ API:
 
 testsuite:
 
+* apitest: Assorted test coverage improvements.
 
 matcher:
 
@@ -20,6 +24,10 @@ matcher:
   object rather than trying to prune at the MultiAndPostList level based on
   max_wt (if wdf is always zero for a term, BM25 gives max_wt of 0, which lead
   to us never counting that subquery.
+
+* Fix calculation of 0.0/0.0 in some cases.  This then got used as a minimum
+  weight, but it seems this gives -nan (at least on x86-64 Linux) so it may
+  have been harmless in practice.
 
 brass backend:
 
@@ -57,8 +65,13 @@ documentation:
 
 tools:
 
-* xapian-replicate: Add a --full-copy option to force a full copy to be sent.
-  (ticket#436)
+* xapian-replicate:
+
+  + Add a --full-copy option to force a full copy to be sent.  (ticket#436)
+
+  + Add --quiet option, and be a little more verbose by default.
+
+  + Allow files > 32G to be be copied by replication.
 
 examples:
 
