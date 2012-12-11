@@ -1,3 +1,10 @@
+Tue Dec 11 03:35:29 GMT 2012  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h,omindex.cc: If we get ENOENT for a file or
+	  directory we're trying to index, assume it has been removed between
+	  us reading the directory entry for it and trying to open it, and
+	  only report the failure to index under --verbose.
+
 Wed Nov 21 04:06:54 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix omindex not to segfault when -F option without a ':'

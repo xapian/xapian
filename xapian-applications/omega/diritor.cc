@@ -50,6 +50,8 @@ DirectoryIterator::call_stat()
     }
 #endif
     if (retval == -1) {
+	if (errno == ENOENT)
+	    throw FileNotFound();
 	string error = "Can't stat \"";
 	error += path;
 	error += "\" (";
@@ -76,6 +78,8 @@ DirectoryIterator::start(const std::string & path_)
     path_len = path.length();
     dir = opendir(path.c_str());
     if (dir == NULL) {
+	if (errno == ENOENT)
+	    throw FileNotFound();
 	string error = "Can't open directory \"";
 	error += path;
 	error += "\" (";

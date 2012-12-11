@@ -41,6 +41,8 @@
 #include "loadfile.h"
 #include "runfilter.h" // For class ReadError.
 
+struct FileNotFound { };
+
 class DirectoryIterator {
 #if defined O_NOATIME && O_NOATIME != 0
     static uid_t euid;
@@ -210,7 +212,10 @@ class DirectoryIterator {
 	std::string out;
 	int flags = NOCACHE;
 	if (try_noatime()) flags |= NOATIME;
-	if (!load_file(path, out, flags)) throw ReadError();
+	if (!load_file(path, out, flags)) {
+	    if (errno == ENOENT) throw FileNotFound();
+	    throw ReadError();
+	}
 	return out;
     }
 };

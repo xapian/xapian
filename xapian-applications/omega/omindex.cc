@@ -948,6 +948,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
     } catch (NoSuchFilter) {
 	skip(file, "Filter for \"" + mimetype + "\" not installed");
 	commands[mimetype] = string();
+    } catch (FileNotFound) {
+	skip(file, "File removed during indexing",
+	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
     } catch (const std::string & error) {
 	skip(file, error);
     }
@@ -990,10 +993,17 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			skip(file, "Not a regular file",
 			     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 		}
+	    } catch (FileNotFound) {
+		skip(file, "File removed during indexing",
+		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 	    } catch (const std::string & error) {
 		skip(file, error, SKIP_SHOW_FILENAME);
 	    }
 	}
+    } catch (FileNotFound) {
+	if (verbose)
+	    cout << "Directory \"" << path.substr(root.size()) << "\" "
+		    "deleted during indexing" << endl;
     } catch (const std::string & error) {
 	cout << error << " - skipping directory "
 		"\"" << path.substr(root.size()) << "\"" << endl;
