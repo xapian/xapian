@@ -1,3 +1,8 @@
+Sun Dec 16 21:23:25 GMT 2012  Olly Betts <olly@survex.com>
+
+	* diritor.cc: MAGIC_MIME_TYPE was added in 4.22, so note that in the
+	  comment about its conditional use.
+
 Fri Dec 14 21:22:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am: In automake, INCLUDES is now deprecated in favour of
