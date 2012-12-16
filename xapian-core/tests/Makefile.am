@@ -12,7 +12,7 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
 CLEANFILES =
