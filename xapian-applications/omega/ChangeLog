@@ -1,3 +1,8 @@
+Fri Dec 14 21:22:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Makefile.am: In automake, INCLUDES is now deprecated in favour of
+	  AM_CPPFLAGS so update to use the latter.
+
 Fri Dec 14 04:45:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If md5_file() fails with ENOENT, assume the file was
