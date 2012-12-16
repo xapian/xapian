@@ -1,3 +1,9 @@
+Sun Dec 16 23:10:13 GMT 2012  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk: INCLUDES is always used, AM_CPPFLAGS isn't if there
+	  are per-executable CPPFLAGS, so add AM_CPPFLAGS explicitly when we
+	  use per-executable CPPFLAGS.
+
 Fri Dec 14 21:25:58 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
