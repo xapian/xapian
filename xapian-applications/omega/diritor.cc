@@ -141,6 +141,8 @@ DirectoryIterator::get_magic_mimetype()
     if (!res) {
 	const char * err = magic_error(magic_cookie);
 	if (rare(err)) {
+	    if (magic_errno(magic_cookie) == ENOENT)
+		throw FileNotFound();
 	    string m("Failed to use magic on file: ");
 	    m += err;
 	    throw m;

@@ -1,3 +1,8 @@
+Sun Dec 16 21:25:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* diritor.cc: If libmagic hits ENOENT trying to classify a file, throw
+	  FileNotFound so we quietly skip the file in non-verbose mode.
+
 Sun Dec 16 21:23:25 GMT 2012  Olly Betts <olly@survex.com>
 
 	* diritor.cc: MAGIC_MIME_TYPE was added in 4.22, so note that in the
