@@ -1,3 +1,9 @@
+Fri Dec 14 04:24:17 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac,diritor.cc,diritor.h,loadfile.cc,loadfile.h,omindex.cc:
+	  If we open a file to index it, keep the fd around and use it with
+	  libmagic, provided magic_descriptor() is available.
+
 Tue Dec 11 03:35:29 GMT 2012  Olly Betts <olly@survex.com>
 
 	* diritor.cc,diritor.h,omindex.cc: If we get ENOENT for a file or

@@ -100,10 +100,11 @@ AC_SEARCH_LIBS([magic_open], [magic], [], [
 else
 AC_SEARCH_LIBS([magic_open], [magic])
 fi
+dnl magic_descriptor was added in file-4.22 released 2007-12-27.
+AC_CHECK_FUNCS([magic_descriptor])
 MAGIC_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST([MAGIC_LIBS])
-
 
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)

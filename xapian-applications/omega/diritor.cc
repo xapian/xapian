@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,9 +128,17 @@ DirectoryIterator::get_magic_mimetype()
 	}
     }
 
-    // FIXME: handle NOATIME here and share the fd with load_file().
-    build_path();
-    const char * res = magic_file(magic_cookie, path.c_str());
+    const char * res = NULL;
+#ifdef HAVE_MAGIC_DESCRIPTOR
+    if (fd >= 0) {
+	if (lseek(fd, 0, SEEK_SET) == 0)
+	    res = magic_descriptor(magic_cookie, fd);
+    } else
+#endif
+    {
+	build_path();
+	res = magic_file(magic_cookie, path.c_str());
+    }
     if (!res) {
 	const char * err = magic_error(magic_cookie);
 	if (rare(err)) {

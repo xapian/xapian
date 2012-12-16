@@ -1,6 +1,6 @@
 /* loadfile.cc: load a file into a std::string.
  *
- * Copyright (C) 2006,2010 Olly Betts
+ * Copyright (C) 2006,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,9 +46,9 @@
 
 using namespace std;
 
-bool
-load_file(const string &file_name, size_t max_to_read, int flags,
-	  string &output, bool &truncated)
+int
+load_file_fd(const string &file_name, size_t max_to_read, int flags,
+	     string &output, bool &truncated)
 {
     (void)flags; // Avoid possible "unused" warning.
     mode_t mode = O_RDONLY;
@@ -66,7 +66,7 @@ load_file(const string &file_name, size_t max_to_read, int flags,
 	fd = open(file_name.c_str(), mode);
     }
 #endif
-    if (fd < 0) return false;
+    if (fd < 0) return -1;
 
 #ifdef HAVE_POSIX_FADVISE
     if (flags & NOCACHE)
@@ -78,13 +78,13 @@ load_file(const string &file_name, size_t max_to_read, int flags,
 	int errno_save = errno;
 	close(fd);
 	errno = errno_save;
-	return false;
+	return -1;
     }
 
     if (!S_ISREG(st.st_mode)) {
 	close(fd);
 	errno = EINVAL;
-	return false;
+	return -1;
     }
 
     char blk[4096];
@@ -112,7 +112,14 @@ load_file(const string &file_name, size_t max_to_read, int flags,
 	posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
 #endif
 
-    close(fd);
+    return fd;
+}
 
-    return true;
+bool
+load_file(const string &file_name, size_t max_to_read, int flags,
+	  string &output, bool &truncated) {
+    int fd = load_file_fd(file_name, max_to_read, flags, output, truncated);
+    if (fd >= 0)
+	close(fd);
+    return (fd >= 0);
 }
