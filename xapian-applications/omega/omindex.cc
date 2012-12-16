@@ -396,7 +396,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		return;
 	    }
 	} else if (mimetype == "text/html") {
-	    string text = d.file_to_string();
+	    const string & text = d.file_to_string();
 	    MyHtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
 	    try {
@@ -596,7 +596,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	} else if (mimetype == "application/x-abiword") {
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
-	    string text = d.file_to_string();
+	    const string & text = d.file_to_string();
 	    xmlparser.parse_html(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
@@ -725,7 +725,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    author = p.author;
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
-	    svgparser.parse_html(d.file_to_string());
+	    const string & text = d.file_to_string();
+	    md5_string(text, md5);
+	    svgparser.parse_html(text);
 	    dump = svgparser.dump;
 	    title = svgparser.title;
 	    keywords = svgparser.keywords;
@@ -753,7 +755,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    }
 	} else if (mimetype == "application/atom+xml") {
 	    AtomParser atomparser;
-	    atomparser.parse_html(d.file_to_string());
+	    const string & text = d.file_to_string();
+	    md5_string(text, md5);
+	    atomparser.parse_html(text);
 	    dump = atomparser.dump;
 	    title = atomparser.title;
 	    keywords = atomparser.keywords;

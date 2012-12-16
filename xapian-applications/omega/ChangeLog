@@ -1,3 +1,9 @@
+Fri Dec 14 04:35:52 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Calculate the md5 from the loaded file contents when
+	  indexing SVG and Atom files.  Use a const ref to avoid a string
+	  copy of the file contents for HTML and uncompressed ABI word.
+
 Fri Dec 14 04:24:17 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac,diritor.cc,diritor.h,loadfile.cc,loadfile.h,omindex.cc:
