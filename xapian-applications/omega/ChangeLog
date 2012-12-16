@@ -1,3 +1,9 @@
+Fri Dec 14 04:45:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If md5_file() fails with ENOENT, assume the file was
+	  removed during indexing and only report this with --verbose as we
+	  do in other such cases.
+
 Fri Dec 14 04:42:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* md5wrap.cc: If we get a read error while calculating the md5 checksum

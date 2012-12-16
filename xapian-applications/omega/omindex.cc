@@ -770,7 +770,12 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	// Compute the MD5 of the file if we haven't already.
 	if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
-	    skip(file, "failed to read file to calculate MD5 checksum");
+	    if (errno == ENOENT) {
+		skip(file, "File removed during indexing",
+		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
+	    } else {
+		skip(file, "failed to read file to calculate MD5 checksum");
+	    }
 	    return;
 	}
 
