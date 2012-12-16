@@ -1,3 +1,9 @@
+Fri Dec 14 04:42:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* md5wrap.cc: If we get a read error while calculating the md5 checksum
+	  of a file, fail rather than returning the checksum of the file up to
+	  that point.
+
 Fri Dec 14 04:35:52 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Calculate the md5 from the loaded file contents when
