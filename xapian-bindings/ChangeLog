@@ -1,3 +1,12 @@
+Mon Dec 17 02:13:16 GMT 2012  Olly Betts <olly@survex.com>
+
+	* README,php/docs/index.html: Bump minimum supported PHP version to
+	  5.3 - 5.2 was officially EOLed 2011-01-06, and the only distros
+	  which seem to still have PHP 5.2 are Ubuntu hardy (which will reach
+	  EOL in April 2013) and older probably RHEL (which are aimed at the
+	  ultra-conservative types who would likely be happy to stick with
+	  Xapian 1.2 anyway.
+
 Sat Oct 13 04:28:16 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/t/databasemodified.t,perl/t/index.t,perl/t/parser.t: Using
