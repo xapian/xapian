@@ -1,3 +1,8 @@
+Tue Dec 18 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Extend --filter to allow commands which
+	  produce HTML on stdout to be specified with it.
+
 Sun Dec 16 21:25:28 GMT 2012  Olly Betts <olly@survex.com>
 
 	* diritor.cc: If libmagic hits ENOENT trying to classify a file, throw

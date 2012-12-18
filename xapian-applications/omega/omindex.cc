@@ -101,8 +101,18 @@ static vector<bool> updated;
 static time_t last_mod_max;
 
 // Commands which take a filename as the last argument, and output UTF-8
-// text are common, so we handle these with a std::map.
-static map<string, string> commands;
+// text or some other mime type are common, so we handle these with a std::map.
+struct Filter {
+    string cmd;
+    string output_type;
+    Filter() : cmd(), output_type() { }
+    explicit Filter(const string & cmd_)
+	: cmd(cmd_), output_type() { }
+    Filter(const string & cmd_, const string & output_type_)
+	: cmd(cmd_), output_type(output_type_) { }
+};
+
+static map<string, Filter> commands;
 
 inline static bool
 p_notalnum(unsigned int c)
@@ -380,10 +390,11 @@ index_mimetype(const string & file, const string & url, const string & ext,
     string md5;
 
     try {
-	map<string, string>::const_iterator cmd_it = commands.find(mimetype);
+	map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
 	if (cmd_it != commands.end()) {
-	    // Easy "run a command and read UTF-8 text from stdout" cases.
-	    string cmd = cmd_it->second;
+	    // Easy "run a command and read UTF-8 text or HTML from stdout"
+	    // cases.
+	    string cmd = cmd_it->second.cmd;
 	    if (cmd.empty()) {
 		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
 		return;
@@ -391,6 +402,23 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
+		if (cmd_it->second.output_type == "text/html") {
+		    MyHtmlParser p;
+		    p.ignore_metarobots();
+		    try {
+			// No point going looking for charset overrides as
+			// unrtf doesn't produce them.  (FIXME: not just unrtf
+			// now).
+			p.parse_html(dump, "iso-8859-1", true);
+		    } catch (ReadError) {
+			skip_cmd_failed(file, cmd);
+			return;
+		    }
+		    dump = p.dump;
+		    title = p.title;
+		    keywords = p.keywords;
+		    sample = p.sample;
+		}
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
@@ -612,25 +640,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
-	} else if (mimetype == "text/rtf") {
-	    // The --text option unhelpfully converts all non-ASCII characters
-	    // to "?" so we use --html instead, which produces HTML entities.
-	    string cmd = "unrtf --nopict --html 2>/dev/null";
-	    append_filename_argument(cmd, file);
-	    MyHtmlParser p;
-	    p.ignore_metarobots();
-	    try {
-		// No point going looking for charset overrides as unrtf doesn't
-		// produce them.
-		p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
-	    dump = p.dump;
-	    title = p.title;
-	    keywords = p.keywords;
-	    sample = p.sample;
 	} else if (mimetype == "text/x-perl") {
 	    // pod2text's output character set doesn't seem to be documented,
 	    // but from inspecting the source it looks like it's probably
@@ -956,7 +965,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	skip(file, "can't read file");
     } catch (NoSuchFilter) {
 	skip(file, "Filter for \"" + mimetype + "\" not installed");
-	commands[mimetype] = string();
+	commands[mimetype] = Filter();
     } catch (FileNotFound) {
 	skip(file, "File removed during indexing",
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
@@ -1235,19 +1244,23 @@ main(int argc, char **argv)
     mime_map["tmp"] = "ignore";
     mime_map["ttf"] = "ignore";
 
-    commands["application/msword"] = "antiword -mUTF-8.txt";
-    commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8";
+    commands["application/msword"] = Filter("antiword -mUTF-8.txt");
+    commands["application/vnd.ms-powerpoint"] = Filter("catppt -dutf-8");
     // Looking at the source of wpd2html and wpd2text I think both output
     // UTF-8, but it's hard to be sure without sample Unicode .wpd files
     // as they don't seem to be at all well documented.
-    commands["application/vnd.wordperfect"] = "wpd2text";
+    commands["application/vnd.wordperfect"] = Filter("wpd2text");
     // wps2text produces UTF-8 output from the sample files I've tested.
-    commands["application/vnd.ms-works"] = "wps2text";
+    commands["application/vnd.ms-works"] = Filter("wps2text");
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
     // (as it is in CP1250).
-    commands["image/vnd.djvu"] = "djvutxt";
+    commands["image/vnd.djvu"] = Filter("djvutxt");
+    // The --text option unhelpfully converts all non-ASCII characters to "?"
+    // so we use --html instead, which produces HTML entities.  Currently the
+    // --nopict option doesn't work, but hopefully it'll get fixed.
+    commands["text/rtf"] = Filter("unrtf --nopict --html 2>dev/null", "text/html");
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but
@@ -1271,33 +1284,36 @@ main(int argc, char **argv)
 "BASEDIR is the directory corresponding to URL (default: DIRECTORY).\n"
 "\n"
 "Options:\n"
-"  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
-"  -p, --no-delete          skip the deletion of documents corresponding to\n"
-"                           deleted files (--preserve-nonduplicates is a\n"
-"                           deprecated alias for --no-delete)\n"
-"  -e, --empty-docs=ARG     how to handle documents we extract no text from:\n"
-"                           ARG can be index, warn (issue a diagnostic and\n"
-"                           index), or skip.  (default: warn)\n"
-"  -D, --db=DATABASE        path to database to use\n"
-"  -U, --url=URL            base url BASEDIR corresponds to (default: /)\n"
-"  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
-"                           (empty TYPE removes any MIME mapping for EXT)\n"
-"  -F, --filter=TYPE:CMD    process files with MIME Content-Type TYPE using\n"
-"                           command CMD, which should produce UTF-8 text on\n"
-"                           stdout e.g. -Fapplication/octet-stream:'strings -n8'\n"
-"  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
-"  -f, --follow             follow symbolic links\n"
-"  -i, --ignore-exclusions  ignore meta robots tags and similar exclusions\n"
-"  -S, --spelling           index data for spelling correction\n"
-"  -m, --max-size           maximum size of file to index (in bytes or with a\n"
-"                           suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
-"  -E, --sample-size=SIZE   sets the maximum number of bytes for the document\n"
-"                           text sample. (default SIZE = 512)\n"
-"  -v, --verbose            show more information about what is happening\n"
-"      --overwrite          create the database anew (the default is to update\n"
-"                           if the database already exists)" << endl;
-	    print_stemmer_help("     ");
-	    print_help_and_version_help("     ");
+"  -d, --duplicates          set duplicate handling ('ignore' or 'replace')\n"
+"  -p, --no-delete           skip the deletion of documents corresponding to\n"
+"                            deleted files (--preserve-nonduplicates is a\n"
+"                            deprecated alias for --no-delete)\n"
+"  -e, --empty-docs=ARG      how to handle documents we extract no text from:\n"
+"                            ARG can be index, warn (issue a diagnostic and\n"
+"                            index), or skip.  (default: warn)\n"
+"  -D, --db=DATABASE         path to database to use\n"
+"  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
+"  -M, --mime-type=EXT:TYPE  map file extension EXT to MIME Content-Type TYPE\n"
+"                            (empty TYPE removes any MIME mapping for EXT)\n"
+"  -F, --filter=M[,T]:CMD    process files with MIME Content-Type M using\n"
+"                            command CMD, which produces output on stdout with\n"
+"                            Content-Type T or file extension T.  Currently\n"
+"                            output types text/html and UTF-8 text/plain (the\n"
+"                            default) are supported.\n"
+"                            e.g. -Fapplication/octet-stream:'strings -n8'\n"
+"  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
+"  -f, --follow              follow symbolic links\n"
+"  -i, --ignore-exclusions   ignore meta robots tags and similar exclusions\n"
+"  -S, --spelling            index data for spelling correction\n"
+"  -m, --max-size            maximum size of file to index (in bytes or with a\n"
+"                            suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
+"  -E, --sample-size=SIZE    sets the maximum number of bytes for the document\n"
+"                            text sample. (default SIZE = 512)\n"
+"  -v, --verbose             show more information about what is happening\n"
+"      --overwrite           create the database anew (the default is to update\n"
+"                            if the database already exists)" << endl;
+	    print_stemmer_help("      ");
+	    print_help_and_version_help("      ");
 	    return 0;
 	}
 	case 'V':
@@ -1358,10 +1374,32 @@ main(int argc, char **argv)
 	case 'F': {
 	    const char * s = strchr(optarg, ':');
 	    if (s != NULL && s[1]) {
-		commands[string(optarg, s - optarg)] = string(s + 1);
+		const char * c = (const char *)memchr(optarg, ',', s - optarg);
+		string output_type;
+		if (c) {
+		    // Filter produces a specified content-type.
+		    output_type.assign(c + 1, s - (c + 1));
+		    if (output_type.find('/') == string::npos) {
+			map<string, string>::const_iterator m;
+			m = mime_map.find(output_type);
+			if (m != mime_map.end())
+			    output_type = m->second;
+		    }
+		    if (output_type != "text/html" &&
+			output_type != "text/plain") {
+			cerr << "Currently only output types 'text/html' and 'text/plain' are supported."
+			     << endl;
+			return 1;
+		    }
+		} else {
+		    c = s;
+		}
+		string mime_type(optarg, c - optarg);
+		commands[mime_type] = Filter(string(s + 1), output_type);
 	    } else {
 		cerr << "Invalid filter mapping '" << optarg << "'\n"
-			"Should be of the form TYPE:COMMAND, e.g. 'application/octet-stream:strings -n8'"
+			"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or TYPE,EXT:COMMAND\n"
+			"e.g. 'application/octet-stream:strings -n8'"
 		     << endl;
 		return 1;
 	    }

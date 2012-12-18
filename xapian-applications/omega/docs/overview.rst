@@ -335,7 +335,8 @@ files of MIME type ``application/octet-stream`` by running them through
 ``strings -n8``, you can pass the option
 ``--filter=application/octet-stream:'strings -n8'``.  The filename of the
 file to be extracted will be appended to this command, separated by a space.
-Commands run via ``--filter`` need to produce UTF-8 text output on stdout.
+Commands run via ``--filter`` need to produce output on stdout in either HTML
+or UTF-8 text format.
 
 A more complex example of the use of ``--filter`` makes use of OpenOffice,
 via the unoconv script, to extract text from various formats.  First you
@@ -346,8 +347,8 @@ tell the shell to run it in the background::
   unoconv --listener &
 
 Then run omindex with options such as
-``--filter=application/msword:'unoconv --stdout -f text'`` (you'll want one
-for each format which you want to extract text from with OpenOffice).
+``--filter=application/msword,html:'unoconv --stdout -f html'`` (you'll want
+to repeat this for each format which you want to use OpenOffice on).
 
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
