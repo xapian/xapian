@@ -1,3 +1,8 @@
+Tue Dec 18 04:49:41 GMT 2012  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix typo in previous change (2>dev/null should be
+	  2>/dev/null).
+
 Tue Dec 18 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Extend --filter to allow commands which
