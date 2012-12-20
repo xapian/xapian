@@ -1,3 +1,8 @@
+Thu Dec 20 22:55:34 GMT 2012  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: socketpair() needs -lnetwork on Haiku.
+
 Sun Dec 09 22:55:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
