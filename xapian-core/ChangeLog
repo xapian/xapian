@@ -1,3 +1,7 @@
+Thu Dec 20 20:57:18 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: socketpair() needs -lnetwork on Haiku.
+
 Thu Dec 20 02:30:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc,

@@ -792,7 +792,8 @@ if test "$enable_backend_remote" = yes ; then
 	enable_backend_remote=no
       else
 	dnl Check if -lsocket is required for socketpair (Solaris needs it).
-	AC_SEARCH_LIBS(socketpair, socket, [], [enable_backend_remote=no])
+	dnl And on Haiku it's in -lnetwork.
+	AC_SEARCH_LIBS(socketpair, [socket network], [], [enable_backend_remote=no])
 	if test "$enable_backend_remote" = yes ; then
 	  AC_DEFINE(HAVE_SOCKETPAIR, 1,
 		    [Define to 1 if you have the 'socketpair' function.])
