@@ -28,12 +28,9 @@
 #include "brass_version.h"
 #include "io_utils.h"
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "str.h"
-
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 #include <cstdio> // For rename().
 #include <cstring> // For memcmp() and memcpy().

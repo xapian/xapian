@@ -1,9 +1,8 @@
-/* msvc_posix_wrapper.cc: Provides wrappers with POSIX semantics under MSVC.
- *
- * (misnamed, this isn't MSVC specific, but __WIN32__-specific)
- *
- * Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007 Olly Betts
+/** @file posixy_wrapper.cc
+ * @brief Provides wrappers with POSIXy semantics.
+ */
+/* Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +23,7 @@
 
 #ifdef __WIN32__ /* Ignore the whole file except for __WIN32__ */
 
-#include "msvc_posix_wrapper.h"
+#include "posixy_wrapper.h"
 
 #include <io.h>
 
@@ -34,7 +33,7 @@
 
 /** Call GetLastError() and set errno appropriately. */
 static int
-msvc_set_errno_from_getlasterror()
+set_errno_from_getlasterror()
 {
     int e;
     unsigned long winerr = GetLastError();
@@ -132,24 +131,19 @@ msvc_set_errno_from_getlasterror()
     return -1;
 }
 
-/** Version of unlink() with POSIX-like semantics (open files can be unlinked).
- *
- *  NB The file must have been opened with msvc_posix_open() for this to work.
- */
 int
-msvc_posix_unlink(const char * filename)
+posixy_unlink(const char * filename)
 {
     /* We must use DeleteFile as this can delete files that are open. */
     if (DeleteFile(filename) != 0) {
 	return 0;
     }
 
-    return msvc_set_errno_from_getlasterror();
+    return set_errno_from_getlasterror();
 }
 
-/** Version of open() which allows the file to be unlinked while open. */
 int
-msvc_posix_open(const char *filename, int flags)
+posixy_open(const char *filename, int flags)
 {
     /* Translate ANSI read mode to Windows access mode */
     DWORD dwDesiredAccess = GENERIC_READ;
@@ -202,21 +196,21 @@ msvc_posix_open(const char *filename, int flags)
 		FILE_ATTRIBUTE_NORMAL,
 		NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
-	return msvc_set_errno_from_getlasterror();
+	return set_errno_from_getlasterror();
     }
 
     /* Return a standard file descriptor. */
     return _open_osfhandle((intptr_t)handleWin, flags);
 }
 
-/** Version of rename() which overwrites an existing destination file. */
-int msvc_posix_rename(const char *from, const char *to)
+int
+posixy_rename(const char *from, const char *to)
 {
     if (MoveFileEx(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
 	return 0;
     }
 
-    return msvc_set_errno_from_getlasterror();
+    return set_errno_from_getlasterror();
 }
 
 #endif // __WIN32__

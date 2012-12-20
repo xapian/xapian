@@ -37,13 +37,10 @@
 #include "filetests.h"
 #include "noreturn.h"
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "realtime.h"
 #include "length.h"
 #include "socket_utils.h"
-
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 using namespace std;
 
@@ -590,13 +587,10 @@ RemoteConnection::receive_file(const string &file, double end_time)
     if (fdin == -1)
 	throw_database_closed();
 
-#ifdef __WIN32__
-    // Do we want to be able to delete the file during writing?
-    FD fd(msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC));
-#else
-    FD fd(open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666));
-#endif
-    if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
+    // FIXME: Do we want to be able to delete the file during writing?
+    FD fd(posixy_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666));
+    if (fd == -1)
+	throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
 
     read_at_least(2, end_time);
     size_t len = static_cast<unsigned char>(buffer[1]);

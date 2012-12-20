@@ -1,3 +1,12 @@
+Thu Dec 20 22:07:19 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
+	  common/,net/remoteconnection.cc: Rename msvc_posix_rename(), etc to
+	  posixy_rename() (avoid a posix_ prefix as that's used by some library
+	  functions, and these aren't necessarily 100% POSIX compatible), and
+	  provide macro versions on Unix, so we can avoid a #ifdef at every
+	  call site.
+
 Thu Dec 20 20:57:18 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: socketpair() needs -lnetwork on Haiku.

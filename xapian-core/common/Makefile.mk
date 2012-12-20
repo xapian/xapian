@@ -12,12 +12,12 @@ noinst_HEADERS +=\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/msvc_dirent.h\
-	common/msvc_posix_wrapper.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/output.h\
 	common/output-internal.h\
 	common/pack.h\
+	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
 	common/registryinternal.h\
@@ -54,8 +54,8 @@ lib_src +=\
 	common/fileutils.cc\
 	common/io_utils.cc\
 	common/msvc_dirent.cc\
-	common/msvc_posix_wrapper.cc\
 	common/omassert.cc\
+	common/posixy_wrapper.cc\
 	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\

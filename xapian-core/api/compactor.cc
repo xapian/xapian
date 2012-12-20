@@ -43,9 +43,7 @@
 #include "omassert.h"
 #include "filetests.h"
 #include "fileutils.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
+#include "posixy_wrapper.h"
 #include "stringutils.h"
 #include "str.h"
 
@@ -502,11 +500,7 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #endif
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
-#ifndef __WIN32__
-	if (rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-#else
-	if (msvc_posix_rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-#endif
+	if (posixy_rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
 	    // FIXME: try to clean up?
 	    string msg = "Cannot rename '";
 	    msg += new_stub_file;

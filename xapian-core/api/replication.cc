@@ -33,10 +33,8 @@
 #include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "realtime.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
@@ -312,13 +310,7 @@ DatabaseReplica::Internal::update_stub_database() const
 	stub << REPLICA_STUB_BANNER
 		"auto replica_" << live_id << endl;
     }
-    int result;
-#ifdef __WIN32__
-    result = msvc_posix_rename(tmp_path.c_str(), stub_path.c_str());
-#else
-    result = rename(tmp_path.c_str(), stub_path.c_str());
-#endif
-    if (result == -1) {
+    if (posixy_rename(tmp_path.c_str(), stub_path.c_str()) == -1) {
 	string msg("Failed to update stub db file for replica: ");
 	msg += path;
 	throw Xapian::DatabaseOpeningError(msg);

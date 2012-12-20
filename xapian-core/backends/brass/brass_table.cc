@@ -28,11 +28,9 @@
 #include <xapian/error.h>
 
 #include "safeerrno.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "str.h"
 #include "stringutils.h" // For STRINGIZE().
 
@@ -1760,12 +1758,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
-#if defined __WIN32__
-	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
-#else
-	if (rename(tmp.c_str(), basefile.c_str()) < 0)
-#endif
-	{
+	if (posixy_rename(tmp.c_str(), basefile.c_str()) < 0) {
 	    // With NFS, rename() failing may just mean that the server crashed
 	    // after successfully renaming, but before reporting this, and then
 	    // the retried operation fails.  So we need to check if the source

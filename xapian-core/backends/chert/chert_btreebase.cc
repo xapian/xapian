@@ -23,9 +23,6 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 #include <xapian/error.h>
 
@@ -34,6 +31,7 @@
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
+#include "posixy_wrapper.h"
 #include "str.h"
 
 #include <algorithm>
@@ -169,12 +167,7 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
 		      string &err_msg)
 {
     string basename = name + "base" + ch;
-#ifdef __WIN32__
-    FD h(msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY));
-#else
-    FD h(open(basename.c_str(), O_RDONLY | O_BINARY));
-#endif
-
+    FD h(posixy_open(basename.c_str(), O_RDONLY | O_BINARY));
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
@@ -304,11 +297,7 @@ ChertTable_base::write_to_file(const string &filename,
     }
     pack_uint(buf, revision);  // REVISION3
 
-#ifdef __WIN32__
-    FD h(msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY));
-#else
-    FD h(open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
-#endif
+    FD h(posixy_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
     if (h < 0) {
 	string message = string("Couldn't open base ")
 		+ filename + " to write: " + strerror(errno);

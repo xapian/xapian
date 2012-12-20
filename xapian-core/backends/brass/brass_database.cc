@@ -54,13 +54,10 @@
 #include "api/replication.h"
 #include "replicationprotocol.h"
 #include "net/length.h"
+#include "posixy_wrapper.h"
 #include "str.h"
 #include "stringutils.h"
 #include "backends/valuestats.h"
-
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 #include "safeerrno.h"
 #include "safesysstat.h"
@@ -336,12 +333,7 @@ BrassDatabase::get_changeset_revisions(const string & path,
 				       brass_revision_number_t * startrev,
 				       brass_revision_number_t * endrev) const
 {
-#ifdef __WIN32__
-    FD changes_fd(msvc_posix_open(path.c_str(), O_RDONLY));
-#else
-    FD changes_fd(open(path.c_str(), O_RDONLY));
-#endif
-
+    FD changes_fd(posixy_open(path.c_str(), O_RDONLY));
     if (changes_fd < 0) {
 	string message = string("Couldn't open changeset ")
 		+ path + " to read";
@@ -409,11 +401,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	if (old_revision) {
 	    // Don't generate a changeset for the first revision.
 	    changes_name = db_dir + "/changes" + str(old_revision);
-#ifdef __WIN32__
-	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
+	    changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 	    if (changes_fd < 0) {
 		string message = string("Couldn't open changeset ")
 			+ changes_name + " to write";
@@ -563,11 +551,7 @@ BrassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     for (const char * p = filenames; *p; p += *p + 1) {
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
 	filepath.replace(db_dir.size() + 1, string::npos, leaf);
-#ifdef __WIN32__
-	FD fd(msvc_posix_open(filepath.c_str(), O_RDONLY));
-#else
-	FD fd(open(filepath.c_str(), O_RDONLY));
-#endif
+	FD fd(posixy_open(filepath.c_str(), O_RDONLY));
 	if (fd >= 0) {
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
@@ -667,11 +651,7 @@ BrassDatabase::write_changesets_to_fd(int fd,
 
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
-#ifdef __WIN32__
-	    FD fd_changes(msvc_posix_open(changes_name.c_str(), O_RDONLY));
-#else
-	    FD fd_changes(open(changes_name.c_str(), O_RDONLY));
-#endif
+	    FD fd_changes(posixy_open(changes_name.c_str(), O_RDONLY));
 	    if (fd_changes >= 0) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
