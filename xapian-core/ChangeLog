@@ -1,3 +1,10 @@
+Thu Dec 20 22:27:40 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use user-specified LIBS for configure tests, which is
+	  what's expected, and provides a way for the user to tell configure
+	  where to find library functions which configure can't find for
+	  itself.
+
 Thu Dec 20 22:07:19 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
