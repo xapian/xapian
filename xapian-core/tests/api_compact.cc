@@ -555,4 +555,3 @@ DEFINE_TESTCASE(compactempty1, brass || chert) {
 
     return true;
 }
-

@@ -1,3 +1,8 @@
+Thu Dec 20 02:05:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,common/,languages/compiler/syswords2.h,
+	  tests/api_compact.cc: Remove extra blank lines at end of files.
+
 Thu Dec 20 01:54:47 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
