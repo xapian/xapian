@@ -1,3 +1,10 @@
+Thu Dec 20 01:54:47 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
+	  Fix "if (fd > 0)" tests to be "if (fd >= 0)" in code related to
+	  replication.  In practice this is unlikely to actually have caused
+	  problems in real world cases.
+
 Sun Dec 16 23:10:13 GMT 2012  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk: INCLUDES is always used, AM_CPPFLAGS isn't if there
