@@ -1,3 +1,12 @@
+Thu Dec 20 02:30:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc: Simplify how we open the
+	  .DB file on the replication slave to just call open() once with
+	  O_CREAT, rather than once without, than stat() if that fails, and
+	  then again with O_CREAT|O_TRUNC if stat() doesn't show an ordinary
+	  file exists.
+
 Thu Dec 20 02:05:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,common/,languages/compiler/syswords2.h,
