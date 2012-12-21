@@ -1,3 +1,10 @@
+Fri Dec 21 02:56:28 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc: Make the UnimplementedError for a
+	  MatchSpy which doesn't implement name() clearer that it's this
+	  particular subclass which can't be used remotely, not all MatchSpy
+	  objects.
+
 Thu Dec 20 22:27:40 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use user-specified LIBS for configure tests, which is
