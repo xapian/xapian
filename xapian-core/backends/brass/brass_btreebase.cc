@@ -165,7 +165,7 @@ BrassTable_base::read(const string & name, char ch, bool read_bitmap,
 		      string &err_msg)
 {
     string basename = name + "base" + ch;
-    FD h(posixy_open(basename.c_str(), O_RDONLY | O_BINARY));
+    FD h(posixy_open(basename.c_str(), O_RDONLY));
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
@@ -295,7 +295,7 @@ BrassTable_base::write_to_file(const string &filename,
     }
     pack_uint(buf, revision);  // REVISION3
 
-    FD h(posixy_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
+    FD h(posixy_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
     if (h < 0) {
 	string message = string("Couldn't open base ")
 		+ filename + " to write: " + strerror(errno);

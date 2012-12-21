@@ -401,7 +401,7 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	if (old_revision) {
 	    // Don't generate a changeset for the first revision.
 	    changes_name = db_dir + "/changes" + str(old_revision);
-	    changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	    changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	    if (changes_fd < 0) {
 		string message = string("Couldn't open changeset ")
 			+ changes_name + " to write";

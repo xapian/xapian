@@ -117,7 +117,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     // Write base_size bytes from start of buf to base file for tablename
     string tmp_path = db_dir + "/" + tablename + "tmp";
     string base_path = db_dir + "/" + tablename + ".base" + letter;
-    int fd = posixy_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    int fd = posixy_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd == -1) {
 	string msg = "Failed to open ";
 	msg += tmp_path;
@@ -166,7 +166,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     write_and_clear_changes(changes_fd, buf, ptr - buf.data());
 
     string db_path = db_dir + "/" + tablename + ".DB";
-    int fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT | O_BINARY, 0666);
+    int fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT, 0666);
     if (fd == -1) {
 	string msg = "Failed to open ";
 	msg += db_path;

@@ -47,7 +47,7 @@ create_changeset_file(const string & changeset_dir,
     changes_name = changeset_dir;
     changes_name += '/';
     changes_name += filename;
-    int changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    int changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (changes_fd < 0) {
 	string message("Couldn't open changeset to write: ");
 	message += changes_name;

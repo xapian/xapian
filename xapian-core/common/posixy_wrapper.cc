@@ -200,7 +200,7 @@ posixy_open(const char *filename, int flags)
     }
 
     /* Return a standard file descriptor. */
-    return _open_osfhandle((intptr_t)handleWin, flags);
+    return _open_osfhandle((intptr_t)handleWin, flags|O_BINARY);
 }
 
 int

@@ -1,3 +1,14 @@
+Fri Dec 21 03:24:37 GMT 2012  Olly Betts <olly@survex.com>
+
+	* common/replicate_utils.cc: Make posixy_open() always use O_BINARY.
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_database.cc,
+	  backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_btreebase.cc,
+	  backends/chert/chert_databasereplicator.cc,common/posixy_wrapper.cc:
+	  Don't pass O_BINARY to posixy_open() in the places where we were
+	  (which wasn't everywhere, probably causing replication bugs under
+	  __WIN32__).
+
 Fri Dec 21 02:57:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc,net/remoteconnection.h: Only "outline"
