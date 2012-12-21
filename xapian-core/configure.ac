@@ -778,7 +778,9 @@ if test "$enable_backend_remote" = yes ; then
       REMOTE_LDFLAGS=-lws2_32
       ;;
     *djgpp* | *msdos* )
-      dnl DJGPP has a dummy implementation of fork which always fails.
+      dnl DJGPP has a dummy implementation of fork which always fails.  If
+      dnl someone actually wanted support, then DJGPP has a pthreads port,
+      dnl so using threads like we do on Windows would make more sense.
       enable_backend_remote=no ;;
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.

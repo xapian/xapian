@@ -1,3 +1,7 @@
+Fri Dec 21 03:48:11 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Expand comment about DJGPP.
+
 Fri Dec 21 03:47:13 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update comment - we've supported the prog backend on
