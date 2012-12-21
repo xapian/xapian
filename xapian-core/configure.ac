@@ -770,8 +770,7 @@ if test "$enable_backend_remote" = yes ; then
   case $host_os-$win32 in
     *-yes )
       dnl For mingw and msvc we have an alternative implementation which
-      dnl doesn't need fork().  Also the "prog" variant isn't built
-      dnl currently so socketpair() isn't required either.
+      dnl doesn't need fork() or socketpair().
       dnl
       dnl We need -lws2_32 for gethostbyname(), etc.  Hardcode that knowledge
       dnl here because AC_SEARCH_LIBS fails to link the test program (I think
