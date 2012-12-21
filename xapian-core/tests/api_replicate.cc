@@ -103,12 +103,12 @@ static void do_write(int fd, const char * p, size_t n)
 static off_t
 truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 {
-    FD fdin(open(srcpath.c_str(), O_RDONLY));
+    FD fdin(open(srcpath.c_str(), O_RDONLY | O_BINARY));
     if (fdin == -1) {
 	FAIL_TEST("Open failed (when opening '" + srcpath + "')");
     }
 
-    FD fdout(open(destpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
+    FD fdout(open(destpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
     if (fdout == -1) {
 	FAIL_TEST("Open failed (when creating '" + destpath + "')");
     }
@@ -144,7 +144,7 @@ get_changeset(const string & changesetpath,
 	      bool expected_changed,
 	      bool full_copy = false)
 {
-    FD fd(open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666));
+    FD fd(open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when creating a new changeset file at '"
 		  + changesetpath + "')");
@@ -166,7 +166,7 @@ apply_changeset(const string & changesetpath,
 		int expected_fullcopies,
 		bool expected_changed)
 {
-    FD fd(open(changesetpath.c_str(), O_RDONLY));
+    FD fd(open(changesetpath.c_str(), O_RDONLY | O_BINARY));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when reading changeset file at '"
 		  + changesetpath + "')");
