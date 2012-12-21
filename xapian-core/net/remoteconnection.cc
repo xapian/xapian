@@ -77,13 +77,13 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 #endif
 }
 
+#ifdef __WIN32__
 RemoteConnection::~RemoteConnection()
 {
-#ifdef __WIN32__
     if (overlapped.hEvent)
 	CloseHandle(overlapped.hEvent);
-#endif
 }
+#endif
 
 void
 RemoteConnection::read_at_least(size_t min_len, double end_time)

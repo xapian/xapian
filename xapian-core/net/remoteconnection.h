@@ -157,8 +157,10 @@ class RemoteConnection {
     RemoteConnection(int fdin_, int fdout_,
 		     const std::string & context_ = std::string());
 
+#ifdef __WIN32__
     /// Destructor
     ~RemoteConnection();
+#endif
 
     /** See if there is data available to read.
      *
