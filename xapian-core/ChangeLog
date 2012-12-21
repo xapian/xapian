@@ -1,3 +1,13 @@
+Fri Dec 21 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't autodisable the remote backend if we fail to find
+	  a required function.  It's more likely the user needs to pass
+	  LIBS=-lfoo and it's more helpful to error out so they can do that, or
+	  pass --disable-backend-remote if they really don't want it, rather
+	  than having them not notice the automatic disabling until after
+	  they've built.  This also matches what we do for the disk based
+	  backends.
+
 Fri Dec 21 03:48:11 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Expand comment about DJGPP.

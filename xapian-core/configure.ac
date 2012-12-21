@@ -784,28 +784,26 @@ if test "$enable_backend_remote" = yes ; then
       enable_backend_remote=no ;;
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.
-      AC_CHECK_FUNCS(fork)
       SAVE_LIBS=$LIBS
-      if test "$ac_cv_func_fork" = no ; then
-	enable_backend_remote=no
-      else
-	dnl Check if -lsocket is required for socketpair (Solaris needs it).
-	dnl And on Haiku it's in -lnetwork.
-	AC_SEARCH_LIBS(socketpair, [socket network], [], [enable_backend_remote=no])
-	if test "$enable_backend_remote" = yes ; then
-	  AC_DEFINE(HAVE_SOCKETPAIR, 1,
-		    [Define to 1 if you have the 'socketpair' function.])
-	  dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	  AC_SEARCH_LIBS(gethostbyname, nsl, [], [enable_backend_remote=no])
-	  if test "$enable_backend_remote" = yes ; then
-	    dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [enable_backend_remote=no])
-	    if test "$enable_backend_remote" = yes ; then
-	      REMOTE_LDFLAGS=$LIBS
-	    fi
-	  fi
-	fi
-      fi
+      AC_CHECK_FUNCS(fork, [], [
+	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lsocket is required for socketpair (Solaris needs it).
+      dnl And on Haiku it's in -lnetwork.
+      AC_SEARCH_LIBS(socketpair, [socket network], [], [
+	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_DEFINE(HAVE_SOCKETPAIR, 1,
+		[Define to 1 if you have the 'socketpair' function.])
+      dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
+      AC_SEARCH_LIBS(gethostbyname, nsl, [], [
+	AC_MSG_ERROR([gethostbyname() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
+      AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [
+	AC_MSG_ERROR([gethostbyaddr() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      REMOTE_LDFLAGS=$LIBS
       LIBS=$SAVE_LIBS
       ;;
   esac
