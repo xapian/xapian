@@ -1,3 +1,9 @@
+Sat Dec 22 06:14:40 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc,net/progclient.cc: Use SOCK_CLOEXEC with
+	  socketpair(), and then clear the close-on-exec flag for child process
+	  end of the pair before we call exec.
+
 Sat Dec 22 06:13:44 GMT 2012  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Remove O_CLOEXEC where we open stderr on /dev/null

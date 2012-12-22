@@ -96,7 +96,7 @@ ProgClient::run_program(const string &progname, const string &args
      */
     int sv[2];
 
-    if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
+    if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_STREAM, 0, sv) < 0) {
 	throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
     }
 
@@ -116,6 +116,19 @@ ProgClient::run_program(const string &progname, const string &args
     /* child process:
      *   set up file descriptors and exec program
      */
+
+#if defined F_SETFD && defined FD_CLOEXEC
+    // Clear close-on-exec flag, if we set it when we called socketpair().
+    // Clearing it here means there's no window where another thread in the
+    // parent process could fork()+exec() and end up with this fd still
+    // open (assuming close-on-exec is supported).
+    //
+    // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
+    // on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
+    // SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
+    if (SOCK_CLOEXEC != 0)
+	(void)fcntl(sv[1], F_SETFD, 0);
+#endif
 
     // replace stdin and stdout with the socket
     // FIXME: check return values from dup2.
