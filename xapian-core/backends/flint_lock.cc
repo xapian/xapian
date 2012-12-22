@@ -79,7 +79,11 @@ FlintLock::lock(bool exclusive, string & explanation) {
     return UNKNOWN;
 #else
     Assert(fd == -1);
+#if defined F_SETFD && defined FD_CLOEXEC
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+#else
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+#endif
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation = string("Couldn't open lockfile: ") + strerror(errno);
@@ -144,6 +148,8 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	// SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
 	if (SOCK_CLOEXEC != 0)
 	    (void)fcntl(fds[1], F_SETFD, 0);
+	if (O_CLOEXEC != 0)
+	    (void)fcntl(lockfd, F_SETFD, 0);
 #endif
 	// Connect pipe to stdin and stdout.
 	dup2(fds[1], 0);

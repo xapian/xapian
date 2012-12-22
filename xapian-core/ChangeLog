@@ -1,3 +1,9 @@
+Sat Dec 22 06:29:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Only set close-on-exec on the lockfile fd if
+	  we are able to clear it in the child process, and clear it in the
+	  child process if we set it when we opened it.
+
 Sat Dec 22 06:14:40 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc,net/progclient.cc: Use SOCK_CLOEXEC with
