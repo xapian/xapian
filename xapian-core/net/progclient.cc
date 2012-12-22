@@ -130,7 +130,7 @@ ProgClient::run_program(const string &progname, const string &args
     closefrom(2);
 
     // Redirect stderr to /dev/null
-    int stderrfd = open("/dev/null", O_WRONLY|O_CLOEXEC);
+    int stderrfd = open("/dev/null", O_WRONLY);
     if (stderrfd == -1) {
 	throw Xapian::NetworkError(string("Redirecting stderr to /dev/null failed"), get_progcontext(progname, args), errno);
     }

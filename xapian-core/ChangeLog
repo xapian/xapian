@@ -1,3 +1,8 @@
+Sat Dec 22 06:13:44 GMT 2012  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Remove O_CLOEXEC where we open stderr on /dev/null
+	  before calling exec as we want that fd to survive the exec!
+
 Sat Dec 22 05:53:12 GMT 2012  Olly Betts <olly@survex.com>
 
 	* HACKING,backends/flint_lock.cc,common/Makefile.mk,
