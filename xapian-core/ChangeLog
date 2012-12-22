@@ -1,3 +1,11 @@
+Sat Dec 22 05:53:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* HACKING,backends/flint_lock.cc,common/Makefile.mk,
+	  common/safesyssocket.h,net/progclient.cc,net/tcpclient.cc,
+	  net/tcpserver.cc,tests/harness/backendmanager_remotetcp.cc:
+	  Use SOCK_CLOEXEC where available, and try FD_CLOEXEC if SOCK_CLOEXEC
+	  isn't available.
+
 Sat Dec 22 04:09:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/chert/,backends/flint_lock.cc,

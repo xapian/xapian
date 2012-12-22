@@ -608,6 +608,13 @@ Don't directly '#include <sys/select.h>' - instead '#include "safesysselect.h"'
 which supports older UNIX platforms which predate POSIX 1003.1-2001 and works
 around a problem on Solaris.
 
+<sys/socket.h>:
+---------------
+
+Don't directly '#include <sys/socket.h>' - instead '#include "safesyssocket.h"'
+which supports older UNIX platforms which predate POSIX 1003.1-2001 and works
+on Windows too.
+
 <sys/stat.h>:
 -------------
 

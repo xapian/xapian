@@ -32,7 +32,7 @@
 #ifdef HAVE_FORK
 # include <signal.h>
 # include <sys/types.h>
-# include <sys/socket.h>
+# include "safesyssocket.h"
 # include <sys/wait.h>
 # include <unistd.h>
 // Some older systems had SIGCLD rather than SIGCHLD.
