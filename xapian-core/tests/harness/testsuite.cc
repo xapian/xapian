@@ -786,7 +786,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	    // Open the valgrind log file, and unlink it.
 	    char fname[64];
 	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
-	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
 	    if (vg_log_fd != -1) unlink(fname);
 	}
     }

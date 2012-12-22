@@ -1490,7 +1490,7 @@ BrassTable::do_open_to_write(bool revision_supplied,
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
-    int flags = O_RDWR | O_BINARY;
+    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
     if (create_db) flags |= O_CREAT | O_TRUNC;
     handle = ::open((name + "DB").c_str(), flags, 0666);
     if (handle < 0) {
@@ -1909,7 +1909,7 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
-    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
+    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!

@@ -588,7 +588,7 @@ RemoteConnection::receive_file(const string &file, double end_time)
 	throw_database_closed();
 
     // FIXME: Do we want to be able to delete the file during writing?
-    FD fd(posixy_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666));
+    FD fd(posixy_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666));
     if (fd == -1)
 	throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
 

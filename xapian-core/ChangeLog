@@ -1,3 +1,12 @@
+Sat Dec 22 04:09:23 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/chert/,backends/flint_lock.cc,
+	  common/debuglog.cc,common/replicate_utils.cc,common/safefcntl.h,
+	  net/progclient.cc,net/remoteconnection.cc,
+	  tests/harness/testsuite.cc: If O_CLOEXEC is supported, pass it to
+	  open() so fds we open are closed if the application using us calls
+	  exec().
+
 Fri Dec 21 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't autodisable the remote backend if we fail to find

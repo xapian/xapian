@@ -248,7 +248,7 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 
 	// Fake up a base file with no bitmap first, then fill it in when we
 	// scan the tree below.
-	int fd = ::open((path + "DB").c_str(), O_RDONLY | O_BINARY);
+	int fd = ::open((path + "DB").c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
 	if (fd < 0) throw;
 	unsigned char buf[65536];
 	uint4 blocksize = 8192; // Default.

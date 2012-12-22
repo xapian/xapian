@@ -336,7 +336,7 @@ ChertDatabase::get_changeset_revisions(const string & path,
 				       chert_revision_number_t * startrev,
 				       chert_revision_number_t * endrev) const
 {
-    FD changes_fd(posixy_open(path.c_str(), O_RDONLY));
+    FD changes_fd(posixy_open(path.c_str(), O_RDONLY | O_CLOEXEC));
     if (changes_fd < 0) {
 	string message = string("Couldn't open changeset ")
 		+ path + " to read";
@@ -535,7 +535,7 @@ ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     for (const char * p = filenames; *p; p += *p + 1) {
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
 	filepath.replace(db_dir.size() + 1, string::npos, leaf);
-	FD fd(posixy_open(filepath.c_str(), O_RDONLY));
+	FD fd(posixy_open(filepath.c_str(), O_RDONLY | O_CLOEXEC));
 	if (fd >= 0) {
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
@@ -635,7 +635,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
-	    FD fd_changes(posixy_open(changes_name.c_str(), O_RDONLY));
+	    FD fd_changes(posixy_open(changes_name.c_str(), O_RDONLY | O_CLOEXEC));
 	    if (fd_changes >= 0) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.

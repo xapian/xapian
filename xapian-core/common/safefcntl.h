@@ -1,7 +1,7 @@
 /** @file safefcntl.h
  * @brief #include <fcntl.h>, but working around broken platforms.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +67,11 @@ inline int open(const char *filename, int flags) {
 # ifndef O_BINARY
 #  define O_BINARY 0
 # endif
+#endif
+
+// If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.
+#ifndef O_CLOEXEC
+# define O_CLOEXEC 0
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFEFCNTL_H */

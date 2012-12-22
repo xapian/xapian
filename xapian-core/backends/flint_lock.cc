@@ -79,7 +79,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
     return UNKNOWN;
 #else
     Assert(fd == -1);
-    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation = string("Couldn't open lockfile: ") + strerror(errno);

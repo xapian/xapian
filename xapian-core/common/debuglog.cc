@@ -74,7 +74,7 @@ DebugLogger::initialise_categories_mask()
 		}
 	    }
 
-	    fd = open(fnm.c_str(), O_CREAT|O_WRONLY|O_SYNC|O_APPEND, 0644);
+	    fd = open(fnm.c_str(), O_CREAT|O_WRONLY|O_SYNC|O_APPEND|O_CLOEXEC, 0644);
 	    if (fd == -1) {
 		// If we failed to open the log file, report to stderr, but
 		// don't spew all the log output to stderr too or else the
