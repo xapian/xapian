@@ -1,3 +1,15 @@
+Sun Dec 23 17:51:36 GMT 2012  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc,backends/flint_lock.h: Add flock() based
+	  locking implementation, which is much simpler than using fcntl() due
+	  to saner semantics around releasing locks when closing other
+	  descriptors on the same file (at least on platforms where flock()
+	  isn't just a compatibility wrapper around fcntl()).  We can't simply
+	  switch to this without breaking locking compatibility with previous
+	  releases, though it might be useful for porting to platforms without
+	  fcntl() locking.  Also, flock() apparently doesn't work over NFS -
+	  perhaps that's OK, but we should at least check the failure mode.
+
 Sat Dec 22 06:29:23 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Only set close-on-exec on the lockfile fd if

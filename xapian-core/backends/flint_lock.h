@@ -42,6 +42,8 @@ class FlintLock {
     HANDLE hFile;
 #elif defined __EMX__
     HFILE hFile;
+#elif defined FLINTLOCK_USE_FLOCK
+    int fd;
 #else
     int fd;
     pid_t pid;
@@ -71,6 +73,11 @@ class FlintLock {
 	filename += "/flintlock";
     }
     operator bool() const { return hFile != NULLHANDLE; }
+#elif defined FLINTLOCK_USE_FLOCK
+    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+	filename += "/flintlock";
+    }
+    operator bool() const { return fd != -1; }
 #else
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
 	filename += "/flintlock";

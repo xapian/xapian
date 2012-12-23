@@ -43,6 +43,10 @@
 #include <sys/cygwin.h>
 #endif
 
+#ifdef FLINTLOCK_USE_FLOCK
+# include <sys/file.h>
+#endif
+
 #include "xapian/error.h"
 
 using namespace std;
@@ -77,6 +81,40 @@ FlintLock::lock(bool exclusive, string & explanation) {
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
     explanation = string();
     return UNKNOWN;
+#elif defined FLINTLOCK_USE_FLOCK
+    // This is much simpler than using fcntl() due to saner semantics around
+    // releasing locks when closing other descriptors on the same file (at
+    // least on platforms where flock() isn't just a compatibility wrapper
+    // around fcntl()).  We can't simply switch to this without breaking
+    // locking compatibility with previous releases, though it might be useful
+    // for porting to platforms without fcntl() locking.  Also, flock()
+    // apparently doesn't work over NFS - perhaps that's OK, but we should at
+    // least check the failure mode.
+    Assert(fd == -1);
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+    if (lockfd < 0) {
+	// Couldn't open lockfile.
+	explanation = string("Couldn't open lockfile: ") + strerror(errno);
+	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+    }
+
+    while (flock(lockfd, LOCK_EX|LOCK_NB) == -1) {
+	if (errno != EINTR) {
+	    // Lock failed - translate known errno values into a reason code.
+	    close(lockfd);
+	    switch (errno) {
+		case EWOULDBLOCK:
+		    return INUSE;
+		case ENOLCK:
+		    return UNSUPPORTED; // FIXME: what do we get for NFS?
+		default:
+		    return UNKNOWN;
+	    }
+	}
+    }
+
+    fd = lockfd;
+    return SUCCESS;
 #else
     Assert(fd == -1);
 #if defined F_SETFD && defined FD_CLOEXEC
@@ -279,6 +317,10 @@ FlintLock::release() {
     if (hFile == NULLHANDLE) return;
     DosClose(hFile);
     hFile = NULLHANDLE;
+#elif defined FLINTLOCK_USE_FLOCK
+    if (fd < 0) return;
+    close(fd);
+    fd = -1;
 #else
     if (fd < 0) return;
     close(fd);
