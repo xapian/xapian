@@ -766,7 +766,7 @@ if test "$enable_backend_remote" = yes ; then
       dnl
       dnl For disk-based backend, use flock() for locking, which doesn't need
       dnl fork() or socketpair().
-      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking]))
+      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking])
       dnl If someone actually wanted remote backend support, then DJGPP has a
       dnl pthreads port, so using threads like we do on Windows would make more
       dnl sense.
