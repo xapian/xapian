@@ -1,3 +1,10 @@
+Sun Dec 23 18:06:45 GMT 2012  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use the new flock()-based flint-compatible locking
+	  under DJGPP, and remove special cases to disable chert and brass
+	  under DJGPP (untested, as I no longer have a DJGPP setup or
+	  cross-compiler).
+
 Sun Dec 23 17:51:36 GMT 2012  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc,backends/flint_lock.h: Add flock() based

@@ -671,22 +671,6 @@ XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
 
-if test yes = "$enable_backend_brass" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build brass there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_brass=no ;;
-  esac
-fi
-
-if test yes = "$enable_backend_chert" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build chert there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_chert=no ;;
-  esac
-fi
-
 use_win32_uuid_api=0
 case $enable_backend_chert$enable_backend_brass in
 *yes*)
@@ -778,10 +762,16 @@ if test "$enable_backend_remote" = yes ; then
       REMOTE_LDFLAGS=-lws2_32
       ;;
     *djgpp* | *msdos* )
-      dnl DJGPP has a dummy implementation of fork which always fails.  If
-      dnl someone actually wanted support, then DJGPP has a pthreads port,
-      dnl so using threads like we do on Windows would make more sense.
-      enable_backend_remote=no ;;
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      dnl
+      dnl For disk-based backend, use flock() for locking, which doesn't need
+      dnl fork() or socketpair().
+      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking]))
+      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl pthreads port, so using threads like we do on Windows would make more
+      dnl sense.
+      enable_backend_remote=no
+      ;;
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.
       SAVE_LIBS=$LIBS
