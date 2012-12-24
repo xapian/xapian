@@ -1,3 +1,7 @@
+Mon Dec 24 05:15:12 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Update list of unwrapped things.
+
 Mon Dec 24 04:42:42 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,perl/t/stem.t: Add test that we can create all the

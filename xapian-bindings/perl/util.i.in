@@ -686,10 +686,6 @@ may be a different (nearby) value on other platforms.
 
 =over 4
 
-=item Error Handling
-
-Error handling for all methods liable to generate them.
-
 =item Documentation
 
 Add POD documentation for all classes, where possible just adapted from Xapian
@@ -698,22 +694,7 @@ docs.
 =item Unwrapped classes
 
 The following Xapian classes are not yet wrapped:
-Error (and subclasses), ErrorHandler, ExpandDecider (and subclasses),
-user-defined weight classes.
-
-We don't yet wrap Xapian::BAD_VALUENO.
-
-=item Unwrapped methods
-
-The following methods are not yet wrapped:
-Enquire::get_eset(...) with more than two arguments,
-Query ctor optional "parameter" parameter,
-Remote::open(...),
-static Stem::get_available_languages().
-
-We wrap MSet::swap() and MSet::operator[](), but not ESet::swap(),
-ESet::operator[]().  Is swap actually useful?  Should we instead tie MSet
-and ESet to allow them to just be used as lists?
+ErrorHandler, user-defined Weight subclasses.
 
 =back
 
