@@ -24,6 +24,7 @@ TESTS = \
 	t/parser.t \
 	t/search.t \
 	t/sorter.t \
+	t/stem.t \
 	t/symbol-test.t \
 	t/termgenerator.t \
 	t/thread.t \

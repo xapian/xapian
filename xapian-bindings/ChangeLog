@@ -1,3 +1,8 @@
+Mon Dec 24 04:42:42 GMT 2012  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/stem.t: Add test that we can create all the
+	  stemmers returned by Stem::get_available_languages().
+
 Mon Dec 17 02:13:16 GMT 2012  Olly Betts <olly@survex.com>
 
 	* README,php/docs/index.html: Bump minimum supported PHP version to
