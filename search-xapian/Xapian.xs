@@ -13,7 +13,12 @@ extern "C" {
 #include "perl.h"
 #include "XSUB.h"
 }
-#undef get_context
+
+/* Perl's embed.h defines get_context, but that mangles
+ * Xapian::Error::get_context(). */
+#ifdef get_context
+# undef get_context
+#endif
 
 using namespace std;
 using namespace Xapian;
