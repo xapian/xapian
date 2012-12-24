@@ -437,7 +437,7 @@ docs.
 =item Unwrapped classes
 
 The following Xapian classes are not yet wrapped:
-Error (and subclasses), ErrorHandler, standard ExpandDecider subclasses
+ErrorHandler, standard ExpandDecider subclasses
 (user-defined ones works),
 user-defined weight classes.
 
