@@ -8,15 +8,11 @@
 // '#define bool int', which they would do with compilers other than GCC.
 #define HAS_BOOL
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#ifdef __cplusplus
 }
-#endif
 #undef get_context
 
 using namespace std;
