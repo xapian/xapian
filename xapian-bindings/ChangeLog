@@ -1,3 +1,8 @@
+Thu May 14 11:25:44 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/stem.t: Add test that we can create all the
+	  stemmers returned by Stem::get_available_languages().
+
 Thu May 14 11:17:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/Search/Xapian/,perl/docs/examples/,
