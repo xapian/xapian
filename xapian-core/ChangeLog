@@ -1,3 +1,12 @@
+Thu Dec 27 06:06:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Adjust handling of Unicode
+	  opening/closing double quotes - if a quoted boolean term was started
+	  with ASCII double quote, then only ASCII double quote can end it, as
+	  otherwise it's impossible to quote a term containing Unicode double
+	  quotes.
+	* tests/queryparsertest.cc: Update testcases.
+
 Sun Dec 23 18:16:52 GMT 2012  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo in previous commit.
