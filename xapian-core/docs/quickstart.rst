@@ -499,13 +499,9 @@ Running the examples
 --------------------
 
 Once we have compiled the above examples, we can build up a simple
-database as follows. Note that we must first create a directory for the
-database files to live in; although Xapian will create new empty
-database files if they do not yet exist, it will not create a new
-directory for them.
+database as follows.
 ::
 
-    $ mkdir proverbs
     $ ./quickstartindex proverbs \
     > "people who live in glass houses should not throw stones" \
     > people live glass house stone
@@ -513,7 +509,10 @@ directory for them.
     > "Don't look a gift horse in the mouth" \
     > look gift horse mouth
 
-Now, we should have a database with a couple of documents in it. Looking
+For the first command, the database directory doesn't already exist, so
+Xapian will create it and also create the database files inside it.  For
+the second command, it will use the database which now exists, so
+we should now have a database with a couple of documents in it. Looking
 in the database directory, you should see something like:
 ::
 
@@ -521,7 +520,7 @@ in the database directory, you should see something like:
     [some files]
 
 Given the small amount of data in the database, you may be concerned
-that the total size of these files is somewhat over 50k. Be reassured
+that the total size of these files is a little over 32KB. Be reassured
 that the database is block structured, here consisting of largely empty
 blocks, and will behave much better for large databases.
 

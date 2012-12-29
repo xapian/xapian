@@ -1,3 +1,9 @@
+Sat Dec 29 17:53:30 GMT 2012  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Fix seriously outdated statement that Xapian
+	  doesn't create the database directory - that changed in 0.7.2
+	  (release 2003-07-11), pointed out by aarsh on #xapian.
+
 Thu Dec 27 06:06:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Adjust handling of Unicode
