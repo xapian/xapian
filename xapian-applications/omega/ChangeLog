@@ -1,3 +1,7 @@
+Thu Jan 03 03:46:46 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Tue Dec 18 04:49:41 GMT 2012  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix typo in previous change (2>dev/null should be
