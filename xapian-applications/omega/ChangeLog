@@ -1,3 +1,8 @@
+Thu Jan 03 04:44:22 GMT 2013  Olly Betts <olly@survex.com>
+
+	* commonhelp.cc: Tweak wording about default to match other options
+	  better.
+
 Thu Jan 03 04:07:57 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Note default size limit on files to index is unlimited.
