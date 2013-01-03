@@ -1,3 +1,9 @@
+Thu Jan 03 03:52:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: When generating a sample for a CSV file, limit the
+	  reserved size to the CSV file size as sample_size could be set
+	  really high by the user.
+
 Thu Jan 03 03:46:46 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
