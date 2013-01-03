@@ -1,3 +1,9 @@
+Thu Jan 03 04:07:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Note default size limit on files to index is unlimited.
+	  Update --help to reflect that --sample-size now accepts the same
+	  formats as --max-size).
+
 Thu Jan 03 03:52:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: When generating a sample for a CSV file, limit the

@@ -1308,8 +1308,10 @@ main(int argc, char **argv)
 "  -S, --spelling            index data for spelling correction\n"
 "  -m, --max-size            maximum size of file to index (in bytes or with a\n"
 "                            suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
-"  -E, --sample-size=SIZE    sets the maximum number of bytes for the document\n"
-"                            text sample. (default SIZE = 512)\n"
+"                            (default: unlimited)\n"
+"  -E, --sample-size=SIZE    maximum size for the document text sample\n"
+"                            (supports the same formats as --max-size).\n"
+"                            (default: 512)\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
