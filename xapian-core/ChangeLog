@@ -1,3 +1,12 @@
+Fri Jan 04 05:41:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING,Makefile.am: With lcov 1.10, we no longer need any of our
+	  hacky workarounds, so make this a requirement and simplify the rules
+	  in the makefile.
+	* Makefile.am: Pass -f to lcov, which should avoid the need for the
+	  patch we've been applying to lcov.
+
 Fri Jan 04 03:54:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

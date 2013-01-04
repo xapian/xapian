@@ -237,7 +237,9 @@ To use Insure (another proprietary tool):
 
   ./configure CXX=insure
 
-To use lcov to generate a test coverage report there are two make targets:
+To use lcov (at least version 1.10) to generate a test coverage report (see
+`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are two make
+targets:
 
   * coverage-reconfigure: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they

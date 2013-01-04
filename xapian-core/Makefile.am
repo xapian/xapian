@@ -102,14 +102,9 @@ coverage-check:
 	## Don't run under valgrind even if configure was run by hand.
 	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
 	rm -f xapian-core.lcov
-	for d in api backends bin common examples expand include languages \
-	    matcher net queryparser tests unicode weight ; do \
-	    rm -f tests/$$d ; \
-	    ln -s ../$$d tests/$$d ; \
-	done
-	cd tests && lcov -c -b `pwd` -d `pwd` -o ../tmp.lcov
-	sed '/^SF:\/usr/,/^end_of_record/{d};s,^\(SF:/.*/xapian-core/\)\([^t]\),\1tests/\2,' tmp.lcov > xapian-core.lcov
-	genhtml -q -t "Test Coverage for xapian-core r`svn info|sed 's/^Revision: //p;d'`" -o lcov xapian-core.lcov
+	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-core.lcov
+	rm -rf lcov
+	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h||svn info|sed 's/^Revision: /r/p;d'`" -o lcov xapian-core.lcov
 
 bin_SCRIPTS = xapian-config
 
