@@ -1,3 +1,10 @@
+Fri Jan 04 03:54:07 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/quickstart.rst: Fix seriously outdated statement that Xapian
+	  doesn't create the database directory - that changed in 0.7.2
+	  (release 2003-07-11), pointed out by aarsh on #xapian.
+
 Thu Dec 20 22:55:34 GMT 2012  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
