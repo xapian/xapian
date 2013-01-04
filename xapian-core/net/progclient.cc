@@ -96,7 +96,7 @@ ProgClient::run_program(const string &progname, const string &args
      */
     int sv[2];
 
-    if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_STREAM, 0, sv) < 0) {
+    if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, sv) < 0) {
 	throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
     }
 
