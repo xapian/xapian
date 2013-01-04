@@ -1,6 +1,6 @@
 /* sample.h: generate a sample from a utf-8 string.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,9 @@
 
 /* Take a utf-8 string and clean up whitespace to produce a sample of at most
  * maxlen bytes.  If the input string is too long, we try to avoid truncating
- * mid word, and then append " ..." (or "..." if we have to truncate a word).
+ * mid word, and then append ind2 (or ind if we have to truncate a word).
  */
-std::string generate_sample(const std::string & input, size_t maxlen);
+std::string generate_sample(const std::string & input, size_t maxlen,
+			    const std::string & ind, const std::string & ind2);
 
 #endif // OMEGA_INCLUDED_SAMPLE_H

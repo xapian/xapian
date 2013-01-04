@@ -815,9 +815,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	// Produce a sample
 	if (sample.empty()) {
-	    sample = generate_sample(dump, sample_size);
+	    sample = generate_sample(dump, sample_size, "...", " ...");
 	} else {
-	    sample = generate_sample(sample, sample_size);
+	    sample = generate_sample(sample, sample_size, "...", " ...");
 	}
 
 	// Put the data in the document
@@ -828,7 +828,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	record += sample;
 	if (!title.empty()) {
 	    record += "\ncaption=";
-	    record += generate_sample(title, TITLE_SIZE);
+	    record += generate_sample(title, TITLE_SIZE, "...", " ...");
 	}
 	if (!author.empty()) {
 	    record += "\nauthor=";

@@ -540,6 +540,15 @@ $transform{REGEXP,SUBST,STRING}
         grouping (or are empty if there is no such bracket grouping).  ``\\``
         is a literal backslash.
 
+$truncate{STRING,LEN[,IND[,IND2]]}
+	truncate STRING to LEN bytes, but try to break after a word (unless
+	that would mean truncating to much less than LEN).  If we have to
+	split a word, then IND is appended (if specified).  If we have to
+	truncate (but don't split a word) then IND2 is appended (if specified).
+	For example::
+
+	 $truncate{$field{text},500,..., ...}
+
 $uniq{LIST}
 	remove duplicates from a sorted list
 
