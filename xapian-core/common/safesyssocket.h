@@ -1,7 +1,7 @@
 /** @file safesyssocket.h
  * @brief #include <sys/socket.h> with portability workarounds.
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,29 @@
 
 #ifndef SOCK_CLOEXEC
 # define SOCK_CLOEXEC 0
+#else
+// On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
+// handle it in socketpair().
+inline int socketpair_(int domain, int type, int protocol, int *sv) {
+    // Usually type is passed a constant, so we'll collapse to one branch or
+    // the other here.  The case where SOCK_CLOEXEC == 0 is handled suitably.
+    if (type & SOCK_CLOEXEC) {
+	int save_errno = errno;
+	int r = socketpair(domain, type, protocol, sv);
+	if (r != 0 && errno == EINVAL) {
+	    errno = save_errno;
+	    r = socketpair(domain, type &~ SOCK_CLOEXEC, protocol, sv);
+	}
+	return r;
+    } else {
+	return socketpair(domain, type, protocol, sv);
+    }
+}
+
+# ifdef socketpair
+#  undef socketpair
+# endif
+# define socketpair(D,T,P,S) socketpair_(D,T,P,S)
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFESYSSOCKET_H

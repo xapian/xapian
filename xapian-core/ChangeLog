@@ -1,3 +1,10 @@
+Fri Jan 04 04:41:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/safesyssocket.h: On Linux at least, sometimes SOCK_CLOEXEC is
+	  defined but the kernel doesn't handle it in socketpair(), so add a
+	  wrapper which will retry without SOCK_CLOEXEC in this case.  Noticed
+	  on Ubuntu precise.
+
 Sat Dec 29 17:53:30 GMT 2012  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.rst: Fix seriously outdated statement that Xapian
