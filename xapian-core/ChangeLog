@@ -1,3 +1,7 @@
+Fri Jan 04 23:14:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/safesyssocket.h: We need the same workaround for socket() too.
+
 Fri Jan 04 04:41:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/safesyssocket.h: On Linux at least, sometimes SOCK_CLOEXEC is

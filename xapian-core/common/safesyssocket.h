@@ -33,7 +33,24 @@
 # define SOCK_CLOEXEC 0
 #else
 // On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
-// handle it in socketpair().
+// handle it in socket() or socketpair():
+
+inline int socket_(int domain, int type, int protocol) {
+    // Usually type is passed a constant, so we'll collapse to one branch or
+    // the other here.  The case where SOCK_CLOEXEC == 0 is handled suitably.
+    if (type & SOCK_CLOEXEC) {
+	int save_errno = errno;
+	int r = socket(domain, type, protocol);
+	if (r != 0 && errno == EINVAL) {
+	    errno = save_errno;
+	    r = socket(domain, type &~ SOCK_CLOEXEC, protocol);
+	}
+	return r;
+    } else {
+	return socket(domain, type, protocol);
+    }
+}
+
 inline int socketpair_(int domain, int type, int protocol, int *sv) {
     // Usually type is passed a constant, so we'll collapse to one branch or
     // the other here.  The case where SOCK_CLOEXEC == 0 is handled suitably.
@@ -50,6 +67,10 @@ inline int socketpair_(int domain, int type, int protocol, int *sv) {
     }
 }
 
+# ifdef socket
+#  undef socket
+# endif
+# define socket(D,T,P) socket_(D,T,P)
 # ifdef socketpair
 #  undef socketpair
 # endif
