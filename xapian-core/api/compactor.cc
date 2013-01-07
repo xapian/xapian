@@ -532,4 +532,3 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 }
 
 }
-
