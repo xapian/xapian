@@ -1,3 +1,10 @@
+Mon Jan 07 10:38:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
+	  tests/Makefile.am: In automake, INCLUDES is now deprecated in favour
+	  of AM_CPPFLAGS so update to use the latter.
+
 Mon Jan 07 10:31:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
