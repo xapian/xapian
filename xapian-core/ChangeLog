@@ -1,3 +1,10 @@
+Mon Jan 07 08:46:00 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: We no longer use the highest weighted
+	  MSet entry to calculate percentages, so stop searching for it.
+	  (Spotted by cppcheck)
+
 Mon Jan 07 08:28:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
