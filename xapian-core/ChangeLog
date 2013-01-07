@@ -1,3 +1,11 @@
+Mon Jan 07 11:46:54 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Use user-specified LIBS for configure tests, which is
+	  what's expected, and provides a way for the user to tell configure
+	  where to find library functions which configure can't find for
+	  itself.
+
 Mon Jan 07 10:56:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk: Fix srcdir != builddir build (broken by INCLUDES

@@ -714,7 +714,6 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 
   dnl Check for zlibVersion in -lz.
   SAVE_LIBS=$LIBS
-  LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
     AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
@@ -737,7 +736,6 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
 	dnl -luuid.
 	SAVE_LIBS=$LIBS
-	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
 	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
@@ -797,7 +795,6 @@ if test "$enable_backend_remote" = yes ; then
       dnl On Unix, we need fork and socketpair for the remotebackend.
       AC_CHECK_FUNCS(fork)
       SAVE_LIBS=$LIBS
-      LIBS=
       if test "$ac_cv_func_fork" = no ; then
 	enable_backend_remote=no
       else
@@ -818,7 +815,7 @@ if test "$enable_backend_remote" = yes ; then
 	  fi
 	fi
       fi
-      LIBS="$SAVE_LIBS"
+      LIBS=$SAVE_LIBS
       ;;
   esac
 
@@ -880,10 +877,9 @@ fi
 AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-SAVE_LIBS="$LIBS"
-LIBS=
+SAVE_LIBS=$LIBS
 AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LDFLAGS="$LIBS $XAPIAN_LDFLAGS"])
-LIBS="$SAVE_LIBS"
+LIBS=$SAVE_LIBS
 
 AC_CHECK_FUNCS(fsync)
 
