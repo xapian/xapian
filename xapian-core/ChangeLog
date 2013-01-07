@@ -1,3 +1,14 @@
+Mon Jan 07 08:23:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/maptermlist.h,api/matchspy.cc,api/omdatabase.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  backends/multi/multi_postlist.cc,backends/remote/net_termlist.cc,
+	  bin/xapian-delve.cc,matcher/exactphrasepostlist.cc,
+	  matcher/mergepostlist.cc,matcher/phrasepostlist.cc,
+	  tests/harness/backendmanager.cc: Prefer ++i to i++.
+
 Fri Jan 04 05:41:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

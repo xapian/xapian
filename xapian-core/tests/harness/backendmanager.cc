@@ -94,7 +94,7 @@ BackendManager::createdb_brass(const vector<string> &files)
 
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); i++) {
+	 i != files.end(); ++i) {
 	dbdir += '=';
 	dbdir += *i;
     }
@@ -146,7 +146,7 @@ BackendManager::createdb_chert(const vector<string> &files)
 
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); i++) {
+	 i != files.end(); ++i) {
 	dbdir += '=';
 	dbdir += *i;
     }

@@ -245,7 +245,7 @@ InMemoryTermList::next()
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     if (started) {
 	Assert(!at_end());
-	pos++;
+	++pos;
     } else {
 	started = true;
     }

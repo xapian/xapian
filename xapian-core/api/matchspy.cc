@@ -269,7 +269,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
     bool is_heap(false);
 
     for (map<string, doccount>::const_iterator i = items.begin();
-	 i != items.end(); i++) {
+	 i != items.end(); ++i) {
 	Assert(result.size() <= maxitems);
 	result.push_back(StringAndFrequency(i->first, i->second));
 	if (result.size() > maxitems) {
