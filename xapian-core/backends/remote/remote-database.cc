@@ -594,7 +594,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	tmp = (*i)->name();
 	if (tmp.empty()) {
-	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
+	    throw Xapian::UnimplementedError("MatchSpy subclass not suitable for use with remote searches - name() method returned empty string");
 	}
 	message += encode_length(tmp.size());
 	message += tmp;

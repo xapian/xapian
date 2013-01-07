@@ -1,3 +1,11 @@
+Mon Jan 07 11:48:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/remote/remote-database.cc: Make the UnimplementedError for a
+	  MatchSpy which doesn't implement name() clearer that it's this
+	  particular subclass which can't be used remotely, not all MatchSpy
+	  objects.
+
 Mon Jan 07 11:46:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
