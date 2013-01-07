@@ -564,7 +564,7 @@ BrassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 #else
 	int fd = open(filepath.c_str(), O_RDONLY);
 #endif
-	if (fd > 0) {
+	if (fd >= 0) {
 	    fdcloser closefd(fd);
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
@@ -669,7 +669,7 @@ BrassDatabase::write_changesets_to_fd(int fd,
 #else
 	    int fd_changes = open(changes_name.c_str(), O_RDONLY);
 #endif
-	    if (fd_changes > 0) {
+	    if (fd_changes >= 0) {
 		fdcloser closefd(fd_changes);
 
 		// Send it, and also update start_rev_num to the new value
