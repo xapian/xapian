@@ -1,28 +1,31 @@
 Mon Jan 07 10:56:18 GMT 2013  Olly Betts <olly@survex.com>
 
-	* bin/Makefile.mk: Fix srcdir != builddir buidl (broken by INCLUDES
+	* bin/Makefile.mk: Fix srcdir != builddir build (broken by INCLUDES
 	  to AM_CPPFLAGS change).
 
 Mon Jan 07 10:38:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
-	  tests/Makefile.am: In automake, INCLUDES is now deprecated in favour
-	  of AM_CPPFLAGS so update to use the latter.
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_databasereplicator.cc: Simplify how we open the
+	  .DB file on the replication slave to just call open() once with
+	  O_CREAT, rather than once without, than stat() if that fails, and
+	  then again with O_CREAT|O_TRUNC if stat() doesn't show an ordinary
+	  file exists.
 
 Mon Jan 07 10:31:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
-	  tests/Makefile.am: In automake, INCLUDES is now deprecated in favour
-	  of AM_CPPFLAGS so update to use the latter.
+	* api/compactor.cc,common/,languages/compiler/syswords2.h,
+	  tests/api_compact.cc: Remove extra blank lines at end of files.
 
 Mon Jan 07 10:26:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
-	  tests/Makefile.am: In automake, INCLUDES is now deprecated in favour
-	  of AM_CPPFLAGS so update to use the latter.
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
+	  Fix "if (fd > 0)" tests to be "if (fd >= 0)" in code related to
+	  replication.  In practice this is unlikely to actually have caused
+	  problems in real world cases.
 
 Mon Jan 07 10:20:02 GMT 2013  Olly Betts <olly@survex.com>
 
