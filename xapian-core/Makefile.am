@@ -13,11 +13,11 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
-INCLUDES += -I$(top_builddir)/include
+AM_CPPFLAGS += -I$(top_builddir)/include
 endif
 
 # Order is relevant: when building, tests must be after ".".
