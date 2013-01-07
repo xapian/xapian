@@ -1,3 +1,9 @@
+Mon Jan 07 08:52:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/valuerangeproc.cc: Move 3 declarations to where we first use the
+	  variables.
+
 Mon Jan 07 08:46:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
