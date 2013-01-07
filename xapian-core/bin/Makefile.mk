@@ -46,6 +46,7 @@ endif
 endif
 
 bin_xapian_check_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
 	-I$(top_srcdir)/backends/brass\
 	-I$(top_srcdir)/backends/chert\
 	-I$(top_srcdir)/backends/flint
@@ -65,7 +66,7 @@ bin_xapian_check_LDADD += libflintcheck.la
 endif
 bin_xapian_check_LDADD += $(libxapian_la)
 
-bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_chert_update_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
 bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
