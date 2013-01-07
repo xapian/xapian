@@ -327,7 +327,6 @@ merge_postlists(Xapian::Compactor & compactor,
 	Xapian::doccount freq = 0;
 	string lbound, ubound;
 
-	string last_tag;
 	while (!pq.empty()) {
 	    PostlistCursor * cur = pq.top();
 	    const string& key = cur->key;

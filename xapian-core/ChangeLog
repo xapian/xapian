@@ -1,3 +1,9 @@
+Mon Jan 07 08:28:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  Remove unused variables (spotted by cppcheck).
+
 Mon Jan 07 08:23:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
