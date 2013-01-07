@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
 #include <iostream>
 
 #include "gnu_getopt.h"
@@ -47,30 +48,87 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
+struct qp_flag { const char * s; unsigned f; };
+static qp_flag flag_tab[] = {
+    { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
+    { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
+    { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
+    { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
+    { "default", Xapian::QueryParser::FLAG_DEFAULT },
+    { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
+    { "partial", Xapian::QueryParser::FLAG_PARTIAL },
+    { "phrase", Xapian::QueryParser::FLAG_PHRASE },
+    { "pure_not", Xapian::QueryParser::FLAG_PURE_NOT },
+    { "spelling_correction", Xapian::QueryParser::FLAG_SPELLING_CORRECTION },
+    { "synonym", Xapian::QueryParser::FLAG_SYNONYM },
+    { "wildcard", Xapian::QueryParser::FLAG_WILDCARD }
+};
+const int n_flag_tab = sizeof(flag_tab) / sizeof(flag_tab[0]);
+
+inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
+    return strcmp(f1.s, f2.s) < 0;
+}
+
+inline bool operator<(const qp_flag & f, const char * s) {
+    return strcmp(f.s, s) < 0;
+}
+
+inline bool operator<(const char * s, const qp_flag & f) {
+    return strcmp(s, f.s) < 0;
+}
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
-"  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
-"  -m, --msize=MSIZE   maximum number of matches to return\n"
-"  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
-"                      (pass 'none' to disable stemming)\n"
-"  -p, --prefix=PFX:TERMPFX  Add a prefix\n"
-"  -b, --boolean-prefix=PFX:TERMPFX  Add a boolean prefix\n"
-"  -h, --help          display this help and exit\n"
-"  -v, --version       output version information and exit\n";
+"  -d, --db=DIRECTORY                database to search (multiple databases may\n"
+"                                    be specified)\n"
+"  -m, --msize=MSIZE                 maximum number of matches to return\n"
+"  -s, --stemmer=LANG                set the stemming language, the default is\n"
+"                                    'english' (pass 'none' to disable stemming)\n"
+"  -p, --prefix=PFX:TERMPFX          add a prefix\n"
+"  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
+"  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags.  Valid flags:";
+#define INDENT \
+"                                    "
+    int pos = 256;
+    for (const qp_flag * i = flag_tab; i - flag_tab < n_flag_tab; ++i) {
+	size_t len = strlen(i->s);
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n"INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << i->s;
+	pos += len + 2;
+    }
+    cout << "\n"
+"  -h, --help                        display this help and exit\n"
+"  -v, --version                     output version information and exit\n";
+}
+
+static unsigned
+decode_qp_flag(const char * f)
+{
+    const qp_flag * p = lower_bound(flag_tab, flag_tab + n_flag_tab, f);
+    if (p == flag_tab + n_flag_tab || f < *p)
+	return 0;
+    return p->f;
 }
 
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:s:p:b:hv";
+    const char * opts = "d:m:s:p:b:f:hv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
 	{ "stemmer",	required_argument, 0, 's' },
 	{ "prefix",	required_argument, 0, 'p' },
 	{ "boolean-prefix",	required_argument, 0, 'b' },
+	{ "flags",	required_argument, 0, 'f' },
 	{ "help",	no_argument, 0, 'h' },
 	{ "version",	no_argument, 0, 'v' },
 	{ NULL,		0, 0, 0}
@@ -84,6 +142,7 @@ try {
 
     Xapian::Database db;
     Xapian::QueryParser parser;
+    unsigned flags = parser.FLAG_DEFAULT|parser.FLAG_SPELLING_CORRECTION;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -120,6 +179,21 @@ try {
 		}
 		break;
 	    }
+	    case 'f':
+		flags = 0;
+		do {
+		    char * comma = strchr(optarg, ',');
+		    if (comma)
+			*comma++ = '\0';
+		    unsigned flag = decode_qp_flag(optarg);
+		    if (flag == 0) {
+			cerr << "Unknown flag '" << optarg << "'" << endl;
+			exit(1);
+		    }
+		    flags |= flag;
+		    optarg = comma;
+		 } while (optarg);
+		 break;
 	    case 'v':
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
@@ -145,9 +219,7 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    Xapian::Query query = parser.parse_query(argv[optind],
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION);
+    Xapian::Query query = parser.parse_query(argv[optind], flags);
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";

@@ -1,3 +1,12 @@
+Mon Jan 07 09:08:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* examples/quest.cc: Add --flags command line option to allow setting
+	  arbitrary QueryParser flags.
+	* examples/quest.cc: Need <algorithm> for lower_bound().
+	* examples/quest.cc: Align option descriptions in --help output, and
+	  make the initial letter of such descriptions consistently lowercase.
+
 Mon Jan 07 08:52:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
