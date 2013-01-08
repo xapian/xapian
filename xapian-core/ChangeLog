@@ -1,3 +1,9 @@
+Tue Jan 08 09:13:51 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Update comment - we've supported the prog backend on
+	  Windows for more than 5 years now!
+
 Tue Jan 08 09:05:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
