@@ -1,3 +1,9 @@
+Tue Jan 08 10:31:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* diritor.cc: MAGIC_MIME_TYPE was added in 4.22, so note that in the
+	  comment about its conditional use.
+
 Tue Jan 08 10:28:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

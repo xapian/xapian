@@ -106,9 +106,8 @@ DirectoryIterator::get_magic_mimetype()
 #ifdef MAGIC_MIME_TYPE
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
 #else
-	// MAGIC_MIME_TYPE is relatively new - the changelog doesn't mention it
-	// being added, but 4.21 didn't have it and 4.26 did.  If we don't have
-	// it then use MAGIC_MIME instead and trim any encoding off below.
+	// MAGIC_MIME_TYPE was added in 4.22, released 2007-12-27.  If we don't
+	// have it then use MAGIC_MIME instead and trim any encoding off below.
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME|MAGIC_ERROR);
 #endif
 	if (magic_cookie == NULL) {
