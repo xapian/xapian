@@ -1,3 +1,10 @@
+Tue Jan 08 10:41:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: When generating a sample for a CSV file, limit the
+	  reserved size to the CSV file size as sample_size could be set
+	  really high by the user.
+
 Tue Jan 08 10:31:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

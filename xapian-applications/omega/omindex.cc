@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -190,8 +190,9 @@ static void
 generate_sample_from_csv(const string & csv_data, string & sample, size_t sample_size)
 {
     // Add 3 to allow for a 4 byte utf-8 sequence being appended when
-    // output is sample_size - 1 bytes long.
-    sample.reserve(sample_size + 3);
+    // output is sample_size - 1 bytes long.  Use csv_data.size() if smaller
+    // since the user might reasonably set sample_size really high.
+    sample.reserve(min(sample_size + 3, csv_data.size()));
     size_t last_word_end = 0;
     bool in_space = true;
     bool in_quotes = false;
