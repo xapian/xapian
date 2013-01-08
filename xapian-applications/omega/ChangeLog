@@ -1,3 +1,10 @@
+Tue Jan 08 10:58:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Note default size limit on files to index is unlimited.
+	  Update --help to reflect that --sample-size now accepts the same
+	  formats as --max-size).
+
 Tue Jan 08 10:41:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
