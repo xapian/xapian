@@ -14,8 +14,6 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = . docs
 
-INCLUDES = -I$(top_srcdir)/common
-
 BUILT_SOURCES = extra/omegascript.vim
 
 EXTRA_DIST =\
@@ -70,6 +68,7 @@ EXTRA_DIST =\
 	xapian-omega.spec
 
 AM_CPPFLAGS = \
+	-I$(top_srcdir)/common \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
