@@ -1,3 +1,10 @@
+Tue Jan 08 10:13:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Calculate the md5 from the loaded file contents when
+	  indexing SVG and Atom files.  Use a const ref to avoid a string
+	  copy of the file contents for HTML and uncompressed ABI word.
+
 Wed Nov 21 05:02:18 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
