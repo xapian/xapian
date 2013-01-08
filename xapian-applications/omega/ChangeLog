@@ -1,3 +1,9 @@
+Tue Jan 08 11:09:38 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* commonhelp.cc: Tweak wording about default to match other options
+	  better.
+
 Tue Jan 08 10:58:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
