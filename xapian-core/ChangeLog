@@ -1,3 +1,13 @@
+Tue Jan 08 09:05:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/flint/flint_database.cc,net/remoteconnection.cc,
+	  tests/api_replicate.cc: Pass O_BINARY when opening replication
+	  related files in some places where we weren't before, which will
+	  probably help solve bugs such as #472.  Changes are roughly
+	  equivalent in effect to r16961 and r16962 on trunk, but done in a
+	  very different way to be less invasive.
+
 Mon Jan 07 11:48:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

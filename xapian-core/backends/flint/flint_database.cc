@@ -370,9 +370,9 @@ FlintDatabase::get_changeset_revisions(const string & path,
 {
     int changes_fd = -1;
 #ifdef __WIN32__
-    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY);
+    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY | O_BINARY);
 #else
-    changes_fd = open(path.c_str(), O_RDONLY);
+    changes_fd = open(path.c_str(), O_RDONLY | O_BINARY);
 #endif
     fdcloser closer(changes_fd);
 
@@ -581,9 +581,9 @@ FlintDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
 	filepath.replace(db_dir.size() + 1, string::npos, leaf);
 #ifdef __WIN32__
-	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY);
+	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY | O_BINARY);
 #else
-	int fd = open(filepath.c_str(), O_RDONLY);
+	int fd = open(filepath.c_str(), O_RDONLY | O_BINARY);
 #endif
 	if (fd > 0) {
 	    fdcloser closefd(fd);
@@ -686,9 +686,9 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
 #ifdef __WIN32__
-	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY);
+	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY | O_BINARY);
 #else
-	    int fd_changes = open(changes_name.c_str(), O_RDONLY);
+	    int fd_changes = open(changes_name.c_str(), O_RDONLY | O_BINARY);
 #endif
 	    if (fd_changes > 0) {
 		fdcloser closefd(fd_changes);
