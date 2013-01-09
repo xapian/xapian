@@ -1,6 +1,4 @@
- 17009       olly Tue Jan 08 09:14:54 GMT 2013  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.13 (2013-01-08):
+Xapian-core 1.2.13 (2013-01-09):
 
 API:
 
@@ -61,9 +59,6 @@ remote backend:
 * Improve the UnimplementedError message for a MatchSpy subclass which doesn't
   implement name() so it's clearer that it is this particular subclass which
   can't be used remotely, rather than all MatchSpy objects.
-
-inmemory backend:
-
 
 build system:
 
@@ -143,9 +138,6 @@ portability:
 * Micro-optimisation in Unicode handling - GCC doesn't currently optimise the
   arithmetic shift right idiom we use, but it documents that signed right shift
   does sign extension so we now just use a right shift for GCC.
-
-packaging:
-
 
 debug code:
 

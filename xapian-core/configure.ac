@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.12], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.13], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -43,7 +43,8 @@ dnl 26:3:4 1.2.9 No API changes
 dnl 26:4:4 1.2.10 No API changes
 dnl 26:0:5 1.2.11 TermGenerator::set_stemming_strategy() added
 dnl 27:0:5 1.2.12 Corrects error in 1.2.11's LIBRARY_VERSION_INFO
-LIBRARY_VERSION_INFO=27:0:5
+dnl 28:0:6 1.2.13 TermGenerator::set_max_word_length() added
+LIBRARY_VERSION_INFO=28:0:6
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=
