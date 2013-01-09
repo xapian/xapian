@@ -1,4 +1,4 @@
-Search::Xapian version 1.2.12.0
+Search::Xapian version 1.2.13.0
 ===============================
 
 This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
@@ -62,8 +62,8 @@ or use the Xapian bug tracker <http://xapian.org/bugs>.  Please do NOT use the
 CPAN bug tracker or mail any of the authors individually.
 
 Copyright (c) 2002,2003 Alex Bowley. All rights reserved.
-Copyright (c) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts. All rights reserved.
-Copyright (c) 2010 Adam Sjøgren
+Copyright (c) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts. All rights reserved.
+Copyright (c) 2010,2012 Adam Sjøgren
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

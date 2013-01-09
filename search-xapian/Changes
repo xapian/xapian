@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.13.0  Fri Oct 12 02:45:18 UTC 2012
+1.2.13.0  Wed Jan  9 11:19:20 UTC 2013
 	[Changes contributed by Adam Sjøgren]
 	- Wrap 2 and 3 parameter forms of StringValueRangeProcessor
 	  constructor so prefixes and suffixes can be specified.
