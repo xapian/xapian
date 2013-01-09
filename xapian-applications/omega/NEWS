@@ -1,4 +1,10 @@
- 16952       olly Tue Dec 18 04:49:41 GMT 2012  Olly Betts <olly@survex.com>
+ 16988       olly Fri Jan 04 02:21:05 GMT 2013  Olly Betts <olly@survex.com>
+
+trunk only:
+
+ 16988       olly Fri Jan 04 02:21:05 GMT 2013  Olly Betts <olly@survex.com>
+	* Makefile.am,docs/omegascript.rst,omindex.cc,query.cc,sample.cc,
+	  sample.h: Add $truncate command to break a string after a word.
 
  16952       olly Tue Dec 18 04:49:41 GMT 2012  Olly Betts <olly@survex.com>
 	* omindex.cc: Fix typo in previous change (2>dev/null should be
@@ -10,60 +16,19 @@
  16947       olly Sun Dec 16 21:25:28 GMT 2012  Olly Betts <olly@survex.com>
 	* diritor.cc: If libmagic hits ENOENT trying to classify a file, throw
 	  FileNotFound so we quietly skip the file in non-verbose mode.
-
- 16946       olly Sun Dec 16 21:23:25 GMT 2012  Olly Betts <olly@survex.com>
-	* diritor.cc: MAGIC_MIME_TYPE was added in 4.22, so note that in the
-	  comment about its conditional use.
-
- 16944       olly Fri Dec 14 21:22:12 GMT 2012  Olly Betts <olly@survex.com>
-	* Makefile.am: In automake, INCLUDES is now deprecated in favour of
-	  AM_CPPFLAGS so update to use the latter.
-
  16943       olly Fri Dec 14 04:45:12 GMT 2012  Olly Betts <olly@survex.com>
 	* omindex.cc: If md5_file() fails with ENOENT, assume the file was
 	  removed during indexing and only report this with --verbose as we
 	  do in other such cases.
-
- 16942       olly Fri Dec 14 04:42:34 GMT 2012  Olly Betts <olly@survex.com>
-	* md5wrap.cc: If we get a read error while calculating the md5 checksum
-	  of a file, fail rather than returning the checksum of the file up to
-	  that point.
-
- 16941       olly Fri Dec 14 04:35:52 GMT 2012  Olly Betts <olly@survex.com>
-	* omindex.cc: Calculate the md5 from the loaded file contents when
-	  indexing SVG and Atom files.  Use a const ref to avoid a string
-	  copy of the file contents for HTML and uncompressed ABI word.
-
  16940       olly Fri Dec 14 04:24:17 GMT 2012  Olly Betts <olly@survex.com>
 	* configure.ac,diritor.cc,diritor.h,loadfile.cc,loadfile.h,omindex.cc:
 	  If we open a file to index it, keep the fd around and use it with
 	  libmagic, provided magic_descriptor() is available.
-
  16939       olly Tue Dec 11 03:35:29 GMT 2012  Olly Betts <olly@survex.com>
 	* diritor.cc,diritor.h,omindex.cc: If we get ENOENT for a file or
 	  directory we're trying to index, assume it has been removed between
 	  us reading the directory entry for it and trying to open it, and
 	  only report the failure to index under --verbose.
-
-backported for 1.2.13:
-
- 16907       olly Wed Nov 21 04:06:54 GMT 2012  Olly Betts <olly@survex.com>
-	* omindex.cc: Fix omindex not to segfault when -F option without a ':'
-	  is passed.
-
- 16833       olly Tue Sep 25 23:57:12 GMT 2012  Olly Betts <olly@survex.com>
-	* Makefile.am,omindex.cc: Replace shell_protect() with
-	  append_filename_argument() from common/append_filename_arg.h.
-	  Extracting text using external filters now works for filenames
-	  containing a newline character.
-
- 16801       olly Wed Jul 18 10:51:39 GMT 2012  Olly Betts <olly@survex.com>
-	* urldecode.h: Fix to decode escaped character at the end of the
-	  string.
-	* urlenctest.cc: Add regression testcase.
-
-trunk only:
-
  16819    dcolish Thu Aug 09 20:07:59 GMT 2012  Dan Colish <dcolish@gmail.com>
 	* Makefile.am,configure.ac: Allow users to configure with
 	MAGIC_PREFIX for non-standard installs of libmagic
@@ -73,7 +38,7 @@ trunk only:
 	  htmlparse.cc,omindex.cc,query.cc: Change `...' quoting in prose to
 	  '...'.
 
-Omega 1.3.1 (2013-01-03):
+Omega 1.3.1 (2013-01-08):
 
 general:
 
@@ -167,6 +132,42 @@ packaging:
 
 * xapian-omega.spec: We're ABI compatible within a release series so make
   dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.13 (2013-01-09):
+
+indexers:
+
+* omindex:
+
+  + Extracting text using external filters now works for filenames containing a
+    newline character - previously the newline got lost during escaping for the
+    shell.
+
+  + Fix segfault when -F option without a ':' is passed.
+
+  + Skip a file if we get a read error while calculating the MD5 checksum (used
+    for duplicate detection) - previously we used a checksum of the file up to
+    that point.
+
+  + Avoid rereading SVG and Atom files when we calculate their MD5 checksums.
+
+  + Improvement --help output and man page, most notably:
+
+    - Say explicitly that --sample-size accepts the same formats as --max-size.
+
+    - Note default size limit on files to index is unlimited.
+
+  + When generating a sample for a CSV file, limit the size we pre-allocate to
+    the CSV file size if that's smaller than the requested sample size, in case
+    the user sets that limit very high.
+
+omega:
+
+* Fix to decode %-encoded character at the end of the query string.
+
+build system:
+
+* INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
 
 Omega 1.2.12 (2012-06-27):
 
