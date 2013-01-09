@@ -14,11 +14,6 @@ API:
   DateValueRangeProcessor(1, "date:"), the const char * gets interpreted as
   std::string rather than bool.
 
-	 Make the UnimplementedError for a
-	  MatchSpy which doesn't implement name() clearer that it's this
-	  particular subclass which can't be used remotely, not all MatchSpy
-	  objects.
-
 testsuite:
 
 * apitest: Assorted test coverage improvements.
@@ -37,25 +32,35 @@ matcher:
   weight, but it seems this gives -nan (at least on x86-64 Linux) so it may
   have been harmless in practice.
 
-	* matcher/multimatch.cc: We no longer use the highest weighted
-	  MSet entry to calculate percentages, so stop searching for it.
-	  (Spotted by cppcheck)
+* We no longer use the highest weighted MSet entry to calculate percentages, so
+  remove code which finds it.
 
 brass backend:
 
+* Close excess file handles before we get the fcntl lock, which avoids the
+  lock being released again if one is open on the lock file.  Notably this
+  avoids a situation where multiple threads in the same process could succeed
+  in locking a database concurrently.
 
 chert backend:
 
+* Close excess file handles before we get the fcntl lock, which avoids the
+  lock being released again if one is open on the lock file.  Notably this
+  avoids a situation where multiple threads in the same process could succeed
+  in locking a database concurrently.
 
 flint backend:
 
-	* backends/flint_lock.cc: Close excess file handles before we get the
-	  fcntl() lock, just in case one of those file handles is open on the
-	  lock file.
-	* tests/api_backend.cc: Add regression test lockfilealreadyopen1.
+* Close excess file handles before we get the fcntl lock, which avoids the
+  lock being released again if one is open on the lock file.  Notably this
+  avoids a situation where multiple threads in the same process could succeed
+  in locking a database concurrently.
 
 remote backend:
 
+* Improve the UnimplementedError message for a MatchSpy subclass which doesn't
+  implement name() so it's clearer that it is this particular subclass which
+  can't be used remotely, rather than all MatchSpy objects.
 
 inmemory backend:
 
@@ -66,23 +71,14 @@ build system:
   which fixes a security issue in "make distcheck" (not something users will
   usually run, but it seems worth addressing).
 
-	* configure.ac: Use user-specified LIBS for configure tests, which is
-	  what's expected, and provides a way for the user to tell configure
-	  where to find library functions which configure can't find for
-	  itself.
+* Use user-specified LIBS for configure tests, which is what you'd expect to
+  happen, and provides a way for the user to tell configure where to find
+  library functions which configure can't find for itself.
 
-	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
-	  tests/Makefile.am: In automake, INCLUDES is now deprecated in favour
-	  of AM_CPPFLAGS so update to use the latter.
-	* bin/Makefile.mk: INCLUDES is always used, AM_CPPFLAGS
-	  isn't if there are per-executable CPPFLAGS, so add AM_CPPFLAGS
-	  explicitly when we use per-executable CPPFLAGS.
+* INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
 
-	* HACKING,Makefile.am: With lcov 1.10, we no longer need any of our
-	  hacky workarounds, so make this a requirement and simplify the rules
-	  in the makefile.
-	* Makefile.am: Pass -f to lcov, which should avoid the need for the
-	  patch we've been applying to lcov.
+* Test coverage rules now assume lcov 1.10 which allows them to be simpler
+  and not to require a patched version of lcov.
 
 documentation:
 
@@ -110,23 +106,24 @@ tools:
 
   + Allow files > 32G to be be copied by replication.
 
-	  Fix "if (fd > 0)" tests to be "if (fd >= 0)" in code related to
-	  replication.  In practice this is unlikely to actually have caused
-	  problems in real world cases.
+  + Fix "if (fd > 0)" tests in some replication code to be "if (fd >= 0)".
+    In practice this is unlikely to actually have caused problems since
+    stdin is typically still open and using fd 0.
 
-	  backends/chert/chert_databasereplicator.cc: Simplify how we open the
-	  .DB file on the replication slave to just call open() once with
-	  O_CREAT, rather than once without, than stat() if that fails, and
-	  then again with O_CREAT|O_TRUNC if stat() doesn't show an ordinary
-	  file exists.
+  + Simplify how we open the .DB file on the replication slave to just call
+    open() once with O_CREAT, rather than once without, than stat() if that
+    fails, and then again with O_CREAT|O_TRUNC if stat() doesn't show an
+    ordinary file exists.
 
 examples:
 
-	* examples/quest.cc: Add --flags command line option to allow setting
-	  arbitrary QueryParser flags.
-	* examples/quest.cc: Align option descriptions in --help output, and
-	  make the initial letter of such descriptions consistently lowercase.
+* quest:
 
+  + New --flags command line option to allow setting arbitrary QueryParser
+    flags.
+
+  + Align option descriptions in --help output, and make the initial letter of
+    such descriptions consistently lowercase.
 
 portability:
 
@@ -138,11 +135,8 @@ portability:
 * Our closefrom() replacement on Linux now works around valgrind not hiding
   some extra fds it has open, but then complaining if we try to close them.
 
-	   Pass O_BINARY when opening replication
-	  related files in some places where we weren't before, which will
-	  probably help solve bugs such as #472.  Changes are roughly
-	  equivalent in effect to r16961 and r16962 on trunk, but done in a
-	  very different way to be less invasive.
++ Pass O_BINARY when opening replication related files in some cases where we
+  weren't before, which will probably help solve ticket #472.
 
 * configure: socketpair() needs -lnetwork on Haiku.
 
