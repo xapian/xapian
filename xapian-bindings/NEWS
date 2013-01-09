@@ -1,20 +1,8 @@
- 16871       olly Thu Nov 08 02:25:49 GMT 2012  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.13 (2012-11-08):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
+Xapian-bindings 1.2.13 (2012-11-09):
 
 CSharp:
 
 * configure: Overhaul checks for C# tools to use modern names in preference.
-
-Java:
 
 Lua:
 
@@ -34,11 +22,8 @@ Perl:
 
 PHP:
 
-Python:
-
-Ruby:
-
-Tcl:
+* Document that subclassing Xapian classes in PHP currently doesn't work with
+  PHP 5.4.
 
 Xapian-bindings 1.2.12 (2012-06-27):
 
