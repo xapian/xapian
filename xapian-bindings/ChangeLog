@@ -1,3 +1,7 @@
+Wed Jan 09 10:45:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* README,php/docs/index.html: Document problem with PHP 5.4.
+
 Sat Nov 10 08:07:37 GMT 2012  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

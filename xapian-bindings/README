@@ -47,7 +47,8 @@ Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 
 PHP		Requires PHP 5 (PHP 4 is no longer supported by the PHP
 		developers, so it doesn't make sense for us to continue to
-		support it).
+		support it).  With PHP 5.4, you can't currently subclass
+		Xapian classes in PHP - see the docs for more details.
 
 Python		Requires Python 2.3 or later.  If you still need support for
 		Python 2.2, use Xapian 1.0.x.  Note that you need to configure
