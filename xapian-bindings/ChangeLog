@@ -1,3 +1,7 @@
+Wed Jan 09 11:57:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.2 branch.
+
 Mon Dec 24 05:15:56 GMT 2012  Olly Betts <olly@survex.com>
 
 	* perl/Search/Xapian/Stem.pm: Fix documentation typo.

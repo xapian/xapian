@@ -1,8 +1,63 @@
- 16732       olly Sun Jun 10 05:42:34 GMT 2012  Olly Betts <olly@survex.com>
-
-backported for 1.2.13:
+ 16981       olly Mon Dec 24 05:15:56 GMT 2012  Olly Betts <olly@survex.com>
 
 trunk only:
+
+ 16795    dcolish Tue Jul 03 03:10:19 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* configure.ac,generic/generic.mk:Configure DYLD_LIBRARY_PATH on OSX
+	  separately from MACOSX_DEPLOYMENT_TARGET
+
+ 16981       olly Mon Dec 24 05:15:56 GMT 2012  Olly Betts <olly@survex.com>
+	* perl/Search/Xapian/Stem.pm: Fix documentation typo.
+
+ 16980       olly Mon Dec 24 05:15:12 GMT 2012  Olly Betts <olly@survex.com>
+	* perl/util.i.in: Update list of unwrapped things.
+
+ 16979       olly Mon Dec 24 04:42:42 GMT 2012  Olly Betts <olly@survex.com>
+	* perl/Makefile.am,perl/t/stem.t: Add test that we can create all the
+	  stemmers returned by Stem::get_available_languages().
+
+ 16949       olly Mon Dec 17 02:13:16 GMT 2012  Olly Betts <olly@survex.com>
+	* README,php/docs/index.html: Bump minimum supported PHP version to
+	  5.3 - 5.2 was officially EOLed 2011-01-06, and the only distros
+	  which seem to still have PHP 5.2 are Ubuntu hardy (which will reach
+	  EOL in April 2013) and older probably RHEL (which are aimed at the
+	  ultra-conservative types who would likely be happy to stick with
+	  Xapian 1.2 anyway.
+
+ 16824    dcolish Tue Aug 28 04:33:21 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* java/SmokeTest.java,java/java.i: Implement and test MSetIterator,
+	  ESetIterator. Fix PostingIterator, ValueIterator, and TermIterator.
+
+ 16822    dcolish Sun Aug 12 05:45:32 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* java/Makefile.am,java/run-java-test: Remove jdb target from
+	  Makefile.
+ 16821    dcolish Sun Aug 12 04:54:04 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* java/Makefile.am,java/SmokeTest.java,java/java.i: Add a typemap for
+	  TermIterator pairs to String[] for the Enquire.getMatchingTerms
+	  API. Use debug symbols when configured with MAINTAINER_MODE.
+Sun Aug 12 04:46:59 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* java/Makefile.am,java/SmokeTest.java,java/java.i: Add typemap for
+	  TermIterator pairs to String[] to conform with the
+	  Enquire::getMatchingterms binding API. Build bindings with
+	  debugging symbols.
+
+ 16812       olly Tue Jul 24 06:06:24 GMT 2012  Olly Betts <olly@survex.com>
+	* lua/util.i: Fix wrapping of FieldProcessor.
+	* lua/smoketest.lua: Add test coverage for wrapping of FieldProcessor.
+ 16811       olly Tue Jul 24 04:11:50 GMT 2012  Olly Betts <olly@survex.com>
+	* php/smoketest.php: Fix XapianFieldProcessor testcase.
+ 16810       olly Tue Jul 24 03:45:15 GMT 2012  Olly Betts <olly@survex.com>
+	* csharp/Makefile.am,java/Makefile.am,lua/util.i,perl/util.i.in,
+	  python/extra.i,python/generate-python-exceptions,xapian-headers.i:
+	  Wrap FieldProcessor.
+	* php/smoketest.php: Add simple test of subclassing
+	  XapianFieldProcessor.
+
+[PHP] Avoid using zend_error_noreturn() as it doesn't work with all
+builds of PHP (SF bug #3166423).  Instead we now wrap it in a
+SWIG_FAIL() function which we annotate as "noreturn" for GCC to
+avoids warnings.  This also reduces the size of the compiled
+wrapper (e.g. the stripped size is 6% for Xapian's PHP bindings).
 
  16691       olly Mon Jun 04 12:07:08 GMT 2012  Olly Betts <olly@survex.com>
 	* Makefile.am,configure.ac,csharp/csharp.i,fake_dbfactory.i,
@@ -32,7 +87,7 @@ trunk only:
 	  Internal& instead of Internal* (as Query does, to avoid an
 	  ambiguity for Query(NULL).
 
-Xapian-bindings 1.3.1 (2012-06-22):
+Xapian-bindings 1.3.1 (2013-01-08):
 
 Documentation:
 
@@ -204,6 +259,33 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.13 (2012-11-09):
+
+CSharp:
+
+* configure: Overhaul checks for C# tools to use modern names in preference.
+
+Lua:
+
+* Fix examples to use str(query) to get the query description.  (Fixes #600)
+
+* Document that get_description() is mapped to str(), and end() to _end().
+
+* Fix functor wrappers which return strings to be zero-byte clean.
+
+Perl:
+
+* Forward port tests of StringValueRangeProcessor with a prefix or suffix from
+  1.2's XS Search::Xapian.  (ticket#607)
+
+* Update testsuite not to use UNIVERSAL::isa() as a function, since doing so
+  is deprecated.
+
+PHP:
+
+* Document that subclassing Xapian classes in PHP currently doesn't work with
+  PHP 5.4.
 
 Xapian-bindings 1.2.12 (2012-06-27):
 
