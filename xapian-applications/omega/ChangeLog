@@ -1,3 +1,7 @@
+Wed Jan 09 10:10:18 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Format new entries.
+
 Tue Jan 08 11:09:38 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -1,6 +1,6 @@
- 16909       olly Wed Nov 21 05:00:51 GMT 2012  Olly Betts <olly@survex.com>
+ 17017       olly Tue Jan 08 11:09:38 GMT 2013  Olly Betts <olly@survex.com>
 
-Omega 1.2.13 (2012-11-21):
+Omega 1.2.13 (2013-01-08):
 
 general:
 
@@ -14,7 +14,23 @@ indexers:
     newline character - previously the newline got lost during escaping for the
     shell.
 
-  + Fix segfault when -F option without a ':' was passed.
+  + Fix segfault when -F option without a ':' is passed.
+
+  + Skip a file if we get a read error while calculating the MD5 checksum (used
+    for duplicate detection) - previously we used a checksum of the file up to
+    that point.
+
+  + Avoid rereading SVG and Atom files when we calculate their MD5 checksums.
+
+  + Improvement --help output and man page, most notably:
+
+    - Say explicitly that --sample-size accepts the same formats as --max-size.
+
+    - Note default size limit on files to index is unlimited.
+
+  + When generating a sample for a CSV file, limit the size we pre-allocate to
+    the CSV file size if that's smaller than the requested sample size, in case
+    the user sets that limit very high.
 
 * scriptindex:
 
@@ -27,6 +43,8 @@ templates:
 testsuite:
 
 build system:
+
+* INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
 
 portability:
 
