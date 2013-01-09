@@ -1,10 +1,4 @@
- 17017       olly Tue Jan 08 11:09:38 GMT 2013  Olly Betts <olly@survex.com>
-
-Omega 1.2.13 (2013-01-08):
-
-general:
-
-documentation:
+Omega 1.2.13 (2013-01-09):
 
 indexers:
 
@@ -32,23 +26,13 @@ indexers:
     the CSV file size if that's smaller than the requested sample size, in case
     the user sets that limit very high.
 
-* scriptindex:
-
 omega:
 
 * Fix to decode %-encoded character at the end of the query string.
 
-templates:
-
-testsuite:
-
 build system:
 
 * INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
-
-portability:
-
-packaging:
 
 Omega 1.2.12 (2012-06-27):
 

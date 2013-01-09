@@ -1,3 +1,7 @@
+Wed Jan 09 11:15:03 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.13.
+
 Wed Jan 09 10:10:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Format new entries.
