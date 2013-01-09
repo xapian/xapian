@@ -1,12 +1,174 @@
- 16789    dcolish Fri Jun 29 15:32:11 GMT 2012  Dan Colish <dcolish@>
-
- 16789    dcolish Fri Jun 29 15:32:11 GMT 2012  Dan Colish <dcolish@>
-	* tests/harness/testsuite.cc: Add safeunistd.h unconditionally for
-	  isatty, required by GCC 4.7
-
-backported for 1.2.13:
+ 16993       olly Fri Jan 04 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
 
 trunk only:
+
+ 16965       olly Fri Dec 21 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
+	* configure.ac: Don't autodisable the remote backend if we fail to find
+	  a required function.  It's more likely the user needs to pass
+	  LIBS=-lfoo and it's more helpful to error out so they can do that, or
+	  pass --disable-backend-remote if they really don't want it, rather
+	  than having them not notice the automatic disabling until after
+	  they've built.  This also matches what we do for the disk based
+	  backends.
+
+ 16993       olly Fri Jan 04 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
+	* net/progclient.cc: Fix typo so we actually use SOCK_CLOEXEC.
+ 16992       olly Fri Jan 04 23:14:01 GMT 2013  Olly Betts <olly@survex.com>
+	* common/safesyssocket.h: We need the same workaround for socket() too.
+ 16990       olly Fri Jan 04 04:41:17 GMT 2013  Olly Betts <olly@survex.com>
+	* common/safesyssocket.h: On Linux at least, sometimes SOCK_CLOEXEC is
+	  defined but the kernel doesn't handle it in socketpair(), so add a
+	  wrapper which will retry without SOCK_CLOEXEC in this case.  Noticed
+	  on Ubuntu precise.
+ 16970       olly Sat Dec 22 06:29:23 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/flint_lock.cc: Only set close-on-exec on the lockfile fd if
+	  we are able to clear it in the child process, and clear it in the
+	  child process if we set it when we opened it.
+ 16969       olly Sat Dec 22 06:14:40 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/flint_lock.cc,net/progclient.cc: Use SOCK_CLOEXEC with
+	  socketpair(), and then clear the close-on-exec flag for child process
+	  end of the pair before we call exec.
+ 16968       olly Sat Dec 22 06:13:44 GMT 2012  Olly Betts <olly@survex.com>
+	* net/progclient.cc: Remove O_CLOEXEC where we open stderr on /dev/null
+	  before calling exec as we want that fd to survive the exec!
+ 16967       olly Sat Dec 22 05:53:12 GMT 2012  Olly Betts <olly@survex.com>
+	* HACKING,backends/flint_lock.cc,common/Makefile.mk,
+	  common/safesyssocket.h,net/progclient.cc,net/tcpclient.cc,
+	  net/tcpserver.cc,tests/harness/backendmanager_remotetcp.cc:
+	  Use SOCK_CLOEXEC where available, and try FD_CLOEXEC if SOCK_CLOEXEC
+	  isn't available.
+ 16966       olly Sat Dec 22 04:09:23 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/brass/,backends/chert/,backends/flint_lock.cc,
+	  common/debuglog.cc,common/replicate_utils.cc,common/safefcntl.h,
+	  net/progclient.cc,net/remoteconnection.cc,
+	  tests/harness/testsuite.cc: If O_CLOEXEC is supported, pass it to
+	  open() so fds we open are closed if the application using us calls
+	  exec().
+
+ 16982       olly Thu Dec 27 06:06:30 GMT 2012  Olly Betts <olly@survex.com>
+	* queryparser/queryparser.lemony: Adjust handling of Unicode
+	  opening/closing double quotes - if a quoted boolean term was started
+	  with ASCII double quote, then only ASCII double quote can end it, as
+	  otherwise it's impossible to quote a term containing Unicode double
+	  quotes.
+	* tests/queryparsertest.cc: Update testcases.
+
+ 16973       olly Sun Dec 23 18:16:52 GMT 2012  Olly Betts <olly@survex.com>
+	* configure.ac: Fix typo in previous commit.
+ 16972       olly Sun Dec 23 18:06:45 GMT 2012  Olly Betts <olly@survex.com>
+	* configure.ac: Use the new flock()-based flint-compatible locking
+	  under DJGPP, and remove special cases to disable chert and brass
+	  under DJGPP (untested, as I no longer have a DJGPP setup or
+	  cross-compiler).
+ 16971       olly Sun Dec 23 17:51:36 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/flint_lock.cc,backends/flint_lock.h: Add flock() based
+	  locking implementation, which is much simpler than using fcntl() due
+	  to saner semantics around releasing locks when closing other
+	  descriptors on the same file (at least on platforms where flock()
+	  isn't just a compatibility wrapper around fcntl()).  We can't simply
+	  switch to this without breaking locking compatibility with previous
+	  releases, though it might be useful for porting to platforms without
+	  fcntl() locking.  Also, flock() apparently doesn't work over NFS -
+	  perhaps that's OK, but we should at least check the failure mode.
+
+ 16960       olly Fri Dec 21 02:57:56 GMT 2012  Olly Betts <olly@survex.com>
+	* net/remoteconnection.cc,net/remoteconnection.h: Only "outline"
+	  RemoteConnection dtor under __WIN32__.
+
+ 16962       olly Fri Dec 21 03:32:13 GMT 2012  Olly Betts <olly@survex.com>
+	* tests/api_replicate.cc: Use O_BINARY in replication tests.
+ 16961       olly Fri Dec 21 03:24:37 GMT 2012  Olly Betts <olly@survex.com>
+	* common/replicate_utils.cc: Make posixy_open() always use O_BINARY.
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_database.cc,
+	  backends/brass/brass_databasereplicator.cc,
+	  backends/chert/chert_btreebase.cc,
+	  backends/chert/chert_databasereplicator.cc,common/posixy_wrapper.cc:
+	  Don't pass O_BINARY to posixy_open() in the places where we were
+	  (which wasn't everywhere, probably causing replication bugs under
+	  __WIN32__). (backported passing O_BINARY explicitly since that's
+	  less invasive)
+ 16956       olly Thu Dec 20 22:07:19 GMT 2012  Olly Betts <olly@survex.com>
+	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
+	  common/,net/remoteconnection.cc: Rename msvc_posix_rename(), etc to
+	  posixy_rename() (avoid a posix_ prefix as that's used by some library
+	  functions, and these aren't necessarily 100% POSIX compatible), and
+	  provide macro versions on Unix, so we can avoid a #ifdef at every
+	  call site.
+
+ 16901       olly Sat Nov 17 00:05:36 GMT 2012  Olly Betts <olly@survex.com>
+	* matcher/localsubmatch.cc: Optimise an unweighted query term which
+	  matches all the documents in a subdatabase to use the "MatchAll"
+	  postlist.  (ticket#387)
+
+ 16899       olly Fri Nov 16 07:30:18 GMT 2012  Olly Betts <olly@survex.com>V
+	* include/xapian/version_h.cc: Generate a check for compatible _DEBUGVV
+	  settings if built with MSVC.  (ticket#389)
+
+ 16864       olly Tue Nov 06 22:42:31 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/brass/brass_table.cc: Restore two missing lines in database
+	  checking where we report a block with the wrong level.
+
+ 16863       olly Tue Oct 16 11:19:42 GMT 2012  Olly Betts <olly@survex.com>
+	* api/compactor.cc,backends/dbcheck.cc,backends/dbfactory.cc,
+	  common/Makefile.mk: Fix to build when configured with
+	  --disable-backend-brass --disable-backend-chert.  (ticket#586)
+
+ 16862       olly Mon Oct 15 04:07:30 GMT 2012  Olly Betts <olly@survex.com>
+	* HACKING: automake 1.12.4 is now used to generate snapshots and
+	  releases.
+
+ 16829       olly Tue Sep 25 06:46:03 GMT 2012  Olly Betts <olly@survex.com>
+	* include/xapian/enquire.h: Mark MSetIterator::at_end() and
+	  ESetIterator::at_end() as @private @internal so that they don't
+	  appear in the API docs.
+ 16828       olly Tue Sep 25 06:45:07 GMT 2012  Olly Betts <olly@survex.com>
+	* include/xapian/enquire.h: Remove FIXMEs about converting MSetIterator
+	  and ESetIterator to use Internal classes - as HACKING notes, the
+	  current implementation is that way for performance reasons.
+ 16823    dcolish Sat Aug 25 16:09:50 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* include/xapian/enquire.h: Add function to test MSetIterator and
+	  ESetIterator exhaustion against the size of the underlying interee
+	  since comparison against an empty Itor is not suitable for an
+	  exhaustion test. Add FIXME that these Iterators should use an Internal
+	  class. 
+
+ 16816    dcolish Wed Aug 01 15:25:25 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* HACKING,Makefile.am,tests/Makefile.am: Fix non-portable warnings
+	from automake, add HACKING doc for check-syntax make target
+ 16815    dcolish Wed Aug 01 04:54:18 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* Makefile.am,api/Makefile,backends/Makefile,backends/brass/Makefile,
+	  backends/chert/Makefile,backends/inmemory/Makefile,
+	  backends/multi/Makefile,backends/remote/Makefile,bin/Makefile,
+	  common/Makefile,examples/Makefile,expand/Makefile,
+	  geospatial/Makefile,include/Makefile,include/xapian/Makefile,
+	  languages/Makefile,matcher/Makefile,net/Makefile,
+	  queryparser/Makefile,tests/harness/Makefile,unicode/Makefile,
+	  weight/Makefile: Add check-syntax target to Makefiles to support
+	  editor syntax checks
+
+ 16814       olly Sun Jul 29 15:32:00 GMT 2012  Olly Betts <olly@survex.com>
+	* configure.ac: Bump LIBRARY_VERSION_INFO so I can package a snapshot
+	  cleanly.
+
+ 16807       olly Tue Jul 24 01:35:17 GMT 2012  Olly Betts <olly@survex.com>
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h,
+	  tests/queryparsertest.cc: Add FieldProcessor class (ticket#128) -
+	  currently marked as an experimental API while we sort out how best
+	  to sort out exactly how it interacts with other QueryParser features.
+
+ 16804       olly Thu Jul 19 05:32:04 GMT 2012  Olly Betts <olly@survex.com>
+	* backends/brass/brass_dbcheck.h,
+	  backends/inmemory/inmemory_alltermslist.cc,bin/xapian-delve.cc: Fix
+	  filenames in comments which mismatch actual name of file.
+
+ 16794    dcolish Mon Jul 02 05:27:43 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* backends/brass/brass_databasereplicator.cc: Use new/delete to avoid
+	  variable length array gcc extension and comply with c++98
+
+ 16793    dcolish Mon Jul 02 05:02:14 GMT 2012  Dan Colish <dcolish@gmail.com>
+	* api/omdatabase.cc,tests/api_wrdb.cc: Prefer container.empty() to
+	  container.size() == 0.
 
  16735       olly Sun Jun 10 12:57:16 GMT 2012  Olly Betts <olly@survex.com>
 	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
@@ -143,11 +305,12 @@ trunk only:
 	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
 	  and xapian.m4 to xapian-1.3.m4.
 
-Xapian-core 1.3.1 (2012-07-01):
+Xapian-core 1.3.1 (2013-01-07):
 
 
 API:
 
+* Update Unicode character database to Unicode 6.2.0.
 
 testsuite:
 
@@ -195,7 +358,7 @@ Xapian-core 1.3.0 (2012-03-14):
 
 API:
 
-* Update Unicode character database to Unicode 6.1.0.  (ticket#351)
+* Update Unicode character database to Unicode 6.1.0.  (ticket#497)
 
 * TermIterator returned by Enquire::get_matching_terms_begin(),
   Query::get_terms_begin(), Database::synonyms_begin(),
@@ -352,6 +515,152 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.13 (2013-01-09):
+
+API:
+
+* TermGenerator: Add new method TermGenerator::set_max_word_length() to allow
+  this limit to be adjusted by the user.
+
+* QueryParser: Implicitly close any unclosed brackets at the end of the query
+  string.  Patch from Sehaj Singh Kalra.
+
+* DateValueRangeProcessor: Add extra constructor overloaded form so that in
+  DateValueRangeProcessor(1, "date:"), the const char * gets interpreted as
+  std::string rather than bool.
+
+testsuite:
+
+* apitest: Assorted test coverage improvements.
+
+* When reporting valgrind errors, skip any warnings before the error in the
+  valgrind log.
+
+matcher:
+
+* Improved fix for #590 - count all matching LeafPostList objects with a Weight
+  object rather than trying to prune at the MultiAndPostList level based on
+  max_wt (if wdf is always zero for a term, BM25 gives max_wt of 0, which lead
+  to us never counting that subquery.
+
+* Fix calculation of 0.0/0.0 in some cases.  This then got used as a minimum
+  weight, but it seems this gives -nan (at least on x86-64 Linux) so it may
+  have been harmless in practice.
+
+* We no longer use the highest weighted MSet entry to calculate percentages, so
+  remove code which finds it.
+
+brass backend:
+
+* Close excess file handles before we get the fcntl lock, which avoids the
+  lock being released again if one is open on the lock file.  Notably this
+  avoids a situation where multiple threads in the same process could succeed
+  in locking a database concurrently.
+
+chert backend:
+
+* Close excess file handles before we get the fcntl lock, which avoids the
+  lock being released again if one is open on the lock file.  Notably this
+  avoids a situation where multiple threads in the same process could succeed
+  in locking a database concurrently.
+
+flint backend:
+
+* Close excess file handles before we get the fcntl lock, which avoids the
+  lock being released again if one is open on the lock file.  Notably this
+  avoids a situation where multiple threads in the same process could succeed
+  in locking a database concurrently.
+
+remote backend:
+
+* Improve the UnimplementedError message for a MatchSpy subclass which doesn't
+  implement name() so it's clearer that it is this particular subclass which
+  can't be used remotely, rather than all MatchSpy objects.
+
+build system:
+
+* The build system is now generated with automake 1.11.6 rather than 1.11.1,
+  which fixes a security issue in "make distcheck" (not something users will
+  usually run, but it seems worth addressing).
+
+* Use user-specified LIBS for configure tests, which is what you'd expect to
+  happen, and provides a way for the user to tell configure where to find
+  library functions which configure can't find for itself.
+
+* INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
+
+* Test coverage rules now assume lcov 1.10 which allows them to be simpler
+  and not to require a patched version of lcov.
+
+documentation:
+
+* valueranges.html: Update documentation to reflect change in Xapian 1.1.2 -
+  DateValueRangeProcessor and StringValueRangeProcessor now support a prefix or
+  suffix.
+
+* Clarify that the "reverse" parameter of set_sort_by_relevance_then_value()
+  and set_sort_by_relevance_then_key() only affects the ordering of the
+  value/key part of the sort.
+
+* docs/quickstart.html: Fix seriously outdated statement that Xapian doesn't
+  create the database directory - that changed in 0.7.2 (released 2003-07-11).
+
+* HACKING: Try to make it clearer we're looking for a dual-licence on submitted
+  patches.
+
+tools:
+
+* xapian-replicate:
+
+  + Add a --full-copy option to force a full copy to be sent.  (ticket#436)
+
+  + Add --quiet option, and be a little more verbose by default.
+
+  + Allow files > 32G to be be copied by replication.
+
+  + Fix "if (fd > 0)" tests in some replication code to be "if (fd >= 0)".
+    In practice this is unlikely to actually have caused problems since
+    stdin is typically still open and using fd 0.
+
+  + Simplify how we open the .DB file on the replication slave to just call
+    open() once with O_CREAT, rather than once without, than stat() if that
+    fails, and then again with O_CREAT|O_TRUNC if stat() doesn't show an
+    ordinary file exists.
+
+examples:
+
+* quest:
+
+  + New --flags command line option to allow setting arbitrary QueryParser
+    flags.
+
+  + Align option descriptions in --help output, and make the initial letter of
+    such descriptions consistently lowercase.
+
+portability:
+
+* Fix testsuite harness to compile with GCC 4.7.
+
+* On platforms with the F_MAXFD fcntl but without closefrom(), we were failing
+  to close the highest numbered open fd in our closefrom() replacement.
+
+* Our closefrom() replacement on Linux now works around valgrind not hiding
+  some extra fds it has open, but then complaining if we try to close them.
+
++ Pass O_BINARY when opening replication related files in some cases where we
+  weren't before, which will probably help solve ticket #472.
+
+* configure: socketpair() needs -lnetwork on Haiku.
+
+* Micro-optimisation in Unicode handling - GCC doesn't currently optimise the
+  arithmetic shift right idiom we use, but it documents that signed right shift
+  does sign extension so we now just use a right shift for GCC.
+
+debug code:
+
+* Preserve errno over debug logging calls, so they can safely be added to code
+  which expects errno not to change.
 
 Xapian-core 1.2.12 (2012-06-27):
 

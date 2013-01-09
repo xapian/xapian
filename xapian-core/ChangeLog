@@ -1,3 +1,7 @@
+Wed Jan 09 11:49:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and 1.2 branch.
+
 Fri Jan 04 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Fix typo so we actually use SOCK_CLOEXEC.
