@@ -1,3 +1,10 @@
+Wed Jan 16 01:55:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Don't cache documents retrieved by
+	  MSet::get_document() unless they were requested with fetch().  This
+	  avoids using a lot of memory when many MSet entries are retrieved.
+	  (Fixes #604)
+
 Wed Jan 09 11:49:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2 branch.
