@@ -13,10 +13,9 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 if NEED_INTREE_DYLD
-# This is a hack to enable tests in an SVN build (or build with similar layout)
-# on Mac OS X to find the uninstalled xapian library. See
-# http://trac.xapian.org/ticket/322
-export DYLD_LIBRARY_PATH=$(abs_builddir)/../../xapian-core/.libs
+# This is a hack for Mac OS X to enable tests to work when built against an
+# uninstalled xapian-core tree.  See http://trac.xapian.org/ticket/322
+export DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
 endif
 
 if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
