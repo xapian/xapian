@@ -1,3 +1,9 @@
+Wed Jan 16 02:40:20 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am: Rename CHK_SOURCES to check_sources - variables
+	  ending _SOURCES usually have a special meaning in automake, so it's
+	  confusing to have one which doesn't.
+
 Wed Jan 16 01:55:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Don't cache documents retrieved by

@@ -138,4 +138,4 @@ MAINTAINERCLEANFILES += $(BUILT_SOURCES)
 .PHONY: check-syntax
 
 check-syntax:
-	$(CXXCOMPILE) -fsyntax-only -gstabs+ $(CHK_SOURCES)
+	$(CXXCOMPILE) -fsyntax-only -gstabs+ $(check_sources)

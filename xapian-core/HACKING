@@ -1445,7 +1445,7 @@ If you are using an editor or other tool capable of running syntax checks as you
 work there you can use the `make` target 'check-syntax'. For 'emacs' users this
 works well with 'flymake'. Usage from a shell::
 
-    make check-syntax CHK_SOURCES=api/omdatabase.cc
+    make check-syntax check_sources=api/omdatabase.cc
 
 
 How to make a release
