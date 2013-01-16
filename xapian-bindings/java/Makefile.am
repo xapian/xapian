@@ -14,13 +14,9 @@ CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
 
 SmokeTest: SmokeTest.class
 
-if MAINTAINER_MODE
+# To get debug symbols, use: make JAVACFLAGS=-g
 .java.class:
-	$(JAVAC) -g -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
-else
-.java.class:
-	$(JAVAC) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
-endif
+	$(JAVAC) $(JAVACFLAGS) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Auto.java\

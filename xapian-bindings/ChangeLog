@@ -1,3 +1,10 @@
+Wed Jan 16 01:30:28 GMT 2013  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Don't automatically pass -g to javac when in
+	  maintainer-mode, as the two should really be orthogonal.  Instead
+	  use JAVACFLAGS when running JAVAC to allow extra flags to be
+	  specified by running "make JAVACFLAGS=-g".
+
 Wed Jan 09 11:57:01 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2 branch.
