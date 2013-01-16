@@ -1,3 +1,7 @@
+Wed Jan 16 02:32:38 GMT 2013  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Extend testcase to check returned MSet size.
+
 Wed Jan 16 01:41:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,generic/generic.mk: Improve workaround which allows

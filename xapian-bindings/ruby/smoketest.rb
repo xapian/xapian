@@ -232,6 +232,7 @@ class XapianSmoketest < Test::Unit::TestCase
     enquire.query = query
     enquire.add_matchspy(spy)
     mset = enquire.mset(0, 10)
+    assert_equal(mset.size(), 4)
     assert_equal(spy.values.map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
 		 "maybe:1,no:1,yes:2")
     assert_equal(spy.top_values(1).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
