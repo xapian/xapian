@@ -1,3 +1,7 @@
+Mon May 18 04:43:38 GMT 2015  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Extend testcase to check returned MSet size.
+
 Fri May 15 12:36:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: Just call the existing Perl Xapian::inmemory_open()
