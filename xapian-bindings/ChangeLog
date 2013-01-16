@@ -1,3 +1,7 @@
+Wed Jan 16 01:34:09 GMT 2013  Olly Betts <olly@survex.com>
+
+	* java/run-java-test: Document how to run tests under gdb.
+
 Wed Jan 16 01:30:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: Don't automatically pass -g to javac when in

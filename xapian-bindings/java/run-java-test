@@ -1,7 +1,6 @@
 #!/bin/sh
-# FIXME:dc: Allow this to also run with gdb
-
 # To run `jdb` instead of `java` set JAVA=jdb
+# To run under gdb, set JAVA='gdb --args java'
 arg=`echo "$1"|sed 's!.*/!!;s!\.class$!!'`
 # Use libtool's -dlopen option to ensure that libxapian_jni.so (or whatever)
 # is in the shared library path.
