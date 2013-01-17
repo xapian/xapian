@@ -1,3 +1,7 @@
+Thu Jan 17 02:32:31 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: Update link to new home of autotools tutorial.
+
 Wed Jan 16 02:40:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am: Rename CHK_SOURCES to check_sources - variables
