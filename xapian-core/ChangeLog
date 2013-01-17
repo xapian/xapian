@@ -1,3 +1,9 @@
+Thu Jan 17 06:48:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_stem.cc: Extend stem2 to ensure description of the stemmer
+	  isn't the same as the description of Stem("none").  Fix description
+	  of testcase stemlangs2.
+
 Thu Jan 17 02:32:31 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Update link to new home of autotools tutorial.
