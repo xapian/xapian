@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.13.1  Wed Jan 23 00:09:55 UTC 2013
+	[Changes contributed by Olly Betts]
+	- Perl 5.16.1 adds a '.' after "at foo line 123" so adjust regexp in
+	  testcase t/10query.t to allow an optional '.' there.  (ticket#610)
+
 1.2.13.0  Wed Jan  9 11:19:20 UTC 2013
 	[Changes contributed by Adam Sjøgren]
 	- Wrap 2 and 3 parameter forms of StringValueRangeProcessor
