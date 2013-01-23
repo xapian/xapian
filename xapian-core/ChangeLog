@@ -1,3 +1,10 @@
+Wed Jan 23 00:51:42 GMT 2013  Olly Betts <olly@survex.com>
+
+	* matcher/selectpostlist.cc,matcher/selectpostlist.h: Check document
+	  matches weight threshold before checking positional information,
+	  which speeds up slow phrase searches (tweaked version of
+	  positional-query-weight-check-first.patch from #394).
+
 Thu Jan 17 06:48:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_stem.cc: Extend stem2 to ensure description of the stemmer
