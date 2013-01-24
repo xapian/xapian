@@ -1,3 +1,8 @@
+Thu Jan 24 02:55:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,jsonescape.cc,jsonescape.h,jsonesctest.cc,query.cc:
+	  Add new $json and $jsonarray OmegaScript commands.
+
 Wed Jan 09 11:53:19 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and 1.2 branch.

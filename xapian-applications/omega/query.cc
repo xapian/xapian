@@ -51,6 +51,7 @@
 
 #include "date.h"
 #include "datematchdecider.h"
+#include "jsonescape.h"
 #include "utils.h"
 #include "omega.h"
 #include "query.h"
@@ -864,6 +865,8 @@ CMD_httpheader,
 CMD_id,
 CMD_if,
 CMD_include,
+CMD_json,
+CMD_jsonarray,
 CMD_last,
 CMD_lastpage,
 CMD_le,
@@ -985,6 +988,8 @@ T(httpheader,      2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
+T(json,		   1, 1, N, 0), // JSON string escaping
+T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
 T(last,		   0, 0, N, M), // m-set number of last hit on page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
@@ -1520,6 +1525,30 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_include:
 	        value = eval_file(args[0]);
 	        break;
+	    case CMD_json:
+		value = args[0];
+		json_escape(value);
+		break;
+	    case CMD_jsonarray: {
+		const string & l = args[0];
+		string::size_type i = 0, j;
+		if (l.empty()) {
+		    value = "[]";
+		    break;
+		}
+		value = "[\"]";
+		while (true) {
+		    j = l.find('\t', i);
+		    string elt(l, i, j - i);
+		    json_escape(elt);
+		    value += elt;
+		    if (j == string::npos) break;
+		    value += "\",\"";
+		    i = j + 1;
+		}
+		value += "\"]";
+		break;
+	    }
 	    case CMD_last:
 		value = str(last);
 		break;

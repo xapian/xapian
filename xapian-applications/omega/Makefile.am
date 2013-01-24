@@ -79,9 +79,10 @@ dist_pkglibbin_SCRIPTS = outlookmsg2html
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = atomparsetest htmlparsetest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest htmlparsetest jsonesctest md5test urlenctest utf8converttest
 TESTS =	atomparsetest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
+	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
@@ -132,8 +133,9 @@ libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc utf8convert.cc\
- datematchdecider.cc weight.cc common/str.cc sample.cc unixperm.cc urlencode.cc
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
+ datematchdecider.cc common/str.cc sample.cc unixperm.cc urlencode.cc\
+ utf8convert.cc weight.cc
 omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
@@ -166,6 +168,8 @@ utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
 utf8converttest_LDADD = $(XAPIAN_LIBS)
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
+
+jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1
