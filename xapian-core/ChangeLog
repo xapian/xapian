@@ -1,3 +1,8 @@
+Thu Jan 24 22:40:12 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/keyword.cc,common/keyword.h: Commit new
+	  keyword lookup function needed by previous commit.
+
 Thu Jan 24 22:26:19 GMT 2013  Olly Betts <olly@survex.com>
 
 	* languages/: Generate a compact and efficient table to convert

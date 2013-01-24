@@ -11,6 +11,7 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/internaltypes.h\
 	common/io_utils.h\
+	common/keyword.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
@@ -54,6 +55,7 @@ lib_src +=\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/io_utils.cc\
+	common/keyword.cc\
 	common/msvc_dirent.cc\
 	common/omassert.cc\
 	common/posixy_wrapper.cc\
