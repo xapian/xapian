@@ -215,6 +215,14 @@ $httpheader{NAME,VALUE}
 $id
 	document id of current document
 
+$json{STRING}
+        encode STRING as a JSON string (not including the enclosing quotes), e.g.
+        ``$json{The path is "C:\"}`` gives ``The path is \"C:\\\"``
+
+$jsonarray{LIST}
+        encodes LIST (a string of tab-separated values) as a JSON array, e.g.
+        ``$jsonarray{$split{a "b" c:\}}`` gives ``["a","\"b\"","c:\\"]``
+
 $last
 	MSet index of last hit on this page
 
