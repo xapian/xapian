@@ -1,3 +1,12 @@
+Thu Jan 24 22:26:19 GMT 2013  Olly Betts <olly@survex.com>
+
+	* languages/: Generate a compact and efficient table to convert
+	  language names to enum codes, which we can then use a C switch
+	  statement to dispatch.  The table first checks the token length,
+	  and then does a binary chop on tokens of the same length.  This
+	  is both faster and smaller than the approach we were using, with
+	  the benefit that the table is auto-generated.
+
 Wed Jan 23 00:51:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* matcher/selectpostlist.cc,matcher/selectpostlist.h: Check document

@@ -48,6 +48,7 @@ snowball_headers =\
 	languages/compiler/syswords2.h
 
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
+	languages/sbl-dispatch.h\
 	languages/dir_contents\
 	languages/Makefile\
 	languages/allsnowballheaders.h
@@ -67,8 +68,12 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/Makefile.mk
 	languages/generate-allsnowballheaders $(snowball_built_sources)
 
+languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk
+	$(PERL) '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
+
 BUILT_SOURCES += $(snowball_built_sources)\
-	languages/allsnowballheaders.h
+	languages/allsnowballheaders.h\
+	languages/sbl-dispatch.h
 CLEANFILES += languages/snowball
 endif
 

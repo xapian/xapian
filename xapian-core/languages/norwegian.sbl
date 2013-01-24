@@ -1,3 +1,7 @@
+// Alias: nb nn no
+// Snowball's "Norwegian" stemmer works for both nb and nn
+// according to AlexB on #xapian.
+
 routines (
            mark_regions
            main_suffix

@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,8 @@
 #include "steminternal.h"
 
 #include "allsnowballheaders.h"
+#include "keyword.h"
+#include "sbl-dispatch.h"
 
 #include <string>
 
@@ -47,155 +49,81 @@ Stem::operator=(const Stem & o)
 Stem::Stem() : internal(0) { }
 
 Stem::Stem(const std::string &language) : internal(0) {
-    if (language.empty()) return;
-    switch (language[0]) {
-	case 'a':
-	    if (language == "armenian") {
+    int l = keyword(tab, language.data(), language.size());
+    if (l >= 0) {
+	switch (static_cast<sbl_code>(l)) {
+	    case ARMENIAN:
 		internal = new InternalStemArmenian;
 		return;
-	    }
-	    break;
-	case 'b':
-	    if (language == "basque") {
+	    case BASQUE:
 		internal = new InternalStemBasque;
 		return;
-	    }
-	    break;
-	case 'c':
-	    if (language == "ca" || language == "catalan") {
+	    case CATALAN:
 		internal = new InternalStemCatalan;
 		return;
-	    }
-	    break;
-	case 'd':
-	    if (language == "da" || language == "danish") {
+	    case DANISH:
 		internal = new InternalStemDanish;
 		return;
-	    }
-	    if (language == "dutch") {
+	    case DUTCH:
 		internal = new InternalStemDutch;
 		return;
-	    }
-	    if (language == "de") {
-		internal = new InternalStemGerman;
-		return;
-	    }
-	    break;
-	case 'e':
-	    if (language == "en" || language == "english") {
+	    case ENGLISH:
 		internal = new InternalStemEnglish;
 		return;
-	    }
-	    if (language == "es") {
-		internal = new InternalStemSpanish;
-		return;
-	    }
-	    if (language == "eu") {
-		internal = new InternalStemBasque;
-		return;
-	    }
-	    break;
-	case 'f':
-	    if (language == "fi" || language == "finnish") {
+	    case FINNISH:
 		internal = new InternalStemFinnish;
 		return;
-	    }
-	    if (language == "fr" || language == "french") {
+	    case FRENCH:
 		internal = new InternalStemFrench;
 		return;
-	    }
-	    break;
-	case 'g':
-	    if (language == "german") {
+	    case GERMAN:
 		internal = new InternalStemGerman;
 		return;
-	    }
-	    if (language == "german2") {
+	    case GERMAN2:
 		internal = new InternalStemGerman2;
 		return;
-	    }
-	    break;
-	case 'h':
-	    if (language == "hu" || language == "hungarian") {
+	    case HUNGARIAN:
 		internal = new InternalStemHungarian;
 		return;
-	    }
-	    if (language == "hy") {
-		internal = new InternalStemArmenian;
-		return;
-	    }
-	    break;
-	case 'i':
-	    if (language == "it" || language == "italian") {
+	    case ITALIAN:
 		internal = new InternalStemItalian;
 		return;
-	    }
-	    break;
-	case 'k':
-	    if (language == "kraaij_pohlmann") {
+	    case KRAAIJ_POHLMANN:
 		internal = new InternalStemKraaij_pohlmann;
 		return;
-	    }
-	    break;
-	case 'l':
-	    if (language == "lovins") {
+	    case LOVINS:
 		internal = new InternalStemLovins;
 		return;
-	    }
-	    break;
-	case 'n':
-	    if (language == "nl") {
-		internal = new InternalStemDutch;
-		return;
-	    }
-	    if (language == "no" || language == "nb" || language == "nn" ||
-		language == "norwegian") {
-		// Snowball's "Norwegian" stemmer works for both nb and nn
-		// according to AlexB on #xapian.
+	    case NORWEGIAN:
 		internal = new InternalStemNorwegian;
 		return;
-	    }
-	    if (language == "none") {
+	    case NONE:
 		return;
-	    }
-	    break;
-	case 'p':
-	    if (language == "pt" || language == "portuguese") {
+	    case PORTUGUESE:
 		internal = new InternalStemPortuguese;
 		return;
-	    }
-	    if (language == "porter") {
+	    case PORTER:
 		internal = new InternalStemPorter;
 		return;
-	    }
-	    break;
-	case 'r':
-	    if (language == "ru" || language == "russian") {
+	    case RUSSIAN:
 		internal = new InternalStemRussian;
 		return;
-	    }
-	    if (language == "ro" || language == "romanian") {
+	    case ROMANIAN:
 		internal = new InternalStemRomanian;
 		return;
-	    }
-	    break;
-	case 's':
-	    if (language == "spanish") {
+	    case SPANISH:
 		internal = new InternalStemSpanish;
 		return;
-	    }
-	    if (language == "sv" || language == "swedish") {
+	    case SWEDISH:
 		internal = new InternalStemSwedish;
 		return;
-	    }
-	    break;
-	case 't':
-	    if (language == "tr" || language == "turkish") {
+	    case TURKISH:
 		internal = new InternalStemTurkish;
 		return;
-	    }
-	    break;
+	}
     }
+    if (language.empty())
+	return;
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
 
