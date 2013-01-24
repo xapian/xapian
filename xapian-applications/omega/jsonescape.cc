@@ -26,6 +26,9 @@
 
 #include "jsonescape.h"
 
+#include <cstdio>
+#include <string>
+
 using namespace std;
 
 enum { UNI = 0, CLR = 1 };

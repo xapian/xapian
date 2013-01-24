@@ -1,3 +1,7 @@
+Thu Jan 24 07:21:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* jsonescape.cc: Add missing header includes.
+
 Thu Jan 24 03:08:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Document $json and $jsonarray.
