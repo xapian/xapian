@@ -104,7 +104,9 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    case NONE:
 		return;
 	    /*case PAICEHUSK:
-		internal=new StemPaiceHusk;*/
+		internal=new StemPaiceHusk;
+		return;
+		*/
 	    case PORTUGUESE:
 		internal = new InternalStemPortuguese;
 		return;
