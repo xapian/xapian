@@ -10,7 +10,7 @@ Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish,
 and Turkish.
 
 There are also implementations of Lovins' English stemmer, Porter's
-original English stemmer, the Kraaij-Pohlmann Dutch stemmer, and a
+original English stemmer, the PaiceHusk English stemmer,the Kraaij-Pohlmann Dutch stemmer, and a
 variation of the German stemmer which normalises umlauts.
 
 We'd like to add stemmers for more languages - see the Snowball site for

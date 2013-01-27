@@ -32,6 +32,8 @@
 #include "sbl-dispatch.h"
 
 #include <string>
+#include "paicehusk.h"
+
 
 using namespace std;
 
@@ -49,7 +51,9 @@ Stem::operator=(const Stem & o)
 Stem::Stem() : internal(0) { }
 
 Stem::Stem(const std::string &language) : internal(0) {
-    int l = keyword(tab, language.data(), language.size());
+
+    int l = keyword(tab,language.data(), language.size());
+
     if (l >= 0) {
 	switch (static_cast<sbl_code>(l)) {
 	    case ARMENIAN:
@@ -99,6 +103,10 @@ Stem::Stem(const std::string &language) : internal(0) {
 		return;
 	    case NONE:
 		return;
+	    /*case PAICEHUSK:
+		internal=new StemPaiceHusk;
+		return;
+		*/
 	    case PORTUGUESE:
 		internal = new InternalStemPortuguese;
 		return;
@@ -120,6 +128,7 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    case TURKISH:
 		internal = new InternalStemTurkish;
 		return;
+	  
 	}
     }
     if (language.empty())

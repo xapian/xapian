@@ -78,7 +78,10 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
      *  - english_lovins (lovins) - Lovin's stemmer
      *  - english_porter (porter) - Porter's stemmer as described in
-     *			his 1980 paper
+     *			his 1980 paper           
+     *  - english_paicehusk(paicehusk)-Developed by Chris Paice and Gareth Husk
+	                               and first published in a 1990 paper.
+	                               Offial URL:-http://www.comp.lancs.ac.uk/computing/research/stemming/Links/paice.htm 
      *  - finnish (fi)
      *  - french (fr)
      *  - german (de)
@@ -88,6 +91,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - kraaij_pohlmann - A different Dutch stemmer
      *  - norwegian (nb, nn, no)
      *  - portuguese (pt)
+     *  - paicehusk	
      *  - romanian (ro)
      *  - russian (ru)
      *  - spanish (es)

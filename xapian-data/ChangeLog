@@ -1,3 +1,9 @@
+
+Sunday January 27 05:30 pm GMT  2013 Aarsh Shah <aarshkshah1992@gmail.com>
+	
+       * stemming/paicehusk/output.txt,stemming/paicehusk/voc.txt: Add paicehusk
+          wordlist and expected output.  
+
 Wed Jun 29 11:06:09 GMT 2011  Olly Betts <olly@survex.com>
 
 	* stemming/basque/output.txt,stemming/basque/voc.txt: Add basque
