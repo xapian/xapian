@@ -1,3 +1,8 @@
+Mon Jan 28 01:44:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Fix to build with Sun Studio 12 compiler.
+	  (ticket#611)
+
 Thu Jan 24 22:40:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/keyword.cc,common/keyword.h: Commit new
