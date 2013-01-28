@@ -63,15 +63,12 @@ static const testcase tests[] = {
     { "UTF-16", "\xfe\xff\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
     { "UTF16LE", "\xff\xdb\xfd\xdf", 0, "\xf4\x8f\xbf\xbd" },
     { "UTF16", "\xff\xfe\xff\xdb\xfd\xdf", 0, "\xf4\x8f\xbf\xbd" },
-// GNU libiconv doesn't seem to handle these as expected:
-#ifndef USE_ICONV
     { "UCS-2", "\xfe\xff\0T\0e\0s\0t", 10, "Test" },
     { "UCS-2", "\xff\xfeT\0e\0s\0t\0", 10, "Test" },
     { "UCS2", "\xfe\xff\0T\0e\0s\0t", 10, "Test" },
     { "UCS2", "\xff\xfeT\0e\0s\0t\0", 10, "Test" },
     // If there's no BOM, we're supposed to assume BE.
     { "UTF16", "\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
-#endif
     // Test "promoting" charset to windows-1252:
     { "iso-8859-1", "Price: \x80""20", 0, "Price: \xe2\x82\xac""20" },
     { "ISO-8859-1", "\x80\x81\x82\x83\x84\x85\x86\x87", 0, "\xe2\x82\xac\xc2\x81\xe2\x80\x9a\xc6\x92\xe2\x80\x9e\xe2\x80\xa6\xe2\x80\xa0\xe2\x80\xa1" },

@@ -1,3 +1,11 @@
+Mon Jan 28 23:41:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc,utf8converttest.cc: Always use our built-in
+	  conversion code for the character sets it can handle, and only use
+	  iconv as a fall-back.  This gives us more consistent results, and
+	  in particular means we now handle BOMs better (at least with GNU
+	  iconv).
+
 Mon Jan 28 23:16:08 GMT 2013  Olly Betts <olly@survex.com>
 
 	* utf8convert.cc,utf8converttest.cc: A lot of data labelled as
