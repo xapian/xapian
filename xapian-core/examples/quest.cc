@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,14 +69,6 @@ inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
-inline bool operator<(const qp_flag & f, const char * s) {
-    return strcmp(f.s, s) < 0;
-}
-
-inline bool operator<(const char * s, const qp_flag & f) {
-    return strcmp(s, f.s) < 0;
-}
-
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
@@ -110,8 +102,10 @@ static void show_usage() {
 }
 
 static unsigned
-decode_qp_flag(const char * f)
+decode_qp_flag(const char * s)
 {
+    qp_flag f;
+    f.s = s;
     const qp_flag * p = lower_bound(flag_tab, flag_tab + n_flag_tab, f);
     if (p == flag_tab + n_flag_tab || f < *p)
 	return 0;

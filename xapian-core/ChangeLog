@@ -1,3 +1,9 @@
+Mon Jan 28 01:51:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Fix to build with Sun Studio 12 compiler.
+	  (ticket#611)
+
 Mon Jan 28 01:47:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix some typos in older entries.
