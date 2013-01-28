@@ -1,3 +1,8 @@
+Mon Jan 28 23:13:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use charset name "iso-8859-1" in lower case
+	  consistently.
+
 Thu Jan 24 08:44:24 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Ship jsonescape.h.

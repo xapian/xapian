@@ -649,7 +649,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
-		convert_to_utf8(dump, "ISO-8859-1");
+		convert_to_utf8(dump, "iso-8859-1");
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
@@ -664,7 +664,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
-		convert_to_utf8(dump, "ISO-8859-1");
+		convert_to_utf8(dump, "iso-8859-1");
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
