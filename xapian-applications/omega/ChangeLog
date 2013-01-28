@@ -1,3 +1,10 @@
+Mon Jan 28 23:16:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc,utf8converttest.cc: A lot of data labelled as
+	  "iso-8859-1" is actually "windows-1252".  The two only differ
+	  in characters which are control characters in iso-8859-1, so
+	  assume the latter when we see the former.
+
 Mon Jan 28 23:13:24 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use charset name "iso-8859-1" in lower case
