@@ -68,8 +68,8 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/Makefile.mk
 	languages/generate-allsnowballheaders $(snowball_built_sources)
 
-languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk
-	$(PERL) '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
+languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
 
 BUILT_SOURCES += $(snowball_built_sources)\
 	languages/allsnowballheaders.h\

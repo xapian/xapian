@@ -47,7 +47,8 @@ EXTRA_DIST +=\
 	common/dir_contents\
 	common/win32_uuid.cc\
 	common/win32_uuid.h\
-	common/Makefile
+	common/Makefile\
+	common/Tokeniseise.pm
 
 lib_src +=\
 	common/bitstream.cc\

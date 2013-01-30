@@ -1,3 +1,10 @@
+Wed Jan 30 04:17:07 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/Tokeniseise.pm,languages/Makefile.mk,
+	  languages/collate-sbl: Factor out the generic code to create a
+	  string-to-enum mapping table into a perl module so we can reuse
+	  it elsewhere.
+
 Mon Jan 28 01:44:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Fix to build with Sun Studio 12 compiler.
