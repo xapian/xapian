@@ -14,11 +14,15 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = . docs
 
-BUILT_SOURCES = extra/omegascript.vim
+my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < myhtmlparse.tokens
+
+BUILT_SOURCES = extra/omegascript.vim my-html-tok.h
 
 EXTRA_DIST =\
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
+	gen-myhtmltags \
 	gen-omegascript-vim \
 	templates/query \
 	templates/topterms \
@@ -143,7 +147,7 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
- opendocparse.cc
+ opendocparse.cc common/keyword.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
@@ -151,15 +155,16 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc
+ common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc\
+ common/keyword.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
- myhtmlparse.cc utf8convert.cc
+ myhtmlparse.cc utf8convert.cc common/keyword.cc
 atomparsetest_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc
+ utf8convert.cc common/keyword.cc
 htmlparsetest_LDADD = $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc

@@ -23,6 +23,8 @@
 
 #include "myhtmlparse.h"
 
+#include "keyword.h"
+#include "my-html-tok.h"
 #include "utf8convert.h"
 
 #include <cctype>
@@ -71,45 +73,31 @@ MyHtmlParser::process_text(const string &text)
 bool
 MyHtmlParser::opening_tag(const string &tag)
 {
-    if (tag.empty()) return true;
-    switch (tag[0]) {
-	case 'a':
-	    if (tag == "address") pending_space = true;
+    int k = keyword(tab, tag.data(), tag.size());
+    if (k < 0)
+	return true;
+    switch ((html_tag)k) {
+	case ADDRESS:
+	case BLOCKQUOTE: case BR:
+	case CENTER:
+	case DD: case DIR: case DIV: case DL: case DT:
+	case EMBED:
+	case FIELDSET: case FORM:
+	case H1: case H2: case H3: case H4: case H5: case H6: case HR:
+	case IFRAME: case IMG: case ISINDEX: case INPUT:
+	case KEYGEN:
+	case LEGEND: case LI: case LISTING:
+	case MARQUEE: case MENU: case MULTICOL:
+	case OL: case OPTION:
+	case P: case PRE: case PLAINTEXT:
+	case Q:
+	case SELECT:
+	case TABLE: case TD: case TEXTAREA: case TH:
+	case UL:
+	case XMP:
+	    pending_space = true;
 	    break;
-	case 'b':
-	    if (tag == "blockquote" || tag == "br") pending_space = true;
-	    break;
-	case 'c':
-	    if (tag == "center") pending_space = true;
-	    break;
-	case 'd':
-	    if (tag == "dd" || tag == "dir" || tag == "div" || tag == "dl" ||
-		tag == "dt") pending_space = true;
-	    break;
-	case 'e':
-	    if (tag == "embed") pending_space = true;
-	    break;
-	case 'f':
-	    if (tag == "fieldset" || tag == "form") pending_space = true;
-	    break;
-	case 'h':
-	    // hr, and h1, ..., h6
-	    if (tag.length() == 2 && strchr("r123456", tag[1]))
-		pending_space = true;
-	    break;
-	case 'i':
-	    if (tag == "iframe" || tag == "img" || tag == "isindex" ||
-		tag == "input") pending_space = true;
-	    break;
-	case 'k':
-	    if (tag == "keygen") pending_space = true;
-	    break;
-	case 'l':
-	    if (tag == "legend" || tag == "li" || tag == "listing")
-		pending_space = true;
-	    break;
-	case 'm':
-	    if (tag == "meta") {
+	case META: {
 		string content;
 		if (get_parameter("content", content)) {
 		    string name;
@@ -192,43 +180,15 @@ MyHtmlParser::opening_tag(const string &tag)
 		}
 		break;
 	    }
-	    if (tag == "marquee" || tag == "menu" || tag == "multicol")
-		pending_space = true;
+	case STYLE:
+	    in_style_tag = true;
 	    break;
-	case 'o':
-	    if (tag == "ol" || tag == "option") pending_space = true;
+	case SCRIPT:
+	    in_script_tag = true;
 	    break;
-	case 'p':
-	    if (tag == "p" || tag == "pre" || tag == "plaintext")
-		pending_space = true;
-	    break;
-	case 'q':
-	    if (tag == "q") pending_space = true;
-	    break;
-	case 's':
-	    if (tag == "style") {
-		in_style_tag = true;
-		break;
-	    }
-	    if (tag == "script") {
-		in_script_tag = true;
-		break;
-	    }
-	    if (tag == "select") pending_space = true;
-	    break;
-	case 't':
-	    if (tag == "table" || tag == "td" || tag == "textarea" ||
-		tag == "th") pending_space = true;
-	    else if (tag == "title") {
-		target = &title;
-		pending_space = false;
-	    }
-	    break;
-	case 'u':
-	    if (tag == "ul") pending_space = true;
-	    break;
-	case 'x':
-	    if (tag == "xmp") pending_space = true;
+	case TITLE:
+	    target = &title;
+	    pending_space = false;
 	    break;
     }
     return true;
@@ -237,73 +197,47 @@ MyHtmlParser::opening_tag(const string &tag)
 bool
 MyHtmlParser::closing_tag(const string &tag)
 {
-    if (tag.empty()) return true;
-    switch (tag[0]) {
-	case 'a':
-	    if (tag == "address") pending_space = true;
+    int k = keyword(tab, tag.data(), tag.size());
+    if (k < 0)
+	return true;
+    switch ((html_tag)k) {
+	case ADDRESS:
+	case BLOCKQUOTE: case BR:
+	case CENTER:
+	case DD: case DIR: case DIV: case DL: case DT:
+	case FIELDSET: case FORM:
+	case H1: case H2: case H3: case H4: case H5: case H6: case HR:
+	case IFRAME:
+	case LEGEND: case LI: case LISTING:
+	case MARQUEE: case MENU:
+	case OL: case OPTION:
+	case P: case PRE:
+	case Q:
+	case SELECT:
+	case TABLE: case TD: case TEXTAREA: case TH:
+	case UL:
+	case XMP:
+	    pending_space = true;
 	    break;
-	case 'b':
-	    if (tag == "blockquote" || tag == "br") pending_space = true;
+	case STYLE:
+	    in_style_tag = false;
 	    break;
-	case 'c':
-	    if (tag == "center") pending_space = true;
+	case SCRIPT:
+	    in_script_tag = false;
 	    break;
-	case 'd':
-	    if (tag == "dd" || tag == "dir" || tag == "div" || tag == "dl" ||
-		tag == "dt") pending_space = true;
+	case TITLE:
+	    target = &dump;
+	    pending_space = false;
 	    break;
-	case 'f':
-	    if (tag == "fieldset" || tag == "form") pending_space = true;
-	    break;
-	case 'h':
-	    // hr, and h1, ..., h6
-	    if (tag.length() == 2 && strchr("r123456", tag[1]))
-		pending_space = true;
-	    break;
-	case 'i':
-	    if (tag == "iframe") pending_space = true;
-	    break;
-	case 'l':
-	    if (tag == "legend" || tag == "li" || tag == "listing")
-		pending_space = true;
-	    break;
-	case 'm':
-	    if (tag == "marquee" || tag == "menu") pending_space = true;
-	    break;
-	case 'o':
-	    if (tag == "ol" || tag == "option") pending_space = true;
-	    break;
-	case 'p':
-	    if (tag == "p" || tag == "pre") pending_space = true;
-	    break;
-	case 'q':
-	    if (tag == "q") pending_space = true;
-	    break;
-	case 's':
-	    if (tag == "style") {
-		in_style_tag = false;
-		break;
-	    }
-	    if (tag == "script") {
-		in_script_tag = false;
-		break;
-	    }
-	    if (tag == "select") pending_space = true;
-	    break;
-	case 't':
-	    if (tag == "table" || tag == "td" || tag == "textarea" ||
-		tag == "th") pending_space = true;
-	    else if (tag == "title") {
-		target = &dump;
-		pending_space = false;
-		break;
-	    }
-	    break;
-	case 'u':
-	    if (tag == "ul") pending_space = true;
-	    break;
-	case 'x':
-	    if (tag == "xmp") pending_space = true;
+	case EMBED:
+	case IMG:
+	case INPUT:
+	case ISINDEX:
+	case KEYGEN:
+	case META:
+	case MULTICOL:
+	case PLAINTEXT:
+	    /* No action */
 	    break;
     }
     return true;

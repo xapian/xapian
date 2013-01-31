@@ -1,3 +1,13 @@
+Thu Jan 31 06:24:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,gen-myhtmltags,myhtmlparse.cc,myhtmlparse.tokens: Use
+	  a generated compact and efficient table to convert HTML tag names
+	  to enum codes, which we can then use a C switch statement to
+	  dispatch.  The table first checks the token length, and then does a
+	  binary chop on tokens of the same length.  This is both faster and
+	  smaller than the approach we were using, with the benefit that the
+	  table is auto-generated.
+
 Thu Jan 31 06:21:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
