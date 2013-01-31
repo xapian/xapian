@@ -1,3 +1,9 @@
+Thu Jan 31 23:39:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/Tokeniseise.pm: Put the binary chop tables with the larger
+	  ones last, so the offsets to the start of them are more likely to
+	  fit into a byte.
+
 Wed Jan 30 04:17:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/Tokeniseise.pm,languages/Makefile.mk,

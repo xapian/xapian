@@ -68,8 +68,17 @@ sub write {
     if (scalar keys %{$self->{ENUM_VALUES}} > $max + 1) {
 	die "Token value ", (scalar keys %{$self->{ENUM_VALUES}}) - 1, " > $max";
     }
-    my @lens = sort {$a <=> $b} keys %{$self->{M}};
+    my $m = $self->{M};
+    my @lens = sort {$a <=> $b} keys %$m;
     my $max_len = $lens[-1];
+    sub space_needed {
+	my ($l, $m) = @_;
+	# Add a fraction of the length to give a deterministic order.
+	return 1 + (1 + $l) * scalar(keys %{$m->{$l}}) + $l / 1000.0;
+    }
+    # Put the largest entries last so the offsets are more likely to fit into a
+    # byte.
+    @lens = sort {space_needed($a, $m) <=> space_needed($b, $m)} @lens;
     # 1 means "no entries" since it can't be a valid offset.
     my @h = (1) x $max_len;
     my @r = ();
@@ -79,7 +88,7 @@ sub write {
 	$offset == 1 and die "Offset $offset == 1";
 	$offset > $max and die "Offset $offset > $max";
 	$h[$len - 1] = $offset;
-	my $href = $self->{M}{$len};
+	my $href = $m->{$len};
 	my $tab_len = scalar(keys %$href);
 	$tab_len - 1 < 0 and die "Offset $tab_len < 0";
 	$tab_len - 1 > $max and die "Offset $tab_len > $max";
