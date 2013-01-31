@@ -1,56 +1,33 @@
- 16988       olly Fri Jan 04 02:21:05 GMT 2013  Olly Betts <olly@survex.com>
+ 17028       olly Wed Jan 09 11:53:19 GMT 2013  Olly Betts <olly@survex.com>
 
-trunk only:
-
- 16988       olly Fri Jan 04 02:21:05 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am,docs/omegascript.rst,omindex.cc,query.cc,sample.cc,
-	  sample.h: Add $truncate command to break a string after a word.
-
- 16952       olly Tue Dec 18 04:49:41 GMT 2012  Olly Betts <olly@survex.com>
-	* omindex.cc: Fix typo in previous change (2>dev/null should be
-	  2>/dev/null).
- 16950       olly Tue Dec 18 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
-	* docs/overview.rst,omindex.cc: Extend --filter to allow commands which
-	  produce HTML on stdout to be specified with it.
-
- 16947       olly Sun Dec 16 21:25:28 GMT 2012  Olly Betts <olly@survex.com>
-	* diritor.cc: If libmagic hits ENOENT trying to classify a file, throw
-	  FileNotFound so we quietly skip the file in non-verbose mode.
- 16943       olly Fri Dec 14 04:45:12 GMT 2012  Olly Betts <olly@survex.com>
-	* omindex.cc: If md5_file() fails with ENOENT, assume the file was
-	  removed during indexing and only report this with --verbose as we
-	  do in other such cases.
- 16940       olly Fri Dec 14 04:24:17 GMT 2012  Olly Betts <olly@survex.com>
-	* configure.ac,diritor.cc,diritor.h,loadfile.cc,loadfile.h,omindex.cc:
-	  If we open a file to index it, keep the fd around and use it with
-	  libmagic, provided magic_descriptor() is available.
- 16939       olly Tue Dec 11 03:35:29 GMT 2012  Olly Betts <olly@survex.com>
-	* diritor.cc,diritor.h,omindex.cc: If we get ENOENT for a file or
-	  directory we're trying to index, assume it has been removed between
-	  us reading the directory entry for it and trying to open it, and
-	  only report the failure to index under --verbose.
- 16819    dcolish Thu Aug 09 20:07:59 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* Makefile.am,configure.ac: Allow users to configure with
-	MAGIC_PREFIX for non-standard installs of libmagic
-
- 16676       olly Sat Jun 02 12:23:21 GMT 2012  Olly Betts <olly@survex.com>
-	* INSTALL,Makefile.am,cgiparam.cc,configfile.cc,configure.ac,
-	  htmlparse.cc,omindex.cc,query.cc: Change `...' quoting in prose to
-	  '...'.
-
-Omega 1.3.1 (2013-01-08):
+Omega 1.3.1 (2013-01-16):
 
 general:
 
 documentation:
 
+* Change `...' quoting in prose to '...'.
+
 indexers:
 
 * omindex:
 
+  + Extend --filter to handle commands which produce HTML on stdout.
+
+  + Don't report an error if a file is deleted (or renamed) between us reading
+    the directory entry for it and trying to read the file itself by default.
+    In --verbose mode, the situation is still reported, but now with a
+    specific message.
+
+  + Use magic_descriptor() if the version of libmagic we're building against
+    is new enough to have it.  This eliminates an extra opening of a file
+    being indexed in certain cases.
+
 * scriptindex:
 
 omega:
+
+* Add $truncate command which truncates a string after a word.
 
 templates:
 
@@ -58,11 +35,13 @@ testsuite:
 
 build system:
 
+* configure: Now looks for libmagic in MAGIC_PREFIX, to allow building with
+  libmagic installed in a non-standard location.
+
 portability:
 
- 16536       olly Tue May 08 11:32:48 GMT 2012  Olly Betts <olly@survex.com>
-	* tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported
-	  by Gaurav Arora).
+* tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported by
+  Gaurav Arora).
 
 packaging:
 
