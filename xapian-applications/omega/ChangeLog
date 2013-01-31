@@ -1,3 +1,8 @@
+Thu Jan 31 23:42:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc,myhtmlparse.tokens: Add <APPLET>, <OBJECT>, and
+	  <TR> to the tags handled.
+
 Thu Jan 31 06:24:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,gen-myhtmltags,myhtmlparse.cc,myhtmlparse.tokens: Use

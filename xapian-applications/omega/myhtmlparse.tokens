@@ -1,4 +1,5 @@
 address
+applet
 blockquote
 br
 center
@@ -29,6 +30,7 @@ marquee
 menu
 meta
 multicol
+object
 ol
 option
 p
@@ -43,5 +45,6 @@ td
 textarea
 th
 title
+tr
 ul
 xmp

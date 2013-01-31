@@ -78,21 +78,22 @@ MyHtmlParser::opening_tag(const string &tag)
 	return true;
     switch ((html_tag)k) {
 	case ADDRESS:
+	case APPLET:
 	case BLOCKQUOTE: case BR:
 	case CENTER:
 	case DD: case DIR: case DIV: case DL: case DT:
 	case EMBED:
 	case FIELDSET: case FORM:
 	case H1: case H2: case H3: case H4: case H5: case H6: case HR:
-	case IFRAME: case IMG: case ISINDEX: case INPUT:
+	case IFRAME: case IMG: case INPUT: case ISINDEX:
 	case KEYGEN:
 	case LEGEND: case LI: case LISTING:
 	case MARQUEE: case MENU: case MULTICOL:
-	case OL: case OPTION:
-	case P: case PRE: case PLAINTEXT:
+	case OBJECT: case OL: case OPTION:
+	case P: case PLAINTEXT: case PRE:
 	case Q:
 	case SELECT:
-	case TABLE: case TD: case TEXTAREA: case TH:
+	case TABLE: case TD: case TEXTAREA: case TH: case TR:
 	case UL:
 	case XMP:
 	    pending_space = true;
@@ -201,7 +202,7 @@ MyHtmlParser::closing_tag(const string &tag)
     if (k < 0)
 	return true;
     switch ((html_tag)k) {
-	case ADDRESS:
+	case ADDRESS: case APPLET:
 	case BLOCKQUOTE: case BR:
 	case CENTER:
 	case DD: case DIR: case DIV: case DL: case DT:
@@ -210,11 +211,11 @@ MyHtmlParser::closing_tag(const string &tag)
 	case IFRAME:
 	case LEGEND: case LI: case LISTING:
 	case MARQUEE: case MENU:
-	case OL: case OPTION:
+	case OBJECT: case OL: case OPTION:
 	case P: case PRE:
 	case Q:
 	case SELECT:
-	case TABLE: case TD: case TEXTAREA: case TH:
+	case TABLE: case TD: case TEXTAREA: case TH: case TR:
 	case UL:
 	case XMP:
 	    pending_space = true;
