@@ -24,6 +24,7 @@ EXTRA_DIST =\
 	extra/omegascript.vim.in \
 	gen-myhtmltags \
 	gen-omegascript-vim \
+	myhtmlparse.tokens \
 	templates/query \
 	templates/topterms \
 	templates/opensearch \

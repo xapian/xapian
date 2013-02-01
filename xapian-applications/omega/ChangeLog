@@ -1,3 +1,7 @@
+Fri Feb 01 04:11:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Ship new file myhtmlparse.tokens.
+
 Thu Jan 31 23:42:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc,myhtmlparse.tokens: Add <APPLET>, <OBJECT>, and
