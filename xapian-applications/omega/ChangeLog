@@ -1,3 +1,7 @@
+Tue Feb 12 00:44:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix to work in VPATH build.
+
 Mon Feb 11 22:38:16 GMT 2013  Olly Betts <olly@survex.com>
 
 	* xlsxparse.cc: Correct "max" -> "min" when reserving space for shared

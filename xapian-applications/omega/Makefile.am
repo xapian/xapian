@@ -15,7 +15,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = . docs
 
 my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
-	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < myhtmlparse.tokens
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < '$(srcdir)/myhtmlparse.tokens'
 
 BUILT_SOURCES = extra/omegascript.vim my-html-tok.h
 
