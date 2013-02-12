@@ -1,3 +1,7 @@
+Tue Feb 12 19:27:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Ship common/Tokeniseise.pm.
+
 Tue Feb 12 00:44:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fix to work in VPATH build.
