@@ -111,6 +111,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
 noinst_HEADERS +=\
 	common/append_filename_arg.h\
 	common/gnu_getopt.h\
+	common/keyword.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
