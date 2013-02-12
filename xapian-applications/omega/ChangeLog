@@ -1,3 +1,9 @@
+Tue Feb 12 20:43:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Remove my-html-tok.h in "make clean" not "make
+	  distclean", since it's built by "make" and that's what the automake
+	  manual recommends for files built by "make".
+
 Tue Feb 12 20:41:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Clean up my-html-tok.h in "make distclean".

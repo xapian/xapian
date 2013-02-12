@@ -19,7 +19,7 @@ my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.toke
 
 BUILT_SOURCES = extra/omegascript.vim my-html-tok.h
 
-DISTCLEANFILES = my-html-tok.h
+CLEANFILES = my-html-tok.h
 
 EXTRA_DIST =\
 	common/Tokeniseise.pm \
