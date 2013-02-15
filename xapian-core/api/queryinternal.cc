@@ -49,6 +49,7 @@
 #include "str.h"
 
 #include <algorithm>
+#include <functional>
 #include <list>
 #include <string>
 #include <vector>

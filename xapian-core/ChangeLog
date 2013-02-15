@@ -1,3 +1,7 @@
+Fri Feb 15 04:09:28 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc: Need <functional> for mem_fun().
+
 Fri Feb 15 03:56:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Don't provide explicit template types to
