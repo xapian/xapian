@@ -42,6 +42,7 @@
 #include "valuerangepostlist.h"
 
 #include <algorithm>
+#include <functional>
 #include <list>
 #include <string>
 #include <vector>

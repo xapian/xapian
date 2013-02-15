@@ -1,3 +1,7 @@
+Fri Feb 15 07:33:47 GMT 2013  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Need <functional> for mem_fun().
+
 Fri Feb 15 07:31:21 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
