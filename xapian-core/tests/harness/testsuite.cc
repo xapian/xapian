@@ -708,7 +708,7 @@ test_driver::report(const test_driver::result &r, const string &desc)
 void
 test_driver::add_command_line_option(const string &l, char s, string * arg)
 {
-    short_opts.insert(make_pair<int, string *>(int(s), arg));
+    short_opts.insert(make_pair(int(s), arg));
     opt_help += "[-";
     opt_help += s;
     opt_help += ' ';

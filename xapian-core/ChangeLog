@@ -1,3 +1,9 @@
+Fri Feb 15 03:56:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Don't provide explicit template types to
+	  make_pair - it isn't useful, and breaks with C++11.  Fixes build
+	  error with MSVC2012.
+
 Thu Jan 31 23:39:08 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/Tokeniseise.pm: Put the binary chop tables with the larger
