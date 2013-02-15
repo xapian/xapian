@@ -1,3 +1,10 @@
+Fri Feb 15 07:31:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: Don't provide explicit template types to
+	  make_pair - it isn't useful, and breaks with C++11.  Fixes build
+	  error with MSVC2012.
+
 Mon Jan 28 01:51:01 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
