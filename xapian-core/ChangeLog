@@ -1,3 +1,14 @@
+Fri Feb 15 07:36:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/realtime.h: Fix RealTime::sleep() to calculate the delta to
+	  the time we want to sleep to the right way round.  Previously we
+	  wouldn't sleep if we were before the deadline, but would sleep if
+	  the deadline had already passed (and by the amount the deadline had
+	  passed)!  And on Windows, fix the sleep to be for the delta rather
+	  than 43+ years (the time elapsed since the start of 1970).  (Fixes
+	  #472)
+
 Fri Feb 15 07:33:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Need <functional> for mem_fun().
