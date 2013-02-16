@@ -1,7 +1,7 @@
 /** @file xslxparse.cc
  * @brief Extract fields from XLSX sheet*.xml.
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +50,10 @@ XlsxParser::opening_tag(const string &tag)
 	string unique_count;
 	if (get_parameter("uniquecount", unique_count)) {
 	    unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
-	    // This reserving is just a performance tweak, so don't go reserving
-	    // ludicrous amounts of space just because an XML attribute told us to.
-	    sst.reserve(std::max(c, 1000000ul));
+	    // This reserving is just a performance tweak, so don't go
+	    // reserving ludicrous amounts of space just because an XML
+	    // attribute told us to.
+	    sst.reserve(std::min(c, 1000000ul));
 	}
     }
     return true;

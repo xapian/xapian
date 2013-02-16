@@ -1,3 +1,10 @@
+Sat Feb 16 08:20:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xlsxparse.cc: Correct "max" -> "min" when reserving space for shared
+	  strings.  This only means we now reserve a more appropriate amount
+	  of space to start with.
+
 Wed Jan 09 11:15:03 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.13.
