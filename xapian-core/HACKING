@@ -425,7 +425,7 @@ Please tell us if you find that newer versions of any of these tools work or
 fail to work.
 
 There is a good GNU autotools tutorial at
-<http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
+<http://www.lrde.epita.fr/~adl/autotools.html>.
 
 Building from SVN on Windows with MSVC
 --------------------------------------
