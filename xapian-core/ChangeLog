@@ -1,3 +1,11 @@
+Sat Feb 16 08:14:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/selectpostlist.cc,matcher/selectpostlist.h: Check document
+	  matches weight threshold before checking positional information,
+	  which speeds up slow phrase searches (tweaked version of
+	  positional-query-weight-check-first.patch from #394).
+
 Sat Feb 16 02:30:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
