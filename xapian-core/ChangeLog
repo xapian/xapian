@@ -1,3 +1,10 @@
+Sat Feb 16 02:30:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_stem.cc: Extend stem2 to ensure description of the stemmer
+	  isn't the same as the description of Stem("none").  Fix description
+	  of testcase stemlangs2.
+
 Sat Feb 16 02:15:30 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
