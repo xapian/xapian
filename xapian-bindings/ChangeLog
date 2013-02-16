@@ -1,3 +1,7 @@
+Sat Feb 16 02:08:29 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Allow TCL_INC to be passed to configure.  (fixes #612)
+
 Wed Jan 23 00:07:52 GMT 2013  Olly Betts <olly@survex.com>
 
 	* perl/t/10query.t: Perl 5.16.1 adds a '.' after "at foo line 123" so
