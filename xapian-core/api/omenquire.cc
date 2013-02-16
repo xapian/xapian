@@ -395,12 +395,20 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     if (index < firstitem || index >= firstitem + items.size()) {
 	throw RangeError("The mset returned from the match does not contain the document at index " + str(index));
     }
-    fetch_items(index, index); // FIXME: this checks indexeddocs AGAIN!
-    /* Actually read the fetched documents */
-    read_docs();
-    Assert(indexeddocs.find(index) != indexeddocs.end());
-    Assert(indexeddocs.find(index)->first == index); // Paranoid assert
-    RETURN(indexeddocs.find(index)->second);
+    Assert(enquire.get());
+    if (!requested_docs.empty()) {
+	// There's already a pending request, so handle that.
+	read_docs();
+	// Maybe we just fetched the doc we want.
+	doc = indexeddocs.find(index);
+	if (doc != indexeddocs.end()) {
+	    RETURN(doc->second);
+	}
+    }
+
+    // Don't cache unless fetch() was called by the API user.
+    enquire->request_doc(items[index - firstitem]);
+    RETURN(enquire->read_doc(items[index - firstitem]));
 }
 
 void
