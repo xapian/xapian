@@ -437,31 +437,34 @@ if test no != "$with_tcl" ; then
       fi
       AC_SUBST(TCL_LIB)
 
-      dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
-      dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
-      dnl the path on TCLSH (or default to /usr if the path doesn't contain
-      dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
-      tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
-      test -n "$tcl_prefix" || tcl_prefix=/usr
-      TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+      AC_ARG_VAR([TCL_INC], [Directory to include for Tcl headers])
+      if test -z "$TCL_INC" ; then
+	dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
+	dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
+	dnl the path on TCLSH (or default to /usr if the path doesn't contain
+	dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
+	tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
+	test -n "$tcl_prefix" || tcl_prefix=/usr
+	TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+	test -f "$TCL_INC/tcl.h" || TCL_INC=/usr/include
+      fi
 
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=
       AC_MSG_CHECKING([for tcl.h for version $tcl_version])
       if test -f "$TCL_INC/tcl.h" ; then
-	AC_MSG_RESULT([$TCL_INC/tcl.h])
-	BINDINGS="$BINDINGS tcl8"
-	TCL_CPPFLAGS="-I$TCL_INC"
-      elif test -f "/usr/include/tcl.h" ; then
-	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h`
-	if test x"$tcl_hdr_version" = x'"'"$tcl_version"'"' ; then
-	  AC_MSG_RESULT([/usr/include/tcl.h])
+	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
+	if test x"$tcl_hdr_version" = x"$tcl_version" ; then
+	  AC_MSG_RESULT([$TCL_INC/tcl.h])
 	  BINDINGS="$BINDINGS tcl8"
+	  if test x"$TCL_INC" != x"/usr/include" ; then
+	    TCL_CPPFLAGS="-I$TCL_INC"
+	  fi
 	else
 	  AC_MSG_RESULT([not found])
 	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Can't find tcl.h for version $tcl_version])
+	    AC_MSG_ERROR([Found tcl.h for version $tcl_hdr_version, not $tcl_version])
 	  fi
 	fi
       else

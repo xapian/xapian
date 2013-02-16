@@ -1,3 +1,8 @@
+Sat Feb 16 08:30:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Allow TCL_INC to be passed to configure.  (fixes #612)
+
 Wed Jan 09 11:16:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.13.
