@@ -1,3 +1,9 @@
+Tue Feb 19 03:13:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.h: Sample from HTML now
+	  contains \n where a line or paragraph break would appear, and \t
+	  between table cells.
+
 Tue Feb 19 03:02:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* gen-myhtmltags,htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.tokens:

@@ -32,6 +32,8 @@
 
 using namespace std;
 
+static const char whitespace[] = "_ \t\n\n";
+
 inline void
 lowercase_string(string &str)
 {
@@ -54,17 +56,18 @@ MyHtmlParser::process_text(const string &text)
 {
     if (!text.empty() && !in_script_tag && !in_style_tag) {
 	string::size_type b = text.find_first_not_of(WHITESPACE);
-	if (b) pending_space = true;
+	if (b && !pending_space) pending_space = SPACE;
 	while (b != string::npos) {
 	    if (pending_space && !target->empty())
-		*target += ' ';
+		*target += whitespace[pending_space];
 	    string::size_type e = text.find_first_of(WHITESPACE, b);
-	    pending_space = (e != string::npos);
-	    if (!pending_space) {
+	    if (e == string::npos) {
 		target->append(text.data() + b, text.size() - b);
+		pending_space = 0;
 		return;
 	    }
 	    target->append(text.data() + b, e - b);
+	    pending_space = SPACE;
 	    b = text.find_first_not_of(WHITESPACE, e + 1);
 	}
     }
@@ -76,7 +79,7 @@ MyHtmlParser::opening_tag(const string &tag)
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0)
 	return true;
-    pending_space |= ((token_space[k] & TOKEN_SPACE_MASK) != 0);
+    pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
     switch ((html_tag)k) {
 	case META: {
 		string content;
@@ -169,7 +172,7 @@ MyHtmlParser::opening_tag(const string &tag)
 	    break;
 	case TITLE:
 	    target = &title;
-	    pending_space = false;
+	    pending_space = 0;
 	    break;
 	default:
 	    /* No action */
@@ -184,7 +187,7 @@ MyHtmlParser::closing_tag(const string &tag)
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0 || (token_space[k] & NOCLOSE))
 	return true;
-    pending_space |= ((token_space[k] & TOKEN_SPACE_MASK) != 0);
+    pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
     switch ((html_tag)k) {
 	case STYLE:
 	    in_style_tag = false;
@@ -194,7 +197,7 @@ MyHtmlParser::closing_tag(const string &tag)
 	    break;
 	case TITLE:
 	    target = &dump;
-	    pending_space = false;
+	    pending_space = 0;
 	    break;
 	default:
 	    /* No action */
