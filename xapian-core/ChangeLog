@@ -1,3 +1,8 @@
+Tue Feb 19 04:17:19 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/Tokeniseise.pm: Add the ability to append lines to the
+	  header.
+
 Fri Feb 15 05:37:09 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/realtime.h: Fix RealTime::sleep() to calculate the delta to

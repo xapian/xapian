@@ -58,6 +58,12 @@ sub add {
     return;
 }
 
+sub append {
+    my ($self, $line) = @_;
+    push @{$self->{APPEND}}, $line;
+    return;
+}
+
 sub write {
     my $self = shift;
     my $fh = $self->{FH};
@@ -124,6 +130,14 @@ sub write {
 
     print $fh <<'EOF';
 };
+EOF
+    if (exists $self->{APPEND}) {
+	print $fh "\n";
+	for (@{$self->{APPEND}}) {
+	    print $fh $_, "\n";
+	}
+    }
+    print $fh <<'EOF';
 
 #endif
 EOF
