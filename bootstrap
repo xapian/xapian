@@ -223,7 +223,7 @@ END
     #svn:externals revision for xapian-applications/omega/common
     # Note: this needs to be the exact revision of the previous change!
     args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-applications/omega`
-    test -n "$args" || args='common -r17058 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
+    test -n "$args" || args='common -r17084 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
     handle_svn_external xapian-applications/omega/$args
 
     args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-letor`
