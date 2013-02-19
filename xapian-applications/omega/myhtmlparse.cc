@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,28 +76,8 @@ MyHtmlParser::opening_tag(const string &tag)
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0)
 	return true;
+    pending_space |= ((token_space[k] & TOKEN_SPACE_MASK) != 0);
     switch ((html_tag)k) {
-	case ADDRESS:
-	case APPLET:
-	case BLOCKQUOTE: case BR:
-	case CENTER:
-	case DD: case DIR: case DIV: case DL: case DT:
-	case EMBED:
-	case FIELDSET: case FORM:
-	case H1: case H2: case H3: case H4: case H5: case H6: case HR:
-	case IFRAME: case IMG: case INPUT: case ISINDEX:
-	case KEYGEN:
-	case LEGEND: case LI: case LISTING:
-	case MARQUEE: case MENU: case MULTICOL:
-	case OBJECT: case OL: case OPTION:
-	case P: case PLAINTEXT: case PRE:
-	case Q:
-	case SELECT:
-	case TABLE: case TD: case TEXTAREA: case TH: case TR:
-	case UL:
-	case XMP:
-	    pending_space = true;
-	    break;
 	case META: {
 		string content;
 		if (get_parameter("content", content)) {
@@ -191,6 +171,9 @@ MyHtmlParser::opening_tag(const string &tag)
 	    target = &title;
 	    pending_space = false;
 	    break;
+	default:
+	    /* No action */
+	    break;
     }
     return true;
 }
@@ -199,27 +182,10 @@ bool
 MyHtmlParser::closing_tag(const string &tag)
 {
     int k = keyword(tab, tag.data(), tag.size());
-    if (k < 0)
+    if (k < 0 || (token_space[k] & NOCLOSE))
 	return true;
+    pending_space |= ((token_space[k] & TOKEN_SPACE_MASK) != 0);
     switch ((html_tag)k) {
-	case ADDRESS: case APPLET:
-	case BLOCKQUOTE: case BR:
-	case CENTER:
-	case DD: case DIR: case DIV: case DL: case DT:
-	case FIELDSET: case FORM:
-	case H1: case H2: case H3: case H4: case H5: case H6: case HR:
-	case IFRAME:
-	case LEGEND: case LI: case LISTING:
-	case MARQUEE: case MENU:
-	case OBJECT: case OL: case OPTION:
-	case P: case PRE:
-	case Q:
-	case SELECT:
-	case TABLE: case TD: case TEXTAREA: case TH: case TR:
-	case UL:
-	case XMP:
-	    pending_space = true;
-	    break;
 	case STYLE:
 	    in_style_tag = false;
 	    break;
@@ -230,14 +196,7 @@ MyHtmlParser::closing_tag(const string &tag)
 	    target = &dump;
 	    pending_space = false;
 	    break;
-	case EMBED:
-	case IMG:
-	case INPUT:
-	case ISINDEX:
-	case KEYGEN:
-	case META:
-	case MULTICOL:
-	case PLAINTEXT:
+	default:
 	    /* No action */
 	    break;
     }

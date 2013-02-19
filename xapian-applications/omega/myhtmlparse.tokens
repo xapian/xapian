@@ -1,50 +1,50 @@
-address
-applet
-blockquote
-br
-center
-dd
-dir
-div
-dl
-dt
-embed
-fieldset
-form
-h1
-h2
-h3
-h4
-h5
-h6
-hr
-iframe
-img
-input
-isindex
-keygen
-legend
-li
-listing
-marquee
-menu
-meta
-multicol
-object
-ol
-option
-p
-plaintext
-pre
-q
+address		BLOCK
+applet		SPACE NOCLOSE
+blockquote	BLOCK
+br		BREAK NOCLOSE
+center		BLOCK
+dd		BLOCK
+dir		BLOCK
+div		BLOCK
+dl		BLOCK
+dt		BLOCK
+embed		SPACE NOCLOSE
+fieldset	BLOCK
+form		BLOCK
+h1		BLOCK
+h2		BLOCK
+h3		BLOCK
+h4		BLOCK
+h5		BLOCK
+h6		BLOCK
+hr		BLOCK
+iframe		BLOCK
+img		SPACE NOCLOSE
+input		SPACE NOCLOSE
+isindex		BLOCK NOCLOSE
+keygen		SPACE NOCLOSE
+legend		BLOCK
+li		BLOCK
+listing		BLOCK
+marquee		BLOCK
+menu		BLOCK
+meta		0 NOCLOSE
+multicol	BLOCK
+object		SPACE NOCLOSE
+ol		BLOCK
+option		BLOCK
+p		BLOCK
+plaintext	BLOCK
+pre		BLOCK
+q		SPACE
 script
-select
+select		BLOCK
 style
-table
-td
-textarea
-th
+table		BLOCK
+td		COLUMN
+textarea	BLOCK
+th		COLUMN
 title
-tr
-ul
-xmp
+tr		BLOCK
+ul		BLOCK
+xmp		SPACE

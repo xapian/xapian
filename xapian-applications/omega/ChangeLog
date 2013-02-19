@@ -1,3 +1,9 @@
+Tue Feb 19 03:02:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* gen-myhtmltags,htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.tokens:
+	  Generate a lookup table for where we should insert a space in place
+	  of an HTML tag rather than using a switch statement for that.
+
 Tue Feb 12 20:43:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Remove my-html-tok.h in "make clean" not "make

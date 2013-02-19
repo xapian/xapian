@@ -29,10 +29,26 @@ use Tokeniseise;
 my $srcdir = shift @ARGV;
 
 my $hdr = Tokeniseise->new('my-html-tok.h', 'Map string to html tag code', $copyright, 'XAPIAN_INCLUDED_MY_HTML_TOK_H', 'html_tag');
+my @space = ();
+$hdr->append('enum { SPACE = 1, COLUMN = 2, BREAK = 3, BLOCK = 4, NOCLOSE = 8, TOKEN_SPACE_MASK = 7 };');
+$hdr->append('');
+$hdr->append('static const unsigned char token_space[] = {');
 while (<STDIN>) {
-    chomp;
-    my $enum = uc $_;
-    $hdr->add($_, $enum);
+    my @f = split /\s+/;
+    my $enum = uc $f[0];
+    $hdr->add($f[0], $enum);
+    my $space = 0;
+    if (exists $f[1]) {
+	$space = $f[1];
+	if (exists $f[2]) {
+	    if ($f[2] ne 'NOCLOSE') {
+		die "Expected 'NOCLOSE', got '$f[2]'";
+	    }
+	    $space .= ' | NOCLOSE';
+	}
+    }
+    $hdr->append("    $space,");
 }
+$hdr->append('};');
 
 $hdr->write();
