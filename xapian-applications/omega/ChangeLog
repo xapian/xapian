@@ -1,3 +1,7 @@
+Tue Feb 19 04:19:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Tue Feb 19 03:13:08 GMT 2013  Olly Betts <olly@survex.com>
 
 	* htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.h: Sample from HTML now
