@@ -1,3 +1,7 @@
+Thu Feb 21 22:09:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Ignore .com files by default.
+
 Tue Feb 19 04:19:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

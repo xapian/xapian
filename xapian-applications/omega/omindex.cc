@@ -1222,6 +1222,7 @@ main(int argc, char **argv)
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";
     mime_map["bin"] = "ignore";
+    mime_map["com"] = "ignore";
     mime_map["css"] = "ignore";
     mime_map["dat"] = "ignore";
     mime_map["db"] = "ignore";
