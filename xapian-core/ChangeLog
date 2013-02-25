@@ -1,17 +1,10 @@
-Sun Jan 27 05:30 PM GMT 2012 Aarsh Shah <aarshkshah1992@gmail.com>
-	
-	*languages/ Created files paicehusk.h and paicehusk.cc for the
-	 paicehusk stemmer and modified stem.cc to incorporate it.However
-	 I've  commented out the inclusion in stem.cc as I've yet
-	 to figure out how to modify languages/sbl-dispatch.h and
-	 languages/makefile.mk.
+Sun Feb 24 4:06 pm GMT 2013 Aarsh Shah <aarshkshah1992@gmail.com>
 
-	*include/xapian Modified the documentation in stem.h to contain
-	 about the paicehusk stemmer.
-
-	*docs/ Modified stemming.rst file to include the paicehusk stemmer
-	 in the list of offered stemmers.	
-
+        * weight/: Created tfidfweight.cc containing implementation of TfIdf Weighting scheme.
+        * weight/Makefile.mk : Modified to include tfidfweight.cc
+        * examples/: Wrote new example tfidfsearch.cc to demonstrate the tfidf weighting scheme.
+        * include/xapian: Modified weight.h to contain the TfIdfWeight class. 
+     	
 Thu Jan 24 22:40:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/keyword.cc,common/keyword.h: Commit new
