@@ -1,3 +1,8 @@
+Mon Feb 25 19:03:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Update to add com to the list of ignored
+	  extensions.
+
 Thu Feb 21 22:09:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Ignore .com files by default.

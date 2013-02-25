@@ -296,6 +296,7 @@ By default, files with the following extensions are marked as 'ignore'::
 
    - a
    - bin
+   - com
    - css
    - dat
    - db
