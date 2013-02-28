@@ -121,13 +121,15 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, const char c) const
     switch (c) {
         case 'N':
             return 1.0;
-        case 'T':             
-            return (log(N/termfreq));
+        case 'T':
+            if (N==0) return 0; //Database can be empty             
+            else return (log(N/termfreq));
         case 'P':
-            if (N==termfreq) return 0;
+            if (N==termfreq) return 0; //All documents are indexed by the term 
             else return log((N-termfreq)/termfreq);       
         default:
-            return (log(N/termfreq));
+            if (N==0) return 0;
+            else return (log(N/termfreq));
     }
 }
 
