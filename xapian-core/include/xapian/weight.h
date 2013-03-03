@@ -452,6 +452,12 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_tfn(Xapian::termcount tf, const char c) const;
     double get_idfn(Xapian::doccount termfreq, const char c) const;
     double get_wtn(double wt, const char c) const;
+
+    // Functions to check for validity of each character of the normalization string .
+    // Not used anywhere but may be useful in the future.      
+    int check_tfn(const char c) const;
+    int check_idfn(const char c) const;
+    int check_wtn(const char c) const; 
 };
 	
 
