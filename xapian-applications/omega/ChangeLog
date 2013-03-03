@@ -1,3 +1,9 @@
+Sun Mar 03 23:52:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,runfilter.cc: If setpgid() is available, put each
+	  external filter in its own process group so we can easily kill it
+	  along with any processes which it starts.
+
 Mon Feb 25 19:03:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Update to add com to the list of ignored

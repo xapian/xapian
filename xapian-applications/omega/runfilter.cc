@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009,2010,2011 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ string
 stdout_to_string(const string &cmd)
 {
     string out;
-#if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     // We want to be able to get the exit status of the child process.
     signal(SIGCHLD, SIG_DFL);
 
@@ -71,12 +71,19 @@ stdout_to_string(const string &cmd)
     if (child == 0) {
 	// We're the child process.
 
+#ifdef HAVE_SETPGID
+	// Put the child process into its own process group, so that we can
+	// easily kill it and any children it forks if we need to.
+	setpgid(0, 0);
+#endif
+
 	// Close the parent's side of the socket pair.
 	close(fds[0]);
 
 	// Connect stdout to our side of the socket pair.
 	dup2(fds[1], 1);
 
+#ifdef HAVE_SETRLIMIT
 	// Impose some pretty generous resource limits to prevent run-away
 	// filter programs from causing problems.
 
@@ -102,6 +109,7 @@ stdout_to_string(const string &cmd)
 	    setrlimit(RLIMIT_DATA, &ram_limit);
 #endif
 	}
+#endif
 #endif
 
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
@@ -142,10 +150,14 @@ stdout_to_string(const string &cmd)
 	    } else {
 		cerr << "Filter inactive for too long" << endl;
 	    }
+#ifdef HAVE_SETPGID
+	    kill(-child, SIGKILL);
+#else
 	    kill(child, SIGKILL);
+#endif
 	    close(fd);
-	    int status;
-	    (void)waitpid(child, &status, 0);
+	    int status = 0;
+	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
 	    throw ReadError();
 	}
 
@@ -158,17 +170,24 @@ stdout_to_string(const string &cmd)
 		continue;
 	    }
 	    close(fd);
-	    int status;
-	    (void)waitpid(child, &status, 0);
+#ifdef HAVE_SETPGID
+	    kill(-child, SIGKILL);
+#endif
+	    int status = 0;
+	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
 	    throw ReadError();
 	}
 	out.append(buf, res);
     }
 
     close(fd);
-    int status;
-    if (waitpid(child, &status, 0) == -1) {
-	throw ReadError();
+#ifdef HAVE_SETPGID
+    kill(-child, SIGKILL);
+#endif
+    int status = 0;
+    while (waitpid(child, &status, 0) < 0) {
+	if (errno != EINTR)
+	    throw ReadError();
     }
 #else
     FILE * fh = popen(cmd.c_str(), "r");

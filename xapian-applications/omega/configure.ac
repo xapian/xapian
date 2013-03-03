@@ -159,7 +159,7 @@ AC_LINK_IFELSE([
 
 dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
 dnl limits on filter programs.
-AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic])
+AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid])
 
 dnl -lxnet is needed on Solaris and apparently on HP-UX too.
 AC_SEARCH_LIBS([socketpair], [xnet],
