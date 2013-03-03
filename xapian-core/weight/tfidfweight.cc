@@ -62,7 +62,9 @@ TfIdfWeight *
 TfIdfWeight::unserialise(const string & s) const
 {
 
-return new TfIdfWeight(s);
+    if (s.length() != 3)
+        throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
+    else return new TfIdfWeight(s);
 }
 
 double
@@ -70,9 +72,10 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 {  
              
     Xapian::doccount termfreq=get_termfreq();
-    return (get_wtn(get_tfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
+    return (get_wtn(get_tfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]),   normalizations[2]));
 }
 
+// An upper bound can be calclated simply on he basis of wdf_max as termfreq and N are constants.
 double
 TfIdfWeight::get_maxpart() const
 {    
@@ -145,4 +148,35 @@ TfIdfWeight:: get_wtn(double wt, const char c) const
             return wt;
     }
 }
+
+// Check for validity of each character of string 
+// Not used anywhere but maybe useful in  the future
+int TfIdfWeight:: check_tfn(const char c) const
+{ 
+    // Add characters to this array when more normalizations are implemented
+    char tfn_array[]={'N','B','S','L','\0'};
+    for (int i=0;tfn_array[i]!='\0';++i) {
+         if (tfn_array[i] == c) return 1;
+    }
+    return 0; 
+}          
+
+int TfIdfWeight:: check_idfn(const char c) const
+{
+    char idfn_array[]={'N','T','P','\0'};
+    for (int i=0;idfn_array[i]!='\0';++i) {
+         if (idfn_array[i] == c) return 1;
+    }
+    return 0;   
+}
+
+int TfIdfWeight:: check_wtn(const char c) const
+{
+    char wtn_array[]={'N','\0'};
+    for (int i=0;wtn_array[i]!='\0';++i) {
+         if (wtn_array[i] == c) return 1;
+    }
+    return 0;   
+}                  
+
 }          
