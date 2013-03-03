@@ -75,7 +75,7 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
     return (get_wtn(get_tfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]),   normalizations[2]));
 }
 
-// An upper bound can be calclated simply on he basis of wdf_max as termfreq and N are constants.
+// An upper bound can be calculated simply on the basis of wdf_max as termfreq and N are constants.
 double
 TfIdfWeight::get_maxpart() const
 {    
