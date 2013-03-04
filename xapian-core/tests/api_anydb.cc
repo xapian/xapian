@@ -2250,6 +2250,30 @@ DEFINE_TESTCASE(tradweight1, backend) {
     return true;
 }
 
+//Test TradWeight for weighting documents using .Simply changed the weighting scheme used by rset2 test. 
+DEFINE_TESTCASE(tradweight4, backend) {
+    Xapian::Database mydb(get_database("apitest_rset"));
+    Xapian::Enquire enquire(mydb);
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");   
+    
+    enquire.set_query(myquery); 
+    enquire.set_weighting_scheme(Xapian::TradWeight()); 
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);    
+
+    Xapian::RSet myrset;
+    myrset.add_document(2);
+
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
+
+    mset_expect_order(mymset1, 1, 2);    
+    /* Document 2 should have higher weight than Document 1 inspite of wdf of "people" being 1 
+       because "people" indexes a document in the Rset where as "cuddly" (wdf=2) does not. */
+    mset_expect_order(mymset2, 2, 1);
+    
+    return true;
+}
+
 // Feature test for Database::get_uuid().
 DEFINE_TESTCASE(uuid1, backend && !multi) {
     SKIP_TEST_FOR_BACKEND("inmemory");
