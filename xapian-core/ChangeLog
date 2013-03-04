@@ -1,7 +1,7 @@
-Fri Mar 1 03:58:44 GMT +5:30 2013 Aarsh Shah <aarshkshah1992@gmail.com>
-        
-        * tests/api_anydb.cc: Added a tradweight4 test to test TadWeight with
-          an Rset for weightng documents. 
+Fri Mar 1 22:28:44 GMT 2013 Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* tests/api_anydb.cc: Added tradweight4 test to test TradWeight with
+	  an RSet for weighting documents.
 
 Tue Feb 19 04:17:19 GMT 2013  Olly Betts <olly@survex.com>
 
