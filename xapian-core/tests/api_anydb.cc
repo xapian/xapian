@@ -2257,17 +2257,20 @@ DEFINE_TESTCASE(tradweight4, backend) {
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");   
     
     enquire.set_query(myquery); 
-    enquire.set_weighting_scheme(Xapian::TradWeight());     
+    enquire.set_weighting_scheme(Xapian::TradWeight()); 
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);    
 
     Xapian::RSet myrset;
     myrset.add_document(2);
 
-    Xapian::MSet mymset = enquire.get_mset(0, 10, &myrset);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
+    mset_expect_order(mymset1, 1, 2);    
     /* Document 2 should have higher weight than Document 1 inspite of wdf of "people" being 1 
        because "people" indexes a document in the Rset where as "cuddly" (wdf=2) does not. */
-    mset_expect_order(mymset, 2, 1);
-
+    mset_expect_order(mymset2, 2, 1);
+    
     return true;
 }
 
