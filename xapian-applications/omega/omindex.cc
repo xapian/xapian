@@ -1561,6 +1561,8 @@ main(int argc, char **argv)
 	}
 	indexer.set_stemmer(stemmer);
 
+	runfilter_init();
+
 	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map, sample_size);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {

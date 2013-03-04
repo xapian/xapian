@@ -1,6 +1,6 @@
 /* runfilter.h: run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ struct ReadError { };
 
 /// Exception thrown if the filter program isn't found.
 struct NoSuchFilter { };
+
+/// Initialise the runfilter module.
+void runfilter_init();
 
 /// Run command @a cmd, capture its stdout, and return it as a std::string.
 std::string stdout_to_string(const std::string &cmd);

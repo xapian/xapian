@@ -42,8 +42,8 @@
 #include "safesyswait.h"
 #include "safeunistd.h"
 
-#if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
-# include <csignal>
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR
+# include <signal.h>
 #endif
 
 #include "freemem.h"
@@ -54,6 +54,110 @@
 #endif
 
 using namespace std;
+
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR
+static pid_t pid_to_kill_on_signal;
+
+#ifdef HAVE_SIGACTION
+static struct sigaction old_hup_handler;
+static struct sigaction old_int_handler;
+static struct sigaction old_quit_handler;
+static struct sigaction old_term_handler;
+
+extern "C" {
+
+static void
+handle_signal(int signum)
+{
+    if (pid_to_kill_on_signal) {
+	kill(pid_to_kill_on_signal, SIGKILL);
+	pid_to_kill_on_signal = 0;
+    }
+    switch (signum) {
+	case SIGHUP:
+	    sigaction(signum, &old_hup_handler, NULL);
+	    break;
+	case SIGINT:
+	    sigaction(signum, &old_int_handler, NULL);
+	    break;
+	case SIGQUIT:
+	    sigaction(signum, &old_quit_handler, NULL);
+	    break;
+	case SIGTERM:
+	    sigaction(signum, &old_term_handler, NULL);
+	    break;
+	default:
+	    return;
+    }
+    raise(signum);
+}
+
+}
+
+void
+runfilter_init()
+{
+    struct sigaction sa;
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGHUP, &sa, &old_hup_handler);
+    sigaction(SIGINT, &sa, &old_int_handler);
+    sigaction(SIGQUIT, &sa, &old_quit_handler);
+    sigaction(SIGTERM, &sa, &old_term_handler);
+}
+#else
+static sighandler_t old_hup_handler;
+static sighandler_t old_int_handler;
+static sighandler_t old_quit_handler;
+static sighandler_t old_term_handler;
+
+extern "C" {
+
+static void
+handle_signal(int signum)
+{
+    if (pid_to_kill_on_signal) {
+	kill(pid_to_kill_on_signal, SIGKILL);
+	pid_to_kill_on_signal = 0;
+    }
+    switch (signum) {
+	case SIGHUP:
+	    signal(signum, old_hup_handler);
+	    break;
+	case SIGINT:
+	    signal(signum, old_int_handler);
+	    break;
+	case SIGQUIT:
+	    signal(signum, old_quit_handler);
+	    break;
+	case SIGTERM:
+	    signal(signum, old_term_handler);
+	    break;
+	default:
+	    return;
+    }
+    raise(signum);
+}
+
+}
+
+void
+runfilter_init()
+{
+    old_hup_handler = signal(SIGHUP, handle_signal);
+    old_int_handler = signal(SIGINT, handle_signal);
+    old_quit_handler = signal(SIGQUIT, handle_signal);
+    old_term_handler = signal(SIGTERM, handle_signal);
+}
+#endif
+#else
+void
+runfilter_init()
+{
+}
+#endif
 
 string
 stdout_to_string(const string &cmd)
@@ -73,8 +177,11 @@ stdout_to_string(const string &cmd)
 
 #ifdef HAVE_SETPGID
 	// Put the child process into its own process group, so that we can
-	// easily kill it and any children it forks if we need to.
+	// easily kill it and any children it in turn forks if we need to.
 	setpgid(0, 0);
+	pid_to_kill_on_signal = -child;
+#else
+	pid_to_kill_on_signal = child;
 #endif
 
 	// Close the parent's side of the socket pair.
@@ -158,6 +265,7 @@ stdout_to_string(const string &cmd)
 	    close(fd);
 	    int status = 0;
 	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+	    pid_to_kill_on_signal = 0;
 	    throw ReadError();
 	}
 
@@ -175,6 +283,7 @@ stdout_to_string(const string &cmd)
 #endif
 	    int status = 0;
 	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+	    pid_to_kill_on_signal = 0;
 	    throw ReadError();
 	}
 	out.append(buf, res);
@@ -189,6 +298,7 @@ stdout_to_string(const string &cmd)
 	if (errno != EINTR)
 	    throw ReadError();
     }
+    pid_to_kill_on_signal = 0;
 #else
     FILE * fh = popen(cmd.c_str(), "r");
     if (fh == NULL) throw ReadError();
