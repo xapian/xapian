@@ -15,12 +15,13 @@ Prerequisites
 =============
 
 You need the following libraries installed before building Omega.  If you
-install PCRE from a package, make sure you install any corresponding -dev or
--devel package as well:
+install these from packages, make sure you install any corresponding -dev or
+-devel packages as well:
 
   * PCRE <http://www.pcre.org/>
   * libmagic (which comes with the file program
-    <http://www.darwinsys.com/file/>)
+    <http://www.darwinsys.com/file/>) - on RPM-based package systems, the
+    package with the header in is often named file-devel
 
 Quick Installation Guide
 ========================

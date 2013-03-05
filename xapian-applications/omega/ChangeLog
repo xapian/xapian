@@ -1,3 +1,8 @@
+Tue Mar 05 19:37:55 GMT 2013  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: Provide hints as to what package to install
+	  for magic.h.
+
 Mon Mar 04 03:56:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,omindex.cc,runfilter.cc,runfilter.h: If omindex
