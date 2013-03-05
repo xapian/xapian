@@ -182,7 +182,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset,1,2,3,4,5,6);
-    for (int i=0; i<6;i++) {
+    for (int i=0; i<6;++i) {
          TEST_EQUAL(mset[i].get_weight(),0.0);
     }     
   
@@ -192,7 +192,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset,1,2,3,4,5,6);
-    for (int i=0; i<6;i++) {
+    for (int i=0; i<6;++i) {
          TEST_EQUAL(mset[i].get_weight(),0.0);
     }
 
