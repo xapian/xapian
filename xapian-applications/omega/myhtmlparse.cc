@@ -32,7 +32,7 @@
 
 using namespace std;
 
-static const char whitespace[] = "_ \t\n\n";
+static const char whitespace[] = "_ \t\n\n\f";
 
 inline void
 lowercase_string(string &str)
@@ -81,6 +81,16 @@ MyHtmlParser::opening_tag(const string &tag)
 	return true;
     pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
     switch ((html_tag)k) {
+	case P:
+	    if (pending_space < PAGE) {
+		string style;
+		if (get_parameter("style", style)) {
+		    // As produced by Libreoffice's HTML export:
+		    if (style.find("page-break-before: always") != string::npos)
+			pending_space = PAGE;
+		}
+	    }
+	    break;
 	case META: {
 		string content;
 		if (get_parameter("content", content)) {

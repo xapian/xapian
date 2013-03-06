@@ -30,7 +30,7 @@ my $srcdir = shift @ARGV;
 
 my $hdr = Tokeniseise->new('my-html-tok.h', 'Map string to html tag code', $copyright, 'XAPIAN_INCLUDED_MY_HTML_TOK_H', 'html_tag');
 my @space = ();
-$hdr->append('enum { SPACE = 1, COLUMN = 2, BREAK = 3, BLOCK = 4, NOCLOSE = 8, TOKEN_SPACE_MASK = 7 };');
+$hdr->append('enum { SPACE = 1, COLUMN = 2, BREAK = 3, BLOCK = 4, PAGE = 5, NOCLOSE = 8, TOKEN_SPACE_MASK = 7 };');
 $hdr->append('');
 $hdr->append('static const unsigned char token_space[] = {');
 while (<STDIN>) {

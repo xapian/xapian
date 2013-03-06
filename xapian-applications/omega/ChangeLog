@@ -1,3 +1,8 @@
+Wed Mar 06 03:35:43 GMT 2013  Olly Betts <olly@survex.com>
+
+	* gen-myhtmltags,myhtmlparse.cc: Distinguish page breaks from other
+	  whitespace in samples.
+
 Tue Mar 05 19:37:55 GMT 2013  Olly Betts <olly@survex.com>
 
 	* INSTALL,configure.ac: Provide hints as to what package to install
