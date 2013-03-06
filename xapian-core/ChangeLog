@@ -1,3 +1,8 @@
+Wed Mar 06 08:55:12 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: gs package has been replaced by ghostscript package in
+	  current Debian and Ubuntu releases.
+
 Tue Feb 19 04:17:19 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/Tokeniseise.pm: Add the ability to append lines to the
