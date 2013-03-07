@@ -1,3 +1,8 @@
+Thu Mar 07 00:40:20 GMT 2013  Olly Betts <olly@survex.com>
+
+	* jsonescape.cc: Fix C+11 compatibility issue highlighted by GCC
+	  warning.
+
 Wed Mar 06 03:35:43 GMT 2013  Olly Betts <olly@survex.com>
 
 	* gen-myhtmltags,myhtmlparse.cc: Distinguish page breaks from other

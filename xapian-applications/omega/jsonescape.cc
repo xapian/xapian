@@ -62,7 +62,7 @@ json_escape(string &s)
 	    }
 	    ch = t;
 	}
-	char buf[2] = {'\\', ch};
+	char buf[2] = {'\\', char(ch)};
 	s.replace(i, 1, buf, 2);
 	++i;
     }
