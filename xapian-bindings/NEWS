@@ -1,3 +1,33 @@
+ 17081       olly Sat Feb 16 08:30:59 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.14 (2013-03-07):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python:
+
+Ruby:
+
+Tcl:
+
+* Allow TCL_INC to be passed to configure.  (fixes #612)
+
 Xapian-bindings 1.2.13 (2012-11-09):
 
 CSharp:
