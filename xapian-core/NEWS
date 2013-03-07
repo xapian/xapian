@@ -1,3 +1,75 @@
+ 17079       olly Sat Feb 16 08:14:04 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.14 (2013-03-07):
+
+API:
+
+* MSet::get_document(): Don't cache retrieved Document objects unless they
+  were requested with fetch().  This avoids using a lot of memory when many
+  MSet entries are retrieved.  (Fixes #604)
+
+testsuite:
+
+* apitest: Extend stem2 to ensure description of the stemmer isn't the same as
+  the description of Stem("none").
+
+matcher:
+
+* Check if a candidate document has at least the minimum weight needed
+  before checking positional information, which speeds up slow phrase
+  searches (partly addresses #394).
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+* xapian-replicate:
+
+	* common/realtime.h: Fix RealTime::sleep() to calculate the delta to
+	  the time we want to sleep to the right way round.  Previously we
+	  wouldn't sleep if we were before the deadline, but would sleep if
+	  the deadline had already passed (and by the amount the deadline had
+	  passed)!  And on Windows, fix the sleep to be for the delta rather
+	  than 43+ years (the time elapsed since the start of 1970).  (Fixes
+	  #472)
+
+examples:
+
+
+portability:
+
+	* matcher/queryoptimiser.cc: Need <functional> for mem_fun().
+
+	* tests/harness/testsuite.cc: Don't provide explicit template types to
+	  make_pair - it isn't useful, and breaks with C++11.  Fixes build
+	  error with MSVC2012.
+
+* examples/quest.cc: Fix to build with Sun Studio 12 compiler.  (ticket#611)
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.13 (2013-01-09):
 
 API:
