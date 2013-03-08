@@ -1,3 +1,10 @@
+Fri Mar 08 04:05:31 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc: Fix
+	  multipass compaction not to damage document values, and to merge the
+	  database stats correctly.  (fixes #615)
+	* tests/api_compact.cc: Add regression test compactmultipass1.
+
 Thu Mar 07 00:34:46 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* tests/api_anydb.cc: Added tradweight4 testcase to test TradWeight

@@ -1,7 +1,7 @@
 /** @file chert_compact.cc
  * @brief Compact a chert database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -255,11 +255,13 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (tot_totlen < totlen) {
 		throw "totlen wrapped!";
 	    }
-	}
-	if (cur->next()) {
-	    pq.push(cur);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	} else {
-	    delete cur;
+	    pq.push(cur);
 	}
     }
 
@@ -702,7 +704,7 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	    tmptab.create_and_open(65536);
 
 	    merge_postlists(compactor, &tmptab, off.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j, 0);
+			    tmp.begin() + i, tmp.begin() + j, last_docid);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
