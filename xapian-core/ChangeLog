@@ -1,3 +1,7 @@
+Fri Mar 08 08:50:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_compact.cc: Apply same fix for flint.
+
 Fri Mar 08 08:25:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
