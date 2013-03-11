@@ -149,6 +149,16 @@ handle_svn_external() {
   (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 }
 
+handle_git_external() {
+  path=$1
+  rev=$2
+  url=$3
+  if [ ! -d "$path" ] ; then
+    git clone --no-checkout -- "$url" "$path"
+  fi
+  (cd "$path" && git checkout "$rev")
+}
+
 curdir=`pwd`
 
 # cd to srcdir if we aren't already there.
@@ -208,27 +218,26 @@ END
   else
     # git repo cloned from git.xapian.org or a mirror of it.
 
-    # Which SVN branch to check properties from.
-    SVN_BRANCH=trunk
+    # If this tree is checked out from the github mirror, use the same access
+    # method for swig, so we avoid firewall issues.
+    origin_url=`git config remote.origin.url`
+    case $origin_url in
+      *[@/]github.com[:/]*)
+	swig_origin_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
+      *)
+	swig_origin_url=git://github.com/ ;;
+    esac
+    swig_origin_url=${swig_origin_url}swig/swig.git
+    # Equivalent to r13340 in the old SWIG SVN tree:
+    handle_git_external swig 7b58300cbdc98fa52c42572cffd3f31f10728864 "$swig_origin_url"
 
-    # FIXME: Currently rev here requires manual update for users without svn
-    # installed or with firewalls which block SVN.
-    #svn:externals revision for SWIG
-    args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH`
-    test -n "$args" || args='swig -r13340 svn://svn.tartarus.org/swig/trunk/'
-    handle_svn_external $args
-
-    # FIXME: Currently rev here requires manual update for users without svn
-    # installed or with firewalls which block SVN.
-    #svn:externals revision for xapian-applications/omega/common
-    # Note: this needs to be the exact revision of the previous change!
-    args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-applications/omega`
-    test -n "$args" || args='common -r17084 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
-    handle_svn_external xapian-applications/omega/$args
-
-    args=`svn pg svn:externals svn://svn.xapian.org/xapian/$SVN_BRANCH/xapian-letor`
-    test -n "$args" || args='common -r15018 svn://svn.xapian.org/xapian/trunk/xapian-core/common'
-    handle_svn_external xapian-letor/$args
+    # Equivalent to r17084 in the Xapian SVN tree:
+    handle_git_external xapian-applications/omega/.common.git d81afb542ab398da2a7d71c677190b7725b8b622 .
+    ln -sf .common.git/xapian-core/common xapian-applications/omega/common
+      
+    # Equivalent to r16320 in the Xapian SVN tree:
+    handle_git_external xapian-letor/.common.git dbd42ffed2d76a79d505242b32a357246ab63348 .
+    ln -sf .common.git/xapian-core/common xapian-letor/common
   fi
 fi
 
