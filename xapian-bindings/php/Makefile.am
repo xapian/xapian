@@ -21,7 +21,8 @@ BUILT_SOURCES =\
 	php5/php_xapian.h\
 	php5/xapian.php
 
-EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) \
+	add-php-ref-handling
 
 phpextdir = $(PHP_EXTENSION_DIR)
 
@@ -67,6 +68,8 @@ php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
 	mv xapian_wrap_d2.tmp xapian_wrap.d
 	rm xapian_wrap_d.tmp
+	$(PERL) '$(srcdir)/'add-php-ref-handling php5/xapian.php > php5/xapian.tmp
+	mv php5/xapian.tmp php5/xapian.php
 	$(multitarget_end)
 
 -include xapian_wrap.d

@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2013 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -206,9 +206,12 @@ $oquery = $oqparser->parse_query("I like tea");
 $enq->set_cutoff(100);
 
 # Check DateValueRangeProcessor works.
+function add_vrp_date(&$qp) {
+    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
+    $qp->add_valuerangeprocessor($vrpdate);
+}
 $qp = new XapianQueryParser();
-$vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-$qp->add_valuerangeprocessor($vrpdate);
+add_vrp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Xapian::Query(VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
