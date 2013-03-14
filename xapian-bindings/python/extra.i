@@ -624,7 +624,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     """Get an iterator over all the unstemmed forms of a stemmed term.
     
     This returns an iterator which returns all the unstemmed words which were
-    stemmed to the stemmed form specifed by `tname` when parsing the previous
+    stemmed to the stemmed form specified by `tname` when parsing the previous
     query.  Each instance of a word which stems to `tname` is returned by the
     iterator in the order in which the words appeared in the query - an
     individual unstemmed word may thus occur multiple times.

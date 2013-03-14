@@ -1,3 +1,7 @@
+Thu Mar 14 09:56:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Fix typo in doccomment.
+
 Thu Mar 14 09:16:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
