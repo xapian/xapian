@@ -1,28 +1,13 @@
- 17081       olly Sat Feb 16 08:30:59 GMT 2013  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.14 (2013-03-07):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
-
-PHP:
+Xapian-bindings 1.2.14 (2013-03-14):
 
 Python:
 
-Ruby:
+* Fix typo in doccomment.
+
+PHP:
+
+* Keep references to the PHP wrapper object when an object is set on another
+  object.  (fixes #614)
 
 Tcl:
 
