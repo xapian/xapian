@@ -1,3 +1,9 @@
+Thu Mar 14 12:20:00 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: gs package has been replaced by ghostscript package in
+	  current Debian and Ubuntu releases.
+
 Fri Mar 08 08:50:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_compact.cc: Apply same fix for flint.
