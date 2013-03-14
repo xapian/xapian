@@ -1,3 +1,10 @@
+Thu Mar 14 12:34:29 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* docs/overview.rst: Update to add com to the list of ignored
+	  extensions.
+	* omindex.cc: Ignore .com files by default.
+
 Thu Mar 07 09:41:25 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
