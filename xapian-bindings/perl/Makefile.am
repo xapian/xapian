@@ -147,11 +147,12 @@ docs/index.html: Search/Xapian.pm
 	pod2html Search/Xapian.pm > docs/index.html
 	rm -f pod2htm?.tmp
 
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+stamp = xapian_wrap.stamp
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
-xapian_wrap.cc Search/Xapian.pm: xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp: except.i
+xapian_wrap.cc Search/Xapian.pm: $(stamp)
+	$(make_many_locked)
+$(stamp): except.i
 	$(multitarget_begin)
 	test -d Search || mkdir Search
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
@@ -162,6 +163,6 @@ xapian_wrap.stamp: except.i
 
 -include xapian_wrap.d
 
-CLEANFILES = pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp
+CLEANFILES = pod2htm?.tmp xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)

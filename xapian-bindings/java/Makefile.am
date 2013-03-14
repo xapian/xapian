@@ -141,11 +141,12 @@ BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
 EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
 
 if MAINTAINER_MODE
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+stamp = xapian_wrap.stamp
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
-xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)						       
-xapian_wrap.stamp:
+xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): $(stamp)
+	$(make_many_locked)
+$(stamp):
 	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
@@ -163,7 +164,7 @@ xapian_wrap.stamp:
 
 -include xapian_wrap.d
 
-CLEANFILES += xapian_wrap.stamp
+CLEANFILES += $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 

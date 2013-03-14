@@ -1,3 +1,9 @@
+Thu Mar 14 09:16:45 GMT 2013  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,generic/generic.mk,java/Makefile.am,
+	  perl/Makefile.am,php/Makefile.am,python/Makefile.am,ruby/Makefile.am,
+	  swig-depcomp: Fix handling of stamp file by swig-depcomp script.
+
 Sat Feb 16 02:08:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Allow TCL_INC to be passed to configure.  (fixes #612)

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # swig-depcomp: Wrap call to SWIG and generate and adjust dependencies.
 #
-# Copyright 2012 Olly Betts
+# Copyright 2012,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ while (<TMPDEPS>) {
 	/(.*):/ or next;
 	$target = $1;
 	if (exists $ENV{'stamp'}) {
-	    $_ = "$ENV{'stamp'}:\n";
+	    $_ = "$ENV{'stamp'}: \\\n";
 	}
     } else {
         my $line = $_;

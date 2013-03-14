@@ -111,11 +111,12 @@ doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/i
 	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
 
+stamp = modern/xapian_wrap.stamp
 RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: modern/xapian_wrap.stamp
-	@stamp=modern/xapian_wrap.stamp; $(make_many_locked)
-modern/xapian_wrap.stamp: except.i doccomments.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
+	$(make_many_locked)
+$(stamp): except.i doccomments.i
 	-test -d modern || mkdir modern
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
@@ -126,7 +127,7 @@ modern/xapian_wrap.stamp: except.i doccomments.i
 
 -include modern/xapian_wrap.d
 
-CLEANFILES += modern/xapian_wrap.d modern/xapian_wrap.stamp
+CLEANFILES += modern/xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
