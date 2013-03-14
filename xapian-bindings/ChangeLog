@@ -1,3 +1,8 @@
+Thu Mar 14 12:43:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/extra.i: Fix typo in doccomment.
+
 Thu Mar 14 11:35:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am,php/add-php-ref-handling,php/smoketest.php: Keep
