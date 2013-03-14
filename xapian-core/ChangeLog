@@ -1,3 +1,9 @@
+Thu Mar 14 12:26:45 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_anydb.cc: Added tradweight4 testcase to test TradWeight
+	  with an RSet for weighting documents.
+
 Thu Mar 14 12:20:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
