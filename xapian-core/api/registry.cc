@@ -284,7 +284,7 @@ Registry::register_lat_long_metric(const Xapian::LatLongMetric &metric)
 const Xapian::LatLongMetric *
 Registry::get_lat_long_metric(const string & name) const
 {
-    LOGCALL(API, const Xapian::MatchSpy *, "Xapian::Registry::get_lat_long_metric", name);
+    LOGCALL(API, const Xapian::LatLongMetric *, "Xapian::Registry::get_lat_long_metric", name);
     RETURN(lookup_object(internal->lat_long_metrics, name));
 }
 

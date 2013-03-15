@@ -1,3 +1,7 @@
+Fri Mar 15 06:27:42 GMT 2013  Dan Colish <dcolish@gmail.com>
+
+	* api/registry.cc,common/pretty.h: Fix incorrect LOGCALL return value.
+
 Fri Mar 15 06:24:11 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/registry.cc,common/Makefile.mk,common/registryinternal.h:
