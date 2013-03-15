@@ -1,3 +1,7 @@
+Fri Mar 15 03:48:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* md5wrap.cc,md5wrap.h: Add md5_block() to checksum a block of memory.
+
 Thu Mar 07 00:40:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* jsonescape.cc: Fix C+11 compatibility issue highlighted by GCC
