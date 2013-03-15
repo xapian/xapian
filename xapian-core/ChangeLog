@@ -1,3 +1,9 @@
+Fri Mar 15 06:24:11 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/registry.cc,common/Makefile.mk,common/registryinternal.h:
+	  common/registryinternal.h is only included by api/registry.cc so
+	  just inline its contents.
+
 Fri Mar 15 06:11:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/registry.cc: No need to explicitly default initialise std::map

@@ -21,7 +21,6 @@ noinst_HEADERS +=\
 	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
-	common/registryinternal.h\
 	common/remoteprotocol.h\
 	common/replicate_utils.h\
 	common/replicationprotocol.h\
