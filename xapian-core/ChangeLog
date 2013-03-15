@@ -1,3 +1,9 @@
+Fri Mar 15 06:36:32 GMT 2013  Dan Colish <dcolish@gmail.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  common/pretty.h: Avoid needlessly casting away const-ness in
+	  debug logging.
+
 Fri Mar 15 06:31:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* matcher/multiandpostlist.cc,matcher/multixorpostlist.cc: Add a

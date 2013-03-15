@@ -311,7 +311,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
 template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const Xapian::Weight *p) {
-    ps.os << "(Xapian:Weight*)" << (void*)p;
+    ps.os << "(Xapian:Weight*)" << (const void*)p;
     return ps;
 }
 
@@ -329,7 +329,7 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
 template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const Xapian::Database::Internal *p) {
-    ps.os << "(Database::Internal*)" << (void*)p;
+    ps.os << "(Database::Internal*)" << (const void*)p;
     return ps;
 }
 
