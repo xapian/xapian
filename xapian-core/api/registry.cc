@@ -170,10 +170,6 @@ Registry::get_lat_long_metric(const string & name) const
 }
 
 Registry::Internal::Internal()
-	: Xapian::Internal::intrusive_base(),
-          wtschemes(),
-	  postingsources(),
-	  lat_long_metrics()
 {
     add_defaults();
 }

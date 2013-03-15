@@ -1,3 +1,8 @@
+Fri Mar 15 06:11:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/registry.cc: No need to explicitly default initialise std::map
+	  members or the base class.
+
 Fri Mar 08 04:05:31 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc: Fix
