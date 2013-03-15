@@ -89,6 +89,7 @@ MultiAndPostList::get_termfreq_max() const
 Xapian::doccount
 MultiAndPostList::get_termfreq_est() const
 {
+    LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq_est", NO_ARGS);
     if (rare(db_size == 0))
 	RETURN(0);
     // We calculate the estimate assuming independence.  With this assumption,

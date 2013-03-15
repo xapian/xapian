@@ -1,3 +1,8 @@
+Fri Mar 15 06:31:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.cc,matcher/multixorpostlist.cc: Add a
+	  couple more LOGCALL annotations.
+
 Fri Mar 15 06:27:42 GMT 2013  Dan Colish <dcolish@gmail.com>
 
 	* api/registry.cc,common/pretty.h: Fix incorrect LOGCALL return value.
