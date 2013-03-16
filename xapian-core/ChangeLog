@@ -1,3 +1,10 @@
+Sat Mar 16 21:43:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: std::less provides a total order over
+	  pointers, so we can just use that to implement
+	  filter_group_id::operator<() - we only need a consistent order so we
+	  can use it as the key to a std::map.
+
 Fri Mar 15 06:36:32 GMT 2013  Dan Colish <dcolish@gmail.com>
 
 	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,

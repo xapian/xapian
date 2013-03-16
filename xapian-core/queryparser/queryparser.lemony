@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -138,18 +138,10 @@ struct filter_group_id {
 
     /// Ordering needed to allow storage in a map.
     bool operator<(const filter_group_id & other) const {
-	// Check slot first since comparison is cheap.
 	if (slot != other.slot)
 	    return slot < other.slot;
-	if (!field_info || field_info == other.field_info)
-	    return false;
-	if (!other.field_info)
-	    return true;
-	if (field_info->prefixes < other.field_info->prefixes)
-	    return true;
-	if (other.field_info->prefixes < field_info->prefixes)
-	    return false;
-	return field_info->procs < other.field_info->procs;
+	// std::less provides a total order over pointers.
+	return less<const FieldInfo*>()(field_info, other.field_info);
     }
 };
 
