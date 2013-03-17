@@ -1,3 +1,7 @@
+Sun Mar 17 21:34:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* htmlparsetest.cc: Update testcase to match previous change.
+
 Sun Mar 17 21:13:49 GMT 2013  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: Make paragraph break in sample \r not \n, as \n
