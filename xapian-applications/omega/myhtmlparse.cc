@@ -32,7 +32,7 @@
 
 using namespace std;
 
-static const char whitespace[] = "_ \t\n\n\f";
+static const char whitespace[] = "_ \t\r\r\f";
 
 inline void
 lowercase_string(string &str)

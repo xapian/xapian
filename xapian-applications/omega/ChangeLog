@@ -1,3 +1,9 @@
+Sun Mar 17 21:13:49 GMT 2013  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Make paragraph break in sample \r not \n, as \n
+	  is used by Omega to indicate the end of a field in the document
+	  data.
+
 Fri Mar 15 03:48:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* md5wrap.cc,md5wrap.h: Add md5_block() to checksum a block of memory.
