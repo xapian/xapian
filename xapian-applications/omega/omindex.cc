@@ -1104,6 +1104,10 @@ main(int argc, char **argv)
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
 
+    // reStructured text:
+    mime_map["rst"] = "text/x-rst";
+    mime_map["rest"] = "text/x-rst";
+
     // Comma-Separated Values:
     mime_map["csv"] = "text/csv";
 
@@ -1263,6 +1267,7 @@ main(int argc, char **argv)
     // so we use --html instead, which produces HTML entities.  Currently the
     // --nopict option doesn't work, but hopefully it'll get fixed.
     commands["text/rtf"] = Filter("unrtf --nopict --html 2>/dev/null", "text/html");
+    commands["text/x-rst"] = Filter("rst2html", "text/html");
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but

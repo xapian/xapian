@@ -216,6 +216,8 @@ other filters too - see below):
 * Compressed AbiWord documents (.zabw) if gzip is available
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
+* reStructured text (.rst, .rest) if rst2html is available (comes with
+  docutils)
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
 * XPS files (.xps) if unzip is available
@@ -239,6 +241,7 @@ string, but to be useful there either needs to be a filter set for that type
    - text/plain
    - text/rtf
    - text/x-perl
+   - text/x-rst
    - application/atom+xml
    - application/msword
    - application/pdf

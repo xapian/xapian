@@ -1,3 +1,8 @@
+Sun Mar 17 22:00:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Use rst2html to indexing .rst and
+	  .rest files.
+
 Sun Mar 17 21:34:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* htmlparsetest.cc: Update testcase to match previous change.
