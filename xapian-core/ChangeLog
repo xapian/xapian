@@ -1,3 +1,7 @@
+Sun Mar 17 20:45:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Restore space after comma in output.
+
 Sun Mar 17 03:59:52 GMT 2013  Dan Colish <dcolish@gmail.com>
 
 	* common/pretty.h: Correct recursion issue.
