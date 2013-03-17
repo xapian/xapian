@@ -39,6 +39,9 @@ struct PrettyOStream {
     S & os;
 
     PrettyOStream(S & os_) : os(os_) { }
+    template <typename T> PrettyOStream & operator|(const T & t){
+	return *this | t;
+    }
 };
 
 struct Literal {
@@ -337,13 +340,6 @@ template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
     ps.os << "intrusive_ptr->";
-    return ps << t;
-}
-
-template<class S, typename T>
-inline PrettyOStream<S> &
-operator|(PrettyOStream<S> &ps, const T & t) {
-    ps.os << ", ";
     return ps << t;
 }
 

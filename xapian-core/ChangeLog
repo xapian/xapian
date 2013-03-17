@@ -1,3 +1,8 @@
+Sun Mar 17 02:58:52 GMT 2013  Dan Colish <dcolish@gmail.com>
+
+	* common/pretty.h: Resolve ambiguity by moving operator| to a memeber
+	  function of PrettyOStream
+
 Sat Mar 16 21:43:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: std::less provides a total order over
