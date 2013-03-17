@@ -1,3 +1,7 @@
+Sun Mar 17 03:59:52 GMT 2013  Dan Colish <dcolish@gmail.com>
+
+	* common/pretty.h: Correct recursion issue.
+
 Sun Mar 17 02:58:52 GMT 2013  Dan Colish <dcolish@gmail.com>
 
 	* common/pretty.h: Resolve ambiguity by moving operator| to a memeber
