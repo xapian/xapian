@@ -1,8 +1,11 @@
- 17034       olly Wed Jan 16 02:32:38 GMT 2013  Olly Betts <olly@survex.com>
+ 17130       olly Mon Mar 18 04:11:01 GMT 2013  Olly Betts <olly@survex.com>
 
-trunk only:
+1.2.15:
 
-Xapian-bindings 1.3.1 (2013-01-16):
+ 17130       olly Mon Mar 18 04:11:01 GMT 2013  Olly Betts <olly@survex.com>
+	* configure.ac: Fix deprecation warning from Ruby 1.9.3.
+
+Xapian-bindings 1.3.1 (2013-03-18):
 
 Documentation:
 
@@ -16,14 +19,11 @@ General:
   unnecessary exception handling code where we call such functions and
   methods.
 
-	* lua/util.i,php/php.i,python/python.i,ruby/ruby.i,tcl8/tcl.i: Mark
-	  XapianSWIGQueryItor implementations as random_access_iterator, and
-	  implement XapianSWIGQueryItor::operator-(), so Xapian::Query's
-	  template constructor knows how many elements to preallocate.
+* Tweak wrapping of Query from list constructor so the needed number of
+  elements get preallocated.
 
-	* xapian-headers.i: Ignore Xapian API class constructor taking
-	  Internal& instead of Internal* (as Query does, to avoid an
-	  ambiguity for Query(NULL).
+* Ignore Query(Query::Internal&) constructor, which is for internal use
+  only.
 
 	* xapian-headers.i,xapian.i: Wrap xapian/dbfactory.h functions
 	  directly, except for C# and Java, where we use a fake class hack.
@@ -37,8 +37,9 @@ General:
 	  This means we now wrap the WritableDatabase form of
 	  Xapian::Auto::open_stub() for these languages.
 
-    * swig-depcomp: Script which wraps a call to SWIG and tells it to
-      generate dependencies, and then adjust the generated dependencies.
+* swig-depcomp: Script which wraps invoking SWIG, tells it to generate
+  dependencies, and adjusts the generated dependencies to work in our build
+  system.
 
 Packaging:
 
@@ -58,12 +59,9 @@ Java:
 	  approach for Java too (though we don't actually support mixed
 	  subqueries in the case of Java, so it's now a bit misnamed now!)
 
-	* Implement and test MSetIterator,
-	  ESetIterator. Fix PostingIterator, ValueIterator, and TermIterator.
+	* Implement and test MSetIterator, ESetIterator. Fix PostingIterator, ValueIterator, and TermIterator.
 
-	* Add a typemap for
-	  TermIterator pairs to String[] for the Enquire.getMatchingTerms
-	  API.
+	* Add a typemap for TermIterator pairs to String[] for the Enquire.getMatchingTerms API.
 
 * Use JAVACFLAGS when running JAVAC to allow extra flags to be specified when
   building, e.g. "make JAVACFLAGS=-g".
@@ -80,26 +78,23 @@ Perl:
 * Forward port additional test coverage for Database::close() from XS
   Search::Xapian in 1.2 branch.
 
+* perl/t/10query.t: Adjust regexp which checks expected error message to work
+  with Perl 5.16, which adds a '.' after "at foo line 123".  (ticket#610)
+
 PHP:
 
-[PHP] Avoid using zend_error_noreturn() as it doesn't work with all
-builds of PHP (SF bug #3166423).  Instead we now wrap it in a
-SWIG_FAIL() function which we annotate as "noreturn" for GCC to
-avoids warnings.  This also reduces the size of the compiled
-wrapper (e.g. the stripped size is 6% for Xapian's PHP bindings).
+* Avoid using zend_error_noreturn() as it doesn't work with all builds of PHP.
+  Instead we now wrap it in a SWIG_FAIL() function which we annotate as
+  "noreturn" for GCC to avoids warnings.  This also reduces the size of the
+  compiled PHP module by 6%.
 
 * php/smoketest.php: Add more tests of geospatial API.
 
 Python:
 
-	* python/smoketest2.py: Test xapian.open_stub() is wrapped.
+* python/smoketest2.py: Add more testcases.
 
-	* python/smoketest2.py: Add tests that the database factory functions
-	  are wrapped as we expected.
-
-	* python/pythontest3.py: Sync with pythontest2.
-	* python/smoketest3.py,python/testsuite3.py: Update Python 3 tests
-	  from Python 2 versions using 2to3.
+* Update Python 3 tests from Python 2 versions using 2to3.
 
 Ruby:
 
@@ -220,6 +215,21 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.14 (2013-03-14):
+
+Python:
+
+* Fix typo in doccomment.
+
+PHP:
+
+* Keep references to the PHP wrapper object when an object is set on another
+  object.  (fixes #614)
+
+Tcl:
+
+* Allow TCL_INC to be passed to configure.  (fixes #612)
 
 Xapian-bindings 1.2.13 (2012-11-09):
 

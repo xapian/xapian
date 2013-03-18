@@ -1,3 +1,7 @@
+Mon Mar 18 10:59:39 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.14 and ChangeLog.
+
 Mon Mar 18 04:11:01 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix deprecation warning from Ruby 1.9.3.
