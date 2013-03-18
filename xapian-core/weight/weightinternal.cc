@@ -59,6 +59,13 @@ Weight::Internal::operator +=(const Weight::Internal & inc)
     for (i = inc.termfreqs.begin(); i != inc.termfreqs.end(); ++i) {
 	termfreqs[i->first] += i->second;
     }
+
+    // Add collection frequencies
+    map<string, Xapian::termcount>::const_iterator j;
+    for (j = inc.collec_freqs.begin(); j != inc.collec_freqs.end(); ++j) {
+	collec_freqs[j->first] += j->second;
+    }
+     
     return *this;
 }
 
@@ -73,6 +80,16 @@ Weight::Internal::get_termfreq(const string & term) const
     return tfreq->second.termfreq;
 }
 
+Xapian::termcount
+Weight::Internal::get_collec_freq(const string & term) const
+{
+    // We pass an empty std::string for term when calculating the extra weight.
+    if (term.empty()) return 0;
+
+    map<string, Xapian::termcount>::const_iterator collec_freq = collec_freqs.find(term);
+    Assert(collec_freq != collec_freqs.end());
+    return collec_freq->second;
+}
 void
 Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 				   const Xapian::RSet &rset)
@@ -86,6 +103,13 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	const string & term = t->first;
 	t->second.termfreq += subdb.get_termfreq(term);
     }
+
+    map<string, Xapian::termcount>::iterator c_t;
+    for (c_t = collec_freqs.begin(); c_t != collec_freqs.end(); ++c_t) {
+	const string & term = c_t->first;
+	c_t->second += subdb.get_collection_freq(term);
+    }
+        
 
     const set<Xapian::docid> & items(rset.internal->get_items());
     set<Xapian::docid>::const_iterator d;
