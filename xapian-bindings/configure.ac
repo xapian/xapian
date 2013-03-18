@@ -787,14 +787,17 @@ if test no != "$with_ruby" ; then
     dnl Brief testing with Ruby 1.6.8 show the bindings probably work there,
     dnl but smoketest.rb doesn't because the test/unit module isn't available.
     AC_MSG_CHECKING([$RUBY version])
-    [version=`$RUBY -rrbconfig -e 'print Config::CONFIG["ruby_version"]' 2>/dev/null`]
+    dnl RUBY_VERSION works with 1.6.  Once we've checked we have at least 1.8
+    dnl we can safely use RbConfig below (RbConfig requires Ruby 1.8; Config
+    dnl gives a deprecation warning with Ruby 1.9.3).
+    [version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`]
     case $version in
     [1.[89]*]) ;; # Ruby 1.8, 1.9
     [1.[1-9][0-9]*]) ;; # Ruby 1.10+
     [[2-9]*]) ;; # Ruby 2-Ruby 9
     [1[0-9]*]) ;; # Ruby 10+
     "")
-      AC_MSG_RESULT([\$RUBY -rrbconfig -e 'print Config::CONFIG["ruby_version"]' didn't work])
+      AC_MSG_RESULT([\$RUBY -e 'print RUBY_VERSION' didn't work])
       if test yes = "$with_ruby" ; then
 	AC_MSG_ERROR([Working Ruby interpreter not found])
       fi
@@ -813,7 +816,7 @@ if test no != "$with_ruby" ; then
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
 	dnl Ruby 1.9 added rubyhdrdir; for older Ruby we use archdir.
-	[RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG["rubyhdrdir"] || Config::CONFIG["archdir"]'`]
+	[RUBY_INC=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyhdrdir"] || RbConfig::CONFIG["archdir"]'`]
       fi
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that
@@ -846,7 +849,7 @@ if test no != "$with_ruby" ; then
 	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found (needed from Ruby 1.9)])
 	if test -z "$RUBY_INC_ARCH" ; then
 	  dnl Ruby 1.9 requires this.
-	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = Config::CONFIG["rubyhdrdir"];if d != nil; print d + "/" + Config::CONFIG["arch"]; end'`]
+	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = RbConfig::CONFIG["rubyhdrdir"];if d != nil; print d + "/" + RbConfig::CONFIG["arch"]; end'`]
 	  dnl For earlier versions, just make it the same as RUBY_INC.
 	  test x"$RUBY_INC_ARCH" != x || RUBY_INC_ARCH=$RUBY_INC
 	fi
@@ -854,13 +857,13 @@ if test no != "$with_ruby" ; then
 
 	AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then
-	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`]
+	  [RUBY_LIB=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["sitelibdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB)
 
 	AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
 	if test -z "$RUBY_LIB_ARCH" ; then
-	  [RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]'`]
+	  [RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["sitearchdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
 
@@ -891,7 +894,7 @@ if test no != "$with_ruby" ; then
 	  AC_MSG_ERROR([ruby.h not found])
 	fi
       fi
-      RUBY_DLEXT=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["DLEXT"]]'`
+      RUBY_DLEXT=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG[["DLEXT"]]'`
       AC_SUBST(RUBY_DLEXT)
     fi
   fi
