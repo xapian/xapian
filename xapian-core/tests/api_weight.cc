@@ -106,30 +106,8 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     TEST_EQUAL(mset.size(), 5);
     // Expect: neither wdf nor doclen affects weight.
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
-    
+     
     return true;
-}
-
-// Feature tests for DFR_Pl2Weight
-DEFINE_TESTCASE(dfr_pl2weight2, backend) {
-    Xapian::Database db = get_database("apitest_declen");
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset;
-    
-    // When c=1 ,doclength affects weights because of term frequency normalization.
-    enquire.set_weighting_scheme(Xapian::DFR_PL2Weight());
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 4);
-    mset_expect_order(mset,1,4,3,2); 
-
-    // When c=0,doclength does not affect the weights as wdfn=wdf.
-    enquire.set_weighting_scheme(Xapian::DFR_PL2Weight(0));
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 4);
-    mset_expect_order(mset,1,2,3,4);
-    
-    return true;          
 }
 
 class CheckInitWeight : public Xapian::Weight {
