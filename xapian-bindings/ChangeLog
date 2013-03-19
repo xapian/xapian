@@ -1,3 +1,8 @@
+Tue Mar 19 06:07:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix dependency generation to take into account
+	  the stamp file.
+
 Mon Mar 18 10:59:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.14 and ChangeLog.
