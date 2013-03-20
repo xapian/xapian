@@ -23,9 +23,11 @@
 #define XAPIAN_INCLUDED_WEIGHT_H
 
 #include <string>
+#include <cstring>
 
 #include <xapian/types.h>
 #include <xapian/visibility.h>
+#include <xapian/error.h>
 
 namespace Xapian {
 
@@ -347,42 +349,43 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     double get_maxextra() const;
 };
 
-/* Xapian::Weight subclass implementing the tf-idf weighting scheme with various
- normalizations for tf ,idf and the tfidf weight . */
+/// Xapian::Weight subclass implementing the tf-idf weighting scheme.
 class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
-    /*   Three character String indicating the normalizations for tf,idf and
-         tfidf weight . */
+    /* Three character string indicating the normalizations for tf(wdf), idf and
+       tfidf weight. */
     std::string normalizations;
 
     TfIdfWeight * clone() const; 
 
-    void init(double factor);
+    void init(double factor);  
+
+    /* When additional normalizations are implemented in the future, the additional statistics for them
+       should be accesed by these functions. */ 
+    double get_wdfn(Xapian::termcount wdf, char c) const;  
+    double get_idfn(Xapian::doccount termfreq, char c) const;
+    double get_wtn(double wt, char c) const;   
 
   public:
     /** Construct a TfIdfWeight
      *
      *  @param normalizations  A three character string indicating the normalizations
-     *                         to be used for the tf,idf and document weight
+     *                         to be used for the tf(wdf), idf and document weight
      *                         respectively.
      *
      *                         The first character specifies the normalization
-     *                         for the tf for which the following normalizations
+     *                         for the wdf for which the following normalizations
      *                         are currently available:
      *
-     *                         'N':None.      tfn=tf
-     *                         'B':Boolean    tfn=1 if t in document else tfn=0
-     *                         'S':Square     tfn=tf*tf
-     *                         'L':Logaritmic tfn=1+log(tf) where base of log  is e by default 
-     *                             but can be changed as per need .Mathematically,the base of the logarithm
-     *                             does not make any difference to the retrieval process.
+     *                         'N':None.      wdfn=wdf
+     *                         'B':Boolean    wdfn=1 if term in document else wdfn=0
+     *                         'S':Square     wdfn=wdf*wdf
+     *                         'L':Logarithmic wdfn=1+log<sub>e</sub>(wdf)  
      *                          
-     *                         The Max-Tf and Augmented Max Tf normalization can be implemented by
-     *                         rewriting the backend to obtain the maximum wdf among all terms of a
-     *                         document.                                 
+     *                         The Max-wdf and Augmented Max wdf normalization aren't yet implemented.                                 
      *                                      
      *                      
      *                         The second character indicates the normalization
-     *                         for the idf,the following of which are currently 
+     *                         for the idf, the following of which are currently 
      *                         available:
      *                         
      *                         'N':None   idfn=1
@@ -408,21 +411,20 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *                         currently available from Xapian::Weight.
      *
      * 
-     *                         The default string is "NTN".                         
+     *                         The default string is "NTN".                        
      */                                                              
      
-    TfIdfWeight(std::string normals)
-    : normalizations(normals)
-    {
-    	// If the normalization string is invalid,set it to the default
-        // normalizations
-       	if (normalizations.length()!=3) {
-            normalizations="NTN";
+    explicit TfIdfWeight(const std::string &normals)
+       	: normalizations(normals)     
+    {    	        
+       	if (normalizations.length() != 3 || (! strchr("NBSL", normalizations[0])) || (! strchr("NTP", normalizations[1])) || (! strchr("N", normalizations[2])))
+            throw Xapian::InvalidArgumentError("Normalization string is invalid");        
+        if (normalizations[1] != 'N') {
+            need_stat(TERMFREQ);
+            need_stat(COLLECTION_SIZE);
         }
-        need_stat(TERMFREQ);
         need_stat(WDF);
-        need_stat(WDF_MAX);
-        need_stat(COLLECTION_SIZE);         
+        need_stat(WDF_MAX);                
     }     
                   
     TfIdfWeight()
@@ -444,27 +446,14 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen) const;
-    double get_maxextra() const;
-
-    /* When additional normalizations are implemented in the future,
-       the additional statistics for them should be accesed by these functions */ 
-       
-    double get_tfn(Xapian::termcount tf, const char c) const;
-    double get_idfn(Xapian::doccount termfreq, const char c) const;
-    double get_wtn(double wt, const char c) const;
-
-    // Functions to check for validity of each character of the normalization string .
-    // Not used anywhere but may be useful in the future.      
-    int check_tfn(const char c) const;
-    int check_idfn(const char c) const;
-    int check_wtn(const char c) const; 
+    double get_maxextra() const;        
 };
 	
 
 /// Xapian::Weight subclass implementing the BM25 probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     /// Factor to multiply the document length by.
-    mutable Xapian::doclength len_factor;
+    mutable Xapian::doclength len_factor;          
 
     /// Factor combining all the document independent factors.
     mutable double termweight;
@@ -508,10 +497,10 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
      *		   (default 0.5)
      */
     BM25Weight(double k1, double k2, double k3, double b, double min_normlen)
-	: param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
+       	: param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
 	  param_min_normlen(min_normlen)
     {
-	if (param_k1 < 0) param_k1 = 0;
+       	if (param_k1 < 0) param_k1 = 0;
 	if (param_k2 < 0) param_k2 = 0;
 	if (param_k3 < 0) param_k3 = 0;
 	if (param_b < 0) {
