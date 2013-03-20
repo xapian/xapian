@@ -21,13 +21,12 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include <cmath>
 
 #include "debuglog.h"
 #include "omassert.h"
 
 #include "xapian/error.h"
-
-#include <cmath>
 
 using namespace std;
 
@@ -54,14 +53,12 @@ TfIdfWeight::name() const
 string
 TfIdfWeight::serialise() const
 {
-    string result = normalizations;
-    return result;
+    return normalizations;
 }
 
 TfIdfWeight *
 TfIdfWeight::unserialise(const string & s) const
 {
-
     if (s.length() != 3)
         throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
     else return new TfIdfWeight(s);
@@ -69,22 +66,23 @@ TfIdfWeight::unserialise(const string & s) const
 
 double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
-{  
-             
-    Xapian::doccount termfreq=get_termfreq();
-    return (get_wtn(get_tfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]),   normalizations[2]));
+{               
+    Xapian::doccount termfreq = 1;
+    if (normalizations[1] != 'N') termfreq = get_termfreq();
+    return (get_wtn(get_wdfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq and N are constants.
 double
 TfIdfWeight::get_maxpart() const
 {    
-    Xapian::doccount termfreq=get_termfreq();
-    Xapian::termcount wdf_max=get_wdf_upper_bound();    
-    return (get_wtn(get_tfn(wdf_max,normalizations[0])*get_idfn(termfreq,normalizations[1]),normalizations[2]));
+    Xapian::doccount termfreq = 1;
+    if (normalizations[1] != 'N') termfreq = get_termfreq();
+    Xapian::termcount wdf_max = get_wdf_upper_bound();    
+    return (get_wtn(get_wdfn(wdf_max, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
 }
 
-//There is no extra per document component in TfIdfWeighting scheme.
+// There is no extra per document component in the TfIdfWeighting scheme.
 double
 TfIdfWeight::get_sumextra(Xapian::termcount) const
 {
@@ -97,50 +95,49 @@ TfIdfWeight::get_maxextra() const
     return 0;
 }
 
-// Return normalized tf,idf and weight depending on the normalization string
+// Return normalized wdf, idf and weight depending on the normalization string.
 double
-TfIdfWeight:: get_tfn(Xapian::termcount tf, const char c) const
+TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 {
     switch (c) {
         case 'N':
-            return tf;
+            return wdf;
         case 'B':
-            if (tf==0) return 0;
+            if (wdf == 0) return 0;
             else return 1.0;
         case 'S':
-            return tf*tf;
+            return (wdf * wdf);
         case 'L':
-            if (tf==0) return 0;
-            else return (1+log(tf));
+            if (wdf == 0) return 0;
+            else return (1 + log(wdf));
         default:
-            return tf;
+            return wdf;        
     }
 }  
                 
 double
-TfIdfWeight::get_idfn(Xapian::doccount termfreq, const char c) const
+TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 {
-    Xapian::doccount N=get_collection_size();    
+    double N = 1.0;
+    if (c != 'N') N = get_collection_size();    
     switch (c) {
         case 'N':
             return 1.0;
-        case 'T':
-            if (N==0) return 0; //Database can be empty             
-            else return (log(N/termfreq));
+        case 'T':                        
+            return (log(N / termfreq));
         case 'P':
-            if (N==termfreq) return 0; //All documents are indexed by the term 
-            else return log((N-termfreq)/termfreq);       
+            if (N == termfreq) return 0; // All documents are indexed by the term 
+            else return log((N - termfreq) / termfreq);
         default:
-            if (N==0) return 0;
-            else return (log(N/termfreq));
+            return (log(N / termfreq)); 
     }
 }
 
 double
-TfIdfWeight:: get_wtn(double wt, const char c) const
+TfIdfWeight::get_wtn(double wt, char c) const
 {
-/*Include future implementations of weight normalizations in the switch
-   construct*/    
+/* Include future implementations of weight normalizations in the switch
+   construct */    
     switch (c) {
         case 'N':
             return wt;
@@ -148,35 +145,5 @@ TfIdfWeight:: get_wtn(double wt, const char c) const
             return wt;
     }
 }
-
-// Check for validity of each character of string 
-// Not used anywhere but maybe useful in  the future
-int TfIdfWeight:: check_tfn(const char c) const
-{ 
-    // Add characters to this array when more normalizations are implemented
-    char tfn_array[]={'N','B','S','L','\0'};
-    for (int i=0;tfn_array[i]!='\0';++i) {
-         if (tfn_array[i] == c) return 1;
-    }
-    return 0; 
-}          
-
-int TfIdfWeight:: check_idfn(const char c) const
-{
-    char idfn_array[]={'N','T','P','\0'};
-    for (int i=0;idfn_array[i]!='\0';++i) {
-         if (idfn_array[i] == c) return 1;
-    }
-    return 0;   
-}
-
-int TfIdfWeight:: check_wtn(const char c) const
-{
-    char wtn_array[]={'N','\0'};
-    for (int i=0;wtn_array[i]!='\0';++i) {
-         if (wtn_array[i] == c) return 1;
-    }
-    return 0;   
-}                  
 
 }          
