@@ -689,6 +689,8 @@ static const test test_or_queries[] = {
     { "authortitle:\"richard boulton\"", "((Arichard@1 PHRASE 2 Aboulton@2) OR (XTrichard@1 PHRASE 2 XTboulton@2))"},
     // Some CJK tests.
     { "久有归天愿", "(久@1 AND 久有@1 AND 有@1 AND 有归@1 AND 归@1 AND 归天@1 AND 天@1 AND 天愿@1 AND 愿@1)" },
+    { "久有 归天愿", "((久@1 AND 久有@1 AND 有@1) OR (归@2 AND 归天@2 AND 天@2 AND 天愿@2 AND 愿@2))" },
+    { "久有！归天愿", "((久@1 AND 久有@1 AND 有@1) OR (归@2 AND 归天@2 AND 天@2 AND 天愿@2 AND 愿@2))" },
     { "title:久有 归 天愿", "(((XT久@1 AND XT久有@1 AND XT有@1) OR 归@2) OR (天@3 AND 天愿@3 AND 愿@3))" },
     { "h众ello万众", "(((Zh@1 OR 众@2) OR Zello@3) OR (万@4 AND 万众@4 AND 众@4))" },
     { "世(の中)TEST_tm", "((世@1 OR (の@2 AND の中@2 AND 中@2)) OR test_tm@3)" },
