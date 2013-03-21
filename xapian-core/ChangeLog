@@ -1,3 +1,12 @@
+Thu Mar 21 07:21:30 GMT 2013  Greg Banks <gnb@fastmail.fm>
+
+	* queryparser/cjk-tokenizer.cc,queryparser/termgenerator_internal.cc,
+	  tests/termgentest.cc: Some CJK codepoints are also punctuation and
+	  hence not word characters, and should not really be used as fodder
+	  for generating N-grams.  Also fixes a pre-existing bug where every
+	  second sequence of N-grammable CJK characters in the text failed to
+	  generate the first 2-gram.
+
 Sun Mar 17 20:45:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Restore space after comma in output.

@@ -88,7 +88,9 @@ string
 CJK::get_cjk(Xapian::Utf8Iterator &it)
 {
     string str;
-    while (it != Xapian::Utf8Iterator() && codepoint_is_cjk(*it)) {
+    while (it != Xapian::Utf8Iterator() &&
+	   codepoint_is_cjk(*it) &&
+	   Xapian::Unicode::is_wordchar(*it)) {
 	Xapian::Unicode::append_utf8(str, *it);
 	++it;
     }
