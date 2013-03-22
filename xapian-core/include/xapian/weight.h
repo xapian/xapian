@@ -355,15 +355,15 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        tfidf weight. */
     std::string normalizations;
 
-    TfIdfWeight * clone() const; 
+    TfIdfWeight * clone() const;
 
-    void init(double factor);  
+    void init(double factor);
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
-       should be accesed by these functions. */ 
-    double get_wdfn(Xapian::termcount wdf, char c) const;  
+       should be accesed by these functions. */
+    double get_wdfn(Xapian::termcount wdf, char c) const;
     double get_idfn(Xapian::doccount termfreq, char c) const;
-    double get_wtn(double wt, char c) const;   
+    double get_wtn(double wt, char c) const;
 
   public:
     /** Construct a TfIdfWeight
@@ -379,54 +379,54 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *                         'N':None.      wdfn=wdf
      *                         'B':Boolean    wdfn=1 if term in document else wdfn=0
      *                         'S':Square     wdfn=wdf*wdf
-     *                         'L':Logarithmic wdfn=1+log<sub>e</sub>(wdf)  
-     *                          
-     *                         The Max-wdf and Augmented Max wdf normalization aren't yet implemented.                                 
-     *                                      
-     *                      
+     *                         'L':Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *
+     *                         The Max-wdf and Augmented Max wdf normalization aren't yet implemented.
+     *
+     *
      *                         The second character indicates the normalization
-     *                         for the idf, the following of which are currently 
+     *                         for the idf, the following of which are currently
      *                         available:
-     *                         
+     *
      *                         'N':None   idfn=1
      *                         'T':TfIdf  idfn=log(N/Termfreq) where N is the number of documents in
      *                                    collection and Termfreq is the number of documents which are
      *                                    indexed by the term t.
-     *                         'P':Prob   idfn=log((N-Termfreq)/Termfreq)                        
-     *                                                               
-     *                        
+     *                         'P':Prob   idfn=log((N-Termfreq)/Termfreq)
+     *
+     *
      *                         The third and the final character indicates the
      *                         normalizaton for the document weight of which
      *                         the following are currently available:
-     *                         
+     *
      *                         'N':None wtn=tfn*idfn
      *                         Implementing more normalizaions for the weight requires access to
      *                         statistics such as the weight of all terms in the document indexed by
-     *                         the term in the query. This is not available from the current backend.                                        
+     *                         the term in the query. This is not available from the current backend.
      *
-     *     
-     *                         More normalizations for all components can be implemented by 
+     *
+     *                         More normalizations for all components can be implemented by
      *                         changing the backend to acquire the statistics
      *                         required for the normalizations which are not
      *                         currently available from Xapian::Weight.
      *
-     * 
-     *                         The default string is "NTN".                        
-     */                                                              
-     
+     *
+     *                         The default string is "NTN".
+     */
+
     explicit TfIdfWeight(const std::string &normals)
-       	: normalizations(normals)     
-    {    	        
+       	: normalizations(normals)
+    {
        	if (normalizations.length() != 3 || (! strchr("NBSL", normalizations[0])) || (! strchr("NTP", normalizations[1])) || (! strchr("N", normalizations[2])))
-            throw Xapian::InvalidArgumentError("Normalization string is invalid");        
+            throw Xapian::InvalidArgumentError("Normalization string is invalid");
         if (normalizations[1] != 'N') {
             need_stat(TERMFREQ);
             need_stat(COLLECTION_SIZE);
         }
         need_stat(WDF);
-        need_stat(WDF_MAX);                
-    }     
-                  
+        need_stat(WDF_MAX);
+    }
+
     TfIdfWeight()
     : normalizations("NTN")
     {
@@ -434,11 +434,11 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
         need_stat(WDF);
         need_stat(WDF_MAX);
         need_stat(COLLECTION_SIZE);
-    }	 
+    }
 
     std::string name() const;
- 
-    std::string serialise() const; 
+
+    std::string serialise() const;
     TfIdfWeight * unserialise(const std::string & s) const;
 
     double get_sumpart(Xapian::termcount wdf,
@@ -446,9 +446,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen) const;
-    double get_maxextra() const;        
+    double get_maxextra() const;
 };
-	
+
 
 /// Xapian::Weight subclass implementing the BM25 probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
