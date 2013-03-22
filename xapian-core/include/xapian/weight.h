@@ -453,7 +453,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 /// Xapian::Weight subclass implementing the BM25 probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     /// Factor to multiply the document length by.
-    mutable Xapian::doclength len_factor;          
+    mutable Xapian::doclength len_factor;
 
     /// Factor combining all the document independent factors.
     mutable double termweight;
@@ -497,10 +497,10 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
      *		   (default 0.5)
      */
     BM25Weight(double k1, double k2, double k3, double b, double min_normlen)
-       	: param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
+	: param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
 	  param_min_normlen(min_normlen)
     {
-       	if (param_k1 < 0) param_k1 = 0;
+	if (param_k1 < 0) param_k1 = 0;
 	if (param_k2 < 0) param_k2 = 0;
 	if (param_k3 < 0) param_k3 = 0;
 	if (param_b < 0) {
