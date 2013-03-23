@@ -74,6 +74,9 @@ class Weight::Internal {
      *  collection. */
     std::map<std::string, TermFreqs> termfreqs;
 
+    /** Map of collection frequencies for the collection. */
+    std::map<std::string, Xapian::termcount> collec_freqs;   	  
+
     Internal() : total_length(0), collection_size(0), rset_size(0) { }
 
     /** Add in the supplied statistics from a sub-database.
@@ -88,6 +91,7 @@ class Weight::Internal {
 	Xapian::TermIterator t;
 	for (t = query.get_terms_begin(); t != Xapian::TermIterator(); ++t) {
 	    termfreqs.insert(make_pair(*t, TermFreqs()));
+            collec_freqs.insert(make_pair(*t, 0));
 	}
     }
 
@@ -109,6 +113,13 @@ class Weight::Internal {
      */
     Xapian::doccount get_reltermfreq(const std::string & term) const;
 
+    /** Get the collection frequency for the given term.
+     *
+     *  This is the total number of times the term occurs in the whole collection . 
+     *  It is equal to the sum of within document frequencies of the term.
+     */
+    Xapian::termcount get_collec_freq(const std::string &term) const;
+   
     Xapian::doclength get_average_length() const {
 	if (rare(collection_size == 0)) return 0;
 	return Xapian::doclength(total_length) / collection_size;

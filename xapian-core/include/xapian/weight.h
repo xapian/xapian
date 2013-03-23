@@ -45,7 +45,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH = 256,
 	DOC_LENGTH_MIN = 512,
 	DOC_LENGTH_MAX = 1024,
-	WDF_MAX = 2048
+	WDF_MAX = 2048,
+        COLLEC_FREQ=4096
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -93,6 +94,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount reltermfreq_;
+
+    /// The total number of times this term occurs in the collection.
+    Xapian::termcount collec_freq_;
 
     /// The length of the query.
     Xapian::termcount query_length_;
@@ -284,6 +288,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of documents which this term indexes.
     Xapian::doccount get_termfreq() const { return termfreq_; }
+
+    /// The total number of times this term occurs in the collection.
+    Xapian::termcount get_collec_freq() const { return collec_freq_; } 
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
@@ -499,6 +506,64 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the PL2 weighting scheme,which is a representative 
+ * scheme of the Divergence from Randomness Framework by Gianni Amati.  
+ * 
+ * This weighting scheme is useful for tasks that require early precision.  
+ *
+ * It uses the Poisson approximation of the Binomial Probabilistic distribution (P) 
+ * along with Sterling's approximation for a factorial value , the Laplace method to find
+ * the aftereffect of sampling (L) and the second wdf normalization proposed by Amati to     
+ * normalize the wdf in the document to the length of the document (H2).
+ *
+ * For more information about the DFR Framework and the PL2 scheme,please refer: 
+ * Gianni Amati and Cornelis Joost Van Rijsbergen
+ * Probabilistic models of information retrieval based on measuring the divergence from randomness
+ * ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389 
+ */
+class XAPIAN_VISIBILITY_DEFAULT DFR_PL2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    DFR_PL2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a DFR_PL2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent of the normalization
+     *		  of the wdf to the document length.A default value of                        
+     *            1 is suitable for longer queries but it may need to be changed for shorter   
+     *		  queries.For more information,please refer to Gianni Amati's PHD thesis titled
+     *            Probabilistic Models for Information Retrieval based on Divergence from Randomness.    
+     */
+    explicit DFR_PL2Weight(double c_ = 1.0) : param_c(c_) {
+	if (param_c <= 0) param_c = 1;
+        need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+        need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);       	
+	need_stat(COLLECTION_SIZE);
+        need_stat(COLLEC_FREQ);
+	need_stat(WDF); 
+        need_stat(WDF_MAX);  
+	need_stat(WQF);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    DFR_PL2Weight * unserialise(const std::string & s) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen) const;

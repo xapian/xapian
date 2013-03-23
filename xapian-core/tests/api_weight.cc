@@ -53,16 +53,34 @@ DEFINE_TESTCASE(tradweight3, !backend) {
 DEFINE_TESTCASE(bm25weight3, !backend) {
     Xapian::BM25Weight wt(2.0, 0.5, 1.3, 0.6, 0.01);
     try {
-	Xapian::BM25Weight b;
+       	Xapian::BM25Weight b;
 	Xapian::BM25Weight * b2 = b.unserialise(wt.serialise() + "X");
 	// Make sure we actually use the weight.
 	bool empty = b2->name().empty();
 	delete b2;
 	if (empty)
 	    FAIL_TEST("Serialised BM25Weight with junk appended unserialised to empty name!");
-	FAIL_TEST("Serialised BM25Weight with junk appended unserialised OK");
+       	FAIL_TEST("Serialised BM25Weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
 	// Good!
+    }
+    return true;
+}
+
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(dfr_pl2weight1, !backend) {
+    Xapian::DFR_PL2Weight wt(2.0);
+    try {
+        Xapian::DFR_PL2Weight b;
+	Xapian::DFR_PL2Weight * b2 = b.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = b2->name().empty();
+	delete b2;
+	if (empty)
+	    FAIL_TEST("Serialised DFR_PL2Weight with junk appended unserialised to empty name!");
+       	FAIL_TEST("Serialised DFR_PL2Weight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+	
     }
     return true;
 }
@@ -88,7 +106,7 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     TEST_EQUAL(mset.size(), 5);
     // Expect: neither wdf nor doclen affects weight.
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
-
+     
     return true;
 }
 
@@ -177,6 +195,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(WDF_MAX);
+        need_stat(COLLEC_FREQ);
     }
 
     void init(double factor_) {
@@ -192,6 +211,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_EQUAL(get_rset_size(), 0);
 	TEST_EQUAL(get_average_length(), db.get_avlength());
 	TEST_EQUAL(get_termfreq(), db.get_termfreq(term));
+        TEST_EQUAL(get_collec_freq(), db.get_collection_freq(term));
 	TEST_EQUAL(get_reltermfreq(), 0);
 	TEST_EQUAL(get_query_length(), 1);
 	TEST_EQUAL(get_wqf(), 1);
