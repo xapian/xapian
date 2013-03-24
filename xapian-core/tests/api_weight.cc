@@ -85,6 +85,17 @@ DEFINE_TESTCASE(dfr_pl2weight1, !backend) {
     return true;
 }
 
+// Test for invalid values of c.
+DEFINE_TESTCASE(dfr_pl2weight2, !backend) {
+    Xapian::DFR_PL2Weight wt(-2.0);
+    Xapian::DFR_PL2Weight wt2;
+    TEST_EQUAL(wt.serialise(), wt2.serialise());
+    Xapian::DFR_PL2Weight wt3(0.0); 	 
+    TEST_EQUAL(wt3.serialise(), wt2.serialise());
+
+    return true;
+}
+
 // Test parameter combinations which should be unaffected by doclength.
 DEFINE_TESTCASE(bm25weight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
