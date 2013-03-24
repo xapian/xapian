@@ -96,6 +96,19 @@ DEFINE_TESTCASE(dfr_pl2weight2, !backend) {
     return true;
 }
 
+// Weights are affected by document lengths when wdf's are same.
+DEFINE_TESTCASE(dfr_pl2weight3, backend) {
+    Xapian::Database db = get_database("apitest_declen");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 4);
+    mset_expect_order(mset, 1, 4, 3, 2);   
+	
+    return true;
+}
+
 // Test parameter combinations which should be unaffected by doclength.
 DEFINE_TESTCASE(bm25weight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
