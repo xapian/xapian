@@ -1,3 +1,7 @@
+Sun Mar 24 23:33:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* htmlparsetest.cc: Fix table parsing test to have a <table> tag in!
+
 Sun Mar 17 22:00:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Use rst2html to indexing .rst and

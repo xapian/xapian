@@ -59,7 +59,7 @@ static const testcase tests[] = {
     // Test that handling of multiple body tags matches modern browser behaviour (ticket#599).
     { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
     { "check<object id='foo'>for<applet foo=\"bar\" />spaces<br> in <p>\tout</p>put\r\n", "check for spaces\rin\rout\rput", "", "", "" },
-    { "table<tr><th>col 1</th><th>col 2</th></tr><tr><td>test</td><td><img src='foo.jpg'> <img src='bar.jpg'></td></tr><tr><td colspan=2>hello world</td></tr></table>done", "table\rcol 1\tcol 2\rtest\rhello world\rdone", "", "", "" },
+    { "tab:<table><tr><th>col 1</th><th>col 2</th></tr><tr><td>test</td><td><img src='foo.jpg'> <img src='bar.jpg'></td></tr><tr><td colspan=2>hello world</td></tr></table>done", "tab:\rcol 1\tcol 2\rtest\rhello world\rdone", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
