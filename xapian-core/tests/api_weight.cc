@@ -80,7 +80,7 @@ DEFINE_TESTCASE(dfr_pl2weight1, !backend) {
 	    FAIL_TEST("Serialised DFR_PL2Weight with junk appended unserialised to empty name!");
        	FAIL_TEST("Serialised DFR_PL2Weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-	
+
     }
     return true;
 }
@@ -90,7 +90,7 @@ DEFINE_TESTCASE(dfr_pl2weight2, !backend) {
     Xapian::DFR_PL2Weight wt(-2.0);
     Xapian::DFR_PL2Weight wt2;
     TEST_EQUAL(wt.serialise(), wt2.serialise());
-    Xapian::DFR_PL2Weight wt3(0.0); 	 
+    Xapian::DFR_PL2Weight wt3(0.0);
     TEST_EQUAL(wt3.serialise(), wt2.serialise());
 
     return true;
@@ -104,8 +104,8 @@ DEFINE_TESTCASE(dfr_pl2weight3, backend) {
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 4);
-    mset_expect_order(mset, 1, 4, 3, 2);   
-	
+    mset_expect_order(mset, 1, 4, 3, 2);
+
     return true;
 }
 
@@ -143,7 +143,7 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     TEST_EQUAL(mset.size(), 5);
     // Expect: neither wdf nor doclen affects weight.
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
-     
+
     return true;
 }
 
