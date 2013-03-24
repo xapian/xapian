@@ -48,7 +48,7 @@ string
 DFR_PL2Weight::name() const
 {
     return "Xapian::DFR_PL2Weight";
-}    
+}
 
 string
 DFR_PL2Weight::serialise() const
@@ -72,44 +72,44 @@ DFR_PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
-    double base_change(log(2));    
+    double base_change(log(2));
     wdfn = wdfn * ((log(1 + (param_c * get_average_length() / len))) / (base_change));
-     
+
     double L = 1 / (wdfn + 1);
-   
+
     double F(get_collec_freq());
-    double N(get_collection_size()); 
+    double N(get_collection_size());
     double mean_P = F / N;
-   
+
     if (mean_P == 0) return 0.0;
 
     double P = (((wdfn * (log(wdfn) - log(mean_P))) + ((mean_P - wdfn)) + (0.5 * log(2 * M_PI * wdfn))) / (base_change));
 
-    return (get_wqf() * L * P);    
+    return (get_wqf() * L * P);
 }
 
 double
 DFR_PL2Weight::get_maxpart() const
 {
-    if (get_wdf_upper_bound() == 0) return 0.0; 
+    if (get_wdf_upper_bound() == 0) return 0.0;
     double wdfn_lower(1.0);
-    double base_change(log(2));  
+    double base_change(log(2));
     double wdfn_upper(get_wdf_upper_bound());
     double F(get_collec_freq());
-    double N(get_collection_size()); 
+    double N(get_collection_size());
     double mean_P = F / N;
 
-    if (mean_P == 0) return 0.0;   
-    
+    if (mean_P == 0) return 0.0;
+
     wdfn_lower = wdfn_lower * ((log(1 + param_c * get_average_length() /   get_doclength_upper_bound())) / (base_change));
 
     wdfn_upper = wdfn_upper * ((log(1 + param_c * get_average_length() / get_doclength_lower_bound())) / (base_change));
-         
-    double L_max = 1 / (wdfn_lower + 1);    
-        
+
+    double L_max = 1 / (wdfn_lower + 1);
+
     double P_max = (((wdfn_upper * (log(wdfn_upper) - log(mean_P))) + ((mean_P - wdfn_upper)) + (0.5 * log(2 * M_PI * wdfn_upper))) / (base_change));
 
-    return (get_wqf() * L_max * P_max);             
+    return (get_wqf() * L_max * P_max);
 }
 
 double
