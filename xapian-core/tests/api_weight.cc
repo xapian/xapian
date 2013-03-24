@@ -109,6 +109,19 @@ DEFINE_TESTCASE(dfr_pl2weight3, backend) {
     return true;
 }
 
+// Feature tests for DFR_PL2Weight.
+DEFINE_TESTCASE(dfr_pl2weight4, backend) {
+    Xapian::Database db = get_database("apitest_dfr");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("john"));
+    Xapian::MSet mset;
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 1);
+
+    return true;
+}
+
 // Test parameter combinations which should be unaffected by doclength.
 DEFINE_TESTCASE(bm25weight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
