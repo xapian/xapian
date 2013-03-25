@@ -19,8 +19,9 @@
  */
 
 #include <config.h>
-#include <cmath>
+
 #include "xapian/weight.h"
+#include <cmath>
 
 #include "debuglog.h"
 #include "omassert.h"
