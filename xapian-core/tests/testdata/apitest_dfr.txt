@@ -1,0 +1,22 @@
+This is a document created for the pl2 weighting scheme for which I need words whose collection frequency is much less than the number of documents in the database.
+So,I am going to tweak this database accordingly and put the word john in it about three times and it will contain about 10 documents.
+
+Here is john again.As this document is shorter and,it will come first.john goes for the last time.
+
+Hey Jude is a masterpiece.Yes,it is.
+
+So is Let it be.Yes it is.
+
+Imagine Imagine coming true.Lennon would be very happy.
+
+A rose is a rose is a rose is a rose.William Wordsworth wrote it.
+
+Heard melodies are sweet,but those unheard are sweeter.This is the magic of Keats.
+
+There is not art to find the mind's construction in the face.William Shakespeare wrote it.
+
+Rush is a great band.Though,the beatles rule the world.
+
+P.G. Wodehouse rules my world.His humour is unmatched and so is his mastery of English.
+
+This is the last document.Yes,the very last.
