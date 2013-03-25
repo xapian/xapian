@@ -83,7 +83,7 @@ Xapian::doccount
 MultiXorPostList::get_termfreq_est() const
 {
     if (rare(db_size == 0))
-	RETURN(0);
+	return 0;
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.

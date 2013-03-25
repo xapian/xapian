@@ -90,7 +90,7 @@ Xapian::doccount
 MultiAndPostList::get_termfreq_est() const
 {
     if (rare(db_size == 0))
-	RETURN(0);
+	return 0;
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
