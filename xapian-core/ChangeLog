@@ -1,3 +1,10 @@
+Tue Mar 26 09:54:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  common/pretty.h: Avoid needlessly casting away const-ness in
+	  debug logging.
+
 Tue Mar 26 08:00:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

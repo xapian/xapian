@@ -457,7 +457,7 @@ ChertTable::alter()
 int
 ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (void*)p | (const void *)key.get_address() | leaf | c);
+    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (const void*)p | (const void *)key.get_address() | leaf | c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
