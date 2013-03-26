@@ -648,6 +648,8 @@ static const test test_or_queries[] = {
     { "authortitle:\"richard boulton\"", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
     // Some CJK tests.
     { "久有归天愿", "(久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1) AND 有归:(pos=1) AND 归:(pos=1) AND 归天:(pos=1) AND 天:(pos=1) AND 天愿:(pos=1) AND 愿:(pos=1))" },
+    { "久有 归天愿", "((久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1)) OR (归:(pos=2) AND 归天:(pos=2) AND 天:(pos=2) AND 天愿:(pos=2) AND 愿:(pos=2)))" },
+    { "久有！归天愿", "((久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1)) OR (归:(pos=2) AND 归天:(pos=2) AND 天:(pos=2) AND 天愿:(pos=2) AND 愿:(pos=2)))" },
     { "title:久有 归 天愿", "((XT久:(pos=1) AND XT久有:(pos=1) AND XT有:(pos=1)) OR 归:(pos=2) OR (天:(pos=3) AND 天愿:(pos=3) AND 愿:(pos=3)))" },
     { "h众ello万众", "(Zh:(pos=1) OR 众:(pos=2) OR Zello:(pos=3) OR (万:(pos=4) AND 万众:(pos=4) AND 众:(pos=4)))" },
     { "世(の中)TEST_tm", "(世:(pos=1) OR (の:(pos=2) AND の中:(pos=2) AND 中:(pos=2)) OR test_tm:(pos=3))" },
