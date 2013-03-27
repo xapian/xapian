@@ -100,6 +100,7 @@ DEFINE_TESTCASE(dfr_pl2weight2, !backend) {
 DEFINE_TESTCASE(dfr_pl2weight3, backend) {
     Xapian::Database db = get_database("apitest_declen");
     Xapian::Enquire enquire(db);
+    enquire.set_weighting_scheme(Xapian::DFR_PL2Weight());
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
@@ -113,6 +114,7 @@ DEFINE_TESTCASE(dfr_pl2weight3, backend) {
 DEFINE_TESTCASE(dfr_pl2weight4, backend) {
     Xapian::Database db = get_database("apitest_dfr");
     Xapian::Enquire enquire(db);
+    enquire.set_weighting_scheme(Xapian::DFR_PL2Weight());
     enquire.set_query(Xapian::Query("john"));
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
@@ -126,6 +128,7 @@ DEFINE_TESTCASE(dfr_pl2weight4, backend) {
 DEFINE_TESTCASE(dfr_pl2weight5, backend) {
     Xapian::Database db = get_database("apitest_dfr");
     Xapian::Enquire enquire(db);
+    enquire.set_weighting_scheme(Xapian::DFR_PL2Weight());
     enquire.set_query(Xapian::Query("python"));
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
