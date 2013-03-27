@@ -1,3 +1,8 @@
+Wed Mar 27 09:39:12 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am: Don't link utf8convert.cc code into omega CGI.
+
 Thu Mar 14 22:43:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.14.

@@ -132,7 +132,7 @@ libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc utf8convert.cc\
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
  datematchdecider.cc weight.cc common/str.cc unixperm.cc urlencode.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
