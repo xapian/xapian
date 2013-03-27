@@ -1,3 +1,7 @@
+Wed Mar 27 09:20:28 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Don't link utf8convert.cc code into omega CGI.
+
 Sun Mar 24 23:33:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* htmlparsetest.cc: Fix table parsing test to have a <table> tag in!
