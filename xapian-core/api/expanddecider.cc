@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include <xapian/expanddecider.h>
+#include "stringutils.h"
 
 using namespace std;
 
@@ -43,6 +44,12 @@ ExpandDeciderFilterTerms::operator()(const string &term) const
      * result of find() to a const_iterator. */
     set<string>::const_iterator i = rejects.find(term);
     return i == rejects.end();
+}
+
+bool
+ExpandDeciderFilterPrefix::operator()(const string &term) const
+{
+    return startswith(term, prefix);
 }
 
 }

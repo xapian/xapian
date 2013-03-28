@@ -1,3 +1,9 @@
+Thu Mar 28 04:19:26 GMT 2013  jiangwen jiang <jiangwen127@gmail.com>
+
+	* api/expanddecider.cc,include/xapian/expanddecider.h,
+	  tests/api_anydb.cc,tests/api_nodb.cc: Add ExpandDeciderFilterPrefix
+	  class to only return terms with a particular prefix.  (fixes #467)
+
 Thu Mar 21 23:55:26 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add test coverage for change to

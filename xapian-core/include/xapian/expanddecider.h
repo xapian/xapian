@@ -96,6 +96,24 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
     virtual bool operator()(const std::string &term) const;
 };
 
+/** ExpandDecider subclass which restrict terms to a particular prefix
+ *
+ *  ExpandDeciderFilterPrefix provides an easy way to choose terms with a
+ *  particular prefix when generating an ESet.
+ */
+class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterPrefix : public ExpandDecider {
+    std::string prefix;
+
+  public:
+    /** The parameter specify the prefix of terms to be retained
+     *  @param prefix_   restrict terms to the particular prefix_
+     */
+    ExpandDeciderFilterPrefix(const std::string &prefix_)
+       : prefix(prefix_) { }
+
+    virtual bool operator() (const std::string &term) const;
+};
+
 }
 
 #endif // XAPIAN_INCLUDED_EXPANDDECIDER_H
