@@ -1,3 +1,8 @@
+Thu Mar 28 04:27:46 GMT 2013  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Update for new
+	  ExpandDeciderFilterPrefix class.
+
 Tue Mar 19 06:07:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Fix dependency generation to take into account
