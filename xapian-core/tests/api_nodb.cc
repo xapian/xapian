@@ -433,3 +433,17 @@ DEFINE_TESTCASE(emptymset1, !backend) {
 		   emptymset.get_termfreq("foo"));
     return true;
 }
+
+DEFINE_TESTCASE(expanddeciderfilterprefix1, !backend) {
+    string prefix = "tw";
+    Xapian::ExpandDeciderFilterPrefix decider(prefix);
+    TEST(!decider("one"));
+    TEST(!decider("t"));
+    TEST(!decider(""));
+    TEST(!decider("Two"));
+    TEST(decider("two"));
+    TEST(decider("twitter"));
+    TEST(decider(prefix));
+
+    return true;
+}

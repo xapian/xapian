@@ -639,6 +639,57 @@ DEFINE_TESTCASE(expandfunctor1, backend) {
     return true;
 }
 
+DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    TEST(mymset.size() >= 2);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    Xapian::ESet myeset_orig = enquire.get_eset(1000, myrset);
+    unsigned int neweset_size = 0;
+
+    //choose the first char in the first term as prefix 
+    Xapian::ESetIterator j = myeset_orig.begin();
+    TEST(myeset_orig.size() >= 1);
+    string prefix = (*j).substr(0, 1);
+    Xapian::ExpandDeciderFilterPrefix myfunctor(prefix);
+
+    for ( ; j != myeset_orig.end(); ++j) {
+        if (myfunctor(*j)) neweset_size++;
+    }
+    Xapian::ESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
+
+    Xapian::ESetIterator orig = myeset_orig.begin();
+    Xapian::ESetIterator filt = myeset.begin();
+    for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
+    // skip over items that shouldn't be in myeset
+        while (orig != myeset_orig.end() && !myfunctor(*orig)) {
+            ++orig;
+        }
+
+        TEST_AND_EXPLAIN(*orig == *filt &&
+            orig.get_weight() == filt.get_weight(),
+            "Mismatch in items " << *orig << " vs. " << *filt
+            << " after filtering");
+    }
+
+    while (orig != myeset_orig.end() && !myfunctor(*orig)) {
+        ++orig;
+    }
+
+    TEST_EQUAL(orig, myeset_orig.end());
+    TEST_AND_EXPLAIN(filt == myeset.end(),
+        "Extra items in the filtered eset.");
+
+    return true;
+}
+
 // tests the percent cutoff option
 DEFINE_TESTCASE(pctcutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
