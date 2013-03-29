@@ -33,7 +33,7 @@
 
 #include <cmath>
 #include <cstring>
-#if 1 //ndef __WIN32__
+#ifndef __WIN32__
 # include <netdb.h>
 # include <netinet/in.h>
 # include <netinet/tcp.h>
