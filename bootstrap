@@ -99,30 +99,31 @@ lazy_build() {
     case $basename in
     doxygen-*)
       if [ "$use_ftp" = yes ] ; then
-	$FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball"
+	url="ftp://ftp.stack.nl/pub/users/dimitri/$tarball"
       else
-	$FETCH_URL_TOOL "http://ftp.stack.nl/pub/users/dimitri/$tarball"
+	url="http://ftp.stack.nl/pub/users/dimitri/$tarball"
       fi ;;
     file-*)
       if [ "$use_ftp" = yes ] ; then
-	$FETCH_URL_TOOL "ftp://ftp.astron.com/pub/file/$tarball"
+	url="ftp://ftp.astron.com/pub/file/$tarball"
       else
-	$FETCH_URL_TOOL "http://fossies.org/unix/misc/$tarball"
+	url="http://fossies.org/unix/misc/$tarball"
       fi ;;
     *[13579][a-z])
       # GNU alpha release
       if [ "$use_ftp" = yes ] ; then
-	$FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball"
+	url="ftp://alpha.gnu.org/gnu/$package/$tarball"
       else
-	$FETCH_URL_TOOL "http://alpha.gnu.org/gnu/$package/$tarball"
+	url="http://alpha.gnu.org/gnu/$package/$tarball"
       fi ;;
     *)
       if [ "$use_ftp" = yes ] ; then
-	$FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball"
+	url="ftp://ftp.gnu.org/gnu/$package/$tarball"
       else
-	$FETCH_URL_TOOL "http://ftpmirror.gnu.org/$package/$tarball"
+	url="http://ftpmirror.gnu.org/$package/$tarball"
       fi ;;
     esac
+    $FETCH_URL_TOOL "$url"
   fi
 
   if [ -f "$stamp" ] ; then
