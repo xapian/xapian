@@ -1,8 +1,8 @@
 /* Driver template for the LEMON parser generator.
 ** The author disclaims copyright to this source code.
 **
-** Synced with upstream CVS rev 1.45:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.45
+** Synced with upstream:
+** http://www.sqlite.org/src/artifact/01ca97f87610d1da
 */
 /* First off, code is included that follows the "include" declaration
 ** in the input grammar file. */

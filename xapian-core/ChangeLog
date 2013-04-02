@@ -1,3 +1,9 @@
+Tue Apr 02 09:47:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Sync with latest
+	  upstream version of lemon.  The only notable change is a bug fix for
+	  platforms where sizeof(long) < sizeof(void*) (LLP64 model).
+
 Tue Apr 02 05:51:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Tell vim to syntax highlight as rst.
