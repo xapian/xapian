@@ -314,7 +314,7 @@ struct lemon {
 /*
 ** Code for processing tables in the LEMON parser generator.
 */
-/* Routines for handling a strings */
+/* Routines for handling strings */
 
 const char *Strsafe(const char *);
 
@@ -864,7 +864,7 @@ PRIVATE void buildshifts(struct lemon *lemp, struct state *stp)
   struct symbol *bsp;  /* Symbol following the dot in configuration "bcfp" */
   struct state *newstp; /* A pointer to a successor state */
 
-  /* Each configuration becomes complete after it contibutes to a successor
+  /* Each configuration becomes complete after it contributes to a successor
   ** state.  Initially, all configurations are incomplete */
   for(cfp=stp->cfp; cfp; cfp=cfp->next) cfp->status = INCOMPLETE;
 
@@ -1648,7 +1648,7 @@ static char *merge(
 **
 ** Return Value:
 **   A pointer to the head of a sorted list containing the elements
-**   orginally in list.
+**   originally in list.
 **
 ** Side effects:
 **   The "next" pointers for elements in list are changed.
@@ -3996,7 +3996,7 @@ void ReportTable(
   /* Generate the table of rule information 
   **
   ** Note: This code depends on the fact that rules are number
-  ** sequentually beginning with 0.
+  ** sequentially beginning with 0.
   */
   for(rp=lemp->rule; rp; rp=rp->next){
     fprintf(out,"  { %d, %d },\n",rp->lhs->index,rp->nrhs); lineno++;

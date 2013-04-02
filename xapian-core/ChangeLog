@@ -1,3 +1,7 @@
+Tue Apr 02 10:22:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Comment typo fixes.
+
 Tue Apr 02 09:47:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c,queryparser/queryparser.lt: Sync with latest
