@@ -86,13 +86,21 @@ lazy_build() {
   if [ ! -f "$tarball" ] ; then
     if [ -z "$FETCH_URL_TOOL" ] ; then
       if ${WGET-wget} --version > /dev/null 2>&1 ; then
-	FETCH_URL_TOOL=${WGET-wget}
+	FETCH_URL_TOOL="${WGET-wget} -O-"
       elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
 	# curl --version exits with code 2.
-	FETCH_URL_TOOL="${CURL-curl} -O"
+	FETCH_URL_TOOL=${CURL-curl}
+      elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
+	# lwp-request -v exits with code 9 (5.810) or 255 (6.03)
+	FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
       else
-	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
-	echo "or download $url to directory `pwd` by hand and rerun this script." >&2
+	cat <<END >&2
+Neither wget nor curl nor lwp-request found - install one of them or if already
+installed, set WGET, CURL or LWP_REQUEST to the full path.  Alternatively,
+download $url
+to directory `pwd`
+then rerun this script.
+END
 	exit 1
       fi
     fi
@@ -123,7 +131,8 @@ lazy_build() {
 	url="http://ftpmirror.gnu.org/$package/$tarball"
       fi ;;
     esac
-    $FETCH_URL_TOOL "$url"
+    rm -f download.tmp
+    $FETCH_URL_TOOL "$url" > download.tmp && mv download.tmp "$tarball"
   fi
 
   if [ -f "$stamp" ] ; then
