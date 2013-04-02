@@ -60,6 +60,19 @@ lazy_build() {
   basename=$package-$2
   ext=$3
   checksum=$4
+  if [ "$ext" = "tar.xz" ] ; then
+    if [ -z "$xz_ok" ] ; then
+      if ${XZ-xz} --version > /dev/null 2>&1 ; then
+	xz_ok=1
+      else
+	xz_ok=0
+      fi
+    fi
+    if [ "$xz_ok" = 0 ] ; then
+      ext=$5
+      checksum=$6
+    fi
+  fi
   tarball=$basename.$ext
   case $basename in
     *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
@@ -111,6 +124,8 @@ lazy_build() {
     done
 
     case $ext in
+    tar.xz)
+      xz -dc "$tarball"| tar xf - ;;
     tar.bz2)
       bzip2 -dc "$tarball"| tar xf - ;;
     *)
