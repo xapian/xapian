@@ -1,3 +1,8 @@
+Tue Apr 02 10:25:43 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Fix lemon pointer truncation bug, which
+	  probably affects WIN64.
+
 Wed Mar 27 08:51:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
