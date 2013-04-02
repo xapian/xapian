@@ -1,3 +1,8 @@
+Tue Apr 02 05:50:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: Update for recent changes to bootstrap.  In particular, we
+	  now bootstrap snapshots with automake 1.13.1.
+
 Fri Mar 29 05:18:11 GMT 2013  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc: Fix __WIN32__ conditional, accidentally broken in

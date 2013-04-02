@@ -271,7 +271,8 @@ Building from SVN or git
 When building from an SVN or git checkout, we *strongly* recommend that you use
 the ``bootstrap`` script in the top level directory to set up the tree ready
 for building.  This script will check which directories you have checked out,
-so you can bootstrap a partial tree.
+so you can bootstrap a partial tree.  You can also ``touch .nobootstrap`` in
+a subdirectory to tell bootstrap to ignore it.
 
 You will need the following tools installed to build from SVN or git:
 
@@ -310,11 +311,12 @@ parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
 the repo directly (in the case of Snowball and Lemon), or pull them in to a
-checkout using svn:externals or git-svn (SWIG), or the bootstrap script will
-lazily download, build, and install them within the source tree (autoconf,
+checkout using svn:externals or git or git-svn (SWIG), or the bootstrap script
+will lazily download, build, and install them within the source tree (autoconf,
 automake, libtool, and doxygen).  To download the source tarballs for these,
-bootstrap will use wget or curl if installed.  If not, it will give an error
-telling you the URL to download from by hand and where to copy the file to.
+bootstrap will use wget, curl or lwp-request if installed.  If not, it will
+give an error telling you the URL to download from by hand and where to copy
+the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -407,7 +409,7 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.12.4 is used to generate snapshots and releases.
+* automake 1.13.1 is used to generate snapshots and releases.
 
   automake 1.10.2 is a hard minimum requirement.
 
