@@ -20,7 +20,7 @@
 # USA
 
 if [ "$1" = "--help" ] ; then
-  echo "$0 [--without-autotools|--clean]"
+  echo "$0 [--ftp] [--without-autotools|--clean]"
   exit 0
 fi
 
@@ -98,14 +98,30 @@ lazy_build() {
     fi
     case $basename in
     doxygen-*)
-      $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+      if [ "$use_ftp" = yes ] ; then
+	$FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball"
+      else
+	$FETCH_URL_TOOL "http://ftp.stack.nl/pub/users/dimitri/$tarball"
+      fi ;;
+    file-*)
+      if [ "$use_ftp" = yes ] ; then
+	$FETCH_URL_TOOL "ftp://ftp.astron.com/pub/file/$tarball"
+      else
+	$FETCH_URL_TOOL "http://fossies.org/unix/misc/$tarball"
+      fi ;;
     *[13579][a-z])
       # GNU alpha release
-      $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
-    file*)
-      $FETCH_URL_TOOL "ftp://ftp.astron.com/pub/file/$tarball" ;;
+      if [ "$use_ftp" = yes ] ; then
+	$FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball"
+      else
+	$FETCH_URL_TOOL "http://alpha.gnu.org/gnu/$package/$tarball"
+      fi ;;
     *)
-      $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+      if [ "$use_ftp" = yes ] ; then
+	$FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball"
+      else
+	$FETCH_URL_TOOL "http://ftpmirror.gnu.org/$package/$tarball"
+      fi ;;
     esac
   fi
 
@@ -256,6 +272,13 @@ END
   fi
 fi
 
+# Prefer http downloads as they are more likely to work through firewalls.
+use_ftp=no
+if [ "$1" = "--ftp" ] ; then
+  shift
+  use_ftp=yes
+fi
+ 
 if [ "$1" = "--without-autotools" ] ; then
   shift
 else
