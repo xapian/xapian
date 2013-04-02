@@ -135,6 +135,7 @@ lazy_build() {
     # Verify the tarball's checksum before building it.
     check_sha1sum "$checksum" "$tarball"
 
+    # Remove tarballs of other versions.
     for f in "$package"-* ; do
       [ "$f" = "$tarball" ] || rm -rf "$f"
     done
