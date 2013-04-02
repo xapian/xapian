@@ -75,7 +75,7 @@ lazy_build() {
       if ${WGET-wget} --version > /dev/null 2>&1 ; then
 	FETCH_URL_TOOL=${WGET-wget}
       elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
-	# curl --version exists with code 2.
+	# curl --version exits with code 2.
 	FETCH_URL_TOOL="${CURL-curl} -O"
       else
 	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
