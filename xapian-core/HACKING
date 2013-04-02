@@ -1576,4 +1576,4 @@ updated as follows:
    dput xapian-backports build/xapian-[bo]*99*_source.changes
    dput xapian-backports build/libsearch-xapian-perl*_source.changes
 
-.. vim: syntax=
+.. vim: syntax=rst
