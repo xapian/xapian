@@ -33,7 +33,7 @@ AM_TESTS_ENVIRONMENT = \
 	export CXX ;\
 	export CXXFLAGS ;\
 	export XAPIAN_CONFIG ;
-LOG_COMPILER = prove
+LOG_COMPILER = $(PROVE)
 AM_LOG_FLAGS = -I. -I'$(srcdir)'
 
 clean-local:

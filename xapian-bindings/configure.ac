@@ -959,7 +959,14 @@ if test no != "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ; then
-    AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
+    AC_PATH_PROGS(PROVE, ["${PROVE-prove}"], [])
+    AC_ARG_VAR(PROVE, [Perl Test::Harness test runner])
+    if test x"$PROVE" = x ; then
+      AC_MSG_WARN([Perl 'prove' tool not found - Perl bindings tests will be skipped])
+      dnl The skiptest script just returns exit code 77.
+      PROVE='$(top_srcdir)/skiptest'
+    fi
+
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi

@@ -1,3 +1,7 @@
+Thu Apr 04 06:17:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,perl/Makefile.am: Probe for 'prove' in configure.
+
 Thu Apr 04 06:05:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,
