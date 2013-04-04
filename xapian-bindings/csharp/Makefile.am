@@ -2,10 +2,9 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = $(RUN_CSHARP)
-
 ## Test programs to be run
 TESTS = SmokeTest.exe
+LOG_COMPILER = $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 

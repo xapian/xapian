@@ -2,11 +2,16 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
-  LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test
-
 ## Test programs to be run
 TESTS = SmokeTest.class
+AM_TESTS_ENVIRONMENT = \
+	LIBTOOL="$(LIBTOOL)" ;\
+	JAVA="$(JAVA)" ;\
+	PATHSEP="$(JAVA_PATHSEP)" ;\
+	export LIBTOOL ;\
+	export JAVA ;\
+	export PATHSEP ;
+LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
 	built/xapian_jni.jar\

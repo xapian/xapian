@@ -2,12 +2,16 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
-    PYTHONPATH=".:$$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 \
-    abs_builddir=@abs_builddir@ $(PYTHON)
-
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
+AM_TESTS_ENVIRONMENT = \
+	abs_builddir='$(abs_builddir)' ;\
+	srcdir='$(srcdir)' ;\
+	PYTHON='$(PYTHON)' ;\
+	export abs_builddir ;\
+	export srcdir ;\
+	export PYTHON ;
+LOG_COMPILER = '$(srcdir)'/run-python-test
 
 # FIXME: replicationtest.py attempts to test performing replication whilst
 # modifications are in progress.  However, it sometimes fails due to a race
@@ -21,6 +25,7 @@ BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	generate-python-exceptions \
 	module_top.py \
+	run-python-test \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \
 	smoketest2.py smoketest3.py \

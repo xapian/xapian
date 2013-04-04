@@ -2,10 +2,12 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = LUA_CPATH='.libs/?$(LUA_SO)' $(LUA)
-
 ## Test programs to be run
 TESTS = smoketest.lua
+AM_TESTS_ENVIRONMENT = \
+	LUA_CPATH='.libs/?$(LUA_SO)' ;\
+	export LUA_CPATH ;
+LOG_COMPILER = $(LUA)
 
 EXTRA_DIST = lua.i util.i except.i \
 	generate-lua-exceptions \
