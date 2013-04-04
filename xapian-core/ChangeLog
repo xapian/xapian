@@ -1,3 +1,7 @@
+Thu Apr 04 12:02:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Remove random comment.
+
 Thu Apr 04 10:06:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,tests/Makefile.am: Remove support for

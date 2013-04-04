@@ -66,7 +66,6 @@ lib_src +=\
 	common/str.cc\
 	common/stringutils.cc
 
-# echo hello
 if BUILD_BACKEND_BRASS_OR_CHERT
 lib_src +=\
 	common/compression_stream.cc
