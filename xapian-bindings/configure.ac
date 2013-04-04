@@ -139,13 +139,6 @@ dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
 
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
-  esac])
-
 AC_ARG_ENABLE(visibility,
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in

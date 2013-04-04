@@ -1,3 +1,9 @@
+Thu Apr 04 06:40:09 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,generic/generic.mk: Remove support for
+	  'make QUIET=y' - automake now supports 'make V=0' which is broadly
+	  equivalent and more standard.
+
 Thu Apr 04 06:17:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,perl/Makefile.am: Probe for 'prove' in configure.
