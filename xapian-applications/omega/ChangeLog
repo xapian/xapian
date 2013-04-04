@@ -1,3 +1,10 @@
+Thu Apr 04 06:42:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Remove support for 'configure
+	  --enable-quiet', 'make QUIET=' and 'make QUIET=y' - automake now
+	  supports 'configure --enable-silent-rules', 'make V=1' and 'make
+	  V=0' which are broadly equivalent and more standard.
+
 Wed Mar 27 09:20:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Don't link utf8convert.cc code into omega CGI.
