@@ -1,3 +1,7 @@
+Thu Apr 04 11:10:18 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix --enable-quiet to actually work for the bindings.
+
 Mon Mar 18 10:38:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

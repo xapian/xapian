@@ -118,6 +118,16 @@ AC_ARG_ENABLE(quiet,
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
   esac])
 
+dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
+dnl AC_SUBST-ed value like this allows the choice to be easily overridden
+dnl if you want to see exactly what make and libtool are up to - just run
+dnl make like this: `make QUIET='
+QUIET=
+if test yes = "$enable_quiet"; then
+  QUIET=--quiet
+fi
+AC_SUBST(QUIET)
+
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
 AM_MAINTAINER_MODE
