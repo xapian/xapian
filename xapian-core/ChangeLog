@@ -1,3 +1,8 @@
+Thu Apr 04 09:58:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: Update to note that automake 1.12.2 is now a hard
+	  requirement.
+
 Tue Apr 02 10:22:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Comment typo fixes.

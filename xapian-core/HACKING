@@ -411,13 +411,11 @@ Autotools versions
 
 * automake 1.13.1 is used to generate snapshots and releases.
 
-  automake 1.10.2 is a hard minimum requirement.
+  automake 1.12.2 is a hard minimum requirement.  This version fixes a
+  security issue (CVE-2012-3386) in the generated `make distcheck` rules.
 
-  automake 1.10 requires autoconf 2.60 and Perl 5.6.
-
-  automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/.
-
-  automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
+  automake 1.12 is needed to support using LOG_COMPILER to specify a testsuite
+  driver (used by xapian-bindings).
 
 * libtool 2.4.2 is used to generate snapshots and releases.
 
