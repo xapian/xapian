@@ -804,29 +804,12 @@ if test "$enable_backend_remote" = yes ; then
   fi
 fi
 
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
-  esac])
-
 AC_ARG_ENABLE(visibility,
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
   esac])
-
-dnl Pass '--quiet' to libtool if quiet building is requested.  Using an
-dnl AC_SUBST-ed value like this allows the choice to be easily overridden
-dnl if you want to see exactly what make and libtool are up to - just run
-dnl make like this: 'make QUIET='
-QUIET=
-if test yes = "$enable_quiet"; then
-  QUIET=--quiet
-fi
-AC_SUBST(QUIET)
 
 vpath_build=no
 if test "`pwd`" != "`cd $srcdir;pwd`" ; then

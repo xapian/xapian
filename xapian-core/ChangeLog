@@ -1,3 +1,10 @@
+Thu Apr 04 10:06:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,tests/Makefile.am: Remove support for
+	  'configure --enable-quiet', 'make QUIET=' and 'make QUIET=y' -
+	  automake now supports 'configure --enable-silent-rules', 'make V=1'
+	  and 'make V=0' which are broadly equivalent and more standard.
+
 Thu Apr 04 09:58:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Update to note that automake 1.12.2 is now a hard
