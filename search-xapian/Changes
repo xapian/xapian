@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.15.0  ???
+	[Changes contributed by Olly Betts]
+	- Fix minor typo in POD documentation.
+
 1.2.14.0  Thu Mar 14 23:12:38 UTC 2013
 	[Changes contributed by Olly Betts]
 	- Perl 5.16.1 adds a '.' after "at foo line 123" so adjust regexp in
