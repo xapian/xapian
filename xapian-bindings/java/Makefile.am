@@ -1,4 +1,4 @@
-## Process this file with automake to produce Makefile.in
+\## Process this file with automake to produce Makefile.in
 
 include ../generic/generic.mk
 
@@ -28,6 +28,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Database.java\
 	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
+	org/xapian/DFR_DPHWeight.java\
 	org/xapian/DFR_PL2Weight.java\
 	org/xapian/Document.java\
 	org/xapian/Enquire.java\
