@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 95 };
+BEGIN { plan tests => 117 };
 use Search::Xapian qw(:standard);
 
 #########################
@@ -75,6 +75,24 @@ foreach my $backend ("inmemory", "auto") {
   ok( $posit == 0 );
   $posit++;
   ok( $posit eq $database->positionlist_end(1, $term) );
+
+  my $postit = $database->postlist_begin('one');
+  ok( $postit ne $database->postlist_end('one') );
+  ok( $postit != $database->postlist_end('one') );
+  is( $postit->get_docid(), 1 );
+  $postit++;
+  ok( $postit eq $database->postlist_end('one') );
+  ok( $postit == $database->postlist_end('one') );
+
+  my $termit = $database->termlist_begin(1);
+  ok( $termit != $database->termlist_end(1) );
+  is( "$termit", 'one' );
+  $termit++;
+  ok( $termit ne $database->termlist_end(1) );
+  is( $termit->get_termname(), 'test' );
+  ++$termit;
+  ok( $termit eq $database->termlist_end(1) );
+  ok( $termit == $database->termlist_end(1) );
 
   my $alltermit = $database->allterms_begin();
   ok( $alltermit != $database->allterms_end() );
