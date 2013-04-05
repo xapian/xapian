@@ -1,3 +1,7 @@
+Fri Apr 05 04:01:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* perl/Search/Xapian/Stem.pm: Fix doc typo: "as as" -> "as a"
+
 Thu Apr 04 11:10:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix --enable-quiet to actually work for the bindings.
