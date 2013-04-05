@@ -1,3 +1,9 @@
+Fri Apr 05 06:15:39 GMT 2013  Olly Betts <olly@survex.com>
+
+	* perl/perl.i,perl/util.i.in: Fix PostingIterator wrapper to work.
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
+	  Add missing test coverage for this, and some other features.
+
 Thu Apr 04 06:40:09 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,generic/generic.mk: Remove support for

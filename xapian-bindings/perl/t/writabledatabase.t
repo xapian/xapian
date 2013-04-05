@@ -9,7 +9,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 40;
+plan tests => 42;
 
 use Search::Xapian qw(:standard);
 
@@ -73,8 +73,13 @@ is($write->get_document($docid)->get_data(), "$term $docid", "check document dat
 $write->replace_document($docid, $repdoc);
 $write->flush();
 
+$write->keep_alive();
+
 ok($write->term_exists($num), "check term exists");
 is($write->get_document($docid)->get_data(), "$term $num", "check document data");
+
+is($write->get_collection_freq($term), 1003, "check term frequency");
+is($write->get_avlength(), 2, "check term frequency");
 
 # replace document by term
 $repdoc = Search::Xapian::Document->new();

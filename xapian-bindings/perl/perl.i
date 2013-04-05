@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012 Olly Betts
+ * Copyright (C) 2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -175,6 +175,17 @@ bool equal1(Xapian::PositionIterator * that) {
 }
 
 bool nequal1(Xapian::PositionIterator * that) {
+     return ((*self) != (*that));
+}
+}
+
+/* Xapian::PostingIterator */
+%extend Xapian::PostingIterator {
+bool equal(Xapian::PostingIterator * that) {
+     return ((*self) == (*that));
+}
+
+bool nequal(Xapian::PostingIterator * that) {
      return ((*self) != (*that));
 }
 }

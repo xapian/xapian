@@ -11,7 +11,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 5 };
+BEGIN { plan tests => 6 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -83,5 +83,9 @@ ok(ref($@), "Search::Xapian::DatabaseModifiedError", "correct class for exceptio
 ok($@->isa('Search::Xapian::Error'));
 
 ok($@->get_msg, "The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation", "get_msg works");
+
+# WritableDatabase::reopen() is a no-op, but it shouldn't fail.
+$write->reopen();
+ok(1);
 
 1;
