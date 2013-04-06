@@ -49,6 +49,13 @@ check_sha1sum() {
 	;;
       *)
 	echo "$tarball: computed SHA1 checksum did NOT match"
+	echo "$checksum expected"
+	echo "sha1sum:"
+	sha1sum "$tarball" || true
+	echo "openssl sha1:"
+	openssl sha1 "$tarball" || true
+	mv "$tarball" "$tarball.bad"
+	echo "Renamed to $tarball.bad"
 	exit 1
 	;;
     esac
