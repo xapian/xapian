@@ -9,8 +9,8 @@ AM_TESTS_ENVIRONMENT = \
 	LIBTOOL='$(LIBTOOL)' ;\
 	TCLSH='$(TCLSH)' ; \
 	export srcdir ;\
-	epport LIBTOOL ;\
-	epport TCLSH ;
+	export LIBTOOL ;\
+	export TCLSH ;
 LOG_COMPILER = $(srcdir)/run-tcl-test
 
 EXTRA_DIST = tcl.i except.i \

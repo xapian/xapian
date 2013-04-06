@@ -1,3 +1,7 @@
+Sat Apr 06 23:09:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am: Fix typo in AM_TESTS_ENVIRONMENT value.
+
 Fri Apr 05 06:15:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* perl/perl.i,perl/util.i.in: Fix PostingIterator wrapper to work.
