@@ -1,3 +1,9 @@
+Sat Apr 06 00:21:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* m4-macros/xapian-1.3.m4: XO_LIB_XAPIAN now handles the user
+	  specifying XAPIAN_CONFIG without a path - e.g.: "./configure
+	  XAPIAN_CONFIG=xapian-config-1.3"
+
 Thu Apr 04 12:02:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk: Remove random comment.
