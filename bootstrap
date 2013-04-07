@@ -37,28 +37,32 @@ check_sha1sum() {
   checksum=$1
   tarball=$2
 
-  # BusyBox sha1sum doesn't know --version so just run to see it it works.
-  if echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c 2>/dev/null ; then
-    : # Checksum OK!
-  else
-    # Either sha1sum wasn't installed, or the checksum failed to match.
-    case `openssl sha1 "$tarball" 2>/dev/null` in
-      *$checksum) ;;
-      "") echo "Need sha1sum or openssl installed to check SHA1 checksums"
+  if [ -z "$SHA1SUM_TOOL" ] ; then
+    for SHA1SUM_TOOL in \
+	'${SHA1SUM-sha1sum} 2>/dev/null|cut -d\  -f1' \
+	'${SHASUM-shasum} 2>/dev/null|cut -d\  -f1' \
+	'$(OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
+	'' ; do
+      if [ -z "$SHA1SUM_TOOL" ] ; then
+	echo <<'END'
+Need sha1sum or shasum or openssl installed to check SHA1 checksums.
+Set environment variable SHA1SUM, SHASUM or OPENSSL if the tool isn't on
+your PATH.
+END
 	exit 1
-	;;
-      *)
-	echo "$tarball: computed SHA1 checksum did NOT match"
-	echo "$checksum expected"
-	echo "sha1sum:"
-	sha1sum "$tarball" || true
-	echo "openssl sha1:"
-	openssl sha1 "$tarball" || true
-	mv "$tarball" "$tarball.bad"
-	echo "Renamed to $tarball.bad"
-	exit 1
-	;;
-    esac
+      fi
+      r=`:|eval $SHA1SUM_TOOL`
+      [ X"$r" != Xda39a3ee5e6b4b0d3255bfef95601890afd80709 ] || break
+    done
+  fi
+  r=`:|eval $SHA1SUM_TOOL`
+  if [ X"$r" != X"$checksum" ] ; then
+    echo "$tarball: computed SHA1 checksum did NOT match"
+    echo "computed: $r with $SHA1SUM_TOOL"
+    echo "expected: $checksum"
+    mv "$tarball" "$tarball.$r"
+    echo "Renamed $tarball to $tarball.$r"
+    exit 1
   fi
 }
 
