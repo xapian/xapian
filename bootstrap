@@ -60,6 +60,8 @@ END
     echo "$tarball: computed SHA1 checksum did NOT match"
     echo "computed: $r with $SHA1SUM_TOOL"
     echo "expected: $checksum"
+    ls -l $tarball
+    file $tarball || true
     mv "$tarball" "$tarball.$r"
     echo "Renamed $tarball to $tarball.$r"
     exit 1
