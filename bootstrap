@@ -51,11 +51,11 @@ your PATH.
 END
 	exit 1
       fi
-      r=`:|eval $SHA1SUM_TOOL`
+      r=`:|eval "$SHA1SUM_TOOL"`
       [ X"$r" != Xda39a3ee5e6b4b0d3255bfef95601890afd80709 ] || break
     done
   fi
-  r=`:|eval $SHA1SUM_TOOL`
+  r=`< $tarball eval "$SHA1SUM_TOOL"`
   if [ X"$r" != X"$checksum" ] ; then
     echo "$tarball: computed SHA1 checksum did NOT match"
     echo "computed: $r with $SHA1SUM_TOOL"
