@@ -318,8 +318,12 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.7.6.1 src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
-  lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
+  lazy_build doxygen 1.7.6.1 \
+    src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
+  lazy_build autoconf 2.68 \
+    tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \
+    tar.xz 63a3b495400c1c053f2f6b62efb7a5c0ad4156c9 \
+    tar.gz 843f7dfcc6addf129dc2c8b12f7d72d371478f42
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
