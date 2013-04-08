@@ -58,6 +58,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/StringValueRangeProcessor.cs \
 	generated-csharp/TermGenerator.cs \
 	generated-csharp/TermIterator.cs \
+	generated-csharp/TfIdfWeight.cs \
 	generated-csharp/TradWeight.cs \
 	generated-csharp/ValueCountMatchSpy.cs \
 	generated-csharp/ValueIterator.cs \
