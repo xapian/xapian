@@ -302,6 +302,17 @@ DEFINE_TESTCASE(weight1, !backend) {
     Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
 
+    Xapian::TfIdfWeight tfidfweight_dflt;
+    Xapian::TfIdfWeight tfidfweight("NTN");
+    TEST_EQUAL(tfidfweight.name(), "Xapian::TfIdfWeight");
+    TEST_EQUAL(tfidfweight_dflt.serialise(), tfidfweight.serialise());
+    wt = Xapian::TfIdfWeight().unserialise(tfidfweight.serialise());
+    TEST_EQUAL(tfidfweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::TfIdfWeight tfidfweight2("BPN");
+    TEST_NOT_EQUAL(tfidfweight.serialise(), tfidfweight2.serialise());
+
     return true;
 }
 

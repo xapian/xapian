@@ -1,3 +1,15 @@
+Mon Apr 08 06:30:40 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/: Added tfidfweight.cc containing the implementation of the
+	  TfIdfWeight class.
+
+	* include/xapian/weight.h: Added TfIdfWeight class for the tf-idf
+	  weighting scheme.
+
+	* tests/api_weight.cc: Added tests for TfIdfWeight.
+
+	* tests/api_nodb.cc: Added simple tests for TfIdfWeight.
+
 Sat Apr 06 00:21:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* m4-macros/xapian-1.3.m4: XO_LIB_XAPIAN now handles the user

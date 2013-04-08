@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "api_weight.h"
+#include <cmath>
 
 #include <xapian.h>
 
@@ -88,6 +89,113 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     TEST_EQUAL(mset.size(), 5);
     // Expect: neither wdf nor doclen affects weight.
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
+
+    return true;
+}
+
+// Test for various cases of normalization string.
+DEFINE_TESTCASE(tfidfweight1, !backend) {
+    // InvalidArgumentError should be thrown if normalization string is invalid
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::TfIdfWeight b("JOHN_LENNON"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::TfIdfWeight b("LOL"));
+
+    /* Normalization string should be set to "NTN" by constructor if none is
+      given. */
+    Xapian::TfIdfWeight weight2;
+    TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("NTN").serialise());
+
+    return true;
+}
+
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(tfidfweight2, !backend) {
+    Xapian::TfIdfWeight wt("NTN");
+    try {
+	Xapian::TfIdfWeight b;
+	Xapian::TfIdfWeight * b2 = b.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = b2->name().empty();
+	delete b2;
+	if (empty)
+	    FAIL_TEST("Serialised TfIdfWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised TfIdfWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+
+    }
+    return true;
+}
+
+// Feature tests for various normalization functions.
+DEFINE_TESTCASE(tfidfweight3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::MSet mset;
+
+    // Check for "NTN" when  termfreq != N
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NTN"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), (8 * log(6 / 2)));
+
+    // Check for "BNN" and for both branches of 'B'.
+    enquire.set_query(Xapian::Query("test"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("BNN"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    mset_expect_order(mset, 1);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.0);
+
+    // Check for "LNN" and for both branches of 'L'.
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("LNN"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), (1 + log(8))); // idfn=1 and so wt=tfn=1+log(tf)
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0);         // idfn=1 and wt=tfn=1+log(tf)=1+log(1)=1
+
+    // Check for "SNN"
+    enquire.set_query(Xapian::Query("paragraph"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("SNN")); // idf=1 and tfn=tf*tf
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    mset_expect_order(mset, 2, 1, 4, 3, 5);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 9.0);
+    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 1.0);
+
+    // Check for "NTN" when termfreq=N
+    enquire.set_query(Xapian::Query("this"));  // N=termfreq amd so idfn=0 for "T"
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NTN"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 6);
+    mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
+    for (int i = 0; i < 6; ++i) {
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+    }
+
+    // Check for "NPN" and for both branches of 'P'
+    enquire.set_query(Xapian::Query("this"));  // N=termfreq and so idfn=0 for "P"
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NPN"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 6);
+    mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
+    for (int i = 0; i < 6; ++i) {
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+    }
+
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NPN"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log((6 - 2) / 2));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log((6 - 2) / 2));
 
     return true;
 }
