@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.5 subdir-objects
+AUTOMAKE_OPTIONS = 1.12.2 serial-tests subdir-objects
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
