@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 9
+# serial 10
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -29,7 +29,11 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 AC_DEFUN([XO_LIB_XAPIAN],
 [
   AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config (default:] ifelse([$3], [], xapian-config, [$3]) [on PATH)])
-  AC_PATH_PROG(XAPIAN_CONFIG, ifelse([$3], [], xapian-config, [$3]), [])
+  dnl AC_PATH_PROGS ignores an existing user setting of XAPIAN_CONFIG unless
+  dnl is has a full path, so we specify any existing setting as the value
+  dnl to search for to enable things like this to work:
+  dnl   ./configure XAPIAN_CONFIG=xapian-config1.3
+  AC_PATH_PROG(XAPIAN_CONFIG, "${XAPIAN_CONFIG-ifelse([$3], [], xapian-config, [$3]}"), [])
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
       [ifelse([$1], , [
