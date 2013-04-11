@@ -1,3 +1,8 @@
+Thu Apr 11 22:17:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc,backends/chert/chert_version.cc:
+	  Call io_sync() on the version file when we create it.
+
 Tue Apr 09 11:02:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* bin/xapian-delve.cc: If -v is specified more than once, show even
