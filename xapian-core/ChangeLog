@@ -1,3 +1,9 @@
+Mon Apr 15 09:09:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-delve.cc: If -v is specified more than once, show even
+	  more info in some cases.
+
 Wed Apr 10 08:11:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
