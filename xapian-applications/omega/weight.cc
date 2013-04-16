@@ -81,6 +81,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	    }
 	}
 
+#if XAPIAN_MAJOR_VERSION*100+XAPIAN_MINOR_VERSION*10+XAPIAN_REVISION >= 10301
 	if (startswith(scheme, "tfidf")) {
 	    const char *p = scheme.c_str() + 5;
 	    if (*p == '\0') {
@@ -92,6 +93,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		return;
 	    }
 	}
+#endif
 
 	if (scheme != "bool") {
 	    throw "Unknown $opt{weighting} setting: " + scheme;

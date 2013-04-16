@@ -1,3 +1,8 @@
+Tue Apr 16 05:24:54 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight.cc: If built against older xapian-core, don't try to use
+	  TfIdfWeight.
+
 Mon Apr 15 06:21:21 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* docs/omegascript.rst,weight.cc: Add support for
