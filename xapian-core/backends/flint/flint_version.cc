@@ -1,7 +1,7 @@
 /** @file flint_version.cc
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -85,6 +85,7 @@ void FlintVersion::create()
 	throw;
     }
 
+    io_sync(fd);
     if (close(fd) != 0) {
 	string msg("Failed to create flint version file: ");
 	msg += filename;

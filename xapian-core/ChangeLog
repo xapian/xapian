@@ -1,3 +1,10 @@
+Tue Apr 16 06:27:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_version.cc,backends/chert/chert_version.cc,
+	  backends/flint/flint_version.cc: Call io_sync() on the version file
+	  when we create it.
+
 Mon Apr 15 09:09:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
