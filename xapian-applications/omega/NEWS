@@ -1,3 +1,31 @@
+ 17143       olly Wed Mar 27 09:39:12 GMT 2013  Olly Betts <olly@survex.com>
+
+Omega 1.2.15 (2013-04-16):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+* Don't pointlessly link utf8convert.o into the omega CGI.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.2.14 (2013-03-14):
 
 indexers:
