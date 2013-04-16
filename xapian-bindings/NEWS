@@ -1,3 +1,37 @@
+ 17167       olly Fri Apr 05 04:01:24 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.15 (2013-04-16):
+
+Documentation:
+
+General:
+
+* Fix configure --enable-quiet option to actually work for the bindings.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* Fix doc typo: "as as" -> "as a"
+
+PHP:
+
+Python:
+
+Ruby:
+
+* Fix deprecation warning in configure from Ruby 1.9.3.
+
+Tcl:
+
 Xapian-bindings 1.2.14 (2013-03-14):
 
 Python:
