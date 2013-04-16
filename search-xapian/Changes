@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.15.0  ???
+1.2.15.0  Tue Apr 16 23:43:24 UTC 2013
 	[Changes contributed by Olly Betts]
 	- Remove superfluous duplicate method wrappers from WritableDatabase
 	  for methods wrapped in Database parent class.
