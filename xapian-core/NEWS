@@ -1,3 +1,66 @@
+ 17188       olly Tue Apr 16 06:27:59 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.15 (2013-04-16):
+
+API:
+
+* QueryParser/TermGenerator: Don't include CJK codepoints which are
+  punctuation in N-grams.
+
+* TermGenerator: Fix bug where we failed to generate the first bigram
+  from the second sequence of N-grammable CJK characters in a piece of text.
+
+testsuite:
+
+matcher:
+
+brass backend:
+
+* Call fdatasync()/fsync() when creating the "iambrass" file.
+
+chert backend:
+
+* Call fdatasync()/fsync() when creating the "iamchert" file.
+
+flint backend:
+
+* Call fdatasync()/fsync() when creating the "iamflint" file.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* XO_LIB_XAPIAN now handles the user specifying XAPIAN_CONFIG without a path,
+  for example: ./configure XAPIAN_CONFIG=xapian-config-1.3
+
+documentation:
+
+
+tools:
+
+* delve: If -v is specified more than once, show even more info in some cases.
+
+examples:
+
+
+portability:
+
+* Fix warning due to needlessly casting away const-ness in debug logging.
+
+* Fix pointer truncation bug in lemon parser generator, which probably affects
+  regenerating the query parser on WIN64.
+
+packaging:
+
+
+debug code:
+
+* Fix to build when configured with --enable-log.
+
 Xapian-core 1.2.14 (2013-03-14):
 
 API:
