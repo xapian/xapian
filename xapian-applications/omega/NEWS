@@ -1,42 +1,41 @@
- 17083       olly Tue Feb 19 03:13:08 GMT 2013  Olly Betts <olly@survex.com>
+ 17187       olly Tue Apr 16 05:24:54 GMT 2013  Olly Betts <olly@survex.com>
 
-Backported for 1.2.14:
+1.2.16:
 
- 17061       olly Mon Feb 11 22:38:16 GMT 2013  Olly Betts <olly@survex.com>
-	* xlsxparse.cc: Correct "max" -> "min" when reserving space for shared
-	  strings.  This only means we now reserve a more appropriate amount
-	  of space to start with.
+Omega 1.3.1 (2013-04-17):
 
-Omega 1.3.1 (2013-02-19):
+This release includes all changes from 1.2.10-1.2.15 which are relevant.
 
- 17083       olly Tue Feb 19 03:13:08 GMT 2013  Olly Betts <olly@survex.com>
+ 17187       olly Tue Apr 16 05:24:54 GMT 2013  Olly Betts <olly@survex.com>
+	* weight.cc: If built against older xapian-core, don't try to use
+	  TfIdfWeight.
+ 17185       olly Mon Apr 15 06:21:21 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+	* docs/omegascript.rst,weight.cc: Add support for
+	  $set{weighting,tfidf}.
+
+ 17162       olly Thu Apr 04 06:42:01 GMT 2013  Olly Betts <olly@survex.com>
+	* Makefile.am,configure.ac: Remove support for 'configure
+	  --enable-quiet', 'make QUIET=' and 'make QUIET=y' - automake now
+	  supports 'configure --enable-silent-rules', 'make V=1' and 'make
+	  V=0' which are broadly equivalent and more standard.
+
+	* gen-myhtmltags,myhtmlparse.cc: Distinguish page breaks from other
+	  whitespace in samples.
 	* htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.h: Sample from HTML now
-	  contains \n where a line or paragraph break would appear, and \t
+	  contains \r where a line or paragraph break would appear, and \t
 	  between table cells.
+FIXME: Need to stop generate_sample from normalising whitespace...
 
- 17082       olly Tue Feb 19 03:02:58 GMT 2013  Olly Betts <olly@survex.com>
-	* gen-myhtmltags,htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.tokens:
-	  Generate a lookup table for where we should insert a space in place
-	  of an HTML tag rather than using a switch statement for that.
+general:
 
- 17068       olly Tue Feb 12 20:43:14 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Remove my-html-tok.h in "make clean" not "make
-	  distclean", since it's built by "make" and that's what the automake
-	  manual recommends for files built by "make".
- 17067       olly Tue Feb 12 20:41:53 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Clean up my-html-tok.h in "make distclean".
- 17066       olly Tue Feb 12 20:03:51 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Ship common/keyword.h.
- 17065       olly Tue Feb 12 19:27:26 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Ship common/Tokeniseise.pm.
- 17062       olly Tue Feb 12 00:44:23 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Fix to work in VPATH build.
- 17060       olly Fri Feb 01 04:11:50 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Ship new file myhtmlparse.tokens.
- 17059       olly Thu Jan 31 23:42:23 GMT 2013  Olly Betts <olly@survex.com>
-	* myhtmlparse.cc,myhtmlparse.tokens: Add <APPLET>, <OBJECT>, and
-	  <TR> to the tags handled.
- 17056       olly Thu Jan 31 06:24:13 GMT 2013  Olly Betts <olly@survex.com>
+documentation:
+
+* INSTALL,configure: Provide hints as to what package to install for magic.h.
+
+indexers:
+
+* The HTML parser now explicitly handles <APPLET>, <OBJECT> and <TR>.
+
 	* Makefile.am,gen-myhtmltags,myhtmlparse.cc,myhtmlparse.tokens: Use
 	  a generated compact and efficient table to convert HTML tag names
 	  to enum codes, which we can then use a C switch statement to
@@ -45,43 +44,14 @@ Omega 1.3.1 (2013-02-19):
 	  smaller than the approach we were using, with the benefit that the
 	  table is auto-generated.
 
- 17053       olly Mon Jan 28 23:41:21 GMT 2013  Olly Betts <olly@survex.com>
-	* utf8convert.cc,utf8converttest.cc: Always use our built-in
-	  conversion code for the character sets it can handle, and only use
-	  iconv as a fall-back.  This gives us more consistent results, and
-	  in particular means we now handle BOMs better (at least with GNU
-	  iconv).
+* Always use our built-in conversion code for the character sets it can handle
+  (previously we'd use iconv if available; now we only use iconv for other
+  character sets).  This gives us more consistent results, and in particular
+  means we now handle BOMs better (at least when using GNU iconv).
 
- 17052       olly Mon Jan 28 23:16:08 GMT 2013  Olly Betts <olly@survex.com>
-	* utf8convert.cc,utf8converttest.cc: A lot of data labelled as
-	  "iso-8859-1" is actually "windows-1252".  The two only differ
-	  in characters which are control characters in iso-8859-1, so
-	  assume the latter when we see the former.
-
- 17051       olly Mon Jan 28 23:13:24 GMT 2013  Olly Betts <olly@survex.com>
-	* omindex.cc: Use charset name "iso-8859-1" in lower case
-	  consistently.
-
- 17045       olly Thu Jan 24 08:44:24 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am: Ship jsonescape.h.
-
- 17044       olly Thu Jan 24 07:21:17 GMT 2013  Olly Betts <olly@survex.com>
-	* jsonescape.cc: Add missing header includes.
-
- 17043       olly Thu Jan 24 03:08:39 GMT 2013  Olly Betts <olly@survex.com>
-	* docs/omegascript.rst: Document $json and $jsonarray.
-
- 17042       olly Thu Jan 24 02:55:53 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am,jsonescape.cc,jsonescape.h,jsonesctest.cc,query.cc:
-	  Add new $json and $jsonarray OmegaScript commands.
-
-general:
-
-documentation:
-
-* Change `...' quoting in prose to '...'.
-
-indexers:
+* A lot of data labelled as "iso-8859-1" is actually "windows-1252".  The two
+  only differ in characters which are control characters in iso-8859-1, so
+  assume the latter when we see the former.
 
 * omindex:
 
@@ -92,13 +62,24 @@ indexers:
     In --verbose mode, the situation is still reported, but now with a
     specific message.
 
+  + If omindex receives any of the signals SIGHUP, SIGINT, SIGQUIT or SIGTERM,
+    then kill any active external filter child process, then handle the signal
+    as we did before.  If setpgid() is available, put each external filter in
+    its own process group and kill the whole process group when we get a
+    signal.
+
   + Use magic_descriptor() if the version of libmagic we're building against
     is new enough to have it.  This eliminates an extra opening of a file
     being indexed in certain cases.
 
+  + Use rst2html to handle .rst and .rest files.
+
 * scriptindex:
 
 omega:
+
+* Add new $json and $jsonarray OmegaScript commands to support producing JSON
+  output.
 
 * Add $truncate command which truncates a string after a word.
 
@@ -184,6 +165,24 @@ packaging:
 
 * xapian-omega.spec: We're ABI compatible within a release series so make
   dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.15 (2013-04-16):
+
+omega:
+
+* Don't pointlessly link utf8convert.o into the omega CGI.
+
+Omega 1.2.14 (2013-03-14):
+
+indexers:
+
+* omindex:
+
+  + Correct "max" -> "min" when reserving space for shared strings in .xlsx
+    files.  This just means we now reserve a more appropriate amount of space
+    to start with.
+
+  + Ignore .com files by default.
 
 Omega 1.2.13 (2013-01-09):
 
