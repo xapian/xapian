@@ -1,3 +1,7 @@
+Wed Apr 17 03:06:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.15 and ChangeLog.
+
 Thu Apr 11 22:17:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc,backends/chert/chert_version.cc:
