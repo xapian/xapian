@@ -1,3 +1,7 @@
+Wed Apr 17 03:19:11 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.15 and ChangeLog.
+
 Mon Apr 08 06:31:46 GMT 2013  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am: Update for new class

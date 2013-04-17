@@ -1,15 +1,12 @@
- 17130       olly Mon Mar 18 04:11:01 GMT 2013  Olly Betts <olly@survex.com>
+ 17180       olly Mon Apr 08 06:31:46 GMT 2013  Olly Betts <olly@survex.com>
 
-1.2.15:
+1.2.16:
 
- 17130       olly Mon Mar 18 04:11:01 GMT 2013  Olly Betts <olly@survex.com>
-	* configure.ac: Fix deprecation warning from Ruby 1.9.3.
+Xapian-bindings 1.3.1 (2013-04-17):
 
-Xapian-bindings 1.3.1 (2013-03-18):
+This release includes all changes from 1.2.10-1.2.15 which are relevant.
 
 Documentation:
-
-* Change `...' quoting in prose to '...'.
 
 General:
 
@@ -25,21 +22,23 @@ General:
 * Ignore Query(Query::Internal&) constructor, which is for internal use
   only.
 
-	* xapian-headers.i,xapian.i: Wrap xapian/dbfactory.h functions
-	  directly, except for C# and Java, where we use a fake class hack.
-	* python/smoketest2.py: Enable test that WritableDatabase form of
-	  xapian.open_stub() is now wrapped.
-	* php/smoketest.php: Check that Xapian::Auto::open_stub() is wrapped
-	  as Xapian::auto_open_stub().
-
-	  xapian.i: For all languages except C# and Java, wrap the functions
-	  declared in xapian/dbfactory.h by getting SWIG to parse the header.
-	  This means we now wrap the WritableDatabase form of
-	  Xapian::Auto::open_stub() for these languages.
+* For all languages except C# and Java, wrap the functions declared in
+  xapian/dbfactory.h by getting SWIG to parse the header.  This means we now
+  wrap the WritableDatabase form of Xapian::Auto::open_stub() for these
+  languages.
 
 * swig-depcomp: Script which wraps invoking SWIG, tells it to generate
   dependencies, and adjusts the generated dependencies to work in our build
   system.
+
+	* Makefile.am,configure.ac,generic/generic.mk: Remove support for
+	  'make QUIET=y' - automake now supports 'make V=0' which is broadly
+	  equivalent and more standard.
+
+	* configure.ac,csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,
+	  perl/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  python/run-python-test,ruby/Makefile.am,tcl8/Makefile.am: Fix the
+	  tests to work with the new automake parallel test driver.
 
 Packaging:
 
@@ -55,13 +54,13 @@ CSharp:
 
 Java:
 
-	* Use the XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
-	  approach for Java too (though we don't actually support mixed
-	  subqueries in the case of Java, so it's now a bit misnamed now!)
+* Avoid generating a temporary C++ vector of Query objects when constructing
+  a Query from a Java array of Query objects or a Java array of strings.
 
-	* Implement and test MSetIterator, ESetIterator. Fix PostingIterator, ValueIterator, and TermIterator.
+* Implement and test MSetIterator, ESetIterator.  Fix PostingIterator,
+  ValueIterator, and TermIterator.
 
-	* Add a typemap for TermIterator pairs to String[] for the Enquire.getMatchingTerms API.
+* Add Enquire.getMatchingTerms().
 
 * Use JAVACFLAGS when running JAVAC to allow extra flags to be specified when
   building, e.g. "make JAVACFLAGS=-g".
@@ -80,6 +79,12 @@ Perl:
 
 * perl/t/10query.t: Adjust regexp which checks expected error message to work
   with Perl 5.16, which adds a '.' after "at foo line 123".  (ticket#610)
+
+* Probe for 'prove' in configure.
+
+	* perl/perl.i,perl/util.i.in: Fix PostingIterator wrapper to work.
+	* perl/t/databasemodified.t,perl/t/index.t,perl/t/writabledatabase.t:
+	  Add missing test coverage for this, and some other features.
 
 PHP:
 
@@ -215,6 +220,20 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.15 (2013-04-16):
+
+General:
+
+* Fix configure --enable-quiet option to actually work for the bindings.
+
+Perl:
+
+* Fix doc typo: "as as" -> "as a"
+
+Ruby:
+
+* Fix deprecation warning in configure from Ruby 1.9.3.
 
 Xapian-bindings 1.2.14 (2013-03-14):
 
