@@ -62,7 +62,6 @@ case `pwd` in
 *' '*)
    AC_MSG_ERROR([You can't build in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Check the source directory doesn't contain a space, so we die early with
@@ -74,7 +73,6 @@ case $0 in
    dnl before this can.
    AC_MSG_ERROR([You can't build with sources in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Check the prefix to install in doesn't contain a space, so we die early with
@@ -83,7 +81,6 @@ case $prefix in
 *' '*)
    AC_MSG_ERROR([You can't install in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Note if the user specified a particular C++ compiler so we can give a more

@@ -1,3 +1,7 @@
+Fri Apr 19 23:36:25 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove empty default cases.
+
 Wed Apr 17 03:06:57 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.15 and ChangeLog.
