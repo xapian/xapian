@@ -1,3 +1,8 @@
+Sat Apr 20 10:12:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Generate '#include <config.h>' at
+	  the start of the stemmer code.
+
 Fri Apr 19 23:36:25 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove empty default cases.

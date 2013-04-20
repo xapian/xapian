@@ -1352,6 +1352,7 @@ static void generate_head(struct generator * g) {
 	const char * s = g->options->output_file;
 	const char * leaf;
 	w(g, "~N"
+	     "#include <config.h>~N"
 	     "#include <limits.h>~N");
 	if (!s) abort(); /* checked in driver.c */
 	leaf = strrchr(s, '/');
