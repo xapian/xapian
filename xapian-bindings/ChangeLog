@@ -1,3 +1,8 @@
+Sun Apr 21 07:08:10 GMT 2013  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Avoid using System.err.printf() which fails
+	  to compile with the java compiler on atreus for some reason.
+
 Sun Apr 21 07:05:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* xapian-head.i: Defined XAPIAN_LIB_BUILD so that we don't get errors
