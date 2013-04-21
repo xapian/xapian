@@ -1,7 +1,7 @@
 /** @file attributes.h
  * @brief Compiler attribute macros
  */
-// Copyright (C) 2012 Olly Betts
+// Copyright (C) 2012,2013 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 
 #ifndef XAPIAN_INCLUDED_ATTRIBUTES_H
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/attributes.h> directly; include <xapian.h> instead."
+#endif
 
 #ifdef __GNUC__
 // __attribute__((__const__)) is available at least as far back as GCC 2.95.

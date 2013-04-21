@@ -1,7 +1,7 @@
 /** @file keymaker.h
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,10 @@
 
 #ifndef XAPIAN_INCLUDED_KEYMAKER_H
 #define XAPIAN_INCLUDED_KEYMAKER_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/keymaker.h> directly; include <xapian.h> instead."
+#endif
 
 #include <string>
 #include <vector>

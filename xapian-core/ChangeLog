@@ -1,3 +1,8 @@
+Sun Apr 21 06:25:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,generate-exceptions,include/xapian/: Give an error if
+	  user code tries to include API headers other than xapian.h directly.
+
 Sat Apr 20 10:12:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Generate '#include <config.h>' at

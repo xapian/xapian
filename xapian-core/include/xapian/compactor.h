@@ -1,7 +1,7 @@
 /** @file compactor.h
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,10 @@
 
 #ifndef XAPIAN_INCLUDED_COMPACTOR_H
 #define XAPIAN_INCLUDED_COMPACTOR_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/compactor.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>

@@ -1164,6 +1164,11 @@ AH_BOTTOM(
 # define rare(COND) (COND)
 # define usual(COND) (COND)
 #endif
+
+/* Signal we're building the library so it's OK to include headers such as
+ * xapian/query.h directly.
+ */
+#define XAPIAN_LIB_BUILD 1
 ])
 
 AC_SUBST(AM_CXXFLAGS)
