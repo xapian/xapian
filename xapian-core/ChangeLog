@@ -1,3 +1,7 @@
+Sun Apr 21 07:49:38 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Fix quotes in new #error in version.h.
+
 Sun Apr 21 06:25:57 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,generate-exceptions,include/xapian/: Give an error if

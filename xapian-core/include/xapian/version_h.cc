@@ -25,7 +25,7 @@ const char * dummy[] = {
 "#define XAPIAN_INCLUDED_VERSION_H",
 "",
 "#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
-"# error \"Never use <xapian/version.h> directly; include <xapian.h> instead.\"",
+"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
 "#endif",
 "",
 #ifdef __GNUC__
