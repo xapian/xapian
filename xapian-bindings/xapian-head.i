@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,6 +89,9 @@ using namespace std;
 
 %include exception.i
 %include stl.i
+
+// Disable errors about not including headers individually.
+#define XAPIAN_LIB_BUILD
 
 // Define these away for SWIG's parser.
 #define XAPIAN_DEPRECATED(D) D

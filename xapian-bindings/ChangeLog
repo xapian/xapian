@@ -1,3 +1,8 @@
+Sun Apr 21 07:05:42 GMT 2013  Olly Betts <olly@survex.com>
+
+	* xapian-head.i: Defined XAPIAN_LIB_BUILD so that we don't get errors
+	  about processing headers individually with SWIG.
+
 Wed Apr 17 03:19:11 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.15 and ChangeLog.
