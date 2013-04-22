@@ -230,7 +230,7 @@ class TestRunner(object):
                 self._out.write_colour(msg)
                 object_count = self.gc_object_count()
                 test_fn()
-                expect(object_count, self.gc_object_count())
+                expect(self.gc_object_count(), object_count)
                 self._out.write_colour("#green#ok##\n")
 
             if self._verbose > 0 or self._out.plain:
