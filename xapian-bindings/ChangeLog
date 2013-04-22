@@ -1,3 +1,7 @@
+Mon Apr 22 05:19:42 GMT 2013  olly <olly@survex.com>
+
+	* HACKING: Document Debian packages needed for each language.
+
 Sun Apr 21 07:08:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java: Avoid using System.err.printf() which fails
