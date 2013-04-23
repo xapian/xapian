@@ -1,3 +1,7 @@
+Tue Apr 23 11:41:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Fix typo in doc comment.
+
 Tue Apr 23 11:39:30 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Disable error for direct inclusion

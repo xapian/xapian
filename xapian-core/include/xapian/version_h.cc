@@ -3,7 +3,7 @@
 #include <config.h>
 const char * dummy[] = {
 "/** @file version.h",
-" * @brief Define preprocesor symbols for the library version",
+" * @brief Define preprocessor symbols for the library version",
 " */",
 "// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts",
 "//",
