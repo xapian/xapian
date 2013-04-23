@@ -1,3 +1,10 @@
+Tue Apr 23 12:34:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Use a block's revision number to
+	  check if it was newly allocated in the current revision, and
+	  assert that the base file shows it block_free_at_start (previously
+	  the check and assertion were the other way around).
+
 Tue Apr 23 12:11:21 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Note macports needed for development work.
