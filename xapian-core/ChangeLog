@@ -1,3 +1,8 @@
+Tue Apr 23 11:39:30 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Disable error for direct inclusion
+	  of xapian/version.h for now.
+
 Sun Apr 21 07:49:38 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Fix quotes in new #error in version.h.

@@ -24,10 +24,12 @@ const char * dummy[] = {
 "#ifndef XAPIAN_INCLUDED_VERSION_H",
 "#define XAPIAN_INCLUDED_VERSION_H",
 "",
-"#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
-"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
-"#endif",
-"",
+// Disabled for now, since str.h is used by omega, and includes visibility.h
+// which includes version.h.  (FIXME)
+//"#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
+//"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
+//"#endif",
+//"",
 #ifdef __GNUC__
 // When building the library with GCC, generate preprocessor code to check that
 // any version of GCC used to build applications has a matching C++ ABI. This
