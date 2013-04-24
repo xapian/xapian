@@ -400,7 +400,7 @@ static void yy_shift(
   YYMINORTYPE *yypMinor         /* Pointer to the minor token to shift in */
 ){
   /* Here code is inserted which will execute if the parser
-  ** stack every overflows.  We use std::vector<> for our stack
+  ** stack ever overflows.  We use std::vector<> for our stack
   ** so we'll never need this code.
   */
 #if 0

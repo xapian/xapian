@@ -4052,7 +4052,7 @@ void ReportTable(
   tplt_print(out,lemp,lemp->accept,&lineno);
   tplt_xfer(lemp->name,in,out,&lineno);
 
-  /* Append any addition code the user desires */
+  /* Append any additional code the user desires */
   tplt_print(out,lemp,lemp->extracode,&lineno);
 
   fclose(in);
