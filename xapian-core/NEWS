@@ -122,10 +122,9 @@ build system:
 	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
 	  and xapian.m4 to xapian-1.3.m4.
 
-	* Makefile.am,configure.ac,tests/Makefile.am: Remove support for
-	  'configure --enable-quiet', 'make QUIET=' and 'make QUIET=y' -
-	  automake now supports 'configure --enable-silent-rules', 'make V=1'
-	  and 'make V=0' which are broadly equivalent and more standard.
+* Remove support for 'configure --enable-quiet', 'make QUIET=' and 'make
+  QUIET=y' - automake now supports 'configure --enable-silent-rules', 'make
+  V=1' and 'make V=0' which are broadly equivalent and more standard.
 
 	*  now bootstrap snapshots with automake 1.13.1.
 
