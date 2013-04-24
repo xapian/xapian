@@ -1,3 +1,8 @@
+Wed Apr 24 06:27:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian.h: Add catch for Wt defining a macro called slots,
+	  like we already do for Qt.
+
 Wed Apr 24 03:40:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
