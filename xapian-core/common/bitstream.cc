@@ -52,7 +52,7 @@ static const unsigned char flstab[256] = {
 };
 
 // Highly optimised fls() implementation.
-inline int my_fls(unsigned mask)
+inline int highest_order_bit(unsigned mask)
 {
     int result = 0;
     if (mask >= 0x10000u) {
@@ -72,7 +72,7 @@ void
 BitWriter::encode(size_t value, size_t outof)
 {
     Assert(value < outof);
-    size_t bits = my_fls(outof - 1);
+    size_t bits = highest_order_bit(outof - 1);
     const size_t spare = (1 << bits) - outof;
     if (spare) {
 	const size_t mid_start = (outof - spare) / 2;
@@ -122,7 +122,7 @@ BitWriter::encode_interpolative(const vector<Xapian::termpos> &pos, int j, int k
 Xapian::termpos
 BitReader::decode(Xapian::termpos outof)
 {
-    size_t bits = my_fls(outof - 1);
+    size_t bits = highest_order_bit(outof - 1);
     const size_t spare = (1 << bits) - outof;
     const size_t mid_start = (outof - spare) / 2;
     Xapian::termpos p;

@@ -1,3 +1,7 @@
+Thu Apr 25 10:44:56 GMT 2013  Marius Tibeica <mtibeica@gmail.com>
+
+	* common/bitstream.cc: renamed my_fls to highest_order_bit.
+
 Thu Apr 25 06:49:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remoteprotocol.h,
