@@ -1,3 +1,8 @@
+Thu Apr 25 10:57:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/remote_protocol.rst: Correct error in documentation of
+	  REPLY_DOCDATA message.
+
 Thu Apr 25 10:44:56 GMT 2013  Marius Tibeica <mtibeica@gmail.com>
 
 	* common/bitstream.cc: renamed my_fls to highest_order_bit.

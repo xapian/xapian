@@ -121,7 +121,7 @@ Document
 --------
 
 -  ``MSG_DOCUMENT I<document id>``
--  ``REPLY_DOCDATA L<document data>``
+-  ``REPLY_DOCDATA <document data>``
 -  ``REPLY_VALUE I<value no> <value>``
 -  ``...``
 -  ``REPLY_DONE``
