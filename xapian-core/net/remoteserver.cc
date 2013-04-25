@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,7 @@
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
+#include "stringutils.h"
 #include "weight/weightinternal.h"
 
 XAPIAN_NORETURN(static void throw_read_only());
@@ -229,13 +230,21 @@ RemoteServer::run()
 void
 RemoteServer::msg_allterms(const string &message)
 {
-    const string & prefix = message;
+    string prev = message;
+    string reply;
 
+    const string & prefix = message;
     const Xapian::TermIterator end = db->allterms_end(prefix);
     for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
-	string item = encode_length(t.get_termfreq());
-	item += *t;
-	send_message(REPLY_ALLTERMS, item);
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string & v = *t;
+	size_t reuse = common_prefix_length(prev, v);
+	reply = encode_length(t.get_termfreq());
+	reply.append(1, char(reuse));
+	reply.append(v, reuse, string::npos);
+	send_message(REPLY_ALLTERMS, reply);
+	prev = v;
     }
 
     send_message(REPLY_DONE, string());
@@ -249,12 +258,19 @@ RemoteServer::msg_termlist(const string &message)
     Xapian::docid did = decode_length(&p, p_end, false);
 
     send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
+    string prev;
     const Xapian::TermIterator end = db->termlist_end(did);
     for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
-	string item = encode_length(t.get_wdf());
-	item += encode_length(t.get_termfreq());
-	item += *t;
-	send_message(REPLY_TERMLIST, item);
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string & v = *t;
+	size_t reuse = common_prefix_length(prev, v);
+	string reply = encode_length(t.get_wdf());
+	reply += encode_length(t.get_termfreq());
+	reply.append(1, char(reuse));
+	reply.append(v, reuse, string::npos);
+	send_message(REPLY_TERMLIST, reply);
+	prev = v;
     }
 
     send_message(REPLY_DONE, string());
@@ -665,12 +681,22 @@ RemoteServer::msg_getmetadata(const string & message)
 void
 RemoteServer::msg_openmetadatakeylist(const string & message)
 {
-    const Xapian::TermIterator end = db->metadata_keys_end(message);
-    Xapian::TermIterator t = db->metadata_keys_begin(message);
-    for (; t != end; ++t) {
-	send_message(REPLY_METADATAKEYLIST, *t);
-    }
+    string prev = message;
+    string reply;
 
+    const string & prefix = message;
+    const Xapian::TermIterator end = db->metadata_keys_end(prefix);
+    Xapian::TermIterator t = db->metadata_keys_begin(prefix);
+    for (; t != end; ++t) {
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string & v = *t;
+	size_t reuse = common_prefix_length(prev, v);
+	reply.assign(1, char(reuse));
+	reply.append(v, reuse, string::npos);
+	send_message(REPLY_METADATAKEYLIST, reply);
+	prev = v;
+    }
     send_message(REPLY_DONE, string());
 }
 

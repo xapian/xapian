@@ -1,3 +1,10 @@
+Thu Apr 25 06:49:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteprotocol.h,
+	  docs/remote_protocol.rst,net/remoteserver.cc: Prefix compress
+	  list of terms and metadata keys in the remote protocol.  
+	  This requires a remote protocol major version bump.
+
 Wed Apr 24 23:14:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c,queryparser/queryparser.lt: Fix comment typos.

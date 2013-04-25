@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -118,10 +118,13 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
 			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
+    string term = prefix;
     char type;
     while ((type = get_message(message)) == REPLY_METADATAKEYLIST) {
 	NetworkTermListItem item;
-	item.tname = message;
+	term.resize(size_t((unsigned char)message[0]));
+	term.append(message, 1, string::npos);
+	item.tname = term;
 	items.push_back(item);
     }
     if (type != REPLY_DONE)
@@ -156,6 +159,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 			    did));
     vector<NetworkTermListItem> & items = tlist->items;
 
+    string term;
     char type;
     while ((type = get_message(message)) == REPLY_TERMLIST) {
 	NetworkTermListItem item;
@@ -163,7 +167,9 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	p_end = p + message.size();
 	item.wdf = decode_length(&p, p_end, false);
 	item.termfreq = decode_length(&p, p_end, false);
-	item.tname.assign(p, p_end);
+	term.resize(size_t((unsigned char)*p++));
+	term.append(p, p_end);
+	item.tname = term;
 	items.push_back(item);
     }
     if (type != REPLY_DONE)
@@ -186,6 +192,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
+    string term = prefix;
     string message;
     char type;
     while ((type = get_message(message)) == REPLY_ALLTERMS) {
@@ -193,7 +200,9 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
 	item.termfreq = decode_length(&p, p_end, false);
-	item.tname.assign(p, p_end);
+	term.resize(size_t((unsigned char)*p++));
+	term.append(p, p_end);
+	item.tname = term;
 	items.push_back(item);
     }
     if (type != REPLY_DONE)

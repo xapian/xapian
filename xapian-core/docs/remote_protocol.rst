@@ -1,9 +1,9 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 36.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 36 in Xapian
-1.3.0.
+This document describes *version 37.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 37 in Xapian
+1.3.1.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
 
@@ -32,7 +32,7 @@ Inside the contents, strings are generally passed as an encoded length
 followed by the string data (this is indicated below by ``L<...>``)
 except when the string is the last or only thing in the contents in
 which case we know the length because we know the length of the contents
-so we don't need to explicitly specify it.
+so we don't need to explicitly specify it (indicated by ``<...>`` below).
 
 Integers are encoded using the same encoding used for string lengths
 (indicated by ``I<...>`` below).
@@ -44,6 +44,8 @@ to some power of 2). This is indicated by ``F<...>`` below.
 
 Boolean values are passed as a single byte which is the ASCII character
 value for ``0`` or ``1``. This is indicated by ``B<...>`` below.
+
+Unsigned byte values are indicated by ``C<...>`` below.
 
 Server statistics
 -----------------
@@ -93,7 +95,7 @@ All Terms
 ---------
 
 -  ``MSG_ALLTERMS``
--  ``REPLY_ALLTERMS I<term freq> L<term name>``
+-  ``REPLY_ALLTERMS I<term freq> C<chars of previous term to reuse> <string to append>``
 -  ``...``
 -  ``REPLY_DONE``
 
@@ -164,7 +166,7 @@ Termlist
 
 -  ``MSG_TERMLIST I<document id>``
 -  ``REPLY_DOCLENGTH I<document length>``
--  ``REPLY_TERMLIST I<wdf> I<term freq> L<term name>``
+-  ``REPLY_TERMLIST I<wdf> I<term freq> C<chars of previous term to reuse> <string to append>``
 -  ``...``
 -  ``REPLY_DONE``
 
@@ -267,7 +269,7 @@ Metadata keys
 -------------
 
 -  ``MSG_METADATAKEYLIST <prefix>``
--  ``REPLY_METADATAKEYLIST <key>``
+-  ``REPLY_METADATAKEYLIST C<chars of previous key to reuse> <string to append>``
 -  ``...``
 -  ``REPLY_DONE``
 
