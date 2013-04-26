@@ -236,6 +236,10 @@ foreach my $tag (@ARGV) {
     # worry about timestamps equal to $timestamp.
     sleep 2;
 
+    # Skip xapian-letor for now, as atreus lacks libsvm-dev, or the ability
+    # to install a new enough one from a package.
+    open TOUCH, '>>', '../xapian/xapian-letor/.nobootstrap' and close TOUCH;
+
     open F, '<', '../xapian/bootstrap' or die $!;
     <F>;
     my $timestamp = (stat F)[8];

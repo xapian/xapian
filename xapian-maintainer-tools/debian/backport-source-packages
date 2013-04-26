@@ -27,8 +27,8 @@ set -e
 #MIRROR=http://ftp.de.debian.org/debian/
 MIRROR=http://ftp.nz.debian.org/debian/
 
-DEBIAN_CODENAMES='squeeze lenny'
-UBUNTU_CODENAMES='oneiric natty maverick lucid'
+DEBIAN_CODENAMES='wheezy squeeze'
+UBUNTU_CODENAMES='saucy raring quantal precise oneiric lucid'
 
 V_OPT=
 case $1 in
@@ -46,7 +46,7 @@ esac
 if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "Usage: $0 [-v <last uploaded version>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.5-1 lucid"
+  echo "e.g.: $0 xapian-core 1.2.15-1 precise"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -154,10 +154,10 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # backports.org-compatible package versions - e.g. we append "~bpo60+1" for
 # Debian 6.0 (squeeze) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+wheezy)
+  BACKPORT_SUFFIX='~bpo70+1' ;;
 squeeze)
   BACKPORT_SUFFIX='~bpo60+1' ;;
-lenny)
-  BACKPORT_SUFFIX='~bpo50+1' ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
     echo "Debian codename '$CODENAME' not mapped to a ~bpoNN+1 suffix"
