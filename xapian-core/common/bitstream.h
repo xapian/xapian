@@ -61,6 +61,27 @@ class BitReader {
 
     unsigned int read_bits(int count);
 
+    struct DIState {
+	void set(int p_j, int p_k,
+		 Xapian::termpos p_pos_j, Xapian::termpos p_pos_k) {
+	    j = p_j; k = p_k; pos_j = p_pos_j; pos_k = p_pos_k;
+	}
+	DIState() { set(0, 0, 0, 0); }
+	DIState(int p_j, int p_k,
+		Xapian::termpos p_pos_j, Xapian::termpos p_pos_k) {
+	    set(p_j, p_k, p_pos_j, p_pos_k);
+	}
+	bool is_next() const { return j + 1 < k; };
+	bool is_initialized() const {
+	    return !(j == 0 && k == 0 && pos_j == 0 && pos_k == 0);
+	}
+	Xapian::termpos pos_j, pos_k;
+	int j, k;
+    };
+
+    std::vector<DIState> di_stack;
+    DIState di_current;
+
   public:
     BitReader(const std::string &buf_)
 	: buf(buf_), idx(0), n_bits(0), acc(0) { }
@@ -68,7 +89,7 @@ class BitReader {
     BitReader(const std::string &buf_, size_t skip)
 	: buf(buf_, skip), idx(0), n_bits(0), acc(0) { }
 
-    Xapian::termpos decode(Xapian::termpos outof);
+    Xapian::termpos decode(Xapian::termpos outof, bool force = false);
 
     // Check all the data has been read.  Because it'll be zero padded
     // to fill a byte, the best we can actually do is check that
@@ -79,6 +100,11 @@ class BitReader {
     }
 
     void decode_interpolative(std::vector<Xapian::termpos> & pos, int j, int k);
+
+    void decode_interpolative(int j, int k,
+			      Xapian::termpos pos_j, Xapian::termpos pos_k);
+
+    Xapian::termpos decode_interpolative_next();
 };
 
 }

@@ -120,8 +120,10 @@ BitWriter::encode_interpolative(const vector<Xapian::termpos> &pos, int j, int k
 }
 
 Xapian::termpos
-BitReader::decode(Xapian::termpos outof)
+BitReader::decode(Xapian::termpos outof, bool force)
 {
+    (void)force;
+    Assert(!force && !di_current.is_initialized());
     size_t bits = highest_order_bit(outof - 1);
     const size_t spare = (1 << bits) - outof;
     const size_t mid_start = (outof - spare) / 2;
@@ -165,6 +167,7 @@ BitReader::read_bits(int count)
 void
 BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
 {
+    Assert(!di_current.is_initialized());
     while (j + 1 < k) {
 	const size_t mid = (j + k) / 2;
 	// Decode one out of (pos[k] - pos[j] + 1) values
@@ -175,6 +178,42 @@ BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
 	decode_interpolative(pos, j, mid);
 	j = mid;
     }
+}
+
+void
+BitReader::decode_interpolative(int j, int k,
+				Xapian::termpos pos_j, Xapian::termpos pos_k)
+{
+    Assert(!di_current.is_initialized());
+    di_stack.reserve(highest_order_bit(pos_k - pos_j));
+    di_current.set(j, k, pos_j, pos_k);
+}
+
+Xapian::termpos
+BitReader::decode_interpolative_next()
+{
+    Assert(di_current.is_initialized());
+    while (!di_stack.empty() || di_current.is_next()) {
+	if (di_current.is_next()) {
+	    di_stack.push_back(di_current);
+	    int mid = (di_current.j + di_current.k) / 2;
+	    int pos_mid = decode(di_current.pos_k - di_current.pos_j + di_current.j - di_current.k + 1, true) + (di_current.pos_j + mid - di_current.j);
+	    di_current.set(di_current.j, mid, di_current.pos_j, pos_mid);
+	} else {
+	    Xapian::termpos pos_ret = di_current.pos_k;
+	    di_current = di_stack[di_stack.size() - 1];
+	    di_stack.pop_back();
+	    int mid = (di_current.j + di_current.k) / 2;
+	    int pos_mid = pos_ret;
+	    di_current.set(mid, di_current.k, pos_mid, di_current.pos_k);
+	    if (di_stack.empty() && !di_current.is_next())
+		di_current.set(0, 0, 0, 0);
+	    return pos_ret;
+	}
+    }
+    // decode_interpolative_next() called too many times
+    Assert(false);
+    return 0;
 }
 
 }

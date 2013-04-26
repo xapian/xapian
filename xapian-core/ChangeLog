@@ -1,3 +1,8 @@
+Fri Apr 26 02:09:38 GMT 2013  Marius Tibeica <mtibeica@gmail.com>
+
+	* common/bitstream.cc,common/bitstream.h: Support reading entries from
+	  an interpolative coded list one by one.
+
 Thu Apr 25 10:57:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/remote_protocol.rst: Correct error in documentation of
