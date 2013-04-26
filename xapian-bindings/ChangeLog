@@ -1,3 +1,10 @@
+Fri Apr 26 09:39:10 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Forward port change from branches/1.2:
+	* php/Makefile.am,php/add-php-ref-handling,php/smoketest.php: Keep
+	  references to the PHP wrapper object when an object is set on
+	  another object.  (Fixes #614)
+
 Fri Apr 26 09:08:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

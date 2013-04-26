@@ -23,6 +23,7 @@ BUILT_SOURCES =\
 
 EXTRA_DIST = php.i except.i \
 	generate-php-exceptions \
+	add-php-ref-handling \
 	add-php-type-hints \
 	$(TESTS) $(BUILT_SOURCES)
 
@@ -74,7 +75,8 @@ $(stamp): except.i add-php-type-hints
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
 	    -o php5/xapian_wrap.cc '$(srcdir)/'php.i
-	$(PERL) '$(srcdir)/'add-php-type-hints php5/xapian.php > php5/xapian.tmp
+	$(PERL) '$(srcdir)/'add-php-type-hints php5/xapian.php | \
+	    $(PERL) '$(srcdir)/'add-php-ref-handling > php5/xapian.tmp
 	mv php5/xapian.tmp php5/xapian.php
 	$(multitarget_end)
 
