@@ -1,3 +1,8 @@
+Fri Apr 26 10:32:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Run add-php-ref-handling before add-php-type-hints
+	  as the other order doesn't fully work.
+
 Fri Apr 26 09:39:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Forward port change from branches/1.2:
