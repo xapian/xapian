@@ -1,3 +1,7 @@
+Fri Apr 26 09:08:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Mon Apr 22 05:25:34 GMT 2013  olly <olly@survex.com>
 
 	* python/smoketest2.py: Need to raise exception, not just construct it!
