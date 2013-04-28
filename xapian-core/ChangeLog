@@ -1,3 +1,10 @@
+Sun Apr 28 07:06:12 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Move check for reaching the
+	  end after the next() in the loop in skip_to(), as we know we aren't
+	  at the end on the first iteration, and we've now handled the case of
+	  termpos == last before we get here.
+
 Sun Apr 28 07:04:54 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: We know what the last entry in

@@ -193,12 +193,12 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
     if (!have_started)
 	have_started = true;
     while (rd && current_pos < termpos) {
+	current_pos = rd->decode_interpolative_next();
 	if (current_pos == last) {
 	    delete rd;
 	    rd = NULL;
 	    return;
 	}
-	current_pos = rd->decode_interpolative_next();
     }
 }
 
