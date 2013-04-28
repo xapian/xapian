@@ -1,7 +1,7 @@
 /** @file bitstream.h
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2012 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,18 +62,30 @@ class BitReader {
     unsigned int read_bits(int count);
 
     struct DIState {
-	void set(int p_j, int p_k,
-		 Xapian::termpos p_pos_j, Xapian::termpos p_pos_k) {
-	    j = p_j; k = p_k; pos_j = p_pos_j; pos_k = p_pos_k;
+	void set_j(int j_, Xapian::termpos pos_j_) {
+	    j = j_;
+	    pos_j = pos_j_;
 	}
-	DIState() { set(0, 0, 0, 0); }
-	DIState(int p_j, int p_k,
-		Xapian::termpos p_pos_j, Xapian::termpos p_pos_k) {
-	    set(p_j, p_k, p_pos_j, p_pos_k);
+	void set_k(int k_, Xapian::termpos pos_k_) {
+	    k = k_;
+	    pos_k = pos_k_;
 	}
-	bool is_next() const { return j + 1 < k; };
+	void uninit()  {
+	    j = 1;
+	    k = 0;
+	}
+	DIState() { uninit(); }
+	DIState(int j_, int k_,
+		Xapian::termpos pos_j_, Xapian::termpos pos_k_) {
+	    set_j(j_, pos_j_);
+	    set_k(k_, pos_k_);
+	}
+	bool is_next() const { return j + 1 < k; }
 	bool is_initialized() const {
-	    return !(j == 0 && k == 0 && pos_j == 0 && pos_k == 0);
+	    return j <= k;
+	}
+	Xapian::termpos outof() const {
+	    return pos_k - pos_j + j - k + 1;
 	}
 	Xapian::termpos pos_j, pos_k;
 	int j, k;

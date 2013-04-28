@@ -1,3 +1,10 @@
+Sun Apr 28 06:44:32 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc,
+	  backends/brass/brass_positionlist.h,common/bitstream.cc,
+	  common/bitstream.h: Hook up BrassPositionList to the new lazy
+	  interpolative decoder.
+
 Fri Apr 26 02:09:38 GMT 2013  Marius Tibeica <mtibeica@gmail.com>
 
 	* common/bitstream.cc,common/bitstream.h: Support reading entries from
