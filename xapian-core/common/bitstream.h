@@ -87,8 +87,8 @@ class BitReader {
 	Xapian::termpos outof() const {
 	    return pos_k - pos_j + j - k + 1;
 	}
-	Xapian::termpos pos_j, pos_k;
 	int j, k;
+	Xapian::termpos pos_j, pos_k;
     };
 
     std::vector<DIState> di_stack;

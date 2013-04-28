@@ -1,3 +1,8 @@
+Sun Apr 28 06:48:01 GMT 2013  olly <olly@survex.com>
+
+	* common/bitstream.h: Store j and k before pos_j and pos_k as it's
+	  fractionally more efficient.
+
 Sun Apr 28 06:44:32 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc,
