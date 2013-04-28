@@ -61,7 +61,14 @@ class BitReader {
 
     unsigned int read_bits(int count);
 
-    struct DIState {
+    struct DIStack {
+	int j, k;
+	Xapian::termpos pos_k;
+    };
+
+    struct DIState : public DIStack {
+	Xapian::termpos pos_j;
+
 	void set_j(int j_, Xapian::termpos pos_j_) {
 	    j = j_;
 	    pos_j = pos_j_;
@@ -80,6 +87,10 @@ class BitReader {
 	    set_j(j_, pos_j_);
 	    set_k(k_, pos_k_);
 	}
+	void operator=(const DIStack & o) {
+	    j = o.j;
+	    set_k(o.k, o.pos_k);
+	}
 	bool is_next() const { return j + 1 < k; }
 	bool is_initialized() const {
 	    return j <= k;
@@ -87,11 +98,9 @@ class BitReader {
 	Xapian::termpos outof() const {
 	    return pos_k - pos_j + j - k + 1;
 	}
-	int j, k;
-	Xapian::termpos pos_j, pos_k;
     };
 
-    std::vector<DIState> di_stack;
+    std::vector<DIStack> di_stack;
     DIState di_current;
 
   public:
