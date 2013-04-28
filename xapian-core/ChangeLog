@@ -1,3 +1,9 @@
+Sun Apr 28 07:04:54 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: We know what the last entry in
+	  the position list is, so special case skip_to(last_entry) to just
+	  move there rather than calling next() a lot of times.
+
 Sun Apr 28 07:03:57 GMT 2013  olly <olly@survex.com>
 
 	* common/bitstream.h: We don't need to stack pos_j when doing lazy

@@ -180,8 +180,12 @@ void
 BrassPositionList::skip_to(Xapian::termpos termpos)
 {
     LOGCALL_VOID(DB, "BrassPositionList::skip_to", termpos);
-    if (termpos > last) {
+    if (termpos >= last) {
 	have_started = true;
+	if (termpos == last) {
+	    current_pos = last;
+	    return;
+	}
 	delete rd;
 	rd = NULL;
 	return;
