@@ -173,8 +173,8 @@ void
 BrassPositionList::skip_to(Xapian::termpos termpos)
 {
     LOGCALL_VOID(DB, "BrassPositionList::skip_to", termpos);
+    have_started = true;
     if (termpos >= last) {
-	have_started = true;
 	if (termpos == last) {
 	    current_pos = last;
 	    return;
@@ -183,8 +183,6 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
 	current_pos = 1;
 	return;
     }
-    if (!have_started)
-	have_started = true;
     while (current_pos < termpos) {
 	current_pos = rd.decode_interpolative_next();
 	if (current_pos == last) {

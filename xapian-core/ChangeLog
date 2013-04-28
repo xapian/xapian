@@ -1,3 +1,8 @@
+Sun Apr 28 10:29:59 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Simplify setting of
+	  have_started in BrassPositionList::skip_to().
+
 Sun Apr 28 10:19:52 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc,
