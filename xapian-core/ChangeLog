@@ -1,3 +1,9 @@
+Sun Apr 28 07:22:07 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc,common/bitstream.h: Reuse the
+	  same BitReader object for each document rather than deleting the old
+	  one and creating a new one.
+
 Sun Apr 28 07:06:12 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Move check for reaching the

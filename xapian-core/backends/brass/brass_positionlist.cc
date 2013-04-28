@@ -110,8 +110,6 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     LOGCALL(DB, bool, "BrassPositionList::read_data", table | did | tname);
 
     have_started = false;
-    delete rd;
-    rd = NULL;
 
     string data;
     if (!table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data)) {
@@ -127,14 +125,22 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     }
     if (pos == end) {
 	// Special case for single entry position list.
-	rd = new BitReader(data, 0);
+	if (!rd) {
+	    rd = new BitReader(data, 0);
+	} else {
+	    rd->init(data, 0);
+	}
 	rd->decode_interpolative(0, 0, pos_last, pos_last);
 	size = 1;
 	last = pos_last;
 	RETURN(true);
     }
     // Skip the header we just read.
-    rd = new BitReader(data, pos - data.data());
+    if (!rd) {
+	rd = new BitReader(data, pos - data.data());
+    } else {
+	rd->init(data, pos - data.data());
+    }
     Xapian::termpos pos_first = rd->decode(pos_last);
     Xapian::termpos pos_size = rd->decode(pos_last - pos_first) + 2;
     rd->decode_interpolative(0, pos_size - 1, pos_first, pos_last);
@@ -169,8 +175,8 @@ BrassPositionList::next()
 	return;
     }
     if (current_pos == last) {
-	delete rd;
-	rd = NULL;
+	last = 0;
+	current_pos = 1;
 	return;
     }
     current_pos = rd->decode_interpolative_next();
@@ -186,8 +192,8 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
 	    current_pos = last;
 	    return;
 	}
-	delete rd;
-	rd = NULL;
+	last = 0;
+	current_pos = 1;
 	return;
     }
     if (!have_started)
@@ -195,8 +201,8 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
     while (rd && current_pos < termpos) {
 	current_pos = rd->decode_interpolative_next();
 	if (current_pos == last) {
-	    delete rd;
-	    rd = NULL;
+	    last = 0;
+	    current_pos = 1;
 	    return;
 	}
     }
@@ -207,5 +213,5 @@ BrassPositionList::at_end() const
 {
     LOGCALL(DB, bool, "BrassPositionList::at_end", NO_ARGS);
     Assert(have_started);
-    RETURN(rd == NULL);
+    RETURN(current_pos > last);
 }

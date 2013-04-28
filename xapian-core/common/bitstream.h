@@ -37,7 +37,8 @@ class BitWriter {
   public:
     BitWriter() : n_bits(0), acc(0) { }
 
-    BitWriter(const std::string & seed) : buf(seed), n_bits(0), acc(0) { }
+    explicit BitWriter(const std::string & seed)
+	: buf(seed), n_bits(0), acc(0) { }
 
     void encode(size_t value, size_t outof);
 
@@ -104,11 +105,20 @@ class BitReader {
     DIState di_current;
 
   public:
-    BitReader(const std::string &buf_)
+    explicit BitReader(const std::string &buf_)
 	: buf(buf_), idx(0), n_bits(0), acc(0) { }
 
     BitReader(const std::string &buf_, size_t skip)
 	: buf(buf_, skip), idx(0), n_bits(0), acc(0) { }
+
+    void init(const std::string &buf_, size_t skip = 0) {
+	buf.assign(buf_, skip, std::string::npos);
+	idx = 0;
+	n_bits = 0;
+	acc = 0;
+	di_stack.clear();
+	di_current.uninit();
+    }
 
     Xapian::termpos decode(Xapian::termpos outof, bool force = false);
 
