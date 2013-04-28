@@ -98,11 +98,6 @@ BrassPositionListTable::positionlist_count(Xapian::docid did,
 
 ///////////////////////////////////////////////////////////////////////////
 
-BrassPositionList::~BrassPositionList()
-{
-    delete rd;
-}
-
 bool
 BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
 			     const string & tname)
@@ -125,25 +120,17 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     }
     if (pos == end) {
 	// Special case for single entry position list.
-	if (!rd) {
-	    rd = new BitReader(data, 0);
-	} else {
-	    rd->init(data, 0);
-	}
-	rd->decode_interpolative(0, 0, pos_last, pos_last);
+	rd.init(data, 0);
+	rd.decode_interpolative(0, 0, pos_last, pos_last);
 	size = 1;
 	last = pos_last;
 	RETURN(true);
     }
     // Skip the header we just read.
-    if (!rd) {
-	rd = new BitReader(data, pos - data.data());
-    } else {
-	rd->init(data, pos - data.data());
-    }
-    Xapian::termpos pos_first = rd->decode(pos_last);
-    Xapian::termpos pos_size = rd->decode(pos_last - pos_first) + 2;
-    rd->decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    rd.init(data, pos - data.data());
+    Xapian::termpos pos_first = rd.decode(pos_last);
+    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
     size = pos_size;
     last = pos_last;
     current_pos = pos_first;
@@ -179,7 +166,7 @@ BrassPositionList::next()
 	current_pos = 1;
 	return;
     }
-    current_pos = rd->decode_interpolative_next();
+    current_pos = rd.decode_interpolative_next();
 }
 
 void
@@ -198,8 +185,8 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
     }
     if (!have_started)
 	have_started = true;
-    while (rd && current_pos < termpos) {
-	current_pos = rd->decode_interpolative_next();
+    while (current_pos < termpos) {
+	current_pos = rd.decode_interpolative_next();
 	if (current_pos == last) {
 	    last = 0;
 	    current_pos = 1;

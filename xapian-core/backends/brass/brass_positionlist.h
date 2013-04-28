@@ -24,6 +24,7 @@
 
 #include <xapian/types.h>
 
+#include "bitstream.h"
 #include "brass_lazytable.h"
 #include "pack.h"
 #include "backends/positionlist.h"
@@ -73,13 +74,10 @@ class BrassPositionListTable : public BrassLazyTable {
 					 const string & term) const;
 };
 
-namespace Xapian { class BitReader; }
-using Xapian::BitReader;
-
 /** A position list in a brass database. */
 class BrassPositionList : public PositionList {
     /// Interpolative decoder.
-    BitReader * rd;
+    BitReader rd;
 
     /// Current entry.
     Xapian::termpos current_pos;
@@ -104,16 +102,13 @@ class BrassPositionList : public PositionList {
 
   public:
     /// Default constructor.
-    BrassPositionList() : rd(NULL) {}
+    BrassPositionList() { }
 
     /// Construct and initialise with data.
     BrassPositionList(const BrassTable * table, Xapian::docid did,
-		      const string & tname)
-    : rd(NULL) {
+		      const string & tname) {
 	(void)read_data(table, did, tname);
     }
-
-    ~BrassPositionList();
 
     /** Fill list with data, and move the position to the start.
      *

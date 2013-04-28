@@ -105,6 +105,8 @@ class BitReader {
     DIState di_current;
 
   public:
+    BitReader() { }
+
     explicit BitReader(const std::string &buf_)
 	: buf(buf_), idx(0), n_bits(0), acc(0) { }
 

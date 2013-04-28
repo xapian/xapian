@@ -1,3 +1,10 @@
+Sun Apr 28 10:19:52 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc,
+	  backends/brass/brass_positionlist.h,common/bitstream.h: Make the
+	  BitReader object a member of BrassPositionList rather than tracking
+	  a pointer to it.
+
 Sun Apr 28 07:22:07 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc,common/bitstream.h: Reuse the
