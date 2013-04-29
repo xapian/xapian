@@ -1,6 +1,6 @@
 /* chert_positionlist.cc: A position list in a chert database.
  *
- * Copyright (C) 2004,2005,2006,2008,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,12 +105,13 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
     LOGCALL(DB, bool, "ChertPositionList::read_data", table | did | tname);
 
     have_started = false;
-    positions.clear();
 
     string data;
     if (!table->get_exact_entry(ChertPositionListTable::make_key(did, tname), data)) {
 	// There's no positional information for this term.
-	current_pos = positions.begin();
+	size = 0;
+	last = 0;
+	current_pos = 1;
 	RETURN(false);
     }
 
@@ -122,20 +123,18 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
     }
     if (pos == end) {
 	// Special case for single entry position list.
-	positions.push_back(pos_last);
-	current_pos = positions.begin();
+	size = 1;
+	current_pos = last = pos_last;
 	RETURN(true);
     }
     // Skip the header we just read.
-    BitReader rd(data, pos - data.data());
+    rd.init(data, pos - data.data());
     Xapian::termpos pos_first = rd.decode(pos_last);
     Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    positions.resize(pos_size);
-    positions[0] = pos_first;
-    positions.back() = pos_last;
-    rd.decode_interpolative(positions, 0, pos_size - 1);
-
-    current_pos = positions.begin();
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    size = pos_size;
+    last = pos_last;
+    current_pos = pos_first;
     RETURN(true);
 }
 
@@ -143,7 +142,7 @@ Xapian::termcount
 ChertPositionList::get_size() const
 {
     LOGCALL(DB, Xapian::termcount, "ChertPositionList::get_size", NO_ARGS);
-    RETURN(positions.size());
+    RETURN(size);
 }
 
 Xapian::termpos
@@ -151,35 +150,54 @@ ChertPositionList::get_position() const
 {
     LOGCALL(DB, Xapian::termpos, "ChertPositionList::get_position", NO_ARGS);
     Assert(have_started);
-    RETURN(*current_pos);
+    RETURN(current_pos);
 }
 
 void
 ChertPositionList::next()
 {
     LOGCALL_VOID(DB, "ChertPositionList::next", NO_ARGS);
-
-    if (!have_started) {
+    Assert(rd);
+    if (rare(!have_started)) {
 	have_started = true;
-    } else {
-	Assert(!at_end());
-	++current_pos;
+	return;
     }
+    if (current_pos == last) {
+	last = 0;
+	current_pos = 1;
+	return;
+    }
+    current_pos = rd.decode_interpolative_next();
 }
 
 void
 ChertPositionList::skip_to(Xapian::termpos termpos)
 {
     LOGCALL_VOID(DB, "ChertPositionList::skip_to", termpos);
-    if (!have_started) {
-	have_started = true;
+    have_started = true;
+    if (termpos >= last) {
+	if (termpos == last) {
+	    current_pos = last;
+	    return;
+	}
+	last = 0;
+	current_pos = 1;
+	return;
     }
-    while (!at_end() && *current_pos < termpos) ++current_pos;
+    while (current_pos < termpos) {
+	if (current_pos == last) {
+	    last = 0;
+	    current_pos = 1;
+	    return;
+	}
+	current_pos = rd.decode_interpolative_next();
+    }
 }
 
 bool
 ChertPositionList::at_end() const
 {
     LOGCALL(DB, bool, "ChertPositionList::at_end", NO_ARGS);
-    RETURN(current_pos == positions.end());
+    Assert(have_started);
+    RETURN(current_pos > last);
 }

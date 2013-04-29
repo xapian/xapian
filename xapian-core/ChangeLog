@@ -1,3 +1,9 @@
+Mon Apr 29 02:16:54 GMT 2013  olly <olly@survex.com>
+
+	* backends/chert/chert_positionlist.cc,
+	  backends/chert/chert_positionlist.h: Backport positionlist changes
+	  from brass.
+
 Mon Apr 29 01:58:59 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: No need to initialise the
