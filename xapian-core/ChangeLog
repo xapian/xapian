@@ -1,3 +1,7 @@
+Mon Apr 29 00:46:10 GMT 2013  olly <olly@survex.com>
+
+	* tests/api_posdb.cc: Fix comment typos.
+
 Mon Apr 29 00:27:42 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Fix handling of single-entry
