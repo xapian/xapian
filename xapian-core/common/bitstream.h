@@ -96,6 +96,8 @@ class BitReader {
 	bool is_initialized() const {
 	    return j <= k;
 	}
+	// Given pos[j] = pos_j and pos[k] = pos_k, how many possible position
+	// values are there for the value midway between?
 	Xapian::termpos outof() const {
 	    return pos_k - pos_j + j - k + 1;
 	}
@@ -131,8 +133,6 @@ class BitReader {
     bool check_all_gone() const {
 	return (idx == buf.size() && n_bits < 7 && acc == 0);
     }
-
-    void decode_interpolative(std::vector<Xapian::termpos> & pos, int j, int k);
 
     void decode_interpolative(int j, int k,
 			      Xapian::termpos pos_j, Xapian::termpos pos_k);

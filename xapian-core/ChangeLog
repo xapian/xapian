@@ -1,34 +1,42 @@
-Mon Apr 29 02:16:54 GMT 2013  olly <olly@survex.com>
+Mon Apr 29 03:09:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_dbcheck.cc,backends/chert/chert_dbcheck.cc:
+	  Use decode_interpolative_next() when checking database consistency.
+	  We also now complain about any junk after the position data.
+	* common/bitstream.cc,common/bitstream.h: Remove the old version of
+	  decode_interpolative() which unpacks into a std::vector.
+
+Mon Apr 29 02:16:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_positionlist.cc,
 	  backends/chert/chert_positionlist.h: Backport positionlist changes
 	  from brass.
 
-Mon Apr 29 01:58:59 GMT 2013  olly <olly@survex.com>
+Mon Apr 29 01:58:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: No need to initialise the
 	  BitReader object in the single-entry position list case.
 
-Mon Apr 29 01:58:10 GMT 2013  olly <olly@survex.com>
+Mon Apr 29 01:58:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Fix bug when reaching the last
 	  positionlist entry in skip_to().
 
-Mon Apr 29 00:46:10 GMT 2013  olly <olly@survex.com>
+Mon Apr 29 00:46:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_posdb.cc: Fix comment typos.
 
-Mon Apr 29 00:27:42 GMT 2013  olly <olly@survex.com>
+Mon Apr 29 00:27:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Fix handling of single-entry
 	  position lists.
 
-Sun Apr 28 23:45:02 GMT 2013  olly <olly@survex.com>
+Sun Apr 28 23:45:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Fix BrassPositionList for case
 	  when there's no positional information for a term.
 
-Sun Apr 28 10:29:59 GMT 2013  olly <olly@survex.com>
+Sun Apr 28 10:29:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Simplify setting of
 	  have_started in BrassPositionList::skip_to().
