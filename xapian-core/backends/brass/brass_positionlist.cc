@@ -126,7 +126,7 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
 	rd.init(data, 0);
 	rd.decode_interpolative(0, 0, pos_last, pos_last);
 	size = 1;
-	last = pos_last;
+	current_pos = last = pos_last;
 	RETURN(true);
     }
     // Skip the header we just read.
