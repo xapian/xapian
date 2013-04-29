@@ -187,12 +187,12 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
 	return;
     }
     while (current_pos < termpos) {
-	current_pos = rd.decode_interpolative_next();
 	if (current_pos == last) {
 	    last = 0;
 	    current_pos = 1;
 	    return;
 	}
+	current_pos = rd.decode_interpolative_next();
     }
 }
 

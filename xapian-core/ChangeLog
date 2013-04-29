@@ -1,3 +1,8 @@
+Mon Apr 29 01:58:10 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Fix bug when reaching the last
+	  positionlist entry in skip_to().
+
 Mon Apr 29 00:46:10 GMT 2013  olly <olly@survex.com>
 
 	* tests/api_posdb.cc: Fix comment typos.
