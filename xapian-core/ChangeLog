@@ -1,3 +1,8 @@
+Sun Apr 28 23:45:02 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Fix BrassPositionList for case
+	  when there's no positional information for a term.
+
 Sun Apr 28 10:29:59 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Simplify setting of

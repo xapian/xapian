@@ -109,6 +109,9 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     string data;
     if (!table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data)) {
 	// There's no positional information for this term.
+	size = 0;
+	last = 0;
+	current_pos = 1;
 	RETURN(false);
     }
 
