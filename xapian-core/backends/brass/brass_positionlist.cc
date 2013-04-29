@@ -123,8 +123,6 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     }
     if (pos == end) {
 	// Special case for single entry position list.
-	rd.init(data, 0);
-	rd.decode_interpolative(0, 0, pos_last, pos_last);
 	size = 1;
 	current_pos = last = pos_last;
 	RETURN(true);

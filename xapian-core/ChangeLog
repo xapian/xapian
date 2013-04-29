@@ -1,3 +1,8 @@
+Mon Apr 29 01:58:59 GMT 2013  olly <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: No need to initialise the
+	  BitReader object in the single-entry position list case.
+
 Mon Apr 29 01:58:10 GMT 2013  olly <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Fix bug when reaching the last
