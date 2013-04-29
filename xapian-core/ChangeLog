@@ -1,3 +1,9 @@
+Mon Apr 29 11:27:54 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/remote_protocol.rst: Correct error in documentation of
+	  REPLY_DOCDATA message.
+
 Sun Apr 28 09:08:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
