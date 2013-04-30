@@ -1,22 +1,17 @@
- 17184       olly Thu Apr 11 22:17:44 GMT 2013  Olly Betts <olly@survex.com>
+ 17241       olly Mon Apr 29 03:09:16 GMT 2013  Olly Betts <olly@survex.com>
 
 1.2.16:
 
-Xapian-core 1.3.1 (2013-04-17):
+Xapian-core 1.3.1 (2013-04-29):
 
 This release includes all changes from 1.2.10-1.2.15 which are relevant.
 
- 16829       olly Tue Sep 25 06:46:03 GMT 2012  Olly Betts <olly@survex.com>
-	* include/xapian/enquire.h: Mark MSetIterator::at_end() and
-	  ESetIterator::at_end() as @private @internal so that they don't
-	  appear in the API docs.
- 16823    dcolish Sat Aug 25 16:09:50 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* include/xapian/enquire.h: Add function to test MSetIterator and
-	  ESetIterator exhaustion against the size of the underlying interee
-	  since comparison against an empty Itor is not suitable for an
-	  exhaustion test.
-
 API:
+
+* Give an compilation error if user code tries to include API headers other
+  than xapian.h directly - these other headers are an internal implementation
+  detail, but experience has shown that some people try to include them
+  directly.  Please just use '#include <xapian.h>' instead.
 
 * Update Unicode character database to Unicode 6.2.0.
 
@@ -24,18 +19,11 @@ API:
   API while we sort out how best to sort out exactly how it interacts with
   other QueryParser features.
 
- 17179       olly Mon Apr 08 06:30:40 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* weight/: Added tfidfweight.cc containing the implementation of the
-	  TfIdfWeight class.
-	* include/xapian/weight.h: Added TfIdfWeight class for the tf-idf
-	  weighting scheme.
-	* tests/api_weight.cc: Added tests for TfIdfWeight.
-	* tests/api_nodb.cc: Added simple tests for TfIdfWeight.
+* Add implementation of several TF-IDF weighting schemes via a new TfIdfWeight
+  class.
 
- 17144       olly Thu Mar 28 04:19:26 GMT 2013  jiangwen jiang <jiangwen127@gmail.com>
-	* api/expanddecider.cc,include/xapian/expanddecider.h,
-	  tests/api_anydb.cc,tests/api_nodb.cc: Add ExpandDeciderFilterPrefix
-	  class to only return terms with a particular prefix.  (fixes #467)
+* Add ExpandDeciderFilterPrefix class which only return terms with a particular
+  prefix.  (fixes #467)
 
 * QueryParser: Adjust handling of Unicode opening/closing double quotes - if a
   quoted boolean term was started with ASCII double quote, then only ASCII
@@ -88,45 +76,40 @@ matcher:
 
 brass backend:
 
+* Iterating positional data now decodes it lazily, which should speed up
+  phrases which include common words.
+
 * Compress changesets in brass replication. Increments the changeset version.
   Ticket #348
 
 * Restore two missing lines in database checking where we report a block with
   the wrong level.
 
+* When checking if a block was newly allocated in this revision, just look
+  at its revision number rather than consulting the base file's bitmap.
+
 chert backend:
 
-	 Add flock() based
-	  locking implementation, which is much simpler than using fcntl() due
-	  to saner semantics around releasing locks when closing other
-	  descriptors on the same file (at least on platforms where flock()
-	  isn't just a compatibility wrapper around fcntl()).  We can't simply
-	  switch to this without breaking locking compatibility with previous
-	  releases, though it might be useful for porting to platforms without
-	  fcntl() locking.  Also, flock() apparently doesn't work over NFS -
-	  perhaps that's OK, but we should at least check the failure mode.
-	* configure.ac: Use the new flock()-based flint-compatible locking
-	  under DJGPP, and remove special cases to disable chert and brass
-	  under DJGPP (untested, as I no longer have a DJGPP setup or
-	  cross-compiler).
+* Iterating positional data now decodes it lazily, which should speed up
+  phrases which include common words.
 
 remote backend:
 
+* Prefix compress list of terms and metadata keys in the remote protocol.
+  This requires a remote protocol major version bump.
 
 inmemory backend:
 
 
 build system:
 
-	* configure.ac: Set LIBRARY_VERSION_SUFFIX to -1.3.
-	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
-	  and xapian.m4 to xapian-1.3.m4.
+* Fix the 'libxapian' to be 'libxapian-1.3' and 'xapian.m4' to be
+  'xapian-1.3.m4' (this was supposed to be the case for 1.3.0, but the
+  change wasn't made correctly).
 
 * Remove support for 'configure --enable-quiet', 'make QUIET=' and 'make
   QUIET=y' - automake now supports 'configure --enable-silent-rules', 'make
   V=1' and 'make V=0' which are broadly equivalent and more standard.
-
-	*  now bootstrap snapshots with automake 1.13.1.
 
 * configure: If we fail to find a function needed for the remote backend, don't
   autodisable it - it's more helpful to error out so the use can decide if they
@@ -134,7 +117,7 @@ build system:
   to pass for LIBS, etc to make it work.  This also matches what we do for the
   disk based backends.
 
-* automake 1.12.4 is now used to generate snapshots and releases.
+* automake 1.13.1 is now used to generate snapshots and releases.
 
 * Add check-syntax make target to support editor syntax checks.
 
@@ -148,23 +131,16 @@ build system:
   HTML is unhelpful, so don't default to passing --html-gzip to genhtml, but
   instead add support for GENHTML_ARGS.
 
-	* generate-exceptions: Use function attributes in generated error.h.
-	* include/xapian/: Use the new function attributes on various API
-	  methods.
-	* tests/api_wrdb.cc: get_termfreq() is now marked as pure, so the
-	  testsuite needs to actually use the return value to check its
-	  exception behaviour.
-	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Hide new
-	  function attribute macros from doxygen.
- 16632       olly Sun May 27 01:43:30 GMT 2012  Olly Betts <olly@survex.com>
-	* exception_data.pm,include/Makefile.mk,include/xapian.h,
-	  include/xapian/attributes.h,include/xapian/unicode.h: Add
-	  XAPIAN_CONST_FUNCTION, XAPIAN_PURE_FUNCTION, and XAPIAN_NOTHROW
-	  macros for marking functions and methods with those attributes.
-	  (tickets #151, #454)
+* API methods and functions are now marked as 'const', 'pure', or 'nothrow'
+  allowing compilers which support such annotations to generate more efficient
+  code.  (tickets #151, #454)
 
 documentation:
 
+* HACKING: Note which MacPorts are needed for development work.
+
+* docs/remote_protocol.rst: Correct error in documentation of REPLY_DOCDATA
+  message.
 
 tools:
 
@@ -187,7 +163,16 @@ portability:
 
 * Mark file descriptors as close-on-exec where supported. 
 
-	* api/queryinternal.cc: Need <functional> for mem_fun().
+* api/queryinternal.cc: Need <functional> for mem_fun().
+
+* Add an option to use a flock() based locking implementation for brass and
+  chert - this is much simpler than using fcntl() due to saner semantics around
+  releasing locks when closing other descriptors on the same file (at least on
+  platforms where flock() isn't just a compatibility wrapper around fcntl()).
+  Sadly we can't simply switch to this without breaking locking compatibility
+  with previous releases, but it's useful for platforms without fcntl()
+  locking (it's enabled for DJGPP) and may be useful for custom builds for
+  special purposes.
 
 packaging:
 
@@ -712,9 +697,14 @@ portability:
   an uninitialised double by zero, which is undefined behaviour, but in
   practice will often give zero, leading to the desired results.
 
-* xapian.h: Add check for Qt headers being included before us and defining
-  'slots' as a macro - if they are, give a clear error advising how to work
-  around this (previously compilation would fail with a confusing error).
+* xapian.h:
+
+  + Add check for Qt headers being included before us and defining
+    'slots' as a macro - if they are, give a clear error advising how to work
+    around this (previously compilation would fail with a confusing error).
+
+  + Add a similar check for Wt headers which also define 'slots' as a macro
+    by default.
 
 Xapian-core 1.2.10 (2012-05-09):
 

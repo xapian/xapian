@@ -1,3 +1,7 @@
+Tue Apr 30 13:51:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Mon Apr 29 03:09:16 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_dbcheck.cc,backends/chert/chert_dbcheck.cc:
