@@ -112,10 +112,9 @@ doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/i
 	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
 
-# Update the Python 3 versions (likely need manual tweaks afterwards).
+# Update the Python 3 versions from the Python 2 ones.
 2to3:
 	for a in pythontest replicationtest smoketest testsuite ; do cp $${a}2.py $${a}3.py ; 2to3 -w --no-diffs $${a}3.py ; done
-	$(PERL) -pi -e 's/(for colour, val in )list\((self._colours.items\(\))\)/$$1$$2/' testsuite3.py
 
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o

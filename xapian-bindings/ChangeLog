@@ -1,3 +1,8 @@
+Wed May 01 07:05:45 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Drop fixup after 2to3 as it is no longer needed,
+	  and comment suggesting manual tweaks are probably needed.
+
 Wed May 01 07:04:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/testsuite2.py: Use iteritems() instead of items() as it's lazy
