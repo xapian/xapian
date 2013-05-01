@@ -1,3 +1,9 @@
+Wed May 01 05:14:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian.h: Add catch for Wt defining a macro called slots,
+	  like we already do for Qt.
+
 Mon Apr 29 11:27:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
