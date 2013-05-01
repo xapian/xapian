@@ -1,3 +1,8 @@
+Wed May 01 07:04:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/testsuite2.py: Use iteritems() instead of items() as it's lazy
+	  and works unchanged in Python 3 (change suggested by Richard Boulton).
+
 Wed May 01 06:18:29 GMT 2013  olly <olly@survex.com>
 
 	* python/smoketest3.py,python/testsuite3.py: Update Python 3 tests from

@@ -346,7 +346,7 @@ class OutProxy(object):
         #colourname# will change the text colour, ## will change the colour back.
 
         """
-        for colour, val in self._colours.items():
+        for colour, val in self._colours.iteritems():
             msg = msg.replace('#%s#' % colour, val)
         return msg
 
