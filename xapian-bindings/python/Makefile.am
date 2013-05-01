@@ -100,10 +100,6 @@ clean-local:
 	rm -rf db_test_* dbs_replication
 
 if MAINTAINER_MODE
-# We need to explicitly set -outdir because on Windows, SWIG splits paths at
-# "\" when extracting the output directory from the value passed to the -o
-# option.
-
 BUILT_SOURCES += except.i doccomments.i
 except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
@@ -115,6 +111,10 @@ else
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/index.xml
 	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
+
+# We need to explicitly set -outdir because on Windows, SWIG splits paths at
+# "\" when extracting the output directory from the value passed to the -o
+# option.
 
 stamp = modern/xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)

@@ -1,3 +1,8 @@
+Wed May 01 05:39:13 GMT 2013  olly <olly@survex.com>
+
+	* python/Makefile.am: Move comment about using -outdir to a more
+	  logical place.
+
 Fri Apr 26 10:32:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Run add-php-ref-handling before add-php-type-hints
