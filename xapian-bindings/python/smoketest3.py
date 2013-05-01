@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -91,6 +91,35 @@ def test_all():
     expect_query(xapian.Query(xapian.Query.OP_OR, subqs), "(a OR b)")
     expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, '1', '4'),
                  "VALUE_RANGE 0 1 4")
+
+    # Check database factory functions are wrapped as expected:
+
+    expect_exception(xapian.DatabaseOpeningError, None,
+                     xapian.open_stub, "nosuchdir/nosuchdb")
+    expect_exception(xapian.DatabaseOpeningError, None,
+                     xapian.open_stub, "nosuchdir/nosuchdb", xapian.DB_OPEN)
+
+    expect_exception(xapian.DatabaseOpeningError, None,
+                     xapian.brass_open, "nosuchdir/nosuchdb")
+    expect_exception(xapian.DatabaseCreateError, None,
+                     xapian.brass_open, "nosuchdir/nosuchdb", xapian.DB_CREATE)
+
+    expect_exception(xapian.DatabaseOpeningError, None,
+                     xapian.chert_open, "nosuchdir/nosuchdb")
+    expect_exception(xapian.DatabaseCreateError, None,
+                     xapian.chert_open, "nosuchdir/nosuchdb", xapian.DB_CREATE)
+
+    expect_exception(xapian.NetworkError, None,
+                     xapian.remote_open, "/bin/false", "")
+    expect_exception(xapian.NetworkError, None,
+                     xapian.remote_open_writable, "/bin/false", "")
+
+    expect_exception(xapian.NetworkError, None,
+                     xapian.remote_open, "127.0.0.1", 0, 1)
+    expect_exception(xapian.NetworkError, None,
+                     xapian.remote_open_writable, "127.0.0.1", 0, 1)
+
+    # Check wrapping of MatchAll and MatchNothing:
 
     expect_query(xapian.Query.MatchAll, "<alldocuments>")
     expect_query(xapian.Query.MatchNothing, "")
@@ -389,7 +418,7 @@ def test_zz9_check_leaks():
     import gc
     gc.collect()
     if len(mystemmers):
-        TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
+        raise TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

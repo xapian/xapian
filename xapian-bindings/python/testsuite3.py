@@ -1,7 +1,7 @@
 # Utility functions for running tests and reporting the results.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2011 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+import gc
 import os as _os
 import os.path as _path
 import sys as _sys
@@ -106,6 +107,15 @@ class TestRunner(object):
             self._out.flush()
 
     def expect_exception(self, expectedclass, expectedmsg, callable, *args):
+        """Check that an exception is raised.
+
+         - expectedclass is the class of the exception to check for.
+         - expectedmsg is the message to check for, or None to skip checking
+           the message.
+         - callable is the thing to call.
+         - args are the arguments to pass to it.
+
+        """
         if self._verbose > 2:
             self._out.start_line()
             self._out.write("Checking for exception: %s(%r) ... " % (str(expectedclass), expectedmsg))
@@ -117,7 +127,7 @@ class TestRunner(object):
                 self._out.flush()
             raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
         except expectedclass as e:
-            if str(e) != expectedmsg:
+            if expectedmsg is not None and str(e) != expectedmsg:
                 if self._verbose > 2:
                     self._out.write_colour(" #red#failed##")
                     self._out.write(": exception string not as expected: got '%s'\n" % str(e))
@@ -136,16 +146,16 @@ class TestRunner(object):
     def report_failure(self, name, msg, show_traceback=True):
         "Report a test failure, with some useful context."
 
-        orig_tb = _traceback.extract_tb(_sys.exc_info()[2])
-        tb = orig_tb
+        tb = _traceback.extract_tb(_sys.exc_info()[2])
 
         # Move up the traceback until we get to the line in the test
         # function which caused the failure.
-        while tb[-1][2] != 'test_' + name:
-            tb = tb[:-1]
+        for line in range(1, len(tb) + 1):
+            if tb[-line][2] == 'test_' + name:
+                break
 
         # Display the context in the text function.
-        filepath, linenum, functionname, text = tb[-1]
+        filepath, linenum, functionname, text = tb[-line]
         filename = _os.path.basename(filepath)
 
         self._out.ensure_space()
@@ -172,7 +182,7 @@ class TestRunner(object):
             # Display the traceback
             if show_traceback:
                 self._out.write("Traceback (most recent call last):\n")
-                for line in _traceback.format_list(orig_tb):
+                for line in _traceback.format_list(tb):
                     self._out.write(line.rstrip() + '\n')
                 self._out.write('\n')
 
@@ -190,15 +200,39 @@ class TestRunner(object):
 
         self._out.flush()
 
+    def gc_object_count(self):
+        # Python 2.7 doesn't seem to free all objects even for a full
+        # collection, so collect repeatedly until no further objects get freed.
+        old_count, count = len(gc.get_objects()), 0
+        while True:
+            gc.collect()
+            count = len(gc.get_objects())
+            if count == old_count:
+                return count
+            old_count = count
+
     def runtest(self, name, test_fn):
         """Run a single test.
-    
+
         """
         startline = "Running test: %s..." % name
         self._out.write(startline)
         self._out.flush()
         try:
+            object_count = self.gc_object_count()
             test_fn()
+            object_count = self.gc_object_count() - object_count
+            if object_count != 0:
+                # Maybe some lazily initialised object got initialised for the
+                # first time, so rerun the test.
+                self._out.ensure_space()
+                msg = "#yellow#possible leak (%d), rerunning## " % object_count
+                self._out.write_colour(msg)
+                object_count = self.gc_object_count()
+                test_fn()
+                expect(self.gc_object_count(), object_count)
+                self._out.write_colour("#green#ok##\n")
+
             if self._verbose > 0 or self._out.plain:
                 self._out.ensure_space()
                 self._out.write_colour("#green#ok##\n")
@@ -216,7 +250,7 @@ class TestRunner(object):
 
     def runtests(self, namedict, runonly=None):
         """Run a set of tests.
-    
+
         Takes a dictionary of name-value pairs and runs all the values which are
         callables, for which the name begins with "test_".
 
@@ -255,7 +289,8 @@ class TestRunner(object):
                 failed += 1
         if failed:
             if self._verbose == 0:
-                self._out.write('Re-run with the VERBOSE environment variable set to "1" to see details.\n')
+                self._out.write('Re-run with the environment variable VERBOSE=1 to see details.\n')
+                self._out.write('E.g. make check VERBOSE=1\n')
             self._out.write_colour("#green#%d## tests passed, #red#%d## tests failed\n" % (passed, failed))
             return False
         else:
@@ -379,4 +414,8 @@ expect_query = _runner.expect_query
 expect_exception = _runner.expect_exception
 runtests = _runner.runtests
 
-__all__ = ('context', 'expect', 'expect_query', 'expect_exception', 'runtests')
+__all__ = ('TestFail', 'context', 'expect', 'expect_query', 'expect_exception', 'runtests')
+
+def next(iterator):
+    return iterator.__next__()
+__all__ = __all__ + ('next',)

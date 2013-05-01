@@ -1,3 +1,8 @@
+Wed May 01 06:18:29 GMT 2013  olly <olly@survex.com>
+
+	* python/smoketest3.py,python/testsuite3.py: Update Python 3 tests from
+	  Python 2 versions using new 2to3 target.
+
 Wed May 01 06:16:44 GMT 2013  olly <olly@survex.com>
 
 	* python/Makefile.am: Add 2to3 rule for maintainers to help automate
