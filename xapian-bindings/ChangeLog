@@ -1,3 +1,7 @@
+Thu May 02 06:31:51 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Thu May 02 06:11:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* README: Update details of tested and supported versions.  C#: drop
