@@ -640,16 +640,16 @@ if test no != "$with_csharp" ; then
 	  RUN_CSHARP=
 	else
 	  AC_MSG_RESULT(no)
-	  AC_PATH_PROGS(MONO, ["${MONO-mono}"], [])
-	  if test -z "$MONO" ; then
-	    AC_PATH_PROGS(MONO, [ilrun], [])
+	  AC_PATH_PROGS(CLI, ["${CLI-cli}"], [])
+	  if test -z "$CLI" ; then
+	    AC_PATH_PROGS(CLI, [mono ilrun], [])
 	  fi
-	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
-	  if test -n "$MONO" ; then
-	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])
-	    if OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
+	  AC_ARG_VAR(CLI, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
+	  if test -n "$CLI" ; then
+	    AC_MSG_CHECKING([whether $CLI can run CSharp programs])
+	    if OK = "`$CLI ./conftest.exe 2> /dev/null`" ; then
 	      AC_MSG_RESULT(yes)
-	      RUN_CSHARP=mono
+	      RUN_CSHARP=$CLI
 	    else
 	      AC_MSG_RESULT([no - CSharp tests will be skipped])
 	      RUN_CSHARP='\$(top_srcdir)/skiptest'

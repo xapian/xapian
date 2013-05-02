@@ -1,3 +1,11 @@
+Thu May 02 05:47:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change to use CLI rather than MONO to specify the
+	  bytecode interpreter to use to run tests with.  Previously we'd
+	  check the setting of MONO worked and then use "mono" (literally)
+	  instead - since setting MONO didn't previously really work, we
+	  haven't added compatibility handling for it.
+
 Thu May 02 04:27:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Add more Debian package requirements.
