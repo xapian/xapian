@@ -1,8 +1,4 @@
- 17241       olly Mon Apr 29 03:09:16 GMT 2013  Olly Betts <olly@survex.com>
-
-1.2.16:
-
-Xapian-core 1.3.1 (2013-04-29):
+Xapian-core 1.3.1 (2013-05-03):
 
 This release includes all changes from 1.2.10-1.2.15 which are relevant.
 
@@ -45,6 +41,15 @@ API:
 * Stem: Generate a compact and efficient table to decode language names.  This
   is both faster and smaller than the approach we were using, with the added
   benefit that the table is auto-generated.
+
+* xapian.h:
+
+  + Add check for Qt headers being included before us and defining
+    'slots' as a macro - if they are, give a clear error advising how to work
+    around this (previously compilation would fail with a confusing error).
+
+  + Add a similar check for Wt headers which also define 'slots' as a macro
+    by default.
 
 testsuite:
 
@@ -98,9 +103,6 @@ remote backend:
 * Prefix compress list of terms and metadata keys in the remote protocol.
   This requires a remote protocol major version bump.
 
-inmemory backend:
-
-
 build system:
 
 * Fix the 'libxapian' to be 'libxapian-1.3' and 'xapian.m4' to be
@@ -148,9 +150,6 @@ tools:
   it isn't valid, and will regenerate base files from the .DB files (only
   really tested on databases which have just been compacted).
 
-examples:
-
-
 portability:
 
 * Fix warning with GCC in build with assertions enabled.
@@ -164,6 +163,8 @@ portability:
 * Mark file descriptors as close-on-exec where supported. 
 
 * api/queryinternal.cc: Need <functional> for mem_fun().
+
+* Work around Apple's OS X SDK defining a check() macro.
 
 * Add an option to use a flock() based locking implementation for brass and
   chert - this is much simpler than using fcntl() due to saner semantics around
@@ -697,14 +698,9 @@ portability:
   an uninitialised double by zero, which is undefined behaviour, but in
   practice will often give zero, leading to the desired results.
 
-* xapian.h:
-
-  + Add check for Qt headers being included before us and defining
-    'slots' as a macro - if they are, give a clear error advising how to work
-    around this (previously compilation would fail with a confusing error).
-
-  + Add a similar check for Wt headers which also define 'slots' as a macro
-    by default.
+* xapian.h: Add check for Qt headers being included before us and defining
+  'slots' as a macro - if they are, give a clear error advising how to work
+  around this (previously compilation would fail with a confusing error).
 
 Xapian-core 1.2.10 (2012-05-09):
 

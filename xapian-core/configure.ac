@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.0], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.1], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -28,20 +28,11 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO:
-dnl 21:11:6 1.0.20 No API changes
-dnl 22:0:0 1.2.0 Many API changes!
-dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
-dnl 23:1:1 1.2.2 No API changes
-dnl 23:2:1 1.2.3 No API changes
-dnl 24:0:2 1.2.4 Compactor
-dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
-dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
-dnl
 dnl LIBRARY_VERSION_INFO for libxapian-1.3:
 dnl 0:0:0 1.3.0 Reset as library renamed
 dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
-LIBRARY_VERSION_INFO=1:0:0
+dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
+LIBRARY_VERSION_INFO=2:0:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.3
