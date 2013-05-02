@@ -1,32 +1,6 @@
- 17187       olly Tue Apr 16 05:24:54 GMT 2013  Olly Betts <olly@survex.com>
-
-1.2.16:
-
-Omega 1.3.1 (2013-04-17):
+Omega 1.3.1 (2013-05-03):
 
 This release includes all changes from 1.2.10-1.2.15 which are relevant.
-
- 17187       olly Tue Apr 16 05:24:54 GMT 2013  Olly Betts <olly@survex.com>
-	* weight.cc: If built against older xapian-core, don't try to use
-	  TfIdfWeight.
- 17185       olly Mon Apr 15 06:21:21 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* docs/omegascript.rst,weight.cc: Add support for
-	  $set{weighting,tfidf}.
-
- 17162       olly Thu Apr 04 06:42:01 GMT 2013  Olly Betts <olly@survex.com>
-	* Makefile.am,configure.ac: Remove support for 'configure
-	  --enable-quiet', 'make QUIET=' and 'make QUIET=y' - automake now
-	  supports 'configure --enable-silent-rules', 'make V=1' and 'make
-	  V=0' which are broadly equivalent and more standard.
-
-	* gen-myhtmltags,myhtmlparse.cc: Distinguish page breaks from other
-	  whitespace in samples.
-	* htmlparsetest.cc,myhtmlparse.cc,myhtmlparse.h: Sample from HTML now
-	  contains \r where a line or paragraph break would appear, and \t
-	  between table cells.
-FIXME: Need to stop generate_sample from normalising whitespace...
-
-general:
 
 documentation:
 
@@ -36,13 +10,9 @@ indexers:
 
 * The HTML parser now explicitly handles <APPLET>, <OBJECT> and <TR>.
 
-	* Makefile.am,gen-myhtmltags,myhtmlparse.cc,myhtmlparse.tokens: Use
-	  a generated compact and efficient table to convert HTML tag names
-	  to enum codes, which we can then use a C switch statement to
-	  dispatch.  The table first checks the token length, and then does a
-	  binary chop on tokens of the same length.  This is both faster and
-	  smaller than the approach we were using, with the benefit that the
-	  table is auto-generated.
+* Use a generated compact and efficient table to convert HTML tag names
+  to enum codes - this is both faster and smaller than the approach we were
+  using, with the benefit that the table is auto-generated.
 
 * Always use our built-in conversion code for the character sets it can handle
   (previously we'd use iconv if available; now we only use iconv for other
@@ -74,8 +44,6 @@ indexers:
 
   + Use rst2html to handle .rst and .rest files.
 
-* scriptindex:
-
 omega:
 
 * Add new $json and $jsonarray OmegaScript commands to support producing JSON
@@ -83,21 +51,22 @@ omega:
 
 * Add $truncate command which truncates a string after a word.
 
-templates:
-
-testsuite:
+* Add support for $set{weighting,tfidf} to allow the new TfIdfWeight weighting
+  scheme to be used.
 
 build system:
 
 * configure: Now looks for libmagic in MAGIC_PREFIX, to allow building with
   libmagic installed in a non-standard location.
 
+* Remove support for 'configure --enable-quiet', 'make QUIET=' and 'make
+  QUIET=y' - automake now supports 'configure --enable-silent-rules', 'make
+  V=1' and 'make V=0' which are broadly equivalent and more standard.
+
 portability:
 
 * tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported by
   Gaurav Arora).
-
-packaging:
 
 Omega 1.3.0 (2012-03-14):
 
