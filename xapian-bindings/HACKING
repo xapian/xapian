@@ -21,6 +21,20 @@ Note: Non-developer configure options are described in INSTALL
 Packages to install for each language
 =====================================
 
+C#
+--
+
+Debian wheezy::
+
+apt-get install mono-devel
+
+Java
+----
+
+Debian wheezy::
+
+apt-get install openjdk-6-jdk
+
 Lua
 ---
 
@@ -28,12 +42,10 @@ Debian wheezy::
 
 apt-get install lua5.2 liblua5.2-dev
 
-Python
-------
+Perl
+----
 
-Debian wheezy::
-
-apt-get install python-dev
+Debian wheezy: all required are packages installed by default.
 
 PHP
 ---
@@ -42,10 +54,12 @@ Debian wheezy::
 
 apt-get install php5-dev php5-cli
 
-Perl
-----
+Python
+------
 
-Debian wheezy: required packages installed by default.
+Debian wheezy::
+
+apt-get install python-dev
 
 Ruby
 ----
