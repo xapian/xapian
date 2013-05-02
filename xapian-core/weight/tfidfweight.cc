@@ -36,9 +36,9 @@ namespace Xapian {
 TfIdfWeight::TfIdfWeight(const std::string &normals)
     : normalizations(normals)
 {
-    if (normalizations.length() != 3 || (! strchr("NBSL", normalizations[0])) || (! strchr("NTP", normalizations[1])) || (! strchr("N", normalizations[2])))
+    if (normalizations.length() != 3 || (! strchr("nbsl", normalizations[0])) || (! strchr("ntp", normalizations[1])) || (! strchr("n", normalizations[2])))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
-    if (normalizations[1] != 'N') {
+    if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
     }
@@ -82,7 +82,7 @@ double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 {
     Xapian::doccount termfreq = 1;
-    if (normalizations[1] != 'N') termfreq = get_termfreq();
+    if (normalizations[1] != 'n') termfreq = get_termfreq();
     return (get_wtn(get_wdfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
 }
 
@@ -91,7 +91,7 @@ double
 TfIdfWeight::get_maxpart() const
 {
     Xapian::doccount termfreq = 1;
-    if (normalizations[1] != 'N') termfreq = get_termfreq();
+    if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     return (get_wtn(get_wdfn(wdf_max, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
 }
@@ -114,14 +114,14 @@ double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 {
     switch (c) {
-	case 'N':
+	case 'n':
 	    return wdf;
-	case 'B':
+	case 'b':
 	    if (wdf == 0) return 0;
 	    return 1.0;
-	case 'S':
+	case 's':
 	    return (wdf * wdf);
-	case 'L':
+	case 'l':
 	    if (wdf == 0) return 0;
 	    return (1 + log(wdf));
 	default:
@@ -133,13 +133,13 @@ double
 TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 {
     double N = 1.0;
-    if (c != 'N') N = get_collection_size();
+    if (c != 'n') N = get_collection_size();
     switch (c) {
-	case 'N':
+	case 'n':
 	    return 1.0;
-	case 'T':
+	case 't':
 	    return (log(N / termfreq));
-	case 'P':
+	case 'p':
 	    if (N == termfreq) return 0; // All documents are indexed by the term
 	    return log((N - termfreq) / termfreq);
 	default:
@@ -153,7 +153,7 @@ TfIdfWeight::get_wtn(double wt, char c) const
 /* Include future implementations of weight normalizations in the switch
    construct */
     switch (c) {
-	case 'N':
+	case 'n':
 	    return wt;
 	default:
 	    return wt;

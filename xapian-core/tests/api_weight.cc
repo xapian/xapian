@@ -102,17 +102,17 @@ DEFINE_TESTCASE(tfidfweight1, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::TfIdfWeight b("LOL"));
 
-    /* Normalization string should be set to "NTN" by constructor if none is
+    /* Normalization string should be set to "ntn" by constructor if none is
       given. */
     Xapian::TfIdfWeight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("NTN").serialise());
+    TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("ntn").serialise());
 
     return true;
 }
 
 // Test exception for junk after serialised weight.
 DEFINE_TESTCASE(tfidfweight2, !backend) {
-    Xapian::TfIdfWeight wt("NTN");
+    Xapian::TfIdfWeight wt("ntn");
     try {
 	Xapian::TfIdfWeight b;
 	Xapian::TfIdfWeight * b2 = b.unserialise(wt.serialise() + "X");
@@ -134,44 +134,44 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     Xapian::Enquire enquire(db);
     Xapian::MSet mset;
 
-    // Check for "NTN" when  termfreq != N
+    // Check for "ntn" when termfreq != N
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NTN"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), (8 * log(6 / 2)));
 
-    // Check for "BNN" and for both branches of 'B'.
+    // Check for "bnn" and for both branches of 'b'.
     enquire.set_query(Xapian::Query("test"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("BNN"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("bnn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 1);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.0);
 
-    // Check for "LNN" and for both branches of 'L'.
+    // Check for "lnn" and for both branches of 'l'.
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("LNN"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("lnn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), (1 + log(8))); // idfn=1 and so wt=tfn=1+log(tf)
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0);         // idfn=1 and wt=tfn=1+log(tf)=1+log(1)=1
 
-    // Check for "SNN"
+    // Check for "snn"
     enquire.set_query(Xapian::Query("paragraph"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("SNN")); // idf=1 and tfn=tf*tf
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("snn")); // idf=1 and tfn=tf*tf
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     mset_expect_order(mset, 2, 1, 4, 3, 5);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 9.0);
     TEST_EQUAL_DOUBLE(mset[4].get_weight(), 1.0);
 
-    // Check for "NTN" when termfreq=N
-    enquire.set_query(Xapian::Query("this"));  // N=termfreq amd so idfn=0 for "T"
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NTN"));
+    // Check for "ntn" when termfreq=N
+    enquire.set_query(Xapian::Query("this"));  // N=termfreq amd so idfn=0 for "t"
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
@@ -179,9 +179,9 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
     }
 
-    // Check for "NPN" and for both branches of 'P'
-    enquire.set_query(Xapian::Query("this"));  // N=termfreq and so idfn=0 for "P"
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NPN"));
+    // Check for "npn" and for both branches of 'p'
+    enquire.set_query(Xapian::Query("this"));  // N=termfreq and so idfn=0 for "p"
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("npn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
@@ -190,7 +190,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     }
 
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("NPN"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("npn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);

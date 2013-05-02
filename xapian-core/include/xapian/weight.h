@@ -374,10 +374,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *                         for the wdf for which the following normalizations
      *                         are currently available:
      *
-     *                         'N':None.      wdfn=wdf
-     *                         'B':Boolean    wdfn=1 if term in document else wdfn=0
-     *                         'S':Square     wdfn=wdf*wdf
-     *                         'L':Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *                         'n':None.      wdfn=wdf
+     *                         'b':Boolean    wdfn=1 if term in document else wdfn=0
+     *                         's':Square     wdfn=wdf*wdf
+     *                         'l':Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *
      *                         The Max-wdf and Augmented Max wdf normalizations aren't yet implemented.
      *
@@ -386,18 +386,18 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *                         for the idf, the following of which are currently
      *                         available:
      *
-     *                         'N':None   idfn=1
-     *                         'T':TfIdf  idfn=log(N/Termfreq) where N is the number of documents in
+     *                         'n':None   idfn=1
+     *                         't':TfIdf  idfn=log(N/Termfreq) where N is the number of documents in
      *                                    collection and Termfreq is the number of documents which are
      *                                    indexed by the term t.
-     *                         'P':Prob   idfn=log((N-Termfreq)/Termfreq)
+     *                         'p':Prob   idfn=log((N-Termfreq)/Termfreq)
      *
      *
      *                         The third and the final character indicates the
      *                         normalization for the document weight of which
      *                         the following are currently available:
      *
-     *                         'N':None wtn=tfn*idfn
+     *                         'n':None wtn=tfn*idfn
      *                         Implementing more normalizations for the weight requires access to
      *                         statistics such as the weight of all terms in the document indexed by
      *                         the term in the query. This is not available from the current backend.
@@ -409,13 +409,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *                         currently available from Xapian::Weight.
      *
      *
-     *                         The default string is "NTN".
+     *                         The default string is "ntn".
      */
 
     explicit TfIdfWeight(const std::string &normalizations);
 
     TfIdfWeight()
-    : normalizations("NTN")
+    : normalizations("ntn")
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
