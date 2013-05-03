@@ -1,0 +1,15 @@
+#!/bin/sh
+${LIBTOOL-../libtool} --config > libtoolconfig.$$
+. ./libtoolconfig.$$
+rm -f libtoolconfig.$$
+module=yes
+eval shlibext=$shrext_cmds
+
+tclshlibext=`echo 'puts [info sharedlibextension]'|${TCLSH-tclsh}`
+
+rm -f xapian$tclshlibext
+ln -s $objdir/xapian$shlibext xapian$tclshlibext
+${TCLSH-tclsh} ${srcdir-.}/runtest.tcl ${srcdir-.}/smoketest.tcl
+rc=$?
+rm -f xapian$tclshlibext
+exit $rc

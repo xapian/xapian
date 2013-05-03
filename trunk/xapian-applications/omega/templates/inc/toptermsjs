@@ -1,0 +1,12 @@
+<script type="text/javascript" language="javascript"><!--
+function C(c) {var i, o;
+o = " "+document.P.P.value+" ";
+i = o.lastIndexOf(" "+c.value+" ");
+if (i!=-1) {
+  document.P.P.value =
+  o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
+} else {
+  document.P.P.value = document.P.P.value+" "+c.value;
+}}
+// -->
+</script>

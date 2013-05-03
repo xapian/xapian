@@ -1,0 +1,406 @@
+#!/usr/bin/perl -w
+use strict;
+use Fcntl ':flock';
+use File::Find;
+use File::Path;
+use Sys::Hostname;
+use POSIX;
+
+my $MAXLOADPERCPU = 1.5;
+
+my $last_cmd;
+
+sub run_command {
+    if (scalar @_ == 1) {
+	$last_cmd = $_[0];
+    } else {
+	my %a = @_;
+	$last_cmd = $a{String};
+    }
+    my $out = `$last_cmd`;
+    chomp $out;
+    return wantarray ? split /\n/, $out : $out;
+}
+
+my $force = 0;
+if (scalar @ARGV && $ARGV[0] eq '--force') {
+    shift @ARGV;
+    $force = 1;
+}
+
+# Configuration:
+my $work = "/home/olly/tmp/xapian-svn-snapshot";
+# Add ccache's directory first so we'll use it if it is installed.
+$ENV{PATH} = "/usr/lib/ccache:/home/olly/install/bin:/usr/bin:/bin";
+my $repourl = 'file:///home/xapian-svn/xapian';
+my $webbase = '/srv/www';
+
+# Create the work directory first, since we need it to exist so we can create
+# the lockfile.
+mkpath($work, 0, 0755);
+chdir $work or die $!;
+
+# Prevent multiple instances of this script from running at once.
+# Use the same lockfile that fetch does.
+open LOCK, ">$ENV{HOME}/tinderbox/flockme" or die "Couldn't open 'flockme' for writing: $!\n";
+unless (flock LOCK, LOCK_EX|LOCK_NB) {
+    # If we're building a tagged release, we want to wait rather than exit.
+    unless (scalar @ARGV && $ARGV[0] =~ m!^tags/! && flock LOCK, LOCK_EX) {
+	# Work directory already in use.  Don't print anything or the cron job will
+	# send it as mail, which we don't really want.
+	exit 1;
+    }
+}
+
+# Check the load average AFTER getting the lock, since we generate output if
+# the load is too high, and it will probably be too high if we're already
+# running.
+my $HOSTNAME = Sys::Hostname::hostname();
+# Check the load average isn't too high.
+if (!$force) {
+    if (-e "/var/run/dobackup") {
+	#print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n";
+	exit(1);
+    }
+    if (((run_command("uptime 2>/dev/null"))[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
+	($1 > $MAXLOADPERCPU)) {
+	my $loadavg = $1;
+	# `getconf _NPROCESSORS_ONLN` on linux gives e.g. 2
+	# `sysctl hw.ncpu` on openbsd (and prob. freebsd & darwin) gives e.g. hw.ncpu=2
+	# `psrinfo|grep -c on-line` on Solaris or OSF/1 gives e.g. 2
+	my $ncpu;
+	# Works on Linux, at least back to kernel 2.2.26.
+	$ncpu ||= run_command("getconf _NPROCESSORS_ONLN 2>/dev/null|grep -v '[^0-9]'");
+	# Works on OpenBSD (and apparently FreeBSD and Darwin).
+	$ncpu ||= run_command("sysctl hw.ncpu 2>/dev/null|sed 's/.*=//'");
+	# Works on Solaris and OSF/1.
+	$ncpu ||= run_command("PATH=/usr/sbin:\$PATH psrinfo 2>/dev/null|grep -c on-line");
+	# Works on Linux, just in case the getconf version doesn't.  Different
+	# architectures have different formats for /proc/cpuinfo so this won't
+	# work as widely as getconf _NPROCESSORS_ONLN will.
+	$ncpu ||= run_command("grep -c processor /proc/cpuinfo 2>/dev/null");
+	$ncpu ||= 1;
+	if ($loadavg > $ncpu * $MAXLOADPERCPU) {
+	    $ncpu ||= "unknown";
+	    print STDERR "$HOSTNAME: High load average: $loadavg ($ncpu CPUs)\n";
+	    exit(1);
+	}
+    }
+}
+
+# If no tags specified, default to those which there are directories for.
+# Don't bother to build tags/* since those (generally) don't change.
+if (scalar @ARGV == 0) {
+    @ARGV = grep /\/[A-Za-z0-9][-A-Za-z0-9_.]*$/ && -d $_,
+	glob('branches/[A-Za-z0-9]*');
+    -d "trunk" && unshift @ARGV, "trunk";
+}
+
+# Or if there are no directories, default to the trunk.
+if (scalar @ARGV == 0) {
+    @ARGV = 'trunk';
+}
+
+my $status = 0;
+foreach my $tag (@ARGV) {
+    chdir $work or die $!;
+    # SVN tag names aren't restricted like CVS ones, but restrict to sane
+    # characters.
+    next if $tag !~ /^[-A-Za-z0-9_.\/]+$/;
+    if (! -d $tag) {
+	print "*** No directory for '$tag'\n";
+	$status = 1;
+	next;
+    }
+
+    my $logfile = "$tag/snapshot.log";
+    my $log = '';
+    my $lastlog;
+    my $co_dir = "$tag/xapian";
+    if (! -d "$co_dir/.svn") {
+	system "chmod", "-R", "+w", $co_dir if -d $co_dir;
+        system "rm", "-rf", $co_dir;
+	# Check out the tag into a directory of the same name.
+	open SVN, "svn co --non-interactive \Q$repourl/$tag\E \Q$co_dir\E 2>&1|" or die $!;
+	while (<SVN>) {
+	    $log .= $_;
+	    $lastlog = $_;
+	}
+	close SVN or die $!;
+    } else {
+        # Revert any local changes.
+	$log = "svn revert:\n".`svn revert -R \Q$co_dir\E 2>&1`."svn up:\n";
+	open SVN, "svn up --non-interactive \Q$co_dir\E 2>&1|" or die $!;
+	my $changed = $force;
+	while (<SVN>) {
+	    $log .= $_;
+	    $lastlog = $_;
+	    if (!$changed) {
+		if ($_ ne "\n" && !/^(?:Fetching|Updated|External|At) /) {
+		    $changed = 1;
+		}
+	    }
+	    if (/^C. / || /^.C /) {
+                # But we just reverted any local changes!
+		die "A conflict?!  That should be impossible!\n";    
+	    }
+	}
+	close SVN or die $!;
+	if (!$changed) {
+	    # No changes.
+	    next;
+	}
+    }
+    my ($revision) = ($lastlog =~ /\b(\d+)\b/);
+
+    # Don't repeat a build for the same revision.
+    next if -f "$logfile.$revision";
+
+    open LOG, ">", "$logfile.$revision" or die $!;
+    # Flush output after every print.
+    my $old_fh = select(LOG);
+    $| = 1;
+    select($old_fh);
+
+    print LOG $log;
+    $log = undef;
+
+    if ($tag !~ m!^tags/!) {
+	# Modify configure.ac files to insert $revision into version string.
+	foreach my $configure_ac
+	    (glob("\Q$co_dir\E/xapian*/configure.ac"),
+	     glob("\Q$co_dir\E/xapian*/*/configure.ac")) {
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $configure_ac or die $!;
+	    while (<IN>) {
+		s/(^AC_INIT\([^,]*,.*?)(\s*[),\]])/$1_svn$revision$2/g;
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $configure_ac or die $!;
+	}
+	if (-f  "$co_dir/search-xapian/Makefile.PL") {
+	    my $snap_version;
+	    my $fnm = "$co_dir/search-xapian/Xapian.pm";
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $fnm or die $!;
+	    while (<IN>) {
+		if (s/^(our \$VERSION = ')(\d+\.\d+\.\d+\.)\d+(.*)/$1$2$revision$3 # SVN snapshot/) {
+		    $snap_version = $2 . $revision;
+		}
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $fnm or die $!;
+
+	    $fnm = "$co_dir/search-xapian/README";
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $fnm or die $!;
+	    $_ = <IN>;
+	    s/(\d+\.\d+\.\d+\.)\d+/$1$revision (SVN snapshot)/;
+	    print OUT;
+	    while (<IN>) {
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $fnm or die $!;
+
+	    $fnm = "$co_dir/search-xapian/Changes";
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $fnm or die $!;
+	    while (<IN>) {
+		print OUT;
+		last if /^\s*$/;
+	    }
+	    print OUT $snap_version.strftime("  %a %b %e %H:%M:%S %Z %Y\n",gmtime());
+	    print OUT "\t- SVN snapshot of revision $revision.\n\n";
+	    while (<IN>) {
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $fnm or die $!;
+	}
+    }
+
+    system "chmod", "-R", "+w", "$tag/build" if -d "$tag/build";
+    system "rm", "-rf", "$tag/build";
+    mkpath("$tag/build", 0, 0755) or die $!;
+    chdir "$tag/build" or die $!;
+
+    # Note the current time so we can find sources which weren't used during
+    # the build.  Sleep for a couple of seconds first to avoid needing to
+    # worry about timestamps equal to $timestamp.
+    sleep 2;
+
+    # Skip xapian-letor for now, as atreus lacks libsvm-dev, or the ability
+    # to install a new enough one from a package.
+    open TOUCH, '>>', '../xapian/xapian-letor/.nobootstrap' and close TOUCH;
+
+    open F, '<', '../xapian/bootstrap' or die $!;
+    <F>;
+    my $timestamp = (stat F)[8];
+    close F;
+
+    $log = `../xapian/bootstrap 2>&1`;
+    print LOG $log;
+    if ($?) {
+	print "*** bootstrap failed for '$tag':";
+	print $log;
+	$status = 1;
+	next;
+    }
+    $log = undef;
+
+    # On atreus, javac keeps going into memory eating loops, so don't try to
+    # build the java bindings.
+    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode --without-java 2>&1`;
+    print LOG $log;
+    if ($?) {
+	print "*** configure failed for '$tag':";
+	print $log;
+	$status = 1;
+	next;
+    }
+    $log = undef;
+
+    $log = `make -s 2>&1`;
+    print LOG $log;
+    if ($?) {
+	print "*** make failed for '$tag':";
+	print $log;
+	$status = 1;
+	next;
+    }
+    $log = undef;
+
+    my %unused_files = ();
+    sub check_unused_files_from_build {
+	return if $File::Find::name eq '../xapian';
+	my $f = substr($File::Find::name, length('../xapian/'));
+	if ($_ eq '.svn' ||
+	    $_ eq 'autom4te.cache' ||
+	    $_ eq 'debian' ||
+	    $f eq 'search-xapian/blib' ||
+	    $f eq 'swig' ||
+	    $f eq 'xapian-applications/omega/common' ||
+	    $f eq 'xapian-data' || # FIXME: make check should use this
+	    $f eq 'xapian-maintainer-tools' ||
+	    $f eq 'BUILD' ||
+	    $f eq 'INST' ||
+	    /^Search-Xapian-\d+\.\d+\.\d+\.\d+$/) {
+	    if (-d $File::Find::name) {
+		# Don't descend into these subdirectories.
+		$File::Find::prune = 1;
+		return;
+	    }
+	}
+	return unless -f $File::Find::name and (stat _)[8] < $timestamp;
+	return if $_ eq '.gitignore';
+	return if $_ eq 'config.h.in~';
+	return if $_ eq 'NEWS.SKELETON';
+	return if $f eq 'README';
+	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\.gz$/;
+	++$unused_files{$f};
+	print "Unused during make: $f\n";
+    }
+    # FIXME: reenable this but fixed
+    find(\&check_unused_files_from_build, '../xapian');
+
+    my $lib = (<xapian-core/.libs/libxapian*.so>)[0];
+    my $unstripped_so = -s $lib;
+    $log = `strip \Q$lib\E`;
+    print LOG $log;
+    $log = undef;
+    my $stripped_so = -s $lib;
+
+    open SIZELOG, ">>/home/olly/xapian-autobuild-stats.log";
+    print SIZELOG "$tag\trev=$revision\tunstripped_so=$unstripped_so\tstripped_so=$stripped_so\n";
+    close SIZELOG;
+
+    $log = `make -s distcheck VALGRIND= 2>&1`;
+    print LOG $log;
+    if ($?) {
+	print "*** make distcheck failed for '$tag':";
+	print $log;
+	$status = 1;
+	next;
+    }
+    $log = undef;
+
+    # This finds files we don't ship or use to get to what we ship:
+    find(\&check_unused_files_from_build, '../xapian');
+
+    # Snapshots of MSVC build files.
+    my $win32dir = "win32msvc_svn$revision";
+    unlink $win32dir;
+    symlink "../xapian/xapian-maintainer-tools/win32msvc", $win32dir;
+    $log = `tar --dereference --exclude .svn -zcvf \Q$win32dir\E.tar.gz \Q$win32dir\E 2>&1`;
+    unlink $win32dir;
+    print LOG $log;
+    if ($?) {
+	print "*** tar win32msvc failed for '$tag':";
+	print $log;
+	$status = 1;
+	next;
+    }
+
+    my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
+    if ($tag =~ m!^tags/([\d.]+)$!) {
+	$d = "$webbase/oligarchy.co.uk/xapian/$1";
+    }
+    if (! -d $d) {
+	mkpath($d, 0, 0755) or die $!;
+	open HTACCESS, ">", "$d/.htaccess" or die $!;
+	print HTACCESS "IndexOptions NameWidth=*\n";
+	close HTACCESS or die $!;
+    } else {
+	if (-d "$d/old") {
+	    # Delete snapshots more than a week old, but leave at least one.
+	    my $num_of_days_to_keep = 7;
+	    my @o = glob "$d/old/*.tar.gz";
+	    my $n = scalar @o;
+	    @o = grep {-M $_ > $num_of_days_to_keep} @o;
+	    $n -= scalar @o;
+	    unlink @o if $n > 0;
+	} else {
+	    mkdir "$d/old", 0755 or die $!;
+	    open HTACCESS, ">", "$d/old/.htaccess" or die $!;
+	    print HTACCESS "IndexOptions NameWidth=*\n";
+	    close HTACCESS or die $!;
+	}
+	for (glob "$d/*.tar.gz") {
+	    my ($leaf) = m!([^/]*)$!;
+	    rename $_, "$d/old/$leaf";
+	}
+    }
+    for (glob("*/*.tar.gz"), glob("xapian-applications/*/*.tar.gz"), glob("*.tar.gz")) {
+	print LOG "Moving '$_' to '$d'\n";
+	system("mv", $_, $d);
+	if ($?) {
+	    print LOG "Failed with exit code $?\n";
+	} else {
+	    print LOG "OK\n";
+	}
+    }
+    for (glob("search-xapian/*.tar.gz")) {
+	print LOG2 "Moving '$_' to '$d'\n";
+	system("mv", $_, $d);
+	if ($?) {
+	    print LOG2 "Failed with exit code $?\n";
+	} else {
+	    print LOG2 "OK\n";
+	}
+    }
+    chdir("..");
+    system("rm -rf xapian/search-xapian/Search-Xapian-*");
+    close LOG;
+    # Expire logs more than 10 days old
+    unlink grep {-M $_ > 10} glob 'snapshot.log.*';
+}
+
+system("/home/olly/bin/plot-sizes");
+exit($status);

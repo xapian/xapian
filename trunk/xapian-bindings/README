@@ -1,0 +1,63 @@
+See INSTALL for instructions on configuring, building, and installing this
+software.  See TODO for the to-do list.  See HACKING for information relevant
+to anyone wanting to do development work on the bindings.
+
+Supported Platforms
+-------------------
+
+Most development work has been done on Linux with GCC, but the bindings should
+work on other Unix-like platforms and with other compilers (we've heard success
+stories for at least Mac OS X >= 10.3 and OpenBSD, and the tinderbox builds
+pass "make check" on FreeBSD and NetBSD).
+
+The Python bindings have been successfully built on Microsoft Windows using
+Mingw and MSVC: the PHP bindings have been successfully build on Microsoft
+Windows using MSVC.  The other bindings may need a few build tweaks to work
+- contact us via the mailing lists if you want to get them working.
+
+Supported Languages
+-------------------
+
+Bindings for the following languages should be fully functional and ready
+for real world use:
+
+C#		Tested with Mono C# 2.10.8.1 and 2.6.7 recently.
+
+Java		Java bindings are generated with SWIG, as of Xapian 1.3.0.
+		Recently tested with OpenJDK 1.7.0_03, 1.6.0_27, and 1.6.0_18.
+		The minimum version we aim to support is JDK 1.6 (Java 6).
+
+Lua		Requires Lua 5.1 or later; tested with 5.1 and 5.2.  Currently
+		Lua support is experimental - the Lua API provided is likely to
+		change to provide a more natural wrapping for iterators and
+		some other things.
+
+Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
+		by Olly Betts are available from CPAN (module Search::Xapian).
+		SWIG-based Perl bindings were implemented by Kosei Moriyama in
+		GSoC 2009, and made their debut in the 1.2.4 release.  The
+		intention is that these will replace the XS bindings once we
+		are satisfied they are stable.  The bindings here probably need
+		Perl 5.8 or later.
+
+PHP		Requires PHP >= 5.3 (older versions are no longer supported by
+		the PHP developers).
+
+Python		Requires Python 2.5 or later.  If you still need support for
+		Python 2.3 or 2.4, use Xapian 1.2.x.  Python 3 support is under
+		development, but not yet fully functional - see ticket#346
+		for details: http://trac.xapian.org/ticket/346
+
+Ruby		Requires Ruby 1.8 or later.  With Ruby 1.9.0, the testsuite
+		fails due to a bug in the test/unit module, but applications
+		using the bindings should work fine.  With Ruby 1.9.1, the
+		testsuite passes.
+
+Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
+		without too much work, but versions 8.3 and earlier are no
+		longer supported by the Tcl developers, so it doesn't make
+		sense for us to expend effort to support them).
+
+
+If you're interest in getting other languages supported, see the "Adding
+support for other programming languages" section in the file HACKING.

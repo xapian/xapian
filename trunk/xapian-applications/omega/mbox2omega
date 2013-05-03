@@ -1,0 +1,73 @@
+#!/usr/bin/perl -w
+# Copyright (C) 2004,2005,2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+use strict;
+
+if (grep {$_ eq '--help'} @ARGV) {
+    die <<EOT;
+Syntax: $0 [MBOX...]
+
+Run this script with one or more mailbox filenames on the command line (or
+pipe a mailbox in on stdin).  It produces output suitable for feeding to
+scriptindex using the mbox2omega.script index script.  For example:
+
+  $0 *.mbox | scriptindex /path/to/database mbox2omega.script
+
+The index script tells scriptindex how to process the dump file, so you can
+customise that to change how the indexing is done.
+
+Note that this script is mainly intended as a simple example of how you might
+generate scriptindex dump files from a data source, and its handling of mail
+messages is quite primitive - e.g. it doesn't handle MIME or character sets.
+EOT
+}
+
+my $hdr = 1;
+line: while (<>) {
+    if ($hdr) {
+	chomp;
+	while (1) {
+	    if (/^$/) {
+		print "body=\n";
+		$hdr = 0;
+		next line;
+	    }
+	    # Handle continuation lines
+	    my $line = $_;
+	    while (<>) {
+		chomp;
+		last unless /^[ \t]/;
+		$line .= $_;
+	    }
+	    if ($line =~ s/^Message-ID:\s*<?(.*?)>?\s*$/$1/i) {
+		print "id=$line\n" if length $line;
+	    } elsif ($line =~ s/^Subject:\s*(.*?)\s*$/$1/i) {
+		print "title=$line\n" if length $line;
+	    }
+	}
+    }
+
+    if (/^From /) {
+	print "\n";
+	$hdr = 1;
+	next;
+    }
+    if ($_ !~ /^\s+$/) {
+	print "=$_";
+    }
+}

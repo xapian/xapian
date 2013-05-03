@@ -1,0 +1,156 @@
+#!/usr/bin/perl -w
+# Copyright (c) Olly Betts 2010,2011,2012
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+use strict;
+use POSIX;
+
+my $vcs;
+if (-d '.svn') {
+    $vcs = 'svn';
+} else {
+    $vcs = 'git';
+}
+my $new_version;
+my $date = strftime("%Y-%m-%d", gmtime());
+open NEWS, '<', 'NEWS' or die "Can't find 'NEWS' in current directory: $!\n";
+my $news = <NEWS>;
+my $rev1;
+if ($news =~ /^(?:up *to:)? *(\d+|[[:xdigit:]]{7,})\b/i) {
+    # Partly updated already.
+    if ($vcs eq 'svn') {
+	$rev1 = $1 + 1;
+    } else {
+	$rev1 = $1;
+    }
+    # Discard that line...
+    $news = undef;
+} elsif ($news =~ /^(?:Changes in|\S+) (\d[\d\.]*\.)(\d+) \(/) {
+    # No updates since the last release.
+    my $last_release = "$1$2";
+    $new_version = $1.($2+1);
+    print "Finding changes since release '$last_release'.\n";
+    if (-d '.svn') {
+	open SVNINFO, "svn info|" or die $!;
+	my $svnroot;
+	while (<SVNINFO>) {
+	    if (s/^Repository Root: //) {
+		chomp;
+		$svnroot = $_;
+		last;
+	    }
+	}
+	if (!defined $svnroot) {
+	    die "svn info didn't tell us the repo root!\n";
+	}
+	close SVNINFO;
+	open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/\Q$last_release\E|" or die $!;
+	my $line = <SVNLOG>;
+	if (!defined $line || $line !~ /^-+$/) {
+	    $last_release =~ y/./_/;
+	    open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/v\Q$last_release\E|" or die $!;
+	    $line = <SVNLOG>;
+	    if (!defined $line || $line !~ /^-+$/) {
+		die "Unexpected output from svn log.\n";
+	    }
+	}
+	$line = <SVNLOG>;
+	if ($line !~ /^r(\d+) \|/) {
+	    die "Unexpected output from svn log.\n";
+	}
+	$rev1 = $1;
+    } else {
+	# git
+	$rev1 = $last_release;
+    }
+} else {
+    die "Can't find revision in NEWS\n";
+}
+
+if ($vcs eq 'svn') {
+    open BLAME, "svn blame -r$rev1:HEAD ChangeLog 2>/dev/null|" or die $!;
+} else {
+    open BLAME, "git blame $rev1.. ChangeLog 2>/dev/null|" or die $!;
+}
+
+open NEWSTMP, '>', 'NEWS~' or die $!;
+
+my $lines = 0;
+my $prefix = "";
+while (<BLAME>) {
+    print NEWSTMP if $lines == 0;
+    if ($vcs eq 'svn') {
+	if (!s/^( *(\d+) +(\S+) )//) {
+	    last if (/^ *-/);
+	} else {
+	    if ($1 ne $prefix) {
+		$prefix = $1;
+		$_ = $prefix . $_;
+		print NEWSTMP "\n";
+	    } else {
+		next if $_ eq "\n";
+	    }
+	}
+    } else {
+	next if /^\^/;
+	if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
+	    my $p = $1 . ")\n";
+	    if ($p ne $prefix) {
+		$prefix = $p;
+		$_ = $prefix . $_;
+		print NEWSTMP "\n";
+	    } else {
+		next if $_ eq "\n";
+	    }
+	}
+    }
+    print NEWSTMP;
+    ++$lines;
+}
+close BLAME;
+if ($lines == 0) {
+    close NEWSTMP;
+    unlink 'NEWS~';
+    print "No ChangeLog entries since the last update to NEWS.\n";
+    exit 0;
+}
+
+print NEWSTMP "\n";
+if (defined $new_version) {
+    if (open NEWSSKEL, '<', 'NEWS.SKELETON') {
+	while (<NEWSSKEL>) {
+	    s/\@VERSION\@/$new_version/g;
+	    s/\@DATE\@/$date/g;
+	    print NEWSTMP;
+	}
+	close NEWSSKEL;
+    }
+}
+print NEWSTMP $news if defined $news;
+while (<NEWS>) {
+    if (!defined $new_version) {
+	if (s/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()\d{4}-\d\d-\d\d(\):)$/$1$date$3/) {
+	    $new_version = $2;
+	}
+    }
+    print NEWSTMP;
+}
+close NEWS;
+close NEWSTMP or die $!;
+rename 'NEWS~', 'NEWS' or die $!;

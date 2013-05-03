@@ -1,0 +1,8 @@
+/*.pyc
+/changes.pck
+/private_passwords.py
+/xapian_head_*
+/xapian_tar_*
+/twistd.log
+/twistd.log.*
+/twistd.pid

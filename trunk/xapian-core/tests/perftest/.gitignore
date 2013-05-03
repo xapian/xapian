@@ -1,0 +1,14 @@
+/.*.sw?
+/*.lo
+/Makefile.in
+/Makefile
+/.deps
+/.libs
+/.dirstamp
+/perftest
+/perftest_collated.stamp
+/perftest_randomidx.h
+/perftest_collated.h
+/perftest_all.h
+/perftest_matchdecider.h
+/get_machine_info

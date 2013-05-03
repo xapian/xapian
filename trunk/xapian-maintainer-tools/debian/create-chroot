@@ -1,0 +1,114 @@
+#!/bin/sh
+# Create a chroot for a specified Debian or Ubuntu distribution
+# suitable for package building.
+#
+# Copyright (C) 2006,2007,2009 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+# Requires these packages installed: dchroot debootstrap dpkg-dev perl
+
+# You can use the new chroot interactively like so:
+# sudo dchroot -c etch-i386
+
+CHROOT_BASE_PATH=/chroot
+
+#DEBIAN_MIRROR=http://ftp.de.debian.org/debian
+DEBIAN_MIRROR=http://debian.ihug.co.nz/debian
+
+#UBUNTU_MIRROR=http://gb.archive.ubuntu.com/ubuntu
+UBUNTU_MIRROR=http://nz2.archive.ubuntu.com/ubuntu
+
+DCHROOT_CONF=/etc/dchroot.conf
+
+set -e
+if [ 1 != $# -a 2 != $# ] ; then
+  echo "Usage: $0 DISTRO [arch]"
+  echo "e.g. $0 etch i386"
+  exit 1
+fi
+
+DISTRO=$1
+
+_C=
+#if [ sid = "$DISTRO" ] ; then
+#  _C=-c
+#fi
+
+if [ 2 = $# ] ; then
+  DEBIAN_BUILD_ARCH=$2
+  export DEBIAN_BUILD_ARCH
+  DEBIAN_HOST_ARCH=$2
+  export DEBIAN_HOST_ARCH
+#  DEBIAN_BUILDARCH=$2
+# export DEBIAN_BUILDARCH
+fi 
+
+eval "`dpkg-architecture|grep ^DEBIAN_BUILD_ARCH=`"
+distro_arch=$DISTRO-$DEBIAN_BUILD_ARCH
+chroot_path=$CHROOT_BASE_PATH/$distro_arch
+
+if test -f "$DCHROOT_CONF" ; then
+  # If DCHROOT_CONF exists then remove any existing entry for this chroot.
+  perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' "$DCHROOT_CONF"
+fi
+
+case $DISTRO in
+  sid|lenny|squeeze)
+    mkdir "$chroot_path"
+    mirror=$DEBIAN_MIRROR
+    # Need to specify --mirror to allow running on Ubuntu.
+    debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$mirror"
+    ;;
+  dapper|hardy|intrepid|jaunty|karmic|lucid)
+    pkg_for_distros_up_to=intrepid
+    pkg=debootstrap_1.0.10_all.deb
+    if [ ! -f /usr/share/debootstrap/scripts/$DISTRO ] && \
+       [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
+      cat <<END
+Your debootstrap installation doesn't know how to bootstrap a $DISTRO chroot.
+You can fix this something like this (this should work for distros up to and
+including $pkg_for_distros_up_to):
+
+wget $UBUNTU_MIRROR/pool/main/d/debootstrap/$pkg
+ar x $pkg data.tar.gz
+tar zxvf data.tar.gz ./usr/share/debootstrap/scripts/$DISTRO
+mv -i ./usr/share/debootstrap/scripts/$DISTRO /usr/share/debootstrap/scripts
+rm data.tar.gz
+rm $pkg
+END
+      exit 1
+    fi
+    mkdir "$chroot_path"
+    VARIANT=
+    case $DISTRO in
+#      intrepid) ;;
+      *)
+	VARIANT=--variant=buildd ;;
+    esac
+    debootstrap $VARIANT --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$UBUNTU_MIRROR"
+    # Need universe for (e.g.) python 2.1 and 2.2 on breezy
+    echo "deb $UBUNTU_MIRROR $DISTRO universe" >> "$chroot_path/etc/apt/sources.list"
+    ;;
+  *)
+    echo "Don't know about codename '$DISTRO' yet"
+    exit 1
+esac
+
+echo "$distro_arch $chroot_path" >> "$DCHROOT_CONF"
+
+dchroot -c "$distro_arch" -- $_C 'apt-get -y --force-yes update'
+# gnupg is needed for signed packages in newer distros.
+dchroot -c "$distro_arch" -- $_C 'apt-get -y --force-yes install build-essential gnupg python'
