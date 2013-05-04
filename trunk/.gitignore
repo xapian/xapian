@@ -1,7 +1,0 @@
-*.o
-
-/configure
-/Makefile
-/config.cache
-/BUILD
-/INST
