@@ -1,3 +1,7 @@
+Wed May 08 11:10:20 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,README,docs/Makefile.am: SVN -> git.
+
 Thu May 02 12:21:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.3.1.
