@@ -1,3 +1,9 @@
+Wed May 08 11:56:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,Makefile.am,README,docs/Makefile.am,docs/install.rst,
+	  docs/stemming.rst,languages/Makefile.mk,queryparser/Makefile.mk,
+	  tests/Makefile.am,tests/perftest/perftest.cc: SVN -> git.
+
 Wed May 08 08:51:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc,backends/chert/chert_version.cc:

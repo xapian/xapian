@@ -1,6 +1,6 @@
 if VPATH_BUILD
 # We need this so that generated sources can find non-generated headers and
-# non-generated sources can find generated headers in a VPATH build from SVN.
+# non-generated sources can find generated headers in a VPATH build from git.
 AM_CPPFLAGS += -I$(top_srcdir)/languages -Ilanguages
 endif
 

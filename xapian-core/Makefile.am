@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -63,7 +63,7 @@ coverage-check:
 	rm -f xapian-core.lcov
 	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-core.lcov
 	rm -rf lcov
-	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h||svn info|sed 's/^Revision: /r/p;d'`" -o lcov xapian-core.lcov
+	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
 bin_SCRIPTS = xapian-config
 

@@ -197,5 +197,5 @@ Developers
 ==========
 
 There are additional scripts and configure options to help people doing
-development work on Xapian itself, and people who are building from SVN.
+development work on Xapian itself, and people who are building from git.
 Read HACKING to find out about them.
