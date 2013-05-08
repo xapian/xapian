@@ -1,3 +1,7 @@
+Wed May 08 11:21:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,generic/generic.mk: SVN -> git.
+
 Thu May 02 23:21:10 GMT 2013  olly <olly@survex.com>
 
 	* NEWS: Update release date.
