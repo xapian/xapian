@@ -1,3 +1,7 @@
+Wed May 08 11:07:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/Makefile.am: SVN -> git.
+
 Thu May 17 12:12:55 GMT 2012  Olly Betts <olly@survex.com>
 
 	* letor_internal.h: Minor whitespace tweaks.
