@@ -217,7 +217,7 @@ SN="C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\sn.exe"
 
 # ------------SWIG settings-------------
 # Swig executable
-SWIG=\work\xapian\xapian-svn\swig\swig.exe
+SWIG=\work\xapian\xapian-git\swig\swig.exe
 SWIG_FLAGS= -Werror 
 # ------------end SWIG settings-------------
 
