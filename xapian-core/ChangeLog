@@ -1,3 +1,8 @@
+Wed May 08 08:51:22 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc,backends/chert/chert_version.cc:
+	  Remove unused '#include <cstdio>'.
+
 Mon May 06 11:10:25 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,configure.ac,include/xapian/enquire.h: Merge two

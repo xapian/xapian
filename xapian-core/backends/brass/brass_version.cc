@@ -32,7 +32,6 @@
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "str.h"
 
-#include <cstdio> // For rename().
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 
