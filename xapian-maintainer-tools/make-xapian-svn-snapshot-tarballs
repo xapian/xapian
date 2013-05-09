@@ -307,7 +307,6 @@ foreach my $tag (@ARGV) {
 	++$unused_files{$f};
 	print "Unused during make: $f\n";
     }
-    # FIXME: reenable this but fixed
     find(\&check_unused_files_from_build, '../xapian');
 
     my $lib = (<xapian-core/.libs/libxapian*.so>)[0];
