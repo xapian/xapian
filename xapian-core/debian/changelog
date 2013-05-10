@@ -1,3 +1,14 @@
+xapian-core (1.2.15-1) unstable; urgency=low
+
+  * New upstream release:
+    + Incorporates both the patches we were carrying.
+  * debian/control.in: Standards-Version: 3.9.4 (no changes required).
+  * Fix binary-arch to depend on build-arch and binary-indep to depend on
+    build-indep (previously both depended on build).
+  * Add lintian overrides for hardening-no-fortify-functions false positives.
+
+ -- Olly Betts <olly@survex.com>  Fri, 10 May 2013 10:22:12 +0000
+
 xapian-core (1.2.12-2) unstable; urgency=low
 
   * New patch fix-db-write-lock.patch which fixes database write locking to
