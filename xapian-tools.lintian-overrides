@@ -1,0 +1,2 @@
+xapian-tools: hardening-no-fortify-functions usr/bin/delve
+xapian-tools: hardening-no-fortify-functions usr/bin/xapian-check
