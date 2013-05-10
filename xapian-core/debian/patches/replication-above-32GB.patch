@@ -1,0 +1,13 @@
+Taken from 1.2 branch of upstream SVN r16915.
+
+--- a/net/remoteconnection.cc	(revision 16348)
++++ b/net/remoteconnection.cc	(revision 16915)
+@@ -618,5 +618,7 @@
+     int shift = 0;
+     do {
+-	if (i == buffer.end() || shift > 28) {
++	// Allow a full 64 bits for message lengths - anything longer than that
++	// is almost certainly a corrupt value.
++	if (i == buffer.end() || shift > 63) {
+ 	    // Something is very wrong...
+ 	    throw Xapian::NetworkError("Insane message length specified!");

@@ -1,3 +1,13 @@
+xapian-core (1.2.12-2) unstable; urgency=low
+
+  * New patch fix-db-write-lock.patch which fixes database write locking to
+    work when the lock file is already open in the same process.
+    (Closes: #695542)
+  * New patch replication-above-32GB.patch which fixes database replication to
+    handle files > 32GB.  (Closes: #695643)
+
+ -- Olly Betts <olly@survex.com>  Tue, 11 Dec 2012 04:22:04 +0000
+
 xapian-core (1.2.12-1) unstable; urgency=low
 
   * New upstream release.
