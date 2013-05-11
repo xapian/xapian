@@ -4,8 +4,7 @@ xapian-bindings (1.2.15-1) unstable; urgency=low
   * Update to new Ruby packaging policy (based on patch from Per Andersson).
     (Closes: #675702)
   * debian/control.in: Standards-Version: 3.9.4 (no changes required).
-  * debian/rules: Fix binary-arch to depend on build-arch and binary-indep to
-    depend on build-indep (previously both depended on build).
+  * debian/rules: Fix binary-arch to depend on build-arch (instead of build).
   * debian/rules: Remove code which aided backporting to Ubuntu hardy.
   * debian/copyright: Update to include 2013.
 

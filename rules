@@ -184,7 +184,7 @@ else
 	for v in $(RUBY_VERSIONS); do \
 	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby-old.in ;\
 	done >> debian/control.tmp
-	# install files to old packages
+	# Install files to old packages.
 	cp debian/libxapian-ruby1.8.doc-base.in debian/libxapian-ruby1.8.doc-base
 	cp debian/libxapian-ruby1.8.install.in debian/libxapian-ruby1.8.install
 	cp debian/libxapian-ruby1.9.1.doc-base.in debian/libxapian-ruby1.9.1.doc-base
@@ -313,7 +313,7 @@ endif
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
 
-binary: binary-arch
+binary: binary-arch binary-indep
 binary-arch: DH_OPTIONS=-a
 binary-arch: build-arch install
 	dh_testdir
@@ -358,11 +358,12 @@ binary-indep: DH_OPTIONS=-i
 binary-indep: build-indep install
 	dh_testdir
 	dh_testroot
-	dh_installdocs
-	dh_installchangelogs ChangeLog
-	dh_compress
-	dh_fixperms
-	dh_installdeb
+	for v in $(RUBY_VERSIONS); do \
+	    set -e; \
+	    d=debian/libxapian-ruby$$v/usr/share/doc; \
+	    mkdir -p "$$d"; \
+	    ln -s ruby-xapian "$$d/libxapian-ruby$$v"; \
+	done
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
