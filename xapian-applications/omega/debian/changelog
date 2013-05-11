@@ -1,3 +1,13 @@
+xapian-omega (1.2.15-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: B-D on dpkg-dev (>= 1.16.1~).  (Closes: #705476)
+  * debian/control.in: Standards-Version: 3.9.4 (no changes required).
+  * debian/rules: Fix binary-arch to depend on build-arch (instead of build).
+  * debian/copyright: Update.
+
+ -- Olly Betts <olly@survex.com>  Sat, 11 May 2013 06:45:37 +0000
+
 xapian-omega (1.2.12-1) unstable; urgency=low
 
   * New upstream release.
