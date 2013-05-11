@@ -1,0 +1,41 @@
+
+Package: ruby-xapian
+Section: ruby
+Architecture: any
+@XB_RUBY_VERSIONS@
+Depends: ruby | ruby-interpeter, ${shlibs:Depends}, ${misc:Depends}
+Replaces: libxapian-ruby1.8 (<< 1.2.15-1~), libxapian-ruby1.9.1 (<< 1.2.15-1~)
+Breaks: libxapian-ruby1.8 (<< 1.2.15-1~), libxapian-ruby1.9.1 (<< 1.2.15-1~)
+Provides: libxapian-ruby1.8, libxapian-ruby1.9.1
+Suggests: xapian-doc
+Description: Xapian search engine interface for Ruby
+ This package provides Xapian Ruby bindings built for Ruby.
+ .
+ The Xapian search engine library is a highly adaptable toolkit which allows
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
+ .
+ The Xapian Ruby bindings provide an interface to the Xapian library from the
+ Ruby programming language, allowing both indexing and retrieval operations.
+
+Package: libxapian-ruby1.8
+Section: oldlibs
+Priority: extra
+Architecture: all
+depends: ${misc:Depends}, ruby-xapian
+Description: Transitional package for ruby-xapian
+ This is a transitional package to ease upgrades to the ruby-xapian package.
+ It can be safely removed.
+
+Package: libxapian-ruby1.9.1
+Section: oldlibs
+Priority: extra
+Architecture: all
+depends: ${misc:Depends}, ruby-xapian
+Description: Transitional package for ruby-xapian
+ This is a transitional package to ease upgrades to the ruby-xapian package.
+ It can be safely removed.
