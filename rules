@@ -46,14 +46,14 @@ BUILD_DEPS := debhelper (>= 7.0.50~),
 RUBY_VERSIONS := 1.8 1.9.1
 # Be conservative for now and leave backported versions on old ruby policy.
 ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.squeeze.wheezy.), )
-XS_RUBY_VERSIONS := X-Dummy: Remove me once old ruby policy support is dropped
-rubylibdir := rubylibdir
-rubyarchdir := archdir
-else
 XB_RUBY_VERSIONS := XB-Ruby-Versions: $${ruby:Versions}
 XS_RUBY_VERSIONS := XS-Ruby-Versions: all
 rubylibdir := vendorlibdir
 rubyarchdir := vendorarchdir
+else
+XS_RUBY_VERSIONS := X-Dummy: Remove me once old ruby policy support is dropped
+rubylibdir := rubylibdir
+rubyarchdir := archdir
 endif
 
 # The python versions to build for:
@@ -354,8 +354,18 @@ endif
 	dh_md5sums
 	dh_builddeb
 
-binary-indep:
-	echo "Nothing to do!"
+binary-indep: DH_OPTIONS=-i
+binary-indep: build-indep install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installchangelogs ChangeLog
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
 
 clean:
 	dh_testdir
