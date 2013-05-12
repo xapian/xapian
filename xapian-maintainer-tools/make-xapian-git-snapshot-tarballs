@@ -167,7 +167,7 @@ foreach my $tag (@ARGV) {
     my ($revcount) = ($revision =~ /-([0-9]+)-/);
     if (!defined $revcount) {
 	# Workaround until we have git tags - count commits since 1.3.1.
-	$revcount = scalar(@{[`git log --format='%H' e6eb4f26bda4f1dd26862e3d0760f343b29d4a79..`]});
+	$revcount = scalar(@{[`git log --format='%H' 1daf0071342d883ca308762f269a63f6ec5df981..`]});
 	$revision = "v1.3.1-$revcount-g$revision";
     }
 
