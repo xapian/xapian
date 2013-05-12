@@ -127,6 +127,9 @@ foreach my $tag (@ARGV) {
 	next;
     }
 
+    my $old_cwd = `pwd`;
+    chomp($old_cwd);
+
     my $logfile = "$tag/snapshot.log";
     my $log = '';
     my $co_dir = "$tag/xapian";
@@ -137,11 +140,11 @@ foreach my $tag (@ARGV) {
 	open CMD, "git clone --branch \Q$tag\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
 	$log = join '', <CMD>;
 	close CMD or do { print $log; die $!; }
+	chdir $co_dir or die $!;
     } else {
         # Revert any local changes.
-	my $old_cwd = `pwd`;
-	chomp($old_cwd);
 	chdir $co_dir or die $!;
+system "ls", "-l";
 	$log = "git reset --hard:\n".`git reset --hard 2>&1`."git pull --ff-only:\n";
 	open CMD, "git pull --ff-only 2>&1|" or die $!;
 	my $changed = 1;
@@ -154,8 +157,8 @@ foreach my $tag (@ARGV) {
 	    }
 	}
 	close CMD or die $!;
-	chdir $old_cwd or die $!;
 	if (!$changed) {
+	    chdir $old_cwd or die $!;
 	    # No changes.
 	    next;
 	}
@@ -168,6 +171,8 @@ foreach my $tag (@ARGV) {
 	$revcount = scalar(@{[`git log --format='%H' e6eb4f26bda4f1dd26862e3d0760f343b29d4a79..`]});
 	$revision = "v1.3.1-$revcount-g$revision";
     }
+
+    chdir $old_cwd or die $!;
 
     # Don't repeat a build for the same revision.
     next if -f "$logfile.$revision";
