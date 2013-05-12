@@ -1188,7 +1188,7 @@ AC_SUBST(PERCENT)
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_\(svn[0-9]*\|git.*\)$//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_\(svn\|git\)[0-9]*$//'`]
 
 dnl **************************
 dnl * Build the output files *
