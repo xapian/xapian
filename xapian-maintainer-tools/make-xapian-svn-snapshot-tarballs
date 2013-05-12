@@ -118,8 +118,7 @@ if (scalar @ARGV == 0) {
 my $status = 0;
 foreach my $tag (@ARGV) {
     chdir $work or die $!;
-    # SVN tag names aren't restricted like CVS ones, but restrict to sane
-    # characters.
+    # Restrict tags to sane characters.
     next if $tag !~ /^[-A-Za-z0-9_.\/]+$/;
     if (! -d $tag) {
 	print "*** No directory for '$tag'\n";
