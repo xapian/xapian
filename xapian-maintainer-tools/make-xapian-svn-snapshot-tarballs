@@ -29,18 +29,11 @@ use POSIX;
 
 my $MAXLOADPERCPU = 1.5;
 
-my $last_cmd;
-
 sub run_command {
-    if (scalar @_ == 1) {
-	$last_cmd = $_[0];
-    } else {
-	my %a = @_;
-	$last_cmd = $a{String};
-    }
-    my $out = `$last_cmd`;
+    my $cmd = shift;
+    my $out = `$cmd`;
     chomp $out;
-    return wantarray ? split /\n/, $out : $out;
+    return $out;
 }
 
 my $force = 0;
@@ -83,7 +76,7 @@ if (!$force) {
 	#print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n";
 	exit(1);
     }
-    if (((run_command("uptime 2>/dev/null"))[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
+    if (((`uptime 2>/dev/null`)[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
 	($1 > $MAXLOADPERCPU)) {
 	my $loadavg = $1;
 	# `getconf _NPROCESSORS_ONLN` on linux gives e.g. 2
