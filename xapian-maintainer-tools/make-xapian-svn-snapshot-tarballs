@@ -132,7 +132,7 @@ foreach my $tag (@ARGV) {
     my $co_dir = "$tag/xapian";
     if (! -d "$co_dir/.svn") {
 	system "chmod", "-R", "+w", $co_dir if -d $co_dir;
-        system "rm", "-rf", $co_dir;
+	system "rm", "-rf", $co_dir;
 	# Check out the tag into a directory of the same name.
 	open SVN, "svn co --non-interactive \Q$repourl/$tag\E \Q$co_dir\E 2>&1|" or die $!;
 	while (<SVN>) {
