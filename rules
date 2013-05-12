@@ -76,18 +76,10 @@ export DH_OPTIONS
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
-    confflags += --build $(DEB_HOST_GNU_TYPE)
-else
-    confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
-    # Disable the testsuite when cross-compiling.
-    DEB_BUILD_OPTIONS += nocheck
-endif
-
-CFLAGS := `dpkg-buildflags --get CFLAGS`
-CXXFLAGS := `dpkg-buildflags --get CXXFLAGS`
-LDFLAGS := `dpkg-buildflags --get LDFLAGS`
-CPPFLAGS := `dpkg-buildflags --get CPPFLAGS`
+CFLAGS := $(shell dpkg-buildflags --get CFLAGS)
+CXXFLAGS := $(shell dpkg-buildflags --get CXXFLAGS)
+LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
+CPPFLAGS := $(shell dpkg-buildflags --get CPPFLAGS)
 
 # Fallback for suites which don't have dpkg-buildflags.
 ifeq (,$(CFLAGS))
@@ -98,6 +90,16 @@ ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
     CFLAGS += -O2
     CXXFLAGS += -O2
 endif
+endif
+
+confflags := CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)'
+confflags += LDFLAGS='$(LDFLAGS)' CPPFLAGS='$(CPPFLAGS)'
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+    confflags += --build $(DEB_HOST_GNU_TYPE)
+else
+    confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    # Disable the testsuite when cross-compiling.
+    DEB_BUILD_OPTIONS += nocheck
 endif
 
 # Handle deb_build_options.  Note that dh_strip handles nostrip for us, and

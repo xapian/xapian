@@ -1,3 +1,10 @@
+xapian-bindings (1.2.15-2) unstable; urgency=low
+
+  * Restore changes from 1.2.12-2 which were accidentally omitted in
+    1.2.15-1, so hardening flags are now reactivated.
+
+ -- Olly Betts <olly@survex.com>  Sun, 12 May 2013 00:28:33 +0000
+
 xapian-bindings (1.2.15-1) unstable; urgency=low
 
   * New upstream release.
@@ -9,6 +16,13 @@ xapian-bindings (1.2.15-1) unstable; urgency=low
   * debian/copyright: Update to include 2013.
 
  -- Olly Betts <olly@survex.com>  Sat, 11 May 2013 03:42:04 +0000
+
+xapian-bindings (1.2.12-2) unstable; urgency=low
+
+  * debian/rules: Pass CFLAGS, etc to configure so hardening flags actually get
+    used.
+
+ -- Olly Betts <olly@survex.com>  Sat, 30 Jun 2012 02:21:20 +0000
 
 xapian-bindings (1.2.12-1) unstable; urgency=low
 
