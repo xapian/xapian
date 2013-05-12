@@ -144,7 +144,6 @@ foreach my $tag (@ARGV) {
     } else {
         # Revert any local changes.
 	chdir $co_dir or die $!;
-system "ls", "-l";
 	$log = "git reset --hard:\n".`git reset --hard 2>&1`."git pull --ff-only:\n";
 	open CMD, "git pull --ff-only 2>&1|" or die $!;
 	my $changed = 1;
