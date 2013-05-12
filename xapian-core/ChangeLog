@@ -1,3 +1,7 @@
+Sun May 12 06:06:47 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Handle git snapshot naming when calculating REVISION.
+
 Wed May 08 11:56:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,Makefile.am,README,docs/Makefile.am,docs/install.rst,
