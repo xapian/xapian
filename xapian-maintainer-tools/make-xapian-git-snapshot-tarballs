@@ -139,7 +139,7 @@ foreach my $tag (@ARGV) {
 	# Check out the tag into a directory of the same name.
 	open CMD, "git clone --branch \Q$tag\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
 	$log = join '', <CMD>;
-	close CMD or do { print $log; die $!; }
+	close CMD or do { print $log; die $!; };
 	chdir $co_dir or die $!;
     } else {
         # Revert any local changes.
