@@ -140,6 +140,7 @@ foreach my $tag (@ARGV) {
     } else {
         # Revert any local changes.
 	my $old_cwd = `pwd`;
+	chomp($old_cwd);
 	chdir $co_dir or die $!;
 	$log = "git reset --hard:\n".`git reset --hard 2>&1`."git pull --ff-only:\n";
 	open CMD, "git pull --ff-only 2>&1|" or die $!;
@@ -153,9 +154,7 @@ foreach my $tag (@ARGV) {
 	    }
 	}
 	close CMD or die $!;
-	if (defined $old_cwd) {
-	    chdir $old_cwd or die $!;
-	}
+	chdir $old_cwd or die $!;
 	if (!$changed) {
 	    # No changes.
 	    next;
