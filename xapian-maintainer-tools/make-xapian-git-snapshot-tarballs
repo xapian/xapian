@@ -46,7 +46,7 @@ if (scalar @ARGV && $ARGV[0] eq '--force') {
 my $work = "/home/olly/tmp/xapian-git-snapshot";
 # Add ccache's directory first so we'll use it if it is installed.
 $ENV{PATH} = "/usr/lib/ccache:/home/olly/install/bin:/usr/bin:/bin";
-my $repourl = 'git://github.com/xapian/xapian.git'; #'/home/xapian-git/xapian/';
+my $repourl = '/home/xapian-git/xapian/';
 my $webbase = '/srv/www';
 
 # Create the work directory first, since we need it to exist so we can create
@@ -137,7 +137,10 @@ foreach my $tag (@ARGV) {
 	system "chmod", "-R", "+w", $co_dir if -d $co_dir;
 	system "rm", "-rf", $co_dir;
 	# Check out the tag into a directory of the same name.
-	open CMD, "git clone --branch \Q$tag\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
+	my $branch = $tag;
+	$branch =~ s!^branches/!svn/! || $branch =~ s!^tags/!svn/tags/! ||
+	    ($branch =~ s/^trunk$/master/);
+	open CMD, "git clone --branch \Q$branch\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
 	$log = join '', <CMD>;
 	close CMD or do { print $log; die $!; };
 	chdir $co_dir or die $!;
