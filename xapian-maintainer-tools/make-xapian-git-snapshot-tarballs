@@ -356,18 +356,21 @@ foreach my $tag (@ARGV) {
     # This finds files we don't ship or use to get to what we ship:
     find(\&check_unused_files_from_build, '../xapian');
 
-    # Snapshots of MSVC build files.
-    my $win32dir = "win32msvc_$revision";
-    unlink $win32dir;
-    symlink "../xapian/xapian-maintainer-tools/win32msvc", $win32dir;
-    $log = `tar --dereference --exclude .git -zcvf \Q$win32dir\E.tar.gz \Q$win32dir\E 2>&1`;
-    unlink $win32dir;
-    print LOG $log;
-    if ($?) {
-	print "*** tar win32msvc failed for '$tag':";
-	print $log;
-	$status = 1;
-	next;
+    # MSVC build files aren't up to date, so don't snapshot them for now.
+    if (0) {
+	# Snapshots of MSVC build files.
+	my $win32dir = "win32msvc_$revision";
+	unlink $win32dir;
+	symlink "../xapian/xapian-maintainer-tools/win32msvc", $win32dir;
+	$log = `tar --dereference --exclude .git -zcvf \Q$win32dir\E.tar.gz \Q$win32dir\E 2>&1`;
+	unlink $win32dir;
+	print LOG $log;
+	if ($?) {
+	    print "*** tar win32msvc failed for '$tag':";
+	    print $log;
+	    $status = 1;
+	    next;
+	}
     }
 
     my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
