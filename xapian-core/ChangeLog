@@ -1,3 +1,9 @@
+Thu May 16 05:45:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/bitstream.h: Fix database check not to falsely report
+	  "position table: Junk after position data" whenever there are 7
+	  unused bits (7 is OK, *more* than 7 isn't).
+
 Tue May 14 12:42:11 GMT 2013  Olly Betts <olly@survex.com>
 
 	* m4-macros/xapian-1.3.m4: Adjust XO_LIB_XAPIAN to strip _gitNNN
