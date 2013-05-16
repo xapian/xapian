@@ -1,3 +1,7 @@
+Thu May 16 05:47:40 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_dbcheck.cc: Code tweak for clarity.
+
 Thu May 16 05:46:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_dbcheck.cc: Fix database check that first docid

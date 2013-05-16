@@ -171,13 +171,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 			++errors;
 		    }
 		}
-		seen_doclen_initial_chunk = true;
 
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
 		end = pos + cursor->current_tag.size();
 		if (key.size() == 2) {
 		    // Initial chunk.
+		    seen_doclen_initial_chunk = true;
 		    if (end - pos < 2 || pos[0] || pos[1]) {
 			out << "Initial doclen chunk has nonzero dummy fields" << endl;
 			++errors;
