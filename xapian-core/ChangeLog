@@ -1,3 +1,9 @@
+Thu May 16 05:46:42 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_dbcheck.cc: Fix database check that first docid
+	  in each doclength chunk is more than the last docid in the previous
+	  chunk - previously this didn't actually work.
+
 Thu May 16 05:45:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/bitstream.h: Fix database check not to falsely report

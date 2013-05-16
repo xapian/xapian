@@ -165,6 +165,11 @@ check_chert_table(const char * tablename, string filename, int opts,
 			++errors;
 			continue;
 		    }
+		    if (did <= lastdid) {
+			out << "First did in this chunk is <= last in "
+			    "prev chunk" << endl;
+			++errors;
+		    }
 		}
 		seen_doclen_initial_chunk = true;
 
@@ -185,11 +190,6 @@ check_chert_table(const char * tablename, string filename, int opts,
 			continue;
 		    }
 		    ++did;
-		    if (did <= lastdid) {
-			out << "First did in this chunk is <= last in "
-			    "prev chunk" << endl;
-			++errors;
-		    }
 		}
 
 		bool is_last_chunk;
