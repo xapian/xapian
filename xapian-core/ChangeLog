@@ -1,3 +1,8 @@
+Fri May 17 05:52:43 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Correct documentation for stub files specifying
+	  "prog" remote databases.
+
 Thu May 16 05:47:40 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_dbcheck.cc: Code tweak for clarity.
