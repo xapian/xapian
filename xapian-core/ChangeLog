@@ -1,3 +1,10 @@
+Wed May 22 10:04:25 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: When generating ABI compatibility checks in
+	  xapian/version.h, pass $CXXFLAGS and $CPPFLAGS to $CXXCPP as they
+	  could contain options which affect the ABI (such as -fabi-version
+	  for GCC).  (Fixes #622)
+
 Wed May 22 04:20:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/win32_uuid.cc: Microsoft GUIDs in binary form have reversed
