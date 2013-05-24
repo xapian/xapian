@@ -1,3 +1,9 @@
+Fri May 24 09:22:43 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight.cc: Check parameters to $set{weighting,bm25 ...} and
+	  $set{weighting,trad ...} converted OK.  Based on patch from
+	  Aarsh Shah.
+
 Wed May 08 11:10:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,README,docs/Makefile.am: SVN -> git.
