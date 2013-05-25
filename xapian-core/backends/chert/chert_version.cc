@@ -35,7 +35,6 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
-#include <cstdio> // For rename().
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 
