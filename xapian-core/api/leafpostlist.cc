@@ -90,7 +90,7 @@ LeafPostList::get_termfreq_est_using_stats(
 {
     LOGCALL(MATCH, TermFreqs, "LeafPostList::get_termfreq_est_using_stats", stats);
     if (term.empty()) {
-	RETURN(TermFreqs(stats.collection_size, stats.rset_size));
+	RETURN(TermFreqs(stats.collection_size, stats.rset_size,stats.total_term_count));
     }
     map<string, TermFreqs>::const_iterator i = stats.termfreqs.find(term);
     Assert(i != stats.termfreqs.end());
