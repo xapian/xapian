@@ -605,39 +605,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     double get_maxextra() const;
 };
 
-class XAPIAN_VISIBILITY_DEFAULT DFR_DPHWeight : public Weight {
-
-    DFR_DPHWeight * clone() const;
-
-    void init(double factor);
-
-  public:
-    DFR_DPHWeight() {
-        need_stat(AVERAGE_LENGTH);
-   need_stat(DOC_LENGTH);
-   need_stat(COLLECTION_SIZE);
-        need_stat(COLLECTION_FREQ);
-   need_stat(WDF);
-   need_stat(WQF);
-   need_stat(WDF_MAX);
-   need_stat(DOC_LENGTH_MIN);
-   need_stat(DOC_LENGTH_MAX);
-    }
-
-    std::string name() const;
-
-    std::string serialise() const;
-    DFR_DPHWeight * unserialise(const std::string & s) const;
-
-    double get_sumpart(Xapian::termcount wdf,
-           Xapian::termcount doclen) const;
-    double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount doclen) const;
-    double get_maxextra() const;
-};
- 
-
 }
 
 #endif // XAPIAN_INCLUDED_WEIGHT_H
