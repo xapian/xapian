@@ -45,7 +45,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH = 256,
 	DOC_LENGTH_MIN = 512,
 	DOC_LENGTH_MAX = 1024,
-	WDF_MAX = 2048
+	WDF_MAX = 2048,
+	COLLECTION_FREQ = 4096
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -90,6 +91,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of documents which this term indexes.
     Xapian::doccount termfreq_;
+
+    // The collection frequency of the term.
+    Xapian::termcount collectionfreq_;
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount reltermfreq_;
@@ -287,6 +291,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
+
+    // The collection frequency of the term.
+    Xapian::termcount get_collectionfreq() const { return collectionfreq_;}
 
     /// The length of the query.
     Xapian::termcount get_query_length() const { return query_length_; }
@@ -597,6 +604,39 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen) const;
     double get_maxextra() const;
 };
+
+class XAPIAN_VISIBILITY_DEFAULT DFR_DPHWeight : public Weight {
+
+    DFR_DPHWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    DFR_DPHWeight() {
+        need_stat(AVERAGE_LENGTH);
+   need_stat(DOC_LENGTH);
+   need_stat(COLLECTION_SIZE);
+        need_stat(COLLECTION_FREQ);
+   need_stat(WDF);
+   need_stat(WQF);
+   need_stat(WDF_MAX);
+   need_stat(DOC_LENGTH_MIN);
+   need_stat(DOC_LENGTH_MAX);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    DFR_DPHWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+           Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+ 
 
 }
 
