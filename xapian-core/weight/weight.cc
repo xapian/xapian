@@ -45,6 +45,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    collectionfreq_ = 1;
     wdf_upper_bound_ = 0;
     termfreq_ = 0;
     reltermfreq_ = 0;
@@ -72,6 +73,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	termfreq_ = stats.get_termfreq(term);
     if (stats_needed & RELTERMFREQ)
 	reltermfreq_ = stats.get_reltermfreq(term);
+	if (stats_needed & COLLECTION_FREQ)
+    collectionfreq_ = stats.get_collectionfreq(term);
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);
@@ -105,6 +108,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     termfreq_ = termfreq;
     reltermfreq_ = reltermfreq;
     query_length_ = query_length;
+    collectionfreq_ = 1;
     wqf_ = 1;
     init(factor);
 }
