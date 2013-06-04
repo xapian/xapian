@@ -72,7 +72,7 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
-    double base_change(log(2);
+    double base_change(log(2));
     double N(get_collection_size());
     double TermFrequency(get_termfreq());
 
