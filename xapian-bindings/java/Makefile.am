@@ -43,6 +43,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/FieldProcessor.java\
 	org/xapian/FixedWeightPostingSource.java\
 	org/xapian/GreatCircleMetric.java\
+	org/xapian/InL2Weight.java\
 	org/xapian/InMemory.java\
 	org/xapian/KeyMaker.java\
 	org/xapian/LatLongCoord.java\
