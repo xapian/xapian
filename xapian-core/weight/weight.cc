@@ -74,7 +74,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     if (stats_needed & RELTERMFREQ)
 	reltermfreq_ = stats.get_reltermfreq(term);
 	if (stats_needed & COLLECTION_FREQ)
-    collectionfreq_ = stats.get_collectionfreq(term);
+    collectionfreq_ = stats.get_collection_freq(term);
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);

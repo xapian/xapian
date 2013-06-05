@@ -37,9 +37,9 @@
 struct TermFreqs {
     Xapian::doccount termfreq;
     Xapian::doccount reltermfreq;
-
     Xapian::termcount termcollectionfreq;
-    TermFreqs() : termfreq(0), reltermfreq(0) , termcollectionfreq(0) {}
+    
+    TermFreqs() : termfreq(0), reltermfreq(0), termcollectionfreq(0) {}
     TermFreqs(Xapian::doccount termfreq_, Xapian::doccount reltermfreq_ ,Xapian::termcount collectionfreq_)
       : termfreq(termfreq_), reltermfreq(reltermfreq_), termcollectionfreq(collectionfreq_) {}
 
@@ -69,7 +69,7 @@ class Weight::Internal {
     /** Number of relevant documents in the collection. */
     Xapian::doccount rset_size;
 
-    /** Number of terms in the collection.*/
+    /** Number of terms in the collection. */
     Xapian::termcount total_term_count;
 
     /** Database to get the bounds on doclength and wdf from. */
@@ -114,9 +114,9 @@ class Weight::Internal {
      */
     Xapian::doccount get_reltermfreq(const std::string & term) const;
 
-    /** Get the relevant collectionfrequency for the given term.
+    /** Get the collectionfrequency for the given term.
      */
-    Xapian::termcount get_collectionfreq(const std::string & term) const;
+    Xapian::termcount get_collection_freq(const std::string & term) const;
 
     Xapian::doclength get_average_length() const {
 	if (rare(collection_size == 0)) return 0;

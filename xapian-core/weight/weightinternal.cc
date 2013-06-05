@@ -74,7 +74,7 @@ Weight::Internal::get_termfreq(const string & term) const
     return tfreq->second.termfreq;
 }
 
-Xapian::termcount Weight::Internal::get_collectionfreq(const string & term) const
+Xapian::termcount Weight::Internal::get_collection_freq(const string & term) const
 {
     // We pass an empty std::string for term when calculating the extra weight.
     if (term.empty()) return 0;

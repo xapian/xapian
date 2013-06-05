@@ -293,7 +293,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
 
     // The collection frequency of the term.
-    Xapian::termcount get_collectionfreq() const { return collectionfreq_;}
+    Xapian::termcount get_collection_freq() const { return collectionfreq_; }
 
     /// The length of the query.
     Xapian::termcount get_query_length() const { return query_length_; }

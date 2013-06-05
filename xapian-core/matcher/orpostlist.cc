@@ -308,7 +308,7 @@ OrPostList::get_termfreq_est_using_stats(
     TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));
     TermFreqs rfreqs(r->get_termfreq_est_using_stats(stats));
 
-    double freqest, relfreqest,collectionfreqest;
+    double freqest, relfreqest, collectionfreqest;
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
@@ -316,7 +316,7 @@ OrPostList::get_termfreq_est_using_stats(
     freqest = lfreqs.termfreq + rfreqs.termfreq -
 	    (lfreqs.termfreq * rfreqs.termfreq / stats.collection_size);
 	collectionfreqest = lfreqs.termcollectionfreq + rfreqs.termcollectionfreq -
-      ( lfreqs.termcollectionfreq * rfreqs.termcollectionfreq / stats.total_term_count);
+    (lfreqs.termcollectionfreq * rfreqs.termcollectionfreq / stats.total_term_count);
 
     if (stats.rset_size == 0) {
 	relfreqest = 0;
@@ -326,7 +326,8 @@ OrPostList::get_termfreq_est_using_stats(
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5),static_cast<Xapian::termcount>(collectionfreqest + 0.5)));
+		   static_cast<Xapian::doccount>(relfreqest + 0.5),
+		   static_cast<Xapian::termcount>(collectionfreqest + 0.5)));
 }
 
 Xapian::docid

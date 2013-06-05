@@ -118,16 +118,17 @@ MultiXorPostList::get_termfreq_est_using_stats(
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - 2.0 * P_est * P_i;
 	double Pc_i = freqs.termcollectionfreq * scale;
-    Pc_est += Pc_i -2.0*Pc_est * Pc_i;
+  Pc_est += Pc_i - 2.0 * Pc_est * Pc_i;
 	// If the rset is empty, Pr_est should be 0 already, so leave
 	// it alone.
 	if (stats.rset_size != 0) {
 	    double Pr_i = freqs.reltermfreq / stats.rset_size;
 	    Pr_est += Pr_i - 2.0 * Pr_est * Pr_i;
 	}
-    }
+    } 
     RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
-		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),Xapian::termcount(Pc_est*stats.total_term_count)));
+		   Xapian::doccount(Pr_est * stats.rset_size + 0.5), 
+		   Xapian::termcount(Pc_est * stats.total_term_count)));
 }
 
 double

@@ -109,7 +109,6 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 	if (stats.rset_size != 0)
 	    result += encode_length(i->second.reltermfreq);
 	result += encode_length(i->second.termcollectionfreq);
-
     }
 
     return result;
@@ -135,13 +134,13 @@ unserialise_stats(const string &s)
 	p += len;
 	Xapian::doccount termfreq(decode_length(&p, p_end, false));
 	if (stat.rset_size == 0) {
-	    Xapian::termcount termcollectionfreq(decode_length(&p,p_end,false));
-        stat.termfreqs.insert(make_pair(term, TermFreqs(termfreq, 0,termcollectionfreq)));
+	    Xapian::termcount termcollectionfreq(decode_length(&p, p_end, false));
+     stat.termfreqs.insert(make_pair(term, TermFreqs(termfreq, 0, termcollectionfreq)));
 	} else {
 	    Xapian::doccount reltermfreq(decode_length(&p, p_end, false));
-	    Xapian::termcount termcollectionfreq(decode_length(&p,p_end,false));
+	    Xapian::termcount termcollectionfreq(decode_length(&p, p_end, false));
 	    stat.termfreqs.insert(make_pair(term,
-					    TermFreqs(termfreq, reltermfreq,termcollectionfreq)));
+					    TermFreqs(termfreq, reltermfreq, termcollectionfreq)));
 	}
     }
 
