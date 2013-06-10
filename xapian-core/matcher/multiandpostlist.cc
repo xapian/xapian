@@ -104,7 +104,7 @@ MultiAndPostList::get_termfreq_est() const
 
 TermFreqs
 MultiAndPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const 
+	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "MultiAndPostList::get_termfreq_est_using_stats", stats);
     // We calculate the estimate assuming independence.  With this assumption,
@@ -114,6 +114,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
 
     double freqest = double(freqs.termfreq);
     double relfreqest = double(freqs.reltermfreq);
+    double collectionfreqest = double(freqs.termcollectionfreq);
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
@@ -124,6 +125,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
 	// If the collection is empty, freqest should be 0 already, so leave
 	// it alone.
 	freqest = (freqest * freqs.termfreq) / stats.collection_size;
+	collectionfreqest = (collectionfreqest*freqs.termcollectionfreq)/stats.total_term_count;
 
 	// If the rset is empty, relfreqest should be 0 already, so leave
 	// it alone.
@@ -132,7 +134,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+		     static_cast<Xapian::doccount>(relfreqest + 0.5),static_cast<Xapian::termcount>(collectionfreqest+0.5)));
 }
 
 double

@@ -45,7 +45,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH = 256,
 	DOC_LENGTH_MIN = 512,
 	DOC_LENGTH_MAX = 1024,
-	WDF_MAX = 2048
+	WDF_MAX = 2048,
+	COLLECTION_FREQ = 4096
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -90,6 +91,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of documents which this term indexes.
     Xapian::doccount termfreq_;
+
+    // The collection frequency of the term.
+    Xapian::termcount collectionfreq_;
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount reltermfreq_;
@@ -230,10 +234,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      *  @param termfreq    The termfreq to use.
      *  @param reltermfreq The reltermfreq to use.
+     *  @param collection_freq The collection frequency to use.
      */
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       double factor, Xapian::doccount termfreq,
-	       Xapian::doccount reltermfreq);
+	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq);
 
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
@@ -287,6 +292,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
+
+    // The collection frequency of the term.
+    Xapian::termcount get_collection_freq() const { return collectionfreq_; }
 
     /// The length of the query.
     Xapian::termcount get_query_length() const { return query_length_; }
@@ -589,6 +597,61 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the InL2 weighting scheme,which is a representative
+ * scheme of the Divergence from Randomness Framework by Gianni Amati.
+ *
+ * This weighting scheme is useful for tasks that require early precision.
+ *
+ * It uses the Inverse document frequency model(In), the Laplace method to find
+ * the aftereffect of sampling (L) and the second wdf normalization proposed by Amati to
+ * normalize the wdf in the document to the length of the document (H2).
+ *
+ * For more information about the DFR Framework and the InL2 scheme,please refer:
+ * Gianni Amati and Cornelis Joost Van Rijsbergen
+ * Probabilistic models of information retrieval based on measuring the divergence from randomness
+ * ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389
+ */
+class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    InL2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a InL2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent of the normalization
+     *		  of the wdf to the document length.A default value of 1 is suitable for longer queries but it may need to be changed for shorter
+     *		  queries.For more information,please refer to Gianni Amati's PHD thesis.
+     */
+    explicit InL2Weight(double c_ = 1.0) : param_c(c_) {
+       if (param_c <= 0) param_c = 1;
+       need_stat(AVERAGE_LENGTH);
+       need_stat(DOC_LENGTH);
+       need_stat(DOC_LENGTH_MIN);
+       need_stat(DOC_LENGTH_MAX);
+       need_stat(COLLECTION_SIZE);
+       need_stat(WDF);
+       need_stat(WDF_MAX);
+       need_stat(WQF);
+       need_stat(TERMFREQ);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    InL2Weight * unserialise(const std::string & s) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen) const;
