@@ -45,7 +45,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
-    collectionfreq_ = 1;
+    collectionfreq_ = 0;
     wdf_upper_bound_ = 0;
     termfreq_ = 0;
     reltermfreq_ = 0;
