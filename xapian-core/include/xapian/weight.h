@@ -45,7 +45,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH = 256,
 	DOC_LENGTH_MIN = 512,
 	DOC_LENGTH_MAX = 1024,
-	WDF_MAX = 2048
+	WDF_MAX = 2048,
+	COLLECTION_FREQ = 4096
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -90,6 +91,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of documents which this term indexes.
     Xapian::doccount termfreq_;
+
+    // The collection frequency of the term.
+    Xapian::termcount collectionfreq_;
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount reltermfreq_;
@@ -230,10 +234,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      *  @param termfreq    The termfreq to use.
      *  @param reltermfreq The reltermfreq to use.
+     *  @param collection_freq The collection frequency to use.
      */
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       double factor, Xapian::doccount termfreq,
-	       Xapian::doccount reltermfreq);
+	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq);
 
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
@@ -287,6 +292,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
+
+    // The collection frequency of the term.
+    Xapian::termcount get_collection_freq() const { return collectionfreq_; }
 
     /// The length of the query.
     Xapian::termcount get_query_length() const { return query_length_; }

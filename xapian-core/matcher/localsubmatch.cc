@@ -117,7 +117,8 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     if (usual(stats->collection_size != 0)) {
 	freqs = or_pl->get_termfreq_est_using_stats(*stats);
     }
-    wt->init_(*stats, qlen, factor, freqs.termfreq, freqs.reltermfreq);
+    wt->init_(*stats, qlen, factor,
+	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq);
 
     res->set_weight(wt.release());
     RETURN(res.release());

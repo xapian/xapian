@@ -1,3 +1,10 @@
+Tue Jun 11 00:37:01 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/leafpostlist.cc,matcher/,net/serialise.cc,weight/weight.cc,
+	  weight/weightinternal.cc,weight/weightinternal.h: Make collection
+	  frequency available to Xapian::Weight subclasses.  Extracted from
+	  Gaurav Arora's LM branch.
+
 Wed May 22 10:04:25 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: When generating ABI compatibility checks in

@@ -112,10 +112,13 @@ MultiXorPostList::get_termfreq_est_using_stats(
     double scale = 1.0 / stats.collection_size;
     double P_est = freqs.termfreq * scale;
     double Pr_est = freqs.reltermfreq * scale;
+    double Pc_est = freqs.collfreq * scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - 2.0 * P_est * P_i;
+	double Pc_i = freqs.collfreq * scale;
+	Pc_est += Pc_i - 2.0 * Pc_est * Pc_i;
 	// If the rset is empty, Pr_est should be 0 already, so leave
 	// it alone.
 	if (stats.rset_size != 0) {
@@ -124,7 +127,8 @@ MultiXorPostList::get_termfreq_est_using_stats(
 	}
     }
     RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
-		     Xapian::doccount(Pr_est * stats.rset_size + 0.5)));
+		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
+		     Xapian::termcount(Pc_est * stats.total_term_count)));
 }
 
 double

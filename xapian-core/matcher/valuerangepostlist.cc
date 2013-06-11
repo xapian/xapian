@@ -57,7 +57,9 @@ ValueRangePostList::get_termfreq_est_using_stats(
     LOGCALL(MATCH, TermFreqs, "ValueRangePostList::get_termfreq_est_using_stats", stats);
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end?
-    RETURN(TermFreqs(stats.collection_size / 2, stats.rset_size / 2));
+    RETURN(TermFreqs(stats.collection_size / 2,
+		     stats.rset_size / 2,
+		     stats.total_term_count / 2));
 }
 
 Xapian::doccount
