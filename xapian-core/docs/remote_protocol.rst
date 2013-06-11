@@ -1,9 +1,9 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 37.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 37 in Xapian
-1.3.1.
+This document describes *version 38.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 38 in Xapian
+1.3.2.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
 

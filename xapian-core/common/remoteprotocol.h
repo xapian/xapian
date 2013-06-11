@@ -47,7 +47,8 @@
 // 35.1: 1.2.4 Support for metadata_keys_begin().
 // 36: 1.3.0 REPLY_UPDATE and REPLY_GREETING merged, and more...
 // 37: 1.3.1 Prefix-compress termlists.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 37
+// 38: 1.3.2 Stats serialisation now includes collection freq.
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 38
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
