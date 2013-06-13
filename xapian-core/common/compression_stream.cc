@@ -1,8 +1,11 @@
 #include <config.h>
-#include <iostream>
 #include "compression_stream.h"
 #include "str.h"
 #include "stringutils.h"
+
+#include "xapian/error.h"
+
+using namespace std;
 
 CompressionStream::CompressionStream(int compress_strategy_)
     : compress_strategy(compress_strategy_),

@@ -1,3 +1,9 @@
+Thu Jun 13 13:24:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/compression_stream.cc,common/compression_stream.h: Remove
+	  unused header includes; don't use "using namespace std;" in a
+	  header.
+
 Thu Jun 13 08:30:26 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.cc: Remove 'Assert(rd);' since rd
