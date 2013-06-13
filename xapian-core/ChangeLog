@@ -1,3 +1,8 @@
+Thu Jun 13 13:26:07 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/compression_stream.cc,common/compression_stream.h: Add
+	  missing GPL boilerplate and copyright statements.
+
 Thu Jun 13 13:24:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/compression_stream.cc,common/compression_stream.h: Remove
