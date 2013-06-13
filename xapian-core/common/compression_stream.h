@@ -1,5 +1,5 @@
-#ifndef XAPIAN_INCLUDED_ZLIB_UTILS_H
-#define XAPIAN_INCLUDED_ZLIB_UTILS_H
+#ifndef XAPIAN_INCLUDED_COMPRESSION_STREAM_H
+#define XAPIAN_INCLUDED_COMPRESSION_STREAM_H
 
 #include "debuglog.h"
 
@@ -44,4 +44,4 @@ class CompressionStream {
     void compress(byte *, int);
 };
 
-#endif // XAPIAN_INCLUDED_ZLIB_UTILS_H
+#endif // XAPIAN_INCLUDED_COMPRESSION_STREAM_H

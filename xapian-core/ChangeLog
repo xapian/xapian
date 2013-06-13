@@ -1,3 +1,8 @@
+Thu Jun 13 05:07:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/compression_stream.h: Update include guard to match source
+	  file name.
+
 Thu Jun 13 02:38:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/,net/length.h,net/serialise.h: Fix @file markup which wasn't
