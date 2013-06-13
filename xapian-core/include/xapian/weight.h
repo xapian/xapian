@@ -621,7 +621,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
  *
  */
 class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
-
     DPHWeight * clone() const;
 
     void init(double factor);
