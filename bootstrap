@@ -145,6 +145,7 @@ END
       fi ;;
     esac
     rm -f download.tmp
+    echo "Downloading <$url>"
     $FETCH_URL_TOOL "$url" > download.tmp && mv download.tmp "$tarball"
   fi
 
