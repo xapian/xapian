@@ -1,4 +1,4 @@
-/* @file win32_uuid.cc
+/** @file win32_uuid.cc
  * @brief Provide UUID functions compatible with libuuid from util-linux-ng.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

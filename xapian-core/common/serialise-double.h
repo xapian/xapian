@@ -1,4 +1,4 @@
-/* @file serialise-double.h
+/** @file serialise-double.h
  * @brief functions to serialise and unserialise a double
  */
 /* Copyright (C) 2006,2012 Olly Betts

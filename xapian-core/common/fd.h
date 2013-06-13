@@ -1,4 +1,4 @@
-/* @file fd.h
+/** @file fd.h
  * @brief Wrapper class around a file descriptor to avoid leaks
  */
 /* Copyright (C) 2011,2012 Olly Betts

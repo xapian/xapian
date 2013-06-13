@@ -1,4 +1,4 @@
-/* @file keyword.h
+/** @file keyword.h
  * @brief Efficient keyword to enum lookup
  */
 /* Copyright (C) 2012 Olly Betts

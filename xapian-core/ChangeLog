@@ -1,3 +1,8 @@
+Thu Jun 13 02:38:20 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/,net/length.h,net/serialise.h: Fix @file markup which wasn't
+	  actually in a doxygen comment.
+
 Thu Jun 13 02:14:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* preautoreconf: Remove needless use of perl prototype.
