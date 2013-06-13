@@ -142,12 +142,13 @@ DEFINE_TESTCASE(inl2weight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("banana"));
-    enquire.set_weighting_scheme(Xapian::InL2Weight());
+    enquire.set_weighting_scheme(Xapian::InL2Weight(2.0));
     Xapian::MSet mset;
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 6);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.559711143842063);
 
     return true;
 }

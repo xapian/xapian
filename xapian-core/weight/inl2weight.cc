@@ -1,4 +1,4 @@
-/** @file InL2weight.cc
+/** @file inL2weight.cc
  * @brief Xapian::InL2Weight class - the InL2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
