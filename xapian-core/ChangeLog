@@ -1,3 +1,8 @@
+Thu Jun 13 13:58:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_positionlist.cc: Remove 'Assert(rd);' since rd
+	  is no longer a pointer.
+
 Thu Jun 13 13:28:43 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/utestsuite.cc: Add missing GPL boilerplate and

@@ -157,7 +157,6 @@ void
 ChertPositionList::next()
 {
     LOGCALL_VOID(DB, "ChertPositionList::next", NO_ARGS);
-    Assert(rd);
     if (rare(!have_started)) {
 	have_started = true;
 	return;
