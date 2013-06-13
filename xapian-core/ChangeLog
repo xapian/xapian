@@ -1,3 +1,7 @@
+Thu Jun 13 02:14:22 GMT 2013  Olly Betts <olly@survex.com>
+
+	* preautoreconf: Remove needless use of perl prototype.
+
 Tue Jun 11 00:40:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/remoteprotocol.h,docs/remote_protocol.rst: Bump
