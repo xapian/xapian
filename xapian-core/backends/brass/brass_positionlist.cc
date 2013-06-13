@@ -157,7 +157,6 @@ void
 BrassPositionList::next()
 {
     LOGCALL_VOID(DB, "BrassPositionList::next", NO_ARGS);
-    Assert(rd);
     if (rare(!have_started)) {
 	have_started = true;
 	return;

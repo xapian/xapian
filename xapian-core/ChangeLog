@@ -1,3 +1,8 @@
+Thu Jun 13 08:30:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_positionlist.cc: Remove 'Assert(rd);' since rd
+	  is no longer a pointer.
+
 Thu Jun 13 05:07:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/compression_stream.h: Update include guard to match source
