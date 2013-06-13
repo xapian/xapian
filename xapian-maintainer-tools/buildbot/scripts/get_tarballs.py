@@ -15,8 +15,8 @@ builddir = 'build'
 
 tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
 archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
-basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+svn[0-9]+$')
-basename2_re = re.compile('(win32msvc)_svn[0-9]+$')
+basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+git[0-9]+$')
+basename2_re = re.compile('(win32msvc)_v[0-9.]+-[0-9]+-g[0-9a-f]+$')
 
 def fail(msg):
     print msg
@@ -29,9 +29,9 @@ def parsehtml(html, archives):
         for archive in archives:
             if link.startswith(archive):
                 revision = link[len(archive):]
-                svnpos = revision.find('svn')
-                if svnpos > 0:
-                    revision = int(revision[svnpos + 3:])
+                gitpos = revision.find('git')
+                if gitpos > 0:
+                    revision = int(revision[gitpos + 3:])
                     if revision > max_revision:
                         links = []
                         max_revision = revision
