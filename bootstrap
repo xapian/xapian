@@ -102,7 +102,8 @@ lazy_build() {
 	FETCH_URL_TOOL="${WGET-wget} -O-"
       elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
 	# curl --version exits with code 2.
-	FETCH_URL_TOOL=${CURL-curl}
+	# -L is needed to follow HTTP redirects.
+	FETCH_URL_TOOL="${CURL-curl} -L"
       elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
 	# lwp-request -v exits with code 9 (5.810) or 255 (6.03)
 	FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
