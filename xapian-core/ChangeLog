@@ -1,3 +1,9 @@
+Fri Jun 14 13:18:40 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_dbcheck.h,backends/chert/chert_dbcheck.h,
+	  backends/multi/multi_alltermslist.h: Fix header include guard macro
+	  names which don't match the source file names.
+
 Fri Jun 14 12:48:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/compression_stream.h: Whitespace tweak.
