@@ -29,8 +29,7 @@
 #define DONT_COMPRESS -1
 
 class CompressionStream {
-
- public:
+  public:
     explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY);
 
     ~CompressionStream();

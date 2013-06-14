@@ -1,3 +1,7 @@
+Fri Jun 14 12:48:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/compression_stream.h: Whitespace tweak.
+
 Thu Jun 13 13:58:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_positionlist.cc: Remove 'Assert(rd);' since rd
