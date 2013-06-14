@@ -123,22 +123,8 @@ DEFINE_TESTCASE(inl2weight2, !backend) {
     return true;
 }
 
-// Test for when wdf = 0 .
-DEFINE_TESTCASE(inl2weight3, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("woody"));
-    enquire.set_weighting_scheme(Xapian::InL2Weight());
-    Xapian::MSet mset;
-
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 0);
-
-    return true;
-}
-
 //Feature tests for Inl2Weight
-DEFINE_TESTCASE(inl2weight4, backend) {
+DEFINE_TESTCASE(inl2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("banana"));

@@ -128,7 +128,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	}
 #endif
 
-    if (startswith(scheme, "inl2")) {
+        if (startswith(scheme, "inl2")) {
 	    const char *p = scheme.c_str() + 4;
 	    if (*p == '\0') {
 		enq.set_weighting_scheme(Xapian::InL2Weight());
