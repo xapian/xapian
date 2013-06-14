@@ -22,6 +22,9 @@
  * IN THE SOFTWARE.
  */
 
+#ifndef XAPIAN_INCLUDED_FD_H
+#define XAPIAN_INCLUDED_FD_H
+
 #include "safeunistd.h"
 
 class FD {
@@ -60,3 +63,5 @@ class FD {
 inline int close(FD & fd) {
    return fd.close();
 }
+
+#endif

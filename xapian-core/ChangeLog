@@ -1,3 +1,7 @@
+Fri Jun 14 13:20:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/fd.h: Add missing header include guards.
+
 Fri Jun 14 13:19:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/append_filename_arg.h,geospatial/geoencode.h: Fix header
