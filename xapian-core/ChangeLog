@@ -1,3 +1,8 @@
+Fri Jun 14 13:19:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/append_filename_arg.h,geospatial/geoencode.h: Fix header
+	  include guard names which don't match our naming conventions.
+
 Fri Jun 14 13:18:40 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_dbcheck.h,backends/chert/chert_dbcheck.h,
