@@ -93,22 +93,8 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     return true;
 }
 
-// Test for when wdf = 0
-DEFINE_TESTCASE(dphweight1, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("bonanza"));
-    Xapian::MSet mset;
-
-    enquire.set_weighting_scheme(Xapian::DPHWeight());
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 0);
-
-    return true;
-}
-
 // Feature test
-DEFINE_TESTCASE(dphweight2, backend) {
+DEFINE_TESTCASE(dphweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("banana"));
