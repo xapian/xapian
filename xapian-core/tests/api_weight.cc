@@ -93,6 +93,51 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     return true;
 }
 
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(pl2weight1, !backend) {
+    Xapian::PL2Weight wt(2.0);
+    try {
+        Xapian::PL2Weight b;
+	 Xapian::PL2Weight * b2 = b.unserialise(wt.serialise() + "X");
+	 // Make sure we actually use the weight.
+	 bool empty = b2->name().empty();
+	 delete b2;
+	 if (empty)
+	     FAIL_TEST("Serialised PL2Weight with junk appended unserialised to empty name!");
+        FAIL_TEST("Serialised PL2Weight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+
+    }
+    return true;
+}
+
+// Test for invalid values of c.
+DEFINE_TESTCASE(pl2weight2, !backend) {
+    Xapian::PL2Weight wt(-2.0);
+    Xapian::PL2Weight wt2;
+    TEST_EQUAL(wt.serialise(), wt2.serialise());
+    Xapian::PL2Weight wt3(0.0);
+    TEST_EQUAL(wt3.serialise(), wt2.serialise());
+
+    return true;
+}
+
+// Feature Test.
+DEFINE_TESTCASE(pl2weight3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("banana"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::PL2Weight(2.0));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    mset_expect_order(mset, 6);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 2.3193468314885726);
+
+    return true;
+}
+
 // Test for various cases of normalization string.
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid
