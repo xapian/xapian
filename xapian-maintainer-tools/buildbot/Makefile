@@ -6,22 +6,14 @@
 
 # The 'reconfig' target will tell a buildmaster to reload its config file.
 
-all: stop start
-
-start: stop
-	cd /home/xapian-buildbot/master && \
+start:
 	twistd --no_save -y buildbot.tac
 
 stop:
-	cd /home/xapian-buildbot/master && \
-	if test -e twistd.pid; then kill `cat twistd.pid` || true; fi
+	kill `cat twistd.pid`
 
 reconfig:
-	cd /home/xapian-buildbot/master && \
-	if test -e twistd.pid; then \
-	  kill -HUP `cat twistd.pid`; \
-	fi
+	kill -HUP `cat twistd.pid`
 
 log:
-	cd /home/xapian-buildbot/master && \
 	tail -f twistd.log
