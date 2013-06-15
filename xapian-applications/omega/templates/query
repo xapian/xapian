@@ -2,7 +2,7 @@ $httpheader{Content-Type,text/html; charset=utf-8}
 <html>
 $set{flag_spelling,$ne{$cgi{SPELL},0}}
 $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
-$setmap{prefix,,$split{ S},title,S,author,A}
+$setmap{prefix,,$split{ SB},title,S,author,A,topic,B}
 ${
 $def{PREV,
 $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"

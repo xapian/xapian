@@ -137,7 +137,7 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
 
 static void
 get_pdf_metainfo(const string & file, string &author, string &title,
-		 string &keywords)
+		 string &keywords, string &topic)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
@@ -162,6 +162,9 @@ get_pdf_metainfo(const string & file, string &author, string &title,
 		    break;
 		case 'K':
 		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
+		    break;
+		case 'S':
+		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
 		    break;
 		case 'T':
 		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
@@ -387,7 +390,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
     if (verbose) cout << flush;
 
-    string author, title, sample, keywords, dump;
+    string author, title, sample, keywords, topic, dump;
     string md5;
 
     try {
@@ -418,7 +421,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    dump = p.dump;
 		    title = p.title;
 		    keywords = p.keywords;
+		    topic = p.topic;
 		    sample = p.sample;
+		    author = p.author;
 		}
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -444,6 +449,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = p.dump;
 	    title = p.title;
 	    keywords = p.keywords;
+	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
 	    md5_string(text, md5);
@@ -476,7 +482,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
-	    get_pdf_metainfo(file, author, title, keywords);
+	    get_pdf_metainfo(file, author, title, keywords, topic);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -513,7 +519,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -545,6 +551,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		metaxmlparser.parse_html(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
+		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
 	    } catch (ReadError) {
@@ -617,6 +624,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		metaxmlparser.parse_html(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
+		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
 	    } catch (ReadError) {
@@ -731,6 +739,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = p.dump;
 	    title = p.title;
 	    keywords = p.keywords;
+	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
 	} else if (mimetype == "image/svg+xml") {
@@ -741,6 +750,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = svgparser.dump;
 	    title = svgparser.title;
 	    keywords = svgparser.keywords;
+	    // FIXME: topic = svgparser.topic;
 	    author = svgparser.author;
 	} else if (mimetype == "application/x-debian-package") {
 	    string cmd("dpkg-deb -f");
@@ -771,6 +781,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = atomparser.dump;
 	    title = atomparser.title;
 	    keywords = atomparser.keywords;
+	    // FIXME: topic = atomparser.topic;
 	    author = atomparser.author;
 	} else {
 	    // Don't know how to index this type.
@@ -844,7 +855,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	record += str(d.get_size());
 	newdocument.set_data(record);
 
-	// Index the title, document text, and keywords.
+	// Index the title, document text, keywords and topic.
 	indexer.set_document(newdocument);
 	if (!title.empty()) {
 	    indexer.index_text(title, 5, "S");
@@ -856,6 +867,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	if (!keywords.empty()) {
 	    indexer.increase_termpos(100);
 	    indexer.index_text(keywords);
+	}
+	if (!topic.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(topic, 1, "B");
 	}
 	// Index the leafname of the file.
 	{

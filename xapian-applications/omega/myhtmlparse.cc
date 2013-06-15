@@ -113,6 +113,11 @@ MyHtmlParser::opening_tag(const string &tag)
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
 			    author += content;
+			} else if (name == "classification") {
+			    if (!topic.empty()) topic += ' ';
+			    convert_to_utf8(content, charset);
+			    decode_entities(content);
+			    topic += content;
 			} else if (!ignoring_metarobots && name == "robots") {
 			    decode_entities(content);
 			    lowercase_string(content);

@@ -37,7 +37,7 @@ class MyHtmlParser : public HtmlParser {
 	bool indexing_allowed;
 	bool ignoring_metarobots;
 	bool charset_from_meta;
-	string title, sample, keywords, dump, author;
+	string title, sample, keywords, dump, author, topic;
 	string * target;
 
 	void process_text(const string &text);
@@ -67,6 +67,7 @@ class MyHtmlParser : public HtmlParser {
 	    keywords.resize(0);
 	    dump.resize(0);
 	    author.resize(0);
+	    topic.resize(0);
 	    target = &dump;
 	}
 };
