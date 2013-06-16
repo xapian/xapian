@@ -29,6 +29,14 @@
 #include "safeerrno.h"
 #include "common/noreturn.h"
 
+#ifndef XAPIAN_AT_LEAST
+#define XAPIAN_AT_LEAST(A,B,C) \
+    (XAPIAN_MAJOR_VERSION > (A) || \
+     (XAPIAN_MAJOR_VERSION == (A) && \
+      (XAPIAN_MINOR_VERSION > (B) || \
+       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
+#endif
+
 using namespace std;
 
 XAPIAN_NORETURN(static void
@@ -114,7 +122,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	    }
 	}
 
-#if XAPIAN_MAJOR_VERSION*100+XAPIAN_MINOR_VERSION*10+XAPIAN_REVISION >= 10301
+#if XAPIAN_AT_LEAST(1,3,1)
 	if (startswith(scheme, "tfidf")) {
 	    const char *p = scheme.c_str() + 5;
 	    if (*p == '\0') {
