@@ -60,7 +60,7 @@ DebugLogger::initialise_categories_mask()
     if (f && *f) {
 	if (f[0] == '-' && f[1] == '\0') {
 	    // Filename "-" means "log to stderr".
-	    fd = 2;
+	    fd = 1;
 	} else {
 	    string fnm, pid;
 	    while (*f) {
@@ -80,7 +80,7 @@ DebugLogger::initialise_categories_mask()
 		// don't spew all the log output to stderr too or else the
 		// user will probably miss the message about the debug log
 		// failing to open!
-		fd = 2;
+		fd = 1;
 		LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
 			<< fnm << "' (" << strerror(errno) << ')');
 		fd = -2;

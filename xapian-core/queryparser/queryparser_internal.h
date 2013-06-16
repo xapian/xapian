@@ -103,6 +103,8 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 	default_op(Query::OP_OR), errmsg(NULL), max_wildcard_expansion(0) { }
 
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
+
+    void set_fieldproc();
 };
 
 }

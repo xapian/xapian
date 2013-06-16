@@ -29,6 +29,8 @@
 
 #include "xapian/error.h"
 
+#include <iostream>
+
 using namespace std;
 
 namespace Xapian {
@@ -58,6 +60,14 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      const string & term, Xapian::termcount wqf, double factor)
 {
     LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | term | wqf | factor);
+    cout << "Weight::init_ stats_needed:" << stats_needed <<
+        " AL:" << (stats_needed & AVERAGE_LENGTH) <<
+        " DLMAX:" << (stats_needed & DOC_LENGTH_MAX) <<
+        " DLMIN:" << (stats_needed & DOC_LENGTH_MIN) <<
+        " WM:" << (stats_needed & WDF_MAX) <<
+        " TF:" << (stats_needed & TERMFREQ) << 
+        " RTF:" << (stats_needed & RELTERMFREQ) << endl;
+    stats.debug_weight();
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
@@ -74,6 +84,15 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	reltermfreq_ = stats.get_reltermfreq(term);
     query_length_ = query_length;
     wqf_ = wqf;
+
+    cout << "Weight::init_" <<
+        " average_length_:" << average_length_ <<
+        " doclength_upper_bound_:" << doclength_upper_bound_ <<
+        " doclength_lower_bound_:" << doclength_lower_bound_ <<
+        " wdf_upper_bound_:" << wdf_upper_bound_ <<
+        " termfreq_:" << termfreq_ <<
+        " reltermfreq_:" << reltermfreq_ << endl;
+    
     init(factor);
 }
 

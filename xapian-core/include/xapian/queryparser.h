@@ -32,6 +32,8 @@
 #include <set>
 #include <string>
 
+#include <iostream>
+
 namespace Xapian {
 
 class Database;
@@ -379,6 +381,26 @@ struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
      *  @return	Query object corresponding to @a str.
      */
     virtual Xapian::Query operator()(const std::string &str) = 0;
+};
+
+/**
+ * Some Interface in Database::Internal has only one parameter for query string
+ * Like get_termfreq(const string & query). But Lucene must have additional 
+ * infomation about prefix. So this class is used to add field name to query string
+ * For example, data:query(data indicates field name, query indicates query string)
+ * When doing get_termfreq etc., data:query will be parsed
+ */
+class XAPIAN_VISIBILITY_DEFAULT LuceneFieldProcessor : public FieldProcessor {
+    std::string prefix;
+  public:
+    LuceneFieldProcessor(const std::string & prefix_)
+        : prefix(prefix_)
+    {
+        std::cout << "LuceneFieldProcessor::LuceneFieldProcessor called" << 
+            ", prefix=" << prefix << std::endl;
+    }
+
+    Xapian::Query operator()(const std::string &str);
 };
 
 /// Build a Xapian::Query object from a user query string.
@@ -736,6 +758,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Return a string describing this object.
     std::string get_description() const XAPIAN_PURE_FUNCTION;
+    /**
+     * For Lucene, generate LuceneFieldProcessor which used to convert term prefix
+     * to field number in LuceneFieldProcessor
+     **/
+    void set_fieldproc();
 };
 
 /** Convert a floating point number to a string, preserving sort order.

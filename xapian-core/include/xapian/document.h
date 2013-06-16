@@ -265,6 +265,23 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/// Return a string describing this object.
 	std::string get_description() const;
+
+    /**
+     * Below is just for lucene
+     * Lucene stores multitype data in document, so in c++, data type
+     * must be specific when get_data
+     * Until now, five data types are supported in Lucene, string/int/
+     * long/float/double
+     */
+    std::string get_data_string(const std::string & filed);
+
+    int get_data_int(const std::string & field);
+
+    long get_data_long(const std::string & field);
+
+    float get_data_float(const std::string & field);
+
+    double get_data_double(const std::string & field);
 };
 
 }

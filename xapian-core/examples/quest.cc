@@ -208,13 +208,19 @@ try {
     }
 
     parser.set_database(db);
+    //add_prefix fieldprocessor for lucene, set_database() must called before
+    parser.set_fieldproc();
+
     parser.set_default_op(Xapian::Query::OP_OR);
-    parser.set_stemmer(stemmer);
+    //parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
+    cout << "argv[optind]=" << argv[optind] << endl;
     Xapian::Query query = parser.parse_query(argv[optind], flags);
+    cout << "parser.parse_query end" << endl;
     const string & correction = parser.get_corrected_query_string();
+    cout << "quest.cc, correction=" << correction << endl;
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
 
@@ -232,8 +238,12 @@ try {
 
     cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+    //Should return all field data, and choose which field data needed 
+    //Like, doc.get_data("data"), which "data" is field name
+    //When opening Document, all data should read in, and get_data() just
 	Xapian::Document doc = i.get_document();
-	string data = doc.get_data();
+	//string data = doc.get_data(); /* Original method */
+    string data = doc.get_data_string("dataorigin"); /* Method for Lucene */
 	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
     }
     cout << flush;

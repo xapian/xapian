@@ -38,6 +38,8 @@
 #include <map>
 #include <string>
 
+#include <iostream>
+
 using namespace std;
 
 bool
@@ -47,6 +49,7 @@ LocalSubMatch::prepare_match(bool nowait,
     LOGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait | total_stats);
     (void)nowait;
     Assert(db);
+    //JW, caculate weightinternal::stats
     total_stats.accumulate_stats(*db, rset);
     RETURN(true);
 }
@@ -93,6 +96,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	// There's a term-independent weight contribution, so we combine the
 	// postlist tree with an ExtraWeightPostList which adds in this
 	// contribution.
+    LOGLINE(MATCH, "LocalSubMatch::get_postlist_and_term_info maxwxtra != 0");
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
 
@@ -136,6 +140,7 @@ LeafPostList *
 LocalSubMatch::open_post_list(const string& term, double max_part)
 {
     LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | max_part);
+    cout << "LocalSubMathc::open_post_list, terminfo:" << &term_info << endl;
     if (term_info) {
 	Xapian::doccount tf = stats->get_termfreq(term);
 	using namespace Xapian;

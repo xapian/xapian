@@ -26,6 +26,7 @@
 #define OM_HGUARD_DATABASE_H
 
 #include <string>
+#include <set>
 
 #include "internaltypes.h"
 
@@ -523,6 +524,12 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 *  database.
 	 */
 	virtual RemoteDatabase * as_remotedatabase();
+
+    /**
+     * For Lucene, get field name from LuceneDatabase
+     * In other db, there's no operation in this function
+     */
+    virtual void get_fieldinfo(set<string> & field_set) const;
 };
 
 }

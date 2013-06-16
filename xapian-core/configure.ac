@@ -670,6 +670,7 @@ XAPIAN_BACKEND_ENABLE(brass)
 XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
+XAPIAN_BACKEND_ENABLE(lucene)
 
 use_win32_uuid_api=0
 case $enable_backend_chert$enable_backend_brass in
@@ -842,6 +843,7 @@ AM_CONDITIONAL(BUILD_BACKEND_BRASS, test yes = "$enable_backend_brass")
 AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
+AM_CONDITIONAL(BUILD_BACKEND_LUCENE, test yes = "$enable_backend_lucene")
 AM_CONDITIONAL(BUILD_BACKEND_BRASS_OR_CHERT,
   [test nono != "$enable_backend_brass$enable_backend_chert"])
 
@@ -1255,7 +1257,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in BRASS CHERT INMEMORY REMOTE ; do
+for backend in BRASS CHERT INMEMORY REMOTE LUCENE; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

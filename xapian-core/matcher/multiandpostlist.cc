@@ -172,12 +172,15 @@ MultiAndPostList::get_weight() const
 bool
 MultiAndPostList::at_end() const
 {
+    LOGCALL(API, PostList *, "MultiAndPostList::at_end", did);
+
     return (did == 0);
 }
 
 double
 MultiAndPostList::recalc_maxweight()
 {
+    LOGCALL(API, PostList *, "MultiAndPostList::recalc_maxweight", NO_ARGS);
     max_total = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
 	double new_max = plist[i]->recalc_maxweight();
@@ -190,6 +193,7 @@ MultiAndPostList::recalc_maxweight()
 PostList *
 MultiAndPostList::find_next_match(double w_min)
 {
+    LOGCALL(API, PostList *, "MultiAndPostList::find_next_match", n_kids);
 advanced_plist0:
     if (plist[0]->at_end()) {
 	did = 0;
@@ -198,17 +202,25 @@ advanced_plist0:
     did = plist[0]->get_docid();
     for (size_t i = 1; i < n_kids; ++i) {
 	bool valid;
+    //In ChertDatabase, it calls skip_to() to move pointer to did in plist[i]
+    //Maybe check_helper is used to make sure another term's postlist 
+    //contains the same did in plist[0], make sure OP 'AND' right 
 	check_helper(i, did, w_min, valid);
+    LOGLINE(API, "MultiAndPostList::find_next_match valid=" << valid);
 	if (!valid) {
 	    next_helper(0, w_min);
 	    goto advanced_plist0;
 	}
 	if (plist[i]->at_end()) {
+        //did = 0 is available in Lucene
 	    did = 0;
 	    return NULL;
 	}
 	Xapian::docid new_did = plist[i]->get_docid();
+    //If new_did != did, at this time, new_did > did, so skip to new_did
 	if (new_did != did) {
+        LOGLINE(API, "MultiAndPostList::find_next_match, new_did=" << new_did <<
+                    ", did=" << did);
 	    skip_to_helper(0, new_did, w_min);
 	    goto advanced_plist0;
 	}
@@ -219,6 +231,7 @@ advanced_plist0:
 PostList *
 MultiAndPostList::next(double w_min)
 {
+    LOGCALL(API, PostList *, "MultiAndPostList::next", NO_ARGS);
     next_helper(0, w_min);
     return find_next_match(w_min);
 }
@@ -226,6 +239,7 @@ MultiAndPostList::next(double w_min)
 PostList *
 MultiAndPostList::skip_to(Xapian::docid did_min, double w_min)
 {
+    LOGCALL(API, PostList *, "MultiAndPostList::skip_to", NO_ARGS);
     skip_to_helper(0, did_min, w_min);
     return find_next_match(w_min);
 }
@@ -233,6 +247,8 @@ MultiAndPostList::skip_to(Xapian::docid did_min, double w_min)
 std::string
 MultiAndPostList::get_description() const
 {
+    LOGCALL(API, std::string, "MultiAndPostList::get_description()",
+                (unsigned)this);
     string desc("(");
     desc += plist[0]->get_description();
     for (size_t i = 1; i < n_kids; ++i) {

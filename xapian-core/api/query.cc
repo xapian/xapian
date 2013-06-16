@@ -39,18 +39,28 @@ const Query Query::MatchAll((string()));
 const Query Query::MatchNothing;
 
 Query::Query(const string & term, Xapian::termcount wqf, Xapian::termpos pos)
-    : internal(new Xapian::Internal::QueryTerm(term, wqf, pos)) { }
+    : internal(new Xapian::Internal::QueryTerm(term, wqf, pos))
+{
+    LOGCALL_CTOR(QUERYPARSER, "Query1", term | wqf | pos);
+}
 
 Query::Query(Xapian::PostingSource * source)
-    : internal(new Xapian::Internal::QueryPostingSource(source)) { }
+    : internal(new Xapian::Internal::QueryPostingSource(source))
+{
+    LOGCALL_CTOR(QUERYPARSER, "Query2", source);
+}
 
 Query::Query(double factor, const Xapian::Query & subquery) {
+    LOGCALL_CTOR(QUERYPARSER, "Query3", factor | subquery);
+
     if (!subquery.empty())
 	internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
 }
 
 Query::Query(op op_, const Xapian::Query & subquery, double factor)
 {
+    LOGCALL_CTOR(QUERYPARSER, "Query4", op_ | subquery | factor);
+
     if (rare(op_ != OP_SCALE_WEIGHT))
 	throw Xapian::InvalidArgumentError("op must be OP_SCALE_WEIGHT");
     // If the subquery is MatchNothing then generate Query() which matches
@@ -61,6 +71,8 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 
 Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 {
+    LOGCALL_CTOR(QUERYPARSER, "Query5", op_ | slot | limit);
+
     if (op_ == OP_VALUE_GE) {
 	if (limit.empty())
 	    internal = MatchAll.internal;
@@ -76,6 +88,8 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 Query::Query(op op_, Xapian::valueno slot,
 	     const std::string & begin, const std::string & end)
 {
+    LOGCALL_CTOR(QUERYPARSER, "Query6", op_ | slot | begin | end);
+
     if (rare(op_ != OP_VALUE_RANGE))
 	throw Xapian::InvalidArgumentError("op must be OP_VALUE_RANGE");
     // If begin > end then generate Query() which matches nothing.

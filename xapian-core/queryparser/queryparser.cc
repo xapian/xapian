@@ -238,3 +238,10 @@ QueryParser::get_description() const
     // FIXME : describe better!
     return "Xapian::QueryParser()";
 }
+
+//For Lucene
+void
+QueryParser::set_fieldproc()
+{
+    internal->set_fieldproc();
+}

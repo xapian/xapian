@@ -740,6 +740,19 @@ Database::get_uuid() const
     RETURN(uuid);
 }
 
+//For Lucene
+void
+Database::get_fieldinfo(set<string> & field_set) const
+{
+    LOGCALL(API, void, "Database::get_fieldinfo", field_set.size());
+
+    for (size_t i = 0; i < internal.size(); ++i) {
+        internal[i]->get_fieldinfo(field_set);
+    }
+
+    return ;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 WritableDatabase::WritableDatabase() : Database()

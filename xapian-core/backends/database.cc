@@ -372,4 +372,14 @@ Database::Internal::as_remotedatabase()
     return NULL;
 }
 
+void
+Database::Internal::get_fieldinfo(set<string> & field_set) const {
+    //Did nothing here except for LuceneDatabase, LuceneDatabase
+    //will reload this function
+    field_set.size();
+
+    return ;
 }
+
+}
+

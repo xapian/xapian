@@ -28,6 +28,7 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <set>
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
@@ -508,6 +509,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param opts	Options to use for check
 	 */
 	static size_t check(const std::string & path, int opts);
+
+    void get_fieldinfo(std::set<std::string> & field_set) const;
 };
 
 /** This class provides read/write access to a database.
@@ -1007,7 +1010,6 @@ const int DBCHECK_SHOW_STATS = 8;
  *  For use with Xapian::Database::check().
  */
 const int DBCHECK_FIX = 16;
-
 }
 
 #endif /* XAPIAN_INCLUDED_DATABASE_H */

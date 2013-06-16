@@ -45,6 +45,9 @@
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 # include "inmemory/inmemory_database.h"
 #endif
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+# include "lucene/lucene_database.h"
+#endif
 // Even if none of the above get included, we still need a definition of
 // Database::Internal.
 #include "backends/database.h"
@@ -356,6 +359,17 @@ Database::Database(const string &path)
     }
 #endif
 
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+    //another strategy, split LuceneDatabase to multi segdb, treat on 
+    //segdb as a single Database
+    LOGLINE(DB, "---------open Lucene db path:" << path);
+    //TODO is it suitable for detect Lucene using segments.gen?
+    if (file_exists(path + "/segments.gen")) {
+        internal.push_back(new LuceneDatabase(path));
+        return;
+    }
+#endif
+
     // Check for "stub directories".
     string stub_file = path;
     stub_file += "/XAPIANDB";
@@ -366,6 +380,7 @@ Database::Database(const string &path)
 
 	throw DatabaseOpeningError("Couldn't detect type of database");
     }
+    LOGLINE(DB, "---------stub_file:" << stub_file);
 
     open_stub(*this, stub_file);
 }

@@ -49,6 +49,7 @@
 #include <cfloat>
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -386,11 +387,12 @@ MSet::Internal::convert_to_percent_internal(double wt) const
 Document
 MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
-    LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index);
+    LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index | firstitem);
     index += firstitem; 
     map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {
+        cout << "Xapian::MSet::Internal::get_doc_by_index L394" << endl;
 	RETURN(doc->second);
     }
     if (index < firstitem || index >= firstitem + items.size()) {
@@ -398,15 +400,18 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     }
     Assert(enquire.get());
     if (!requested_docs.empty()) {
+        cout << "Xapian::MSet::Internal::get_doc_by_index L403" << endl;
 	// There's already a pending request, so handle that.
 	read_docs();
 	// Maybe we just fetched the doc we want.
 	doc = indexeddocs.find(index);
 	if (doc != indexeddocs.end()) {
+        cout << "Xapian::MSet::Internal::get_doc_by_index L409" << endl;
 	    RETURN(doc->second);
 	}
     }
 
+    cout << "Xapian::MSet::Internal::get_doc_by_index L414" << endl;
     // Don't cache unless fetch() was called by the API user.
     enquire->request_doc(items[index - firstitem]);
     RETURN(enquire->read_doc(items[index - firstitem]));
@@ -837,6 +842,7 @@ Enquire::Internal::get_description() const
 void
 Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 {
+    LOGCALL_VOID(API, "Enquire::Internal::request_doc", item.did);
     try {
 	unsigned int multiplier = db.internal.size();
 
@@ -853,6 +859,7 @@ Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 Document
 Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 {
+    LOGCALL(API, Document, "Enquire::Internal::read_doc", item.did);
     try {
 	unsigned int multiplier = db.internal.size();
 
@@ -860,7 +867,12 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 	Xapian::doccount dbnumber = (item.did - 1) % multiplier;
 
 	Xapian::Document::Internal *doc;
+    //TODO maybe I should changes this API, add segment index here
+    //so I can find the write segment fdtxtable to search document
+    //If so, class MsetItem also should be changed, add segment index
 	doc = db.internal[dbnumber]->collect_document(realdid);
+    LOGLINE(MATCH, "read_doc, realdid = " << realdid << ", dbnumber = " <<
+                dbnumber << ", doc = " << (int)doc);
 	return Document(doc);
     } catch (Error & e) {
 	if (errorhandler) (*errorhandler)(e);

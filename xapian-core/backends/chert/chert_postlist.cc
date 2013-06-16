@@ -69,6 +69,8 @@ ChertPostListTable::get_doclength(Xapian::docid did,
     }
     if (!doclen_pl->jump_to(did))
 	throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
+    LOGLINE(DB, "ChertPostListTable::get_doclength, did=" << did <<
+                "doclength=" << doclen_pl->get_wdf());
     return doclen_pl->get_wdf();
 }
 

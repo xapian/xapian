@@ -36,6 +36,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/ExpandDeciderAnd.java\
 	org/xapian/ExpandDeciderFilterPrefix.java\
 	org/xapian/FieldProcessor.java\
+	org/xapian/LuceneFieldProcessor.java\
 	org/xapian/FixedWeightPostingSource.java\
 	org/xapian/GreatCircleMetric.java\
 	org/xapian/InMemory.java\
@@ -65,6 +66,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
 	org/xapian/StringValueRangeProcessor.java\
+	org/xapian/SWIGTYPE_p_std__setT_std__string_t.java\
 	org/xapian/SWIGTYPE_p_std__string.java\
 	org/xapian/TermGenerator.java\
 	org/xapian/TermIterator.java\

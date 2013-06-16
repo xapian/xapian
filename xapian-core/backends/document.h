@@ -31,6 +31,7 @@
 #include "api/documentterm.h"
 #include <map>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -85,7 +86,10 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	virtual void do_get_all_values(map<Xapian::valueno, string> & values_) const {
 	    values_.clear();
 	}
-	virtual string do_get_data() const { return string(); }
+	virtual string do_get_data() const { 
+        cout << "Document::do_get_data()" << endl;
+        return string();
+    }
 
     public:
 	/** Get value by value number.
@@ -220,6 +224,19 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	 *  still exist at the time this is called.
 	 */
 	virtual ~Internal();
+
+    /**
+     * Below is just for Lucene
+     */
+    virtual std::string get_data_string(const std::string & field);
+
+    virtual int get_data_int(const std::string & field);
+
+    virtual long get_data_long(const std::string & field);
+
+    virtual float get_data_float(const std::string & field);
+
+    virtual double get_data_double(const std::string & field);
 };
 
 #endif  // OM_HGUARD_DOCUMENT_H

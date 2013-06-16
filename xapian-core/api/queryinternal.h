@@ -26,6 +26,9 @@
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
 
+#include "config.h"
+#include "debuglog.h"
+
 /// Default set_size for OP_ELITE_SET:
 const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10;
 
@@ -45,7 +48,11 @@ class QueryTerm : public Query::Internal {
     QueryTerm(const std::string & term_,
 	      Xapian::termcount wqf_,
 	      Xapian::termpos pos_)
-	: term(term_), wqf(wqf_), pos(pos_) { }
+	: term(term_), wqf(wqf_), pos(pos_)
+    {
+        LOGLINE(API, "QueryTerm::QueryTerm, term=" << term << ", wqf=" << wqf <<
+                    ", pos=" << pos);
+    }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 

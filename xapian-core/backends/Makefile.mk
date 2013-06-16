@@ -60,3 +60,4 @@ include backends/chert/Makefile.mk
 include backends/inmemory/Makefile.mk
 include backends/multi/Makefile.mk
 include backends/remote/Makefile.mk
+include backends/lucene/Makefile.mk

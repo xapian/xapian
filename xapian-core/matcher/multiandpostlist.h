@@ -92,6 +92,7 @@ class MultiAndPostList : public PostList {
     /// Call check on a sub-postlist n, and handle any pruning.
     void check_helper(size_t n, Xapian::docid did_min, double w_min,
 		      bool &valid) {
+    //ChertPostList::check() always return NULL
 	PostList * res = plist[n]->check(did_min, new_min(w_min, n), valid);
 	if (res) {
 	    delete plist[n];

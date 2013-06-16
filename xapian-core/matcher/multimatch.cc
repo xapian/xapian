@@ -397,6 +397,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     ++vsdoc._refs;
     Xapian::Document doc(&vsdoc);
 
+    LOGLINE(MATCH, "postlist size=" << postlists.size());
+
     // Get a single combined postlist
     AutoPtr<PostList> pl;
     if (postlists.size() == 1) {
@@ -431,6 +433,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
     recalculate_w_max = false;
 
+    LOGLINE(MATCH, "L434");
     Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
     Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
@@ -441,6 +444,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// minimum number of entries which the postlist could return.
 	matches_lower_bound = pl->get_termfreq_min();
     }
+
+    LOGLINE(MATCH, "L446");
 
     // Prepare the matchspy
     Xapian::MatchSpy *matchspy = NULL;
@@ -479,6 +484,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   0));
 	return;
     }
+
+    LOGLINE(MATCH, "L486");
 
     // Number of documents considered by a decider.
     Xapian::doccount decider_considered = 0;
@@ -537,8 +544,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
 
+    LOGLINE(MATCH, "L545");
+
 	PostList * pl_copy = pl.get();
+    LOGLINE(MATCH, pl_copy->get_description());
 	if (rare(next_handling_prune(pl_copy, min_weight, this))) {
+        LOGLINE(MATCH, "L551");
 	    (void)pl.release();
 	    pl.reset(pl_copy);
 	    LOGLINE(MATCH, "*** REPLACING ROOT");
@@ -554,10 +565,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
 
+    LOGLINE(MATCH, "L566");
+
 	if (rare(pl->at_end())) {
 	    LOGLINE(MATCH, "Reached end of potential matches");
 	    break;
 	}
+
+    LOGLINE(MATCH, "L573");
 
 	// Only calculate the weight if we need it for mcmp, or there's a
 	// percentage or weight cutoff in effect.  Otherwise we calculate it
@@ -572,6 +587,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	    calculated_weight = true;
 	}
+
+    LOGLINE(MATCH, "L585");
 
 	Xapian::docid did = pl->get_docid();
 	vsdoc.set_document(did);
@@ -615,6 +632,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		LOGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
 	    }
 	}
+
+    LOGLINE(MATCH, "L626");
 
 	// Use the match spy and/or decision functors (if specified).
 	if (matchspy != NULL || mdecider != NULL) {
