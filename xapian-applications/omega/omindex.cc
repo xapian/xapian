@@ -347,6 +347,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
     time_t last_mod = d.get_mtime();
+    time_t created = time_t(-1);
 
     Xapian::docid did = 0; 
     if (skip_duplicates) {
@@ -850,6 +851,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	if (last_mod != (time_t)-1) {
 	    record += "\nmodtime=";
 	    record += str(last_mod);
+	}
+	if (created != (time_t)-1) {
+	    record += "\ncreated=";
+	    record += str(created);
 	}
 	record += "\nsize=";
 	record += str(d.get_size());

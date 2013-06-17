@@ -1,3 +1,9 @@
+Mon Jun 17 00:43:28 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,metaxmlparse.cc,metaxmlparse.h,omindex.cc: Add support
+	  for indexing 'topic' and 'created date' meta-data for OpenDocument
+	  format.
+
 Sun Jun 16 11:48:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight.cc: Rewrite the xapian-core version test to use a macro so

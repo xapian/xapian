@@ -1,6 +1,6 @@
 /* metaxmlparse.cc: subclass of HtmlParser for parsing OpenDocument's meta.xml.
  *
- * Copyright (C) 2006,2009,2010,2011 Olly Betts
+ * Copyright (C) 2006,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,10 @@
 #include <config.h>
 
 #include "metaxmlparse.h"
+
+#include <cstdlib>
+
+using namespace std;
 
 void
 MetaXmlParser::process_text(const string &text)
@@ -41,6 +45,57 @@ MetaXmlParser::process_text(const string &text)
 	    if (!author.empty()) author += ' ';
 	    author += text;
 	    break;
+	case TOPIC:
+	    if (!topic.empty()) topic += ' ';
+	    topic += text;
+	    break;
+	case CREATED: {
+	    // E.g. 2013-03-04T22:57:00
+	    struct tm t;
+	    const char * p = text.c_str();
+	    char * q;
+	    unsigned long v = strtoul(p, &q, 10);
+	    p = q;
+	    t.tm_year = v - 1900;
+	    if (*p != '-') break;
+	    v = strtoul(p + 1, &q, 10);
+	    p = q;
+	    t.tm_mon = v - 1;
+	    if (*p != '-') break;
+	    v = strtoul(p + 1, &q, 10);
+	    p = q;
+	    t.tm_mday = v;
+	    if (*p == 'T') {
+		v = strtoul(p + 1, &q, 10);
+		p = q;
+		t.tm_hour = v;
+		if (*p != ':') break;
+		v = strtoul(p + 1, &q, 10);
+		p = q;
+		t.tm_min = v;
+		if (*p != ':') break;
+		v = strtoul(p + 1, &q, 10);
+		p = q;
+		t.tm_sec = v;
+	    } else if (*p == '\0') {
+		t.tm_hour = t.tm_min = t.tm_sec = 0;
+	    } else {
+		break;
+	    }
+	    t.tm_isdst = -1;
+#ifdef HAVE_TIMEGM
+	    created = timegm(&t);
+#else
+	    static bool set_tz = false;
+	    if (!set_tz) {
+		setenv("tz", "", 1);
+		tzset();
+		set_tz = true;
+	    }
+	    created = mktime(&t);
+#endif
+	    break;
+	}
 	case NONE:
 	    // Ignore other fields.
 	    break;
@@ -66,13 +121,19 @@ MetaXmlParser::opening_tag(const string &tag)
 	    field = SAMPLE;
 	} else if (tag == "dc:creator") {
 	    field = AUTHOR;
+	} else if (tag == "dc:subject") {
+	    field = TOPIC;
 	}
     } else if (tag[0] == 'm') {
-	// e.g.:
-	// <meta:keywords>
-	// <meta:keyword>information retrieval</meta:keyword>
-	// </meta:keywords>
-	if (tag == "meta:keyword") field = KEYWORDS;
+	if (tag == "meta:keyword") {
+	    // e.g.:
+	    // <meta:keywords>
+	    // <meta:keyword>information retrieval</meta:keyword>
+	    // </meta:keywords>
+	    field = KEYWORDS;
+	} else if (tag == "meta:creation-date") {
+	    field = CREATED;
+	}
     }
     return true;
 }
