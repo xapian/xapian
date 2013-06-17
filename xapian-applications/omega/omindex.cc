@@ -981,7 +981,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cout << "added" << endl;
 	}
     } catch (ReadError) {
-	skip(file, "can't read file");
+	skip(file, string("can't read file: ") + strerror(errno));
     } catch (NoSuchFilter) {
 	skip(file, "Filter for \"" + mimetype + "\" not installed");
 	commands[mimetype] = Filter();

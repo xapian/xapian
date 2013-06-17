@@ -1,3 +1,7 @@
+Mon Jun 17 02:13:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report strerror(errno) if we can't read a file.
+
 Mon Jun 17 02:12:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Factor out code to mark a document as seen into a new
