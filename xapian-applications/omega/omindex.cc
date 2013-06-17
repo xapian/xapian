@@ -98,6 +98,15 @@ static Xapian::doccount old_docs_not_seen;
 static Xapian::docid old_lastdocid;
 static vector<bool> updated;
 
+static void
+mark_as_seen(Xapian::docid did)
+{
+    if (usual(did < updated.size() && !updated[did])) {
+	updated[did] = true;
+	--old_docs_not_seen;
+    }
+}
+
 static time_t last_mod_max;
 
 // Commands which take a filename as the last argument, and output UTF-8
@@ -356,10 +365,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    if (verbose)
 		cout << "already indexed, not updating" << endl;
 	    did = *p;
-	    if (usual(did < updated.size() && !updated[did])) {
-		updated[did] = true;
-		--old_docs_not_seen;
-	    }
+	    mark_as_seen(did);
 	    return;
 	}
     } else {
@@ -379,10 +385,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // exception is if the URL was long and hashed to the
 		    // same URL as an existing document indexed in the same
 		    // batch.
-		    if (usual(did < updated.size() && !updated[did])) {
-			updated[did] = true;
-			--old_docs_not_seen;
-		    }
+		    mark_as_seen(did);
 		    return;
 		}
 	    }
@@ -963,12 +966,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    } else {
 		did = db.replace_document(urlterm, newdocument);
 	    }
-	    if (did < updated.size()) {
-		if (usual(!updated[did])) {
-		    updated[did] = true;
-		    --old_docs_not_seen;
-		}
-	    }
+	    mark_as_seen(did);
 	    if (verbose) {
 		if (did <= old_lastdocid) {
 		    cout << "updated" << endl;

@@ -1,3 +1,8 @@
+Mon Jun 17 02:12:12 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Factor out code to mark a document as seen into a new
+	  mark_as_seen() function.
+
 Mon Jun 17 00:43:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,metaxmlparse.cc,metaxmlparse.h,omindex.cc: Add support
