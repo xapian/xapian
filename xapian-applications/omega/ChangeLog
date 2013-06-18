@@ -1,3 +1,9 @@
+Tue Jun 18 03:09:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix off-by-one when finding documents to delete which
+	  would sometimes cause omindex to fail to delete documents from the
+	  database when they weren't refound during an index update.
+
 Mon Jun 17 02:13:21 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Report strerror(errno) if we can't read a file.
