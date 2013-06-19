@@ -128,6 +128,23 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	}
 #endif
 
+        if (startswith(scheme, "ifb2")) {
+	    const char *p = scheme.c_str() + 4;
+	    if (*p == '\0') {
+		enq.set_weighting_scheme(Xapian::IfB2Weight());
+		return;
+	    }
+	    if (C_isspace((unsigned char)*p)) {
+		double k;
+		if (!double_param(&p, &k))
+		    parameter_error("Parameter is invalid", scheme);
+		if (*p)
+		    parameter_error("Extra data after parameter", scheme);
+		enq.set_weighting_scheme(Xapian::IfB2Weight(k));
+		return;
+	    }
+	}
+
 	if (scheme != "bool") {
 	    throw "Unknown $opt{weighting} setting: " + scheme;
 	}
