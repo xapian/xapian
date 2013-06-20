@@ -22,5 +22,5 @@
 #include <cmath>
 
 #ifndef HAVE_LOG2
-inline double log2(double x) const { return (log(x) / log(2.0)); }
+inline double log2(double x) { return (log(x) / log(2.0)); }
 #endif
