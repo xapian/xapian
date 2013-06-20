@@ -110,7 +110,7 @@ BB2Weight::get_maxpart() const
     double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
 
     double weight_max = B_max * ( - (log(N - 1.0) / base_change) - (1 / base_change) +
-    stirlingValue(N + F - 1.0, N + F - wdfn_lower -2.0) - stirlingValue(F, F - wdfn_upper));
+    stirlingValue(N + F - 1.0, N + F - wdfn_lower - 2.0) - stirlingValue(F, F - wdfn_upper));
 
     return (get_wqf() * weight_max);
 }
