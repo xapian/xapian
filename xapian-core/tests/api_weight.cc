@@ -98,13 +98,13 @@ DEFINE_TESTCASE(inl2weight1, !backend) {
     Xapian::InL2Weight wt(2.0);
     try {
         Xapian::InL2Weight b;
-	    Xapian::InL2Weight * b2 = b.unserialise(wt.serialise() + "X");
-	    // Make sure we actually use the weight.
-	    bool empty = b2->name().empty();
-	    delete b2;
-	    if (empty)
-	        FAIL_TEST("Serialised inl2weight with junk appended unserialised to empty name!");
-       	    FAIL_TEST("Serialised inl2weight with junk appended unserialised OK");
+	Xapian::InL2Weight * b2 = b.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = b2->name().empty();
+	delete b2;
+	if (empty)
+	    FAIL_TEST("Serialised inl2weight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised inl2weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
 
     }
