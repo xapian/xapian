@@ -98,12 +98,12 @@ DEFINE_TESTCASE(pl2weight1, !backend) {
     Xapian::PL2Weight wt(2.0);
     try {
         Xapian::PL2Weight b;
-	 Xapian::PL2Weight * b2 = b.unserialise(wt.serialise() + "X");
-	 // Make sure we actually use the weight.
-	 bool empty = b2->name().empty();
-	 delete b2;
-	 if (empty)
-	     FAIL_TEST("Serialised PL2Weight with junk appended unserialised to empty name!");
+	Xapian::PL2Weight * b2 = b.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = b2->name().empty();
+	delete b2;
+	if (empty)
+	    FAIL_TEST("Serialised PL2Weight with junk appended unserialised to empty name!");
         FAIL_TEST("Serialised PL2Weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
 

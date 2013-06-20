@@ -633,9 +633,9 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     /** Construct a PL2Weight.
      *
      *  @param c  A non-negative and non zero parameter controlling the extent of the normalization
-     *		   of the wdf to the document length.A default value of
+     *		  of the wdf to the document length.A default value of
      *            1 is suitable for longer queries but it may need to be changed for shorter
-     *		   queries.For more information,please refer to Gianni Amati's PHD thesis titled
+     *		  queries.For more information,please refer to Gianni Amati's PHD thesis titled
      *            Probabilistic Models for Information Retrieval based on Divergence from Randomness.
      */
     explicit PL2Weight(double c_ = 1.0) : param_c(c_) {
