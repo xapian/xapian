@@ -630,9 +630,9 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     /** Construct a IfB2Weight.
      *
      *  @param c  A non-negative and non zero parameter controlling the extent of the normalization
-     *		   of the wdf to the document length.A default value of
+     *		  of the wdf to the document length.A default value of
      *            1 is suitable for longer queries but it may need to be changed for shorter
-     *		   queries.For more information,please refer to Gianni Amati's PHD thesis titled
+     *		  queries.For more information,please refer to Gianni Amati's PHD thesis titled
      *            Probabilistic Models for Information Retrieval based on Divergence from Randomness.
      */
     explicit IfB2Weight(double c_ = 1.0) : param_c(c_) {
@@ -640,10 +640,10 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
        need_stat(AVERAGE_LENGTH);
        need_stat(DOC_LENGTH);
        need_stat(DOC_LENGTH_MIN);
-	need_stat(DOC_LENGTH_MAX);
-	need_stat(COLLECTION_SIZE);
+       need_stat(DOC_LENGTH_MAX);
+       need_stat(COLLECTION_SIZE);
        need_stat(COLLECTION_FREQ);
-	need_stat(WDF);
+       need_stat(WDF);
        need_stat(WDF_MAX);
        need_stat(WQF);
        need_stat(TERMFREQ);

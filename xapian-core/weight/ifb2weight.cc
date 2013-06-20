@@ -82,7 +82,6 @@ IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double idf_value = (log((N + 1.0) / (F + 0.5))) / base_change;
 
     return (wdfn * get_wqf() * B * idf_value);
-
 }
 
 double
