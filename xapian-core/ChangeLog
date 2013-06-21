@@ -1,3 +1,9 @@
+Fri Jun 21 13:09:09 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/log2.h,configure.ac: Add log2.h header
+	  which provides an implementation of log2() if it isn't available in
+	  the standard libraries.
+
 Fri Jun 14 13:20:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/fd.h: Add missing header include guards.

@@ -396,6 +396,9 @@ using namespace std;], [
     ])
 ])
 
+dnl See if log2() function on math library is supported.
+AC_CHECK_FUNCS([log2])
+
 dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
 dnl compilation fails if -fno-rtti is specified.
 AC_MSG_CHECKING([if RTTI is supported])

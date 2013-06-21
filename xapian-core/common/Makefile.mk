@@ -12,6 +12,7 @@ noinst_HEADERS +=\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/keyword.h\
+	common/log2.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
