@@ -1,3 +1,7 @@
+Sat Jun 22 11:21:22 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/bitstream.cc: Fix assertion in BitReader::decode().
+
 Sat Jun 22 09:13:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc: Fix assertion failure when built with

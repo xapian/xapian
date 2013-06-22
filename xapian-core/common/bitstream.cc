@@ -123,7 +123,7 @@ Xapian::termpos
 BitReader::decode(Xapian::termpos outof, bool force)
 {
     (void)force;
-    Assert(!force && !di_current.is_initialized());
+    Assert(force == di_current.is_initialized());
     size_t bits = highest_order_bit(outof - 1);
     const size_t spare = (1 << bits) - outof;
     const size_t mid_start = (outof - spare) / 2;
