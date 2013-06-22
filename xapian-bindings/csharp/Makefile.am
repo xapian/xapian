@@ -18,6 +18,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Database.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
+	generated-csharp/DLHWeight.cs \
 	generated-csharp/Document.cs \
 	generated-csharp/ESet.cs \
 	generated-csharp/ESetIterator.cs \

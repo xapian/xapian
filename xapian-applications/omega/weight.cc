@@ -136,6 +136,17 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	}
 #endif
 
+        if (startswith(scheme, "dlh")) {
+	    const char *p = scheme.c_str() + 3;
+	    if (*p == '\0') {
+		enq.set_weighting_scheme(Xapian::DLHWeight());
+		return;
+	    }
+	    if (C_isspace((unsigned char)*p)) {
+		throw "No parameters are required for DLH";
+	    }
+	}
+
 	if (scheme != "bool") {
 	    throw "Unknown $opt{weighting} setting: " + scheme;
 	}

@@ -93,6 +93,22 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     return true;
 }
 
+// Test parameter combinations which should be unaffected by doclength.
+DEFINE_TESTCASE(dlhweight1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::DLHWeight());
+    mset = enquire.get_mset(0, 10);
+    // Only 3 out of the 5 documents are slected as the remaining two get negative weights.
+    TEST_EQUAL(mset.size(), 3);
+    // The third document is first in the ranking.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.22445391769044906);
+
+    return true;
+}
 // Test for various cases of normalization string.
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid
