@@ -536,13 +536,13 @@ merge_spellings(BrassTable * out,
 	    string lastword;
 	    while (!pqtag.empty()) {
 		PrefixCompressedStringItor * it = pqtag.top();
+		pqtag.pop();
 		string word = **it;
 		if (word != lastword) {
 		    lastword = word;
 		    wr.append(lastword);
 		}
 		++*it;
-		pqtag.pop();
 		if (!it->at_end()) {
 		    pqtag.push(it);
 		} else {
@@ -645,13 +645,13 @@ merge_synonyms(BrassTable * out,
 	string lastword;
 	while (!pqtag.empty()) {
 	    ByteLengthPrefixedStringItor * it = pqtag.top();
+	    pqtag.pop();
 	    if (**it != lastword) {
 		lastword = **it;
 		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
 		tag += lastword;
 	    }
 	    ++*it;
-	    pqtag.pop();
 	    if (!it->at_end()) {
 		pqtag.push(it);
 	    } else {

@@ -1,3 +1,12 @@
+Sat Jun 22 13:40:40 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  Fix failure when built with -D_GLIBCXX_DEBUG - we were modifying
+	  the top() element of a heap before calling pop(), such that the
+	  heap comparison operation (which is called when -D_GLIBCXX_DEBUG
+	  is on to verify the heap is valid) would read off the end of the
+	  data.  In a normal build, this issue would likely never manifest.
+
 Sat Jun 22 11:21:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/bitstream.cc: Fix assertion in BitReader::decode().
