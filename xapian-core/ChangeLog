@@ -1,3 +1,9 @@
+Sat Jun 22 09:13:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc: Fix assertion failure when built with
+	  --enable-assertions.  The behaviour when built without assertions
+	  happened to be correct.
+
 Fri Jun 21 13:10:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/unittest.cc: Add simple test for log2().
