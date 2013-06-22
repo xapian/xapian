@@ -1,3 +1,8 @@
+Sat Jun 22 06:26:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: If running under PHP >= 5.4, skip the tests we
+	  know will fail with a message.
+
 Sun May 12 06:16:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Handle git snapshot naming.
