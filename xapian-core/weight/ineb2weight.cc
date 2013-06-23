@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include <cmath>
+#include "../common/log2.h"
 
 #include "serialise-double.h"
 
@@ -30,6 +30,21 @@
 using namespace std;
 
 namespace Xapian {
+
+IneB2Weight::IneB2Weight(double c_) : param_c(c_) {
+    if (param_c <= 0)
+        throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+    need_stat(AVERAGE_LENGTH);
+    need_stat(DOC_LENGTH);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    need_stat(COLLECTION_SIZE);
+    need_stat(WDF);
+    need_stat(WDF_MAX);
+    need_stat(WQF);
+    need_stat(COLLECTION_FREQ);
+    need_stat(TERMFREQ);
+    }
 
 IneB2Weight *
 IneB2Weight::clone() const
@@ -40,7 +55,29 @@ IneB2Weight::clone() const
 void
 IneB2Weight::init(double)
 {
-     // None Required
+    double wdfn_upper(get_wdf_upper_bound());
+    if (wdfn_upper == 0) upper_bound = 0.0;
+    else {
+      double wdfn_lower(1.0);
+
+      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_upper_bound());
+
+      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_lower_bound());
+
+      double N(get_collection_size());
+      double F(get_collection_freq());
+
+      double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+      double mean = F / N;
+
+      double expected_value_max = N * (1.0 - exp( - mean));
+
+      double idf_value_max = log2((N + 1.0) / (expected_value_max + 0.5));
+
+      upper_bound = wdfn_upper * idf_value_max * get_wqf() * B_max;
+    }
 }
 
 string
@@ -72,7 +109,7 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
 
-    wdfn = wdfn * log2(1 + (param_c * get_average_length()) / len);
+    wdfn *= log2(1 + (param_c * get_average_length()) / len);
 
     double N(get_collection_size());
     double F(get_collection_freq());
@@ -90,24 +127,7 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 double
 IneB2Weight::get_maxpart() const
 {
-    if (get_wdf_upper_bound() == 0) return 0.0;
-    double wdfn_lower(1.0);
-    double wdfn_upper(get_wdf_upper_bound());
-
-    wdfn_lower = wdfn_lower * log2(1 + (param_c * get_average_length()) / get_doclength_upper_bound());
-    wdfn_upper = wdfn_upper * log2(1 + (param_c * get_average_length()) / get_doclength_lower_bound());
-
-    double N(get_collection_size());
-    double F(get_collection_freq());
-
-    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
-    double mean = F / N;
-
-    double expected_value_max = N * (1.0 - exp( - mean));
-
-    double idf_value_max = log2((N + 1.0) / (expected_value_max + 0.5));
-
-    return (wdfn_upper * idf_value_max * get_wqf() * B_max);
+    return upper_bound;
 }
 
 double

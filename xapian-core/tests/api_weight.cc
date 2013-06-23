@@ -114,11 +114,17 @@ DEFINE_TESTCASE(ineb2weight1, !backend) {
 
 // Test for invalid values of c.
 DEFINE_TESTCASE(ineb2weight2, !backend) {
-    Xapian::IneB2Weight wt(-2.0);
-    Xapian::IneB2Weight wt2;
-    TEST_EQUAL(wt.serialise(), wt2.serialise());
-    Xapian::IneB2Weight wt3(0.0);
-    TEST_EQUAL(wt3.serialise(), wt2.serialise());
+    // InvalidArgumentError should be thrown if parameter c is invalid.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::IneB2Weight wt(-2.0));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::IneB2Weight wt2(0.0));
+
+    /* Parameter c should be set to 1.0 by constructor if none is
+      given. */
+    Xapian::IneB2Weight weight2;
+    TEST_EQUAL(weight2.serialise(), Xapian::IneB2Weight(1.0).serialise());
 
     return true;
 }
