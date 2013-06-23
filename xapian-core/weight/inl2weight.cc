@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include <cmath>
+#include "../common/log2.h"
 
 #include "serialise-double.h"
 
@@ -30,6 +30,22 @@
 using namespace std;
 
 namespace Xapian {
+
+InL2Weight::InL2Weight(double c_)
+    : param_c(c_)
+{
+    if (param_c <= 0)
+        throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+    need_stat(AVERAGE_LENGTH);
+    need_stat(DOC_LENGTH);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    need_stat(COLLECTION_SIZE);
+    need_stat(WDF);
+    need_stat(WDF_MAX);
+    need_stat(WQF);
+    need_stat(TERMFREQ);
+}
 
 InL2Weight *
 InL2Weight::clone() const
@@ -40,7 +56,26 @@ InL2Weight::clone() const
 void
 InL2Weight::init(double)
 {
-     // None Required
+    double wdfn_upper(get_wdf_upper_bound());
+    if (wdfn_upper == 0) upper_bound = 0.0;
+    else {
+      double wdfn_lower(1.0);
+      double TermFrequency(get_termfreq());
+      double N(get_collection_size());
+
+      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_upper_bound());
+
+      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_lower_bound());
+
+      double L_max = 1 / (wdfn_lower + 1);
+
+      double Idf_value_max = log2((N + 1) / (TermFrequency + 0.5));
+
+      upper_bound = get_wqf() * wdfn_upper * L_max * Idf_value_max;
+    }
+
 }
 
 string
@@ -71,14 +106,14 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
-    double base_change(log(2));
     double N(get_collection_size());
     double TermFrequency(get_termfreq());
 
-    wdfn = wdfn * ((log(1 + (param_c * get_average_length() / len))) / (base_change));
+    wdfn *= log2(1 + (param_c * get_average_length()) / len);
+
     double L = 1 / (wdfn + 1);
 
-    double Idf_value = log((N + 1) / (TermFrequency + 0.5)) / (base_change);
+    double Idf_value = log2((N + 1) / (TermFrequency + 0.5));
 
     return (get_wqf() * wdfn * L * Idf_value);
 }
@@ -86,21 +121,7 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 double
 InL2Weight::get_maxpart() const
 {
-    if (get_wdf_upper_bound() == 0) return 0.0;
-    double wdfn_lower(1.0);
-    double wdfn_upper(get_wdf_upper_bound());
-    double base_change(log(2));
-    double TermFrequency(get_termfreq());
-    double N(get_collection_size());
-
-    wdfn_lower = wdfn_lower * ((log(1 + param_c * get_average_length() / get_doclength_upper_bound())) / (base_change));
-    wdfn_upper = wdfn_upper * ((log(1 + param_c * get_average_length() / get_doclength_lower_bound())) / (base_change));
-
-    double L_max = 1 / (wdfn_lower + 1);
-
-    double Idf_value_max = log((N + 1) / (TermFrequency + 0.5)) / (base_change);
-
-    return (get_wqf() * wdfn_upper * L_max * Idf_value_max);
+    return upper_bound;
 }
 
 double

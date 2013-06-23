@@ -115,11 +115,17 @@ DEFINE_TESTCASE(inl2weight1, !backend) {
 
 // Test for invalid values of c.
 DEFINE_TESTCASE(inl2weight2, !backend) {
-    Xapian::InL2Weight wt(-2.0);
-    Xapian::InL2Weight wt2;
-    TEST_EQUAL(wt.serialise(), wt2.serialise());
-    Xapian::InL2Weight wt3(0.0);
-    TEST_EQUAL(wt3.serialise(), wt2.serialise());
+    // InvalidArgumentError should be thrown if the parameter c is invalid.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::InL2Weight wt(-2.0));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::InL2Weight wt2(0.0));
+
+    /* Parameter c should be set to 1.0 by constructor if none is
+      given. */
+    Xapian::InL2Weight weight2;
+    TEST_EQUAL(weight2.serialise(), Xapian::InL2Weight(1.0).serialise());
 
     return true;
 }
@@ -135,6 +141,8 @@ DEFINE_TESTCASE(inl2weight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 6);
+    /* The value has been calculated in the python interpreter by looking at the
+     database statistics. */
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.559711143842063);
 
     return true;
