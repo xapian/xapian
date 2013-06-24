@@ -113,11 +113,17 @@ DEFINE_TESTCASE(ifb2weight1, !backend) {
 
 // Test for invalid values of c.
 DEFINE_TESTCASE(ifb2weight2, !backend) {
-    Xapian::IfB2Weight wt(-2.0);
-    Xapian::IfB2Weight wt2;
-    TEST_EQUAL(wt.serialise(), wt2.serialise());
-    Xapian::IfB2Weight wt3(0.0);
-    TEST_EQUAL(wt3.serialise(), wt2.serialise());
+    // InvalidArgumentError should be thrown if the parameter c is invalid.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::IfB2Weight wt(-2.0));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::IfB2Weight wt2(0.0));
+
+    /* Parameter c should be set to 1.0 by constructor if none is
+       given. */
+    Xapian::IfB2Weight weight2;
+    TEST_EQUAL(weight2.serialise(), Xapian::IfB2Weight(1.0).serialise());
 
     return true;
 }
@@ -132,6 +138,8 @@ DEFINE_TESTCASE(ifb2weight3, backend) {
     enquire.set_weighting_scheme(Xapian::IfB2Weight(2.0));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
+    /* The value of the weight has been manually calculated using the statistics
+       of the test database. */
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 3.119422287684126);
 
     return true;
