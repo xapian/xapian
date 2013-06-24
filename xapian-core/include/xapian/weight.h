@@ -606,7 +606,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     double get_maxextra() const;
 };
 
-/** This class implements the IneB2 weighting scheme,which is a representative
+/** This class implements the IneB2 weighting scheme, which is a representative
  * scheme of the Divergence from Randomness Framework by Gianni Amati.
  *
  * It uses the Inverse expected document frequency model(Ine), the Bernoulli
@@ -614,7 +614,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
  * proposed by Amati to normalize the wdf in the document to the length of the
  * document (H2).
  *
- * For more information about the DFR Framework and the IneB2 scheme,please refer:
+ * For more information about the DFR Framework and the IneB2 scheme, please refer:
  * Gianni Amati and Cornelis Joost Van Rijsbergen
  * Probabilistic models of information retrieval based on measuring the divergence
  * from randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
@@ -635,9 +635,9 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /** Construct a IneB2Weight.
      *
      *  @param c  A non-negative and non zero parameter controlling the extent of
-     *            the normalization of the wdf to the document length.A default value
+     *            the normalization of the wdf to the document length. A default value
      *            of 1 is suitable for longer queries but it may need to be changed
-     *            for shorter queries.For more information,please refer to
+     *            for shorter queries. For more information, please refer to
      *            Gianni Amati's PHD thesis.
      */
     explicit IneB2Weight(double c_);
