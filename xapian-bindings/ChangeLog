@@ -1,3 +1,9 @@
+Mon Jun 24 10:56:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test/Makefile.PL: Pass $CPPFLAGS and $CXXFLAGS from
+	  the environment through to the sub-build, fixing symbol-test.t
+	  failure when built with CPPFLAGS=-D_GLIBCXX_DEBUG.
+
 Sat Jun 22 06:26:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: If running under PHP >= 5.4, skip the tests we
