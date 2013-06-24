@@ -73,15 +73,6 @@ class Contact:
         }
         self.subscribed = 0
 
-    silly = {
-        "What happen ?": "Somebody set up us the bomb.",
-        "It's You !!": ["How are you gentlemen !!",
-                        "All your base are belong to us.",
-                        "You are on the way to destruction."],
-        "What you say !!": ["You have no chance to survive make your time.",
-                            "HA HA HA HA ...."],
-        }
-
     def getCommandMethod(self, command):
         meth = getattr(self, 'command_' + command.upper(), None)
         return meth
@@ -121,15 +112,6 @@ class Contact:
         hours = int(minutes / 60)
         minutes = minutes - 60*hours
         return "%dh%02dm%02ds" % (hours, minutes, seconds)
-
-    def doSilly(self, message):
-        response = self.silly[message]
-        if type(response) != type([]):
-            response = [response]
-        when = 0.5
-        for r in response:
-            reactor.callLater(when, self.send, r)
-            when += 2.5
 
     def command_HELLO(self, args, who):
         self.send("yes?")
@@ -539,15 +521,6 @@ class Contact:
     def command_DESTROY(self, args, who):
         self.act("I come in peace")
 
-    def command_DANCE(self, args, who):
-        reactor.callLater(1.0, self.send, "0-<")
-        reactor.callLater(3.0, self.send, "0-/")
-        reactor.callLater(3.5, self.send, "0-\\")
-
-    def command_EXCITED(self, args, who):
-        # like 'buildbot: destroy the sun!'
-        self.send("What you say!")
-
     def handleAction(self, data, user):
         # this is sent when somebody performs an action that mentions the
         # buildbot (like '/me kicks buildbot'). 'user' is the name/nick/id of
@@ -612,8 +585,6 @@ class IRCContact(Contact):
         # command'), a single Contact will only ever see messages from a
         # single user.
         message = message.lstrip()
-        if self.silly.has_key(message):
-            return self.doSilly(message)
 
         parts = message.split(' ', 1)
         if len(parts) == 1:
@@ -622,8 +593,6 @@ class IRCContact(Contact):
         log.msg("irc command", cmd)
 
         meth = self.getCommandMethod(cmd)
-        if not meth and message[-1] == '!':
-            meth = self.command_EXCITED
 
         error = None
         try:
