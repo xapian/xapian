@@ -9,8 +9,8 @@ import urllib2
 import tarfile
 
 tarball_root = "http://www.oligarchy.co.uk/xapian/trunk/"
-archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega',
-                 'win32msvc',)
+archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
+# FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
 
 tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
@@ -96,16 +96,16 @@ for link in links:
     print "Moving contents from %s to %s" % (archivedir, basename)
     os.rename(archivedir, basename)
 
-os.rename(os.path.join(builddir, 'win32msvc'),
-          os.path.join(builddir, 'xapian-core', 'win32'))
+#os.rename(os.path.join(builddir, 'win32msvc'),
+#          os.path.join(builddir, 'xapian-core', 'win32'))
 
 # Get the scripts for building on our windows server, too:
-fd = urllib2.urlopen('http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
-data = fd.read()
-fd.close()
-fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
-fd.write(data)
-fd.close()
+#fd = urllib2.urlopen('http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
+#data = fd.read()
+#fd.close()
+#fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
+#fd.write(data)
+#fd.close()
 
 # Add small scripts for running configure for unix build (because we mustn't pass
 # relative paths for XAPIAN_CONFIG to configure, and I can't see any other way
