@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include <cmath>
+#include "../common/log2.h"
 
 #include "serialise-double.h"
 
@@ -30,6 +30,22 @@
 using namespace std;
 
 namespace Xapian {
+
+BB2Weight::BB2Weight(double c_) : param_c(c_)
+{
+    if (param_c <= 0)
+        throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+    need_stat(AVERAGE_LENGTH);
+    need_stat(DOC_LENGTH);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    need_stat(COLLECTION_SIZE);
+    need_stat(COLLECTION_FREQ);
+    need_stat(WDF);
+    need_stat(WDF_MAX);
+    need_stat(WQF);
+    need_stat(TERMFREQ);
+}
 
 BB2Weight *
 BB2Weight::clone() const
@@ -40,7 +56,33 @@ BB2Weight::clone() const
 void
 BB2Weight::init(double)
 {
-     // None Required
+    double wdfn_upper(get_wdf_upper_bound());
+
+    if (wdfn_upper == 0) upper_bound = 0.0;
+    else {
+      double base_change = log(2.0);
+      double wdfn_lower(1.0);
+
+      double F(get_collection_freq());
+      double N(get_collection_size());
+
+      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_upper_bound());
+
+      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_lower_bound());
+
+      double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+
+      double weight_max = - log2(N - 1.0) - (1 / base_change);
+
+      double stirling_value_max = stirlingValue(N + F - 1.0, N + F - wdfn_lower - 2.0)
+                                  - stirlingValue(F, F - wdfn_upper);
+
+      double final_weight_max = B_max * (weight_max + stirling_value_max);
+
+      upper_bound = get_wqf() * final_weight_max;
+    }
 }
 
 string
@@ -68,51 +110,38 @@ BB2Weight::unserialise(const string & s) const
 
 double BB2Weight::stirlingValue(double x, double y) const
 {
-    double base_change = log(2);
     double difference = x - y;
-    double answer = (y + 0.5) * (log(x / y) / base_change) + (difference * (log(x) / base_change));
-    return answer;
+    return (((y + 0.5) * log2(x / y)) + (difference * log2(x)));
 }
 
 double
 BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
+
+    double base_change = log(2.0);
     double wdfn(wdf);
-    double base_change(log(2));
-    wdfn = wdfn * ((log(1 + (param_c * get_average_length() / len))) / (base_change));
+    wdfn *= log2(1 + (param_c * get_average_length()) / len);
 
     double F(get_collection_freq());
     double N(get_collection_size());
 
     double B = (F + 1.0) / (get_termfreq() * (wdfn + 1.0));
 
-    double weight = B * ( - (log(N - 1.0) / base_change) - (1 / base_change) +
-    stirlingValue(N + F - 1.0, N + F - wdfn -2.0) - stirlingValue(F, F - wdfn));
+    double weight = - log2(N - 1.0) - (1 / base_change);
 
-    return (get_wqf() * weight);
+    double stirling_value = stirlingValue(N + F - 1.0, N + F - wdfn -2.0) -
+                            stirlingValue(F, F - wdfn);
+
+    double final_weight = B * (weight + stirling_value);
+
+    return (get_wqf() * final_weight);
 }
 
 double
 BB2Weight::get_maxpart() const
 {
-    if (get_wdf_upper_bound() == 0) return 0.0;
-    double wdfn_lower(1.0);
-    double base_change(log(2));
-    double wdfn_upper(get_wdf_upper_bound());
-    double F(get_collection_freq());
-    double N(get_collection_size());
-
-    wdfn_lower = wdfn_lower * ((log(1 + param_c * get_average_length() / get_doclength_upper_bound())) / (base_change));
-
-    wdfn_upper = wdfn_upper * ((log(1 + param_c * get_average_length() / get_doclength_lower_bound())) / (base_change));
-
-    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
-
-    double weight_max = B_max * ( - (log(N - 1.0) / base_change) - (1 / base_change) +
-    stirlingValue(N + F - 1.0, N + F - wdfn_lower - 2.0) - stirlingValue(F, F - wdfn_upper));
-
-    return (get_wqf() * weight_max);
+    return upper_bound;
 }
 
 double
