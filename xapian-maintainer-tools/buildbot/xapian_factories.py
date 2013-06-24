@@ -155,10 +155,10 @@ def gen_tarball_updated_factory(rooturl, configure_opts=[], machack=False):
               command=configure_cmd)
     f.addStep(shell.Compile, workdir='build/xapian-core')
     f.addStep(shell.Test, workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="])
-    f.addStep(shell.Configure, workdir='build/xapian-omega', command = ["python", "runconfigure.py"] + configure_opts)
+    f.addStep(shell.Configure, workdir='build/xapian-omega', command = ["./configure", "XAPIAN_CONFIG=../xapian-core/xapian-config"] + configure_opts)
     f.addStep(shell.Compile, workdir='build/xapian-omega')
     f.addStep(shell.Test, workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="])
-    f.addStep(shell.Configure, workdir='build/xapian-bindings', command = ["python", "runconfigure.py"] + configure_opts)
+    f.addStep(shell.Configure, workdir='build/xapian-bindings', command = ["./configure", "XAPIAN_CONFIG=../xapian-core/xapian-config"] + configure_opts)
     f.addStep(shell.Compile, workdir='build/xapian-bindings', command = ["make"], env=compile_env(machack))
     f.addStep(shell.Test, workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="], env=compile_env(machack))
     return f

@@ -106,13 +106,3 @@ for link in links:
 #fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
 #fd.write(data)
 #fd.close()
-
-# Add small scripts for running configure for unix build (because we mustn't pass
-# relative paths for XAPIAN_CONFIG to configure, and I can't see any other way
-# to pass it the absolute path).
-fd = open(os.path.join(builddir, 'xapian-bindings', 'runconfigure.py'), 'wb')
-fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config ' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
-fd.close()
-fd = open(os.path.join(builddir, 'xapian-omega', 'runconfigure.py'), 'wb')
-fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config ' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
-fd.close()
