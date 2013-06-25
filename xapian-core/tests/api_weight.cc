@@ -121,8 +121,7 @@ DEFINE_TESTCASE(ineb2weight2, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::IneB2Weight wt2(0.0));
 
-    /* Parameter c should be set to 1.0 by constructor if none is
-      given. */
+    /* Parameter c should be set to 1.0 by constructor if none is given. */
     Xapian::IneB2Weight weight2;
     TEST_EQUAL(weight2.serialise(), Xapian::IneB2Weight(1.0).serialise());
 
@@ -140,6 +139,8 @@ DEFINE_TESTCASE(ineb2weight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     // The third document in the database is 4th in the ranking.
+    /* The weight value has been manually calculated by using the statistics
+     * of the test database. */
     TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.61709730297692400036);
 
     return true;

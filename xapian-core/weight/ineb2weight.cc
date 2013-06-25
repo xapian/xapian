@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include "../common/log2.h"
+#include "common/log2.h"
 
 #include "serialise-double.h"
 
@@ -31,7 +31,7 @@ using namespace std;
 
 namespace Xapian {
 
-IneB2Weight::IneB2Weight(double c_) : param_c(c_) {
+IneB2Weight::IneB2Weight(double c) : param_c(c) {
     if (param_c <= 0)
         throw Xapian::InvalidArgumentError("Parameter c is invalid.");
     need_stat(AVERAGE_LENGTH);
@@ -56,28 +56,30 @@ void
 IneB2Weight::init(double)
 {
     double wdfn_upper(get_wdf_upper_bound());
-    if (wdfn_upper == 0) upper_bound = 0.0;
-    else {
-      double wdfn_lower(1.0);
+    if (wdfn_upper == 0) {
+        upper_bound = 0.0;
+        return;
+    }
 
-      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+    double wdfn_lower(1.0);
+
+    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_upper_bound());
 
-      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+    wdfn_upper *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_lower_bound());
 
-      double N(get_collection_size());
-      double F(get_collection_freq());
+    double N(get_collection_size());
+    double F(get_collection_freq());
 
-      double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
-      double mean = F / N;
+    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+    double mean = F / N;
 
-      double expected_value_max = N * (1.0 - exp( - mean));
+    double expected_max = N * (1.0 - exp( - mean));
 
-      double idf_value_max = log2((N + 1.0) / (expected_value_max + 0.5));
+    double idf_max = log2((N + 1.0) / (expected_max + 0.5));
 
-      upper_bound = wdfn_upper * idf_value_max * get_wqf() * B_max;
-    }
+    upper_bound = wdfn_upper * idf_max * get_wqf() * B_max;
 }
 
 string
@@ -117,11 +119,11 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double B = (F + 1.0) / (get_termfreq() * (wdfn + 1.0));
     double mean = F / N;
 
-    double expected_value = N * (1.0 - exp( - mean));
+    double expected = N * (1.0 - exp( - mean));
 
-    double idf_value = log2((N + 1.0) / (expected_value + 0.5));
+    double idf = log2((N + 1.0) / (expected + 0.5));
 
-    return (wdfn * idf_value * get_wqf() * B);
+    return (wdfn * idf * get_wqf() * B);
 }
 
 double

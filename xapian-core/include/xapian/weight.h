@@ -606,19 +606,20 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     double get_maxextra() const;
 };
 
-/** This class implements the IneB2 weighting scheme, which is a representative
- * scheme of the Divergence from Randomness Framework by Gianni Amati.
+/** This class implements the IneB2 weighting scheme.
  *
- * It uses the Inverse expected document frequency model(Ine), the Bernoulli
- * method to find the aftereffect of sampling (B) and the second wdf normalization
- * proposed by Amati to normalize the wdf in the document to the length of the
- * document (H2).
+ *  IneB2 is a representative scheme of the Divergence from Randomness
+ *  Framework by Gianni Amati.
  *
- * For more information about the DFR Framework and the IneB2 scheme, please refer:
- * Gianni Amati and Cornelis Joost Van Rijsbergen
- * Probabilistic models of information retrieval based on measuring the divergence
- * from randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
- * pp. 357-389
+ *  It uses the Inverse expected document frequency model (Ine), the Bernoulli
+ *  method to find the aftereffect of sampling (B) and the second wdf
+ *  normalization proposed by Amati to normalize the wdf in the document to the
+ *  length of the document (H2).
+ *
+ *  For more information about the DFR Framework and the IneB2 scheme, please
+ *  refer: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic models
+ *  of information retrieval based on measuring the divergence from randomness
+ *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
  */
 class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /// The wdf normalization parameter in the formula.
@@ -632,15 +633,15 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     void init(double factor);
 
   public:
-    /** Construct a IneB2Weight.
+    /** Construct an IneB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent of
-     *            the normalization of the wdf to the document length. A default value
-     *            of 1 is suitable for longer queries but it may need to be changed
-     *            for shorter queries. For more information, please refer to
-     *            Gianni Amati's PHD thesis.
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *            of the normalization of the wdf to the document length. The
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis.
      */
-    explicit IneB2Weight(double c_);
+    explicit IneB2Weight(double c);
 
     IneB2Weight( ) : param_c(1.0) {
         need_stat(AVERAGE_LENGTH);
