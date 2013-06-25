@@ -93,6 +93,59 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     return true;
 }
 
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(ineb2weight1, !backend) {
+    Xapian::IneB2Weight wt(2.0);
+    try {
+        Xapian::IneB2Weight b;
+	Xapian::IneB2Weight * b2 = b.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = b2->name().empty();
+	delete b2;
+	if (empty)
+	    FAIL_TEST("Serialised ineb2weight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised ineb2weight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+
+    }
+
+    return true;
+}
+
+// Test for invalid values of c.
+DEFINE_TESTCASE(ineb2weight2, !backend) {
+    // InvalidArgumentError should be thrown if parameter c is invalid.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::IneB2Weight wt(-2.0));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::IneB2Weight wt2(0.0));
+
+    /* Parameter c should be set to 1.0 by constructor if none is given. */
+    Xapian::IneB2Weight weight2;
+    TEST_EQUAL(weight2.serialise(), Xapian::IneB2Weight(1.0).serialise());
+
+    return true;
+}
+
+// Feature test.
+DEFINE_TESTCASE(ineb2weight3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    enquire.set_weighting_scheme(Xapian::IneB2Weight(2.0));
+    Xapian::MSet mset;
+
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // The third document in the database is 4th in the ranking.
+    /* The weight value has been manually calculated by using the statistics
+     * of the test database. */
+    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.61709730297692400036);
+
+    return true;
+}
+
 // Test for various cases of normalization string.
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid
