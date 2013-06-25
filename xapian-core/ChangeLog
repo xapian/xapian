@@ -1,3 +1,8 @@
+Tue Jun 25 05:33:54 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use AC_PATH_PROG instead of AC_PATH_PROG when there's
+	  only one name for the program to look for.
+
 Sun Jun 23 13:12:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: clang doesn't support -Wstrict-null-sentinel or

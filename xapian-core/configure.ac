@@ -512,7 +512,7 @@ if test x"$enable_documentation" = xyes ; then
   dnl Check for pngcrush, which we optionally use to reduce the size of the
   dnl PNG files which doxygen generates.  We can get by without it, so don't
   dnl fail here if it's not found.
-  AC_PATH_PROGS(PNGCRUSH, [pngcrush], [])
+  AC_PATH_PROG(PNGCRUSH, [pngcrush], [])
 fi
 
 dnl Check whether we need -ldl for dlsym() etc.
