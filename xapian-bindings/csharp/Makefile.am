@@ -10,6 +10,7 @@ ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Auto.cs \
+	generated-csharp/BB2Weight.cs \
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
 	generated-csharp/Brass.cs \
