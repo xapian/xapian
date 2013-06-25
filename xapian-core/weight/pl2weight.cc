@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include <cmath>
+#include "common/log2.h"
 
 #include "serialise-double.h"
 
@@ -31,7 +31,7 @@ using namespace std;
 
 namespace Xapian {
 
-PL2Weight::PL2Weight(double c_) : param_c(c_)
+PL2Weight::PL2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
         throw Xapian::InvalidArgumentError("Parameter c is invalid.");
@@ -56,29 +56,32 @@ void
 PL2Weight::init(double)
 {
     double wdfn_upper(get_wdf_upper_bound());
+
+    if (wdfn_upper == 0) {
+        upper_bound = 0.0;
+        return;
+    }
+
+    double wdfn_lower(1.0);
+    double base_change(log(2));
     double F(get_collection_freq());
     double N(get_collection_size());
-    double mean_P(F / N);
-    if ((wdfn_upper == 0) || (mean_P == 0)) upper_bound = 0.0;
-    else {
-      double wdfn_lower(1.0);
-      double base_change(log(2));
+    double mean(F / N);
 
-      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_upper_bound());
 
-      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+    wdfn_upper *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_lower_bound());
 
-      double L_max = 1 / (wdfn_lower + 1);
+    double L_max = 1 / (wdfn_lower + 1);
 
-      double P_max = wdfn_upper * log2(1.0 / mean_P) +
-                     mean_P / base_change +
-                     0.5 * log2(2 * 3.14 * wdfn_upper) +
-                     wdfn_upper * (log2(wdfn_upper) - (1 / base_change));
+    double P_max = wdfn_upper * log2(1.0 / mean) +
+                   mean / base_change +
+                   0.5 * log2(2 * 3.14 * wdfn_upper) +
+                   wdfn_upper * (log2(wdfn_upper) - (1 / base_change));
 
-      upper_bound = get_wqf() * L_max * P_max;
-    }
+    upper_bound = get_wqf() * L_max * P_max;
 }
 
 string
@@ -117,12 +120,12 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double F(get_collection_freq());
     double N(get_collection_size());
 
-    double mean_P = F / N;
+    double mean = F / N;
 
-    if (mean_P == 0) return 0.0;
+    if (mean == 0) return 0.0;
 
-    double P = wdfn * log2(1.0 / mean_P) +
-               mean_P / base_change +
+    double P = wdfn * log2(1.0 / mean) +
+               mean / base_change +
                0.5 * log2(2 * 3.14 * wdfn) +
                wdfn * (log2(wdfn) - (1 / base_change));
 

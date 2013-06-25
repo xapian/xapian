@@ -117,8 +117,7 @@ DEFINE_TESTCASE(pl2weight2, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::PL2Weight wt(-2.0));
 
-    /* Parameter c should be set to 1.0 by constructor if none is
-       given. */
+    /* Parameter c should be set to 1.0 by constructor if none is given. */
     Xapian::PL2Weight weight2;
     TEST_EQUAL(weight2.serialise(), Xapian::PL2Weight(1.0).serialise());
 
@@ -136,6 +135,8 @@ DEFINE_TESTCASE(pl2weight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 6);
+    /* Weight has been calculated manually by using the statistics of the test
+     * database. */
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 2.3193468314885726);
 
     return true;
