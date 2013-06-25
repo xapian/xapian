@@ -120,8 +120,7 @@ DEFINE_TESTCASE(bb2weight2, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::BB2Weight wt2(0.0));
 
-    /* Parameter c should be set to 1.0 by constructor if none is
-      given. */
+    /* Parameter c should be set to 1.0 by constructor if none is given. */
     Xapian::BB2Weight weight2;
     TEST_EQUAL(weight2.serialise(), Xapian::BB2Weight(1.0).serialise());
 
@@ -138,8 +137,8 @@ DEFINE_TESTCASE(bb2weight3, backend) {
     enquire.set_weighting_scheme(Xapian::BB2Weight(2.0));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
-    /* The third document in the database has the highest weight and is the first
-       in the mset. */
+    /* The third document in the database has the highest weight and is the
+     * first in the mset. */
     // Value calculated manually by using the statistics of the test database.
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.6823696969784483);
 

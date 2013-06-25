@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include "../common/log2.h"
+#include "common/log2.h"
 
 #include "serialise-double.h"
 
@@ -31,7 +31,7 @@ using namespace std;
 
 namespace Xapian {
 
-BB2Weight::BB2Weight(double c_) : param_c(c_)
+BB2Weight::BB2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
         throw Xapian::InvalidArgumentError("Parameter c is invalid.");
@@ -58,31 +58,33 @@ BB2Weight::init(double)
 {
     double wdfn_upper(get_wdf_upper_bound());
 
-    if (wdfn_upper == 0) upper_bound = 0.0;
-    else {
-      double base_change = log(2.0);
-      double wdfn_lower(1.0);
+    if (wdfn_upper == 0) {
+        upper_bound = 0.0;
+        return;
+    }
 
-      double F(get_collection_freq());
-      double N(get_collection_size());
+    double base_change = log(2.0);
+    double wdfn_lower(1.0);
 
-      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+    double F(get_collection_freq());
+    double N(get_collection_size());
+
+    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_upper_bound());
 
-      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+    wdfn_upper *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_lower_bound());
 
-      double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
 
-      double weight_max = - log2(N - 1.0) - (1 / base_change);
+    double weight_max = - log2(N - 1.0) - (1 / base_change);
 
-      double stirling_value_max = stirlingValue(N + F - 1.0, N + F - wdfn_lower - 2.0)
-                                  - stirlingValue(F, F - wdfn_upper);
+    double stirling_max = stirlingValue(N + F - 1.0, N + F - wdfn_lower - 2.0) -
+                          stirlingValue(F, F - wdfn_upper);
 
-      double final_weight_max = B_max * (weight_max + stirling_value_max);
+    double final_weight_max = B_max * (weight_max + stirling_max);
 
-      upper_bound = get_wqf() * final_weight_max;
-    }
+    upper_bound = get_wqf() * final_weight_max;
 }
 
 string
@@ -130,10 +132,10 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double weight = - log2(N - 1.0) - (1 / base_change);
 
-    double stirling_value = stirlingValue(N + F - 1.0, N + F - wdfn -2.0) -
+    double stirling = stirlingValue(N + F - 1.0, N + F - wdfn -2.0) -
                             stirlingValue(F, F - wdfn);
 
-    double final_weight = B * (weight + stirling_value);
+    double final_weight = B * (weight + stirling);
 
     return (get_wqf() * final_weight);
 }
