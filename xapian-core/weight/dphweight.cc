@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include <cmath>
+#include "common/log2.h"
 
 using namespace std;
 
@@ -36,7 +36,25 @@ DPHWeight::clone() const
 void
 DPHWeight::init(double)
 {
-     // None Required
+    double wdf_upper(get_wdf_upper_bound());
+
+    if (wdf_upper == 0) {
+        upper_bound = 0.0;
+        return;
+    }
+
+    double wdf_lower(1.0);
+
+    double min_wdf_to_len = wdf_lower / get_doclength_upper_bound();
+    double max_normalization = pow((1 - min_wdf_to_len), 2) / (wdf_lower + 1);
+
+    double max_weight = max_normalization *
+                        (wdf_upper * log2((wdf_upper * get_average_length() /
+                        get_doclength_lower_bound()) * (get_collection_size() /
+                        get_collection_freq())) +
+                        (0.5 * log2(2 * 3.14 * wdf_upper * (1 - min_wdf_to_len))));
+
+    upper_bound = get_wqf() * max_weight;
 }
 
 string
@@ -62,14 +80,14 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
 
-    double base_change(log(2));
     double wdf_to_len = double(wdf) / len;
 
     double normalization = (pow((1 - wdf_to_len), 2) / (wdf + 1));
 
-    double weight = normalization * (wdf * (log((wdf * get_average_length() / len) *
-    (get_collection_size() / get_collection_freq())) / base_change) +
-    (0.5 * (log(2 * 3.14 * wdf * (1 - wdf_to_len)) / base_change)));
+    double weight = normalization *
+                   (wdf * log2((wdf * get_average_length() / len) *
+                   (get_collection_size() / get_collection_freq())) +
+                   (0.5 * log2(2 * 3.14 * wdf * (1 - wdf_to_len))));
 
     return (get_wqf() * weight);
 }
@@ -77,21 +95,7 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 double
 DPHWeight::get_maxpart() const
 {
-    if (get_wdf_upper_bound() == 0) return 0.0;
-
-    double wdf_lower(1.0);
-    double base_change(log(2));
-    double wdf_upper(get_wdf_upper_bound());
-
-    double min_wdf_to_len = (wdf_lower / get_doclength_upper_bound());
-    double max_normalization = (pow((1 - min_wdf_to_len), 2) / (wdf_lower + 1));
-
-    double max_weight = max_normalization * (wdf_upper * (log((wdf_upper *
-    get_average_length() / get_doclength_lower_bound()) * (get_collection_size() /
-    get_collection_freq())) / base_change) + (0.5 * (log(2 * 3.14 * wdf_upper *
-    (1 - min_wdf_to_len)) / base_change)));
-
-    return (get_wqf() * max_weight);
+    return upper_bound;
 }
 
 double
