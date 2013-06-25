@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include "../common/log2.h"
+#include "common/log2.h"
 
 #include "serialise-double.h"
 
@@ -31,8 +31,8 @@ using namespace std;
 
 namespace Xapian {
 
-InL2Weight::InL2Weight(double c_)
-    : param_c(c_)
+InL2Weight::InL2Weight(double c)
+    : param_c(c)
 {
     if (param_c <= 0)
         throw Xapian::InvalidArgumentError("Parameter c is invalid.");
@@ -57,25 +57,26 @@ void
 InL2Weight::init(double)
 {
     double wdfn_upper(get_wdf_upper_bound());
-    if (wdfn_upper == 0) upper_bound = 0.0;
-    else {
-      double wdfn_lower(1.0);
-      double TermFrequency(get_termfreq());
-      double N(get_collection_size());
-
-      wdfn_lower *= log2(1 + (param_c * get_average_length()) /
-                    get_doclength_upper_bound());
-
-      wdfn_upper *= log2(1 + (param_c * get_average_length()) /
-                    get_doclength_lower_bound());
-
-      double L_max = 1 / (wdfn_lower + 1);
-
-      double Idf_value_max = log2((N + 1) / (TermFrequency + 0.5));
-
-      upper_bound = get_wqf() * wdfn_upper * L_max * Idf_value_max;
+    if (wdfn_upper == 0) {
+        upper_bound = 0.0;
+        return;
     }
 
+    double wdfn_lower(1.0);
+    double termfrequency(get_termfreq());
+    double N(get_collection_size());
+
+    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_upper_bound());
+
+    wdfn_upper *= log2(1 + (param_c * get_average_length()) /
+                    get_doclength_lower_bound());
+
+    double L_max = 1 / (wdfn_lower + 1);
+
+    double idf_max = log2((N + 1) / (termfrequency + 0.5));
+
+    upper_bound = get_wqf() * wdfn_upper * L_max * idf_max;
 }
 
 string
@@ -107,15 +108,15 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
     double N(get_collection_size());
-    double TermFrequency(get_termfreq());
+    double termfrequency(get_termfreq());
 
     wdfn *= log2(1 + (param_c * get_average_length()) / len);
 
     double L = 1 / (wdfn + 1);
 
-    double Idf_value = log2((N + 1) / (TermFrequency + 0.5));
+    double idf = log2((N + 1) / (termfrequency + 0.5));
 
-    return (get_wqf() * wdfn * L * Idf_value);
+    return (get_wqf() * wdfn * L * idf);
 }
 
 double

@@ -122,8 +122,7 @@ DEFINE_TESTCASE(inl2weight2, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::InL2Weight wt2(0.0));
 
-    /* Parameter c should be set to 1.0 by constructor if none is
-      given. */
+    /* Parameter c should be set to 1.0 by constructor if none is given. */
     Xapian::InL2Weight weight2;
     TEST_EQUAL(weight2.serialise(), Xapian::InL2Weight(1.0).serialise());
 
@@ -142,7 +141,7 @@ DEFINE_TESTCASE(inl2weight3, backend) {
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 6);
     /* The value has been calculated in the python interpreter by looking at the
-     database statistics. */
+     * database statistics. */
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.559711143842063);
 
     return true;
