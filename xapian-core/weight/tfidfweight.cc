@@ -114,8 +114,6 @@ double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 {
     switch (c) {
-	case 'n':
-	    return wdf;
 	case 'b':
 	    if (wdf == 0) return 0;
 	    return 1.0;
@@ -125,6 +123,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 	    if (wdf == 0) return 0;
 	    return (1 + log(wdf));
 	default:
+	    AssertEq(c, 'n');
 	    return wdf;
     }
 }
@@ -137,12 +136,11 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
     switch (c) {
 	case 'n':
 	    return 1.0;
-	case 't':
-	    return (log(N / termfreq));
 	case 'p':
 	    if (N == termfreq) return 0; // All documents are indexed by the term
 	    return log((N - termfreq) / termfreq);
 	default:
+	    AssertEq(c, 't');
 	    return (log(N / termfreq));
     }
 }
@@ -150,14 +148,9 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 double
 TfIdfWeight::get_wtn(double wt, char c) const
 {
-/* Include future implementations of weight normalizations in the switch
-   construct */
-    switch (c) {
-	case 'n':
-	    return wt;
-	default:
-	    return wt;
-    }
+    (void)c;
+    AssertEq(c, 'n');
+    return wt;
 }
 
 }

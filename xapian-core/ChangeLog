@@ -1,3 +1,10 @@
+Tue Jun 25 13:21:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight/tfidfweight.cc: Merge "impossible" cases in switch statements
+	  into possible ones which contain the same code, adding assertions
+	  that the "impossible" hasn't happened.  More robust and improves
+	  test coverage.
+
 Tue Jun 25 06:28:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* m4-macros/xapian-1.3.m4: XO_LIB_XAPIAN now handles the user
