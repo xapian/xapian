@@ -1,3 +1,9 @@
+Wed Jun 26 03:10:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc,tests/harness/testsuite.h: If
+	  -v/--verbose is specified more than once, show the diagnostic output
+	  for passing tests as well as failing/skipped ones.
+
 Wed Jun 26 03:08:08 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_scalability.cc: Change querypairwise1_helper to repeat the
