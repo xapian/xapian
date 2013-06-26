@@ -5,6 +5,8 @@ from buildbot.process import factory
 from buildbot.steps import source, shell
 from datetime import date
 
+xapian_config_arg = 'XAPIAN_CONFIG=../xapian-core/xapian-config'
+
 def Bootstrap():
     return shell.ShellCommand(
         name = "bootstrap",
@@ -45,7 +47,7 @@ def MakeWritable():
         command = ["chmod", "-R", "+w", "."],
     )
 
-def core_factory(baseURL, usedocs=False, configure=None, audit=False, machack=False,
+def core_factory(baseURL, usedocs=False, configure=None, audit=False,
                  clean=False, configure_opts=None):
     f = factory.BuildFactory()
     mode = "update"
@@ -72,17 +74,16 @@ def core_factory(baseURL, usedocs=False, configure=None, audit=False, machack=Fa
         else:
             f.addStep(shell.Configure())
 
-    f.addStep(shell.Compile, env=compile_env(machack))
-    f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="], env=compile_env(machack)))
+    f.addStep(shell.Compile())
+    f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
-def gen_svn_updated_factory(baseURL, usedocs=True, machack=False, clean=False):
+def gen_svn_updated_factory(baseURL, usedocs=True, clean=False):
     """
     Make a factory for doing HEAD build from SVN, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
-    return core_factory(baseURL=baseURL, usedocs=usedocs, machack=machack,
-                        clean=clean)
+    return core_factory(baseURL=baseURL, usedocs=usedocs, clean=clean)
 
 def gen_svn_updated_factory_llvm(baseURL):
     """
@@ -121,13 +122,7 @@ def gen_svn_gccsnapshot_updated_factory(baseURL):
         "CC=/usr/lib/gcc-snapshot/bin/gcc",
         ])
 
-def compile_env(machack):
-    env = {}
-    if machack:
-        env["DYLD_LIBRARY_PATH"] = "/Users/buildbot/slave/xapian_head_update_macos/build/xapian-core/.libs"
-    return env
-
-def gen_svn_debug_updated_factory(baseURL, opts, machack=False):
+def gen_svn_debug_updated_factory(baseURL, opts):
     """
     Make a factory for doing a debug HEAD build from SVN, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
@@ -138,29 +133,28 @@ def gen_svn_debug_updated_factory(baseURL, opts, machack=False):
                          mode="update"))
     f.addStep(Bootstrap())
     f.addStep(shell.Configure(command = ["sh", "configure", ] + opts))
-    f.addStep(shell.Compile, env=compile_env(machack))
-    f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="], env=compile_env(machack)))
+    f.addStep(shell.Compile())
+    f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
-def gen_tarball_updated_factory(rooturl, configure_opts=[], machack=False):
+def gen_tarball_updated_factory(rooturl, configure_opts=[]):
     """
     Make a factory for doing builds from tarballs.
     """
     configure_cmd = ["sh", "configure", ] + configure_opts
     f = factory.BuildFactory()
-    f.addStep(shell.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
-              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(shell.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(shell.Configure, workdir='build/xapian-core',
-              command=configure_cmd)
-    f.addStep(shell.Compile, workdir='build/xapian-core')
-    f.addStep(shell.Test, workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="])
-    f.addStep(shell.Configure, workdir='build/xapian-omega', command = ["./configure", "XAPIAN_CONFIG=../xapian-core/xapian-config"] + configure_opts)
-    f.addStep(shell.Compile, workdir='build/xapian-omega')
-    f.addStep(shell.Test, workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="])
-    f.addStep(shell.Configure, workdir='build/xapian-bindings', command = ["./configure", "XAPIAN_CONFIG=../xapian-core/xapian-config"] + configure_opts)
-    f.addStep(shell.Compile, workdir='build/xapian-bindings', command = ["make"], env=compile_env(machack))
-    f.addStep(shell.Test, workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="], env=compile_env(machack))
+    f.addStep(shell.ShellCommand(command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
+              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+    f.addStep(shell.ShellCommand(command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True))
+    f.addStep(shell.Configure(workdir='build/xapian-core', command=configure_cmd))
+    f.addStep(shell.Compile(workdir='build/xapian-core'))
+    f.addStep(shell.Test(workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    f.addStep(shell.Configure(workdir='build/xapian-omega', command = ["./configure", xapian_config_arg] + configure_opts))
+    f.addStep(shell.Compile(workdir='build/xapian-omega'))
+    f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
+    f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
+    f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
 def gen_svn_updated_valgrind_factory(baseURL, configure_opts=[]):
@@ -171,9 +165,9 @@ def gen_svn_updated_valgrind_factory(baseURL, configure_opts=[]):
     """
     f = factory.BuildFactory()
     f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode="update"))
-    f.addStep(Bootstrap)
+    f.addStep(Bootstrap())
     f.addStep(shell.Configure(command = ["sh", "configure", "CXXFLAGS=-O0 -g"] + configure_opts))
-    f.addStep(shell.Compile)
+    f.addStep(shell.Compile())
 
     f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain"], workdir='build/xapian-core'))
     #for target in ("check-none", "check-inmemory", "check-remoteprog",
@@ -194,9 +188,9 @@ def gen_svn_updated_lcov_factory(baseURL, configure_opts=[]):
     """
     f = factory.BuildFactory()
     f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode="update"))
-    f.addStep(Bootstrap)
-    f.addStep(shell.Configure(command = ["sh", "configure", "--disable-shared", "CXXFLAGS=-O0 --coverage"] + configure_opts), workdir="xapian-core")
-    f.addStep(shell.Compile, workdir="build/xapian-core")
+    f.addStep(Bootstrap())
+    f.addStep(shell.Configure(command = ["sh", "configure", "--disable-shared", "CXXFLAGS=-O0 --coverage"] + configure_opts, workdir="build/xapian-core"))
+    f.addStep(shell.Compile(workdir="build/xapian-core"))
     f.addStep(shell.ShellCommand(command = ["make", "coverage-check", "GENHTML_ARGS=--html-gzip"], workdir="build/xapian-core", haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = ["chmod", "-R", "a+rX", "lcov"], workdir="build/xapian-core", haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = 'NOW=`date -u +%Y-%m-%d`; cp -a lcov/. /var/www/"$NOW" && ln -sfT "$NOW" /var/www/latest', workdir="build/xapian-core", haltOnFailure=True))

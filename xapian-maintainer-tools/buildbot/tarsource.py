@@ -117,7 +117,7 @@ class TarPoller(base.ChangeSource, util.ComparableMixin):
 
     def submit_changes(self, change):
         if change is not None:
-            self.parent.addChange(change)
+            self.master.addChange(change)
 
     def finished_ok(self, res):
         log.msg("TarPoller finished polling")
