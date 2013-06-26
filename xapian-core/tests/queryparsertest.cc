@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -2403,7 +2403,8 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 	q_n += q;
     }
 
-    double time2 = time_query_parse(db, q_n, 1, flags);
+    // Time 5 repetitions so we average random variations a bit.
+    double time2 = time_query_parse(db, q_n / 5, 5, flags);
     tout << "small=" << time1 << "s, large=" << time2 << "s\n";
 
     // Allow a factor of 2.15 difference, to cover random variation and a

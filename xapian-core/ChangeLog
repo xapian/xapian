@@ -1,3 +1,8 @@
+Wed Jun 26 05:34:25 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Change qp_scale1 to time 5 repetitions of
+	  the large query to help average out variations.
+
 Wed Jun 26 04:52:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Tweak to simplify diff against similar code in
