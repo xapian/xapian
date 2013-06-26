@@ -1,3 +1,9 @@
+Wed Jun 26 07:15:30 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,msxmlparse.cc,msxmlparse.h,omindex.cc,xmlparse.cc: Split
+	  out the code specific to handling MS XML out of XmlParser into an
+	  MSXmlParser subclass.
+
 Wed Jun 26 04:53:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sync compiler warning flag machinery against

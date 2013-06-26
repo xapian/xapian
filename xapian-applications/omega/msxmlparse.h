@@ -1,6 +1,7 @@
-/* xmlparse.cc: subclass of HtmlParser for parsing XML.
- *
- * Copyright (C) 2006,2009,2011,2012,2013 Olly Betts
+/** @file msxmlparse.h
+ * @brief Parser for Microsoft XML formats (.docx, etc).
+ */
+/* Copyright (C) 2006,2008,2009,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +18,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include <config.h>
+#ifndef OMEGA_INCLUDED_MSXMLPARSE_H
+#define OMEGA_INCLUDED_MSXMLPARSE_H
 
 #include "xmlparse.h"
 
-bool
-XmlParser::opening_tag(const string &)
-{
-    return true;
-}
+class MSXmlParser : public XmlParser {
+  public:
+    MSXmlParser() : XmlParser() { }
+    bool closing_tag(const string &tag);
+};
 
-bool
-XmlParser::closing_tag(const string &)
-{
-    return true;
-}
+#endif // OMEGA_INCLUDED_MSXMLPARSE_H

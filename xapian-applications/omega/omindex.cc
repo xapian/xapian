@@ -51,6 +51,7 @@
 #include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
+#include "msxmlparse.h"
 #include "myhtmlparse.h"
 #include "opendocparse.h"
 #include "pkglibbindir.h"
@@ -611,7 +612,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		append_filename_argument(cmd, file);
 		cmd += args;
 		try {
-		    XmlParser xmlparser;
+		    MSXmlParser xmlparser;
 		    xmlparser.parse_html(stdout_to_string(cmd));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
