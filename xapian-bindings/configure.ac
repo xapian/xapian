@@ -126,12 +126,12 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
-dnl COMPAT_VERSION also ignores any _svn6789 suffix which snapshots will have.
+dnl COMPAT_VERSION also ignores any _git123 suffix which snapshots will have.
 COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
 AC_SUBST(COMPAT_VERSION)
 
-dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
-VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_\(svn\|git\)[0-9]*$//'`]
+dnl VERSION_NO_SNAPSHOT simply has any _git123 suffix removed.
+VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_.*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
 
 dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
@@ -984,12 +984,12 @@ if test no != "$with_perl" ; then
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      dnl snapshot versions are like: 1.2.3_svn14971
+      dnl snapshot versions look like 1.2.3_git123 or 1.2.3_svn14971
       case $PACKAGE_VERSION in
-      *_svn*)
-	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
       *_git*)
 	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
+      *_svn*)
+	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
       *)
 	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
       esac

@@ -1,3 +1,8 @@
+Wed Jun 26 02:03:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix stripping of _git suffix from snapshot versions
+	  not to relying of sed having support for \| as it doesn't on OS X.
+
 Mon Jun 24 10:56:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* perl/t/symbol-test/Makefile.PL: Pass $CPPFLAGS and $CXXFLAGS from
