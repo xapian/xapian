@@ -2397,6 +2397,8 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 	n = n_new;
     }
 
+    n /= 5;
+
     string q_n;
     q_n.reserve(q.size() * n);
     for (unsigned i = n; i != 0; --i) {
@@ -2404,7 +2406,7 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
     }
 
     // Time 5 repetitions so we average random variations a bit.
-    double time2 = time_query_parse(db, q_n / 5, 5, flags);
+    double time2 = time_query_parse(db, q_n, 5, flags);
     tout << "small=" << time1 << "s, large=" << time2 << "s\n";
 
     // Allow a factor of 2.15 difference, to cover random variation and a

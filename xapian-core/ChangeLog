@@ -1,3 +1,7 @@
+Wed Jun 26 05:40:29 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix previous change to compile.
+
 Wed Jun 26 05:34:25 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Change qp_scale1 to time 5 repetitions of
