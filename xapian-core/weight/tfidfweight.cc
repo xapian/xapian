@@ -36,7 +36,10 @@ namespace Xapian {
 TfIdfWeight::TfIdfWeight(const std::string &normals)
     : normalizations(normals)
 {
-    if (normalizations.length() != 3 || (! strchr("nbsl", normalizations[0])) || (! strchr("ntp", normalizations[1])) || (! strchr("n", normalizations[2])))
+    if (normalizations.length() != 3 ||
+	!strchr("nbsl", normalizations[0]) ||
+	!strchr("ntp", normalizations[1]) ||
+	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
@@ -83,17 +86,22 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 {
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    return (get_wtn(get_wdfn(wdf, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
+    double wt = get_wdfn(wdf, normalizations[0]) *
+		get_idfn(termfreq, normalizations[1]);
+    return get_wtn(wt, normalizations[2]);
 }
 
-// An upper bound can be calculated simply on the basis of wdf_max as termfreq and N are constants.
+// An upper bound can be calculated simply on the basis of wdf_max as termfreq
+// and N are constants.
 double
 TfIdfWeight::get_maxpart() const
 {
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
-    return (get_wtn(get_wdfn(wdf_max, normalizations[0]) * get_idfn(termfreq, normalizations[1]), normalizations[2]));
+    double wt = get_wdfn(wdf_max, normalizations[0]) *
+		get_idfn(termfreq, normalizations[1]);
+    return get_wtn(wt, normalizations[2]);
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.
@@ -137,7 +145,8 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 	case 'n':
 	    return 1.0;
 	case 'p':
-	    if (N == termfreq) return 0; // All documents are indexed by the term
+	    // All documents are indexed by the term
+	    if (N == termfreq) return 0;
 	    return log((N - termfreq) / termfreq);
 	default:
 	    AssertEq(c, 't');
