@@ -1,3 +1,10 @@
+Wed Jun 26 04:53:39 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync compiler warning flag machinery against
+	  xapian-core.  The changes are special handling for clang, passing
+	  -fshow-column where supported, and handling for new warning flags
+	  in GCC 4.6 and 4.7.
+
 Tue Jun 18 03:09:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix off-by-one when finding documents to delete which
