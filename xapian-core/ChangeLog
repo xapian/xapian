@@ -1,3 +1,10 @@
+Wed Jun 26 03:08:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_scalability.cc: Change querypairwise1_helper to repeat the
+	  query build 100 times, as with a fast modern machine we were
+	  sometimes trying to so many subqueries that we would run out of
+	  stack.
+
 Wed Jun 26 02:55:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight/tfidfweight.cc: Wrap long lines.
