@@ -213,7 +213,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** Return the total number of documents tallied. */
     size_t XAPIAN_NOTHROW(get_total() const) {
-	return internal->total;
+	return internal.get() ? internal->total : 0;
     }
 
     /** Get an iterator over the values seen in the slot.

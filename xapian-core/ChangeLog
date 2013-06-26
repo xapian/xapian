@@ -1,3 +1,14 @@
+Wed Jun 26 03:56:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Fix get_description() to work on a
+	  ValueCountMatchSpy with NULL internals - fixes matchspy5 testcase
+	  with remote backends when configured with --enable-log.
+	* api/matchspy.cc: Add assertions that internal is non-NULL before
+	  using it.
+	* include/xapian/matchspy.h: If internal is NULL, make
+	  ValueCountMatchSpy::get_total() return 0 rather than dereferencing
+	  NULL.
+
 Wed Jun 26 03:10:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc,tests/harness/testsuite.h: If
