@@ -1,3 +1,7 @@
+Wed Jun 26 13:03:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable -Woverloaded-virtual warning.
+
 Wed Jun 26 13:00:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* atomparsetest.cc,htmlparse.cc,htmlparse.h,myhtmlparse.cc,omindex.cc,

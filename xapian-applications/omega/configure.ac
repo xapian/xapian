@@ -378,8 +378,7 @@ if test yes = "$GXX"; then
       dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
-      dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
