@@ -164,7 +164,7 @@ HtmlParser::decode_entities(string &s)
 }
 
 void
-HtmlParser::parse_html(const string &body)
+HtmlParser::parse(const string &body)
 {
     in_script = false;
 

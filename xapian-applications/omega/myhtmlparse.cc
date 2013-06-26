@@ -48,7 +48,7 @@ MyHtmlParser::parse_html(const string &text, const string &charset_,
 {
     charset = charset_;
     charset_from_meta = charset_from_meta_;
-    HtmlParser::parse_html(text);
+    parse(text);
 }
 
 void

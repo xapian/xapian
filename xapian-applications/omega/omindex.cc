@@ -541,7 +541,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    cmd += " styles.xml";
 	    try {
 		OpenDocParser parser;
-		parser.parse_html(stdout_to_string(cmd));
+		parser.parse(stdout_to_string(cmd));
 		dump = parser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -553,7 +553,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    cmd += " meta.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse_html(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
 		// FIXME: topic = metaxmlparser.topic;
@@ -590,7 +590,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cmd += " xl/worksheets/sheet\\*.xml";
 		try {
 		    XlsxParser parser;
-		    parser.parse_html(stdout_to_string(cmd));
+		    parser.parse(stdout_to_string(cmd));
 		    dump = parser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(file, cmd);
@@ -613,7 +613,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cmd += args;
 		try {
 		    MSXmlParser xmlparser;
-		    xmlparser.parse_html(stdout_to_string(cmd));
+		    xmlparser.parse(stdout_to_string(cmd));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(file, cmd);
@@ -626,7 +626,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    cmd += " docProps/core.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse_html(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
 		// FIXME: topic = metaxmlparser.topic;
@@ -639,7 +639,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
 	    const string & text = d.file_to_string();
-	    xmlparser.parse_html(text);
+	    xmlparser.parse(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
@@ -648,7 +648,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    append_filename_argument(cmd, file);
 	    try {
 		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
+		xmlparser.parse(stdout_to_string(cmd));
 		dump = xmlparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -697,7 +697,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // 2 bytes from the start of dump.
 		    convert_to_utf8(dump, "UTF-16");
 		}
-		xpsparser.parse_html(dump);
+		xpsparser.parse(dump);
 		dump = xpsparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -751,7 +751,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();
 	    md5_string(text, md5);
-	    svgparser.parse_html(text);
+	    svgparser.parse(text);
 	    dump = svgparser.dump;
 	    title = svgparser.title;
 	    keywords = svgparser.keywords;
@@ -782,7 +782,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    AtomParser atomparser;
 	    const string & text = d.file_to_string();
 	    md5_string(text, md5);
-	    atomparser.parse_html(text);
+	    atomparser.parse(text);
 	    dump = atomparser.dump;
 	    title = atomparser.title;
 	    keywords = atomparser.keywords;

@@ -1,3 +1,9 @@
+Wed Jun 26 13:00:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* atomparsetest.cc,htmlparse.cc,htmlparse.h,myhtmlparse.cc,omindex.cc,
+	  xmlparse.h: Rename virtual parse_html() method to just parse(), as
+	  it's not HTML that's being parsed in most cases.
+
 Wed Jun 26 07:15:30 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,msxmlparse.cc,msxmlparse.h,omindex.cc,xmlparse.cc: Split

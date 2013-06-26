@@ -41,7 +41,7 @@ class HtmlParser {
 	virtual void process_text(const string &/*text*/) { }
 	virtual bool opening_tag(const string &/*tag*/) { return true; }
 	virtual bool closing_tag(const string &/*tag*/) { return true; }
-	virtual void parse_html(const string &text);
+	virtual void parse(const string &text);
 	HtmlParser();
 	virtual ~HtmlParser() { }
 };
