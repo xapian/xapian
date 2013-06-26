@@ -1,3 +1,8 @@
+Wed Jun 26 05:47:38 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Fix 'unused label' warning when chert backend
+	  is disabled.
+
 Wed Jun 26 05:40:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Fix previous change to compile.
