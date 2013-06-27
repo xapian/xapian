@@ -95,6 +95,8 @@ for link in links:
     basename = os.path.join(builddir, m.group(1))
     print "Moving contents from %s to %s" % (archivedir, basename)
     os.rename(archivedir, basename)
+    print "Deleting tarball %s" % fname
+    os.remove(fname)
 
 #os.rename(os.path.join(builddir, 'win32msvc'),
 #          os.path.join(builddir, 'xapian-core', 'win32'))
