@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -83,7 +83,9 @@ class Weight::Internal {
      *  collection. */
     std::map<std::string, TermFreqs> termfreqs;
 
-    Internal() : total_length(0), collection_size(0), rset_size(0) { }
+    Internal()
+	: total_length(0), collection_size(0), rset_size(0),
+	  total_term_count(0) { }
 
     /** Add in the supplied statistics from a sub-database.
      *
