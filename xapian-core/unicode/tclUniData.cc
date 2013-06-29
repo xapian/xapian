@@ -14,7 +14,6 @@
 #include <config.h>
 
 #include <xapian/unicode.h>
-#include "omassert.h"
 
 /*
  * A 16-bit Unicode character is split into two parts in order to index
@@ -1964,6 +1963,9 @@ enum {
 int
 Xapian::Unicode::Internal::get_character_info(unsigned ch)
 {
-    Assert(ch < 0x110000);
+    if (rare(ch >= 0x110000)) {
+	// Categorise non-Unicode values as UNASSIGNED with no case variants.
+	return Xapian::Unicode::UNASSIGNED;
+    }
     return (groups[groupMap[(pageMap[((int)(ch)) >> OFFSET_BITS] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))]]);
 }

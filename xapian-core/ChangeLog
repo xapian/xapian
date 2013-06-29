@@ -1,3 +1,11 @@
+Sat Jun 29 12:39:10 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,unicode/tclUniData.cc: Change
+	  Xapian::Unicode::Internal::get_character_info() to simply return
+	  Xapian::Unicode::UNASSIGNED for character outside unicode (ch >=
+	  0x110000) which avoids a special check for such values before
+	  we call get_character_info().
+
 Sat Jun 29 09:31:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_serialise.cc: Remove code from registry* testcases which

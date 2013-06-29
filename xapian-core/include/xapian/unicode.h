@@ -232,7 +232,8 @@ namespace Internal {
     /** @internal Extract the information about a character from the Unicode
      *  character tables.
      *
-     *  ch must be a valid Unicode character value (i.e. < 0x110000)
+     *  Characters outside of the Unicode range (i.e. ch >= 0x110000) are
+     *  treated as UNASSIGNED with no case variants.
      */
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch) XAPIAN_CONST_FUNCTION;
@@ -306,8 +307,6 @@ inline void append_utf8(std::string &s, unsigned ch) {
 
 /// Return the category which a given Unicode character falls into.
 inline category get_category(unsigned ch) {
-    // Categorise non-Unicode values as UNASSIGNED.
-    if (ch >= 0x110000) return Xapian::Unicode::UNASSIGNED;
     return Internal::get_category(Internal::get_character_info(ch));
 }
 
@@ -346,18 +345,16 @@ inline bool is_currency(unsigned ch) {
 
 /// Convert a Unicode character to lowercase.
 inline unsigned tolower(unsigned ch) {
-    int info;
-    // Leave non-Unicode values unchanged.
-    if (ch >= 0x110000 || !(Internal::get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 2))
+    int info = Xapian::Unicode::Internal::get_character_info(ch);
+    if (!(Internal::get_case_type(info) & 2))
 	return ch;
     return ch + Internal::get_delta(info);
 }
 
 /// Convert a Unicode character to uppercase.
 inline unsigned toupper(unsigned ch) {
-    int info;
-    // Leave non-Unicode values unchanged.
-    if (ch >= 0x110000 || !(Internal::get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 4))
+    int info = Xapian::Unicode::Internal::get_character_info(ch);
+    if (!(Internal::get_case_type(info) & 4))
 	return ch;
     return ch - Internal::get_delta(info);
 }
