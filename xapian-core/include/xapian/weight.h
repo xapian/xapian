@@ -628,6 +628,9 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     /// The upper bound on the weight.
     double upper_bound;
 
+    /// The lower bound on the weight.
+    double lower_bound;
+
     DPHWeight * clone() const;
 
     void init(double factor);

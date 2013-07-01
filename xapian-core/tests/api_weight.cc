@@ -106,7 +106,7 @@ DEFINE_TESTCASE(dphweight1, backend) {
     mset_expect_order(mset, 6);
     /* The weight has been calculated manually by using the statistics of the
      * test database. */
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 2.1342680895719868);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 4.461114557765059);
 
     return true;
 }
