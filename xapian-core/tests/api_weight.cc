@@ -93,6 +93,24 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     return true;
 }
 
+// Feature test
+DEFINE_TESTCASE(dphweight1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("banana"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::DPHWeight());
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    mset_expect_order(mset, 6);
+    /* The weight has been calculated manually by using the statistics of the
+     * test database. */
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 4.461114557765059);
+
+    return true;
+}
+
 // Test for various cases of normalization string.
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid

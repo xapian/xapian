@@ -34,6 +34,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
 	org/xapian/Document.java\
+	org/xapian/DPHWeight.java\
 	org/xapian/Enquire.java\
 	org/xapian/ESet.java\
 	org/xapian/ESetIterator.java\

@@ -8,6 +8,7 @@ EXTRA_DIST +=\
 lib_src +=\
 	weight/bm25weight.cc\
 	weight/boolweight.cc\
+	weight/dphweight.cc\
 	weight/tradweight.cc\
 	weight/tfidfweight.cc\
 	weight/weight.cc\
