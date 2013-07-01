@@ -285,6 +285,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(WDF_MAX);
+	need_stat(COLLECTION_FREQ);
     }
 
     void init(double factor_) {
@@ -297,6 +298,7 @@ class CheckStatsWeight : public Xapian::Weight {
 
     double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen) const {
 	TEST_EQUAL(get_collection_size(), db.get_doccount());
+	TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term));
 	TEST_EQUAL(get_rset_size(), 0);
 	TEST_EQUAL(get_average_length(), db.get_avlength());
 	TEST_EQUAL(get_termfreq(), db.get_termfreq(term));
