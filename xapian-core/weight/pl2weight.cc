@@ -55,14 +55,8 @@ PL2Weight::clone() const
 void
 PL2Weight::init(double)
 {
-    double wdfn_upper(get_wdf_upper_bound());
-
-    if (wdfn_upper == 0) {
-        upper_bound = 0.0;
-        return;
-    }
-
     double wdfn_lower(1.0);
+    double wdfn_upper(get_wdf_upper_bound());
     double base_change(log(2));
     double F(get_collection_freq());
     double N(get_collection_size());
@@ -74,7 +68,23 @@ PL2Weight::init(double)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_lower_bound());
 
-    double L_max = 1 / (wdfn_lower + 1);
+    // Calculate the lower bound on the weight.
+    double L_min = 1 / (wdfn_upper + 1.0);
+
+    double P_min = wdfn_upper * log2(1.0 / mean) +
+                   mean / base_change +
+                   0.5 * log2(2 * 3.14 * wdfn_lower) +
+                   wdfn_upper * (log2(wdfn_lower) - (1 / base_change));
+
+    lower_bound = get_wqf() * L_min * P_min;
+
+    // Calculate the upper bound on the weight.
+    if (wdfn_upper == 0) {
+        upper_bound = 0.0;
+        return;
+    }
+
+    double L_max = 1 / (wdfn_lower + 1.0);
 
     double P_max = wdfn_upper * log2(1.0 / mean) +
                    mean / base_change +
@@ -129,7 +139,7 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
                0.5 * log2(2 * 3.14 * wdfn) +
                wdfn * (log2(wdfn) - (1 / base_change));
 
-    return (get_wqf() * L * P);
+    return ((get_wqf() * L * P) - lower_bound);
 }
 
 double
