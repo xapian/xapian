@@ -1,3 +1,8 @@
+Mon Jul 01 23:42:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Fix to actually removed cached databases before
+	  "make check".
+
 Mon Jul 01 22:21:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,api/queryinternal.cc,matcher/valuestreamdocument.h: Revert
