@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -55,65 +55,6 @@
 #include <vector>
 
 using namespace std;
-
-inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
-
-static void
-append_escaped(std::string & r, const std::string & s)
-{
-    const unsigned char * p = reinterpret_cast<const unsigned char *>(s.data());
-    const unsigned char * end = p + s.size();
-
-    while (p != end) {
-	unsigned char ch = *p;
-
-	if (unsigned(ch) - 32 < 127 - 32) {
-	    // Printable ASCII
-	    if (ch == '\\') {
-		r += "\\";
-	    } else {
-		r += ch;
-	    }
-	    p++;
-	    continue;
-	}
-	if (ch < 0xc2) {
-	    // Non-printable ASCII (0x00-0x1f, 0x7f) or not valid as first byte
-	    // of UTF-8 sequence (0x80-0xbf) or overlong sequence (0xc0-0xc1 -
-	    // two-byte sequences starting with these bytes are representable
-	    // in a single byte).
-escape:
-	    r += "\\x";
-	    r += "0123456789abcdef"[(ch >> 4) & 0x0f];
-	    r += "0123456789abcdef"[ch & 0x0f];
-	    p++;
-	    continue;
-	}
-	size_t seqlen = 1;
-	if (ch < 0xe0) {
-	    if (p + 1 == end || // Not enough bytes
-		bad_cont(p[1])) // Invalid
-		goto escape;
-	    seqlen = 2;
-	} else if (ch < 0xf0) {
-	    if (end - p < 3 || // Not enough bytes
-		bad_cont(p[1]) || bad_cont(p[2]) || // Invalid
-		(p[0] == 0xe0 && p[1] < 0xa0)) // Overlong encoding
-		goto escape;
-	    seqlen = 3;
-	} else {
-	    if (ch >= 0xf5 || // Code value above Unicode
-		end - p < 4 || // Not enough bytes
-		bad_cont(p[1]) || bad_cont(p[2]) || bad_cont(p[3]) || // Invalid
-		(p[0] == 0xf0 && p[1] < 0x90) || // Overlong encoding
-		(p[0] == 0xf4 && p[1] >= 0x90)) // Code value above Unicode
-		goto escape;
-	    seqlen = 4;
-	}
-	r.append(reinterpret_cast<const char *>(p), seqlen);
-	p += seqlen;
-    }
-}
 
 template<class CLASS> struct delete_ptr {
     void operator()(CLASS *p) { delete p; }
@@ -713,9 +654,9 @@ QueryValueRange::get_description() const
     string desc = "VALUE_RANGE ";
     desc += str(slot);
     desc += ' ';
-    append_escaped(desc, begin);
+    desc += begin;
     desc += ' ';
-    append_escaped(desc, end);
+    desc += end;
     return desc;
 }
 
@@ -754,7 +695,7 @@ QueryValueLE::get_description() const
     string desc = "VALUE_LE ";
     desc += str(slot);
     desc += ' ';
-    append_escaped(desc, limit);
+    desc += limit;
     return desc;
 }
 
@@ -791,7 +732,7 @@ QueryValueGE::get_description() const
     string desc = "VALUE_GE ";
     desc += str(slot);
     desc += ' ';
-    append_escaped(desc, limit);
+    desc += limit;
     return desc;
 }
 

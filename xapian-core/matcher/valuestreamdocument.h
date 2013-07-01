@@ -52,8 +52,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     ~ValueStreamDocument();
 
     void set_document(Xapian::docid did_) {
-	// did should be the docid in the subdatabase.
-	did = (did_ - 1) / db.internal.size() + 1;
+	did = did_;
 	delete doc;
 	doc = NULL;
     }

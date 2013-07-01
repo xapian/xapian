@@ -1,3 +1,8 @@
+Mon Jul 01 22:21:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS,api/queryinternal.cc,matcher/valuestreamdocument.h: Revert
+	  changes accidentally included in r17373.
+
 Sat Jun 29 12:39:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h,unicode/tclUniData.cc: Change
