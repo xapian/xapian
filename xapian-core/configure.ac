@@ -419,6 +419,13 @@ case $host_os in
     ;;
 esac
 
+dnl We use timer_create() if available to implement a search time limit.
+SAVE_LIBS=$LIBS
+AC_SEARCH_LIBS(timer_create, rt,
+    [XAPIAN_LDFLAGS="$LIBS $XAPIAN_LDFLAGS"
+    AC_DEFINE(HAVE_TIMER_CREATE, 1,[Define to 1 if you have the 'timer_create' function.])])
+LIBS=$SAVE_LIBS
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])

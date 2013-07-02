@@ -138,6 +138,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param sort_key			The value number to sort on.
      * @param sort_by			Which order to apply sorts in.
      * @param sort_value_forward	Sort order for values.
+     * @param time_limit_		Seconds to reduce check_at_least after
+     *					(or <= 0 for no limit).
      * @param percent_cutoff		Percentage cutoff.
      * @param weight_cutoff		Weight cutoff.
      * @param wtscheme			Weighting scheme.
@@ -152,6 +154,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   Xapian::valueno sort_key,
 		   Xapian::Enquire::Internal::sort_setting sort_by,
 		   bool sort_value_forward,
+		   double time_limit,
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,

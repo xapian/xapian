@@ -633,7 +633,7 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO), collapse_max(0),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    sorter(0), errorhandler(errorhandler_), weight(0)
+    sorter(0), time_limit(0.0), errorhandler(errorhandler_), weight(0)
 {
     if (db.internal.empty()) {
 	throw InvalidArgumentError("Can't make an Enquire object from an uninitialised Database object.");
@@ -688,7 +688,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
-		       errorhandler, stats, weight, spies,
+		       time_limit, errorhandler, stats, weight, spies,
 		       (sorter != NULL),
 		       (mdecider != NULL));
     // Run query and put results into supplied Xapian::MSet object.
@@ -1022,6 +1022,12 @@ Enquire::set_sort_by_relevance_then_key(KeyMaker * sorter, bool ascending)
     internal->sorter = sorter;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;
+}
+
+void
+Enquire::set_time_limit(double time_limit)
+{
+    internal->time_limit = time_limit;
 }
 
 MSet

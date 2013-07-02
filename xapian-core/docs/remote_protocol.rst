@@ -152,7 +152,7 @@ opening greeting given above.
 Query
 -----
 
--  ``MSG_QUERY L<serialised Xapian::Query object> I<query length> I<collapse max> [I<collapse key number> (if collapse_max non-zero)] <docid order> I<sort key number> <sort by> B<sort value forward> <percent cutoff> F<weight cutoff> <serialised Xapian::Weight object> <serialised Xapian::RSet object> [L<serialised Xapian::MatchSpy object>...]``
+-  ``MSG_QUERY L<serialised Xapian::Query object> I<query length> I<collapse max> [I<collapse key number> (if collapse_max non-zero)] <docid order> I<sort key number> <sort by> B<sort value forward> F<time limit> <percent cutoff> F<weight cutoff> <serialised Xapian::Weight object> <serialised Xapian::RSet object> [L<serialised Xapian::MatchSpy object>...]``
 -  ``REPLY_STATS <serialised Stats object>``
 -  ``MSG_GETMSET I<first> I<max items> I<check at least> <serialised global Stats object>``
 -  ``REPLY_RESULTS L<the result of calling serialise_results() on each Xapian::MatchSpy> <serialised Xapian::MSet object>``

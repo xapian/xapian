@@ -149,6 +149,8 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	KeyMaker * sorter;
 
+	double time_limit;
+
 	/** The error handler, if set.  (0 if not set).
 	 */
 	ErrorHandler * errorhandler;

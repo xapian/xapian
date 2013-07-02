@@ -945,6 +945,25 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
+	/** Set a time limit for the match.
+	 *
+	 *  Matches with check_at_least set high can take a long time in some
+	 *  cases.  You can set a time limit on this, after which check_at_least
+	 *  will be turned off.
+	 *
+	 *  @param time_limit  time in seconds after which to disable
+	 *		       check_at_least (default: 0.0 which means no
+	 *		       time limit)
+	 *
+	 *  Limitations:
+	 *
+	 *  This feature is currently supported on platforms which support POSIX
+	 *  interval timers.  Interaction with the remote backend when using
+	 *  multiple databases may have bugs.  There's not currently a way to
+	 *  force the match to end after a certain time.
+	 */
+	void set_time_limit(double time_limit);
+
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.

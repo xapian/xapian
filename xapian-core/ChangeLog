@@ -1,3 +1,13 @@
+Tue Jul 02 05:00:30 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omenquireinternal.h,
+	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
+	  common/remoteprotocol.h,configure.ac,docs/remote_protocol.rst,
+	  include/xapian/enquire.h,matcher/multimatch.cc,matcher/multimatch.h,
+	  net/remoteserver.cc,tests/api_postingsource.cc: Add
+	  Enquire::set_time_limit() method which sets a timelimit after which
+	  check_at_least will be disabled.
+
 Mon Jul 01 23:42:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Fix to actually removed cached databases before

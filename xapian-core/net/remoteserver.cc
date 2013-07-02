@@ -422,6 +422,8 @@ RemoteServer::msg_query(const string &message_in)
     }
     bool sort_value_forward(*p++ != '0');
 
+    double time_limit = unserialise_double(&p, p_end);
+
     int percent_cutoff = *p++;
     if (percent_cutoff < 0 || percent_cutoff > 100) {
 	throw Xapian::NetworkError("bad message (percent_cutoff)");
@@ -475,7 +477,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward, NULL,
+		     sort_key, sort_by, sort_value_forward, time_limit, NULL,
 		     local_stats, wt.get(), matchspies.spies, false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));

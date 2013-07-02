@@ -562,6 +562,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 			 Xapian::valueno sort_key,
 			 Xapian::Enquire::Internal::sort_setting sort_by,
 			 bool sort_value_forward,
+			 double time_limit,
 			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
@@ -579,6 +580,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     message += encode_length(sort_key);
     message += char('0' + sort_by);
     message += char('0' + sort_value_forward);
+    message += serialise_double(time_limit);
     message += char(percent_cutoff);
     message += serialise_double(weight_cutoff);
 
