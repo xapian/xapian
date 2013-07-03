@@ -1,3 +1,8 @@
+Wed Jul 03 07:34:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free
+	  with std.
+
 Tue Jul 02 23:44:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Add support for WritableDatabase with multiple
