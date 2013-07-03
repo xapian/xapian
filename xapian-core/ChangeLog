@@ -1,3 +1,9 @@
+Wed Jul 03 08:20:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/error.cc,common/Makefile.mk,common/safenetdb.h,net/tcpclient.cc,
+	  net/tcpserver.cc: AIX needs _USE_IRS defined for hstrerror, so
+	  create safenetdb.h to take care of that.
+
 Wed Jul 03 07:34:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free
