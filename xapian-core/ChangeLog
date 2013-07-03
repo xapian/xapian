@@ -1,3 +1,9 @@
+Wed Jul 03 13:31:59 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
+	  tests/api_weight.cc,weight/Makefile.mk,weight/ifb2weight.cc: Add
+	  implementation of DfR weighting scheme IfB2.
+
 Wed Jul 03 12:42:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/safeuuid.h: Make a few tweaks to support AIX.
