@@ -1,3 +1,7 @@
+Wed Jul 03 12:42:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h: Make a few tweaks to support AIX.
+
 Wed Jul 03 12:33:40 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/safeuuid.h: Remove bogus take-address-of from uuid handling
