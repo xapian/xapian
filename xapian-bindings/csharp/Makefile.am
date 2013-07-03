@@ -29,6 +29,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/FixedWeightPostingSource.cs \
 	generated-csharp/GreatCircleMetric.cs \
 	generated-csharp/IfB2Weight.cs \
+	generated-csharp/IneB2Weight.cs \
 	generated-csharp/InL2Weight.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
