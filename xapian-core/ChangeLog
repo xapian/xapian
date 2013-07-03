@@ -1,3 +1,8 @@
+Tue Jul 02 23:44:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Add support for WritableDatabase with multiple
+	  subdatabases.
+
 Tue Jul 02 23:40:08 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,tests/api_none.cc: Trying to perform operations on
