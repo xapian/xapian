@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,14 +40,14 @@ DEFINE_TESTCASE(nosubdatabases1, !backend) {
     // TEST_EQUAL(db.get_metadata("foo"), std::string());
     TEST(db.get_metadata("foo").empty());
     TEST_EQUAL(db.metadata_keys_begin(), db.metadata_keys_end());
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.termlist_begin(1));
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
     TEST_EQUAL(db.allterms_begin("foo"), db.allterms_end("foo"));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.positionlist_begin(1, "foo"));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.positionlist_begin(1, "foo"));
     TEST_EQUAL(db.get_lastdocid(), 0);
     TEST_EQUAL(db.valuestream_begin(7), db.valuestream_end(7));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
     return true;
 }
 

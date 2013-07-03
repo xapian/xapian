@@ -1,3 +1,9 @@
+Tue Jul 02 23:40:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,tests/api_none.cc: Trying to perform operations on
+	  a database with no subdatabases now throws InvalidOperationError not
+	  DocNotFoundError.
+
 Tue Jul 02 13:22:31 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* tests/api_weight.cc: Extend checkstatsweight1 to check that
