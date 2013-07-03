@@ -1,3 +1,8 @@
+Wed Jul 03 12:33:40 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h: Remove bogus take-address-of from uuid handling
+	  code for netbsd and openbsd.
+
 Wed Jul 03 11:56:05 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
