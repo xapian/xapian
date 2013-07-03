@@ -620,9 +620,10 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
  *  document (H2).
  *
  *  For more information about the DFR Framework and the InL2 scheme, please
- *  refer: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic models
- *  of information retrieval based on measuring the divergence from randomness
- *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
+ *  refer to: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
+ *  pp. 357-389.
  */
 class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     /// The wdf normalization parameter in the formula.
@@ -684,9 +685,10 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
  *  (H2).
  *
  *  For more information about the DFR Framework and the IfB2 scheme, please
- *  refer: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic models
- *  of information retrieval based on measuring the divergence from randomness
- *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
+ *  refer to: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
+ *  pp. 357-389.
  */
 class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     /// The wdf normalization parameter in the formula.

@@ -1,3 +1,7 @@
+Wed Jul 03 13:39:11 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: "please refer:" -> "please refer to:"
+
 Wed Jul 03 13:31:59 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
