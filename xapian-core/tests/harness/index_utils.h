@@ -27,8 +27,6 @@
 
 #include <xapian.h>
 
-std::string munge_term(const std::string &term);
-
 class FileIndexer {
     std::string datadir;
     std::vector<std::string>::const_iterator file, end;
@@ -43,12 +41,6 @@ class FileIndexer {
     {
 	next_file();
     }
-
-    operator bool() {
-	return !(file == end && (!input.is_open() || input.eof()));
-    }
-
-    Xapian::Document next();
 
     void index_to(Xapian::WritableDatabase & db);
 };

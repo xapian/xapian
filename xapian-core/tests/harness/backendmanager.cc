@@ -48,8 +48,7 @@ void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 					const vector<string> & files)
 {
-    FileIndexer f(datadir, files);
-    while (f) database.add_document(f.next());
+    FileIndexer(datadir, files).index_to(database);
 }
 
 /** Create the directory dirname if needed.  Returns true if the

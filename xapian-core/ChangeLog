@@ -1,3 +1,8 @@
+Thu Jul 04 06:29:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/index_utils.cc,
+	  tests/harness/index_utils.h: Simplify the FileIndexer class.
+
 Thu Jul 04 06:09:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_multi.cc,tests/harness/index_utils.cc,
