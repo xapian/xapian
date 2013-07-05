@@ -136,6 +136,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	}
 #endif
 
+#if XAPIAN_AT_LEAST(1,3,2)
 	if (startswith(scheme, "inl2")) {
 	    const char *p = scheme.c_str() + 4;
 	    if (*p == '\0') {
@@ -186,6 +187,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		return;
 	    }
 	}
+#endif
 
 	if (scheme != "bool") {
 	    throw "Unknown $opt{weighting} setting: " + scheme;
