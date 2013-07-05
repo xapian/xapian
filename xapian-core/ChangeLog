@@ -1,3 +1,10 @@
+Thu Jul 04 06:09:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_multi.cc,tests/harness/index_utils.cc,
+	  tests/harness/index_utils.h: Make use of the new writable
+	  multidatabase feature to simplify the multi-database handling in the
+	  test harness.
+
 Wed Jul 03 13:58:46 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,

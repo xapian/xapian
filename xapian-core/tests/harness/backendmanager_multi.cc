@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -86,32 +86,27 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 
     // Open NUMBER_OF_SUB_DBS databases and index files to the alternately so a
     // multi-db combining them contains the documents in the expected order.
-    Xapian::WritableDatabase dbs[NUMBER_OF_SUB_DBS];
+    Xapian::WritableDatabase dbs;
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
 	string subdbdir = dbname;
 	subdbdir += "___";
 	subdbdir += str(n);
 #if defined XAPIAN_HAS_BRASS_BACKEND
 	if (subtype == "brass") {
-	    dbs[n] = Xapian::Brass::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    dbs.add_database(Xapian::Brass::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE));
 	    out << "brass " << subdbdir << '\n';
 	}
 #endif
 #if defined XAPIAN_HAS_CHERT_BACKEND
 	if (subtype == "chert") {
-	    dbs[n] = Xapian::Chert::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    dbs.add_database(Xapian::Chert::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE));
 	    out << "chert " << subdbdir << '\n';
 	}
 #endif
     }
     out.close();
 
-    size_t c = 0;
-    FileIndexer f(get_datadir(), files);
-    while (f) {
-	dbs[c].add_document(f.next());
-	c = (c + 1) % NUMBER_OF_SUB_DBS;
-    }
+    FileIndexer(get_datadir(), files).index_to(dbs);
 
     rename(tmpfile.c_str(), dbpath.c_str());
 

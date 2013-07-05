@@ -1,6 +1,6 @@
 /* index_utils.cc - utility functions for indexing testcase data
  *
- * Copyright (C) 2005,2007 Olly Betts
+ * Copyright (C) 2005,2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -191,5 +191,13 @@ FileIndexer::next_file()
 	msg += strerror(errno);
 	msg += ')';
 	throw msg;
+    }
+}
+
+void
+FileIndexer::index_to(Xapian::WritableDatabase & db)
+{
+    while (*this) {
+	db.add_document(next());
     }
 }
