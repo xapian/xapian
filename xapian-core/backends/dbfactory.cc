@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -217,10 +217,6 @@ open_stub(WritableDatabase &db, const string &file, int action)
     string line;
     unsigned int line_no = 0;
     while (true) {
-	if (db.internal.size() > 1) {
-	    throw DatabaseOpeningError(file + ": Can't open a stub database listing multiple databases as a WritableDatabase");
-	}
-
 	if (!getline(stub, line)) break;
 
 	++line_no;

@@ -1,3 +1,8 @@
+Fri Jul 05 06:19:55 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Allow open a stub database containing
+	  multiple subdatabases as a WritableDatabase.
+
 Thu Jul 04 06:29:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc,tests/harness/index_utils.cc,
