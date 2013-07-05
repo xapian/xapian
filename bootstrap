@@ -198,22 +198,26 @@ END
 
 handle_svn_external() {
   path=$1
-  revopt=$2
-  url=$3
-  if [ ! -d "$path" ] ; then
-    git svn init "$url" "$path"/
+  if [ ! -f "$path/.nobootstrap" ] ; then
+    revopt=$2
+    url=$3
+    if [ ! -d "$path" ] ; then
+      git svn init "$url" "$path"/
+    fi
+    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
   fi
-  (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 }
 
 handle_git_external() {
   path=$1
-  rev=$2
-  url=$3
-  if [ ! -d "$path" ] ; then
-    git clone --no-checkout -- "$url" "$path"
+  if [ ! -f "$path/.nobootstrap" ] ; then
+    rev=$2
+    url=$3
+    if [ ! -d "$path" ] ; then
+      git clone --no-checkout -- "$url" "$path"
+    fi
+    (cd "$path" && git checkout "$rev")
   fi
-  (cd "$path" && git checkout "$rev")
 }
 
 curdir=`pwd`
