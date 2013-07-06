@@ -841,12 +841,20 @@ WritableDatabase::add_document(const Document & document)
     size_t n_dbs = internal.size();
     if (rare(n_dbs == 0))
 	no_subdatabases();
-    size_t i = 0;
-    if (n_dbs > 1) {
-	// Which database will the next never used docid be in?
-	i = sub_db(get_lastdocid() + 1, n_dbs);
+    if (n_dbs == 1)
+	RETURN(internal[0]->add_document(document));
+
+    // Which database will the next never used docid be in?
+    Xapian::docid did = get_lastdocid() + 1;
+    if (rare(did == 0)) {
+	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     }
-    RETURN(internal[i]->add_document(document));
+    // We want exactly did to be used, not a lower docid if that subdb isn't
+    // using the docid before it, so call replace_document() not
+    // add_document().
+    size_t i = sub_db(did, n_dbs);
+    internal[i]->replace_document(sub_docid(did, n_dbs), document);
+    RETURN(did);
 }
 
 void

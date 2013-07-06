@@ -1,3 +1,8 @@
+Sat Jul 06 02:07:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix add_document() to always use exactly the next
+	  docid after get_lastdocid() in the multidatabase case.
+
 Fri Jul 05 06:19:55 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Allow open a stub database containing
