@@ -31,7 +31,11 @@ using namespace std;
 
 namespace Xapian {
 
-double stirling_value(double, double);
+static double stirling_value(double x, double y)
+{
+    double difference = x - y;
+    return ((y + 0.5) * log2(x / y)) + (difference * log2(x));
+}
 
 BB2Weight::BB2Weight(double c) : param_c(c)
 {
@@ -152,12 +156,6 @@ double
 BB2Weight::get_maxextra() const
 {
     return 0;
-}
-
-double stirling_value(double x, double y)
-{
-    double difference = x - y;
-    return ((y + 0.5) * log2(x / y)) + (difference * log2(x));
 }
 
 }
