@@ -128,16 +128,15 @@ DEFINE_TESTCASE(pl2weight2, !backend) {
 DEFINE_TESTCASE(pl2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("banana"));
+    enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset;
 
     enquire.set_weighting_scheme(Xapian::PL2Weight(2.0));
     mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 1);
-    mset_expect_order(mset, 6);
+    TEST_EQUAL(mset.size(), 5);
     /* Weight has been calculated manually by using the statistics of the test
      * database. */
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.2994167693072323);
+    TEST_EQUAL_DOUBLE(mset[2].get_weight() - mset[3].get_weight(), 0.00868617717013);
 
     return true;
 }
