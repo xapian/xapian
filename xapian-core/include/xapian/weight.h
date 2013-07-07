@@ -614,13 +614,13 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
  *  This weighting scheme is useful for tasks that require early precision.
  *
  *  It uses the Poisson approximation of the Binomial Probabilistic distribution
- *  (P) along with Sterling's approximation for the factorial value, the Laplace
+ *  (P) along with Stirling's approximation for the factorial value, the Laplace
  *  method to find the aftereffect of sampling (L) and the second wdf
  *  normalization proposed by Amati to normalize the wdf in the document to the
  *  length of the document (H2).
  *
  *  For more information about the DFR Framework and the PL2 scheme, please
- *  refer: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic models
+ *  refer to : Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic models
  *  of information retrieval based on measuring the divergence from randomness
  *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
  */
@@ -644,7 +644,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
      *  @param c  A non-negative and non zero parameter controlling the extent
      *            of the normalization of the wdf to the document length. The
      *            default value of 1 is suitable for longer queries but it may
-     *            need to be changed for shorter queries.For more information,
+     *            need to be changed for shorter queries. For more information,
      *            please refer to Gianni Amati's PHD thesis titled
      *            Probabilistic Models for Information Retrieval based on
      *            Divergence from Randomness.

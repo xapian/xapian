@@ -68,13 +68,14 @@ PL2Weight::init(double)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
                     get_doclength_lower_bound());
 
-    // Calculate the lower bound on the weight.
     double L_min = 1 / (wdfn_upper + 1.0);
+    double L_max = 1 / (wdfn_lower + 1.0);
 
-    double P_min = wdfn_upper * log2(1.0 / mean) +
+    // Calculate the lower bound on the weight.
+    double P_min = wdfn_lower * log2(1.0 / mean) +
                    mean / base_change +
-                   0.5 * log2(2 * 3.14 * wdfn_lower) +
-                   wdfn_upper * (log2(wdfn_lower) - (1 / base_change));
+                   0.5 * log2(2.0 * M_PI * wdfn_lower) +
+                   wdfn_lower * (log2(wdfn_lower) - (1 / base_change));
 
     lower_bound = get_wqf() * L_min * P_min;
 
@@ -84,14 +85,12 @@ PL2Weight::init(double)
         return;
     }
 
-    double L_max = 1 / (wdfn_lower + 1.0);
-
     double P_max = wdfn_upper * log2(1.0 / mean) +
                    mean / base_change +
-                   0.5 * log2(2 * 3.14 * wdfn_upper) +
+                   0.5 * log2(2.0 * M_PI * wdfn_upper) +
                    wdfn_upper * (log2(wdfn_upper) - (1 / base_change));
 
-    upper_bound = get_wqf() * L_max * P_max;
+    upper_bound = (get_wqf() * L_max * P_max) - lower_bound;
 }
 
 string
@@ -123,6 +122,7 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
     double base_change(log(2));
+
     wdfn *= log2(1 + (param_c * get_average_length()) / len);
 
     double L = 1.0 / (wdfn + 1);
@@ -136,10 +136,10 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double P = wdfn * log2(1.0 / mean) +
                mean / base_change +
-               0.5 * log2(2 * 3.14 * wdfn) +
+               0.5 * log2(2.0 * M_PI * wdfn) +
                wdfn * (log2(wdfn) - (1 / base_change));
 
-    return ((get_wqf() * L * P) - lower_bound);
+    return (get_wqf() * L * P) - lower_bound;
 }
 
 double
@@ -161,4 +161,3 @@ PL2Weight::get_maxextra() const
 }
 
 }
-
