@@ -31,6 +31,8 @@ using namespace std;
 
 namespace Xapian {
 
+double stirling_value(double, double);
+
 BB2Weight::BB2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
@@ -79,8 +81,8 @@ BB2Weight::init(double)
 
     double weight_max = - log2(N - 1.0) - (1 / base_change);
 
-    double stirling_max = stirlingValue(N + F - 1.0, N + F - wdfn_lower - 2.0) -
-                          stirlingValue(F, F - wdfn_upper);
+    double stirling_max = stirling_value(N + F - 1.0, N + F - wdfn_lower - 2.0) -
+                          stirling_value(F, F - wdfn_upper);
 
     double final_weight_max = B_max * (weight_max + stirling_max);
 
@@ -110,12 +112,6 @@ BB2Weight::unserialise(const string & s) const
     return new BB2Weight(c);
 }
 
-double BB2Weight::stirlingValue(double x, double y) const
-{
-    double difference = x - y;
-    return (((y + 0.5) * log2(x / y)) + (difference * log2(x)));
-}
-
 double
 BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
@@ -132,8 +128,8 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double weight = - log2(N - 1.0) - (1 / base_change);
 
-    double stirling = stirlingValue(N + F - 1.0, N + F - wdfn -2.0) -
-                            stirlingValue(F, F - wdfn);
+    double stirling = stirling_value(N + F - 1.0, N + F - wdfn - 2.0) -
+                      stirling_value(F, F - wdfn);
 
     double final_weight = B * (weight + stirling);
 
@@ -156,6 +152,12 @@ double
 BB2Weight::get_maxextra() const
 {
     return 0;
+}
+
+double stirling_value(double x, double y)
+{
+    double difference = x - y;
+    return ((y + 0.5) * log2(x / y)) + (difference * log2(x));
 }
 
 }

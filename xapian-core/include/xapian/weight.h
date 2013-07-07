@@ -611,8 +611,8 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
  *  BB2 is a representative scheme of the Divergence from Randomness Framework
  *  by Gianni Amati.
  *
- *  It uses the Bose Einstien probabilistic distribution (B) along with
- *  Sterling's power approximation, the Bernoulli method to find the
+ *  It uses the Bose-Einstein probabilistic distribution (B) along with
+ *  Stirling's power approximation, the Bernoulli method to find the
  *  aftereffect of sampling (B) and the second wdf normalization proposed by
  *  Amati to normalize the wdf in the document to the length of the document
  *  (H2).
@@ -633,8 +633,6 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     BB2Weight * clone() const;
 
     void init(double factor);
-
-    double stirlingValue(double x, double y) const;
 
   public:
     /** Construct a BB2Weight.
