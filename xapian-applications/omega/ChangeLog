@@ -1,3 +1,9 @@
+Sun Jul 07 11:57:11 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight.cc: Add support for $set{weighting,bb2}.
+	* docs/omegascript.rst: Update list of weighting schemes understood by
+	  $set{weighting,...}.
+
 Fri Jul 05 03:15:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight.cc: Add conditional test so we can build against older
