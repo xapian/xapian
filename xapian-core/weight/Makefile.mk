@@ -6,6 +6,7 @@ EXTRA_DIST +=\
 	weight/Makefile
 
 lib_src +=\
+       weight/bb2weight.cc\
 	weight/bm25weight.cc\
 	weight/boolweight.cc\
 	weight/ifb2weight.cc\

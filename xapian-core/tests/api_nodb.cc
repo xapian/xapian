@@ -346,6 +346,17 @@ DEFINE_TESTCASE(weight1, !backend) {
     Xapian::IneB2Weight ineb2weight2(2.0);
     TEST_NOT_EQUAL(ineb2weight.serialise(), ineb2weight2.serialise());
 
+    Xapian::BB2Weight bb2weight_dflt;
+    Xapian::BB2Weight bb2weight(1.0);
+    TEST_EQUAL(bb2weight.name(), "Xapian::BB2Weight");
+    TEST_EQUAL(bb2weight_dflt.serialise(), bb2weight.serialise());
+    wt = Xapian::BB2Weight().unserialise(bb2weight.serialise());
+    TEST_EQUAL(bb2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::BB2Weight bb2weight2(2.0);
+    TEST_NOT_EQUAL(bb2weight.serialise(), bb2weight2.serialise());
+
     return true;
 }
 

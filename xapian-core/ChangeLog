@@ -1,3 +1,9 @@
+Sun Jul 07 11:51:45 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
+	  tests/api_weight.cc,weight/Makefile.mk: Add implementation of DfR
+	  weighting scheme BB2.
+
 Sat Jul 06 02:07:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Fix add_document() to always use exactly the next
