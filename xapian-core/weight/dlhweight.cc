@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include <cmath>
+#include "common/log2.h"
 
 using namespace std;
 
@@ -36,7 +36,38 @@ DLHWeight::clone() const
 void
 DLHWeight::init(double)
 {
-     // None Required
+    double wdf_lower(1.0);
+    double wdf_upper(get_wdf_upper_bound());
+    double len_lower(get_doclength_lower_bound());
+    double len_upper(get_doclength_upper_bound());
+
+    double min_wdf_to_len = wdf_lower / len_upper;
+
+    double N(get_collection_size());
+    double F(get_collection_freq());
+
+    // Calculate the lower bound.
+    double min_weight = (wdf_lower * log2((wdf_lower * get_average_length() /
+                        len_upper) * (N / F)) +
+                        1.0 * log2(1.0 / len_upper) +
+                        0.5 * log2(2.0 * M_PI * wdf_lower / len_upper)) /
+                        (wdf_upper + 0.5);
+
+    lower_bound = get_wqf() * min_weight;
+
+    // Calculate the upper bound.
+    if (wdf_upper == 0) {
+        upper_bound = 0.0;
+        return;
+    }
+
+    double max_weight = (wdf_upper * log2((wdf_upper * get_average_length() /
+                        len_lower) * (N / F)) + (len_upper - wdf_lower) *
+                        log2(1.0 - min_wdf_to_len) +
+                        0.5 * log2(2.0 * M_PI * wdf_upper *
+                        (1.0 - min_wdf_to_len))) / (wdf_lower + 0.5);
+
+    upper_bound = (get_wqf() * max_weight) - lower_bound;
 }
 
 string
@@ -68,31 +99,17 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double F(get_collection_freq());
 
     double weight = (wdf * log2((wdf * get_average_length() / len) * (N / F)) +
-    (len - wdf) * log2(1.0 - wdf_to_len) + 0.5 * log2(2.0 * 3.14 * wdf * (1.0 - wdf_to_len))) /
-    (wdf + 0.5);
+                    (len - wdf) * log2(1.0 - wdf_to_len) +
+                    0.5 * log2(2.0 * M_PI * wdf * (1.0 - wdf_to_len))) /
+                    (wdf + 0.5);
 
-    return (get_wqf() * weight);
+    return (get_wqf() * weight) - lower_bound;
 }
 
 double
 DLHWeight::get_maxpart() const
 {
-    if (get_wdf_upper_bound() == 0) return 0.0;
-
-    double wdf_lower(1.0);
-    double wdf_upper(get_wdf_upper_bound());
-
-    double min_wdf_to_len = (wdf_lower / get_doclength_upper_bound());
-
-    double N(get_collection_size());
-    double F(get_collection_freq());
-
-    double max_weight = (wdf_upper * log2((wdf_upper * get_average_length() /
-    get_doclength_lower_bound()) * (N / F)) + (get_doclength_upper_bound() -
-    wdf_lower) * log2(1.0 - min_wdf_to_len) + 0.5 * log2(2.0 * 3.14 * wdf_upper *
-    (1.0 - min_wdf_to_len))) / (wdf_upper + 0.5);
-
-    return (get_wqf() * max_weight);
+    return upper_bound;
 }
 
 double

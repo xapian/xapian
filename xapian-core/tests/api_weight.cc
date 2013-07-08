@@ -102,10 +102,10 @@ DEFINE_TESTCASE(dlhweight1, backend) {
 
     enquire.set_weighting_scheme(Xapian::DLHWeight());
     mset = enquire.get_mset(0, 10);
-    // Only 3 out of the 5 documents are slected as the remaining two get negative weights.
-    TEST_EQUAL(mset.size(), 3);
-    // The third document is first in the ranking.
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.22445391769044906);
+    TEST_EQUAL(mset.size(), 5);
+    /* Weight has been calculated manually by obtaining the statistics from the
+     * database.*/
+    TEST_EQUAL_DOUBLE(mset[0].get_weight() - mset[4].get_weight(), 1.17790202016936130);
 
     return true;
 }
