@@ -136,7 +136,7 @@ DEFINE_TESTCASE(pl2weight3, backend) {
     TEST_EQUAL(mset.size(), 5);
     /* Weight has been calculated manually by using the statistics of the test
      * database. */
-    TEST_EQUAL_DOUBLE(mset[2].get_weight() - mset[3].get_weight(), 0.00868617717013);
+    TEST_EQUAL_DOUBLE(mset[2].get_weight() - mset[3].get_weight(), 0.00868617717013298);
 
     return true;
 }
