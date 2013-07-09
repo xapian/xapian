@@ -613,7 +613,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cmd += args;
 		try {
 		    MSXmlParser xmlparser;
-		    xmlparser.parse(stdout_to_string(cmd));
+		    xmlparser.parse_xml(stdout_to_string(cmd));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(file, cmd);
@@ -639,7 +639,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
 	    const string & text = d.file_to_string();
-	    xmlparser.parse(text);
+	    xmlparser.parse_xml(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
@@ -648,7 +648,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    append_filename_argument(cmd, file);
 	    try {
 		XmlParser xmlparser;
-		xmlparser.parse(stdout_to_string(cmd));
+		xmlparser.parse_xml(stdout_to_string(cmd));
 		dump = xmlparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
