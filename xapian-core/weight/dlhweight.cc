@@ -48,9 +48,9 @@ DLHWeight::init(double)
 
     // Calculate the lower bound.
     double min_weight = (wdf_lower * log2((wdf_lower * get_average_length() /
-                        len_upper) * (N / F)) +
-                        1.0 * log2(1.0 / len_upper) +
-                        0.5 * log2(2.0 * M_PI * wdf_lower / len_upper)) /
+                        len_upper) * (N / F)) -
+                        (1.5 * log2(len_upper)) +
+                        0.5 * log2(2.0 * M_PI * wdf_lower)) /
                         (wdf_upper + 0.5);
 
     lower_bound = get_wqf() * min_weight;

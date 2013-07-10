@@ -619,9 +619,9 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
  *  models of information retrieval based on measuring the divergence from
  *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp.
  *  357-389.
- *  b.) FUB, IASI-CNR and University of Tor Vergata at TREC 2007 Blog Track. G. Amati
- *  and E. Ambrosi and M. Bianchi and C. Gaibisso and G. Gambosi. Proceedings of
- *  the 16th Text REtrieval Conference (TREC-2007), 2008.
+ *  b.) FUB, IASI-CNR and University of Tor Vergata at TREC 2007 Blog Track.
+ *  G. Amati and E. Ambrosi and M. Bianchi and C. Gaibisso and G. Gambosi.
+ *  Proceedings of the 16th Text REtrieval Conference (TREC-2007), 2008.
  */
 class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     /// The lower bound on the weight.

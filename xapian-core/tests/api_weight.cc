@@ -93,7 +93,7 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     return true;
 }
 
-// Test parameter combinations which should be unaffected by doclength.
+// Feature test.
 DEFINE_TESTCASE(dlhweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
@@ -109,6 +109,7 @@ DEFINE_TESTCASE(dlhweight1, backend) {
 
     return true;
 }
+
 // Test for various cases of normalization string.
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid
