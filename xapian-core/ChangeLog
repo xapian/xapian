@@ -1,3 +1,7 @@
+Mon Jul 08 06:27:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight/Makefile.mk: Normalise whitespace in BB2 change.
+
 Sun Jul 07 12:29:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight/bb2weight.cc: New file for BB2Weight which I failed to
