@@ -871,6 +871,60 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     double get_maxextra() const;
 };
 
+/** This class implements the DLH weighting scheme, which is a representative
+ *  scheme of the Divergence from Randomness Framework by Gianni Amati.
+ *
+ *  This is a parameter free weighting scheme and it should be used with query
+ *  expansion to obtain better results. It uses the HyperGeometric Probabilistic
+ *  model and Laplace's normalization to calculate the risk gain.
+ *
+ *  For more information about the DFR Framework and the DLH scheme, please
+ *  refer to :
+ *  a.) Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp.
+ *  357-389.
+ *  b.) FUB, IASI-CNR and University of Tor Vergata at TREC 2007 Blog Track.
+ *  G. Amati and E. Ambrosi and M. Bianchi and C. Gaibisso and G. Gambosi.
+ *  Proceedings of the 16th Text REtrieval Conference (TREC-2007), 2008.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
+    /// The lower bound on the weight.
+    double lower_bound;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    DLHWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    DLHWeight() {
+    need_stat(AVERAGE_LENGTH);
+    need_stat(DOC_LENGTH);
+    need_stat(COLLECTION_SIZE);
+    need_stat(COLLECTION_FREQ);
+    need_stat(WDF);
+    need_stat(WQF);
+    need_stat(WDF_MAX);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    DLHWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
 }
 
 #endif // XAPIAN_INCLUDED_WEIGHT_H

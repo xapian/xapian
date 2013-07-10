@@ -1,3 +1,9 @@
+Wed Jul 10 12:57:01 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
+	  tests/api_weight.cc,weight/Makefile.mk,weight/dlhweight.cc: Add an
+	  implementation of DfR weighting scheme DLH.
+
 Wed Jul 10 07:38:15 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* expand/expandweight.h: Track collection_freq and totlen restricted
