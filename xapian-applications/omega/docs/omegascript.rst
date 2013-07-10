@@ -396,7 +396,8 @@ $set{OPT,VALUE}
           is a string consisting of the scheme name followed by any parameters,
           all separated by whitespace.  Any parameters not specified will use
           their default values. Valid scheme names are ``bb2`` (in Omega >= 1.3.2),
-          ``bm25``, ``bool``, ``ifb2`` (in Omega >= 1.3.2), ``ineb2``
+          ``bm25``, ``bool``, ``dlh`` (in Omega >= 1.3.2),
+          ``ifb2`` (in Omega >= 1.3.2), ``ineb2``
           (in Omega >= 1.3.2), ``inl2`` (in Omega >= 1.3.2), ``tfidf``
           (in Omega >= 1.3.1), and ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
 
