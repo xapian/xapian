@@ -1,3 +1,7 @@
+Wed Jul 10 12:58:17 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Update for DLHWeight.
+
 Sun Jul 07 11:54:44 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* csharp/Makefile.am,java/Makefile.am: Update for BB2Weight.
