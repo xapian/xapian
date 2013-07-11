@@ -1281,15 +1281,22 @@ for backend in BRASS CHERT FLINT INMEMORY REMOTE ; do
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
   fi
 done
-if test yes = "$GXX" ; then
-    dnl If _GLIBCXX_DEBUG is being deliberately set or unset, do the same
-    dnl when generating version.h.
-    for flag in $CXXFLAGS $CPPFLAGS ; do
-      case $flag in
-      -D_GLIBCXX_DEBUG*|-U_GLIBCXX_DEBUG*) cxxcpp_flags="$cxxcpp_flags $flag" ;;
-      esac
-    done
-fi
+dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
+dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
+dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these
+dnl options when generating version.h.  For these compilers, CXXCPP="$CXX -E"
+dnl so it should understand all compiler options.
+dnl
+dnl For other compilers, we only pass $CPPFLAGS to $CXXCPP in case it's an
+dnl external cpp which doesn't understand flags which might be in $CXXFLAGS.
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[#ifndef __GNUC__
+#ifndef _MSC_VER
+       choke me
+#endif
+#endif
+]])],
+	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS"],
+	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"])
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
 dnl where we'll always have GNU sed, and other sed's will just interpret
