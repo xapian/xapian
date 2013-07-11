@@ -1,3 +1,10 @@
+Thu Jul 11 11:17:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING,INSTALL,Makefile.am,README,docs/Makefile.am,docs/install.rst,
+	  docs/stemming.rst,languages/Makefile.mk,queryparser/Makefile.mk,
+	  tests/Makefile.am,tests/perftest/perftest.cc: SVN -> git.
+
 Thu Jul 11 03:39:49 GMT 2013  Olly Betts <olly@survex.com>
 
 	* bin/xapian-chert-update.cc: Documented alias --blocksize for -b has

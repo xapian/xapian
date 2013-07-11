@@ -345,7 +345,7 @@ result. In Italian for example, the four forms
         quest
 
 .. FIXME: Nice idea, but currently these lists are fictitious:
-    In the xapian-data directory in the SVN repository, each language
+    In the xapian-data directory in the git repository, each language
     represented in the stemming section has, in addition to a large test
     vocabulary, a useful stopword list in both source and stemmed form. The
     source form, in the file ``stopsource``, is carefully annotated, and the

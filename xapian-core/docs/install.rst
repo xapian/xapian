@@ -115,8 +115,8 @@ work without further intervention, so they may get installed under
 xapian-bindings for details of how you can override this, and what steps
 you'll need to take to run scripts which use the bindings if you do.
 
-Building from SVN
+Building from git
 ~~~~~~~~~~~~~~~~~
 
 If you wish to help develop Xapian, read `how to build from the Xapian
-subversion repository <http://xapian.org/bleeding>`_.
+git repository <http://xapian.org/bleeding>`_.

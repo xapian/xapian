@@ -251,10 +251,10 @@ targets:
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
 
-SVN Snapshots
-=============
+Snapshots
+=========
 
-If you want to try unreleased Xapian code, you can fetch it from our SVN
+If you want to try unreleased Xapian code, you can fetch it from our git
 repository.  For convenience, we also provide bootstrapped tarballs (much like
 the sourcecode download for any release version) which get built every 20
 minutes if there have been any changes checked in.  These tarballs need to
@@ -262,15 +262,15 @@ pass "make distcheck" to be automatically uploaded, so using them will help
 to assure that you don't pick a "bad" version.  The snapshots are available
 from the "Bleeding Edge" page of the Xapian website.
 
-Building from SVN or git
-========================
+Building from git
+=================
 
-When building from an SVN or git checkout, we *strongly* recommend that you use
+When building from a git checkout, we *strongly* recommend that you use
 the ``bootstrap`` script in the top level directory to set up the tree ready
 for building.  This script will check which directories you have checked out,
 so you can bootstrap a partial tree.
 
-You will need the following tools installed to build from SVN or git:
+You will need the following tools installed to build from git:
 
 * GNU m4 (for autoconf)
 * perl 5 (for automake; also for various maintainer scripts)
@@ -343,7 +343,7 @@ If you wish to prevent bootstrap from downloading and building the autotools
 pass the --without-autotools option.  You can force it to delete the downloaded
 and installed versions by passing --clean.
 
-If you are tracking development in SVN or git, there will sometimes be changes
+If you are tracking development in git, there will sometimes be changes
 to the build system sources which require regeneration of the generated
 makefiles and associated machinery.  We aim to make the build system
 automatically regenerate the necessary files, but in the event that a build
@@ -427,12 +427,12 @@ fail to work.
 There is a good GNU autotools tutorial at
 <http://www.lrde.epita.fr/~adl/autotools.html>.
 
-Building from SVN on Windows with MSVC
+Building from git on Windows with MSVC
 --------------------------------------
 
 The windows build process is maintained in the xapian-maintainer-tools
-directory in the subversion repository.  See the win32msvc/README file in that
-directory for details of how to build from subversion.
+directory in the Xapian git repository.  See the win32msvc/README file in that
+directory for details of how to build from git.
 
 Use of C++ Features
 ===================
