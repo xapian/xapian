@@ -64,7 +64,7 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE DESTINATION_DATABASE\n\n"
 "Options:\n"
-"  -b, --blocksize   Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
+"  -b                Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
 "                    (must be between 2K and 64K and a power of 2, default 8K)\n"
 "  --help            display this help and exit\n"
 "  --version         output version information and exit" << endl;
