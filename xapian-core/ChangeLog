@@ -1,3 +1,12 @@
+Thu Jul 11 11:37:19 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/win32_uuid.cc: Microsoft GUIDs in binary form have reversed
+	  byte order in the first three components compared to standard UUIDs,
+	  so the same database would report a different UUID on Windows to
+	  on other platforms.  With this fix, the UUIDs of existing databases
+	  will appear to change on Windows (except in rare "palindronic" cases).
+
 Thu Jul 11 11:35:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
