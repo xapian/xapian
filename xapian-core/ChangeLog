@@ -1,3 +1,8 @@
+Thu Jul 11 03:36:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* bin/xapian-chert-update.cc: Fix -b to work rather than always
+	  segfaulting (reported in http://bugs.debian.org/716484).
+
 Thu Jul 11 03:32:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

@@ -1,7 +1,7 @@
 /** @file xapian-chert-update.cc
  * @brief Update a chert database to the new format keys
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -331,7 +331,7 @@ copy_docid_keyed(FlintTable &in, ChertTable *out)
 int
 main(int argc, char **argv)
 {
-    const char * opts = "b";
+    const char * opts = "b:";
     const struct option long_opts[] = {
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
