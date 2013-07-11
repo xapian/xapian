@@ -29,8 +29,8 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 AC_DEFUN([XO_LIB_XAPIAN],
 [
   AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config (default:] ifelse([$3], [], xapian-config, [$3]) [on PATH)])
-  dnl AC_PATH_PROGS ignores an existing user setting of XAPIAN_CONFIG unless
-  dnl is has a full path, so we specify any existing setting as the value
+  dnl AC_PATH_PROG ignores an existing user setting of XAPIAN_CONFIG unless
+  dnl it has a full path, so we specify any existing setting as the value
   dnl to search for to enable things like this to work:
   dnl   ./configure XAPIAN_CONFIG=xapian-config1.3
   AC_PATH_PROG(XAPIAN_CONFIG, "${XAPIAN_CONFIG-ifelse([$3], [], xapian-config, [$3]}"), [])
