@@ -1113,7 +1113,7 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
