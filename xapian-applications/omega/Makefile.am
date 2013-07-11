@@ -176,6 +176,7 @@ utf8converttest_LDADD = $(XAPIAN_LIBS)
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
+jsonesctest_LDADD = $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1
