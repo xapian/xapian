@@ -1,3 +1,9 @@
+Thu Jul 11 11:35:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst: Correct documentation for stub files specifying
+	  "prog" remote databases.
+
 Thu Jul 11 11:17:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

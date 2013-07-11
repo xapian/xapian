@@ -218,15 +218,17 @@ quartz
 remote
     This can specify either a "program" or TCP remote backend, for example::
 
-        remote ssh xapian-prog.example.com xapian-progsrv
+        remote :ssh xapian-prog.example.com xapian-progsrv
 
     or::
 
         remote xapian-tcp.example.com:12345
 
-    Currently the two are distinguished by checking for a colon (``:``)
-    anywhere in the line, so for the "program" backend, your command can't
-    contain a colon.
+    If the first character of the second word is a colon (``:``), then this is
+    skipped and the remainder of the line is used as the command to run
+    xapian-progsrv and the "program" variant of the remote backend is used.
+    Otherwise the TCP variant of the remote backend is used, and the rest of
+    the line specifies the host and port to connect to.
 
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
