@@ -1,3 +1,14 @@
+Thu Jul 11 03:32:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/chert/chert_dbcheck.cc: Code tweak for clarity.
+	* backends/chert/chert_dbcheck.cc: Fix database check that first docid
+	  in each doclength chunk is more than the last docid in the previous
+	  chunk - previously this didn't actually work.
+	* common/bitstream.h: Fix database check not to falsely report
+	  "position table: Junk after position data" whenever there are 7
+	  unused bits (7 is OK, *more* than 7 isn't).
+
 Mon May 27 00:02:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -76,7 +76,7 @@ class XAPIAN_VISIBILITY_DEFAULT BitReader {
     // there's less than a byte left and that all remaining bits are
     // zero.
     bool check_all_gone() const {
-	return (idx == buf.size() && n_bits < 7 && acc == 0);
+	return (idx == buf.size() && n_bits <= 7 && acc == 0);
     }
 
     void decode_interpolative(std::vector<Xapian::termpos> & pos, int j, int k);
