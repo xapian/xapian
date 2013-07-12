@@ -362,14 +362,17 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        tfidf weight. */
     std::string normalizations;
 
+    /// The factor to multiply with the weight.
+    double factor_;
+
     TfIdfWeight * clone() const;
 
     void init(double factor);
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
-    double get_wdfn(Xapian::termcount wdf, char c) const;
-    double get_idfn(Xapian::doccount termfreq, char c) const;
+    double get_wdfn(double wdf, char c) const;
+    double get_idfn(double termfreq, char c) const;
     double get_wtn(double wt, char c) const;
 
   public:
@@ -632,6 +635,9 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     /// The upper bound on the weight a term can give to a document.
     double upper_bound;
 
+    /// The factor to multiply with the weight.
+    double factor_;
+
     InL2Weight * clone() const;
 
     void init(double factor);
@@ -696,6 +702,9 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor_;
 
     IfB2Weight * clone() const;
 
@@ -763,6 +772,9 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /// The upper bound of the weight.
     double upper_bound;
 
+    /// The factor to multiply with the weight.
+    double factor_;
+
     IneB2Weight * clone() const;
 
     void init(double factor);
@@ -827,6 +839,9 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor_;
 
     BB2Weight * clone() const;
 
@@ -894,6 +909,9 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor_;
 
     DLHWeight * clone() const;
 

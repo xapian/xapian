@@ -56,9 +56,9 @@ TfIdfWeight::clone() const
 }
 
 void
-TfIdfWeight::init(double)
+TfIdfWeight::init(double factor)
 {
-    // None required
+    factor_ = factor;
 }
 
 string
@@ -84,11 +84,11 @@ TfIdfWeight::unserialise(const string & s) const
 double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 {
-    Xapian::doccount termfreq = 1;
+    double termfreq = 1.0;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    double wt = get_wdfn(wdf, normalizations[0]) *
+    double wt = get_wdfn(double(wdf), normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    return get_wtn(wt, normalizations[2]);
+    return get_wtn(wt, normalizations[2]) * factor_;
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq
@@ -96,12 +96,12 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 double
 TfIdfWeight::get_maxpart() const
 {
-    Xapian::doccount termfreq = 1;
+    double termfreq = 1.0;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    Xapian::termcount wdf_max = get_wdf_upper_bound();
+    double wdf_max(get_wdf_upper_bound());
     double wt = get_wdfn(wdf_max, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    return get_wtn(wt, normalizations[2]);
+    return get_wtn(wt, normalizations[2]) * factor_;
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.
@@ -119,7 +119,7 @@ TfIdfWeight::get_maxextra() const
 
 // Return normalized wdf, idf and weight depending on the normalization string.
 double
-TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
+TfIdfWeight::get_wdfn(double wdf, char c) const
 {
     switch (c) {
 	case 'b':
@@ -137,7 +137,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 }
 
 double
-TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
+TfIdfWeight::get_idfn(double termfreq, char c) const
 {
     double N = 1.0;
     if (c != 'n') N = get_collection_size();

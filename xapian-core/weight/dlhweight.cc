@@ -34,8 +34,10 @@ DLHWeight::clone() const
 }
 
 void
-DLHWeight::init(double)
+DLHWeight::init(double factor)
 {
+    factor_ = factor;
+
     double wdf_lower(1.0);
     double wdf_upper(get_wdf_upper_bound());
     double len_lower(get_doclength_lower_bound());
@@ -103,13 +105,13 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 		0.5 * log2(2.0 * M_PI * wdf * (1.0 - wdf_to_len))) /
 		(wdf + 0.5);
 
-    return (get_wqf() * wt) - lower_bound;
+    return ((get_wqf() * wt) - lower_bound) * factor_;
 }
 
 double
 DLHWeight::get_maxpart() const
 {
-    return upper_bound;
+    return upper_bound * factor_;
 }
 
 double
