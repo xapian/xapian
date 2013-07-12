@@ -60,8 +60,10 @@ BB2Weight::clone() const
 }
 
 void
-BB2Weight::init(double)
+BB2Weight::init(double factor)
 {
+    factor_ = factor;
+
     double wdfn_upper(get_wdf_upper_bound());
 
     if (wdfn_upper == 0) {
@@ -137,13 +139,13 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double final_weight = B * (wt + stirling);
 
-    return (get_wqf() * final_weight);
+    return (get_wqf() * final_weight * factor_);
 }
 
 double
 BB2Weight::get_maxpart() const
 {
-    return upper_bound;
+    return upper_bound * factor_;
 }
 
 double

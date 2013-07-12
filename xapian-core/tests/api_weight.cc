@@ -133,16 +133,28 @@ DEFINE_TESTCASE(inl2weight2, !backend) {
 DEFINE_TESTCASE(inl2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("banana"));
-    enquire.set_weighting_scheme(Xapian::InL2Weight(2.0));
-    Xapian::MSet mset;
+    Xapian::Query query("banana");
 
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 1);
-    mset_expect_order(mset, 6);
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::InL2Weight(2.0));
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 1);
+    mset_expect_order(mset1, 6);
+
     /* The value has been calculated in the python interpreter by looking at the
      * database statistics. */
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.559711143842063);
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 1.559711143842063);
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::InL2Weight(2.0));
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 1);
+    TEST_EQUAL_DOUBLE(15.0 * mset1[0].get_weight(), mset2[0].get_weight());
 
     return true;
 }
@@ -185,15 +197,27 @@ DEFINE_TESTCASE(ifb2weight2, !backend) {
 DEFINE_TESTCASE(ifb2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("banana"));
-    Xapian::MSet mset;
+    Xapian::Query query("banana");
 
+    enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::IfB2Weight(2.0));
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 1);
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 1);
+
     /* The value of the weight has been manually calculated using the statistics
      * of the test database. */
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 3.119422287684126);
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 3.119422287684126);
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::IfB2Weight(2.0));
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 1);
+    TEST_EQUAL_DOUBLE(15.0 * mset1[0].get_weight(), mset2[0].get_weight());
 
     return true;
 }
@@ -237,16 +261,30 @@ DEFINE_TESTCASE(ineb2weight2, !backend) {
 DEFINE_TESTCASE(ineb2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::Query query("paragraph");
+    enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::IneB2Weight(2.0));
-    Xapian::MSet mset;
 
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 5);
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 5);
+
     // The third document in the database is 4th in the ranking.
     /* The weight value has been manually calculated by using the statistics
      * of the test database. */
-    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.61709730297692400036);
+    TEST_EQUAL_DOUBLE(mset1[4].get_weight(), 0.61709730297692400036);
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::IneB2Weight(2.0));
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 5);
+
+    for (int i = 0; i < 5; ++i) {
+	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
+    }
 
     return true;
 }
@@ -289,16 +327,30 @@ DEFINE_TESTCASE(bb2weight2, !backend) {
 DEFINE_TESTCASE(bb2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset;
+    Xapian::Query query("paragraph");
 
+    enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::BB2Weight(2.0));
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 5);
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 5);
     /* The third document in the database has the highest weight and is the
      * first in the mset. */
     // Value calculated manually by using the statistics of the test database.
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.6823696969784483);
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 1.6823696969784483);
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::BB2Weight(2.0));
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 5);
+
+    for (int i = 0; i < 5; ++i) {
+	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
+    }
 
     return true;
 }
@@ -307,15 +359,29 @@ DEFINE_TESTCASE(bb2weight3, backend) {
 DEFINE_TESTCASE(dlhweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset;
+    Xapian::Query query("paragraph");
 
+    enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::DLHWeight());
-    mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 5);
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 5);
     /* Weight has been calculated manually by obtaining the statistics from the
      * database.*/
-    TEST_EQUAL_DOUBLE(mset[0].get_weight() - mset[4].get_weight(), 1.17790202016936130);
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight() - mset1[4].get_weight(), 1.17790202016936130);
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::DLHWeight());
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 5);
+
+    for (int i = 0; i < 5; ++i) {
+	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
+    }
 
     return true;
 }
@@ -359,16 +425,27 @@ DEFINE_TESTCASE(tfidfweight2, !backend) {
 DEFINE_TESTCASE(tfidfweight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
+    Xapian::Query query("word");
     Xapian::MSet mset;
 
     // Check for "ntn" when termfreq != N
-    enquire.set_query(Xapian::Query("word"));
+    enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), (8 * log(6 / 2)));
+
+    //Test for OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 2);
+    // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
+    mset_expect_order(mset2, 2, 4);
+    TEST_EQUAL_DOUBLE(15 * mset[0].get_weight(), mset2[0].get_weight());
 
     // Check for "bnn" and for both branches of 'b'.
     enquire.set_query(Xapian::Query("test"));
