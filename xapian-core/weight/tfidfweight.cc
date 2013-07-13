@@ -129,7 +129,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 	    return (wdf * wdf);
 	case 'l':
 	    if (wdf == 0) return 0;
-	    return (1 + log(wdf));
+	    return (1 + log(double(wdf)));
 	default:
 	    AssertEq(c, 'n');
 	    return wdf;

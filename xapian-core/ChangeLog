@@ -1,3 +1,8 @@
+Sat Jul 13 11:24:20 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/tfidfweight.cc: Explicitly cast argument of log() to double,
+	  as xlC doesn't manage to chose an overloaded form to call otherwise.
+
 Sat Jul 13 07:29:25 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* include/xapian/weight.h,tests/api_weight.cc,
