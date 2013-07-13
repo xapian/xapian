@@ -363,6 +363,12 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_EQUAL(dlhweight.serialise(), wt->serialise());
     delete wt;
 
+    Xapian::DPHWeight dphweight;
+    TEST_EQUAL(dphweight.name(), "Xapian::DPHWeight");
+    wt = Xapian::DPHWeight().unserialise(dphweight.serialise());
+    TEST_EQUAL(dphweight.serialise(), wt->serialise());
+    delete wt;
+
     return true;
 }
 
