@@ -84,9 +84,9 @@ TfIdfWeight::unserialise(const string & s) const
 double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 {
-    double termfreq = 1.0;
+    Xapian::doccount termfreq = 1.0;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    double wt = get_wdfn(double(wdf), normalizations[0]) *
+    double wt = get_wdfn(wdf, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
     return get_wtn(wt, normalizations[2]) * factor_;
 }
@@ -96,9 +96,9 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
 double
 TfIdfWeight::get_maxpart() const
 {
-    double termfreq = 1.0;
+    Xapian::doccount termfreq = 1.0;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    double wdf_max(get_wdf_upper_bound());
+    Xapian::termcount wdf_max(get_wdf_upper_bound());
     double wt = get_wdfn(wdf_max, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
     return get_wtn(wt, normalizations[2]) * factor_;
@@ -119,7 +119,7 @@ TfIdfWeight::get_maxextra() const
 
 // Return normalized wdf, idf and weight depending on the normalization string.
 double
-TfIdfWeight::get_wdfn(double wdf, char c) const
+TfIdfWeight::get_wdfn(Xapian::termcount wdf, char c) const
 {
     switch (c) {
 	case 'b':
@@ -129,7 +129,7 @@ TfIdfWeight::get_wdfn(double wdf, char c) const
 	    return (wdf * wdf);
 	case 'l':
 	    if (wdf == 0) return 0;
-	    return (1 + log(wdf));
+	    return (1 + log(double(wdf)));
 	default:
 	    AssertEq(c, 'n');
 	    return wdf;
@@ -137,7 +137,7 @@ TfIdfWeight::get_wdfn(double wdf, char c) const
 }
 
 double
-TfIdfWeight::get_idfn(double termfreq, char c) const
+TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 {
     double N = 1.0;
     if (c != 'n') N = get_collection_size();
@@ -147,10 +147,10 @@ TfIdfWeight::get_idfn(double termfreq, char c) const
 	case 'p':
 	    // All documents are indexed by the term
 	    if (N == termfreq) return 0;
-	    return log((N - termfreq) / termfreq);
+	    return log(double((N - termfreq) / termfreq));
 	default:
 	    AssertEq(c, 't');
-	    return (log(N / termfreq));
+	    return (log(double((N / termfreq))));
     }
 }
 
