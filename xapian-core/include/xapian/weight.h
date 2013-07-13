@@ -362,6 +362,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        tfidf weight. */
     std::string normalizations;
 
+    /// The factor to multiply with the weight.
+    double factor;
+
     TfIdfWeight * clone() const;
 
     void init(double factor);
@@ -632,6 +635,9 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     /// The upper bound on the weight a term can give to a document.
     double upper_bound;
 
+    /// The factor to multiply with the weight.
+    double factor;
+
     InL2Weight * clone() const;
 
     void init(double factor);
@@ -696,6 +702,9 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
 
     IfB2Weight * clone() const;
 
@@ -763,6 +772,9 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /// The upper bound of the weight.
     double upper_bound;
 
+    /// The factor to multiply with the weight.
+    double factor;
+
     IneB2Weight * clone() const;
 
     void init(double factor);
@@ -827,6 +839,9 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
 
     BB2Weight * clone() const;
 
@@ -894,6 +909,9 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
 
     DLHWeight * clone() const;
 

@@ -54,8 +54,10 @@ InL2Weight::clone() const
 }
 
 void
-InL2Weight::init(double)
+InL2Weight::init(double factor_)
 {
+    factor = factor_;
+
     double wdfn_upper(get_wdf_upper_bound());
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -116,13 +118,13 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double idf = log2((N + 1) / (termfrequency + 0.5));
 
-    return (get_wqf() * wdfn * L * idf);
+    return (get_wqf() * wdfn * L * idf * factor);
 }
 
 double
 InL2Weight::get_maxpart() const
 {
-    return upper_bound;
+    return upper_bound * factor;
 }
 
 double

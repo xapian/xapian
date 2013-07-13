@@ -53,8 +53,10 @@ IneB2Weight::clone() const
 }
 
 void
-IneB2Weight::init(double)
+IneB2Weight::init(double factor_)
 {
+    factor = factor_;
+
     double wdfn_upper(get_wdf_upper_bound());
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -123,13 +125,13 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double idf = log2((N + 1.0) / (expected + 0.5));
 
-    return (wdfn * idf * get_wqf() * B);
+    return (wdfn * idf * get_wqf() * B * factor);
 }
 
 double
 IneB2Weight::get_maxpart() const
 {
-    return upper_bound;
+    return upper_bound * factor;
 }
 
 double

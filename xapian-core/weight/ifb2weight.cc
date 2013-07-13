@@ -55,8 +55,10 @@ IfB2Weight::clone() const
 }
 
 void
-IfB2Weight::init(double)
+IfB2Weight::init(double factor_)
 {
+    factor = factor_;
+
     double wdfn_upper(get_wdf_upper_bound());
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -117,13 +119,13 @@ IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double idf = log2((N + 1.0) / (F + 0.5));
 
-    return (wdfn * get_wqf() * B * idf);
+    return (wdfn * get_wqf() * B * idf * factor);
 }
 
 double
 IfB2Weight::get_maxpart() const
 {
-    return upper_bound;
+    return upper_bound * factor;
 }
 
 double

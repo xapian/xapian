@@ -56,9 +56,9 @@ TfIdfWeight::clone() const
 }
 
 void
-TfIdfWeight::init(double)
+TfIdfWeight::init(double factor_)
 {
-    // None required
+    factor = factor_;
 }
 
 string
@@ -88,7 +88,7 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     double wt = get_wdfn(wdf, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    return get_wtn(wt, normalizations[2]);
+    return get_wtn(wt, normalizations[2]) * factor;
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq
@@ -101,7 +101,7 @@ TfIdfWeight::get_maxpart() const
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     double wt = get_wdfn(wdf_max, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    return get_wtn(wt, normalizations[2]);
+    return get_wtn(wt, normalizations[2]) * factor;
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.
