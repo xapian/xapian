@@ -13,6 +13,7 @@ lib_src +=\
 	weight/ifb2weight.cc\
 	weight/ineb2weight.cc\
 	weight/inl2weight.cc\
+	weight/pl2weight.cc\
 	weight/tradweight.cc\
 	weight/tfidfweight.cc\
 	weight/weight.cc\

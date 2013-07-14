@@ -363,6 +363,17 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_EQUAL(dlhweight.serialise(), wt->serialise());
     delete wt;
 
+    Xapian::PL2Weight pl2weight_dflt;
+    Xapian::PL2Weight pl2weight(1.0);
+    TEST_EQUAL(pl2weight.name(), "Xapian::PL2Weight");
+    TEST_EQUAL(pl2weight_dflt.serialise(), pl2weight.serialise());
+    wt = Xapian::PL2Weight().unserialise(pl2weight.serialise());
+    TEST_EQUAL(pl2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::PL2Weight pl2weight2(2.0);
+    TEST_NOT_EQUAL(pl2weight.serialise(), pl2weight2.serialise());
+
     return true;
 }
 

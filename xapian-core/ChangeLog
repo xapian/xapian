@@ -1,3 +1,9 @@
+Sun Jul 14 07:04:52 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
+	  tests/api_weight.cc,weight/Makefile.mk,weight/pl2weight.cc: Add an
+	  implementation of DfR weighting scheme PL2.
+
 Sat Jul 13 11:24:20 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* weight/tfidfweight.cc: Explicitly cast argument of log() to double,
