@@ -397,9 +397,10 @@ $set{OPT,VALUE}
           all separated by whitespace.  Any parameters not specified will use
           their default values. Valid scheme names are ``bb2`` (in Omega >= 1.3.2),
           ``bm25``, ``bool``, ``dlh`` (in Omega >= 1.3.2),
-          ``ifb2`` (in Omega >= 1.3.2), ``ineb2``
-          (in Omega >= 1.3.2), ``inl2`` (in Omega >= 1.3.2), ``tfidf``
-          (in Omega >= 1.3.1), and ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
+          ``ifb2`` (in Omega >= 1.3.2), ``ineb2`` (in Omega >= 1.3.2),
+          ``inl2`` (in Omega >= 1.3.2), ``pl2`` (in Omega >= 1.3.2),
+          ``tfidf`` (in Omega >= 1.3.1), and ``trad``.  e.g.
+          ``$set{weighting,bm25 1 0.8}``
 
 	Omega 1.2.5 and later support the following options can be set to a
 	non-empty value to enable the corresponding ``QueryParser`` flag.
