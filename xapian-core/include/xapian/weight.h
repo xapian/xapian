@@ -971,6 +971,12 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     /// The upper bound on the weight.
     double upper_bound;
 
+    /// Constants for a given term in a given query.
+    double P1, P2;
+
+    /// Set by init() to (param_c * get_average_length())
+    double cl;
+
     PL2Weight * clone() const;
 
     void init(double factor);
