@@ -232,6 +232,17 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		return;
 	    }
 	}
+
+	if (startswith(scheme, "dph")) {
+	    const char *p = scheme.c_str() + 3;
+	    if (*p == '\0') {
+		enq.set_weighting_scheme(Xapian::DPHWeight());
+		return;
+	    }
+	    if (C_isspace((unsigned char)*p)) {
+		throw "No parameters are required for DPH";
+	    }
+	}
 #endif
 
 	if (scheme != "bool") {
