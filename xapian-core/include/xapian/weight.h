@@ -961,15 +961,15 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
   public:
     /** Construct a DPHWeight. */
     DPHWeight() {
-    need_stat(AVERAGE_LENGTH);
-    need_stat(DOC_LENGTH);
-    need_stat(COLLECTION_SIZE);
-    need_stat(COLLECTION_FREQ);
-    need_stat(WDF);
-    need_stat(WQF);
-    need_stat(WDF_MAX);
-    need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
+        need_stat(AVERAGE_LENGTH);
+        need_stat(DOC_LENGTH);
+        need_stat(COLLECTION_SIZE);
+        need_stat(COLLECTION_FREQ);
+        need_stat(WDF);
+        need_stat(WQF);
+        need_stat(WDF_MAX);
+        need_stat(DOC_LENGTH_MIN);
+        need_stat(DOC_LENGTH_MAX);
     }
 
     std::string name() const;
