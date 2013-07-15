@@ -435,6 +435,36 @@ DEFINE_TESTCASE(pl2weight3, backend) {
     return true;
 }
 
+// Feature test
+DEFINE_TESTCASE(dphweight1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::Query query("paragraph");
+
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::DPHWeight());
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 5);
+    /* The weight has been calculated manually by using the statistics of the
+     * test database. */
+    TEST_EQUAL_DOUBLE(mset1[2].get_weight() - mset1[4].get_weight(), 0.542623617687990167);
+
+    //Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::DPHWeight());
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 5);
+    for (int i = 0; i < 5; ++i) {
+	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
+    }
+
+    return true;
+}
+
 // Test for various cases of normalization string.
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid

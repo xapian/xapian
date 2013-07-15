@@ -1,3 +1,9 @@
+Mon Jul 15 12:01:17 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_nodb.cc,
+	  tests/api_weight.cc,weight/Makefile.mk,weight/dphweight.cc: Add an
+	  implementation of DfR weighting scheme DPH.
+
 Sun Jul 14 07:39:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h,weight/pl2weight.cc: Optimise PL2Weight to
