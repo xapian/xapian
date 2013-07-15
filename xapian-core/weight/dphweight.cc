@@ -34,10 +34,12 @@ DPHWeight::clone() const
 }
 
 void
-DPHWeight::init(double factor)
+DPHWeight::init(double factor_)
 {
-    factor_ = factor;
+    factor = factor_;
 
+    double F(get_collection_freq());
+    double N(get_collection_size());
     double wdf_lower(1.0);
     double wdf_upper(get_wdf_upper_bound());
 
@@ -45,18 +47,16 @@ DPHWeight::init(double factor)
     double len_lower(get_doclength_lower_bound());
 
     double min_wdf_to_len = wdf_lower / len_upper;
-
-    /* Cacluate lower bound on the weight in order to deal with negative
-     * weights. */
-
     double max_normalization = pow((1.0 - min_wdf_to_len), 2) / (wdf_lower + 1.0);
     double min_normalization = pow(1.0 / len_upper, 2) / (wdf_upper + 1.0);
 
+    /* Cacluate lower bound on the weight in order to deal with negative
+     * weights. */
     double min_weight = min_normalization *
-                        (wdf_lower * log2((wdf_lower * get_average_length() /
-                        len_upper) * (6.0 /
-                        9.0)) +
-                        (0.5 * log2(2 * M_PI * wdf_lower / len_upper)));
+                        (wdf_lower *
+                        log2((wdf_lower * get_average_length() / len_upper) *
+                        (N / F)) +
+                        (0.5 * log2(2.0 * M_PI * wdf_lower / len_upper)));
 
     lower_bound = get_wqf() * min_weight;
 
@@ -67,10 +67,10 @@ DPHWeight::init(double factor)
     }
 
     double max_weight = max_normalization *
-                        (wdf_upper * log2((wdf_upper * get_average_length() /
-                        len_lower) * (get_collection_size() /
-                        get_collection_freq())) +
-                        (0.5 * log2(2 * 3.14 * wdf_upper * (1 - min_wdf_to_len))));
+                        (wdf_upper *
+                        log2((wdf_upper * get_average_length() / len_lower) *
+                        (N / F)) +
+                        (0.5 * log2(2 * M_PI * wdf_upper * (1 - min_wdf_to_len))));
 
     upper_bound = (get_wqf() * max_weight) - lower_bound;
 }
@@ -98,23 +98,26 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
 
+    double F(get_collection_freq());
+    double N(get_collection_size());
     double wdf_to_len = double(wdf) / len;
 
     double normalization = pow((1 - wdf_to_len), 2) / (wdf + 1);
 
     double weight = normalization *
-                    (wdf * log2((wdf * get_average_length() / len) *
-                    (get_collection_size() / get_collection_freq())) +
-                    (0.5 * log2(2 * 3.14 * wdf * (1 - wdf_to_len))));
+                    (wdf *
+                    log2((wdf * get_average_length() / len) *
+                    (N / F)) +
+                    (0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
 
     // Subtract the lower bound from the actual weight to avoid negative weights.
-    return ((get_wqf() * weight) - lower_bound) * factor_;
+    return ((get_wqf() * weight) - lower_bound) * factor;
 }
 
 double
 DPHWeight::get_maxpart() const
 {
-    return upper_bound * factor_;
+    return upper_bound * factor;
 }
 
 double

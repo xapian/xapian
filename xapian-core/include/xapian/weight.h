@@ -952,7 +952,7 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     double lower_bound;
 
     /// The factor with which to multiply the weight.
-    double factor_;
+    double factor;
 
     DPHWeight * clone() const;
 
