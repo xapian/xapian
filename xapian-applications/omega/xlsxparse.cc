@@ -23,6 +23,7 @@
 #include "xlsxparse.h"
 
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 
 using namespace std;
@@ -36,10 +37,14 @@ XlsxParser::opening_tag(const string &tag)
 	string type;
 	if (get_parameter("t", type) && type == "s") {
 	    mode = MODE_C_STRING;
-	} else if (get_parameter("s", type) && type == "1") {
-	    mode = MODE_C_DATE;
 	} else {
 	    mode = MODE_C_LITERAL;
+	    if (get_parameter("s", type)) {
+		unsigned long style_id = strtoul(type.c_str(), NULL, 10);
+		if (date_style.find(style_id) != date_style.end()) {
+		    mode = MODE_C_DATE;
+		}
+	    }
 	}
     } else if (tag == "v") {
 	if (mode == MODE_C_LITERAL) {
@@ -64,6 +69,38 @@ XlsxParser::opening_tag(const string &tag)
 	string v;
 	if (get_parameter("date1904", v)) {
 	    date1904 = (v == "true" || v == "1");
+	}
+    } else if (tag == "numfmt") {
+	string formatcode;
+	if (get_parameter("formatcode", formatcode)) {
+	    // Heuristic for "date format" (FIXME: implement properly)
+	    if (strchr(formatcode.c_str(), 'd') &&
+		strchr(formatcode.c_str(), 'm') &&
+		strchr(formatcode.c_str(), 'y')) {
+		string v;
+		if (get_parameter("numfmtid", v)) {
+		    unsigned long id = strtoul(v.c_str(), NULL, 10);
+		    date_format.insert(id);
+		}
+	    }
+	}
+    } else if (tag == "cellxfs") {
+	if (!date_format.empty())
+	    mode = MODE_CELLXFS;
+    } else if (tag == "xf") {
+	if (mode == MODE_CELLXFS) {
+	    string v;
+	    if (get_parameter("applynumberformat", v)) {
+		if (v == "true" || v == "1") {
+		    if (get_parameter("numfmtid", v)) {
+			unsigned long id = strtoul(v.c_str(), NULL, 10);
+			if (date_format.find(id) != date_format.end()) {
+			    date_style.insert(style_index);
+			}
+		    }
+		}
+	    }
+	    ++style_index;
 	}
     }
     return true;

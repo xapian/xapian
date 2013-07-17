@@ -24,9 +24,13 @@
 #include "htmlparse.h"
 
 #include <vector>
+#include <set>
 
 class XlsxParser : public HtmlParser {
     std::vector<std::string> sst;
+    std::set<unsigned> date_style;
+    std::set<unsigned long> date_format;
+
     enum {
 	MODE_NONE,
 	MODE_SI,
@@ -35,8 +39,12 @@ class XlsxParser : public HtmlParser {
 	MODE_C_LITERAL,
 	MODE_V_LITERAL,
 	MODE_C_DATE,
-	MODE_V_DATE
+	MODE_V_DATE,
+	MODE_CELLXFS
     } mode;
+
+    bool date1904;
+    unsigned style_index;
 
     void append_field(const std::string &text) {
 	if (!text.empty()) {
@@ -47,9 +55,9 @@ class XlsxParser : public HtmlParser {
 
   public:
     std::string dump;
-    bool date1904;
 
-    XlsxParser() : HtmlParser(), mode(MODE_NONE), date1904(false) { }
+    XlsxParser()
+	: HtmlParser(), mode(MODE_NONE), date1904(false), style_index(0) { }
     bool opening_tag(const std::string &tag);
     void process_text(const std::string &text);
 };
