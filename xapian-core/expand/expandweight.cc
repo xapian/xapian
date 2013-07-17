@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2011 Olly Betts
  * Copyright (C) 2011 Action Without Borders
+ * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,23 +35,26 @@ using namespace std;
 namespace Xapian {
 namespace Internal {
 
-double
-ExpandWeight::get_weight(TermList * merger, const string & term) const
+void
+ExpandWeight::collect_statistics(TermList * merger, const string & term) const
 {
-    LOGCALL(MATCH, double, "ExpandWeight::get_weight", merger | term);
+    LOGCALL(MATCH, void, "ExpandWeight::collect_statistics", merger | term);
 
     // Accumulate the stats for this term across all relevant documents.
-    ExpandStats stats(avlen, expand_k);
+    ExpandStats stats(avlen);
     merger->accumulate_stats(stats);
 
-    double termfreq = stats.termfreq;
-    double rtermfreq = stats.rtermfreq;
+    termfreq = stats.termfreq;
+    rtermfreq = stats.rtermfreq;
+    rcollection_freq = stats.rcollection_freq;
+    rtotlen = stats.rtotlen;
 
     LOGVALUE(EXPAND, rsize);
     LOGVALUE(EXPAND, rtermfreq);
 
     LOGVALUE(EXPAND, dbsize);
     LOGVALUE(EXPAND, stats.dbsize);
+
     if (stats.dbsize == dbsize) {
 	// Either we're expanding from just one database, or we got stats from
 	// all the sub-databases (because at least one relevant document from
@@ -95,20 +99,11 @@ ExpandWeight::get_weight(TermList * merger, const string & term) const
 	    }
 	}
     }
+
     LOGVALUE(EXPAND, termfreq);
-
-    double reldocs_without_term = rsize - rtermfreq;
-    double num, denom;
-    num = (rtermfreq + 0.5) * (dbsize - termfreq - reldocs_without_term + 0.5);
-    AssertRel(num,>,0);
-    denom = (termfreq - rtermfreq + 0.5) * (reldocs_without_term + 0.5);
-    AssertRel(denom,>,0);
-
-    double tw = log(num / denom);
-    LOGVALUE(EXPAND, tw);
-    LOGVALUE(EXPAND, stats.multiplier);
-    RETURN(stats.multiplier * tw);
 }
 
+// Will implement get_weight(), clone and init in base class.
+//Yet to incorporate collection frequency of the term in the base class.
 }
 }

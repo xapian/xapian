@@ -2,6 +2,7 @@
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
 /* Copyright (C) 2007,2008,2009,2011 Olly Betts
+ * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,16 +33,13 @@
 namespace Xapian {
 namespace Internal {
 
-/// Collates statistics while calculating term weight in an ESet.
+// Collates statistics for calculating term weight in an ESet.
 class ExpandStats {
     // Which databases in a multidb are included in termfreq.
     std::vector<bool> dbs_seen;
 
     // Average document length in the whole database.
     Xapian::doclength avlen;
-
-    /// Parameter 'k' in the probabilistic expand weighting formula.
-    double expand_k;
 
   public:
     /// Size of the subset of a multidb to which the value in termfreq applies.
@@ -56,18 +54,14 @@ class ExpandStats {
     /// The sum of the lengths of the documents in the Rset.
     totlen_t rtotlen;
 
-    /// Factor to multiply w(t) by.
-    double multiplier;
-
     /// The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
 
     /// Keeps track of the index of the sub-database we're accumulating for.
     size_t db_index;
 
-    ExpandStats(Xapian::doclength avlen_, double expand_k_)
-	: avlen(avlen_), expand_k(expand_k_),
-	  dbsize(0), termfreq(0), rcollection_freq(0), rtotlen(0), multiplier(0),
+    ExpandStats(Xapian::doclength avlen_)
+	: avlen(avlen_), dbsize(0), termfreq(0), rcollection_freq(0), rtotlen(0),
 	  rtermfreq(0), db_index(0) {
     }
 
@@ -77,9 +71,7 @@ class ExpandStats {
 	// get a non-zero weight.
 	if (wdf == 0) wdf = 1;
 
-	multiplier += (expand_k + 1) * wdf / (expand_k * doclen / avlen + wdf);
 	++rtermfreq;
-
 	// If we've not seen this sub-database before, then update dbsize and
 	// termfreq and note that we have seen it.
 	if (db_index >= dbs_seen.size() || !dbs_seen[db_index]) {
@@ -93,7 +85,7 @@ class ExpandStats {
     }
 };
 
-/// Class for calculating probabilistic ESet term weights.
+// Base Class for calculating probabilistic ESet term weights.
 class ExpandWeight {
     /// The combined database.
     const Xapian::Database db;
@@ -119,8 +111,17 @@ class ExpandWeight {
      */
     bool use_exact_termfreq;
 
-    /// Parameter k in the probabilistic expand weighting formula.
-    double expand_k;
+    /// The termfrequency of the term.
+    Xapian::doccount termfreq;
+
+    /// The termfrequency of the term in the RSet.
+    Xapian::doccount rtermfreq;
+
+    /// The number of times the term occurs in the rset.
+    Xapian::termcount rcollection_freq;
+
+    /// The sum of the lengths of the documents in the Rset.
+    totlen_t rtotlen;
 
 public:
     /** Constructor.
@@ -139,14 +140,64 @@ public:
 		 double expand_k_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
 	  rsize(rsize_), use_exact_termfreq(use_exact_termfreq_),
-	  expand_k(expand_k_) { }
+	  termfreq(0), rtermfreq(0), rcollection_freq(0), rtotlen(0) { }
 
-    /** Get the expand weight.
+    /** Virtual destructor, because we have virtual methods. */
+    virtual ~ExpandWeight();
+
+     /** Clone this object.
+     *
+     *  This method allocates and returns a copy of the object it is called on.
+     *
+     *  If your subclass is called FooWeight and has parameters a and b, then
+     *  you would implement FooWeight::clone() like so:
+     *
+     *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  If you want to handle the deletion in a special way
+     *  (for example when wrapping the Xapian API for use from another
+     *  language) then you can define a static <code>operator delete</code>
+     *  method in your subclass as shown here:
+     *  http://trac.xapian.org/ticket/554#comment:1
+     */
+    virtual ExpandWeight * clone() const = 0;
+
+    /** Collect the statistics to pass on to the subclassed weighting scheme.
      *
      *  @param merger The tree of TermList objects.
      *  @param term The current term name.
      */
-    double get_weight(TermList * merger, const std::string & term) const;
+    void collect_statistics(TermList * merger, const string & term) const;
+
+    /// Get the weight of the term.
+    virtual double get_weight( ) const = 0;
+
+    /// Allow the subclass to perform any initialisation it needs to.
+    virtual void init() = 0;
+
+protected:
+    /// Get the number of documents in the database.
+    Xapian::doccount get_dbsize() const { return dbsize; }
+
+    /// Get the average length of the documents.
+    Xapian::doclength get_avelen() const { return avelen; }
+
+    /// Get the number of documents in the RSet.
+    Xapian::doccount get_rsize() const { return rsize; }
+
+    /// Get the termfrequency of the term.
+    Xapian::doccount get_termfreq() const { return termfreq; }
+
+    /// Get the termfrequency of the term in the RSet.
+    Xapian::doccount get_rtermfreq() const { return rtermfreq; }
+
+    /// Get the total number of times the term occurs in the RSet.
+    Xapian::termcount get_rcollection_freq() const {  return rcollection_freq; }
+
+    /// Get the total length of all documents in the RSet.
+    totlen_t get_rtotlen() const { return rtotlen; }
+
 };
 
 }
