@@ -1,7 +1,7 @@
 /** @file xslxparse.h
  * @brief Extract fields from XLSX sheet*.xml.
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,9 @@ class XlsxParser : public HtmlParser {
 	MODE_C_STRING,
 	MODE_V_STRING,
 	MODE_C_LITERAL,
-	MODE_V_LITERAL
+	MODE_V_LITERAL,
+	MODE_C_DATE,
+	MODE_V_DATE
     } mode;
 
     void append_field(const std::string &text) {
@@ -45,8 +47,9 @@ class XlsxParser : public HtmlParser {
 
   public:
     std::string dump;
+    bool date1904;
 
-    XlsxParser() : HtmlParser(), mode(MODE_NONE) { }
+    XlsxParser() : HtmlParser(), mode(MODE_NONE), date1904(false) { }
     bool opening_tag(const std::string &tag);
     void process_text(const std::string &text);
 };

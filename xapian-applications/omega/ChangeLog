@@ -1,3 +1,7 @@
+Wed Jul 17 03:48:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc,xlsxparse.cc,xlsxparse.h: Decode dates for xlsx files.
+
 Mon Jul 15 12:03:32 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* docs/omegascript.rst,weight.cc: Add support for $set{weighting,dph}.

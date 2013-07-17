@@ -23,6 +23,7 @@
 #include "xlsxparse.h"
 
 #include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -35,6 +36,8 @@ XlsxParser::opening_tag(const string &tag)
 	string type;
 	if (get_parameter("t", type) && type == "s") {
 	    mode = MODE_C_STRING;
+	} else if (get_parameter("s", type) && type == "1") {
+	    mode = MODE_C_DATE;
 	} else {
 	    mode = MODE_C_LITERAL;
 	}
@@ -43,6 +46,8 @@ XlsxParser::opening_tag(const string &tag)
 	    mode = MODE_V_LITERAL;
 	} else if (mode == MODE_C_STRING) {
 	    mode = MODE_V_STRING;
+	} else if (mode == MODE_C_DATE) {
+	    mode = MODE_V_DATE;
 	}
     } else if (tag == "si") {
 	mode = MODE_SI;
@@ -55,6 +60,11 @@ XlsxParser::opening_tag(const string &tag)
 	    // attribute told us to.
 	    sst.reserve(std::min(c, 1000000ul));
 	}
+    } else if (tag == "workbookpr") {
+	string v;
+	if (get_parameter("date1904", v)) {
+	    date1904 = (v == "true" || v == "1");
+	}
     }
     return true;
 }
@@ -63,11 +73,33 @@ void
 XlsxParser::process_text(const string &text)
 {
     switch (mode) {
+	case MODE_V_DATE: {
+	    // Date field.
+	    unsigned long c = strtoul(text.c_str(), NULL, 10);
+	    if (date1904) {
+		c -= 24107;
+	    } else {
+		// The spec insists we treat 1900 as a leap year!
+		if (c > 60) --c;
+		c -= 25568;
+	    }
+	    time_t t = c * 86400 + 43200;
+	    struct tm * tm = gmtime(&t);
+	    if (tm) {
+		char buf[32];
+		size_t res = strftime(buf, sizeof(buf), "%Y-%m-%d", tm);
+		if (res)
+		    append_field(string(buf, res));
+	    }
+	    mode = MODE_NONE;
+	    return;
+	}
 	case MODE_V_STRING: {
 	    // Shared string use.
 	    unsigned long c = strtoul(text.c_str(), NULL, 10);
-	    if (c < sst.size())
+	    if (c < sst.size()) {
 		append_field(sst[c]);
+	    }
 	    mode = MODE_NONE;
 	    return;
 	}

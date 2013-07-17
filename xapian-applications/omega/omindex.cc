@@ -585,7 +585,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// the shared strings.
 		string cmd = "unzip -p";
 		append_filename_argument(cmd, file);
-		cmd += " xl/sharedStrings.xml ; unzip -p";
+		cmd += " xl/workbook.xml xl/sharedStrings.xml ; unzip -p";
 		append_filename_argument(cmd, file);
 		cmd += " xl/worksheets/sheet\\*.xml";
 		try {
