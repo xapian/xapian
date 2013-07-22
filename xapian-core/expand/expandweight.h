@@ -2,6 +2,7 @@
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
 /* Copyright (C) 2007,2008,2009,2011 Olly Betts
+ * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,9 +41,6 @@ class ExpandStats {
     // Average document length in the whole database.
     Xapian::doclength avlen;
 
-    /// Parameter 'k' in the probabilistic expand weighting formula.
-    double expand_k;
-
   public:
     /// Size of the subset of a multidb to which the value in termfreq applies.
     Xapian::doccount dbsize;
@@ -56,19 +54,15 @@ class ExpandStats {
     /// The sum of the lengths of the documents in the Rset.
     totlen_t rtotlen;
 
-    /// Factor to multiply w(t) by.
-    double multiplier;
-
     /// The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
 
     /// Keeps track of the index of the sub-database we're accumulating for.
     size_t db_index;
 
-    ExpandStats(Xapian::doclength avlen_, double expand_k_)
-	: avlen(avlen_), expand_k(expand_k_),
-	  dbsize(0), termfreq(0), rcollection_freq(0), rtotlen(0), multiplier(0),
-	  rtermfreq(0), db_index(0) {
+    ExpandStats(Xapian::doclength avlen_)
+	: avlen(avlen_), dbsize(0), termfreq(0), rcollection_freq(0),
+	  rtotlen(0), rtermfreq(0), db_index(0) {
     }
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
@@ -76,8 +70,6 @@ class ExpandStats {
 	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
 	// get a non-zero weight.
 	if (wdf == 0) wdf = 1;
-
-	multiplier += (expand_k + 1) * wdf / (expand_k * doclen / avlen + wdf);
 	++rtermfreq;
 
 	// If we've not seen this sub-database before, then update dbsize and
@@ -107,6 +99,12 @@ class ExpandWeight {
     /// The number of documents in the RSet.
     Xapian::doccount rsize;
 
+    /// The collection frequency of the term.
+    Xapian::termcount collection_freq;
+
+    /// The total length of the databse.
+    totlen_t collection_len;
+
     /** Should we calculate the exact term frequency when generating an ESet?
      *
      *  This only has any effect if we're using a combined database.
@@ -119,10 +117,11 @@ class ExpandWeight {
      */
     bool use_exact_termfreq;
 
-    /// Parameter k in the probabilistic expand weighting formula.
-    double expand_k;
-
 public:
+
+    /// An ExpandStats object to accumulate statistics.
+    ExpandStats stats;
+
     /** Constructor.
      *
      *  @param db_ The database.
@@ -130,26 +129,53 @@ public:
      *  @param use_exact_termfreq_ When expanding over a combined database,
      *				   should we use the exact termfreq (if false
      *				   a cheaper approximation is used).
-     *  @param expand_k_ Parameter k in the probabilistic expand weighting
-     *			 formula.
      */
     ExpandWeight(const Xapian::Database &db_,
-		 Xapian::doccount rsize_,
-		 bool use_exact_termfreq_,
-		 double expand_k_)
+	        Xapian::doccount rsize_,
+	        bool use_exact_termfreq_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
-	  rsize(rsize_), use_exact_termfreq(use_exact_termfreq_),
-	  expand_k(expand_k_) { }
+	  rsize(rsize_),  collection_freq(0),  collection_len(avlen * dbsize),
+	  use_exact_termfreq(use_exact_termfreq_), stats(avlen) {}
 
-    /** Get the expand weight.
-     *
+    /** Get the term statistics.
      *  @param merger The tree of TermList objects.
      *  @param term The current term name.
      */
-    double get_weight(TermList * merger, const std::string & term) const;
+    void collect_stats(TermList * merger, const std::string & term);
+
+    /// Allow the expansion scheme to perform initializations.
+    virtual void init()  = 0;
+
+    /// Calculate the weight.
+    virtual double get_weight() const = 0;
+
+protected:
+    /// Return the average length of the databse.
+    double get_avelen() const { return avlen; }
+
+    /// Return the collection frequency of the term.
+    Xapian::termcount get_collection_freq() const { return collection_freq; }
+
+    /// Return the length of the collection.
+    totlen_t get_collection_len() const { return collection_len; }
+
+    /// Return the size of the database.
+    Xapian::doccount get_dbsize() const { return dbsize; }
 };
 
-}
-}
+/// Only for testing purposes. will delete after testing is over.
+class dummy : public ExpandWeight {
+public :
 
+dummy(const Xapian::Database &db_,
+      Xapian::doccount rsize_,
+      bool use_exact_termfreq_)
+      : ExpandWeight(db_, rsize_, use_exact_termfreq_){ }
+
+void init() { }
+
+double get_weight() const { return get_collection_freq() + get_dbsize(); }
+};
+}
+}
 #endif // XAPIAN_INCLUDED_EXPANDWEIGHT_H

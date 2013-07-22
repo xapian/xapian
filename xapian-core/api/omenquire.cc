@@ -53,6 +53,7 @@
 using namespace std;
 
 using Xapian::Internal::ExpandWeight;
+using Xapian::Internal::dummy;
 
 namespace Xapian {
 
@@ -712,10 +713,10 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
-                    const RSet & rset, int flags, double k,
-		    const ExpandDecider * edecider, double min_wt) const
+                            const RSet & rset, int flags,
+		            const ExpandDecider * edecider, double min_wt) const
 {
-    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider | min_wt);
+    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | edecider | min_wt);
 
     if (maxitems == 0 || rset.empty()) {
 	// Either we were asked for no results, or wouldn't produce any
@@ -748,7 +749,8 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     }
 
     bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
-    ExpandWeight eweight(db, rset.size(), use_exact_termfreq, k);
+
+    ExpandWeight * eweight = new dummy(db, rset.size(), use_exact_termfreq);
 
     Xapian::ESet eset;
     eset.internal->expand(maxitems, db, rset, edecider, eweight, min_wt);
@@ -941,6 +943,19 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 }
 
 void
+Enquire::set_expansion_scheme(const std::string eweightname_)
+{
+     LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_);
+     
+     if (eweightname_ != "dummy") {     
+         throw InvalidArgumentError("Invalid name for query expansion scheme. ");
+         return;
+     }
+         
+     internal -> eweightname = eweightname_;
+}
+
+void
 Enquire::set_collapse_key(Xapian::valueno collapse_key, Xapian::doccount collapse_max)
 {
     if (collapse_key == Xapian::BAD_VALUENO) collapse_max = 0;
@@ -1048,12 +1063,12 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		  double k, const ExpandDecider * edecider, double min_wt) const
+		  const ExpandDecider * edecider, double min_wt) const
 {
-    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider | min_wt);
+    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | edecider | min_wt);
 
     try {
-	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, min_wt));
+	RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
