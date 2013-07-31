@@ -28,8 +28,6 @@
 #include "omassert.h"
 #include "api/termlist.h"
 
-#include <cmath>
-
 using namespace std;
 
 namespace Xapian {
@@ -69,23 +67,24 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term) {
 		// least rtermfreq documents indexed by this term.
 		LOGLINE(EXPAND, "termfreq must be at least rtermfreq");
 		stats.termfreq = stats.rtermfreq;
-	    } else {
-		// termfreq can't be more than (dbsize - rsize + rtermfreq)
-		// since the number of relevant documents not indexed by this
-		// term can't be more than the number of documents not indexed
-		// by this term, so:
-		//
-		//     rsize - rtermfreq <= dbsize - termfreq
-		// <=> termfreq <= dbsize - (rsize - rtermfreq)
-		double termfreq_upper_bound = dbsize - (rsize - stats.rtermfreq);
-		if (stats.termfreq > termfreq_upper_bound) {
-		    LOGLINE(EXPAND, "termfreq can't be more than "
-				    "dbsize - (rsize + rtermfreq)");
-		    stats.termfreq = termfreq_upper_bound;
-		}
 	    }
-	}
-    }
+	    else {
+	      // termfreq can't be more than (dbsize - rsize + rtermfreq)
+	      // since the number of relevant documents not indexed by this
+	      // term can't be more than the number of documents not indexed
+	      // by this term, so:
+	      // rsize - rtermfreq <= dbsize - termfreq
+	      // <=> termfreq <= dbsize - (rsize - rtermfreq)
+	      double termfreq_upper_bound = dbsize - (rsize - stats.rtermfreq);
+	      if (stats.termfreq > termfreq_upper_bound) {
+		  LOGLINE(EXPAND, "termfreq can't be more than "
+		          "dbsize - (rsize + rtermfreq)");
+		  stats.termfreq = termfreq_upper_bound;
+	      }
+	    }
+	  }
+      }
 }
+
 }
 }

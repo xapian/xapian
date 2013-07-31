@@ -102,7 +102,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 		const Xapian::Database & db,
 		const Xapian::RSet & rset,
 		const Xapian::ExpandDecider * edecider,
-		Xapian::Internal::ExpandWeight * eweight,
+		Xapian::Internal::ExpandWeight & eweight,
 		double min_wt);
 
     /// Return a string describing this object.

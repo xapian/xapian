@@ -763,9 +763,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the weighting scheme to use for expansion.
 	 *
-	 *  @param eweight_  A three character string in lowercase specifying
-	 *                   the name of the scheme to be used. If no scheme is specified,
-	 *                   "bo1" is used.
+	 *  @param eweightname_  A three character string in lowercase specifying
+	 *                       the name of the scheme to be used.
+	 *                       The following schemes are currently availabe:
+	 *                       "bo1" : The Bo1 scheme for query expansion.
+	 *
+	 *                       If no scheme is specified, Bo1 is used by default.
 	 */
 	void set_expansion_scheme(const std::string eweightname_ = "bo1");
 

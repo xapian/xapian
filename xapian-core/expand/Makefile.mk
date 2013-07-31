@@ -8,6 +8,7 @@ EXTRA_DIST +=\
 	expand/Makefile
 
 lib_src +=\
+        expand/bo1eweight.cc\
 	expand/esetinternal.cc\
 	expand/expandweight.cc\
 	expand/ortermlist.cc

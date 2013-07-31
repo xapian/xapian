@@ -53,7 +53,7 @@
 using namespace std;
 
 using Xapian::Internal::ExpandWeight;
-using Xapian::Internal::dummy;
+using Xapian::Internal::Bo1Eweight;
 
 namespace Xapian {
 
@@ -750,7 +750,8 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 
     bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
 
-    ExpandWeight * eweight = new dummy(db, rset.size(), use_exact_termfreq);
+    Bo1Eweight bo1eweight(db, rset.size(), use_exact_termfreq);
+    Xapian::Internal::ExpandWeight & eweight = bo1eweight;
 
     Xapian::ESet eset;
     eset.internal->expand(maxitems, db, rset, edecider, eweight, min_wt);
@@ -946,12 +947,11 @@ void
 Enquire::set_expansion_scheme(const std::string eweightname_)
 {
      LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_);
-     
-     if (eweightname_ != "dummy") {     
+
+     if (eweightname_ != "bo1") {
          throw InvalidArgumentError("Invalid name for query expansion scheme. ");
-         return;
      }
-         
+
      internal -> eweightname = eweightname_;
 }
 

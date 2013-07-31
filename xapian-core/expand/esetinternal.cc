@@ -139,7 +139,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		       const Xapian::Database & db,
 		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
-		       Xapian::Internal::ExpandWeight * eweight,
+		       Xapian::Internal::ExpandWeight & eweight,
 		       double min_wt)
 {
     LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
@@ -172,9 +172,14 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
 	++ebound;
 
-        eweight -> collect_stats(tree.get(), term);
-        eweight -> init();
-	double wt = eweight -> get_weight();
+	/* Set up the EXpandweight by clearing the existing statistics and
+	   collecting statistics for the new term. */
+        (eweight.stats).clear_stats();
+        eweight.collect_stats(tree.get(), term);
+        eweight.init();
+
+        // Get the weight of the term.
+	double wt = eweight.get_weight();
 	// If the weights are equal, we prefer the lexically smaller term and
 	// so we use "<=" not "<" here.
 	if (wt <= min_wt) continue;
@@ -202,9 +207,6 @@ ESet::Internal::expand(Xapian::termcount max_esize,
     } else {
 	sort(items.begin(), items.end());
     }
-
-    delete eweight;
-    eweight = 0;
 }
 
 string

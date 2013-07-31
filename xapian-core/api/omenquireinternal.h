@@ -157,7 +157,6 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	/** The weight to use for this query.
 	 *
-	 *  This is mutable so that the default BM25Weight object can be
 	 *  created lazily when first required.
 	 */
 	mutable Weight * weight;

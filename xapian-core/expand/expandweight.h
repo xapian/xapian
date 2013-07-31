@@ -42,22 +42,22 @@ class ExpandStats {
     Xapian::doclength avlen;
 
   public:
-    /// Size of the subset of a multidb to which the value in termfreq applies.
+    // Size of the subset of a multidb to which the value in termfreq applies.
     Xapian::doccount dbsize;
 
-    /// Term frequency (for a multidb, may be for a subset of the databases).
+    // Term frequency (for a multidb, may be for a subset of the databases).
     Xapian::doccount termfreq;
 
-    /// The number of times the term occurs in the rset.
+    // The number of times the term occurs in the rset.
     Xapian::termcount rcollection_freq;
 
-    /// The sum of the lengths of the documents in the Rset.
+    // The sum of the lengths of the documents in the Rset.
     totlen_t rtotlen;
 
-    /// The number of documents from the RSet indexed by the current term (r).
+    // The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
 
-    /// Keeps track of the index of the sub-database we're accumulating for.
+    // Keeps track of the index of the sub-database we're accumulating for.
     size_t db_index;
 
     ExpandStats(Xapian::doclength avlen_)
@@ -67,7 +67,7 @@ class ExpandStats {
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
 		    Xapian::doccount subtf, Xapian::doccount subdbsize) {
-	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
+        // Boolean terms may have wdf == 0, but treat that as 1 so such terms
 	// get a non-zero weight.
 	if (wdf == 0) wdf = 1;
 	++rtermfreq;
@@ -83,26 +83,37 @@ class ExpandStats {
 	    rtotlen += doclen;
 	}
     }
+
+    /* Clear the statistics collected in the ExpandStats object before using it
+     * for a new term. */
+    void clear_stats() {
+        dbsize = 0;
+        termfreq = 0;
+        rcollection_freq = 0;
+        rtotlen = 0;
+        rtermfreq = 0;
+        db_index = 0;
+    }
 };
 
 /// Class for calculating probabilistic ESet term weights.
 class ExpandWeight {
-    /// The combined database.
+    // The combined database.
     const Xapian::Database db;
 
-    /// The number of documents in the whole database.
+    // The number of documents in the whole database.
     Xapian::doccount dbsize;
 
-    /// Average document length in the whole database.
+    // Average document length in the whole database.
     Xapian::doclength avlen;
 
-    /// The number of documents in the RSet.
+    // The number of documents in the RSet.
     Xapian::doccount rsize;
 
-    /// The collection frequency of the term.
+    // The collection frequency of the term.
     Xapian::termcount collection_freq;
 
-    /// The total length of the databse.
+    // The total length of the databse.
     totlen_t collection_len;
 
     /** Should we calculate the exact term frequency when generating an ESet?
@@ -118,8 +129,7 @@ class ExpandWeight {
     bool use_exact_termfreq;
 
 public:
-
-    /// An ExpandStats object to accumulate statistics.
+    // An ExpandStats object to accumulate statistics.
     ExpandStats stats;
 
     /** Constructor.
@@ -131,8 +141,8 @@ public:
      *				   a cheaper approximation is used).
      */
     ExpandWeight(const Xapian::Database &db_,
-	        Xapian::doccount rsize_,
-	        bool use_exact_termfreq_)
+	         Xapian::doccount rsize_,
+	         bool use_exact_termfreq_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
 	  rsize(rsize_),  collection_freq(0),  collection_len(avlen * dbsize),
 	  use_exact_termfreq(use_exact_termfreq_), stats(avlen) {}
@@ -143,39 +153,59 @@ public:
      */
     void collect_stats(TermList * merger, const std::string & term);
 
-    /// Allow the expansion scheme to perform initializations.
+    // Allow the expansion scheme to perform initializations.
     virtual void init()  = 0;
 
-    /// Calculate the weight.
+    // Calculate the weight.
     virtual double get_weight() const = 0;
 
 protected:
-    /// Return the average length of the databse.
-    double get_avelen() const { return avlen; }
+    // Return the average length of the databse.
+    double get_avlen() const { return avlen; }
 
-    /// Return the collection frequency of the term.
+    // Return the collection frequency of the term.
     Xapian::termcount get_collection_freq() const { return collection_freq; }
 
-    /// Return the length of the collection.
+    // Return the length of the collection.
     totlen_t get_collection_len() const { return collection_len; }
 
-    /// Return the size of the database.
+    // Return the size of the database.
     Xapian::doccount get_dbsize() const { return dbsize; }
 };
 
-/// Only for testing purposes. will delete after testing is over.
-class dummy : public ExpandWeight {
+/** This class implements the Bo1 scheme for query expansion.
+ *
+ *  Bo1 is a representative scheme of the Divergence from Randomness Framework
+ *  by Gianni Amati.
+ *
+ *  This is a parameter free weighting scheme for query expansion and it uses
+ *  the Bose-Einstein probabilistic distribution.
+ *
+ *  For more information about the DFR Framework and the Bo1 scheme, please
+ *  refer to Gianni Amati's PHD thesis.
+ */
+class Bo1Eweight : public ExpandWeight {
 public :
+    /** Constructor.
+     *
+     *  @param db_ The database.
+     *  @param rsize_ The number of documents in the RSet.
+     *  @param use_exact_termfreq_ When expanding over a combined database,
+     *				   should we use the exact termfreq (if false
+     *				   a cheaper approximation is used).
+     *
+     *  All the parameters are passed to the parent ExpandWeight object.
+     */
+    Bo1Eweight(const Xapian::Database &db_,
+	       Xapian::doccount rsize_,
+	       bool use_exact_termfreq_)
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_) {}
 
-dummy(const Xapian::Database &db_,
-      Xapian::doccount rsize_,
-      bool use_exact_termfreq_)
-      : ExpandWeight(db_, rsize_, use_exact_termfreq_){ }
+    void init();
 
-void init() { }
-
-double get_weight() const { return get_collection_freq() + get_dbsize(); }
+    double get_weight() const;
 };
+
 }
 }
 #endif // XAPIAN_INCLUDED_EXPANDWEIGHT_H
