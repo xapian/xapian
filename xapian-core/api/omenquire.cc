@@ -54,6 +54,7 @@ using namespace std;
 
 using Xapian::Internal::ExpandWeight;
 using Xapian::Internal::Bo1Eweight;
+using Xapian::Internal::TradEweight;
 
 namespace Xapian {
 
@@ -634,7 +635,8 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO), collapse_max(0),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    sorter(0), time_limit(0.0), errorhandler(errorhandler_), weight(0)
+    sorter(0), time_limit(0.0), errorhandler(errorhandler_), weight(0),
+    eweightname("trad"), expand_k(1.0)
 {
     if (db.internal.empty()) {
 	throw InvalidArgumentError("Can't make an Enquire object from an uninitialised Database object.");
@@ -749,12 +751,17 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     }
 
     bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
-
-    Bo1Eweight bo1eweight(db, rset.size(), use_exact_termfreq);
-    Xapian::Internal::ExpandWeight & eweight = bo1eweight;
-
     Xapian::ESet eset;
-    eset.internal->expand(maxitems, db, rset, edecider, eweight, min_wt);
+
+    if (eweightname == "bo1") {
+        Bo1Eweight bo1eweight(db, rset.size(), use_exact_termfreq);
+        eset.internal->expand(maxitems, db, rset, edecider, bo1eweight, min_wt);
+    }
+    else {
+        TradEweight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
+        eset.internal->expand(maxitems, db, rset, edecider, tradeweight, min_wt);
+    }
+
     RETURN(eset);
 }
 
@@ -944,15 +951,16 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 }
 
 void
-Enquire::set_expansion_scheme(const std::string eweightname_)
+Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_)
 {
      LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_);
 
-     if (eweightname_ != "bo1") {
+     if (eweightname_ != "bo1" && eweightname_ != "trad") {
          throw InvalidArgumentError("Invalid name for query expansion scheme. ");
      }
 
      internal -> eweightname = eweightname_;
+     internal -> expand_k = expand_k_;
 }
 
 void

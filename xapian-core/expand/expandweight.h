@@ -41,6 +41,9 @@ class ExpandStats {
     // Average document length in the whole database.
     Xapian::doclength avlen;
 
+    // The parameter k to be used for TradWeight query expansion.
+    double expand_k;
+
   public:
     // Size of the subset of a multidb to which the value in termfreq applies.
     Xapian::doccount dbsize;
@@ -51,18 +54,24 @@ class ExpandStats {
     // The number of times the term occurs in the rset.
     Xapian::termcount rcollection_freq;
 
-    // The sum of the lengths of the documents in the Rset.
-    totlen_t rtotlen;
-
     // The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
+
+    // The multiplier to be used in TradWeight query expansion.
+    double multiplier;
 
     // Keeps track of the index of the sub-database we're accumulating for.
     size_t db_index;
 
     ExpandStats(Xapian::doclength avlen_)
-	: avlen(avlen_), dbsize(0), termfreq(0), rcollection_freq(0),
-	  rtotlen(0), rtermfreq(0), db_index(0) {
+	: avlen(avlen_), expand_k(0), dbsize(0), termfreq(0),
+	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
+    }
+
+    ExpandStats(Xapian::doclength avlen_, double expand_k_)
+	: avlen(avlen_), expand_k(expand_k_), dbsize(0), termfreq(0),
+	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
+
     }
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
@@ -71,6 +80,9 @@ class ExpandStats {
 	// get a non-zero weight.
 	if (wdf == 0) wdf = 1;
 	++rtermfreq;
+	rcollection_freq += wdf;
+
+	multiplier += (expand_k + 1) * wdf / (expand_k * doclen / avlen + wdf);
 
 	// If we've not seen this sub-database before, then update dbsize and
 	// termfreq and note that we have seen it.
@@ -79,8 +91,6 @@ class ExpandStats {
 	    dbs_seen[db_index] = true;
 	    dbsize += subdbsize;
 	    termfreq += subtf;
-	    rcollection_freq += wdf;
-	    rtotlen += doclen;
 	}
     }
 
@@ -90,8 +100,8 @@ class ExpandStats {
         dbsize = 0;
         termfreq = 0;
         rcollection_freq = 0;
-        rtotlen = 0;
         rtermfreq = 0;
+        multiplier = 0;
         db_index = 0;
     }
 };
@@ -144,8 +154,25 @@ public:
 	         Xapian::doccount rsize_,
 	         bool use_exact_termfreq_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
-	  rsize(rsize_),  collection_freq(0),  collection_len(avlen * dbsize),
+	  rsize(rsize_), collection_freq(0), collection_len(avlen * dbsize),
 	  use_exact_termfreq(use_exact_termfreq_), stats(avlen) {}
+
+    /** Constructor.
+     *
+     *  @param db_ The database.
+     *  @param rsize_ The number of documents in the RSet.
+     *  @param use_exact_termfreq_ When expanding over a combined database,
+     *				   should we use the exact termfreq (if false
+     *				   a cheaper approximation is used).
+     *  @param expand_k_ The parameter for TradWeight query expansion.
+     */
+    ExpandWeight(const Xapian::Database &db_,
+	         Xapian::doccount rsize_,
+	         bool use_exact_termfreq_,
+	         double expand_k_)
+	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
+	  rsize(rsize_), collection_freq(0), collection_len(avlen * dbsize),
+	  use_exact_termfreq(use_exact_termfreq_), stats(avlen, expand_k_) {}
 
     /** Get the term statistics.
      *  @param merger The tree of TermList objects.
@@ -163,6 +190,9 @@ protected:
     // Return the average length of the databse.
     double get_avlen() const { return avlen; }
 
+    // Return the number of documents in the RSet.
+    Xapian::doccount get_rsize() const { return rsize; }
+
     // Return the collection frequency of the term.
     Xapian::termcount get_collection_freq() const { return collection_freq; }
 
@@ -171,6 +201,34 @@ protected:
 
     // Return the size of the database.
     Xapian::doccount get_dbsize() const { return dbsize; }
+};
+
+/** This class implements the TradWeight scheme for query expansion.
+ *
+ *  It is the default scheme for query expansion.
+ */
+class TradEweight : public ExpandWeight {
+public :
+    /** Constructor.
+     *
+     *  @param db_ The database.
+     *  @param rsize_ The number of documents in the RSet.
+     *  @param use_exact_termfreq_ When expanding over a combined database,
+     *				   should we use the exact termfreq (if false
+     *				   a cheaper approximation is used).
+     *  @param expand_k_ The parameter for TradWeight query expansion.
+     *
+     *  All the parameters are passed to the parent ExpandWeight object.
+     */
+    TradEweight(const Xapian::Database &db_,
+	        Xapian::doccount rsize_,
+	        bool use_exact_termfreq_,
+	        double expand_k_)
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, expand_k_) { }
+
+    void init();
+
+    double get_weight() const;
 };
 
 /** This class implements the Bo1 scheme for query expansion.

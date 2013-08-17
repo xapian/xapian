@@ -180,14 +180,15 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
         // Get the weight of the term.
 	double wt = eweight.get_weight();
-	// If the weights are equal, we prefer the lexically smaller term and
-	// so we use "<=" not "<" here.
+
+	/* If the weights are equal, we prefer the lexically smaller term and
+	 * so we use "<=" not "<" here. */
 	if (wt <= min_wt) continue;
 
 	items.push_back(Xapian::Internal::ExpandTerm(wt, term));
 
-	// The candidate ESet is overflowing, so remove the worst element in it
-	// using a min-heap.
+	/* The candidate ESet is overflowing, so remove the worst element in it
+	 * using a min-heap. */
 	if (items.size() > max_esize) {
 	    if (rare(!is_heap)) {
 		is_heap = true;

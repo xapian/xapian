@@ -36,6 +36,7 @@ namespace Internal {
 void
 ExpandWeight::collect_stats(TermList * merger, const std::string & term) {
     LOGCALL(MATCH, void, "ExpandWeight::collect_stats", merger | term);
+
     merger->accumulate_stats(stats);
 
     collection_freq = db.get_collection_freq(term);

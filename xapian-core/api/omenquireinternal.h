@@ -164,6 +164,9 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	/// The weighting scheme to use for query expansion.
 	std::string eweightname;
 
+        /// The parameter required for TradWeight query expansion.
+	double expand_k;
+
 	vector<MatchSpy *> spies;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);

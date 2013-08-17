@@ -11,4 +11,5 @@ lib_src +=\
         expand/bo1eweight.cc\
 	expand/esetinternal.cc\
 	expand/expandweight.cc\
-	expand/ortermlist.cc
+	expand/ortermlist.cc\
+	expand/tradeweight.cc
