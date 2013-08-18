@@ -18,6 +18,63 @@ Note: Non-developer configure options are described in INSTALL
 	You'll need to specify this if you're going to modify configure.ac, any
 	Makefile.am, or any .i file.
 
+Packages to install for each language
+=====================================
+
+C#
+--
+
+Debian wheezy::
+
+apt-get install mono-devel
+
+Java
+----
+
+Debian wheezy::
+
+apt-get install openjdk-6-jdk
+
+Lua
+---
+
+Debian wheezy::
+
+apt-get install lua5.2 liblua5.2-dev
+
+Perl
+----
+
+Debian wheezy: all required are packages installed by default.
+
+PHP
+---
+
+Debian wheezy::
+
+apt-get install php5-dev php5-cli
+
+Python
+------
+
+Debian wheezy::
+
+apt-get install python-dev
+
+Ruby
+----
+
+Debian wheezy::
+
+apt-get install ruby-dev
+
+Tcl
+---
+
+Debian wheezy::
+
+apt-get install tcl-dev
+
 Adding support for other programming languages
 ==============================================
 

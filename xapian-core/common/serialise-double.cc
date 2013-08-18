@@ -1,4 +1,4 @@
-/* @file serialise-double.cc
+/** @file serialise-double.cc
  * @brief functions to serialise and unserialise a double
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts

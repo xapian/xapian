@@ -7,10 +7,10 @@ License in the file "COPYING" in the top level of this distribution of
 Xapian.
 
 See the file "INSTALL" for information on building and installing Xapian.
-If you're wanting to modify Xapian itself or build sources from SVN/git,
+If you're wanting to modify Xapian itself or build sources from git,
 then the contents of the file "HACKING" are recommended reading.
 
-You can find downloads, mailing lists, SVN/git access, and other useful
+You can find downloads, mailing lists, git access, and other useful
 resources on the Xapian website:
 
 http://xapian.org/

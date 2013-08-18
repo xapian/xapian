@@ -24,6 +24,7 @@
 #include <xapian/database.h>
 
 #include "api/termlist.h"
+#include "internaltypes.h"
 
 #include <string>
 #include <vector>
@@ -49,6 +50,12 @@ class ExpandStats {
     /// Term frequency (for a multidb, may be for a subset of the databases).
     Xapian::doccount termfreq;
 
+    /// The number of times the term occurs in the rset.
+    Xapian::termcount rcollection_freq;
+
+    /// The sum of the lengths of the documents in the Rset.
+    totlen_t rtotlen;
+
     /// Factor to multiply w(t) by.
     double multiplier;
 
@@ -60,7 +67,8 @@ class ExpandStats {
 
     ExpandStats(Xapian::doclength avlen_, double expand_k_)
 	: avlen(avlen_), expand_k(expand_k_),
-	  dbsize(0), termfreq(0), multiplier(0), rtermfreq(0), db_index(0) {
+	  dbsize(0), termfreq(0), rcollection_freq(0), rtotlen(0), multiplier(0),
+	  rtermfreq(0), db_index(0) {
     }
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
@@ -79,6 +87,8 @@ class ExpandStats {
 	    dbs_seen[db_index] = true;
 	    dbsize += subdbsize;
 	    termfreq += subtf;
+	    rcollection_freq += wdf;
+	    rtotlen += doclen;
 	}
     }
 };

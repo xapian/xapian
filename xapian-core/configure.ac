@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.0], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.1], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -28,20 +28,12 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO:
-dnl 21:11:6 1.0.20 No API changes
-dnl 22:0:0 1.2.0 Many API changes!
-dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
-dnl 23:1:1 1.2.2 No API changes
-dnl 23:2:1 1.2.3 No API changes
-dnl 24:0:2 1.2.4 Compactor
-dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
-dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
-dnl
 dnl LIBRARY_VERSION_INFO for libxapian-1.3:
 dnl 0:0:0 1.3.0 Reset as library renamed
 dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
-LIBRARY_VERSION_INFO=1:0:0
+dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
+dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
+LIBRARY_VERSION_INFO=2:0:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.3
@@ -62,7 +54,6 @@ case `pwd` in
 *' '*)
    AC_MSG_ERROR([You can't build in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Check the source directory doesn't contain a space, so we die early with
@@ -74,7 +65,6 @@ case $0 in
    dnl before this can.
    AC_MSG_ERROR([You can't build with sources in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Check the prefix to install in doesn't contain a space, so we die early with
@@ -83,7 +73,6 @@ case $prefix in
 *' '*)
    AC_MSG_ERROR([You can't install in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Note if the user specified a particular C++ compiler so we can give a more
@@ -407,6 +396,9 @@ using namespace std;], [
     ])
 ])
 
+dnl See if log2() function on math library is supported.
+AC_CHECK_FUNCS([log2])
+
 dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
 dnl compilation fails if -fno-rtti is specified.
 AC_MSG_CHECKING([if RTTI is supported])
@@ -426,6 +418,13 @@ case $host_os in
     AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
     ;;
 esac
+
+dnl We use timer_create() if available to implement a search time limit.
+SAVE_LIBS=$LIBS
+AC_SEARCH_LIBS(timer_create, rt,
+    [XAPIAN_LDFLAGS="$LIBS $XAPIAN_LDFLAGS"
+    AC_DEFINE(HAVE_TIMER_CREATE, 1,[Define to 1 if you have the 'timer_create' function.])])
+LIBS=$SAVE_LIBS
 
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
@@ -520,7 +519,7 @@ if test x"$enable_documentation" = xyes ; then
   dnl Check for pngcrush, which we optionally use to reduce the size of the
   dnl PNG files which doxygen generates.  We can get by without it, so don't
   dnl fail here if it's not found.
-  AC_PATH_PROGS(PNGCRUSH, [pngcrush], [])
+  AC_PATH_PROG(PNGCRUSH, [pngcrush], [])
 fi
 
 dnl Check whether we need -ldl for dlsym() etc.
@@ -805,29 +804,12 @@ if test "$enable_backend_remote" = yes ; then
   fi
 fi
 
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
-  esac])
-
 AC_ARG_ENABLE(visibility,
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
   esac])
-
-dnl Pass '--quiet' to libtool if quiet building is requested.  Using an
-dnl AC_SUBST-ed value like this allows the choice to be easily overridden
-dnl if you want to see exactly what make and libtool are up to - just run
-dnl make like this: 'make QUIET='
-QUIET=
-if test yes = "$enable_quiet"; then
-  QUIET=--quiet
-fi
-AC_SUBST(QUIET)
 
 vpath_build=no
 if test "`pwd`" != "`cd $srcdir;pwd`" ; then
@@ -1031,15 +1013,15 @@ if test yes = "$GXX"; then
 	  dnl enable it for GCC >= 4.1.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
 	4.2)
-	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
-	  dnl have proved too noisy.
-	  dnl
-	  dnl Also, xapian-core seems to hit an aliasing bug in GCC 4.2:
+	  dnl xapian-core seems to hit an aliasing bug in GCC 4.2:
 	  dnl   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35643
 	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
 	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
 	  dnl See http://trac.xapian.org/ticket/449 for more details.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -fno-strict-aliasing"
+	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
+	  dnl have proved too noisy.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
 	4.[[345]])
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -1089,7 +1071,7 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -1186,6 +1168,11 @@ AH_BOTTOM(
 # define rare(COND) (COND)
 # define usual(COND) (COND)
 #endif
+
+/* Signal we're building the library so it's OK to include headers such as
+ * xapian/query.h directly.
+ */
+#define XAPIAN_LIB_BUILD 1
 ])
 
 AC_SUBST(AM_CXXFLAGS)
@@ -1213,7 +1200,7 @@ AC_SUBST(PERCENT)
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
 
 dnl **************************
 dnl * Build the output files *
@@ -1254,7 +1241,7 @@ AC_SUBST([AUTOM4TE])
 
 dnl Generate include/xapian/version.h:
 
-dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
+dnl MAIN_VERSION is VERSION without any _git123 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
 for backend in BRASS CHERT INMEMORY REMOTE LUCENE; do
@@ -1263,15 +1250,22 @@ for backend in BRASS CHERT INMEMORY REMOTE LUCENE; do
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
   fi
 done
-if test yes = "$GXX" ; then
-    dnl If _GLIBCXX_DEBUG is being deliberately set or unset, do the same
-    dnl when generating version.h.
-    for flag in $CXXFLAGS $CPPFLAGS ; do
-      case $flag in
-      -D_GLIBCXX_DEBUG*|-U_GLIBCXX_DEBUG*) cxxcpp_flags="$cxxcpp_flags $flag" ;;
-      esac
-    done
-fi
+dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
+dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
+dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these
+dnl options when generating version.h.  For these compilers, CXXCPP="$CXX -E"
+dnl so it should understand all compiler options.
+dnl
+dnl For other compilers, we only pass $CPPFLAGS to $CXXCPP in case it's an
+dnl external cpp which doesn't understand flags which might be in $CXXFLAGS.
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[#ifndef __GNUC__
+#ifndef _MSC_VER
+       choke me
+#endif
+#endif
+]])],
+	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS"],
+	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"])
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
 dnl where we'll always have GNU sed, and other sed's will just interpret

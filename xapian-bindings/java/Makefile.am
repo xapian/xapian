@@ -2,11 +2,16 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
-  LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test
-
 ## Test programs to be run
 TESTS = SmokeTest.class
+AM_TESTS_ENVIRONMENT = \
+	LIBTOOL="$(LIBTOOL)" ;\
+	JAVA="$(JAVA)" ;\
+	PATHSEP="$(JAVA_PATHSEP)" ;\
+	export LIBTOOL ;\
+	export JAVA ;\
+	export PATHSEP ;
+LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
 	built/xapian_jni.jar\
@@ -20,6 +25,7 @@ SmokeTest: SmokeTest.class
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Auto.java\
+	org/xapian/BB2Weight.java\
 	org/xapian/BM25Weight.java\
 	org/xapian/BoolWeight.java\
 	org/xapian/Brass.java\
@@ -28,6 +34,8 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Database.java\
 	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
+	org/xapian/DLHWeight.java\
+	org/xapian/DPHWeight.java\
 	org/xapian/Document.java\
 	org/xapian/Enquire.java\
 	org/xapian/ESet.java\
@@ -39,6 +47,9 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/LuceneFieldProcessor.java\
 	org/xapian/FixedWeightPostingSource.java\
 	org/xapian/GreatCircleMetric.java\
+	org/xapian/IfB2Weight.java\
+	org/xapian/IneB2Weight.java\
+	org/xapian/InL2Weight.java\
 	org/xapian/InMemory.java\
 	org/xapian/KeyMaker.java\
 	org/xapian/LatLongCoord.java\
@@ -53,6 +64,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MSetIterator.java\
 	org/xapian/MultiValueKeyMaker.java\
 	org/xapian/NumberValueRangeProcessor.java\
+	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
 	org/xapian/PostingIterator.java\
 	org/xapian/PostingSource.java\
@@ -70,6 +82,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/SWIGTYPE_p_std__string.java\
 	org/xapian/TermGenerator.java\
 	org/xapian/TermIterator.java\
+	org/xapian/TfIdfWeight.java\
 	org/xapian/TradWeight.java\
 	org/xapian/ValueCountMatchSpy.java\
 	org/xapian/ValueIterator.java\

@@ -9,14 +9,14 @@ import urllib2
 import tarfile
 
 tarball_root = "http://www.oligarchy.co.uk/xapian/trunk/"
-archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega',
-                 'win32msvc',)
+archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
+# FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
 
 tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
 archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
-basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+svn[0-9]+$')
-basename2_re = re.compile('(win32msvc)_svn[0-9]+$')
+basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+git[0-9]+$')
+basename2_re = re.compile('(win32msvc)_v[0-9.]+-[0-9]+-g[0-9a-f]+$')
 
 def fail(msg):
     print msg
@@ -29,9 +29,9 @@ def parsehtml(html, archives):
         for archive in archives:
             if link.startswith(archive):
                 revision = link[len(archive):]
-                svnpos = revision.find('svn')
-                if svnpos > 0:
-                    revision = int(revision[svnpos + 3:])
+                gitpos = revision.find('git')
+                if gitpos > 0:
+                    revision = int(revision[gitpos + 3:])
                     if revision > max_revision:
                         links = []
                         max_revision = revision
@@ -95,24 +95,16 @@ for link in links:
     basename = os.path.join(builddir, m.group(1))
     print "Moving contents from %s to %s" % (archivedir, basename)
     os.rename(archivedir, basename)
+    print "Deleting tarball %s" % fname
+    os.remove(fname)
 
-os.rename(os.path.join(builddir, 'win32msvc'),
-          os.path.join(builddir, 'xapian-core', 'win32'))
+#os.rename(os.path.join(builddir, 'win32msvc'),
+#          os.path.join(builddir, 'xapian-core', 'win32'))
 
 # Get the scripts for building on our windows server, too:
-fd = urllib2.urlopen('http://svn.xapian.org/*checkout*/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
-data = fd.read()
-fd.close()
-fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
-fd.write(data)
-fd.close()
-
-# Add small scripts for running configure for unix build (because we mustn't pass
-# relative paths for XAPIAN_CONFIG to configure, and I can't see any other way
-# to pass it the absolute path).
-fd = open(os.path.join(builddir, 'xapian-bindings', 'runconfigure.py'), 'wb')
-fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config ' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
-fd.close()
-fd = open(os.path.join(builddir, 'xapian-omega', 'runconfigure.py'), 'wb')
-fd.write("import os,sys\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config ' + ' '.join(map(lambda x: '\"'+x+'\"', sys.argv[1:])))")
-fd.close()
+#fd = urllib2.urlopen('http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
+#data = fd.read()
+#fd.close()
+#fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
+#fd.write(data)
+#fd.close()

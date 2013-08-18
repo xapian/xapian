@@ -12,6 +12,7 @@ noinst_HEADERS +=\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/keyword.h\
+	common/log2.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
@@ -27,6 +28,7 @@ noinst_HEADERS +=\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
+	common/safenetdb.h\
 	common/safesysselect.h\
 	common/safesyssocket.h\
 	common/safesysstat.h\
@@ -66,7 +68,6 @@ lib_src +=\
 	common/str.cc\
 	common/stringutils.cc
 
-# echo hello
 if BUILD_BACKEND_BRASS_OR_CHERT
 lib_src +=\
 	common/compression_stream.cc

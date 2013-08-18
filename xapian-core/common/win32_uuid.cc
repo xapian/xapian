@@ -1,7 +1,8 @@
-/* @file win32_uuid.cc
+/** @file win32_uuid.cc
  * @brief Provide UUID functions compatible with libuuid from util-linux-ng.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +27,8 @@
 
 #include <cstring>
 
+#include "safewinsock2.h" // For htonl() and htons().
+
 using namespace std;
 
 /// The size of a UUID in bytes.
@@ -46,6 +49,9 @@ uuid_generate(uuid_t uu)
 	// situation.
 	throw Xapian::DatabaseCreateError("Cannot create UUID");
     }
+    uuid.Data1 = htonl(uuid.Data1);
+    uuid.Data2 = htons(uuid.Data2);
+    uuid.Data3 = htons(uuid.Data3);
     memcpy(uu, &uuid, UUID_SIZE);
 }
 
@@ -55,6 +61,9 @@ uuid_parse(const char * in, uuid_t uu)
     UUID uuid;
     if (UuidFromString((unsigned char*)in, &uuid) != RPC_S_OK)
 	return -1;
+    uuid.Data1 = htonl(uuid.Data1);
+    uuid.Data2 = htons(uuid.Data2);
+    uuid.Data3 = htons(uuid.Data3);
     memcpy(uu, &uuid, UUID_SIZE);
     return 0;
 }
@@ -64,6 +73,9 @@ void uuid_unparse_lower(const uuid_t uu, char * out)
     UUID uuid;
     char *uuidstr;
     memcpy(&uuid, uu, UUID_SIZE);
+    uuid.Data1 = htonl(uuid.Data1);
+    uuid.Data2 = htons(uuid.Data2);
+    uuid.Data3 = htons(uuid.Data3);
     if (rare(UuidToString(&uuid, (unsigned char **)(&uuidstr)) != RPC_S_OK)) {
 	// The only documented (or really conceivable) error code is
 	// RPC_S_OUT_OF_MEMORY.

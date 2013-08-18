@@ -29,6 +29,8 @@
 #include <cstdio>
 #include <string>
 
+#include <xapian.h>
+
 using namespace std;
 
 enum { UNI = 0, CLR = 1 };
@@ -44,26 +46,34 @@ static const char json_tab['"' + 1] = {
 void
 json_escape(string &s)
 {
-    for (size_t i = 0; i != s.size(); ++i) {
-	unsigned char ch = s[i];
+    string r;
+    for (Xapian::Utf8Iterator i(s); i != Xapian::Utf8Iterator(); ++i) {
+	unsigned int ch = *i;
+	if (ch >= 128) {
+	    Xapian::Unicode::append_utf8(r, ch);
+	    continue;
+	}
 	if (ch > '"') {
-	    if (ch != '\\')
+	    if (ch != '\\') {
+		r += ch;
 		continue;
+	    }
 	} else {
 	    unsigned char t = json_tab[ch];
-	    if (t == CLR)
+	    if (t == CLR) {
+		r += ch;
 		continue;
+	    }
 	    if (t == UNI) {
 		char buf[7];
 		sprintf(buf, "\\u00%02x", ch);
-		s.replace(i, 1, buf, 6);
-		i += 5;
+		r.append(buf, 6);
 		continue;
 	    }
 	    ch = t;
 	}
 	char buf[2] = {'\\', char(ch)};
-	s.replace(i, 1, buf, 2);
-	++i;
+	r.append(buf, 2);
     }
+    swap(s, r);
 }

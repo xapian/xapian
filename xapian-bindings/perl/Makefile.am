@@ -2,13 +2,6 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
-	CPPFLAGS="$(CPPFLAGS)" \
-	CXX="$(CXX)" \
-	CXXFLAGS="$(CXXFLAGS)" \
-	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	prove -I. -I"$(srcdir)"
-
 ## Test programs to be run
 TESTS = \
 	t/01use.t \
@@ -31,6 +24,17 @@ TESTS = \
 	t/tied.t \
 	t/valuerange.t \
 	t/writabledatabase.t
+AM_TESTS_ENVIRONMENT = \
+	CPPFLAGS="$(CPPFLAGS)" ;\
+	CXX="$(CXX)" ;\
+	CXXFLAGS="$(CXXFLAGS)" ;\
+	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" ;\
+	export CPPFLAGS ;\
+	export CXX ;\
+	export CXXFLAGS ;\
+	export XAPIAN_CONFIG ;
+LOG_COMPILER = $(PROVE)
+AM_LOG_FLAGS = -I. -I'$(srcdir)'
 
 clean-local:
 	rm -rf testdb* auto

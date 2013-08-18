@@ -1,4 +1,4 @@
-/* @file fd.h
+/** @file fd.h
  * @brief Wrapper class around a file descriptor to avoid leaks
  */
 /* Copyright (C) 2011,2012 Olly Betts
@@ -21,6 +21,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
+#ifndef XAPIAN_INCLUDED_FD_H
+#define XAPIAN_INCLUDED_FD_H
 
 #include "safeunistd.h"
 
@@ -60,3 +63,5 @@ class FD {
 inline int close(FD & fd) {
    return fd.close();
 }
+
+#endif

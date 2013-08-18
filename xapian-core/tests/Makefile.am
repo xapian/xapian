@@ -1,14 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.5 subdir-objects
-
-# 'make QUIET=' overrides './configure --enable-quiet'.
-# 'make QUIET=y' overrides './configure' without '--enable-quiet'.
-LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+AUTOMAKE_OPTIONS = 1.12.2 serial-tests subdir-objects
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -235,7 +231,7 @@ clean-local: remove-cached-databases
 
 # Remove the cached databases before "make check" to avoid issues with missing
 # bugs in database creation when we reuse databases from a previous test run.
-check-local: remove-cached-databases
+check: remove-cached-databases
 
 include harness/Makefile.mk
 include perftest/Makefile.mk

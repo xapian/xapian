@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# Copyright (C) 2004,2005,2007,2008,2010,2012,2013 Olly Betts
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+set -e
+
+BRANCH=master
+
+version=$1
+
+# check parameter was passed and that it looks like a version
+case $version in
+[0-9].[0-9].[0-9]) ;;
+[0-9].[0-9].[1-9][0-9]) ;;
+*)
+    echo "Syntax: $0 VERSION"
+    echo "e.g. $0 1.0.18"
+    exit 1
+    ;;
+esac
+
+# Check that we've not already done this version.
+download_dir=/srv/www/oligarchy.co.uk/xapian/$version
+if [ -d "$download_dir" ] ; then
+    echo "Version $version already has a download directory:"
+    echo "  $download_dir"
+    exit 1
+fi
+
+if [ "`git branch|sed 's/^* //p;d'`" != "$BRANCH" ] ; then
+    echo "Not on branch $BRANCH"
+    exit 1
+fi
+
+# Avoid tagging a release with the wrong versions in the tarballs (as
+# happened with 1.1.4).
+bad=0
+escaped_version=`echo "$version"|sed 's/\([^0-9]\)/\\\\\\1/g'`
+for d in xapian-core xapian-bindings xapian-applications/omega ; do
+    grep '^AC_INIT(.*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
+	echo "$d/configure.ac not version $version" 1>&2
+	bad=1
+    }
+done
+[ "$bad" = "0" ] || exit 1
+
+# FIXME: Add the version to the list in trac, close old milestone, ensure new
+# milestone exists.
+
+# Tag the release in git.
+echo "Tagging release"
+tag=v$version
+git tag -m "$version release" "$tag"
+
+echo "Building release tarballs"
+# Create a directory so the snapshotter will build this.
+D=/home/olly/tmp/xapian-git-snapshot/tags
+test -d "$D" || mkdir "$D"
+mkdir "$D/$tag"
+
+# Snapshotter will automatically copy the tarballs onto the website.
+echo "Running:"
+set -x
+$HOME/bin/make-xapian-git-snapshot-tarballs "tags/$tag"
+set +x
+
+# Clean up.
+rm -rf "$D/$tag"
+rmdir $D || echo "Directory '$D' not removed."

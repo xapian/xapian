@@ -10,7 +10,8 @@ from twisted.internet.task import LoopingCall
 from buildbot import util
 from buildbot.changes import base
 from buildbot.changes.changes import Change
-from buildbot.process.step import Source, RemoteShellCommand
+from buildbot.process.buildstep import RemoteShellCommand
+from buildbot.steps.source import Source
 
 import re
 
@@ -116,7 +117,7 @@ class TarPoller(base.ChangeSource, util.ComparableMixin):
 
     def submit_changes(self, change):
         if change is not None:
-            self.parent.addChange(change)
+            self.master.addChange(change)
 
     def finished_ok(self, res):
         log.msg("TarPoller finished polling")

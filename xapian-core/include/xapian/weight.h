@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
+ * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,7 +46,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH = 256,
 	DOC_LENGTH_MIN = 512,
 	DOC_LENGTH_MAX = 1024,
-	WDF_MAX = 2048
+	WDF_MAX = 2048,
+	COLLECTION_FREQ = 4096
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -90,6 +92,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of documents which this term indexes.
     Xapian::doccount termfreq_;
+
+    // The collection frequency of the term.
+    Xapian::termcount collectionfreq_;
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount reltermfreq_;
@@ -230,10 +235,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      *  @param termfreq    The termfreq to use.
      *  @param reltermfreq The reltermfreq to use.
+     *  @param collection_freq The collection frequency to use.
      */
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       double factor, Xapian::doccount termfreq,
-	       Xapian::doccount reltermfreq);
+	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq);
 
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
@@ -287,6 +293,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// The number of relevant documents which this term indexes.
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
+
+    // The collection frequency of the term.
+    Xapian::termcount get_collection_freq() const { return collectionfreq_; }
 
     /// The length of the query.
     Xapian::termcount get_query_length() const { return query_length_; }
@@ -346,6 +355,99 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen) const;
     double get_maxextra() const;
 };
+
+/// Xapian::Weight subclass implementing the tf-idf weighting scheme.
+class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
+    /* Three character string indicating the normalizations for tf(wdf), idf and
+       tfidf weight. */
+    std::string normalizations;
+
+    /// The factor to multiply with the weight.
+    double factor;
+
+    TfIdfWeight * clone() const;
+
+    void init(double factor);
+
+    /* When additional normalizations are implemented in the future, the additional statistics for them
+       should be accessed by these functions. */
+    double get_wdfn(Xapian::termcount wdf, char c) const;
+    double get_idfn(Xapian::doccount termfreq, char c) const;
+    double get_wtn(double wt, char c) const;
+
+  public:
+    /** Construct a TfIdfWeight
+     *
+     *  @param normalizations  A three character string indicating the normalizations
+     *                         to be used for the tf(wdf), idf and document weight
+     *                         respectively.
+     *
+     *                         The first character specifies the normalization
+     *                         for the wdf for which the following normalizations
+     *                         are currently available:
+     *
+     *                         'n':None.      wdfn=wdf
+     *                         'b':Boolean    wdfn=1 if term in document else wdfn=0
+     *                         's':Square     wdfn=wdf*wdf
+     *                         'l':Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *
+     *                         The Max-wdf and Augmented Max wdf normalizations aren't yet implemented.
+     *
+     *
+     *                         The second character indicates the normalization
+     *                         for the idf, the following of which are currently
+     *                         available:
+     *
+     *                         'n':None   idfn=1
+     *                         't':TfIdf  idfn=log(N/Termfreq) where N is the number of documents in
+     *                                    collection and Termfreq is the number of documents which are
+     *                                    indexed by the term t.
+     *                         'p':Prob   idfn=log((N-Termfreq)/Termfreq)
+     *
+     *
+     *                         The third and the final character indicates the
+     *                         normalization for the document weight of which
+     *                         the following are currently available:
+     *
+     *                         'n':None wtn=tfn*idfn
+     *                         Implementing more normalizations for the weight requires access to
+     *                         statistics such as the weight of all terms in the document indexed by
+     *                         the term in the query. This is not available from the current backend.
+     *
+     *
+     *                         More normalizations for all components can be implemented by
+     *                         changing the backend to acquire the statistics
+     *                         required for the normalizations which are not
+     *                         currently available from Xapian::Weight.
+     *
+     *
+     *                         The default string is "ntn".
+     */
+
+    explicit TfIdfWeight(const std::string &normalizations);
+
+    TfIdfWeight()
+    : normalizations("ntn")
+    {
+	need_stat(TERMFREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_SIZE);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    TfIdfWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
 
 /// Xapian::Weight subclass implementing the BM25 probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
@@ -499,6 +601,475 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the InL2 weighting scheme.
+ *
+ *  InL2 is a representative scheme of the Divergence from Randomness Framework
+ *  by Gianni Amati.
+ *
+ *  This weighting scheme is useful for tasks that require early precision.
+ *
+ *  It uses the Inverse document frequency model (In), the Laplace method to
+ *  find the aftereffect of sampling (L) and the second wdf normalization
+ *  proposed by Amati to normalize the wdf in the document to the length of the
+ *  document (H2).
+ *
+ *  For more information about the DFR Framework and the InL2 scheme, please
+ *  refer to: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
+ *  pp. 357-389.
+ */
+class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// The upper bound on the weight a term can give to a document.
+    double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
+
+    InL2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct an InL2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. The
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis.
+     */
+    explicit InL2Weight(double c);
+
+    InL2Weight()
+    : param_c(1.0)
+    {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+	need_stat(TERMFREQ);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    InL2Weight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the IfB2 weighting scheme.
+ *
+ *  IfB2 is a representative scheme of the Divergence from Randomness Framework
+ *  by Gianni Amati.
+ *
+ *  It uses the Inverse term frequency model (If), the Bernoulli method to find
+ *  the aftereffect of sampling (B) and the second wdf normalization proposed
+ *  by Amati to normalize the wdf in the document to the length of the document
+ *  (H2).
+ *
+ *  For more information about the DFR Framework and the IfB2 scheme, please
+ *  refer to: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
+ *  pp. 357-389.
+ */
+class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
+
+    IfB2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct an IfB2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. The
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis titled
+     *		  Probabilistic Models for Information Retrieval based on
+     *		  Divergence from Randomness.
+     */
+    explicit IfB2Weight(double c);
+
+    IfB2Weight( ) : param_c(1.0) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+	need_stat(TERMFREQ);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    IfB2Weight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the IneB2 weighting scheme.
+ *
+ *  IneB2 is a representative scheme of the Divergence from Randomness
+ *  Framework by Gianni Amati.
+ *
+ *  It uses the Inverse expected document frequency model (Ine), the Bernoulli
+ *  method to find the aftereffect of sampling (B) and the second wdf
+ *  normalization proposed by Amati to normalize the wdf in the document to the
+ *  length of the document (H2).
+ *
+ *  For more information about the DFR Framework and the IneB2 scheme, please
+ *  refer to: Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
+ *  pp. 357-389.
+ */
+class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// The upper bound of the weight.
+    double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
+
+    IneB2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct an IneB2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. The
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis.
+     */
+    explicit IneB2Weight(double c);
+
+    IneB2Weight( ) : param_c(1.0) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+	need_stat(COLLECTION_FREQ);
+	need_stat(TERMFREQ);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    IneB2Weight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the BB2 weighting scheme.
+ *
+ *  BB2 is a representative scheme of the Divergence from Randomness Framework
+ *  by Gianni Amati.
+ *
+ *  It uses the Bose-Einstein probabilistic distribution (B) along with
+ *  Stirling's power approximation, the Bernoulli method to find the
+ *  aftereffect of sampling (B) and the second wdf normalization proposed by
+ *  Amati to normalize the wdf in the document to the length of the document
+ *  (H2).
+ *
+ *  For more information about the DFR Framework and the BB2 scheme, please
+ *  refer to : Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002,
+ *  pp. 357-389.
+ */
+class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
+
+    BB2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a BB2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. A
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis titled
+     *		  Probabilistic Models for Information Retrieval based on
+     *		  Divergence from Randomness.
+     */
+    explicit BB2Weight(double c);
+
+    BB2Weight( ) : param_c(1.0) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+	need_stat(TERMFREQ);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    BB2Weight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the DLH weighting scheme, which is a representative
+ *  scheme of the Divergence from Randomness Framework by Gianni Amati.
+ *
+ *  This is a parameter free weighting scheme and it should be used with query
+ *  expansion to obtain better results. It uses the HyperGeometric Probabilistic
+ *  model and Laplace's normalization to calculate the risk gain.
+ *
+ *  For more information about the DFR Framework and the DLH scheme, please
+ *  refer to :
+ *  a.) Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic
+ *  models of information retrieval based on measuring the divergence from
+ *  randomness ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp.
+ *  357-389.
+ *  b.) FUB, IASI-CNR and University of Tor Vergata at TREC 2007 Blog Track.
+ *  G. Amati and E. Ambrosi and M. Bianchi and C. Gaibisso and G. Gambosi.
+ *  Proceedings of the 16th Text REtrieval Conference (TREC-2007), 2008.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
+    /// The lower bound on the weight.
+    double lower_bound;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// The factor to multiply with the weight.
+    double factor;
+
+    DLHWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    DLHWeight() {
+    need_stat(AVERAGE_LENGTH);
+    need_stat(DOC_LENGTH);
+    need_stat(COLLECTION_SIZE);
+    need_stat(COLLECTION_FREQ);
+    need_stat(WDF);
+    need_stat(WQF);
+    need_stat(WDF_MAX);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    DLHWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the PL2 weighting scheme.
+ *
+ *  PL2 is a representative scheme of the Divergence from Randomness Framework
+ *  by Gianni Amati.
+ *
+ *  This weighting scheme is useful for tasks that require early precision.
+ *
+ *  It uses the Poisson approximation of the Binomial Probabilistic distribution
+ *  (P) along with Stirling's approximation for the factorial value, the Laplace
+ *  method to find the aftereffect of sampling (L) and the second wdf
+ *  normalization proposed by Amati to normalize the wdf in the document to the
+ *  length of the document (H2).
+ *
+ *  For more information about the DFR Framework and the PL2 scheme, please
+ *  refer to : Gianni Amati and Cornelis Joost Van Rijsbergen Probabilistic models
+ *  of information retrieval based on measuring the divergence from randomness
+ *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
+ */
+class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// The lower bound of the weight.
+    double lower_bound;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// Constants for a given term in a given query.
+    double P1, P2;
+
+    /// Set by init() to (param_c * get_average_length())
+    double cl;
+
+    PL2Weight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a PL2Weight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. The
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis titled
+     *		  Probabilistic Models for Information Retrieval based on
+     *		  Divergence from Randomness.
+     */
+    explicit PL2Weight(double c);
+
+    PL2Weight( ) : param_c(1.0) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    PL2Weight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen) const;
+    double get_maxextra() const;
+};
+
+/** This class implements the DPH weighting scheme.
+ *
+ *  DPH is a representative scheme of the Divergence from Randomness Framework
+ *  by Gianni Amati.
+ *
+ *  This is a parameter free weighting scheme and it should be used with query
+ *  expansion to obtain better results. It uses the HyperGeometric Probabilistic
+ *  model and Popper's normalization to calculate the risk gain.
+ *
+ *  For more information about the DFR Framework and the DPH scheme, please
+ *  refer to :
+ *  a.) Gianni Amati and Cornelis Joost Van Rijsbergen
+ *  Probabilistic models of information retrieval based on measuring the
+ *  divergence from randomness ACM Transactions on Information Systems (TOIS) 20,
+ *  (4), 2002, pp. 357-389.
+ *  b.) FUB, IASI-CNR and University of Tor Vergata at TREC 2007 Blog Track.
+ *  G. Amati and E. Ambrosi and M. Bianchi and C. Gaibisso and G. Gambosi.
+ *  Proceedings of the 16th Text Retrieval Conference (TREC-2007), 2008.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// The lower bound on the weight.
+    double lower_bound;
+
+    /// The factor with which to multiply the weight.
+    double factor;
+
+    DPHWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a DPHWeight. */
+    DPHWeight() {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WQF);
+	need_stat(WDF_MAX);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    DPHWeight * unserialise(const std::string & s) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen) const;

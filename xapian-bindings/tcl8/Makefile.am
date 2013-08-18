@@ -2,11 +2,16 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
- srcdir="$(srcdir)" LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
-
 ## Test programs to be run
 TESTS = smoketest.tcl
+AM_TESTS_ENVIRONMENT = \
+	srcdir='$(srcdir)' ;\
+	LIBTOOL='$(LIBTOOL)' ;\
+	TCLSH='$(TCLSH)' ; \
+	export srcdir ;\
+	export LIBTOOL ;\
+	export TCLSH ;
+LOG_COMPILER = $(srcdir)/run-tcl-test
 
 EXTRA_DIST = tcl.i except.i \
 	generate-tcl-exceptions \

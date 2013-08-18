@@ -2,10 +2,10 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = $(RUBY) -I.libs -I$(srcdir)
-
 ## Test programs to be run
 TESTS = smoketest.rb
+LOG_COMPILER = $(RUBY)
+AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 

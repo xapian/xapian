@@ -1,12 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-# 'make QUIET=' overrides './configure --enable-quiet'.
-# 'make QUIET=y' overrides './configure' without '--enable-quiet'.
-LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
-
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -107,7 +103,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h
+ xlsxparse.h opendocparse.h msxmlparse.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -144,7 +140,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
  datematchdecider.cc common/str.cc sample.cc unixperm.cc urlencode.cc\
- utf8convert.cc weight.cc
+ weight.cc
 omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
@@ -152,7 +148,7 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
- opendocparse.cc common/keyword.cc
+ opendocparse.cc common/keyword.cc msxmlparse.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
@@ -180,6 +176,7 @@ utf8converttest_LDADD = $(XAPIAN_LIBS)
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
+jsonesctest_LDADD = $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1

@@ -300,7 +300,7 @@ OrPostList::get_termfreq_est() const
 
 TermFreqs
 OrPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const 
+	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "OrPostList::get_termfreq_est_using_stats", stats);
     // Estimate assuming independence:
@@ -308,13 +308,15 @@ OrPostList::get_termfreq_est_using_stats(
     TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));
     TermFreqs rfreqs(r->get_termfreq_est_using_stats(stats));
 
-    double freqest, relfreqest;
+    double freqest, relfreqest, collfreqest;
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
 
     freqest = lfreqs.termfreq + rfreqs.termfreq -
 	    (lfreqs.termfreq * rfreqs.termfreq / stats.collection_size);
+    collfreqest = lfreqs.collfreq + rfreqs.collfreq -
+	    (lfreqs.collfreq * rfreqs.collfreq / stats.total_term_count);
 
     if (stats.rset_size == 0) {
 	relfreqest = 0;
@@ -324,7 +326,8 @@ OrPostList::get_termfreq_est_using_stats(
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+		     static_cast<Xapian::doccount>(relfreqest + 0.5),
+		     static_cast<Xapian::termcount>(collfreqest + 0.5)));
 }
 
 Xapian::docid

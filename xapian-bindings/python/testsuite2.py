@@ -230,7 +230,7 @@ class TestRunner(object):
                 self._out.write_colour(msg)
                 object_count = self.gc_object_count()
                 test_fn()
-                expect(object_count, self.gc_object_count())
+                expect(self.gc_object_count(), object_count)
                 self._out.write_colour("#green#ok##\n")
 
             if self._verbose > 0 or self._out.plain:
@@ -346,7 +346,7 @@ class OutProxy(object):
         #colourname# will change the text colour, ## will change the colour back.
 
         """
-        for colour, val in self._colours.items():
+        for colour, val in self._colours.iteritems():
             msg = msg.replace('#%s#' % colour, val)
         return msg
 
@@ -414,7 +414,7 @@ expect_query = _runner.expect_query
 expect_exception = _runner.expect_exception
 runtests = _runner.runtests
 
-__all__ = ('context', 'expect', 'expect_query', 'expect_exception', 'runtests')
+__all__ = ('TestFail', 'context', 'expect', 'expect_query', 'expect_exception', 'runtests')
 
 def next(iterator):
     return iterator.next()

@@ -1,7 +1,7 @@
-/* @file length.h
+/** @file length.h
  * @brief length encoded as a string
- *
- * Copyright (C) 2006,2007,2008,2009,2012 Olly Betts
+ */
+/* Copyright (C) 2006,2007,2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

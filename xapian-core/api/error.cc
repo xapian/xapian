@@ -26,7 +26,7 @@
 #ifdef __WIN32__
 # include "safewindows.h"
 #else
-# include <netdb.h>
+# include "safenetdb.h"
 #endif
 
 #include <cstdio> // For sprintf().

@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,10 @@
 
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/queryparser.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>

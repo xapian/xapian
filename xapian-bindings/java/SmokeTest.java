@@ -180,7 +180,7 @@ public class SmokeTest {
 	    }
 	    if (count != eset.size()) {
 		System.err.println("ESet.size() mismatched number of terms returned by ESetIterator");
-		System.err.printf("%s %s", count, eset.size());
+		System.err.println(count + " " + eset.size());
 		System.exit(1);
 	    }
 

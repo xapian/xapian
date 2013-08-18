@@ -1,7 +1,7 @@
 /** @file brass_positionlist.h
  * @brief A position list in a brass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,12 @@
 
 #include <xapian/types.h>
 
+#include "bitstream.h"
 #include "brass_lazytable.h"
 #include "pack.h"
 #include "backends/positionlist.h"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -76,11 +76,17 @@ class BrassPositionListTable : public BrassLazyTable {
 
 /** A position list in a brass database. */
 class BrassPositionList : public PositionList {
-    /// Vector of term positions.
-    vector<Xapian::termpos> positions;
+    /// Interpolative decoder.
+    BitReader rd;
 
-    /// Position of iteration through data.
-    vector<Xapian::termpos>::const_iterator current_pos;
+    /// Current entry.
+    Xapian::termpos current_pos;
+
+    /// Last entry.
+    Xapian::termpos last;
+
+    /// Number of entries.
+    Xapian::termcount size;
 
     /// Have we started iterating yet?
     bool have_started;
@@ -96,7 +102,7 @@ class BrassPositionList : public PositionList {
 
   public:
     /// Default constructor.
-    BrassPositionList() : have_started(false) {}
+    BrassPositionList() { }
 
     /// Construct and initialise with data.
     BrassPositionList(const BrassTable * table, Xapian::docid did,

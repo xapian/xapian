@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,10 @@
 
 #ifndef XAPIAN_INCLUDED_POSTINGSOURCE_H
 #define XAPIAN_INCLUDED_POSTINGSOURCE_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/postingsource.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/attributes.h>
 #include <xapian/database.h>

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,7 +71,7 @@
 using namespace std;
 
 /// The global verbose flag.
-bool verbose;
+int verbose;
 
 #ifdef HAVE_VALGRIND
 static int vg_log_fd = -1;
@@ -336,6 +336,8 @@ test_driver::runtest(const test_desc *test)
 		    write_and_clear_tout();
 		    return FAIL;
 		}
+		if (verbose > 1)
+		    write_and_clear_tout();
 #ifndef NO_LIBXAPIAN
 		if (backendmanager)
 		    backendmanager->clean_up();
@@ -757,7 +759,7 @@ test_driver::parse_command_line(int argc, char **argv)
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'v':
-		verbose = true;
+		++verbose;
 		break;
 	    case 'o':
 		abort_on_error = true;

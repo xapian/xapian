@@ -1,7 +1,7 @@
 /** @file  postingiterator.h
  *  @brief Class for iterating over a list of document ids
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,10 @@
 
 #ifndef XAPIAN_INCLUDED_POSTINGITERATOR_H
 #define XAPIAN_INCLUDED_POSTINGITERATOR_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/postingiterator.h> directly; include <xapian.h> instead."
+#endif
 
 #include <iterator>
 #include <string>

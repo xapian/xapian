@@ -1,358 +1,187 @@
- 16993       olly Fri Jan 04 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
+Xapian-core 1.3.1 (2013-05-03):
 
-trunk only:
-
- 16965       olly Fri Dec 21 03:48:36 GMT 2012  Olly Betts <olly@survex.com>
-	* configure.ac: Don't autodisable the remote backend if we fail to find
-	  a required function.  It's more likely the user needs to pass
-	  LIBS=-lfoo and it's more helpful to error out so they can do that, or
-	  pass --disable-backend-remote if they really don't want it, rather
-	  than having them not notice the automatic disabling until after
-	  they've built.  This also matches what we do for the disk based
-	  backends.
-
- 16993       olly Fri Jan 04 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
-	* net/progclient.cc: Fix typo so we actually use SOCK_CLOEXEC.
- 16992       olly Fri Jan 04 23:14:01 GMT 2013  Olly Betts <olly@survex.com>
-	* common/safesyssocket.h: We need the same workaround for socket() too.
- 16990       olly Fri Jan 04 04:41:17 GMT 2013  Olly Betts <olly@survex.com>
-	* common/safesyssocket.h: On Linux at least, sometimes SOCK_CLOEXEC is
-	  defined but the kernel doesn't handle it in socketpair(), so add a
-	  wrapper which will retry without SOCK_CLOEXEC in this case.  Noticed
-	  on Ubuntu precise.
- 16970       olly Sat Dec 22 06:29:23 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/flint_lock.cc: Only set close-on-exec on the lockfile fd if
-	  we are able to clear it in the child process, and clear it in the
-	  child process if we set it when we opened it.
- 16969       olly Sat Dec 22 06:14:40 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/flint_lock.cc,net/progclient.cc: Use SOCK_CLOEXEC with
-	  socketpair(), and then clear the close-on-exec flag for child process
-	  end of the pair before we call exec.
- 16968       olly Sat Dec 22 06:13:44 GMT 2012  Olly Betts <olly@survex.com>
-	* net/progclient.cc: Remove O_CLOEXEC where we open stderr on /dev/null
-	  before calling exec as we want that fd to survive the exec!
- 16967       olly Sat Dec 22 05:53:12 GMT 2012  Olly Betts <olly@survex.com>
-	* HACKING,backends/flint_lock.cc,common/Makefile.mk,
-	  common/safesyssocket.h,net/progclient.cc,net/tcpclient.cc,
-	  net/tcpserver.cc,tests/harness/backendmanager_remotetcp.cc:
-	  Use SOCK_CLOEXEC where available, and try FD_CLOEXEC if SOCK_CLOEXEC
-	  isn't available.
- 16966       olly Sat Dec 22 04:09:23 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/brass/,backends/chert/,backends/flint_lock.cc,
-	  common/debuglog.cc,common/replicate_utils.cc,common/safefcntl.h,
-	  net/progclient.cc,net/remoteconnection.cc,
-	  tests/harness/testsuite.cc: If O_CLOEXEC is supported, pass it to
-	  open() so fds we open are closed if the application using us calls
-	  exec().
-
- 16982       olly Thu Dec 27 06:06:30 GMT 2012  Olly Betts <olly@survex.com>
-	* queryparser/queryparser.lemony: Adjust handling of Unicode
-	  opening/closing double quotes - if a quoted boolean term was started
-	  with ASCII double quote, then only ASCII double quote can end it, as
-	  otherwise it's impossible to quote a term containing Unicode double
-	  quotes.
-	* tests/queryparsertest.cc: Update testcases.
-
- 16973       olly Sun Dec 23 18:16:52 GMT 2012  Olly Betts <olly@survex.com>
-	* configure.ac: Fix typo in previous commit.
- 16972       olly Sun Dec 23 18:06:45 GMT 2012  Olly Betts <olly@survex.com>
-	* configure.ac: Use the new flock()-based flint-compatible locking
-	  under DJGPP, and remove special cases to disable chert and brass
-	  under DJGPP (untested, as I no longer have a DJGPP setup or
-	  cross-compiler).
- 16971       olly Sun Dec 23 17:51:36 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/flint_lock.cc,backends/flint_lock.h: Add flock() based
-	  locking implementation, which is much simpler than using fcntl() due
-	  to saner semantics around releasing locks when closing other
-	  descriptors on the same file (at least on platforms where flock()
-	  isn't just a compatibility wrapper around fcntl()).  We can't simply
-	  switch to this without breaking locking compatibility with previous
-	  releases, though it might be useful for porting to platforms without
-	  fcntl() locking.  Also, flock() apparently doesn't work over NFS -
-	  perhaps that's OK, but we should at least check the failure mode.
-
- 16960       olly Fri Dec 21 02:57:56 GMT 2012  Olly Betts <olly@survex.com>
-	* net/remoteconnection.cc,net/remoteconnection.h: Only "outline"
-	  RemoteConnection dtor under __WIN32__.
-
- 16962       olly Fri Dec 21 03:32:13 GMT 2012  Olly Betts <olly@survex.com>
-	* tests/api_replicate.cc: Use O_BINARY in replication tests.
- 16961       olly Fri Dec 21 03:24:37 GMT 2012  Olly Betts <olly@survex.com>
-	* common/replicate_utils.cc: Make posixy_open() always use O_BINARY.
-	* backends/brass/brass_btreebase.cc,backends/brass/brass_database.cc,
-	  backends/brass/brass_databasereplicator.cc,
-	  backends/chert/chert_btreebase.cc,
-	  backends/chert/chert_databasereplicator.cc,common/posixy_wrapper.cc:
-	  Don't pass O_BINARY to posixy_open() in the places where we were
-	  (which wasn't everywhere, probably causing replication bugs under
-	  __WIN32__). (backported passing O_BINARY explicitly since that's
-	  less invasive)
- 16956       olly Thu Dec 20 22:07:19 GMT 2012  Olly Betts <olly@survex.com>
-	* api/compactor.cc,api/replication.cc,backends/brass/,backends/chert/,
-	  common/,net/remoteconnection.cc: Rename msvc_posix_rename(), etc to
-	  posixy_rename() (avoid a posix_ prefix as that's used by some library
-	  functions, and these aren't necessarily 100% POSIX compatible), and
-	  provide macro versions on Unix, so we can avoid a #ifdef at every
-	  call site.
-
- 16901       olly Sat Nov 17 00:05:36 GMT 2012  Olly Betts <olly@survex.com>
-	* matcher/localsubmatch.cc: Optimise an unweighted query term which
-	  matches all the documents in a subdatabase to use the "MatchAll"
-	  postlist.  (ticket#387)
-
- 16899       olly Fri Nov 16 07:30:18 GMT 2012  Olly Betts <olly@survex.com>V
-	* include/xapian/version_h.cc: Generate a check for compatible _DEBUGVV
-	  settings if built with MSVC.  (ticket#389)
-
- 16864       olly Tue Nov 06 22:42:31 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/brass/brass_table.cc: Restore two missing lines in database
-	  checking where we report a block with the wrong level.
-
- 16863       olly Tue Oct 16 11:19:42 GMT 2012  Olly Betts <olly@survex.com>
-	* api/compactor.cc,backends/dbcheck.cc,backends/dbfactory.cc,
-	  common/Makefile.mk: Fix to build when configured with
-	  --disable-backend-brass --disable-backend-chert.  (ticket#586)
-
- 16862       olly Mon Oct 15 04:07:30 GMT 2012  Olly Betts <olly@survex.com>
-	* HACKING: automake 1.12.4 is now used to generate snapshots and
-	  releases.
-
- 16829       olly Tue Sep 25 06:46:03 GMT 2012  Olly Betts <olly@survex.com>
-	* include/xapian/enquire.h: Mark MSetIterator::at_end() and
-	  ESetIterator::at_end() as @private @internal so that they don't
-	  appear in the API docs.
- 16828       olly Tue Sep 25 06:45:07 GMT 2012  Olly Betts <olly@survex.com>
-	* include/xapian/enquire.h: Remove FIXMEs about converting MSetIterator
-	  and ESetIterator to use Internal classes - as HACKING notes, the
-	  current implementation is that way for performance reasons.
- 16823    dcolish Sat Aug 25 16:09:50 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* include/xapian/enquire.h: Add function to test MSetIterator and
-	  ESetIterator exhaustion against the size of the underlying interee
-	  since comparison against an empty Itor is not suitable for an
-	  exhaustion test. Add FIXME that these Iterators should use an Internal
-	  class. 
-
- 16816    dcolish Wed Aug 01 15:25:25 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* HACKING,Makefile.am,tests/Makefile.am: Fix non-portable warnings
-	from automake, add HACKING doc for check-syntax make target
- 16815    dcolish Wed Aug 01 04:54:18 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* Makefile.am,api/Makefile,backends/Makefile,backends/brass/Makefile,
-	  backends/chert/Makefile,backends/inmemory/Makefile,
-	  backends/multi/Makefile,backends/remote/Makefile,bin/Makefile,
-	  common/Makefile,examples/Makefile,expand/Makefile,
-	  geospatial/Makefile,include/Makefile,include/xapian/Makefile,
-	  languages/Makefile,matcher/Makefile,net/Makefile,
-	  queryparser/Makefile,tests/harness/Makefile,unicode/Makefile,
-	  weight/Makefile: Add check-syntax target to Makefiles to support
-	  editor syntax checks
-
- 16814       olly Sun Jul 29 15:32:00 GMT 2012  Olly Betts <olly@survex.com>
-	* configure.ac: Bump LIBRARY_VERSION_INFO so I can package a snapshot
-	  cleanly.
-
- 16807       olly Tue Jul 24 01:35:17 GMT 2012  Olly Betts <olly@survex.com>
-	* include/xapian/queryparser.h,queryparser/queryparser.cc,
-	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h,
-	  tests/queryparsertest.cc: Add FieldProcessor class (ticket#128) -
-	  currently marked as an experimental API while we sort out how best
-	  to sort out exactly how it interacts with other QueryParser features.
-
- 16804       olly Thu Jul 19 05:32:04 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/brass/brass_dbcheck.h,
-	  backends/inmemory/inmemory_alltermslist.cc,bin/xapian-delve.cc: Fix
-	  filenames in comments which mismatch actual name of file.
-
- 16794    dcolish Mon Jul 02 05:27:43 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* backends/brass/brass_databasereplicator.cc: Use new/delete to avoid
-	  variable length array gcc extension and comply with c++98
-
- 16793    dcolish Mon Jul 02 05:02:14 GMT 2012  Dan Colish <dcolish@gmail.com>
-	* api/omdatabase.cc,tests/api_wrdb.cc: Prefer container.empty() to
-	  container.size() == 0.
-
- 16735       olly Sun Jun 10 12:57:16 GMT 2012  Olly Betts <olly@survex.com>
-	* backends/brass/brass_btreebase.cc,backends/brass/brass_btreebase.h,
-	  backends/brass/brass_check.cc: Remove is_empty(), tweak
-	  calculate_last_block() to calculate the bit map size correctly in
-	  the case of an empty table, and use the bit map size instead of
-	  is_empty() in xapian-check.
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h,
-	  backends/chert/chert_check.cc: Make equivalent changes for chert.
-
- 16706       olly Tue Jun 05 06:51:12 GMT 2012  Olly Betts <olly@survex.com>
-	* common/compression_stream.cc,common/compression_stream.h: Move the
-	  default argument to the CompressionStream constructor to the header
-	  and mark the constructor as explicit, since it has a single argument
-	  form.
-
- 16705       olly Tue Jun 05 06:41:22 GMT 2012  Olly Betts <olly@survex.com>
-	* api/queryvector.h: Fix somewhat dubious warning from clang.
-
- 16674       olly Sat Jun 02 12:10:55 GMT 2012  Olly Betts <olly@survex.com>
-	* Makefile.am,api/omdocument.cc,api/omenquire.cc,backends/brass/,
-	  backends/chert/,bin/xapian-delve.cc,common/getopt.cc,configure.ac,
-	  docs/,m4-macros/xapian-1.3.m4,matcher/multimatch.cc,preautoreconf,
-	  tests/Makefile.am,tests/api_db.cc,tests/harness/testsuite.h,
-	  tests/harness/testutils.h: Change `...' quoting in prose to '...'.
-
- 16673       olly Fri Jun 01 07:40:48 GMT 2012  Olly Betts <olly@survex.com>
-	* HACKING,Makefile.am: If you run "make coverage-check" by hand, the
-	  default of compressed HTML is unhelpful, so don't default to passing
-	  --html-gzip to genhtml, but instead add support for GENHTML_ARGS.
-
- 16663 (part of)      olly Wed May 30 05:07:51 GMT 2012  Olly Betts <olly@survex.com>
-	* weight/bm25weight.cc,weight/tradweight.cc: Throw SerialisationError
-	  not NetworkError if unserialise() fails.
-
- 16679       olly Sun Jun 03 11:43:44 GMT 2012  Olly Betts <olly@survex.com>
-	* include/xapian/query.h: Add second fake specialised form of the
-	  templated iterator Query constructor, for use in the Java bindings.
-
-	* tests/generate-api_generated: Test that the string returned by a
-	  get_description() method isn't empty.
-
-	* generate-exceptions: Use function attributes in generated error.h.
-	* include/xapian/: Use the new function attributes on various API
-	  methods.
-	* tests/api_wrdb.cc: get_termfreq() is now marked as pure, so the
-	  testsuite needs to actually use the return value to check its
-	  exception behaviour.
-	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Hide new
-	  function attribute macros from doxygen.
-
-	* include/xapian/query.h: Use "Internal" instead of "Query::Internal"
-	  in constructor prototype argument list for consistency with other
-	  cosntructors, and so this constructor gets ignored by SWIG.
-
- 16632       olly Sun May 27 01:43:30 GMT 2012  Olly Betts <olly@survex.com>
-	* exception_data.pm,include/Makefile.mk,include/xapian.h,
-	  include/xapian/attributes.h,include/xapian/unicode.h: Add
-	  XAPIAN_CONST_FUNCTION, XAPIAN_PURE_FUNCTION, and XAPIAN_NOTHROW
-	  macros for marking functions and methods with those attributes.
-	  (tickets #151, #454)
-
- 16625       olly Wed May 23 05:37:20 GMT 2012  Olly Betts <olly@survex.com>
-	* api/valuesetmatchdecider.cc,include/xapian/valuesetmatchdecider.h:
-	  "Limited" to "Ltd" in (C) two statements, for consistency (and with
-	  Charlie's agreement on IRC).
-
- 16624       olly Wed May 23 02:25:53 GMT 2012  Olly Betts <olly@survex.com>
-	* api/,include/xapian/query.h: Rework QueryBranch to use a special
-	  QueryVector class rather than std::vector<Xapian::Query>.  The
-	  special class is no bigger than std::vector<Xapian::Query>, and
-	  handles up to two entries by holding them within the object (at
-	  least GCC's std::vector doesn't currently do this space optimisation)
-	  which significantly reduces the memory used by a pairwise operator,
-	  which is very desirable as we no longer flatten a tree of the same
-	  pairwise operator as we build the query.
-
- 16622       olly Tue May 22 06:25:10 GMT 2012  Olly Betts <olly@survex.com>
-	* api/queryinternal.cc: Handle the left side of AND_NOT and
-	  AND_MAYBE being MatchNothing in add_subquery() rather than
-	  in done().
-
- 16621       olly Tue May 22 02:40:45 GMT 2012  Olly Betts <olly@survex.com>
-	* api/queryinternal.cc: Handle QueryAndLike with a MatchNothing
-	  subquery in add_subquery() rather than done().
-
- 16620       olly Tue May 22 02:01:00 GMT 2012  Olly Betts <olly@survex.com>
-	* api/queryinternal.cc,api/queryinternal.h: Drop MatchNothing
-	  subqueries in OR-like situations in add_subquery() rather than
-	  adding them and then handling it later.
-
-	* common/fileutils.cc: Add safeunistd.h for mkdir, required by GCC
-	  4.7 (reported by Gaurav Arora).
-
-	* common/omassert.cc: Fix warning with GCC in build with assertions
-	  enabled.
-
-	* HACKING: We're now using automake 1.12 to generate snapshots and
-	  releases.
-
-	* docs/admin_notes.rst: Document xapian-check for fixing corrupted
-	  databases.
-
-	* backends/chert/,backends/dbcheck.cc,bin/xapian-check.cc,
-	  include/xapian/database.h: Add "fix" option to xapian-check, which
-	  currently will regenerate iamchert if it isn't valid, and will
-	  regenerate base files from the .DB files (only really tested on
-	  databases which have just been compacted).
-
-	* backends/dbcheck.cc: If the database couldn't be opened, don't try
-	  to reserve space for cross-checking doclens, as that just results in
-	  us reporting a confusing warning about there being too many documents
-	  to cross-check doclens.
-
-	  include/xapian/errorhandler.h: Deprecate Xapian::ErrorHandler.
-	  (ticket#3)
-
-	* include/xapian/queryparser.h,queryparser/queryparser_internal.h:
-	  Change the default stemming strategy to STEM_SOME, to eliminate
-	  the API gotcha that setting a stemmer is ignored until you also
-	  set a strategy.
-
-	* Makefile.am: Use git commit hash in the title of a coverage report
-	  generated from a git tree.
-
-	* xapian-core.spec.in: Remove xapian-chert-update.
-
-	* configure.ac: Set LIBRARY_VERSION_SUFFIX to -1.3.
-
-	* backends/brass/,common/Makefile.mk, common/compression_stream.h,
-	  common/compression_stream.cc: Compress changesets in brass
-	  replication. Increments the changeset version. Ticket #348
-
-	* Makefile.am,m4-macros/xapian.m4: Rename libxapian to libxapian-1.3
-	  and xapian.m4 to xapian-1.3.m4.
-
-Xapian-core 1.3.1 (2013-01-07):
-
+This release includes all changes from 1.2.10-1.2.15 which are relevant.
 
 API:
 
+* Give an compilation error if user code tries to include API headers other
+  than xapian.h directly - these other headers are an internal implementation
+  detail, but experience has shown that some people try to include them
+  directly.  Please just use '#include <xapian.h>' instead.
+
 * Update Unicode character database to Unicode 6.2.0.
+
+* Add FieldProcessor class (ticket#128) - currently marked as an experimental
+  API while we sort out how best to sort out exactly how it interacts with
+  other QueryParser features.
+
+* Add implementation of several TF-IDF weighting schemes via a new TfIdfWeight
+  class.
+
+* Add ExpandDeciderFilterPrefix class which only return terms with a particular
+  prefix.  (fixes #467)
+
+* QueryParser: Adjust handling of Unicode opening/closing double quotes - if a
+  quoted boolean term was started with ASCII double quote, then only ASCII
+  double quote can end it, as otherwise it's impossible to quote a term
+  containing Unicode double quotes.
+
+* Database::check(): If the database can't be opened, don't emit a bogus
+  warning about there being too many documents to cross-check doclens.
+
+* TradWeight,BM25Weight: Throw SerialisationError instead of NetworkError if
+  unserialise() fails.
+
+* QueryParser: Change the default stemming strategy to STEM_SOME, to eliminate
+  the API gotcha that setting a stemmer is ignored until you also set a
+  strategy.
+
+* Deprecate Xapian::ErrorHandler.  (ticket#3)
+
+* Stem: Generate a compact and efficient table to decode language names.  This
+  is both faster and smaller than the approach we were using, with the added
+  benefit that the table is auto-generated.
+
+* xapian.h:
+
+  + Add check for Qt headers being included before us and defining
+    'slots' as a macro - if they are, give a clear error advising how to work
+    around this (previously compilation would fail with a confusing error).
+
+  + Add a similar check for Wt headers which also define 'slots' as a macro
+    by default.
 
 testsuite:
 
+* tests/generate-api_generated: Test that the string returned by a
+  get_description() method isn't empty.
+
+* Use git commit hash in title of test coverage reports generated from a git
+  tree.
 
 matcher:
 
+* Drop MatchNothing subqueries in OR-like situations in add_subquery() rather
+  than adding them and then handling it later.
+
+* Handle the left side of AND_NOT and AND_MAYBE being MatchNothing in
+  add_subquery() rather than in done().
+
+* Handle QueryAndLike with a MatchNothing subquery in add_subquery() rather
+  than done().
+
+* Query: Multi-way operators now store their subquery pointers in a custom
+  class rather than std::vector<Xapian::Query>.  The custom class take the
+  same amount of space, or often less.  It's particularly efficient when
+  there are two subqueries, which is very desirable as we no longer flatten a
+  subtree of the same operator as we build the query.
+
+* Optimise an unweighted query term which matches all the documents in a
+  subdatabase to use the "MatchAll" postlist.  (ticket#387)
 
 brass backend:
 
+* Iterating positional data now decodes it lazily, which should speed up
+  phrases which include common words.
+
+* Compress changesets in brass replication. Increments the changeset version.
+  Ticket #348
+
+* Restore two missing lines in database checking where we report a block with
+  the wrong level.
+
+* When checking if a block was newly allocated in this revision, just look
+  at its revision number rather than consulting the base file's bitmap.
 
 chert backend:
 
-
-flint backend:
-
+* Iterating positional data now decodes it lazily, which should speed up
+  phrases which include common words.
 
 remote backend:
 
-
-inmemory backend:
-
+* Prefix compress list of terms and metadata keys in the remote protocol.
+  This requires a remote protocol major version bump.
 
 build system:
 
+* Fix the 'libxapian' to be 'libxapian-1.3' and 'xapian.m4' to be
+  'xapian-1.3.m4' (this was supposed to be the case for 1.3.0, but the
+  change wasn't made correctly).
+
+* Remove support for 'configure --enable-quiet', 'make QUIET=' and 'make
+  QUIET=y' - automake now supports 'configure --enable-silent-rules', 'make
+  V=1' and 'make V=0' which are broadly equivalent and more standard.
+
+* configure: If we fail to find a function needed for the remote backend, don't
+  autodisable it - it's more helpful to error out so the use can decide if they
+  want to pass --disable-backend-remote to disable it, or work out what values
+  to pass for LIBS, etc to make it work.  This also matches what we do for the
+  disk based backends.
+
+* automake 1.13.1 is now used to generate snapshots and releases.
+
+* Add check-syntax make target to support editor syntax checks.
+
+* Fix to build when configured with --disable-backend-brass
+  --disable-backend-chert.  (ticket#586)
+
+* Generate a check for compatible _DEBUG settings if built with MSVC.
+  (ticket#389)
+
+* If you run "make coverage-check" by hand, the previous default of compressed
+  HTML is unhelpful, so don't default to passing --html-gzip to genhtml, but
+  instead add support for GENHTML_ARGS.
+
+* API methods and functions are now marked as 'const', 'pure', or 'nothrow'
+  allowing compilers which support such annotations to generate more efficient
+  code.  (tickets #151, #454)
 
 documentation:
 
+* HACKING: Note which MacPorts are needed for development work.
+
+* docs/remote_protocol.rst: Correct error in documentation of REPLY_DOCDATA
+  message.
 
 tools:
 
-
-examples:
-
+* xapian-check: Add "fix" option, which currently will regenerate iamchert if
+  it isn't valid, and will regenerate base files from the .DB files (only
+  really tested on databases which have just been compacted).
 
 portability:
 
+* Fix warning with GCC in build with assertions enabled.
+
+* common/fileutils.cc: Add safeunistd.h for mkdir, required by GCC 4.7
+  (reported by Gaurav Arora).
+
+* backends/brass/brass_databasereplicator.cc: Use new/delete to avoid variable
+  length array gcc extension and comply with c++98
+
+* Mark file descriptors as close-on-exec where supported. 
+
+* api/queryinternal.cc: Need <functional> for mem_fun().
+
+* Work around Apple's OS X SDK defining a check() macro.
+
+* Add an option to use a flock() based locking implementation for brass and
+  chert - this is much simpler than using fcntl() due to saner semantics around
+  releasing locks when closing other descriptors on the same file (at least on
+  platforms where flock() isn't just a compatibility wrapper around fcntl()).
+  Sadly we can't simply switch to this without breaking locking compatibility
+  with previous releases, but it's useful for platforms without fcntl()
+  locking (it's enabled for DJGPP) and may be useful for custom builds for
+  special purposes.
 
 packaging:
 
+* xapian-core.spec: Remove xapian-chert-update.
 
 debug code:
 
+* Building with --enable-log works once again.
 
 Xapian-core 1.3.0 (2012-03-14):
 
@@ -515,6 +344,102 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.15 (2013-04-16):
+
+API:
+
+* QueryParser/TermGenerator: Don't include CJK codepoints which are
+  punctuation in N-grams.
+
+* TermGenerator: Fix bug where we failed to generate the first bigram
+  from the second sequence of N-grammable CJK characters in a piece of text.
+
+brass backend:
+
+* Call fdatasync()/fsync() when creating the "iambrass" file.
+
+chert backend:
+
+* Call fdatasync()/fsync() when creating the "iamchert" file.
+
+flint backend:
+
+* Call fdatasync()/fsync() when creating the "iamflint" file.
+
+build system:
+
+* XO_LIB_XAPIAN now handles the user specifying XAPIAN_CONFIG without a path,
+  for example: ./configure XAPIAN_CONFIG=xapian-config-1.3
+
+tools:
+
+* delve: If -v is specified more than once, show even more info in some cases.
+
+portability:
+
+* Fix warning due to needlessly casting away const-ness in debug logging.
+
+* Fix pointer truncation bug in lemon parser generator, which probably affects
+  regenerating the query parser on WIN64.
+
+debug code:
+
+* Fix to build when configured with --enable-log.
+
+Xapian-core 1.2.14 (2013-03-14):
+
+API:
+
+* MSet::get_document(): Don't cache retrieved Document objects unless they
+  were requested with fetch().  This avoids using a lot of memory when many
+  MSet entries are retrieved.  (Fixes #604)
+
+testsuite:
+
+* apitest: Improved test coverage.
+
+matcher:
+
+* Check if a candidate document has at least the minimum weight needed
+  before checking positional information, which speeds up slow phrase
+  searches (partly addresses #394).
+
+brass backend:
+
+* Fix multipass compaction not to damage document values, and to merge the
+  database stats correctly.  (fixes #615)
+
+chert backend:
+
+* Fix multipass compaction not to damage document values, and to merge the
+  database stats correctly.  (fixes #615)
+
+flint backend:
+
+* Fix multipass compaction bug.  (fixes #615)
+
+tools:
+
+* xapian-replicate:
+
+  + Fix handling of delays between replication events - the subtraction of the
+    target time and the current time was reversed, so we wouldn't sleep when
+    before the deadline, but would sleep after it for the amount we'd missed it
+    by.
+
+  + On Microsoft Windows, we no longer sleep for more than 43 years if the
+    target time for a replication event had already passed.  (Fixes #472)
+
+portability:
+
+* matcher/queryoptimiser.cc: Need <functional> for mem_fun().
+
+* tests/harness/testsuite.cc: Don't provide explicit template types to
+  make_pair - it isn't useful, and breaks with C++11.  Fixes build error with
+  MSVC2012.
+
+* examples/quest.cc: Fix to build with Sun Studio 12 compiler.  (ticket#611)
 
 Xapian-core 1.2.13 (2013-01-09):
 

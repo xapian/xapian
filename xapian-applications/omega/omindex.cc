@@ -51,6 +51,7 @@
 #include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
+#include "msxmlparse.h"
 #include "myhtmlparse.h"
 #include "opendocparse.h"
 #include "pkglibbindir.h"
@@ -98,6 +99,15 @@ static Xapian::doccount old_docs_not_seen;
 static Xapian::docid old_lastdocid;
 static vector<bool> updated;
 
+static void
+mark_as_seen(Xapian::docid did)
+{
+    if (usual(did < updated.size() && !updated[did])) {
+	updated[did] = true;
+	--old_docs_not_seen;
+    }
+}
+
 static time_t last_mod_max;
 
 // Commands which take a filename as the last argument, and output UTF-8
@@ -137,7 +147,7 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
 
 static void
 get_pdf_metainfo(const string & file, string &author, string &title,
-		 string &keywords)
+		 string &keywords, string &topic)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
@@ -162,6 +172,9 @@ get_pdf_metainfo(const string & file, string &author, string &title,
 		    break;
 		case 'K':
 		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
+		    break;
+		case 'S':
+		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
 		    break;
 		case 'T':
 		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
@@ -344,6 +357,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
     time_t last_mod = d.get_mtime();
+    time_t created = time_t(-1);
 
     Xapian::docid did = 0; 
     if (skip_duplicates) {
@@ -352,10 +366,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    if (verbose)
 		cout << "already indexed, not updating" << endl;
 	    did = *p;
-	    if (usual(did < updated.size() && !updated[did])) {
-		updated[did] = true;
-		--old_docs_not_seen;
-	    }
+	    mark_as_seen(did);
 	    return;
 	}
     } else {
@@ -375,10 +386,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // exception is if the URL was long and hashed to the
 		    // same URL as an existing document indexed in the same
 		    // batch.
-		    if (usual(did < updated.size() && !updated[did])) {
-			updated[did] = true;
-			--old_docs_not_seen;
-		    }
+		    mark_as_seen(did);
 		    return;
 		}
 	    }
@@ -387,7 +395,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
     if (verbose) cout << flush;
 
-    string author, title, sample, keywords, dump;
+    string author, title, sample, keywords, topic, dump;
     string md5;
 
     try {
@@ -418,7 +426,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    dump = p.dump;
 		    title = p.title;
 		    keywords = p.keywords;
+		    topic = p.topic;
 		    sample = p.sample;
+		    author = p.author;
 		}
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -444,6 +454,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = p.dump;
 	    title = p.title;
 	    keywords = p.keywords;
+	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
 	    md5_string(text, md5);
@@ -476,7 +487,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
-	    get_pdf_metainfo(file, author, title, keywords);
+	    get_pdf_metainfo(file, author, title, keywords, topic);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -513,7 +524,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -530,7 +541,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    cmd += " styles.xml";
 	    try {
 		OpenDocParser parser;
-		parser.parse_html(stdout_to_string(cmd));
+		parser.parse(stdout_to_string(cmd));
 		dump = parser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -542,9 +553,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    cmd += " meta.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse_html(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
+		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
 	    } catch (ReadError) {
@@ -573,12 +585,12 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// the shared strings.
 		string cmd = "unzip -p";
 		append_filename_argument(cmd, file);
-		cmd += " xl/sharedStrings.xml ; unzip -p";
+		cmd += " xl/styles.xml xl/workbook.xml xl/sharedStrings.xml ; unzip -p";
 		append_filename_argument(cmd, file);
 		cmd += " xl/worksheets/sheet\\*.xml";
 		try {
 		    XlsxParser parser;
-		    parser.parse_html(stdout_to_string(cmd));
+		    parser.parse(stdout_to_string(cmd));
 		    dump = parser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(file, cmd);
@@ -600,8 +612,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		append_filename_argument(cmd, file);
 		cmd += args;
 		try {
-		    XmlParser xmlparser;
-		    xmlparser.parse_html(stdout_to_string(cmd));
+		    MSXmlParser xmlparser;
+		    xmlparser.parse_xml(stdout_to_string(cmd));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(file, cmd);
@@ -614,9 +626,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    cmd += " docProps/core.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse_html(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
+		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
 	    } catch (ReadError) {
@@ -626,7 +639,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
 	    const string & text = d.file_to_string();
-	    xmlparser.parse_html(text);
+	    xmlparser.parse_xml(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
@@ -635,7 +648,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    append_filename_argument(cmd, file);
 	    try {
 		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
+		xmlparser.parse_xml(stdout_to_string(cmd));
 		dump = xmlparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -684,7 +697,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // 2 bytes from the start of dump.
 		    convert_to_utf8(dump, "UTF-16");
 		}
-		xpsparser.parse_html(dump);
+		xpsparser.parse(dump);
 		dump = xpsparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -731,16 +744,18 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = p.dump;
 	    title = p.title;
 	    keywords = p.keywords;
+	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();
 	    md5_string(text, md5);
-	    svgparser.parse_html(text);
+	    svgparser.parse(text);
 	    dump = svgparser.dump;
 	    title = svgparser.title;
 	    keywords = svgparser.keywords;
+	    // FIXME: topic = svgparser.topic;
 	    author = svgparser.author;
 	} else if (mimetype == "application/x-debian-package") {
 	    string cmd("dpkg-deb -f");
@@ -767,10 +782,11 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    AtomParser atomparser;
 	    const string & text = d.file_to_string();
 	    md5_string(text, md5);
-	    atomparser.parse_html(text);
+	    atomparser.parse(text);
 	    dump = atomparser.dump;
 	    title = atomparser.title;
 	    keywords = atomparser.keywords;
+	    // FIXME: topic = atomparser.topic;
 	    author = atomparser.author;
 	} else {
 	    // Don't know how to index this type.
@@ -840,11 +856,15 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    record += "\nmodtime=";
 	    record += str(last_mod);
 	}
+	if (created != (time_t)-1) {
+	    record += "\ncreated=";
+	    record += str(created);
+	}
 	record += "\nsize=";
 	record += str(d.get_size());
 	newdocument.set_data(record);
 
-	// Index the title, document text, and keywords.
+	// Index the title, document text, keywords and topic.
 	indexer.set_document(newdocument);
 	if (!title.empty()) {
 	    indexer.index_text(title, 5, "S");
@@ -856,6 +876,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	if (!keywords.empty()) {
 	    indexer.increase_termpos(100);
 	    indexer.index_text(keywords);
+	}
+	if (!topic.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(topic, 1, "B");
 	}
 	// Index the leafname of the file.
 	{
@@ -943,12 +967,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    } else {
 		did = db.replace_document(urlterm, newdocument);
 	    }
-	    if (did < updated.size()) {
-		if (usual(!updated[did])) {
-		    updated[did] = true;
-		    --old_docs_not_seen;
-		}
-	    }
+	    mark_as_seen(did);
 	    if (verbose) {
 		if (did <= old_lastdocid) {
 		    cout << "updated" << endl;
@@ -963,7 +982,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cout << "added" << endl;
 	}
     } catch (ReadError) {
-	skip(file, "can't read file");
+	skip(file, string("can't read file: ") + strerror(errno));
     } catch (NoSuchFilter) {
 	skip(file, "Filter for \"" + mimetype + "\" not installed");
 	commands[mimetype] = Filter();
@@ -1575,7 +1594,7 @@ main(int argc, char **argv)
 	    }
 	    Xapian::PostingIterator alldocs = db.postlist_begin(string());
 	    Xapian::docid did = *alldocs;
-	    do {
+	    while (did < updated.size()) {
 		if (!updated[did]) {
 		    alldocs.skip_to(did);
 		    if (alldocs == db.postlist_end(string()))
@@ -1589,7 +1608,8 @@ main(int argc, char **argv)
 		    if (--old_docs_not_seen == 0)
 			break;
 		}
-	    } while (++did < updated.size());
+		++did;
+	    }
 	}
 	db.commit();
 	exitcode = 0;

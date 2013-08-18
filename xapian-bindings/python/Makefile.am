@@ -2,12 +2,16 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
-    PYTHONPATH=".:$$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 \
-    abs_builddir=@abs_builddir@ $(PYTHON)
-
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
+AM_TESTS_ENVIRONMENT = \
+	abs_builddir='$(abs_builddir)' ;\
+	srcdir='$(srcdir)' ;\
+	PYTHON='$(PYTHON)' ;\
+	export abs_builddir ;\
+	export srcdir ;\
+	export PYTHON ;
+LOG_COMPILER = '$(srcdir)'/run-python-test
 
 # FIXME: replicationtest.py attempts to test performing replication whilst
 # modifications are in progress.  However, it sometimes fails due to a race
@@ -21,6 +25,7 @@ BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	generate-python-exceptions \
 	module_top.py \
+	run-python-test \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \
 	smoketest2.py smoketest3.py \
@@ -95,10 +100,6 @@ clean-local:
 	rm -rf db_test_* dbs_replication
 
 if MAINTAINER_MODE
-# We need to explicitly set -outdir because on Windows, SWIG splits paths at
-# "\" when extracting the output directory from the value passed to the -o
-# option.
-
 BUILT_SOURCES += except.i doccomments.i
 except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
@@ -110,6 +111,14 @@ else
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/index.xml
 	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
+
+# Update the Python 3 versions from the Python 2 ones.
+2to3:
+	for a in pythontest replicationtest smoketest testsuite ; do cp $${a}2.py $${a}3.py ; 2to3 -w --no-diffs $${a}3.py ; done
+
+# We need to explicitly set -outdir because on Windows, SWIG splits paths at
+# "\" when extracting the output directory from the value passed to the -o
+# option.
 
 stamp = modern/xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)

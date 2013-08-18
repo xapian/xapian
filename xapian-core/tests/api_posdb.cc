@@ -156,7 +156,7 @@ DEFINE_TESTCASE(near1, positional) {
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 8);
     enquire.set_query(q);
 
-    // retrieve the top ten results
+    // retrieve the top twenty results
     mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
@@ -168,7 +168,7 @@ DEFINE_TESTCASE(near1, positional) {
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 999999999);
     enquire.set_query(q);
 
-    // retrieve the top ten results
+    // retrieve the top twenty results
     mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 

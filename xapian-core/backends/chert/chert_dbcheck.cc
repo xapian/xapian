@@ -2,7 +2,7 @@
  * @brief Check consistency of a chert table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@
 
 #include "autoptr.h"
 #include <ostream>
+#include <vector>
 
 using namespace std;
 
@@ -164,14 +165,19 @@ check_chert_table(const char * tablename, string filename, int opts,
 			++errors;
 			continue;
 		    }
+		    if (did <= lastdid) {
+			out << "First did in this chunk is <= last in "
+			    "prev chunk" << endl;
+			++errors;
+		    }
 		}
-		seen_doclen_initial_chunk = true;
 
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
 		end = pos + cursor->current_tag.size();
 		if (key.size() == 2) {
 		    // Initial chunk.
+		    seen_doclen_initial_chunk = true;
 		    if (end - pos < 2 || pos[0] || pos[1]) {
 			out << "Initial doclen chunk has nonzero dummy fields" << endl;
 			++errors;
@@ -184,11 +190,6 @@ check_chert_table(const char * tablename, string filename, int opts,
 			continue;
 		    }
 		    ++did;
-		    if (did <= lastdid) {
-			out << "First did in this chunk is <= last in "
-			    "prev chunk" << endl;
-			++errors;
-		    }
 		}
 
 		bool is_last_chunk;
@@ -771,21 +772,22 @@ check_chert_table(const char * tablename, string filename, int opts,
 		BitReader rd(data, pos - data.data());
 		Xapian::termpos pos_first = rd.decode(pos_last);
 		Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-		vector<Xapian::termpos> positions;
-		positions.resize(pos_size);
-		positions[0] = pos_first;
-		positions.back() = pos_last;
-		rd.decode_interpolative(positions, 0, pos_size - 1);
-		vector<Xapian::termpos>::const_iterator current_pos = positions.begin();
-		Xapian::termpos lastpos = *current_pos++;
-		while (current_pos != positions.end()) {
-		    Xapian::termpos termpos = *current_pos++;
-		    if (termpos <= lastpos) {
+		rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+		Xapian::termpos p = rd.decode_interpolative_next();
+		bool ok = true;
+		while (p != pos_last) {
+		    Xapian::termpos pos_prev = p;
+		    p = rd.decode_interpolative_next();
+		    if (p <= pos_prev) {
 			out << tablename << " table: Positions not strictly monotonically increasing" << endl;
 			++errors;
+			ok = false;
 			break;
 		    }
-		    lastpos = termpos;
+		}
+		if (ok && !rd.check_all_gone()) {
+		    out << tablename << " table: Junk after position data" << endl;
+		    ++errors;
 		}
 	    }
 	}

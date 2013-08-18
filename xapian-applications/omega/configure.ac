@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.3.0], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.3.1], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
@@ -118,7 +118,7 @@ AC_TYPE_PID_T
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS(gettimeofday ftime)
+AC_CHECK_FUNCS(gettimeofday ftime timegm)
 
 dnl See if ftime() returns void (as it does on mingw).
 if test $ac_cv_func_ftime = yes ; then
@@ -368,34 +368,17 @@ dnl ******************************
 
 dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
-  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
-  dnl which we actually have.
-  AC_EGREP_CPP(yes,
-    [#ifdef __INTEL_COMPILER
-     yes
-     #endif
-    ],
-    [
-      dnl Intel's compiler:
-      dnl
-      dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
-    ],
-    [
-      dnl GCC:
+  dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
+  dnl we actually have, as neither is really 100% compatible.
+  case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
+    *__INTEL_COMPILER*__clang__*)
+      dnl GCC (since neither substituted):
       dnl
       dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
-      dnl we can rely on it.
+      dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      dnl
-      dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -407,10 +390,9 @@ if test yes = "$GXX"; then
       [[012]].* | 3.0)
 	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      3.*) ;;
-      *) dnl GCC >= 4.0
+      3.*|4.0) ;;
+      *) dnl GCC >= 4.1
 	case $gxx_version in
-	4.0) ;;
 	4.1)
 	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
 	  dnl only enable it for GCC >= 4.1.
@@ -424,17 +406,19 @@ if test yes = "$GXX"; then
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
-	*)
+	4.[[345]])
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
+	*) dnl GCC >= 4.6
+	  dnl -Wdouble-promotion was added in GCC 4.6.
 	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
-	  dnl is ignored by g++ which warns for this case with -Wuninitialized
-	  dnl (implied by -W).  But at some point this bug (filed upstream as
-	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	  dnl anyway - we don't intend to use this idiom, so any instances are
-	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	  dnl warns for this case with -Wuninitialized (implied by -W).  We
+	  dnl don't intend to use this idiom, so any instances are bugs we'd
+	  dnl like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
 	esac
 
 	dnl FIXME:
@@ -461,20 +445,37 @@ if test yes = "$GXX"; then
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-	dnl and some GCC 3.x compilers issue spurious warnings.
+	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
+	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  case $gxx_version in
-	  4.0)
-	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
-	    ;;
-	  *)
-	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
-	  esac
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
 	fi
 	;;
       esac
-    ])
+      ;;
+    *__clang__*)
+      dnl Intel's compiler (since __clang__ not substituted):
+      dnl
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+    *__INTEL_COMPILER*)
+      dnl clang (since __INTEL_COMPILER not substituted):
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+  esac
 fi
 
 AC_SUBST(AM_CXXFLAGS)
@@ -513,23 +514,6 @@ AH_BOTTOM(
 # define usual(COND) (COND)
 #endif
 ])
-
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [Enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
-  esac])
-
-dnl Pass '--quiet' to libtool if quiet building is requested.  Using an
-dnl AC_SUBST-ed value like this allows the choice to be easily overridden
-dnl if you want to see exactly what make and libtool are up to - just run
-dnl make like this: 'make QUIET='
-QUIET=
-if test yes = "$enable_quiet"; then
-  QUIET=--quiet
-fi
-AC_SUBST(QUIET)
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS

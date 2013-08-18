@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -202,17 +202,21 @@ class testmatchdecider extends XapianMatchDecider {
     }
 }
 
-$query = new XapianQuery($stem->apply("out"));
-$enquire = new XapianEnquire($db);
-$enquire->set_query($query);
-$mdecider = new testmatchdecider();
-$mset = $enquire->get_mset(0, 10, null, $mdecider);
-if ($mset->size() != 1) {
-    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
-    exit(1);
-}
-if ($mset->get_docid(0) != 2) {
-    print "MatchDecider mset has wrong docid in\n";
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
+    print "Skipping known failure subclassing Xapian classes in PHP under PHP 5.4+\n";
+} else {
+    $query = new XapianQuery($stem->apply("out"));
+    $enquire = new XapianEnquire($db);
+    $enquire->set_query($query);
+    $mdecider = new testmatchdecider();
+    $mset = $enquire->get_mset(0, 10, null, $mdecider);
+    if ($mset->size() != 1) {
+	print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+	exit(1);
+    }
+    if ($mset->get_docid(0) != 2) {
+	print "MatchDecider mset has wrong docid in\n";
+    }
 }
 
 if (XapianQuery::OP_ELITE_SET != 10) {
@@ -231,9 +235,12 @@ $oquery = $oqparser->parse_query("I like tea");
 $enq->set_cutoff(100);
 
 # Check DateValueRangeProcessor works.
+function add_vrp_date(&$qp) {
+    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
+    $qp->add_valuerangeprocessor($vrpdate);
+}
 $qp = new XapianQueryParser();
-$vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-$qp->add_valuerangeprocessor($vrpdate);
+add_vrp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
@@ -247,12 +254,16 @@ class testfieldprocessor extends XapianFieldProcessor {
     }
 }
 
-$tfp = new testfieldprocessor();
-$qp->add_prefix('spam', $tfp);
-$query = $qp->parse_query('spam:ignored');
-if ($query->get_description() !== 'Query(spam)') {
-    print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
-    exit(1);
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
+    print "Skipping known failure subclassing Xapian classes in PHP under PHP 5.4+\n";
+} else {
+    $tfp = new testfieldprocessor();
+    $qp->add_prefix('spam', $tfp);
+    $query = $qp->parse_query('spam:ignored');
+    if ($query->get_description() !== 'Query(spam)') {
+	print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
+	exit(1);
+    }
 }
 
 # Test setting and getting metadata

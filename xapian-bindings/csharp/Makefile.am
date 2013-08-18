@@ -2,15 +2,15 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = $(RUN_CSHARP)
-
 ## Test programs to be run
 TESTS = SmokeTest.exe
+LOG_COMPILER = $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Auto.cs \
+	generated-csharp/BB2Weight.cs \
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
 	generated-csharp/Brass.cs \
@@ -19,6 +19,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Database.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
+	generated-csharp/DLHWeight.cs \
+	generated-csharp/DPHWeight.cs \
 	generated-csharp/Document.cs \
 	generated-csharp/ESet.cs \
 	generated-csharp/ESetIterator.cs \
@@ -29,6 +31,9 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/FieldProcessor.cs \
 	generated-csharp/FixedWeightPostingSource.cs \
 	generated-csharp/GreatCircleMetric.cs \
+	generated-csharp/IfB2Weight.cs \
+	generated-csharp/IneB2Weight.cs \
+	generated-csharp/InL2Weight.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
 	generated-csharp/LatLongCoord.cs \
@@ -43,6 +48,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MSetIterator.cs \
 	generated-csharp/MultiValueKeyMaker.cs \
 	generated-csharp/NumberValueRangeProcessor.cs \
+	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
 	generated-csharp/PostingIterator.cs \
 	generated-csharp/PostingSource.cs \
@@ -59,6 +65,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/StringValueRangeProcessor.cs \
 	generated-csharp/TermGenerator.cs \
 	generated-csharp/TermIterator.cs \
+	generated-csharp/TfIdfWeight.cs \
 	generated-csharp/TradWeight.cs \
 	generated-csharp/ValueCountMatchSpy.cs \
 	generated-csharp/ValueIterator.cs \

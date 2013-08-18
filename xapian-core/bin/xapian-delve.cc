@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ using namespace std;
 
 static char separator = ' ';
 
-static bool verbose = false;
+static int verbose = 0;
 static bool showvalues = false;
 static bool showdocdata = false;
 static bool count_zero_length_docs = false;
@@ -65,6 +65,8 @@ static void show_usage() {
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf and termfreq for termlist; number of terms for db;\n"
 "                        termfreq when showing all terms)\n"
+"  -vv                   even more info (also show collection freq and wdf\n"
+"                        upper bound for terms)\n"
 "      --help            display this help and exit\n"
 "      --version         output version information and exit" << endl;
 }
@@ -177,19 +179,34 @@ show_termlist(const Database &db, Xapian::docid did)
     if (did == 0) {
 	t = db.allterms_begin();
 	tend = db.allterms_end();
-	cout << "All terms in database:";
+	cout << "All terms in database";
     } else {
 	t = db.termlist_begin(did);
 	tend = db.termlist_end(did);
-	cout << "Term List for record #" << did << ':';
+	cout << "Term List for record #" << did;
     }
+    if (verbose) {
+	cout << " (";
+	if (did != 0)
+	    cout << "wdf, ";
+	cout << "termfreq";
+	if (verbose > 1)
+	    cout << ", collection freq, wdf upper bound";
+	cout << ')';
+    }
+    cout << ':';
 
     while (t != tend) {
-	cout << separator << *t;
+	const string & term = *t;
+	cout << separator << term;
 	if (verbose) {
 	    if (did != 0)
 		cout << ' ' << t.get_wdf();
 	    cout << ' ' << t.get_termfreq();
+	    if (verbose > 1) {
+		cout << ' ' << db.get_collection_freq(term)
+		     << ' ' << db.get_wdf_upper_bound(term);
+	    }
 	}
 	++t;
     }
@@ -286,7 +303,7 @@ main(int argc, char **argv) try {
 		showdocdata = true;
 		break;
 	    case 'v':
-		verbose = true;
+		++verbose;
 		break;
 	    case 'z':
 		count_zero_length_docs = true;

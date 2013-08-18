@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H
-#define XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H
+#ifndef XAPIAN_INCLUDED_BRASS_DBCHECK_H
+#define XAPIAN_INCLUDED_BRASS_DBCHECK_H
 
 #include "xapian/types.h"
 
@@ -33,4 +33,4 @@ size_t check_brass_table(const char * tablename, std::string table, int opts,
 			 std::vector<Xapian::termcount> & doclens,
 			 Xapian::docid db_last_docid, std::ostream & out);
 
-#endif // XAPIAN_INCLUDED_XAPIAN_CHECK_BRASS_H
+#endif // XAPIAN_INCLUDED_BRASS_DBCHECK_H

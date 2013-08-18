@@ -1,7 +1,7 @@
 /** @file api_scalability.cc
  * @brief Tests of scalability.
  */
-/* Copyright (C) 2008,2009,2011 Olly Betts
+/* Copyright (C) 2008,2009,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,18 +59,20 @@ DEFINE_TESTCASE(bigoaddvalue1, writable) {
 }
 
 static double
-querypairwise1_helper(unsigned num_values)
+querypairwise1_helper(unsigned num_subqs)
 {
     CPUTimer timer;
-    Xapian::Query q("xxx");
-    for (unsigned i = 0; i < num_values; ++i) {
-	q = Xapian::Query(q.OP_OR, q, Xapian::Query(str(i)));
+    for (int c = 0; c < 100; ++c) {
+	Xapian::Query q("xxx");
+	for (unsigned i = 0; i < num_subqs; ++i) {
+	    q = Xapian::Query(q.OP_OR, q, Xapian::Query(str(i)));
+	}
     }
     return timer.get_time();
 }
 
 // Check that composing queries pairwise is O(n).
 DEFINE_TESTCASE(querypairwise1, !backend) {
-    test_scalability(querypairwise1_helper, 500, O_N);
+    test_scalability(querypairwise1_helper, 50, O_N);
     return true;
 }

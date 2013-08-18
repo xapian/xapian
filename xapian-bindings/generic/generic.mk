@@ -2,13 +2,9 @@
 ## SWIG.  Any makefile rules or variables which should be set for all SWIG
 ## bindings should be placed here.
 
-# 'make QUIET=' overrides './configure --enable-quiet'.
-# 'make QUIET=y' overrides './configure' without '--enable-quiet'.
-LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
-
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 

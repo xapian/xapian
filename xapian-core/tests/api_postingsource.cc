@@ -27,6 +27,7 @@
 #include <xapian.h>
 
 #include <string>
+#include "safeunistd.h"
 
 #include "testutils.h"
 #include "str.h"
@@ -601,6 +602,62 @@ DEFINE_TESTCASE(emptyvalwtsource1, backend && !remote && !multi) {
 	TEST_REL(mset.size(), >, 0.0);
 	TEST_EQUAL(mset.size(), size1);
     }
+
+    return true;
+}
+
+class SlowDecreasingValueWeightPostingSource
+    : public Xapian::DecreasingValueWeightPostingSource {
+  public:
+    int & count;
+
+    SlowDecreasingValueWeightPostingSource(int & count_)
+	: Xapian::DecreasingValueWeightPostingSource(0), count(count_) { }
+
+    SlowDecreasingValueWeightPostingSource * clone() const
+    {
+	return new SlowDecreasingValueWeightPostingSource(count);
+    }
+
+    void next(double min_wt) {
+	sleep(1);
+	++count;
+	return Xapian::DecreasingValueWeightPostingSource::next(min_wt);
+    }
+};
+
+static void
+make_matchtimelimit1_db(Xapian::WritableDatabase &db, const string &)
+{
+    for (int wt = 20; wt > 0; --wt) {
+	Xapian::Document doc;
+	doc.add_value(0, Xapian::sortable_serialise(double(wt)));
+	db.add_document(doc);
+    }
+}
+
+// FIXME: This doesn't run for remote databases (we'd need to register
+// SlowDecreasingValueWeightPostingSource on the remote) or for multi
+// databases (they don't support "generated" currently).
+DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
+{
+#ifndef HAVE_TIMER_CREATE
+    SKIP_TEST("Enquire::set_time_limit() not implemented for this platform");
+#endif
+    Xapian::Database db = get_database("matchtimelimit1",
+				       make_matchtimelimit1_db);
+
+    int count = 0;
+    SlowDecreasingValueWeightPostingSource src(count);
+    src.init(db);
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query(&src));
+
+    enquire.set_time_limit(1.5);
+
+    Xapian::MSet mset = enquire.get_mset(0, 1, 1000);
+    TEST_EQUAL(mset.size(), 1);
+    TEST_EQUAL(count, 2);
 
     return true;
 }

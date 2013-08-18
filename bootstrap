@@ -20,7 +20,7 @@
 # USA
 
 if [ "$1" = "--help" ] ; then
-  echo "$0 [--without-autotools|--clean]"
+  echo "$0 [--ftp] [--without-autotools|--clean]"
   exit 0
 fi
 
@@ -37,21 +37,34 @@ check_sha1sum() {
   checksum=$1
   tarball=$2
 
-  # BusyBox sha1sum doesn't know --version so just run to see it it works.
-  if echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c 2>/dev/null ; then
-    : # Checksum OK!
-  else
-    # Either sha1sum wasn't installed, or the checksum failed to match.
-    case `openssl sha1 "$tarball" 2>/dev/null` in
-      *$checksum) ;;
-      "") echo "Need sha1sum or openssl installed to check SHA1 checksums"
+  if [ -z "$SHA1SUM_TOOL" ] ; then
+    for SHA1SUM_TOOL in \
+	'${SHA1SUM-sha1sum} 2>/dev/null|cut -d\  -f1' \
+	'${SHASUM-shasum} 2>/dev/null|cut -d\  -f1' \
+	'$(OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
+	'' ; do
+      if [ -z "$SHA1SUM_TOOL" ] ; then
+	echo <<'END'
+Need sha1sum or shasum or openssl installed to check SHA1 checksums.
+Set environment variable SHA1SUM, SHASUM or OPENSSL if the tool isn't on
+your PATH.
+END
 	exit 1
-	;;
-      *)
-	echo "$tarball: computed SHA1 checksum did NOT match"
-	exit 1
-	;;
-    esac
+      fi
+      r=`:|eval "$SHA1SUM_TOOL"`
+      [ X"$r" != Xda39a3ee5e6b4b0d3255bfef95601890afd80709 ] || break
+    done
+  fi
+  r=`< $tarball eval "$SHA1SUM_TOOL"`
+  if [ X"$r" != X"$checksum" ] ; then
+    echo "$tarball: computed SHA1 checksum did NOT match"
+    echo "computed: $r with $SHA1SUM_TOOL"
+    echo "expected: $checksum"
+    ls -l $tarball
+    file $tarball || true
+    mv "$tarball" "$tarball.$r"
+    echo "Renamed $tarball to $tarball.$r"
+    exit 1
   fi
 }
 
@@ -60,6 +73,19 @@ lazy_build() {
   basename=$package-$2
   ext=$3
   checksum=$4
+  if [ "$ext" = "tar.xz" ] ; then
+    if [ -z "$xz_ok" ] ; then
+      if ${XZ-xz} --version > /dev/null 2>&1 ; then
+	xz_ok=1
+      else
+	xz_ok=0
+      fi
+    fi
+    if [ "$xz_ok" = 0 ] ; then
+      ext=$5
+      checksum=$6
+    fi
+  fi
   tarball=$basename.$ext
   case $basename in
     *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
@@ -73,27 +99,55 @@ lazy_build() {
   if [ ! -f "$tarball" ] ; then
     if [ -z "$FETCH_URL_TOOL" ] ; then
       if ${WGET-wget} --version > /dev/null 2>&1 ; then
-	FETCH_URL_TOOL=${WGET-wget}
+	FETCH_URL_TOOL="${WGET-wget} -O-"
       elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
-	# curl --version exists with code 2.
-	FETCH_URL_TOOL="${CURL-curl} -O"
+	# curl --version exits with code 2.
+	# -L is needed to follow HTTP redirects.
+	FETCH_URL_TOOL="${CURL-curl} -L"
+      elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
+	# lwp-request -v exits with code 9 (5.810) or 255 (6.03)
+	FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
       else
-	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
-	echo "or download $url to directory `pwd` by hand and rerun this script." >&2
+	cat <<END >&2
+Neither wget nor curl nor lwp-request found - install one of them or if already
+installed, set WGET, CURL or LWP_REQUEST to the full path.  Alternatively,
+download $url
+to directory `pwd`
+then rerun this script.
+END
 	exit 1
       fi
     fi
     case $basename in
     doxygen-*)
-      $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+      if [ "$use_ftp" = yes ] ; then
+	url="ftp://ftp.stack.nl/pub/users/dimitri/$tarball"
+      else
+	url="http://ftp.stack.nl/pub/users/dimitri/$tarball"
+      fi ;;
+    file-*)
+      if [ "$use_ftp" = yes ] ; then
+	url="ftp://ftp.astron.com/pub/file/$tarball"
+      else
+	url="http://fossies.org/unix/misc/$tarball"
+      fi ;;
     *[13579][a-z])
       # GNU alpha release
-      $FETCH_URL_TOOL "ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
-    file*)
-      $FETCH_URL_TOOL "ftp://ftp.astron.com/pub/file/$tarball" ;;
+      if [ "$use_ftp" = yes ] ; then
+	url="ftp://alpha.gnu.org/gnu/$package/$tarball"
+      else
+	url="http://alpha.gnu.org/gnu/$package/$tarball"
+      fi ;;
     *)
-      $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+      if [ "$use_ftp" = yes ] ; then
+	url="ftp://ftp.gnu.org/gnu/$package/$tarball"
+      else
+	url="http://ftpmirror.gnu.org/$package/$tarball"
+      fi ;;
     esac
+    rm -f download.tmp
+    echo "Downloading <$url>"
+    $FETCH_URL_TOOL "$url" > download.tmp && mv download.tmp "$tarball"
   fi
 
   if [ -f "$stamp" ] ; then
@@ -106,11 +160,14 @@ lazy_build() {
     # Verify the tarball's checksum before building it.
     check_sha1sum "$checksum" "$tarball"
 
+    # Remove tarballs of other versions.
     for f in "$package"-* ; do
       [ "$f" = "$tarball" ] || rm -rf "$f"
     done
 
     case $ext in
+    tar.xz)
+      xz -dc "$tarball"| tar xf - ;;
     tar.bz2)
       bzip2 -dc "$tarball"| tar xf - ;;
     *)
@@ -141,22 +198,26 @@ lazy_build() {
 
 handle_svn_external() {
   path=$1
-  revopt=$2
-  url=$3
-  if [ ! -d "$path" ] ; then
-    git svn init "$url" "$path"/
+  if [ ! -f "$path/.nobootstrap" ] ; then
+    revopt=$2
+    url=$3
+    if [ ! -d "$path" ] ; then
+      git svn init "$url" "$path"/
+    fi
+    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
   fi
-  (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
 }
 
 handle_git_external() {
   path=$1
-  rev=$2
-  url=$3
-  if [ ! -d "$path" ] ; then
-    git clone --no-checkout -- "$url" "$path"
+  if [ ! -f "$path/.nobootstrap" ] ; then
+    rev=$2
+    url=$3
+    if [ ! -d "$path" ] ; then
+      git clone --no-checkout -- "$url" "$path"
+    fi
+    (cd "$path" && git checkout "$rev")
   fi
-  (cd "$path" && git checkout "$rev")
 }
 
 curdir=`pwd`
@@ -241,6 +302,13 @@ END
   fi
 fi
 
+# Prefer http downloads as they are more likely to work through firewalls.
+use_ftp=no
+if [ "$1" = "--ftp" ] ; then
+  shift
+  use_ftp=yes
+fi
+ 
 if [ "$1" = "--without-autotools" ] ; then
   shift
 else
@@ -256,13 +324,21 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.7.6.1 src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
-  lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
+  lazy_build doxygen 1.7.6.1 \
+    src.tar.gz 6203d4423d12315f1094b56a4d7393347104bc4a
+  lazy_build autoconf 2.68 \
+    tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \
+    tar.xz 63a3b495400c1c053f2f6b62efb7a5c0ad4156c9 \
+    tar.gz 843f7dfcc6addf129dc2c8b12f7d72d371478f42
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.12.4 tar.gz c474eb8c058d93ead9b2433fbcfb0c349517e171
-  lazy_build libtool 2.4.2 tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
+  lazy_build automake 1.13.1 \
+    tar.xz cf0c93328ccc40412b2a6a2d96075b41e2182659 \
+    tar.gz 1778a1ab4ec2587aeceaf43b43536f11393cc59e
+  lazy_build libtool 2.4.2 \
+    tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
+    tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
       lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89

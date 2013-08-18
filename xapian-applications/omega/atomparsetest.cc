@@ -70,7 +70,7 @@ main()
 {
     for (size_t i = 0; tests[i].html; ++i) {
 	AtomParser p;
-	p.parse_html(tests[i].html);
+	p.parse(tests[i].html);
 	if (tests[i].dump != p.dump) {
 	    cout << "DUMP " << i << ": [" << p.dump << "] != [" << tests[i].dump << "]" << endl;
 	    exit(1);

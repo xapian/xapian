@@ -41,7 +41,7 @@
 # include <netinet/ip.h>
 # include <netinet/tcp.h>
 # include <arpa/inet.h>
-# include <netdb.h>
+# include "safenetdb.h"
 # include <signal.h>
 # include <sys/wait.h>
 #endif

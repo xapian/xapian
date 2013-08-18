@@ -31,7 +31,9 @@ Here's the current allocation list:
 
 A	
         Author
-D	
+B
+        Topic (mnemonic: what the document is aBout)
+D
         Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
 E
         Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
@@ -74,7 +76,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: BCFJW
+Reserved but currently unallocated: CFJW
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.

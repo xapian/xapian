@@ -33,8 +33,8 @@
 
 #include <cmath>
 #include <cstring>
-#if 1 //ndef __WIN32__
-# include <netdb.h>
+#ifndef __WIN32__
+# include "safenetdb.h"
 # include <netinet/in.h>
 # include <netinet/tcp.h>
 # include "safesyssocket.h"

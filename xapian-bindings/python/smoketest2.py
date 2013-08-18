@@ -418,7 +418,7 @@ def test_zz9_check_leaks():
     import gc
     gc.collect()
     if len(mystemmers):
-        TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
+        raise TestFail("%d MyStemmer objects not deleted" % len(mystemmers))
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

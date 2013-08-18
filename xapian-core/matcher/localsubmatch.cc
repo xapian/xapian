@@ -121,7 +121,8 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     if (usual(stats->collection_size != 0)) {
 	freqs = or_pl->get_termfreq_est_using_stats(*stats);
     }
-    wt->init_(*stats, qlen, factor, freqs.termfreq, freqs.reltermfreq);
+    wt->init_(*stats, qlen, factor,
+	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq);
 
     res->set_weight(wt.release());
     RETURN(res.release());
@@ -151,7 +152,9 @@ LocalSubMatch::open_post_list(const string& term, double max_part)
 	i->second.termweight += max_part;
     }
 
-    if (max_part == 0.0 && db->get_termfreq(term) == db->get_doccount()) {
+    if (!term.empty() &&
+	max_part == 0.0 &&
+	db->get_termfreq(term) == db->get_doccount()) {
 	// If we're not going to use the wdf and the term indexes all
 	// documents, we can replace it with the MatchAll postlist, which
 	// is especially efficient if there are no gaps in the docids.

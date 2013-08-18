@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -25,6 +25,10 @@
 
 #ifndef XAPIAN_INCLUDED_ENQUIRE_H
 #define XAPIAN_INCLUDED_ENQUIRE_H
+
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/enquire.h> directly; include <xapian.h> instead."
+#endif
 
 #include <string>
 
@@ -941,6 +945,25 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
+	/** Set a time limit for the match.
+	 *
+	 *  Matches with check_at_least set high can take a long time in some
+	 *  cases.  You can set a time limit on this, after which check_at_least
+	 *  will be turned off.
+	 *
+	 *  @param time_limit  time in seconds after which to disable
+	 *		       check_at_least (default: 0.0 which means no
+	 *		       time limit)
+	 *
+	 *  Limitations:
+	 *
+	 *  This feature is currently supported on platforms which support POSIX
+	 *  interval timers.  Interaction with the remote backend when using
+	 *  multiple databases may have bugs.  There's not currently a way to
+	 *  force the match to end after a certain time.
+	 */
+	void set_time_limit(double time_limit);
+
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.
@@ -1009,6 +1032,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *		     given term should be put in the ESet
+	 *  @param min_wt    the minimum weight for included terms
 	 *
 	 *  @return	     An ESet object containing the results of the
 	 *		     expand.
@@ -1019,7 +1043,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 			const RSet & omrset,
 			int flags = 0,
 			double k = 1.0,
-			const Xapian::ExpandDecider * edecider = 0) const;
+			const Xapian::ExpandDecider * edecider = 0,
+			double min_wt = 0.0) const;
 
 	/** Get the expand set for the given rset.
 	 *
@@ -1038,37 +1063,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 			       const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}
-
-	/** Get the expand set for the given rset.
-	 *
-	 *  @param maxitems  the maximum number of items to return.
-	 *  @param omrset    the relevance set to use when performing
-	 *		     the expand operation.
-	 *  @param flags     zero or more of these values |-ed together:
-	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
-	 *			terms may be returned from expand
-	 *		      - Xapian::Enquire::USE_EXACT_TERMFREQ for multi
-	 *			dbs, calculate the exact termfreq; otherwise an
-	 *			approximation is used which can greatly improve
-	 *			efficiency, but still returns good results.
-	 *  @param k	     the parameter k in the query expansion algorithm
-	 *		     (default is 1.0)
-	 *  @param edecider  a decision functor to use to decide whether a
-	 *		     given term should be put in the ESet
-	 *
-	 *  @param min_wt    the minimum weight for included terms
-	 *
-	 *  @return	     An ESet object containing the results of the
-	 *		     expand.
-	 *
-	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 */
-	ESet get_eset(Xapian::termcount maxitems,
-			const RSet & omrset,
-			int flags,
-			double k,
-			const Xapian::ExpandDecider * edecider,
-			double min_wt) const;
 
 	/** Get terms which match a given document, by document id.
 	 *

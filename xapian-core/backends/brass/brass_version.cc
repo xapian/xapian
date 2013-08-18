@@ -1,7 +1,7 @@
 /** @file brass_version.cc
  * @brief BrassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,6 @@
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "str.h"
 
-#include <cstdio> // For rename().
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 
@@ -84,6 +83,7 @@ BrassVersion::create()
 	throw;
     }
 
+    io_sync(fd);
     if (close(fd) != 0) {
 	string msg("Failed to create brass version file: ");
 	msg += filename;

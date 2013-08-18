@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef INCLUDED_APPEND_FILENAME_ARG_H
-#define INCLUDED_APPEND_FILENAME_ARG_H
+#ifndef XAPIAN_INCLUDED_APPEND_FILENAME_ARG_H
+#define XAPIAN_INCLUDED_APPEND_FILENAME_ARG_H
 
 #include <cstring>
 #include <string>
@@ -79,4 +79,4 @@ append_filename_argument(std::string & cmd, const std::string & arg) {
     return true;
 }
 
-#endif // INCLUDED_APPEND_FILENAME_ARG_H
+#endif // XAPIAN_INCLUDED_APPEND_FILENAME_ARG_H

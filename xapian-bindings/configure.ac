@@ -4,11 +4,11 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.3.0], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.3.1], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.12.2 parallel-tests -Wportability tar-ustar])
 AC_CONFIG_SRCDIR([xapian-headers.i])
 
 AC_CONFIG_HEADERS([config.h])
@@ -126,25 +126,18 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
-dnl COMPAT_VERSION also ignores any _svn6789 suffix which snapshots will have.
+dnl COMPAT_VERSION also ignores any _git123 suffix which snapshots will have.
 COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
 AC_SUBST(COMPAT_VERSION)
 
-dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
-VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_svn[0-9]*$//'`]
+dnl VERSION_NO_SNAPSHOT simply has any _git123 suffix removed.
+VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_.*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
 
 dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
 dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
-
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
-  esac])
 
 AC_ARG_ENABLE(visibility,
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
@@ -647,16 +640,16 @@ if test no != "$with_csharp" ; then
 	  RUN_CSHARP=
 	else
 	  AC_MSG_RESULT(no)
-	  AC_PATH_PROGS(MONO, ["${MONO-mono}"], [])
-	  if test -z "$MONO" ; then
-	    AC_PATH_PROGS(MONO, [ilrun], [])
+	  AC_PATH_PROGS(CLI, ["${CLI-cli}"], [])
+	  if test -z "$CLI" ; then
+	    AC_PATH_PROGS(CLI, [mono ilrun], [])
 	  fi
-	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
-	  if test -n "$MONO" ; then
-	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])
-	    if OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
+	  AC_ARG_VAR(CLI, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
+	  if test -n "$CLI" ; then
+	    AC_MSG_CHECKING([whether $CLI can run CSharp programs])
+	    if OK = "`$CLI ./conftest.exe 2> /dev/null`" ; then
 	      AC_MSG_RESULT(yes)
-	      RUN_CSHARP=mono
+	      RUN_CSHARP=$CLI
 	    else
 	      AC_MSG_RESULT([no - CSharp tests will be skipped])
 	      RUN_CSHARP='\$(top_srcdir)/skiptest'
@@ -959,7 +952,14 @@ if test no != "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ; then
-    AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
+    AC_PATH_PROGS(PROVE, ["${PROVE-prove}"], [])
+    AC_ARG_VAR(PROVE, [Perl Test::Harness test runner])
+    if test x"$PROVE" = x ; then
+      AC_MSG_WARN([Perl 'prove' tool not found - Perl bindings tests will be skipped])
+      dnl The skiptest script just returns exit code 77.
+      PROVE='$(top_srcdir)/skiptest'
+    fi
+
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi
@@ -984,8 +984,10 @@ if test no != "$with_perl" ; then
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      dnl snapshot versions are like: 1.2.3_svn14971
+      dnl snapshot versions look like 1.2.3_git123 or 1.2.3_svn14971
       case $PACKAGE_VERSION in
+      *_git*)
+	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
       *_svn*)
 	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
       *)

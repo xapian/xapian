@@ -4,7 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012 Olly Betts
+ * Copyright (C) 2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -262,6 +262,23 @@ sub nequal() {
   } else {
     ($self+0) != ($other+0);
   }
+}
+
+package Search::Xapian::PostingIterator;
+use overload '++' => sub { $_[0]->increment() },
+             '='  => sub { $_[0]->clone() },
+	     'eq' => sub { $_[0]->equal($_[1]) },
+	     'ne' => sub { $_[0]->nequal($_[1]) },
+	     '==' => sub { $_[0]->equal($_[1]) },
+	     '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new( $self );
+  bless $copy, $class;
+  return $copy;
 }
 
 package Search::Xapian::TermGenerator;

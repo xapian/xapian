@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -60,7 +60,25 @@ static void docid_zero_invalid()
 XAPIAN_NORETURN(static void no_subdatabases());
 static void no_subdatabases()
 {
-    throw Xapian::DocNotFoundError("No subdatabases");
+    throw Xapian::InvalidOperationError("No subdatabases");
+}
+
+XAPIAN_NORETURN(static void empty_metadata_key());
+static void empty_metadata_key()
+{
+    throw Xapian::InvalidArgumentError("Empty metadata keys are invalid");
+}
+
+inline size_t
+sub_db(Xapian::docid did, size_t n_dbs)
+{
+    return (did - 1) % n_dbs;
+}
+
+inline size_t
+sub_docid(Xapian::docid did, size_t n_dbs)
+{
+    return (did - 1) / n_dbs + 1;
 }
 
 namespace Xapian {
@@ -709,8 +727,8 @@ string
 Database::get_metadata(const string & key) const
 {
     LOGCALL(API, string, "Database::get_metadata", key);
-    if (key.empty())
-	throw InvalidArgumentError("Empty metadata keys are invalid");
+    if (rare(key.empty()))
+	empty_metadata_key();
     if (internal.empty()) RETURN(std::string());
     RETURN(internal[0]->get_metadata(key));
 }
@@ -784,42 +802,48 @@ WritableDatabase::~WritableDatabase()
     LOGCALL_DTOR(API, "WritableDatabase");
 }
 
-XAPIAN_NORETURN(static void only_one_subdatabase_allowed());
-static void only_one_subdatabase_allowed()
-{
-    throw Xapian::InvalidOperationError("WritableDatabase needs exactly one subdatabase");
-}
-
 void
 WritableDatabase::commit()
 {
     LOGCALL_VOID(API, "WritableDatabase::commit", NO_ARGS);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->commit();
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i != n_dbs; ++i)
+	internal[i]->commit();
 }
 
 void
 WritableDatabase::begin_transaction(bool flushed)
 {
-    LOGCALL_VOID(API, "WritableDatabase::begin_transaction", NO_ARGS);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->begin_transaction(flushed);
+    LOGCALL_VOID(API, "WritableDatabase::begin_transaction", flushed);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i != n_dbs; ++i)
+	internal[i]->begin_transaction(flushed);
 }
 
 void
 WritableDatabase::commit_transaction()
 {
     LOGCALL_VOID(API, "WritableDatabase::commit_transaction", NO_ARGS);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->commit_transaction();
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i != n_dbs; ++i)
+	internal[i]->commit_transaction();
 }
 
 void
 WritableDatabase::cancel_transaction()
 {
     LOGCALL_VOID(API, "WritableDatabase::cancel_transaction", NO_ARGS);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->cancel_transaction();
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i != n_dbs; ++i)
+	internal[i]->cancel_transaction();
 }
 
 
@@ -827,38 +851,63 @@ Xapian::docid
 WritableDatabase::add_document(const Document & document)
 {
     LOGCALL(API, Xapian::docid, "WritableDatabase::add_document", document);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    RETURN(internal[0]->add_document(document));
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    if (n_dbs == 1)
+	RETURN(internal[0]->add_document(document));
+
+    // Which database will the next never used docid be in?
+    Xapian::docid did = get_lastdocid() + 1;
+    if (rare(did == 0)) {
+	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
+    }
+    // We want exactly did to be used, not a lower docid if that subdb isn't
+    // using the docid before it, so call replace_document() not
+    // add_document().
+    size_t i = sub_db(did, n_dbs);
+    internal[i]->replace_document(sub_docid(did, n_dbs), document);
+    RETURN(did);
 }
 
 void
 WritableDatabase::delete_document(Xapian::docid did)
 {
     LOGCALL_VOID(API, "WritableDatabase::delete_document", did);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    if (did == 0)
+    if (rare(did == 0))
 	docid_zero_invalid();
-    internal[0]->delete_document(did);
+
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    size_t i = sub_db(did, n_dbs);
+    internal[i]->delete_document(sub_docid(did, n_dbs));
 }
 
 void
 WritableDatabase::delete_document(const std::string & unique_term)
 {
     LOGCALL_VOID(API, "WritableDatabase::delete_document", unique_term);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
-    internal[0]->delete_document(unique_term);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i != n_dbs; ++i)
+	internal[i]->delete_document(unique_term);
 }
 
 void
 WritableDatabase::replace_document(Xapian::docid did, const Document & document)
 {
     LOGCALL_VOID(API, "WritableDatabase::replace_document", did | document);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (did == 0)
 	docid_zero_invalid();
-    internal[0]->replace_document(did, document);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    size_t i = sub_db(did, n_dbs);
+    internal[i]->replace_document(sub_docid(did, n_dbs), document);
 }
 
 Xapian::docid
@@ -866,10 +915,34 @@ WritableDatabase::replace_document(const std::string & unique_term,
 				   const Document & document)
 {
     LOGCALL(API, Xapian::docid, "WritableDatabase::replace_document", unique_term | document);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
-    RETURN(internal[0]->replace_document(unique_term, document));
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    if (n_dbs == 1)
+	RETURN(internal[0]->replace_document(unique_term, document));
+
+    Xapian::PostingIterator postit = postlist_begin(unique_term);
+    // If no unique_term in the database, this is just an add_document().
+    if (postit == postlist_end(unique_term)) {
+	// Which database will the next never used docid be in?
+	size_t i = sub_db(get_lastdocid() + 1, n_dbs);
+	RETURN(internal[i]->add_document(document));
+    }
+
+    Xapian::docid retval = *postit;
+    size_t i = sub_db(retval, n_dbs);
+    internal[i]->replace_document(sub_docid(retval, n_dbs), document);
+
+    // Delete any other occurences of unique_term.
+    while (++postit != postlist_end(unique_term)) {
+	Xapian::docid did = *postit;
+	i = sub_db(did, n_dbs);
+	internal[i]->delete_document(sub_docid(did, n_dbs));
+    }
+
+    return retval;
 }
 
 void
@@ -877,7 +950,9 @@ WritableDatabase::add_spelling(const std::string & word,
 			       Xapian::termcount freqinc) const
 {
     LOGCALL_VOID(API, "WritableDatabase::add_spelling", word | freqinc);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
+    if (rare(internal.empty()))
+	no_subdatabases();
+    // FIXME: Is adding to the first subdatabase sensible?
     internal[0]->add_spelling(word, freqinc);
 }
 
@@ -886,8 +961,12 @@ WritableDatabase::remove_spelling(const std::string & word,
 				  Xapian::termcount freqdec) const
 {
     LOGCALL_VOID(API, "WritableDatabase::remove_spelling", word | freqdec);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->remove_spelling(word, freqdec);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i < n_dbs; ++i) {
+	internal[i]->remove_spelling(word, freqdec);
+    }
 }
 
 void
@@ -895,7 +974,9 @@ WritableDatabase::add_synonym(const std::string & term,
 			      const std::string & synonym) const
 {
     LOGCALL_VOID(API, "WritableDatabase::add_synonym", term | synonym);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
+    if (rare(internal.empty()))
+	no_subdatabases();
+    // FIXME: Is adding to the first subdatabase sensible?
     internal[0]->add_synonym(term, synonym);
 }
 
@@ -904,25 +985,34 @@ WritableDatabase::remove_synonym(const std::string & term,
 				 const std::string & synonym) const
 {
     LOGCALL_VOID(API, "WritableDatabase::remove_synonym", term | synonym);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->remove_synonym(term, synonym);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i < n_dbs; ++i) {
+	internal[i]->remove_synonym(term, synonym);
+    }
 }
 
 void
 WritableDatabase::clear_synonyms(const std::string & term) const
 {
     LOGCALL_VOID(API, "WritableDatabase::clear_synonyms", term);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->clear_synonyms(term);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs == 0))
+	no_subdatabases();
+    for (size_t i = 0; i < n_dbs; ++i) {
+	internal[i]->clear_synonyms(term);
+    }
 }
 
 void
 WritableDatabase::set_metadata(const string & key, const string & value)
 {
     LOGCALL_VOID(API, "WritableDatabase::set_metadata", key | value);
-    if (internal.size() != 1) only_one_subdatabase_allowed();
-    if (key.empty())
-	throw InvalidArgumentError("Empty metadata keys are invalid");
+    if (rare(key.empty()))
+	empty_metadata_key();
+    if (rare(internal.empty()))
+	no_subdatabases();
     internal[0]->set_metadata(key, value);
 }
 

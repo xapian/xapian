@@ -46,7 +46,7 @@ ExpandDeciderFilterTerms::operator()(const string &term) const
     return i == rejects.end();
 }
 
-bool    
+bool
 ExpandDeciderFilterPrefix::operator()(const string &term) const
 {
     return startswith(term, prefix);
