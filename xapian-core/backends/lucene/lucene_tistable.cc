@@ -39,15 +39,10 @@ LuceneTisTable::open() {
     stream_reader.open_stream();
 
     stream_reader.read_int32(ti_version);
-    cout << "LuceneTisTable::open ti_version:" << ti_version << endl;
     stream_reader.read_int64(term_count);
-    cout << "LuceneTisTable::open term_count:" << term_count << endl;
     stream_reader.read_int32(index_interval);
-    cout << "LuceneTisTable::open index_interval:" << index_interval << endl;
     stream_reader.read_int32(skip_interval);
-    cout << "LuceneTisTable::open skip_interval:" << skip_interval << endl;
     stream_reader.read_int32(max_skip_levels);
-    cout << "LuceneTisTable::open max_skip_levels:" << max_skip_levels << endl;
 
     return true;
 }
@@ -55,7 +50,7 @@ LuceneTisTable::open() {
 bool
 LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
             const LuceneTermIndice & prev) const {
-    LOGCALL(API, bool, "LuceneTisTable::scan_to", target.suffix);
+    //LOGCALL(API, bool, "LuceneTisTable::scan_to", target.suffix);
     LuceneTermInfo c;
     LuceneTermInfo p = prev.terminfo;
     stream_reader.seek_to(prev.index_delta);
@@ -64,10 +59,11 @@ LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
      * data
      */
     int p_freq_delta = prev.terminfo.freq_delta;
+    //cout << "scan_to, index_delta=" << prev.index_delta << endl; 
 
-    cout << "get_ftell=" << stream_reader.get_ftell() << 
-        ", skip_interval=" << skip_interval << 
-        ", index_interval=" << index_interval << endl;
+    //cout << "get_ftell=" << stream_reader.get_ftell() << 
+    //    ", skip_interval=" << skip_interval << 
+    //    ", index_interval=" << index_interval << endl;
     for (int i = 0; i < index_interval; ++i) {
         stream_reader.read_terminfo(c, skip_interval);
 
@@ -76,6 +72,7 @@ LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
          */
         c.freq_delta += p_freq_delta;
         p_freq_delta = c.freq_delta;
+        //cout << "scan_to, p_freq_delta=" << p_freq_delta << endl;
 
         LuceneTerm & t = c.term;
         //FIXME this code looks bad
@@ -91,13 +88,15 @@ LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
         //find it
         if (0 == r) {
             result = c;
-            RETURN(true);
+            return true;
+            //RETURN(true);
         }
 
         p = c;
     }
 
-    RETURN(false);
+    return false;
+    //RETURN(false);
 }
 
 /**

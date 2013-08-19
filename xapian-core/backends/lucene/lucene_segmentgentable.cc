@@ -4,6 +4,9 @@
 
 #include "lucene_segmentgentable.h"
 
+//test
+#include <cstdlib>
+
 LuceneSegmentGenTable::LuceneSegmentGenTable(const string & db_dir_)
         : db_dir(db_dir_),
           file_name("segments.gen"),
@@ -19,9 +22,11 @@ LuceneSegmentGenTable::open() {
     stream_reader.open_stream();
 
     stream_reader.read_int32(version);
-    cout << "LuceneSegmentGenTable::open, generationA:" << generationA << endl; 
+    cout << "LuceneSegmentGenTable::open, version:" << version << endl; 
     stream_reader.read_int64(generationA);
+    cout << "LuceneSegmentGenTable::open, generationA:" << generationA << endl; 
     stream_reader.read_int64(generationB);
+    cout << "LuceneSegmentGenTable::open, generationB:" << generationB << endl; 
 
     return true;
 }

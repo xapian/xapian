@@ -2,7 +2,7 @@
 #ifndef XAPIAN_INCLUDED_LUCENE_FRQTABLE_H
 #define XAPIAN_INCLUDED_LUCENE_FRQTABLE_H
 
-#include <xapian/database.h>
+//#include <xapian/database.h>
 #include "config.h"
 #include "internaltypes.h"
 #include "xapian/intrusive_ptr.h"
@@ -31,11 +31,16 @@ using namespace std;
  * details on http://lucene.apache.org/core/3_6_2/fileformats.html#Frequencies
  */
 class LuceneFrqTable {
+    /* Database directory */
     string db_dir;
+
+    /* .frq file name */
     string file_name;
+
+    /* File reader for .frq */
     ByteStreamReader stream_reader;
 
-    //this is for a specific term
+    //This is for a specific term
     int doc_freq;
 
   public:
@@ -43,19 +48,24 @@ class LuceneFrqTable {
     ~LuceneFrqTable();
 
     bool set_filename(const string &);
-    const string & get_filename() const;
+    string get_filename() const;
     void set_docfreq(const int);
-    const string & get_dbdir() const;
+    string get_dbdir() const;
 };
 
 class LucenePostList : public Xapian::Internal::intrusive_base {
+
+    /* Term name for this postlist */
+    string term;
+
+    /* Term's field number */
+    int field_num;
+
     /** This is equal to ChertPostList::number_of_entries. In other words, It
      * means how many documents in this postlist
      */
     int doc_freq;
 
-    /* Term name for this postlist */
-    string term;
     int freq_delta;
     int skip_delta;
     string db_dir;
@@ -68,19 +78,23 @@ class LucenePostList : public Xapian::Internal::intrusive_base {
     /* wdf of document which is visiting now */
     Xapian::termcount wdf;
 
-    /* Count of documents which is visited */
+    /* Counter of visited documents */
     int c;
 
-    /** Vector index for LuceneDatabase->seg_dbs, used to find segment. Using
-     * smart ptr of Lucenesegdb instead */
+    /** Vector index for LuceneDatabase->seg_dbs, used to find segment. 
+     * Segments are sequencely push_back to LuceneDatabase::seg_dbs, using seg_idx
+     * to find related segment object in LuceneDatabase::seg_dbs
+     */
     unsigned int seg_idx;
 
     /* Reached the end of postlist */
     bool is_at_end;
 
   public:
-    LucenePostList(const string &, int, int, int, const string &,
-                const string &);
+    LucenePostList(const string & term_, int field_num_, int doc_freq_,
+                int freq_delta_, int skip_delta_, const string & db_dir,
+                const string & file_name_);
+
     /* termfreq here means how many document contains the term */
     Xapian::doccount get_termfreq() const;
 
@@ -116,6 +130,8 @@ class LucenePostList : public Xapian::Internal::intrusive_base {
 
     /* below is for debug */
     void debug_postlist() const;
+
+    int get_field_num() const;
 };
 
 /**
@@ -156,12 +172,15 @@ class LuceneMultiPostList : public LeafPostList {
      */
     Xapian::docid get_docid() const;
 
+    /** Find norm value in .nrm. Using class variable term to find field,
+     * then find norm in .nrm
+     */
     Xapian::termcount get_doclength() const;
 
     /* If visit to the end of PostList */
     bool at_end() const;
 
-    /* Visit the next doc in pls */
+    /* Visit the next doc in postlist */
     PostList * next(double);
 
     /* Hasn't used yet */

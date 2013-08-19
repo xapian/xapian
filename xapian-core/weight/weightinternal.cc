@@ -74,8 +74,6 @@ Weight::Internal::get_termfreq(const string & term) const
     map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
     Assert(tfreq != termfreqs.end());
 
-    cout << "Weight::Internal::get_termfreq, tfreq:" << tfreq->second.termfreq << endl;
-
     return tfreq->second.termfreq;
 }
 
@@ -101,15 +99,11 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     map<string, TermFreqs>::iterator t;
     for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
 	const string & term = t->first;
-    cout << "Weight::Internal::accumulate_stats " <<
-        " term:" << term << endl;
 	t->second.termfreq += subdb.get_termfreq(term);
 	t->second.collfreq += subdb.get_collection_freq(term);
     }
 
     const set<Xapian::docid> & items(rset.internal->get_items());
-    cout << "Weight::Internal::accumulate_stats " <<
-        " items.size():" << items.size() << endl;
     set<Xapian::docid>::const_iterator d;
     for (d = items.begin(); d != items.end(); ++d) {
 	Xapian::docid did = *d;

@@ -85,9 +85,7 @@ class BranchPostList : public PostList {
 inline bool
 next_handling_prune(PostList * & pl, double w_min, MultiMatch *matcher)
 {
-    cout << "Branchpostlist.h->next_handling_prune next begin" << endl;
     PostList *p = pl->next(w_min);
-    cout << "Branchpostlist.h->next_handling_prune next end" << endl;
     if (!p) return false;
     delete pl;
     pl = p;

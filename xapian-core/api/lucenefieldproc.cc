@@ -1,5 +1,5 @@
 
-#include <xapian/queryparser.h>
+#include <xapian.h>
 #include "config.h"
 #include "debuglog.h"
 

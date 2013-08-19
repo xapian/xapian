@@ -1,10 +1,13 @@
 
+#include <config.h>
 #include "debuglog.h"
 #include "common/omassert.h"
 #include <iostream>
 #include <sstream>
 
 #include "lucene_segmenttable.h"
+
+using Xapian::Internal::intrusive_ptr;
 
 LuceneSegmentTable::LuceneSegmentTable(const string &db_dir_)
         : db_dir(db_dir_),
@@ -16,7 +19,6 @@ LuceneSegmentTable::LuceneSegmentTable(const string &db_dir_)
 
 bool 
 LuceneSegmentTable::open() {
-    cout << "LuceneSegmentTable::open" << endl;
     LOGCALL(DB, bool, "LuceneSegmentTable::open", NO_ARGS);
 
     stream_reader.open_stream();
@@ -25,32 +27,39 @@ LuceneSegmentTable::open() {
     version = stream_reader.read_int64();
     name_counter = stream_reader.read_int32();
     seg_count = stream_reader.read_int32();
-    segment_part = new LuceneSegmentPart[seg_count];
+    cout << "format=" << format << ", versision=" << version <<
+                ", counter=" << name_counter << ", seg_count=" << seg_count << endl;
 
     for (int i = 0; i < seg_count; ++i) {
-        LuceneSegmentPart &sp = segment_part[i];
-        stream_reader.read_string(sp.seg_version);
-        stream_reader.read_string(sp.seg_name);
-        stream_reader.read_int32(sp.seg_size);
-        stream_reader.read_int64(sp.del_gen);
-        stream_reader.read_int32(sp.doc_store_offset);
-        if (-1 != sp.doc_store_offset) {
+        intrusive_ptr<LuceneSegmentPart> sp(new LuceneSegmentPart());
+        stream_reader.read_string(sp->seg_version);
+        cout << "seg_version=" << sp->seg_version << endl;
+        stream_reader.read_string(sp->seg_name);
+        cout << "seg_name=" << sp->seg_name << endl;
+        stream_reader.read_int32(sp->seg_size);
+        stream_reader.read_int64(sp->del_gen);
+        cout << "del_gen=" << sp->del_gen << endl;
+        stream_reader.read_int32(sp->doc_store_offset);
+        if (-1 != sp->doc_store_offset) {
             //TODO read DocStoreSegment and DocStoreIsCompoundFile
         }
-        stream_reader.read_byte(sp.has_single_normfile);
-        stream_reader.read_int32(sp.num_field);
-        if (-1 != sp.num_field) {
+        stream_reader.read_byte(sp->has_single_normfile);
+        stream_reader.read_int32(sp->num_field);
+        if (-1 != sp->num_field) {
             //TODO read NormGen^Numfield
         }
-        stream_reader.read_byte(sp.is_compoundfile);
-        stream_reader.read_int32(sp.del_count);
-        stream_reader.read_byte(sp.has_proxy);
-        stream_reader.read_ssmap(sp.diagnostics);
-        stream_reader.read_byte(sp.has_vectors);
+        stream_reader.read_byte(sp->is_compoundfile);
+        stream_reader.read_int32(sp->del_count);
+        stream_reader.read_byte(sp->has_proxy);
+        stream_reader.read_ssmap(sp->diagnostics);
+        stream_reader.read_byte(sp->has_vectors);
+        //Add to segments vector
+        segments.push_back(sp);
     }
 
     stream_reader.read_ssmap(commit_user_data);
     stream_reader.read_int64(checksum);
+    cout << "LuceneSegmentTable::open return" << endl;
 
     return true;
 }
@@ -59,17 +68,21 @@ int LuceneSegmentTable::get_seg_count() {
     return seg_count;
 }
 
-/**
- * 这里计算的是所有segment的文档总和
- */
-Xapian::doccount LuceneSegmentTable::get_doccount() const {
-    LOGCALL(DB, bool, "LuceneSegmentTable::get_doccount", NO_ARGS);
+Xapian::doccount
+LuceneSegmentTable::get_doccount() const {
+    LOGCALL(DB, Xapian::doccount, "LuceneSegmentTable::get_doccount", NO_ARGS);
     Xapian::doccount count = 0;
     for (int i = 0; i < seg_count; ++i) {
-        LuceneSegmentPart &sp = segment_part[i];
-        count += sp.seg_size;
+        count += segments[i]->seg_size;
     }
 
+    RETURN(count);
+}
+
+Xapian::doccount
+LuceneSegmentTable::get_doccount(int segment) const {
+    LOGCALL(DB, Xapian::doccount, "LuceneSegmentTable::get_doccount", segment);
+    Xapian::doccount count = segments[segment]->seg_size;
     RETURN(count);
 }
 
@@ -85,8 +98,7 @@ bool LuceneSegmentTable::set_filename(long long file_suffix) {
 }
 
 string LuceneSegmentTable::get_seg_name(int part_num) {
-    LuceneSegmentPart & sp = segment_part[part_num];
-    return sp.seg_name;
+    return segments[part_num]->seg_name;
 }
 
 Xapian::docid
@@ -95,7 +107,7 @@ LuceneSegmentTable::get_didbase(int seg_idx) const {
 
     Xapian::docid base = 0;
     for (int i = 0; i < seg_idx; ++i) {
-        base += segment_part[i].seg_size;
+        base += segments[i]->seg_size;
     }
 
     return base;
@@ -109,7 +121,7 @@ LuceneSegmentTable::get_didbase_and_segidx(Xapian::docid ext_did,
     int size = 0;
     int i = 0;
     for (; i < seg_count; ++i) {
-        size = segment_part[i].seg_size;
+        size = segments[i]->seg_size;
         if (size + base >= ext_did) {
             break;
         }
@@ -122,24 +134,34 @@ LuceneSegmentTable::get_didbase_and_segidx(Xapian::docid ext_did,
     return base;
 }
 
+string
+LuceneSegmentPart::get_seg_name() const {
+    return seg_name;
+}
+
+int
+LuceneSegmentPart::get_seg_size() const {
+    return seg_size;
+}
+
 //It's for debug below
 void LuceneSegmentTable::debug_get_table() {
     cout << "segments->Format(" << format << "),Version(" << version << "),NameCounter("
         << name_counter << "),SegCount(" << seg_count << "), <";
     for (int i = 0; i < seg_count; ++i) {
-        LuceneSegmentPart & sp = segment_part[i];
-        cout << "segName(" << sp.seg_name << "),SegSize(" << sp.seg_size << "),DelGen("
-            << sp.del_gen << "),DocStoreOffset(" << sp.doc_store_offset << "),";
-        if (-1 != sp.doc_store_offset) {
+        intrusive_ptr<LuceneSegmentPart> sp = segments[i];
+        cout << "segName(" << sp->seg_name << "),SegSize(" << sp->seg_size << "),DelGen("
+            << sp->del_gen << "),DocStoreOffset(" << sp->doc_store_offset << "),";
+        if (-1 != sp->doc_store_offset) {
         }
-        cout << "HasSingleNormFile(" << sp.has_single_normfile << "),Numfield(" << sp.num_field
+        cout << "HasSingleNormFile(" << sp->has_single_normfile << "),Numfield(" << sp->num_field
             << "),";
-        if (-1 != sp.num_field) {
+        if (-1 != sp->num_field) {
         }
-        cout << "IsCompoundFile(" << sp.is_compoundfile << "),DeletionCount(" << sp.del_count
-            << "),HasProxy(" << sp.has_proxy << "),Diagnostics("; 
-        map<string, string>::iterator it = sp.diagnostics.begin();
-        for (;it != sp.diagnostics.end(); ++it) {
+        cout << "IsCompoundFile(" << sp->is_compoundfile << "),DeletionCount(" << sp->del_count
+            << "),HasProxy(" << sp->has_proxy << "),Diagnostics("; 
+        map<string, string>::iterator it = sp->diagnostics.begin();
+        for (;it != sp->diagnostics.end(); ++it) {
             cout << "[" << it->first << "," << it->second << "],";
         }
         cout << ")";

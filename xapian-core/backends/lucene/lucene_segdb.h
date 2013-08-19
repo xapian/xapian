@@ -8,31 +8,40 @@
 #include "lucene_termindex.h"
 #include "lucene_frqtable.h"
 #include "lucene_fdtxtable.h"
+#include "lucene_nrmtable.h"
 
 using namespace std;
 
 class LuceneSegdb : public Xapian::Internal::intrusive_base {
     string db_dir;
-    /* File name prefix, such as _0, _1 */
+
+    /* File name prefix, such as _0, _1, read from segment table */
     string prefix;
 
-    /* For .tii and .tis */
+    /* .tii and .tis, for reverse index(term dictionary) */
     LuceneTermIndex index_reader;
 
-    /* For .frq */
+    /* .frq, for postlist */
     LuceneFrqTable frq_table;
 
-    /* For .fdt and .fdx */
+    /* .fdt and .fdx, for field data(docment record) */
     LuceneFdtxTable fdtx_table;
 
-    /* For .fnm */
+    /* .fnm, for field names */
     LuceneFnmTable fnm_table;
 
-  public:
-    LuceneSegdb(const string &, const string &);
+    /* .nrm, for normalization factors */
+    LuceneNrmTable nrm_table;
+
+    /* Segment info in file segments_X */
+    Xapian::Internal::intrusive_ptr<LuceneSegmentPart> seg_part;
 
     /* Set all tables' name in this segment */
     bool set_filename();
+
+  public:
+    LuceneSegdb(const string & db_dir,
+                Xapian::Internal::intrusive_ptr<LuceneSegmentPart> seg_part_);
 
     /* Open all tables in this segment */
     bool create_and_open_tables();
@@ -69,6 +78,11 @@ class LuceneSegdb : public Xapian::Internal::intrusive_base {
 
     /* Find the field number related to @param field */
     int get_fieldnum(const string & field) const;
+
+    /** Just a experimental function
+     * Find doclenght, see more comments on LuceneDatabase::get_doclength
+     */
+    Xapian::termcount get_doclength(Xapian::docid did, int field_num) const;
 };
 
 #endif

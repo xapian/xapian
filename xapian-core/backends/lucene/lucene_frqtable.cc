@@ -1,5 +1,6 @@
 
 #include "lucene_frqtable.h"
+#include "lucene_segdb.h"
 #include "debuglog.h"
 #include <iostream>
 
@@ -24,20 +25,22 @@ LuceneFrqTable::set_filename(const string & prefix) {
     return true;
 }
 
-const string &
+string
 LuceneFrqTable::get_filename() const {
     return file_name;
 }
 
-const string &
+string
 LuceneFrqTable::get_dbdir() const {
     return db_dir;
 }
 
-LucenePostList::LucenePostList(const string & term_, int doc_freq_,
-            int freq_delta_, int skip_delta_, const string &
+LucenePostList::LucenePostList(const string & term_, int field_num_,
+            int doc_freq_, int freq_delta_, int skip_delta_, const string &
             db_dir_, const string & file_name_)
-        : doc_freq(doc_freq_),
+        : term(term_),
+        field_num(field_num_),
+        doc_freq(doc_freq_),
         freq_delta(freq_delta_),
         skip_delta(skip_delta_),
         db_dir(db_dir_),
@@ -70,7 +73,7 @@ LucenePostList::get_termfreq() const {
 
 Xapian::docid
 LucenePostList::get_docid() const {
-    cout << "(not realized)LucenePostList::get_docid, did=" << did << endl;
+    //LOGCALL(API, Xapian::docid, "LucenePostList::get_docid", did);
     return did;
 }
 
@@ -83,18 +86,21 @@ LucenePostList::get_doclength() const {
 
 bool
 LucenePostList::at_end() const {
-    LOGCALL(API, bool, "LucenePostList::at_end", file_name);
+    //LOGCALL(API, bool, "LucenePostList::at_end", file_name);
 
-    RETURN(is_at_end);
+    return is_at_end;
+    //RETURN(is_at_end);
 }
 
 PostList *
 LucenePostList::next(double data) {
     LOGCALL(API, PostList *, "LucenePostList::next", file_name | data );
+    (void)data; //no warning
 
     if (c >= doc_freq) {
         is_at_end = true;
-        RETURN(NULL);
+        return NULL;
+        //RETURN(NULL);
     }
 
     int doc_delta = 0;
@@ -105,10 +111,11 @@ LucenePostList::next(double data) {
     wdf = freq;
     ++c;
 
-    LOGLINE(API, "LucenePostList::next did=" << did << ", wdf=" << wdf <<
-                ", doc_delta=" << doc_delta);
+    //LOGLINE(API, "LucenePostList::next did=" << did << ", wdf=" << wdf <<
+                //", doc_delta=" << doc_delta);
 
-    RETURN(NULL);
+    return NULL;
+    //RETURN(NULL);
 }
 
 //这个函数应该使用skiplist来查找，顺序查找的话文件指针无法回溯
@@ -158,6 +165,11 @@ LucenePostList::get_seg_idx() const {
     return seg_idx;
 }
 
+int
+LucenePostList::get_field_num() const {
+    return field_num;
+}
+
 LuceneMultiPostList::LuceneMultiPostList(intrusive_ptr<const LuceneDatabase> this_db_,
             const vector<LucenePostList *> & pls_,
             const string & term_)
@@ -204,9 +216,19 @@ LuceneMultiPostList::get_docid() const {
 
 Xapian::termcount
 LuceneMultiPostList::get_doclength() const {
-    LOGCALL(API, Xapian::termcount, "(not realized) LuceneMultiPostList::get_doclength", term);
+    //LOGCALL(API, Xapian::termcount, "(not realized) LuceneMultiPostList::get_doclength",
+    //            term | c_did);
 
-    RETURN(1);
+    //Field number
+    int field = pls[pls_index]->get_field_num();
+    //Segment number
+    int segment = pls[pls_index]->get_seg_idx();
+
+    Xapian::Internal::intrusive_ptr<LuceneSegdb> seg_db = this_db->get_segdb(segment);
+    Xapian::termcount dl = seg_db->get_doclength(c_did, field);
+
+    return dl;
+    //RETURN(dl);
 }
 
 PostList *
@@ -232,19 +254,21 @@ LuceneMultiPostList::next(double data) {
 
 bool
 LuceneMultiPostList::at_end() const {
-    LOGCALL(API, bool, "LuceneMultiPostList::at_end", NO_ARGS);
+    //LOGCALL(API, bool, "LuceneMultiPostList::at_end", NO_ARGS);
 
     if (pls_index >= pls.size()) {
-        RETURN(true);
+        return true;
+        //RETURN(true);
     }
 
-    RETURN(false);
+    return false;
+    //RETURN(false);
 }
 
 string
 LuceneMultiPostList::get_description() const {
-    LOGCALL(API, string, "(not realized)LuceneMultiPostList::get_description",
-                (unsigned int)this);
+    //LOGCALL(API, string, "(not realized)LuceneMultiPostList::get_description",
+                //(unsigned int)this);
 
     return "";
 }
@@ -324,11 +348,12 @@ LuceneMultiPostList::check(Xapian::docid ext_did, double w_min,
 
 Xapian::termcount
 LuceneMultiPostList::get_wdf() const {
-    LOGCALL(API, Xapian::termcount, "LuceneMultiPostList::get_wdf", NO_ARGS);
+    //LOGCALL(API, Xapian::termcount, "LuceneMultiPostList::get_wdf", NO_ARGS);
 
     LucenePostList * postlist = pls[pls_index];
 
-    RETURN(postlist->get_wdf());
+    return postlist->get_wdf();
+    //RETURN(postlist->get_wdf());
 }
 
 /**

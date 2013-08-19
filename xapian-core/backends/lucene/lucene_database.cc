@@ -39,6 +39,11 @@ LuceneDatabase::~LuceneDatabase()
     LOGCALL_DTOR(DB, "LuceneDatabase");
 }
 
+intrusive_ptr<LuceneSegdb>
+LuceneDatabase::get_segdb(int index) const {
+    return seg_dbs[index];
+}
+
 /** Return the sum of doc count in all segments */
 Xapian::doccount
 LuceneDatabase::get_doccount() const
@@ -46,6 +51,13 @@ LuceneDatabase::get_doccount() const
     LOGCALL(DB, Xapian::doccount, "LuceneDatabase::get_doccount", NO_ARGS);
     Xapian::doccount count = segment_table.get_doccount();
     RETURN(Xapian::doccount(count));
+}
+
+Xapian::doccount
+LuceneDatabase::get_doccount(int segment) const {
+    LOGCALL(DB, Xapian::doccount, "LuceneDatabase::get_doccount", segment);
+    Xapian::doccount count = segment_table.get_doccount(segment);
+    RETURN(count);
 }
 
 /**
@@ -80,7 +92,9 @@ LuceneDatabase::get_avlength() const
 Xapian::termcount
 LuceneDatabase::get_doclength(Xapian::docid did) const
 {
-    LOGCALL(DB, Xapian::termcount, "(not realized)LuceneDatabase::get_doclength", did);
+    LOGCALL(DB, Xapian::termcount, "(NO USING)LuceneDatabase::get_doclength", did);
+    did += 1;
+
     RETURN(1);
 }
 
@@ -106,6 +120,8 @@ Xapian::termcount
 LuceneDatabase::get_collection_freq(const string & term) const
 {
     LOGCALL(DB, Xapian::termcount, "(not realized)LuceneDatabase::get_collection_freq", term);
+    term.data();
+
     RETURN(0);
 }
 
@@ -114,6 +130,7 @@ Xapian::doccount
 LuceneDatabase::get_value_freq(Xapian::valueno slot) const
 {
     LOGCALL(DB, Xapian::doccount, "(not realized)LuceneDatabase::get_value_freq", slot);
+    slot += 0;
     RETURN(0);
 }
 
@@ -122,6 +139,7 @@ std::string
 LuceneDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
     LOGCALL(DB, std::string, "(not realized)LuceneDatabase::get_value_lower_bound", slot);
+    slot += 0;
     RETURN("");
 }
 
@@ -130,6 +148,7 @@ std::string
 LuceneDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
     LOGCALL(DB, std::string, "(not realized)LuceneDatabase::get_value_upper_bound", slot);
+    slot += 0;
     RETURN("");
 }
 
@@ -166,6 +185,7 @@ bool
 LuceneDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "(not realized)LuceneDatabase::term_exists", term);
+    term.data();
     return false;
 }
 
@@ -189,6 +209,7 @@ LuceneDatabase::open_post_list(const string & term) const
         seg_dbs[i]->get_luceneterm(term, lterm);
         LucenePostList * postlist = seg_dbs[i]->open_post_list(lterm);
         if (NULL != postlist) {
+            //seg_idx is index for vector LuceneDatabase::seg_dbs
             postlist->set_seg_idx(i);
             pls.push_back(postlist);
         }
@@ -207,6 +228,7 @@ ValueList *
 LuceneDatabase::open_value_list(Xapian::valueno slot) const
 {
     LOGCALL(DB, ValueList *, "(not realized)LuceneDatabase::open_value_list", slot);
+    slot += 0;
     RETURN(0);
 }
 
@@ -215,6 +237,7 @@ TermList *
 LuceneDatabase::open_term_list(Xapian::docid did) const
 {
     LOGCALL(DB, TermList *, "(not realized)LuceneDatabase::open_term_list", did);
+    did += 0;
     RETURN(0);
 }
 
@@ -233,7 +256,8 @@ LuceneDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
     LOGCALL(DB, PositionList *, "(not realized)LuceneDatabase::open_position_list",
                 term);
-    term.substr(did);
+    term.data();
+    did += 0;
     return 0;
 }
 
@@ -247,11 +271,12 @@ LuceneDatabase::open_document(Xapian::docid ext_did, bool lazy) const
     intrusive_ptr<const Database::Internal> ptrtothis(this);
     unsigned int seg_idx = 0;
     Xapian::docid seg_did = get_seg_docid(ext_did, seg_idx);
-
     LOGLINE(DB, "LuceneDatabase::open_document, seg_idx=" << seg_idx);
 
     Assert(seg_idx < segment_table.get_seg_count());
 
+    //just avoid -Werror=unused-parameter
+    lazy = lazy;
     RETURN(new LuceneDocument(ptrtothis, seg_did, seg_dbs[seg_idx]));
 }
 
@@ -309,6 +334,7 @@ string
 LuceneDatabase::get_metadata(const string & key) const
 {
     LOGCALL(DB, string, "(not realized)LuceneDatabase::get_metadata", key);
+    (void)key;
     RETURN("");
 }
 
@@ -370,6 +396,10 @@ LuceneDatabase::write_changesets_to_fd(int fd,
 {
     LOGCALL_VOID(DB, "(not realized)LuceneDatabase::write_changesets_to_fd",
                 fd | revision | need_whole_db | info);
+    fd = fd;
+    revision.data();
+    need_whole_db = need_whole_db;
+    info = info;
 }
 
 /*
@@ -426,14 +456,15 @@ LuceneDatabase::create_and_open_tables()
     for (int i = 0; i < seg_count; ++i) {
         //File name prefix stores in segment table, for example _0
         string prefix = segment_table.get_seg_name(i);
-        intrusive_ptr<LuceneSegdb> s_db(new LuceneSegdb(db_dir, prefix));
-        //Pay attention to the sequence, first in the front of vector
+        intrusive_ptr<LuceneSegdb> s_db(new LuceneSegdb(db_dir, segment_table.segments[i]));
+        //Pay attention to the sequence, first segment in the front of vector
         seg_dbs.push_back(s_db);
     }
 
     //open all the LuceneSegdb
     vector<intrusive_ptr<LuceneSegdb> >::const_iterator i;
-    for (i = seg_dbs.begin(); i != seg_dbs.end(); i++) {
+    int idx = 0;
+    for (i = seg_dbs.begin(); i != seg_dbs.end(); i++, idx++) {
         (*i)->create_and_open_tables();
     }
 
@@ -471,7 +502,6 @@ LuceneDatabase::get_fieldinfo(set<string> & field_set) const {
         (*it)->get_fieldinfo(seg_field);
         field_set.insert(seg_field.begin(), seg_field.end());
     }
-    LOGLINE(DB, "LuceneDatabase::get_fieldinfo, size=" << field_set.size());
 
-    return ;
+    LOGLINE(DB, "LuceneDatabase::get_fieldinfo, size=" << field_set.size());
 }

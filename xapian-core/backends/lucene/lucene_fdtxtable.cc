@@ -97,9 +97,11 @@ LuceneFdtxTable::get_record(Xapian::docid did, map<int, string> & string_map,
         string record = "";
         fdt_reader.read_string(record);
 
+        /*
         cout << "LuceneFdtxTable::get_record field_num=" << field_num << 
             ", bits=" << (int)bits << 
             ", record=" << record << endl;
+            */
         string_map.insert(pair<int, string>(field_num, record));
     }
 

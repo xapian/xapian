@@ -32,7 +32,7 @@ LuceneTermIndex::set_filename(string prefix) {
 bool
 LuceneTermIndex::create_and_open_tables() {
     tii_table.open();
-    tii_table.debug_table();
+    //tii_table.debug_table();
     fnm_table.open();
     vector<string> field_name = fnm_table.get_field_name();
     tii_table.set_field_name(field_name);
@@ -57,9 +57,9 @@ LuceneTermIndex::seek(const LuceneTerm & lterm, LuceneTermInfo & result) const {
     /* Here suffix really means the whole term name */
     LOGCALL(API, bool, "LuceneTermIndex::seek", lterm.get_suffix());
 
-    cout << "LuceneTermIndex::seek, idx=" << idx << endl;
+    //cout << "LuceneTermIndex::seek, idx=" << idx << endl;
     const LuceneTermIndice & term_indice = tii_table.get_term_indice(idx);
-    term_indice.debug_term_indice();
+    //term_indice.debug_term_indice();
 
     /** Firstly, fseek to the right place in .tis. Secondly, do a sequence search
      * to find the term.

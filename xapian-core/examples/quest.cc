@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sys/time.h>
 
 #include "gnu_getopt.h"
 
@@ -34,6 +35,9 @@ using namespace std;
 
 #define PROG_NAME "quest"
 #define PROG_DESC "Xapian command line search tool"
+
+//used for lucene
+#define USE_LUCENE 1
 
 // Stopwords:
 static const char * sw[] = {
@@ -209,43 +213,69 @@ try {
 
     parser.set_database(db);
     //add_prefix fieldprocessor for lucene, set_database() must called before
+#ifdef USE_LUCENE
     parser.set_fieldproc();
+#endif
 
-    parser.set_default_op(Xapian::Query::OP_OR);
-    //parser.set_stemmer(stemmer);
-    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-    parser.set_stopper(&mystopper);
+    struct timeval tm;
+    gettimeofday(&tm, NULL);
+    unsigned long begin = tm.tv_sec * 1000 + tm.tv_usec / 1000;
 
-    cout << "argv[optind]=" << argv[optind] << endl;
-    Xapian::Query query = parser.parse_query(argv[optind], flags);
-    cout << "parser.parse_query end" << endl;
-    const string & correction = parser.get_corrected_query_string();
-    cout << "quest.cc, correction=" << correction << endl;
-    if (!correction.empty())
-	cout << "Did you mean: " << correction << "\n\n";
+    while (true) {
+        string line;
+        if (cin.eof()) break;
 
-    cout << "Parsed Query: " << query.get_description() << endl;
+        getline(cin, line);
 
-    if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
-	exit(0);
+        parser.set_default_op(Xapian::Query::OP_OR);
+        parser.set_stemmer(stemmer);
+        parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+        //stopper is not needed when doing test
+        //parser.set_stopper(&mystopper);
+
+        cout << "query string=" << line << endl;
+        Xapian::Query query = parser.parse_query(line, flags);
+        /*
+        cout << "argv[optind]=" << argv[optind] << endl;
+        Xapian::Query query = parser.parse_query(argv[optind], flags);
+        */
+        cout << "parser.parse_query end" << endl;
+        const string & correction = parser.get_corrected_query_string();
+        cout << "quest.cc, correction=" << correction << endl;
+        if (!correction.empty())
+          cout << "Did you mean: " << correction << "\n\n";
+
+        cout << "Parsed Query: " << query.get_description() << endl;
+
+        if (!have_database) {
+            cout << "No database specified so not running the query." << endl;
+            exit(0);
+        }
+
+        Xapian::Enquire enquire(db);
+        enquire.set_query(query);
+
+        Xapian::MSet mset = enquire.get_mset(0, msize);
+
+        cout << "MSet:, mset.size=" << mset.size() << endl;
+        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+            //Should return all field data, and choose which field data needed 
+            //Like, doc.get_data("data"), which "data" is field name
+            //When opening Document, all data should read in, and get_data() just
+            Xapian::Document doc = i.get_document();
+#ifdef USE_LUCENE
+            string data = doc.get_data_string("dataorigin"); /* Method for Lucene */
+#else
+            string data = doc.get_data(); /* Original method */
+#endif
+            cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+        }
     }
 
-    Xapian::Enquire enquire(db);
-    enquire.set_query(query);
+    gettimeofday(&tm, NULL);
+    unsigned long end = tm.tv_sec * 1000 + tm.tv_usec / 1000;
+    cout << "time eclapse=" << (end - begin) << endl;
 
-    Xapian::MSet mset = enquire.get_mset(0, msize);
-
-    cout << "MSet:" << endl;
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
-    //Should return all field data, and choose which field data needed 
-    //Like, doc.get_data("data"), which "data" is field name
-    //When opening Document, all data should read in, and get_data() just
-	Xapian::Document doc = i.get_document();
-	//string data = doc.get_data(); /* Original method */
-    string data = doc.get_data_string("dataorigin"); /* Method for Lucene */
-	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
-    }
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;

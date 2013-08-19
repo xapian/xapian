@@ -8,18 +8,20 @@
 #include "lucene_segdb.h"
 
 using namespace Xapian;
+using Xapian::Internal::intrusive_ptr;
 
-LuceneSegdb::LuceneSegdb(const string & db_dir_, const string & prefix_)
+LuceneSegdb::LuceneSegdb(const string & db_dir_,
+            intrusive_ptr<LuceneSegmentPart> seg_part_)
         : db_dir(db_dir_),
-        prefix(prefix_),
+        prefix(""),
         index_reader(db_dir),
         frq_table(db_dir),
         fdtx_table(db_dir),
-        fnm_table(db_dir)
+        fnm_table(db_dir),
+        nrm_table(db_dir),
+        seg_part(seg_part_)
 {
     LOGCALL_CTOR(DB, "LuceneSegdb", db_dir_);
-
-    set_filename();
 }
 
 bool
@@ -30,16 +32,24 @@ LuceneSegdb::set_filename() {
     frq_table.set_filename(prefix);
     fdtx_table.set_filename(prefix);
     fnm_table.set_filename(prefix);
+    nrm_table.set_filename(prefix);
 
     return true;
 }
 
 bool
 LuceneSegdb::create_and_open_tables() {
+    prefix = seg_part->get_seg_name();
+    set_filename();
+
     /* Changing function name to open() is better */
     index_reader.create_and_open_tables();
     fdtx_table.open();
     fnm_table.open();
+    nrm_table.open();
+    nrm_table.set_seg_size(seg_part->get_seg_size());
+
+    fnm_table.debug_get_table();
 
     return true;
 }
@@ -69,9 +79,10 @@ LuceneSegdb::open_post_list(const LuceneTerm & lterm) const
     LOGLINE(API, "LuceneDatabase::open_post_list index_reader.seek true");
     //should return a LucenePostList from frq_table, LucenePostList extends LeafPostList?
 
-    RETURN(new LucenePostList(lterm.get_suffix(), term_info.get_docfreq(),
-                    term_info.get_freqdelta(), term_info.get_skipdelta(),
-                    frq_table.get_dbdir(), frq_table.get_filename()));
+    RETURN(new LucenePostList(lterm.get_suffix(), lterm.get_field_num(),
+                    term_info.get_docfreq(), term_info.get_freqdelta(),
+                    term_info.get_skipdelta(), frq_table.get_dbdir(),
+                    frq_table.get_filename()));
 }
 
 void
@@ -99,39 +110,46 @@ LuceneSegdb::get_fieldinfo(set<string> & field_info) const {
 }
 
 void
-LuceneSegdb::get_luceneterm(const string & str, LuceneTerm & lterm) const {
-    LOGCALL(DB, void, "LuceneSegdb::get_luceneterm", str);
+LuceneSegdb::get_luceneterm(const string & query, LuceneTerm & lterm) const {
+    LOGCALL(DB, void, "LuceneSegdb::get_luceneterm", query);
 
-    /* Query format must fit field_name:term */
-    size_t pos = str.find(":");
+    /* Query format must fit this foramt field_name:term */
+    size_t pos = query.find(":");
     Assert(pos != string::npos);
 
-    string field = str.substr(0, pos);
-    lterm.set_suffix(str.substr(pos + 1));
+    string field = query.substr(0, pos);
+    lterm.set_suffix(query.substr(pos + 1));
 
-    map<string, int>::const_iterator it;
-    it = fnm_table.field_map.find(field);
+    int fn = fnm_table.get_field_num(field);
 
     /* No match, query string format is wrong, or no related field, abort() */
-    if (it == fnm_table.field_map.end()) {
-        throw Xapian::DatabaseError("LuceneSegdb::get_luceneterm, Query string's"\
-                    "prefix not match .fnm field name");
+    if (-1 == fn) {
+        throw Xapian::DatabaseError("LuceneSegdb::get_luceneterm, no such field");
     }
 
-    lterm.set_field_num(it->second);
-    LOGLINE(DB, "LuceneSegdb::get_luceneterm, field=" << field <<", name=" <<
-                lterm.get_suffix() << ", fn=" << it->second);
+    lterm.set_field_num(fn);
+    LOGLINE(DB, "LuceneSegdb::get_luceneterm, field=" << field << ", name=" <<
+                lterm.get_suffix() << ", fn=" << fn);
 }
 
 int
 LuceneSegdb::get_fieldnum(const string & field) const {
     LOGCALL(DB, int, "LuceneSegdb::get_fieldnum", field);
 
-    map<string, int>::const_iterator it = fnm_table.field_map.find(field);
-    if (it == fnm_table.field_map.end()) {
+    int field_num = fnm_table.get_field_num(field);
+    if (-1 == field_num) {
         throw Xapian::DatabaseError("LuceneSegdb::get_filednum, field is not"\
                     "match .fnm field name");
     }
 
-    RETURN(it->second);
+    RETURN(field_num);
+}
+
+Xapian::termcount
+LuceneSegdb::get_doclength(Xapian::docid did, int field_num) const {
+    LOGCALL(DB, Xapian::termcount, "LuceneSegdb::get_doclength", did | field_num);
+
+    float norm = nrm_table.get_norm(did, field_num);
+
+    RETURN(1 / (norm * norm));
 }

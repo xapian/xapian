@@ -45,6 +45,10 @@ class LuceneDatabase : public Xapian::Database::Internal {
 
   public:
     LuceneDatabase(const string &db_dir);
+
+    /* Get seg_dbs[index] */
+    Xapian::Internal::intrusive_ptr<LuceneSegdb> get_segdb(int index) const;
+
     /**
      * Convert segment docid to external(whole db) docid.
      * Segment docid means docid in the segment, different doc in different
@@ -76,7 +80,11 @@ class LuceneDatabase : public Xapian::Database::Internal {
      */
     void get_fieldinfo(set<string> & field_set) const;
 
+    /* Get documents count in all segments */
     Xapian::doccount get_doccount() const;
+
+    Xapian::doccount get_doccount(int segment) const;
+
     Xapian::docid get_lastdocid() const;
     //TODO
     totlen_t get_total_length() const;
@@ -84,7 +92,19 @@ class LuceneDatabase : public Xapian::Database::Internal {
     /* TODO totallength doesn't exits in Lucene, so avlength lacks */
     Xapian::doclength get_avlength() const;
 
-    /* In ChertDatabase, this seems returns wdf, not doclength */
+    /** In ChertDatabase, this seems returns wdf, not doclength.
+     * Test. Read doclength from .nrm, precondition:
+     * 1. .nrm file exists(do not using NO_NORMS flag when indexing)
+     * 2. Doc boost and field boot are not using, so the norm = 1.0 / sqrt(numTerms),
+     * then doclength(numTerms) = 1 / (norm * norm).
+     * See DefaultSimility::computNorm() function in Lucene souuce code for details
+     *
+     * Pay attenstion. norm value is compressed to one Byte, precision lost.
+     * so the doclength is not accurate value
+     *
+     * FIXME, which field's doclength should return? Maybe we should used
+     * another interface with param field name or field number
+     */
     Xapian::termcount get_doclength(Xapian::docid did) const;
 
     /** 

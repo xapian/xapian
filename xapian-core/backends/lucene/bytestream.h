@@ -10,6 +10,8 @@
 #include <string.h>
 #include <map>
 
+#define LUCENE_BLOCK_IO
+
 using namespace std;
 
 class ByteStreamReader {
@@ -20,13 +22,32 @@ class ByteStreamReader {
     string file_name;
 
     /* File Handler */
+#ifdef LUCENE_BLOCK_IO
+    /* used for open */
+    int handle;
+
+    /* read by block */
+    char * block;
+
+    /* io block size, 8192(8K) Bytes */
+    static const unsigned int block_size = 256;
+
+    /* cursor for block io buffer */
+    mutable unsigned int cursor;
+#else
+    /* used for fopen */
     FILE * handle;
+#endif
 
   public:
     ByteStreamReader(const string & db_dir_);
     ByteStreamReader(const string & db_dir_, const string & file_name_);
 
     ~ByteStreamReader();
+
+    int read_int_by_byte() const;
+
+    long long read_int64_by_byte() const;
 
     bool set_filename(const string & file_name);
 
@@ -96,7 +117,8 @@ class ByteStreamReader {
     bool read_did_and_freq(int &, int &) const;
 
     /**
-     * Seek to some position in this file
+     * Seek to some position in this file.
+     * After doing seek, block will be reload when using block io
      * FIXME parameter is long, so just support <4G file
      */
     void seek_to(long) const;

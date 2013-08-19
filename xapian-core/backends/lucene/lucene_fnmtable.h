@@ -6,6 +6,30 @@
 #include <vector>
 #include <map>
 
+/** The low-order bit is one for indexed fields, and zero for non-indexed fields.
+ * The second lowest-order bit is one for fields that have term vectors stored,
+ *   and zero for fields without term vectors.
+ * If the fifth lowest-order bit is set (0x10), norms are omitted for the indexed
+ *   field.
+ * If the sixth lowest-order bit is set (0x20), payloads are stored for the indexed
+ *   field.
+ * If the seventh lowest-order bit is set (0x40), term frequencies and positions
+ *   omitted for the indexed field.
+ * If the eighth lowest-order bit is set (0x80), positions are omitted for the
+ *   indexed field.
+ */
+class FnmBitsInfo {
+  public:
+    bool has_indexed_field;
+    bool has_term_vector;
+    bool has_norm;
+    bool has_payload;
+    bool has_freq_pos;
+    bool has_position;
+
+    FnmBitsInfo();
+};
+
 class LuceneFnmTable {
     friend class LuceneSegdb;
 
@@ -43,6 +67,11 @@ class LuceneFnmTable {
      **/
     vector<char> field_bits;
 
+    /** Transfer field_bits infomation to a class FnmBItsInfo, for
+     * reading easily
+     */
+    vector<FnmBitsInfo> field_bitsinfo;
+
     /**
      * Map for field_name --> field_number
      * First data is field name, second is field number
@@ -53,17 +82,26 @@ class LuceneFnmTable {
     /* .fnm file reader */
     ByteStreamReader stream_reader;
 
+    /* Transfer from field_bits to field_bitsinfo */
+    void transfer_bits();
+
   public:
     LuceneFnmTable(const string &db_dir);
 
-    /* set file_name */
+    /* Set file_name */
     bool set_filename(const string &);
 
-    /* open .fnm file */
+    /* Open .fnm file */
     void open();
 
-    /* return field_name */
+    /* Return field_name */
     vector<string> get_field_name() const;
+
+    /** Get related field number to @param field name
+     * FIXME, field number should a non-negative, so using unsigned 
+     * int instead
+     */
+    int get_field_num(const string & field_name) const;
 
     /* below is for debug */
     void debug_get_table();

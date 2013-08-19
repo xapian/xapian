@@ -392,7 +392,6 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {
-        cout << "Xapian::MSet::Internal::get_doc_by_index L394" << endl;
 	RETURN(doc->second);
     }
     if (index < firstitem || index >= firstitem + items.size()) {
@@ -400,18 +399,15 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     }
     Assert(enquire.get());
     if (!requested_docs.empty()) {
-        cout << "Xapian::MSet::Internal::get_doc_by_index L403" << endl;
 	// There's already a pending request, so handle that.
 	read_docs();
 	// Maybe we just fetched the doc we want.
 	doc = indexeddocs.find(index);
 	if (doc != indexeddocs.end()) {
-        cout << "Xapian::MSet::Internal::get_doc_by_index L409" << endl;
 	    RETURN(doc->second);
 	}
     }
 
-    cout << "Xapian::MSet::Internal::get_doc_by_index L414" << endl;
     // Don't cache unless fetch() was called by the API user.
     enquire->request_doc(items[index - firstitem]);
     RETURN(enquire->read_doc(items[index - firstitem]));
