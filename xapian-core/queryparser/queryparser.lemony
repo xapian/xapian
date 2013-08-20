@@ -431,7 +431,15 @@ Term::get_query() const
     if (prefixes.empty()) {
 	// FIXME: handle multiple here
 	Assert(!field_info->procs.empty());
-	return (**field_info->procs.begin())(name);
+	//return (**field_info->procs.begin())(name);
+
+    /** changed by myself, stemmer is also needed in Lucene
+     */
+    if (stem != QueryParser::STEM_NONE) {
+        return (**field_info->procs.begin())(state->stem_term(name));
+    } else {
+        return (**field_info->procs.begin())(name);
+    }
     }
     list<string>::const_iterator piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
@@ -1353,6 +1361,20 @@ done:
 
     errmsg = state.error;
     return state.query;
+}
+
+void
+QueryParser::Internal::set_fieldproc() {
+    //LOGCALL(QUERYPARSER, void, "QueryParser::Internal::set_fieldproc", NO_ARGS);
+
+    set<string> field_set;
+    db.get_fieldinfo(field_set);
+    set<string>::const_iterator it = field_set.begin();
+    //FIXME Memery leak here, maybe using smart ptr will repair it
+    for (; it != field_set.end(); ++it) {
+        //LOGLINE(QUERYPARSER, "QueryParser::Internal::set_fieldProc, prefix=" << *it);
+        add_prefix(*it, new LuceneFieldProcessor(*it), NON_BOOLEAN);
+    }
 }
 
 struct ProbQuery {
