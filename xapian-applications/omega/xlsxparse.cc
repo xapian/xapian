@@ -85,8 +85,7 @@ XlsxParser::opening_tag(const string &tag)
 	    }
 	}
     } else if (tag == "cellxfs") {
-	if (!date_format.empty())
-	    mode = MODE_CELLXFS;
+	mode = MODE_CELLXFS;
     } else if (tag == "xf") {
 	if (mode == MODE_CELLXFS) {
 	    string v;
@@ -94,7 +93,8 @@ XlsxParser::opening_tag(const string &tag)
 		if (v == "true" || v == "1") {
 		    if (get_parameter("numfmtid", v)) {
 			unsigned long id = strtoul(v.c_str(), NULL, 10);
-			if (date_format.find(id) != date_format.end()) {
+			if ((id >= 14 && id <= 17) ||
+			    date_format.find(id) != date_format.end()) {
 			    date_style.insert(style_index);
 			}
 		    }

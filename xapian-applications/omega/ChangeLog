@@ -1,3 +1,7 @@
+Thu Aug 22 22:04:11 GMT 2013  Olly Betts <olly@survex.com>
+
+	* xlsxparse.cc: Handle pre-defined numfmtid codes for dates.
+
 Wed Jul 17 06:15:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc,xlsxparse.cc,xlsxparse.h: Fix detection of cells with a
