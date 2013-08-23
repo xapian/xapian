@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 12
+# serial 13
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -33,6 +33,7 @@ AC_DEFUN([XO_LIB_XAPIAN],
   dnl has a full path, so add special handling for such cases.
   xapian_config_to_check_for="ifelse([$3], [], xapian-config, [$3])"
   [case $XAPIAN_CONFIG in
+  "") ;;
   [\\/]* | ?:[\\/]*)
     # XAPIAN_CONFIG has an absolute path, so AC_PATH_PROG can handle it.
     ;;
