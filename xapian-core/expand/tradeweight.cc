@@ -28,12 +28,6 @@ using namespace std;
 namespace Xapian {
 namespace Internal {
 
-void
-TradEweight::init()
-{
-    // Nothing to be done here.
-}
-
 double
 TradEweight::get_weight() const {
     double reldocs_without_term = get_rsize() - stats.rtermfreq;

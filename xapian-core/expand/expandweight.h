@@ -63,11 +63,14 @@ class ExpandStats {
     // Keeps track of the index of the sub-database we're accumulating for.
     size_t db_index;
 
+    /* Constructor for expansion schemes which do not require the "expand_k"
+       parameter. */
     ExpandStats(Xapian::doclength avlen_)
 	: avlen(avlen_), expand_k(0), dbsize(0), termfreq(0),
 	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
     }
 
+    // Constructor for expansion schemes which require the "expand_k" parameter.
     ExpandStats(Xapian::doclength avlen_, double expand_k_)
 	: avlen(avlen_), expand_k(expand_k_), dbsize(0), termfreq(0),
 	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
@@ -97,6 +100,7 @@ class ExpandStats {
     /* Clear the statistics collected in the ExpandStats object before using it
      * for a new term. */
     void clear_stats() {
+        dbs_seen.clear();
         dbsize = 0;
         termfreq = 0;
         rcollection_freq = 0;
@@ -180,9 +184,6 @@ public:
      */
     void collect_stats(TermList * merger, const std::string & term);
 
-    // Allow the expansion scheme to perform initializations.
-    virtual void init()  = 0;
-
     // Calculate the weight.
     virtual double get_weight() const = 0;
 
@@ -226,8 +227,6 @@ public :
 	        double expand_k_)
 	: ExpandWeight(db_, rsize_, use_exact_termfreq_, expand_k_) { }
 
-    void init();
-
     double get_weight() const;
 };
 
@@ -258,8 +257,6 @@ public :
 	       Xapian::doccount rsize_,
 	       bool use_exact_termfreq_)
 	: ExpandWeight(db_, rsize_, use_exact_termfreq_) {}
-
-    void init();
 
     double get_weight() const;
 };

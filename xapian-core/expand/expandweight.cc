@@ -41,12 +41,20 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term) {
 
     collection_freq = db.get_collection_freq(term);
 
+    double termfreq = stats.termfreq;
+    double rtermfreq = stats.rtermfreq;
+
+    LOGVALUE(EXPAND, rsize);
+    LOGVALUE(EXPAND, rtermfreq);
+    LOGVALUE(EXPAND, dbsize);
+    LOGVALUE(EXPAND, stats.dbsize);
+
     if (stats.dbsize == dbsize) {
 	// Either we're expanding from just one database, or we got stats from
 	// all the sub-databases (because at least one relevant document from
 	// each sub-database contained this term), so termfreq should already
 	// be exact.
-	AssertEqParanoid(stats.termfreq, db.get_termfreq(term));
+	AssertEqParanoid(termfreq, db.get_termfreq(term));
     } else {
 	AssertRel(stats.dbsize,<,dbsize);
 	// We're expanding from more than one database and the stats we've got
@@ -54,38 +62,41 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term) {
 	// those sub-databases.
 	if (use_exact_termfreq) {
 	    LOGLINE(EXPAND, "Had to request exact termfreq");
-	    stats.termfreq = db.get_termfreq(term);
+	    termfreq = db.get_termfreq(term);
 	} else {
 	    // Approximate the termfreq by scaling it up from the databases we
 	    // do have information from.
-	    stats.termfreq *= double(dbsize) / double(stats.dbsize);
+	    termfreq *= double(dbsize) / double(stats.dbsize);
 	    LOGLINE(EXPAND, "termfreq is approx " << stats.termfreq << " * " <<
 			    dbsize << " / " << stats.dbsize << " = " <<
-			    stats.termfreq);
+			    termfreq);
 	    LOGVALUE(EXPAND, db.get_termfreq(term));
-	    if (stats.termfreq < stats.rtermfreq) {
+	    if (termfreq < rtermfreq) {
 		// termfreq must be at least rtermfreq, since there are at
 		// least rtermfreq documents indexed by this term.
 		LOGLINE(EXPAND, "termfreq must be at least rtermfreq");
-		stats.termfreq = stats.rtermfreq;
+		termfreq = rtermfreq;
+	    } else {
+		// termfreq can't be more than (dbsize - rsize + rtermfreq)
+		// since the number of relevant documents not indexed by this
+		// term can't be more than the number of documents not indexed
+		// by this term, so:
+		//
+		//     rsize - rtermfreq <= dbsize - termfreq
+		// <=> termfreq <= dbsize - (rsize - rtermfreq)
+		double termfreq_upper_bound = dbsize - (rsize - rtermfreq);
+		if (termfreq > termfreq_upper_bound) {
+		    LOGLINE(EXPAND, "termfreq can't be more than "
+				    "dbsize - (rsize + rtermfreq)");
+		    termfreq = termfreq_upper_bound;
+		}
 	    }
-	    else {
-	      // termfreq can't be more than (dbsize - rsize + rtermfreq)
-	      // since the number of relevant documents not indexed by this
-	      // term can't be more than the number of documents not indexed
-	      // by this term, so:
-	      // rsize - rtermfreq <= dbsize - termfreq
-	      // <=> termfreq <= dbsize - (rsize - rtermfreq)
-	      double termfreq_upper_bound = dbsize - (rsize - stats.rtermfreq);
-	      if (stats.termfreq > termfreq_upper_bound) {
-		  LOGLINE(EXPAND, "termfreq can't be more than "
-		          "dbsize - (rsize + rtermfreq)");
-		  stats.termfreq = termfreq_upper_bound;
-	      }
-	    }
-	  }
-      }
-}
+	}
+    }
+    LOGVALUE(EXPAND, termfreq);
+    stats.termfreq = termfreq;
+    stats.rtermfreq = rtermfreq;
+    }
 
 }
 }

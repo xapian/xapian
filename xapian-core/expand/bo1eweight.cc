@@ -29,12 +29,6 @@ using namespace std;
 namespace Xapian {
 namespace Internal {
 
-void
-Bo1Eweight::init()
-{
-    // Nothing to be done here.
-}
-
 double
 Bo1Eweight::get_weight() const {
     double F(get_collection_freq());
