@@ -182,6 +182,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	// If the weights are equal, we prefer the lexically smaller term and
 	// so we use "<=" not "<" here.
 	if (wt <= min_wt) continue;
+
 	items.push_back(Xapian::Internal::ExpandTerm(wt, term));
 
 	// The candidate ESet is overflowing, so remove the worst element in it

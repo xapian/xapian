@@ -53,8 +53,8 @@
 using namespace std;
 
 using Xapian::Internal::ExpandWeight;
-using Xapian::Internal::Bo1Eweight;
-using Xapian::Internal::TradEweight;
+using Xapian::Internal::Bo1EWeight;
+using Xapian::Internal::TradEWeight;
 
 namespace Xapian {
 
@@ -754,12 +754,11 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     Xapian::ESet eset;
 
     if (eweightname == "bo1") {
-        Bo1Eweight bo1eweight(db, rset.size(), use_exact_termfreq);
+        Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
         eset.internal->expand(maxitems, db, rset, edecider, bo1eweight, min_wt);
-    }
-    else {
-        TradEweight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
-        eset.internal->expand(maxitems, db, rset, edecider, tradeweight, min_wt);
+    } else {
+        TradEWeight TradEWeight(db, rset.size(), use_exact_termfreq, expand_k);
+        eset.internal->expand(maxitems, db, rset, edecider, TradEWeight, min_wt);
     }
 
     RETURN(eset);
@@ -953,14 +952,14 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 void
 Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_)
 {
-     LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_);
+     LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
 
      if (eweightname_ != "bo1" && eweightname_ != "trad") {
-         throw InvalidArgumentError("Invalid name for query expansion scheme. ");
+         throw InvalidArgumentError("Invalid name for query expansion scheme.");
      }
 
-     internal -> eweightname = eweightname_;
-     internal -> expand_k = expand_k_;
+     internal->eweightname = eweightname_;
+     internal->expand_k = expand_k_;
 }
 
 void

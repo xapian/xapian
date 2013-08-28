@@ -763,9 +763,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the weighting scheme to use for expansion.
 	 *
-	 *  @param eweightname_  A three character string in lowercase
-	 *                       specifying the name of the scheme to be used.
-	 *                       The following schemes are currently availabe:
+	 *  @param eweightname_  A string in lowercase specifying the name of
+	 *                       the scheme to be used. The following schemes
+	 *                       are currently available:
 	 *                       "bo1" : The Bo1 scheme for query expansion.
 	 *                       "trad" : The TradWeight scheme for query expansion.
 	 *                       If no scheme is specified, TradWeight is used by default.

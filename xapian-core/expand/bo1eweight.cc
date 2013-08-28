@@ -1,5 +1,5 @@
 /** @file bo1eweight.cc
- * @brief Xapian::Bo1Eweight class - The Bo1 scheme of the DFR framework
+ * @brief Xapian::Bo1EWeight class - The Bo1 scheme of the DFR framework
  *                                   for query expansion.
  */
 /* Copyright (C) 2013 Aarsh Shah
@@ -30,7 +30,7 @@ namespace Xapian {
 namespace Internal {
 
 double
-Bo1Eweight::get_weight() const {
+Bo1EWeight::get_weight() const {
     double F(get_collection_freq());
 
     double N(get_dbsize());
