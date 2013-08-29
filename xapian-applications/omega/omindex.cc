@@ -55,6 +55,7 @@
 #include "myhtmlparse.h"
 #include "opendocparse.h"
 #include "pkglibbindir.h"
+#include "realtime.h"
 #include "runfilter.h"
 #include "sample.h"
 #include "str.h"
@@ -88,6 +89,7 @@ static bool verbose = false;
 static enum {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
 } empty_body = EMPTY_BODY_WARN;
+static double sleep_before_opendir = 0;
 
 static string root;
 static string site_term, host_term;
@@ -1004,6 +1006,10 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 
     DirectoryIterator d(follow_symlinks);
     try {
+	// Crude workaround for MS-DFS share misbehaviour.
+	if (sleep_before_opendir >= 0.0)
+	    RealTime::sleep(sleep_before_opendir);
+
 	d.start(path);
 
 	while (d.next()) {
@@ -1089,6 +1095,7 @@ main(int argc, char **argv)
     size_t depth_limit = 0;
     size_t sample_size = SAMPLE_SIZE;
 
+    enum { OPT_OPENDIR_SLEEP = -1 };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -1109,6 +1116,7 @@ main(int argc, char **argv)
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
 	{ "sample-size",required_argument,	NULL, 'E' },
+	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1337,6 +1345,10 @@ main(int argc, char **argv)
 "  -E, --sample-size=SIZE    maximum size for the document text sample\n"
 "                            (supports the same formats as --max-size).\n"
 "                            (default: 512)\n"
+"      --opendir-sleep=SECS  sleep for SECS seconds before opening each\n"
+"                            directory - sleeping for 2 seconds seems to\n"
+"                            reliably work around problems with indexing files\n"
+"                            on Microsoft DFS shares.\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -1477,6 +1489,18 @@ main(int argc, char **argv)
 		break;
 	    }
 	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
+	    return 1;
+	}
+	case OPT_OPENDIR_SLEEP: {
+	    // Don't want negative numbers, infinity, NaN, or hex numbers.
+	    char * p = optarg;
+	    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+		sleep_before_opendir = strtod(p, &p);
+		if (*p == '\0')
+		    break;
+	    }
+	    cerr << PROG_NAME": bad --opendir-sleep argument: "
+		 "'" << optarg << "'" << endl;
 	    return 1;
 	}
 	case ':': // missing param
