@@ -1,3 +1,7 @@
+Thu Aug 29 23:39:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.h: Mark DirectoryIterator ctor as 'explicit'.
+
 Thu Aug 29 23:37:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omindex.cc: Add omindex --opendir-sleep=SECS option to
