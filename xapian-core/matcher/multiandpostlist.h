@@ -128,26 +128,19 @@ class MultiAndPostList : public PostList {
 			       ComparePostListTermFreqAscending());
     }
 
-    /** Construct as the decay product of an OrPostList or AndMaybePostList.
-     *
-     *  @param check_order	If true, then l and r may need swapping to
-     *				ensure freq_est(l) >= freq_est(r).  This
-     *				should not be necessary for an OrPostList.
-     */
+    /** Construct as the decay product of an OrPostList or AndMaybePostList. */
     MultiAndPostList(PostList *l, PostList *r,
 		     double lmax, double rmax,
-		     MultiMatch * matcher_, Xapian::doccount db_size_,
-		     bool check_order = false)
+		     MultiMatch * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(2), plist(NULL), max_wt(NULL),
 	  max_total(lmax + rmax), db_size(db_size_), matcher(matcher_)
     {
-	if (check_order) {
-	    if (l->get_termfreq_est() < r->get_termfreq_est()) {
-		std::swap(l, r);
-		std::swap(lmax, rmax);
-	    }
-	} else {
-	    AssertRel(l->get_termfreq_est(),>=,r->get_termfreq_est());
+	// Even if we're the decay product of an OrPostList, we may want to
+	// swap here, as the subqueries may also have decayed and so their
+	// estimated termfreqs may have changed.
+	if (l->get_termfreq_est() < r->get_termfreq_est()) {
+	    std::swap(l, r);
+	    std::swap(lmax, rmax);
 	}
 	allocate_plist_and_max_wt();
 	// Put the least frequent postlist first.
