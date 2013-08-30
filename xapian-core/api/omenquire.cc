@@ -950,7 +950,7 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 }
 
 void
-Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_)
+Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_) const
 {
      LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
 
@@ -1076,6 +1076,21 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 
     try {
 	RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
+    } catch (Error & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
+}
+
+ESet
+Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
+		  double k, const ExpandDecider * edecider, double min_wt) const
+{
+    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset",
+            maxitems | rset | k | flags | edecider | min_wt);
+    try {
+        set_expansion_scheme("trad", k);
+        RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

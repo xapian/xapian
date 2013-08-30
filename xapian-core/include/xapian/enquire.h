@@ -30,6 +30,7 @@
 # error "Never use <xapian/enquire.h> directly; include <xapian.h> instead."
 #endif
 
+#include "xapian/deprecated.h"
 #include <string>
 
 #include <xapian/attributes.h>
@@ -773,7 +774,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *                   A default value of 1.0 is used if none is specified.
 	 */
 	void set_expansion_scheme(const std::string &eweightname_ = "trad",
-	                          double expand_k_ = 1.0);
+	                          double expand_k_ = 1.0) const;
 
 	/** Set the collapse key to use for queries.
 	 *
@@ -1074,6 +1075,37 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 			     const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, edecider);
 	}
+
+	/** Get the expand set for the given rset.
+	 *
+	 *  @param maxitems  the maximum number of items to return.
+	 *  @param omrset    the relevance set to use when performing
+	 *		     the expand operation.
+	 *  @param flags     zero or more of these values |-ed together:
+	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
+	 *			terms may be returned from expand
+	 *		      - Xapian::Enquire::USE_EXACT_TERMFREQ for multi
+	 *			dbs, calculate the exact termfreq; otherwise an
+	 *			approximation is used which can greatly improve
+	 *			efficiency, but still returns good results.
+	 *  @param k	     the parameter k in the query expansion algorithm
+	 *		     (default is 1.0)
+	 *  @param edecider  a decision functor to use to decide whether a
+	 *		     given term should be put in the ESet
+	 *
+	 *  @param min_wt    the minimum weight for included terms
+	 *
+	 *  @return	     An ESet object containing the results of the
+	 *		     expand.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 */
+	XAPIAN_DEPRECATED(ESet get_eset(Xapian::termcount maxitems,
+		          const RSet & omrset,
+			  int flags,
+			  double k,
+			  const Xapian::ExpandDecider * edecider,
+			  double min_wt) const);
 
 	/** Get terms which match a given document, by document id.
 	 *
