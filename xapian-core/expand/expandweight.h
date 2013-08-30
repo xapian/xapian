@@ -44,7 +44,7 @@ class ExpandStats {
     /// The parameter k to be used for TradWeight query expansion.
     double expand_k;
 
- public:
+  public:
     /// Size of the subset of a multidb to which the value in termfreq applies.
     Xapian::doccount dbsize;
 
@@ -78,7 +78,8 @@ class ExpandStats {
     }
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
-		    Xapian::doccount subtf, Xapian::doccount subdbsize) {
+		    Xapian::doccount subtf, Xapian::doccount subdbsize)
+    {
         // Boolean terms may have wdf == 0, but treat that as 1 so such terms
 	// get a non-zero weight.
 	if (wdf == 0) wdf = 1;
@@ -99,7 +100,8 @@ class ExpandStats {
 
     /* Clear the statistics collected in the ExpandStats object before using it
      * for a new term. */
-    void clear_stats() {
+    void clear_stats()
+    {
         dbs_seen.clear();
         dbsize = 0;
         termfreq = 0;
@@ -142,7 +144,7 @@ class ExpandWeight {
      */
     bool use_exact_termfreq;
 
- public:
+  public:
     /// An ExpandStats object to accumulate statistics.
     ExpandStats stats;
 
@@ -187,7 +189,7 @@ class ExpandWeight {
     /// Calculate the weight.
     virtual double get_weight() const = 0;
 
- protected:
+  protected:
     /// Return the average length of the databse.
     double get_avlen() const { return avlen; }
 
@@ -209,7 +211,7 @@ class ExpandWeight {
  *  It is the default scheme for query expansion.
  */
 class TradEWeight : public ExpandWeight {
- public:
+  public:
     /** Constructor.
      *
      *  @param db_ The database.
@@ -242,7 +244,7 @@ class TradEWeight : public ExpandWeight {
  *  refer to Gianni Amati's PHD thesis.
  */
 class Bo1EWeight : public ExpandWeight {
- public:
+  public:
     /** Constructor.
      *
      *  @param db_ The database.

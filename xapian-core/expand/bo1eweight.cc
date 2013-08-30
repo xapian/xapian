@@ -30,7 +30,8 @@ namespace Xapian {
 namespace Internal {
 
 double
-Bo1EWeight::get_weight() const {
+Bo1EWeight::get_weight() const
+{
     double F(get_collection_freq());
 
     double N(get_dbsize());

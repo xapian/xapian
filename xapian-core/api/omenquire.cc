@@ -757,8 +757,8 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
         Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
         eset.internal->expand(maxitems, db, rset, edecider, bo1eweight, min_wt);
     } else {
-        TradEWeight TradEWeight(db, rset.size(), use_exact_termfreq, expand_k);
-        eset.internal->expand(maxitems, db, rset, edecider, TradEWeight, min_wt);
+        TradEWeight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
+        eset.internal->expand(maxitems, db, rset, edecider, tradeweight, min_wt);
     }
 
     RETURN(eset);

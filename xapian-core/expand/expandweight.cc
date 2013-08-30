@@ -34,7 +34,8 @@ namespace Xapian {
 namespace Internal {
 
 void
-ExpandWeight::collect_stats(TermList * merger, const std::string & term) {
+ExpandWeight::collect_stats(TermList * merger, const std::string & term)
+{
     LOGCALL(MATCH, void, "ExpandWeight::collect_stats", merger | term);
 
     merger->accumulate_stats(stats);
@@ -47,7 +48,6 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term) {
     LOGVALUE(EXPAND, rsize);
     LOGVALUE(EXPAND, rtermfreq);
     LOGVALUE(EXPAND, dbsize);
-    LOGVALUE(EXPAND, stats.dbsize);
 
     if (stats.dbsize == dbsize) {
 	// Either we're expanding from just one database, or we got stats from
