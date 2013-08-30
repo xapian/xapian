@@ -1231,7 +1231,7 @@ AC_SUBST(SHLIBEXT)
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_\(svn\|git\)[0-9]*$//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
 
 dnl **************************
 dnl * Build the output files *
@@ -1272,7 +1272,7 @@ AC_SUBST([AUTOM4TE])
 
 dnl Generate include/xapian/version.h:
 
-dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
+dnl MAIN_VERSION is VERSION without any _git123 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
 for backend in BRASS CHERT FLINT INMEMORY REMOTE ; do

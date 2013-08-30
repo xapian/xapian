@@ -1,3 +1,10 @@
+Fri Aug 30 08:32:55 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,m4-macros/xapian-1.3.m4: Fix stripping of _git suffix
+	  from snapshot versions not to relying of sed having support for \|
+	  as it doesn't on OS X.
+
 Fri Jul 12 08:18:15 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

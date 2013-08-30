@@ -96,7 +96,7 @@ dnl If LT_INIT, AC_PROG_LIBTOOL or the deprecated older version
 dnl AM_PROG_LIBTOOL has already been expanded, enable libtool support now.
 dnl Otherwise add hooks to the end of LT_INIT, AC_PROG_LIBTOOL and
 dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
-    XAPIAN_VERSION=`$XAPIAN_CONFIG --version|sed 's/.* //;s/_\(svn\|git\)[[0-9]]*$//'`
+    XAPIAN_VERSION=`$XAPIAN_CONFIG --version|sed 's/.* //;s/_.*$//'`
     XAPIAN_CXXFLAGS=`$XAPIAN_CONFIG --cxxflags`
     AC_PROVIDE_IFELSE([LT_INIT],
       [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
