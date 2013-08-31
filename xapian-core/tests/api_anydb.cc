@@ -426,6 +426,28 @@ DEFINE_TESTCASE(expandweights4, backend) {
     return true;
 }
 
+// test for Bo1EWeight
+DEFINE_TESTCASE(expandweights5, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    enquire.set_expansion_scheme("bo1");
+    Xapian::ESet eset = enquire.get_eset(3, myrset);
+
+    TEST_EQUAL(eset.size(), 3);
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 7.21765284821702);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.661623193760022);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.58090119783738);
+
+    return true;
+}
 
 // tests that when specifying maxitems to get_eset, no more than
 // that are returned.
