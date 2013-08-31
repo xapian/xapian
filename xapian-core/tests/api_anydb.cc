@@ -385,7 +385,7 @@ DEFINE_TESTCASE(expandweights3, backend) {
     myrset.add_document(*(++i));
 
     // Set min_wt to 0
-    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 1.0, 0, 0);
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0);
     if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
@@ -417,7 +417,7 @@ DEFINE_TESTCASE(expandweights4, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 1.0, 0, -100);
+    Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 0, -100);
     // Now include negative weights
     TEST_EQUAL(eset.size(), 37);
     TEST_REL(eset[36].get_weight(),<,0);
