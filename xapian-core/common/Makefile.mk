@@ -52,6 +52,7 @@ noinst_HEADERS +=\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
+	common/safenetdb.h\
 	common/safesysselect.h\
 	common/safesysstat.h\
 	common/safesyswait.h\
