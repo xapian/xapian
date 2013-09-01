@@ -70,7 +70,7 @@ uuid_generate(uuid_t_ out) {
 	// Can only be uuid_s_no_memory it seems.
 	throw std::bad_alloc();
     }
-    std::memcpy(&out, &uuid, sizeof(uuid_t_));
+    std::memcpy(out, &uuid, sizeof(uuid_t_));
 }
 
 inline int

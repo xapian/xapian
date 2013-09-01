@@ -1,3 +1,9 @@
+Sun Sep 01 09:02:09 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/safeuuid.h: Remove bogus take-address-of from uuid handling
+	  code for netbsd and openbsd.
+
 Sun Sep 01 08:59:03 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
