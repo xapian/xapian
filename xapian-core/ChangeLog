@@ -1,3 +1,13 @@
+Sun Sep 01 08:44:46 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/andmaybepostlist.cc,matcher/multiandpostlist.h: Fix
+	  assertion failure for when an OrPostList decays to an AndPostList
+	  - the ordering of the subqueries by estimated termfreq may not be
+	  the same as it was when the OrPostList was constructed, as the
+	  subqueries may themselves have decayed.  Reported by Michel
+	  Pelletier.
+
 Sun Sep 01 06:29:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
