@@ -2,7 +2,7 @@
  *  @brief #include <uuid/uuid.h>, with alternative implementation for windows.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,6 +55,7 @@ inline void uuid_unparse_lower(uuid_t uu, char *out) {
 
 // FreeBSD/NetBSD UUID API.
 # include <uuid.h>
+# include <cstdlib>
 # include <cstring>
 # include <exception>
 
@@ -93,7 +94,7 @@ uuid_unparse_lower(const uuid_t_ uu, char * out)
     char * result;
     uuid_to_string(&uuid, &result, &status);
     std::memcpy(out, result, 36);
-    free(result);
+    std::free(result);
     if (status != uuid_s_ok) {
 	// Could be uuid_s_bad_version (FIXME) or uuid_s_no_memory it seems.
 	throw std::bad_alloc();
