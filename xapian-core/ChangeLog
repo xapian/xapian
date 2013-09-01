@@ -1,3 +1,8 @@
+Sun Sep 01 09:06:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/safeuuid.h: Make a few tweaks to support AIX.
+
 Sun Sep 01 09:02:09 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
