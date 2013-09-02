@@ -1007,8 +1007,8 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
     DirectoryIterator d(follow_symlinks);
     try {
 	// Crude workaround for MS-DFS share misbehaviour.
-	if (sleep_before_opendir >= 0.0)
-	    RealTime::sleep(sleep_before_opendir);
+	if (sleep_before_opendir > 0.0)
+	    RealTime::sleep(RealTime::now() + sleep_before_opendir);
 
 	d.start(path);
 

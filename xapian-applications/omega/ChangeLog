@@ -1,3 +1,8 @@
+Mon Sep 02 23:32:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix to sleep for sleep_before_opendir from now, not
+	  from 1970.
+
 Mon Sep 02 22:45:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Make OPT_OPENDIR_SLEEP 256 not -1, as getopt() returns
