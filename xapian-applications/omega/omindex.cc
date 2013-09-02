@@ -1095,7 +1095,7 @@ main(int argc, char **argv)
     size_t depth_limit = 0;
     size_t sample_size = SAMPLE_SIZE;
 
-    enum { OPT_OPENDIR_SLEEP = -1 };
+    enum { OPT_OPENDIR_SLEEP = 256 };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
