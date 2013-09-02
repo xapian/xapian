@@ -1,3 +1,13 @@
+Mon Sep 02 09:20:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_serialise.cc: Remove code from registry* testcases which
+	  tries to test the consequences of throwing an exception from a
+	  destructor - it's complex to ensure we don't leak memory while doing
+	  this (it seems GCC doesn't release the object in this case, but
+	  clang does), and it's generally frowned upon, plus C++11 makes
+	  destructors noexcept by default.
+
 Mon Sep 02 08:08:57 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
