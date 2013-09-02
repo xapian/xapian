@@ -1,3 +1,7 @@
+Mon Sep 02 04:50:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* datematchdecider.h: Fix filename in comment at top of file.
+
 Thu Aug 29 23:39:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* diritor.h: Mark DirectoryIterator ctor as 'explicit'.
