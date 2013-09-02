@@ -1,3 +1,8 @@
+Mon Sep 02 05:00:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc,docs/overview.rst: Ignore 'adm', 'cur', and 'ico' by
+	  default.
+
 Mon Sep 02 04:50:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* datematchdecider.h: Fix filename in comment at top of file.

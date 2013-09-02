@@ -1252,15 +1252,18 @@ main(int argc, char **argv)
 
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";
+    mime_map["adm"] = "ignore";
     mime_map["bin"] = "ignore";
     mime_map["com"] = "ignore";
     mime_map["css"] = "ignore";
+    mime_map["cur"] = "ignore";
     mime_map["dat"] = "ignore";
     mime_map["db"] = "ignore";
     mime_map["dll"] = "ignore";
     mime_map["dylib"] = "ignore";
     mime_map["exe"] = "ignore";
     mime_map["fon"] = "ignore";
+    mime_map["ico"] = "ignore";
     mime_map["jar"] = "ignore";
     mime_map["js"] = "ignore";
     mime_map["lib"] = "ignore";
