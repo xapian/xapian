@@ -1,3 +1,9 @@
+Mon Sep 02 09:39:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/dbfactory.cc: Fix 'unused label' warning when chert backend
+	  is disabled.
+
 Mon Sep 02 09:20:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

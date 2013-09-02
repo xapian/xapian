@@ -474,7 +474,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	    // If only brass is enabled, there's no point checking the
 	    // environmental variable.
-# if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
 	    // If $XAPIAN_PREFER_BRASS is set to a non-empty value, prefer brass
 	    // if there's no existing database.
 	    const char *p = getenv("XAPIAN_PREFER_BRASS");
@@ -497,7 +497,9 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #endif
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	case BRASS:
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
 brass:
+#endif
 	    internal.push_back(new BrassWritableDatabase(path, action, 8192));
 	    break;
 #endif
