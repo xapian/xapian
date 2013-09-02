@@ -282,7 +282,7 @@ clean-local: remove-cached-databases
 
 # Remove the cached databases before "make check" to avoid issues with missing
 # bugs in database creation when we reuse databases from a previous test run.
-check-local: remove-cached-databases
+check: remove-cached-databases
 
 include harness/Makefile.mk
 include perftest/Makefile.mk

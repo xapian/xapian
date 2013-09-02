@@ -1,3 +1,9 @@
+Mon Sep 02 08:08:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am: Fix to actually removed cached databases before
+	  "make check".
+
 Sun Sep 01 09:06:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
