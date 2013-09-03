@@ -1,3 +1,7 @@
+Mon Sep 03 00:23:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Factor out mimetype_from_ext() function.
+
 Mon Sep 02 23:32:01 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix to sleep for sleep_before_opendir from now, not

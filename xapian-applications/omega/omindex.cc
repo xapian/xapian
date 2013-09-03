@@ -110,6 +110,29 @@ mark_as_seen(Xapian::docid did)
     }
 }
 
+static string
+mimetype_from_ext(const map<string, string> & mime_map, string ext)
+{
+    map<string,string>::const_iterator mt = mime_map.find(ext);
+    if (mt == mime_map.end()) {
+	// If the extension isn't found, see if the lower-cased version (if
+	// different) is found.
+	bool changed = false;
+	string::iterator i;
+	for (i = ext.begin(); i != ext.end(); ++i) {
+	    if (*i >= 'A' && *i <= 'Z') {
+		*i = tolower(*i);
+		changed = true;
+	    }
+	}
+	if (changed) mt = mime_map.find(ext);
+    }
+    if (mt != mime_map.end()) {
+	return mt->second;
+    }
+    return string();
+}
+
 static time_t last_mod_max;
 
 // Commands which take a filename as the last argument, and output UTF-8
@@ -295,37 +318,16 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     if (dot_ptr)
 	ext.assign(dot_ptr + 1);
 
-    map<string,string>::iterator mt = mime_map.find(ext);
-    if (mt == mime_map.end()) {
-	// If the extension isn't found, see if the lower-cased version (if
-	// different) is found.
-	bool changed = false;
-	string::iterator i;
-	for (i = ext.begin(); i != ext.end(); ++i) {
-	    if (*i >= 'A' && *i <= 'Z') {
-		*i = tolower(*i);
-		changed = true;
-	    }
-	}
-	if (changed) mt = mime_map.find(ext);
-    }
-    if (mt != mime_map.end()) {
-	if (mt->second == "ignore")
-	    return;
-    }
-
-    string mimetype;
-    if (mt == mime_map.end()) {
+    string mimetype = mimetype_from_ext(mime_map, ext);
+    if (mimetype.empty()) {
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
 	    skip(file, "Unknown extension and unrecognised format",
 		 SKIP_SHOW_FILENAME);
 	    return;
 	}
-//	skip(file, "Unknown extension", SKIP_SHOW_FILENAME);
-//	return;
-    } else {
-	mimetype = mt->second;
+    } else if (mimetype == "ignore") {
+	return;
     }
 
     if (verbose)
