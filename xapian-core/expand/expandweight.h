@@ -63,8 +63,8 @@ class ExpandStats {
     /// Keeps track of the index of the sub-database we're accumulating for.
     size_t db_index;
 
-    /* Constructor for expansion schemes which do not require the "expand_k"
-       parameter. */
+    /// Constructor for expansion schemes which do not require the "expand_k"
+    /// parameter.
     ExpandStats(Xapian::doclength avlen_)
 	: avlen(avlen_), expand_k(0), dbsize(0), termfreq(0),
 	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
@@ -265,4 +265,5 @@ class Bo1EWeight : public ExpandWeight {
 
 }
 }
+
 #endif // XAPIAN_INCLUDED_EXPANDWEIGHT_H

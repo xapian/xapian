@@ -48,6 +48,7 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
     LOGVALUE(EXPAND, rsize);
     LOGVALUE(EXPAND, rtermfreq);
     LOGVALUE(EXPAND, dbsize);
+    LOGVALUE(EXPAND, stats.dbsize);
 
     if (stats.dbsize == dbsize) {
 	// Either we're expanding from just one database, or we got stats from
@@ -96,7 +97,7 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
     LOGVALUE(EXPAND, termfreq);
     stats.termfreq = termfreq;
     stats.rtermfreq = rtermfreq;
-    }
+}
 
 }
 }

@@ -21,7 +21,7 @@
 #include <config.h>
 
 #include "expandweight.h"
-#include "common/log2.h"
+#include <cmath>
 
 using namespace std;
 
