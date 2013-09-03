@@ -28,7 +28,9 @@
 #include "utf8convert.h"
 
 #include <cctype>
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 
 using namespace std;
 
@@ -40,6 +42,79 @@ lowercase_string(string &str)
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
 	*i = tolower(static_cast<unsigned char>(*i));
     }
+}
+
+static time_t
+parse_datetime(const string & s)
+{
+    struct tm t;
+    const char * p = s.c_str();
+    char * q;
+    if (s.find('T') != string::npos || s.find('-') != string::npos) {
+	// E.g. "2013-01-17T09:10:55Z"
+	t.tm_year = strtoul(p, &q, 10) - 1900;
+	p = q;
+	if (*p == '-') {
+	    t.tm_mon = strtoul(p + 1, &q, 10) - 1;
+	    p = q;
+	} else {
+	    t.tm_mon = 0;
+	}
+	if (*p == '-') {
+	    t.tm_mday = strtoul(p + 1, &q, 10);
+	    p = q;
+	} else {
+	    t.tm_mday = 1;
+	}
+	if (*p == 'T') {
+	    t.tm_hour = strtoul(p + 1, &q, 10);
+	    p = q;
+	    if (*p == ':') {
+		t.tm_min = strtoul(p + 1, &q, 10);
+		p = q;
+	    } else {
+		t.tm_min = 0;
+	    }
+	    if (*p == ':') {
+		t.tm_sec = strtoul(p + 1, &q, 10);
+		p = q;
+	    } else {
+		t.tm_sec = 0;
+	    }
+	} else {
+	    t.tm_hour = t.tm_min = t.tm_sec = 0;
+	}
+	if (*p == 'Z') {
+	    // FIXME: always assume UTC for now...
+	}
+    } else {
+	// As produced by LibreOffice HTML export.
+	// E.g. "20130117;09105500"
+	unsigned long v = strtoul(p, &q, 10);
+	p = q;
+	t.tm_mday = v % 100;
+	v /= 100;
+	t.tm_mon = v % 100 - 1;
+	t.tm_year = v / 100 - 1900;
+	if (*p == ';') {
+	    v = strtoul(p + 1, NULL, 10) / 100;
+	    t.tm_sec = v % 100;
+	    v /= 100;
+	    t.tm_min = v % 100;
+	    t.tm_hour = v / 100;
+	} else {
+	    t.tm_hour = t.tm_min = t.tm_sec = 0;
+	}
+    }
+    t.tm_isdst = -1;
+
+    static bool set_tz = false;
+    if (!set_tz) {
+	setenv("TZ", "", 1);
+	tzset();
+	set_tz = true;
+    }
+    return mktime(&t);
 }
 
 void
@@ -126,6 +201,10 @@ MyHtmlParser::opening_tag(const string &tag)
 				indexing_allowed = false;
 				return false;
 			    }
+			} else if (name == "created") {
+			    created = parse_datetime(content);
+			} else if (name == "dcterms.issued") {
+			    created = parse_datetime(content);
 			}
 			break;
 		    }

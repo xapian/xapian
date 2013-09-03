@@ -433,6 +433,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    topic = p.topic;
 		    sample = p.sample;
 		    author = p.author;
+		    created = p.created;
 		}
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -461,6 +462,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
+	    created = p.created;
 	    md5_string(text, md5);
 	} else if (mimetype == "text/plain") {
 	    // Currently we assume that text files are UTF-8 unless they have a
@@ -751,6 +753,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
+	    created = p.created;
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();

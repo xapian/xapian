@@ -1,3 +1,8 @@
+Tue Sep 03 01:03:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Add support for indexing
+	  'created' time from HTML documents.
+
 Mon Sep 03 00:23:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Factor out mimetype_from_ext() function.
