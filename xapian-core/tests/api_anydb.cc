@@ -449,6 +449,71 @@ DEFINE_TESTCASE(expandweights5, backend) {
     return true;
 }
 
+// test that "trad" can be set as an expansion scheme.
+DEFINE_TESTCASE(expandweights6, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    enquire.set_expansion_scheme("trad");
+    Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
+
+    TEST_EQUAL(eset.size(), 3);
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+
+    return true;
+}
+
+// test that invalid scheme names are not accepted
+DEFINE_TESTCASE(expandweights7, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	          enquire.set_expansion_scheme("no_such_scheme"));
+
+    return true;
+}
+
+// test that "expand_k" can be passed as a parameter to get_eset
+DEFINE_TESTCASE(expandweights8, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    // Set expand_k to 1.0 and min_wt to 0
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 1.0, 0, 0);
+    if (!startswith(get_dbtype(), "multi")) {
+	// For a single database, the weights should be the same with or
+	// without USE_EXACT_TERMFREQ.
+	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+    } else {
+	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
+	// will result in different weights in some cases.
+	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+    }
+    TEST_REL(eset.back().get_weight(),>=,0);
+
+    return true;
+}
+
 // tests that when specifying maxitems to get_eset, no more than
 // that are returned.
 DEFINE_TESTCASE(expandmaxitems1, backend) {
