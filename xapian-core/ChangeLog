@@ -1,3 +1,8 @@
+Wed Sep 04 04:52:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: TermFreqs now tracks collection frequency,
+	  so make TermFreqs::get_description() report it.
+
 Thu Aug 29 01:30:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* matcher/andmaybepostlist.cc,matcher/multiandpostlist.h: Fix

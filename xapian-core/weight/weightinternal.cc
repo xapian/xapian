@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,10 +37,12 @@ using namespace std;
 
 string
 TermFreqs::get_description() const {
-    string desc("TermFreqs(");
+    string desc("TermFreqs(termfreq=");
     desc += str(termfreq);
-    desc += ", ";
+    desc += ", reltermfreq=";
     desc += str(reltermfreq);
+    desc += ", collfreq=";
+    desc += str(collfreq);
     desc += ")";
     return desc;
 }
