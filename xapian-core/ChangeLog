@@ -1,3 +1,9 @@
+Fri Sep 06 07:11:29 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/valueiterator.cc,tests/api_backend.cc: Don't segfault is
+	  skip_to() or check() are called on a ValueIterator which is already
+	  at_end().
+
 Fri Sep 06 06:52:49 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/positioniterator.cc,api/postingiterator.cc,api/termiterator.cc,

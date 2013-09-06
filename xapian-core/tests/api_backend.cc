@@ -866,5 +866,12 @@ DEFINE_TESTCASE(itorskiptofromend1, backend) {
     // This segfaulted prior to 1.3.2.
     i.skip_to(999999);
 
+    Xapian::ValueIterator v = db.valuestream_begin(1);
+    v.skip_to(99999);
+    TEST(v == db.valuestream_end(1));
+    // These segfaulted prior to 1.3.2.
+    v.skip_to(999999);
+    v.check(9999999);
+
     return true;
 }
