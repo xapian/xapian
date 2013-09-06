@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -841,6 +841,30 @@ DEFINE_TESTCASE(msetweights1, backend) {
 	TEST_EQUAL(*mset[i], expected2[i].did);
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
     }
+
+    return true;
+}
+
+DEFINE_TESTCASE(itorskiptofromend1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    Xapian::TermIterator t = db.termlist_begin(1);
+    t.skip_to("zzzzz");
+    TEST(t == db.termlist_end(1));
+    // This worked in 1.2.x but segfaulted in 1.3.1.
+    t.skip_to("zzzzzz");
+
+    Xapian::PostingIterator p = db.postlist_begin("one");
+    p.skip_to(99999);
+    TEST(p == db.postlist_end("one"));
+    // This segfaulted prior to 1.3.2.
+    p.skip_to(999999);
+
+    Xapian::PositionIterator i = db.positionlist_begin(6, "one");
+    i.skip_to(99999);
+    TEST(i == db.positionlist_end(6, "one"));
+    // This segfaulted prior to 1.3.2.
+    i.skip_to(999999);
 
     return true;
 }

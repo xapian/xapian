@@ -1,7 +1,7 @@
 /** @file termiterator.cc
  *  @brief Class for iterating over a list of terms.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,8 +141,8 @@ void
 TermIterator::skip_to(const string & term)
 {
     LOGCALL_VOID(API, "TermIterator::skip_to", term);
-    Assert(internal);
-    post_advance(internal->skip_to(term));
+    if (internal)
+	post_advance(internal->skip_to(term));
 }
 
 std::string

@@ -1,7 +1,7 @@
 /** @file postingiterator.cc
  *  @brief Class for iterating over a list of document ids.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,8 +144,8 @@ void
 PostingIterator::skip_to(Xapian::docid did)
 {
     LOGCALL_VOID(API, "PostingIterator::skip_to", did);
-    Assert(internal);
-    post_advance(internal->skip_to(did));
+    if (internal)
+	post_advance(internal->skip_to(did));
 }
 
 std::string
