@@ -1,3 +1,10 @@
+Thu Sep 12 01:18:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h,omindex.cc: Commit changes and exit, rather
+	  than skipping the current file on most unexpected errors reading
+	  directories or initialising libmagic - otherwise we can end up
+	  deleting a lot of database entries on errors like EHOSTDOWN.
+
 Tue Sep 03 01:03:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc,myhtmlparse.h,omindex.cc: Add support for indexing

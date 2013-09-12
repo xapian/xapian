@@ -29,6 +29,33 @@
 
 using namespace std;
 
+CommitAndExit::CommitAndExit(const char * msg_, const std::string & path,
+			     int errno_)
+{
+    msg = msg_;
+    msg += " \"";
+    msg += path;
+    msg += "\" (";
+    msg += strerror(errno_);
+    msg += ")";
+}
+
+CommitAndExit::CommitAndExit(const char * msg_, int errno_)
+{
+    msg = msg_;
+    msg += " (";
+    msg += strerror(errno_);
+    msg += ")";
+}
+
+CommitAndExit::CommitAndExit(const char * msg_, const char * error)
+{
+    msg = msg_;
+    msg += " (";
+    msg += error;
+    msg += ")";
+}
+
 #if defined O_NOATIME && O_NOATIME != 0
 uid_t DirectoryIterator::euid = geteuid();
 #endif
@@ -52,12 +79,8 @@ DirectoryIterator::call_stat()
     if (retval == -1) {
 	if (errno == ENOENT)
 	    throw FileNotFound();
-	string error = "Can't stat \"";
-	error += path;
-	error += "\" (";
-	error += strerror(errno);
-	error += ')';
-	throw error;
+	// Commit changes to files processed so far.
+	throw CommitAndExit("Can't stat", path, errno);
     }
 }
 
@@ -80,24 +103,15 @@ DirectoryIterator::start(const std::string & path_)
     if (dir == NULL) {
 	if (errno == ENOENT)
 	    throw FileNotFound();
-	string error = "Can't open directory \"";
-	error += path;
-	error += "\" (";
-	error += strerror(errno);
-	error += ')';
-	throw error;
+	// Commit changes to files processed so far.
+	throw CommitAndExit("Can't open directory", path, errno);
     }
 }
 
 void
 DirectoryIterator::next_failed() const
 {
-    string error = "Can't read next entry from directory \"";
-    error += path;
-    error += "\" (";
-    error += strerror(errno);
-    error += ')';
-    throw error;
+    throw CommitAndExit("Can't read next entry from directory", path, errno);
 }
 
 string
@@ -112,18 +126,14 @@ DirectoryIterator::get_magic_mimetype()
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME|MAGIC_ERROR);
 #endif
 	if (magic_cookie == NULL) {
-	    string m("Failed to initialise the file magic library: ");
-	    m += strerror(errno);
-	    throw m;
+	    // Commit changes to files processed so far.
+	    throw CommitAndExit("Failed to initialise the file magic library",
+				errno);
 	}
 	if (magic_load(magic_cookie, NULL) == -1) {
-	    string m("Failed to load the file magic database");
+	    // Commit changes to files processed so far.
 	    const char * err = magic_error(magic_cookie);
-	    if (err) {
-		m += ": ";
-		m += err;
-	    }
-	    throw m;
+	    throw CommitAndExit("Failed to load the file magic database", err);
 	}
     }
 

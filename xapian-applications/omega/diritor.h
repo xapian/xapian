@@ -44,6 +44,18 @@
 
 struct FileNotFound { };
 
+// Exception to signify changes should be committed, but indexing aborted.
+class CommitAndExit {
+    std::string msg;
+
+  public:
+    CommitAndExit(const char * msg_, const std::string & path, int errno_);
+    CommitAndExit(const char * msg_, int errno_);
+    CommitAndExit(const char * msg_, const char * error);
+
+    const std::string & what() const { return msg; }
+};
+
 class DirectoryIterator {
 #if defined O_NOATIME && O_NOATIME != 0
     static uid_t euid;

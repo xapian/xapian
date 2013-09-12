@@ -1645,6 +1645,10 @@ main(int argc, char **argv)
 	}
 	db.commit();
 	exitcode = 0;
+    } catch (const CommitAndExit &e) {
+	cout << "Exception: " << e.what() << endl;
+	cout << "Committing pending changes..." << endl;
+	db.commit();
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_description() << endl;
     } catch (const exception &e) {
