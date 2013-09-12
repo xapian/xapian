@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include <weight.h>
+#include "weight.h"
 
 #include "stringutils.h"
 
