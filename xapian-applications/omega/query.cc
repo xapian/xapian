@@ -66,6 +66,7 @@
 #include "unixperm.h"
 #include "values.h"
 #include "weight.h"
+#include "expand.h"
 
 #include <xapian.h>
 
@@ -1992,6 +1993,7 @@ eval(const string &fmt, const vector<string> &param)
 		    OmegaExpandDecider decider(db, &termset);
 
 		    if (!rset.empty()) {
+		        set_expansion_scheme(*enquire, option);
 			eset = enquire->get_eset(howmany * 2, rset, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
@@ -2005,6 +2007,7 @@ eval(const string &fmt, const vector<string> &param)
 			    if (--c == 0) break;
 			}
 
+                        set_expansion_scheme(*enquire, option);
 			eset = enquire->get_eset(howmany * 2, tmp, &decider);
 		    }
 

@@ -162,6 +162,12 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	mutable Weight * weight;
 
+	/// The weighting scheme to use for query expansion.
+	std::string eweightname;
+
+        /// The parameter required for TradWeight query expansion.
+	double expand_k;
+
 	vector<MatchSpy *> spies;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
@@ -183,7 +189,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 		      const MatchDecider *mdecider) const;
 
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
-		      double k, const ExpandDecider *edecider, double min_wt) const;
+		      const ExpandDecider *edecider, double min_wt) const;
 
 	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;

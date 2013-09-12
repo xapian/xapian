@@ -39,6 +39,7 @@
 #include "cgiparam.h"
 #include "query.h"
 #include "str.h"
+#include "expand.h"
 
 using namespace std;
 
@@ -202,6 +203,7 @@ try {
 	    tmprset.add_document(docid);
 
 	    OmegaExpandDecider decider(db);
+	    set_expansion_scheme(*enquire, option);
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if (!query_string.empty()) query_string += ' ';

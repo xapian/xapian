@@ -30,6 +30,7 @@
 # error "Never use <xapian/enquire.h> directly; include <xapian.h> instead."
 #endif
 
+#include "xapian/deprecated.h"
 #include <string>
 
 #include <xapian/attributes.h>
@@ -201,7 +202,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  database.
 	 *
 	 *  If firstitem == 0 and the primary ordering is by relevance, this is
-	 *  the weight of the first entry in the MSet. 
+	 *  the weight of the first entry in the MSet.
 	 *
 	 *  If no documents are found by the query, this will be 0.
 	 *
@@ -761,6 +762,20 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_weighting_scheme(const Weight &weight_);
 
+	/** Set the weighting scheme to use for expansion.
+	 *
+	 *  @param eweightname_  A string in lowercase specifying the name of
+	 *                       the scheme to be used. The following schemes
+	 *                       are currently available:
+	 *                       "bo1" : The Bo1 scheme for query expansion.
+	 *                       "trad" : The TradWeight scheme for query expansion.
+	 *                       If no scheme is specified, TradWeight is used by default.
+	 *  @param expand_k_ The parameter required for TradWeight query expansion.
+	 *                   A default value of 1.0 is used if none is specified.
+	 */
+	void set_expansion_scheme(const std::string &eweightname_ = "trad",
+	                          double expand_k_ = 1.0) const;
+
 	/** Set the collapse key to use for queries.
 	 *
 	 *  @param collapse_key  value number to collapse on - at most one MSet
@@ -1028,8 +1043,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *			dbs, calculate the exact termfreq; otherwise an
 	 *			approximation is used which can greatly improve
 	 *			efficiency, but still returns good results.
-	 *  @param k	     the parameter k in the query expansion algorithm
-	 *		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *		     given term should be put in the ESet
 	 *  @param min_wt    the minimum weight for included terms
@@ -1040,11 +1053,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
 	ESet get_eset(Xapian::termcount maxitems,
-			const RSet & omrset,
-			int flags = 0,
-			double k = 1.0,
-			const Xapian::ExpandDecider * edecider = 0,
-			double min_wt = 0.0) const;
+		      const RSet & omrset,
+		      int flags = 0,
+		      const Xapian::ExpandDecider * edecider = 0,
+		      double min_wt = 0.0) const;
 
 	/** Get the expand set for the given rset.
 	 *
@@ -1060,9 +1072,40 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
 	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
-			       const Xapian::ExpandDecider * edecider) const {
-	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
+			     const Xapian::ExpandDecider * edecider) const {
+	    return get_eset(maxitems, omrset, 0, edecider);
 	}
+
+	/** Get the expand set for the given rset.
+	 *
+	 *  @param maxitems  the maximum number of items to return.
+	 *  @param omrset    the relevance set to use when performing
+	 *		     the expand operation.
+	 *  @param flags     zero or more of these values |-ed together:
+	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
+	 *			terms may be returned from expand
+	 *		      - Xapian::Enquire::USE_EXACT_TERMFREQ for multi
+	 *			dbs, calculate the exact termfreq; otherwise an
+	 *			approximation is used which can greatly improve
+	 *			efficiency, but still returns good results.
+	 *  @param k	     the parameter k in the query expansion algorithm
+	 *		     (default is 1.0)
+	 *  @param edecider  a decision functor to use to decide whether a
+	 *		     given term should be put in the ESet
+	 *
+	 *  @param min_wt    the minimum weight for included terms
+	 *
+	 *  @return	     An ESet object containing the results of the
+	 *		     expand.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 */
+	XAPIAN_DEPRECATED(ESet get_eset(Xapian::termcount maxitems,
+		          const RSet & omrset,
+			  int flags,
+			  double k,
+			  const Xapian::ExpandDecider * edecider,
+			  double min_wt) const);
 
 	/** Get terms which match a given document, by document id.
 	 *
