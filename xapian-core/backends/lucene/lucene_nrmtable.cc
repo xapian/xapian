@@ -1,7 +1,7 @@
 
-#include "lucene_nrmtable.h"
-#include "config.h"
+#include <config.h>
 #include "debuglog.h"
+#include "lucene_nrmtable.h"
 #include <omassert.h>
 #include "io_utils.h"
 #include "posixy_wrapper.h"

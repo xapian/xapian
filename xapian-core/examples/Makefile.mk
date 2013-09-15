@@ -8,7 +8,8 @@ bin_PROGRAMS +=\
 	examples/simpleexpand\
 	examples/simpleindex\
 	examples/simplesearch\
-	examples/xapian-metadata
+	examples/xapian-metadata\
+	examples/lucene-copydatabase
 
 examples_copydatabase_SOURCES = examples/copydatabase.cc
 examples_copydatabase_LDADD = $(ldflags) $(libxapian_la)
@@ -28,11 +29,15 @@ examples_simplesearch_LDADD = $(ldflags) $(libxapian_la)
 examples_xapian_metadata_SOURCES = examples/xapian-metadata.cc
 examples_xapian_metadata_LDADD = $(ldflags) $(libxapian_la)
 
+examples_lucene_copydatabase_SOURCES = examples/lucene-copydatabase.cc
+examples_lucene_copydatabase_LDADD = $(ldflags) $(libxapian_la)
+
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	examples/copydatabase.1\
 	examples/quest.1\
-	examples/xapian-metadata.1
+	examples/xapian-metadata.1\
+	examples/lucene-copydatabase.1
 endif
 
 if DOCUMENTATION_RULES
@@ -44,4 +49,7 @@ examples/quest.1: examples/quest$(EXEEXT) makemanpage
 
 examples/xapian-metadata.1: examples/xapian-metadata$(EXEEXT) makemanpage
 	./makemanpage examples/xapian-metadata $(srcdir)/examples/xapian-metadata.cc examples/xapian-metadata.1
+
+examples/lucnee-copydatabase.1: examples/lucene-copydatabase$(EXEEXT) makemanpage
+	./makemanpage examples/lucene-copydatabase $(srcdir)/examples/lucene-copydatabase.cc examples/lucene-copydatabase.1
 endif

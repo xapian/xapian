@@ -1,7 +1,7 @@
 
-#include "lucene_fnmtable.h"
-#include "config.h"
+#include <config.h>
 #include "debuglog.h"
+#include "lucene_fnmtable.h"
 #include <iostream>
 
 using namespace std;

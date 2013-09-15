@@ -17,16 +17,12 @@ LuceneSegmentGenTable::LuceneSegmentGenTable(const string & db_dir_)
 
 bool 
 LuceneSegmentGenTable::open() {
-    cout << "LuceneSegmentGenTable::open" << endl;
 
     stream_reader.open_stream();
 
     stream_reader.read_int32(version);
-    cout << "LuceneSegmentGenTable::open, version:" << version << endl; 
     stream_reader.read_int64(generationA);
-    cout << "LuceneSegmentGenTable::open, generationA:" << generationA << endl; 
     stream_reader.read_int64(generationB);
-    cout << "LuceneSegmentGenTable::open, generationB:" << generationB << endl; 
 
     return true;
 }

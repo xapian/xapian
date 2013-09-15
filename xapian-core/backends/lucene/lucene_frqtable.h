@@ -3,7 +3,6 @@
 #define XAPIAN_INCLUDED_LUCENE_FRQTABLE_H
 
 //#include <xapian/database.h>
-#include "config.h"
 #include "internaltypes.h"
 #include "xapian/intrusive_ptr.h"
 #include "bytestream.h"
@@ -94,6 +93,8 @@ class LucenePostList : public Xapian::Internal::intrusive_base {
     LucenePostList(const string & term_, int field_num_, int doc_freq_,
                 int freq_delta_, int skip_delta_, const string & db_dir,
                 const string & file_name_);
+
+    ~LucenePostList();
 
     /* termfreq here means how many document contains the term */
     Xapian::doccount get_termfreq() const;

@@ -530,6 +530,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      * In other db, there's no operation in this function
      */
     virtual void get_fieldinfo(set<string> & field_set) const;
+
+    virtual string get_description() const;
 };
 
 }

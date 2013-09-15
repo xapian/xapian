@@ -5,8 +5,6 @@
 #include "lucene_tiitable.h"
 #include "lucene_fnmtable.h"
 #include "lucene_tistable.h"
-//must include this file to use LOGCALL()
-#include "config.h"
 #include "bytestream.h"
 
 class LuceneTermIndex {
@@ -14,14 +12,6 @@ class LuceneTermIndex {
     //Maybe need to move it to LuceneSegdb
     LuceneFnmTable fnm_table;
     LuceneTisTable tis_table;
-
-    //not support multithread now
-    /*
-    LuceneTermInfo cursor_terminfo;
-    //has searched before, if true, cursor_terminfo points 
-    //to the searched terminfo
-    bool started;
-    */
 
   public:
     LuceneTermIndex(const string &);
@@ -38,6 +28,12 @@ class LuceneTermIndex {
 
     //test
     bool test(const string &) const;
+
+    void next_term();
+
+    bool at_end() const;
+
+    LuceneTermInfo get_current_ti() const;
 };
 
 #endif

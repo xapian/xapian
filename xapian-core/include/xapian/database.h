@@ -184,6 +184,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	virtual void close();
 
 	/// Return a string describing this object.
+    // In Lucene, it will return string "lucene" which is used to recognize
+    // Lucene backend
 	virtual std::string get_description() const;
 
 	/** An iterator pointing to the start of the postlist
@@ -528,7 +530,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	static size_t check(const std::string & path, int opts);
 
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+    /** just for lucene
+     */
     void get_fieldinfo(std::set<std::string> & field_set) const;
+#endif
 };
 
 /** This class provides read/write access to a database.

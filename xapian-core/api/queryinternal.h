@@ -26,7 +26,6 @@
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
 
-#include "config.h"
 #include "debuglog.h"
 
 /// Default set_size for OP_ELITE_SET:

@@ -34,6 +34,7 @@ void
 PostingIterator::decref()
 {
     Assert(internal);
+    LOGCALL(API, void, "PostingIterator::decref", internal->_refs);
     if (--internal->_refs == 0)
 	delete internal;
 }
@@ -56,7 +57,7 @@ PostingIterator::post_advance(Internal * res)
 
 PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
 {
-    LOGCALL_CTOR(API, "PostingIterator", internal_);
+    LOGCALL_CTOR(API, "PostingIterator constructor", internal_);
     if (!internal) return;
     try {
 	++internal->_refs;
@@ -72,7 +73,7 @@ PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
 PostingIterator::PostingIterator(const PostingIterator & o)
     : internal(o.internal)
 {
-    LOGCALL_CTOR(API, "PostingIterator", o);
+    LOGCALL_CTOR(API, "PostingIterator copyconstructor", o);
     if (internal)
 	++internal->_refs;
 }
@@ -81,10 +82,14 @@ PostingIterator &
 PostingIterator::operator=(const PostingIterator & o)
 {
     LOGCALL(API, PostingIterator &, "PostingIterator::operator=", o);
-    if (o.internal)
+    if (o.internal) {
 	++o.internal->_refs;
-    if (internal)
+    LOGLINE(API, "PostingIterator::operator=, o.internal=" << o.internal->_refs);
+    }
+    if (internal) {
+    LOGLINE(API, "PostingIterator::operator=, internla=" << internal->_refs);
 	decref();
+    }
     internal = o.internal;
     RETURN(*this);
 }
@@ -156,6 +161,11 @@ PostingIterator::get_description() const
 	desc += internal->get_description();
     desc += ')';
     return desc;
+}
+
+int
+PostingIterator::get_internal_refs() const {
+    return internal->_refs;
 }
 
 }

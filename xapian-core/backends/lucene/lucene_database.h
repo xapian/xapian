@@ -7,6 +7,7 @@
 #include "backends/valuestats.h"
 #include "lucene_segmentgentable.h"
 #include "lucene_segmenttable.h"
+#include "lucene_stattable.h"
 
 #include "noreturn.h"
 
@@ -17,7 +18,7 @@
 using namespace std;
 
 /**
- * preforward declairatoin, otherwise loop include .h will occurrence
+ * preforward declairatoin, otherwise loop include .h will occur.
  * because using LuceneDatabase in lucene_frqtable.h and using LuceneFrqtable
  * in LuceneDatabase
  */
@@ -28,11 +29,14 @@ class LuceneSegdb;
 class LuceneDatabase : public Xapian::Database::Internal {
     std::string db_dir;
 
-    /* For segments.gen */
+    /* File segments.gen */
     LuceneSegmentGenTable segmentgen_table;
 
-    /* For segments_x, all segments' basic info are stored here */
+    /* File segments_x, all segments' basic info are stored here */
     LuceneSegmentTable segment_table;
+
+    /* File stat.xapian, statistics data for xapian */
+    LuceneStatTable stat_table;
 
     /** Put all LuceneSegdb in a vector, and smart ptr is used
      */
@@ -47,7 +51,7 @@ class LuceneDatabase : public Xapian::Database::Internal {
     LuceneDatabase(const string &db_dir);
 
     /* Get seg_dbs[index] */
-    Xapian::Internal::intrusive_ptr<LuceneSegdb> get_segdb(int index) const;
+    Xapian::Internal::intrusive_ptr<LuceneSegdb> get_segdb(unsigned int index) const;
 
     /**
      * Convert segment docid to external(whole db) docid.
@@ -79,6 +83,14 @@ class LuceneDatabase : public Xapian::Database::Internal {
      * Get all field name in database
      */
     void get_fieldinfo(set<string> & field_set) const;
+
+    /** Only for Lucene. Get iterator for .nrm files
+     */
+    ValueList * open_norm_lists() const;
+
+    /** Get Database description "lucene"
+     */
+    string get_description() const;
 
     /* Get documents count in all segments */
     Xapian::doccount get_doccount() const;
@@ -118,8 +130,8 @@ class LuceneDatabase : public Xapian::Database::Internal {
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
-    Xapian::termcount get_doclength_lower_bound() const;
-    Xapian::termcount get_doclength_upper_bound() const;
+    //Xapian::termcount get_doclength_lower_bound() const;
+    //Xapian::termcount get_doclength_upper_bound() const;
     Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
     bool term_exists(const string & tname) const;
     bool has_positions() const;

@@ -1,7 +1,8 @@
 
+#include <config.h>
+#include "debuglog.h"
 #include "lucene_fdtxtable.h"
 #include "lucene_segdb.h"
-#include "debuglog.h"
 #include "internaltypes.h"
 #include "xapian/intrusive_ptr.h"
 

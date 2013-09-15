@@ -1,9 +1,9 @@
 
 #include <config.h>
+#include "debuglog.h"
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 #include <omassert.h>
-#include "debuglog.h"
 #include <sys/types.h>
 #include "lucene_segdb.h"
 
@@ -95,6 +95,20 @@ LuceneSegdb::get_record(Xapian::docid did, map<int, string> & string_map,
         double_map);
 }
 
+LucenePostList *
+LuceneSegdb::open_postlist_directly(LuceneTermInfo & term_info) const
+{
+    LOGCALL(DB, LucenePostList *, "LuceneSegdb::open_postlist_directly",
+                term_info.get_term().get_suffix());
+
+    LuceneTerm term = term_info.get_term();
+
+    RETURN(new LucenePostList(term.get_suffix(), term.get_field_num(),
+                    term_info.get_docfreq(), term_info.get_freqdelta(),
+                    term_info.get_skipdelta(), frq_table.get_dbdir(),
+                    frq_table.get_filename()));
+}
+
 void
 LuceneSegdb::get_fieldinfo(set<string> & field_info) const {
     LOGCALL(DB, void, "LuceneSegdb::get_fieldinfo", field_info.size());
@@ -152,4 +166,22 @@ LuceneSegdb::get_doclength(Xapian::docid did, int field_num) const {
     float norm = nrm_table.get_norm(did, field_num);
 
     RETURN(1 / (norm * norm));
+}
+
+void
+LuceneSegdb::next_term()
+{
+    index_reader.next_term();
+}
+
+bool
+LuceneSegdb::at_end() const
+{
+    return index_reader.at_end();
+}
+
+LuceneTermInfo
+LuceneSegdb::get_current_ti() const
+{
+    return index_reader.get_current_ti();
 }

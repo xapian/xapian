@@ -387,7 +387,7 @@ MSet::Internal::convert_to_percent_internal(double wt) const
 Document
 MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
-    LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index | firstitem);
+    LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index);
     index += firstitem; 
     map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
@@ -672,7 +672,15 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     if (weight == 0) {
-	weight = new BM25Weight;
+    string desc = db.get_description();
+    cout << "get_mset desc=" << desc << endl;
+    //If backend is lucene, set param_b = 0;
+    if (desc == "lucene") {
+        //weight = new BM25Weight(1, 0, 1, 0, 0.5);
+        weight = new TfIdfWeight();
+    } else {
+        weight = new BM25Weight;
+    }
     }
 
     Xapian::doccount first_orig = first;

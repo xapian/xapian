@@ -44,7 +44,8 @@ class LuceneTerm {
     int field_num;
 
   public:
-    LuceneTerm();
+    LuceneTerm()
+        : prefix_length(0), suffix(string()), field_num(-1) {}
 
     /**
      * Term compare, using term name(suffix) and field number(field_num)
@@ -94,16 +95,17 @@ class LuceneTermInfo {
      */
     int prox_delta;
 
-    /**
-     *
-     */
     int skip_delta;
 
   public:
+    LuceneTermInfo()
+        : doc_freq(0), freq_delta(0), prox_delta(0), skip_delta(0) {}
+
     int get_docfreq() const;
     int get_freqdelta() const;
     int get_proxdelta() const;
     int get_skipdelta() const;
+    LuceneTerm get_term() const;
 
     /**
      * below is for debug

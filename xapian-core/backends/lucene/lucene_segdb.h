@@ -39,6 +39,9 @@ class LuceneSegdb : public Xapian::Internal::intrusive_base {
     /* Set all tables' name in this segment */
     bool set_filename();
 
+    /* TermInfo the cursor points to */
+    LuceneTermInfo ti;
+
   public:
     LuceneSegdb(const string & db_dir,
                 Xapian::Internal::intrusive_ptr<LuceneSegmentPart> seg_part_);
@@ -83,6 +86,23 @@ class LuceneSegdb : public Xapian::Internal::intrusive_base {
      * Find doclenght, see more comments on LuceneDatabase::get_doclength
      */
     Xapian::termcount get_doclength(Xapian::docid did, int field_num) const;
+
+    /** Make cursor to the next_term in this segment db, used for TermIterator
+     */
+    void next_term();
+
+    /** If reaches the end of this segment db, used for TermIterator
+     */
+    bool at_end() const;
+
+    /** Get TermInfo the cursot points to
+     */
+    LuceneTermInfo get_current_ti() const;
+
+    /** Open a postlist directly, param is LuceneTermInfo, skip
+     * LuceneTermIndex::seek() process, used for PostingIterator
+     */
+    LucenePostList * open_postlist_directly(LuceneTermInfo &ti) const;
 };
 
 #endif

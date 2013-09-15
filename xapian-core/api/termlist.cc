@@ -45,4 +45,11 @@ TermIterator::Internal::get_collection_freq() const
     return 0;
 }
 
+Xapian::PostingIterator
+TermIterator::Internal::postlist_begin() const
+{
+    Assert(false);
+    return Xapian::PostingIterator(NULL);
+}
+
 }

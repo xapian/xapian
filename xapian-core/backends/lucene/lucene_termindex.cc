@@ -1,8 +1,8 @@
 
-#include "lucene_termindex.h"
 //must include this file to use LOGCALL()
-#include "config.h"
+#include <config.h>
 #include "debuglog.h"
+#include "lucene_termindex.h"
 
 #include <iostream>
 
@@ -57,7 +57,6 @@ LuceneTermIndex::seek(const LuceneTerm & lterm, LuceneTermInfo & result) const {
     /* Here suffix really means the whole term name */
     LOGCALL(API, bool, "LuceneTermIndex::seek", lterm.get_suffix());
 
-    //cout << "LuceneTermIndex::seek, idx=" << idx << endl;
     const LuceneTermIndice & term_indice = tii_table.get_term_indice(idx);
     //term_indice.debug_term_indice();
 
@@ -83,3 +82,20 @@ LuceneTermIndex::get_docfreq(const LuceneTerm & lterm) const {
     RETURN(terminfo.get_docfreq());
 }
 
+void
+LuceneTermIndex::next_term()
+{
+    tis_table.next();
+}
+
+bool
+LuceneTermIndex::at_end() const
+{
+    return tis_table.at_end();
+}
+
+LuceneTermInfo
+LuceneTermIndex::get_current_ti() const
+{
+    return tis_table.get_current_ti();
+}

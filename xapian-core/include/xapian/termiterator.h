@@ -35,6 +35,10 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+#include <xapian/postingiterator.h>
+#endif
+
 namespace Xapian {
 
 /// Class for iterating over a list of terms.
@@ -133,6 +137,16 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     /// @private
     typedef std::string & reference;
     // @}
+
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+    PostingIterator postlist_begin() const;
+
+    PostingIterator XAPIAN_NOTHROW(postlist_end() const) {
+    return PostingIterator();
+    }
+
+    std::string get_termname() const;
+#endif
 
   private:
     void decref();

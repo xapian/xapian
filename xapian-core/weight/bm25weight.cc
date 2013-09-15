@@ -45,10 +45,13 @@ BM25Weight::clone() const
 void
 BM25Weight::init(double factor)
 {
+    //get_termfreq() means n in BM25
     Xapian::doccount tf = get_termfreq();
 
     double tw = 0;
+    LOGLINE(API, "get_rset_size()=" << get_rset_size());
     if (get_rset_size() != 0) {
+    //get_reltermfreq() means r in BM25
 	Xapian::doccount reltermfreq = get_reltermfreq();
 
 	// There can't be more relevant documents indexed by a term than there
@@ -59,20 +62,27 @@ BM25Weight::init(double factor)
 	// are relevant documents.
 	AssertRel(reltermfreq,<=,get_rset_size());
 
+    //get_rset_size() means R in BM25
 	Xapian::doccount reldocs_not_indexed = get_rset_size() - reltermfreq;
 
 	// There can't be more relevant documents not indexed by a term than
 	// there are documents not indexed by that term.
 	AssertRel(reldocs_not_indexed,<=,get_collection_size() - tf);
 
+    //get_collection_size() meas N in BM25
 	Xapian::doccount Q = get_collection_size() - reldocs_not_indexed;
 
 	Xapian::doccount nonreldocs_indexed = tf - reltermfreq;
 	double numerator = (reltermfreq + 0.5) * (Q - tf + 0.5);
 	double denom = (reldocs_not_indexed + 0.5) * (nonreldocs_indexed + 0.5);
 	tw = numerator / denom;
+
+    LOGLINE(API, "tf=" << tf << ",reltermfreq=" << reltermfreq << ",rset=" << get_rset_size() << ",collection_size=" <<
+                get_collection_size());
+
     } else {
 	tw = (get_collection_size() - tf + 0.5) / (tf + 0.5);
+    LOGLINE(API, "tf=" << tf << ",collection_size=" << get_collection_size());
     }
 
     AssertRel(tw,>,0);
@@ -176,6 +186,7 @@ BM25Weight::get_maxpart() const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_maxpart", NO_ARGS);
     double wdf_max(get_wdf_upper_bound());
+    LOGLINE(WTCALC, "BM25Weight::get_maxpart, wdf_max=" << wdf_max);
     double denom = wdf_max;
     if (param_k1 != 0.0) {
 	if (param_b != 0.0) {

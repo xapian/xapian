@@ -1,7 +1,8 @@
 
-#include "lucene_tistable.h"
+#include <config.h>
 #include "debuglog.h"
 #include <iostream>
+#include "lucene_tistable.h"
 
 /**
  * below include is for debug
@@ -12,7 +13,13 @@ using namespace std;
 
 LuceneTisTable::LuceneTisTable(const string & db_dir_)
         : db_dir(db_dir_),
-        stream_reader(db_dir_)
+        stream_reader(db_dir_),
+        ti_version(0),
+        term_count(0),
+        index_interval(0),
+        skip_interval(0),
+        max_skip_levels(0),
+        counter(0)
 {
 }
 
@@ -34,7 +41,7 @@ LuceneTisTable::set_field_name(vector<string> field_name_) {
 
 bool
 LuceneTisTable::open() {
-    cout << "LuceneTisTable::open"  << endl;
+    LOGCALL(DB, bool, "LuceneTisTable::open", NO_ARGS);
 
     stream_reader.open_stream();
 
@@ -59,11 +66,7 @@ LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
      * data
      */
     int p_freq_delta = prev.terminfo.freq_delta;
-    //cout << "scan_to, index_delta=" << prev.index_delta << endl; 
 
-    //cout << "get_ftell=" << stream_reader.get_ftell() << 
-    //    ", skip_interval=" << skip_interval << 
-    //    ", index_interval=" << index_interval << endl;
     for (int i = 0; i < index_interval; ++i) {
         stream_reader.read_terminfo(c, skip_interval);
 
@@ -72,7 +75,6 @@ LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
          */
         c.freq_delta += p_freq_delta;
         p_freq_delta = c.freq_delta;
-        //cout << "scan_to, p_freq_delta=" << p_freq_delta << endl;
 
         LuceneTerm & t = c.term;
         //FIXME this code looks bad
@@ -82,25 +84,52 @@ LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
             t.suffix = prefix + t.suffix;
         }
         
-        //c.debug_term_info();
-
         int r = target.compare(t);
         //find it
         if (0 == r) {
             result = c;
             return true;
-            //RETURN(true);
         }
 
         p = c;
     }
 
     return false;
-    //RETURN(false);
 }
 
-/**
- * below is for debug
+void
+LuceneTisTable::next()
+{
+    LOGCALL(DB, void, "LuceneTisTable::next", NO_ARGS);
+
+    LuceneTermInfo cti;
+    stream_reader.read_terminfo(cti, skip_interval);
+    cti.freq_delta += pti.freq_delta;
+    LuceneTerm & t = cti.term;
+    if (0 != cti.term.prefix_length) {
+        t.suffix = pti.term.suffix.substr(0, t.prefix_length) + t.suffix;
+    }
+
+    pti = cti;
+    ++counter;
+}
+
+bool
+LuceneTisTable::at_end() const
+{
+    if (counter >= term_count)
+        return true;
+
+    return false;
+}
+
+LuceneTermInfo
+LuceneTisTable::get_current_ti() const
+{
+    return pti;
+}
+
+/** below is for debug
  */
 void
 LuceneTisTable::debug_get_table() {

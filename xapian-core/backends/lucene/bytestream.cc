@@ -1,15 +1,14 @@
 
-#include <cstdio>
 //#include <xapian/error.h>
 #include <config.h>
+#include "debuglog.h"
+#include <cstdio>
 #include <iostream>
 #include <cstdio>
 #include <cassert>
 
-#include "config.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
-#include "debuglog.h"
 #include "filetests.h"
 #include "io_utils.h"
 #include "posixy_wrapper.h"
@@ -45,7 +44,6 @@ ByteStreamReader::ByteStreamReader(const string & db_dir_, const string & file_n
         message += file_path;
         message += " DB to read: ";
         message += strerror(errno);
-        cout << message << endl;
         throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -56,7 +54,6 @@ ByteStreamReader::ByteStreamReader(const string & db_dir_, const string & file_n
         message += file_path;
         message += " DB to read: ";
         message += strerror(errno);
-        cout << message << endl;
         throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -69,7 +66,6 @@ ByteStreamReader::ByteStreamReader(const string & db_dir_, const string & file_n
         message += file_path;
         message += " DB to read: ";
         message += strerror(errno);
-        cout << message << endl;
         throw Xapian::DatabaseOpeningError(message);
     }
 #endif
@@ -119,7 +115,6 @@ ByteStreamReader::open_stream() {
         message += file_path;
         message += " DB to read: ";
         message += strerror(errno);
-        cout << message << endl;
         throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -140,8 +135,9 @@ ByteStreamReader::open_stream() {
 }
 
 ByteStreamReader::~ByteStreamReader() {
+    LOGCALL(API, void, "~ByteStreamReader", handle);
 #ifdef LUCENE_BLOCK_IO
-    if (-1 == handle)
+    if (-1 != handle)
         close(handle);
 
     if (NULL != block)
@@ -459,8 +455,6 @@ ByteStreamReader::read_vint32(int & data) const {
     assert(NULL != handle);
 #endif
 
-    //cout << "read_vint32 file=" << file_name << endl;
-
     unsigned char b = read_byte();
     data = b & 0x7f;
     if ((b & 0x80) == 0) return ;
@@ -624,8 +618,6 @@ ByteStreamReader::read_term(LuceneTerm & term) const {
     read_vint32(term.prefix_length);
     read_string(term.suffix);
     read_vint32(term.field_num);
-    //cout << "prefix_length:" << term.prefix_length << " suffix:" << term.suffix <<
-    //    " field_num:" << term.field_num << ",file=" << file_name << endl;
 
     return true;
 }
@@ -650,9 +642,6 @@ ByteStreamReader::read_terminfo(LuceneTermInfo & terminfo,
     } else {
         terminfo.skip_delta = 0;
     }
-    //cout << "doc_freq:" << terminfo.doc_freq << " freq_delta:" <<
-    //    terminfo.freq_delta << " prox_delta:" << terminfo.prox_delta <<
-    //    " skip_delta:" << terminfo.skip_delta << endl;
 
     return true;
 }

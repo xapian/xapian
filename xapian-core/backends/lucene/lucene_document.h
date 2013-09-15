@@ -2,7 +2,6 @@
 #ifndef XAPIAN_INCLUDED_LUCENE_DOCUMENT_H
 #define XAPIAN_INCLUDED_LUCENE_DOCUMENT_H
 
-#include "config.h"
 #include "xapian/intrusive_ptr.h"
 #include "backends/document.h"
 #include "lucene_segdb.h"

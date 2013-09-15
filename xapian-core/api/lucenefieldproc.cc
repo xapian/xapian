@@ -1,6 +1,6 @@
 
+#include <config.h>
 #include <xapian.h>
-#include "config.h"
 #include "debuglog.h"
 
 #include <string>

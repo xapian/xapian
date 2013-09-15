@@ -17,7 +17,10 @@ noinst_HEADERS +=\
 	backends/lucene/lucene_fdtxtable.h\
 	backends/lucene/lucene_segdb.h\
 	backends/lucene/lucene_document.h\
-	backends/lucene/lucene_nrmtable.h
+	backends/lucene/lucene_nrmtable.h\
+	backends/lucene/lucene_alltermslist.h\
+	backends/lucene/lucene_postiterator.h\
+	backends/lucene/lucene_stattable.h
 
 lib_src +=\
 	backends/lucene/lucene_database.cc\
@@ -33,6 +36,9 @@ lib_src +=\
 	backends/lucene/lucene_fdtxtable.cc\
 	backends/lucene/lucene_segdb.cc\
 	backends/lucene/lucene_document.cc\
-	backends/lucene/lucene_nrmtable.cc
+	backends/lucene/lucene_nrmtable.cc\
+	backends/lucene/lucene_alltermslist.cc\
+	backends/lucene/lucene_postiterator.cc\
+	backends/lucene/lucene_stattable.cc
 
 endif

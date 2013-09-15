@@ -323,15 +323,11 @@ Xapian::Document::Internal::get_value(Xapian::valueno slot) const
 string
 Xapian::Document::Internal::get_data() const
 {
-    cout << "Xapian::Document::internal::get_data" << endl; 
+    LOGCALL(DB, string, "Xapian::Document::Internal::get_data", NO_ARGS);
     if (data_here) {
-        cout << "Xapian::Document::internal::get_data, data_here" <<
-            data_here << endl;
         return data;
     }
     if (!database.get()) {
-        cout << "Xapian::Document::internal::get_data, database.get()" <<
-            database.get() << endl;
         return string();
     }
     return do_get_data();
@@ -560,7 +556,7 @@ Xapian::Document::Internal::get_data_string(const std::string & field) {
     (void)field;
     Assert(false);
 
-    RETURN("");
+    RETURN(std::string());
 }
 
 int
@@ -580,7 +576,7 @@ Xapian::Document::Internal::get_data_long(const std::string & field) {
     (void)field;
     Assert(false);
 
-    RETURN(0.0);
+    RETURN(0);
 }
 
 float

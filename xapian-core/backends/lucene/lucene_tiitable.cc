@@ -1,7 +1,6 @@
 
-#include "config.h"
+#include <config.h>
 #include "debuglog.h"
-
 #include "lucene_tiitable.h"
 #include <iostream>
 

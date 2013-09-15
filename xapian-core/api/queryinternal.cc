@@ -508,7 +508,6 @@ namespace Internal {
 string
 QueryTerm::get_description() const
 {
-    LOGCALL(API, string, "QueryTerm::get_description()", NO_ARGS);
     string desc = term;
     if (term.empty())
 	desc = "<alldocuments>";

@@ -376,9 +376,12 @@ void
 Database::Internal::get_fieldinfo(set<string> & field_set) const {
     //Did nothing here except for LuceneDatabase, LuceneDatabase
     //will reload this function
-    field_set.size();
+    (void)field_set;
+}
 
-    return ;
+string
+Database::Internal::get_description() const {
+    return "Database::Internal()";
 }
 
 }

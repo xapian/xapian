@@ -4,12 +4,6 @@
 
 using namespace std;
 
-LuceneTerm::LuceneTerm() {
-    prefix_length = 0;
-    suffix = "";
-    field_num = -1;
-}
-
 int
 LuceneTerm::compare(const LuceneTerm & term) const {
     if (field_num == term.field_num) {
@@ -51,6 +45,11 @@ LuceneTermInfo::get_proxdelta() const {
 int
 LuceneTermInfo::get_skipdelta() const {
     return skip_delta;
+}
+
+LuceneTerm
+LuceneTermInfo::get_term() const {
+    return term;
 }
 
 

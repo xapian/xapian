@@ -102,6 +102,8 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
 
     /// Return a PositionIterator for the current position.
     virtual Xapian::PositionIterator positionlist_begin() const = 0;
+
+    virtual Xapian::PostingIterator postlist_begin() const;
 };
 
 // In the external API headers, this class is Xapian::TermIterator::Internal,

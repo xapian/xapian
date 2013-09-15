@@ -159,4 +159,22 @@ TermIterator::get_description() const
 #endif
 }
 
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+PostingIterator
+TermIterator::postlist_begin() const
+{
+    LOGCALL(API, PostingIterator, "TermIterator::postlist_begin", NO_ARGS);
+    Assert(internal);
+    RETURN(internal->postlist_begin());
+}
+
+std::string
+TermIterator::get_termname() const
+{
+    LOGCALL(API, std::string, "TermIterator::get_termname()", NO_ARGS);
+    Assert(internal);
+    RETURN(internal->get_termname());
+}
+#endif
+
 }

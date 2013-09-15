@@ -1,7 +1,9 @@
 
+#include <config.h>
+#include "debuglog.h"
+#include <common/omassert.h>
 #include "lucene_frqtable.h"
 #include "lucene_segdb.h"
-#include "debuglog.h"
 #include <iostream>
 
 using namespace std;
@@ -64,6 +66,10 @@ LucenePostList::LucenePostList(const string & term_, int field_num_,
     */
 }
 
+LucenePostList::~LucenePostList()
+{
+}
+
 Xapian::doccount
 LucenePostList::get_termfreq() const {
     LOGCALL(API, Xapian::doccount, "LucenePostList::get_termfreq", file_name);
@@ -79,28 +85,25 @@ LucenePostList::get_docid() const {
 
 Xapian::termcount
 LucenePostList::get_doclength() const {
-    cout << "(not realized)LucenePostList::get_doclength" << endl;
+    LOGCALL(API, Xapian::termcount, "(not realized)LucenePostList::get_doclength", NO_ARGS);
+    Assert(false);
 
-    return 1;
+    RETURN(Xapian::termcount(0));
 }
 
 bool
 LucenePostList::at_end() const {
-    //LOGCALL(API, bool, "LucenePostList::at_end", file_name);
-
     return is_at_end;
-    //RETURN(is_at_end);
 }
 
 PostList *
 LucenePostList::next(double data) {
     LOGCALL(API, PostList *, "LucenePostList::next", file_name | data );
-    (void)data; //no warning
+    (void)data;
 
     if (c >= doc_freq) {
         is_at_end = true;
         return NULL;
-        //RETURN(NULL);
     }
 
     int doc_delta = 0;
@@ -115,10 +118,9 @@ LucenePostList::next(double data) {
                 //", doc_delta=" << doc_delta);
 
     return NULL;
-    //RETURN(NULL);
 }
 
-//这个函数应该使用skiplist来查找，顺序查找的话文件指针无法回溯
+//TODO using skip list
 PostList *
 LucenePostList::skip_to(Xapian::docid desire_did,
             double data) {
@@ -143,9 +145,9 @@ LucenePostList::skip_to(Xapian::docid desire_did,
 
 std::string
 LucenePostList::get_description() const {
-    cout << "(not realized)LucenePostList::get_description" << endl;
+    LOGCALL(API, std::string, "(not realized)LucenePostList::get_description", NO_ARGS);
 
-    return "";
+    RETURN(std::string());
 }
 
 Xapian::termcount
@@ -156,8 +158,6 @@ LucenePostList::get_wdf() const {
 void
 LucenePostList::set_seg_idx(int idx) {
     seg_idx = idx;
-
-    return ;
 }
 
 unsigned int
@@ -249,7 +249,7 @@ LuceneMultiPostList::next(double data) {
         }
     }
 
-    return NULL;
+    RETURN(NULL);
 }
 
 bool
@@ -267,10 +267,7 @@ LuceneMultiPostList::at_end() const {
 
 string
 LuceneMultiPostList::get_description() const {
-    //LOGCALL(API, string, "(not realized)LuceneMultiPostList::get_description",
-                //(unsigned int)this);
-
-    return "";
+    return string();
 }
 
 PostList *

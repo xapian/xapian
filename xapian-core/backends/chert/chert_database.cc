@@ -831,6 +831,8 @@ ChertDatabase::get_doclength_upper_bound() const
 Xapian::termcount
 ChertDatabase::get_wdf_upper_bound(const string & term) const
 {
+    LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_wdf_upper_bound",
+                get_collection_freq(term) | stats.get_wdf_upper_bound());
     return min(get_collection_freq(term), stats.get_wdf_upper_bound());
 }
 

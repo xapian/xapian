@@ -2,7 +2,6 @@
 #ifndef XAPIAN_INCLUDED_LUCENE_FDTXTABLE_H
 #define XAPIAN_INCLUDED_LUCENE_FDTXTABLE_H
 
-#include "config.h"
 #include "bytestream.h"
 
 class LuceneSegdb;

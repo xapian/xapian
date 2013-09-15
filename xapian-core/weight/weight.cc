@@ -67,7 +67,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
         " DLMIN:" << (stats_needed & DOC_LENGTH_MIN) <<
         " WM:" << (stats_needed & WDF_MAX) <<
         " TF:" << (stats_needed & TERMFREQ) << 
-        " RTF:" << (stats_needed & RELTERMFREQ) << endl;
+        " RTF:" << (stats_needed & RELTERMFREQ) << 
+        " COLFREQ:" << (stats_needed & COLLECTION_FREQ) << endl;
     stats.debug_weight();
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;

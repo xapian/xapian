@@ -27,18 +27,13 @@ LuceneSegmentTable::open() {
     version = stream_reader.read_int64();
     name_counter = stream_reader.read_int32();
     seg_count = stream_reader.read_int32();
-    cout << "format=" << format << ", versision=" << version <<
-                ", counter=" << name_counter << ", seg_count=" << seg_count << endl;
 
     for (int i = 0; i < seg_count; ++i) {
         intrusive_ptr<LuceneSegmentPart> sp(new LuceneSegmentPart());
         stream_reader.read_string(sp->seg_version);
-        cout << "seg_version=" << sp->seg_version << endl;
         stream_reader.read_string(sp->seg_name);
-        cout << "seg_name=" << sp->seg_name << endl;
         stream_reader.read_int32(sp->seg_size);
         stream_reader.read_int64(sp->del_gen);
-        cout << "del_gen=" << sp->del_gen << endl;
         stream_reader.read_int32(sp->doc_store_offset);
         if (-1 != sp->doc_store_offset) {
             //TODO read DocStoreSegment and DocStoreIsCompoundFile
@@ -59,7 +54,6 @@ LuceneSegmentTable::open() {
 
     stream_reader.read_ssmap(commit_user_data);
     stream_reader.read_int64(checksum);
-    cout << "LuceneSegmentTable::open return" << endl;
 
     return true;
 }

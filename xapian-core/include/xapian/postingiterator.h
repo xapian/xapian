@@ -34,6 +34,7 @@
 #include <xapian/positioniterator.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
+#include <iostream>
 
 namespace Xapian {
 
@@ -60,10 +61,13 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     XAPIAN_NOTHROW(PostingIterator())
-	: internal(0) { }
+	: internal(0) { 
+    //std::cout << "PostingIterator default constructor" << std::endl;
+    }
 
     /// Destructor.
     ~PostingIterator() {
+    //std::cout << "PostingIterator default destructor" << std::endl;
 	if (internal) decref();
     }
 
@@ -132,6 +136,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     /// @private
     typedef Xapian::docid & reference;
     // @}
+
+    //for debug
+    int get_internal_refs() const;
 
   private:
     void decref();

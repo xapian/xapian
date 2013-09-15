@@ -510,8 +510,18 @@ Database::keep_alive()
 string
 Database::get_description() const
 {
+#ifdef XAPIAN_HAS_LUCENE_BACKEND
+    string desc = "";
+    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+    desc += (*i)->get_description();
+    }
+
+    return desc;
+#else
     /// @todo display contents of the database
     return "Database()";
+#endif
 }
 
 // We sum the character frequency histogram absolute differences to compute a
@@ -767,8 +777,6 @@ Database::get_fieldinfo(set<string> & field_set) const
     for (size_t i = 0; i < internal.size(); ++i) {
         internal[i]->get_fieldinfo(field_set);
     }
-
-    return ;
 }
 
 ///////////////////////////////////////////////////////////////////////////
