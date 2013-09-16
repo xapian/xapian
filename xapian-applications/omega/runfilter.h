@@ -21,9 +21,16 @@
 #define OMEGA_INCLUDED_RUNFILTER_H
 
 #include <string>
+#include <cstdio>
 
 /// Exception thrown if we encounter a read error.
-struct ReadError { };
+struct ReadError {
+    const char * msg;
+    int status; 
+    explicit ReadError(const char * m) : msg(m) { }
+    explicit ReadError(int s) : msg(NULL), status(s) { }
+    std::string str() const { if (msg) return msg; char buf[32]; std::sprintf(buf, "0x%08x", status); return buf; }
+};
 
 /// Exception thrown if the filter program isn't found.
 struct NoSuchFilter { };

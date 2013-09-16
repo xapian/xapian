@@ -1,3 +1,8 @@
+Mon Sep 16 02:04:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.h,runfilter.cc,runfilter.h: Pass error message string and
+	  errno value in ReadError exceptions.
+
 Thu Sep 12 22:02:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight.cc: Use "" not <> to include local header weight.h.

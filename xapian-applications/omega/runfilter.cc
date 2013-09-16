@@ -169,7 +169,7 @@ stdout_to_string(const string &cmd)
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0)
-	throw ReadError();
+	throw ReadError("socketpair failed");
 
     pid_t child = fork();
     if (child == 0) {
@@ -230,7 +230,7 @@ stdout_to_string(const string &cmd)
     if (child == -1) {
 	// fork() failed.
 	close(fds[0]);
-	throw ReadError();
+	throw ReadError("fork failed");
     }
 
     int fd = fds[0];
@@ -266,7 +266,7 @@ stdout_to_string(const string &cmd)
 	    int status = 0;
 	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
 	    pid_to_kill_on_signal = 0;
-	    throw ReadError();
+	    throw ReadError(status);
 	}
 
 	char buf[4096];
@@ -284,7 +284,7 @@ stdout_to_string(const string &cmd)
 	    int status = 0;
 	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
 	    pid_to_kill_on_signal = 0;
-	    throw ReadError();
+	    throw ReadError(status);
 	}
 	out.append(buf, res);
     }
@@ -296,18 +296,18 @@ stdout_to_string(const string &cmd)
     int status = 0;
     while (waitpid(child, &status, 0) < 0) {
 	if (errno != EINTR)
-	    throw ReadError();
+	    throw ReadError("wait pid failed");
     }
     pid_to_kill_on_signal = 0;
 #else
     FILE * fh = popen(cmd.c_str(), "r");
-    if (fh == NULL) throw ReadError();
+    if (fh == NULL) throw ReadError("popen failed");
     while (!feof(fh)) {
 	char buf[4096];
 	size_t len = fread(buf, 1, 4096, fh);
 	if (ferror(fh)) {
 	    (void)pclose(fh);
-	    throw ReadError();
+	    throw ReadError("fread failed");
 	}
 	out.append(buf, len);
     }
@@ -323,7 +323,7 @@ stdout_to_string(const string &cmd)
 	    cerr << "Filter process consumed too much CPU time" << endl;
 	}
 #endif
-	throw ReadError();
+	throw ReadError(status);
     }
     return out;
 }

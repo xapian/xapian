@@ -234,7 +234,7 @@ class DirectoryIterator {
 	fd = load_file_fd(path, out, flags);
 	if (fd < 0) {
 	    if (errno == ENOENT) throw FileNotFound();
-	    throw ReadError();
+	    throw ReadError("load_file failed");
 	}
 	return out;
     }
